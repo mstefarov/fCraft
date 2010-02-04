@@ -13,9 +13,12 @@ namespace fCraft {
     }
 
     static class Logger {
-        private static string logFile;
-        private static object locker = new object();
-        private static UI form;
+        static string logFile;
+        static object locker = new object();
+        static UI form;
+
+        public static LogLevel Threshold;
+
 
         public static void Init( string _logFile, UI _form ) {
             form = _form;
@@ -39,14 +42,14 @@ namespace fCraft {
         }
 
         public static void Log( string message, LogLevel level ) {
-            if( level >= Config.LogThreshold ) {
+            if( level >= Threshold ) {
                 string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( level ) + message;
                 StreamWriter writer = null;
                 lock( locker ) {
                     try {
                         form.Log( line );
                         writer = File.AppendText( logFile );
-                        writer.WriteLine( DateTime.Now.ToLongTimeString() + " > " + message );
+                        writer.WriteLine( DateTime.Now.ToLongTimeString() + " > " + GetPrefix(level) + message );
                         writer.Flush();
                     } catch( Exception e ) {
                         Console.WriteLine( e.Message.ToString() );

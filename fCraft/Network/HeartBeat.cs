@@ -6,17 +6,20 @@ using System.Text;
 using System.IO;
 
 namespace fCraft {
-    sealed class HeartBeat {
-        private Thread thread;
-        private string data;
+    static class HeartBeat {
+        static Thread thread;
+        static string data;
+        static bool hasReportedServerURL;
 
-        public HeartBeat() {
+        static HttpWebRequest request;
+
+        public static void Begin(){
             thread = new Thread( HeartBeatHandler );
             thread.IsBackground = true;
 
-            data = "name=" + HttpUtility.UrlEncode( Config.ServerName );
-            data += "&max=" + Config.MaxPlayers;
-            data += "&public=" + Config.IsPublic;
+            data = "name=" + HttpUtility.UrlEncode( Config.GetString("ServerName") );
+            data += "&max=" + Config.GetInt( "MaxPlayers" );
+            data += "&public=" + Config.GetBool( "IsPublic" );
             data += "&port=" + Config.Port;
             data += "&salt=" + Config.Salt;
             data += "&version=" + Config.ProtocolVersion;
@@ -24,13 +27,11 @@ namespace fCraft {
             thread.Start();
         }
 
+        public static void ShutDown() {
+            thread.Abort();
+        }
 
-        private void HeartBeatHandler() {
-            HttpWebRequest request;
-            Stream requestStream = null;
-            WebResponse response = null;
-            StreamReader responseReader = null;
-
+        private static void HeartBeatHandler() {
             while( true ) {
                 try {
                     request = (HttpWebRequest)WebRequest.Create( Config.HeartBeatURL );
@@ -40,42 +41,27 @@ namespace fCraft {
                     byte[] formData = Encoding.ASCII.GetBytes( data + "&users=" + World.GetPlayerCount() );
                     request.ContentLength = formData.Length;
 
-                    requestStream = request.GetRequestStream();
-                    requestStream.Write( formData, 0, formData.Length );
-                    requestStream.Flush();
+                    using( Stream requestStream = request.GetRequestStream() ) {
+                        requestStream.Write( formData, 0, formData.Length );
+                        requestStream.Flush();
+                    }
 
-                    response = request.GetResponse();
-                    responseReader = new StreamReader( response.GetResponseStream() );
-
-                    Config.ServerURL = responseReader.ReadLine();
-                    Logger.Log( "HeartBeat: " + Config.ServerURL );
+                    if( !hasReportedServerURL ) {
+                        using( WebResponse response = request.GetResponse() ) {
+                            using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
+                                Config.ServerURL = responseReader.ReadLine();
+                            }
+                        }
+                        Logger.LogAlert( "HeartBeat: " + Config.ServerURL );
+                        hasReportedServerURL = true;
+                    }
 
                 } catch( Exception ex ) {
                     Logger.LogError( "HeartBeat: " + ex.Message );
-
-                } finally {
-                    // free up system resources
-                    if( requestStream != null ) {
-                        requestStream.Close();
-                        requestStream = null;
-                    }
-                    if( responseReader != null ) {
-                        responseReader.Close();
-                        responseReader = null;
-                    }
-                    if( response != null ) {
-                        response.Close();
-                        response = null;
-                    }
                 }
 
                 Thread.Sleep( Config.HeartBeatDelay );
             }
-        }
-
-        ~HeartBeat() {
-            if( thread != null && thread.IsAlive )
-                thread.Abort();
         }
     }
 }

@@ -12,6 +12,8 @@
     <AssemblyName>fCraft</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <StartupObject>fCraft.Program</StartupObject>
+    <ApplicationIcon>f2k.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -49,15 +52,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\HelpCommands.cs" />
+    <Compile Include="Commands\StandardCommands.cs" />
+    <Compile Include="Utils\Color.cs" />
     <Compile Include="Network\HeartBeat.cs" />
     <Compile Include="Network\Server.cs" />
-    <Compile Include="Config.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="Network\PacketReader.cs" />
+    <Compile Include="Utils\Config.cs" />
+    <Compile Include="Utils\Logger.cs" />
     <Compile Include="Network\PacketWriter.cs" />
     <Compile Include="Network\Packet.cs" />
     <Compile Include="Network\Session.cs" />
+    <Compile Include="Commands\Commands.cs" />
+    <Compile Include="Player\PlayerClass.cs" />
     <Compile Include="Player\Player.cs" />
+    <Compile Include="Player\PlayerDB.cs" />
+    <Compile Include="Player\PlayerInfo.cs" />
     <Compile Include="UI.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -87,8 +96,13 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Utils\Position.cs" />
+    <Compile Include="World\BlockUpdate.cs" />
     <Compile Include="World\Level.cs" />
     <Compile Include="World\World.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="f2k.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -11,15 +11,23 @@ namespace fCraft {
     public partial class UI : Form {
         public UI() {
             InitializeComponent();
-            Logger.Init( "fCraft.log", this );
-            Config.Init( "config.xml" );
-            World.server = new Server();
             this.FormClosing += HandleShutDown;
-            World.server.Run();
+
+            trayIcon.Visible = true;
+            trayIcon.BalloonTipText = "Server is running. Click this icon to see the main window.";
+            trayIcon.BalloonTipTitle = "fCraft Custom Server";
+
+            //this.WindowState = FormWindowState.Minimized;
+            //this.ShowInTaskbar = false;
+
+            Logger.Init( "fCraft.log", this );
+            Color.Init();
+            Config.Init( "config.xml" );
+            World.Init(this);
         }
 
         private void HandleShutDown( object sender, CancelEventArgs e ) {
-            MessageBox.Show( "Shutting down" );
+            //MessageBox.Show( "Shutting down" );
             World.server.ShutDown();
         }
 
@@ -35,6 +43,19 @@ namespace fCraft {
         }
         private void LogInternal( string message ) {
             textBox1.Text += message + Environment.NewLine;
+        }
+
+        private void trayIcon_Click( object sender, EventArgs e ) {
+            if( !ShowInTaskbar ) {
+                this.ShowInTaskbar = true;
+                this.WindowState = FormWindowState.Normal;
+            }
+        }
+
+        private void UI_Resize( object sender, EventArgs e ) {
+            if( this.WindowState == FormWindowState.Minimized ) {
+                this.ShowInTaskbar = false;
+            }
         }
 
     }

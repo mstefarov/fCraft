@@ -3,36 +3,50 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
+
 namespace fCraft {
     sealed class Server {
         private TcpListener listener;
-        private Thread listenerThread;
-        private HeartBeat heartBeat;
+        private Thread mainThread;
 
+
+        // starts up the listener thread and heartbeat
         public void Run() {
             listener = new TcpListener( IPAddress.Any, Config.Port );
             listener.Start();
-            listenerThread = new Thread( ListenerHandler );
-            listenerThread.Start();
-            Logger.Log( "Server.Run: now accepting connections at port "+Config.Port );
-            heartBeat = new HeartBeat();
+            mainThread = new Thread( MainHandler );
+            mainThread.Start();
+            Logger.Log( "Server.Run: now accepting connections at port " + Config.Port );
+            HeartBeat.Begin();
         }
 
-        private void ListenerHandler() {
+
+        // loops forever, waiting for incoming connections
+        private void MainHandler() {
             while( true ) {
                 if( listener.Pending() ) {
-                    TcpClient client = listener.AcceptTcpClient();
                     Logger.Log( "Server.ListenerHandler: Incoming connection" );
-                    World.RegisterSession( new Session( client ) );
+                    Session session = new Session( listener.AcceptTcpClient() );
                 }
-                Thread.Sleep( 1 );
+                World.Update();
             }
         }
 
+
+        // shuts down the server and aborts threads
+        // NOTE: heartbeat should stop automatically
         public void ShutDown() {
             Logger.LogAlert( "Server.ShutDown: Shutting down" );
-            if( listenerThread != null && listenerThread.IsAlive ) listenerThread.Abort();
-            if( listener != null ) listener.Stop();
+            HeartBeat.ShutDown();
+            World.ShutDown();
+            if( mainThread != null && mainThread.IsAlive ) {
+                mainThread.Abort();
+                mainThread = null;
+            }
+            if( listener != null ) {
+                listener.Stop();
+                listener = null;
+            }
         }
     }
 }
