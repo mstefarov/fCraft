@@ -1,0 +1,89 @@
+http://fcraft.matvei.org/fCraftUpdater.exe
+2010-04-21
+325
+ Added an experimental low-latency mode (faster server response, but more bandwidth required).
+ Improved hacking detection: added anti-chat-spam and anti-grief (block spam) checks.
+ New more aggressive anti-hacking checks for incoming movement and SetTile packets.
+ Fixed an issue with fCraftUI console log getting truncated in the wrong places.
+ Improved Mono compatibility (fixes HttpWebRequest failures).
+324
+ Added /me command.
+ Added step stacking.
+ Fixed a case where disconnected players would leave a ghost behind.
+ Improved shutdown speed.
+ Implemented ProcessPriority setting.
+323
+ Fixed players not being able to delete admincrete after promotion.
+ Fixed a bug that allowed players to noclip into walls when using /tp or /bring.
+ Fixed a security issue with "VerifyNames: Balanced"
+ Added prototype of the security tab in ConfigTool (work in progress).
+322
+ Added a range check to Player.SetTile, to prevent certain types of grief bots.
+ Fixed a bug where map spawnpoint did not change after doing /load.
+ Fixed some typos.
+321
+ Fixed welcome messages not showing.
+ Renamed /alias to /nick, and added a permission check.
+320
+ Finally last fix for the disconnect problem. Sorry about that.
+319
+ Quick fix for disconnect problem.
+318
+ Fixed VerifyNames not saving properly when using ConfigTool.
+ Fixed several potential crashers in Session and World.
+ Fixed a bug that sometimes wrongly showed "class name not recognized".
+ Added class name autocompletion for class chat (@@classname blah)
+ Started working on the new /load mode that allows loading different sized maps, and loading much faster (not done yet).
+317
+ Optimized handling of player movement and some block/tile updates, making servers more responsive and less laggy.
+ Fixed a possible crash that sometimes happened when server has 1 slot left and 2 people tried to join at once.
+ Fixed a case where a Session object was not properly disposed.
+ Fixed resizing issue in UpdateWindow and reduced connection timeout in Updater
+ Disabled ShowPrefixesInChat and ShowPrefixesInList by default (breaks skin support)
+ Added Player.Send, a safe wrapper for Player.session.Send
+ Fixed /tp, /bring, and /setspawn commands that were broken in the last revision.
+ Fixed ConfigTool not saving "IsPublic" setting correctly.
+316
+ Added partial class-name matching for /class and /user commands.
+ Fixed /banip and /banall not kicking the banned players immediately.
+ Added /rules command. Create "rules.txt" in the server folder to specify.
+ Fixed a bug where player movement sometimes got a little out of sync.
+ Optimized /load speed a bit.
+ Added nicer application icons.
+315
+ Added visual color picker to ConfigTool
+ Added lightweight console interface for fCraft
+ Refactored the main update loop
+314
+ Added AutomaticUpdates option.
+ Integrated the color picker to ConfigTool.
+ Improved hacking detection.
+313
+ Fixed a few glitches left after switching file formats.
+ Improved memory usage when saving maps.
+ Fixed an updater-related crash.
+312
+ New map format (FCM v2) should provide faster loading times.
+ server_level.dat loader is now functional.
+ Fixed possible crash if the default port was not available.
+ Automatic updater should now work properly. More update options to come.
+311
+ Preview version of automatic updater.
+310
+ Cleaned up some VC# crapfiles.
+ Added class prefixes and colors.
+ Added PlaceWater and PlaceLava back to permissions.
+ Fixed rank-limited permissions.
+ Other assorted glitches fixed.
+305
+ removed config.xml from svn.
+304
+ More potential crashes fixed.
+303
+ Fixed a couple potential crashes in ConfigTool and Config.DefineClass
+302
+ Fixed a few minor ConfigTool bugs.
+301
+ Forgot to save config from World.cs after parsing. Minor update.
+300
+ ConfigTool finished. Note that some of the options do not have an effect yet.
