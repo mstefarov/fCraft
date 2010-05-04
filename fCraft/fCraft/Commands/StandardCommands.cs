@@ -510,8 +510,7 @@ namespace fCraft {
         void SetSpawn( Player player, Command cmd ) {
             if( player.Can( Permissions.SetSpawn ) ) {
                 world.map.spawn = player.pos;
-                world.map.Save();
-                world.map.changesSinceBackup++;
+                world.map.changesSinceSave++;
                 player.Send( PacketWriter.MakeTeleport( 255, world.map.spawn ), true );
                 player.Message( "New spawn point saved." );
                 world.log.Log( "{0} changed the spawned point.", LogType.UserActivity, player.name );

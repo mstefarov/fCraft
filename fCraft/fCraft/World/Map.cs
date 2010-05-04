@@ -145,6 +145,7 @@ namespace fCraft {
                 File.Delete( fileName );
             }
             File.Move( tempFileName, fileName );
+            changesSinceBackup++;
             world.log.Log( "Saved map succesfully to {0}", LogType.SystemActivity, fileName );
             return true;
         }
@@ -395,7 +396,6 @@ namespace fCraft {
                     update = updates.Dequeue();
                 }
                 changesSinceSave++;
-                changesSinceBackup++;
                 SetBlock( update.x, update.y, update.h, update.type );
                 world.SendToAll( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin, false );
                 if( update.origin != null ) {
