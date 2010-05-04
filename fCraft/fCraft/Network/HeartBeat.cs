@@ -62,11 +62,11 @@ namespace fCraft {
                                 world.config.ServerURL = responseReader.ReadLine();
                             }
                         }
-                        request.Abort();
                         hash = world.config.ServerURL.Substring( world.config.ServerURL.LastIndexOf( '=' ) + 1 );
                         world.FireURLChange( world.config.ServerURL );
                         hasReportedServerURL = true;
                     }
+                    request.Abort();
 
                 } catch( Exception ex ) {
                     world.log.Log( "HeartBeat: {0}", LogType.Error, ex.Message );
