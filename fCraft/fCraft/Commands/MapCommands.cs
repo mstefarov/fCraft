@@ -161,8 +161,10 @@ namespace fCraft {
             }
             int wx, wy, height;
             if( !(cmd.NextInt( out wx ) && cmd.NextInt( out wy ) && cmd.NextInt( out height )) ) {
-                player.Message( "Usage: " + Color.Help + "/gen widthX widthY height type filename" );
-                return;
+                wx = world.map.widthX;
+                wy = world.map.widthY;
+                height = world.map.height;
+                cmd.Rewind();
             }
             string mode = cmd.Next();
             string filename = cmd.Next();
@@ -193,8 +195,10 @@ namespace fCraft {
             }
             int wx, wy, height;
             if( !(cmd.NextInt( out wx ) && cmd.NextInt( out wy ) && cmd.NextInt( out height )) ) {
-                player.Message( "Usage: " + Color.Help + "/genh widthX widthY height type filename" );
-                return;
+                wx = world.map.widthX;
+                wy = world.map.widthY;
+                height = world.map.height;
+                cmd.Rewind();
             }
             string mode = cmd.Next();
             string filename = cmd.Next();
@@ -281,25 +285,25 @@ namespace fCraft {
                 case "hills":
                     player.Message( "Generating terrain..." );
                     world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
-                                                                              1, 1, 0.5, 0.45, 0, 0.5, hollow ), false );
+                                                                              1, 1, 0.5, 0.5, 0, 0.5, hollow ), false );
                     break;
 
                 case "mountains":
                     player.Message( "Generating terrain..." );
                     world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
-                                                                              4, 1, 0.5, 0.45, 0.1, 0.5, hollow ), false );
+                                                                              4, 1, 0.5, 0.5, 0.1, 0.5, hollow ), false );
                     break;
 
                 case "lake":
                     player.Message( "Generating terrain..." );
                     world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
-                                                                              1, 0.6, 0.9, 0.45, -0.35, 0.55, hollow ), false );
+                                                                              1, 0.6, 0.9, 0.5, -0.35, 0.55, hollow ), false );
                     break;
 
                 case "island":
                     player.Message( "Generating terrain..." );
                     world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
-                                                                              1, 0.6, 1, 0.45, 0.3, 0.35, hollow ), false );
+                                                                              1, 0.6, 1, 0.5, 0.3, 0.35, hollow ), false );
                     break;
 
                 default:

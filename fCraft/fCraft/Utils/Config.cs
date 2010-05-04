@@ -349,8 +349,8 @@ namespace fCraft {
             Player.muteDuration = TimeSpan.FromSeconds( GetInt( "AntispamMuteDuration" ) );
 
             Server.maxUploadSpeed = GetInt("UploadBandwidth");
-            Server.maxSessionPacketsPerTick = GetInt("BlockUpdateThrottling" );
-            world.ticksPerSecond = 1000 / GetInt( "TickInterval" );
+            Server.packetsPerSecond = GetInt("BlockUpdateThrottling" );
+            world.ticksPerSecond = 1000 / (float)GetInt( "TickInterval" );
         }
 
 

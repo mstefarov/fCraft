@@ -12,9 +12,9 @@ using System.Security.Cryptography;
 namespace fCraft {
     public sealed class Server {
         TcpListener listener;
-        List<Session> sessions;
-        public static int maxUploadSpeed, //config
-                          packetsPerSecond = 2500,
+        List<Session> sessions = new List<Session>();
+        public static int maxUploadSpeed,   // set by Config.ApplyConfig
+                          packetsPerSecond, // set by Config.ApplyConfig
                           maxSessionPacketsPerTick = 128;
         World world;
 
@@ -22,7 +22,7 @@ namespace fCraft {
             world = _world;
         }
 
-        // starts up the listener thread and heartbeat
+        // Opens a socket for listening for incoming connections
         public bool Start() {
             bool worked = false;
             int attempts = 0;
@@ -45,7 +45,6 @@ namespace fCraft {
                 return false;
             }
             
-            sessions = new List<Session>();
             world.log.Log( "Server.Run: now accepting connections at port {0}.", LogType.Debug, port );
             return true;
         }

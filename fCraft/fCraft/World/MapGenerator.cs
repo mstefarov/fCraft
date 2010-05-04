@@ -3,6 +3,17 @@ using System;
 
 
 namespace fCraft {
+
+    // TODO: themes
+    enum MapGenTheme {
+        Normal,
+        Rocky,
+        Desert,
+        Hell,
+        Tundra,
+        Arctic
+    }
+
     class MapGenerator {
         double roughness, gBigSize, smoothingOver, smoothingUnder, water, midpoint, sides;
         Random rand;
@@ -25,37 +36,51 @@ namespace fCraft {
             hollow = _hollow;
         }
 
+        Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock;
 
         public void Generate() {
             double[,] heightmap = GenerateHeightmap( map.widthX, map.widthY );
+            double level;
+            int ilevel, iwater;
             Feedback( "Filling..." );
+
+            // TODO: slope estimation
+            bWaterSurface = Block.Water;
+            bGroundSurface = Block.Grass;
+            bWater = Block.Water;
+            bGround = Block.Dirt;
+            bSeaFloor = Block.Sand;
+            bBedrock = Block.Stone;
+
             for( int x = 0; x < map.widthX; x++ ) {
                 for( int y = 0; y < map.widthY; y++ ) {
-                    double level = heightmap[x, y];
-                    if( level > water ) {
-                        level = (level - water) * smoothingOver + water;
-                        map.SetBlock( x, y, (int)(level * map.height), Block.Grass );
+                    level = heightmap[x, y];
+                    ilevel = (int)(level * map.height);
+                    iwater = (int)(water * map.height);
+                    if( ilevel > iwater ) {
+                        ilevel = (int)(((level - water) * smoothingOver + water) * map.height);
+                        map.SetBlock( x, y, ilevel, bGroundSurface );
                         if( !hollow ) {
-                            for( int i = (int)(level * map.height) - 1; i > 0; i-- ) {
-                                if( (int)(level * map.height) - i < 5 ) {
-                                    map.SetBlock( x, y, i, Block.Dirt );
+                            for( int i = ilevel - 1; i > 0; i-- ) {
+                                if( ilevel - i < 5 ) {
+                                    map.SetBlock( x, y, i, bGround );
                                 } else {
-                                    map.SetBlock( x, y, i, Block.Stone );
+                                    map.SetBlock( x, y, i, bBedrock );
                                 }
                             }
                         }
                     } else {
-                        level = (level - water) * smoothingUnder + water;
-                        map.SetBlock( x, y, (int)(water * map.height), Block.Water );
+                        ilevel = (int)(((level - water) * smoothingUnder + water) * map.height);
+                        map.SetBlock( x, y, iwater, bWaterSurface );
                         if( !hollow ) {
-                            for( int i = (int)(water * map.height) - 1; i >= (int)(level * map.height); i-- ) {
-                                map.SetBlock( x, y, i, Block.Water );
+                            for( int i = iwater - 1; i > ilevel; i-- ) {
+                                map.SetBlock( x, y, i, bWater );
                             }
                         }
-                        map.SetBlock( x, y, (int)(level * map.height), Block.Sand );
+                        map.SetBlock( x, y, ilevel, bSeaFloor );
                         if( !hollow ) {
-                            for( int i = (int)(level * map.height) - 1; i > 0; i-- ) {
-                                map.SetBlock( x, y, i, Block.Stone );
+                            for( int i = ilevel - 1; i > 0; i-- ) {
+                                map.SetBlock( x, y, i, bBedrock );
                             }
                         }
                     }
