@@ -143,7 +143,6 @@ namespace fCraft {
 
                                 if( newPos.h < 0 || newPos.x < -32 || newPos.x >= world.map.widthX * 32+32 || newPos.y < -32 || newPos.y > world.map.widthY * 32+32 ) {
                                     world.log.Log( player.name + " was kicked for moving out of map boundaries.", LogType.SuspiciousActivity );
-                                    world.SendToAll( player.name + " was kicked for moving out of map boundaries.", null );
                                     KickNow( "Hacking detected: out of map boundaries." );
                                     return;
                                 }
@@ -195,7 +194,7 @@ namespace fCraft {
                                 type = reader.ReadByte();
                                 if( type > 49 || x < 0 || x > world.map.widthX || y < 0 || y > world.map.widthY || h < 0 || h > world.map.height ) {
                                     world.log.Log( player.name + " was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity );
-                                    world.SendToAll( player.name + " was kicked for sending bad SetTile packets.", null );
+                                    world.SendToAll( player.name + " was kicked for attempted hacking.", null );
                                     KickNow( "Hacking detected: illegal SetTile packet." );
                                     return;
                                 } else {
@@ -324,7 +323,7 @@ namespace fCraft {
                 player.info.ProcessFailedLogin( player );
                 world.log.Log( "Session.LoginSequence: Player {0} tried to log in from two computers at once.", LogType.SuspiciousActivity, player.name );
                 potentialClone.Message("Warning: someone just attempted to log in using your name.");
-                KickNow( "Already connected form elsewhere!" );
+                KickNow( "Already connected from elsewhere!" );
                 return;
             }
 
