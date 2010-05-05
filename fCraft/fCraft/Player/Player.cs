@@ -108,13 +108,12 @@ namespace fCraft {
                 return;
             }
 
-            foreach( Zone zone in world.map.zones ) {
-                if( zone.Contains( x, y, h ) ) {
-                    if( !zone.CanBuild( this ) ) {
-                        session.SendNow( PacketWriter.MakeSetBlock( x, y, h, world.map.GetBlock( x, y, h ) ) );
-                        Message( "You are not allowed to build in this zone (" + zone.name + ")." );
-                        return;
-                    }
+            bool zoneOverride = false;
+            string zoneName = "";
+            if( world.map.CheckZones( x, y, h, this, ref zoneOverride, ref zoneName ) ) {
+                if( !zoneOverride ) {
+                    session.SendNow( PacketWriter.MakeSetBlock( x, y, h, world.map.GetBlock( x, y, h ) ) );
+                    Message( "You are not allowed to build in \""+zoneName+"\" zone." );
                 }
             }
 
@@ -169,7 +168,7 @@ namespace fCraft {
                 } else if( type == Block.Admincrete ) {
                     can = Can( Permissions.PlaceAdmincrete );
                 } else {
-                    can = Can( Permissions.Build );
+                    can = zoneOverride || Can( Permissions.Build );
                 }
             } else {
                 type = Block.Air;
@@ -179,7 +178,7 @@ namespace fCraft {
             if( world.map.GetBlock( x, y, h ) == (byte)Block.Admincrete ) {
                 can &= Can( Permissions.DeleteAdmincrete );
             } else if( world.map.GetBlock(x,y,h) != (byte)Block.Air ) {
-                can &= Can( Permissions.Delete );
+                can &= zoneOverride || Can( Permissions.Delete );
             }
 
             // if all is well, try placing it
