@@ -92,10 +92,56 @@ namespace fCraft {
         public int widthX, widthY, height;
         public Position spawn;
         public Dictionary<string, string> meta = new Dictionary<string, string>();
-        public List<Zone> zones = new List<Zone>();
+        public Dictionary<string, Zone> zones = new Dictionary<string, Zone>();
+
+        public bool AddZone( Zone z ) {
+            lock( zoneLock ) {
+                if( zones.ContainsKey( z.name.ToLowerInvariant() ) ) return false;
+                zones.Add( z.name.ToLowerInvariant(), z );
+            }
+            return true;
+        }
+
+        public bool RemoveZone( string z ) {
+            lock( zoneLock ) {
+                if( !zones.ContainsKey( z.ToLowerInvariant() ) ) return false;
+                zones.Remove( z.ToLowerInvariant() );
+            }
+            return true;
+        }
+
+        public Zone[] ListZones() {
+            Zone[] output;
+            int i = 0;
+            lock( zoneLock ) {
+                output = new Zone[zones.Count];
+                foreach( Zone zone in zones.Values ) {
+                    output[i++] = zone;
+                }
+            }
+            return output;
+        }
+
+        public bool CheckZones( short x, short y, short h, Player player, ref bool zoneOverride, ref string zoneName ) {
+            bool found = false;
+            lock( zoneLock ) {
+                foreach( Zone zone in world.map.zones.Values ) {
+                    zoneName = zone.name;
+                    if( zone.Contains( x, y, h ) ) {
+                        if( zone.CanBuild( player ) ) {
+                            zoneOverride = true;
+                            return true;
+                        } else {
+                            found = true;
+                        }
+                    }
+                }
+            }
+            return found;
+        }
 
         Queue<BlockUpdate> updates = new Queue<BlockUpdate>();
-        object queueLock = new object(), metaLock = new object();
+        object queueLock = new object(), metaLock = new object(), zoneLock = new object();
         public int changesSinceSave, changesSinceBackup;
 
 
@@ -175,9 +221,11 @@ namespace fCraft {
                     WriteLengthPrefixedString( writer, pair.Value );
                 }
                 int i = 0;
-                foreach( Zone zone in zones ) {
-                    WriteLengthPrefixedString( writer, "@zone"+i );
-                    WriteLengthPrefixedString( writer, zone.Serialize() );
+                lock( zoneLock ) {
+                    foreach( Zone zone in zones.Values ) {
+                        WriteLengthPrefixedString( writer, "@zone" + i );
+                        WriteLengthPrefixedString( writer, zone.Serialize() );
+                    }
                 }
             }
             writer.Flush();
@@ -308,7 +356,7 @@ namespace fCraft {
                     string value = ReadLengthPrefixedString( reader );
                     if( key.StartsWith( "@zone" ) ) {
                         try {
-                            zones.Add( new Zone( value ) );
+                            AddZone( new Zone( value ) );
                         } catch( Exception ex ) {
                             world.log.Log( "Map.ReadMetadata: cannot parse a zone: {0}", LogType.Error, ex.Message );
                         }

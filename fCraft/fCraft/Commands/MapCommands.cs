@@ -21,6 +21,8 @@ namespace fCraft {
             commands.AddCommand( "genh", GenerateHollow, true );
 
             commands.AddCommand( "zone", DoZone, false );
+            commands.AddCommand( "zlist", ZoneList, true );
+            commands.AddCommand( "zremove", ZoneRemove, true );
         }
 
 
@@ -72,7 +74,33 @@ namespace fCraft {
                                   player.name,
                                   zone.name,
                                   zone.getVolume() );
-            player.world.map.zones.Add( zone );
+            player.world.map.AddZone(zone);
+        }
+
+
+        static void ZoneRemove( Player player, Command cmd ) {
+            string zoneName = cmd.Next();
+            if( zoneName == null ) {
+                player.Message( "Usage: " + Color.Help + "/zremove ZoneName" );
+                return;
+            }
+            if( player.world.map.RemoveZone( zoneName ) ) {
+                player.Message( "Zone \"" + zoneName + "\" removed." );
+            } else {
+                player.Message( "No zone with the name \"" + zoneName + "\" was found." );
+            }
+        }
+
+        static void ZoneList( Player player, Command cmd ) {
+            Zone[] zones = player.world.map.ListZones();
+            foreach( Zone zone in zones ) {
+                PlayerClass rank = player.world.classes.ParseRank( zone.buildRank );
+                if( rank != null ) {
+                    player.Message( "  " + zone.name + " (" + rank.color + rank.name + Color.Sys + ") - " + zone.getWidthX() + "x" + zone.getWidthY() + "x" + zone.getHeight() );
+                } else {
+                    player.Message( "  " + zone.name + " - " + zone.getWidthX() + "x" + zone.getWidthY() + "x" + zone.getHeight() );
+                }
+            }
         }
 
 
