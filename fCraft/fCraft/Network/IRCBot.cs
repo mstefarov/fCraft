@@ -166,7 +166,7 @@ namespace fCraft
                                 else if (message.cmd == "help")
                                 {
                                     SendMsg(message.nickname, "Hello, " + message.nickname + " , you have requested help!");
-                                    SendMsg(message.nickname, "Commands are:");
+                                    SendMsg(message.nickname, "Server Commands are:");
                                     SendMsg(message.nickname, "!status - Gives the status of the server itself.");
                                     SendMsg(message.nickname, "!auth <password> - Will authorize you with the bot, so long as you have registered your message.nickname from inside the server.");
                                     SendMsg(message.nickname, "!help - Displays this message.");
@@ -249,9 +249,6 @@ namespace fCraft
                                         fClass = world.classes.FindClass("owner");
                                         fBot.info.playerClass = fClass;
                                         world.cmd.ParseCommand(fBot, "/banip " + kickLine[1], true);
-
-
-   
                                     }
                                     //}
                                 }

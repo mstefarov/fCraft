@@ -66,9 +66,9 @@ namespace fCraft {
 
             settings["IRCBot"] = "true";
             settings["IRCBotNick"] = "fBot";
-            settings["IRCBotNetwork"] = "irc.quakenet.org";
+            settings["IRCBotNetwork"] = "irc.esper.net";
             settings["IRCBotPort"] = "6667";
-            settings["IRCBotChannel"] = "#fsck";
+            settings["IRCBotChannel"] = "#fcraft";
         }
 
 
