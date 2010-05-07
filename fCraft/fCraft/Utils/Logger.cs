@@ -22,6 +22,7 @@ namespace fCraft {
         ConsoleInput,
         ConsoleOutput,
 
+        IRC,
         Debug
     }
 
@@ -30,8 +31,8 @@ namespace fCraft {
         string logFile;
         object locker = new object();
         World world;
-        public bool[] consoleOptions = new bool[13];
-        public bool[] logFileOptions = new bool[13];
+        public bool[] consoleOptions = new bool[14];
+        public bool[] logFileOptions = new bool[14];
 
 
         public Logger( World _world ) {

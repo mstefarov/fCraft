@@ -76,6 +76,7 @@
     <Compile Include="Commands\InfoCommands.cs" />
     <Compile Include="Commands\StandardCommands.cs" />
     <Compile Include="Network\IPBanList.cs" />
+    <Compile Include="Network\IRCBot.cs" />
     <Compile Include="Utils\Updater.cs" />
     <Compile Include="Player\ClassList.cs" />
     <Compile Include="Player\Permissions.cs" />

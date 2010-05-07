@@ -389,6 +389,12 @@ namespace fCraft {
                                                           player.info.playerClass.name + Color.Sys + ") has joined the server." ),
                                                           player );
 
+            // if IRC Bot is online, send update to IRC bot
+            if (world.ircbot.isOnline() == true)
+            {
+                world.ircbot.SendMsgChannel(player.name + "(" + player.info.playerClass.name +") has joined ** " + world.config.GetString("ServerName") + " **");
+            }
+
             // Welcome message
             if( player.info.timesVisited > 1 ) {
                 player.Message( "Welcome back to " + world.config.GetString( "ServerName" ) );
