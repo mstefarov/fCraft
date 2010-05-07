@@ -64,7 +64,7 @@ namespace fCraft
         private static string CHANNEL;
         private static string SERVERHOST;
         private static string BOTHOST;
-        private List<string> commands = new List<string>() {"!help","!status","!auth","!kick","!ban"};
+        private List<string> commands = new List<string>() {"!help","!status","!auth","!kick","!ban","!banip","!banall","!unban","!unbanip","!unbanall","!lock","!unlock"};
 
         private static List<AuthPkg> authedHosts = new List<AuthPkg>();
 
@@ -154,26 +154,52 @@ namespace fCraft
                                     SendMsg(message.nickname, "MOTD: ** " + MOTD + " **");
                                     SendMsg(message.nickname, "Address: ** " + serverAddress + " **");
                                     SendMsg(message.nickname, "Players online: ** " + playersOnline.ToString() + " **");
+                                    if(playersOnline != 0)
+                                        SendMsg(message.nickname, "Players list will appear in 5 seconds.");
+                                    Thread.Sleep(5000);
                                     string[] playerList = world.GetPlayerListString().Split(',');
                                     // List the players online if there are any
                                     if (playersOnline > 0)
                                     {
+                                        int count = 0;
                                         SendMsg(message.nickname, "Players:");
                                         foreach (string player in playerList)
+                                        {
+                                            if(count == 5) Thread.Sleep(5000);
                                             SendMsg(message.nickname, " ** " + player + " ** ");
+                                            ++count;
+                                        }
                                     }
                                 }
                                 else if (message.cmd == "help")
                                 {
                                     SendMsg(message.nickname, "Hello, " + message.nickname + " , you have requested help!");
-                                    SendMsg(message.nickname, "Server Commands are:");
-                                    SendMsg(message.nickname, "!status - Gives the status of the server itself.");
-                                    SendMsg(message.nickname, "!auth <password> - Will authorize you with the bot, so long as you have registered your message.nickname from inside the server.");
-                                    SendMsg(message.nickname, "!help - Displays this message.");
-                                    SendMsg(message.nickname, "# - initiates sending a chat message to the server from this PM.");
-                                    SendMsg(message.nickname, "<botname>: - initiates sending a chat message to the server from a channel.");
-                                    SendMsg(message.nickname, "!kick <player> - initiates kicking a player from the server.");
-                                    SendMsg(message.nickname, "!ban <player> - initiates banning a player from the server.");
+                                    SendMsg(message.nickname, "** Be patient the help line is long **");
+                                    SendMsg(message.nickname, "***********************************************************");
+                                    SendMsg(message.nickname, "Public Commands:");
+                                    SendMsg(message.nickname, "     !status - Gives the status of the server itself.");
+                                    SendMsg(message.nickname, "     !auth <password> - Authorize with the bot with the password you registered from inside the server.");
+                                    SendMsg(message.nickname, "     !help - Displays this message.");
+                                    Thread.Sleep(5000);
+                                    SendMsg(message.nickname, " Chat Commands:");
+                                    SendMsg(message.nickname, "     # - initiates sending a chat message to the server from this PM.");
+                                    SendMsg(message.nickname, "     <botname>: - initiates sending a chat message to the server from a channel.");
+                                    Thread.Sleep(5000);
+                                    //if(isauthed(message.nickname, message.host)){
+                                    SendMsg(message.nickname, "***********************************************************");
+                                    SendMsg(message.nickname, "Authorized User Commands:");
+                                    SendMsg(message.nickname, "     !kick <player> - initiates kicking a player from the server.");
+                                    SendMsg(message.nickname, "     !ban <player> - initiates banning a player from the server by nickname.");
+                                    SendMsg(message.nickname, "     !banip <ip address> - initiates banning a player from the server by IP.");
+                                    Thread.Sleep(5000);
+                                    SendMsg(message.nickname, "     !banall <player> - initiates banning a player from the server by Name, IP, and any players from the same IP.");
+                                    SendMsg(message.nickname, "     !unban <player> - initiates banning a player from the server.");
+                                    SendMsg(message.nickname, "     !unbanip <player> - initiates banning a player from the server.");
+                                    SendMsg(message.nickname, "     !unbanip <player> - initiates banning a player from the server.");
+                                    SendMsg(message.nickname, "     !lock - initiates Lockdown mode for the server.");
+                                    SendMsg(message.nickname, "     !unlock - revokes Lockdown mode for the server.");
+                                    Thread.Sleep(5000);
+                                    //}
 
                                 }
                                 else if (message.cmd == "auth") // Authenticate clients
@@ -266,12 +292,99 @@ namespace fCraft
                                         fClass = world.classes.FindClass("owner");
                                         fBot.info.playerClass = fClass;
                                         world.cmd.ParseCommand(fBot, "/banall " + kickLine[1], true);
+                                    }
+                                    //}
+                                }
+                                else if (message.cmd == "unban")
+                                {
+                                    //if (isAuthed(message.nickname, message.host))
+                                    //{
+                                    // DO ME
+                                    string[] kickLine = message.chatMessage.Split(' ');
+                                    if (kickLine.Length == 2)
+                                    {
 
+                                        Player fBot = new Player(world, "fBot");
+                                        PlayerClass fClass = new PlayerClass();
+                                        fClass = world.classes.FindClass("owner");
+                                        fBot.info.playerClass = fClass;
+                                        world.cmd.ParseCommand(fBot, "/unban " + kickLine[1], true);
+                                    }
+                                    //}
+                                }
+                                else if (message.cmd == "unbanip")
+                                {
+                                    //if (isAuthed(message.nickname, message.host))
+                                    //{
+                                    // DO ME
+                                    string[] kickLine = message.chatMessage.Split(' ');
+                                    if (kickLine.Length == 2)
+                                    {
 
+                                        Player fBot = new Player(world, "fBot");
+                                        PlayerClass fClass = new PlayerClass();
+                                        fClass = world.classes.FindClass("owner");
+                                        fBot.info.playerClass = fClass;
+                                        world.cmd.ParseCommand(fBot, "/unbanip " + kickLine[1], true);
+                                    }
+                                    //}
+                                }
+                                else if (message.cmd == "unbanall")
+                                {
+                                    //if (isAuthed(message.nickname, message.host))
+                                    //{
+                                    // DO ME
+                                    string[] kickLine = message.chatMessage.Split(' ');
+                                    if (kickLine.Length == 2)
+                                    {
+
+                                        Player fBot = new Player(world, "fBot");
+                                        PlayerClass fClass = new PlayerClass();
+                                        fClass = world.classes.FindClass("owner");
+                                        fBot.info.playerClass = fClass;
+                                        world.cmd.ParseCommand(fBot, "/unbanall " + kickLine[1], true);
+                                    }
+                                    //}
+                                }
+                                else if (message.cmd == "lock")
+                                {
+                                    //if (isAuthed(message.nickname, message.host))
+                                    //{
+                                    // DO ME
+                                    string[] kickLine = message.chatMessage.Split(' ');
+                                    if (kickLine.Length == 1)
+                                    {
+
+                                        Player fBot = new Player(world, "fBot");
+                                        PlayerClass fClass = new PlayerClass();
+                                        fClass = world.classes.FindClass("owner");
+                                        fBot.info.playerClass = fClass;
+                                        world.cmd.ParseCommand(fBot, "/lock", true);
+                                        world.log.Log(message.nickname + " initated a Lockdown on the server.", LogType.Chat);
 
                                     }
                                     //}
                                 }
+                                else if (message.cmd == "unlock")
+                                {
+                                    //if (isAuthed(message.nickname, message.host))
+                                    //{
+                                    // DO ME
+                                    string[] kickLine = message.chatMessage.Split(' ');
+                                    if (kickLine.Length == 1)
+                                    {
+
+                                        Player fBot = new Player(world, "fBot");
+                                        PlayerClass fClass = new PlayerClass();
+                                        fClass = world.classes.FindClass("owner");
+                                        fBot.info.playerClass = fClass;
+                                        world.cmd.ParseCommand(fBot, "/unlock", true);
+                                        world.log.Log(message.nickname + " revoked a Lockdown on the server.", LogType.Chat);
+
+                                    }
+                                    //}
+                                }
+
                                 // This is pretty broken atm
                                 //else if (message.cmd == "shutdown")
                                 //{
@@ -297,7 +410,7 @@ namespace fCraft
                             }
                             else if (message.to == CHANNEL && message.chatMessage.Contains(NICK + ":"))
                             {
-                                string stringToServer = "(IRC)" + message.nickname + ": " + inputline.Substring(inputline.IndexOf(NICK) + NICK.Length + 1).Trim();
+                                string stringToServer = message.nickname + ": " + inputline.Substring(inputline.IndexOf(NICK) + NICK.Length + 1).Trim();
                                 world.log.Log(stringToServer, LogType.Chat);
                                 world.SendToAll(stringToServer, null);
 
