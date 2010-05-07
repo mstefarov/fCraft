@@ -39,6 +39,7 @@ namespace fCraft {
         public Logger log;
         public Config config;
         public Heartbeat heartbeat;
+        public IRCBot ircbot;
         public Tasks tasks;
         public PlayerDB db;
         public IPBanList bans;
@@ -51,6 +52,7 @@ namespace fCraft {
         int playerCount;
         object playerListLock = new object();
 
+        bool IRCBotOnline;
         internal bool requestLockDown, lockDown, lockDownReady;
         internal bool loadInProgress, loadSendingInProgress, loadProgressReported;
         internal int totalBlockUpdates, completedBlockUpdates;
@@ -93,6 +95,7 @@ namespace fCraft {
 
             cmd = new Commands( this );
             heartbeat = new Heartbeat( this );
+
         }
 
 
@@ -122,6 +125,12 @@ namespace fCraft {
             if( !config.Load( "config.xml" ) ) return false;
             config.ApplyConfig();
             config.Save( "config.xml" );
+
+            if (config.GetBool("IRCBot") == true)
+            {
+                ircbot = new IRCBot(this);
+                IRCBotOnline = true;
+            }
 
             // allocate player list
             players = new Player[config.GetInt( "MaxPlayers" ) + 1];
@@ -160,6 +169,12 @@ namespace fCraft {
             mainThread = new Thread( Update );
             mainThread.Start();
             heartbeat.Start();
+
+            if(IRCBotOnline)
+            {
+                ircbot.Start();
+            }
+            
             return true;
         }
 
@@ -298,6 +313,12 @@ namespace fCraft {
             lock( playerListLock ) {
                 if( players[player.id] == player ) {
                     log.Log( "{0} left the server.", LogType.UserActivity, player.name );
+
+                    // if IRC Bot is online, send update to IRC bot
+                    if (ircbot.isOnline() == true)
+                    {
+                        ircbot.SendMsgChannel(player.name + "(" + player.info.playerClass.name + ") has left ** " + config.GetString("ServerName") + " **");
+                    }
                     db.ProcessLogout( player );
                     db.Save();
                     players[player.id] = null;
@@ -413,6 +434,7 @@ namespace fCraft {
                 }
 
                 if( heartbeat != null ) heartbeat.ShutDown();
+                if(IRCBotOnline == true) ircbot.ShutDown();
                 if( tasks != null ) tasks.ShutDown();
 
                 lock( playerListLock ) {

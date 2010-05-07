@@ -63,6 +63,12 @@ namespace fCraft {
             settings["SystemMessageColor"] = "yellow";
             settings["HelpColor"] = "magenta";
             settings["SayColor"] = "yellow";
+
+            settings["IRCBot"] = "true";
+            settings["IRCBotNick"] = "fBot";
+            settings["IRCBotNetwork"] = "irc.quakenet.org";
+            settings["IRCBotPort"] = "6667";
+            settings["IRCBotChannel"] = "#fsck";
         }
 
 
