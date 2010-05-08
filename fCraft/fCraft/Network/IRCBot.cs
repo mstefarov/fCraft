@@ -185,21 +185,21 @@ namespace fCraft
                                     SendMsg(message.nickname, "     # - initiates sending a chat message to the server from this PM.");
                                     SendMsg(message.nickname, "     <botname>: - initiates sending a chat message to the server from a channel.");
                                     Thread.Sleep(5000);
-                                    //if(isauthed(message.nickname, message.host)){
-                                    SendMsg(message.nickname, "***********************************************************");
-                                    SendMsg(message.nickname, "Authorized User Commands:");
-                                    SendMsg(message.nickname, "     !kick <player> - initiates kicking a player from the server.");
-                                    SendMsg(message.nickname, "     !ban <player> - initiates banning a player from the server by nickname.");
-                                    SendMsg(message.nickname, "     !banip <ip address> - initiates banning a player from the server by IP.");
-                                    Thread.Sleep(5000);
-                                    SendMsg(message.nickname, "     !banall <player> - initiates banning a player from the server by Name, IP, and any players from the same IP.");
-                                    SendMsg(message.nickname, "     !unban <player> - initiates banning a player from the server.");
-                                    SendMsg(message.nickname, "     !unbanip <player> - initiates banning a player from the server.");
-                                    SendMsg(message.nickname, "     !unbanip <player> - initiates banning a player from the server.");
-                                    SendMsg(message.nickname, "     !lock - initiates Lockdown mode for the server.");
-                                    SendMsg(message.nickname, "     !unlock - revokes Lockdown mode for the server.");
-                                    Thread.Sleep(5000);
-                                    //}
+                                    if(isAuthed(message.nickname, message.host)){
+                                        SendMsg(message.nickname, "***********************************************************");
+                                        SendMsg(message.nickname, "Authorized User Commands:");
+                                        SendMsg(message.nickname, "     !kick <player> - initiates kicking a player from the server.");
+                                        SendMsg(message.nickname, "     !ban <player> - initiates banning a player from the server by nickname.");
+                                        SendMsg(message.nickname, "     !banip <ip address> - initiates banning a player from the server by IP.");
+                                        Thread.Sleep(5000);
+                                        SendMsg(message.nickname, "     !banall <player> - initiates banning a player from the server by Name, IP, and any players from the same IP.");
+                                        SendMsg(message.nickname, "     !unban <player> - initiates banning a player from the server.");
+                                        SendMsg(message.nickname, "     !unbanip <player> - initiates banning a player from the server.");
+                                        SendMsg(message.nickname, "     !unbanip <player> - initiates banning a player from the server.");
+                                        SendMsg(message.nickname, "     !lock - initiates Lockdown mode for the server.");
+                                        SendMsg(message.nickname, "     !unlock - revokes Lockdown mode for the server.");
+                                        Thread.Sleep(5000);
+                                    }
 
                                 }
                                 else if (message.cmd == "auth") // Authenticate clients
@@ -210,9 +210,10 @@ namespace fCraft
                                         // Need an authorization workup here
                                         // registerdnicks.contains(message.nickname)
                                         // password matches registered users password
-                                        if (authLine[1] == "auth0riz3m3")
+                                        if (authLine[1] == "auth0riz3m3")// Bot auth password
                                         {
                                             string authResponse = message.nickname + " Authenticated to host " + message.host;
+                                            SendMsg(message.nickname, message.nickname + ", you have authenticated with the host " + message.host + ".");
                                             world.log.Log(message.nickname + " Authenticated to host " + message.host, LogType.Chat);
                                             AuthPkg newAuth = new AuthPkg() { host = message.host, nickname = message.nickname };
                                             authedHosts.Add(newAuth);
@@ -229,160 +230,169 @@ namespace fCraft
                                 }
                                 else if (message.cmd == "kick")
                                 {
-                                    string[] kickLine = message.chatMessage.Split(' ');
-                                    if (kickLine.Length == 2)
+                                    if (isAuthed(message.nickname, message.host))
                                     {
-                                        Player fBot = new Player(world, "fBot");
-                                        PlayerClass fClass = new PlayerClass();
-                                        fClass = world.classes.FindClass("owner");
-                                        fBot.info.playerClass = fClass;
-                                        world.cmd.ParseCommand(fBot, "/kick " + kickLine[1], true);
-                                        //if (isAuthed(message.nickname, message.host))
-                                        //{
-                                            // DO ME
-
-                                        //}   
+                                        string[] kickLine = message.chatMessage.Split(' ');
+                                        if (kickLine.Length == 2)
+                                        {
+                                            Player fBot = new Player(world, "fBot");
+                                            PlayerClass fClass = new PlayerClass();
+                                            fClass = world.classes.FindClass("owner");
+                                            fBot.info.playerClass = fClass;
+                                            world.cmd.ParseCommand(fBot, "/kick " + kickLine[1], true);
+                                        }   
                                     }
+                                    else
+                                        SendMsg(message.nickname, "Sorry, you're not authorized to do that");
                                 }
                                 else if (message.cmd == "ban")
                                 {
-                                    string[] kickLine = message.chatMessage.Split(' ');
-                                    if (kickLine.Length == 2)
+                                    if (isAuthed(message.nickname, message.host))
                                     {
-                                        //if (isAuthed(message.nickname, message.host))
-                                        //{
-                                        // DO ME
-                                        Player fBot = new Player(world, "fBot");
-                                        PlayerClass fClass = new PlayerClass();
-                                        fClass = world.classes.FindClass("owner");
-                                        fBot.info.playerClass = fClass;
-                                        world.cmd.ParseCommand(fBot, "/ban " + kickLine[1], true);
+                                        string[] kickLine = message.chatMessage.Split(' ');
+                                        if (kickLine.Length == 2)
+                                        {
 
+
+                                            Player fBot = new Player(world, "fBot");
+                                            PlayerClass fClass = new PlayerClass();
+                                            fClass = world.classes.FindClass("owner");
+                                            fBot.info.playerClass = fClass;
+                                            world.cmd.ParseCommand(fBot, "/ban " + kickLine[1], true);
+
+                                        }
                                     }
-                                    //}
+                                    else
+                                        SendMsg(message.nickname, "Sorry, you're not authorized to do that");
                                 }
                                 else if (message.cmd == "banip")
                                 {
-                                    //if (isAuthed(message.nickname, message.host))
-                                    //{
-                                    // DO ME
-                                    string[] kickLine = message.chatMessage.Split(' ');
-                                    if (kickLine.Length == 2)
+                                    if (isAuthed(message.nickname, message.host))
                                     {
+                                        string[] kickLine = message.chatMessage.Split(' ');
+                                        if (kickLine.Length == 2)
+                                        {
 
-                                        Player fBot = new Player(world, "fBot");
-                                        PlayerClass fClass = new PlayerClass();
-                                        fClass = world.classes.FindClass("owner");
-                                        fBot.info.playerClass = fClass;
-                                        world.cmd.ParseCommand(fBot, "/banip " + kickLine[1], true);
+                                            Player fBot = new Player(world, "fBot");
+                                            PlayerClass fClass = new PlayerClass();
+                                            fClass = world.classes.FindClass("owner");
+                                            fBot.info.playerClass = fClass;
+                                            world.cmd.ParseCommand(fBot, "/banip " + kickLine[1], true);
+                                        }
                                     }
-                                    //}
+                                    else
+                                        SendMsg(message.nickname, "Sorry, you're not authorized to do that");
                                 }
                                 else if (message.cmd == "banall")
                                 {
-                                    //if (isAuthed(message.nickname, message.host))
-                                    //{
-                                    // DO ME
-                                    string[] kickLine = message.chatMessage.Split(' ');
-                                    if (kickLine.Length == 2)
+                                    if (isAuthed(message.nickname, message.host))
                                     {
+                                        string[] kickLine = message.chatMessage.Split(' ');
+                                        if (kickLine.Length == 2)
+                                        {
 
-                                        Player fBot = new Player(world, "fBot");
-                                        PlayerClass fClass = new PlayerClass();
-                                        fClass = world.classes.FindClass("owner");
-                                        fBot.info.playerClass = fClass;
-                                        world.cmd.ParseCommand(fBot, "/banall " + kickLine[1], true);
+                                            Player fBot = new Player(world, "fBot");
+                                            PlayerClass fClass = new PlayerClass();
+                                            fClass = world.classes.FindClass("owner");
+                                            fBot.info.playerClass = fClass;
+                                            world.cmd.ParseCommand(fBot, "/banall " + kickLine[1], true);
+                                        }
                                     }
-                                    //}
+                                    else
+                                        SendMsg(message.nickname, "Sorry, you're not authorized to do that");
                                 }
                                 else if (message.cmd == "unban")
                                 {
-                                    //if (isAuthed(message.nickname, message.host))
-                                    //{
-                                    // DO ME
-                                    string[] kickLine = message.chatMessage.Split(' ');
-                                    if (kickLine.Length == 2)
+                                    if (isAuthed(message.nickname, message.host))
                                     {
+                                        string[] kickLine = message.chatMessage.Split(' ');
+                                        if (kickLine.Length == 2)
+                                        {
 
-                                        Player fBot = new Player(world, "fBot");
-                                        PlayerClass fClass = new PlayerClass();
-                                        fClass = world.classes.FindClass("owner");
-                                        fBot.info.playerClass = fClass;
-                                        world.cmd.ParseCommand(fBot, "/unban " + kickLine[1], true);
+                                            Player fBot = new Player(world, "fBot");
+                                            PlayerClass fClass = new PlayerClass();
+                                            fClass = world.classes.FindClass("owner");
+                                            fBot.info.playerClass = fClass;
+                                            world.cmd.ParseCommand(fBot, "/unban " + kickLine[1], true);
+                                        }
                                     }
-                                    //}
+                                    else
+                                        SendMsg(message.nickname, "Sorry, you're not authorized to do that");
                                 }
                                 else if (message.cmd == "unbanip")
                                 {
-                                    //if (isAuthed(message.nickname, message.host))
-                                    //{
-                                    // DO ME
-                                    string[] kickLine = message.chatMessage.Split(' ');
-                                    if (kickLine.Length == 2)
+                                    if (isAuthed(message.nickname, message.host))
                                     {
+                                        string[] kickLine = message.chatMessage.Split(' ');
+                                        if (kickLine.Length == 2)
+                                        {
 
-                                        Player fBot = new Player(world, "fBot");
-                                        PlayerClass fClass = new PlayerClass();
-                                        fClass = world.classes.FindClass("owner");
-                                        fBot.info.playerClass = fClass;
-                                        world.cmd.ParseCommand(fBot, "/unbanip " + kickLine[1], true);
+                                            Player fBot = new Player(world, "fBot");
+                                            PlayerClass fClass = new PlayerClass();
+                                            fClass = world.classes.FindClass("owner");
+                                            fBot.info.playerClass = fClass;
+                                            world.cmd.ParseCommand(fBot, "/unbanip " + kickLine[1], true);
+                                        }
                                     }
-                                    //}
+                                    else
+                                        SendMsg(message.nickname, "Sorry, you're not authorized to do that");
                                 }
                                 else if (message.cmd == "unbanall")
                                 {
-                                    //if (isAuthed(message.nickname, message.host))
-                                    //{
-                                    // DO ME
-                                    string[] kickLine = message.chatMessage.Split(' ');
-                                    if (kickLine.Length == 2)
+                                    if (isAuthed(message.nickname, message.host))
                                     {
+                                        string[] kickLine = message.chatMessage.Split(' ');
+                                        if (kickLine.Length == 2)
+                                        {
 
-                                        Player fBot = new Player(world, "fBot");
-                                        PlayerClass fClass = new PlayerClass();
-                                        fClass = world.classes.FindClass("owner");
-                                        fBot.info.playerClass = fClass;
-                                        world.cmd.ParseCommand(fBot, "/unbanall " + kickLine[1], true);
+                                            Player fBot = new Player(world, "fBot");
+                                            PlayerClass fClass = new PlayerClass();
+                                            fClass = world.classes.FindClass("owner");
+                                            fBot.info.playerClass = fClass;
+                                            world.cmd.ParseCommand(fBot, "/unbanall " + kickLine[1], true);
+                                        }
                                     }
-                                    //}
+                                    else
+                                        SendMsg(message.nickname, "Sorry, you're not authorized to do that");
                                 }
                                 else if (message.cmd == "lock")
                                 {
-                                    //if (isAuthed(message.nickname, message.host))
-                                    //{
-                                    // DO ME
-                                    string[] kickLine = message.chatMessage.Split(' ');
-                                    if (kickLine.Length == 1)
+                                    if (isAuthed(message.nickname, message.host))
                                     {
+                                        string[] kickLine = message.chatMessage.Split(' ');
+                                        if (kickLine.Length == 1)
+                                        {
 
-                                        Player fBot = new Player(world, "fBot");
-                                        PlayerClass fClass = new PlayerClass();
-                                        fClass = world.classes.FindClass("owner");
-                                        fBot.info.playerClass = fClass;
-                                        world.cmd.ParseCommand(fBot, "/lock", true);
-                                        world.log.Log(message.nickname + " initated a Lockdown on the server.", LogType.Chat);
-
+                                            Player fBot = new Player(world, "fBot");
+                                            PlayerClass fClass = new PlayerClass();
+                                            fClass = world.classes.FindClass("owner");
+                                            fBot.info.playerClass = fClass;
+                                            world.cmd.ParseCommand(fBot, "/lock", true);
+                                            world.log.Log(message.nickname + " initated a Lockdown on the server.", LogType.Chat);
+                                        }
                                     }
-                                    //}
+                                    else
+                                        SendMsg(message.nickname, "Sorry, you're not authorized to do that");
                                 }
                                 else if (message.cmd == "unlock")
                                 {
-                                    //if (isAuthed(message.nickname, message.host))
-                                    //{
-                                    // DO ME
-                                    string[] kickLine = message.chatMessage.Split(' ');
-                                    if (kickLine.Length == 1)
+                                    if (isAuthed(message.nickname, message.host))
                                     {
+                                        string[] kickLine = message.chatMessage.Split(' ');
+                                        if (kickLine.Length == 1)
+                                        {
 
-                                        Player fBot = new Player(world, "fBot");
-                                        PlayerClass fClass = new PlayerClass();
-                                        fClass = world.classes.FindClass("owner");
-                                        fBot.info.playerClass = fClass;
-                                        world.cmd.ParseCommand(fBot, "/unlock", true);
-                                        world.log.Log(message.nickname + " revoked a Lockdown on the server.", LogType.Chat);
+                                            Player fBot = new Player(world, "fBot");
+                                            PlayerClass fClass = new PlayerClass();
+                                            fClass = world.classes.FindClass("owner");
+                                            fBot.info.playerClass = fClass;
+                                            world.cmd.ParseCommand(fBot, "/unlock", true);
+                                            world.log.Log(message.nickname + " revoked a Lockdown on the server.", LogType.Chat);
 
+                                        }
                                     }
-                                    //}
+                                    else
+                                        SendMsg(message.nickname, "Sorry, you're not authorized to do that");
                                 }
 
                                 // This is pretty broken atm
@@ -571,11 +581,12 @@ namespace fCraft
 
         bool isAuthed(string nickname,string host)
         {
-           // for (int i = 0; i < authedHosts.Count; ++i)
-           // {
-           //     if(nickname)
-           // }
-            return true;
+            foreach (AuthPkg check in authedHosts)
+            {
+                if (check.nickname == nickname && check.host == host)
+                    return true;
+            }
+            return false;
         }
 
         public bool isOnline()
