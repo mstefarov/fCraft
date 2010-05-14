@@ -15,7 +15,8 @@ namespace fCraft {
         UserCommand,
         SuspiciousActivity,
 
-        Chat,
+        WorldChat,
+        GlobalChat,
         PrivateChat,
         ClassChat,
         
@@ -27,20 +28,14 @@ namespace fCraft {
     }
 
 
-    public class Logger {
-        string logFile;
-        object locker = new object();
-        World world;
-        public bool[] consoleOptions = new bool[14];
-        public bool[] logFileOptions = new bool[14];
+    public static class Logger {
+        static string logFile;
+        static object locker = new object();
+        public static bool[] consoleOptions = new bool[14];
+        public static bool[] logFileOptions = new bool[14];
 
 
-        public Logger( World _world ) {
-            world = _world;
-        }
-
-
-        internal void Init( string _logFile ) {
+        internal static void Init( string _logFile ) {
             // TODO: log splitting
             logFile = _logFile;
             if( !File.Exists( logFile ) ) {
@@ -51,16 +46,12 @@ namespace fCraft {
                         DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() );
         }
 
-        public void LogDebug( string message) {
-            Log( message, LogType.Debug );
-        }
-
-        public void Log( string message, LogType type, params object[] values ) {
+        public static void Log( string message, LogType type, params object[] values ) {
             Log( String.Format(message,values), type );
         }
 
 
-        public void LogConsole( string message ) {
+        public static void LogConsole( string message ) {
             // TODO: move to log
             string processedMessage = "# ";
             for( int i = 0; i < message.Length; i++ ) {
@@ -72,7 +63,7 @@ namespace fCraft {
 
 
 
-        public void Log( string message, LogType type ) {
+        public static void Log( string message, LogType type ) {
             //TODO: check if logging is enabled
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message;
             if( logFileOptions[(int)type] ) {
@@ -86,7 +77,7 @@ namespace fCraft {
                     }
                 }
             }
-            if( world != null && consoleOptions[(int)type] ) world.FireLog( line, type );
+            //TODO: if( world != null && consoleOptions[(int)type] ) world.FireLog( line, type );
         }
 
 

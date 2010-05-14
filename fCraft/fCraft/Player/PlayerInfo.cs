@@ -79,7 +79,7 @@ namespace fCraft {
             name = player.name;
             lastIP = player.session.GetIP();
 
-            playerClass = world.classes.defaultClass;
+            playerClass = ClassList.defaultClass;
             classChangeDate = DateTime.MinValue;
             classChangedBy = "-";
 
@@ -114,10 +114,10 @@ namespace fCraft {
             name = fields[0];
             lastIP = IPAddress.Parse( fields[1] );
 
-            playerClass = world.classes.ParseClass( fields[2] );
+            playerClass = ClassList.ParseClass( fields[2] );
             if( playerClass == null ) {
-                playerClass = world.classes.defaultClass;
-                world.log.Log( "PlayerInfo: Could not parse class for player {0}. Setting to default ({1}).", LogType.Error, name, playerClass.name );
+                playerClass = ClassList.defaultClass;
+                Logger.Log( "PlayerInfo: Could not parse class for player {0}. Setting to default ({1}).", LogType.Error, name, playerClass.name );
             }
             if( fields[3] != "-" ) classChangeDate = DateTime.Parse( fields[3] );
             else classChangeDate = DateTime.MinValue;

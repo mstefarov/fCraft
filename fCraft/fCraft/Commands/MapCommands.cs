@@ -5,30 +5,27 @@ using System.IO;
 
 namespace fCraft {
     sealed class MapCommands {
-        World world;
-        object loadLock = new object();
+        static object loadLock = new object();
 
-        internal MapCommands( World _world, Commands commands ) {
-            world = _world;
+        internal static void Init() {
+            Commands.AddCommand( "load", Load, true );
+            Commands.AddCommand( "save", Save, true );
 
-            commands.AddCommand( "load", Load, true );
-            commands.AddCommand( "save", Save, true );
+            Commands.AddCommand( "lock", Lock, true );
+            Commands.AddCommand( "unlock", Unlock, true );
 
-            commands.AddCommand( "lock", Lock, true );
-            commands.AddCommand( "unlock", Unlock, true );
+            Commands.AddCommand( "gen", Generate, true );
+            Commands.AddCommand( "genh", GenerateHollow, true );
 
-            commands.AddCommand( "gen", Generate, true );
-            commands.AddCommand( "genh", GenerateHollow, true );
-
-            commands.AddCommand( "zone", DoZone, false );
-            commands.AddCommand( "zlist", ZoneList, true );
-            commands.AddCommand( "zremove", ZoneRemove, true );
+            Commands.AddCommand( "zone", DoZone, false );
+            Commands.AddCommand( "zlist", ZoneList, true );
+            Commands.AddCommand( "zremove", ZoneRemove, true );
         }
 
 
-        void DoZone( Player player, Command cmd ) {
+        internal static void DoZone( Player player, Command cmd ) {
             if( !player.Can( Permissions.SetSpawn ) ) {
-                world.NoAccessMessage( player );
+                World.NoAccessMessage( player );
                 return;
             }
 
@@ -49,7 +46,7 @@ namespace fCraft {
                 player.Message( "No zone rank/whitelist/blacklist specified. See " + Color.Help + "/help zone" );
                 return;
             }
-            PlayerClass minRank = world.classes.ParseClass( property );
+            PlayerClass minRank = ClassList.ParseClass( property );
             
             if( minRank != null ) {
                 zone.buildRank = minRank.rank;
@@ -61,7 +58,7 @@ namespace fCraft {
             }
         }
 
-        static void MakeZone( Player player, Position[] marks, object tag ) {
+        internal static void MakeZone( Player player, Position[] marks, object tag ) {
             Zone zone = (Zone)tag;
             zone.xMin = Math.Min( marks[0].x, marks[1].x );
             zone.xMax = Math.Max( marks[0].x, marks[1].x );
@@ -70,7 +67,7 @@ namespace fCraft {
             zone.hMin = Math.Min( marks[0].h, marks[1].h );
             zone.hMax = Math.Max( marks[0].h, marks[1].h );
             player.Message( "Zone \"" + zone.name + "\" created, " + zone.getVolume() + " blocks total." );
-            player.world.log.Log( "Player {0} created a new zone \"{1}\" containing {2} blocks.", LogType.UserActivity,
+            Logger.Log( "Player {0} created a new zone \"{1}\" containing {2} blocks.", LogType.UserActivity,
                                   player.name,
                                   zone.name,
                                   zone.getVolume() );
@@ -78,7 +75,7 @@ namespace fCraft {
         }
 
 
-        static void ZoneRemove( Player player, Command cmd ) {
+        internal static void ZoneRemove( Player player, Command cmd ) {
             string zoneName = cmd.Next();
             if( zoneName == null ) {
                 player.Message( "Usage: " + Color.Help + "/zremove ZoneName" );
@@ -91,10 +88,10 @@ namespace fCraft {
             }
         }
 
-        static void ZoneList( Player player, Command cmd ) {
+        internal static void ZoneList( Player player, Command cmd ) {
             Zone[] zones = player.world.map.ListZones();
             foreach( Zone zone in zones ) {
-                PlayerClass rank = player.world.classes.ParseRank( zone.buildRank );
+                PlayerClass rank = ClassList.ParseRank( zone.buildRank );
                 if( rank != null ) {
                     player.Message( "  " + zone.name + " (" + rank.color + rank.name + Color.Sys + ") - " + zone.getWidthX() + "x" + zone.getWidthY() + "x" + zone.getHeight() );
                 } else {
@@ -104,65 +101,65 @@ namespace fCraft {
         }
 
 
-        void Load( Player player, Command cmd ) {
+        internal static void Load( Player player, Command cmd ) {
             lock( loadLock ) {
-                if( world.loadInProgress || world.loadSendingInProgress ) {
+                if( player.world.loadInProgress || player.world.loadSendingInProgress ) {
                     player.Message( "Loading already in progress, please wait." );
                     return;
                 }
-                world.loadInProgress = true;
+                player.world.loadInProgress = true;
             }
 
             if( !player.Can( Permissions.SaveAndLoad ) ) {
-                world.NoAccessMessage( player );
-                world.loadInProgress = false;
+                World.NoAccessMessage( player );
+                player.world.loadInProgress = false;
                 return;
             }
 
             string mapName = cmd.Next();
             if( mapName == null ) {
                 player.Message( "Syntax: " + Color.Help + "/load mapName" );
-                world.loadInProgress = false;
+                player.world.loadInProgress = false;
                 return;
             }
 
             string mapFileName = mapName + ".fcm";
             if( !File.Exists( mapFileName ) ) {
                 player.Message( "No backup file \"" + mapName + "\" found." );
-                world.loadInProgress = false;
+                player.world.loadInProgress = false;
                 return;
             }
 
-            Map newMap = Map.Load( world, mapFileName );
+            Map newMap = Map.Load( player.world, mapFileName );
             if( newMap == null ) {
                 player.Message( "Could not load \"" + mapFileName + "\". Check logfile for details." );
-                world.loadInProgress = false;
+                player.world.loadInProgress = false;
                 return;
             }
 
-            if( newMap.widthX != world.map.widthX ||
-                newMap.widthY != world.map.widthY ||
-                newMap.height != world.map.height ) {
+            if( newMap.widthX != player.world.map.widthX ||
+                newMap.widthY != player.world.map.widthY ||
+                newMap.height != player.world.map.height ) {
                 player.Message( "Map sizes of \"" + mapName + "\" and the current map do not match." );
-                world.loadInProgress = false;
+                player.world.loadInProgress = false;
                 return;
             }
 
-            world.log.Log( "{0} is loading the map \"{1}\".", LogType.UserActivity, player.name, mapName );
+            Logger.Log( "{0} is loading the map \"{1}\".", LogType.UserActivity, player.name, mapName );
             player.Message( "Loading map \"" + mapName + "\"..." );
-            world.BeginLockDown();
+            player.world.BeginLockDown();
             MapSenderParams param = new MapSenderParams() {
                 map = newMap,
                 player = player,
-                world = world
+                world = player.world
             };
-            world.tasks.Add( MapSender.StreamLoad, param, true );
+            player.world.tasks.Add( MapSender.StreamLoad, param, true );
         }
 
 
-        void Save( Player player, Command cmd ) {
+        internal static void Save( Player player, Command cmd ) {
             if( !player.Can( Permissions.SaveAndLoad ) ) {
-                world.NoAccessMessage( player );
+                World.NoAccessMessage( player );
                 return;
             }
 
@@ -174,7 +171,7 @@ namespace fCraft {
 
             string mapFileName = Path.GetFileName(mapName) + ".fcm";
             player.Message( "Saving backup..." );
-            if( world.map.Save( mapFileName ) ) {
+            if( player.world.map.Save( mapFileName ) ) {
                 player.Message( "Backup succesful." );
             } else {
                 player.Message( "Backup failed. See logfile for details." );
@@ -182,16 +179,16 @@ namespace fCraft {
         }
 
 
-        void Generate( Player player, Command cmd ) {
+        internal static void Generate( Player player, Command cmd ) {
             if( !player.Can( Permissions.SaveAndLoad ) ) {
-                world.NoAccessMessage( player );
+                World.NoAccessMessage( player );
                 return;
             }
             int wx, wy, height;
             if( !(cmd.NextInt( out wx ) && cmd.NextInt( out wy ) && cmd.NextInt( out height )) ) {
-                wx = world.map.widthX;
-                wy = world.map.widthY;
-                height = world.map.height;
+                wx = player.world.map.widthX;
+                wy = player.world.map.widthY;
+                height = player.world.map.height;
                 cmd.Rewind();
             }
             string mode = cmd.Next();
@@ -209,23 +206,23 @@ namespace fCraft {
             Random rand = new Random( seed );
             player.Message( "Seed: " + Convert.ToBase64String( BitConverter.GetBytes( seed ) ) );
 
-            Map map = new Map( world, wx, wy, height );
+            Map map = new Map( player.world, wx, wy, height );
             map.spawn.Set( map.widthX / 2 * 32 + 16, map.widthY / 2 * 32 + 16, map.height * 32, 0, 0 );
 
             DoGenerate( map, player, mode, filename, rand, false );
         }
 
 
-        void GenerateHollow( Player player, Command cmd ) {
+        internal static void GenerateHollow( Player player, Command cmd ) {
             if( !player.Can( Permissions.SaveAndLoad ) ) {
-                world.NoAccessMessage( player );
+                World.NoAccessMessage( player );
                 return;
             }
             int wx, wy, height;
             if( !(cmd.NextInt( out wx ) && cmd.NextInt( out wy ) && cmd.NextInt( out height )) ) {
-                wx = world.map.widthX;
-                wy = world.map.widthY;
-                height = world.map.height;
+                wx = player.world.map.widthX;
+                wy = player.world.map.widthY;
+                height = player.world.map.height;
                 cmd.Rewind();
             }
             string mode = cmd.Next();
@@ -243,13 +240,13 @@ namespace fCraft {
             Random rand = new Random( seed );
             player.Message( "Seed: " + Convert.ToBase64String( BitConverter.GetBytes( seed ) ) );
 
-            Map map = new Map( world, wx, wy, height );
+            Map map = new Map( player.world, wx, wy, height );
             map.spawn.Set( map.widthX / 2 * 32 + 16, map.widthY / 2 * 32 + 16, map.height * 32, 0, 0 );
 
             DoGenerate( map, player, mode, filename, rand, true );
         }
 
-        internal static void GenerateFlatgrass( Map map,bool hollow ) {
+        internal static void GenerateFlatgrass( Map map, bool hollow ) {
             for ( int i = 0; i < map.widthX; i++ ) {
                 for ( int j = 0; j < map.widthY; j++ ) {
                     if ( !hollow ) {
@@ -268,7 +265,7 @@ namespace fCraft {
             map.MakeFloodBarrier();
         }
 
-        void DoGenerate( Map map, Player player, string mode, string filename, Random rand, bool hollow ) {
+        internal static void DoGenerate( Map map, Player player, string mode, string filename, Random rand, bool hollow ) {
             switch( mode ) {
                 case "flatgrass":
                     player.Message( "Generating flatgrass map..." );
@@ -312,25 +309,25 @@ namespace fCraft {
 
                 case "hills":
                     player.Message( "Generating terrain..." );
-                    world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
+                    player.world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
                                                                               1, 1, 0.5, 0.5, 0, 0.5, hollow ), false );
                     break;
 
                 case "mountains":
                     player.Message( "Generating terrain..." );
-                    world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
+                    player.world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
                                                                               4, 1, 0.5, 0.5, 0.1, 0.5, hollow ), false );
                     break;
 
                 case "lake":
                     player.Message( "Generating terrain..." );
-                    world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
+                    player.world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
                                                                               1, 0.6, 0.9, 0.5, -0.35, 0.55, hollow ), false );
                     break;
 
                 case "island":
                     player.Message( "Generating terrain..." );
-                    world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
+                    player.world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
                                                                               1, 0.6, 1, 0.5, 0.3, 0.35, hollow ), false );
                     break;
 
@@ -341,23 +338,23 @@ namespace fCraft {
         }
 
 
-        void Lock( Player player, Command cmd ) {
+        internal static void Lock( Player player, Command cmd ) {
             if( !player.Can( Permissions.Lock ) ) {
-                world.NoAccessMessage( player );
+                World.NoAccessMessage( player );
                 return;
             }
-            world.SendToAll( PacketWriter.MakeMessage( Color.Red + "Server is now on lockdown!" ), null );
-            world.BeginLockDown();
+            player.world.SendToAll( PacketWriter.MakeMessage( Color.Red + "Server is now on lockdown!" ), null );
+            player.world.BeginLockDown();
         }
 
 
-        void Unlock( Player player, Command cmd ) {
+        internal static void Unlock( Player player, Command cmd ) {
             if( !player.Can( Permissions.Lock ) ) {
-                world.NoAccessMessage( player );
+                World.NoAccessMessage( player );
                 return;
             }
-            world.SendToAll( PacketWriter.MakeMessage( Color.Red + "Lockdown has ended." ), null );
-            world.EndLockDown();
+            player.world.SendToAll( PacketWriter.MakeMessage( Color.Red + "Lockdown has ended." ), null );
+            player.world.EndLockDown();
         }
     }
 }

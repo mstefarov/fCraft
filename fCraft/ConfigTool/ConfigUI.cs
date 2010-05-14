@@ -11,7 +11,6 @@ using Color = System.Drawing.Color;
 
 namespace ConfigTool {
     public partial class ConfigUI : Form {
-        Config config;
         Font bold;
         PlayerClass selectedClass;
         int colorSys, colorSay, colorHelp;
@@ -26,7 +25,6 @@ namespace ConfigTool {
 
             fCraft.Color.Init();
             ColorPicker.Init();
-            config = new Config( null, new ClassList( null ), new Logger( null ) );
 
             bold = new Font( Font, FontStyle.Bold );
 
@@ -70,12 +68,12 @@ namespace ConfigTool {
             if( !File.Exists( "config.xml" ) ) {
                 MessageBox.Show( "config.xml was not found. Using defaults." );
             }
-            if( config.Load( "config.xml" ) ) {
-                if( config.errors.Length > 0 ) {
-                    MessageBox.Show( config.errors, "Config loading warnings" );
+            if( Config.Load( "config.xml" ) ) {
+                if( Config.errors.Length > 0 ) {
+                    MessageBox.Show( Config.errors, "Config loading warnings" );
                 }
             } else {
-                MessageBox.Show( config.errors, "Error occured while trying to load config" );
+                MessageBox.Show( Config.errors, "Error occured while trying to load config" );
             }
 
             ApplyTabGeneral();
@@ -91,44 +89,44 @@ namespace ConfigTool {
 
 
         void ApplyTabGeneral() {
-            tServerName.Text = config.GetString( "ServerName" );
-            tMOTD.Text = config.GetString( "MOTD" );
-            nMaxPlayers.Value = Convert.ToDecimal( config.GetInt( "MaxPlayers" ) );
+            tServerName.Text = Config.GetString( "ServerName" );
+            tMOTD.Text = Config.GetString( "MOTD" );
+            nMaxPlayers.Value = Convert.ToDecimal( Config.GetInt( "MaxPlayers" ) );
             FillClassList( cDefaultClass, "(lowest class)" );
-            cDefaultClass.SelectedIndex = config.classes.GetIndex( config.classes.ParseClass( config.GetString( "DefaultClass" ) ) );
-            cPublic.SelectedIndex = config.GetBool( "IsPublic" ) ? 0 : 1;
-            nPort.Value = Convert.ToDecimal( config.GetInt( "Port" ) );
-            nUploadBandwidth.Value = Convert.ToDecimal( config.GetInt( "UploadBandwidth" ) );
+            cDefaultClass.SelectedIndex = ClassList.GetIndex( ClassList.ParseClass( Config.GetString( "DefaultClass" ) ) );
+            cPublic.SelectedIndex = Config.GetBool( "IsPublic" ) ? 0 : 1;
+            nPort.Value = Convert.ToDecimal( Config.GetInt( "Port" ) );
+            nUploadBandwidth.Value = Convert.ToDecimal( Config.GetInt( "UploadBandwidth" ) );
 
             ApplyEnum( cReservedSlotBehavior, "ReservedSlotBehavior", 2, "KickIdle", "KickRandom", "IncreaseMaxPlayers" );
 
-            xClassColors.Checked = config.GetBool( "ClassColorsInChat" );
-            xChatPrefixes.Checked = config.GetBool( "ClassPrefixesInChat" );
-            xListPrefixes.Checked = config.GetBool( "ClassPrefixesInList" );
+            xClassColors.Checked = Config.GetBool( "ClassColorsInChat" );
+            xChatPrefixes.Checked = Config.GetBool( "ClassPrefixesInChat" );
+            xListPrefixes.Checked = Config.GetBool( "ClassPrefixesInList" );
 
-            colorSys = fCraft.Color.ParseToIndex( config.GetString( "SystemMessageColor" ) );
+            colorSys = fCraft.Color.ParseToIndex( Config.GetString( "SystemMessageColor" ) );
             ApplyColor(bColorSys,colorSys );
-            colorHelp = fCraft.Color.ParseToIndex( config.GetString( "HelpColor" ) );
+            colorHelp = fCraft.Color.ParseToIndex( Config.GetString( "HelpColor" ) );
             ApplyColor( bColorHelp, colorHelp );
-            colorSay = fCraft.Color.ParseToIndex( config.GetString( "SayColor" ) );
+            colorSay = fCraft.Color.ParseToIndex( Config.GetString( "SayColor" ) );
             ApplyColor( bColorSay, colorSay );
         }
 
 
         void ApplyTabSecurity() {
             ApplyEnum( cVerifyNames, "VerifyNames", 1, "Never", "Balanced", "Always" );
-            xAnnounceUnverified.Checked = config.GetBool( "AnnounceUnverifiedNames" );
+            xAnnounceUnverified.Checked = Config.GetBool( "AnnounceUnverifiedNames" );
 
-            nSpamChatCount.Value = Convert.ToDecimal( config.GetInt( "AntispamMessageCount" ) );
-            nSpamChatTimer.Value = Convert.ToDecimal( config.GetInt( "AntispamInterval" ) );
-            nSpamMute.Value = Convert.ToDecimal( config.GetInt( "AntispamMuteDuration" ) );
+            nSpamChatCount.Value = Convert.ToDecimal( Config.GetInt( "AntispamMessageCount" ) );
+            nSpamChatTimer.Value = Convert.ToDecimal( Config.GetInt( "AntispamInterval" ) );
+            nSpamMute.Value = Convert.ToDecimal( Config.GetInt( "AntispamMuteDuration" ) );
 
-            xSpamChatKick.Checked = config.GetInt( "AntispamMaxWarnings" ) > 0;
-            nSpamChatWarnings.Value = Convert.ToDecimal( config.GetInt( "AntispamMaxWarnings" ) );
+            xSpamChatKick.Checked = Config.GetInt( "AntispamMaxWarnings" ) > 0;
+            nSpamChatWarnings.Value = Convert.ToDecimal( Config.GetInt( "AntispamMaxWarnings" ) );
             if( !xSpamChatKick.Checked ) nSpamChatWarnings.Enabled = false;
 
-            nSpamBlockCount.Value = Convert.ToDecimal( config.GetInt( "AntigriefBlockCount" ) );
-            nSpamBlockTimer.Value = Convert.ToDecimal( config.GetInt( "AntigriefInterval" ) );
+            nSpamBlockCount.Value = Convert.ToDecimal( Config.GetInt( "AntigriefBlockCount" ) );
+            nSpamBlockTimer.Value = Convert.ToDecimal( Config.GetInt( "AntigriefInterval" ) );
 
             ApplyEnum( cSpamAction1, "AntigriefAction1", 0, "Warn", "Kick", "Demote", "Ban", "BanIP", "BanAll" );
             ApplyEnum( cSpamAction2, "AntigriefAction2", 1, "Warn", "Kick", "Demote", "Ban", "BanIP", "BanAll" );
@@ -139,7 +137,7 @@ namespace ConfigTool {
 
         void ApplyTabClasses() {
             vClasses.Items.Clear();
-            foreach( PlayerClass playerClass in config.classes.classesByIndex ) {
+            foreach( PlayerClass playerClass in ClassList.classesByIndex ) {
                 string line = String.Format( "{0,3} {1,1}{2}", playerClass.rank, playerClass.prefix, playerClass.name );
                 vClasses.Items.Add( line );
             }
@@ -227,38 +225,38 @@ namespace ConfigTool {
 
 
         void ApplyTabSavingAndBackup() {
-            xSaveOnShutdown.Checked = config.GetBool( "SaveOnShutdown" );
-            xSaveAtInterval.Checked = config.GetInt( "SaveInterval" ) > 0;
-            nSaveInterval.Value = Convert.ToDecimal( config.GetInt( "SaveInterval" ) );
+            xSaveOnShutdown.Checked = Config.GetBool( "SaveOnShutdown" );
+            xSaveAtInterval.Checked = Config.GetInt( "SaveInterval" ) > 0;
+            nSaveInterval.Value = Convert.ToDecimal( Config.GetInt( "SaveInterval" ) );
             if( !xSaveAtInterval.Checked ) nSaveInterval.Enabled = false;
 
-            xBackupOnStartup.Checked = config.GetBool( "BackupOnStartup" );
-            xBackupOnJoin.Checked = config.GetBool( "BackupOnJoin" );
-            xBackupOnlyWhenChanged.Checked = config.GetBool( "BackupOnlyWhenChanged" );
-            xBackupAtInterval.Checked = config.GetInt( "BackupInterval" ) > 0;
-            nBackupInterval.Value = Convert.ToDecimal( config.GetInt( "BackupInterval" ) );
+            xBackupOnStartup.Checked = Config.GetBool( "BackupOnStartup" );
+            xBackupOnJoin.Checked = Config.GetBool( "BackupOnJoin" );
+            xBackupOnlyWhenChanged.Checked = Config.GetBool( "BackupOnlyWhenChanged" );
+            xBackupAtInterval.Checked = Config.GetInt( "BackupInterval" ) > 0;
+            nBackupInterval.Value = Convert.ToDecimal( Config.GetInt( "BackupInterval" ) );
             if( !xBackupAtInterval.Checked ) nBackupInterval.Enabled = false;
-            xMaxBackups.Checked = config.GetInt( "MaxBackups" ) > 0;
-            nMaxBackups.Value = Convert.ToDecimal( config.GetInt( "MaxBackups" ) );
+            xMaxBackups.Checked = Config.GetInt( "MaxBackups" ) > 0;
+            nMaxBackups.Value = Convert.ToDecimal( Config.GetInt( "MaxBackups" ) );
             if( !xMaxBackups.Checked ) nMaxBackups.Enabled = false;
-            xMaxBackupSize.Checked = config.GetInt( "MaxBackupSize" ) > 0;
-            nMaxBackupSize.Value = Convert.ToDecimal( config.GetInt( "MaxBackupSize" ) );
+            xMaxBackupSize.Checked = Config.GetInt( "MaxBackupSize" ) > 0;
+            nMaxBackupSize.Value = Convert.ToDecimal( Config.GetInt( "MaxBackupSize" ) );
             if( !xMaxBackupSize.Checked ) nMaxBackupSize.Enabled = false;
         }
 
 
         void ApplyTabLogging() {
             foreach( ListViewItem item in vConsoleOptions.Items ) {
-                item.Checked = config.logger.consoleOptions[item.Index];
+                item.Checked = Logger.consoleOptions[item.Index];
             }
             foreach( ListViewItem item in vLogFileOptions.Items ) {
-                item.Checked = config.logger.logFileOptions[item.Index];
+                item.Checked = Logger.logFileOptions[item.Index];
             }
 
             ApplyEnum( cLogMode, "LogMode", 1, "None", "OneFile", "SplitBySession", "SplitByDay" );
 
-            xLogLimit.Checked = config.GetInt( "MaxLogs" ) > 0;
-            nLogLimit.Value = Convert.ToDecimal( config.GetInt( "MaxLogs" ) );
+            xLogLimit.Checked = Config.GetInt( "MaxLogs" ) > 0;
+            nLogLimit.Value = Convert.ToDecimal( Config.GetInt( "MaxLogs" ) );
             if( !xLogLimit.Checked ) nLogLimit.Enabled = false;
         }
 
@@ -267,24 +265,24 @@ namespace ConfigTool {
             ApplyEnum( cPolicyColor, "PolicyColorCodesInChat", 1, "Disallow", "ConsoleOnly", "Allow" );
             ApplyEnum( cPolicyIllegal, "PolicyIllegalCharacters", 0, "Disallow", "ConsoleOnly", "Allow" );
 
-            xRedundantPacket.Checked = config.GetBool( "SendRedundantBlockUpdates" );
-            xPing.Checked = config.GetInt( "PingInterval" ) > 0;
-            nPing.Value = Convert.ToDecimal( config.GetInt( "PingInterval" ) );
+            xRedundantPacket.Checked = Config.GetBool( "SendRedundantBlockUpdates" );
+            xPing.Checked = Config.GetInt( "PingInterval" ) > 0;
+            nPing.Value = Convert.ToDecimal( Config.GetInt( "PingInterval" ) );
             if( !xPing.Checked ) nPing.Enabled = false;
-            xAbsoluteUpdates.Checked = config.GetBool( "NoPartialPositionUpdates" );
-            nTickInterval.Value = Convert.ToDecimal( config.GetInt( "TickInterval" ) );
+            xAbsoluteUpdates.Checked = Config.GetBool( "NoPartialPositionUpdates" );
+            nTickInterval.Value = Convert.ToDecimal( Config.GetInt( "TickInterval" ) );
 
             ApplyEnum( cProcessPriority, "ProcessPriority", 0, "", "High", "AboveNormal", "Normal", "BelowNormal", "Low" );
             ApplyEnum( cStartup, "RunOnStartup", 1, "Always", "OnUnexpectedShutdown", "Never" );
             ApplyEnum( cUpdater, "AutomaticUpdates", 2, "Disabled", "Notify", "Prompt", "Auto" );
 
-            nThrottling.Value = config.GetInt( "BlockUpdateThrottling" );
-            xLowLatencyMode.Checked = config.GetBool( "LowLatencyMode" );
+            nThrottling.Value = Config.GetInt( "BlockUpdateThrottling" );
+            xLowLatencyMode.Checked = Config.GetBool( "LowLatencyMode" );
         }
 
 
         void ApplyEnum( ComboBox box, string value, int def, params string[] options ) {
-            int index = Array.IndexOf<string>( options, config.GetString( value ) );
+            int index = Array.IndexOf<string>( options, Config.GetString( value ) );
             if( index != -1 ) {
                 box.SelectedIndex = index;
             } else {
@@ -295,7 +293,7 @@ namespace ConfigTool {
         void FillClassList( ComboBox box, string firstItem ) {
             box.Items.Clear();
             box.Items.Add( firstItem );
-            foreach( PlayerClass pc in config.classes.classesByIndex ) {
+            foreach( PlayerClass pc in ClassList.classesByIndex ) {
                 box.Items.Add( String.Format( "{0,3} {1,1}{2}", pc.rank, pc.prefix, pc.name ) );
             }
         }
@@ -304,45 +302,45 @@ namespace ConfigTool {
         //===================================================== WRITE CONFIG ===========
 
         void WriteConfig() {
-            config.errors = "";
-            config.SetValue( "ServerName", tServerName.Text );
-            config.SetValue( "MOTD", tMOTD.Text );
-            config.SetValue( "MaxPlayers", nMaxPlayers.Value.ToString() );
+            Config.errors = "";
+            Config.SetValue( "ServerName", tServerName.Text );
+            Config.SetValue( "MOTD", tMOTD.Text );
+            Config.SetValue( "MaxPlayers", nMaxPlayers.Value.ToString() );
             if( cDefaultClass.SelectedIndex == 0 ) {
-                config.SetValue( "DefaultClass", "" );
+                Config.SetValue( "DefaultClass", "" );
             } else {
-                config.SetValue( "DefaultClass", config.classes.ParseIndex(cDefaultClass.SelectedIndex-1).name );
+                Config.SetValue( "DefaultClass", ClassList.ParseIndex(cDefaultClass.SelectedIndex-1).name );
             }
-            config.SetValue( "IsPublic", cPublic.SelectedIndex == 0 ? "True" : "False" );
-            config.SetValue( "Port", nPort.Value.ToString() );
+            Config.SetValue( "IsPublic", cPublic.SelectedIndex == 0 ? "True" : "False" );
+            Config.SetValue( "Port", nPort.Value.ToString() );
             switch( cVerifyNames.SelectedIndex ) {
-                case 0: config.SetValue( "VerifyNames", "Never" ); break;
-                case 1: config.SetValue( "VerifyNames", "Balanced" ); break;
-                case 2: config.SetValue( "VerifyNames", "Always" ); break;
+                case 0: Config.SetValue( "VerifyNames", "Never" ); break;
+                case 1: Config.SetValue( "VerifyNames", "Balanced" ); break;
+                case 2: Config.SetValue( "VerifyNames", "Always" ); break;
             }
-            config.SetValue( "UploadBandwidth", nUploadBandwidth.Value.ToString() );
+            Config.SetValue( "UploadBandwidth", nUploadBandwidth.Value.ToString() );
             WriteEnum( cReservedSlotBehavior, "ReservedSlotBehavior", "KickIdle", "KickRandom", "IncreaseMaxPlayers" );
-            config.SetValue( "ClassColorsInChat", xClassColors.Checked.ToString() );
-            config.SetValue( "ClassPrefixesInChat", xChatPrefixes.Checked.ToString() );
-            config.SetValue( "ClassPrefixesInList", xListPrefixes.Checked.ToString() );
-            config.SetValue( "SystemMessageColor", fCraft.Color.GetName( colorSys ) );
-            config.SetValue( "HelpColor", fCraft.Color.GetName( colorHelp ) );
-            config.SetValue( "SayColor", fCraft.Color.GetName( colorSay ) );
+            Config.SetValue( "ClassColorsInChat", xClassColors.Checked.ToString() );
+            Config.SetValue( "ClassPrefixesInChat", xChatPrefixes.Checked.ToString() );
+            Config.SetValue( "ClassPrefixesInList", xListPrefixes.Checked.ToString() );
+            Config.SetValue( "SystemMessageColor", fCraft.Color.GetName( colorSys ) );
+            Config.SetValue( "HelpColor", fCraft.Color.GetName( colorHelp ) );
+            Config.SetValue( "SayColor", fCraft.Color.GetName( colorSay ) );
 
 
             WriteEnum( cVerifyNames, "VerifyNames", "Never", "Balanced", "Always" );
 
-            config.SetValue( "AnnounceUnverifiedNames", xAnnounceUnverified.Checked.ToString() );
+            Config.SetValue( "AnnounceUnverifiedNames", xAnnounceUnverified.Checked.ToString() );
 
-            config.SetValue( "AntispamMessageCount", nSpamChatCount.Value.ToString() );
-            config.SetValue( "AntispamInterval",nSpamChatTimer.Value.ToString());
-            config.SetValue( "AntispamMuteDuration",nSpamMute.Value.ToString());
+            Config.SetValue( "AntispamMessageCount", nSpamChatCount.Value.ToString() );
+            Config.SetValue( "AntispamInterval",nSpamChatTimer.Value.ToString());
+            Config.SetValue( "AntispamMuteDuration",nSpamMute.Value.ToString());
 
-            if( xSpamChatKick.Checked ) config.SetValue( "AntispamMaxWarnings", nSpamChatWarnings.Value.ToString() );
-            else config.SetValue( "AntispamMaxWarnings", "0" );
+            if( xSpamChatKick.Checked ) Config.SetValue( "AntispamMaxWarnings", nSpamChatWarnings.Value.ToString() );
+            else Config.SetValue( "AntispamMaxWarnings", "0" );
 
-            config.SetValue( "AntigriefBlockCount", nSpamBlockCount.Value.ToString() );
-            config.SetValue( "AntigriefInterval", nSpamBlockTimer.Value.ToString() );
+            Config.SetValue( "AntigriefBlockCount", nSpamBlockCount.Value.ToString() );
+            Config.SetValue( "AntigriefInterval", nSpamBlockTimer.Value.ToString() );
 
             WriteEnum( cSpamAction1, "AntigriefAction1", "Warn", "Kick", "Demote", "Ban", "BanIP", "BanAll" );
             WriteEnum( cSpamAction2, "AntigriefAction2", "Warn", "Kick", "Demote", "Ban", "BanIP", "BanAll" );
@@ -350,52 +348,52 @@ namespace ConfigTool {
 
 
 
-            config.SetValue( "SaveOnShutdown", xSaveOnShutdown.Checked.ToString() );
-            if( xSaveAtInterval.Checked ) config.SetValue( "SaveInterval", nSaveInterval.Value.ToString() );
-            else config.SetValue( "SaveInterval", "0" );
-            config.SetValue( "BackupOnStartup", xBackupOnStartup.Checked.ToString() );
-            config.SetValue( "BackupOnJoin", xBackupOnJoin.Checked.ToString() );
-            config.SetValue( "BackupOnlyWhenChanged", xBackupOnlyWhenChanged.Checked.ToString() );
+            Config.SetValue( "SaveOnShutdown", xSaveOnShutdown.Checked.ToString() );
+            if( xSaveAtInterval.Checked ) Config.SetValue( "SaveInterval", nSaveInterval.Value.ToString() );
+            else Config.SetValue( "SaveInterval", "0" );
+            Config.SetValue( "BackupOnStartup", xBackupOnStartup.Checked.ToString() );
+            Config.SetValue( "BackupOnJoin", xBackupOnJoin.Checked.ToString() );
+            Config.SetValue( "BackupOnlyWhenChanged", xBackupOnlyWhenChanged.Checked.ToString() );
 
-            if( xBackupAtInterval.Checked ) config.SetValue( "BackupInterval", nBackupInterval.Value.ToString() );
-            else config.SetValue( "BackupInterval", "0" );
-            if( xMaxBackups.Checked ) config.SetValue( "MaxBackups", nMaxBackups.Value.ToString() );
-            else config.SetValue( "MaxBackups", "0" );
-            if( xMaxBackupSize.Checked ) config.SetValue( "MaxBackupSize", nMaxBackupSize.Value.ToString() );
-            else config.SetValue( "MaxBackupSize", "0" );
+            if( xBackupAtInterval.Checked ) Config.SetValue( "BackupInterval", nBackupInterval.Value.ToString() );
+            else Config.SetValue( "BackupInterval", "0" );
+            if( xMaxBackups.Checked ) Config.SetValue( "MaxBackups", nMaxBackups.Value.ToString() );
+            else Config.SetValue( "MaxBackups", "0" );
+            if( xMaxBackupSize.Checked ) Config.SetValue( "MaxBackupSize", nMaxBackupSize.Value.ToString() );
+            else Config.SetValue( "MaxBackupSize", "0" );
 
 
             WriteEnum( cLogMode, "LogMode", "None", "OneFile", "SplitBySession", "SplitByDay" );
-            if( xLogLimit.Checked ) config.SetValue( "MaxLogs", nLogLimit.Value.ToString() );
-            else config.SetValue( "MaxLogs", "0" );
+            if( xLogLimit.Checked ) Config.SetValue( "MaxLogs", nLogLimit.Value.ToString() );
+            else Config.SetValue( "MaxLogs", "0" );
             foreach( ListViewItem item in vConsoleOptions.Items ) {
-                config.logger.consoleOptions[item.Index] = item.Checked;
+                Logger.consoleOptions[item.Index] = item.Checked;
             }
             foreach( ListViewItem item in vLogFileOptions.Items ) {
-                config.logger.logFileOptions[item.Index] = item.Checked;
+                Logger.logFileOptions[item.Index] = item.Checked;
             }
 
 
             WriteEnum( cPolicyColor, "PolicyColorCodesInChat", "Disallow", "ConsoleOnly", "Allow" );
             WriteEnum( cPolicyIllegal, "PolicyIllegalCharacters", "Disallow", "ConsoleOnly", "Allow" );
 
-            config.SetValue( "SendRedundantBlockUpdates", xRedundantPacket.Checked.ToString() );
-            if( xPing.Checked ) config.SetValue( "PingInterval", nPing.Value.ToString() );
-            else config.SetValue( "PingInterval", "0" );
-            config.SetValue( "NoPartialPositionUpdates", xAbsoluteUpdates.Checked.ToString() );
-            config.SetValue( "TickInterval", Convert.ToInt32( nTickInterval.Value ).ToString() );
+            Config.SetValue( "SendRedundantBlockUpdates", xRedundantPacket.Checked.ToString() );
+            if( xPing.Checked ) Config.SetValue( "PingInterval", nPing.Value.ToString() );
+            else Config.SetValue( "PingInterval", "0" );
+            Config.SetValue( "NoPartialPositionUpdates", xAbsoluteUpdates.Checked.ToString() );
+            Config.SetValue( "TickInterval", Convert.ToInt32( nTickInterval.Value ).ToString() );
 
             WriteEnum( cProcessPriority, "ProcessPriority", "", "High", "AboveNormal", "Normal", "BelowNormal", "Low" );
             WriteEnum( cStartup, "RunOnStartup", "Always", "OnUnexpectedShutdown", "Never" );
             WriteEnum( cUpdater, "AutomaticUpdates", "Disabled", "Notify", "Prompt", "Auto" );
 
-            config.SetValue( "BlockUpdateThrottling", Convert.ToInt32( nThrottling.Value ).ToString() );
+            Config.SetValue( "BlockUpdateThrottling", Convert.ToInt32( nThrottling.Value ).ToString() );
 
-            config.SetValue( "LowLatencyMode", xLowLatencyMode.Checked.ToString() );
+            Config.SetValue( "LowLatencyMode", xLowLatencyMode.Checked.ToString() );
         }
 
         void WriteEnum( ComboBox box, string value, params string[] options ) {
-            config.SetValue( value, options[box.SelectedIndex] );
+            Config.SetValue( value, options[box.SelectedIndex] );
         }
 
 
@@ -452,7 +450,7 @@ namespace ConfigTool {
 
         private void vClasses_SelectedIndexChanged( object sender, EventArgs e ) {
                 if( vClasses.SelectedIndex != -1 ) {
-                    SelectClass( config.classes.ParseIndex( vClasses.SelectedIndex ) );
+                    SelectClass( ClassList.ParseIndex( vClasses.SelectedIndex ) );
                     bRemoveClass.Enabled = true;
                 } else {
                     DisableClassOptions();
@@ -523,30 +521,30 @@ namespace ConfigTool {
 
         private void bApply_Click( object sender, EventArgs e ) {
             WriteConfig();
-            if( config.errors != "" ) {
-                MessageBox.Show( config.errors, "Some errors were found in the selected values:" );
-            } else if( config.Save( "config.xml" ) ) {
+            if( Config.errors != "" ) {
+                MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
+            } else if( Config.Save( "config.xml" ) ) {
                 bApply.Enabled = false;
             } else {
-                MessageBox.Show( config.errors, "An error occured while trying to save:" );
+                MessageBox.Show( Config.errors, "An error occured while trying to save:" );
             }
         }
 
         private void bSave_Click( object sender, EventArgs e ) {
             WriteConfig();
-            if( config.errors != "" ) {
-                MessageBox.Show( config.errors, "Some errors were found in the selected values:" );
-            } else if( config.Save( "config.xml" ) ) {
+            if( Config.errors != "" ) {
+                MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
+            } else if( Config.Save( "config.xml" ) ) {
                 Application.Exit();
             } else {
-                MessageBox.Show( config.errors, "An error occured while trying to save:" );
+                MessageBox.Show( Config.errors, "An error occured while trying to save:" );
             }
         }
 
         private void bResetAll_Click( object sender, EventArgs e ) {
             if( MessageBox.Show( "Are you sure you want to reset everything to defaults?", "Warning", MessageBoxButtons.OKCancel )== DialogResult.OK ) {
-                config.LoadDefaults();
-                config.ResetClasses();
+                Config.LoadDefaults();
+                Config.ResetClasses();
                 ApplyTabGeneral();
                 ApplyTabClasses();
                 ApplyTabSavingAndBackup();
@@ -560,13 +558,13 @@ namespace ConfigTool {
                 selectedClass = null;
                 int index = vClasses.SelectedIndex;
 
-                PlayerClass defaultClass = config.classes.ParseIndex( cDefaultClass.SelectedIndex - 1 );
+                PlayerClass defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
                 if( defaultClass != null && index == defaultClass.index ) {
                     defaultClass = null;
                     MessageBox.Show( "DefaultClass has been reset to \"(lowest class)\"", "Warning" );
                 }
 
-                if( config.classes.DeleteClass( index ) ) {
+                if( ClassList.DeleteClass( index ) ) {
                     MessageBox.Show( "Some of the rank limits for kick, ban, promote, and/or demote have been reset.", "Warning" );
                 }
                 vClasses.Items.RemoveAt( index );
@@ -593,13 +591,13 @@ namespace ConfigTool {
             } else if( !PlayerClass.IsValidClassName( name ) ) {
                 MessageBox.Show( "Class name can only contain letters, digits, and underscores." );
                 e.Cancel = true;
-            } else if( !config.classes.CanChangeName( selectedClass, name ) ) {
+            } else if( !ClassList.CanChangeName( selectedClass, name ) ) {
                 MessageBox.Show( "There is already another class named \"" + name + "\".\n" +
                                 "Duplicate class names are now allowed." );
                 e.Cancel = true;
             } else {
-                defaultClass = config.classes.ParseIndex( cDefaultClass.SelectedIndex - 1 );
-                config.classes.ChangeName( selectedClass, name );
+                defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
+                ClassList.ChangeName( selectedClass, name );
                 RebuildClassList();
             }
         }
@@ -607,13 +605,13 @@ namespace ConfigTool {
         private void nRank_Validating( object sender, CancelEventArgs e ) {
             byte rank = Convert.ToByte( nRank.Value );
             if( rank == selectedClass.rank ) return;
-            if( !config.classes.CanChangeRank( selectedClass, rank ) ) {
+            if( !ClassList.CanChangeRank( selectedClass, rank ) ) {
                 MessageBox.Show( "There is already another class with the same rank (" + nRank.Value + ").\n" +
                 "Duplicate class ranks are now allowed." );
                 e.Cancel = true;
             } else {
-                defaultClass = config.classes.ParseIndex( cDefaultClass.SelectedIndex - 1 ); 
-                config.classes.ChangeRank( selectedClass, rank );
+                defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 ); 
+                ClassList.ChangeRank( selectedClass, rank );
                 RebuildClassList();
             }
         }
@@ -621,7 +619,7 @@ namespace ConfigTool {
         PlayerClass defaultClass;
         void RebuildClassList() {
             vClasses.Items.Clear();
-            foreach( PlayerClass pc in config.classes.classesByIndex ) {
+            foreach( PlayerClass pc in ClassList.classesByIndex ) {
                 vClasses.Items.Add( String.Format( "{0,3} {1,1}{2}", pc.rank, pc.prefix, pc.name ) );
             }
             if( selectedClass != null ) {
@@ -630,7 +628,7 @@ namespace ConfigTool {
             SelectClass( selectedClass );
 
             FillClassList( cDefaultClass, "(lowest class)" );
-            cDefaultClass.SelectedIndex = config.classes.GetIndex( defaultClass );
+            cDefaultClass.SelectedIndex = ClassList.GetIndex( defaultClass );
 
             FillClassList( cKickLimit, "(own class)" );
             FillClassList( cBanLimit, "(own class)" );
@@ -651,8 +649,8 @@ namespace ConfigTool {
             }
             int number = 1;
             byte rank = 0;
-            while( config.classes.classes.ContainsKey( "class" + number ) ) number++;
-            while( config.classes.ContainsRank( rank ) ) rank++;
+            while( ClassList.classes.ContainsKey( "class" + number ) ) number++;
+            while( ClassList.ContainsRank( rank ) ) rank++;
             PlayerClass pc = new PlayerClass();
             pc.name = "class" + number;
             pc.rank = rank;
@@ -661,9 +659,9 @@ namespace ConfigTool {
             pc.reservedSlot = false;
             pc.color = "";
 
-            defaultClass = config.classes.ParseIndex( cDefaultClass.SelectedIndex - 1 );
+            defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
 
-            config.classes.AddClass( pc );
+            ClassList.AddClass( pc );
             RebuildClassList();
         }
 
@@ -674,7 +672,7 @@ namespace ConfigTool {
                     "Prefixes may only contain characters that are allowed in chat (except space).", "Warning" );
                 e.Cancel = true;
             }
-            defaultClass = config.classes.ParseIndex( cDefaultClass.SelectedIndex - 1 );
+            defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
             selectedClass.prefix = tPrefix.Text;
             RebuildClassList();
         }
@@ -701,25 +699,25 @@ namespace ConfigTool {
 
         private void cPromoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
             if( selectedClass != null ) {
-                selectedClass.maxPromote = config.classes.ParseIndex( cPromoteLimit.SelectedIndex - 1 );
+                selectedClass.maxPromote = ClassList.ParseIndex( cPromoteLimit.SelectedIndex - 1 );
             }
         }
 
         private void cDemoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
             if( selectedClass != null ) {
-                selectedClass.maxDemote = config.classes.ParseIndex( cDemoteLimit.SelectedIndex - 1 );
+                selectedClass.maxDemote = ClassList.ParseIndex( cDemoteLimit.SelectedIndex - 1 );
             }
         }
 
         private void cKickLimit_SelectedIndexChanged( object sender, EventArgs e ) {
             if( selectedClass != null ) {
-                selectedClass.maxKick = config.classes.ParseIndex( cKickLimit.SelectedIndex-1 );
+                selectedClass.maxKick = ClassList.ParseIndex( cKickLimit.SelectedIndex-1 );
             }
         }
 
         private void cBanLimit_SelectedIndexChanged( object sender, EventArgs e ) {
             if( selectedClass != null ) {
-                selectedClass.maxBan = config.classes.ParseIndex( cBanLimit.SelectedIndex - 1 );
+                selectedClass.maxBan = ClassList.ParseIndex( cBanLimit.SelectedIndex - 1 );
             }
         }
 
@@ -727,15 +725,15 @@ namespace ConfigTool {
             if( MessageBox.Show( "Are you sure you want to reset this tab to defaults?", "Warning", MessageBoxButtons.OKCancel ) == DialogResult.OK ) {
                 switch( tabs.SelectedIndex ) {
                     case 0:// General
-                        config.LoadDefaultsGeneral();
+                        Config.LoadDefaultsGeneral();
                         ApplyTabGeneral();
                         break;
                     case 1:// Security
-                        config.LoadDefaultsSecurity();
+                        Config.LoadDefaultsSecurity();
                         ApplyTabSecurity();
                         break;
                     case 2:// Classes
-                        config.ResetClasses();
+                        Config.ResetClasses();
                         ApplyTabClasses();
                         defaultClass = null;
                         RebuildClassList();
@@ -743,15 +741,15 @@ namespace ConfigTool {
                     case 3:// TODO: Physics
                         break;
                     case 4:// Saving and Backup
-                        config.LoadDefaultsSavingAndBackup();
+                        Config.LoadDefaultsSavingAndBackup();
                         ApplyTabSavingAndBackup();
                         break;
                     case 5:// Logging
-                        config.LoadDefaultsLogging();
+                        Config.LoadDefaultsLogging();
                         ApplyTabLogging();
                         break;
                     case 6:// Advanced
-                        config.LoadDefaultsAdvanced();
+                        Config.LoadDefaultsAdvanced();
                         ApplyTabAdvanced();
                         break;
                 }

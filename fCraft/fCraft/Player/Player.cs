@@ -55,7 +55,7 @@ namespace fCraft {
             world = _world;
             name = _name;
             nick = name;
-            info = new PlayerInfo( _name, world.classes.highestClass );
+            info = new PlayerInfo( _name, ClassList.highestClass );
         }
 
 
@@ -206,7 +206,7 @@ namespace fCraft {
                 DateTime oldestTime = spamChatLog.Dequeue();
                 if( DateTime.Now.Subtract( oldestTime ).TotalSeconds < spamChatTimer ) {
                     muteWarnings++;
-                    if( muteWarnings > world.config.GetInt( "AntispamMaxWarnings" ) ) {
+                    if( muteWarnings > Config.GetInt( "AntispamMaxWarnings" ) ) {
                         session.KickNow( "You were kicked for repeated spamming." );
                         world.SendToAll( Color.Red + name + " was kicked for suspected spamming.", null );
                     } else {
@@ -228,7 +228,7 @@ namespace fCraft {
                 if( spamTimer < spamBlockTimer ) {
                     session.Kick( "You were kicked by antigrief system. Slow down." );
                     world.SendToAll( Color.Red + name + " was kicked for suspected griefing.",null );
-                    world.log.Log( name + " was kicked for block spam (" + spamBlockCount + " blocks in " + spamTimer+" seconds)", LogType.SuspiciousActivity );
+                    Logger.Log( name + " was kicked for block spam (" + spamBlockCount + " blocks in " + spamTimer+" seconds)", LogType.SuspiciousActivity );
                     return true;
                 }
             }
@@ -245,19 +245,19 @@ namespace fCraft {
                     if( CheckChatSpam() ) return;
                     info.linesWritten++;
                     string displayedName = nick;
-                    if( world.config.GetBool( "ClassPrefixesInChat" ) ) {
+                    if( Config.GetBool( "ClassPrefixesInChat" ) ) {
                         displayedName = info.playerClass.prefix + displayedName;
                     }
-                    if( world.config.GetBool( "ClassColorsInChat" ) && info.playerClass.color != "" && info.playerClass.color!=Color.White ) {
+                    if( Config.GetBool( "ClassColorsInChat" ) && info.playerClass.color != "" && info.playerClass.color!=Color.White ) {
                         displayedName = info.playerClass.color + displayedName + Color.White;
                     }
                     world.SendToAll( PacketWriter.MakeMessage( displayedName + ": " + message ), null );
-                    world.log.Log( "{0}: {1}", LogType.Chat, name, message );
+                    Logger.Log( "{0}: {1}", LogType.WorldChat, name, message );
                     break;
 
                 case MessageType.Command:
-                    world.log.Log( "{0}: {1}", LogType.UserCommand, name, message );
-                    world.cmd.ParseCommand( this, message, fromConsole );
+                    Logger.Log( "{0}: {1}", LogType.UserCommand, name, message );
+                    Commands.ParseCommand( this, message, fromConsole );
                     break;
 
                 case MessageType.PrivateChat:
@@ -265,20 +265,20 @@ namespace fCraft {
                     string otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
                     Player otherPlayer = world.FindPlayer( otherPlayerName );
                     if( otherPlayer != null ) {
-                        world.log.Log( "{0} to {1}: {2}", LogType.Chat, name, otherPlayer.name, message );
+                        Logger.Log( "{0} to {1}: {2}", LogType.WorldChat, name, otherPlayer.name, message );
                         otherPlayer.Send( PacketWriter.MakeMessage( Color.Gray + "from " + name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) ) );
                         Send( PacketWriter.MakeMessage( Color.Gray + "to " + otherPlayer.name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) ) );
                     } else {
-                        world.NoPlayerMessage( this, otherPlayerName );
+                        World.NoPlayerMessage( this, otherPlayerName );
                     }
                     break;
 
                 case MessageType.ClassChat:
                     if( CheckChatSpam() ) return;
                     string className = message.Substring( 2, message.IndexOf( ' ' ) - 2 );
-                    PlayerClass playerClass = world.classes.FindClass( className );
+                    PlayerClass playerClass = ClassList.FindClass( className );
                     if( playerClass != null ) {
-                        world.log.Log( "{0} to {1}: {2}", LogType.ClassChat, name, playerClass.name, message );
+                        Logger.Log( "{0} to {1}: {2}", LogType.ClassChat, name, playerClass.name, message );
                         Packet classMsg = PacketWriter.MakeMessage( Color.Gray + "[" + playerClass.color + playerClass.name + Color.Gray + "]" + name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
                         world.SendToClass( classMsg, playerClass );
                         if( info.playerClass != playerClass ) {
@@ -311,7 +311,7 @@ namespace fCraft {
         // Queues a system message
         public void Message( string message ) {
             if( session == null ) {
-                world.log.LogConsole( message );
+                Logger.LogConsole( message );
             } else {
                 Send( PacketWriter.MakeMessage( Color.Sys + message ) );
             }
@@ -321,7 +321,7 @@ namespace fCraft {
         // Queues a system message with a custom color
         public void Message( string color, string message ) {
             if( session == null ) {
-                world.log.LogConsole( message );
+                Logger.LogConsole( message );
             } else {
                 session.Send( PacketWriter.MakeMessage( color + message ) );
             }
@@ -331,10 +331,10 @@ namespace fCraft {
         // gets name with all the optional fluff (color/prefix)
         public string GetListName() {
             string displayedName = nick;
-            if( world.config.GetBool( "ClassPrefixesInList" ) ) {
+            if( Config.GetBool( "ClassPrefixesInList" ) ) {
                 displayedName = info.playerClass.prefix + displayedName;
             }
-            if( world.config.GetBool( "ClassColorsInChat" ) && info.playerClass.color != "" && info.playerClass.color != Color.White ) {
+            if( Config.GetBool( "ClassColorsInChat" ) && info.playerClass.color != "" && info.playerClass.color != Color.White ) {
                 displayedName = info.playerClass.color + displayedName;
             }
             return displayedName;

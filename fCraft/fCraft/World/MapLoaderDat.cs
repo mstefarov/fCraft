@@ -8,7 +8,7 @@ namespace fCraft {
     // encapsulates 
     public static class MapLoaderDAT {
         public static Map Load( World world, string fileName ) {
-            world.log.Log( "Converting {0}...", LogType.SystemActivity, fileName );
+            Logger.Log( "Converting {0}...", LogType.SystemActivity, fileName );
             byte[] temp = new byte[8];
             Map map = new Map( world );
             byte[] data;
@@ -100,12 +100,12 @@ namespace fCraft {
                     //}
                 }
             } catch( Exception ex ) {
-                world.log.Log( "Conversion failed: {0}", LogType.Error, ex.Message );
-                world.log.Log( ex.StackTrace, LogType.Debug );
+                Logger.Log( "Conversion failed: {0}", LogType.Error, ex.Message );
+                Logger.Log( ex.StackTrace, LogType.Debug );
                 return null;
             }
             map.Save();
-            world.log.Log( "Conversion completed succesfully succesful.", LogType.SystemActivity, fileName );
+            Logger.Log( "Conversion completed succesfully succesful.", LogType.SystemActivity, fileName );
             return map;
         }
 

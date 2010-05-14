@@ -179,7 +179,7 @@ namespace fCraft {
                     WriteMetadata( fs );
                     GetCompressedCopy( fs, false );
                 } catch( IOException ex ) {
-                    world.log.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
+                    Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
                                    tempFileName, ex.Message );
                     if( File.Exists( tempFileName ) ) {
                         File.Delete( tempFileName );
@@ -192,7 +192,7 @@ namespace fCraft {
             }
             File.Move( tempFileName, fileName );
             changesSinceBackup++;
-            world.log.Log( "Saved map succesfully to {0}", LogType.SystemActivity, fileName );
+            Logger.Log( "Saved map succesfully to {0}", LogType.SystemActivity, fileName );
             return true;
         }
 
@@ -244,7 +244,7 @@ namespace fCraft {
 
         public static Map Load( World _world, string fileName ) {
             if( !File.Exists( fileName ) ) {
-                _world.log.Log( "Map.Load: Specified file does not exist: {0}", LogType.Warning, fileName );
+                Logger.Log( "Map.Load: Specified file does not exist: {0}", LogType.Warning, fileName );
                 return null;
             }
 
@@ -269,16 +269,16 @@ namespace fCraft {
                     if( !map.ValidateBlockTypes() ) {
                         throw new Exception( "Invalid block types detected. File is possibly corrupt." );
                     }
-                    _world.log.Log( "Loaded map succesfully from {0}", LogType.SystemActivity, fileName );
+                    Logger.Log( "Loaded map succesfully from {0}", LogType.SystemActivity, fileName );
                     return map;
                 } else {
                     return null;
                 }
             } catch( EndOfStreamException ) {
-                _world.log.Log( "Map.Load: Unexpected end of file - possible corruption!", LogType.Error );
+                Logger.Log( "Map.Load: Unexpected end of file - possible corruption!", LogType.Error );
                 return null;
             } catch( Exception ex ) {
-                _world.log.Log( "Map.Load: Error trying to read from \"{0}\": {1}", LogType.Error, fileName, ex.Message );
+                Logger.Log( "Map.Load: Error trying to read from \"{0}\": {1}", LogType.Error, fileName, ex.Message );
                 return null;
             } finally {
                 if( fs != null ) {
@@ -294,25 +294,25 @@ namespace fCraft {
             try {
                 // TODO: reevaluate whether i need these restrictions or not
                 if( reader.ReadUInt32() != Config.LevelFormatID ) {
-                    world.log.Log( "Map.ReadHeader: Incorrect level format id (expected: {0}).", LogType.Error, Config.LevelFormatID );
+                    Logger.Log( "Map.ReadHeader: Incorrect level format id (expected: {0}).", LogType.Error, Config.LevelFormatID );
                     return false;
                 }
 
                 widthX = reader.ReadUInt16();
                 if( !IsValidDimension( widthX ) ) {
-                    world.log.Log( "Map.ReadHeader: Invalid dimension specified for widthX: {0}.", LogType.Error, widthX );
+                    Logger.Log( "Map.ReadHeader: Invalid dimension specified for widthX: {0}.", LogType.Error, widthX );
                     return false;
                 }
 
                 widthY = reader.ReadUInt16();
                 if( !IsValidDimension( widthY ) ) {
-                    world.log.Log( "Map.ReadHeader: Invalid dimension specified for widthY: {0}.", LogType.Error, widthY );
+                    Logger.Log( "Map.ReadHeader: Invalid dimension specified for widthY: {0}.", LogType.Error, widthY );
                     return false;
                 }
 
                 height = reader.ReadUInt16();
                 if( !IsValidDimension( height ) ) {
-                    world.log.Log( "Map.ReadHeader: Invalid dimension specified for height: {0}.", LogType.Error, height );
+                    Logger.Log( "Map.ReadHeader: Invalid dimension specified for height: {0}.", LogType.Error, height );
                     return false;
                 }
 
@@ -323,12 +323,12 @@ namespace fCraft {
                 spawn.l = reader.ReadByte();
                 if( spawn.x > widthX * 32 || spawn.y > widthY * 32 || spawn.h > height * 32 ||
                     spawn.x < 0 || spawn.y < 0 || spawn.h < 0 ) {
-                    world.log.Log( "Map.ReadHeader: Spawn coordinates are outside the valid range! Using center of the map instead.", LogType.Warning );
+                    Logger.Log( "Map.ReadHeader: Spawn coordinates are outside the valid range! Using center of the map instead.", LogType.Warning );
                     spawn.Set( widthX / 2 * 32, widthY / 2 * 32, height / 2 * 32, 0, 0 );
                 }
 
             } catch( FormatException ex ) {
-                world.log.Log( "Map.ReadHeader: Cannot parse one or more of the header entries: {0}", LogType.Error, ex.Message );
+                Logger.Log( "Map.ReadHeader: Cannot parse one or more of the header entries: {0}", LogType.Error, ex.Message );
                 return false;
             }
             return true;
@@ -358,7 +358,7 @@ namespace fCraft {
                         try {
                             AddZone( new Zone( value ) );
                         } catch( Exception ex ) {
-                            world.log.Log( "Map.ReadMetadata: cannot parse a zone: {0}", LogType.Error, ex.Message );
+                            Logger.Log( "Map.ReadMetadata: cannot parse a zone: {0}", LogType.Error, ex.Message );
                         }
                     } else {
                         meta.Add( key, value );
@@ -366,7 +366,7 @@ namespace fCraft {
                 }
 
             } catch( FormatException ex ) {
-                world.log.Log( "Map.ReadMetadata: Cannot parse one or more of the metadata entries: {0}", LogType.Error, ex.Message );
+                Logger.Log( "Map.ReadMetadata: Cannot parse one or more of the metadata entries: {0}", LogType.Error, ex.Message );
             }
         }
 
@@ -457,7 +457,7 @@ namespace fCraft {
                     GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
                     GC.WaitForPendingFinalizers();
                     world.SendToAll( PacketWriter.MakeMessage( Color.Red+"Map load complete." ), null );
-                    world.log.Log( "Load command finished succesfully.", LogType.SystemActivity );
+                    Logger.Log( "Load command finished succesfully.", LogType.SystemActivity );
                     world.loadSendingInProgress = false;
                     world.EndLockDown();
                 } else {
@@ -498,7 +498,7 @@ namespace fCraft {
 
 
         public void SaveBackup( string fileName ) {
-            if( changesSinceBackup == 0 && world.config.GetBool( "BackupOnlyWhenChanged" ) ) return;
+            if( changesSinceBackup == 0 && Config.GetBool( "BackupOnlyWhenChanged" ) ) return;
             if( !Directory.Exists( "backups" ) ) {
                 Directory.CreateDirectory( "backups" );
             }
@@ -512,12 +512,12 @@ namespace fCraft {
                     files.Enqueue( info[i].Name );
                 }
             }
-            if( world.config.GetInt( "MaxBackups" ) > 0 ) {
-                while( files.Count > world.config.GetInt( "MaxBackups" ) ) {
+            if( Config.GetInt( "MaxBackups" ) > 0 ) {
+                while( files.Count > Config.GetInt( "MaxBackups" ) ) {
                     File.Delete( "backups/" + files.Dequeue() );
                 }
             }
-            world.log.Log( "AutoBackup: " + fileName, LogType.SystemActivity );
+            Logger.Log( "AutoBackup: " + fileName, LogType.SystemActivity );
         }
 
 

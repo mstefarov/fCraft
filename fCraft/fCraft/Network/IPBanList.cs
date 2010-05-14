@@ -28,22 +28,22 @@ namespace fCraft {
                                 IPBanInfo ban = new IPBanInfo( fields );
                                 bans.Add( ban.address.ToString(), ban );
                             } catch( FormatException ex ) {
-                                world.log.Log( "IPBanList.Load: Could not parse a record: {0}", LogType.Error, ex.Message );
+                                Logger.Log( "IPBanList.Load: Could not parse a record: {0}", LogType.Error, ex.Message );
                             } catch( IOException ex ) {
-                                world.log.Log( "IPBanList.Load: Error while trying to read from file: {0}", LogType.Error, ex.Message );
+                                Logger.Log( "IPBanList.Load: Error while trying to read from file: {0}", LogType.Error, ex.Message );
                             }
                         }
                     }
                 }
-                world.log.Log( "IPBanList.Load: Done loading IP ban list ({0} records).", LogType.Debug, bans.Count );
+                Logger.Log( "IPBanList.Load: Done loading IP ban list ({0} records).", LogType.Debug, bans.Count );
             } else {
-                world.log.Log( "IPBanList.Load: No IP ban file found.", LogType.Warning );
+                Logger.Log( "IPBanList.Load: No IP ban file found.", LogType.Warning );
             }
         }
 
 
         internal void Save() {
-            world.log.Log( "IPBanList.Save: Saving IP ban list ({0} records).", LogType.Debug, bans.Count );
+            Logger.Log( "IPBanList.Save: Saving IP ban list ({0} records).", LogType.Debug, bans.Count );
             string tempFile = FileName + ( new Random() ).Next().ToString();
             lock( locker ) {
                 using( StreamWriter writer = File.CreateText( tempFile ) ) {

@@ -36,15 +36,11 @@ namespace fCraft {
     public class World {
         public Server server;
         public Map map;
-        public Logger log;
-        public Config config;
         public Heartbeat heartbeat;
         public IRCBot ircbot;
         public Tasks tasks;
         public PlayerDB db;
         public IPBanList bans;
-        public Commands cmd;
-        public ClassList classes;
 
         public Player[] players;
         public string path;
@@ -80,22 +76,13 @@ namespace fCraft {
             Color.Init();
             Map.Init();
 
-            // start the logger
-            log = new Logger( this );
-
-            // load config
-            classes = new ClassList( this );
-            config = new Config( this, classes, log );
-            
             // start tasks service
             tasks = new Tasks();
 
             db = new PlayerDB( this );
             bans = new IPBanList( this );
 
-            cmd = new Commands( this );
             heartbeat = new Heartbeat( this );
-
         }
 
 
@@ -103,12 +90,12 @@ namespace fCraft {
             try {
                 map = Map.Load( this, mapName );
             } catch( Exception ex ) {
-                log.Log( "Could not open the specified file ({0}): {1}", LogType.Error, mapName, ex.Message );
+                Logger.Log( "Could not open the specified file ({0}): {1}", LogType.Error, mapName, ex.Message );
             }
 
             // or generate a default one
             if( map == null ) {
-                log.Log( "World.Init: Generating default flatgrass level.", LogType.SystemActivity );
+                Logger.Log( "World.Init: Generating default flatgrass level.", LogType.SystemActivity );
                 map = new Map( this, 64, 64, 64 );
 
                 map.spawn.Set( map.widthX / 2 * 32 + 16, map.widthY / 2 * 32 + 16, map.height * 32, 0, 0 );
@@ -121,19 +108,19 @@ namespace fCraft {
 
 
         public bool Init() {
-            log.Init( "fCraft.log" );
-            if( !config.Load( "config.xml" ) ) return false;
-            config.ApplyConfig();
-            config.Save( "config.xml" );
+            Logger.Init( "fCraft.log" );
+            if( !Config.Load( "config.xml" ) ) return false;
+            Config.ApplyConfig();
+            Config.Save( "config.xml" );
 
-            if (config.GetBool("IRCBot") == true)
+            if (Config.GetBool("IRCBot") == true)
             {
                 ircbot = new IRCBot(this);
                 IRCBotOnline = true;
             }
 
             // allocate player list
-            players = new Player[config.GetInt( "MaxPlayers" ) + 1];
+            players = new Player[Config.GetInt( "MaxPlayers" ) + 1];
             tasks.Init();
 
             // load player DB
@@ -145,7 +132,7 @@ namespace fCraft {
         
 
         // World initialization
-        // NOTE: Logger, Config, and Color are initialized by now
+        // NOTE: Logger, Config. and Color are initialized by now
         public bool Start() {
             Player.Console = new Player( this, "(console)" );
 
@@ -160,11 +147,11 @@ namespace fCraft {
 
             // queue up some tasks to run on the scheduler
             AddTask( server.CheckForIncomingConnections, 0 );
-            AddTask( UpdateBlocks, config.GetInt( "TickInterval" ) );
-            saveMapTaskId = AddTask( SaveMap, config.GetInt( "SaveInterval" ) * 1000 );
-            TaskToggle( saveMapTaskId, config.GetInt( "SaveInterval" ) > 0 );
-            autoBackupTaskId = AddTask( AutoBackup, config.GetInt( "BackupInterval" ) * 1000 * 60 );
-            TaskToggle( autoBackupTaskId, config.GetInt( "BackupInterval" ) > 0 );
+            AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ) );
+            saveMapTaskId = AddTask( SaveMap, Config.GetInt( "SaveInterval" ) * 1000 );
+            TaskToggle( saveMapTaskId, Config.GetInt( "SaveInterval" ) > 0 );
+            autoBackupTaskId = AddTask( AutoBackup, Config.GetInt( "BackupInterval" ) * 1000 * 60 );
+            TaskToggle( autoBackupTaskId, Config.GetInt( "BackupInterval" ) > 0 );
 
             mainThread = new Thread( Update );
             mainThread.Start();
@@ -198,7 +185,7 @@ namespace fCraft {
 
         // === Main Loop ======================================================
 
-        internal float ticksPerSecond;
+        internal static float ticksPerSecond; //TODO: move to server
 
         class UpdateTask {
             public DateTime nextTime;
@@ -238,7 +225,7 @@ namespace fCraft {
 
         void AutoBackup( object param ) {
             if( lockDown ) return;
-            if( !firstBackup || config.GetBool( "BackupOnStartup" ) ) {
+            if( !firstBackup || Config.GetBool( "BackupOnStartup" ) ) {
                 map.SaveBackup( String.Format( "backups/{0:yyyy-MM-ddTHH-mm}.fcm", DateTime.Now ) );
             }
             firstBackup = false;
@@ -291,7 +278,7 @@ namespace fCraft {
                         player.id = i;
                         players[i] = player;
                         playerCount++;
-                        if( config.GetBool( "BackupOnJoin" ) ) {
+                        if( Config.GetBool( "BackupOnJoin" ) ) {
                             map.SaveBackup( String.Format( "backups/{0:yyyy-MM-dd HH-mm}_{1}.fcm", DateTime.Now, player.name ) );
                         }
                         UpdatePlayerList();
@@ -306,18 +293,18 @@ namespace fCraft {
         // Remove player from the list, and notify remaining players
         public void UnregisterPlayer( Player player ) {
             if( player == null ) {
-                log.Log( "World.UnregisterPlayer: Trying to unregister a non-existent (null) player.", LogType.Debug );
+                Logger.Log( "World.UnregisterPlayer: Trying to unregister a non-existent (null) player.", LogType.Debug );
                 return;
             }
 
             lock( playerListLock ) {
                 if( players[player.id] == player ) {
-                    log.Log( "{0} left the server.", LogType.UserActivity, player.name );
+                    Logger.Log( "{0} left the server.", LogType.UserActivity, player.name );
 
                     // if IRC Bot is online, send update to IRC bot
                     if (ircbot.isOnline() == true)
                     {
-                        ircbot.SendMsgChannel(player.name + "(" + player.info.playerClass.name + ") has left ** " + config.GetString("ServerName") + " **");
+                        ircbot.SendMsgChannel(player.name + "(" + player.info.playerClass.name + ") has left ** " + Config.GetString("ServerName") + " **");
                     }
                     db.ProcessLogout( player );
                     db.Save();
@@ -327,7 +314,7 @@ namespace fCraft {
                     SendToAll( PacketWriter.MakeMessage( Color.Sys + player.name + " left the server." ), null );
                     UpdatePlayerList();
                 }else{
-                    log.Log( "World.UnregisterPlayer: Trying to unregister a non-existent (unknown id) player.", LogType.Warning );
+                    Logger.Log( "World.UnregisterPlayer: Trying to unregister a non-existent (unknown id) player.", LogType.Warning );
                 }
             }
         }
@@ -427,7 +414,7 @@ namespace fCraft {
         // Disconnect all players
         public void ShutDown() {
             try {
-                log.Log( "Server shutting down.", LogType.SystemActivity );
+                Logger.Log( "Server shutting down.", LogType.SystemActivity );
                 keepGoing = false;
                 if( mainThread != null && mainThread.IsAlive ) {
                     mainThread.Join();
@@ -447,7 +434,7 @@ namespace fCraft {
                     playerCount = 0;
                 }
 
-                if( config.GetBool( "SaveOnShutdown" ) && map != null ) {
+                if( Config.GetBool( "SaveOnShutdown" ) && map != null ) {
                     map.Save();
                 }
 
@@ -455,7 +442,7 @@ namespace fCraft {
                 if( bans != null ) bans.Save();
                 if( server != null ) server.ShutDown();
             } catch( Exception ex ) {
-                log.Log( "Error occured while trying to shut down: {0}", LogType.FatalError, ex.Message );
+                Logger.Log( "Error occured while trying to shut down: {0}", LogType.FatalError, ex.Message );
             }
         }
 
@@ -520,17 +507,17 @@ namespace fCraft {
         }
 
 
-        internal void NoPlayerMessage( Player player, string name ) {
+        internal static void NoPlayerMessage( Player player, string name ) {
             player.Message( "No players found matching \"" + name + "\"" );
         }
 
 
-        internal void ManyPlayersMessage( Player player, string name ) {
+        internal static void ManyPlayersMessage( Player player, string name ) {
             player.Message( "More than one player found matching \"" + name + "\"" );
         }
 
 
-        internal void NoAccessMessage( Player player ) {
+        internal static void NoAccessMessage( Player player ) {
             player.Message( Color.Red, "You do not have access to this command." );
         }
 

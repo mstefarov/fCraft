@@ -26,7 +26,7 @@ namespace fCraft {
 
         public static UpdaterResult CheckForUpdates( World world ) {
             UpdaterResult result = new UpdaterResult( version );
-            if( world.config.GetString( "AutomaticUpdates" ) == "Disabled" ) return result;
+            if( Config.GetString( "AutomaticUpdates" ) == "Disabled" ) return result;
             try {
                 HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create( "http://fcraft.fragmer.net/version.log" );
 
@@ -63,7 +63,7 @@ namespace fCraft {
                 }
                 request.Abort();
             } catch( Exception ex ) {
-                world.log.Log( "An error occured while trying to check for updates: {0}: {1}", LogType.Error,
+                Logger.Log( "An error occured while trying to check for updates: {0}: {1}", LogType.Error,
                                ex.GetType().ToString(), ex.Message );
             }
             return result;

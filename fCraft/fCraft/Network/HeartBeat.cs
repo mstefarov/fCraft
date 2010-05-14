@@ -14,8 +14,7 @@ namespace fCraft {
         bool hasReportedServerURL;
         HttpWebRequest request;
         string hash;
-        const string fListURL = "http://list.fragmer.net/announce.php",
-                     URL = "http://www.minecraft.net/heartbeat.jsp";
+        const string URL = "http://www.minecraft.net/heartbeat.jsp";
         World world;
 
 
@@ -29,11 +28,11 @@ namespace fCraft {
             thread.IsBackground = true;
 
             staticData = String.Format( "name={0}&max={1}&public={2}&port={3}&salt={4}&version={5}",
-                                        Server.UrlEncode( world.config.GetString( "ServerName" ) ),
-                                        world.config.GetInt( "MaxPlayers" ),
-                                        world.config.GetBool( "IsPublic" ),
-                                        world.config.GetInt("Port"),
-                                        world.config.Salt,
+                                        Server.UrlEncode( Config.GetString( "ServerName" ) ),
+                                        Config.GetInt( "MaxPlayers" ),
+                                        Config.GetBool( "IsPublic" ),
+                                        Config.GetInt("Port"),
+                                        Config.Salt,
                                         Config.ProtocolVersion );
 
             thread.Start();
@@ -59,41 +58,17 @@ namespace fCraft {
                     if( !hasReportedServerURL ) {
                         using( WebResponse response = request.GetResponse() ) {
                             using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                                world.config.ServerURL = responseReader.ReadLine();
+                                Config.ServerURL = responseReader.ReadLine();
                             }
                         }
-                        hash = world.config.ServerURL.Substring( world.config.ServerURL.LastIndexOf( '=' ) + 1 );
-                        world.FireURLChange( world.config.ServerURL );
+                        hash = Config.ServerURL.Substring( Config.ServerURL.LastIndexOf( '=' ) + 1 );
+                        world.FireURLChange( Config.ServerURL );
                         hasReportedServerURL = true;
                     }
                     request.Abort();
 
                 } catch( Exception ex ) {
-                    world.log.Log( "HeartBeat: {0}", LogType.Error, ex.Message );
-                }
-
-                try {
-                    request = (HttpWebRequest)WebRequest.Create( fListURL );
-                    request.Method = "POST";
-                    request.Timeout = 15000; // 15s timeout
-                    request.ContentType = "application/x-www-form-urlencoded";
-                    request.CachePolicy = new System.Net.Cache.RequestCachePolicy( System.Net.Cache.RequestCacheLevel.NoCacheNoStore );
-                    string requestString = staticData +
-                                            "&users=" + world.GetPlayerCount() +
-                                            "&hash=" + hash +
-                                            "&motd=" + Server.UrlEncode( world.config.GetString( "MOTD" ) ) +
-                                            "&server=fcraft" +
-                                            "&players=" + world.GetPlayerListString();
-                    byte[] formData = Encoding.ASCII.GetBytes( requestString );
-                    request.ContentLength = formData.Length;
-
-                    using( Stream requestStream = request.GetRequestStream() ) {
-                        requestStream.Write( formData, 0, formData.Length );
-                        requestStream.Flush();
-                    }
-                    request.Abort();
-                } catch( Exception ex ) {
-                    world.log.Log( "HeartBeat: Error reporting to fList: {0}", LogType.Error, ex.Message );
+                    Logger.Log( "HeartBeat: {0}", LogType.Error, ex.Message );
                 }
 
                 Thread.Sleep( Config.HeartBeatDelay );

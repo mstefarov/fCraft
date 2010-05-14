@@ -87,10 +87,10 @@ namespace fCraft
             // Load credentials from config
             try
             {
-                SERVER = world.config.GetString("IRCBotNetwork");
-                PORT = world.config.GetInt("IRCBotPort");
-                NICK = world.config.GetString("IRCBotNick");
-                CHANNEL = world.config.GetString("IRCBotChannel");
+                SERVER = Config.GetString("IRCBotNetwork");
+                PORT = Config.GetInt("IRCBotPort");
+                NICK = Config.GetString("IRCBotNick");
+                CHANNEL = Config.GetString("IRCBotChannel");
                 USER = "USER fCraftbot 8 * :fCraft IRC Bot";
             }
             catch (Exception e)
@@ -120,7 +120,7 @@ namespace fCraft
                 SendRaw(USER);
                 // Then send the nickname you will use
                 SendRaw("NICK " + NICK + "\r\n");
-                world.log.Log("IRCBot is now connected to " + SERVER + ":" + PORT + ".", LogType.IRC);
+                Logger.Log("IRCBot is now connected to " + SERVER + ":" + PORT + ".", LogType.IRC);
                 linkStatus = true;
                 // After registration is done, listen for messages
                 while (true)
@@ -144,8 +144,8 @@ namespace fCraft
                                 if (message.cmd == "status")
                                 {
                                     // Put together all of the status variables from world and such
-                                    string serverName = world.config.GetString("ServerName");
-                                    string MOTD = world.config.GetString("MOTD");
+                                    string serverName = Config.GetString("ServerName");
+                                    string MOTD = Config.GetString("MOTD");
                                     string serverAddress = File.ReadAllText("externalurl.txt", ASCIIEncoding.ASCII);
                                     int playersOnline = world.GetPlayerCount();
 
@@ -214,7 +214,7 @@ namespace fCraft
                                         {
                                             string authResponse = message.nickname + " Authenticated to host " + message.host;
                                             SendMsg(message.nickname, message.nickname + ", you have authenticated with the host " + message.host + ".");
-                                            world.log.Log(message.nickname + " Authenticated to host " + message.host, LogType.Chat);
+                                            Logger.Log(message.nickname + " Authenticated to host " + message.host, LogType.WorldChat);
                                             AuthPkg newAuth = new AuthPkg() { host = message.host, nickname = message.nickname };
                                             authedHosts.Add(newAuth);
                                         }
@@ -237,9 +237,9 @@ namespace fCraft
                                         {
                                             Player fBot = new Player(world, "fBot");
                                             PlayerClass fClass = new PlayerClass();
-                                            fClass = world.classes.FindClass("owner");
+                                            fClass = ClassList.FindClass( "owner" );
                                             fBot.info.playerClass = fClass;
-                                            world.cmd.ParseCommand(fBot, "/kick " + kickLine[1], true);
+                                            Commands.ParseCommand(fBot, "/kick " + kickLine[1], true);
                                         }   
                                     }
                                     else
@@ -256,9 +256,9 @@ namespace fCraft
 
                                             Player fBot = new Player(world, "fBot");
                                             PlayerClass fClass = new PlayerClass();
-                                            fClass = world.classes.FindClass("owner");
+                                            fClass = ClassList.FindClass( "owner" );
                                             fBot.info.playerClass = fClass;
-                                            world.cmd.ParseCommand(fBot, "/ban " + kickLine[1], true);
+                                            Commands.ParseCommand(fBot, "/ban " + kickLine[1], true);
 
                                         }
                                     }
@@ -275,9 +275,9 @@ namespace fCraft
 
                                             Player fBot = new Player(world, "fBot");
                                             PlayerClass fClass = new PlayerClass();
-                                            fClass = world.classes.FindClass("owner");
+                                            fClass = ClassList.FindClass( "owner" );
                                             fBot.info.playerClass = fClass;
-                                            world.cmd.ParseCommand(fBot, "/banip " + kickLine[1], true);
+                                            Commands.ParseCommand(fBot, "/banip " + kickLine[1], true);
                                         }
                                     }
                                     else
@@ -293,9 +293,9 @@ namespace fCraft
 
                                             Player fBot = new Player(world, "fBot");
                                             PlayerClass fClass = new PlayerClass();
-                                            fClass = world.classes.FindClass("owner");
+                                            fClass = ClassList.FindClass( "owner" );
                                             fBot.info.playerClass = fClass;
-                                            world.cmd.ParseCommand(fBot, "/banall " + kickLine[1], true);
+                                            Commands.ParseCommand(fBot, "/banall " + kickLine[1], true);
                                         }
                                     }
                                     else
@@ -311,9 +311,9 @@ namespace fCraft
 
                                             Player fBot = new Player(world, "fBot");
                                             PlayerClass fClass = new PlayerClass();
-                                            fClass = world.classes.FindClass("owner");
+                                            fClass = ClassList.FindClass( "owner" );
                                             fBot.info.playerClass = fClass;
-                                            world.cmd.ParseCommand(fBot, "/unban " + kickLine[1], true);
+                                            Commands.ParseCommand(fBot, "/unban " + kickLine[1], true);
                                         }
                                     }
                                     else
@@ -329,9 +329,9 @@ namespace fCraft
 
                                             Player fBot = new Player(world, "fBot");
                                             PlayerClass fClass = new PlayerClass();
-                                            fClass = world.classes.FindClass("owner");
+                                            fClass = ClassList.FindClass( "owner" );
                                             fBot.info.playerClass = fClass;
-                                            world.cmd.ParseCommand(fBot, "/unbanip " + kickLine[1], true);
+                                            Commands.ParseCommand(fBot, "/unbanip " + kickLine[1], true);
                                         }
                                     }
                                     else
@@ -347,9 +347,9 @@ namespace fCraft
 
                                             Player fBot = new Player(world, "fBot");
                                             PlayerClass fClass = new PlayerClass();
-                                            fClass = world.classes.FindClass("owner");
+                                            fClass = ClassList.FindClass( "owner" );
                                             fBot.info.playerClass = fClass;
-                                            world.cmd.ParseCommand(fBot, "/unbanall " + kickLine[1], true);
+                                            Commands.ParseCommand(fBot, "/unbanall " + kickLine[1], true);
                                         }
                                     }
                                     else
@@ -365,10 +365,10 @@ namespace fCraft
 
                                             Player fBot = new Player(world, "fBot");
                                             PlayerClass fClass = new PlayerClass();
-                                            fClass = world.classes.FindClass("owner");
+                                            fClass = ClassList.FindClass( "owner" );
                                             fBot.info.playerClass = fClass;
-                                            world.cmd.ParseCommand(fBot, "/lock", true);
-                                            world.log.Log(message.nickname + " initated a Lockdown on the server.", LogType.Chat);
+                                            Commands.ParseCommand(fBot, "/lock", true);
+                                            Logger.Log(message.nickname + " initated a Lockdown on the server.", LogType.WorldChat);
                                         }
                                     }
                                     else
@@ -384,10 +384,10 @@ namespace fCraft
 
                                             Player fBot = new Player(world, "fBot");
                                             PlayerClass fClass = new PlayerClass();
-                                            fClass = world.classes.FindClass("owner");
+                                            fClass = ClassList.FindClass( "owner" );
                                             fBot.info.playerClass = fClass;
-                                            world.cmd.ParseCommand(fBot, "/unlock", true);
-                                            world.log.Log(message.nickname + " revoked a Lockdown on the server.", LogType.Chat);
+                                            Commands.ParseCommand(fBot, "/unlock", true);
+                                            Logger.Log(message.nickname + " revoked a Lockdown on the server.", LogType.WorldChat);
 
                                         }
                                     }
@@ -404,7 +404,7 @@ namespace fCraft
                                 else if (message.chatMessage.Contains("#")) // Catch chat messages to the server itself
                                 {
                                     string stringToServer = "fBot: " + inputline.Substring(inputline.IndexOf("#") + 1);
-                                    world.log.Log(stringToServer, LogType.Chat);
+                                    Logger.Log(stringToServer, LogType.WorldChat);
                                     world.SendToAll(stringToServer, null);
 
                                 }
@@ -421,7 +421,7 @@ namespace fCraft
                             else if (message.to == CHANNEL && message.chatMessage.Contains(NICK + ":"))
                             {
                                 string stringToServer = message.nickname + ": " + inputline.Substring(inputline.IndexOf(NICK) + NICK.Length + 1).Trim();
-                                world.log.Log(stringToServer, LogType.Chat);
+                                Logger.Log(stringToServer, LogType.WorldChat);
                                 world.SendToAll(stringToServer, null);
 
 #if DEBUG_IRC
@@ -607,7 +607,7 @@ namespace fCraft
             if (reader != null) reader.Close();
             if (writer != null) writer.Close();
             if( connection!=null) connection.Close();
-            world.log.Log("IRCBot disconnected from " + SERVER + ":" + PORT + ".", LogType.IRC);
+            Logger.Log("IRCBot disconnected from " + SERVER + ":" + PORT + ".", LogType.IRC);
         }
  
     }

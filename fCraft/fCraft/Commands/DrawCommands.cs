@@ -9,32 +9,30 @@ namespace fCraft {
         Ellipsoid
     }
 
-    // VERY SLOPPY! TODO: fix everything forever
     class DrawCommands {
-        World world;
-        internal DrawCommands( World _world, Commands commands ) {
-            world = _world;
-            commands.AddCommand( "cuboid", Cuboid, true );
-            commands.AddCommand( "cub", Cuboid, true );
-            commands.AddCommand( "ellipsoid", Ellipsoid, true );
-            commands.AddCommand( "ell", Ellipsoid, true );
-            commands.AddCommand( "mark", Mark, true );
-            commands.AddCommand( "undo", UndoDraw, true );
-            commands.AddCommand( "cancel", CancelDraw, true );
+
+        internal static void Init(){
+            Commands.AddCommand( "cuboid", Cuboid, true );
+            Commands.AddCommand( "cub", Cuboid, true );
+            Commands.AddCommand( "ellipsoid", Ellipsoid, true );
+            Commands.AddCommand( "ell", Ellipsoid, true );
+            Commands.AddCommand( "mark", Mark, true );
+            Commands.AddCommand( "undo", UndoDraw, true );
+            Commands.AddCommand( "cancel", CancelDraw, true );
         }
 
 
-        void Cuboid( Player player, Command command ) {
+        internal static void Cuboid( Player player, Command command ) {
             Draw( player, command, DrawMode.Cuboid );
         }
 
-        void Ellipsoid( Player player, Command command ) {
+        internal static void Ellipsoid( Player player, Command command ) {
             Draw( player, command, DrawMode.Ellipsoid );
         }
 
-        void Draw( Player player, Command command, DrawMode mode ) {
+        internal static void Draw( Player player, Command command, DrawMode mode ) {
             if( !player.Can( Permissions.Draw ) ) {
-                world.NoAccessMessage( player );
+                World.NoAccessMessage( player );
                 return;
             }
             if( player.drawingInProgress ) {
@@ -86,7 +84,7 @@ namespace fCraft {
         }
 
 
-        void Mark( Player player, Command command ) {
+        internal static void Mark( Player player, Command command ) {
             Position pos = new Position( (short)(player.pos.x / 32), (short)(player.pos.y / 32), (short)(player.pos.h / 32) );
             if( player.marksExpected > 0 ) {
                 player.marks.Push( pos );
@@ -104,7 +102,7 @@ namespace fCraft {
         }
 
 
-        void CancelDraw( Player player, Command command ) {
+        internal static void CancelDraw( Player player, Command command ) {
             if( player.marksExpected > 0 ) {
                 player.marksExpected = 0;
             } else {
@@ -113,18 +111,18 @@ namespace fCraft {
         }
 
 
-        void UndoDraw( Player player, Command command ) {
+        internal static void UndoDraw( Player player, Command command ) {
             if( !player.Can( Permissions.Draw ) ) {
-                world.NoAccessMessage( player );
+                World.NoAccessMessage( player );
                 return;
             }
             if( player.drawUndoBuffer.Count > 0 ) {
                 if( player.drawingInProgress ) {
                     player.Message( "Cannot undo a drawing-in-progress. Wait for it to finish." );
                 } else {
-                    world.SendToAll( Color.Sys + player.name + " initiated /drawundo. " + player.drawUndoBuffer.Count + " blocks to replace...", null );
+                    player.world.SendToAll( Color.Sys + player.name + " initiated /drawundo. " + player.drawUndoBuffer.Count + " blocks to replace...", null );
                     while( player.drawUndoBuffer.Count > 0 ) {
-                        world.map.QueueUpdate( player.drawUndoBuffer.Dequeue() );
+                        player.world.map.QueueUpdate( player.drawUndoBuffer.Dequeue() );
                     }
                 }
                 GC.Collect();
@@ -175,7 +173,7 @@ namespace fCraft {
                 }
             }
             player.Message( "Drawing " + blocks + " blocks... The map is now being updated." );
-            player.world.log.Log( "{0} initiated drawing a cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
+            Logger.Log( "{0} initiated drawing a cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
                                   player.name,
                                   blocks,
                                   drawBlock.ToString() );
@@ -183,7 +181,7 @@ namespace fCraft {
             player.drawingInProgress = false;
         }
 
-        static void DrawEllipsoid( Player player, Position[] marks, object tag ) {
+        internal static void DrawEllipsoid( Player player, Position[] marks, object tag ) {
             player.drawingInProgress = true;
             Block drawBlock = (Block)tag;
 
@@ -255,7 +253,7 @@ namespace fCraft {
             }
             player.drawingInProgress = false;
             player.Message( "Drawing " + blocks + " blocks... The map is now being updated." );
-            player.world.log.Log( "{0} initiated drawing a cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
+            Logger.Log( "{0} initiated drawing a cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
                                   player.name,
                                   blocks,
                                   drawBlock.ToString() );

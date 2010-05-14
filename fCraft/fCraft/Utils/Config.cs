@@ -5,13 +5,14 @@ using System.Xml.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Diagnostics;
 
 
 namespace fCraft {
-    public class Config {
+    public static class Config {
 
-        public int Salt;
-        public string ServerURL;
+        internal static int Salt;
+        public static string ServerURL;
         public const int HeartBeatDelay = 50000;
 
         public const int ProtocolVersion = 7;
@@ -19,35 +20,26 @@ namespace fCraft {
         public const uint LevelFormatID = 0xFC000002;
         public const int MaxPlayersSupported = 256;
         const string ConfigRootName = "fCraftConfig";
-        World world;
-        Dictionary<string, string> settings = new Dictionary<string, string>();
-        public ClassList classes;
-        public Logger logger;
-        internal ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
+        static Dictionary<string, string> settings = new Dictionary<string, string>();
+        internal static ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
 
-        public string errors = ""; // for ConfigTool
+        public static string errors = ""; // for ConfigTool
+        public static bool logToString = false;
 
-
-        public Config( World _world, ClassList _classes, Logger _logger ) {
-            world = _world;
-            classes = _classes;
-            logger = _logger;
-        }
-
-        void Log( string format, LogType type, params object[] args ) {
+        static void Log( string format, LogType type, params object[] args ) {
             Log( String.Format( format, args ), type );
         }
 
-        void Log( string message, LogType type ) {
-            if( world != null ) {
-                world.log.Log( message, type );
+        static void Log( string message, LogType type ) {
+            if( !logToString ) {
+                Logger.Log( message, type );
             } else if( type != LogType.Debug ) {
                 errors += message + Environment.NewLine;
             }
         }
 
 
-        public void LoadDefaultsGeneral() {
+        public static void LoadDefaultsGeneral() {
             settings["ServerName"] = "Minecraft custom server (fCraft)";
             settings["MOTD"] = "Welcome to the server!";
             settings["MaxPlayers"] = "16";
@@ -72,7 +64,7 @@ namespace fCraft {
         }
 
 
-        public void LoadDefaultsSecurity() {
+        public static void LoadDefaultsSecurity() {
             settings["VerifyNames"] = "Balanced"; // can be "Always," "Balanced," or "Never"
             settings["AnnounceUnverifiedNames"] = "True";
 
@@ -89,7 +81,7 @@ namespace fCraft {
         }
 
 
-        public void LoadDefaultsSavingAndBackup() {
+        public static void LoadDefaultsSavingAndBackup() {
             settings["SaveOnShutdown"] = "true";
             settings["SaveInterval"] = "60"; // 0 = no auto save
 
@@ -102,21 +94,21 @@ namespace fCraft {
         }
 
 
-        public void LoadDefaultsLogging() {
+        public static void LoadDefaultsLogging() {
             settings["LogMode"] = "OneFile"; // can be: "None", "OneFile", "SplitBySession", "SplitByDay"
             settings["MaxLogs"] = "0";
-            for( int i = 0; i < logger.consoleOptions.Length; i++ ) {
-                logger.consoleOptions[i] = true;
+            for( int i = 0; i < Logger.consoleOptions.Length; i++ ) {
+                Logger.consoleOptions[i] = true;
             }
-            logger.consoleOptions[(int)LogType.ConsoleInput] = false;
-            logger.consoleOptions[(int)LogType.Debug] = false;
-            for( int i = 0; i < logger.logFileOptions.Length; i++ ) {
-                logger.logFileOptions[i] = true;
+            Logger.consoleOptions[(int)LogType.ConsoleInput] = false;
+            Logger.consoleOptions[(int)LogType.Debug] = false;
+            for( int i = 0; i < Logger.logFileOptions.Length; i++ ) {
+                Logger.logFileOptions[i] = true;
             }
         }
 
 
-        public void LoadDefaultsAdvanced() {
+        public static void LoadDefaultsAdvanced() {
             settings["PolicyColorCodesInChat"] = "ConsoleOnly"; // can be: "Allow", "ConsoleOnly", "Disallow"
             settings["PolicyIllegalCharacters"] = "Disallow"; // can be: "Allow", "ConsoleOnly", "Disallow"
             settings["SendRedundantBlockUpdates"] = "false";
@@ -131,7 +123,7 @@ namespace fCraft {
         }
 
 
-        public void LoadDefaults() {
+        public static void LoadDefaults() {
             //locker.EnterWriteLock();
             settings.Clear();
             LoadDefaultsGeneral();
@@ -143,7 +135,7 @@ namespace fCraft {
         }
 
 
-        public bool Load( string configFileName ) {
+        public static bool Load( string configFileName ) {
             // generate random salt
             Salt = new Random().Next();
 
@@ -192,7 +184,7 @@ namespace fCraft {
                         Log( "Config.Load: Could not parse one of the class definitions.", LogType.Warning );
                     }
                 }
-                if( classes.classes.Count == 0 ) {
+                if( ClassList.classes.Count == 0 ) {
                     Log( "Config.Load: No classes were defined, or none were defined correctly. Using default player classes.", LogType.Warning );
                     config.Add( DefineDefaultClasses() );
                 }
@@ -202,8 +194,8 @@ namespace fCraft {
             }
 
             // parse rank-limit permissions
-            foreach( PlayerClass pc in classes.classesByIndex ) {
-                if( !classes.ParseClassLimits( pc ) ) {
+            foreach( PlayerClass pc in ClassList.classesByIndex ) {
+                if( !ClassList.ParseClassLimits( pc ) ) {
                     Log( "Could not parse one of the rank-limits for kick, ban, promote, and/or demote permissions for {0}. "+
                          "Any unrecognized limits were reset to default (own class).", LogType.Warning, pc.name );
                 }
@@ -211,23 +203,23 @@ namespace fCraft {
 
             XElement consoleOptions = config.Element( "ConsoleOptions" );
             if( consoleOptions != null ) {
-                ParseLogOptions( consoleOptions, ref logger.consoleOptions );
+                ParseLogOptions( consoleOptions, ref Logger.consoleOptions );
             } else {
                 if( fromFile ) Log( "Config.Load: using default console options.", LogType.Warning );
-                for( int i = 0; i < logger.consoleOptions.Length; i++ ) {
-                    logger.consoleOptions[i] = true;
+                for( int i = 0; i < Logger.consoleOptions.Length; i++ ) {
+                    Logger.consoleOptions[i] = true;
                 }
-                logger.consoleOptions[(int)LogType.ConsoleInput] = false;
-                logger.consoleOptions[(int)LogType.Debug] = false;
+                Logger.consoleOptions[(int)LogType.ConsoleInput] = false;
+                Logger.consoleOptions[(int)LogType.Debug] = false;
             }
 
             XElement logFileOptions = config.Element( "LogFileOptions" );
             if( logFileOptions != null ) {
-                ParseLogOptions( logFileOptions, ref logger.logFileOptions );
+                ParseLogOptions( logFileOptions, ref Logger.logFileOptions );
             } else {
                 if( fromFile ) Log( "Config.Load: using default log file options.", LogType.Warning );
-                for( int i = 0; i < logger.logFileOptions.Length; i++ ) {
-                    logger.logFileOptions[i] = true;
+                for( int i = 0; i < Logger.logFileOptions.Length; i++ ) {
+                    Logger.logFileOptions[i] = true;
                 }
             }
 
@@ -249,7 +241,7 @@ namespace fCraft {
         }
 
 
-        public bool Save( string configFileName ) {
+        public static bool Save( string configFileName ) {
             XDocument file = new XDocument();
 
             XElement config = new XElement( ConfigRootName );
@@ -260,23 +252,23 @@ namespace fCraft {
             }
 
             XElement consoleOptions = new XElement( "ConsoleOptions" );
-            for( int i = 0; i < logger.consoleOptions.Length; i++ ) {
-                if( logger.consoleOptions[i] ) {
+            for( int i = 0; i < Logger.consoleOptions.Length; i++ ) {
+                if( Logger.consoleOptions[i] ) {
                     consoleOptions.Add( new XElement( ((LogType)i).ToString() ) );
                 }
             }
             config.Add( consoleOptions );
 
             XElement logFileOptions = new XElement( "LogFileOptions" );
-            for( int i = 0; i < logger.logFileOptions.Length; i++ ) {
-                if( logger.logFileOptions[i] ) {
+            for( int i = 0; i < Logger.logFileOptions.Length; i++ ) {
+                if( Logger.logFileOptions[i] ) {
                     logFileOptions.Add( new XElement( ((LogType)i).ToString() ) );
                 }
             }
             config.Add( logFileOptions );
 
             XElement classesTag = new XElement( "Classes" );
-            foreach( PlayerClass playerClass in classes.classes.Values ) {
+            foreach( PlayerClass playerClass in ClassList.classes.Values ) {
                 XElement classTag = new XElement( "PlayerClass" );
                 classTag.Add( new XAttribute( "name", playerClass.name ) );
                 classTag.Add( new XAttribute( "rank", playerClass.rank ) );
@@ -319,7 +311,7 @@ namespace fCraft {
         }
 
 
-        void ParseLogOptions( XElement el, ref bool[] list ) {
+        static void ParseLogOptions( XElement el, ref bool[] list ) {
             for( int i = 0; i < 13; i++ ) {
                 if( el.Element( ((LogType)i).ToString() ) != null ) {
                     list[i] = true;
@@ -330,7 +322,7 @@ namespace fCraft {
         }
 
 
-        internal void ApplyConfig() {
+        internal static void ApplyConfig() {
             // TODO: logging settings
             //Logger.Threshold = (LogLevel)Enum.Parse( typeof( LogLevel ), settings["LogThreshold"] );
 
@@ -340,12 +332,12 @@ namespace fCraft {
             Color.Help = Color.Parse( settings["HelpColor"] );
 
             // default class
-            if( classes.ParseClass( settings["DefaultClass"] ) != null ) {
-                classes.defaultClass = classes.ParseClass( settings["DefaultClass"] );
+            if( ClassList.ParseClass( settings["DefaultClass"] ) != null ) {
+                ClassList.defaultClass = ClassList.ParseClass( settings["DefaultClass"] );
             } else {
-                classes.defaultClass = classes.lowestClass;
+                ClassList.defaultClass = ClassList.lowestClass;
                 Log( "Config.ParseConfig: No default player class defined; assuming that the lowest rank ({0}) is the default.",
-                            LogType.Warning, classes.defaultClass.name );
+                            LogType.Warning, ClassList.defaultClass.name );
             }
 
             Player.spamChatCount = GetInt( "AntispamMessageCount" );
@@ -356,11 +348,11 @@ namespace fCraft {
 
             Server.maxUploadSpeed = GetInt("UploadBandwidth");
             Server.packetsPerSecond = GetInt("BlockUpdateThrottling" );
-            world.ticksPerSecond = 1000 / (float)GetInt( "TickInterval" );
+            World.ticksPerSecond = 1000 / (float)GetInt( "TickInterval" );
         }
 
 
-        public bool SetValue( string key, string value ) {
+        public static bool SetValue( string key, string value ) {
             switch( key ) {
                 case "ServerName":
                     return ValidateString( key, value, 1, 64 );
@@ -370,8 +362,8 @@ namespace fCraft {
                     return ValidateInt( key, value, 1, MaxPlayersSupported );
                 case "DefaultClass":
                     if( value != "" ) {
-                        if( classes.ParseClass( value ) != null ) {
-                            settings[key] = classes.ParseClass( value ).name;
+                        if( ClassList.ParseClass( value ) != null ) {
+                            settings[key] = ClassList.ParseClass( value ).name;
                             return true;
                         } else {
                             Log( "DefaultClass could not be parsed. It should be either blank (indicating \"use lowest class\") or a valid class name", LogType.Warning );
@@ -458,7 +450,7 @@ namespace fCraft {
         }
 
 
-        bool ValidateInt( string key, string value, int minRange, int maxRange ) {
+        static bool  ValidateInt( string key, string value, int minRange, int maxRange ) {
             int temp;
             if( Int32.TryParse( value, out temp ) ) {
                 if( temp >= minRange && temp <= maxRange ) {
@@ -475,7 +467,7 @@ namespace fCraft {
             }
         }
 
-        bool ValidateBool( string key, string value ) {
+        static bool  ValidateBool( string key, string value ) {
             bool temp;
             if( Boolean.TryParse( value, out temp ) ) {
                 settings[key] = temp.ToString();
@@ -487,7 +479,7 @@ namespace fCraft {
             }
         }
 
-        bool ValidateColor( string key, string value ) {
+        static bool ValidateColor( string key, string value ) {
             if( Color.Parse( value ) != null ) {
                 settings[key] = value;
                 return true;
@@ -498,7 +490,7 @@ namespace fCraft {
             }
         }
 
-        bool ValidateString( string key, string value, int minLength, int maxLength ) {
+        static bool ValidateString( string key, string value, int minLength, int maxLength ) {
             if( key.Length < minLength ) {
                 Log( "Config.SetValue: Specified value for {0} is too short (expected length: {1}...{2}). Using default ({3}).", LogType.Warning,
                     key, minLength, maxLength, settings[key] );
@@ -514,7 +506,7 @@ namespace fCraft {
             }
         }
 
-        bool ValidateEnum( string key, string value, params string[] options ) {
+        static bool ValidateEnum( string key, string value, params string[] options ) {
             for( int i = 0; i < options.Length; i++ ) {
                 if( value.ToLowerInvariant() == options[i].ToLowerInvariant() ) {
                     settings[key] = options[i];
@@ -528,32 +520,33 @@ namespace fCraft {
         }
 
 
-        public string GetString( string key ) {
+        public static string GetString( string key ) {
             return settings[key];
         }
 
-        public int GetInt( string key ) {
+        public static int GetInt( string key ) {
             return Int32.Parse( settings[key] );
         }
 
-        public bool GetBool( string key ) {
+        public static bool GetBool( string key ) {
             return Boolean.Parse( settings[key] );
         }
 
-        public void ResetClasses() {
-            classes = new ClassList( world );
+        public static void ResetClasses() {
+            ClassList.classes = new Dictionary<string, PlayerClass>();
+            ClassList.classesByIndex = new List<PlayerClass>();
             XElement classList = DefineDefaultClasses();
             foreach( XElement pc in classList.Elements() ) {
                 DefineClass( pc );
             }
             // parse rank-limit permissions
-            foreach( PlayerClass pc in classes.classesByIndex ) {
-                classes.ParseClassLimits( pc );
+            foreach( PlayerClass pc in ClassList.classesByIndex ) {
+                ClassList.ParseClassLimits( pc );
             }
         }
 
 
-        XElement DefineDefaultClasses() {
+        static XElement DefineDefaultClasses() {
             XElement temp;
             XElement permissions = new XElement( "Classes" );
 
@@ -682,7 +675,7 @@ namespace fCraft {
         }
 
 
-        bool DefineClass( XElement el ) {
+        static bool DefineClass( XElement el ) {
             PlayerClass playerClass = new PlayerClass();
 
             // read required attributes
@@ -698,7 +691,7 @@ namespace fCraft {
             }
             playerClass.name = attr.Value.Trim();
 
-            if( classes.classes.ContainsKey( playerClass.name ) ) {
+            if( ClassList.classes.ContainsKey( playerClass.name ) ) {
                 Log( "Config.DefineClass: Duplicate class definition for \"{0}\" was ignored.", LogType.Warning, playerClass.name );
                 return true;
             }
@@ -809,12 +802,12 @@ namespace fCraft {
                 playerClass.permissions[(int)Permissions.BanAll] = false;
             }
 
-            classes.AddClass( playerClass );
+            ClassList.AddClass( playerClass );
             return true;
         }
 
 
-        public System.Diagnostics.ProcessPriorityClass GetBasePriority() {
+        public static ProcessPriorityClass GetBasePriority() {
             switch( GetString( "ProcessPriority" ) ) {
                 case "High": return System.Diagnostics.ProcessPriorityClass.High;
                 case "AboveNormal": return System.Diagnostics.ProcessPriorityClass.AboveNormal;

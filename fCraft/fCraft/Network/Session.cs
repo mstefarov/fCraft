@@ -48,7 +48,7 @@ namespace fCraft {
             reader = new BinaryReader( client.GetStream() );
             writer = new PacketWriter( new BinaryWriter( client.GetStream() ) );
 
-            world.log.Log( "Session: {0}", LogType.Debug, ToString() );
+            Logger.Log( "Session: {0}", LogType.Debug, ToString() );
 
             ioThread = new Thread( IoLoop );
             ioThread.IsBackground = true;
@@ -77,7 +77,7 @@ namespace fCraft {
                     if( pollCounter > pollInterval ) {
                         if( !client.Connected ||
                             (client.Client.Poll( 1000, SelectMode.SelectRead ) && client.Client.Available == 0) ) {
-                            world.log.Log( "Session.IoLoop: Lost connection to {0}.", LogType.Debug, player.name );
+                            Logger.Log( "Session.IoLoop: Lost connection to {0}.", LogType.Debug, player.name );
                             return;
                         }
                         pollCounter = 0;
@@ -92,7 +92,7 @@ namespace fCraft {
                         writer.Write( packet.data );
                         packetsSent++;
                         if( packet.data[0] == (byte)OutputCodes.Disconnect ) {
-                            world.log.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug, player.name );
+                            Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug, player.name );
                             return;
                         }
                     }
@@ -106,7 +106,7 @@ namespace fCraft {
                         packetsSent++;
                         if( packet.data[0] == (byte)OutputCodes.Disconnect ) {
                             writer.Flush();
-                            world.log.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug, player.name );
+                            Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug, player.name );
                             return;
                         }
                     }
@@ -121,7 +121,7 @@ namespace fCraft {
                                 reader.ReadByte();
                                 string message = ReadString();
                                 if( Player.CheckForIllegalChars( message ) ) {
-                                    world.log.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.",
+                                    Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.",
                                                 LogType.SuspiciousActivity,
                                                 player.name );
                                     KickNow( "Illegal characters in chat." );
@@ -142,7 +142,7 @@ namespace fCraft {
                                 newPos.l = reader.ReadByte();
 
                                 if( newPos.h < 0 || newPos.x < -32 || newPos.x >= world.map.widthX * 32+32 || newPos.y < -32 || newPos.y > world.map.widthY * 32+32 ) {
-                                    world.log.Log( player.name + " was kicked for moving out of map boundaries.", LogType.SuspiciousActivity );
+                                    Logger.Log( player.name + " was kicked for moving out of map boundaries.", LogType.SuspiciousActivity );
                                     KickNow( "Hacking detected: out of map boundaries." );
                                     return;
                                 }
@@ -193,7 +193,7 @@ namespace fCraft {
                                 mode = reader.ReadByte();
                                 type = reader.ReadByte();
                                 if( type > 49 || x < 0 || x > world.map.widthX || y < 0 || y > world.map.widthY || h < 0 || h > world.map.height ) {
-                                    world.log.Log( player.name + " was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity );
+                                    Logger.Log( player.name + " was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity );
                                     world.SendToAll( player.name + " was kicked for attempted hacking.", null );
                                     KickNow( "Hacking detected: illegal SetTile packet." );
                                     return;
@@ -206,16 +206,16 @@ namespace fCraft {
                 }
 
             } catch( ThreadAbortException ) {
-                world.log.Log( "Session.IoLoop: Thread aborted!", LogType.Error );
+                Logger.Log( "Session.IoLoop: Thread aborted!", LogType.Error );
 
             } catch( IOException ex ) {
-                world.log.Log( "Session.IoLoop: {0}.", LogType.Warning, ex.Message );
+                Logger.Log( "Session.IoLoop: {0}.", LogType.Warning, ex.Message );
 
             } catch( SocketException ex ) {
-                world.log.Log( "Session.IoLoop: {0}.", LogType.Warning, ex.Message );
+                Logger.Log( "Session.IoLoop: {0}.", LogType.Warning, ex.Message );
 
             } catch( Exception ex ) {
-                world.log.Log( "Session.IoLoop: {0}: {1}.", LogType.Error, ex.ToString(), ex.Message );
+                Logger.Log( "Session.IoLoop: {0}: {1}.", LogType.Error, ex.ToString(), ex.Message );
 
             } finally {
                 canQueue = false;
@@ -229,7 +229,7 @@ namespace fCraft {
         void LoginSequence() {
             byte opcode = reader.ReadByte();
             if( opcode != (byte)InputCodes.Handshake ) {
-                world.log.Log( "Session.LoginSequence: Unexpected opcode in the first packet: {0}.", LogType.Error, opcode );
+                Logger.Log( "Session.LoginSequence: Unexpected opcode in the first packet: {0}.", LogType.Error, opcode );
                 KickNow( "Unexpected handshake message - possible protocol mismatch!" );
                 return;
             }
@@ -237,7 +237,7 @@ namespace fCraft {
             // check protocol version
             int clientProtocolVersion = reader.ReadByte();
             if( clientProtocolVersion != Config.ProtocolVersion ) {
-                world.log.Log( "Session.LoginSequence: Wrong protocol version: {0}.", LogType.Error, clientProtocolVersion );
+                Logger.Log( "Session.LoginSequence: Wrong protocol version: {0}.", LogType.Error, clientProtocolVersion );
                 KickNow( "Incompatible protocol version!" );
                 return;
             }
@@ -248,7 +248,7 @@ namespace fCraft {
             reader.ReadByte(); // unused
 
             if( !Player.IsValidName( playerName ) ) {
-                world.log.Log( "Session.LoginSequence: Unacceptible player name: {0} ({1})", LogType.SuspiciousActivity, playerName, GetIP().ToString() );
+                Logger.Log( "Session.LoginSequence: Unacceptible player name: {0} ({1})", LogType.SuspiciousActivity, playerName, GetIP().ToString() );
                 KickNow( "Invalid characters in player name!" );
                 return;
             }
@@ -257,7 +257,7 @@ namespace fCraft {
             player = new Player( world, playerName, this, world.map.spawn );
             if( player.info.banned ) {
                 player.info.ProcessFailedLogin( player );
-                world.log.Log( "Banned player {0} tried to log in.", LogType.SuspiciousActivity, player.name );
+                Logger.Log( "Banned player {0} tried to log in.", LogType.SuspiciousActivity, player.name );
                 world.SendToAll( PacketWriter.MakeMessage( Color.Sys + "Banned player " + player.name + " tried to log in." ), player );
                 KickNow( "You were banned by " + player.info.bannedBy + " " + DateTime.Now.Subtract( player.info.banDate ).Days + " days ago." );
                 return;
@@ -268,7 +268,7 @@ namespace fCraft {
             if( IPBanInfo != null ) {
                 player.info.ProcessFailedLogin( player );
                 IPBanInfo.ProcessAttempt( player );
-                world.log.Log( "{0} tried to log in from a banned IP.", LogType.SuspiciousActivity, player.name );
+                Logger.Log( "{0} tried to log in from a banned IP.", LogType.SuspiciousActivity, player.name );
                 world.SendToAll( PacketWriter.MakeMessage( Color.Sys + player.name + " tried to log in from a banned IP." ), null );
                 KickNow( "Your IP was banned by " + IPBanInfo.bannedBy + " " + DateTime.Now.Subtract( IPBanInfo.banDate ).Days + " days ago." );
                 return;
@@ -279,15 +279,15 @@ namespace fCraft {
                 string standardMessage = String.Format( "Session.LoginSequence: Could not verify player name for {0} ({1}).",
                                                         player.name, GetIP() );
                 if( player.info.timesVisited == 1 || player.info.lastIP.ToString() != GetIP().ToString() ) {
-                    switch( world.config.GetString( "VerifyNames" ) ) {
+                    switch( Config.GetString( "VerifyNames" ) ) {
                         case "Always":
                         case "Balanced":
                             player.info.ProcessFailedLogin( player );
-                            world.log.Log( "{0} IP did not match. Player was kicked.", LogType.SuspiciousActivity, standardMessage );
+                            Logger.Log( "{0} IP did not match. Player was kicked.", LogType.SuspiciousActivity, standardMessage );
                             KickNow( "Could not verify player name!" );
                             return;
                         case "Never":
-                            world.log.Log( "{0} IP did not match. Player was allowed in anyway because VerifyNames is set to Never.",
+                            Logger.Log( "{0} IP did not match. Player was allowed in anyway because VerifyNames is set to Never.",
                                         LogType.SuspiciousActivity,
                                         standardMessage );
                             Send( PacketWriter.MakeMessage( Color.Red + "Your name could not be verified." ) );
@@ -295,20 +295,20 @@ namespace fCraft {
                             break;
                     }
                 } else {
-                    switch( world.config.GetString( "VerifyNames" ) ) {
+                    switch( Config.GetString( "VerifyNames" ) ) {
                         case "Always":
                             player.info.ProcessFailedLogin( player );
-                            world.log.Log( "{0} IP matched previous records for that name. " +
+                            Logger.Log( "{0} IP matched previous records for that name. " +
                                                 "Player was kicked anyway because VerifyNames is set to Always.", LogType.SuspiciousActivity,
                                                 standardMessage );
                             KickNow( "Could not verify player name!" );
                             return;
                         case "Balanced":
                         case "Never":
-                            world.log.Log( "{0} IP matched previous records for that name. Player was allowed in.", LogType.SuspiciousActivity,
+                            Logger.Log( "{0} IP matched previous records for that name. Player was allowed in.", LogType.SuspiciousActivity,
                                         standardMessage );
                             Send( PacketWriter.MakeMessage( Color.Red + "Your name could not be verified." ) );
-                            if( world.config.GetBool( "AnnounceUnverifiedNames" ) ) {
+                            if( Config.GetBool( "AnnounceUnverifiedNames" ) ) {
                                 world.SendToAll( PacketWriter.MakeMessage( Color.Red + "Name of " + player.name +
                                                                               " could not be verified, but IP matches." ), player );
                             }
@@ -321,7 +321,7 @@ namespace fCraft {
             Player potentialClone = world.FindPlayer( player.name );
             if( potentialClone != null ) {
                 player.info.ProcessFailedLogin( player );
-                world.log.Log( "Session.LoginSequence: Player {0} tried to log in from two computers at once.", LogType.SuspiciousActivity, player.name );
+                Logger.Log( "Session.LoginSequence: Player {0} tried to log in from two computers at once.", LogType.SuspiciousActivity, player.name );
                 potentialClone.Message("Warning: someone just attempted to log in using your name.");
                 KickNow( "Already connected from elsewhere!" );
                 return;
@@ -330,7 +330,7 @@ namespace fCraft {
             potentialClone = world.FindPlayer( GetIP() );
             if( potentialClone != null ) {
                 player.info.ProcessFailedLogin( player );
-                world.log.Log( "Session.LoginSequence: Player {0} tried to log in from same IP ({1}) as {2}.", LogType.SuspiciousActivity,
+                Logger.Log( "Session.LoginSequence: Player {0} tried to log in from same IP ({1}) as {2}.", LogType.SuspiciousActivity,
                     player.name, GetIP().ToString(), potentialClone.name );
                 potentialClone.Message( "Warning: someone just attempted to log in using your IP." );
                 KickNow( "Only one connection per IP allowed!" );
@@ -359,7 +359,7 @@ namespace fCraft {
                 world.map.GetCompressedCopy( stream, true );
                 blockData = stream.ToArray();
             }
-            world.log.Log( "Session.LoginSequence: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
+            Logger.Log( "Session.LoginSequence: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
                            blockData.Length, player.name );
 
             while( bytesSent < blockData.Length ) {
@@ -383,7 +383,7 @@ namespace fCraft {
             world.SendPlayerList( player );
 
             // Reveal newcommer to existing players
-            world.log.Log( "{0} ({1}) has joined the server.", LogType.UserActivity, player.name, player.info.playerClass.name );
+            Logger.Log( "{0} ({1}) has joined the server.", LogType.UserActivity, player.name, player.info.playerClass.name );
             world.SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
             world.SendToAll( PacketWriter.MakeMessage( Color.Sys + player.name + " (" + player.info.playerClass.color +
                                                           player.info.playerClass.name + Color.Sys + ") has joined the server." ),
@@ -392,25 +392,25 @@ namespace fCraft {
             // if IRC Bot is online, send update to IRC bot
             if (world.ircbot.isOnline() == true)
             {
-                world.ircbot.SendMsgChannel(player.name + "(" + player.info.playerClass.name +") has joined ** " + world.config.GetString("ServerName") + " **");
+                world.ircbot.SendMsgChannel(player.name + "(" + player.info.playerClass.name +") has joined ** " + Config.GetString("ServerName") + " **");
             }
 
             // Welcome message
             if( player.info.timesVisited > 1 ) {
-                player.Message( "Welcome back to " + world.config.GetString( "ServerName" ) );
+                player.Message( "Welcome back to " + Config.GetString( "ServerName" ) );
             } else {
-                player.Message( "Welcome to " + world.config.GetString( "ServerName" ) );
+                player.Message( "Welcome to " + Config.GetString( "ServerName" ) );
             }
 
             player.Message( "Your player class is " + player.info.playerClass.color + player.info.playerClass.name + Color.Sys + 
                                ". Type /help for details." );
 
-            if( world.config.GetBool( "LowLatencyMode" ) ) {
+            if( Config.GetBool( "LowLatencyMode" ) ) {
                 client.NoDelay = true;
             }
 
             // Done.
-            world.log.Log( "Session.LoginSequence: {0} is now ready.", LogType.Debug,
+            Logger.Log( "Session.LoginSequence: {0} is now ready.", LogType.Debug,
                            player.name );
             GC.Collect();
         }
