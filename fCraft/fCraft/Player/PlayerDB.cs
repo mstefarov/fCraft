@@ -39,22 +39,22 @@ namespace fCraft {
                                 tree.Add( info.name, info );
                                 list.Add( info );
                             } catch( FormatException ex ) {
-                                world.log.Log( "PlayerDB.Load: Could not parse a record: {0}.", LogType.Error, ex.Message );
+                                Logger.Log( "PlayerDB.Load: Could not parse a record: {0}.", LogType.Error, ex.Message );
                             } catch( IOException ex ) {
-                                world.log.Log( "PlayerDB.Load: Error while trying to read from file: {0}.", LogType.Error, ex.Message );
+                                Logger.Log( "PlayerDB.Load: Error while trying to read from file: {0}.", LogType.Error, ex.Message );
                             }
                         }
                     }
                 }
-                world.log.Log( "PlayerDB.Load: Done loading player DB ({0} records).", LogType.Debug, tree.Count() );
+                Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records).", LogType.Debug, tree.Count() );
             } else {
-                world.log.Log( "PlayerDB.Load: No player DB file found.", LogType.Warning );
+                Logger.Log( "PlayerDB.Load: No player DB file found.", LogType.Warning );
             }
         }
 
 
         public void Save() {
-            world.log.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count() );
+            Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count() );
             string tempFile = FileName + (new Random()).Next().ToString();
             locker.EnterReadLock();
             using( StreamWriter writer = File.CreateText( tempFile ) ) {

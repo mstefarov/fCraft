@@ -2,21 +2,16 @@
 using System.Collections.Generic;
 
 namespace fCraft {
-    public sealed class ClassList {
-        World world;
-        public Dictionary<string, PlayerClass> classes = new Dictionary<string, PlayerClass>();
-        public List<PlayerClass> classesByIndex = new List<PlayerClass>();
-        internal PlayerClass defaultClass, lowestClass, highestClass;
+    public static class ClassList {
+        public static Dictionary<string, PlayerClass> classes = new Dictionary<string, PlayerClass>();
+        public static List<PlayerClass> classesByIndex = new List<PlayerClass>();
+        internal static PlayerClass defaultClass, lowestClass, highestClass;
 
-        public ClassList( World _world ) {
-            world = _world;
-        }
-
-        public bool AddClass( PlayerClass playerClass ) {
+        public static bool AddClass( PlayerClass playerClass ) {
             // check for duplicate class names
             if( classes.ContainsKey( playerClass.name.ToLowerInvariant() ) ) {
-                if( world != null ) {
-                    world.log.Log( "PlayerClass.AddClass: Duplicate definition for \"{0}\" (rank {1}) class ignored.", LogType.Error,
+                if( !Config.logToString ) {
+                    Logger.Log( "PlayerClass.AddClass: Duplicate definition for \"{0}\" (rank {1}) class ignored.", LogType.Error,
                                     playerClass.name, playerClass.rank );
                 }
                 return false;
@@ -24,8 +19,8 @@ namespace fCraft {
             // check for duplicate ranks
             foreach( PlayerClass pc in classes.Values ) {
                 if( pc.rank == playerClass.rank ) {
-                    if( world != null ) {
-                        world.log.Log( "PlayerClass.AddClass: Class definition was ignored because \"{0}\" has the same rank ({1}) as \"{2}\". Each class must have a unique rank number.", LogType.Error,
+                    if( !Config.logToString ) {
+                        Logger.Log( "PlayerClass.AddClass: Class definition was ignored because \"{0}\" has the same rank ({1}) as \"{2}\". Each class must have a unique rank number.", LogType.Error,
                                         playerClass.name, playerClass.rank, pc.name );
                     }
                     return false;
@@ -36,14 +31,14 @@ namespace fCraft {
             classes[playerClass.name.ToLowerInvariant()] = playerClass;
             RebuildIndex();
 
-            if( world != null ) {
-                world.log.Log( "PlayerClass.AddClass: Added \"{0}\" (rank {1}) to the class list.", LogType.Debug,
+            if( !Config.logToString ) {
+                Logger.Log( "PlayerClass.AddClass: Added \"{0}\" (rank {1}) to the class list.", LogType.Debug,
                                playerClass.name, playerClass.rank );
             }
             return true;
         }
 
-        public PlayerClass ParseClass( string name ) {
+        public static PlayerClass ParseClass( string name ) {
             if( name == null ) return null;
             if( classes.ContainsKey( name.ToLowerInvariant() ) ) {
                 return classes[name.ToLowerInvariant()];
@@ -52,7 +47,7 @@ namespace fCraft {
             }
         }
 
-        public PlayerClass FindClass( string _name ) {
+        public static PlayerClass FindClass( string _name ) {
             if( _name == null ) return null;
             PlayerClass result = null;
             foreach( string className in classes.Keys ){
@@ -71,7 +66,7 @@ namespace fCraft {
             return result;
         }
 
-        public PlayerClass ParseRank( int maxRank ) {
+        public static PlayerClass ParseRank( int maxRank ) {
             PlayerClass temp = lowestClass;
             if( temp.rank > maxRank ) return null;
             foreach( PlayerClass c in classes.Values ) {
@@ -83,7 +78,7 @@ namespace fCraft {
         }
 
 
-        public bool ContainsRank( int rank ) {
+        public static bool ContainsRank( int rank ) {
             foreach( PlayerClass pc in classesByIndex ) {
                 if( pc.rank == rank ) {
                     return true;
@@ -92,19 +87,19 @@ namespace fCraft {
             return false;
         }
 
-        public PlayerClass ParseIndex( int index ) {
+        public static PlayerClass ParseIndex( int index ) {
             if( index == -1 || index > classesByIndex.Count - 1 ) {
                 return null;
             }
             return classesByIndex[index];
         }
 
-        public int GetIndex( PlayerClass pc ) {
+        public static int GetIndex( PlayerClass pc ) {
             if( pc == null ) return 0;
             else return pc.index + 1;
         }
 
-        public bool DeleteClass( int index ) {
+        public static bool DeleteClass( int index ) {
             bool rankLimitsChanged = false;
             PlayerClass deletedClass = classesByIndex[index];
             classesByIndex.Remove( deletedClass );
@@ -131,7 +126,7 @@ namespace fCraft {
             return rankLimitsChanged;
         }
 
-        public void RebuildIndex() {
+        public static void RebuildIndex() {
             lowestClass = null;
             highestClass = null;
             classesByIndex.Clear();
@@ -151,19 +146,19 @@ namespace fCraft {
             }
         }
 
-        public bool CanChangeName( PlayerClass pc, string newName ) {
+        public static bool CanChangeName( PlayerClass pc, string newName ) {
             if( pc.name.ToLowerInvariant() == newName.ToLowerInvariant() ) return true;
             if( classes.ContainsKey( newName.ToLowerInvariant() ) ) return false;
             return true;
         }
 
-        public void ChangeName( PlayerClass pc, string newName ) {
+        public static void ChangeName( PlayerClass pc, string newName ) {
             classes.Remove( pc.name.ToLowerInvariant() );
             pc.name = newName;
             classes.Add( pc.name.ToLowerInvariant(), pc );
         }
 
-        public bool CanChangeRank( PlayerClass pc, byte newRank ) {
+        public static bool CanChangeRank( PlayerClass pc, byte newRank ) {
             if( pc.rank == newRank ) return true;
             foreach( PlayerClass pc2 in classesByIndex ) {
                 if( pc2.rank == newRank ) {
@@ -172,13 +167,13 @@ namespace fCraft {
             }
             return true;
         }
-        public void ChangeRank( PlayerClass pc, byte newRank ) {
+        public static void ChangeRank( PlayerClass pc, byte newRank ) {
             pc.rank = newRank;
             RebuildIndex();
         }
 
 
-        public bool ParseClassLimits( PlayerClass pc ) {
+        public static bool ParseClassLimits( PlayerClass pc ) {
             bool ok = true;
             if( pc.maxKickVal == "" ) {
                 pc.maxKick = null;

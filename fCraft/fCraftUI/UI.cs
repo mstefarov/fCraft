@@ -32,11 +32,11 @@ namespace fCraftUI {
 
 
             if( world.Init() ) {
-                Text = "fCraft " + Updater.GetVersionString() + " - " + world.config.GetString( "ServerName" );
+                Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( "ServerName" );
 
                 UpdaterResult update = Updater.CheckForUpdates( world );
                 if( update.UpdateAvailable ) {
-                    if( world.config.GetString( "AutomaticUpdates" ) == "Notify" ) {
+                    if( Config.GetString( "AutomaticUpdates" ) == "Notify" ) {
                         Log( String.Format( Environment.NewLine +
                                             "*** A new version of fCraft is available: v{0:0.000}, released {1:0} day(s) ago. ***"+
                                             Environment.NewLine,
@@ -44,7 +44,7 @@ namespace fCraftUI {
                                             DateTime.Now.Subtract( update.ReleaseDate ).TotalDays ), LogType.ConsoleOutput );
                         StartServer();
                     } else {
-                        UpdateWindow updateWindow = new UpdateWindow( update, this, world.config.GetString( "AutomaticUpdates" ) == "Auto" );
+                        UpdateWindow updateWindow = new UpdateWindow( update, this, Config.GetString( "AutomaticUpdates" ) == "Auto" );
                         updateWindow.StartPosition = FormStartPosition.CenterParent;
                         updateWindow.ShowDialog();
                     }
@@ -52,7 +52,7 @@ namespace fCraftUI {
                     StartServer();
                 }
             } else {
-                world.log.Log( "---- Could Not Initialize World ----", LogType.FatalError );
+                Logger.Log( "---- Could Not Initialize World ----", LogType.FatalError );
                 world = null;
             }
         }
@@ -65,7 +65,7 @@ namespace fCraftUI {
                 world.LoadMap( Map.DefaultFileName );
             }
 
-            System.Diagnostics.Process.GetCurrentProcess().PriorityClass = world.config.GetBasePriority();
+            System.Diagnostics.Process.GetCurrentProcess().PriorityClass = Config.GetBasePriority();
 
             if( !world.Start() ) {
                 world = null;

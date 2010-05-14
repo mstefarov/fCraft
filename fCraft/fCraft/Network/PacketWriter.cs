@@ -99,8 +99,8 @@ namespace fCraft {
             Packet packet = new Packet( 131 );
             packet.data[0] = (byte)OutputCodes.Handshake;
             packet.data[1] = (byte)Config.ProtocolVersion;
-            ASCIIEncoding.ASCII.GetBytes( world.config.GetString( "ServerName" ).PadRight( 64 ), 0, 64, packet.data, 2 );
-            ASCIIEncoding.ASCII.GetBytes( world.config.GetString( "MOTD" ).PadRight( 64 ), 0, 64, packet.data, 66 );
+            ASCIIEncoding.ASCII.GetBytes( Config.GetString( "ServerName" ).PadRight( 64 ), 0, 64, packet.data, 2 );
+            ASCIIEncoding.ASCII.GetBytes( Config.GetString( "MOTD" ).PadRight( 64 ), 0, 64, packet.data, 66 );
             packet.data[130] = (byte)player.GetOPPacketCode();
             return packet;
         }

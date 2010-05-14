@@ -6,36 +6,34 @@ using System.IO;
 
 namespace fCraft {
     class InfoCommands {
-        World world;
 
         // Register help commands
-        internal InfoCommands( World _world, Commands commands ){
-            world = _world;
-            commands.AddCommand( "help", Help, true );
-            commands.AddCommand( "info", Info, true );
-            commands.AddCommand( "baninfo", BanInfo, true );
-            commands.AddCommand( "class", ClassInfo, true );
-            commands.AddCommand( "rules", Rules, true );
+        internal static void Init(){
+            Commands.AddCommand( "help", Help, true );
+            Commands.AddCommand( "info", Info, true );
+            Commands.AddCommand( "baninfo", BanInfo, true );
+            Commands.AddCommand( "class", ClassInfo, true );
+            Commands.AddCommand( "rules", Rules, true );
             
-            commands.AddCommand( "where", Compass, false );
-            commands.AddCommand( "compass", Compass, false );
+            Commands.AddCommand( "where", Compass, false );
+            Commands.AddCommand( "compass", Compass, false );
         }
 
 
         static string compass = "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . " +
                                 "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . ";
 
-        void Compass( Player player, Command cmd ) {
+        internal static void Compass( Player player, Command cmd ) {
             int offset = (int)(player.pos.r / 255f * 64f) + 32;
             string name = cmd.Next();
 
             if( name != null ) {
-                Player target = world.FindPlayer( name );
+                Player target = player.world.FindPlayer( name );
                 if( target != null ) {
                     player.Message( "Coordinates of player \"" + target.name + "\":" );
                     offset = (int)(target.pos.r / 255f * 64f) + 32;
                 } else {
-                    world.NoPlayerMessage( player, name );
+                    World.NoPlayerMessage( player, name );
                     return;
                 }
             }
@@ -53,7 +51,7 @@ namespace fCraft {
 
 
         // Main help command
-        void Help( Player player, Command cmd ) {
+        internal static void Help( Player player, Command cmd ) {
             switch( cmd.Next() ) {
                 case "ban":
                     player.Message( Color.Help, "/ban PlayerName [memo]" );
@@ -276,18 +274,18 @@ namespace fCraft {
         // Player information display.
         //     When used without arguments, shows players's own stats.
         //     An optional argument allows to look at other people's stats.
-        void Info( Player player, Command cmd ) {
+        internal static void Info( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 name = player.name;
             } else if( !player.Can( Permissions.ViewOthersInfo ) ) {
-                world.NoAccessMessage( player );
+                World.NoAccessMessage( player );
                 return;
             }
 
             PlayerInfo info;
-            if( !world.db.FindPlayerInfo( name, out info ) ) {
-                world.ManyPlayersMessage( player, name );
+            if( !player.world.db.FindPlayerInfo( name, out info ) ) {
+                World.ManyPlayersMessage( player, name );
             } else if( info != null ) {
                 if( DateTime.Now.Subtract( info.lastLoginDate ).TotalDays < 1 ) {
                     player.Message( String.Format( "About {0}: Last login {1:F1} hours ago from {2}",
@@ -320,14 +318,14 @@ namespace fCraft {
                 }
 
                 TimeSpan totalTime = info.totalTimeOnServer;
-                if( world.FindPlayerExact( name ) != null ) {
+                if( player.world.FindPlayerExact( name ) != null ) {
                     totalTime = totalTime.Add( DateTime.Now.Subtract( info.lastLoginDate ) );
                 }
                 player.Message( String.Format( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
                                                     totalTime.TotalHours,
                                                     totalTime.TotalMinutes ) );
             } else {
-                world.NoPlayerMessage( player, name );
+                World.NoPlayerMessage( player, name );
             }
         }
 
@@ -335,15 +333,15 @@ namespace fCraft {
         // Shows ban information.
         //     When used without arguments, shows players's own ban stats.
         //     An optional argument allows to look at other people's ban stats.
-        void BanInfo( Player player, Command cmd ) {
+        internal static void BanInfo( Player player, Command cmd ) {
             string name = cmd.Next();
             IPAddress address;
             if( name == null ) {
                 name = player.name;
             } else if( !player.Can( Permissions.ViewOthersInfo ) ) {
-                world.NoAccessMessage( player );
+                World.NoAccessMessage( player );
             }else if( IPAddress.TryParse( name, out address ) ) {
-                IPBanInfo info = world.bans.Get( address );
+                IPBanInfo info = player.world.bans.Get( address );
                 if( info != null ) {
                     player.Message( String.Format( "{0} was banned by {1} on {2:dd MMM yyyy}.",
                                                         info.address,
@@ -366,8 +364,8 @@ namespace fCraft {
                 }
             } else {
                 PlayerInfo info;
-                if( !world.db.FindPlayerInfo( name, out info ) ) {
-                    world.ManyPlayersMessage( player, name );
+                if( !player.world.db.FindPlayerInfo( name, out info ) ) {
+                    World.ManyPlayersMessage( player, name );
                 } else if( info != null ) {
                     if( info.banned ) {
                         player.Message( "Player " + info.name + " is currently " + Color.Red + "banned." );
@@ -402,15 +400,15 @@ namespace fCraft {
                                                             banDuration.TotalHours ) );
                     }
                 } else {
-                    world.NoPlayerMessage( player, name );
+                    World.NoPlayerMessage( player, name );
                 }
             }
         }
 
 
         // Shows general information about a particular class.
-        void ClassInfo( Player player, Command cmd ) {
-            PlayerClass playerClass = world.classes.FindClass( cmd.Next() );
+        internal static void ClassInfo( Player player, Command cmd ) {
+            PlayerClass playerClass = ClassList.FindClass( cmd.Next() );
             if( playerClass != null ) {
                 player.Message( "Players of class \"" + playerClass.name + "\" can do the following:" );
                 string line = "";
@@ -430,7 +428,7 @@ namespace fCraft {
                 }
             } else {
                 player.Message( "Below is a list of classes. For detail see " + Color.Help + "/class classname" );
-                foreach( PlayerClass classListEntry in world.classes.classesByIndex ) {
+                foreach( PlayerClass classListEntry in ClassList.classesByIndex ) {
                     player.Message( classListEntry.color, "    " + classListEntry.name + " (rank " + classListEntry.rank + ")" );
                 }
             }
@@ -439,7 +437,7 @@ namespace fCraft {
 
         const string rulesFile = "rules.txt";
         // Prints rules (if any are defined)
-        void Rules( Player player, Command cmd ) {
+        internal static void Rules( Player player, Command cmd ) {
             if( !File.Exists( rulesFile ) ) {
                 player.Message( "Rules: Use common sense!" );
             } else {
@@ -448,7 +446,7 @@ namespace fCraft {
                         player.Message( ruleLine );
                     }
                 } catch( Exception ex ) {
-                    world.log.Log( "Error while trying to retrieve rules.txt: {0}", LogType.Error, ex.Message );
+                    Logger.Log( "Error while trying to retrieve rules.txt: {0}", LogType.Error, ex.Message );
                     player.Message( "Rules: Use common sense!" );
                 }
             }

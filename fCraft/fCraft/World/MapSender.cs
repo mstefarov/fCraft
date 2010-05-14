@@ -32,7 +32,7 @@ namespace fCraft {
                 return true;
 
             } catch( Exception ex ) {
-                param.world.log.Log( "An error occured while trying to load a map: " + ex.Message, LogType.Error );
+                Logger.Log( "An error occured while trying to load a map: " + ex.Message, LogType.Error );
                 param.world.loadInProgress = false;
                 param.world.EndLockDown();
                 return false;
@@ -48,7 +48,7 @@ namespace fCraft {
                 return true;
 
             } catch( Exception ex ) {
-                param.world.log.Log( "An error occured while trying to load a map: " + ex.Message, LogType.Error );
+                Logger.Log( "An error occured while trying to load a map: " + ex.Message, LogType.Error );
                 param.world.loadInProgress = false;
                 param.world.EndLockDown();
                 return false;

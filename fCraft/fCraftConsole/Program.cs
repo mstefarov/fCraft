@@ -24,6 +24,7 @@ using System;
 using System.Text;
 using fCraft;
 using System.IO;
+using System.Diagnostics;
 
 
 namespace fCraftConsole {
@@ -47,10 +48,10 @@ namespace fCraftConsole {
                                        DateTime.Now.Subtract( update.ReleaseDate ).TotalDays );
                 }
 
-                System.Diagnostics.Process.GetCurrentProcess().PriorityClass = world.config.GetBasePriority();
+                Process.GetCurrentProcess().PriorityClass = Config.GetBasePriority();
 
                 if( world.Start() ) {
-                    Console.Title = "fCraft " + Updater.GetVersionString() + " - " + world.config.GetString( "ServerName" );
+                    Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( "ServerName" );
                     string input = "";
                     Console.WriteLine( "** To shut down the server, type /exit **" );
                     while( (input = Console.ReadLine()) != "/exit" ) {

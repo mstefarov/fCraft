@@ -27,25 +27,27 @@ namespace fCraft {
             bool worked = false;
             int attempts = 0;
             int attemptsMax = 20;
-            int port = world.config.GetInt( "Port" );
+            int port = Config.GetInt( "Port" );
             do {
                 try {
                     listener = new TcpListener( IPAddress.Any, port );
                     listener.Start();
                     worked = true;
                 } catch( Exception ex ) {
-                    world.log.Log( "Could not start listening on port {0}, trying next port. ({1})", LogType.Error,
-                                  port, ex.Message );
+                    Logger.Log( "Could not start listening on port {0}, trying next port. ({1})", LogType.Error,
+                                   port, ex.Message );
                     port++;
                     attempts++;
                 }
             } while( !worked && attempts < attemptsMax );
             if( !worked ) {
-                world.log.Log( "Could not start listening after {0} tries. Giving up!", LogType.FatalError, attemptsMax );
+                Logger.Log( "Could not start listening after {0} tries. Giving up!", LogType.FatalError,
+                               attemptsMax );
                 return false;
             }
-            
-            world.log.Log( "Server.Run: now accepting connections at port {0}.", LogType.Debug, port );
+
+            Logger.Log( "Server.Run: now accepting connections at port {0}.", LogType.Debug,
+                           port );
             return true;
         }
 
@@ -53,11 +55,11 @@ namespace fCraft {
         // loops forever, waiting for incoming connections
         internal void CheckForIncomingConnections( object param ) {
             if( listener.Pending() ) {
-                world.log.LogDebug( "Server.ListenerHandler: Incoming connection" );
+                Logger.Log( "Server.ListenerHandler: Incoming connection", LogType.Debug );
                 try {
                     sessions.Add( new Session( world, listener.AcceptTcpClient() ) );
                 } catch( Exception ex ) {
-                    world.log.Log( "ERROR: Could not accept incoming connection: " + ex.Message, LogType.Error );
+                    Logger.Log( "ERROR: Could not accept incoming connection: " + ex.Message, LogType.Error );
                 }
             }
             for( int i = 0; i < sessions.Count; i++ ) {
@@ -65,7 +67,7 @@ namespace fCraft {
                     sessions[i].Disconnect();
                     sessions.RemoveAt( i );
                     i--;
-                    world.log.Log( "Session disposed. Active sessions left: {0}.", LogType.Debug, sessions.Count );
+                    Logger.Log( "Session disposed. Active sessions left: {0}.", LogType.Debug, sessions.Count );
                     GC.Collect();
                 }
             }
@@ -102,7 +104,7 @@ namespace fCraft {
 
         public bool VerifyName( string name, string hash ) {
             MD5 hasher = MD5.Create();
-            byte[] data = hasher.ComputeHash( Encoding.ASCII.GetBytes( world.config.Salt + name ) );
+            byte[] data = hasher.ComputeHash( Encoding.ASCII.GetBytes( Config.Salt + name ) );
             for( int i = 0; i < 16; i+=2 ) {
                 if( hash[i] + "" + hash[i + 1] != data[i/2].ToString( "x2" ) ) {
                     return false;
@@ -113,8 +115,8 @@ namespace fCraft {
 
 
         public int CalculateMaxPacketsPerUpdate() {
-            int packetsPerTick = (int)(packetsPerSecond / world.ticksPerSecond);
-            int maxPacketsPerUpdate = (int)(Server.maxUploadSpeed / world.ticksPerSecond * 128);
+            int packetsPerTick = (int)(packetsPerSecond / World.ticksPerSecond);
+            int maxPacketsPerUpdate = (int)(Server.maxUploadSpeed / World.ticksPerSecond * 128);
 
             int playerCount = world.GetPlayerCount();
             if( playerCount > 0 ) {
