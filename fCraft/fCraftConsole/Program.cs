@@ -30,11 +30,11 @@ using System.Diagnostics;
 namespace fCraftConsole {
     class Program {
         static void Main( string[] args ) {
-            World world = new World( "" );
-            world.OnLog += Log;
-            world.OnURLChange += SetURL;
+            World world = new World();
+            Server.OnLog += Log;
+            Server.OnURLChange += SetURL;
 
-            if( world.Init() ) {
+            if( Server.Init() ) {
                 if( args.Length == 1 ) {
                     world.LoadMap( args[0] );
                 } else {

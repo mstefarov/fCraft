@@ -7,23 +7,14 @@ using System.IO;
 
 
 namespace fCraft {
-    public class Heartbeat {
+    public static class Heartbeat {
 
-        Thread thread;
-        string staticData;
-        bool hasReportedServerURL;
-        HttpWebRequest request;
-        string hash;
+        static Thread thread;
+        static string staticData;
         const string URL = "http://www.minecraft.net/heartbeat.jsp";
-        World world;
 
 
-        public Heartbeat( World _world ) {
-            world = _world;
-        }
-
-
-        public void Start(){
+        public static void Start() {
             thread = new Thread( HeartBeatHandler );
             thread.IsBackground = true;
 
@@ -31,7 +22,7 @@ namespace fCraft {
                                         Server.UrlEncode( Config.GetString( "ServerName" ) ),
                                         Config.GetInt( "MaxPlayers" ),
                                         Config.GetBool( "IsPublic" ),
-                                        Config.GetInt("Port"),
+                                        Config.GetInt( "Port" ),
                                         Config.Salt,
                                         Config.ProtocolVersion );
 
@@ -39,7 +30,10 @@ namespace fCraft {
         }
 
 
-        void HeartBeatHandler() {
+        static void HeartBeatHandler() {
+            HttpWebRequest request;
+            bool hasReportedServerURL = false;
+
             while( true ) {
                 try {
                     request = (HttpWebRequest)WebRequest.Create( URL );
@@ -47,7 +41,7 @@ namespace fCraft {
                     request.Timeout = 15000; // 15s timeout
                     request.ContentType = "application/x-www-form-urlencoded";
                     request.CachePolicy = new System.Net.Cache.RequestCachePolicy( System.Net.Cache.RequestCacheLevel.NoCacheNoStore );
-                    byte[] formData = Encoding.ASCII.GetBytes( staticData + "&users=" + world.GetPlayerCount() );
+                    byte[] formData = Encoding.ASCII.GetBytes( staticData + "&users=" + Server.GetPlayerCount() );
                     request.ContentLength = formData.Length;
 
                     using( Stream requestStream = request.GetRequestStream() ) {
@@ -61,8 +55,7 @@ namespace fCraft {
                                 Config.ServerURL = responseReader.ReadLine();
                             }
                         }
-                        hash = Config.ServerURL.Substring( Config.ServerURL.LastIndexOf( '=' ) + 1 );
-                        world.FireURLChange( Config.ServerURL );
+                        Server.FireURLChangeEvent( Config.ServerURL );
                         hasReportedServerURL = true;
                     }
                     request.Abort();
@@ -76,7 +69,7 @@ namespace fCraft {
         }
 
 
-        public void ShutDown() {
+        public static void ShutDown() {
             if( thread != null && thread.IsAlive ) {
                 thread.Abort();
             }

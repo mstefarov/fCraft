@@ -153,7 +153,7 @@ namespace fCraft {
                 player = player,
                 world = player.world
             };
-            player.world.tasks.Add( MapSender.StreamLoad, param, true );
+            Tasks.Add( MapSender.StreamLoad, param, true );
         }
 
 
@@ -309,25 +309,25 @@ namespace fCraft {
 
                 case "hills":
                     player.Message( "Generating terrain..." );
-                    player.world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
+                    Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
                                                                               1, 1, 0.5, 0.5, 0, 0.5, hollow ), false );
                     break;
 
                 case "mountains":
                     player.Message( "Generating terrain..." );
-                    player.world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
+                    Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
                                                                               4, 1, 0.5, 0.5, 0.1, 0.5, hollow ), false );
                     break;
 
                 case "lake":
                     player.Message( "Generating terrain..." );
-                    player.world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
+                    Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
                                                                               1, 0.6, 0.9, 0.5, -0.35, 0.55, hollow ), false );
                     break;
 
                 case "island":
                     player.Message( "Generating terrain..." );
-                    player.world.tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
+                    Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( rand, map, player, filename,
                                                                               1, 0.6, 1, 0.5, 0.3, 0.35, hollow ), false );
                     break;
 

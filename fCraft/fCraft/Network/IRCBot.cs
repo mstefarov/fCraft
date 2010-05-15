@@ -147,7 +147,7 @@ namespace fCraft
                                     string serverName = Config.GetString("ServerName");
                                     string MOTD = Config.GetString("MOTD");
                                     string serverAddress = File.ReadAllText("externalurl.txt", ASCIIEncoding.ASCII);
-                                    int playersOnline = world.GetPlayerCount();
+                                    int playersOnline = Server.GetPlayerCount();
 
                                     SendMsg(message.nickname, message.nickname + ", you have requested a status update.");
                                     SendMsg(message.nickname, "Server Name: ** " + serverName + " **");

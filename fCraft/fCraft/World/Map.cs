@@ -65,6 +65,7 @@ namespace fCraft {
 
             blockNames["dark"] = Block.Obsidian;
         }
+
         internal static Block GetBlockByName( string block ) {
             return blockNames[block];
         }

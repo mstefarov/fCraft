@@ -7,16 +7,16 @@ namespace fCraft {
 
     public delegate void Task( object param );
 
-    public class Tasks {
-        object queueLock = new object(),
+    public static class Tasks {
+        static object queueLock = new object(),
                       priorityQueueLock = new object();
-        Thread taskThread;
-        Queue<KeyValuePair<Task, object>> tasks = new Queue<KeyValuePair<Task, object>>(),
-                                          priorityTasks = new Queue<KeyValuePair<Task, object>>();
-        bool keepGoing;
+        static Thread taskThread;
+        static Queue<KeyValuePair<Task, object>> tasks = new Queue<KeyValuePair<Task, object>>(),
+                                                 priorityTasks = new Queue<KeyValuePair<Task, object>>();
+        static bool keepGoing;
 
 
-        public void Init() {
+        public static void Init() {
             keepGoing = true;
             taskThread = new Thread( TaskLoop );
             taskThread.IsBackground = true;
@@ -24,7 +24,7 @@ namespace fCraft {
         }
 
 
-        public void ShutDown() {
+        public static void ShutDown() {
             keepGoing = false;
             if( taskThread != null && taskThread.IsAlive ) {
                 taskThread.Join();
@@ -32,7 +32,7 @@ namespace fCraft {
         }
 
 
-        public void Restart() {
+        public static void Restart() {
             ShutDown();
             tasks.Clear();
             priorityTasks.Clear();
@@ -40,7 +40,7 @@ namespace fCraft {
         }
 
 
-        public void Add( Task callback, object param, bool isPriority ) {
+        public static void Add( Task callback, object param, bool isPriority ) {
             if( keepGoing ) {
                 KeyValuePair<Task, object> newTask = new KeyValuePair<Task, object>( callback, param );
                 if( isPriority ) {
@@ -56,7 +56,7 @@ namespace fCraft {
         }
 
 
-        void TaskLoop() {
+        static void TaskLoop() {
             KeyValuePair<Task, object> task;
             while( keepGoing ) {
                 while( priorityTasks.Count > 0 ) {
