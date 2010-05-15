@@ -169,7 +169,7 @@ namespace fCraft {
                 string reason = cmd.NextAll();
                 IPAddress address;
                 Player offender = player.world.FindPlayer( arg );
-                PlayerInfo info = player.world.db.FindPlayerInfoExact( arg );
+                PlayerInfo info = PlayerDB.FindPlayerInfoExact( arg );
 
                 // ban by IP address
                 if( banIP && IPAddress.TryParse( arg, out address ) ) {
@@ -227,13 +227,13 @@ namespace fCraft {
         internal static void DoIPBan( Player player, IPAddress address, string reason, string playerName, bool banAll, bool unban ) {
             Player other;
             if( unban ) {
-                if( player.world.bans.Remove( address ) ) {
+                if( IPBanList.Remove( address ) ) {
                     player.Message( address.ToString() + " has been removed from the IP ban list." );
                 } else {
                     player.Message( address.ToString() + " is not currently banned." );
                 }
                 if( banAll ) {
-                    foreach( PlayerInfo otherInfo in player.world.db.FindPlayersByIP( address ) ) {
+                    foreach( PlayerInfo otherInfo in PlayerDB.FindPlayersByIP( address ) ) {
                         if( otherInfo.ProcessUnBan( player.name, reason + "~UnBanAll" ) ) {
                             player.Message( otherInfo.name + " matched the IP and was also unbanned." );
                         }
@@ -241,13 +241,13 @@ namespace fCraft {
                 }
 
             } else {
-                if( player.world.bans.Add( new IPBanInfo( address, playerName, player.name, reason ) ) ) {
+                if( IPBanList.Add( new IPBanInfo( address, playerName, player.name, reason ) ) ) {
                     player.Message( address.ToString() + " has been added to the IP ban list." );
 
                 } else {
                     player.Message( address.ToString() + " is already banned." );
                 }
-                foreach( PlayerInfo otherInfo in player.world.db.FindPlayersByIP( address ) ) {
+                foreach( PlayerInfo otherInfo in PlayerDB.FindPlayersByIP( address ) ) {
                     if( banAll && otherInfo.ProcessBan( player.name, reason + "~BanAll" ) ) {
                         player.Message( otherInfo.name + " matched the IP and was also banned." );
                     }

@@ -34,13 +34,10 @@ namespace fCraft {
     public delegate void VoidEventHandler();
 
     public class World {
-        public Server server;
         public Map map;
         public Heartbeat heartbeat;
         public IRCBot ircbot;
         public Tasks tasks;
-        public PlayerDB db;
-        public IPBanList bans;
 
         public Player[] players;
         public string path;
@@ -79,9 +76,6 @@ namespace fCraft {
             // start tasks service
             tasks = new Tasks();
 
-            db = new PlayerDB( this );
-            bans = new IPBanList( this );
-
             heartbeat = new Heartbeat( this );
         }
 
@@ -109,9 +103,9 @@ namespace fCraft {
 
         public bool Init() {
             Logger.Init( "fCraft.log" );
-            if( !Config.Load( "config.xml" ) ) return false;
+            if( !Config.Load() ) return false;
             Config.ApplyConfig();
-            Config.Save( "config.xml" );
+            Config.Save();
 
             if (Config.GetBool("IRCBot") == true)
             {
@@ -124,8 +118,8 @@ namespace fCraft {
             tasks.Init();
 
             // load player DB
-            db.Load();
-            bans.Load();
+            PlayerDB.Load();
+            IPBanList.Load();
 
             return true;
         }
@@ -137,16 +131,14 @@ namespace fCraft {
             Player.Console = new Player( this, "(console)" );
 
             // start listening
-            server = new Server( this );
-
-            if( !server.Start() ) {
+            if( !Server.Start() ) {
                 return false;
             }
 
             serverStart = DateTime.Now;
 
             // queue up some tasks to run on the scheduler
-            AddTask( server.CheckForIncomingConnections, 0 );
+            AddTask( Server.CheckForIncomingConnections, 0 );
             AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ) );
             saveMapTaskId = AddTask( SaveMap, Config.GetInt( "SaveInterval" ) * 1000 );
             TaskToggle( saveMapTaskId, Config.GetInt( "SaveInterval" ) > 0 );
@@ -306,8 +298,8 @@ namespace fCraft {
                     {
                         ircbot.SendMsgChannel(player.name + "(" + player.info.playerClass.name + ") has left ** " + Config.GetString("ServerName") + " **");
                     }
-                    db.ProcessLogout( player );
-                    db.Save();
+                    PlayerDB.ProcessLogout( player );
+                    PlayerDB.Save();
                     players[player.id] = null;
                     playerCount--;
                     SendToAll( PacketWriter.MakeRemoveEntity( player.id ), null );
@@ -438,9 +430,9 @@ namespace fCraft {
                     map.Save();
                 }
 
-                if( db != null ) db.Save();
-                if( bans != null ) bans.Save();
-                if( server != null ) server.ShutDown();
+                PlayerDB.Save();
+                IPBanList.Save();
+                Server.ShutDown();
             } catch( Exception ex ) {
                 Logger.Log( "Error occured while trying to shut down: {0}", LogType.FatalError, ex.Message );
             }

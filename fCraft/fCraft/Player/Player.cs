@@ -66,7 +66,7 @@ namespace fCraft {
             nick = name;
             session = _session;
             pos = _pos;
-            info = world.db.FindPlayerInfo( this );
+            info = PlayerDB.FindPlayerInfo( this );
         }
 
 

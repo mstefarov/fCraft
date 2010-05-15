@@ -22,7 +22,7 @@ namespace fCraft {
                 param.world.totalBlockUpdates = param.world.map.CompareAndUpdate( param.map );
                 param.world.map.spawn = param.map.spawn;
 
-                int ETA = param.world.totalBlockUpdates / param.world.server.CalculateMaxPacketsPerUpdate() / 10 + 1;
+                int ETA = param.world.totalBlockUpdates / Server.CalculateMaxPacketsPerUpdate(param.world) / 10 + 1;
                 param.world.SendToAll( Color.Red + "Reverting to a backup. ETA to completion: " + ETA + " seconds.", null );
 
                 param.world.loadProgressReported = ETA < 10;

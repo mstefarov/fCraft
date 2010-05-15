@@ -65,10 +65,10 @@ namespace ConfigTool {
 
         void LoadConfig( object sender, EventArgs args ) {
 
-            if( !File.Exists( "config.xml" ) ) {
+            if( !File.Exists( Config.ConfigFile ) ) {
                 MessageBox.Show( "config.xml was not found. Using defaults." );
             }
-            if( Config.Load( "config.xml" ) ) {
+            if( Config.Load() ) {
                 if( Config.errors.Length > 0 ) {
                     MessageBox.Show( Config.errors, "Config loading warnings" );
                 }
@@ -523,7 +523,7 @@ namespace ConfigTool {
             WriteConfig();
             if( Config.errors != "" ) {
                 MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
-            } else if( Config.Save( "config.xml" ) ) {
+            } else if( Config.Save() ) {
                 bApply.Enabled = false;
             } else {
                 MessageBox.Show( Config.errors, "An error occured while trying to save:" );
@@ -534,7 +534,7 @@ namespace ConfigTool {
             WriteConfig();
             if( Config.errors != "" ) {
                 MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
-            } else if( Config.Save( "config.xml" ) ) {
+            } else if( Config.Save() ) {
                 Application.Exit();
             } else {
                 MessageBox.Show( Config.errors, "An error occured while trying to save:" );

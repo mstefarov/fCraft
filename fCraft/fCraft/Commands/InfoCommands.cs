@@ -284,7 +284,7 @@ namespace fCraft {
             }
 
             PlayerInfo info;
-            if( !player.world.db.FindPlayerInfo( name, out info ) ) {
+            if( !PlayerDB.FindPlayerInfo( name, out info ) ) {
                 World.ManyPlayersMessage( player, name );
             } else if( info != null ) {
                 if( DateTime.Now.Subtract( info.lastLoginDate ).TotalDays < 1 ) {
@@ -341,7 +341,7 @@ namespace fCraft {
             } else if( !player.Can( Permissions.ViewOthersInfo ) ) {
                 World.NoAccessMessage( player );
             }else if( IPAddress.TryParse( name, out address ) ) {
-                IPBanInfo info = player.world.bans.Get( address );
+                IPBanInfo info = IPBanList.Get( address );
                 if( info != null ) {
                     player.Message( String.Format( "{0} was banned by {1} on {2:dd MMM yyyy}.",
                                                         info.address,
@@ -364,7 +364,7 @@ namespace fCraft {
                 }
             } else {
                 PlayerInfo info;
-                if( !player.world.db.FindPlayerInfo( name, out info ) ) {
+                if( !PlayerDB.FindPlayerInfo( name, out info ) ) {
                     World.ManyPlayersMessage( player, name );
                 } else if( info != null ) {
                     if( info.banned ) {

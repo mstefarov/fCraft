@@ -436,7 +436,7 @@ namespace fCraft {
 
         public void ProcessUpdates() {
             int packetsSent = 0;
-            int maxPacketsPerUpdate = world.server.CalculateMaxPacketsPerUpdate();
+            int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate(world);
             BlockUpdate update;
 
             while( updates.Count > 0 && packetsSent < maxPacketsPerUpdate ) {
