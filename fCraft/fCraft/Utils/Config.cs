@@ -19,7 +19,8 @@ namespace fCraft {
         public const int ConfigVersion = 100;
         public const uint LevelFormatID = 0xFC000002;
         public const int MaxPlayersSupported = 256;
-        const string ConfigRootName = "fCraftConfig";
+        public const string ConfigRootName = "fCraftConfig",
+                            ConfigFile = "config.xml";
         static Dictionary<string, string> settings = new Dictionary<string, string>();
         internal static ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
 
@@ -135,7 +136,7 @@ namespace fCraft {
         }
 
 
-        public static bool Load( string configFileName ) {
+        public static bool Load() {
             // generate random salt
             Salt = new Random().Next();
 
@@ -144,20 +145,20 @@ namespace fCraft {
 
             // try to load config file (XML)
             XDocument file;
-            if( File.Exists( configFileName ) ) {
+            if( File.Exists( ConfigFile ) ) {
                 try {
-                    file = XDocument.Load( configFileName );
+                    file = XDocument.Load( ConfigFile );
                     if( file.Root == null || file.Root.Name != ConfigRootName ) {
-                        Log( "Config.Load: Malformed or incompatible config file {0}. Loading defaults.", LogType.Warning, configFileName );
+                        Log( "Config.Load: Malformed or incompatible config file {0}. Loading defaults.", LogType.Warning, ConfigFile );
                         file = new XDocument();
                         file.Add( new XElement( ConfigRootName ) );
                     } else {
-                        Log( "Config.Load: Config file {0} loaded succesfully.", LogType.Debug, configFileName );
+                        Log( "Config.Load: Config file {0} loaded succesfully.", LogType.Debug, ConfigFile );
                         fromFile = true;
                     }
                 } catch( Exception ex ) {
                     Log( "Config.Load: Fatal error while loading config file {0}: {1}", LogType.FatalError,
-                                        configFileName, ex.Message );
+                                        ConfigFile, ex.Message );
                     return false;
                 }
             } else {
@@ -241,7 +242,7 @@ namespace fCraft {
         }
 
 
-        public static bool Save( string configFileName ) {
+        public static bool Save( ) {
             XDocument file = new XDocument();
 
             XElement config = new XElement( ConfigRootName );
@@ -302,10 +303,10 @@ namespace fCraft {
             file.Add( config );
             // save the settings
             try {
-                file.Save( configFileName );
+                file.Save( ConfigFile );
                 return true;
             } catch( Exception ex ) {
-                Log( "Config.Load: Fatal error while saving config file {0}: {1}", LogType.FatalError, configFileName, ex.Message );
+                Log( "Config.Load: Fatal error while saving config file {0}: {1}", LogType.FatalError, ConfigFile, ex.Message );
                 return false;
             }
         }

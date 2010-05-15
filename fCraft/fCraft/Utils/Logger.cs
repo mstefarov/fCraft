@@ -31,8 +31,8 @@ namespace fCraft {
     public static class Logger {
         static string logFile;
         static object locker = new object();
-        public static bool[] consoleOptions = new bool[14];
-        public static bool[] logFileOptions = new bool[14];
+        public static bool[] consoleOptions = new bool[15];
+        public static bool[] logFileOptions = new bool[15];
 
 
         internal static void Init( string _logFile ) {

@@ -5,21 +5,17 @@ using System.Net;
 using System.IO;
 
 namespace fCraft {
-    public sealed class IPBanList {
+    public static class IPBanList {
 
-        SortedDictionary<string, IPBanInfo> bans = new SortedDictionary<string, IPBanInfo>();
-        string FileName = "ipbans.txt";
-        const string Header = "IP,bannedBy,banDate,banReason,playerName,attempts,lastAttemptName,lastAttemptDate";
-        object locker = new object();
-        World world;
+        static SortedDictionary<string, IPBanInfo> bans = new SortedDictionary<string, IPBanInfo>();
+        const string BanFile = "ipbans.txt",
+                     Header = "IP,bannedBy,banDate,banReason,playerName,attempts,lastAttemptName,lastAttemptDate";
+        static object locker = new object();
 
-        internal IPBanList( World _world ) {
-            world = _world;
-        }
 
-        internal void Load() {
-            if( File.Exists( FileName ) ) {
-                using( StreamReader reader = File.OpenText( FileName ) ) {
+        internal static void Load() {
+            if( File.Exists( BanFile ) ) {
+                using( StreamReader reader = File.OpenText( BanFile ) ) {
                     reader.ReadLine(); // header
                     while( !reader.EndOfStream ) {
                         string[] fields = reader.ReadLine().Split( ',' );
@@ -42,9 +38,9 @@ namespace fCraft {
         }
 
 
-        internal void Save() {
+        internal static void Save() {
             Logger.Log( "IPBanList.Save: Saving IP ban list ({0} records).", LogType.Debug, bans.Count );
-            string tempFile = FileName + ( new Random() ).Next().ToString();
+            string tempFile = BanFile + ( new Random() ).Next().ToString();
             lock( locker ) {
                 using( StreamWriter writer = File.CreateText( tempFile ) ) {
                     writer.WriteLine( Header );
@@ -53,12 +49,12 @@ namespace fCraft {
                     }
                 }
             }
-            File.Delete( FileName );
-            File.Move( tempFile, FileName );
+            File.Delete( BanFile );
+            File.Move( tempFile, BanFile );
         }
 
 
-        public bool Add( IPBanInfo ban ) {
+        public static bool Add( IPBanInfo ban ) {
             lock( locker ) {
                 if( !bans.ContainsKey( ban.address.ToString() ) ) {
                     bans.Add( ban.address.ToString(), ban );
@@ -71,7 +67,7 @@ namespace fCraft {
         }
 
 
-        public IPBanInfo Get( IPAddress address ) {
+        public static IPBanInfo Get( IPAddress address ) {
             lock( locker ) {
                 if( bans.ContainsKey( address.ToString() ) ) {
                     return bans[address.ToString()];
@@ -82,7 +78,7 @@ namespace fCraft {
         }
 
 
-        public bool Remove( IPAddress address ) {
+        public static bool Remove( IPAddress address ) {
             lock( locker ) {
                 if( bans.Remove( address.ToString() ) ) {
                     Save();

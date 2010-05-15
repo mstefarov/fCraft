@@ -75,7 +75,7 @@ namespace fCraft {
 
 
         // generate info for a new player
-        public PlayerInfo( World world, Player player ) {
+        public PlayerInfo( Player player ) {
             name = player.name;
             lastIP = player.session.GetIP();
 
@@ -110,7 +110,7 @@ namespace fCraft {
 
 
         // load info from file
-        public PlayerInfo( World world, string[] fields ) {
+        public PlayerInfo( string[] fields ) {
             name = fields[0];
             lastIP = IPAddress.Parse( fields[1] );
 

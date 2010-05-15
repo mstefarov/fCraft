@@ -10,20 +10,17 @@ using System.Security.Cryptography;
 
 
 namespace fCraft {
-    public sealed class Server {
-        TcpListener listener;
-        List<Session> sessions = new List<Session>();
+    public static class Server {
+        static TcpListener listener;
+        static List<Session> sessions = new List<Session>();
         public static int maxUploadSpeed,   // set by Config.ApplyConfig
                           packetsPerSecond, // set by Config.ApplyConfig
                           maxSessionPacketsPerTick = 128;
-        World world;
-
-        internal Server( World _world ) {
-            world = _world;
-        }
+        public static Dictionary<string, World> worlds = new Dictionary<string, World>();
+        public static World defaultWorld;
 
         // Opens a socket for listening for incoming connections
-        public bool Start() {
+        public static bool Start() {
             bool worked = false;
             int attempts = 0;
             int attemptsMax = 20;
@@ -53,11 +50,11 @@ namespace fCraft {
 
 
         // loops forever, waiting for incoming connections
-        internal void CheckForIncomingConnections( object param ) {
+        internal static void CheckForIncomingConnections( object param ) {
             if( listener.Pending() ) {
                 Logger.Log( "Server.ListenerHandler: Incoming connection", LogType.Debug );
                 try {
-                    sessions.Add( new Session( world, listener.AcceptTcpClient() ) );
+                    sessions.Add( new Session( defaultWorld, listener.AcceptTcpClient() ) );
                 } catch( Exception ex ) {
                     Logger.Log( "ERROR: Could not accept incoming connection: " + ex.Message, LogType.Error );
                 }
@@ -76,7 +73,7 @@ namespace fCraft {
 
         // shuts down the server and aborts threads
         // NOTE: heartbeat should stop automatically
-        public void ShutDown() {
+        public static void ShutDown() {
             if( listener != null ) {
                 listener.Stop();
                 listener = null;
@@ -102,7 +99,7 @@ namespace fCraft {
         }
 
 
-        public bool VerifyName( string name, string hash ) {
+        public static bool VerifyName( string name, string hash ) {
             MD5 hasher = MD5.Create();
             byte[] data = hasher.ComputeHash( Encoding.ASCII.GetBytes( Config.Salt + name ) );
             for( int i = 0; i < 16; i+=2 ) {
@@ -114,7 +111,7 @@ namespace fCraft {
         }
 
 
-        public int CalculateMaxPacketsPerUpdate() {
+        public static int CalculateMaxPacketsPerUpdate( World world ) {
             int packetsPerTick = (int)(packetsPerSecond / World.ticksPerSecond);
             int maxPacketsPerUpdate = (int)(Server.maxUploadSpeed / World.ticksPerSecond * 128);
 

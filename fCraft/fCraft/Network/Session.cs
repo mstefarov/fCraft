@@ -264,7 +264,7 @@ namespace fCraft {
             }
 
             // check if player's IP is banned
-            IPBanInfo IPBanInfo = world.bans.Get( GetIP() );
+            IPBanInfo IPBanInfo = IPBanList.Get( GetIP() );
             if( IPBanInfo != null ) {
                 player.info.ProcessFailedLogin( player );
                 IPBanInfo.ProcessAttempt( player );
@@ -275,7 +275,7 @@ namespace fCraft {
             }
 
             // verify name
-            if( !world.server.VerifyName( player.name, verificationCode ) ) {
+            if( !Server.VerifyName( player.name, verificationCode ) ) {
                 string standardMessage = String.Format( "Session.LoginSequence: Could not verify player name for {0} ({1}).",
                                                         player.name, GetIP() );
                 if( player.info.timesVisited == 1 || player.info.lastIP.ToString() != GetIP().ToString() ) {
