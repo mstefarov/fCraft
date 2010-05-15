@@ -11,6 +11,19 @@ using System.Security.Cryptography;
 
 namespace fCraft {
     public static class Server {
+
+        // events
+        public static event SimpleEventHandler OnStart;
+        public static event ConnectionEventHandler OnPlayerConnect;
+        public static event ConnectionEventHandler OnPlayerDisconnect;
+        public static event MessageEventHandler OnClassChange;
+        public static event MessageEventHandler OnURLChange;
+        public static event MessageEventHandler OnShutdown;
+        public static event LogEventHandler OnLog;
+
+        static Dictionary<int, Player> players = new Dictionary<int, Player>( 255 );
+        static Player[] playerList;
+
         static TcpListener listener;
         static List<Session> sessions = new List<Session>();
         public static int maxUploadSpeed,   // set by Config.ApplyConfig
@@ -19,27 +32,58 @@ namespace fCraft {
         public static Dictionary<string, World> worlds = new Dictionary<string, World>();
         public static World defaultWorld;
 
+        public static IRCBot ircbot;
+        //static bool IRCBotOnline;
+
+        const int maxPortAttempts = 20;
+
+
+        public static bool Init() {
+            Color.Init();
+            Map.Init();
+
+            Logger.Init( "fCraft.log" );
+            if( !Config.Load() ) return false;
+            Config.ApplyConfig();
+            Config.Save();
+
+            if( Config.GetBool( "IRCBot" ) == true ) {
+                //ircbot = new IRCBot();
+                //IRCBotOnline = true;
+            }
+
+            // allocate player list
+            Tasks.Init();
+
+            // load player DB
+            PlayerDB.Load();
+            IPBanList.Load();
+
+            return true;
+        }
+
+
         // Opens a socket for listening for incoming connections
         public static bool Start() {
-            bool worked = false;
+            bool portFound = false;
             int attempts = 0;
-            int attemptsMax = 20;
             int port = Config.GetInt( "Port" );
             do {
                 try {
                     listener = new TcpListener( IPAddress.Any, port );
                     listener.Start();
-                    worked = true;
+                    portFound = true;
                 } catch( Exception ex ) {
                     Logger.Log( "Could not start listening on port {0}, trying next port. ({1})", LogType.Error,
                                    port, ex.Message );
                     port++;
                     attempts++;
                 }
-            } while( !worked && attempts < attemptsMax );
-            if( !worked ) {
+            } while( !portFound && attempts < maxPortAttempts );
+
+            if( !portFound ) {
                 Logger.Log( "Could not start listening after {0} tries. Giving up!", LogType.FatalError,
-                               attemptsMax );
+                               maxPortAttempts );
                 return false;
             }
 
@@ -49,7 +93,7 @@ namespace fCraft {
         }
 
 
-        // loops forever, waiting for incoming connections
+        // checks for incoming connections and disposes old sessions
         internal static void CheckForIncomingConnections( object param ) {
             if( listener.Pending() ) {
                 Logger.Log( "Server.ListenerHandler: Incoming connection", LogType.Debug );
@@ -60,6 +104,7 @@ namespace fCraft {
                 }
             }
             for( int i = 0; i < sessions.Count; i++ ) {
+                OnPlayerDisconnect( sessions[i] );
                 if( sessions[i].canDispose ) {
                     sessions[i].Disconnect();
                     sessions.RemoveAt( i );
@@ -115,7 +160,7 @@ namespace fCraft {
             int packetsPerTick = (int)(packetsPerSecond / World.ticksPerSecond);
             int maxPacketsPerUpdate = (int)(Server.maxUploadSpeed / World.ticksPerSecond * 128);
 
-            int playerCount = world.GetPlayerCount();
+            int playerCount = Server.GetPlayerCount();
             if( playerCount > 0 ) {
                 maxPacketsPerUpdate /= playerCount;
                 if( maxPacketsPerUpdate > packetsPerTick ) {
@@ -135,5 +180,24 @@ namespace fCraft {
         public static short htons( short value ) {
             return IPAddress.HostToNetworkOrder( value );
         }
+
+
+        // Return player count
+        public static int GetPlayerCount() {
+            return sessions.Count;
+        }
+
+
+
+        internal static void FireURLChangeEvent( string URL ) {
+            if( OnURLChange != null ) OnURLChange( URL );
+        }
+        internal static void FireLogEvent( string message, LogType type ) {
+            if( OnLog != null ) OnLog( message, type );
+        }
+        internal static void FirePlayerConnectEvent( Session session ) {
+            OnPlayerConnect( session );
+        }
+
     }
 }

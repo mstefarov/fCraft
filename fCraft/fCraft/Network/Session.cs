@@ -10,7 +10,7 @@ using System.Text;
 
 
 namespace fCraft {
-    sealed class Session {
+    public sealed class Session {
         public Player player;
         public DateTime loginTime;
         public bool canReceive, canSend, canQueue, canDispose;
@@ -344,6 +344,7 @@ namespace fCraft {
             }
 
             player.info.ProcessLogin( player );
+            Server.FirePlayerConnectEvent( this );
 
             // Player is now authenticated. Send server info.
             writer.Write( PacketWriter.MakeHandshake( world, player ) );
@@ -390,9 +391,9 @@ namespace fCraft {
                                                           player );
 
             // if IRC Bot is online, send update to IRC bot
-            if (world.ircbot.isOnline() == true)
+            if (Server.ircbot.isOnline() == true)
             {
-                world.ircbot.SendMsgChannel(player.name + "(" + player.info.playerClass.name +") has joined ** " + Config.GetString("ServerName") + " **");
+                Server.ircbot.SendMsgChannel( player.name + "(" + player.info.playerClass.name + ") has joined ** " + Config.GetString( "ServerName" ) + " **" );
             }
 
             // Welcome message

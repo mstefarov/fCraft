@@ -24,14 +24,12 @@ namespace fCraftUI {
 
 
         void StartUp( object sender, EventArgs a ) {
-            world = new World( "" );
-
-            world.OnLog += Log;
-            world.OnURLChange += SetURL;
-            world.OnPlayerListChange += UpdatePlayerList;
+            Server.OnLog += Log;
+            Server.OnURLChange += SetURL;
+            //Server.OnPlayerListChange += UpdatePlayerList; //TODO
 
 
-            if( world.Init() ) {
+            if( Server.Init() ) {
                 Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( "ServerName" );
 
                 UpdaterResult update = Updater.CheckForUpdates( world );

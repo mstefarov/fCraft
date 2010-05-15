@@ -28,57 +28,24 @@ using System.Text;
 
 
 namespace fCraft {
-    public delegate void LogHandler( string message, LogType type );
-    public delegate void MessageEventHandler( string message );
-    public delegate void PlayerListChangeHandler( string[] message );
-    public delegate void VoidEventHandler();
 
-    public class World {
+    public sealed class World {
+        public event SimpleEventHandler OnLoad;
+        public event SimpleEventHandler OnUnload;
+        public event WorldChangeEventHandler OnPlayerJoin;
+        public event WorldChangeEventHandler OnPlayerLeave;
+        
         public Map map;
-        public Heartbeat heartbeat;
-        public IRCBot ircbot;
-        public Tasks tasks;
-
         public Player[] players;
-        public string path;
 
-        int playerCount;
-        object playerListLock = new object();
-
-        bool IRCBotOnline;
         internal bool requestLockDown, lockDown, lockDownReady;
         internal bool loadInProgress, loadSendingInProgress, loadProgressReported;
         internal int totalBlockUpdates, completedBlockUpdates;
         bool firstBackup = true;
 
-        // events
-        //public event MessageEventHandler OnOutput;
-        //public event MessageEventHandler OnError;
-        public event PlayerListChangeHandler OnPlayerListChange;
-        //public event MessageEventHandler OnClassChange;
-        //public event MessageEventHandler OnMapChange;
-        public event MessageEventHandler OnURLChange;
-        public event LogHandler OnLog;
-
-        internal void FireURLChange( string URL ) {
-            if( OnURLChange != null ) OnURLChange( URL );
+        public World() {
+            players = new Player[Config.GetInt( "MaxPlayers" ) + 1];
         }
-        internal void FireLog( string message, LogType type ) {
-            if( OnLog != null ) OnLog( message, type );
-        }
-
-
-        public World( string _path ) {
-            path = _path;
-            Color.Init();
-            Map.Init();
-
-            // start tasks service
-            tasks = new Tasks();
-
-            heartbeat = new Heartbeat( this );
-        }
-
 
         public void LoadMap( string mapName ) {
             try {
@@ -98,30 +65,6 @@ namespace fCraft {
                 
                 if( !map.Save() ) throw new Exception( "Could not save file." );
             }
-        }
-
-
-        public bool Init() {
-            Logger.Init( "fCraft.log" );
-            if( !Config.Load() ) return false;
-            Config.ApplyConfig();
-            Config.Save();
-
-            if (Config.GetBool("IRCBot") == true)
-            {
-                ircbot = new IRCBot(this);
-                IRCBotOnline = true;
-            }
-
-            // allocate player list
-            players = new Player[Config.GetInt( "MaxPlayers" ) + 1];
-            tasks.Init();
-
-            // load player DB
-            PlayerDB.Load();
-            IPBanList.Load();
-
-            return true;
         }
         
 
@@ -147,13 +90,13 @@ namespace fCraft {
 
             mainThread = new Thread( Update );
             mainThread.Start();
-            heartbeat.Start();
 
-            if(IRCBotOnline)
-            {
+            /*
+            if( IRCBotOnline ) {
                 ircbot.Start();
             }
-            
+            */
+           
             return true;
         }
 
@@ -204,7 +147,7 @@ namespace fCraft {
 
                 if( requestLockDown ) {
                     lockDown = true;
-                    tasks.Restart();
+                    Tasks.Restart();
                     requestLockDown = false;
                     Thread.Sleep( 100 ); // buffer time for all threads to catch up
                     map.ClearUpdateQueue();
@@ -226,7 +169,7 @@ namespace fCraft {
         void SaveMap( object param ) {
             if( lockDown ) return;
             if( map.changesSinceSave > 0 ) {
-                tasks.Add(
+                Tasks.Add(
                     delegate {
                         map.changesSinceSave = 0;
                         map.Save();
@@ -244,7 +187,7 @@ namespace fCraft {
             requestLockDown = true;
             if( Thread.CurrentThread == mainThread ) {
                 lockDown = true;
-                tasks.Restart();
+                Tasks.Restart();
                 requestLockDown = false;
                 Thread.Sleep( 100 ); // buffer time for all threads to catch up
                 map.ClearUpdateQueue();
@@ -294,10 +237,10 @@ namespace fCraft {
                     Logger.Log( "{0} left the server.", LogType.UserActivity, player.name );
 
                     // if IRC Bot is online, send update to IRC bot
-                    if (ircbot.isOnline() == true)
+                    /*if (ircbot.isOnline() == true)
                     {
                         ircbot.SendMsgChannel(player.name + "(" + player.info.playerClass.name + ") has left ** " + Config.GetString("ServerName") + " **");
-                    }
+                    }*/
                     PlayerDB.ProcessLogout( player );
                     PlayerDB.Save();
                     players[player.id] = null;
@@ -397,12 +340,6 @@ namespace fCraft {
         }
 
 
-        // Return player count
-        public int GetPlayerCount() {
-            return playerCount;
-        }
-
-
         // Disconnect all players
         public void ShutDown() {
             try {
@@ -412,9 +349,9 @@ namespace fCraft {
                     mainThread.Join();
                 }
 
-                if( heartbeat != null ) heartbeat.ShutDown();
-                if(IRCBotOnline == true) ircbot.ShutDown();
-                if( tasks != null ) tasks.ShutDown();
+                Heartbeat.ShutDown();
+                //if( IRCBotOnline == true ) ircbot.ShutDown();
+                Tasks.ShutDown();
 
                 lock( playerListLock ) {
                     for( int i = 1; i < players.Length; i++ ) {
@@ -520,7 +457,7 @@ namespace fCraft {
                 p = players[i];
                 if( p != null ) playerList.Add( p.info.playerClass.name + " - " + p.name );
             }
-            if( OnPlayerListChange != null ) OnPlayerListChange( playerList.ToArray() );
+            //Server.FirePlayerListChange( playerList.ToArray() ); //TODO
         }
     }
 }
