@@ -96,7 +96,6 @@
     <Compile Include="Player\PlayerInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="app.config" />
-    <None Include="ClassDiagram1.cd" />
     <Compile Include="Utils\StringTree.cs" />
     <Compile Include="Utils\Position.cs" />
     <Compile Include="Utils\Tasks.cs" />
