@@ -75,6 +75,7 @@
     <Compile Include="Commands\Commands.cs" />
     <Compile Include="Commands\InfoCommands.cs" />
     <Compile Include="Commands\StandardCommands.cs" />
+    <Compile Include="Network\IRCComm.cs" />
     <Compile Include="Network\IPBanList.cs" />
     <Compile Include="Network\IRCBot.cs" />
     <Compile Include="Utils\Updater.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Player\PlayerInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="app.config" />
+    <None Include="ClassDiagram1.cd" />
     <Compile Include="Utils\StringTree.cs" />
     <Compile Include="Utils\Position.cs" />
     <Compile Include="Utils\Tasks.cs" />
