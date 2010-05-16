@@ -178,6 +178,7 @@ namespace fCraft {
                 try {
                     WriteHeader( fs );
                     WriteMetadata( fs );
+                    changesSinceSave = 0;
                     GetCompressedCopy( fs, false );
                 } catch( IOException ex ) {
                     Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
@@ -446,7 +447,7 @@ namespace fCraft {
                 }
                 changesSinceSave++;
                 SetBlock( update.x, update.y, update.h, update.type );
-                world.SendToAll( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin, false );
+                world.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin);
                 if( update.origin != null ) {
                     update.origin.info.ProcessBlockBuild( update.type );
                 }
@@ -460,7 +461,7 @@ namespace fCraft {
                     world.SendToAll( PacketWriter.MakeMessage( Color.Red+"Map load complete." ), null );
                     Logger.Log( "Load command finished succesfully.", LogType.SystemActivity );
                     world.loadSendingInProgress = false;
-                    world.EndLockDown();
+                    //world.EndLockDown();
                 } else {
                     if( !world.loadProgressReported && world.completedBlockUpdates / (float)world.totalBlockUpdates > 0.5f ) {
                         world.SendToAll( PacketWriter.MakeMessage( Color.Red + "Map loading: 50%" ), null );

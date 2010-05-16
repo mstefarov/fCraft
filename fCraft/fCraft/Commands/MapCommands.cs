@@ -147,7 +147,7 @@ namespace fCraft {
 
             Logger.Log( "{0} is loading the map \"{1}\".", LogType.UserActivity, player.name, mapName );
             player.Message( "Loading map \"" + mapName + "\"..." );
-            player.world.BeginLockDown();
+            //player.world.BeginLockDown();
             MapSenderParams param = new MapSenderParams() {
                 map = newMap,
                 player = player,
@@ -344,7 +344,7 @@ namespace fCraft {
                 return;
             }
             player.world.SendToAll( PacketWriter.MakeMessage( Color.Red + "Server is now on lockdown!" ), null );
-            player.world.BeginLockDown();
+            //player.world.BeginLockDown();
         }
 
 
@@ -354,7 +354,7 @@ namespace fCraft {
                 return;
             }
             player.world.SendToAll( PacketWriter.MakeMessage( Color.Red + "Lockdown has ended." ), null );
-            player.world.EndLockDown();
+            //player.world.EndLockDown();
         }
     }
 }

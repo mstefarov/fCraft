@@ -349,7 +349,7 @@ namespace fCraft {
 
             Server.maxUploadSpeed = GetInt("UploadBandwidth");
             Server.packetsPerSecond = GetInt("BlockUpdateThrottling" );
-            World.ticksPerSecond = 1000 / (float)GetInt( "TickInterval" );
+            Server.ticksPerSecond = 1000 / (float)GetInt( "TickInterval" );
         }
 
 

@@ -24,7 +24,7 @@ namespace fCraft {
     public class Updater {
         static int version = 330;
 
-        public static UpdaterResult CheckForUpdates( World world ) {
+        public static UpdaterResult CheckForUpdates() {
             UpdaterResult result = new UpdaterResult( version );
             if( Config.GetString( "AutomaticUpdates" ) == "Disabled" ) return result;
             try {
