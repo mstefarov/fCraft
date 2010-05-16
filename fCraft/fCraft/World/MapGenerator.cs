@@ -87,7 +87,7 @@ namespace fCraft {
                 }
             }
             map.MakeFloodBarrier();
-            map.Save(filename);
+            map.Save( filename );
             Feedback( "Done." );
         }
 
@@ -107,7 +107,7 @@ namespace fCraft {
 
             //Assign the four corners of the intial grid random color values
             //These will end up being the colors of the four corners
-            c1 = sides + (rand.NextDouble() - 0.5)*0.05;
+            c1 = sides + (rand.NextDouble() - 0.5) * 0.05;
             c2 = sides + (rand.NextDouble() - 0.5) * 0.05;
             c3 = sides + (rand.NextDouble() - 0.5) * 0.05;
             c4 = sides + (rand.NextDouble() - 0.5) * 0.05;
@@ -126,7 +126,7 @@ namespace fCraft {
             if( width > 1 || height > 1 ) {
                 if( isTop ) {
                     Middle = ((c1 + c2 + c3 + c4) / 4) + midpoint;	//Randomly displace the midpoint!
-                }else{
+                } else {
                     Middle = ((c1 + c2 + c3 + c4) / 4) + Displace( newWidth + newHeight );	//Randomly displace the midpoint!
                 }
                 Edge1 = ((c1 + c2) / 2);	//Calculate the edges by averaging the two corners of each edge.

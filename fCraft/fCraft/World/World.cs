@@ -69,10 +69,13 @@ namespace fCraft {
                 map.SaveBackup( String.Format( "backups/{0}_{1:yyyy-MM-dd HH-mm}_{2}.fcm", name, DateTime.Now, player.name ) );
             }
 
-            SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
             // Reveal newcommer to existing players
             Logger.Log( "{0}Player {1} joined \"{2}\".", LogType.UserActivity, Color.Sys, player.name, name );
-            Server.SendToAll( String.Format( "{1} joined {2}", player.GetListName(), player.world.name ), player );
+
+            if( !player.isHidden ) {
+                SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
+                Server.SendToAll( String.Format( "{1} joined {2}", player.GetListName(), player.world.name ), player );
+            }
 
             if( OnPlayerJoined != null ) OnPlayerJoined( player, this );
         }
@@ -109,15 +112,17 @@ namespace fCraft {
 
                 MapCommands.GenerateFlatgrass( map, false );
 
-                if( !map.Save() ) throw new Exception( "Could not save file." );
+                SaveMap( null );
             }
 
             if( OnLoaded != null ) OnLoaded();
         }
 
         public void UnloadMap() {
-            map.Save( name + ".fcm" );
-            map = null;
+            lock( mapLock ) {
+                SaveMap( null );
+                map = null;
+            }
             if( OnUnloaded != null ) OnUnloaded();
             GC.Collect();
         }
@@ -214,12 +219,10 @@ namespace fCraft {
 
         // Disconnect all players
         public void Shutdown() {
-            try {
+            lock( mapLock ) {
                 if( Config.GetBool( "SaveOnShutdown" ) && map != null ) {
-                    map.Save();
+                    SaveMap( null );
                 }
-            } catch( Exception ex ) {
-                Logger.Log( "Error occured while trying to shut down: {0}", LogType.Error, ex.Message );
             }
         }
 
@@ -275,6 +278,14 @@ namespace fCraft {
                     newPlayerList[i++] = player;
                 }
                 playerList = newPlayerList;
+            }
+        }
+
+        public void SaveMap( object param ) {
+            lock( mapLock ) {
+                if( map != null ) {
+                    map.Save( name + ".fcm" );
+                }
             }
         }
     }

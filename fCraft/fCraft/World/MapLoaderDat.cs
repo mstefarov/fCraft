@@ -104,7 +104,7 @@ namespace fCraft {
                 Logger.Log( ex.StackTrace, LogType.Debug );
                 return null;
             }
-            map.Save();
+            //map.Save();
             Logger.Log( "Conversion completed succesfully succesful.", LogType.SystemActivity, fileName );
             return map;
         }

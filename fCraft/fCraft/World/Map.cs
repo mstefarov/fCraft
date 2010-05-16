@@ -166,10 +166,6 @@ namespace fCraft {
 
         // ==== Saving ========================================================
 
-        public bool Save() {
-            return Save( DefaultFileName );
-        }
-
 
         public bool Save( string fileName ) {
             string tempFileName = fileName + "." + (new Random().Next().ToString());

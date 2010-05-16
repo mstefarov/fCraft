@@ -310,10 +310,7 @@ namespace fCraft {
             World world = (World)param;
             if( world.map == null ) return;
             if( world.map.changesSinceSave > 0 ) {
-                Tasks.Add(
-                    delegate {
-                        world.map.Save();
-                    }, null, false );
+                Tasks.Add( world.SaveMap, null, false );
             }
         }
 
