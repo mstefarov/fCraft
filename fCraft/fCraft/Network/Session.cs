@@ -204,8 +204,9 @@ namespace fCraft {
                         }
                     }
                 }
-
-                /*} catch( ThreadAbortException ) {
+#if DEBUG
+#else
+                } catch( ThreadAbortException ) {
                     Logger.Log( "Session.IoLoop: Thread aborted!", LogType.Error );
 
                 } catch( IOException ex ) {
@@ -215,8 +216,8 @@ namespace fCraft {
                     Logger.Log( "Session.IoLoop: {0}.", LogType.Warning, ex.Message );
 
                 } catch( Exception ex ) {
-                    Logger.Log( "Session.IoLoop: {0}: {1}.", LogType.Error, ex.ToString(), ex.Message );*/
-
+                    Logger.Log( "Session.IoLoop: {0}: {1}.", LogType.Error, ex.ToString(), ex.Message );
+#endif
             } finally {
                 canQueue = false;
                 canSend = false;
