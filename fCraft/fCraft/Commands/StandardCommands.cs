@@ -56,19 +56,19 @@ namespace fCraft {
         internal static void Me( Player player, Command cmd ) {
             string msg = cmd.NextAll().Trim();
             if( msg != null ) {
-                player.world.SendToAll( "*" + Color.Purple + player.name + " " + msg, null );
+                Server.SendToAll( "*" + Color.Purple + player.name + " " + msg );
             }
         }
 
         internal static void Nick( Player player, Command cmd ) {
             if( !player.Can( Permissions.ChangeName ) ) {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
                 return;
             }
             string name = cmd.Next();
             if( name == null ) {
                 if( player.nick != player.name ) {
-                    player.world.SendToAll( Color.Sys + player.nick + " is now known as " + player.name, player );
+                    Server.SendToAll( Color.Sys + player.nick + " is now known as " + player.name, player );
                     player.Message( "You are now known as " + name + ". Use " + Color.Help + "/nick" + Color.Sys + " again to reset." );
                     player.nick = player.name;
                     player.world.UpdatePlayer( player );
@@ -76,7 +76,7 @@ namespace fCraft {
                     player.Message( "You do not have an alias set." );
                 }
             } else if( Player.IsValidName( name ) ) {
-                player.world.SendToAll( Color.Sys + player.nick + " is now known as " + name, player );
+                Server.SendToAll( Color.Sys + player.nick + " is now known as " + name, player );
                 player.Message( "You are now known as " + name + ". Use " + Color.Help + "/nick" + Color.Sys + " again to reset." );
                 player.nick = name;
                 player.world.UpdatePlayer( player );
@@ -118,19 +118,19 @@ namespace fCraft {
             num = rand.Next( min, max+1 );
             string msg = Color.Silver + player.name + " rolled " + num + " ("+min+"..."+max+")";
             Logger.LogConsole( msg );
-            player.world.SendToAll( PacketWriter.MakeMessage( msg ), null );
+            Server.SendToAll( msg );
         }
 
         internal static void Say( Player player, Command cmd ) {
             if( player.Can( Permissions.Say ) ) {
                 string msg = cmd.NextAll();
                 if( msg != null && msg.Trim().Length > 0 ) {
-                    player.world.SendToAll( PacketWriter.MakeMessage( Color.Say + msg.Trim() ), null );
+                    Server.SendToAll( Color.Say + msg.Trim() );
                 } else {
                     player.Message( "Usage: " + Color.Help + "/say message" );
                 }
             } else {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }
         }
 
@@ -168,7 +168,7 @@ namespace fCraft {
                 string arg = cmd.Next();
                 string reason = cmd.NextAll();
                 IPAddress address;
-                Player offender = player.world.FindPlayer( arg );
+                Player offender = Server.FindPlayer( arg );
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( arg );
 
                 // ban by IP address
@@ -182,14 +182,14 @@ namespace fCraft {
                     if( unban ) {
                         if( offender.info.ProcessUnBan( player.name, reason ) ) {
                             Logger.Log( "{0} was unbanned by {1}.", LogType.UserActivity, offender.info.name, player.name );
-                            player.world.SendToAll( PacketWriter.MakeMessage( Color.Red + offender.name + " was unbanned by " + player.name ), offender );
+                            Server.SendToAll( Color.Red + offender.name + " was unbanned by " + player.name, offender );
                         } else {
                             player.Message( offender.name + " is not currently banned." );
                         }
                     }else{
                         if( offender.info.ProcessBan( player.name, reason ) ) {
                             Logger.Log( "{0} was banned by {1}.", LogType.UserActivity, offender.info.name, player.name );
-                            player.world.SendToAll( PacketWriter.MakeMessage( Color.Red + offender.name + " was banned by " + player.name ), offender );
+                            Server.SendToAll( Color.Red + offender.name + " was banned by " + player.name, offender );
                             offender.session.Kick( "You were banned by " + player.name + "!" );
                         } else {
                             player.Message( offender.name + " is already banned." );
@@ -203,23 +203,23 @@ namespace fCraft {
                     if( unban ) {
                         if( info.ProcessUnBan( player.name, reason ) ) {
                             Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity, info.name, player.name );
-                            player.world.SendToAll( PacketWriter.MakeMessage( Color.Red + info.name + " (offline) was unbanned by " + player.name ), null );
+                            Server.SendToAll( Color.Red + info.name + " (offline) was unbanned by " + player.name );
                         } else {
                             player.Message( info.name + " (offline) is not currenty banned." );
                         }
                     } else {
                         if( info.ProcessBan( player.name, reason ) ) {
                             Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity, info.name, player.name );
-                            player.world.SendToAll( PacketWriter.MakeMessage( Color.Red + info.name + " (offline) was banned by " + player.name ), null );
+                            Server.SendToAll( Color.Red + info.name + " (offline) was banned by " + player.name );
                         } else {
                             player.Message( info.name + " (offline) is already banned." );
                         }
                     }
                 } else {
-                    World.NoPlayerMessage( player, arg );
+                    player.NoPlayerMessage( arg );
                 }
             } else {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }
         }
 
@@ -266,10 +266,9 @@ namespace fCraft {
                 string name = cmd.Next();
                 if( name != null ) {
                     string msg = cmd.NextAll();
-                    Player offender = player.world.FindPlayer( name );
+                    Player offender = Server.FindPlayer( name );
                     if( offender != null ) {
-                        player.world.SendToAll( PacketWriter.MakeMessage(
-                                Color.Red + offender.name + " was kicked by " + player.name ), offender );
+                        player.world.SendToAll( Color.Red + offender.name + " was kicked by " + player.name, offender );
                         if( msg != null && msg != ""  ) {
                             Logger.Log( "{0} was kicked by {1}. Message: {2}", LogType.UserActivity, offender.name, player.name, msg );
                             offender.session.Kick( "Kicked by " + player.name + ": " + msg );
@@ -278,14 +277,14 @@ namespace fCraft {
                             offender.session.Kick( "You have been kicked by " + player.name );
                         }
                     } else {
-                        World.NoPlayerMessage( player, name );
+                        player.NoPlayerMessage( name );
                     }
                 } else {
                     player.Message( "Usage: " + Color.Help + "/kick PlayerName [Message]" +
                                        Color.Sys + " or " + Color.Help + "/k PlayerName [Message]" );
                 }
             } else {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }
         }
 
@@ -301,9 +300,9 @@ namespace fCraft {
                 return;
             }
 
-            Player target = player.world.FindPlayer( name );
+            Player target = Server.FindPlayer( name );
             if( target == null ) {
-                World.NoPlayerMessage( player, name );
+                player.NoPlayerMessage( name );
                 return;
             }
 
@@ -321,7 +320,7 @@ namespace fCraft {
             bool promote = target.info.playerClass.rank < newClass.rank;
 
             if( (promote && !player.Can( Permissions.Promote )) || !promote && !player.Can( Permissions.Demote ) ) {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
                 return;
             }
 
@@ -347,12 +346,14 @@ namespace fCraft {
                 target.info.playerClass.rank > newClass.rank ) {
                 Logger.Log( "{0} changed the class of {1} from {2} to {3}.", LogType.UserActivity, 
                             player.name, target.info.name, target.info.playerClass.name, newClass.name );
+                PlayerClass oldClass = target.info.playerClass;
                 target.info.playerClass = newClass;
                 target.info.classChangeDate = DateTime.Now;
                 target.info.classChangedBy = player.name;
 
                 target.Send( PacketWriter.MakeSetPermission( target ) );
 
+                target.mode = BlockPlacementMode.Normal;
                 if( promote ) {
                     player.Message( "You promoted " + target.name + " to " + newClass.color + newClass.name + "." );
                     target.Message( "You have been promoted to " + newClass.color + newClass.name + Color.Sys + " by " + player.name + "!" );
@@ -360,10 +361,12 @@ namespace fCraft {
                     player.Message( "You demoted " + target.name + " to " + newClass.color + newClass.name + "." );
                     target.Message( "You have been demoted to " + newClass.color + newClass.name + Color.Sys + " by " + player.name + "!" );
                 }
-                if( Config.GetBool( "ClassPrefixesInList" ) || Config.GetBool( "ClassColorsInChat" ) ) {// TODO: colors in player names
-                    player.world.UpdatePlayer( target );
+                if( Config.GetBool( "ClassPrefixesInList" ) || Config.GetBool( "ClassColorsInChat" ) ) {
+                    target.world.UpdatePlayer( target );
                 }
-                target.mode = BlockPlacementMode.Normal;
+
+                Server.FirePlayerClassChange( target, player, oldClass, newClass );
+                
             } else {
                 if( promote ) {
                     player.Message( target.name + " is already same or lower rank than " + newClass.name );
@@ -388,7 +391,7 @@ namespace fCraft {
                         pos.h += 1;
                         player.Send( PacketWriter.MakeTeleport( 255, pos ) );
                     } else if ( cmd.Next() == null ) {
-                        World.NoPlayerMessage( player, name );
+                        player.NoPlayerMessage( name );
                     } else {
                         cmd.Rewind();
                         int x, y, h;
@@ -407,7 +410,7 @@ namespace fCraft {
                     }
                 }
             } else {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }
         }
 
@@ -423,10 +426,10 @@ namespace fCraft {
                     pos.h += 1;
                     target.Send( PacketWriter.MakeTeleport( 255, pos ) );
                 } else {
-                    World.NoPlayerMessage( player, name );
+                    player.NoPlayerMessage( name );
                 }
             } else {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }
         }
 
@@ -434,19 +437,19 @@ namespace fCraft {
         internal static void Freeze( Player player, Command cmd ) {
             if( player.Can( Permissions.Freeze ) ) {
                 string name = cmd.Next();
-                Player target = player.world.FindPlayer( name );
+                Player target = Server.FindPlayer( name );
                 if( target != null ) {
                     if( !target.isFrozen ) {
-                        player.world.SendToAll( PacketWriter.MakeMessage( Color.Yellow + target.name + " has been frozen by " + player.name ), null );
+                        Server.SendToAll( Color.Yellow + target.name + " has been frozen by " + player.name );
                         target.isFrozen = true;
                     } else {
                         player.Message( target.name + " is already frozen." );
                     }
                 } else {
-                    World.NoPlayerMessage( player, name );
+                    player.NoPlayerMessage(name );
                 }
             } else {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }
         }
 
@@ -454,19 +457,19 @@ namespace fCraft {
         internal static void Unfreeze( Player player, Command cmd ) {
             if( player.Can( Permissions.Freeze ) ) {
                 string name = cmd.Next();
-                Player target = player.world.FindPlayer( name );
+                Player target = Server.FindPlayer( name );
                 if( target != null ) {
                     if( target.isFrozen ) {
-                        player.world.SendToAll( PacketWriter.MakeMessage( Color.Yellow + target.name + " is no longer frozen." ), null );
+                        Server.SendToAll( Color.Yellow + target.name + " is no longer frozen." );
                         target.isFrozen = false;
                     } else {
                         player.Message( target.name + " is currently not frozen." );
                     }
                 } else {
-                    World.NoPlayerMessage( player, name );
+                    player.NoPlayerMessage( name );
                 }
             } else {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }
         }
 
@@ -474,15 +477,15 @@ namespace fCraft {
         internal static void Hide( Player player, Command cmd ) {
             if( player.Can( Permissions.Hide ) ) {
                 if( !player.isHidden ) {
-                    player.world.SendToAll( PacketWriter.MakeRemoveEntity( player.id ), null );
-                    player.world.SendToAll( PacketWriter.MakeMessage( Color.Sys + player.name + " left the server." ), null );
+                    Server.SendToAll( PacketWriter.MakeRemoveEntity( player.id ), null );
+                    Server.SendToAll( Color.Sys + player.name + " left the server." );
                     player.isHidden = true;
                     player.Message( Color.Gray, "You are now hidden." );
                 } else {
                     player.Message( "You are already hidden." );
                 }
             } else {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }
         }
 
@@ -491,16 +494,19 @@ namespace fCraft {
             if( player.Can( Permissions.Hide ) ) {
                 if( player.isHidden ) {
                     player.world.SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
-                    player.world.SendToAll( PacketWriter.MakeMessage( Color.Sys + player.name + " (" + player.info.playerClass.color +
-                                                                  player.info.playerClass.name + Color.Sys + ") has joined the server." ),
-                                                                  player );
+                    Server.SendToAll( String.Format( "{0}{1} ({2}{3}{0}) has joined the server.",
+                                                     Color.Sys,
+                                                     player.name,
+                                                     player.info.playerClass.color,
+                                                     player.info.playerClass.name),
+                                      player );
                     player.isHidden = false;
                     player.Message(Color.Gray, "You are no longer hidden." );
                 } else {
                     player.Message( "You are not currently hidden." );
                 }
             } else {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }
         }
 
@@ -513,7 +519,7 @@ namespace fCraft {
                 player.Message( "New spawn point saved." );
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity, player.name );
             } else {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }
         }
     }

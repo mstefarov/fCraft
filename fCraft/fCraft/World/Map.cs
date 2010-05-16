@@ -454,7 +454,7 @@ namespace fCraft {
                 packetsSent++;
             }
 
-            if( world.loadSendingInProgress ) {
+            /*if( world.loadSendingInProgress ) { //TODO: streamload
                 if( packetsSent < maxPacketsPerUpdate ) {
                     GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
                     GC.WaitForPendingFinalizers();
@@ -469,7 +469,7 @@ namespace fCraft {
                     }
                     world.completedBlockUpdates += packetsSent;
                 }
-            }
+            }*/
         }
 
 

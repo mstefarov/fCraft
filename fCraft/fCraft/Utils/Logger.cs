@@ -77,7 +77,7 @@ namespace fCraft {
                     }
                 }
             }
-            //TODO: if( world != null && consoleOptions[(int)type] ) world.FireLog( line, type );
+            if( consoleOptions[(int)type] ) Server.FireLogEvent( line, type );
         }
 
 

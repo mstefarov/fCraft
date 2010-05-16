@@ -11,11 +11,11 @@ using System.Security.Cryptography;
 
 namespace fCraft {
     public static class Server {
-
         static List<Session> sessions = new List<Session>();
         static Dictionary<int, Player> players = new Dictionary<int, Player>( 255 );
         static Player[] playerList;
         static object playerListLock = new object();
+        public static object worldListLock = new object();
 
         public static Dictionary<string, World> worlds = new Dictionary<string, World>();
         public static World defaultWorld;
@@ -52,8 +52,9 @@ namespace fCraft {
             // load player DB
             PlayerDB.Load();
             IPBanList.Load();
+            Commands.Init();
 
-            OnInit();
+            if( OnInit != null ) OnInit();
 
             return true;
         }
@@ -62,7 +63,7 @@ namespace fCraft {
         // Opens a socket for listening for incoming connections
         public static bool Start() {
 
-            //Player.Console = new Player( this, "(console)" ); //TODO
+            Player.Console = new Player( null, "(console)" ); //TODO
 
             bool portFound = false;
             int attempts = 0;
@@ -96,32 +97,83 @@ namespace fCraft {
 
             int saveMapTaskId, autoBackupTaskId;
 
+            defaultWorld = new World( "main" );
+            worlds.Add( defaultWorld.name, defaultWorld );
+            defaultWorld.neverUnload = true;
+            defaultWorld.LoadMap();
+
+            worlds.Add( "lake", new World( "lake" ) );
+            worlds.Add( "mountains", new World( "mountains" ) );
+
             // queue up some tasks to run on the scheduler
             AddTask( CheckConnections, 250 );
-            AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ) );
-            saveMapTaskId = AddTask( SaveMap, Config.GetInt( "SaveInterval" ) * 1000 );
-            TaskToggle( saveMapTaskId, Config.GetInt( "SaveInterval" ) > 0 );
-            autoBackupTaskId = AddTask( AutoBackup, Config.GetInt( "BackupInterval" ) * 1000 * 60 );
-            TaskToggle( autoBackupTaskId, Config.GetInt( "BackupInterval" ) > 0 );
+            foreach( World world in worlds.Values ) {
+                AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ), world );
+
+                if( Config.GetInt( "SaveInterval" ) > 0 ) {
+                    int saveInterval = Config.GetInt( "SaveInterval" ) * 1000;
+                    saveMapTaskId = AddTask( SaveMap, saveInterval, world, saveInterval );
+                }
+
+                if( Config.GetInt( "BackupInterval" ) > 0 ) {
+                    int backupInterval = Config.GetInt( "BackupInterval" ) * 1000 * 60;
+                    autoBackupTaskId = AddTask( AutoBackup, backupInterval, world, (Config.GetBool( "BackupOnStartup" ) ? 0 : backupInterval) );
+                }
+
+                world.UpdatePlayerList();
+            }
+
+            UpdatePlayerList();
 
             mainThread = new Thread( MainLoop );
             mainThread.Start();
 
+            Heartbeat.Start();
             /*
             if( IRCBotOnline ) {
                 ircbot.Start(); //TODO: IRC
             }
             */
-
-            OnStart();
-
-            //TODO: Config.GetBool( "BackupOnStartup" )
+            if( OnStart != null ) OnStart();
 
             return true;
         }
 
+        public static void SendToAllDelayed( Packet packet, Player except ) {
+            Player[] tempList = playerList;
+            for( int i = 0; i < tempList.Length; i++ ) {
+                if( tempList[i] != except ) {
+                    tempList[i].Send( packet, false );
+                }
+            }
+        }
+        public static void SendToAll( Packet packet ) {
+            SendToAll( packet, null );
+        }
+        public static void SendToAll( Packet packet, Player except ) {
+            Player[] tempList = playerList;
+            for( int i = 0; i < tempList.Length; i++ ) {
+                if( tempList[i] != except ) {
+                    tempList[i].Send( packet );
+                }
+            }
+        }
+        public static void SendToAll( string message ) {
+            SendToAll( PacketWriter.MakeMessage( message ), null );
+        }
+        public static void SendToAll( string message, Player except ) {
+            SendToAll( PacketWriter.MakeMessage( message ), except );
+        }
 
-
+        // Broadcast to a specific class
+        public static void SendToClass( Packet packet, PlayerClass playerClass ) {
+            Player[] tempList = playerList;
+            for( int i = 0; i < tempList.Length; i++ ) {
+                if( tempList[i].info.playerClass == playerClass ) {
+                    tempList[i].Send( packet );
+                }
+            }
+        }
 
         // checks for incoming connections and disposes old sessions
         internal static void CheckConnections( object param ) {
@@ -134,7 +186,7 @@ namespace fCraft {
                 }
             }
             for( int i = 0; i < sessions.Count; i++ ) {
-                OnPlayerDisconnect( sessions[i] );
+                if( OnPlayerDisconnect != null ) OnPlayerDisconnect( sessions[i] );
                 if( sessions[i].canDispose ) {
                     sessions[i].Disconnect();
                     sessions.RemoveAt( i );
@@ -149,6 +201,7 @@ namespace fCraft {
         // shuts down the server and aborts threads
         // NOTE: heartbeat should stop automatically
         public static void Shutdown() {
+            if( OnShutdownStart != null ) OnShutdownStart();
             if( listener != null ) {
                 listener.Stop();
                 listener = null;
@@ -176,6 +229,7 @@ namespace fCraft {
 
             PlayerDB.Save();
             IPBanList.Save();
+            if( OnShutdownEnd != null ) OnShutdownEnd();
         }
 
 
@@ -191,9 +245,11 @@ namespace fCraft {
         public static event SimpleEventHandler OnStart;
         public static event ConnectionEventHandler OnPlayerConnect;
         public static event ConnectionEventHandler OnPlayerDisconnect;
-        public static event MessageEventHandler OnClassChange;
+        public static event PlayerClassChangeEventHandler OnPlayerClassChange;
         public static event MessageEventHandler OnURLChange;
-        public static event MessageEventHandler OnShutdown;
+        public static event SimpleEventHandler OnShutdownStart;
+        public static event SimpleEventHandler OnShutdownEnd;
+        public static event WorldChangedEventHandler OnWorldChanged;
         public static event LogEventHandler OnLog;
 
         internal static void FireURLChangeEvent( string URL ) {
@@ -203,7 +259,13 @@ namespace fCraft {
             if( OnLog != null ) OnLog( message, type );
         }
         internal static void FirePlayerConnectEvent( Session session ) {
-            OnPlayerConnect( session );
+            if( OnPlayerConnect != null ) OnPlayerConnect( session );
+        }
+        internal static void FirePlayerClassChange( Player target, Player player, PlayerClass oldClass, PlayerClass newClass ) {
+            if( OnPlayerClassChange != null ) OnPlayerClassChange( target, player, oldClass, newClass );
+        }
+        internal static void FireWorldChangedEvent( Player player, World oldWorld, World newWorld ) {
+            if( OnWorldChanged != null ) OnWorldChanged( player, oldWorld, newWorld );
         }
         #endregion
 
@@ -240,11 +302,13 @@ namespace fCraft {
 
         static void AutoBackup( object param ) {
             World world = (World)param;
-            world.map.SaveBackup( String.Format( "backups/{0:yyyy-MM-ddTHH-mm}.fcm", DateTime.Now ) );
+            if( world.map == null ) return;
+            world.map.SaveBackup( String.Format( "backups/{0}_{1:yyyy-MM-ddTHH-mm}.fcm", world.name, DateTime.Now ) );
         }
 
         static void SaveMap( object param ) {
             World world = (World)param;
+            if( world.map == null ) return;
             if( world.map.changesSinceSave > 0 ) {
                 Tasks.Add(
                     delegate {
@@ -255,18 +319,25 @@ namespace fCraft {
 
         static void UpdateBlocks( object param ) {
             World world = (World)param;
+            if( world.map == null ) return;
             world.map.ProcessUpdates();
         }
 
+
         internal static int AddTask( TaskCallback task, int interval ) {
-            return AddTask( task, interval, null );
+            return AddTask( task, interval, null, 0 );
         }
 
         internal static int AddTask( TaskCallback task, int interval, object param ) {
+            return AddTask( task, interval, param, 0 );
+        }
+
+        internal static int AddTask( TaskCallback task, int interval, object param, int delay ) {
             ScheduledTask newTask = new ScheduledTask();
-            newTask.nextTime = DateTime.Now;
+            newTask.nextTime = DateTime.Now.AddMilliseconds( delay );
             newTask.callback = task;
             newTask.interval = interval;
+            newTask.param = param;
             updateTasks.Add( updateTaskCounter, newTask );
             return updateTaskCounter++;
         }
@@ -338,32 +409,7 @@ namespace fCraft {
 
         #endregion
 
-        public static void SendToAllDelayed( Packet packet, Player except ) {
-            Player[] tempList = playerList;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != except ) {
-                    tempList[i].Send( packet, false );
-                }
-            }
-        }
-        public static void SendToAll( Packet packet ) {
-            SendToAll( packet, null );
-        }
-        public static void SendToAll( Packet packet, Player except ) {
-            Player[] tempList = playerList;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != except ) {
-                    tempList[i].Send( packet );
-                }
-            }
-        }
-        public static void SendToAll( string message ) {
-            SendToAll( PacketWriter.MakeMessage( message ), null );
-        }
-        public static void SendToAll( string message, Player except ) {
-            SendToAll( PacketWriter.MakeMessage( message ), except );
-        }
-
+        #region PlayerList
         // Add a newly-logged-in player to the list, and notify existing players.
         public static bool RegisterPlayer( Player player ) {
             lock( playerListLock ) {
@@ -374,6 +420,7 @@ namespace fCraft {
                     if( !players.ContainsKey( i ) ) {
                         player.id = i;
                         players[i] = player;
+                        Server.UpdatePlayerList();
                         return true;
                     }
                 }
@@ -398,11 +445,18 @@ namespace fCraft {
                     {
                         ircbot.SendMsgChannel(player.name + "(" + player.info.playerClass.name + ") has left ** " + Config.GetString("ServerName") + " **");
                     }*/
-                    PlayerDB.ProcessLogout( player );
-                    PlayerDB.Save();
+
+                    if( player.world != null ) {
+                        player.world.ReleasePlayer( player );
+                    }
+
                     SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
                     SendToAll( Color.Sys + player.name + " left the server." );
+                    players.Remove( player.id );
                     UpdatePlayerList();
+
+                    PlayerDB.ProcessLogout( player );
+                    PlayerDB.Save();
                 } else {
                     Logger.Log( "World.UnregisterPlayer: Trying to unregister a non-existent (unknown id) player.", LogType.Warning );
                 }
@@ -411,15 +465,55 @@ namespace fCraft {
 
         public static void UpdatePlayerList() {
             lock( playerListLock ) {
+                Player[] newPlayerList = new Player[players.Count];
+                int i = 0;
                 foreach( Player player in players.Values ) {
-                    Player[] newPlayerList = new Player[players.Count];
-                    int i = 0;
-                    foreach( Player p in players.Values ) {
-                        playerList[i++] = p;
-                    }
-                    playerList = newPlayerList;
+                    newPlayerList[i++] = player;
                 }
+                playerList = newPlayerList;
             }
         }
+
+        // Find player by name using autocompletion
+        public static Player FindPlayer( string name ) {
+            if( name == null ) return null;
+            Player[] tempList = playerList;
+            Player result = null;
+            for( int i = 0; i < tempList.Length; i++ ) {
+                if( tempList[i] != null && tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                    if( result == null ) {
+                        result = tempList[i];
+                    } else {
+                        return null;
+                    }
+                }
+            }
+            return result;
+        }
+
+
+        // Find player by name using autocompletion
+        public static Player FindPlayer( System.Net.IPAddress ip ) {
+            Player[] tempList = playerList;
+            for( int i = 0; i < tempList.Length; i++ ) {
+                if( tempList[i] != null && tempList[i].session.GetIP().ToString() == ip.ToString() ) {
+                    return tempList[i];
+                }
+            }
+            return null;
+        }
+
+
+        // Get player by name without autocompletion
+        public static Player FindPlayerExact( string name ) {
+            Player[] tempList = playerList;
+            for( int i = 0; i < tempList.Length; i++ ) {
+                if( tempList[i] != null && tempList[i].name == name ) {
+                    return tempList[i];
+                }
+            }
+            return null;
+        }
+        #endregion
     }
 }

@@ -94,11 +94,11 @@ namespace fCraft {
 
             if( CheckBlockSpam() ) return;
 
-            if( world.lockDown ) {
+            /*if( world.lockDown ) { //TODO: streamload
                 session.SendNow( PacketWriter.MakeSetBlock( x, y, h, world.map.GetBlock( x, y, h ) ) );
                 Message( "Map is temporarily locked. Please wait." );
                 return;
-            }
+            }*/
 
             // check if player is too far away to legitimately place a block
             if( Math.Abs( x * 32 - pos.x ) > maxRange ||
@@ -208,7 +208,7 @@ namespace fCraft {
                     muteWarnings++;
                     if( muteWarnings > Config.GetInt( "AntispamMaxWarnings" ) ) {
                         session.KickNow( "You were kicked for repeated spamming." );
-                        world.SendToAll( Color.Red + name + " was kicked for suspected spamming.", null );
+                        Server.SendToAll( Color.Red + name + " was kicked for suspected spamming." );
                     } else {
                         mutedUntil = DateTime.Now.Add( muteDuration );
                         Message( "You have been muted for " + muteDuration.TotalSeconds + " seconds. Slow down." );
@@ -227,7 +227,7 @@ namespace fCraft {
                 double spamTimer = DateTime.Now.Subtract( oldestTime ).TotalSeconds;
                 if( spamTimer < spamBlockTimer ) {
                     session.Kick( "You were kicked by antigrief system. Slow down." );
-                    world.SendToAll( Color.Red + name + " was kicked for suspected griefing.",null );
+                    Server.SendToAll( Color.Red + name + " was kicked for suspected griefing.");
                     Logger.Log( name + " was kicked for block spam (" + spamBlockCount + " blocks in " + spamTimer+" seconds)", LogType.SuspiciousActivity );
                     return true;
                 }
@@ -251,7 +251,7 @@ namespace fCraft {
                     if( Config.GetBool( "ClassColorsInChat" ) && info.playerClass.color != "" && info.playerClass.color!=Color.White ) {
                         displayedName = info.playerClass.color + displayedName + Color.White;
                     }
-                    world.SendToAll( PacketWriter.MakeMessage( displayedName + ": " + message ), null );
+                    Server.SendToAll( displayedName + ": " + message, null );
                     Logger.Log( "{0}: {1}", LogType.WorldChat, name, message );
                     break;
 
@@ -263,13 +263,13 @@ namespace fCraft {
                 case MessageType.PrivateChat:
                     if( CheckChatSpam() ) return;
                     string otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
-                    Player otherPlayer = world.FindPlayer( otherPlayerName );
+                    Player otherPlayer = Server.FindPlayer( otherPlayerName );
                     if( otherPlayer != null ) {
                         Logger.Log( "{0} to {1}: {2}", LogType.WorldChat, name, otherPlayer.name, message );
-                        otherPlayer.Send( PacketWriter.MakeMessage( Color.Gray + "from " + name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) ) );
-                        Send( PacketWriter.MakeMessage( Color.Gray + "to " + otherPlayer.name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) ) );
+                        otherPlayer.Message( Color.Gray, "from " + name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
+                        Message( Color.Gray, "to " + otherPlayer.name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
                     } else {
-                        World.NoPlayerMessage( this, otherPlayerName );
+                        NoPlayerMessage( otherPlayerName );
                     }
                     break;
 
@@ -280,12 +280,12 @@ namespace fCraft {
                     if( playerClass != null ) {
                         Logger.Log( "{0} to {1}: {2}", LogType.ClassChat, name, playerClass.name, message );
                         Packet classMsg = PacketWriter.MakeMessage( Color.Gray + "[" + playerClass.color + playerClass.name + Color.Gray + "]" + name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
-                        world.SendToClass( classMsg, playerClass );
+                        Server.SendToClass( classMsg, playerClass );
                         if( info.playerClass != playerClass ) {
                             Send( classMsg );
                         }
                     } else {
-                        Message( "No such class: \"" + className.Substring( 1 ) + "\"" );
+                        Message( "No class found matching \"" + className + "\"" );
                     }
                     break;
             }
@@ -351,5 +351,21 @@ namespace fCraft {
             }
             return false;
         }
+
+
+        internal void NoPlayerMessage( string name ) {
+            Message( "No players found matching \"" + name + "\"" );
+        }
+
+
+        internal void ManyPlayersMessage( string name ) {
+            Message( "More than one player found matching \"" + name + "\"" );
+        }
+
+
+        internal void NoAccessMessage() {
+            Message( Color.Red, "You do not have access to this command." );
+        }
+
     }
 }
