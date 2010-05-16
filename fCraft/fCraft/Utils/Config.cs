@@ -61,7 +61,7 @@ namespace fCraft {
             settings["IRCBotNick"] = "fBot";
             settings["IRCBotNetwork"] = "irc.esper.net";
             settings["IRCBotPort"] = "6667";
-            settings["IRCBotChannel"] = "#fcraft";
+            settings["IRCBotChannels"] = "#fcraft"; // This can be multiple using csv
         }
 
 
