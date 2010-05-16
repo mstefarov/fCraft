@@ -23,7 +23,7 @@
 
 // UnIRCComment this define to get IRC debugging data
 // WARNING: This is a lot of text.
-#define DEBUG_IRC
+//#define DEBUG_IRC
 
 using System;
 using System.Net;
@@ -32,25 +32,44 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace fCraft
 {
-    // A neat&tidy package for an irc message contents
-    public struct IRCMessage{
-        public string host;
-        public string to;
-        public string nickname;
-        public string type;
-        public string chatMessage;
-        public string cmd;
-        public bool priority; // true = high
-    }
 
     // A package for authorized host/nick association
     public struct AuthPkg
     {
         public string host;
         public string nickname;
+    }
+
+    public enum IRCCommands { 
+            none,
+            help = 1,
+            status, 
+            auth, 
+            kick = 10, 
+            ban, 
+            banip, 
+            banall, 
+            unban, 
+            unbanip, 
+            unbanall, 
+            slock, 
+            unlock 
+    }
+
+        // A neat&tidy package for an irc message contents
+    public struct IRCMessage{
+        public string host;
+        public string to;
+        public string nickname;
+        public string type;
+        public string chatMessage;
+        public string serverMessage;
+        public IRCCommands cmd;
+        public bool priority; // true = high
     }
 
     public static class IRCBot
@@ -66,8 +85,6 @@ namespace fCraft
         private static string BOTHOST;
 
         public static Player fBot = new Player(null, "fBot");
-
-        private static List<string> IRCCommands = new List<string>() {"!help","!status","!auth","!kick","!ban","!banip","!banall","!unban","!unbanip","!unbanall","!lock","!unlock"};
 
         private static List<AuthPkg> authedHosts = new List<AuthPkg>();
         private static List<IRCMessage> messageStack = new List<IRCMessage>();
@@ -131,7 +148,7 @@ namespace fCraft
                                 {
                                     newMessage.to = message.nickname;
                                     isPm = true;
-                                    if (message.cmd == "status")
+                                    if (message.cmd == IRCCommands.status)
                                     {
                                         // Put together all of the status variables from world and such
                                         string serverName = Config.GetString("ServerName");
@@ -148,9 +165,6 @@ namespace fCraft
                                         lpStack.Add(newMessage);
                                         newMessage.chatMessage = "Players online: ** " + playersOnline.ToString() + " **";
                                         lpStack.Add(newMessage);
-                                        if (playersOnline != 0)
-                                            newMessage.chatMessage = "Players list will appear in 5 seconds.";
-                                        lpStack.Add(newMessage);
                                         //string[] playerList = GetPlayerListString().Split(',');
                                         //// List the players online if there are any
                                         //if (playersOnline > 0)
@@ -166,7 +180,7 @@ namespace fCraft
                                         //    }
                                         //}
                                     }
-                                    else if (message.cmd == "help")
+                                    else if (message.cmd == IRCCommands.help)
                                     {
                                         newMessage.chatMessage = "Hello, " + message.nickname + " , you have requested help!";
                                         lpStack.Add(newMessage);
@@ -208,14 +222,14 @@ namespace fCraft
                                             lpStack.Add(newMessage);
                                             newMessage.chatMessage = "     !unbanip <player> - initiates banning a player from the server.";
                                             lpStack.Add(newMessage);
-                                            newMessage.chatMessage = "     !lock - initiates Lockdown mode for the server.";
+                                            newMessage.chatMessage = "     !slock - initiates Lockdown mode for the server.";
                                             lpStack.Add(newMessage);
                                             newMessage.chatMessage = "     !unlock - revokes Lockdown mode for the server.";
                                             lpStack.Add(newMessage);
                                         }
 
                                     }
-                                    else if (message.cmd == "auth") // Authenticate clients
+                                    else if (message.cmd == IRCCommands.auth) // Authenticate clients
                                     {
                                         string[] authLine = message.chatMessage.Split(' ');
                                         if (authLine.Length == 2)
@@ -228,7 +242,7 @@ namespace fCraft
                                                 string authResponse = message.nickname + " Authenticated to host " + message.host;
                                                 newMessage.chatMessage = message.nickname + ", you have authenticated with the host " + message.host + ".";
                                                 lpStack.Add(newMessage);
-                                                Logger.Log(message.nickname + " Authenticated to host " + message.host, LogType.GlobalChat);
+                                                Logger.Log(message.nickname + " Authenticated to host " + message.host, LogType.IRC);
                                                 AuthPkg newAuth = new AuthPkg() { host = message.host, nickname = message.nickname };
                                                 authedHosts.Add(newAuth);
                                             }
@@ -244,213 +258,14 @@ namespace fCraft
                                             lpStack.Add(newMessage);
                                         }
                                     }
-                                    else if (message.cmd == "kick")
+                                    else if (message.cmd >= IRCCommands.kick)
                                     {
-                                        if (isAuthed(message.nickname, message.host))
-                                        {
-                                            string[] kickLine = message.chatMessage.Split(' ');
-                                            if (kickLine.Length == 2)
-                                            {
-
-                                                PlayerClass fClass = new PlayerClass();
-                                                fClass = ClassList.FindClass("owner");
-                                                fBot.info.playerClass = fClass;
-                                                Commands.ParseCommand(fBot, "/kick " + kickLine[1], true);
-                                                newMessage.chatMessage = "Kicked " + kickLine[1];
-                                                lpStack.Add(newMessage);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            newMessage.chatMessage = "Sorry, you're not authorized to do that";
-                                            lpStack.Add(newMessage);
-                                        }
+                                        Invoke(ref newMessage, message);
                                     }
-                                    else if (message.cmd == "ban")
-                                    {
-                                        if (isAuthed(message.nickname, message.host))
-                                        {
-                                            string[] kickLine = message.chatMessage.Split(' ');
-                                            if (kickLine.Length == 2)
-                                            {
-                                                // TODO: check for player existing first
-                                                PlayerClass fClass = new PlayerClass();
-                                                fClass = ClassList.FindClass("owner");
-                                                fBot.info.playerClass = fClass;
-                                                Commands.ParseCommand(fBot, "/ban " + kickLine[1], true);
-                                                newMessage.chatMessage = "Banned(name) " + kickLine[1];
-                                                lpStack.Add(newMessage);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            newMessage.chatMessage = "Sorry, you're not authorized to do that";
-                                            lpStack.Add(newMessage);
-                                        }
-                                    }
-                                    else if (message.cmd == "banip")
-                                    {
-                                        if (isAuthed(message.nickname, message.host))
-                                        {
-                                            string[] kickLine = message.chatMessage.Split(' ');
-                                            if (kickLine.Length == 2)
-                                            {
-                                                PlayerClass fClass = new PlayerClass();
-                                                fClass = ClassList.FindClass("owner");
-                                                fBot.info.playerClass = fClass;
-                                                Commands.ParseCommand(fBot, "/banip " + kickLine[1], true);
-                                                newMessage.chatMessage = "Banned(ip) " + kickLine[1];
-                                                lpStack.Add(newMessage);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            newMessage.chatMessage = "Sorry, you're not authorized to do that";
-                                            lpStack.Add(newMessage);
-                                        }
-                                    }
-                                    else if (message.cmd == "banall")
-                                    {
-                                        if (isAuthed(message.nickname, message.host))
-                                        {
-                                            string[] kickLine = message.chatMessage.Split(' ');
-                                            if (kickLine.Length == 2)
-                                            {
-                                                PlayerClass fClass = new PlayerClass();
-                                                fClass = ClassList.FindClass("owner");
-                                                fBot.info.playerClass = fClass;
-                                                Commands.ParseCommand(fBot, "/banall " + kickLine[1], true);
-                                                newMessage.chatMessage = "Banned(all) " + kickLine[1];
-                                                lpStack.Add(newMessage);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            newMessage.chatMessage = "Sorry, you're not authorized to do that";
-                                            lpStack.Add(newMessage);
-                                        }
-                                    }
-                                    else if (message.cmd == "unban")
-                                    {
-                                        if (isAuthed(message.nickname, message.host))
-                                        {
-                                            string[] kickLine = message.chatMessage.Split(' ');
-                                            if (kickLine.Length == 2)
-                                            {
-                                                PlayerClass fClass = new PlayerClass();
-                                                fClass = ClassList.FindClass("owner");
-                                                fBot.info.playerClass = fClass;
-                                                Commands.ParseCommand(fBot, "/unban " + kickLine[1], true);
-                                                newMessage.chatMessage = "Unbanned(name) " + kickLine[1];
-                                                lpStack.Add(newMessage);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            newMessage.chatMessage = "Sorry, you're not authorized to do that";
-                                            lpStack.Add(newMessage);
-                                        }
-                                    }
-                                    else if (message.cmd == "unbanip")
-                                    {
-                                        if (isAuthed(message.nickname, message.host))
-                                        {
-                                            string[] kickLine = message.chatMessage.Split(' ');
-                                            if (kickLine.Length == 2)
-                                            {
-                                                PlayerClass fClass = new PlayerClass();
-                                                fClass = ClassList.FindClass("owner");
-                                                fBot.info.playerClass = fClass;
-                                                Commands.ParseCommand(fBot, "/unbanip " + kickLine[1], true);
-                                                newMessage.chatMessage = "Unbanned(ip) " + kickLine[1];
-                                                lpStack.Add(newMessage);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            newMessage.chatMessage = "Sorry, you're not authorized to do that";
-                                            lpStack.Add(newMessage);
-                                        }
-                                    }
-                                    else if (message.cmd == "unbanall")
-                                    {
-                                        if (isAuthed(message.nickname, message.host))
-                                        {
-                                            string[] kickLine = message.chatMessage.Split(' ');
-                                            if (kickLine.Length == 2)
-                                            {
-                                                PlayerClass fClass = new PlayerClass();
-                                                fClass = ClassList.FindClass("owner");
-                                                fBot.info.playerClass = fClass;
-                                                Commands.ParseCommand(fBot, "/unbanall " + kickLine[1], true);
-                                                newMessage.chatMessage = "Unbanned(all) " + kickLine[1];
-                                                lpStack.Add(newMessage);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            newMessage.chatMessage = "Sorry, you're not authorized to do that";
-                                            lpStack.Add(newMessage);
-                                        }
-                                    }
-                                    else if (message.cmd == "lock")
-                                    {
-                                        if (isAuthed(message.nickname, message.host))
-                                        {
-                                            string[] kickLine = message.chatMessage.Split(' ');
-                                            if (kickLine.Length == 1)
-                                            {
-
-                                                PlayerClass fClass = new PlayerClass();
-                                                fClass = ClassList.FindClass("owner");
-                                                fBot.info.playerClass = fClass;
-                                                Commands.ParseCommand(fBot, "/lock", true);
-                                                newMessage.chatMessage = "Initiated a Lockdown on the server.";
-                                                lpStack.Add(newMessage);
-                                                Logger.Log(message.nickname + " initated a Lockdown on the server.", LogType.GlobalChat);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            newMessage.chatMessage = "Sorry, you're not authorized to do that";
-                                            lpStack.Add(newMessage);
-                                        }
-                                    }
-                                    else if (message.cmd == "unlock")
-                                    {
-                                        if (isAuthed(message.nickname, message.host))
-                                        {
-                                            string[] kickLine = message.chatMessage.Split(' ');
-                                            if (kickLine.Length == 1)
-                                            {
-
-                                                PlayerClass fClass = new PlayerClass();
-                                                fClass = ClassList.FindClass("owner");
-                                                fBot.info.playerClass = fClass;
-                                                Commands.ParseCommand(fBot, "/unlock", true);
-                                                newMessage.chatMessage = "Revoked a Lockdown on the server.";
-                                                lpStack.Add(newMessage);
-                                                Logger.Log(message.nickname + " revoked a Lockdown on the server.", LogType.GlobalChat);
-
-                                            }
-                                        }
-                                        else
-                                        {
-                                            newMessage.chatMessage = "Sorry, you're not authorized to do that";
-                                            lpStack.Add(newMessage);
-                                        }
-                                    }
-
-                                    // This is pretty broken atm
-                                    //else if (message.cmd == "shutdown")
-                                    //{
-                                    //     world.SendToAll("Server has been sent a shutdown IRCCommand from IRC. Shutting down.", null);
-                                    //     new Thread(delegate(){world.ShutDown();}).Start();
-                                    //}
                                     else if (message.chatMessage.Contains("#")) // Catch chat messages to the server itself
                                     {
                                         string stringToServer = "fBot: " + message.chatMessage.Substring(message.chatMessage.IndexOf("#") + 1);
-                                        Logger.Log(stringToServer, LogType.GlobalChat);
+                                        Logger.Log(stringToServer, LogType.IRC);
                                         Server.SendToAll(stringToServer);
                                     }
                                     else if (message.chatMessage.Contains("Hello") || message.chatMessage.Contains("hello"))
@@ -470,7 +285,7 @@ namespace fCraft
                                         if (message.to == channel && message.chatMessage.Contains(NICK + ":"))
                                         {
                                             string stringToServer = message.nickname + message.chatMessage;
-                                            Logger.Log(stringToServer, LogType.GlobalChat);
+                                            Logger.Log(stringToServer, LogType.IRC);
                                             Server.SendToAll(stringToServer);
                                         }
                                     }
@@ -579,15 +394,106 @@ namespace fCraft
 
                 if (isPm == true)
                 {
-                    foreach( string cmd in IRCCommands){
-                    if (newMsg.chatMessage.Contains(cmd))
-                        newMsg.cmd = cmd.Substring(1);
+                    List<IRCCommands> cmds = new List<IRCCommands>();
+                    foreach (IRCCommands item in Enum.GetValues(typeof(IRCCommands)))
+                    {
+                        if (newMsg.chatMessage.Contains("!"+item.ToString())){
+                            newMsg.cmd = item;
+                            return;
+                        }
                     }
                 }
 #if DEBUG_IRC              
                 Console.WriteLine("*RECEIVED*: Message from " + newMsg.nickname + " @ " + newMsg.host + ":: " + newMsg.chatMessage); 
 #endif
             }
+        }
+
+        private static bool Invoke( ref IRCMessage newMessage, IRCMessage message)
+        {
+            if (isAuthed(message.nickname, message.host))
+            {
+                string[] cmdLine = message.chatMessage.Split(' ');
+                if (cmdLine.Length == 2)
+                {
+                    // TODO: FIX THIS SHIT 
+                    // It's bananas, it only handles players that are/have been online 
+                    PlayerInfo OfflineOffender;
+                    Player Offender;
+                    bool pIsOnline = false;
+                    if ((Offender = Server.FindPlayer(cmdLine[1])) != null)
+                    {
+                        pIsOnline = true;
+                        HandlePlayer(ref newMessage, ref message, cmdLine[1]);
+                    }
+                    else if(pIsOnline == false)
+                    {
+                        PlayerDB.FindPlayerInfo(cmdLine[1], out OfflineOffender);
+                        if(OfflineOffender != null){
+                            HandlePlayer(ref newMessage, ref message, cmdLine[1]);
+                        }else
+                        {
+                            newMessage.chatMessage = "Sorry, no player by the name '" + cmdLine[1] + "' was found.";
+                            lpStack.Add(newMessage);
+                            return false;
+                        } 
+                    }   
+                }
+                lpStack.Add(newMessage);
+                Logger.Log("(IRC)" + message.nickname + newMessage.chatMessage, LogType.IRC);
+                return true;
+            }
+            else
+            {
+                newMessage.chatMessage = "Sorry, you're not authorized to do that";
+                lpStack.Add(newMessage);
+                return false;
+            }
+        }
+
+        internal static void HandlePlayer(ref IRCMessage newMessage, ref IRCMessage message, string command){
+
+            switch (message.cmd)
+            {
+                case (IRCCommands.kick):
+                    Commands.ParseCommand(fBot, "/kick " + command, true);
+                    newMessage.chatMessage = " Kicked player: " + command + "!";
+                    break;
+                case (IRCCommands.ban):
+                    Commands.ParseCommand(fBot, "/ban " + command, true);
+                    newMessage.chatMessage = " Banned(player): " + command + "!";
+                    break;
+                case (IRCCommands.banip):
+                    Commands.ParseCommand(fBot, "/banip " + command, true);
+                    newMessage.chatMessage = "Banned(ip): " + command + "!";
+                    break;
+                case (IRCCommands.banall):
+                    Commands.ParseCommand(fBot, "/banall " + command, true);
+                    newMessage.chatMessage = " Banned(all): " + command + "!";
+                    break;
+                case (IRCCommands.unban):
+                    Commands.ParseCommand(fBot, "/unban " + command, true);
+                    newMessage.chatMessage = " Unbanned: " + command + "!";
+                    break;
+                case (IRCCommands.unbanip):
+                    Commands.ParseCommand(fBot, "/unbanip " + command, true);
+                    newMessage.chatMessage = " Unbanned(ip): " + command + "!";
+                    break;
+                case (IRCCommands.unbanall):
+                    Commands.ParseCommand(fBot, "/unbanall " + command, true);
+                    newMessage.chatMessage = " Unbanned(all): " + command + "!";
+                    break;
+                case (IRCCommands.slock):
+                    Commands.ParseCommand(fBot, "/lock " + command, true);
+                    newMessage.chatMessage = " Initiated a Lockdown on the server!";
+                    break;
+                case (IRCCommands.unlock):
+                    Commands.ParseCommand(fBot, "/unlock " + command, true);
+                    newMessage.chatMessage = " Revoked a Lockdown on the server!";
+                    break;
+            }
+            Logger.Log("(IRC)" + message.nickname + newMessage.chatMessage, LogType.IRC);
+            lpStack.Add(newMessage);
         }
 
         public static void AddMessage( IRCMessage message)
