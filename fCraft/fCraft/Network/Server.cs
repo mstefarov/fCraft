@@ -27,9 +27,6 @@ namespace fCraft {
                           maxSessionPacketsPerTick = 128;
         internal static float ticksPerSecond; //TODO: move to server
 
-        public static IRCBot ircbot;
-        //static bool IRCBotOnline;
-
         const int maxPortAttempts = 20;
 
         public static bool Init() {
@@ -40,11 +37,6 @@ namespace fCraft {
             if( !Config.Load() ) return false;
             Config.ApplyConfig();
             if( !Config.Save() ) return false;
-
-            if( Config.GetBool( "IRCBot" ) == true ) {
-                //ircbot = new IRCBot();
-                //IRCBotOnline = true;
-            }
 
             // allocate player list
             Tasks.Init();
@@ -129,11 +121,12 @@ namespace fCraft {
             mainThread.Start();
 
             Heartbeat.Start();
-            /*
-            if( IRCBotOnline ) {
-                ircbot.Start(); //TODO: IRC
+
+            if (Config.GetBool("IRCBot") == true)
+            {
+                IRCBot.Start();
             }
-            */
+
             if( OnStart != null ) OnStart();
 
             return true;
@@ -214,7 +207,7 @@ namespace fCraft {
             }
 
             Heartbeat.ShutDown();
-            //if( IRCBotOnline == true ) ircbot.ShutDown();
+            if( IRCBot.isOnline() == true ) IRCBot.ShutDown();
             Tasks.ShutDown();
 
             lock( playerListLock ) {

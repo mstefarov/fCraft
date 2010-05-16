@@ -15,58 +15,39 @@ using System.Collections.Generic;
 namespace fCraft
 {
 
-    public class IRCComm
+    public static class IRCComm
     {
-        Thread thread;
-        World world;
-        IRCBot bot;
-        public static string SERVER;
-        public static int PORT;
-        public static string USER;
-        public static string NICK;
-        public static string[] CHANNELS;
+        private static Thread thread;
+        public static string SERVER = Config.GetString("IRCBotNetwork");
+        public static int PORT = Config.GetInt("IRCBotPort");
+        public static string USER = "USER fCraftbot 8 * :fCraft IRC Bot";
+        public static string NICK = Config.GetString("IRCBotNick");
+        public static string[] CHANNELS = Config.GetString("IRCBotChannels").Split(',');
         public static string QUITMSG = "I've been told to go offline now!";
-        private static bool online;
-        private string serverInput;
-        private bool firstConnect;
-        private List<IRCMessage> hpStack = new List<IRCMessage>(); // High priority message stack
-        private List<IRCMessage> lpStack = new List<IRCMessage>(); // Low priority message stack
 
-        private IRCMessage serverMsg = new IRCMessage();
+        private static bool online; // Signifies a *complete* registration with the network (ability to send messages)
+        private static bool firstConnect;
+        private static bool doShutdown; // Signifies shutdown
+
+
+        private static List<IRCMessage> hpStack = new List<IRCMessage>(); // High priority message stack
+        private static List<IRCMessage> lpStack = new List<IRCMessage>(); // Low priority message stack
+
+        private static IRCMessage serverMsg = new IRCMessage();
 
         private static StreamWriter writer;
         private static TcpClient connection;
         private static NetworkStream stream;
         private static StreamReader reader;
 
-        private bool doShutdown;
-
-        public IRCComm(World _world, IRCBot _bot)
-        {
-            world = _world;
-            bot = _bot;
-            try
-            {
-                SERVER = world.config.GetString("IRCBotNetwork");
-                PORT = world.config.GetInt("IRCBotPort");
-                NICK = world.config.GetString("IRCBotNick");
-                CHANNELS = world.config.GetString("IRCBotChannels").Split(',');
-                USER = "USER fCraftbot 8 * :fCraft IRC Bot";
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-        }
-
-        public void Start()
+        public static void Start()
         {
             thread = new Thread(CommHandler);
             thread.IsBackground = true;
             thread.Start();
         }
 
-        void CommHandler()
+        static void CommHandler()
         {
             try
             {
@@ -83,22 +64,17 @@ namespace fCraft
                 // Then send the nickname you will use
                 serverMsg.chatMessage = "NICK " + NICK + "\r\n";
                 SendRaw(ref serverMsg);
-                world.log.Log("IRCBot is now connected to " + SERVER + ":" + PORT + ".", LogType.IRC);
                 // After registration is done, listen for messages
                 firstConnect = true;
-
-
-
-                // New idea is to seperate the I/O into two threads.
-                // Useing AsyncCallback() in the BeginWrite will give the ability to process messages.
-                // Also using 
-
-
                 while (true)
                 {
                     // Prevent exceptions being thrown on thread.abort()
                     if (connection.Connected != true)
+                    {
+                        online = false;
                         throw new Exception("Connection was terminated.");
+                    }
+
                     if (doShutdown)
                     {
                         return;
@@ -108,9 +84,11 @@ namespace fCraft
                         Process();
                         Thread.Sleep(500);
                     }
+                    String serverInput;
                     byte[] myReadBuffer = new byte[2048];
                     String myCompleteMessage = "";
                     int numberOfBytesRead = 0;
+
                     do
                     {
                         numberOfBytesRead = stream.Read(myReadBuffer, 0, myReadBuffer.Length); 
@@ -129,13 +107,14 @@ namespace fCraft
                         // Loop through each line we have and parse it
                         foreach (String msg in tmpServerMsgs)
                         {
+
 // Turn this on for all raw server messages
 #if DEBUG_IRC_RAW
                             Console.WriteLine("*SERVERMSG* :" + msg);
 #endif
                             if (firstConnect == true)
                             {
-                                bot.parseMsg(ref serverMsg, msg);
+                                IRCBot.parseMsg(ref serverMsg, msg);
                                 if (msg.Contains("376"))
                                 {
                                     foreach (string channel in CHANNELS)
@@ -143,17 +122,19 @@ namespace fCraft
                                         serverMsg.chatMessage = "JOIN " + channel + "\r\n";
                                         SendRaw(ref serverMsg);
                                     }
+                                    Logger.Log("IRCBot is now connected to " + SERVER + ":" + PORT + ".", LogType.IRC);
                                     firstConnect = false;
+                                    online = true;
                                 }
                                 serverMsg.chatMessage = "";
                             }
                             else
                             {
                                 IRCMessage message = new IRCMessage();
-                                bot.parseMsg(ref message, msg);
+                                IRCBot.parseMsg(ref message, msg);
                                 // Parse the message for something useful (commands, etc)
                                 if (message.chatMessage != null)
-                                    bot.AddMessage(message);
+                                    IRCBot.AddMessage(message);
                             }
                         }
 
@@ -176,10 +157,10 @@ namespace fCraft
             }
         }
 
-        public void Process()
+        public static void Process()
         {
-            hpStack.AddRange( bot.getHpStack() );
-            lpStack.AddRange( bot.getLpStack() );
+            hpStack.AddRange( IRCBot.getHpStack() );
+            lpStack.AddRange( IRCBot.getLpStack() );
 
             // Process messages on the stack and send them out by priority
             if (hpStack.Count > 0)
@@ -197,7 +178,7 @@ namespace fCraft
                     }
                     else
                         SendPM(msg);
-                    bot.rmHP(msg);
+                    IRCBot.rmHP(msg);
                 }
                 hpStack.Clear();
             }
@@ -208,13 +189,13 @@ namespace fCraft
                 {
                     if (count == 4) Thread.Sleep(5000);
                     SendPM(msg);
-                    bot.rmLP(msg);
+                    IRCBot.rmLP(msg);
                 }
                 lpStack.Clear();
             }
         }
 
-        public bool SendMsgChannels(ref IRCMessage message)
+        public static bool SendMsgChannels(ref IRCMessage message)
         {
             try
             {
@@ -235,7 +216,7 @@ namespace fCraft
             }
         }
 
-        public bool SendPM(IRCMessage message)
+        public static bool SendPM(IRCMessage message)
         {
             try
             {
@@ -253,7 +234,7 @@ namespace fCraft
             }
         }
 
-        bool SendRaw(ref IRCMessage message)
+        internal static bool SendRaw(ref IRCMessage message)
         {
             try
             {
@@ -271,12 +252,12 @@ namespace fCraft
             }
         }
 
-        public bool commStatus()
+        public static bool commStatus()
         {
             return online;
         }
 
-        public void ShutDown()
+        public static void ShutDown()
         {
             serverMsg.chatMessage = "QUIT :" + QUITMSG;
             serverMsg.priority = true;
@@ -287,30 +268,30 @@ namespace fCraft
             if (reader != null) reader.Close();
             if (writer != null) writer.Close();
             if (connection != null) connection.Close();
-            world.log.Log("IRCBot disconnected from " + SERVER + ":" + PORT + ".", LogType.IRC);
+            Logger.Log("IRCBot disconnected from " + SERVER + ":" + PORT + ".", LogType.IRC);
         }
 
-        public bool initConnect()
+        public static bool initConnect()
         {
             return firstConnect;
         }
-        public string getServer()
+        public static string getServer()
         {
             return SERVER;
         }
-        public string getNick()
+        public static string getNick()
         {
             return NICK;
         }
-        public int getPort()
+        public static int getPort()
         {
             return PORT;
         }
-        public string[] getChannels()
+        public static string[] getChannels()
         {
             return CHANNELS;
         }
-        public string getUser()
+        public static string getUser()
         {
             return USER;
         }
