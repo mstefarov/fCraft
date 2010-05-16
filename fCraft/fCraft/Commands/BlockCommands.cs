@@ -32,7 +32,7 @@ namespace fCraft {
                 player.mode = BlockPlacementMode.Solid;
                 player.Message( "Solid: ON" );
             } else {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }
         }
 
@@ -55,7 +55,7 @@ namespace fCraft {
                 player.mode = BlockPlacementMode.Grass;
                 player.Message( "Grass: ON. Dirt blocks are replaced with grass." );
             } else {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }
         }
 
@@ -68,7 +68,7 @@ namespace fCraft {
                 player.mode = BlockPlacementMode.Water;
                 player.Message( "Water: ON. Blue blocks are replaced with water." );
             } else {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }
         }
 
@@ -81,7 +81,7 @@ namespace fCraft {
                 player.mode = BlockPlacementMode.Lava;
                 player.Message( "Lava: ON. Red blocks are replaced with lava." );
             } else {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }
         }
     }

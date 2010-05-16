@@ -8,7 +8,8 @@ namespace fCraft {
         static object loadLock = new object();
 
         internal static void Init() {
-            Commands.AddCommand( "load", Load, true );
+            //Commands.AddCommand( "load", Load, true ); //TODO: streamload
+            Commands.AddCommand( "join", Join, false );
             Commands.AddCommand( "save", Save, true );
 
             Commands.AddCommand( "lock", Lock, true );
@@ -23,9 +24,20 @@ namespace fCraft {
         }
 
 
+        internal static void Join( Player player, Command cmd ) {
+            string world = cmd.Next();
+            lock( Server.worldListLock ) {
+                if( Server.worlds.ContainsKey( world ) ) {
+                    player.world.ReleasePlayer( player );
+                    player.session.JoinWorld( Server.worlds[world] );
+                } else {
+                    player.Message( "No world found with the name \"{0}\"", world );
+                }
+            }
+        }
         internal static void DoZone( Player player, Command cmd ) {
             if( !player.Can( Permissions.SetSpawn ) ) {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
                 return;
             }
 
@@ -101,7 +113,7 @@ namespace fCraft {
         }
 
 
-        internal static void Load( Player player, Command cmd ) {
+        /*internal static void Load( Player player, Command cmd ) {//TODO: streamload
             lock( loadLock ) {
                 if( player.world.loadInProgress || player.world.loadSendingInProgress ) {
                     player.Message( "Loading already in progress, please wait." );
@@ -111,7 +123,7 @@ namespace fCraft {
             }
 
             if( !player.Can( Permissions.SaveAndLoad ) ) {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
                 player.world.loadInProgress = false;
                 return;
             }
@@ -154,18 +166,18 @@ namespace fCraft {
                 world = player.world
             };
             Tasks.Add( MapSender.StreamLoad, param, true );
-        }
+        }*/
 
 
         internal static void Save( Player player, Command cmd ) {
             if( !player.Can( Permissions.SaveAndLoad ) ) {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
                 return;
             }
 
             string mapName = cmd.Next();
             if( mapName == null ) {
-                player.Message( "Syntax: " + Color.Help + "/backup backupName" );
+                player.Message( "Syntax: " + Color.Help + "/save mapName" );
                 return;
             }
 
@@ -181,7 +193,7 @@ namespace fCraft {
 
         internal static void Generate( Player player, Command cmd ) {
             if( !player.Can( Permissions.SaveAndLoad ) ) {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
                 return;
             }
             int wx, wy, height;
@@ -215,7 +227,7 @@ namespace fCraft {
 
         internal static void GenerateHollow( Player player, Command cmd ) {
             if( !player.Can( Permissions.SaveAndLoad ) ) {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
                 return;
             }
             int wx, wy, height;
@@ -340,20 +352,20 @@ namespace fCraft {
 
         internal static void Lock( Player player, Command cmd ) {
             if( !player.Can( Permissions.Lock ) ) {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
                 return;
             }
-            player.world.SendToAll( PacketWriter.MakeMessage( Color.Red + "Server is now on lockdown!" ), null );
+            player.world.SendToAll( Color.Red + "Map is now on lockdown!" );
             //player.world.BeginLockDown();
         }
 
 
         internal static void Unlock( Player player, Command cmd ) {
             if( !player.Can( Permissions.Lock ) ) {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
                 return;
             }
-            player.world.SendToAll( PacketWriter.MakeMessage( Color.Red + "Lockdown has ended." ), null );
+            player.world.SendToAll( "Map lockdown has ended." );
             //player.world.EndLockDown();
         }
     }

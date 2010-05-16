@@ -405,7 +405,7 @@ namespace fCraft
                                 {
                                     string stringToServer = "fBot: " + inputline.Substring(inputline.IndexOf("#") + 1);
                                     Logger.Log(stringToServer, LogType.WorldChat);
-                                    world.SendToAll(stringToServer, null);
+                                    Server.SendToAll( stringToServer);
 
                                 }
                                 else if (message.chatMessage.Contains("Hello") || inputline.Contains("hello"))
@@ -422,7 +422,7 @@ namespace fCraft
                             {
                                 string stringToServer = message.nickname + ": " + inputline.Substring(inputline.IndexOf(NICK) + NICK.Length + 1).Trim();
                                 Logger.Log(stringToServer, LogType.WorldChat);
-                                world.SendToAll(stringToServer, null);
+                                Server.SendToAll( stringToServer );
 
 #if DEBUG_IRC
                             Console.WriteLine(stringToServer);

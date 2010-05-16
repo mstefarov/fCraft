@@ -28,12 +28,12 @@ namespace fCraft {
             string name = cmd.Next();
 
             if( name != null ) {
-                Player target = player.world.FindPlayer( name );
+                Player target = Server.FindPlayer( name );
                 if( target != null ) {
-                    player.Message( "Coordinates of player \"" + target.name + "\":" );
+                    player.Message( "Coordinates of player \"" + target.name + "\" (on \""+target.world.name+"\"):" );
                     offset = (int)(target.pos.r / 255f * 64f) + 32;
                 } else {
-                    World.NoPlayerMessage( player, name );
+                    player.NoPlayerMessage( name );
                     return;
                 }
             }
@@ -279,13 +279,13 @@ namespace fCraft {
             if( name == null ) {
                 name = player.name;
             } else if( !player.Can( Permissions.ViewOthersInfo ) ) {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
                 return;
             }
 
             PlayerInfo info;
             if( !PlayerDB.FindPlayerInfo( name, out info ) ) {
-                World.ManyPlayersMessage( player, name );
+                player.ManyPlayersMessage( name );
             } else if( info != null ) {
                 if( DateTime.Now.Subtract( info.lastLoginDate ).TotalDays < 1 ) {
                     player.Message( String.Format( "About {0}: Last login {1:F1} hours ago from {2}",
@@ -325,7 +325,7 @@ namespace fCraft {
                                                     totalTime.TotalHours,
                                                     totalTime.TotalMinutes ) );
             } else {
-                World.NoPlayerMessage( player, name );
+                player.NoPlayerMessage( name );
             }
         }
 
@@ -339,7 +339,7 @@ namespace fCraft {
             if( name == null ) {
                 name = player.name;
             } else if( !player.Can( Permissions.ViewOthersInfo ) ) {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
             }else if( IPAddress.TryParse( name, out address ) ) {
                 IPBanInfo info = IPBanList.Get( address );
                 if( info != null ) {
@@ -365,7 +365,7 @@ namespace fCraft {
             } else {
                 PlayerInfo info;
                 if( !PlayerDB.FindPlayerInfo( name, out info ) ) {
-                    World.ManyPlayersMessage( player, name );
+                    player.ManyPlayersMessage( name );
                 } else if( info != null ) {
                     if( info.banned ) {
                         player.Message( "Player " + info.name + " is currently " + Color.Red + "banned." );
@@ -400,7 +400,7 @@ namespace fCraft {
                                                             banDuration.TotalHours ) );
                     }
                 } else {
-                    World.NoPlayerMessage( player, name );
+                    player.NoPlayerMessage( name );
                 }
             }
         }

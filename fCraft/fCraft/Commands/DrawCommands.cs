@@ -32,7 +32,7 @@ namespace fCraft {
 
         internal static void Draw( Player player, Command command, DrawMode mode ) {
             if( !player.Can( Permissions.Draw ) ) {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
                 return;
             }
             if( player.drawingInProgress ) {
@@ -113,7 +113,7 @@ namespace fCraft {
 
         internal static void UndoDraw( Player player, Command command ) {
             if( !player.Can( Permissions.Draw ) ) {
-                World.NoAccessMessage( player );
+                player.NoAccessMessage();
                 return;
             }
             if( player.drawUndoBuffer.Count > 0 ) {
