@@ -30,18 +30,12 @@ using System.Diagnostics;
 namespace fCraftConsole {
     class Program {
         static void Main( string[] args ) {
-            World world = new World();
             Server.OnLog += Log;
             Server.OnURLChange += SetURL;
 
             if( Server.Init() ) {
-                if( args.Length == 1 ) {
-                    world.LoadMap( args[0] );
-                } else {
-                    world.LoadMap( Map.DefaultFileName );
-                }
 
-                UpdaterResult update = Updater.CheckForUpdates( world );
+                UpdaterResult update = Updater.CheckForUpdates();
                 if( update.UpdateAvailable ) {
                     Console.WriteLine( "** A new version of fCraft is available: v{0:0.000}, released {1:0} day(s) ago. **",
                                        Decimal.Divide( update.NewVersionNumber, 1000 ),
@@ -50,22 +44,22 @@ namespace fCraftConsole {
 
                 Process.GetCurrentProcess().PriorityClass = Config.GetBasePriority();
 
-                if( world.Start() ) {
+                if( Server.Start() ) {
                     Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( "ServerName" );
                     string input = "";
                     Console.WriteLine( "** To shut down the server, type /exit **" );
                     while( (input = Console.ReadLine()) != "/exit" ) {
                         Player.Console.ParseMessage( input, true );
                     }
-                    world.ShutDown();
+                    Server.Shutdown();
                 } else {
                     Console.WriteLine( "** Failed to start the server **" );
-                    world.ShutDown();
+                    Server.Shutdown();
                     Console.ReadLine();
                 }
             } else {
                 Console.WriteLine( "** Failed to initialize the server **" );
-                world.ShutDown();
+                Server.Shutdown();
                 Console.ReadLine();
             }
         }

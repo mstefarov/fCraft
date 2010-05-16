@@ -6,13 +6,13 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Threading;
+using System.Diagnostics;
 using fCraft;
 
 
 namespace fCraftUI {
     public partial class UI : Form {
         bool shuttingDown = false;
-        World world;
         string[] args;
 
         public UI( string[] _args ) {
@@ -32,7 +32,7 @@ namespace fCraftUI {
             if( Server.Init() ) {
                 Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( "ServerName" );
 
-                UpdaterResult update = Updater.CheckForUpdates( world );
+                UpdaterResult update = Updater.CheckForUpdates();
                 if( update.UpdateAvailable ) {
                     if( Config.GetString( "AutomaticUpdates" ) == "Notify" ) {
                         Log( String.Format( Environment.NewLine +
@@ -51,30 +51,18 @@ namespace fCraftUI {
                 }
             } else {
                 Logger.Log( "---- Could Not Initialize World ----", LogType.FatalError );
-                world = null;
             }
         }
 
 
         public void StartServer() {
-            if( args.Length == 1 ) {
-                world.LoadMap( args[0] );
-            } else {
-                world.LoadMap( Map.DefaultFileName );
-            }
-
-            System.Diagnostics.Process.GetCurrentProcess().PriorityClass = Config.GetBasePriority();
-
-            if( !world.Start() ) {
-                world = null;
-            }
+            Process.GetCurrentProcess().PriorityClass = Config.GetBasePriority();
+            Server.Start();
         }
 
         void HandleShutDown( object sender, CancelEventArgs e ) {
             shuttingDown = true;
-            if( world != null ) {
-                world.ShutDown();
-            }
+            Server.Shutdown();
         }
 
 

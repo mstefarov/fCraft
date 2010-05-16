@@ -16,7 +16,7 @@ namespace fCraft {
             StreamLoad( (MapSenderParams)param );
         }
 
-        public static bool StreamLoad( MapSenderParams param ) {
+        /*public static bool StreamLoad( MapSenderParams param ) { //TODO: streamload
             try {
                 param.world.completedBlockUpdates = 0;
                 param.world.totalBlockUpdates = param.world.map.CompareAndUpdate( param.map );
@@ -53,6 +53,6 @@ namespace fCraft {
                 param.world.EndLockDown();
                 return false;
             }
-        }
+        }*/
     }
 }

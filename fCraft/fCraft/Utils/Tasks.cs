@@ -5,14 +5,25 @@ using System.Threading;
 
 namespace fCraft {
 
-    public delegate void Task( object param );
+    // used by Server.MainLoop
+    internal class ScheduledTask {
+        public DateTime nextTime;
+        public int interval;
+        public TaskCallback callback;
+        public object param = null;
+        public bool enabled = true;
+    }
+
+    // used by Tasks
+    public delegate void TaskCallback( object param );
+
 
     public static class Tasks {
         static object queueLock = new object(),
                       priorityQueueLock = new object();
         static Thread taskThread;
-        static Queue<KeyValuePair<Task, object>> tasks = new Queue<KeyValuePair<Task, object>>(),
-                                                 priorityTasks = new Queue<KeyValuePair<Task, object>>();
+        static Queue<KeyValuePair<TaskCallback, object>> tasks = new Queue<KeyValuePair<TaskCallback, object>>(),
+                                                 priorityTasks = new Queue<KeyValuePair<TaskCallback, object>>();
         static bool keepGoing;
 
 
@@ -40,9 +51,9 @@ namespace fCraft {
         }
 
 
-        public static void Add( Task callback, object param, bool isPriority ) {
+        public static void Add( TaskCallback callback, object param, bool isPriority ) {
             if( keepGoing ) {
-                KeyValuePair<Task, object> newTask = new KeyValuePair<Task, object>( callback, param );
+                KeyValuePair<TaskCallback, object> newTask = new KeyValuePair<TaskCallback, object>( callback, param );
                 if( isPriority ) {
                     lock( priorityQueueLock ) {
                         priorityTasks.Enqueue( newTask );
@@ -57,7 +68,7 @@ namespace fCraft {
 
 
         static void TaskLoop() {
-            KeyValuePair<Task, object> task;
+            KeyValuePair<TaskCallback, object> task;
             while( keepGoing ) {
                 while( priorityTasks.Count > 0 ) {
                     lock( priorityQueueLock ) {

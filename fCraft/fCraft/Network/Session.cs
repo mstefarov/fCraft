@@ -338,7 +338,7 @@ namespace fCraft {
             }
 
             // Register player for future block updates
-            if( !world.RegisterPlayer( player ) ) {
+            if( !Server.RegisterPlayer( player ) ) {
                 KickNow( "Sorry, server is full." );
                 return;
             }
@@ -469,7 +469,7 @@ namespace fCraft {
 
 
         public void Disconnect() {
-            world.UnregisterPlayer( player );
+            Server.UnregisterPlayer( player );
             player = null;
 
             if( ioThread != null ) {

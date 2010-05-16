@@ -34,20 +34,41 @@ namespace fCraft {
         public event SimpleEventHandler OnUnload;
         public event WorldChangeEventHandler OnPlayerJoin;
         public event WorldChangeEventHandler OnPlayerLeave;
-        
+
         public Map map;
-        public Player[] players;
+        public string name;
+        public Dictionary<int, Player> players = new Dictionary<int, Player>();
+        public Player[] playerList;
+
+        object playerListLock = new object();
 
         internal bool requestLockDown, lockDown, lockDownReady;
         internal bool loadInProgress, loadSendingInProgress, loadProgressReported;
         internal int totalBlockUpdates, completedBlockUpdates;
         bool firstBackup = true;
 
-        public World() {
-            players = new Player[Config.GetInt( "MaxPlayers" ) + 1];
+
+        public void AcceptPlayer( Player player ) {
+            lock( playerListLock ) {
+                if( map == null ) {
+                    LoadMap();
+                }
+                Player[] newPlayerList = new Player[players.Count];
+                int i = 0;
+                foreach( Player p in players.Values ) {
+                    playerList[i++] = p;
+                }
+                playerList = newPlayerList;
+            }
+            //UpdatePlayerList();
+            if( Config.GetBool( "BackupOnJoin" ) ) {
+                map.SaveBackup( String.Format( "backups/{0:yyyy-MM-dd HH-mm}_{1}.fcm", DateTime.Now, player.name ) );
+            }
         }
 
-        public void LoadMap( string mapName ) {
+
+        public void LoadMap() {
+            string mapName = name + ".fcm";
             try {
                 map = Map.Load( this, mapName );
             } catch( Exception ex ) {
@@ -62,128 +83,15 @@ namespace fCraft {
                 map.spawn.Set( map.widthX / 2 * 32 + 16, map.widthY / 2 * 32 + 16, map.height * 32, 0, 0 );
 
                 MapCommands.GenerateFlatgrass( map, false );
-                
+
                 if( !map.Save() ) throw new Exception( "Could not save file." );
             }
         }
-        
 
-        // World initialization
-        // NOTE: Logger, Config. and Color are initialized by now
-        public bool Start() {
-            Player.Console = new Player( this, "(console)" );
-
-            // start listening
-            if( !Server.Start() ) {
-                return false;
-            }
-
-            serverStart = DateTime.Now;
-
-            // queue up some tasks to run on the scheduler
-            AddTask( Server.CheckForIncomingConnections, 0 );
-            AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ) );
-            saveMapTaskId = AddTask( SaveMap, Config.GetInt( "SaveInterval" ) * 1000 );
-            TaskToggle( saveMapTaskId, Config.GetInt( "SaveInterval" ) > 0 );
-            autoBackupTaskId = AddTask( AutoBackup, Config.GetInt( "BackupInterval" ) * 1000 * 60 );
-            TaskToggle( autoBackupTaskId, Config.GetInt( "BackupInterval" ) > 0 );
-
-            mainThread = new Thread( Update );
-            mainThread.Start();
-
-            /*
-            if( IRCBotOnline ) {
-                ircbot.Start();
-            }
-            */
-           
-            return true;
-        }
-
-
-        int saveMapTaskId, autoBackupTaskId;
-
-        internal int AddTask(  Task task, int interval ){
-            UpdateTask newTask = new UpdateTask();
-            newTask.nextTime = DateTime.Now;
-            newTask.callback = task;
-            newTask.interval = interval;
-            updateTasks.Add( updateTaskCounter, newTask );
-            return updateTaskCounter++;
-        }
-
-        internal void TaskToggle( int id, bool enabled ) {
-            updateTasks[id].nextTime = DateTime.Now;
-            updateTasks[id].enabled = enabled;
-        }
-
-
-        // === Main Loop ======================================================
-
-        internal static float ticksPerSecond; //TODO: move to server
-
-        class UpdateTask {
-            public DateTime nextTime;
-            public int interval;
-            public Task callback;
-            public object param = null;
-            public bool enabled = true;
-        }
-        int updateTaskCounter = 0;
-        Dictionary<int, UpdateTask> updateTasks = new Dictionary<int, UpdateTask>();
-        Thread mainThread;
-        DateTime serverStart;
-        bool keepGoing = true;
-
-
-        internal void Update() {
-            while( keepGoing ) {
-                foreach( UpdateTask task in updateTasks.Values ) {
-                    if( task.enabled && task.nextTime < DateTime.Now ) {
-                        task.callback( task.param );
-                        task.nextTime += TimeSpan.FromMilliseconds( task.interval );
-                    }
-                }
-
-                if( requestLockDown ) {
-                    lockDown = true;
-                    Tasks.Restart();
-                    requestLockDown = false;
-                    Thread.Sleep( 100 ); // buffer time for all threads to catch up
-                    map.ClearUpdateQueue();
-                    lockDownReady = true;
-                }
-
-                Thread.Sleep( 1 );
-            }
-        }
-
-        void AutoBackup( object param ) {
-            if( lockDown ) return;
-            if( !firstBackup || Config.GetBool( "BackupOnStartup" ) ) {
-                map.SaveBackup( String.Format( "backups/{0:yyyy-MM-ddTHH-mm}.fcm", DateTime.Now ) );
-            }
-            firstBackup = false;
-        }
-
-        void SaveMap( object param ) {
-            if( lockDown ) return;
-            if( map.changesSinceSave > 0 ) {
-                Tasks.Add(
-                    delegate {
-                        map.changesSinceSave = 0;
-                        map.Save();
-                    }, null, false );
-            }
-        }
-
-        void UpdateBlocks( object param ) {
-            map.ProcessUpdates();
-        }
 
 
         // Warning: do NOT call this from Tasks threads
-        internal void BeginLockDown() {
+        /*internal void BeginLockDown() { //TODO: lockdown
             requestLockDown = true;
             if( Thread.CurrentThread == mainThread ) {
                 lockDown = true;
@@ -200,92 +108,39 @@ namespace fCraft {
         internal void EndLockDown() {
             lockDownReady = false;
             lockDown = false;
-        }
+        }*/
 
-
-        // === Player list handling ===========================================
-
-        // Add a newly-logged-in player to the list, and notify existing players.
-        public bool RegisterPlayer( Player player ) {
-            lock( playerListLock ) {
-                for( int i = 1; i < players.Length; i++ ) {
-                    if( players[i] == null ) {
-                        player.id = i;
-                        players[i] = player;
-                        playerCount++;
-                        if( Config.GetBool( "BackupOnJoin" ) ) {
-                            map.SaveBackup( String.Format( "backups/{0:yyyy-MM-dd HH-mm}_{1}.fcm", DateTime.Now, player.name ) );
-                        }
-                        UpdatePlayerList();
-                        return true;
-                    }
-                }
-                return false;
-            }
-        }
-
-
-        // Remove player from the list, and notify remaining players
-        public void UnregisterPlayer( Player player ) {
-            if( player == null ) {
-                Logger.Log( "World.UnregisterPlayer: Trying to unregister a non-existent (null) player.", LogType.Debug );
-                return;
-            }
-
-            lock( playerListLock ) {
-                if( players[player.id] == player ) {
-                    Logger.Log( "{0} left the server.", LogType.UserActivity, player.name );
-
-                    // if IRC Bot is online, send update to IRC bot
-                    /*if (ircbot.isOnline() == true)
-                    {
-                        ircbot.SendMsgChannel(player.name + "(" + player.info.playerClass.name + ") has left ** " + Config.GetString("ServerName") + " **");
-                    }*/
-                    PlayerDB.ProcessLogout( player );
-                    PlayerDB.Save();
-                    players[player.id] = null;
-                    playerCount--;
-                    SendToAll( PacketWriter.MakeRemoveEntity( player.id ), null );
-                    SendToAll( PacketWriter.MakeMessage( Color.Sys + player.name + " left the server." ), null );
-                    UpdatePlayerList();
-                }else{
-                    Logger.Log( "World.UnregisterPlayer: Trying to unregister a non-existent (unknown id) player.", LogType.Warning );
-                }
-            }
-        }
 
 
         // Send a list of players to the specified new player
         internal void SendPlayerList( Player player ) {
-            Player temp;
-            for( int i = 1; i < players.Length; i++ ) {
-                temp = players[i];
-                if( temp != null && temp != player && !temp.isHidden ) {
-                    player.session.SendNow( PacketWriter.MakeAddEntity( temp, temp.pos ) );
+            Player[] tempList = playerList;
+            for( int i = 1; i < tempList.Length; i++ ) {
+                if( tempList[i] != null && tempList[i] != player && !tempList[i].isHidden ) {
+                    player.session.SendNow( PacketWriter.MakeAddEntity( tempList[i], tempList[i].pos ) );
                 }
             }
         }
 
 
         internal void UpdatePlayer( Player updatedPlayer ) {
-            Player player;
-            for( int i = 1; i < players.Length; i++ ) {
-                player = players[i];
-                if( player != null && player != updatedPlayer ) {
-                    player.Send( PacketWriter.MakeRemoveEntity( updatedPlayer.id ) );
-                    player.Send( PacketWriter.MakeAddEntity( updatedPlayer, updatedPlayer.pos ) );
+            Player[] tempList = playerList;
+            for( int i = 1; i < tempList.Length; i++ ) {
+                if( tempList[i] != null && tempList[i] != updatedPlayer ) {
+                    tempList[i].Send( PacketWriter.MakeRemoveEntity( updatedPlayer.id ) );
+                    tempList[i].Send( PacketWriter.MakeAddEntity( updatedPlayer, updatedPlayer.pos ) );
                 }
             }
         }
 
 
         public string GetPlayerListString() {
-            Player player;
-            string list="";
-            for( int i = 1; i < players.Length; i++ ) {
-                player = players[i];
-                if( player != null && !player.isHidden ) {
-                    list += player.name + ",";
+            Player[] tempList = playerList;
+            string list = "";
+            for( int i = 1; i < tempList.Length; i++ ) {
+                tempList[i] = players[i];
+                if( tempList[i] != null && !tempList[i].isHidden ) {
+                    list += tempList[i].name + ",";
                 }
             }
             if( list.Length > 0 ) {
@@ -299,12 +154,13 @@ namespace fCraft {
         // Find player by name using autocompletion
         public Player FindPlayer( string name ) {
             if( name == null ) return null;
-            Player result = null, player;
-            for( int i = 1; i < players.Length; i++ ) {
-                player = players[i];
-                if( player != null && player.name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+            Player[] tempList = playerList;
+            Player result = null;
+            for( int i = 1; i < tempList.Length; i++ ) {
+                tempList[i] = players[i];
+                if( tempList[i] != null && tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
                     if( result == null ) {
-                        result = player;
+                        result = tempList[i];
                     } else {
                         return null;
                     }
@@ -316,11 +172,10 @@ namespace fCraft {
 
         // Find player by name using autocompletion
         public Player FindPlayer( System.Net.IPAddress ip ) {
-            Player player;
-            for( int i = 1; i < players.Length; i++ ) {
-                player = players[i];
-                if( player != null && player.session.GetIP().ToString() == ip.ToString() ) {
-                    return player;
+            Player[] tempList = playerList;
+            for( int i = 1; i < tempList.Length; i++ ) {
+                if( tempList[i] != null && tempList[i].session.GetIP().ToString() == ip.ToString() ) {
+                    return tempList[i];
                 }
             }
             return null;
@@ -329,11 +184,10 @@ namespace fCraft {
 
         // Get player by name without autocompletion
         public Player FindPlayerExact( string name ) {
-            Player player;
-            for( int i = 1; i < players.Length; i++ ) {
-                player = players[i];
-                if( player != null && player.name == name ) {
-                    return player;
+            Player[] tempList = playerList;
+            for( int i = 1; i < tempList.Length; i++ ) {
+                if( tempList[i] != null && tempList[i].name == name ) {
+                    return tempList[i];
                 }
             }
             return null;
@@ -341,37 +195,13 @@ namespace fCraft {
 
 
         // Disconnect all players
-        public void ShutDown() {
+        public void Shutdown() {
             try {
-                Logger.Log( "Server shutting down.", LogType.SystemActivity );
-                keepGoing = false;
-                if( mainThread != null && mainThread.IsAlive ) {
-                    mainThread.Join();
-                }
-
-                Heartbeat.ShutDown();
-                //if( IRCBotOnline == true ) ircbot.ShutDown();
-                Tasks.ShutDown();
-
-                lock( playerListLock ) {
-                    for( int i = 1; i < players.Length; i++ ) {
-                        if( players[i] != null ) {
-                            players[i].session.Kick( "Server shutting down." );
-                        }
-                        players[i] = null;
-                    }
-                    playerCount = 0;
-                }
-
                 if( Config.GetBool( "SaveOnShutdown" ) && map != null ) {
                     map.Save();
                 }
-
-                PlayerDB.Save();
-                IPBanList.Save();
-                Server.ShutDown();
             } catch( Exception ex ) {
-                Logger.Log( "Error occured while trying to shut down: {0}", LogType.FatalError, ex.Message );
+                Logger.Log( "Error occured while trying to shut down: {0}", LogType.Error, ex.Message );
             }
         }
 
@@ -379,58 +209,40 @@ namespace fCraft {
         // === Messaging ======================================================
 
         // Broadcast
-        public void SendToAll( string message, Player except ) {
-            SendToAll( PacketWriter.MakeMessage(message), except, true );
-        }
 
+        public void SendToAll( Packet packet ) {
+            SendToAll( packet, null );
+        }
         public void SendToAll( Packet packet, Player except ) {
-            SendToAll( packet, except, true );
-        }
-
-        public void SendToAll( Packet packet, Player except, bool isHighPriority ) {
-            Player player;
-            for( int i = 1; i < players.Length; i++ ) {
-                player = players[i];
-                if( player != null && player != except ) {
-                    player.Send( packet, isHighPriority );
+            Player[] tempList = playerList;
+            for( int i = 0; i < tempList.Length; i++ ) {
+                if( tempList[i] != except ) {
+                    tempList[i].Send( packet );
                 }
             }
         }
-
-        public void SendToAll( string message, string prefix, Player except, bool isHighPriority ) {
-            if( message.Length <= 64 ) {
-                SendToAll( PacketWriter.MakeMessage( message ), except, isHighPriority );
-            } else {
-                string[] words = message.Split( ' ' );
-                int ll = 0, j = 0;
-                bool first = true;
-                for( int i = 0; i < words.Length; i++) {
-                    if( ll + words[i].Length > 64 ) {
-                        if( first ) {
-                            SendToAll( PacketWriter.MakeMessage( String.Join( " ", words, j, i-j-1 ) ), null, isHighPriority );
-                            first = false;
-                        } else {
-                            SendToAll( PacketWriter.MakeMessage( prefix + String.Join( " ", words, j, i - j-1 ) ), null, isHighPriority );
-                        }
-                        j = i;
-                        ll = prefix.Length;
-                        i--;
-                    } else {
-                        ll += words[i].Length + 1;
-                    }
-                }
-                if( ll != prefix.Length ) {
+        public void SendToAllDelayed( Packet packet, Player except ) {
+            Player[] tempList = playerList;
+            for( int i = 0; i < tempList.Length; i++ ) {
+                if( tempList[i] != except ) {
+                    tempList[i].Send( packet, false );
                 }
             }
         }
+        public void SendToAll( string message ) {
+            SendToAll( PacketWriter.MakeMessage( message ), null );
+        }
+        public void SendToAll( string message, Player except ) {
+            SendToAll( PacketWriter.MakeMessage( message ), except );
+        }
+
 
         // Broadcast to a specific class
         public void SendToClass( Packet packet, PlayerClass playerClass ) {
-            Player player;
-            for( int i = 1; i < players.Length; i++ ) {
-                player = players[i];
-                if( player != null && player.info.playerClass == playerClass ) {
-                    player.Send( packet, true );
+            Player[] tempList = playerList;
+            for( int i = 0; i < tempList.Length; i++ ) {
+                if( tempList[i].info.playerClass == playerClass ) {
+                    tempList[i].Send( packet );
                 }
             }
         }
@@ -449,8 +261,8 @@ namespace fCraft {
         internal static void NoAccessMessage( Player player ) {
             player.Message( Color.Red, "You do not have access to this command." );
         }
-
-        public void UpdatePlayerList() {
+        /*
+        public void UpdatePlayerList() { //TODO
             List<string> playerList = new List<string>();
             Player p;
             for( int i = 1; i < players.Length; i++ ) {
@@ -458,6 +270,6 @@ namespace fCraft {
                 if( p != null ) playerList.Add( p.info.playerClass.name + " - " + p.name );
             }
             //Server.FirePlayerListChange( playerList.ToArray() ); //TODO
-        }
+        }*/
     }
 }
