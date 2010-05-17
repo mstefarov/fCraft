@@ -35,6 +35,9 @@ namespace fCraft {
 
         ControlPhysics,
 
+        ManageZones,
+        ManageWorlds,
+
         Draw
     }
 }

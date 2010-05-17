@@ -59,33 +59,35 @@
             System.Windows.Forms.ListViewItem listViewItem23 = new System.Windows.Forms.ListViewItem( "Save And Load" );
             System.Windows.Forms.ListViewItem listViewItem24 = new System.Windows.Forms.ListViewItem( "Lock" );
             System.Windows.Forms.ListViewItem listViewItem25 = new System.Windows.Forms.ListViewItem( "Control Physics" );
-            System.Windows.Forms.ListViewItem listViewItem26 = new System.Windows.Forms.ListViewItem( "Draw" );
-            System.Windows.Forms.ListViewItem listViewItem27 = new System.Windows.Forms.ListViewItem( "System Activity" );
-            System.Windows.Forms.ListViewItem listViewItem28 = new System.Windows.Forms.ListViewItem( "Warnings" );
-            System.Windows.Forms.ListViewItem listViewItem29 = new System.Windows.Forms.ListViewItem( "Errors" );
-            System.Windows.Forms.ListViewItem listViewItem30 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
-            System.Windows.Forms.ListViewItem listViewItem31 = new System.Windows.Forms.ListViewItem( "User Activity" );
-            System.Windows.Forms.ListViewItem listViewItem32 = new System.Windows.Forms.ListViewItem( "User Commands" );
-            System.Windows.Forms.ListViewItem listViewItem33 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
-            System.Windows.Forms.ListViewItem listViewItem34 = new System.Windows.Forms.ListViewItem( "Chat" );
-            System.Windows.Forms.ListViewItem listViewItem35 = new System.Windows.Forms.ListViewItem( "Private Chat" );
-            System.Windows.Forms.ListViewItem listViewItem36 = new System.Windows.Forms.ListViewItem( "Class Chat" );
-            System.Windows.Forms.ListViewItem listViewItem37 = new System.Windows.Forms.ListViewItem( "Console Input" );
-            System.Windows.Forms.ListViewItem listViewItem38 = new System.Windows.Forms.ListViewItem( "Console Output" );
-            System.Windows.Forms.ListViewItem listViewItem39 = new System.Windows.Forms.ListViewItem( "Debug Information" );
-            System.Windows.Forms.ListViewItem listViewItem40 = new System.Windows.Forms.ListViewItem( "System Activity" );
-            System.Windows.Forms.ListViewItem listViewItem41 = new System.Windows.Forms.ListViewItem( "Warnings" );
-            System.Windows.Forms.ListViewItem listViewItem42 = new System.Windows.Forms.ListViewItem( "Errors" );
-            System.Windows.Forms.ListViewItem listViewItem43 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
-            System.Windows.Forms.ListViewItem listViewItem44 = new System.Windows.Forms.ListViewItem( "User Activity" );
-            System.Windows.Forms.ListViewItem listViewItem45 = new System.Windows.Forms.ListViewItem( "User Commands" );
-            System.Windows.Forms.ListViewItem listViewItem46 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
-            System.Windows.Forms.ListViewItem listViewItem47 = new System.Windows.Forms.ListViewItem( "Chat" );
-            System.Windows.Forms.ListViewItem listViewItem48 = new System.Windows.Forms.ListViewItem( "Private Chat" );
-            System.Windows.Forms.ListViewItem listViewItem49 = new System.Windows.Forms.ListViewItem( "Class Chat" );
-            System.Windows.Forms.ListViewItem listViewItem50 = new System.Windows.Forms.ListViewItem( "Console Input" );
-            System.Windows.Forms.ListViewItem listViewItem51 = new System.Windows.Forms.ListViewItem( "Console Output" );
-            System.Windows.Forms.ListViewItem listViewItem52 = new System.Windows.Forms.ListViewItem( "Debug Information" );
+            System.Windows.Forms.ListViewItem listViewItem26 = new System.Windows.Forms.ListViewItem( "Manage Zones" );
+            System.Windows.Forms.ListViewItem listViewItem27 = new System.Windows.Forms.ListViewItem( "Manage Worlds" );
+            System.Windows.Forms.ListViewItem listViewItem28 = new System.Windows.Forms.ListViewItem( "Draw" );
+            System.Windows.Forms.ListViewItem listViewItem29 = new System.Windows.Forms.ListViewItem( "System Activity" );
+            System.Windows.Forms.ListViewItem listViewItem30 = new System.Windows.Forms.ListViewItem( "Warnings" );
+            System.Windows.Forms.ListViewItem listViewItem31 = new System.Windows.Forms.ListViewItem( "Errors" );
+            System.Windows.Forms.ListViewItem listViewItem32 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
+            System.Windows.Forms.ListViewItem listViewItem33 = new System.Windows.Forms.ListViewItem( "User Activity" );
+            System.Windows.Forms.ListViewItem listViewItem34 = new System.Windows.Forms.ListViewItem( "User Commands" );
+            System.Windows.Forms.ListViewItem listViewItem35 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
+            System.Windows.Forms.ListViewItem listViewItem36 = new System.Windows.Forms.ListViewItem( "Chat" );
+            System.Windows.Forms.ListViewItem listViewItem37 = new System.Windows.Forms.ListViewItem( "Private Chat" );
+            System.Windows.Forms.ListViewItem listViewItem38 = new System.Windows.Forms.ListViewItem( "Class Chat" );
+            System.Windows.Forms.ListViewItem listViewItem39 = new System.Windows.Forms.ListViewItem( "Console Input" );
+            System.Windows.Forms.ListViewItem listViewItem40 = new System.Windows.Forms.ListViewItem( "Console Output" );
+            System.Windows.Forms.ListViewItem listViewItem41 = new System.Windows.Forms.ListViewItem( "Debug Information" );
+            System.Windows.Forms.ListViewItem listViewItem42 = new System.Windows.Forms.ListViewItem( "System Activity" );
+            System.Windows.Forms.ListViewItem listViewItem43 = new System.Windows.Forms.ListViewItem( "Warnings" );
+            System.Windows.Forms.ListViewItem listViewItem44 = new System.Windows.Forms.ListViewItem( "Errors" );
+            System.Windows.Forms.ListViewItem listViewItem45 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
+            System.Windows.Forms.ListViewItem listViewItem46 = new System.Windows.Forms.ListViewItem( "User Activity" );
+            System.Windows.Forms.ListViewItem listViewItem47 = new System.Windows.Forms.ListViewItem( "User Commands" );
+            System.Windows.Forms.ListViewItem listViewItem48 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
+            System.Windows.Forms.ListViewItem listViewItem49 = new System.Windows.Forms.ListViewItem( "Chat" );
+            System.Windows.Forms.ListViewItem listViewItem50 = new System.Windows.Forms.ListViewItem( "Private Chat" );
+            System.Windows.Forms.ListViewItem listViewItem51 = new System.Windows.Forms.ListViewItem( "Class Chat" );
+            System.Windows.Forms.ListViewItem listViewItem52 = new System.Windows.Forms.ListViewItem( "Console Input" );
+            System.Windows.Forms.ListViewItem listViewItem53 = new System.Windows.Forms.ListViewItem( "Console Output" );
+            System.Windows.Forms.ListViewItem listViewItem54 = new System.Windows.Forms.ListViewItem( "Debug Information" );
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -100,6 +102,8 @@
             this.lHelpColor = new System.Windows.Forms.Label();
             this.lMessageColor = new System.Windows.Forms.Label();
             this.gBasic = new System.Windows.Forms.GroupBox();
+            this.lPort = new System.Windows.Forms.Label();
+            this.nPort = new System.Windows.Forms.NumericUpDown();
             this.cReservedSlotBehavior = new System.Windows.Forms.ComboBox();
             this.lReservedSlotBehavior = new System.Windows.Forms.Label();
             this.cDefaultClass = new System.Windows.Forms.ComboBox();
@@ -253,12 +257,11 @@
             this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
-            this.nPort = new System.Windows.Forms.NumericUpDown();
-            this.lPort = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gAppearence.SuspendLayout();
             this.gBasic.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nPort)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nUploadBandwidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayers)).BeginInit();
             this.tabSecurity.SuspendLayout();
@@ -295,7 +298,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPing)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nPort)).BeginInit();
             this.SuspendLayout();
             // 
             // tabs
@@ -461,6 +463,37 @@
             this.gBasic.TabIndex = 12;
             this.gBasic.TabStop = false;
             this.gBasic.Text = "Basic Settings";
+            // 
+            // lPort
+            // 
+            this.lPort.AutoSize = true;
+            this.lPort.Location = new System.Drawing.Point( 359, 105 );
+            this.lPort.Name = "lPort";
+            this.lPort.Size = new System.Drawing.Size( 75, 15 );
+            this.lPort.TabIndex = 32;
+            this.lPort.Text = "Port number";
+            // 
+            // nPort
+            // 
+            this.nPort.Location = new System.Drawing.Point( 440, 103 );
+            this.nPort.Maximum = new decimal( new int[] {
+            65535,
+            0,
+            0,
+            0} );
+            this.nPort.Minimum = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            this.nPort.Name = "nPort";
+            this.nPort.Size = new System.Drawing.Size( 71, 21 );
+            this.nPort.TabIndex = 31;
+            this.nPort.Value = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
             // 
             // cReservedSlotBehavior
             // 
@@ -1452,6 +1485,8 @@
             listViewItem24.StateImageIndex = 0;
             listViewItem25.StateImageIndex = 0;
             listViewItem26.StateImageIndex = 0;
+            listViewItem27.StateImageIndex = 0;
+            listViewItem28.StateImageIndex = 0;
             this.vPermissions.Items.AddRange( new System.Windows.Forms.ListViewItem[] {
             listViewItem1,
             listViewItem2,
@@ -1478,7 +1513,9 @@
             listViewItem23,
             listViewItem24,
             listViewItem25,
-            listViewItem26} );
+            listViewItem26,
+            listViewItem27,
+            listViewItem28} );
             this.vPermissions.Location = new System.Drawing.Point( 467, 28 );
             this.vPermissions.MultiSelect = false;
             this.vPermissions.Name = "vPermissions";
@@ -1810,8 +1847,6 @@
             this.columnHeader2} );
             this.vLogFileOptions.GridLines = true;
             this.vLogFileOptions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            listViewItem27.StateImageIndex = 0;
-            listViewItem28.StateImageIndex = 0;
             listViewItem29.StateImageIndex = 0;
             listViewItem30.StateImageIndex = 0;
             listViewItem31.StateImageIndex = 0;
@@ -1823,9 +1858,9 @@
             listViewItem37.StateImageIndex = 0;
             listViewItem38.StateImageIndex = 0;
             listViewItem39.StateImageIndex = 0;
+            listViewItem40.StateImageIndex = 0;
+            listViewItem41.StateImageIndex = 0;
             this.vLogFileOptions.Items.AddRange( new System.Windows.Forms.ListViewItem[] {
-            listViewItem27,
-            listViewItem28,
             listViewItem29,
             listViewItem30,
             listViewItem31,
@@ -1836,7 +1871,9 @@
             listViewItem36,
             listViewItem37,
             listViewItem38,
-            listViewItem39} );
+            listViewItem39,
+            listViewItem40,
+            listViewItem41} );
             this.vLogFileOptions.Location = new System.Drawing.Point( 100, 20 );
             this.vLogFileOptions.Name = "vLogFileOptions";
             this.vLogFileOptions.Size = new System.Drawing.Size( 161, 251 );
@@ -1922,8 +1959,6 @@
             this.columnHeader3} );
             this.vConsoleOptions.GridLines = true;
             this.vConsoleOptions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            listViewItem40.StateImageIndex = 0;
-            listViewItem41.StateImageIndex = 0;
             listViewItem42.StateImageIndex = 0;
             listViewItem43.StateImageIndex = 0;
             listViewItem44.StateImageIndex = 0;
@@ -1935,9 +1970,9 @@
             listViewItem50.StateImageIndex = 0;
             listViewItem51.StateImageIndex = 0;
             listViewItem52.StateImageIndex = 0;
+            listViewItem53.StateImageIndex = 0;
+            listViewItem54.StateImageIndex = 0;
             this.vConsoleOptions.Items.AddRange( new System.Windows.Forms.ListViewItem[] {
-            listViewItem40,
-            listViewItem41,
             listViewItem42,
             listViewItem43,
             listViewItem44,
@@ -1948,7 +1983,9 @@
             listViewItem49,
             listViewItem50,
             listViewItem51,
-            listViewItem52} );
+            listViewItem52,
+            listViewItem53,
+            listViewItem54} );
             this.vConsoleOptions.Location = new System.Drawing.Point( 88, 20 );
             this.vConsoleOptions.Name = "vConsoleOptions";
             this.vConsoleOptions.Size = new System.Drawing.Size( 161, 251 );
@@ -2338,37 +2375,6 @@
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 
-            // nPort
-            // 
-            this.nPort.Location = new System.Drawing.Point( 440, 103 );
-            this.nPort.Maximum = new decimal( new int[] {
-            65535,
-            0,
-            0,
-            0} );
-            this.nPort.Minimum = new decimal( new int[] {
-            1,
-            0,
-            0,
-            0} );
-            this.nPort.Name = "nPort";
-            this.nPort.Size = new System.Drawing.Size( 71, 21 );
-            this.nPort.TabIndex = 31;
-            this.nPort.Value = new decimal( new int[] {
-            1,
-            0,
-            0,
-            0} );
-            // 
-            // lPort
-            // 
-            this.lPort.AutoSize = true;
-            this.lPort.Location = new System.Drawing.Point( 359, 105 );
-            this.lPort.Name = "lPort";
-            this.lPort.Size = new System.Drawing.Size( 75, 15 );
-            this.lPort.TabIndex = 32;
-            this.lPort.Text = "Port number";
-            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2390,6 +2396,7 @@
             this.gAppearence.PerformLayout();
             this.gBasic.ResumeLayout( false );
             this.gBasic.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nPort)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nUploadBandwidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayers)).EndInit();
             this.tabSecurity.ResumeLayout( false );
@@ -2438,7 +2445,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPing)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nPort)).EndInit();
             this.ResumeLayout( false );
 
         }

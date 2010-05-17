@@ -31,11 +31,12 @@ namespace fCraft {
 
         const int maxPortAttempts = 20;
 
+
         public static bool Init() {
             Color.Init();
             Map.Init();
 
-            Logger.Init( "fCraft.log" );
+            Logger.Init();
             if( !Config.Load() ) return false;
             Config.ApplyConfig();
             if( !Config.Save() ) return false;
@@ -158,6 +159,41 @@ namespace fCraft {
             return true;
         }
 
+        
+        // shuts down the server and aborts threads
+        // NOTE: heartbeat should stop automatically
+        public static void Shutdown() {
+            if( OnShutdownStart != null ) OnShutdownStart();
+            if( listener != null ) {
+                listener.Stop();
+                listener = null;
+            }
+
+            Logger.Log( "Server shutting down.", LogType.SystemActivity );
+            continueMainLoop = false;
+            if( mainThread != null && mainThread.IsAlive ) {
+                mainThread.Join();
+            }
+
+            Heartbeat.ShutDown();
+            if( IRCBot.isOnline() == true ) IRCBot.ShutDown();
+            Tasks.ShutDown();
+
+            lock( playerListLock ) {
+                foreach( Session session in sessions ) {
+                    session.Kick( "Server shutting down." );
+                }
+            }
+
+            foreach( World world in worlds.Values ) {
+                world.Shutdown();
+            }
+
+            PlayerDB.Save();
+            IPBanList.Save();
+            if( OnShutdownEnd != null ) OnShutdownEnd();
+        }
+
 
         public static World AddWorld( string name, bool neverUnload ) {
             lock( worldListLock ) {
@@ -171,21 +207,21 @@ namespace fCraft {
             }
         }
 
+
         public static void SaveWorldList() {
             // Save world list
-            using( FileStream stream = File.OpenWrite( WorldListFile ) ) {
-                using( StreamWriter writer = new StreamWriter( stream ) ) {
-                    writer.WriteLine( defaultWorld.name );
-                    foreach( string worldName in worlds.Keys ) {
-                        if( worldName != defaultWorld.name ) {
-                            writer.WriteLine( worldName );
-                        }
+            using( StreamWriter writer = File.CreateText( WorldListFile ) ) {
+                writer.WriteLine( defaultWorld.name );
+                foreach( string worldName in worlds.Keys ) {
+                    if( worldName != defaultWorld.name ) {
+                        writer.WriteLine( worldName );
                     }
                 }
             }
         }
 
 
+        #region Networking
         public static void SendToAllDelayed( Packet packet, Player except ) {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -243,47 +279,7 @@ namespace fCraft {
                 }
             }
         }
-
-
-        // shuts down the server and aborts threads
-        // NOTE: heartbeat should stop automatically
-        public static void Shutdown() {
-            if( OnShutdownStart != null ) OnShutdownStart();
-            if( listener != null ) {
-                listener.Stop();
-                listener = null;
-            }
-
-            Logger.Log( "Server shutting down.", LogType.SystemActivity );
-            continueMainLoop = false;
-            if( mainThread != null && mainThread.IsAlive ) {
-                mainThread.Join();
-            }
-
-            Heartbeat.ShutDown();
-            if( IRCBot.isOnline() == true ) IRCBot.ShutDown();
-            Tasks.ShutDown();
-
-            lock( playerListLock ) {
-                foreach( Session session in sessions ) {
-                    session.Kick( "Server shutting down." );
-                }
-            }
-
-            foreach( World world in worlds.Values ) {
-                world.Shutdown();
-            }
-
-            PlayerDB.Save();
-            IPBanList.Save();
-            if( OnShutdownEnd != null ) OnShutdownEnd();
-        }
-
-
-        // Return player count
-        public static int GetPlayerCount() {
-            return sessions.Count;
-        }
+        #endregion
 
 
         #region Events
@@ -315,6 +311,7 @@ namespace fCraft {
             if( OnWorldChanged != null ) OnWorldChanged( player, oldWorld, newWorld );
         }
         #endregion
+
 
         #region Scheduler
 
@@ -394,6 +391,7 @@ namespace fCraft {
 
         #endregion
 
+
         #region Utilities
 
         public static char[] reservedChars = { ' ', '!', '*', '\'', '(', ')', ';', ':', '@', '&',
@@ -453,7 +451,13 @@ namespace fCraft {
 
         #endregion
 
+
         #region PlayerList
+        // Return player count
+        public static int GetPlayerCount() {
+            return sessions.Count;
+        }
+
         // Add a newly-logged-in player to the list, and notify existing players.
         public static bool RegisterPlayer( Player player ) {
             lock( playerListLock ) {

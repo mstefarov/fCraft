@@ -668,6 +668,8 @@ namespace fCraft {
             owner.Add( new XElement( "SaveAndLoad" ) );
             owner.Add( new XElement( "Lock" ) );
             owner.Add( new XElement( "ControlPhysics" ) );
+            owner.Add( new XElement( "ManageZones" ) );
+            owner.Add( new XElement( "ManageWorlds" ) );
             owner.Add( new XElement( "Draw" ) );
             permissions.Add( owner );
             DefineClass( owner );

@@ -29,17 +29,16 @@ namespace fCraft {
 
 
     public static class Logger {
-        static string logFile;
         static object locker = new object();
         public static bool[] consoleOptions = new bool[15];
         public static bool[] logFileOptions = new bool[15];
 
+        const string LogFileName = "fCraft.log";
 
-        internal static void Init( string _logFile ) {
+        internal static void Init() {
             // TODO: log splitting
-            logFile = _logFile;
-            if( !File.Exists( logFile ) ) {
-                FileStream fs = File.Create( logFile );
+            if( !File.Exists( LogFileName ) ) {
+                FileStream fs = File.Create( LogFileName );
                 fs.Close();
             }
             Log( "------ Log Starts {0} ({1}) ------", LogType.Debug,
@@ -69,7 +68,7 @@ namespace fCraft {
             if( logFileOptions[(int)type] ) {
                 lock( locker ) {
                     try {
-                        using( StreamWriter writer = File.AppendText( logFile ) ) {
+                        using( StreamWriter writer = File.AppendText( LogFileName ) ) {
                             writer.WriteLine( line );
                         }
                     } catch( Exception e ) {
