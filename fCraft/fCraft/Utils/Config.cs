@@ -57,7 +57,7 @@ namespace fCraft {
             settings["HelpColor"] = "magenta";
             settings["SayColor"] = "yellow";
 
-            settings["IRCBot"] = "true";
+            settings["IRCBot"] = "false";
             settings["IRCBotNick"] = "fBot";
             settings["IRCBotNetwork"] = "irc.esper.net";
             settings["IRCBotPort"] = "6667";

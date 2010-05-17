@@ -204,8 +204,7 @@ namespace fCraft {
                         }
                     }
                 }
-#if DEBUG
-#else
+
                 } catch( ThreadAbortException ) {
                     Logger.Log( "Session.IoLoop: Thread aborted!", LogType.Error );
 
@@ -214,7 +213,8 @@ namespace fCraft {
 
                 } catch( SocketException ex ) {
                     Logger.Log( "Session.IoLoop: {0}.", LogType.Warning, ex.Message );
-
+#if DEBUG
+#else
                 } catch( Exception ex ) {
                     Logger.Log( "Session.IoLoop: {0}: {1}.", LogType.Error, ex.ToString(), ex.Message );
 #endif

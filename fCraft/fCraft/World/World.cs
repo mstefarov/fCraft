@@ -45,9 +45,9 @@ namespace fCraft {
 
         public bool neverUnload = false;
 
-        //internal bool requestLockDown, lockDown, lockDownReady;
+        //internal bool requestLockDown, lockDown, lockDownReady; //TODO: lock
         //internal bool loadInProgress, loadSendingInProgress, loadProgressReported;
-        //internal int totalBlockUpdates, completedBlockUpdates;
+        //internal int totalBlockUpdates, completedBlockUpdates; //TODO: streamload
 
 
         public World( string _name ) {
@@ -70,11 +70,11 @@ namespace fCraft {
             }
 
             // Reveal newcommer to existing players
-            Logger.Log( "{0}Player {1} joined \"{2}\".", LogType.UserActivity, Color.Sys, player.name, name );
+            Logger.Log( "Player {0} joined \"{1}\".", LogType.UserActivity, player.name, name );
 
             if( !player.isHidden ) {
                 SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
-                Server.SendToAll( String.Format( "{1} joined {2}", player.GetListName(), player.world.name ), player );
+                Server.SendToAll( String.Format("{0}Player {1} joined \"{2}\".", Color.Sys, player.name, name ), player );
             }
 
             if( OnPlayerJoined != null ) OnPlayerJoined( player, this );
