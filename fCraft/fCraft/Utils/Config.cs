@@ -47,7 +47,7 @@ namespace fCraft {
             settings["DefaultClass"] = ""; // empty = lowest rank
             settings["IsPublic"] = "false";
             settings["Port"] = "25565";
-            settings["UploadBandwidth"] = "100";
+            settings["UploadBandwidth"] = "100"; 
             settings["ReservedSlotBehavior"] = "IncreaseMaxPlayers"; // can be "KickIdle", "KickRandom", "IncreaseMaxPlayers"
 
             settings["ClassColorsInChat"] = "true";
@@ -57,11 +57,12 @@ namespace fCraft {
             settings["HelpColor"] = "magenta";
             settings["SayColor"] = "yellow";
 
-            settings["IRCBot"] = "false";
+            settings["IRCBot"] = "false"; // Bot is disabled by default
             settings["IRCBotNick"] = "fBot";
             settings["IRCBotNetwork"] = "irc.esper.net";
             settings["IRCBotPort"] = "6667";
-            settings["IRCBotChannels"] = "#fcraft"; // This can be multiple using csv
+            settings["IRCBotChannels"] = "#fCraft"; // CASE SENSITIVE!!!!!!!!!!!!!!!!!!!!! This can be multiple using csv
+            settings["IRCBotForwardAll"] = "false"; // Disabled by default
         }
 
 
