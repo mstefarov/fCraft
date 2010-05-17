@@ -33,6 +33,7 @@ using System.Text;
 using System.Threading;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace fCraft
 {
@@ -41,6 +42,7 @@ namespace fCraft
     public struct AuthPkg
     {
         public string host;
+        public string user;
         public string nickname;
     }
 
@@ -61,10 +63,18 @@ namespace fCraft
             unlock 
     }
 
+    public enum destination
+    {
+        IRC,
+        Server
+    }
+
         // A neat&tidy package for an irc message contents
     public struct IRCMessage{
         public string host;
+        public string user;
         public string to;
+        public destination destination;
         public string nickname;
         public string type;
         public string chatMessage;
@@ -134,160 +144,151 @@ namespace fCraft
                 // After the IRCCommunications are online, start processing messages
                 while (true)
                 {
+                    Thread.Sleep(1);
                     List<IRCMessage> tempMsgStack = new List<IRCMessage>();
                     tempMsgStack.AddRange(messageStack);
                     if (tempMsgStack.Count > 0)
                     {
                         foreach (IRCMessage message in tempMsgStack)
-                        {
-                            if (message.chatMessage != "")
+                        { 
+                            IRCMessage newMessage = new IRCMessage();
+                            // If it's a private message (the message target is the bot's nickname), start handling pm IRCCommands
+                            if (message.to == NICK)
                             {
-                                IRCMessage newMessage = new IRCMessage();
-                                bool isPm = false;
-                                // If it's a private message (the message target is the bot's nickname), start handling pm IRCCommands
-                                if (message.to == NICK)
+                                newMessage.to = message.nickname;
+                                if (message.cmd == IRCCommands.status)
                                 {
-                                    newMessage.to = message.nickname;
-                                    isPm = true;
-                                    if (message.cmd == IRCCommands.status)
+                                    // Put together all of the status variables from world and such
+                                    string serverName = Config.GetString("ServerName");
+                                    string MOTD = Config.GetString("MOTD");
+                                    string serverAddress = File.ReadAllText("externalurl.txt", ASCIIEncoding.ASCII);
+                                    int playersOnline = Server.GetPlayerCount();
+                                    newMessage.chatMessage = message.nickname + ", you have requested a status update.";
+                                    lpStack.Add(newMessage);
+                                    newMessage.chatMessage = "Server Name: ** " + serverName + " **";
+                                    lpStack.Add(newMessage);
+                                    newMessage.chatMessage = "MOTD: ** " + MOTD + " **";
+                                    lpStack.Add(newMessage);
+                                    newMessage.chatMessage = "Address: ** " + serverAddress + " **";
+                                    lpStack.Add(newMessage);
+                                    newMessage.chatMessage = "Players online: ** " + playersOnline.ToString() + " **";
+                                    lpStack.Add(newMessage);
+                                    
+                                    // This is broken for now
+                                    //string[] playerList = GetPlayerListString().Split(',');
+                                    //// List the players online if there are any
+                                    //if (playersOnline > 0)
+                                    //{
+                                    //    int count = 0;
+                                    //    newMessage.chatMessage = "Players:";
+                                    //    lpStack.Add(newMessage);
+                                    //    foreach (string player in playerList)
+                                    //    {
+                                    //        newMessage.chatMessage = " ** " + player + " ** ";
+                                    //        lpStack.Add(newMessage);
+                                    //        ++count;
+                                    //    }
+                                    //}
+                                }
+                                else if (message.cmd == IRCCommands.help)
+                                {
+                                    newMessage.chatMessage = "Hello, " + message.nickname + " , you have requested help!";
+                                    lpStack.Add(newMessage);
+                                    newMessage.chatMessage = "** Be patient the help line is long **";
+                                    lpStack.Add(newMessage);
+                                    newMessage.chatMessage = "***********************************************************";
+                                    lpStack.Add(newMessage);
+                                    newMessage.chatMessage = "Public IRCCommands:";
+                                    lpStack.Add(newMessage);
+                                    newMessage.chatMessage = "     !status - Gives the status of the server itself.";
+                                    lpStack.Add(newMessage);
+                                    newMessage.chatMessage = "     !auth <password> - Authorize with the bot with the password you registered from inside the server.";
+                                    lpStack.Add(newMessage);
+                                    newMessage.chatMessage = "     !help - Displays this message.";
+                                    lpStack.Add(newMessage);
+                                    newMessage.chatMessage = " Chat IRCCommands:";
+                                    lpStack.Add(newMessage);
+                                    newMessage.chatMessage = "     # - initiates sending a chat message to the server from this PM.";
+                                    lpStack.Add(newMessage);
+                                    newMessage.chatMessage = "     <botname>: - initiates sending a chat message to the server from a channel.";
+                                    lpStack.Add(newMessage);
+                                    if (isAuthed(message.nickname, message.host))
                                     {
-                                        // Put together all of the status variables from world and such
-                                        string serverName = Config.GetString("ServerName");
-                                        string MOTD = Config.GetString("MOTD");
-                                        string serverAddress = File.ReadAllText("externalurl.txt", ASCIIEncoding.ASCII);
-                                        int playersOnline = Server.GetPlayerCount();
-                                        newMessage.chatMessage = message.nickname + ", you have requested a status update.";
-                                        lpStack.Add(newMessage);
-                                        newMessage.chatMessage = "Server Name: ** " + serverName + " **";
-                                        lpStack.Add(newMessage);
-                                        newMessage.chatMessage = "MOTD: ** " + MOTD + " **";
-                                        lpStack.Add(newMessage);
-                                        newMessage.chatMessage = "Address: ** " + serverAddress + " **";
-                                        lpStack.Add(newMessage);
-                                        newMessage.chatMessage = "Players online: ** " + playersOnline.ToString() + " **";
-                                        lpStack.Add(newMessage);
-                                        
-                                        // This is broken for now
-                                        //string[] playerList = GetPlayerListString().Split(',');
-                                        //// List the players online if there are any
-                                        //if (playersOnline > 0)
-                                        //{
-                                        //    int count = 0;
-                                        //    newMessage.chatMessage = "Players:";
-                                        //    lpStack.Add(newMessage);
-                                        //    foreach (string player in playerList)
-                                        //    {
-                                        //        newMessage.chatMessage = " ** " + player + " ** ";
-                                        //        lpStack.Add(newMessage);
-                                        //        ++count;
-                                        //    }
-                                        //}
-                                    }
-                                    else if (message.cmd == IRCCommands.help)
-                                    {
-                                        newMessage.chatMessage = "Hello, " + message.nickname + " , you have requested help!";
-                                        lpStack.Add(newMessage);
-                                        newMessage.chatMessage = "** Be patient the help line is long **";
-                                        lpStack.Add(newMessage);
                                         newMessage.chatMessage = "***********************************************************";
                                         lpStack.Add(newMessage);
-                                        newMessage.chatMessage = "Public IRCCommands:";
+                                        newMessage.chatMessage = "Authorized User IRCCommands:";
                                         lpStack.Add(newMessage);
-                                        newMessage.chatMessage = "     !status - Gives the status of the server itself.";
+                                        newMessage.chatMessage = "     !kick <player> - initiates kicking a player from the server.";
                                         lpStack.Add(newMessage);
-                                        newMessage.chatMessage = "     !auth <password> - Authorize with the bot with the password you registered from inside the server.";
+                                        newMessage.chatMessage = "     !ban <player> - initiates banning a player from the server by nickname.";
                                         lpStack.Add(newMessage);
-                                        newMessage.chatMessage = "     !help - Displays this message.";
+                                        newMessage.chatMessage = "     !banip <ip address> - initiates banning a player from the server by IP.";
                                         lpStack.Add(newMessage);
-                                        newMessage.chatMessage = " Chat IRCCommands:";
+                                        newMessage.chatMessage = "     !banall <player> - initiates banning a player from the server by Name, IP, and any players from the same IP.";
                                         lpStack.Add(newMessage);
-                                        newMessage.chatMessage = "     # - initiates sending a chat message to the server from this PM.";
+                                        newMessage.chatMessage = "     !unban <player> - initiates banning a player from the server.";
                                         lpStack.Add(newMessage);
-                                        newMessage.chatMessage = "     <botname>: - initiates sending a chat message to the server from a channel.";
+                                        newMessage.chatMessage = "     !unbanip <player> - initiates banning a player from the server.";
                                         lpStack.Add(newMessage);
-                                        if (isAuthed(message.nickname, message.host))
-                                        {
-                                            newMessage.chatMessage = "***********************************************************";
-                                            lpStack.Add(newMessage);
-                                            newMessage.chatMessage = "Authorized User IRCCommands:";
-                                            lpStack.Add(newMessage);
-                                            newMessage.chatMessage = "     !kick <player> - initiates kicking a player from the server.";
-                                            lpStack.Add(newMessage);
-                                            newMessage.chatMessage = "     !ban <player> - initiates banning a player from the server by nickname.";
-                                            lpStack.Add(newMessage);
-                                            newMessage.chatMessage = "     !banip <ip address> - initiates banning a player from the server by IP.";
-                                            lpStack.Add(newMessage);
-                                            newMessage.chatMessage = "     !banall <player> - initiates banning a player from the server by Name, IP, and any players from the same IP.";
-                                            lpStack.Add(newMessage);
-                                            newMessage.chatMessage = "     !unban <player> - initiates banning a player from the server.";
-                                            lpStack.Add(newMessage);
-                                            newMessage.chatMessage = "     !unbanip <player> - initiates banning a player from the server.";
-                                            lpStack.Add(newMessage);
-                                            newMessage.chatMessage = "     !unbanip <player> - initiates banning a player from the server.";
-                                            lpStack.Add(newMessage);
-                                            newMessage.chatMessage = "     !slock - initiates Lockdown mode for the server.";
-                                            lpStack.Add(newMessage);
-                                            newMessage.chatMessage = "     !unlock - revokes Lockdown mode for the server.";
-                                            lpStack.Add(newMessage);
-                                        }
-
+                                        newMessage.chatMessage = "     !unbanip <player> - initiates banning a player from the server.";
+                                        lpStack.Add(newMessage);
+                                        newMessage.chatMessage = "     !slock - initiates Lockdown mode for the server.";
+                                        lpStack.Add(newMessage);
+                                        newMessage.chatMessage = "     !unlock - revokes Lockdown mode for the server.";
+                                        lpStack.Add(newMessage);
                                     }
-                                    else if (message.cmd == IRCCommands.auth) // Authenticate clients
+
+                                }
+                                else if (message.cmd == IRCCommands.auth) // Authenticate clients
+                                {
+                                    string[] authLine = message.chatMessage.Split(' ');
+                                    if (authLine.Length == 2)
                                     {
-                                        string[] authLine = message.chatMessage.Split(' ');
-                                        if (authLine.Length == 2)
+                                        // Need an authorization workup here
+                                        // registerdnicks.contains(message.nickname)
+                                        // password matches registered users password
+                                        if (authLine[1] == "auth0riz3m3")// Bot auth password
                                         {
-                                            // Need an authorization workup here
-                                            // registerdnicks.contains(message.nickname)
-                                            // password matches registered users password
-                                            if (authLine[1] == "auth0riz3m3")// Bot auth password
-                                            {
-                                                string authResponse = message.nickname + " Authenticated to host " + message.host;
-                                                newMessage.chatMessage = message.nickname + ", you have authenticated with the host " + message.host + ".";
-                                                lpStack.Add(newMessage);
-                                                Logger.Log(message.nickname + " Authenticated to host " + message.host, LogType.IRC);
-                                                AuthPkg newAuth = new AuthPkg() { host = message.host, nickname = message.nickname };
-                                                authedHosts.Add(newAuth);
-                                            }
-                                            else
-                                            {
-                                                newMessage.chatMessage = "Sorry, that was the wrong password associated with the nickname - " + message.nickname;
-                                                lpStack.Add(newMessage);
-                                            }
+                                            string authResponse = message.nickname + " Authenticated to host " + message.host;
+                                            newMessage.chatMessage = message.nickname + ", you have authenticated with the host " + message.host + ".";
+                                            lpStack.Add(newMessage);
+                                            Logger.Log(message.nickname + " Authenticated to host " + message.host, LogType.IRC);
+                                            AuthPkg newAuth = new AuthPkg() { host = message.host, nickname = message.nickname };
+                                            authedHosts.Add(newAuth);
                                         }
                                         else
                                         {
-                                            newMessage.chatMessage = "Sorry, your auth request contained too many/few parameters. Try again or type !help for useage.";
+                                            newMessage.chatMessage = "Sorry, that was the wrong password associated with the nickname - " + message.nickname;
                                             lpStack.Add(newMessage);
                                         }
                                     }
-                                    else if (message.cmd >= IRCCommands.kick)
-                                    {
-                                        Invoke(ref newMessage, message);
-                                    }
-                                    else if (message.chatMessage.Contains("#")) // Catch chat messages to the server itself
-                                    {
-                                        string stringToServer = "fBot: " + message.chatMessage.Substring(message.chatMessage.IndexOf("#") + 1);
-                                        Logger.Log(stringToServer, LogType.IRC);
-                                        Server.SendToAll(stringToServer);
-                                    }
-                                    else if (message.chatMessage.Contains("Hello") || message.chatMessage.Contains("hello"))
-                                    {
-                                        newMessage.chatMessage = "Hi there, " + message.nickname + "!";
-                                        newMessage.chatMessage = "You can access help by typing '!help'.";
-                                    }
                                     else
                                     {
-                                        newMessage.chatMessage = "Sorry, unreadable IRCCommand. Try typing '!help' for help.";
+                                        newMessage.chatMessage = "Sorry, your auth request contained too many/few parameters. Try again or type !help for useage.";
+                                        lpStack.Add(newMessage);
                                     }
                                 }
-                                if (message.to == "server")
+                                else if (message.cmd >= IRCCommands.kick)
                                 {
-                                    string stringToServer = "(IRC)" + message.nickname + ": " + message.chatMessage;
-                                    Logger.Log(stringToServer, LogType.IRC);
-                                    Server.SendToAll(stringToServer);
+                                    Invoke(ref newMessage, message);
+                                }
+                                else if (message.chatMessage.Contains("Hello") || message.chatMessage.Contains("hello"))
+                                {
+                                    newMessage.chatMessage = "Hi there, " + message.nickname + "!";
+                                    newMessage.chatMessage = "You can access help by typing '!help'.";
+                                }
+                                else
+                                {
+                                    newMessage.chatMessage = "Sorry, unreadable IRCCommand. Try typing '!help' for help.";
                                 }
                             }
+                            if (message.destination == destination.Server)
+                            {
+                                string stringToServer = "(IRC)" + message.nickname + ": " + message.chatMessage;
+                                Logger.Log(stringToServer, LogType.IRC);
+                                Server.SendToAll(stringToServer);
+                            }
+                        
                             messageStack.Remove(message);
                         }
                         tempMsgStack.Clear();
@@ -316,10 +317,9 @@ namespace fCraft
         // Parse IRC Message into a nice package for use 
         public static void parseMsg( ref IRCMessage newMsg, string input)
         {
-            bool isPm = false;
 
             // This code handles ping/pong to keep the irc bot alive and connected
-            if (input.Contains("PING :"))
+            if (input.StartsWith("PING :"))
             { 
                 if (IRCComm.initConnect())
                 {
@@ -342,71 +342,50 @@ namespace fCraft
                     else
                         Console.WriteLine("*** ERROR: BOTHOST was empty, this means it couldn't parse a host! ***");
                 }
-            }
-            // Don't ever, EVER ask me how this works. It's fucking magic okay.
-            // This parses private messages and channel messages
-            else if(input.Contains("PRIVMSG") || input.Contains("MODE " + NICK))
-            {                
-                newMsg.nickname = (input.Substring(1, input.IndexOf("!") - 1)).Trim();
-                input = input.Substring(input.IndexOf(newMsg.nickname) + newMsg.nickname.Length);
-                if (input.IndexOf("PRIVMSG") != -1)
-                {
-                    newMsg.host = input.Substring(1, input.IndexOf("PRIVMSG") - 1).Trim();
-                    input = input.Substring(input.IndexOf("PRIVMSG") - 1);
-                }
-                else if (input.IndexOf("MODE") != -1)
-                {
-                    string[] hostBreak = input.Substring(1, input.IndexOf("MODE") - 1).Trim().Split('@');
-                    newMsg.host = hostBreak[1];
-                    BOTHOST = newMsg.host;
-                    return; // Parsing needs to end here or the bot will pm itself and infinite loops ensue!
-                }
-                
-                // Parse private message
-                if (input.IndexOf(NICK + " :") != -1)
-                {
-                    isPm = true;
-                    newMsg.type = input.Substring(0, input.IndexOf(NICK)).Trim();
-                    input = input.Substring(input.IndexOf(NICK) - 1).Trim(); ;
-                    newMsg.to = input.Substring(0, input.IndexOf(":")).Trim();
-                    input = input.Substring(input.IndexOf(":") + 1).Trim();
+            }else{
+
+            Regex exp = new Regex(@"^:([^!]+)!([^@]*)@([^ ]+) ([A-Z]+) (#?[^ ]+) :(.*)$");
+            MatchCollection matches = exp.Matches(input);
+                foreach( Match match in matches){
+                    GroupCollection tmpGroup = match.Groups;
+                    // tmpGroup contains:
+                    // 0 is the raw IRC message itself so it is ignored
+                    // 1 Nickname
+                    // 2 Username
+                    // 3 Host
+                    // 4 Message type
+                    // 5 Channel/User the message was sent to
+                    // 6 Message content
+                    newMsg.nickname = tmpGroup[1].ToString();
+                    newMsg.user = tmpGroup[2].ToString();
+                    newMsg.host = tmpGroup[3].ToString();
+                    newMsg.type = tmpGroup[4].ToString();
+                    newMsg.to = tmpGroup[5].ToString();
+                    newMsg.chatMessage = tmpGroup[6].ToString();
                 }
 
-                // Parse other messages (ie: channel messages)
-                if(!isPm)
+                foreach (string channel in CHANNELS)
                 {
-                    foreach (string channel in CHANNELS)
+                    if (FORWARD_ALL)
                     {
-                        if (!FORWARD_ALL)
+                        if (newMsg.to == channel)
+                            newMsg.destination = destination.Server;
+                    }
+                    else
+                    {
+                        if (newMsg.chatMessage != null)
                         {
-                            if (input.IndexOf("PRIVMSG " + channel + " :") != -1 && input.IndexOf(PREFIX) != -1)
+                            if (newMsg.chatMessage.IndexOf(PREFIX) != -1)
                             {
-                                newMsg.type = input.Substring(0, input.IndexOf(channel));
-                                input = input.Substring(input.IndexOf(channel) - 1).Trim();
-                                newMsg.to = "server";
-                                input = input.Substring(input.IndexOf(PREFIX) + PREFIX.Length).Trim();
-                                newMsg.chatMessage = input.Substring(0);
-                                return; // return here
-                            }
-                        }
-                        else
-                        {
-                            if (input.IndexOf("PRIVMSG " + channel + " :") != -1)
-                            {
-                                string chanCatch = channel + " :";
-                                newMsg.type = input.Substring(0, input.IndexOf(channel));
-                                input = input.Substring(input.IndexOf(channel) - 1).Trim();
-                                newMsg.to = "server";
-                                input = input.Substring(input.IndexOf(chanCatch) + chanCatch.Length).Trim();
-                                newMsg.chatMessage = input.Substring(0);
-                                return; // return here
+                                newMsg.chatMessage = newMsg.chatMessage.Substring(newMsg.chatMessage.IndexOf(PREFIX) + PREFIX.Length).Trim();
+                                newMsg.destination = destination.Server;
                             }
                         }
                     }
-                }    
-                else
+                }
+
+                if (newMsg.to == NICK) // Catch chat messages to the bot itself
                 {
-                    newMsg.chatMessage = input.Substring(0);
                     foreach (IRCCommands item in Enum.GetValues(typeof(IRCCommands)))
                     {
                         if (newMsg.chatMessage.Contains("!"+item.ToString())){
@@ -414,11 +393,93 @@ namespace fCraft
                             return;
                         }
                     }
+                    if (newMsg.chatMessage.Contains("#"))
+                    {
+                        newMsg.nickname = NICK;
+                        newMsg.chatMessage = newMsg.chatMessage.Substring(newMsg.chatMessage.IndexOf("#") + 1);
+                        newMsg.destination = destination.Server;
+                    } 
                 }
-#if DEBUG_IRC              
-                Console.WriteLine("*RECEIVED*: Message from " + newMsg.nickname + " @ " + newMsg.host + ":: " + newMsg.chatMessage); 
-#endif
             }
+
+
+
+            // Don't ever, EVER ask me how this works. It's fucking magic okay.
+            // This parses private messages and channel messages
+            //else if(input.Contains("PRIVMSG") || input.Contains("MODE " + NICK))
+            //{                
+            //    newMsg.nickname = (input.Substring(1, input.IndexOf("!") - 1)).Trim();
+            //    input = input.Substring(input.IndexOf(newMsg.nickname) + newMsg.nickname.Length);
+            //    if (input.IndexOf("PRIVMSG") != -1)
+            //    {
+            //        newMsg.host = input.Substring(1, input.IndexOf("PRIVMSG") - 1).Trim();
+            //        input = input.Substring(input.IndexOf("PRIVMSG") - 1);
+            //    }
+            //    else if (input.IndexOf("MODE") != -1)
+            //    {
+            //        string[] hostBreak = input.Substring(1, input.IndexOf("MODE") - 1).Trim().Split('@');
+            //        newMsg.host = hostBreak[1];
+            //        BOTHOST = newMsg.host;
+            //        return; // Parsing needs to end here or the bot will pm itself and infinite loops ensue!
+            //    }
+                
+            //    // Parse private message
+            //    if (input.IndexOf(NICK + " :") != -1)
+            //    {
+            //        isPm = true;
+            //        newMsg.type = input.Substring(0, input.IndexOf(NICK)).Trim();
+            //        input = input.Substring(input.IndexOf(NICK) - 1).Trim(); ;
+            //        newMsg.to = input.Substring(0, input.IndexOf(":")).Trim();
+            //        input = input.Substring(input.IndexOf(":") + 1).Trim();
+            //    }
+
+            //    // Parse other messages (ie: channel messages)
+            //    if(!isPm)
+            //    {
+            //        foreach (string channel in CHANNELS)
+            //        {
+            //            if (!FORWARD_ALL)
+            //            {
+            //                if (input.IndexOf("PRIVMSG " + channel + " :") != -1 && input.IndexOf(PREFIX) != -1)
+            //                {
+            //                    newMsg.type = input.Substring(0, input.IndexOf(channel));
+            //                    input = input.Substring(input.IndexOf(channel) - 1).Trim();
+            //                    newMsg.to = "server";
+            //                    input = input.Substring(input.IndexOf(PREFIX) + PREFIX.Length).Trim();
+            //                    newMsg.chatMessage = input.Substring(0);
+            //                    return; // return here
+            //                }
+            //            }
+            //            else
+            //            {
+            //                if (input.IndexOf("PRIVMSG " + channel + " :") != -1)
+            //                {
+            //                    string chanCatch = channel + " :";
+            //                    newMsg.type = input.Substring(0, input.IndexOf(channel));
+            //                    input = input.Substring(input.IndexOf(channel) - 1).Trim();
+            //                    newMsg.to = "server";
+            //                    input = input.Substring(input.IndexOf(chanCatch) + chanCatch.Length).Trim();
+            //                    newMsg.chatMessage = input.Substring(0);
+            //                    return; // return here
+            //                }
+            //            }
+            //        }
+            //    }    
+            //    else
+            //    {
+            //        newMsg.chatMessage = input.Substring(0);
+            //        foreach (IRCCommands item in Enum.GetValues(typeof(IRCCommands)))
+            //        {
+            //            if (newMsg.chatMessage.Contains("!"+item.ToString())){
+            //                newMsg.cmd = item;
+            //                return;
+            //            }
+            //        }
+            //    }
+//#if DEBUG_IRC              
+//                Console.WriteLine("*RECEIVED*: Message from " + newMsg.nickname + " @ " + newMsg.host + ":: " + newMsg.chatMessage); 
+//#endif
+//            }
         }
 
         private static bool Invoke( ref IRCMessage newMessage, IRCMessage message)
