@@ -19,19 +19,58 @@ namespace fCraft {
             Commands.AddCommand( "genh", GenerateHollow, true );
 
             Commands.AddCommand( "zone", DoZone, false );
-            Commands.AddCommand( "zlist", ZoneList, true );
+            Commands.AddCommand( "zones", ZoneList, true );
             Commands.AddCommand( "zremove", ZoneRemove, true );
+
+            Commands.AddCommand( "worlds", ListWorlds, true );
+            Commands.AddCommand( "wload", AddWorld, true );
         }
 
+        internal static void ListWorlds( Player player, Command cmd ) {
+            lock( Server.worldListLock ) {
+                string line = Color.Sys + "List of worlds: ";
+                bool first = true;
+                foreach( string worldName in Server.worlds.Keys ) {
+                    if( line.Length + worldName.Length > 62 ) {
+                        player.Message( line );
+                        line = Color.Sys;
+                    } else if(!first) {
+                        line += ", ";
+                    }
+                    line += worldName;
+                    first = false;
+                }
+                player.Message( line );
+            }
+        }
+
+        internal static void AddWorld( Player player, Command cmd ) {
+            string worldName = cmd.Next();
+            if( worldName == null || !Player.IsValidName( worldName ) ) {
+                player.Message( "Invalid world name: \"" + worldName + "\"." );
+            } else {
+                if( Server.AddWorld( worldName, false ) != null ) {
+                    Server.SendToAll( Color.Sys + player.name + " created a new world named \"" + worldName + "\"." );
+                    Logger.Log( player.name + " created a new world named \"" + worldName + "\".", LogType.UserActivity );
+                    Server.SaveWorldList();
+                } else {
+                    player.Message( "Error occured while trying to create a new world." );
+                }
+            }
+        }
 
         internal static void Join( Player player, Command cmd ) {
-            string world = cmd.Next();
+            string worldName = cmd.Next();
             lock( Server.worldListLock ) {
-                if( Server.worlds.ContainsKey( world ) ) {
-                    player.world.ReleasePlayer( player );
-                    player.session.JoinWorld( Server.worlds[world] );
+                if( Server.worlds.ContainsKey( worldName ) ) {
+                    if( worldName != player.world.name ) {
+                        player.world.ReleasePlayer( player );
+                        player.session.JoinWorld( Server.worlds[worldName] );
+                    } else {
+                        player.Message( "You are already in \"" + worldName + "\"." );
+                    }
                 } else {
-                    player.Message( "No world found with the name \"{0}\"", world );
+                    player.Message( "No world found with the name \"{0}\"", worldName );
                 }
             }
         }

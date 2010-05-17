@@ -25,6 +25,7 @@ namespace fCraft {
 
         const int maxRange = 6 * 32;
 
+
         // grief/spam detection
         public static int spamBlockCount = 35;
         public static int spamBlockTimer = 5;

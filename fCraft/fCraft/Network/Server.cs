@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.IO;
 
 
 namespace fCraft {
@@ -17,6 +18,7 @@ namespace fCraft {
         static object playerListLock = new object();
         public static object worldListLock = new object();
 
+        const string WorldListFile = "worlds.txt";
         public static Dictionary<string, World> worlds = new Dictionary<string, World>();
         public static World defaultWorld;
 
@@ -87,17 +89,45 @@ namespace fCraft {
 
             serverStart = DateTime.Now;
 
-            int saveMapTaskId, autoBackupTaskId;
+            // Read world list
+            if( File.Exists( WorldListFile ) ) {
+                string[] worldList = File.ReadAllLines( WorldListFile );
+                bool first = true;
+                foreach( string worldName in worldList ) {
+                    World world = AddWorld( worldName, first );
+                    if( world != null ) {
+                        if( first ) defaultWorld = world;
+                        first = false;
+                        Logger.Log( "Server.Start: Loaded world \"" + worldName + "\".", LogType.Debug );
+                    } else {
+                        Logger.Log( "Server.Start: Error loading world \"" + worldName + "\"", LogType.Error );
+                    }
+                }
+                if( worlds.Count == 0 ) {
+                    Logger.Log( "Server.Start: Could not load any of the specified worlds. Creating default \"main\" world.", LogType.Error );
+                    defaultWorld = new World( "main" );
+                }
+            } else {
+                Logger.Log( "Server.Start: No world list found. Creating default \"main\" world.", LogType.SystemActivity );
+                defaultWorld = new World( "main" );
+            }
 
-            defaultWorld = new World( "main" );
-            worlds.Add( defaultWorld.name, defaultWorld );
-            defaultWorld.neverUnload = true;
-            defaultWorld.LoadMap();
+            SaveWorldList();
 
-            worlds.Add( "lake", new World( "lake" ) );
-            worlds.Add( "mountains", new World( "mountains" ) );
+            // list loaded worlds
+            string line = "Loaded worlds: ";
+            bool firstPrintedWorld = true;
+            foreach( string worldName in Server.worlds.Keys ) {
+                if( !firstPrintedWorld ) {
+                    line += ", ";
+                }
+                line += worldName;
+                firstPrintedWorld = false;
+            }
+            Logger.Log( line, LogType.SystemActivity );
 
             // queue up some tasks to run on the scheduler
+            int saveMapTaskId, autoBackupTaskId;
             AddTask( CheckConnections, 250 );
             foreach( World world in worlds.Values ) {
                 AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ), world );
@@ -122,15 +152,39 @@ namespace fCraft {
 
             Heartbeat.Start();
 
-            if (Config.GetBool("IRCBot") == true)
-            {
-                IRCBot.Start();
-            }
+            if( Config.GetBool( "IRCBot" ) ) IRCBot.Start();
 
             if( OnStart != null ) OnStart();
-
             return true;
         }
+
+
+        public static World AddWorld( string name, bool neverUnload ) {
+            lock( worldListLock ) {
+                if( worlds.ContainsKey( name ) ) return null;
+                if( !Player.IsValidName( name ) ) return null;
+                World newWorld = new World( name );
+                newWorld.neverUnload = neverUnload;
+                if( neverUnload ) newWorld.LoadMap();
+                worlds.Add( name, newWorld );
+                return newWorld;
+            }
+        }
+
+        public static void SaveWorldList() {
+            // Save world list
+            using( FileStream stream = File.OpenWrite( WorldListFile ) ) {
+                using( StreamWriter writer = new StreamWriter( stream ) ) {
+                    writer.WriteLine( defaultWorld.name );
+                    foreach( string worldName in worlds.Keys ) {
+                        if( worldName != defaultWorld.name ) {
+                            writer.WriteLine( worldName );
+                        }
+                    }
+                }
+            }
+        }
+
 
         public static void SendToAllDelayed( Packet packet, Player except ) {
             Player[] tempList = playerList;

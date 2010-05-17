@@ -173,7 +173,7 @@ namespace fCraft {
 
                 // ban by IP address
                 if( banIP && IPAddress.TryParse( arg, out address ) ) {
-                    if( banIP ) DoIPBan( player, address, reason, null, banAll, unban );
+                    DoIPBan( player, address, reason, null, banAll, unban );
 
                 // ban online players
                 } else if( !unban && offender != null ) {
