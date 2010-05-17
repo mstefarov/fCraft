@@ -47,7 +47,7 @@ namespace fCraftConsole {
                 if( Server.Start() ) {
                     Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( "ServerName" );
                     string input = "";
-                    Console.WriteLine( "** To shut down the server, type /exit **" );
+                    Console.WriteLine( "** Server is now ready. To shutdown, type /exit. URL is in externalurl.txt **" );
                     while( (input = Console.ReadLine()) != "/exit" ) {
                         Player.Console.ParseMessage( input, true );
                     }
@@ -70,7 +70,7 @@ namespace fCraftConsole {
 
         static void SetURL( string URL ) {
             File.WriteAllText( "externalurl.txt", URL, ASCIIEncoding.ASCII );
-            Console.WriteLine( "** "+URL+" **" );
+            Console.WriteLine( "** " + URL + " **" );
         }
     }
 }
