@@ -1,7 +1,7 @@
 ﻿
 // Uncomment this define to get IRC debugging data
 // WARNING: This is a lot of text.
-#define DEBUG_IRC // This line will give you messages sent back/forth between the bot and server
+//#define DEBUG_IRC // This line will give you messages sent back/forth between the bot and server
 //#define DEBU_IRC_RAW // This line will show all raw server messages
 using System;
 using System.Net;
@@ -24,6 +24,7 @@ namespace fCraft
         public static string NICK = Config.GetString("IRCBotNick");
         public static string[] CHANNELS = Config.GetString("IRCBotChannels").Split(',');
         public static string QUITMSG = "I've been told to go offline now!";
+        public static bool FORWARD_ALL = Config.GetBool("IRCBotForwardAll");
 
         private static bool online; // Signifies a *complete* registration with the network (ability to send messages)
         private static bool firstConnect;
@@ -123,6 +124,12 @@ namespace fCraft
                                         SendRaw(ref serverMsg);
                                     }
                                     Logger.Log("IRCBot is now connected to " + SERVER + ":" + PORT + ".", LogType.IRC);
+                                    string ircConnected = "The bot, '" + NICK + "', is in channel(s):";
+                                    foreach(string channel in CHANNELS)
+                                        ircConnected += " | " + channel;
+                                    Logger.Log(ircConnected, LogType.IRC);
+                                    Logger.Log("** Remember ** IRC Channel names are case sensitive,\n double check your config if things aren't working proper!",LogType.IRC);
+                                    
                                     firstConnect = false;
                                     online = true;
                                 }
@@ -294,6 +301,11 @@ namespace fCraft
         public static string getUser()
         {
             return USER;
+        }
+
+        public static bool getForward()
+        {
+            return FORWARD_ALL;
         }
     }
 }

@@ -46,10 +46,11 @@ namespace fCraft
 
     public enum IRCCommands { 
             none,
-            help = 1,
+            help,
             status, 
             auth, 
-            kick = 10, 
+            chatmsg,
+            kick = 100, 
             ban, 
             banip, 
             banall, 
@@ -83,6 +84,8 @@ namespace fCraft
         private static string[] CHANNELS;
         private static string SERVERHOST;
         private static string BOTHOST;
+        private static string PREFIX;
+        private static bool FORWARD_ALL;
 
         public static Player fBot = new Player(null, "fBot");
 
@@ -114,6 +117,8 @@ namespace fCraft
                 NICK = IRCComm.getNick();
                 CHANNELS = IRCComm.getChannels();
                 USER = IRCComm.getUser();
+                FORWARD_ALL = IRCComm.getForward();
+                PREFIX = NICK + ":";
 
             }
             catch (Exception e)
@@ -137,10 +142,6 @@ namespace fCraft
                         {
                             if (message.chatMessage != "")
                             {
-//#if DEBUG_IRC
-//                                if (message.host != "none")
-//                                    Console.WriteLine("\nTo: " + message.to + "\nNick: " + message.nickname + "\nHost: " + message.host + "\nMessage: " + message.chatMessage + "\nType: " + message.type + "\nIRCCommand: " + message.cmd + "\n\n");
-//#endif
                                 IRCMessage newMessage = new IRCMessage();
                                 bool isPm = false;
                                 // If it's a private message (the message target is the bot's nickname), start handling pm IRCCommands
@@ -165,6 +166,8 @@ namespace fCraft
                                         lpStack.Add(newMessage);
                                         newMessage.chatMessage = "Players online: ** " + playersOnline.ToString() + " **";
                                         lpStack.Add(newMessage);
+                                        
+                                        // This is broken for now
                                         //string[] playerList = GetPlayerListString().Split(',');
                                         //// List the players online if there are any
                                         //if (playersOnline > 0)
@@ -278,17 +281,11 @@ namespace fCraft
                                         newMessage.chatMessage = "Sorry, unreadable IRCCommand. Try typing '!help' for help.";
                                     }
                                 }
-                                if (!isPm)
+                                if (message.to == "server")
                                 {
-                                    foreach (string channel in CHANNELS)
-                                    {
-                                        if (message.to == channel && message.chatMessage.Contains(NICK + ":"))
-                                        {
-                                            string stringToServer = message.nickname + message.chatMessage;
-                                            Logger.Log(stringToServer, LogType.IRC);
-                                            Server.SendToAll(stringToServer);
-                                        }
-                                    }
+                                    string stringToServer = "(IRC)" + message.nickname + ": " + message.chatMessage;
+                                    Logger.Log(stringToServer, LogType.IRC);
+                                    Server.SendToAll(stringToServer);
                                 }
                             }
                             messageStack.Remove(message);
@@ -370,9 +367,9 @@ namespace fCraft
                 {
                     isPm = true;
                     newMsg.type = input.Substring(0, input.IndexOf(NICK)).Trim();
-                    input = input.Substring(input.IndexOf(NICK) - 1);
+                    input = input.Substring(input.IndexOf(NICK) - 1).Trim(); ;
                     newMsg.to = input.Substring(0, input.IndexOf(":")).Trim();
-                    input = input.Substring(input.IndexOf(":") + 1);
+                    input = input.Substring(input.IndexOf(":") + 1).Trim();
                 }
 
                 // Parse other messages (ie: channel messages)
@@ -380,21 +377,36 @@ namespace fCraft
                 {
                     foreach (string channel in CHANNELS)
                     {
-                        if (input.IndexOf(channel + " :") != -1)
+                        if (!FORWARD_ALL)
                         {
-                            newMsg.type = input.Substring(0, input.IndexOf(channel));
-                            input = input.Substring(input.IndexOf(channel) - 1);
-                            newMsg.to = input.Substring(0, input.IndexOf(":")).Trim();
-                            input = input.Substring(input.IndexOf(":") + 1);
+                            if (input.IndexOf("PRIVMSG " + channel + " :") != -1 && input.IndexOf(PREFIX) != -1)
+                            {
+                                newMsg.type = input.Substring(0, input.IndexOf(channel));
+                                input = input.Substring(input.IndexOf(channel) - 1).Trim();
+                                newMsg.to = "server";
+                                input = input.Substring(input.IndexOf(PREFIX) + PREFIX.Length).Trim();
+                                newMsg.chatMessage = input.Substring(0);
+                                return; // return here
+                            }
+                        }
+                        else
+                        {
+                            if (input.IndexOf("PRIVMSG " + channel + " :") != -1)
+                            {
+                                string chanCatch = channel + " :";
+                                newMsg.type = input.Substring(0, input.IndexOf(channel));
+                                input = input.Substring(input.IndexOf(channel) - 1).Trim();
+                                newMsg.to = "server";
+                                input = input.Substring(input.IndexOf(chanCatch) + chanCatch.Length).Trim();
+                                newMsg.chatMessage = input.Substring(0);
+                                return; // return here
+                            }
                         }
                     }
-                }
-                // Add the rest of input to the 
-                newMsg.chatMessage = input.Substring(0);
-
-                if (isPm == true)
+                }    
+                else
                 {
-                    List<IRCCommands> cmds = new List<IRCCommands>();
+                    newMsg.chatMessage = input.Substring(0);
                     foreach (IRCCommands item in Enum.GetValues(typeof(IRCCommands)))
                     {
                         if (newMsg.chatMessage.Contains("!"+item.ToString())){
@@ -452,7 +464,7 @@ namespace fCraft
         }
 
         internal static void HandlePlayer(ref IRCMessage newMessage, ref IRCMessage message, string command){
-
+            // Fix this with above 
             switch (message.cmd)
             {
                 case (IRCCommands.kick):
@@ -505,6 +517,7 @@ namespace fCraft
         {
             lpStack.Remove(msg);
         }
+
         public static void rmHP(IRCMessage msg)
         {
             hpStack.Remove(msg);
@@ -537,10 +550,10 @@ namespace fCraft
         {
             return hpStack;
         }
+
         public static List<IRCMessage> getLpStack()
         {
             return lpStack;
         }
-
     }
 }
