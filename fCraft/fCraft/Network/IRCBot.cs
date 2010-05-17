@@ -299,7 +299,6 @@ namespace fCraft
                         return;
                     }
                 }
-
             }
             catch (ThreadAbortException ex)
             {
@@ -315,12 +314,12 @@ namespace fCraft
         }
 
         // Parse IRC Message into a nice package for use 
-        public static void parseMsg( ref IRCMessage newMsg, string input)
+        public static void parseMsg(ref IRCMessage newMsg, string input)
         {
 
             // This code handles ping/pong to keep the irc bot alive and connected
             if (input.StartsWith("PING :"))
-            { 
+            {
                 if (IRCComm.initConnect())
                 {
                     string pongresp = input.Substring(6, input.Length - 6);
@@ -342,20 +341,16 @@ namespace fCraft
                     else
                         Console.WriteLine("*** ERROR: BOTHOST was empty, this means it couldn't parse a host! ***");
                 }
-            }else{
-
-            Regex exp = new Regex(@"^:([^!]+)!([^@]*)@([^ ]+) ([A-Z]+) (#?[^ ]+) :(.*)$");
-            MatchCollection matches = exp.Matches(input);
-                foreach( Match match in matches){
+            }
+            else
+            {
+                Regex exp = new Regex(@"^:([^!]+)!([^@]*)@([^ ]+) ([A-Z]+) (#?[^ ]+) :(.*)$");
+                MatchCollection matches = exp.Matches(input);
+                foreach (Match match in matches)
+                {
                     GroupCollection tmpGroup = match.Groups;
                     // tmpGroup contains:
-                    // 0 is the raw IRC message itself so it is ignored
-                    // 1 Nickname
-                    // 2 Username
-                    // 3 Host
-                    // 4 Message type
-                    // 5 Channel/User the message was sent to
-                    // 6 Message content
+                    // 0 is the raw IRC message itself, 1 Nickname, 2 Username, 3 Host, 4 Message type, 5 Channel/User the message was sent to, 6 Message content
                     newMsg.nickname = tmpGroup[1].ToString();
                     newMsg.user = tmpGroup[2].ToString();
                     newMsg.host = tmpGroup[3].ToString();
@@ -388,7 +383,8 @@ namespace fCraft
                 {
                     foreach (IRCCommands item in Enum.GetValues(typeof(IRCCommands)))
                     {
-                        if (newMsg.chatMessage.Contains("!"+item.ToString())){
+                        if (newMsg.chatMessage.Contains("!" + item.ToString()))
+                        {
                             newMsg.cmd = item;
                             return;
                         }
@@ -398,88 +394,9 @@ namespace fCraft
                         newMsg.nickname = NICK;
                         newMsg.chatMessage = newMsg.chatMessage.Substring(newMsg.chatMessage.IndexOf("#") + 1);
                         newMsg.destination = destination.Server;
-                    } 
+                    }
                 }
             }
-
-
-
-            // Don't ever, EVER ask me how this works. It's fucking magic okay.
-            // This parses private messages and channel messages
-            //else if(input.Contains("PRIVMSG") || input.Contains("MODE " + NICK))
-            //{                
-            //    newMsg.nickname = (input.Substring(1, input.IndexOf("!") - 1)).Trim();
-            //    input = input.Substring(input.IndexOf(newMsg.nickname) + newMsg.nickname.Length);
-            //    if (input.IndexOf("PRIVMSG") != -1)
-            //    {
-            //        newMsg.host = input.Substring(1, input.IndexOf("PRIVMSG") - 1).Trim();
-            //        input = input.Substring(input.IndexOf("PRIVMSG") - 1);
-            //    }
-            //    else if (input.IndexOf("MODE") != -1)
-            //    {
-            //        string[] hostBreak = input.Substring(1, input.IndexOf("MODE") - 1).Trim().Split('@');
-            //        newMsg.host = hostBreak[1];
-            //        BOTHOST = newMsg.host;
-            //        return; // Parsing needs to end here or the bot will pm itself and infinite loops ensue!
-            //    }
-                
-            //    // Parse private message
-            //    if (input.IndexOf(NICK + " :") != -1)
-            //    {
-            //        isPm = true;
-            //        newMsg.type = input.Substring(0, input.IndexOf(NICK)).Trim();
-            //        input = input.Substring(input.IndexOf(NICK) - 1).Trim(); ;
-            //        newMsg.to = input.Substring(0, input.IndexOf(":")).Trim();
-            //        input = input.Substring(input.IndexOf(":") + 1).Trim();
-            //    }
-
-            //    // Parse other messages (ie: channel messages)
-            //    if(!isPm)
-            //    {
-            //        foreach (string channel in CHANNELS)
-            //        {
-            //            if (!FORWARD_ALL)
-            //            {
-            //                if (input.IndexOf("PRIVMSG " + channel + " :") != -1 && input.IndexOf(PREFIX) != -1)
-            //                {
-            //                    newMsg.type = input.Substring(0, input.IndexOf(channel));
-            //                    input = input.Substring(input.IndexOf(channel) - 1).Trim();
-            //                    newMsg.to = "server";
-            //                    input = input.Substring(input.IndexOf(PREFIX) + PREFIX.Length).Trim();
-            //                    newMsg.chatMessage = input.Substring(0);
-            //                    return; // return here
-            //                }
-            //            }
-            //            else
-            //            {
-            //                if (input.IndexOf("PRIVMSG " + channel + " :") != -1)
-            //                {
-            //                    string chanCatch = channel + " :";
-            //                    newMsg.type = input.Substring(0, input.IndexOf(channel));
-            //                    input = input.Substring(input.IndexOf(channel) - 1).Trim();
-            //                    newMsg.to = "server";
-            //                    input = input.Substring(input.IndexOf(chanCatch) + chanCatch.Length).Trim();
-            //                    newMsg.chatMessage = input.Substring(0);
-            //                    return; // return here
-            //                }
-            //            }
-            //        }
-            //    }    
-            //    else
-            //    {
-            //        newMsg.chatMessage = input.Substring(0);
-            //        foreach (IRCCommands item in Enum.GetValues(typeof(IRCCommands)))
-            //        {
-            //            if (newMsg.chatMessage.Contains("!"+item.ToString())){
-            //                newMsg.cmd = item;
-            //                return;
-            //            }
-            //        }
-            //    }
-//#if DEBUG_IRC              
-//                Console.WriteLine("*RECEIVED*: Message from " + newMsg.nickname + " @ " + newMsg.host + ":: " + newMsg.chatMessage); 
-//#endif
-//            }
         }
 
         private static bool Invoke( ref IRCMessage newMessage, IRCMessage message)
@@ -498,12 +415,15 @@ namespace fCraft
                     {
                         pIsOnline = true;
                         HandlePlayer(ref newMessage, ref message, cmdLine[1]);
+                        return true;
                     }
                     else if(pIsOnline == false)
                     {
                         PlayerDB.FindPlayerInfo(cmdLine[1], out OfflineOffender);
-                        if(OfflineOffender != null){
+                        if (OfflineOffender != null && message.cmd != IRCCommands.kick)
+                        {
                             HandlePlayer(ref newMessage, ref message, cmdLine[1]);
+                            return true;
                         }else
                         {
                             newMessage.chatMessage = "Sorry, no player by the name '" + cmdLine[1] + "' was found.";
@@ -566,7 +486,6 @@ namespace fCraft
                     break;
             }
             Logger.Log("(IRC)" + message.nickname + newMessage.chatMessage, LogType.IRC);
-            lpStack.Add(newMessage);
         }
 
         public static void AddMessage( IRCMessage message)
