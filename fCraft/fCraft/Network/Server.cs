@@ -60,6 +60,35 @@ namespace fCraft {
 
             Player.Console = new Player( null, "(console)" ); //TODO
 
+            // Read world list
+            if( File.Exists( WorldListFile ) ) {
+                string[] worldList = File.ReadAllLines( WorldListFile );
+                bool first = true;
+                foreach( string worldName in worldList ) {
+                    World world = AddWorld( worldName, first );
+                    if( world != null ) {
+                        if( first ) defaultWorld = world;
+                        first = false;
+                        Logger.Log( "Server.Start: Loaded world \"" + worldName + "\".", LogType.Debug );
+                    } else {
+                        Logger.Log( "Server.Start: Error loading world \"" + worldName + "\"", LogType.Error );
+                    }
+                }
+                if( worlds.Count == 0 ) {
+                    Logger.Log( "Server.Start: Could not load any of the specified worlds. Creating default \"main\" world.", LogType.Error );
+                    defaultWorld = AddWorld( "main", true );
+                }
+            } else {
+                Logger.Log( "Server.Start: No world list found. Creating default \"main\" world.", LogType.SystemActivity );
+                defaultWorld = AddWorld( "main", true );
+            }
+
+            if( defaultWorld == null ) {
+                Logger.Log( "Could not create the default world!", LogType.FatalError );
+                return false;
+            }
+            SaveWorldList();
+
             bool portFound = false;
             int attempts = 0;
             int port = Config.GetInt( "Port" );
@@ -89,31 +118,6 @@ namespace fCraft {
 
 
             serverStart = DateTime.Now;
-
-            // Read world list
-            if( File.Exists( WorldListFile ) ) {
-                string[] worldList = File.ReadAllLines( WorldListFile );
-                bool first = true;
-                foreach( string worldName in worldList ) {
-                    World world = AddWorld( worldName, first );
-                    if( world != null ) {
-                        if( first ) defaultWorld = world;
-                        first = false;
-                        Logger.Log( "Server.Start: Loaded world \"" + worldName + "\".", LogType.Debug );
-                    } else {
-                        Logger.Log( "Server.Start: Error loading world \"" + worldName + "\"", LogType.Error );
-                    }
-                }
-                if( worlds.Count == 0 ) {
-                    Logger.Log( "Server.Start: Could not load any of the specified worlds. Creating default \"main\" world.", LogType.Error );
-                    defaultWorld = new World( "main" );
-                }
-            } else {
-                Logger.Log( "Server.Start: No world list found. Creating default \"main\" world.", LogType.SystemActivity );
-                defaultWorld = new World( "main" );
-            }
-
-            SaveWorldList();
 
             // list loaded worlds
             string line = "Loaded worlds: ";
