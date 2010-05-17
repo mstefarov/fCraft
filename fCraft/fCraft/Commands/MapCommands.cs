@@ -19,7 +19,7 @@ namespace fCraft {
             Commands.AddCommand( "genh", GenerateHollow, true );
 
             Commands.AddCommand( "zone", DoZone, false );
-            Commands.AddCommand( "zones", ZoneList, true );
+            Commands.AddCommand( "zones", ListZones, true );
             Commands.AddCommand( "zremove", ZoneRemove, true );
 
             Commands.AddCommand( "worlds", ListWorlds, true );
@@ -45,17 +45,21 @@ namespace fCraft {
         }
 
         internal static void AddWorld( Player player, Command cmd ) {
-            string worldName = cmd.Next();
-            if( worldName == null || !Player.IsValidName( worldName ) ) {
-                player.Message( "Invalid world name: \"" + worldName + "\"." );
-            } else {
-                if( Server.AddWorld( worldName, false ) != null ) {
-                    Server.SendToAll( Color.Sys + player.name + " created a new world named \"" + worldName + "\"." );
-                    Logger.Log( player.name + " created a new world named \"" + worldName + "\".", LogType.UserActivity );
-                    Server.SaveWorldList();
+            if( player.Can( Permissions.ManageWorlds ) ) {
+                string worldName = cmd.Next();
+                if( worldName == null || !Player.IsValidName( worldName ) ) {
+                    player.Message( "Invalid world name: \"" + worldName + "\"." );
                 } else {
-                    player.Message( "Error occured while trying to create a new world." );
+                    if( Server.AddWorld( worldName, false ) != null ) {
+                        Server.SendToAll( Color.Sys + player.name + " created a new world named \"" + worldName + "\"." );
+                        Logger.Log( player.name + " created a new world named \"" + worldName + "\".", LogType.UserActivity );
+                        Server.SaveWorldList();
+                    } else {
+                        player.Message( "Error occured while trying to create a new world." );
+                    }
                 }
+            } else {
+                player.NoAccessMessage();
             }
         }
 
@@ -75,7 +79,7 @@ namespace fCraft {
             }
         }
         internal static void DoZone( Player player, Command cmd ) {
-            if( !player.Can( Permissions.SetSpawn ) ) {
+            if( !player.Can( Permissions.ManageZones ) ) {
                 player.NoAccessMessage();
                 return;
             }
@@ -127,6 +131,10 @@ namespace fCraft {
 
 
         internal static void ZoneRemove( Player player, Command cmd ) {
+            if( !player.Can( Permissions.ManageZones ) ) {
+                player.NoAccessMessage();
+                return;
+            }
             string zoneName = cmd.Next();
             if( zoneName == null ) {
                 player.Message( "Usage: " + Color.Help + "/zremove ZoneName" );
@@ -139,7 +147,7 @@ namespace fCraft {
             }
         }
 
-        internal static void ZoneList( Player player, Command cmd ) {
+        internal static void ListZones( Player player, Command cmd ) {
             Zone[] zones = player.world.map.ListZones();
             foreach( Zone zone in zones ) {
                 PlayerClass rank = ClassList.ParseRank( zone.buildRank );
