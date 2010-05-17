@@ -113,7 +113,7 @@ namespace fCraft
 #if DEBUG_IRC_RAW
                             Console.WriteLine("*SERVERMSG* :" + msg);
 #endif
-                            if (firstConnect == true)
+                            if (firstConnect)
                             {
                                 IRCBot.parseMsg(ref serverMsg, msg);
                                 if (msg.Contains("376"))
