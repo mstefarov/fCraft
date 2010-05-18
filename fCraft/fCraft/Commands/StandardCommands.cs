@@ -474,6 +474,7 @@ namespace fCraft {
         }
 
 
+
         internal static void Hide( Player player, Command cmd ) {
             if( player.Can( Permissions.Hide ) ) {
                 if( !player.isHidden ) {

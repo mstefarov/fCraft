@@ -11,6 +11,7 @@ namespace fCraft {
         PlaceLava,  // same as above, but with lava
         PlaceAdmincrete,  // build admincrete
         DeleteAdmincrete, // delete admincrete
+        PlaceHardenedBlocks, // Place all blocks as admincrete
 
         Say,
         Kick,
