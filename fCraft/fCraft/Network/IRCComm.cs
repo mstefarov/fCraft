@@ -53,6 +53,8 @@ namespace fCraft
             {
                 // Initiate connection and bring the streams to life!
                 connection = new TcpClient(SERVER, PORT);
+                connection.SendTimeout = 10000;
+                connection.ReceiveTimeout = 10000;
                 stream = connection.GetStream();
                 reader = new StreamReader(stream);
                 writer = new StreamWriter(stream);
@@ -72,9 +74,8 @@ namespace fCraft
                     if (connection.Connected != true)
                     {
                         online = false;
-                        throw new Exception("Connection was terminated.");
+                        throw new Exception("Connection was severed somehow.");
                     }
-
                     if (doShutdown)
                     {
                         return;
@@ -107,11 +108,13 @@ namespace fCraft
                         // Loop through each line we have and parse it
                         foreach (String msg in tmpServerMsgs)
                         {
-
 // Turn this on for all raw server messages
 #if DEBUG_IRC_RAW
                             Console.WriteLine("*SERVERMSG* :" + msg);
 #endif
+                            if(msg.StartsWith("ERROR :Closing Link:"))
+                                throw new Exception("Connection was terminated by the server.");
+
                             if (firstConnect)
                             {
                                 IRCBot.parseMsg(ref serverMsg, msg);
@@ -156,10 +159,18 @@ namespace fCraft
             }
             catch (Exception e)
             {
+                if (doShutdown)
+                {
+                    return;
+                }
                 Logger.Log("IRC Bot has been disconnected, it should recover now.", LogType.Error);
+
+#if DEBUG_IRC_RAW
                 Console.WriteLine(e.ToString());
+#endif
                 Thread.Sleep(10000);
                 firstConnect = true;
+
                 CommHandler();
             }
         }

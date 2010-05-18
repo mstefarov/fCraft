@@ -127,12 +127,14 @@ namespace fCraft {
                                     KickNow( "Illegal characters in chat." );
                                     return;
                                 } else {
+                                    player.UpdateActionTimer();
                                     player.ParseMessage( message, false );
                                 }
                                 break;
 
                             // Player movement
                             case InputCodes.MoveRotate:
+
                                 reader.ReadByte();
                                 Position newPos = new Position();
                                 newPos.x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
@@ -154,6 +156,8 @@ namespace fCraft {
                                     delta.Set( newPos.x - oldPos.x, newPos.y - oldPos.y, newPos.h - oldPos.h, newPos.r, newPos.l );
                                     posChanged = delta.x != 0 || delta.y != 0 || delta.h != 0;
                                     rotChanged = newPos.r != oldPos.r || newPos.l != oldPos.l;
+                                    if(rotChanged)
+                                        player.UpdateActionTimer();
 
                                     if( player.isFrozen ) {
                                         if( rotChanged ) {
@@ -187,6 +191,7 @@ namespace fCraft {
 
                             // Set tile
                             case InputCodes.SetTile:
+                                player.UpdateActionTimer();
                                 x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
                                 h = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
                                 y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
