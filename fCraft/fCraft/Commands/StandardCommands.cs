@@ -268,7 +268,7 @@ namespace fCraft {
                     string msg = cmd.NextAll();
                     Player offender = Server.FindPlayer( name );
                     if( offender != null ) {
-                        player.world.SendToAll( Color.Red + offender.name + " was kicked by " + player.name );
+                        Server.SendToAll( Color.Red + offender.name + " was kicked by " + player.name );
                         if( msg != null && msg != ""  ) {
                             Logger.Log( "{0} was kicked by {1}. Message: {2}", LogType.UserActivity, offender.name, player.name, msg );
                             offender.session.Kick( "Kicked by " + player.name + ": " + msg );
