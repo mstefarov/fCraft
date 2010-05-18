@@ -137,6 +137,7 @@ namespace fCraft {
             foreach( World world in worlds.Values ) {
                 AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ), world );
 
+
                 if( Config.GetInt( "SaveInterval" ) > 0 ) {
                     int saveInterval = Config.GetInt( "SaveInterval" ) * 1000;
                     saveMapTaskId = AddTask( SaveMap, saveInterval, world, saveInterval );
@@ -146,6 +147,8 @@ namespace fCraft {
                     int backupInterval = Config.GetInt( "BackupInterval" ) * 1000 * 60;
                     autoBackupTaskId = AddTask( AutoBackup, backupInterval, world, (Config.GetBool( "BackupOnStartup" ) ? 0 : backupInterval) );
                 }
+
+                AddTask(CheckIdles, 30000); // Check for idle people every 30 seconds
 
                 world.UpdatePlayerList();
             }
@@ -368,6 +371,19 @@ namespace fCraft {
             world.map.ProcessUpdates();
         }
 
+        static void CheckIdles(object param)
+        {
+            foreach (Player player in playerList)
+            {
+                if (player.info.playerClass.idleKickTimer != 0)
+                {
+                    if (DateTime.UtcNow.Subtract(player.Timer).TotalSeconds >= player.info.playerClass.idleKickTimer)
+                    {
+                        StandardCommands.Kick(Player.Console, new Command("kick " + player.name));
+                    }
+                }
+            }
+        }
 
         internal static int AddTask( TaskCallback task, int interval ) {
             return AddTask( task, interval, null, 0 );
