@@ -53,8 +53,6 @@ namespace fCraft
             {
                 // Initiate connection and bring the streams to life!
                 connection = new TcpClient(SERVER, PORT);
-                connection.SendTimeout = 10000;
-                connection.ReceiveTimeout = 10000;
                 stream = connection.GetStream();
                 reader = new StreamReader(stream);
                 writer = new StreamWriter(stream);
