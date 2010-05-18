@@ -143,7 +143,7 @@ namespace fCraft {
                                 newPos.r = reader.ReadByte();
                                 newPos.l = reader.ReadByte();
 
-                                if( newPos.h < 0 || newPos.x < -32 || newPos.x >= player.world.map.widthX * 32 + 32 || newPos.y < -32 || newPos.y > player.world.map.widthY * 32 + 32 ) {
+                                if( newPos.h < 0 /*|| newPos.x < -32 || newPos.x >= player.world.map.widthX * 32 + 32 || newPos.y < -32 || newPos.y > player.world.map.widthY * 32 + 32*/ ) {
                                     Logger.Log( player.name + " was kicked for moving out of map boundaries.", LogType.SuspiciousActivity );
                                     KickNow( "Hacking detected: out of map boundaries." );
                                     return;
@@ -378,6 +378,9 @@ namespace fCraft {
             World oldWorld = player.world;
             newWorld.AcceptPlayer( player );
             player.world = newWorld;
+            // Send spawn
+            player.pos = player.world.map.spawn;
+            writer.WriteAddEntity( 255, player.name, player.pos );
 
             // Start sending over the level copy
             writer.WriteLevelBegin();
@@ -408,10 +411,6 @@ namespace fCraft {
 
             // Done sending over level copy
             writer.Write( PacketWriter.MakeLevelEnd( player.world.map ) );
-
-            // Send spawn
-            player.pos = newWorld.map.spawn;
-            writer.WriteAddEntity( 255, player.name, player.pos );
 
             // Send player list
             player.world.SendPlayerList( player );
