@@ -155,7 +155,7 @@ namespace fCraft
                 Console.WriteLine(ex.ToString());
                 thread.Abort();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 if (doShutdown)
                 {

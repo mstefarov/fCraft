@@ -371,15 +371,16 @@ namespace fCraft {
             world.map.ProcessUpdates();
         }
 
-        static void CheckIdles(object param)
-        {
-            foreach (Player player in playerList)
-            {
-                if (player.info.playerClass.idleKickTimer != 0)
-                {
-                    if (DateTime.UtcNow.Subtract(player.Timer).TotalSeconds >= player.info.playerClass.idleKickTimer)
-                    {
-                        StandardCommands.Kick(Player.Console, new Command("kick " + player.name));
+        static void CheckIdles( object param ) {
+            Player[] tempPlayerList = playerList;
+            foreach( Player player in tempPlayerList ) {
+                if( player.info.playerClass.idleKickTimer > 0 ) {
+                    if( DateTime.UtcNow.Subtract( player.idleTimer ).TotalMinutes >= player.info.playerClass.idleKickTimer ) {
+                        StandardCommands.Kick( Player.Console, new Command( String.Format(
+                            "kick {0} Idle for {1} minutes.",
+                            player.name,
+                            player.info.playerClass.idleKickTimer ) ) );
+                        player.ResetIdleTimer();
                     }
                 }
             }
