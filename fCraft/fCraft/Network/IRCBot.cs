@@ -117,7 +117,7 @@ namespace fCraft
 
         public static void Start()
         {
-            thread = new Thread(IRCHandler);
+            thread = new Thread(MessageHandler);
             thread.IsBackground = true;
             thread.Start();
             try
@@ -140,7 +140,7 @@ namespace fCraft
             }
         }
 
-        static void IRCHandler()
+        static void MessageHandler()
         {
             try
             {
@@ -153,7 +153,7 @@ namespace fCraft
                     if (tempMsgStack.Count > 0)
                     {
                         foreach (IRCMessage message in tempMsgStack)
-                        { 
+                        {
                             IRCMessage newMessage = new IRCMessage();
                             // If it's a private message (the message target is the bot's nickname), start handling pm IRCCommands
                             if (message.to == NICK)
@@ -164,7 +164,7 @@ namespace fCraft
                                     // Put together all of the status variables from world and such
                                     string serverName = Config.GetString("ServerName");
                                     string MOTD = Config.GetString("MOTD");
-                                    string serverAddress = File.ReadAllText("externalurl.txt", ASCIIEncoding.ASCII);
+                                    string serverAddress = Config.ServerURL;
                                     int playersOnline = Server.GetPlayerCount();
                                     newMessage.chatMessage = message.nickname + ", you have requested a status update.";
                                     lpStack.Add(newMessage);
@@ -176,7 +176,7 @@ namespace fCraft
                                     lpStack.Add(newMessage);
                                     newMessage.chatMessage = "Players online: ** " + playersOnline.ToString() + " **";
                                     lpStack.Add(newMessage);
-                                    
+
                                     // This is broken for now
                                     //string[] playerList = GetPlayerListString().Split(',');
                                     //// List the players online if there are any
@@ -291,11 +291,11 @@ namespace fCraft
                                 Logger.Log(stringToServer, LogType.IRC);
                                 Server.SendToAll(stringToServer);
                             }
-                        
+
                             messageStack.Remove(message);
                         }
                         tempMsgStack.Clear();
-                    
+
                     }
                     if (doShutdown == true)
                     {
@@ -303,16 +303,18 @@ namespace fCraft
                     }
                 }
             }
-            catch (ThreadAbortException ex)
+            catch (ThreadAbortException tb)
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine(tb.ToString());
                 thread.Abort();
             }
             catch (Exception e)
             {
+                Logger.Log("IRC Message parser has crashed! It should recover now.",LogType.Error);
                 Console.WriteLine(e.ToString());
-                Thread.Sleep(10000);
-                IRCHandler();
+                messageStack.Clear();
+                Thread.Sleep(10);
+                MessageHandler();
             }
         }
 

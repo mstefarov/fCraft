@@ -156,9 +156,10 @@ namespace fCraft
             }
             catch (Exception e)
             {
+                Logger.Log("IRC Bot has been disconnected, it should recover now.", LogType.Error);
                 Console.WriteLine(e.ToString());
                 Thread.Sleep(10000);
-                //firstConnect = true;
+                firstConnect = true;
                 CommHandler();
             }
         }

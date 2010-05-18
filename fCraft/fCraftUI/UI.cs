@@ -22,7 +22,7 @@ namespace fCraftUI {
             FormClosing += HandleShutDown;
         }
 
-
+        
         void StartUp( object sender, EventArgs a ) {
             Server.OnLog += Log;
             Server.OnURLChange += SetURL;

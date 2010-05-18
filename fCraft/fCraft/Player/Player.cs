@@ -253,13 +253,29 @@ namespace fCraft {
                         displayedName = info.playerClass.color + displayedName + Color.White;
                     }
                     Server.SendToAll( displayedName + ": " + message, null );
-                    if (IRCBot.isOnline() && message.Contains("#"))
+
+                    // IRC Bot code for sending messages
+                    if (IRCBot.isOnline()) 
                     {
-                        IRCMessage newMsg = new IRCMessage();
-                        newMsg.chatMessage = "(MC)" + nick + " says: " + message.Substring(message.IndexOf("#") + 1);
-                        newMsg.destination = destination.Channels; 
-                        IRCBot.addLP(newMsg);
-                        IRCComm.Process();
+                        if (IRCComm.FORWARD_ALL)
+                        {
+                            IRCMessage newMsg = new IRCMessage();
+                            newMsg.chatMessage = "(MC)" + nick + " says: " + message.Substring(message.IndexOf("#") + 1);
+                            newMsg.destination = destination.Channels;
+                            IRCBot.addLP(newMsg);
+                            IRCComm.Process();
+                        }
+                        else
+                        {
+                            if(message.Contains("#"))
+                            {
+                                IRCMessage newMsg = new IRCMessage();
+                                newMsg.chatMessage = "(MC)" + nick + " says: " + message.Substring(message.IndexOf("#") + 1);
+                                newMsg.destination = destination.Channels;
+                                IRCBot.addLP(newMsg);
+                                IRCComm.Process();
+                            }
+                        }
                     }
                     Logger.Log( "{0}: {1}", LogType.WorldChat, name, message );
                     break;
