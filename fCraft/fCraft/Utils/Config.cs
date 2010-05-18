@@ -621,6 +621,7 @@ namespace fCraft {
             op.Add( new XElement( "Freeze" ) );
             op.Add( new XElement( "SetSpawn" ) );
             op.Add( new XElement( "ViewOthersInfo" ) );
+            op.Add( new XElement( "PlaceHardenedBlocks" ) );
             op.Add( new XElement( "PlaceAdmincrete" ) );
             op.Add( new XElement( "DeleteAdmincrete" ) );
             op.Add( new XElement( "PlaceGrass" ) );
@@ -671,6 +672,7 @@ namespace fCraft {
             owner.Add( new XElement( "ControlPhysics" ) );
             owner.Add( new XElement( "ManageZones" ) );
             owner.Add( new XElement( "ManageWorlds" ) );
+            owner.Add( new XElement( "PlaceHardenedBlocks" ) );
             owner.Add( new XElement( "Draw" ) );
             permissions.Add( owner );
             DefineClass( owner );
