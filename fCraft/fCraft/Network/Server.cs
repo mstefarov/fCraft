@@ -329,7 +329,7 @@ namespace fCraft {
         internal static void MainLoop() {
             while( continueMainLoop ) {
                 foreach( ScheduledTask task in updateTasks.Values ) {
-                    if( task.enabled && task.nextTime < DateTime.Now ) {
+                    if( task.enabled && task.nextTime < DateTime.UtcNow ) {
                         task.callback( task.param );
                         task.nextTime += TimeSpan.FromMilliseconds( task.interval );
                     }
@@ -379,7 +379,7 @@ namespace fCraft {
 
         internal static int AddTask( TaskCallback task, int interval, object param, int delay ) {
             ScheduledTask newTask = new ScheduledTask();
-            newTask.nextTime = DateTime.Now.AddMilliseconds( delay );
+            newTask.nextTime = DateTime.UtcNow.AddMilliseconds( delay );
             newTask.callback = task;
             newTask.interval = interval;
             newTask.param = param;
@@ -388,7 +388,7 @@ namespace fCraft {
         }
 
         internal static void TaskToggle( int id, bool enabled ) {
-            updateTasks[id].nextTime = DateTime.Now;
+            updateTasks[id].nextTime = DateTime.UtcNow;
             updateTasks[id].enabled = enabled;
         }
 
