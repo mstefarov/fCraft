@@ -28,12 +28,12 @@ namespace fCraft {
 
         internal static void ListWorlds( Player player, Command cmd ) {
             lock( Server.worldListLock ) {
-                string line = Color.Sys + "List of worlds: ";
+                string line = "List of worlds: ";
                 bool first = true;
                 foreach( string worldName in Server.worlds.Keys ) {
                     if( line.Length + worldName.Length > 62 ) {
                         player.Message( line );
-                        line = Color.Sys;
+                        line = "";
                     } else if(!first) {
                         line += ", ";
                     }
