@@ -118,6 +118,7 @@ namespace fCraft {
 
                             // Message
                             case InputCodes.Message:
+                                player.ResetIdleTimer();
                                 reader.ReadByte();
                                 string message = ReadString();
                                 if( Player.CheckForIllegalChars( message ) ) {
@@ -127,7 +128,6 @@ namespace fCraft {
                                     KickNow( "Illegal characters in chat." );
                                     return;
                                 } else {
-                                    player.UpdateActionTimer();
                                     player.ParseMessage( message, false );
                                 }
                                 break;
@@ -156,8 +156,8 @@ namespace fCraft {
                                     delta.Set( newPos.x - oldPos.x, newPos.y - oldPos.y, newPos.h - oldPos.h, newPos.r, newPos.l );
                                     posChanged = delta.x != 0 || delta.y != 0 || delta.h != 0;
                                     rotChanged = newPos.r != oldPos.r || newPos.l != oldPos.l;
-                                    if(rotChanged)
-                                        player.UpdateActionTimer();
+
+                                    if( rotChanged ) player.ResetIdleTimer();
 
                                     if( player.isFrozen ) {
                                         if( rotChanged ) {
@@ -191,7 +191,7 @@ namespace fCraft {
 
                             // Set tile
                             case InputCodes.SetTile:
-                                player.UpdateActionTimer();
+                                player.ResetIdleTimer();
                                 x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
                                 h = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
                                 y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
@@ -210,18 +210,18 @@ namespace fCraft {
                     }
                 }
 
-                } catch( ThreadAbortException ) {
-                    Logger.Log( "Session.IoLoop: Thread aborted!", LogType.Error );
+            } catch( ThreadAbortException ) {
+                Logger.Log( "Session.IoLoop: Thread aborted!", LogType.Error );
 
-                } catch( IOException ex ) {
-                    Logger.Log( "Session.IoLoop: {0}.", LogType.Warning, ex.Message );
+            } catch( IOException ex ) {
+                Logger.Log( "Session.IoLoop: {0}.", LogType.Warning, ex.Message );
 
-                } catch( SocketException ex ) {
-                    Logger.Log( "Session.IoLoop: {0}.", LogType.Warning, ex.Message );
+            } catch( SocketException ex ) {
+                Logger.Log( "Session.IoLoop: {0}.", LogType.Warning, ex.Message );
 #if DEBUG
 #else
-                } catch( Exception ex ) {
-                    Logger.Log( "Session.IoLoop: {0}: {1}.", LogType.Error, ex.ToString(), ex.Message );
+            } catch( Exception ex ) {
+                Logger.Log( "Session.IoLoop: {0}: {1}.", LogType.Error, ex.ToString(), ex.Message );
 #endif
             } finally {
                 canQueue = false;
@@ -313,9 +313,9 @@ namespace fCraft {
                         case "Never":
                             Logger.Log( "{0} IP matched previous records for that name. Player was allowed in.", LogType.SuspiciousActivity,
                                         standardMessage );
-                            player.Message( Color.Red,"Your name could not be verified." );
+                            player.Message( Color.Red, "Your name could not be verified." );
                             if( Config.GetBool( "AnnounceUnverifiedNames" ) ) {
-                                Server.SendToAll( Color.Red + "Name of " + player.name +" could not be verified, but IP matches.", player );
+                                Server.SendToAll( Color.Red + "Name of " + player.name + " could not be verified, but IP matches.", player );
                             }
                             break;
                     }

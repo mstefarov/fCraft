@@ -22,7 +22,7 @@ namespace fCraft {
         public static Player Console;
         internal World world;
         public string nick;
-        internal DateTime Timer = DateTime.UtcNow;
+        internal DateTime idleTimer = DateTime.UtcNow;
 
         const int maxRange = 6 * 32;
 
@@ -393,9 +393,9 @@ namespace fCraft {
             Message( Color.Red, "You do not have access to this command." );
         }
 
-        internal void UpdateActionTimer()
+        internal void ResetIdleTimer()
         {
-            Timer = DateTime.UtcNow;
+            idleTimer = DateTime.UtcNow;
         }
 
     }
