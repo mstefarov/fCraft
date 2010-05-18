@@ -409,15 +409,12 @@ namespace fCraft {
             // Done sending over level copy
             writer.Write( PacketWriter.MakeLevelEnd( player.world.map ) );
 
-            // Send playerlist and add player himself
+            // Send spawn
+            player.pos = newWorld.map.spawn;
             writer.WriteAddEntity( 255, player.name, player.pos );
-            player.world.SendPlayerList( player );
 
-            // if IRC Bot is online, send update to IRC bot
-            /*if (Server.ircbot.isOnline() == true) //TODO: IRC
-            {
-                Server.ircbot.SendMsgChannel( player.name + "(" + player.info.playerClass.name + ") has joined ** " + Config.GetString( "ServerName" ) + " **" );
-            }*/
+            // Send player list
+            player.world.SendPlayerList( player );
 
             if( Config.GetBool( "LowLatencyMode" ) ) {
                 client.NoDelay = true;
