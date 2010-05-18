@@ -363,8 +363,10 @@ namespace fCraft {
                 player.Message( "Welcome to " + Config.GetString( "ServerName" ) );
             }
 
-            player.Message( "Your player class is " + player.info.playerClass.color + player.info.playerClass.name + Color.Sys +
-                               ". Type /help for details." );
+            player.Message( String.Format( "Your player class is {0}{1}{2}. Type /help for details.",
+                                           player.info.playerClass.color,
+                                           player.info.playerClass.name,
+                                           Color.Sys ) );
         }
 
 
@@ -378,9 +380,6 @@ namespace fCraft {
             World oldWorld = player.world;
             newWorld.AcceptPlayer( player );
             player.world = newWorld;
-            // Send spawn
-            player.pos = player.world.map.spawn;
-            writer.WriteAddEntity( 255, player.name, player.pos );
 
             // Start sending over the level copy
             writer.WriteLevelBegin();
@@ -411,6 +410,10 @@ namespace fCraft {
 
             // Done sending over level copy
             writer.Write( PacketWriter.MakeLevelEnd( player.world.map ) );
+
+            // Send new spawn
+            player.pos = player.world.map.spawn;
+            writer.WriteAddEntity( 255, player.name, player.pos );
 
             // Send player list
             player.world.SendPlayerList( player );
