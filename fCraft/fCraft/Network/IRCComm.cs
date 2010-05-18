@@ -2,7 +2,7 @@
 // Uncomment this define to get IRC debugging data
 // WARNING: This is a lot of text.
 //#define DEBUG_IRC // This line will give you messages sent back/forth between the bot and server
-//#define DEBU_IRC_RAW // This line will show all raw server messages
+//#define DEBUG_IRC_RAW // This line will show all raw server messages
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -10,7 +10,6 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Collections.Generic;
-
 
 namespace fCraft
 {
@@ -195,14 +194,18 @@ namespace fCraft
                 foreach (IRCMessage msg in lpStack)
                 {
                     if (count == 4) Thread.Sleep(5000);
-                    SendPM(msg);
+                    if (msg.destination == destination.PM)
+                        SendPM(msg);
+                    else
+                        SendMsgChannels(msg);
+                    
                     IRCBot.rmLP(msg);
                 }
                 lpStack.Clear();
             }
         }
 
-        public static bool SendMsgChannels(ref IRCMessage message)
+        public static bool SendMsgChannels(IRCMessage message)
         {
             try
             {

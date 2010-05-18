@@ -65,7 +65,8 @@ namespace fCraft
 
     public enum destination
     {
-        IRC,
+        PM,
+        Channels,
         Server
     }
 
@@ -94,7 +95,8 @@ namespace fCraft
         private static string[] CHANNELS;
         private static string SERVERHOST;
         private static string BOTHOST;
-        private static string PREFIX;
+        private static string COMMA_PREFIX;
+        private static string COLON_PREFIX;
         private static bool FORWARD_ALL;
 
         public static Player fBot = new Player(null, "fBot");
@@ -128,7 +130,8 @@ namespace fCraft
                 CHANNELS = IRCComm.getChannels();
                 USER = IRCComm.getUser();
                 FORWARD_ALL = IRCComm.getForward();
-                PREFIX = NICK + ":";
+                COMMA_PREFIX = NICK + ":";
+                COLON_PREFIX = NICK + ",";
 
             }
             catch (Exception e)
@@ -370,9 +373,19 @@ namespace fCraft
                     {
                         if (newMsg.chatMessage != null)
                         {
-                            if (newMsg.chatMessage.IndexOf(PREFIX) != -1)
+                            if (newMsg.chatMessage.IndexOf(COMMA_PREFIX) != -1)
                             {
-                                newMsg.chatMessage = newMsg.chatMessage.Substring(newMsg.chatMessage.IndexOf(PREFIX) + PREFIX.Length).Trim();
+                                newMsg.chatMessage = newMsg.chatMessage.Substring(newMsg.chatMessage.IndexOf(COMMA_PREFIX) + COMMA_PREFIX.Length).Trim();
+                                newMsg.destination = destination.Server;
+                            }
+                            else if (newMsg.chatMessage.IndexOf(COLON_PREFIX) != -1)
+                            {
+                                newMsg.chatMessage = newMsg.chatMessage.Substring(newMsg.chatMessage.IndexOf(COLON_PREFIX) + COLON_PREFIX.Length).Trim();
+                                newMsg.destination = destination.Server;
+                            }
+                            else if (newMsg.chatMessage.IndexOf(NICK) != -1)
+                            {
+                                newMsg.chatMessage = newMsg.chatMessage.Substring(newMsg.chatMessage.IndexOf(NICK) + NICK.Length).Trim();
                                 newMsg.destination = destination.Server;
                             }
                         }
@@ -491,6 +504,16 @@ namespace fCraft
         public static void AddMessage( IRCMessage message)
         {
             messageStack.Add(message);
+        }
+
+        public static void addHP(IRCMessage msg)
+        {
+            lpStack.Add(msg);
+        }
+
+        public static void addLP(IRCMessage msg)
+        {
+            lpStack.Add(msg);
         }
 
         public static void rmLP(IRCMessage msg)
