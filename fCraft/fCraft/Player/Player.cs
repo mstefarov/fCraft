@@ -277,10 +277,13 @@ namespace fCraft {
                             if(message.Contains("#"))
                             {
                                 IRCMessage newMsg = new IRCMessage();
-                                newMsg.chatMessage = "(MC)" + nick + " says: " + message.Substring(message.IndexOf("#") + 1);
-                                newMsg.destination = destination.Channels;
-                                IRCBot.addLP(newMsg);
-                                IRCComm.Process();
+                                string tmpChat = message.Substring(message.IndexOf("#") + 1);
+                                if (tmpChat != "") {
+                                    newMsg.chatMessage = "(MC)" + nick + " says: " + tmpChat;
+                                    newMsg.destination = destination.Channels;
+                                    IRCBot.addLP(newMsg);
+                                    IRCComm.Process();
+                                }
                             }
                         }
                     }
