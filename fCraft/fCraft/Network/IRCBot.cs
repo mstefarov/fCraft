@@ -285,7 +285,7 @@ namespace fCraft
                                     newMessage.chatMessage = "Sorry, unreadable IRCCommand. Try typing '!help' for help.";
                                 }
                             }
-                            if (message.destination == destination.Server)
+                            if (message.destination == destination.Server && message.chatMessage != null || message.chatMessage != "")
                             {
                                 string stringToServer = "(IRC)" + message.nickname + ": " + message.chatMessage;
                                 Logger.Log(stringToServer, LogType.IRC);
