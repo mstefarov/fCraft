@@ -267,7 +267,7 @@ namespace fCraft {
                         if (IRCComm.FORWARD_ALL)
                         {
                             IRCMessage newMsg = new IRCMessage();
-                            newMsg.chatMessage = "(MC)" + nick + " says: " + message.Substring(message.IndexOf("#") + 1);
+                            newMsg.chatMessage = nick + ": " + message.Substring(message.IndexOf("#") + 1);
                             newMsg.destination = destination.Channels;
                             IRCBot.addLP(newMsg);
                             IRCComm.Process();
@@ -279,7 +279,7 @@ namespace fCraft {
                                 IRCMessage newMsg = new IRCMessage();
                                 string tmpChat = message.Substring(message.IndexOf("#") + 1);
                                 if (tmpChat != "") {
-                                    newMsg.chatMessage = "(MC)" + nick + " says: " + tmpChat;
+                                    newMsg.chatMessage = nick + ": " + tmpChat;
                                     newMsg.destination = destination.Channels;
                                     IRCBot.addLP(newMsg);
                                     IRCComm.Process();
