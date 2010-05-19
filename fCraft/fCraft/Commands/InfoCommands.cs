@@ -254,6 +254,16 @@ namespace fCraft {
                     player.Message( "     Toggles the water placement mode. When enabled, any " );
                     player.Message( "     cyan block you place is replaced with water." );
                     break;
+                case "worlds":
+                    player.Message(Color.Help, "/worlds");
+                    player.Message( "     List all available worlds that you can join.");
+                    break;
+                case "wload":
+                    player.Message(Color.Help, "/wload [Worldname]");
+                    player.Message( "     Create a world with the name [Worldname].");
+                    player.Message( "     To make a new customized world use:");
+                    player.Message( Color.Help + "      /gen x y h theme [name] then /wload [name]");
+                    break;
                 default:
                     player.Message( "To see detailed help about a command, use " + Color.Help + "/help command" );
                     player.Message( "To find out about your permissions, use " + Color.Help + "/class classname" );
@@ -264,7 +274,7 @@ namespace fCraft {
                     player.Message( Color.Help, "   ellipsoid, freeze, gen, genh, grass, help, hide, info," );
                     player.Message( Color.Help, "   kick, lava, load, lock, paint, roll, save, solid, tp," );
                     player.Message( Color.Help, "   unban, unbanall, undo, unfreeze, unhide, unlock, user," );
-                    player.Message( Color.Help, "   water, unbanall" );
+                    player.Message( Color.Help, "   unbanall, water, worlds, wload " );
                     //TODO: fetch an actual, current list of commands
                     break;
             }
