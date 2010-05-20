@@ -37,7 +37,7 @@ namespace fCraft {
         }
 
         public void Write( string data ) {
-            writer.Write( ASCIIEncoding.ASCII.GetBytes( data.PadRight( 64 ).Substring( 0, 64 ) ) );
+            writer.Write( Encoding.ASCII.GetBytes( data.PadRight( 64 ).Substring( 0, 64 ) ) );
         }
 
         public void Write( byte[] data ) {
@@ -99,8 +99,8 @@ namespace fCraft {
             Packet packet = new Packet( 131 );
             packet.data[0] = (byte)OutputCodes.Handshake;
             packet.data[1] = (byte)Config.ProtocolVersion;
-            ASCIIEncoding.ASCII.GetBytes( Config.GetString( "ServerName" ).PadRight( 64 ), 0, 64, packet.data, 2 );
-            ASCIIEncoding.ASCII.GetBytes( Config.GetString( "MOTD" ).PadRight( 64 ), 0, 64, packet.data, 66 );
+            Encoding.ASCII.GetBytes( Config.GetString( "ServerName" ).PadRight( 64 ), 0, 64, packet.data, 2 );
+            Encoding.ASCII.GetBytes( Config.GetString( "MOTD" ).PadRight( 64 ), 0, 64, packet.data, 66 );
             packet.data[130] = (byte)player.GetOPPacketCode();
             return packet;
         }
@@ -119,7 +119,7 @@ namespace fCraft {
             Packet packet = new Packet( 66 );
             packet.data[0] = (byte)OutputCodes.Message;
             packet.data[1] = 0;
-            ASCIIEncoding.ASCII.GetBytes( message.PadRight( 64 ), 0, 64, packet.data, 2 );
+            Encoding.ASCII.GetBytes( message.PadRight( 64 ), 0, 64, packet.data, 2 );
             return packet;
         }
 
@@ -127,7 +127,7 @@ namespace fCraft {
             Packet packet = new Packet( 74 );
             packet.data[0] = (byte)OutputCodes.AddEntity;
             packet.data[1] = (byte)player.id;
-            ASCIIEncoding.ASCII.GetBytes( player.GetListName().PadRight( 64 ), 0, 64, packet.data, 2 );
+            Encoding.ASCII.GetBytes( player.GetListName().PadRight( 64 ), 0, 64, packet.data, 2 );
             ToNetOrder( pos.x, packet.data, 66 );
             ToNetOrder( pos.h, packet.data, 68 );
             ToNetOrder( pos.y, packet.data, 70 );
@@ -139,7 +139,7 @@ namespace fCraft {
         internal static Packet MakeDisconnect( string reason ) {
             Packet packet = new Packet( 65 );
             packet.data[0] = (byte)OutputCodes.Disconnect;
-            ASCIIEncoding.ASCII.GetBytes( reason.PadRight( 64 ), 0, 64, packet.data, 1 );
+            Encoding.ASCII.GetBytes( reason.PadRight( 64 ), 0, 64, packet.data, 1 );
             return packet;
         }
 

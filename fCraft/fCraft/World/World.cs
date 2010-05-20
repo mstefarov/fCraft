@@ -66,7 +66,7 @@ namespace fCraft {
             }
             //UpdatePlayerList();
             if( Config.GetBool( "BackupOnJoin" ) ) {
-                map.SaveBackup( String.Format( "backups/{0}_{1:yyyy-MM-dd HH-mm}_{2}.fcm", name, DateTime.Now, player.name ) );
+                map.SaveBackup( GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-dd HH-mm}_{2}.fcm", name, DateTime.Now, player.name ) );
             }
 
             // Reveal newcommer to existing players
@@ -96,11 +96,10 @@ namespace fCraft {
 
 
         public void LoadMap() {
-            string mapName = name + ".fcm";
             try {
-                map = Map.Load( this, mapName );
+                map = Map.Load( this, GetMapName() );
             } catch( Exception ex ) {
-                Logger.Log( "Could not open the specified file ({0}): {1}", LogType.Error, mapName, ex.Message );
+                Logger.Log( "Could not open the specified file ({0}): {1}", LogType.Error, GetMapName(), ex.Message );
             }
 
             // or generate a default one
@@ -125,6 +124,10 @@ namespace fCraft {
             }
             if( OnUnloaded != null ) OnUnloaded();
             GC.Collect();
+        }
+
+        public string GetMapName() {
+            return name + ".fcm";
         }
 
         // Warning: do NOT call this from Tasks threads
@@ -284,7 +287,7 @@ namespace fCraft {
         public void SaveMap( object param ) {
             lock( mapLock ) {
                 if( map != null ) {
-                    map.Save( name + ".fcm" );
+                    map.Save( GetMapName() );
                 }
             }
         }
