@@ -128,7 +128,7 @@ namespace fCraft
                                     foreach(string channel in CHANNELS)
                                         ircConnected += " | " + channel;
                                     Logger.Log(ircConnected, LogType.IRC);
-                                    Logger.Log("** Remember ** IRC Channel names are case sensitive,\n double check your config if things aren't working proper!",LogType.IRC);
+                                    //Logger.Log("** Remember ** IRC Channel names are case sensitive,\n double check your config if things aren't working proper!",LogType.IRC);
                                     
                                     firstConnect = false;
                                     online = true;
@@ -140,12 +140,10 @@ namespace fCraft
                                 IRCMessage message = new IRCMessage();
                                 IRCBot.parseMsg(ref message, msg);
                                 // Parse the message for something useful (commands, etc)
-                                if (message.chatMessage != null)
+                                if (message.chatMessage != null && message.chatMessage != "")
                                     IRCBot.AddMessage(message);
                             }
                         }
-
-
                         Thread.Sleep(100);
                     } while (stream.DataAvailable);
                 }
@@ -155,7 +153,7 @@ namespace fCraft
                 Console.WriteLine(ex.ToString());
                 thread.Abort();
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 if (doShutdown)
                 {
