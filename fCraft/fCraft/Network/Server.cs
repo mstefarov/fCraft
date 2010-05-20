@@ -354,7 +354,7 @@ namespace fCraft {
         static void AutoBackup( object param ) {
             World world = (World)param;
             if( world.map == null ) return;
-            world.map.SaveBackup( String.Format( "backups/{0}_{1:yyyy-MM-ddTHH-mm}.fcm", world.name, DateTime.Now ) );
+            world.map.SaveBackup( world.GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-ddTHH-mm}.fcm", world.name, DateTime.Now ) );
         }
 
         static void SaveMap( object param ) {

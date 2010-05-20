@@ -9,7 +9,6 @@ using System.Text;
 namespace fCraft {
     public sealed class Map {
         static Dictionary<string, Block> blockNames = new Dictionary<string, Block>();
-        public const string DefaultFileName = "map.fcm";
         World world;
 
         public static void Init() {
@@ -23,15 +22,27 @@ namespace fCraft {
             blockNames["empty"] = Block.Air;
 
             blockNames["soil"] = Block.Dirt;
+            blockNames["stones"] = Block.Rocks;
             blockNames["cobblestone"] = Block.Rocks;
+            blockNames["plank"] = Block.Wood;
+            blockNames["planks"] = Block.Wood;
+            blockNames["board"] = Block.Wood;
+            blockNames["boards"] = Block.Wood;
+            blockNames["tree"] = Block.Plant;
             blockNames["sappling"] = Block.Plant;
             blockNames["adminium"] = Block.Admincrete;
+            blockNames["opcrete"] = Block.Admincrete;
             blockNames["ore"] = Block.IronOre;
+            blockNames["coals"] = Block.Coal;
             blockNames["coalore"] = Block.Coal;
+            blockNames["blackore"] = Block.Coal;
 
             blockNames["trunk"] = Block.Log;
+            blockNames["stump"] = Block.Log;
+            blockNames["treestump"] = Block.Log;
             blockNames["treetrunk"] = Block.Log;
 
+            blockNames["leaf"] = Block.Leaves;
             blockNames["foliage"] = Block.Leaves;
             blockNames["grey"] = Block.Gray;
             blockNames["flower"] = Block.YellowFlower;
@@ -48,6 +59,7 @@ namespace fCraft {
             blockNames["stairs"] = Block.DoubleStair;
 
             blockNames["bricks"] = Block.Brick;
+            blockNames["explosive"] = Block.TNT;
             blockNames["dynamite"] = Block.TNT;
 
             blockNames["bookcase"] = Block.Books;
@@ -59,11 +71,9 @@ namespace fCraft {
 
             blockNames["moss"] = Block.MossyRocks;
             blockNames["mossy"] = Block.MossyRocks;
+            blockNames["mossyrock"] = Block.MossyRocks;
             blockNames["mossystone"] = Block.MossyRocks;
             blockNames["mossystones"] = Block.MossyRocks;
-            blockNames["mossycobblestone"] = Block.MossyRocks;
-
-            blockNames["dark"] = Block.Obsidian;
         }
 
         internal static Block GetBlockByName( string block ) {
@@ -495,13 +505,13 @@ namespace fCraft {
         }
 
 
-        public void SaveBackup( string fileName ) {
+        public void SaveBackup( string sourceName, string targetName ) {
             if( changesSinceBackup == 0 && Config.GetBool( "BackupOnlyWhenChanged" ) ) return;
             if( !Directory.Exists( "backups" ) ) {
                 Directory.CreateDirectory( "backups" );
             }
             changesSinceBackup = 0;
-            File.Copy( DefaultFileName, fileName, true );
+            File.Copy( sourceName, targetName, true );
             FileInfo[] info = new DirectoryInfo( "backups" ).GetFiles();
             Array.Sort<FileInfo>( info, FileInfoComparer.instance );
             Queue<string> files = new Queue<string>();
@@ -515,7 +525,7 @@ namespace fCraft {
                     File.Delete( "backups/" + files.Dequeue() );
                 }
             }
-            Logger.Log( "AutoBackup: " + fileName, LogType.SystemActivity );
+            Logger.Log( "AutoBackup: " + targetName, LogType.SystemActivity );
         }
 
 
