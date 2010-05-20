@@ -346,6 +346,16 @@ namespace fCraft
                     else
                         Console.WriteLine("*** ERROR: BOTHOST was empty, this means it couldn't parse a host! ***");
                 }
+                // Need this line to grab the bot's hostname to respond to pings
+            }else if(input.Contains("JOIN")){
+                Regex exp = new Regex(@"^:([^!]+)!([^@]*)@([^ ]+) ([A-Z]+) :(#?[^ ]+)$");
+                MatchCollection matches = exp.Matches(input);
+                foreach (Match match in matches)
+                {
+                    GroupCollection tmpGroup = match.Groups;
+                    BOTHOST = tmpGroup[3].ToString();
+                }
+
             }
             else
             {
@@ -361,7 +371,11 @@ namespace fCraft
                     newMsg.host = tmpGroup[3].ToString();
                     newMsg.type = tmpGroup[4].ToString();
                     newMsg.to = tmpGroup[5].ToString();
-                    newMsg.chatMessage = tmpGroup[6].ToString();
+                    newMsg.chatMessage = tmpGroup[6].ToString().Trim();
+                    if (newMsg.type == "MODE" || newMsg.type == "NOTICE") {
+                        newMsg.chatMessage = null;
+                        return;
+                    }
                 }
 
                 foreach (string channel in CHANNELS)
@@ -373,7 +387,7 @@ namespace fCraft
                     }
                     else
                     {
-                        if (newMsg.chatMessage != null)
+                        if (newMsg.chatMessage != null && newMsg.chatMessage != "")
                         {
                             if (newMsg.chatMessage.IndexOf(COMMA_PREFIX) != -1)
                             {
