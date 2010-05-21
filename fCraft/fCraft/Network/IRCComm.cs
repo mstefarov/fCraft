@@ -153,13 +153,13 @@ namespace fCraft
                 Console.WriteLine(ex.ToString());
                 thread.Abort();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 if (doShutdown)
                 {
                     return;
                 }
-                Logger.Log("IRC Bot has been disconnected, it should recover now.", LogType.Error);
+                Logger.Log("IRC Bot has been disconnected, trying to restart: "+ex.Message, LogType.Error);
 
 #if DEBUG_IRC_RAW
                 Console.WriteLine(e.ToString());

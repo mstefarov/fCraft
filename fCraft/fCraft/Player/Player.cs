@@ -97,6 +97,11 @@ namespace fCraft {
 
             if( CheckBlockSpam() ) return;
 
+            if( world.locked ) {
+                SendTileNow( x, y, h );
+                return;
+            }
+
             /*if( world.lockDown ) { //TODO: streamload
                 session.SendNow( PacketWriter.MakeSetBlock( x, y, h, world.map.GetBlock( x, y, h ) ) );
                 Message( "Map is temporarily locked. Please wait." );
@@ -107,7 +112,7 @@ namespace fCraft {
             if( Math.Abs( x * 32 - pos.x ) > maxRange ||
                 Math.Abs( y * 32 - pos.y ) > maxRange ||
                 Math.Abs( h * 32 - pos.h ) > maxRange ) {
-                session.SendNow( PacketWriter.MakeSetBlock( x, y, h, world.map.GetBlock( x, y, h ) ) );
+                SendTileNow( x, y, h );
                 return;
             }
 
@@ -115,14 +120,14 @@ namespace fCraft {
             string zoneName = "";
             if( world.map.CheckZones( x, y, h, this, ref zoneOverride, ref zoneName ) ) {
                 if( !zoneOverride ) {
-                    session.SendNow( PacketWriter.MakeSetBlock( x, y, h, world.map.GetBlock( x, y, h ) ) );
+                    SendTileNow( x, y, h );
                     Message( "You are not allowed to build in \""+zoneName+"\" zone." );
                 }
             }
 
             // action block handling
             if( marksExpected > 0 ) {
-                session.SendNow( PacketWriter.MakeSetBlock( x, y, h, world.map.GetBlock( x, y, h ) ) );
+                SendTileNow( x, y, h );
                 marks.Push( new Position( x, y, h ) );
                 markCount++;
                 if( markCount >= marksExpected ) {
@@ -191,23 +196,37 @@ namespace fCraft {
 
             // if all is well, try placing it
             if( can ) {
-
+                BlockUpdate blockUpdate;
                 if( type == Block.Stair && h>0 && world.map.GetBlock( x, y, h - 1 ) == (byte)Block.Stair ) {
+                    blockUpdate = new BlockUpdate( this, x, y, h - 1, (byte)Block.DoubleStair );
+                    if( !world.FireChangedBlockEvent( ref blockUpdate ) ) {
+                        SendTileNow( x, y, h );
+                        return;
+                    }
+                    world.map.QueueUpdate( blockUpdate );
                     session.SendNow( PacketWriter.MakeSetBlock( x, y, h - 1, (byte)Block.DoubleStair ) );
                     session.SendNow( PacketWriter.MakeSetBlock( x, y, h, (byte)Block.Air ) );
-                    world.map.QueueUpdate( new BlockUpdate( this, x, y, h - 1, (byte)Block.DoubleStair ) );
                 }else{
-                    world.map.QueueUpdate( new BlockUpdate( this, x, y, h, (byte)type ) );
+                    blockUpdate = new BlockUpdate( this, x, y, h, (byte)type );
+                    if( !world.FireChangedBlockEvent( ref blockUpdate ) ) {
+                        SendTileNow( x, y, h );
+                        return;
+                    }
+                    world.map.QueueUpdate( blockUpdate );
                     if( update || replaceMode ) {
                         session.SendNow( PacketWriter.MakeSetBlock( x, y, h, (byte)type ) );
                     }
                 }
             } else {
                 Message( Color.Red, "You are not permitted to do that." );
-                session.SendNow( PacketWriter.MakeSetBlock( x, y, h, world.map.GetBlock( x, y, h ) ) );
+                SendTileNow( x, y, h );
             }
         }
 
+
+        void SendTileNow( short x, short y, short h ) {
+            session.SendNow( PacketWriter.MakeSetBlock( x, y, h, world.map.GetBlock( x, y, h ) ) );
+        }
 
         bool CheckChatSpam() {
             if( spamChatLog.Count >= spamChatCount ) {
@@ -248,6 +267,7 @@ namespace fCraft {
         // Parses message incoming from the player
         public void ParseMessage( string message, bool fromConsole ) {
             if( DateTime.Now < mutedUntil ) return;
+            if( !world.FireSentMessageEvent( this, ref message ) ) return;
             switch( Commands.GetMessageType( message ) ) {
                 case MessageType.Chat:
                     if( CheckChatSpam() ) return;

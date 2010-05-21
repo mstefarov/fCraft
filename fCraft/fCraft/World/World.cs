@@ -30,22 +30,18 @@ using System.Text;
 namespace fCraft {
 
     public sealed class World {
-        public event SimpleEventHandler OnLoaded;
-        public event SimpleEventHandler OnUnloaded;
-        public event WorldJoinedEventHandler OnPlayerJoined;
-        public event WorldLeftEventHandler OnPlayerLeft;
-
+        
         public Map map;
         public string name;
         public Dictionary<int, Player> players = new Dictionary<int, Player>();
         public Player[] playerList;
+        public bool locked;
 
         object playerListLock = new object(),
                mapLock = new object();
 
         public bool neverUnload = false;
 
-        //internal bool requestLockDown, lockDown, lockDownReady; //TODO: lock
         //internal bool loadInProgress, loadSendingInProgress, loadProgressReported;
         //internal int totalBlockUpdates, completedBlockUpdates; //TODO: streamload
 
@@ -54,46 +50,16 @@ namespace fCraft {
             name = _name;
         }
 
-        public void AcceptPlayer( Player player ) {
-            lock( playerListLock ) {
-                lock( mapLock ) {
-                    if( map == null ) {
-                        LoadMap();
-                    }
+        // Prepare for shutdown
+        public void Shutdown() {
+            lock( mapLock ) {
+                if( Config.GetBool( "SaveOnShutdown" ) && map != null ) {
+                    SaveMap( null );
                 }
-                players.Add( player.id, player );
-                UpdatePlayerList();
-            }
-            //UpdatePlayerList();
-            if( Config.GetBool( "BackupOnJoin" ) ) {
-                map.SaveBackup( GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-dd HH-mm}_{2}.fcm", name, DateTime.Now, player.name ) );
-            }
-
-            // Reveal newcommer to existing players
-            Logger.Log( "Player {0} joined \"{1}\".", LogType.UserActivity, player.name, name );
-
-            if( !player.isHidden ) {
-                SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
-                Server.SendToAll( String.Format("{0}Player {1} joined \"{2}\".", Color.Sys, player.name, name ), player );
-            }
-
-            if( OnPlayerJoined != null ) OnPlayerJoined( player, this );
-        }
-
-        public void ReleasePlayer( Player player ) {
-            lock( playerListLock ) {
-                players.Remove( player.id );
-                UpdatePlayerList();
-                if( players.Count == 0 && !neverUnload ) {
-                    lock( mapLock ) {
-                        UnloadMap();
-                    }
-                }
-                if( OnPlayerLeft != null ) OnPlayerLeft( player, this );
-                SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
             }
         }
 
+        #region Map
 
         public void LoadMap() {
             try {
@@ -117,6 +83,7 @@ namespace fCraft {
             if( OnLoaded != null ) OnLoaded();
         }
 
+
         public void UnloadMap() {
             lock( mapLock ) {
                 SaveMap( null );
@@ -126,30 +93,81 @@ namespace fCraft {
             GC.Collect();
         }
 
+
         public string GetMapName() {
             return name + ".fcm";
         }
 
-        // Warning: do NOT call this from Tasks threads
-        /*internal void BeginLockDown() { //TODO: lockdown
-            requestLockDown = true;
-            if( Thread.CurrentThread == mainThread ) {
-                lockDown = true;
-                Tasks.Restart();
-                requestLockDown = false;
-                Thread.Sleep( 100 ); // buffer time for all threads to catch up
-                map.ClearUpdateQueue();
-                lockDownReady = true;
-            } else {
-                while( !lockDownReady ) Thread.Sleep( 1 );
+
+        public void SaveMap( object param ) {
+            lock( mapLock ) {
+                if( map != null ) {
+                    map.Save( GetMapName() );
+                }
             }
         }
 
-        internal void EndLockDown() {
-            lockDownReady = false;
-            lockDown = false;
-        }*/
 
+        public void Lock() {
+            locked = true;
+            if(map!=null) map.ClearUpdateQueue();
+            SendToAll( Color.Red + "Map is now on lockdown!" );
+        }
+
+
+        public void Unlock() {
+            locked = false;
+            SendToAll( "Map lockdown has ended." );
+        }
+
+        #endregion
+
+        #region PlayerList
+
+        public void AcceptPlayer( Player player ) {
+            lock( playerListLock ) {
+                lock( mapLock ) {
+                    if( map == null ) {
+                        LoadMap();
+                    }
+                }
+                players.Add( player.id, player );
+                UpdatePlayerList();
+            }
+            //UpdatePlayerList();
+            if( Config.GetBool( "BackupOnJoin" ) ) {
+                map.SaveBackup( GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-dd HH-mm}_{2}.fcm", name, DateTime.Now, player.name ) );
+            }
+
+            // Reveal newcommer to existing players
+            Logger.Log( "Player {0} joined \"{1}\".", LogType.UserActivity, player.name, name );
+
+            if( !player.isHidden ) {
+                SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
+                Server.SendToAll( String.Format( "{0}Player {1} joined \"{2}\".", Color.Sys, player.name, name ), player );
+            }
+
+            if( OnPlayerJoined != null ) OnPlayerJoined( player, this );
+
+            if( locked ) {
+                player.Message( Color.Red, "This map is currently locked." );
+            }
+        }
+
+
+        public void ReleasePlayer( Player player ) {
+            lock( playerListLock ) {
+                players.Remove( player.id );
+                UpdatePlayerList();
+                if( players.Count == 0 && !neverUnload ) {
+                    lock( mapLock ) {
+                        UnloadMap();
+                    }
+                }
+                if( OnPlayerLeft != null ) OnPlayerLeft( player, this );
+                SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
+            }
+        }
 
 
         // Send a list of players to the specified new player
@@ -163,6 +181,7 @@ namespace fCraft {
         }
 
 
+        // re-adds player entity, in case of name or color change
         internal void UpdatePlayer( Player updatedPlayer ) {
             Player[] tempList = playerList;
             for( int i = 1; i < tempList.Length; i++ ) {
@@ -220,23 +239,27 @@ namespace fCraft {
         }
 
 
-        // Disconnect all players
-        public void Shutdown() {
-            lock( mapLock ) {
-                if( Config.GetBool( "SaveOnShutdown" ) && map != null ) {
-                    SaveMap( null );
+        // Cache the player list to an array (players -> playerList)
+        public void UpdatePlayerList() {
+            lock( playerListLock ) {
+                Player[] newPlayerList = new Player[players.Count];
+                int i = 0;
+                foreach( Player player in players.Values ) {
+                    newPlayerList[i++] = player;
                 }
+                playerList = newPlayerList;
             }
         }
 
+        #endregion
 
-        // === Messaging ======================================================
-
-        // Broadcast
+        #region Communication
 
         public void SendToAll( Packet packet ) {
             SendToAll( packet, null );
         }
+
+
         public void SendToAll( Packet packet, Player except ) {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -245,6 +268,8 @@ namespace fCraft {
                 }
             }
         }
+
+
         public void SendToAllDelayed( Packet packet, Player except ) {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -253,14 +278,52 @@ namespace fCraft {
                 }
             }
         }
+
+
         public void SendToAll( string message ) {
             SendToAll( PacketWriter.MakeMessage( message ), null );
         }
+
+
         public void SendToAll( string message, Player except ) {
             SendToAll( PacketWriter.MakeMessage( message ), except );
         }
 
+        #endregion
 
+        #region Events
+        public event SimpleEventHandler OnLoaded;
+        public event SimpleEventHandler OnUnloaded;
+        public event PlayerJoinedWorldEventHandler OnPlayerJoined;
+        public event PlayerTriedToJoinWorldEventHandler OnPlayerTriedToJoin;
+        public event PlayerLeftWorldEventHandler OnPlayerLeft;
+        public event PlayerChangedBlockEventHandler OnPlayerChangedBlock;
+        public event PlayerSentMessageEventHandler OnPlayerSentMessage;
+
+        public bool FireChangedBlockEvent( ref BlockUpdate update ) {
+            bool cancel = false;
+            if( OnPlayerChangedBlock != null ) {
+                OnPlayerChangedBlock( this, ref update, ref cancel );
+            }
+            return !cancel;
+        }
+
+        public bool FireSentMessageEvent( Player player, ref string message ) {
+            bool cancel = false;
+            if( OnPlayerSentMessage != null ) {
+                OnPlayerSentMessage( player, this, ref message, ref cancel );
+            }
+            return !cancel;
+        }
+
+        public bool FirePlayerTriedToJoinEvent( Player player ) {
+            bool cancel = false;
+            if( OnPlayerTriedToJoin != null ) {
+                OnPlayerTriedToJoin( player, this, ref cancel );
+            }
+            return !cancel;
+        }
+        #endregion
 
         /*
         public void UpdatePlayerList() { //TODO
@@ -273,23 +336,5 @@ namespace fCraft {
             //Server.FirePlayerListChange( playerList.ToArray() ); //TODO
         }*/
 
-        public void UpdatePlayerList() {
-            lock( playerListLock ) {
-                Player[] newPlayerList = new Player[players.Count];
-                int i = 0;
-                foreach( Player player in players.Values ) {
-                    newPlayerList[i++] = player;
-                }
-                playerList = newPlayerList;
-            }
-        }
-
-        public void SaveMap( object param ) {
-            lock( mapLock ) {
-                if( map != null ) {
-                    map.Save( GetMapName() );
-                }
-            }
-        }
     }
 }

@@ -120,7 +120,7 @@ namespace fCraft {
             serverStart = DateTime.Now;
 
             // list loaded worlds
-            string line = "Loaded worlds: ";
+            string line = "Available worlds: ";
             bool firstPrintedWorld = true;
             foreach( string worldName in Server.worlds.Keys ) {
                 if( !firstPrintedWorld ) {
@@ -228,6 +228,19 @@ namespace fCraft {
         }
 
 
+        public static World FindWorld( string name ) {
+            if( name == null ) return null;
+            lock( worldListLock ) {
+                foreach( World world in worlds.Values ) {
+                    if( world.name.ToLowerInvariant() == name.ToLowerInvariant() ) {
+                        return world;
+                    }
+                }
+            }
+            return null;
+        }
+
+
         #region Networking
         public static void SendToAllDelayed( Packet packet, Player except ) {
             Player[] tempList = playerList;
@@ -276,7 +289,7 @@ namespace fCraft {
                 }
             }
             for( int i = 0; i < sessions.Count; i++ ) {
-                if( OnPlayerDisconnect != null ) OnPlayerDisconnect( sessions[i] );
+                if( OnPlayerDisconnected != null ) OnPlayerDisconnected( sessions[i] );
                 if( sessions[i].canDispose ) {
                     sessions[i].Disconnect();
                     sessions.RemoveAt( i );
@@ -293,13 +306,13 @@ namespace fCraft {
         // events
         public static event SimpleEventHandler OnInit;
         public static event SimpleEventHandler OnStart;
-        public static event ConnectionEventHandler OnPlayerConnect;
-        public static event ConnectionEventHandler OnPlayerDisconnect;
-        public static event PlayerClassChangeEventHandler OnPlayerClassChange;
-        public static event MessageEventHandler OnURLChange;
+        public static event PlayerConnectedEventHandler OnPlayerConnected;
+        public static event PlayerDisconnectedEventHandler OnPlayerDisconnected;
+        public static event PlayerChangedClassEventHandler OnPlayerClassChanged;
+        public static event URLChangeEventHandler OnURLChange;
         public static event SimpleEventHandler OnShutdownStart;
         public static event SimpleEventHandler OnShutdownEnd;
-        public static event WorldChangedEventHandler OnWorldChanged;
+        public static event PlayerChangedWorldEventHandler OnWorldChanged;
         public static event LogEventHandler OnLog;
 
         internal static void FireURLChangeEvent( string URL ) {
@@ -308,11 +321,15 @@ namespace fCraft {
         internal static void FireLogEvent( string message, LogType type ) {
             if( OnLog != null ) OnLog( message, type );
         }
-        internal static void FirePlayerConnectEvent( Session session ) {
-            if( OnPlayerConnect != null ) OnPlayerConnect( session );
+        internal static bool FirePlayerConnectedEvent( Session session ) {
+            bool cancel = false;
+            if( OnPlayerConnected != null ) OnPlayerConnected( session, ref cancel );
+            return !cancel;
         }
-        internal static void FirePlayerClassChange( Player target, Player player, PlayerClass oldClass, PlayerClass newClass ) {
-            if( OnPlayerClassChange != null ) OnPlayerClassChange( target, player, oldClass, newClass );
+        internal static bool FirePlayerClassChange( Player target, Player player, PlayerClass oldClass, PlayerClass newClass ) {
+            bool cancel = false;
+            if( OnPlayerClassChanged != null ) OnPlayerClassChanged( target, player, oldClass, newClass, ref cancel );
+            return !cancel;
         }
         internal static void FireWorldChangedEvent( Player player, World oldWorld, World newWorld ) {
             if( OnWorldChanged != null ) OnWorldChanged( player, oldWorld, newWorld );

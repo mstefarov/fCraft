@@ -3,7 +3,7 @@ using System;
 
 
 namespace fCraft {
-    struct BlockUpdate {
+    public struct BlockUpdate {
         public Player origin;
         public int x, y, h;
         public byte type; 

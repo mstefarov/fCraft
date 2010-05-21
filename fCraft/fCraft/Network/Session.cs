@@ -349,12 +349,12 @@ namespace fCraft {
             }
 
             player.info.ProcessLogin( player );
-            Server.FirePlayerConnectEvent( this );
+            Server.FirePlayerConnectedEvent( this );
 
             // Player is now authenticated. Send server info.
-            writer.Write( PacketWriter.MakeHandshake( player.world, player ) );
+            writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( "ServerName" ), Config.GetString( "MOTD" ) ) );
 
-            JoinWorld( player.world );
+            JoinWorld( player.world, false );
 
             // Welcome message
             if( player.info.timesVisited > 1 ) {
@@ -370,7 +370,12 @@ namespace fCraft {
         }
 
 
-        public void JoinWorld( World newWorld ) {
+        public void JoinWorld( World newWorld, bool useHandshakePacket ) {
+
+            if( !newWorld.FirePlayerTriedToJoinEvent( player ) ) {
+                return;
+            }
+
             lock( queueLock ) {
                 outputQueue.Clear();
             }
@@ -382,6 +387,9 @@ namespace fCraft {
             player.world = newWorld;
 
             // Start sending over the level copy
+            if( useHandshakePacket ) {
+                writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( "ServerName" ), "Loading world \"" + newWorld.name + "\"" ) );
+            }
             writer.WriteLevelBegin();
             byte[] buffer = new byte[1024];
             int bytesSent = 0;

@@ -344,9 +344,11 @@ namespace fCraft {
 
             if( promote && target.info.playerClass.rank < newClass.rank ||
                 target.info.playerClass.rank > newClass.rank ) {
+                PlayerClass oldClass = target.info.playerClass;
+                if( !Server.FirePlayerClassChange( target, player, oldClass, newClass ) ) return;
+
                 Logger.Log( "{0} changed the class of {1} from {2} to {3}.", LogType.UserActivity, 
                             player.name, target.info.name, target.info.playerClass.name, newClass.name );
-                PlayerClass oldClass = target.info.playerClass;
                 target.info.playerClass = newClass;
                 target.info.classChangeDate = DateTime.Now;
                 target.info.classChangedBy = player.name;
@@ -364,9 +366,6 @@ namespace fCraft {
                 if( Config.GetBool( "ClassPrefixesInList" ) || Config.GetBool( "ClassColorsInChat" ) ) {
                     target.world.UpdatePlayer( target );
                 }
-
-                Server.FirePlayerClassChange( target, player, oldClass, newClass );
-                
             } else {
                 if( promote ) {
                     player.Message( target.name + " is already same or lower rank than " + newClass.name );
