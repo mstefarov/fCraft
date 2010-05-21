@@ -309,14 +309,14 @@ namespace fCraft {
         public static event PlayerConnectedEventHandler OnPlayerConnected;
         public static event PlayerDisconnectedEventHandler OnPlayerDisconnected;
         public static event PlayerChangedClassEventHandler OnPlayerClassChanged;
-        public static event URLChangeEventHandler OnURLChange;
+        public static event URLChangeEventHandler OnURLChanged;
         public static event SimpleEventHandler OnShutdownStart;
         public static event SimpleEventHandler OnShutdownEnd;
-        public static event PlayerChangedWorldEventHandler OnWorldChanged;
+        public static event PlayerChangedWorldEventHandler OnPlayerChangedWorld;
         public static event LogEventHandler OnLog;
 
         internal static void FireURLChangeEvent( string URL ) {
-            if( OnURLChange != null ) OnURLChange( URL );
+            if( OnURLChanged != null ) OnURLChanged( URL );
         }
         internal static void FireLogEvent( string message, LogType type ) {
             if( OnLog != null ) OnLog( message, type );
@@ -332,7 +332,7 @@ namespace fCraft {
             return !cancel;
         }
         internal static void FireWorldChangedEvent( Player player, World oldWorld, World newWorld ) {
-            if( OnWorldChanged != null ) OnWorldChanged( player, oldWorld, newWorld );
+            if( OnPlayerChangedWorld != null ) OnPlayerChangedWorld( player, oldWorld, newWorld );
         }
         #endregion
 
