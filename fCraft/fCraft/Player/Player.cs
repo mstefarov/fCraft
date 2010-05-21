@@ -289,7 +289,7 @@ namespace fCraft {
                             IRCMessage newMsg = new IRCMessage();
                             newMsg.chatMessage = nick + ": " + message.Substring(message.IndexOf("#") + 1);
                             newMsg.destination = destination.Channels;
-                            IRCBot.addLP(newMsg);
+                            IRCBot.addOutgoingMessage(newMsg);
                             IRCComm.Process();
                         }
                         else
@@ -301,7 +301,7 @@ namespace fCraft {
                                 if (tmpChat != "") {
                                     newMsg.chatMessage = nick + ": " + tmpChat;
                                     newMsg.destination = destination.Channels;
-                                    IRCBot.addLP(newMsg);
+                                    IRCBot.addOutgoingMessage(newMsg);
                                     IRCComm.Process();
                                 }
                             }
