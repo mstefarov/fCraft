@@ -17,6 +17,13 @@ namespace fCraft {
             
             Commands.AddCommand( "where", Compass, false );
             Commands.AddCommand( "compass", Compass, false );
+
+            Commands.AddCommand( "version", GetVersion, true );
+        }
+
+
+        internal static void GetVersion( Player player, Command cmd ) {
+            player.Message( "fCraft custom server " + Updater.GetVersionString() );
         }
 
 

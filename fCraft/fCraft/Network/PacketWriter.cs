@@ -95,12 +95,12 @@ namespace fCraft {
             Write( pos.l );
         }
 
-        internal static Packet MakeHandshake( World world, Player player ) {
+        internal static Packet MakeHandshake( Player player, string serverName, string MOTD ) {
             Packet packet = new Packet( 131 );
             packet.data[0] = (byte)OutputCodes.Handshake;
             packet.data[1] = (byte)Config.ProtocolVersion;
-            Encoding.ASCII.GetBytes( Config.GetString( "ServerName" ).PadRight( 64 ), 0, 64, packet.data, 2 );
-            Encoding.ASCII.GetBytes( Config.GetString( "MOTD" ).PadRight( 64 ), 0, 64, packet.data, 66 );
+            Encoding.ASCII.GetBytes( serverName.PadRight( 64 ), 0, 64, packet.data, 2 );
+            Encoding.ASCII.GetBytes( MOTD.PadRight( 64 ), 0, 64, packet.data, 66 );
             packet.data[130] = (byte)player.GetOPPacketCode();
             return packet;
         }

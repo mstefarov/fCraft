@@ -446,8 +446,8 @@ namespace fCraft {
             int packetsSent = 0;
             int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate(world);
             BlockUpdate update;
-
             while( updates.Count > 0 && packetsSent < maxPacketsPerUpdate ) {
+                if( world.locked ) return;
                 lock( queueLock ) {
                     update = updates.Dequeue();
                 }

@@ -14,6 +14,8 @@ namespace fCraft {
 
             Commands.AddCommand( "lock", Lock, true );
             Commands.AddCommand( "unlock", Unlock, true );
+            Commands.AddCommand( "lockall", LockAll, true );
+            Commands.AddCommand( "unlockall", UnlockAll, true );
 
             Commands.AddCommand( "gen", Generate, true );
             Commands.AddCommand( "genh", GenerateHollow, true );
@@ -65,20 +67,25 @@ namespace fCraft {
 
         internal static void Join( Player player, Command cmd ) {
             string worldName = cmd.Next();
-            lock( Server.worldListLock ) {
-                if( Server.worlds.ContainsKey( worldName ) ) {
-                    if( worldName != player.world.name ) {
-                        player.world.ReleasePlayer( player );
-                        player.session.JoinWorld( Server.worlds[worldName] );
-                    } else {
-                        player.Message( "You are already in \"" + worldName + "\"." );
-                    }
-                } else {
-                    player.Message( "No world found with the name \"{0}\"", worldName );
-                }
+            if( worldName == null ) {
+                player.Message( "Usage: " + Color.Help + "/join worldName" );
+                return;
+            }
+            if( worldName.ToLowerInvariant() == player.world.name.ToLowerInvariant() ) {
+                player.Message( "You are already in \"" + player.world.name + "\"." );
+                return;
+            }
+            World world = Server.FindWorld( worldName );
+            if( world != null ) {
+                player.world.ReleasePlayer( player );
+                player.session.JoinWorld( world, true );
+            } else {
+                player.Message( "No world found with the name \"" + worldName + "\"." );
             }
         }
-        internal static void DoZone( Player player, Command cmd ) {
+
+
+        internal static void DoZone( Player player, Command cmd ) {//TODO: better method names
             if( !player.Can( Permissions.ManageZones ) ) {
                 player.NoAccessMessage();
                 return;
@@ -113,7 +120,9 @@ namespace fCraft {
             }
         }
 
-        internal static void MakeZone( Player player, Position[] marks, object tag ) {
+
+
+        internal static void MakeZone( Player player, Position[] marks, object tag ) {//TODO: better method names
             Zone zone = (Zone)tag;
             zone.xMin = Math.Min( marks[0].x, marks[1].x );
             zone.xMax = Math.Max( marks[0].x, marks[1].x );
@@ -146,6 +155,7 @@ namespace fCraft {
                 player.Message( "No zone with the name \"" + zoneName + "\" was found." );
             }
         }
+
 
         internal static void ListZones( Player player, Command cmd ) {
             Zone[] zones = player.world.map.ListZones();
@@ -229,11 +239,11 @@ namespace fCraft {
             }
 
             string mapFileName = Path.GetFileName(mapName) + ".fcm";
-            player.Message( "Saving backup..." );
+            player.Message( "Saving map to \""+mapFileName+"\"..." );
             if( player.world.map.Save( mapFileName ) ) {
-                player.Message( "Backup succesful." );
+                player.Message( "Map saved succesfully." );
             } else {
-                player.Message( "Backup failed. See logfile for details." );
+                player.Message( "Map saving failed. See server logs for details." );
             }
         }
 
@@ -263,7 +273,7 @@ namespace fCraft {
                 seed = new Random().Next();
             }
             Random rand = new Random( seed );
-            player.Message( "Seed: " + Convert.ToBase64String( BitConverter.GetBytes( seed ) ) );
+            //player.Message( "Seed: " + Convert.ToBase64String( BitConverter.GetBytes( seed ) ) );
 
             Map map = new Map( player.world, wx, wy, height );
             map.spawn.Set( map.widthX / 2 * 32 + 16, map.widthY / 2 * 32 + 16, map.height * 32, 0, 0 );
@@ -402,8 +412,35 @@ namespace fCraft {
                 player.NoAccessMessage();
                 return;
             }
-            player.world.SendToAll( Color.Red + "Map is now on lockdown!" );
-            //player.world.BeginLockDown();
+            string worldName = cmd.Next();
+            World world = player.world;
+            if( worldName != null ) {
+                world = Server.FindWorld( worldName );
+                if( world == null ) {
+                    player.Message( "No world found with the name \"" + worldName + "\"." );
+                    return;
+                }
+            }
+            if( world.locked ) {
+                player.Message( "The world is already locked." );
+            } else {
+                world.Lock();
+            }
+        }
+
+
+        internal static void LockAll( Player player, Command cmd ) {
+            if( !player.Can( Permissions.Lock ) ) {
+                player.NoAccessMessage();
+                return;
+            }else{
+                lock(Server.worldListLock){
+                    foreach(World world in Server.worlds.Values){
+                        world.Lock();
+                    }
+                }
+                player.Message( "All worlds are now locked." );
+            }
         }
 
 
@@ -412,8 +449,35 @@ namespace fCraft {
                 player.NoAccessMessage();
                 return;
             }
-            player.world.SendToAll( "Map lockdown has ended." );
-            //player.world.EndLockDown();
+            string worldName = cmd.Next();
+            World world = player.world;
+            if( worldName != null ) {
+                world = Server.FindWorld( worldName );
+                if( world == null ) {
+                    player.Message( "No world found with the name \"" + worldName + "\"." );
+                    return;
+                }
+            }
+            if( !world.locked ) {
+                player.Message( "The world is already unlocked." );
+            } else {
+                world.Unlock();
+            }
+        }
+
+
+        internal static void UnlockAll( Player player, Command cmd ) {
+            if( !player.Can( Permissions.Lock ) ) {
+                player.NoAccessMessage();
+                return;
+            } else {
+                lock( Server.worldListLock ) {
+                    foreach( World world in Server.worlds.Values ) {
+                        world.Unlock();
+                    }
+                }
+                player.Message( "All worlds are now unlocked." );
+            }
         }
     }
 }

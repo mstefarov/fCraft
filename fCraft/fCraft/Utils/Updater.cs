@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Net;
+using System.Net.Cache;
 using System.IO;
 
 
@@ -22,8 +23,8 @@ namespace fCraft {
 
 
     public class Updater {
-        static int version = 400;
-        static int revision;
+        static int version = 401;
+        static int revision = 48;
 
         public static UpdaterResult CheckForUpdates() {
             UpdaterResult result = new UpdaterResult( version );
@@ -35,7 +36,7 @@ namespace fCraft {
                 request.UserAgent = "fCraft";
                 request.Timeout = 6000;
                 request.ReadWriteTimeout = 6000;
-                request.CachePolicy = new System.Net.Cache.RequestCachePolicy( System.Net.Cache.RequestCacheLevel.NoCacheNoStore );
+                request.CachePolicy = new RequestCachePolicy( System.Net.Cache.RequestCacheLevel.NoCacheNoStore );
                 
                 using( WebResponse response = request.GetResponse() ) {
                     using( StreamReader reader = new StreamReader( response.GetResponseStream() ) ) {
@@ -71,7 +72,7 @@ namespace fCraft {
         }
 
         public static string GetVersionString() {
-            return Decimal.Divide( version, 1000 ).ToString("0.000");
+            return Decimal.Divide( version, 1000 ).ToString( "0.000" ) + "_r" + revision;
         }
     }
 }
