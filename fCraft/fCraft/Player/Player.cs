@@ -253,7 +253,7 @@ namespace fCraft {
                 DateTime oldestTime = spamBlockLog.Dequeue();
                 double spamTimer = DateTime.Now.Subtract( oldestTime ).TotalSeconds;
                 if( spamTimer < spamBlockTimer ) {
-                    session.Kick( "You were kicked by antigrief system. Slow down." );
+                    session.KickNow( "You were kicked by antigrief system. Slow down." );
                     Server.SendToAll( Color.Red + name + " was kicked for suspected griefing.");
                     Logger.Log( name + " was kicked for block spam (" + spamBlockCount + " blocks in " + spamTimer+" seconds)", LogType.SuspiciousActivity );
                     return true;
@@ -267,7 +267,7 @@ namespace fCraft {
         // Parses message incoming from the player
         public void ParseMessage( string message, bool fromConsole ) {
             if( DateTime.Now < mutedUntil ) return;
-            if( !world.FireSentMessageEvent( this, ref message ) ) return;
+            if( world!=null && !world.FireSentMessageEvent( this, ref message ) ) return;
             switch( Commands.GetMessageType( message ) ) {
                 case MessageType.Chat:
                     if( CheckChatSpam() ) return;

@@ -402,14 +402,16 @@ namespace fCraft {
 
                 case "VerifyNames":
                     return ValidateEnum( key, value, "Always", "Balanced", "Never" );
-                case "SpamChatCount":
+                case "AntispamMessageCount":
                     return ValidateInt( key, value, 2, 50 );
-                case "SpamChatTimer":
-                    return ValidateInt( key, value, 1, 50 );
-                case "SpamBlockCount":
+                case "AntispamInterval":
+                    return ValidateInt( key, value, 0, 50 );
+                case "AntigriefBlockCount":
                     return ValidateInt( key, value, 2, 500 );
-                case "SpamBlockTimer":
-                    return ValidateInt( key, value, 1, 50 );
+                case "AntigriefInterval":
+                    return ValidateInt( key, value, 0, 50 );
+                case "AntispamMuteDuration":
+                    return ValidateInt( key, value, 0, 3600 );
                 case "SpamChatAction1":
                 case "SpamChatAction2":
                 case "SpamChatAction3":

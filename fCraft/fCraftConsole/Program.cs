@@ -31,7 +31,7 @@ namespace fCraftConsole {
     class Program {
         static void Main( string[] args ) {
             Server.OnLog += Log;
-            Server.OnURLChange += SetURL;
+            Server.OnURLChanged += SetURL;
 
             if( Server.Init() ) {
 
