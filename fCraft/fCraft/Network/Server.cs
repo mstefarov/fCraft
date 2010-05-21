@@ -49,7 +49,10 @@ namespace fCraft {
             IPBanList.Load();
             Commands.Init();
 
+            Server.OnPlayerConnected += IRCBot.sendPlayerJoinMsg;
+
             if( OnInit != null ) OnInit();
+
 
             return true;
         }
@@ -485,6 +488,14 @@ namespace fCraft {
 
         public static short htons( short value ) {
             return IPAddress.HostToNetworkOrder( value );
+        }
+
+        public static string PlayerListToString() {
+            String players = "";
+            foreach (Player plyr in playerList) {
+                players += plyr.name + ",";
+            }
+            return players;
         }
 
         #endregion
