@@ -67,7 +67,8 @@ namespace fCraft
     {
         PM,
         Channels,
-        Server
+        Server,
+        RAW
     }
 
         // A neat&tidy package for an irc message contents
@@ -285,7 +286,7 @@ namespace fCraft
                                     newMessage.chatMessage = "Sorry, unreadable IRCCommand. Try typing '!help' for help.";
                                 }
                             }
-                            if (message.destination == destination.Server && message.chatMessage != null || message.chatMessage != "")
+                            if (message.destination == destination.Server && message.chatMessage != null && message.chatMessage != "")
                             {
                                 string stringToServer = "(IRC)" + message.nickname + ": " + message.chatMessage;
                                 Logger.Log(stringToServer, LogType.IRC);
@@ -330,6 +331,7 @@ namespace fCraft
                     string pongresp = input.Substring(6, input.Length - 6);
                     newMsg.type = "RAW";
                     newMsg.chatMessage = "PONG :" + pongresp;
+                    newMsg.destination = destination.RAW;
                     hpStack.Add(newMsg);
                     return;
                 }
@@ -340,6 +342,7 @@ namespace fCraft
                     {
                         newMsg.type = "RAW";
                         newMsg.chatMessage = "PONG :" + BOTHOST + " " + SERVERHOST;
+                        newMsg.destination = destination.RAW;
                         hpStack.Add(newMsg);
                         return;
                     }
