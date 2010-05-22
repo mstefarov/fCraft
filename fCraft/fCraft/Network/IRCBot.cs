@@ -146,7 +146,8 @@ namespace fCraft
 
         // Check for player joins and send a message to the channels to notify
         public static void sendPlayerJoinMsg( Session session, ref bool cancel ) {
-            IRCMessage newMsg = new IRCMessage() { chatMessage = session.player.name + " has joined " + SERVERNAME + ".", destination = destination.Channels };
+           IRCMessage newMsg = new IRCMessage() { chatMessage = session.player.name + " has joined " + SERVERNAME + ".", destination = destination.Channels };
+           outMessages.Add(newMsg);
         }
 
         static void MessageHandler()
