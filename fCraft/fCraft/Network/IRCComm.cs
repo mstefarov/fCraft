@@ -206,7 +206,11 @@ namespace fCraft
 #if DEBUG_IRC
                     Console.WriteLine("*SENT-MESSAGE* :" + message.chatMessage + " | to: " + message.to);
 #endif
-                    writer.WriteLine("PRIVMSG " + channel + " :" + message.chatMessage + "\r\n");
+                    if (message.colour != null && message.colour != "")
+                        writer.WriteLine("PRIVMSG " + channel + " :" + message.colour + message.chatMessage + "\r\n");
+                    else
+                        writer.WriteLine("PRIVMSG " + channel + " :" + message.chatMessage + "\r\n");
+                    
                     writer.Flush();
                 }
                 return true;
@@ -225,7 +229,10 @@ namespace fCraft
 #if DEBUG_IRC
                 Console.WriteLine("*SENT-PM* :" + message.chatMessage + " | to: " + message.to);
 #endif
-                writer.WriteLine("PRIVMSG " + message.to + " :" + message.chatMessage + "\r\n");
+                if (message.colour != null && message.colour != "")
+                    writer.WriteLine("PRIVMSG " + message.to + " :" + message.colour + message.chatMessage + "\r\n");
+                else
+                    writer.WriteLine("PRIVMSG " + message.to + " :" + message.chatMessage + "\r\n");
                 writer.Flush();
                 return true;
             }
