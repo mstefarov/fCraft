@@ -73,6 +73,7 @@ namespace fCraft
 
         // A neat&tidy package for an irc message contents
     public struct IRCMessage{
+        public string colour;
         public string host;
         public string user;
         public string to;
@@ -83,6 +84,26 @@ namespace fCraft
         public string serverMessage;
         public IRCCommands cmd;
         public bool priority; // true = high
+    }
+
+    public sealed class IRCColours {
+        
+        public static string Black = '\x3' + "1",
+                        NavyBlue = '\x3' + "2",
+                        Green = '\x3' + "3",
+                        Red = '\x3' + "4",
+                        Brown = '\x3' + "5",
+                        Purple = '\x3' + "6",
+                        Olive = '\x3' + "7",
+                        Yellow = '\x3' + "8",
+                        LimeGreen = '\x3' + "9",
+                        Teal = '\x3' + "10",
+                        AquaLight = '\x3' + "11",
+                        RoyalBlue = '\x3' + "12",
+                        HotPink = '\x3' + "13",
+                        DarkGray = '\x3' + "14",
+                        LightGray = '\x3' + "15",
+                        White = '\x3' + "16";
     }
 
     public static class IRCBot
@@ -102,7 +123,7 @@ namespace fCraft
 
         private static string SERVERNAME = Config.GetString("ServerName");
         private static string MOTD = Config.GetString("MOTD");
-        private static string SERVERADDRESS = Config.ServerURL;
+        private static string SERVERADDRESS;
 
         public static Player fBot = new Player(null, "fBot");
 
@@ -117,9 +138,8 @@ namespace fCraft
         public static StreamReader reader;
 
         private static bool doShutdown;
-        
 
-        public static void Start()
+       public static void Start()
         {
             thread = new Thread(MessageHandler);
             thread.IsBackground = true;
@@ -146,8 +166,9 @@ namespace fCraft
 
         // Check for player joins and send a message to the channels to notify
         public static void sendPlayerJoinMsg( Session session, ref bool cancel ) {
-           IRCMessage newMsg = new IRCMessage() { chatMessage = session.player.name + " has joined " + SERVERNAME + ".", destination = destination.Channels };
+           IRCMessage newMsg = new IRCMessage() {  chatMessage = session.player.name + " has joined " + SERVERNAME + ".", destination = destination.Channels };
            outMessages.Add(newMsg);
+           IRCComm.Process();
         }
 
         static void MessageHandler()
@@ -174,7 +195,7 @@ namespace fCraft
                                 if (message.cmd == IRCCommands.status)
                                 {
                                     // Put together all of the status variables from world and such
-
+                                    SERVERADDRESS = Config.ServerURL;
                                     int playersOnline = Server.GetPlayerCount();
                                     newMessage.chatMessage = message.nickname + ", you have requested a status update.";
                                     outMessages.Add(newMessage);

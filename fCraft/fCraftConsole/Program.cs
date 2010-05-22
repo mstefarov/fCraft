@@ -46,6 +46,8 @@ namespace fCraftConsole {
 
                 if( Server.Start() ) {
                     Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( "ServerName" );
+                    Console.WriteLine( "** Running fCraft version " + Updater.GetVersionString() + ". **" );
+                                       
                     string input = "";
                     Console.WriteLine( "** Server is now ready. To shutdown, type /exit. URL is in externalurl.txt **" );
                     while( (input = Console.ReadLine()) != "/exit" ) {
