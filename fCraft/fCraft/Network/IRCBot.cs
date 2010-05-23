@@ -166,6 +166,8 @@ namespace fCraft
 
         // Check for player joins and send a message to the channels to notify
         public static void sendPlayerJoinMsg( Session session, ref bool cancel ) {
+           session.player.Message(Color.Help + "This server's IRC Bot is" + Color.Red + " Online.");
+           session.player.Message(Color.Help + "Use '#<message>' in chat to forward messages to the IRC Channel(s).");
            IRCMessage newMsg = new IRCMessage() {  chatMessage = session.player.name + " has joined " + SERVERNAME + ".", destination = destination.Channels };
            outMessages.Add(newMsg);
            IRCComm.Process();
