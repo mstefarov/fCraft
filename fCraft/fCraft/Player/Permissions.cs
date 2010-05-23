@@ -36,6 +36,8 @@ namespace fCraft {
 
         ControlPhysics,
 
+        AddLandmarks,
+
         ManageZones,
         ManageWorlds,
 

@@ -26,6 +26,8 @@ namespace fCraft {
 
             Commands.AddCommand( "worlds", ListWorlds, true );
             Commands.AddCommand( "wload", AddWorld, true );
+
+            //Commands.AddCommand( "landmark", AddLandmark, false);
         }
 
         internal static void ListWorlds( Player player, Command cmd ) {
@@ -168,6 +170,23 @@ namespace fCraft {
                 }
             }
         }
+
+
+        //internal static void AddLandmark( Player player, Command cmd ) {
+        //    if(!player.Can(Permissions.AddLandmarks)){
+        //        player.NoAccessMessage();
+        //        return;
+        //    }
+
+        //    string name = cmd.Next();
+        //    if (name == null) {
+        //        player.Message("No landmark name specified. See " + Color.Help + "/help landmark");
+        //        return;
+        //    }
+
+        //    player.world.map.AddLandmark(player.pos);
+
+        //}
 
 
         /*internal static void Load( Player player, Command cmd ) {//TODO: streamload
