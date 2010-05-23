@@ -536,13 +536,6 @@ namespace fCraft {
             lock( playerListLock ) {
                 if( players.ContainsKey( player.id ) ) {
                     Logger.Log( "{0} left the server.", LogType.UserActivity, player.name );
-
-                    // if IRC Bot is online, send update to IRC bot
-                    /*if (ircbot.isOnline() == true) //TODO: IRC
-                    {
-                        ircbot.SendMsgChannel(player.name + "(" + player.info.playerClass.name + ") has left ** " + Config.GetString("ServerName") + " **");
-                    }*/
-
                     if( player.world != null ) {
                         player.world.ReleasePlayer( player );
                     }
