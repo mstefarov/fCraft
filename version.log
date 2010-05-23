@@ -1,5 +1,38 @@
-http://fcraft.matvei.org/fCraftUpdater.exe
-2010-04-21
+http://fcraft.fragmer.net/fCraftUpdater.exe
+2010-05-21
+401
+ *IDLE/AFK CHECKING* This is configurable per-class.
+ Added /version command, and added revision to the version string.
+ Added an option parameter to /lock and /unlock to target a specific world, and added global /lockall and /unlockall commands. 
+ Removed all references to the old pre-multiworld "map.fcm." Backups now work again. 
+ Fixed players not spawning in the right place when changing worlds.
+ IRC Bot will now handle terminations by the IRCd and restart itself upon any errors. 
+ IRC Bot can now send from inside the server TO IRC! Use the prefix '#' in-game to send any message to IRC. Forwarding all server chat may be added if requested. To send from the bot to the server, use the bot's nickname and either ':', ',' or nothing, then your message.
+ Improved performance of the IRC bot and the task scheduler.
+ Fixed a bug with getting the server url from the externalurl.txt file crashing the IRC MessageHandler() when the file didn't exist. FORWARD_ALL is now enabled for both SERVER and IRC for 100% transparent chatting.
+ Fixed a bug in the server-to-irc code that forwarded a blank message if there was nothing after '#' in server chat.
+ Handshake packet is now written when doing /join, to replace MOTD with a more informative "Now loading [worldname]".
+400
+ *MULTIWORLD*. It's finally here. See /help for information on new commands: /worlds, /wload, /join
+ Added a persistent world list, saved in worlds.txt - this is subject to change. The file contains a list of world names, each corresponding to an .fcm file. The first world listed at the top of worlds.txt is the default/main one.
+ *IRC BOT*. Thanks to the efforts by Destroyer661, fCraft now has an optional IRC bot for relaying chat and commands.
+ A field has been added in the config to allow forwarding ALL IRC CHANNEL TRAFFIC to the server. This will override the prefix and make it inactive. 'IRCBotForwardAll' is set to false by default.
+ *ZONES*. It is now possible to make guest zones and op zones (and anything in-between) on any map. See /help for information on new commands: /zones, /zone, /zremove.
+ Added 2 new permissions: ManageZones and ManageWorlds. You might need to update your config.xml to add these permissions to appropriate classes.
+ Added /compass command (aka /where).
+ Fixed players sometimes not seeing their /kick message.
+ Added a way to teleport to specific coordinates (/tp x y h)
+ Fixed heartbeats timing out when running fCraft under Mono.
+ Fixed Config.ApplyConfig setting the wrong server throttling variables.
+ Fixed air blocks appearing underwater when using /gen
+ Tweaked /gen parameters to make "island" a bit less ugly.
+ Updated text in fCraftConsole.
+330
+ Added /cuboid and /ellipsoid drawing commands.
+ Improved memory usage.
+ Added "Draw" permission, and made /draw check "DeleteAdmincrete" permission when replacing blocks, and removed unused "PlaceGlitchedSand" permission.
+ Added "Port" and "BackupOnlyWhenChanged" config lines, and corresponding ConfigTool fields.
+ Fixed bug that deleted ALL backups when you check "don't delete old backups." That was embarrassing.
 325
  Added an experimental low-latency mode (faster server response, but more bandwidth required).
  Improved hacking detection: added anti-chat-spam and anti-grief (block spam) checks.

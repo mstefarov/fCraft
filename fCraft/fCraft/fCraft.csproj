@@ -75,6 +75,17 @@
     <Compile Include="Commands\Commands.cs" />
     <Compile Include="Commands\InfoCommands.cs" />
     <Compile Include="Commands\StandardCommands.cs" />
+    <Compile Include="MCC\IConverter.cs" />
+    <Compile Include="MCC\Main.cs" />
+    <Compile Include="MCC\Map.cs" />
+    <Compile Include="MCC\MapDAT.cs" />
+    <Compile Include="MCC\MapFCMv2.cs" />
+    <Compile Include="MCC\MapFormats.cs" />
+    <Compile Include="MCC\MapMCSharp.cs" />
+    <Compile Include="MCC\MapMinerCPP.cs" />
+    <Compile Include="MCC\MapNBT.cs" />
+    <Compile Include="MCC\MapUtility.cs" />
+    <Compile Include="MCC\NBTag.cs" />
     <Compile Include="Network\IRCComm.cs" />
     <Compile Include="Network\IPBanList.cs" />
     <Compile Include="Network\IRCBot.cs" />
