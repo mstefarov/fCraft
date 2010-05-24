@@ -68,6 +68,7 @@ namespace fCraft
         PM,
         Channels,
         Server,
+        NOTICE,
         RAW
     }
 
@@ -114,7 +115,7 @@ namespace fCraft
         private static int PORT;
         private static string USER;
         private static string NICK;
-        private static string[] CHANNELS;
+        private static List<string> CHANNELS;
         private static string SERVERHOST;
         private static string BOTHOST;
         private static string COMMA_PREFIX;
@@ -194,6 +195,7 @@ namespace fCraft
                             if (message.to == NICK)
                             {
                                 newMessage.to = message.nickname;
+                                newMessage.destination = message.destination;
                                 if (message.cmd == IRCCommands.status)
                                 {
                                     // Put together all of the status variables from world and such
@@ -413,29 +415,24 @@ namespace fCraft
                     }
                 }
 
-                foreach (string channel in CHANNELS)
-                {
-                    if (FORWARD_ALL)
-                    {
-                        if (newMsg.to == channel)
-                            newMsg.destination = destination.Server;
+                if (CHANNELS.Contains(newMsg.to)) {
+                    // check for commands
+                    if (checkCommands(ref newMsg)) {
+                        newMsg.to = NICK;
+                        newMsg.destination = destination.NOTICE;
+                        return;
                     }
-                    else
-                    {
-                        if (newMsg.chatMessage != null && newMsg.chatMessage != "")
-                        {
-                            if (newMsg.chatMessage.IndexOf(COMMA_PREFIX) != -1)
-                            {
+                    if (FORWARD_ALL) {
+                            newMsg.destination = destination.Server;
+                    } else {
+                        if (newMsg.chatMessage != null && newMsg.chatMessage != "") {
+                            if (newMsg.chatMessage.IndexOf(COMMA_PREFIX) != -1) {
                                 newMsg.chatMessage = newMsg.chatMessage.Substring(newMsg.chatMessage.IndexOf(COMMA_PREFIX) + COMMA_PREFIX.Length).Trim();
                                 newMsg.destination = destination.Server;
-                            }
-                            else if (newMsg.chatMessage.IndexOf(COLON_PREFIX) != -1)
-                            {
+                            } else if (newMsg.chatMessage.IndexOf(COLON_PREFIX) != -1) {
                                 newMsg.chatMessage = newMsg.chatMessage.Substring(newMsg.chatMessage.IndexOf(COLON_PREFIX) + COLON_PREFIX.Length).Trim();
                                 newMsg.destination = destination.Server;
-                            }
-                            else if (newMsg.chatMessage.IndexOf(NICK) != -1)
-                            {
+                            } else if (newMsg.chatMessage.IndexOf(NICK) != -1) {
                                 newMsg.chatMessage = newMsg.chatMessage.Substring(newMsg.chatMessage.IndexOf(NICK) + NICK.Length).Trim();
                                 newMsg.destination = destination.Server;
                             }
@@ -445,14 +442,7 @@ namespace fCraft
 
                 if (newMsg.to == NICK) // Catch chat messages to the bot itself
                 {
-                    foreach (IRCCommands item in Enum.GetValues(typeof(IRCCommands)))
-                    {
-                        if (newMsg.chatMessage.Contains("!" + item.ToString()))
-                        {
-                            newMsg.cmd = item;
-                            return;
-                        }
-                    }
+                    if (checkCommands(ref newMsg)) return; // Find a command? Return!
                     if (newMsg.chatMessage.Contains("#"))
                     {
                         newMsg.nickname = NICK;
@@ -461,6 +451,23 @@ namespace fCraft
                     }
                 }
             }
+        }
+
+        private static bool checkCommands(ref IRCMessage newMsg) {
+            string[] tmpMessage = newMsg.chatMessage.Split(' ');
+            if (tmpMessage.Length == 1 || 
+                tmpMessage.Length ==2 && tmpMessage[0] == NICK || 
+                tmpMessage.Length == 2 && tmpMessage[0] == COMMA_PREFIX || 
+                tmpMessage.Length == 2 && tmpMessage[0] == COLON_PREFIX) {
+
+                foreach (IRCCommands item in Enum.GetValues(typeof(IRCCommands))) {
+                    if (newMsg.chatMessage.Contains("!" + item.ToString())) {
+                        newMsg.cmd = item;
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private static bool Invoke( ref IRCMessage newMessage, IRCMessage message)

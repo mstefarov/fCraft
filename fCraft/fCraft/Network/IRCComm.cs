@@ -21,7 +21,7 @@ namespace fCraft
         public static int PORT = Config.GetInt("IRCBotPort");
         public static string USER = "USER fCraftbot 8 * :fCraft IRC Bot";
         public static string NICK = Config.GetString("IRCBotNick");
-        public static string[] CHANNELS = Config.GetString("IRCBotChannels").Split(',');
+        public static List<string> CHANNELS = new List<string>();
         public static string QUITMSG = "I've been told to go offline now!";
         public static bool FORWARD_ALL = Config.GetBool("IRCBotForwardAll");
 
@@ -40,6 +40,10 @@ namespace fCraft
 
         public static void Start()
         {
+            string[] tmpChans = Config.GetString("IRCBotChannels").Split(',');
+            for(int i = 0; i < tmpChans.Length; ++i)
+                CHANNELS.Add(tmpChans[i]);
+
             thread = new Thread(CommHandler);
             thread.IsBackground = true;
             thread.Start();
@@ -49,6 +53,7 @@ namespace fCraft
         {
             try
             {
+
                 // Initiate connection and bring the streams to life!
                 connection = new TcpClient(IRCSERVER, PORT);
                 stream = connection.GetStream();
@@ -185,6 +190,8 @@ namespace fCraft
                         SendPM(msg);
                     else if (msg.destination == destination.Channels)
                         SendMsgChannels(msg);
+                    else if (msg.destination == destination.NOTICE)
+                        SendNotice(msg);
                     else if (msg.destination == destination.RAW) {
                         IRCMessage rawMsg = new IRCMessage();
                         rawMsg = msg;
@@ -243,6 +250,23 @@ namespace fCraft
             }
         }
 
+        public static bool SendNotice(IRCMessage message) {
+            try {
+#if DEBUG_IRC
+                Console.WriteLine("*SENT-PM* :" + message.chatMessage + " | to: " + message.to);
+#endif
+                if (message.colour != null && message.colour != "")
+                    writer.WriteLine("NOTICE " + message.to + " :" + message.colour + message.chatMessage + "\r\n");
+                else
+                    writer.WriteLine("NOTICE " + message.to + " :" + message.chatMessage + "\r\n");
+                writer.Flush();
+                return true;
+            } catch (Exception e) {
+                Console.WriteLine(e.ToString());
+                return false;
+            }
+        }
+
         internal static bool SendRaw(ref IRCMessage message)
         {
             try
@@ -296,7 +320,7 @@ namespace fCraft
         {
             return PORT;
         }
-        public static string[] getChannels()
+        public static List<string> getChannels()
         {
             return CHANNELS;
         }
