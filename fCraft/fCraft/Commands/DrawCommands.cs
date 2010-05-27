@@ -94,10 +94,10 @@ namespace fCraft {
                     player.marksExpected = 0;
                 } else {
                     player.Message( String.Format( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
-                                            player.markCount, pos.x, pos.y, pos.h, player.markCount + 1 ) );
+                                                   player.markCount, pos.x, pos.y, pos.h, player.markCount + 1 ) );
                 }
             } else {
-                player.Message( "There is currently not draw command to mark for." );
+                player.Message( "Cannot mark - no draw or zone commands initiated." );
             }
         }
 

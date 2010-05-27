@@ -136,7 +136,7 @@ namespace fCraft {
         public bool CheckZones( short x, short y, short h, Player player, ref bool zoneOverride, ref string zoneName ) {
             bool found = false;
             lock( zoneLock ) {
-                foreach( Zone zone in world.map.zones.Values ) {
+                foreach( Zone zone in zones.Values ) {
                     zoneName = zone.name;
                     if( zone.Contains( x, y, h ) ) {
                         if( zone.CanBuild( player ) ) {

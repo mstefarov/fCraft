@@ -81,10 +81,10 @@ namespace fCraftUI {
 
         void LogInternal( string message ) {
             logBox.AppendText( message + Environment.NewLine );
-            if( logBox.Text.Length > 50000 ) {
+            if( logBox.Lines.Length > 1000 ) {
                 logBox.Text = "----- cut off, see fCraft.log for complete log -----" +
                     Environment.NewLine +
-                    logBox.Text.Substring( 5000 );
+                    logBox.Text.Substring( logBox.GetFirstCharIndexFromLine(50) );
             }
             logBox.SelectionStart = logBox.Text.Length;
             logBox.ScrollToCaret();

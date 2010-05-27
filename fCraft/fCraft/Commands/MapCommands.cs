@@ -73,10 +73,6 @@ namespace fCraft {
                 player.Message( "Usage: " + Color.Help + "/join worldName" );
                 return;
             }
-            if( worldName.ToLowerInvariant() == player.world.name.ToLowerInvariant() ) {
-                player.Message( "You are already in \"" + player.world.name + "\"." );
-                return;
-            }
             World world = Server.FindWorld( worldName );
             if( world != null ) {
                 player.world.ReleasePlayer( player );

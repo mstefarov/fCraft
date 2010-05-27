@@ -157,15 +157,29 @@ namespace fCraft {
 
         public void ReleasePlayer( Player player ) {
             lock( playerListLock ) {
-                players.Remove( player.id );
+
+                if ( !players.Remove( player.id ) ) {
+                    //Logger.Log( "World.ReleasePlayer: Attempting to release a nonexistent id.", LogType.Error );
+                    return;
+                }
+
+                // clear drawing status
+                player.drawUndoBuffer.Clear();
+                player.marksExpected = 0;
+                player.marks.Clear();
+                player.markCount = 0;
+
+                // update player list
                 UpdatePlayerList();
-                if( players.Count == 0 && !neverUnload ) {
-                    lock( mapLock ) {
+                if( OnPlayerLeft != null ) OnPlayerLeft( player, this );
+                SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
+
+                // unload map (if needed)
+                if ( players.Count == 0 && !neverUnload ) {
+                    lock ( mapLock ) {
                         UnloadMap();
                     }
                 }
-                if( OnPlayerLeft != null ) OnPlayerLeft( player, this );
-                SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
             }
         }
 
@@ -175,7 +189,7 @@ namespace fCraft {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i] != player && !tempList[i].isHidden ) {
-                    player.session.SendNow( PacketWriter.MakeAddEntity( tempList[i], tempList[i].pos ) );
+                    player.session.Send( PacketWriter.MakeAddEntity( tempList[i], tempList[i].pos ) );
                 }
             }
         }
