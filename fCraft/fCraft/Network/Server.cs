@@ -536,8 +536,12 @@ namespace fCraft {
             lock( playerListLock ) {
                 if( players.ContainsKey( player.id ) ) {
                     Logger.Log( "{0} left the server.", LogType.UserActivity, player.name );
-                    if( player.world != null ) {
-                        player.world.ReleasePlayer( player );
+                    
+                    // better safe than sorry: go through ALL worlds looking for leftover players
+                    lock ( worldListLock ) {
+                        foreach ( World world in worlds.Values ) {
+                            world.ReleasePlayer( player );
+                        }
                     }
 
                     SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
