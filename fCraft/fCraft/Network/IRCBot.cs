@@ -60,7 +60,8 @@ namespace fCraft
             unbanip, 
             unbanall, 
             slock, 
-            unlock 
+            unlock,
+            load = 200   
     }
 
     public enum destination
@@ -314,10 +315,12 @@ namespace fCraft
                                 {
                                     newMessage.chatMessage = "Hi there, " + message.nickname + "!";
                                     newMessage.chatMessage = "You can access help by typing '!help'.";
+                                    outMessages.Add(newMessage);
                                 }
                                 else
                                 {
-                                    newMessage.chatMessage = "Sorry, unreadable IRCCommand. Try typing '!help' for help.";
+                                    newMessage.chatMessage = "Sorry, unreadable Command. Try typing '!help' for help.";
+                                    outMessages.Add(newMessage);
                                 }
                             }
                             if (message.destination == destination.Server && message.chatMessage != null && message.chatMessage != "")
@@ -403,7 +406,7 @@ namespace fCraft
                     GroupCollection tmpGroup = match.Groups;
                     // tmpGroup contains:
                     // 0 is the raw IRC message itself, 1 Nickname, 2 Username, 3 Host, 4 Message type, 5 Channel/User the message was sent to, 6 Message content
-                    newMsg.nickname = tmpGroup[1].ToString();
+                    newMsg.nickname = tmpGroup[1].ToString().Trim();
                     newMsg.user = tmpGroup[2].ToString();
                     newMsg.host = tmpGroup[3].ToString();
                     newMsg.type = tmpGroup[4].ToString();
@@ -453,12 +456,13 @@ namespace fCraft
             }
         }
 
+        // TODO: Need a new way to detect command source
         private static bool checkCommands(ref IRCMessage newMsg) {
             string[] tmpMessage = newMsg.chatMessage.Split(' ');
             if (tmpMessage.Length == 1 || 
-                tmpMessage.Length ==2 && tmpMessage[0] == NICK || 
-                tmpMessage.Length == 2 && tmpMessage[0] == COMMA_PREFIX || 
-                tmpMessage.Length == 2 && tmpMessage[0] == COLON_PREFIX) {
+                tmpMessage.Length == 2 && newMsg.to == NICK ||
+                tmpMessage.Length == 2 && newMsg.to == COMMA_PREFIX ||
+                tmpMessage.Length == 2 && newMsg.to == COLON_PREFIX) {
 
                 foreach (IRCCommands item in Enum.GetValues(typeof(IRCCommands))) {
                     if (newMsg.chatMessage.Contains("!" + item.ToString())) {
@@ -469,42 +473,40 @@ namespace fCraft
             }
             return false;
         }
+        #endregion
 
         private static bool Invoke( ref IRCMessage newMessage, IRCMessage message)
         {
             if (isAuthed(message.nickname, message.host))
             {
                 string[] cmdLine = message.chatMessage.Split(' ');
-                if (cmdLine.Length == 2)
+                if (cmdLine.Length == 2) // Should cover most bans etc
                 {
                     // TODO: FIX THIS SHIT 
                     // It's bananas, it only handles players that are/have been online 
                     PlayerInfo OfflineOffender;
                     Player Offender;
                     bool pIsOnline = false;
-                    if ((Offender = Server.FindPlayer(cmdLine[1])) != null)
-                    {
+                    if ((Offender = Server.FindPlayer(cmdLine[1])) != null) {
                         pIsOnline = true;
                         HandlePlayer(ref newMessage, ref message, cmdLine[1]);
                         return true;
-                    }
-                    else if(pIsOnline == false)
-                    {
+                    } else if (pIsOnline == false) {
                         PlayerDB.FindPlayerInfo(cmdLine[1], out OfflineOffender);
-                        if (OfflineOffender != null && message.cmd != IRCCommands.kick)
-                        {
+                        if (OfflineOffender != null && message.cmd != IRCCommands.kick) {
                             HandlePlayer(ref newMessage, ref message, cmdLine[1]);
                             return true;
-                        }else
-                        {
+                        } else {
                             newMessage.chatMessage = "Sorry, no player by the name '" + cmdLine[1] + "' was found.";
                             outMessages.Add(newMessage);
                             return false;
-                        } 
-                    }   
+                        }
+                    }
+                } else {
+                    newMessage.chatMessage = "Incorrect Syntax for command '" + message.cmd.ToString() + ", try using !help.";
                 }
                 outMessages.Add(newMessage);
-                Logger.Log("(IRC)" + message.nickname + newMessage.chatMessage, LogType.IRC);
+
                 return true;
             }
             else
@@ -558,7 +560,7 @@ namespace fCraft
             }
             Logger.Log("(IRC)" + message.nickname + newMessage.chatMessage, LogType.IRC);
         }
-        #endregion
+        
 
         #region UtilityMethods
         public static void AddMessage( IRCMessage message)
