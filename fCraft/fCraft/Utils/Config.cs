@@ -512,7 +512,7 @@ namespace fCraft {
 
         static bool ValidateEnum( string key, string value, params string[] options ) {
             for( int i = 0; i < options.Length; i++ ) {
-                if( value.ToLowerInvariant() == options[i].ToLowerInvariant() ) {
+                if( value.ToLower() == options[i].ToLower() ) {
                     settings[key] = options[i];
                     return true;
                 }

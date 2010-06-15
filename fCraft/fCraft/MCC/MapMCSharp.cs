@@ -30,116 +30,118 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using fCraft;
+
 
 namespace mcc {
     public class MapMCSharp : IConverter {
 
         public MapFormats Format {
-            get {
-                return MapFormats.MCSharp;
-            }
+            get { return MapFormats.MCSharp; }
         }
 
-        public string[] UsedBy {
-            get {
-                return new string[] { "mcsharp" };
-            }
+        public string FileExtension {
+            get { return ".lvl"; }
         }
+
+        public string[] Keywords {
+            get { return new string[] { "mcsharp", "mc#", "lvl" }; }
+        }
+
 
         public Map Load( System.IO.Stream MapStream ) {
             // Reset the seeker to the front of the stream
             // This should probably be done differently.
             MapStream.Seek( 0, SeekOrigin.Begin );
-            
+
             // Setup a GZipStream to decompress and read the map file
             GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true );
             BinaryReader bs = new BinaryReader( gs );
-            
-            Map m = new Map(  );
-            
+
+            Map m = new Map();
+
             // Read in the magic number
-            if( bs.ReadUInt16(  ) != 0x752 ) {
-                throw new System.FormatException(  );
+            if ( bs.ReadUInt16() != 0x752 ) {
+                throw new FormatException();
             }
-            
+
             // Read in the map dimesions
-            m.Width = bs.ReadUInt16(  );
-            m.Depth = bs.ReadUInt16(  );
-            m.Height = bs.ReadUInt16(  );
-            
+            m.widthX = bs.ReadInt16();
+            m.widthY = bs.ReadInt16();
+            m.height = bs.ReadInt16();
+
             // Read in the spawn location
-            m.SpawnX = bs.ReadUInt16(  );
-            m.SpawnZ = bs.ReadUInt16(  );
-            m.SpawnY = bs.ReadUInt16(  );
-            
+            m.spawn.x = (short)(bs.ReadInt16() * 32);
+            m.spawn.y = (short)(bs.ReadInt16() * 32);
+            m.spawn.h = (short)(bs.ReadInt16() * 32);
+
             // Read in the spawn orientation
-            m.SpawnRotation = bs.ReadByte(  );
-            m.SpawnPitch = bs.ReadByte(  );
-            
+            m.spawn.r = bs.ReadByte();
+            m.spawn.l = bs.ReadByte();
+
             // Skip over the VisitPermission and BuildPermission bytes
-            bs.ReadByte(  );
-            bs.ReadByte(  );
-            
+            bs.ReadByte();
+            bs.ReadByte();
+
             // Read in the map data
-            m.MapData = new Byte[m.BlockCount];
-            m.MapData = bs.ReadBytes( m.BlockCount );
-            
+            m.blocks = bs.ReadBytes( m.GetBlockCount() );
+
             return m;
         }
 
-        public bool Save( Map MapToSave, System.IO.Stream MapStream ) {
-            using( GZipStream gs = new GZipStream( MapStream, CompressionMode.Compress, true ) ) {
+
+        public bool Save( Map MapToSave, Stream MapStream ) {
+            using ( GZipStream gs = new GZipStream( MapStream, CompressionMode.Compress, true ) ) {
                 BinaryWriter bs = new BinaryWriter( gs );
-                
+
                 // Write the magic number
                 bs.Write( (ushort)0x752 );
-                
+
                 // Write the map dimensions
-                bs.Write( MapToSave.Width );
-                bs.Write( MapToSave.Depth );
-                bs.Write( MapToSave.Height );
-                
+                bs.Write( MapToSave.widthX );
+                bs.Write( MapToSave.widthY );
+                bs.Write( MapToSave.height );
+
                 // Write the spawn location
-                bs.Write( MapToSave.SpawnX );
-                bs.Write( MapToSave.SpawnZ );
-                bs.Write( MapToSave.SpawnY );
-                
+                bs.Write( MapToSave.spawn.x/32 );
+                bs.Write( MapToSave.spawn.y/32 );
+                bs.Write( MapToSave.spawn.h/32 );
+
                 //Write the spawn orientation
-                bs.Write( MapToSave.SpawnRotation );
-                bs.Write( MapToSave.SpawnPitch );
-                
+                bs.Write( MapToSave.spawn.r );
+                bs.Write( MapToSave.spawn.l );
+
                 // Write the VistPermission and BuildPermission bytes
                 bs.Write( (byte)0 );
                 bs.Write( (byte)0 );
-                
+
                 // Write the map data
-                bs.Write( MapToSave.MapData, 0, MapToSave.BlockCount );
-                
-                bs.Close(  );
+                bs.Write( MapToSave.blocks, 0, MapToSave.blocks.Length );
+
+                bs.Close();
             }
             return true;
-            
         }
 
-        public bool Claims( System.IO.Stream MapStream ) {
+
+        public bool Claims( Stream MapStream ) {
             MapStream.Seek( 0, SeekOrigin.Begin );
-            
+
             GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true );
             BinaryReader bs = new BinaryReader( gs );
-            
+
             try {
-                if( bs.ReadUInt16(  ) == 0x752 ) {
+                if ( bs.ReadUInt16() == 0x752 ) {
                     return true;
                 }
-            } catch( IOException ) {
+            } catch ( IOException ) {
                 return false;
-            } catch( InvalidDataException ) {
+            } catch ( InvalidDataException ) {
                 return false;
             }
-            
+
             return false;
-            
         }
-        
+
     }
 }

@@ -89,7 +89,7 @@ namespace fCraft {
                             // copy the block array... or fail
                             if( foundBlockArray ) {
                                 map.CopyBlocks( data, pointer );
-                                if( !map.ValidateBlockTypes() ) {
+                                if( !map.ValidateBlockTypes(true) ) {
                                     throw new Exception( "Map validation failed: unknown block types found. Either parsing has done wrong, or this is an incompatible format." );
                                 }
                             } else {

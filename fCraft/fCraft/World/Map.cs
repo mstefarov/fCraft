@@ -4,15 +4,244 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using mcc;
 
 
 namespace fCraft {
     public sealed class Map {
-        static Dictionary<string, Block> blockNames = new Dictionary<string, Block>();
-        World world;
 
+        World world;
+        internal byte[] blocks;
+        public int widthX, widthY, height;
+        public Position spawn;
+        public Dictionary<string, string> meta = new Dictionary<string, string>();
+        Queue<BlockUpdate> updates = new Queue<BlockUpdate>();
+        object queueLock = new object(), metaLock = new object(), zoneLock = new object();
+        public int changesSinceSave, changesSinceBackup;
+        
+
+        internal Map() { }
+
+        public Map( World _world) {
+            world = _world;
+        }
+
+        public Map( World _world, int _widthX, int _widthY, int _height ) : this(_world) {
+            widthX = _widthX;
+            widthY = _widthY;
+            height = _height;
+
+            int blockCount = widthX * widthY * height;
+
+            blocks = new byte[blockCount];
+            for( int i = 0; i < blocks.Length; i++ ) {
+                blocks[i] = 0;
+            }
+        }
+
+
+        #region Saving
+        public bool Save( string fileName ) {
+            string tempFileName = fileName + "." + (new Random().Next().ToString());
+
+            using( FileStream fs = File.Create( tempFileName ) ) {
+                try {
+                    WriteHeader( fs );
+                    WriteMetadata( new BinaryWriter(fs) );
+                    changesSinceSave = 0;
+                    GetCompressedCopy( fs, false );
+                } catch( IOException ex ) {
+                    Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
+                                   tempFileName, ex.Message );
+                    if( File.Exists( tempFileName ) ) {
+                        File.Delete( tempFileName );
+                    }
+                    return false;
+                }
+            }
+            if( File.Exists( fileName ) ) {
+                File.Delete( fileName );
+            }
+            File.Move( tempFileName, fileName );
+            changesSinceBackup++;
+            Logger.Log( "Saved map succesfully to {0}", LogType.SystemActivity, fileName );
+            return true;
+        }
+
+
+        void WriteHeader( FileStream fs ) {
+            BinaryWriter writer = new BinaryWriter( fs );
+            writer.Write( Config.LevelFormatID );
+            writer.Write( (ushort)widthX );
+            writer.Write( (ushort)widthY );
+            writer.Write( (ushort)height );
+            writer.Write( (ushort)spawn.x );
+            writer.Write( (ushort)spawn.y );
+            writer.Write( (ushort)spawn.h );
+            writer.Write( (byte)spawn.r );
+            writer.Write( (byte)spawn.l );
+            writer.Flush();
+        }
+
+
+        internal void WriteMetadata( BinaryWriter writer ) {
+            lock( metaLock ) {
+                writer.Write( (ushort)(meta.Count+zones.Count) );
+                foreach( KeyValuePair<string, string> pair in meta ) {
+                    WriteLengthPrefixedString( writer, pair.Key );
+                    WriteLengthPrefixedString( writer, pair.Value );
+                }
+                int i = 0;
+                lock( zoneLock ) {
+                    foreach( Zone zone in zones.Values ) {
+                        WriteLengthPrefixedString( writer, "@zone" + i );
+                        WriteLengthPrefixedString( writer, zone.Serialize() );
+                    }
+                }
+            }
+            writer.Flush();
+        }
+
+
+        void WriteLengthPrefixedString( BinaryWriter writer, string s ) {
+            byte[] stringData = ASCIIEncoding.ASCII.GetBytes( s );
+            writer.Write( stringData.Length );
+            writer.Write( stringData );
+        }
+#endregion
+
+        #region Loading
+        public static Map Load( World _world, string fileName, string formatName ) {
+            Map map = null;
+
+            // if file exists, go ahead and load
+            if ( File.Exists( fileName ) ) {
+                map = DoLoad( fileName );
+
+            // if not, try to add the extension (depending on format name)
+            } else if ( formatName != null ) {
+                MapFormats format = MapUtility.FindFormat( formatName );
+                if ( format != MapFormats.Unknown ) {
+                    if ( File.Exists( fileName + MapUtility.GetFileExtension( format ) ) ) {
+                        map = DoLoad( fileName + MapUtility.GetFileExtension( format ) );
+                    } else {
+                        Logger.Log( "Map.Load: Could not find the specified file.", LogType.Error );
+                    }
+                } else {
+                    Logger.Log( "Map.Load: Could not identify the map format: {0}", LogType.Error, formatName );
+                }
+                
+            // if all else fails, just try adding ".fcm" to it
+            } else {
+                if ( File.Exists( fileName + ".fcm" ) ) {
+                    map = DoLoad( fileName + ".fcm" );
+                } else {
+                    Logger.Log( "Map.Load: Could not find the specified file: {0}", LogType.Error, fileName );
+                }
+            }
+
+            if ( map != null ) {
+                map.world = _world;
+            }
+
+            return map;
+        }
+
+
+        static Map DoLoad( string fileName ) {
+            FileStream fs = null;
+            try {
+                fs = File.OpenRead( fileName );
+                Map map = MapUtility.TryLoading( fs );
+                if ( !map.ValidateBlockTypes( true ) ) {
+                    throw new Exception( "Invalid block types detected. File is possibly corrupt." );
+                }
+                return map;
+
+            } catch( EndOfStreamException ) {
+                Logger.Log( "Map.Load: Unexpected end of file - possible corruption!", LogType.Error );
+                return null;
+
+            } catch( Exception ex ) {
+                Logger.Log( "Map.Load: Error trying to read from \"{0}\": {1}", LogType.Error,
+                            fileName,
+                            ex.Message );
+                return null;
+
+            } finally {
+                if( fs != null ) {
+                    fs.Close();
+                }
+            }
+        }
+
+
+        internal bool ValidateHeader() {
+            if ( !IsValidDimension( height ) ) {
+                Logger.Log( "Map.ReadHeader: Invalid dimension specified for widthX: {0}.", LogType.Error, widthX );
+                return false;
+            }
+
+            if ( !IsValidDimension( widthY ) ) {
+                Logger.Log( "Map.ReadHeader: Invalid dimension specified for widthY: {0}.", LogType.Error, widthY );
+                return false;
+            }
+
+            if ( !IsValidDimension( height ) ) {
+                Logger.Log( "Map.ReadHeader: Invalid dimension specified for height: {0}.", LogType.Error, height );
+                return false;
+            }
+
+            if ( spawn.x > widthX * 32 || spawn.y > widthY * 32 || spawn.h > height * 32 || spawn.x < 0 || spawn.y < 0 || spawn.h < 0 ) {
+                Logger.Log( "Map.ReadHeader: Spawn coordinates are outside the valid range! Using center of the map instead.", LogType.Warning );
+                spawn.Set( widthX / 2 * 32, widthY / 2 * 32, height / 2 * 32, 0, 0 );
+            }
+
+            return true;
+        }
+
+
+        internal void ReadMetadata( BinaryReader reader ) {
+            try {
+                int metaSize = (int)reader.ReadUInt16();
+
+                for( int i = 0; i < metaSize; i++ ) {
+                    string key = ReadLengthPrefixedString( reader );
+                    string value = ReadLengthPrefixedString( reader );
+                    if( key.StartsWith( "@zone" ) ) {
+                        try {
+                            AddZone( new Zone( value ) );
+                        } catch( Exception ex ) {
+                            Logger.Log( "Map.ReadMetadata: cannot parse a zone: {0}", LogType.Error, ex.Message );
+                        }
+                    } else {
+                        meta.Add( key, value );
+                    }
+                }
+
+            } catch( FormatException ex ) {
+                Logger.Log( "Map.ReadMetadata: Cannot parse one or more of the metadata entries: {0}", LogType.Error,
+                            ex.Message );
+            }
+        }
+
+        string ReadLengthPrefixedString( BinaryReader reader ) {
+            int length = reader.ReadInt32();
+            byte[] stringData = reader.ReadBytes( length );
+            return ASCIIEncoding.ASCII.GetString( stringData );
+        }
+
+
+        // Only multiples of 16 are allowed, between 16 and 2032
+        public static bool IsValidDimension( int dimension ) {
+            return dimension > 0 && dimension % 16 == 0 && dimension < 2048;
+        }
+        #endregion
+
+        #region Utilities
+        static Dictionary<string, Block> blockNames = new Dictionary<string, Block>();
         public static void Init() {
-            foreach( string block in Enum.GetNames( typeof( Block ) ) ) {
+            foreach ( string block in Enum.GetNames( typeof( Block ) ) ) {
                 blockNames.Add( block.ToLower(), (Block)Enum.Parse( typeof( Block ), block ) );
             }
 
@@ -76,6 +305,7 @@ namespace fCraft {
             blockNames["mossystones"] = Block.MossyRocks;
         }
 
+
         internal static Block GetBlockByName( string block ) {
             return blockNames[block];
         }
@@ -87,36 +317,73 @@ namespace fCraft {
         }
 
 
-        internal bool ValidateBlockTypes() {
-            for( int i = 0; i < blocks.Length; i++ ) {
-                if( (blocks[i]) > 49 ) {
-                    return false;
+        internal bool ValidateBlockTypes( bool returnOnErrors ) {
+            for ( int i = 0; i < blocks.Length; i++ ) {
+                if ( ( blocks[i] ) > 49 ) {
+                    if ( returnOnErrors ) return false;
+                    else blocks[i] = 0;
                 }
             }
             return true;
         }
 
+        // zips a copy of the block array
+        public void GetCompressedCopy( Stream stream, bool prependBlockCount ) {
+            using ( GZipStream compressor = new GZipStream( stream, CompressionMode.Compress ) ) {
+                if ( prependBlockCount ) {
+                    // convert block count to big-endian
+                    int convertedBlockCount = Server.htons( blocks.Length );
+                    // write block count to gzip stream
+                    compressor.Write( BitConverter.GetBytes( convertedBlockCount ), 0, sizeof( int ) );
+                }
+                compressor.Write( blocks, 0, blocks.Length );
+            }
+        }
 
-        // ==== Members =======================================================
+        public void MakeFloodBarrier() {
+            for ( int x = 0; x < widthX; x++ ) {
+                for ( int y = 0; y < widthY; y++ ) {
+                    SetBlock( x, y, 0, Block.Admincrete );
+                }
+            }
 
-        byte[] blocks;
-        public int widthX, widthY, height;
-        public Position spawn;
-        public Dictionary<string, string> meta = new Dictionary<string, string>();
+            for ( int x = 0; x < widthX; x++ ) {
+                for ( int h = 0; h < height / 2; h++ ) {
+                    SetBlock( x, 0, h, Block.Admincrete );
+                    SetBlock( x, widthY - 1, h, Block.Admincrete );
+                }
+            }
+
+            for ( int y = 0; y < widthY; y++ ) {
+                for ( int h = 0; h < height / 2; h++ ) {
+                    SetBlock( 0, y, h, Block.Admincrete );
+                    SetBlock( widthX - 1, y, h, Block.Admincrete );
+                }
+            }
+        }
+
+
+        public int GetBlockCount() {
+            return widthX * widthY * height;
+        }
+
+        #endregion
+
+        #region Zones
         public Dictionary<string, Zone> zones = new Dictionary<string, Zone>();
 
         public bool AddZone( Zone z ) {
-            lock( zoneLock ) {
-                if( zones.ContainsKey( z.name.ToLowerInvariant() ) ) return false;
-                zones.Add( z.name.ToLowerInvariant(), z );
+            lock ( zoneLock ) {
+                if ( zones.ContainsKey( z.name.ToLower() ) ) return false;
+                zones.Add( z.name.ToLower(), z );
             }
             return true;
         }
 
         public bool RemoveZone( string z ) {
-            lock( zoneLock ) {
-                if( !zones.ContainsKey( z.ToLowerInvariant() ) ) return false;
-                zones.Remove( z.ToLowerInvariant() );
+            lock ( zoneLock ) {
+                if ( !zones.ContainsKey( z.ToLower() ) ) return false;
+                zones.Remove( z.ToLower() );
             }
             return true;
         }
@@ -124,9 +391,9 @@ namespace fCraft {
         public Zone[] ListZones() {
             Zone[] output;
             int i = 0;
-            lock( zoneLock ) {
+            lock ( zoneLock ) {
                 output = new Zone[zones.Count];
-                foreach( Zone zone in zones.Values ) {
+                foreach ( Zone zone in zones.Values ) {
                     output[i++] = zone;
                 }
             }
@@ -135,11 +402,11 @@ namespace fCraft {
 
         public bool CheckZones( short x, short y, short h, Player player, ref bool zoneOverride, ref string zoneName ) {
             bool found = false;
-            lock( zoneLock ) {
-                foreach( Zone zone in zones.Values ) {
+            lock ( zoneLock ) {
+                foreach ( Zone zone in zones.Values ) {
                     zoneName = zone.name;
-                    if( zone.Contains( x, y, h ) ) {
-                        if( zone.CanBuild( player ) ) {
+                    if ( zone.Contains( x, y, h ) ) {
+                        if ( zone.CanBuild( player ) ) {
                             zoneOverride = true;
                             return true;
                         } else {
@@ -151,261 +418,9 @@ namespace fCraft {
             return found;
         }
 
-        Queue<BlockUpdate> updates = new Queue<BlockUpdate>();
-        object queueLock = new object(), metaLock = new object(), zoneLock = new object();
-        public int changesSinceSave, changesSinceBackup;
+        #endregion
 
-
-        public Map( World _world) {
-            world = _world;
-        }
-
-        public Map( World _world, int _widthX, int _widthY, int _height ) : this(_world) {
-            widthX = _widthX;
-            widthY = _widthY;
-            height = _height;
-
-            int blockCount = widthX * widthY * height;
-
-            blocks = new byte[blockCount];
-            for( int i = 0; i < blocks.Length; i++ ) {
-                blocks[i] = 0;
-            }
-        }
-
-
-        // ==== Saving ========================================================
-
-
-        public bool Save( string fileName ) {
-            string tempFileName = fileName + "." + (new Random().Next().ToString());
-
-            using( FileStream fs = File.Create( tempFileName ) ) {
-                try {
-                    WriteHeader( fs );
-                    WriteMetadata( fs );
-                    changesSinceSave = 0;
-                    GetCompressedCopy( fs, false );
-                } catch( IOException ex ) {
-                    Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
-                                   tempFileName, ex.Message );
-                    if( File.Exists( tempFileName ) ) {
-                        File.Delete( tempFileName );
-                    }
-                    return false;
-                }
-            }
-            if( File.Exists( fileName ) ) {
-                File.Delete( fileName );
-            }
-            File.Move( tempFileName, fileName );
-            changesSinceBackup++;
-            Logger.Log( "Saved map succesfully to {0}", LogType.SystemActivity, fileName );
-            return true;
-        }
-
-
-        void WriteHeader( FileStream fs ) {
-            BinaryWriter writer = new BinaryWriter( fs );
-            writer.Write( Config.LevelFormatID );
-            writer.Write( (ushort)widthX );
-            writer.Write( (ushort)widthY );
-            writer.Write( (ushort)height );
-            writer.Write( (ushort)spawn.x );
-            writer.Write( (ushort)spawn.y );
-            writer.Write( (ushort)spawn.h );
-            writer.Write( (byte)spawn.r );
-            writer.Write( (byte)spawn.l );
-            writer.Flush();
-        }
-
-
-        void WriteMetadata( FileStream fs ) {
-            BinaryWriter writer = new BinaryWriter( fs );
-            lock( metaLock ) {
-                writer.Write( (ushort)(meta.Count+zones.Count) );
-                foreach( KeyValuePair<string, string> pair in meta ) {
-                    WriteLengthPrefixedString( writer, pair.Key );
-                    WriteLengthPrefixedString( writer, pair.Value );
-                }
-                int i = 0;
-                lock( zoneLock ) {
-                    foreach( Zone zone in zones.Values ) {
-                        WriteLengthPrefixedString( writer, "@zone" + i );
-                        WriteLengthPrefixedString( writer, zone.Serialize() );
-                    }
-                }
-            }
-            writer.Flush();
-        }
-
-
-        void WriteLengthPrefixedString( BinaryWriter writer, string s ) {
-            byte[] stringData = ASCIIEncoding.ASCII.GetBytes( s );
-            writer.Write( stringData.Length );
-            writer.Write( stringData );
-        }
-
-
-        // ==== Loading =======================================================
-
-
-        public static Map Load( World _world, string fileName ) {
-            if( !File.Exists( fileName ) ) {
-                Logger.Log( "Map.Load: Specified file does not exist: {0}", LogType.Warning, fileName );
-                return null;
-            }
-
-            switch( Path.GetExtension( fileName ).ToLowerInvariant() ) {
-                case ".fcm":
-                    return LoadFCM( _world, fileName );
-                case ".dat":
-                    return MapLoaderDAT.Load( _world, fileName );
-                default:
-                    throw new Exception( "Unknown map file format." );
-            }
-        }
-
-        static Map LoadFCM( World _world, string fileName ) {
-            FileStream fs = null;
-            Map map = new Map( _world );
-            try {
-                fs = File.OpenRead( fileName );
-                if( map.ReadHeader( fs ) ) {
-                    map.ReadMetadata( fs );
-                    map.ReadBlocks( fs );
-                    if( !map.ValidateBlockTypes() ) {
-                        throw new Exception( "Invalid block types detected. File is possibly corrupt." );
-                    }
-                    Logger.Log( "Loaded map succesfully from {0}", LogType.SystemActivity, fileName );
-                    return map;
-                } else {
-                    return null;
-                }
-            } catch( EndOfStreamException ) {
-                Logger.Log( "Map.Load: Unexpected end of file - possible corruption!", LogType.Error );
-                return null;
-            } catch( Exception ex ) {
-                Logger.Log( "Map.Load: Error trying to read from \"{0}\": {1}", LogType.Error, fileName, ex.Message );
-                return null;
-            } finally {
-                if( fs != null ) {
-                    fs.Close();
-                }
-            }
-        }
-
-
-        // Parse the level header
-        bool ReadHeader( FileStream fs ) {
-            BinaryReader reader = new BinaryReader( fs );
-            try {
-                // TODO: reevaluate whether i need these restrictions or not
-                if( reader.ReadUInt32() != Config.LevelFormatID ) {
-                    Logger.Log( "Map.ReadHeader: Incorrect level format id (expected: {0}).", LogType.Error, Config.LevelFormatID );
-                    return false;
-                }
-
-                widthX = reader.ReadUInt16();
-                if( !IsValidDimension( widthX ) ) {
-                    Logger.Log( "Map.ReadHeader: Invalid dimension specified for widthX: {0}.", LogType.Error, widthX );
-                    return false;
-                }
-
-                widthY = reader.ReadUInt16();
-                if( !IsValidDimension( widthY ) ) {
-                    Logger.Log( "Map.ReadHeader: Invalid dimension specified for widthY: {0}.", LogType.Error, widthY );
-                    return false;
-                }
-
-                height = reader.ReadUInt16();
-                if( !IsValidDimension( height ) ) {
-                    Logger.Log( "Map.ReadHeader: Invalid dimension specified for height: {0}.", LogType.Error, height );
-                    return false;
-                }
-
-                spawn.x = reader.ReadInt16();
-                spawn.y = reader.ReadInt16();
-                spawn.h = reader.ReadInt16();
-                spawn.r = reader.ReadByte();
-                spawn.l = reader.ReadByte();
-                if( spawn.x > widthX * 32 || spawn.y > widthY * 32 || spawn.h > height * 32 ||
-                    spawn.x < 0 || spawn.y < 0 || spawn.h < 0 ) {
-                    Logger.Log( "Map.ReadHeader: Spawn coordinates are outside the valid range! Using center of the map instead.", LogType.Warning );
-                    spawn.Set( widthX / 2 * 32, widthY / 2 * 32, height / 2 * 32, 0, 0 );
-                }
-
-            } catch( FormatException ex ) {
-                Logger.Log( "Map.ReadHeader: Cannot parse one or more of the header entries: {0}", LogType.Error, ex.Message );
-                return false;
-            }
-            return true;
-
-        }
-
-
-        void ReadBlocks( FileStream fs ) {
-            int blockCount = widthX * widthY * height;
-            blocks = new byte[blockCount];
-
-            GZipStream decompressor = new GZipStream( fs, CompressionMode.Decompress );
-            decompressor.Read( blocks, 0, blockCount );
-            decompressor.Flush();
-        }
-
-
-        void ReadMetadata( FileStream fs ) {
-            BinaryReader reader = new BinaryReader( fs );
-            try {
-                int metaSize = (int)reader.ReadUInt16();
-
-                for( int i = 0; i < metaSize; i++ ) {
-                    string key = ReadLengthPrefixedString( reader );
-                    string value = ReadLengthPrefixedString( reader );
-                    if( key.StartsWith( "@zone" ) ) {
-                        try {
-                            AddZone( new Zone( value ) );
-                        } catch( Exception ex ) {
-                            Logger.Log( "Map.ReadMetadata: cannot parse a zone: {0}", LogType.Error, ex.Message );
-                        }
-                    } else {
-                        meta.Add( key, value );
-                    }
-                }
-
-            } catch( FormatException ex ) {
-                Logger.Log( "Map.ReadMetadata: Cannot parse one or more of the metadata entries: {0}", LogType.Error, ex.Message );
-            }
-        }
-
-        string ReadLengthPrefixedString( BinaryReader reader ) {
-            int length = reader.ReadInt32();
-            byte[] stringData = reader.ReadBytes( length );
-            return ASCIIEncoding.ASCII.GetString( stringData );
-        }
-
-
-        // Only power-of-2 dimensions are allowed
-        public static bool IsValidDimension( int dimension ) {
-            return dimension > 0 && dimension % 16 == 0 && dimension < 2048;
-        }
-
-
-        // zips a copy of the block array
-        public void GetCompressedCopy( Stream stream, bool prependBlockCount ) {
-            using( GZipStream compressor = new GZipStream( stream, CompressionMode.Compress ) ) {
-                if( prependBlockCount ) {
-                    // convert block count to big-endian
-                    int convertedBlockCount = Server.htons( blocks.Length );
-                    // write block count to gzip stream
-                    compressor.Write( BitConverter.GetBytes( convertedBlockCount ), 0, sizeof( int ) );
-                }
-                compressor.Write( blocks, 0, blocks.Length );
-            }
-        }
-
-
-        // ==== Simulation ====================================================
+        #region Block Updates & Simulation
 
         public int Index( int x, int y, int h ) {
             return (h * widthY + y) * widthX + x;
@@ -504,7 +519,9 @@ namespace fCraft {
             return totalBlockUpdates;
         }
 
+        #endregion
 
+        #region Backup
         public void SaveBackup( string sourceName, string targetName ) {
             if( changesSinceBackup == 0 && Config.GetBool( "BackupOnlyWhenChanged" ) ) return;
             if( !Directory.Exists( "backups" ) ) {
@@ -528,35 +545,12 @@ namespace fCraft {
             Logger.Log( "AutoBackup: " + targetName, LogType.SystemActivity );
         }
 
-
-        public void MakeFloodBarrier() {
-            for( int x = 0; x < widthX; x++ ) {
-                for( int y = 0; y < widthY; y++ ) {
-                    SetBlock( x, y, 0, Block.Admincrete );
-                }
-            }
-
-            for( int x = 0; x < widthX; x++ ) {
-                for( int h = 0; h < height / 2; h++ ) {
-                    SetBlock( x, 0, h, Block.Admincrete );
-                    SetBlock( x, widthY - 1, h, Block.Admincrete );
-                }
-            }
-
-            for( int y = 0; y < widthY; y++ ) {
-                for( int h = 0; h < height / 2; h++ ) {
-                    SetBlock( 0, y, h, Block.Admincrete );
-                    SetBlock( widthX - 1, y, h, Block.Admincrete );
-                }
-            }
-        }
-
-
         class FileInfoComparer : IComparer<FileInfo> {
             public static FileInfoComparer instance = new FileInfoComparer();
             public int Compare( FileInfo x, FileInfo y ) {
                 return x.CreationTime.CompareTo( y.CreationTime );
             }
         }
+        #endregion
     }
 }

@@ -30,122 +30,129 @@
 using System;
 using System.IO;
 using System.IO.Compression;
-
 using System.Net;
+using fCraft;
+
 
 namespace mcc {
     public class MapMinerCPP : IConverter {
+
         public MapFormats Format {
-            get {
-                return MapFormats.MinerCPP;
-            }
+            get { return MapFormats.MinerCPP; }
         }
 
-        public string[] UsedBy {
-            get {
-                return new string[] { "minercpp", "luacraft" };
-            }
+        public string FileExtension {
+            get { return ".dat"; }
         }
 
-        public Map Load( System.IO.Stream MapStream ) {
+        public string[] Keywords {
+            get { return new string[] { "minercpp", "mcpp", "luacraft", "dat" }; }
+        }
+
+
+        public Map Load( Stream MapStream ) {
             // Reset the seeker to the front of the stream
             // This should probably be done differently.
             MapStream.Seek( 0, SeekOrigin.Begin );
-            
-            Map m = new Map(  );
-            
+
+            Map m = new Map();
+
             // Setup a GZipStream to decompress and read the map file
-            using( GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true ) ) {
+            using ( GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true ) ) {
                 BinaryReader bs = new BinaryReader( gs );
-                
+
                 // Read in the magic number
-                if( bs.ReadByte(  ) != 0xbe || bs.ReadByte(  ) != 0xee || bs.ReadByte(  ) != 0xef ) {
-                    throw new System.FormatException(  );
+                if ( bs.ReadByte() != 0xbe || bs.ReadByte() != 0xee || bs.ReadByte() != 0xef ) {
+                    throw new FormatException( "MinerCPP map header is incorrect." );
                 }
-                
+
                 // Read in the map dimesions
                 // Saved in big endian for who-know-what reason.
                 // XYZ(?)
-                m.Width = (ushort)IPAddress.NetworkToHostOrder( (short)bs.ReadUInt16(  ) );
-                m.Height = (ushort)IPAddress.NetworkToHostOrder( (short)bs.ReadUInt16(  ) );
-                m.Depth = (ushort)IPAddress.NetworkToHostOrder( (short)bs.ReadUInt16(  ) );
-                
+                m.widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                m.height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                m.widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+
                 // Read in the spawn location
                 // XYZ(?)
-                m.SpawnX = (ushort)( IPAddress.NetworkToHostOrder( (short)bs.ReadUInt16(  ) ) / 32 );
-                m.SpawnY = (ushort)( IPAddress.NetworkToHostOrder( (short)bs.ReadUInt16(  ) ) / 32 );
-                m.SpawnZ = (ushort)( IPAddress.NetworkToHostOrder( (short)bs.ReadUInt16(  ) ) / 32 );
-                
+                m.spawn.x = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                m.spawn.h = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                m.spawn.y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+
                 // Read in the spawn orientation
-                m.SpawnRotation = bs.ReadByte(  );
-                m.SpawnPitch = bs.ReadByte(  );
-                
+                m.spawn.r = bs.ReadByte();
+                m.spawn.l = bs.ReadByte();
+
                 // Skip over the block count, totally useless
-                bs.ReadUInt32(  );
-                
+                bs.ReadInt32();
+
                 // Read in the map data
-                m.MapData = new Byte[m.BlockCount];
-                m.MapData = bs.ReadBytes( m.BlockCount );
+                m.blocks = bs.ReadBytes( m.GetBlockCount() );
+                if ( !m.ValidateBlockTypes( true ) ) {
+                    throw new Exception( "Unrecognized block types in the map." );
+                }
             }
-            
+
             return m;
         }
 
+
         public bool Save( Map MapToSave, System.IO.Stream MapStream ) {
             // Todo: Implement saving
-            using( GZipStream gs = new GZipStream( MapStream, CompressionMode.Compress, true ) ) {
+            using ( GZipStream gs = new GZipStream( MapStream, CompressionMode.Compress, true ) ) {
                 BinaryWriter bs = new BinaryWriter( gs );
-                
+
                 // Write out the magic number
                 bs.Write( new byte[] { 0xbe, 0xee, 0xef } );
-                
+
                 // Save the map dimensions
                 // XYZ(?)
-                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)MapToSave.Width ) );
-                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)MapToSave.Height ) );
-                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)MapToSave.Depth ) );
-                
+                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)MapToSave.widthX ) );
+                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)MapToSave.height ) );
+                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)MapToSave.widthY ) );
+
                 // Save the spawn location
-                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)MapToSave.SpawnX ) * 32 );
-                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)MapToSave.SpawnY ) * 32 );
-                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)MapToSave.SpawnZ ) * 32 );
-                
+                bs.Write( IPAddress.HostToNetworkOrder( MapToSave.spawn.x ) );
+                bs.Write( IPAddress.HostToNetworkOrder( MapToSave.spawn.h ) );
+                bs.Write( IPAddress.HostToNetworkOrder( MapToSave.spawn.y ) );
+
                 // Save the spawn orientation
-                bs.Write( MapToSave.SpawnRotation );
-                bs.Write( MapToSave.SpawnPitch );
-                
+                bs.Write( MapToSave.spawn.r );
+                bs.Write( MapToSave.spawn.l );
+
                 // Write out the block count (which is totally useless, can't stress that enough.)
-                bs.Write( (uint)IPAddress.HostToNetworkOrder( (int)MapToSave.BlockCount ) );
-                
+                bs.Write( IPAddress.HostToNetworkOrder( MapToSave.blocks.Length ) );
+
                 // Write out the map data
-                bs.Write( MapToSave.MapData );
-                
+                bs.Write( MapToSave.blocks );
+
                 // Make sure the output gets flushed, fixes a bug in mono where the destructor doesn't flush
                 // on its own
-                bs.Close(  );
+                bs.Close();
             }
-            
+
             return true;
         }
 
+
         public bool Claims( System.IO.Stream MapStream ) {
             MapStream.Seek( 0, SeekOrigin.Begin );
-            
+
             GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true );
             BinaryReader bs = new BinaryReader( gs );
-            
+
             try {
-                if( bs.ReadByte(  ) == 0xbe && bs.ReadByte(  ) == 0xee && bs.ReadByte(  ) == 0xef ) {
+                if ( bs.ReadByte() == 0xbe && bs.ReadByte() == 0xee && bs.ReadByte() == 0xef ) {
                     return true;
                 }
-            } catch( IOException ) {
+            } catch ( IOException ) {
                 return false;
-            } catch( InvalidDataException ) {
+            } catch ( InvalidDataException ) {
                 return false;
             }
-            
+
             return false;
-            
+
         }
     }
 }

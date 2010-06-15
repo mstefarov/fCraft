@@ -53,7 +53,6 @@ namespace fCraft {
 
             if( OnInit != null ) OnInit();
 
-
             return true;
         }
 
@@ -86,12 +85,15 @@ namespace fCraft {
                 defaultWorld = AddWorld( "main", true );
             }
 
+            // if there is no default world still, die.
             if( defaultWorld == null ) {
                 Logger.Log( "Could not create the default world!", LogType.FatalError );
                 return false;
             }
+
             SaveWorldList();
 
+            // open the port
             bool portFound = false;
             int attempts = 0;
             int port = Config.GetInt( "Port" );
@@ -101,7 +103,9 @@ namespace fCraft {
                     listener = new TcpListener( IPAddress.Any, port );
                     listener.Start();
                     portFound = true;
+
                 } catch( Exception ex ) {
+                    // if the port is unavailable, try next one
                     Logger.Log( "Could not start listening on port {0}, trying next port. ({1})", LogType.Error,
                                    port, ex.Message );
                     port++;
@@ -109,6 +113,8 @@ namespace fCraft {
                 }
             } while( !portFound && attempts < maxPortAttempts );
 
+
+            // if the port still cannot be opened after [maxPortAttempts] attemps, die.
             if( !portFound ) {
                 Logger.Log( "Could not start listening after {0} tries. Giving up!", LogType.FatalError,
                                maxPortAttempts );
@@ -116,9 +122,7 @@ namespace fCraft {
             }
 
             Logger.Log( "Server.Run: now accepting connections at port {0}.", LogType.Debug,
-                           port );
-
-
+                        port );
 
             serverStart = DateTime.Now;
 
@@ -140,7 +144,6 @@ namespace fCraft {
             foreach( World world in worlds.Values ) {
                 AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ), world );
 
-
                 if( Config.GetInt( "SaveInterval" ) > 0 ) {
                     int saveInterval = Config.GetInt( "SaveInterval" ) * 1000;
                     saveMapTaskId = AddTask( SaveMap, saveInterval, world, saveInterval );
@@ -158,6 +161,7 @@ namespace fCraft {
 
             UpdatePlayerList();
 
+            // start the main loop
             mainThread = new Thread( MainLoop );
             mainThread.Start();
 
@@ -165,36 +169,48 @@ namespace fCraft {
 
             if( Config.GetBool( "IRCBot" ) ) IRCBot.Start();
 
+            // fire OnStart event
             if( OnStart != null ) OnStart();
             return true;
         }
 
         
         // shuts down the server and aborts threads
-        // NOTE: heartbeat should stop automatically
+        // NOTE: Do not call from any of the usual threads (main, heartbeat, tasks).
+        // Call from UI thread or a new separate thread only.
         public static void Shutdown() {
             if( OnShutdownStart != null ) OnShutdownStart();
+
+            // stop accepting new players
             if( listener != null ) {
                 listener.Stop();
                 listener = null;
             }
 
+            // kill the heartbeat
+            Heartbeat.ShutDown();
+
+            // kill the main thread
             Logger.Log( "Server shutting down.", LogType.SystemActivity );
             continueMainLoop = false;
             if( mainThread != null && mainThread.IsAlive ) {
                 mainThread.Join();
             }
 
-            Heartbeat.ShutDown();
+            // kill IRC bot
             if( IRCBot.isOnline() == true ) IRCBot.ShutDown();
+
+            // kill background tasks
             Tasks.ShutDown();
 
+            // kick all players
             lock( playerListLock ) {
                 foreach( Session session in sessions ) {
                     session.Kick( "Server shutting down." );
                 }
             }
 
+            // unload all worlds (includes saving 
             foreach( World world in worlds.Values ) {
                 world.Shutdown();
             }
@@ -204,6 +220,8 @@ namespace fCraft {
             if( OnShutdownEnd != null ) OnShutdownEnd();
         }
 
+
+        #region Worlds
 
         public static World AddWorld( string name, bool neverUnload ) {
             lock( worldListLock ) {
@@ -221,10 +239,12 @@ namespace fCraft {
         public static void SaveWorldList() {
             // Save world list
             using( StreamWriter writer = File.CreateText( WorldListFile ) ) {
-                writer.WriteLine( defaultWorld.name );
-                foreach( string worldName in worlds.Keys ) {
-                    if( worldName != defaultWorld.name ) {
-                        writer.WriteLine( worldName );
+                lock ( worldListLock ) {
+                    writer.WriteLine( defaultWorld.name );
+                    foreach ( string worldName in worlds.Keys ) {
+                        if ( worldName != defaultWorld.name ) {
+                            writer.WriteLine( worldName );
+                        }
                     }
                 }
             }
@@ -234,15 +254,55 @@ namespace fCraft {
         public static World FindWorld( string name ) {
             if( name == null ) return null;
             lock( worldListLock ) {
-                foreach( World world in worlds.Values ) {
-                    if( world.name.ToLowerInvariant() == name.ToLowerInvariant() ) {
-                        return world;
-                    }
+                if ( worlds.ContainsKey( name.ToLower() ) ) {
+                    return worlds[name.ToLower()];
+                } else {
+                    return null;
                 }
             }
-            return null;
         }
 
+
+        public static bool RemoveWorld( string name ) {
+            lock ( worldListLock ) {
+                World worldToDelete = FindWorld( name );
+                if ( worldToDelete == null || worldToDelete == defaultWorld ) {
+                    return false;
+                } else {
+                    worlds.Remove( name.ToLower() );
+                    return true;
+                }
+            }
+        }
+
+
+        public static bool RenameWorld( string oldName, string newName ) {
+            lock ( worldListLock ) {
+                World oldWorld = FindWorld( oldName );
+                World newWorld = FindWorld( newName );
+                if ( oldWorld == null || newWorld != null ) return false;
+                worlds.Remove( oldName.ToLower() );
+                oldWorld.name = newName;
+                worlds.Add( newName.ToLower(), oldWorld );
+                return true;
+            }
+        }
+
+
+        public static bool ReplaceWorld( string name, World newWorld ) {
+            lock ( worldListLock ) {
+                World oldWorld = FindWorld( name );
+                if ( oldWorld == null ) return false;
+                newWorld.name = oldWorld.name;
+                if ( oldWorld == defaultWorld ) {
+                    defaultWorld = newWorld;
+                }
+                worlds[name.ToLower()] = newWorld;
+                return true;
+            }
+        }
+
+        #endregion
 
         #region Networking
         public static void SendToAllDelayed( Packet packet, Player except ) {
@@ -304,7 +364,6 @@ namespace fCraft {
         }
         #endregion
 
-
         #region Events
         // events
         public static event SimpleEventHandler OnInit;
@@ -338,7 +397,6 @@ namespace fCraft {
             if( OnPlayerChangedWorld != null ) OnPlayerChangedWorld( player, oldWorld, newWorld );
         }
         #endregion
-
 
         #region Scheduler
 
@@ -432,7 +490,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Utilities
 
         public static char[] reservedChars = { ' ', '!', '*', '\'', '(', ')', ';', ':', '@', '&',
@@ -499,7 +556,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region PlayerList
         // Return player count

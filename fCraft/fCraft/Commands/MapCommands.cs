@@ -8,7 +8,7 @@ namespace fCraft {
         static object loadLock = new object();
 
         internal static void Init() {
-            //Commands.AddCommand( "load", Load, true ); //TODO: streamload
+            Commands.AddCommand( "load", Load, false ); //TODO: streamload
             Commands.AddCommand( "join", Join, false );
             Commands.AddCommand( "save", Save, true );
 
@@ -184,6 +184,28 @@ namespace fCraft {
 
         //}
 
+        internal static void Load( Player player, Command cmd ) {
+            if ( !player.Can( Permissions.SaveAndLoad ) ) {
+                player.NoAccessMessage();
+                return;
+            }
+
+            string fileName = cmd.Next();
+            if ( fileName == null ) {
+                player.Message( "Syntax: " + Color.Help + "/load mapName.ext" + Color.Sys + " or " + Color.Help + "/load mapName formatName" );
+                return;
+            }
+
+            player.Message( "Attempting to load " + fileName + "..." );
+
+            Map map = Map.Load( player.world, fileName, cmd.Next() );
+            if ( map != null ) {
+                player.world.ChangeMap( map );
+            } else {
+                player.Message( "Could not load specified file." );
+            }
+        }
+            
 
         /*internal static void Load( Player player, Command cmd ) {//TODO: streamload
             lock( loadLock ) {
