@@ -29,54 +29,19 @@
 
 using System;
 using System.IO;
+using fCraft;
+
 
 namespace mcc {
     public interface IConverter {
-        /// <summary>
-        /// Returns the MapFormat (defined in MapFormats.cs) that identifies this map format.
-        /// </summary>
         MapFormats Format { get; }
+        string FileExtension { get; }
+        string[] Keywords { get; }
 
-        /// <summary>
-        /// Returns a string array of Servers/Programs that use this format.
-        /// </summary>
-        string[] UsedBy { get; }
-        
-        /// <summary>
-        /// Returns true if this class claims it can support the map passed
-        /// in MapStream.
-        /// </summary>
-        /// <param name="MapStream">
-        /// A <see cref="Stream"/>
-        /// </param>
-        /// <returns>
-        /// A <see cref="System.Boolean"/>
-        /// </returns>
         bool Claims( Stream MapStream );
 
-        /// <summary>
-        /// Loads a map from MapStream returning an instance of Map.
-        /// </summary>
-        /// <param name="MapStream">
-        /// A <see cref="Stream"/>
-        /// </param>
-        /// <returns>
-        /// A <see cref="Map"/>
-        /// </returns>
         Map Load( Stream MapStream );
-        
-        /// <summary>
-        /// Saves a map from MapToSave to the stream MapStream.
-        /// </summary>
-        /// <param name="MapToSave">
-        /// A <see cref="Map"/>
-        /// </param>
-        /// <param name="MapStream">
-        /// A <see cref="Stream"/>
-        /// </param>
-        /// <returns>
-        /// A <see cref="System.Boolean"/>
-        /// </returns>
+
         bool Save( Map MapToSave, Stream MapStream );
     }
 }

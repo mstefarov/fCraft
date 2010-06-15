@@ -14,6 +14,7 @@ namespace fCraft {
         public Player player;
         public DateTime loginTime;
         public bool canReceive, canSend, canQueue, canDispose;
+        public bool isBetweenWorlds = true;
 
         Thread ioThread;
         TcpClient client;
@@ -22,9 +23,11 @@ namespace fCraft {
         public Queue<Packet> outputQueue, priorityOutputQueue;
         object queueLock, priorityQueueLock;
         World startingWorld;
+        internal World forcedWorldToJoin = null;
 
         int fullPositionUpdateCounter = 0;
         const int fullPositionUpdateInterval = 10;
+
 
         public Session( World _world, TcpClient _client ) {
 
@@ -71,6 +74,13 @@ namespace fCraft {
 
                 while( !canDispose ) {
                     Thread.Sleep( 1 );
+
+                    if ( forcedWorldToJoin != null ) {
+                        JoinWorld( forcedWorldToJoin, true );
+                        forcedWorldToJoin = null;
+                        continue;
+                    }
+
                     packetsSent = 0;
 
                     // detect player disconnect
@@ -197,6 +207,7 @@ namespace fCraft {
                                 y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
                                 mode = reader.ReadByte();
                                 type = reader.ReadByte();
+                                if ( isBetweenWorlds ) continue;
                                 if( type > 49 || x < 0 || x > player.world.map.widthX || y < 0 || y > player.world.map.widthY || h < 0 || h > player.world.map.height ) {
                                     Logger.Log( player.name + " was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity );
                                     Server.SendToAll( player.name + " was kicked for attempted hacking.", null );
@@ -370,15 +381,20 @@ namespace fCraft {
         }
 
 
+        internal void ClearQueues() {
+            lock ( queueLock ) {
+                outputQueue.Clear();
+            }
+        }
+
+
         public void JoinWorld( World newWorld, bool useHandshakePacket ) {
 
             if( !newWorld.FirePlayerTriedToJoinEvent( player ) ) {
                 return;
             }
-
-            lock( queueLock ) {
-                outputQueue.Clear();
-            }
+            isBetweenWorlds = true;
+            ClearQueues();
 
             client.NoDelay = false;
 
@@ -388,7 +404,7 @@ namespace fCraft {
 
             // Start sending over the level copy
             if( useHandshakePacket ) {
-                writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( "ServerName" ), "Loading world \"" + newWorld.name + "\"" ) );
+                writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( "ServerName" ), "Loading world \"" + player.world.name + "\"" ) );
             }
             writer.WriteLevelBegin();
             byte[] buffer = new byte[1024];
@@ -403,13 +419,13 @@ namespace fCraft {
             Logger.Log( "Session.LoginSequence: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
                            blockData.Length, player.name );
 
-            while( bytesSent < blockData.Length ) {
+            while ( bytesSent < blockData.Length ) {
                 int chunkSize = blockData.Length - bytesSent;
-                if( chunkSize > 1024 ) {
+                if ( chunkSize > 1024 ) {
                     chunkSize = 1024;
                 }
                 Array.Copy( blockData, bytesSent, buffer, 0, chunkSize );
-                byte progress = (byte)(100 * bytesSent / blockData.Length);
+                byte progress = (byte)( 100 * bytesSent / blockData.Length );
 
                 // write in chunks of 1024 bytes or less
                 writer.WriteLevelChunk( buffer, chunkSize, progress );
@@ -421,7 +437,11 @@ namespace fCraft {
 
             // Send new spawn
             player.pos = player.world.map.spawn;
+            Thread.Sleep( 100 );
             writer.WriteAddEntity( 255, player.name, player.pos );
+            writer.WriteTeleport( 255, player.pos );
+
+            isBetweenWorlds = false;
 
             // Send player list
             player.world.SendPlayerList( player );

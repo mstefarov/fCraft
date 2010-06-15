@@ -9,7 +9,7 @@ namespace fCraft {
 
         public static bool AddClass( PlayerClass playerClass ) {
             // check for duplicate class names
-            if( classes.ContainsKey( playerClass.name.ToLowerInvariant() ) ) {
+            if( classes.ContainsKey( playerClass.name.ToLower() ) ) {
                 if( !Config.logToString ) {
                     Logger.Log( "PlayerClass.AddClass: Duplicate definition for \"{0}\" (rank {1}) class ignored.", LogType.Error,
                                     playerClass.name, playerClass.rank );
@@ -28,7 +28,7 @@ namespace fCraft {
             }
 
             // determine class's index based on its rank
-            classes[playerClass.name.ToLowerInvariant()] = playerClass;
+            classes[playerClass.name.ToLower()] = playerClass;
             RebuildIndex();
 
             if( !Config.logToString ) {
@@ -40,8 +40,8 @@ namespace fCraft {
 
         public static PlayerClass ParseClass( string name ) {
             if( name == null ) return null;
-            if( classes.ContainsKey( name.ToLowerInvariant() ) ) {
-                return classes[name.ToLowerInvariant()];
+            if( classes.ContainsKey( name.ToLower() ) ) {
+                return classes[name.ToLower()];
             } else {
                 return null;
             }
@@ -103,7 +103,7 @@ namespace fCraft {
             bool rankLimitsChanged = false;
             PlayerClass deletedClass = classesByIndex[index];
             classesByIndex.Remove( deletedClass );
-            classes.Remove( deletedClass.name.ToLowerInvariant() );
+            classes.Remove( deletedClass.name.ToLower() );
             foreach( PlayerClass pc in classesByIndex ) {
                 if( pc.maxKick == deletedClass ) {
                     pc.maxKick = null;
@@ -147,15 +147,15 @@ namespace fCraft {
         }
 
         public static bool CanChangeName( PlayerClass pc, string newName ) {
-            if( pc.name.ToLowerInvariant() == newName.ToLowerInvariant() ) return true;
-            if( classes.ContainsKey( newName.ToLowerInvariant() ) ) return false;
+            if( pc.name.ToLower() == newName.ToLower() ) return true;
+            if( classes.ContainsKey( newName.ToLower() ) ) return false;
             return true;
         }
 
         public static void ChangeName( PlayerClass pc, string newName ) {
-            classes.Remove( pc.name.ToLowerInvariant() );
+            classes.Remove( pc.name.ToLower() );
             pc.name = newName;
-            classes.Add( pc.name.ToLowerInvariant(), pc );
+            classes.Add( pc.name.ToLower(), pc );
         }
 
         public static bool CanChangeRank( PlayerClass pc, byte newRank ) {

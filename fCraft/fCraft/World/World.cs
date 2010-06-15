@@ -30,7 +30,7 @@ using System.Text;
 namespace fCraft {
 
     public sealed class World {
-        
+
         public Map map;
         public string name;
         public Dictionary<int, Player> players = new Dictionary<int, Player>();
@@ -52,8 +52,8 @@ namespace fCraft {
 
         // Prepare for shutdown
         public void Shutdown() {
-            lock( mapLock ) {
-                if( Config.GetBool( "SaveOnShutdown" ) && map != null ) {
+            lock ( mapLock ) {
+                if ( Config.GetBool( "SaveOnShutdown" ) && map != null ) {
                     SaveMap( null );
                 }
             }
@@ -63,13 +63,13 @@ namespace fCraft {
 
         public void LoadMap() {
             try {
-                map = Map.Load( this, GetMapName() );
-            } catch( Exception ex ) {
+                map = Map.Load( this, GetMapName(), "fcraft" );
+            } catch ( Exception ex ) {
                 Logger.Log( "Could not open the specified file ({0}): {1}", LogType.Error, GetMapName(), ex.Message );
             }
 
             // or generate a default one
-            if( map == null ) {
+            if ( map == null ) {
                 Logger.Log( "World.Init: Generating default flatgrass level.", LogType.SystemActivity );
                 map = new Map( this, 64, 64, 64 );
 
@@ -80,16 +80,16 @@ namespace fCraft {
                 SaveMap( null );
             }
 
-            if( OnLoaded != null ) OnLoaded();
+            if ( OnLoaded != null ) OnLoaded();
         }
 
 
         public void UnloadMap() {
-            lock( mapLock ) {
+            lock ( mapLock ) {
                 SaveMap( null );
                 map = null;
             }
-            if( OnUnloaded != null ) OnUnloaded();
+            if ( OnUnloaded != null ) OnUnloaded();
             GC.Collect();
         }
 
@@ -100,8 +100,8 @@ namespace fCraft {
 
 
         public void SaveMap( object param ) {
-            lock( mapLock ) {
-                if( map != null ) {
+            lock ( mapLock ) {
+                if ( map != null ) {
                     map.Save( GetMapName() );
                 }
             }
@@ -110,7 +110,7 @@ namespace fCraft {
 
         public void Lock() {
             locked = true;
-            if(map!=null) map.ClearUpdateQueue();
+            if ( map != null ) map.ClearUpdateQueue();
             SendToAll( Color.Red + "Map is now on lockdown!" );
         }
 
@@ -120,14 +120,29 @@ namespace fCraft {
             SendToAll( "Map lockdown has ended." );
         }
 
+
+        public void ChangeMap( Map newMap ) {
+            lock ( mapLock ) {
+                lock ( playerListLock ) {
+                    World newWorld = new World( name );
+                    newWorld.map = newMap;
+                    Server.ReplaceWorld( name, newWorld );
+                    foreach ( Player player in playerList ) {
+                        player.session.forcedWorldToJoin = newWorld;
+                    }
+                    newWorld.SaveMap( null );
+                }
+            }
+        }
+
         #endregion
 
         #region PlayerList
 
         public void AcceptPlayer( Player player ) {
-            lock( playerListLock ) {
-                lock( mapLock ) {
-                    if( map == null ) {
+            lock ( playerListLock ) {
+                lock ( mapLock ) {
+                    if ( map == null ) {
                         LoadMap();
                     }
                 }
@@ -135,28 +150,28 @@ namespace fCraft {
                 UpdatePlayerList();
             }
             //UpdatePlayerList();
-            if( Config.GetBool( "BackupOnJoin" ) ) {
+            if ( Config.GetBool( "BackupOnJoin" ) ) {
                 map.SaveBackup( GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-dd HH-mm}_{2}.fcm", name, DateTime.Now, player.name ) );
             }
 
             // Reveal newcommer to existing players
             Logger.Log( "Player {0} joined \"{1}\".", LogType.UserActivity, player.name, name );
 
-            if( !player.isHidden ) {
+            if ( !player.isHidden ) {
                 SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
                 Server.SendToAll( String.Format( "{0}Player {1} joined \"{2}\".", Color.Sys, player.name, name ), player );
             }
 
-            if( OnPlayerJoined != null ) OnPlayerJoined( player, this );
+            if ( OnPlayerJoined != null ) OnPlayerJoined( player, this );
 
-            if( locked ) {
+            if ( locked ) {
                 player.Message( Color.Red, "This map is currently locked." );
             }
         }
 
 
         public void ReleasePlayer( Player player ) {
-            lock( playerListLock ) {
+            lock ( playerListLock ) {
 
                 if ( !players.Remove( player.id ) ) {
                     //Logger.Log( "World.ReleasePlayer: Attempting to release a nonexistent id.", LogType.Error );
@@ -171,7 +186,7 @@ namespace fCraft {
 
                 // update player list
                 UpdatePlayerList();
-                if( OnPlayerLeft != null ) OnPlayerLeft( player, this );
+                if ( OnPlayerLeft != null ) OnPlayerLeft( player, this );
                 SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
 
                 // unload map (if needed)
@@ -187,8 +202,8 @@ namespace fCraft {
         // Send a list of players to the specified new player
         internal void SendPlayerList( Player player ) {
             Player[] tempList = playerList;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i] != player && !tempList[i].isHidden ) {
+            for ( int i = 0; i < tempList.Length; i++ ) {
+                if ( tempList[i] != null && tempList[i] != player && !tempList[i].isHidden ) {
                     player.session.Send( PacketWriter.MakeAddEntity( tempList[i], tempList[i].pos ) );
                 }
             }
@@ -198,8 +213,8 @@ namespace fCraft {
         // re-adds player entity, in case of name or color change
         internal void UpdatePlayer( Player updatedPlayer ) {
             Player[] tempList = playerList;
-            for( int i = 1; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i] != updatedPlayer ) {
+            for ( int i = 1; i < tempList.Length; i++ ) {
+                if ( tempList[i] != null && tempList[i] != updatedPlayer ) {
                     tempList[i].Send( PacketWriter.MakeRemoveEntity( updatedPlayer.id ) );
                     tempList[i].Send( PacketWriter.MakeAddEntity( updatedPlayer, updatedPlayer.pos ) );
                 }
@@ -210,12 +225,12 @@ namespace fCraft {
         public string GetPlayerListString() {
             Player[] tempList = playerList;
             string list = "";
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && !tempList[i].isHidden ) {
+            for ( int i = 0; i < tempList.Length; i++ ) {
+                if ( tempList[i] != null && !tempList[i].isHidden ) {
                     list += tempList[i].name + ",";
                 }
             }
-            if( list.Length > 0 ) {
+            if ( list.Length > 0 ) {
                 return list.Substring( 0, list.Length - 1 );
             } else {
                 return list;
@@ -225,12 +240,12 @@ namespace fCraft {
 
         // Find player by name using autocompletion
         public Player FindPlayer( string name ) {
-            if( name == null ) return null;
+            if ( name == null ) return null;
             Player[] tempList = playerList;
             Player result = null;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
-                    if( result == null ) {
+            for ( int i = 0; i < tempList.Length; i++ ) {
+                if ( tempList[i] != null && tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                    if ( result == null ) {
                         result = tempList[i];
                     } else {
                         return null;
@@ -244,8 +259,8 @@ namespace fCraft {
         // Get player by name without autocompletion
         public Player FindPlayerExact( string name ) {
             Player[] tempList = playerList;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i].name == name ) {
+            for ( int i = 0; i < tempList.Length; i++ ) {
+                if ( tempList[i] != null && tempList[i].name == name ) {
                     return tempList[i];
                 }
             }
@@ -255,10 +270,10 @@ namespace fCraft {
 
         // Cache the player list to an array (players -> playerList)
         public void UpdatePlayerList() {
-            lock( playerListLock ) {
+            lock ( playerListLock ) {
                 Player[] newPlayerList = new Player[players.Count];
                 int i = 0;
-                foreach( Player player in players.Values ) {
+                foreach ( Player player in players.Values ) {
                     newPlayerList[i++] = player;
                 }
                 playerList = newPlayerList;
@@ -276,8 +291,8 @@ namespace fCraft {
 
         public void SendToAll( Packet packet, Player except ) {
             Player[] tempList = playerList;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != except ) {
+            for ( int i = 0; i < tempList.Length; i++ ) {
+                if ( tempList[i] != except ) {
                     tempList[i].Send( packet );
                 }
             }
@@ -286,8 +301,8 @@ namespace fCraft {
 
         public void SendToAllDelayed( Packet packet, Player except ) {
             Player[] tempList = playerList;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != except ) {
+            for ( int i = 0; i < tempList.Length; i++ ) {
+                if ( tempList[i] != except ) {
                     tempList[i].Send( packet, false );
                 }
             }
@@ -316,7 +331,7 @@ namespace fCraft {
 
         public bool FireChangedBlockEvent( ref BlockUpdate update ) {
             bool cancel = false;
-            if( OnPlayerChangedBlock != null ) {
+            if ( OnPlayerChangedBlock != null ) {
                 OnPlayerChangedBlock( this, ref update, ref cancel );
             }
             return !cancel;
@@ -324,7 +339,7 @@ namespace fCraft {
 
         public bool FireSentMessageEvent( Player player, ref string message ) {
             bool cancel = false;
-            if( OnPlayerSentMessage != null ) {
+            if ( OnPlayerSentMessage != null ) {
                 OnPlayerSentMessage( player, this, ref message, ref cancel );
             }
             return !cancel;
@@ -332,7 +347,7 @@ namespace fCraft {
 
         public bool FirePlayerTriedToJoinEvent( Player player ) {
             bool cancel = false;
-            if( OnPlayerTriedToJoin != null ) {
+            if ( OnPlayerTriedToJoin != null ) {
                 OnPlayerTriedToJoin( player, this, ref cancel );
             }
             return !cancel;

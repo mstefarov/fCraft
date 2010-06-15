@@ -76,8 +76,6 @@
     <Compile Include="Commands\InfoCommands.cs" />
     <Compile Include="Commands\StandardCommands.cs" />
     <Compile Include="MCC\IConverter.cs" />
-    <Compile Include="MCC\Main.cs" />
-    <Compile Include="MCC\Map.cs" />
     <Compile Include="MCC\MapDAT.cs" />
     <Compile Include="MCC\MapFCMv2.cs" />
     <Compile Include="MCC\MapFormats.cs" />
@@ -94,7 +92,7 @@
     <Compile Include="Player\Permissions.cs" />
     <Compile Include="Utils\Color.cs" />
     <Compile Include="Network\Heartbeat.cs" />
-    <Compile Include="Network\Server.cs" />
+    <Compile Include="Server.cs" />
     <Compile Include="Utils\Config.cs" />
     <Compile Include="Utils\Logger.cs" />
     <Compile Include="Network\PacketWriter.cs" />

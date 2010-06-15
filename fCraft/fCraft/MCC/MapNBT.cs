@@ -30,71 +30,70 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using fCraft;
 
 
 namespace mcc {
     public class MapNBT : IConverter {
 
         public MapFormats Format {
-            get {
-                return MapFormats.NBT;
-            }
+            get { return MapFormats.NBT; }
         }
 
-        public string[] UsedBy {
-            get {
-                return new string[] { "mclevel", "indev" };
-            }
+        public string FileExtension {
+            get { return ".mclevel"; }
+        }
+
+        public string[] Keywords {
+            get { return new string[] { "mclevel", "indev", "nbt" }; }
         }
 
         public Map Load( Stream MapStream ) {
             MapStream.Seek( 0, SeekOrigin.Begin );
             GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true );
             NBTag tag = NBTag.ReadStream( gs );
-            
-            Map map = new Map(  );
-            
+
+            Map map = new Map();
+
             NBTag mapTag = tag["Map"];
-            map.Width = (ushort)mapTag["Width"].GetShort(  );
-            map.Height = (ushort)mapTag["Height"].GetShort(  );
-            map.Depth = (ushort)mapTag["Length"].GetShort(  );
-            
-            map.MapData = mapTag["Blocks"].GetBytes(  );
-            for( int i = 0; i < map.MapData.Length; i++ ) {
-                if( map[i] > 49 )
-                    map[i] = 0;
-            }
-            
-            map.SpawnX = (ushort)mapTag["Spawn"][0].GetShort(  );
-            map.SpawnY = (ushort)mapTag["Spawn"][1].GetShort(  );
-            map.SpawnZ = (ushort)mapTag["Spawn"][2].GetShort(  );
-            map.SpawnRotation = 0;
-            map.SpawnPitch = 0;
-            
+            map.widthX = mapTag["Width"].GetShort();
+            map.height = mapTag["Height"].GetShort();
+            map.widthY = mapTag["Length"].GetShort();
+
+            map.blocks = mapTag["Blocks"].GetBytes();
+            map.ValidateBlockTypes( false );
+
+            map.spawn.x = mapTag["Spawn"][0].GetShort();
+            map.spawn.h = mapTag["Spawn"][1].GetShort();
+            map.spawn.y = mapTag["Spawn"][2].GetShort();
+            map.spawn.r = 0;
+            map.spawn.l = 0;
+
             return map;
         }
 
+
         public bool Save( Map MapToSave, Stream MapStream ) {
-            throw new NotImplementedException(  );
+            throw new NotImplementedException();
         }
+
 
         public bool Claims( Stream MapStream ) {
             MapStream.Seek( 0, SeekOrigin.Begin );
-            
+
             GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true );
             BinaryReader bs = new BinaryReader( gs );
-            
+
             try {
-                if( bs.ReadByte(  ) == 10 && NBTag.ReadString( bs ) == "MinecraftLevel" )
+                if ( bs.ReadByte() == 10 && NBTag.ReadString( bs ) == "MinecraftLevel" )
                     return true;
-            } catch( IOException ) {
+            } catch ( IOException ) {
                 return false;
-            } catch( InvalidDataException ) {
+            } catch ( InvalidDataException ) {
                 return false;
             }
             return false;
         }
-        
-        
+
     }
 }
