@@ -1,4 +1,4 @@
-﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org> and Jesse O'Brien <destroyer661@gmail.com>
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -26,7 +26,8 @@ namespace fCraft {
 
         public static int maxUploadSpeed,   // set by Config.ApplyConfig
                           packetsPerSecond, // set by Config.ApplyConfig
-                          maxSessionPacketsPerTick = 128;
+                          maxSessionPacketsPerTick = 128,
+                          maxBlockUpdatesPerTick = 50000; // used when there are no players in a world
         internal static float ticksPerSecond; //TODO: move to server
 
         const int maxPortAttempts = 20;
@@ -527,14 +528,14 @@ namespace fCraft {
             int packetsPerTick = (int)(packetsPerSecond / ticksPerSecond);
             int maxPacketsPerUpdate = (int)(maxUploadSpeed / ticksPerSecond * 128);
 
-            int playerCount = sessions.Count;
+            int playerCount = world.playerList.Length;
             if( playerCount > 0 ) {
                 maxPacketsPerUpdate /= playerCount;
                 if( maxPacketsPerUpdate > packetsPerTick ) {
                     maxPacketsPerUpdate = packetsPerTick;
                 }
             } else {
-                maxPacketsPerUpdate = Int32.MaxValue;
+                maxPacketsPerUpdate = maxBlockUpdatesPerTick;
             }
 
             return maxPacketsPerUpdate;

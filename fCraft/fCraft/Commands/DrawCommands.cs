@@ -30,6 +30,7 @@ namespace fCraft {
             Draw( player, command, DrawMode.Ellipsoid );
         }
 
+
         internal static void Draw( Player player, Command command, DrawMode mode ) {
             if( !player.Can( Permissions.Draw ) ) {
                 player.NoAccessMessage();
@@ -153,22 +154,18 @@ namespace fCraft {
                 player.Message( "NOTE: This draw command is too massive to undo." );
             }
 
-            for( int x = sx; x <= ex; x += step ) {
-                for( int y = sy; y <= ey; y += step ) {
-                    for( int h = sh; h <= eh; h += step ) {
-
-                        for( int h3 = 0; h3 < step && h + h3 <= eh; h3++ ) {
-                            for( int y3 = 0; y3 < step && y + y3 <= ey; y3++ ) {
-                                for( int x3 = 0; x3 < step && x + x3 <= ex; x3++ ) {
-                                    block = player.world.map.GetBlock( x + x3, y + y3, h + h3 );
-                                    if( block == (byte)drawBlock ) continue;
-                                    if( block == (byte)Block.Admincrete && !player.Can( Permissions.DeleteAdmincrete ) ) continue;
-                                    player.drawUndoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h + h3, block ) );
-                                    player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h + h3, (byte)drawBlock ) );
-                                }
+            for ( int x = sx; x <= ex; x += step ) {
+                for ( int y = sy; y <= ey; y += step ) {
+                    for ( int h = sh; h <= eh; h++ ) {
+                        for ( int y3 = 0; y3 < step && y + y3 <= ey; y3++ ) {
+                            for ( int x3 = 0; x3 < step && x + x3 <= ex; x3++ ) {
+                                block = player.world.map.GetBlock( x + x3, y + y3, h );
+                                if ( block == (byte)drawBlock ) continue;
+                                if ( block == (byte)Block.Admincrete && !player.Can( Permissions.DeleteAdmincrete ) ) continue;
+                                player.drawUndoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, block ) );
+                                player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h, (byte)drawBlock ) );
                             }
                         }
-
                     }
                 }
             }
@@ -180,6 +177,7 @@ namespace fCraft {
             GC.Collect();
             player.drawingInProgress = false;
         }
+
 
         internal static void DrawEllipsoid( Player player, Position[] marks, object tag ) {
             player.drawingInProgress = true;
@@ -224,27 +222,24 @@ namespace fCraft {
                 player.Message( "NOTE: This draw command is too massive to undo." );
             }
 
-            for( int x = sx; x <= ex; x += step ) {
-                for( int y = sy; y <= ey; y += step ) {
-                    for( int h = sh; h <= eh; h += step ) {
+            for ( int x = sx; x <= ex; x += step ) {
+                for ( int y = sy; y <= ey; y += step ) {
+                    for ( int h = sh; h <= eh; h++ ) {
+                        for ( int y3 = 0; y3 < step && y + y3 <= ey; y3++ ) {
+                            for ( int x3 = 0; x3 < step && x + x3 <= ex; x3++ ) {
 
-                        for( int h3 = 0; h3 < step && h + h3 <= eh; h3++ ) {
-                            for( int y3 = 0; y3 < step && y + y3 <= ey; y3++ ) {
-                                for( int x3 = 0; x3 < step && x + x3 <= ex; x3++ ) {
+                                // get relative coordinates
+                                double dx = ( x + x3 - cx );
+                                double dy = ( y + y3 - cy );
+                                double dh = ( h - ch );
 
-                                    // get relative coordinates
-                                    double dx = (x + x3 - cx);
-                                    double dy = (y + y3 - cy);
-                                    double dh = (h + h3 - ch);
-
-                                    // test if it's inside ellipse
-                                    if( (dx * dx) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 <= 1 ) {
-                                        block = player.world.map.GetBlock( x + x3, y + y3, h + h3 );
-                                        if( block == (byte)drawBlock ) continue;
-                                        if( block == (byte)Block.Admincrete && !player.Can( Permissions.DeleteAdmincrete ) ) continue;
-                                        player.drawUndoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h + h3, block ) );
-                                        player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h + h3, (byte)drawBlock ) );
-                                    }
+                                // test if it's inside ellipse
+                                if ( ( dx * dx ) * rx2 + ( dy * dy ) * ry2 + ( dh * dh ) * rh2 <= 1 ) {
+                                    block = player.world.map.GetBlock( x + x3, y + y3, h );
+                                    if ( block == (byte)drawBlock ) continue;
+                                    if ( block == (byte)Block.Admincrete && !player.Can( Permissions.DeleteAdmincrete ) ) continue;
+                                    player.drawUndoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, block ) );
+                                    player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h, (byte)drawBlock ) );
                                 }
                             }
                         }
