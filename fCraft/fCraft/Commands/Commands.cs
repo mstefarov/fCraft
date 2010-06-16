@@ -7,6 +7,7 @@ namespace fCraft {
         static Dictionary<string, CommandHandler> handlers = new Dictionary<string, CommandHandler>();
         static Dictionary<string, CommandHandler> consoleSafeHandlers = new Dictionary<string, CommandHandler>();
 
+        // Sets up all the command hooks
         internal static void Init() {
             MapCommands.Init();
             BlockCommands.Init();
@@ -16,6 +17,7 @@ namespace fCraft {
         }
 
 
+        // Registers a command handler
         internal static void AddCommand( string command, CommandHandler handler, bool isConsoleSafe ) {
             if( isConsoleSafe ) {
                 consoleSafeHandlers.Add( command, handler );
@@ -25,6 +27,7 @@ namespace fCraft {
         }
 
 
+        // Parses and calls a command
         internal static void ParseCommand( Player player, string message, bool fromConsole ) {
             Command cmd = new Command( message );
             if( consoleSafeHandlers.ContainsKey( cmd.name ) ) {
@@ -41,6 +44,7 @@ namespace fCraft {
         }
 
 
+        // Determines the type of message (Command, ClassChat, PrivateChat, Chat, or Invalid)
         internal static MessageType GetMessageType( string message ) {
             if( message.Length == 0 ) return MessageType.Invalid;
             if( message[0] == '/' ) {

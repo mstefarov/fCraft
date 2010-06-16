@@ -18,15 +18,17 @@ namespace fCraft {
         Queue<BlockUpdate> updates = new Queue<BlockUpdate>();
         object queueLock = new object(), metaLock = new object(), zoneLock = new object();
         public int changesSinceSave, changesSinceBackup;
-        
+
 
         internal Map() { }
 
-        public Map( World _world) {
+        public Map( World _world ) {
             world = _world;
         }
 
-        public Map( World _world, int _widthX, int _widthY, int _height ) : this(_world) {
+        // creates an empty new world of specified dimensions
+        public Map( World _world, int _widthX, int _widthY, int _height )
+            : this( _world ) {
             widthX = _widthX;
             widthY = _widthY;
             height = _height;
@@ -34,20 +36,18 @@ namespace fCraft {
             int blockCount = widthX * widthY * height;
 
             blocks = new byte[blockCount];
-            for( int i = 0; i < blocks.Length; i++ ) {
-                blocks[i] = 0;
-            }
+            blocks.Initialize();
         }
 
 
         #region Saving
         public bool Save( string fileName ) {
-            string tempFileName = fileName + "." + (new Random().Next().ToString());
+            string tempFileName = fileName + "." + ( new Random().Next().ToString() );
 
             using( FileStream fs = File.Create( tempFileName ) ) {
                 try {
                     WriteHeader( fs );
-                    WriteMetadata( new BinaryWriter(fs) );
+                    WriteMetadata( new BinaryWriter( fs ) );
                     changesSinceSave = 0;
                     GetCompressedCopy( fs, false );
                 } catch( IOException ex ) {
@@ -86,7 +86,7 @@ namespace fCraft {
 
         internal void WriteMetadata( BinaryWriter writer ) {
             lock( metaLock ) {
-                writer.Write( (ushort)(meta.Count+zones.Count) );
+                writer.Write( (ushort)( meta.Count + zones.Count ) );
                 foreach( KeyValuePair<string, string> pair in meta ) {
                     WriteLengthPrefixedString( writer, pair.Key );
                     WriteLengthPrefixedString( writer, pair.Value );
@@ -108,21 +108,21 @@ namespace fCraft {
             writer.Write( stringData.Length );
             writer.Write( stringData );
         }
-#endregion
+        #endregion
 
         #region Loading
         public static Map Load( World _world, string fileName, string formatName ) {
             Map map = null;
 
             // if file exists, go ahead and load
-            if ( File.Exists( fileName ) ) {
+            if( File.Exists( fileName ) ) {
                 map = DoLoad( fileName );
 
-            // if not, try to add the extension (depending on format name)
-            } else if ( formatName != null ) {
+                // if not, try to add the extension (depending on format name)
+            } else if( formatName != null ) {
                 MapFormats format = MapUtility.FindFormat( formatName );
-                if ( format != MapFormats.Unknown ) {
-                    if ( File.Exists( fileName + MapUtility.GetFileExtension( format ) ) ) {
+                if( format != MapFormats.Unknown ) {
+                    if( File.Exists( fileName + MapUtility.GetFileExtension( format ) ) ) {
                         map = DoLoad( fileName + MapUtility.GetFileExtension( format ) );
                     } else {
                         Logger.Log( "Map.Load: Could not find the specified file.", LogType.Error );
@@ -130,17 +130,17 @@ namespace fCraft {
                 } else {
                     Logger.Log( "Map.Load: Could not identify the map format: {0}", LogType.Error, formatName );
                 }
-                
-            // if all else fails, just try adding ".fcm" to it
+
+                // if all else fails, just try adding ".fcm" to it
             } else {
-                if ( File.Exists( fileName + ".fcm" ) ) {
+                if( File.Exists( fileName + ".fcm" ) ) {
                     map = DoLoad( fileName + ".fcm" );
                 } else {
                     Logger.Log( "Map.Load: Could not find the specified file: {0}", LogType.Error, fileName );
                 }
             }
 
-            if ( map != null ) {
+            if( map != null ) {
                 map.world = _world;
             }
 
@@ -153,7 +153,7 @@ namespace fCraft {
             try {
                 fs = File.OpenRead( fileName );
                 Map map = MapUtility.TryLoading( fs );
-                if ( !map.ValidateBlockTypes( true ) ) {
+                if( !map.ValidateBlockTypes( true ) ) {
                     throw new Exception( "Invalid block types detected. File is possibly corrupt." );
                 }
                 return map;
@@ -177,22 +177,22 @@ namespace fCraft {
 
 
         internal bool ValidateHeader() {
-            if ( !IsValidDimension( height ) ) {
+            if( !IsValidDimension( height ) ) {
                 Logger.Log( "Map.ReadHeader: Invalid dimension specified for widthX: {0}.", LogType.Error, widthX );
                 return false;
             }
 
-            if ( !IsValidDimension( widthY ) ) {
+            if( !IsValidDimension( widthY ) ) {
                 Logger.Log( "Map.ReadHeader: Invalid dimension specified for widthY: {0}.", LogType.Error, widthY );
                 return false;
             }
 
-            if ( !IsValidDimension( height ) ) {
+            if( !IsValidDimension( height ) ) {
                 Logger.Log( "Map.ReadHeader: Invalid dimension specified for height: {0}.", LogType.Error, height );
                 return false;
             }
 
-            if ( spawn.x > widthX * 32 || spawn.y > widthY * 32 || spawn.h > height * 32 || spawn.x < 0 || spawn.y < 0 || spawn.h < 0 ) {
+            if( spawn.x > widthX * 32 || spawn.y > widthY * 32 || spawn.h > height * 32 || spawn.x < 0 || spawn.y < 0 || spawn.h < 0 ) {
                 Logger.Log( "Map.ReadHeader: Spawn coordinates are outside the valid range! Using center of the map instead.", LogType.Warning );
                 spawn.Set( widthX / 2 * 32, widthY / 2 * 32, height / 2 * 32, 0, 0 );
             }
@@ -241,7 +241,7 @@ namespace fCraft {
         #region Utilities
         static Dictionary<string, Block> blockNames = new Dictionary<string, Block>();
         public static void Init() {
-            foreach ( string block in Enum.GetNames( typeof( Block ) ) ) {
+            foreach( string block in Enum.GetNames( typeof( Block ) ) ) {
                 blockNames.Add( block.ToLower(), (Block)Enum.Parse( typeof( Block ), block ) );
             }
 
@@ -318,9 +318,9 @@ namespace fCraft {
 
 
         internal bool ValidateBlockTypes( bool returnOnErrors ) {
-            for ( int i = 0; i < blocks.Length; i++ ) {
-                if ( ( blocks[i] ) > 49 ) {
-                    if ( returnOnErrors ) return false;
+            for( int i = 0; i < blocks.Length; i++ ) {
+                if( ( blocks[i] ) > 49 ) {
+                    if( returnOnErrors ) return false;
                     else blocks[i] = 0;
                 }
             }
@@ -329,8 +329,8 @@ namespace fCraft {
 
         // zips a copy of the block array
         public void GetCompressedCopy( Stream stream, bool prependBlockCount ) {
-            using ( GZipStream compressor = new GZipStream( stream, CompressionMode.Compress ) ) {
-                if ( prependBlockCount ) {
+            using( GZipStream compressor = new GZipStream( stream, CompressionMode.Compress ) ) {
+                if( prependBlockCount ) {
                     // convert block count to big-endian
                     int convertedBlockCount = Server.htons( blocks.Length );
                     // write block count to gzip stream
@@ -341,21 +341,21 @@ namespace fCraft {
         }
 
         public void MakeFloodBarrier() {
-            for ( int x = 0; x < widthX; x++ ) {
-                for ( int y = 0; y < widthY; y++ ) {
+            for( int x = 0; x < widthX; x++ ) {
+                for( int y = 0; y < widthY; y++ ) {
                     SetBlock( x, y, 0, Block.Admincrete );
                 }
             }
 
-            for ( int x = 0; x < widthX; x++ ) {
-                for ( int h = 0; h < height / 2; h++ ) {
+            for( int x = 0; x < widthX; x++ ) {
+                for( int h = 0; h < height / 2; h++ ) {
                     SetBlock( x, 0, h, Block.Admincrete );
                     SetBlock( x, widthY - 1, h, Block.Admincrete );
                 }
             }
 
-            for ( int y = 0; y < widthY; y++ ) {
-                for ( int h = 0; h < height / 2; h++ ) {
+            for( int y = 0; y < widthY; y++ ) {
+                for( int h = 0; h < height / 2; h++ ) {
                     SetBlock( 0, y, h, Block.Admincrete );
                     SetBlock( widthX - 1, y, h, Block.Admincrete );
                 }
@@ -373,16 +373,16 @@ namespace fCraft {
         public Dictionary<string, Zone> zones = new Dictionary<string, Zone>();
 
         public bool AddZone( Zone z ) {
-            lock ( zoneLock ) {
-                if ( zones.ContainsKey( z.name.ToLower() ) ) return false;
+            lock( zoneLock ) {
+                if( zones.ContainsKey( z.name.ToLower() ) ) return false;
                 zones.Add( z.name.ToLower(), z );
             }
             return true;
         }
 
         public bool RemoveZone( string z ) {
-            lock ( zoneLock ) {
-                if ( !zones.ContainsKey( z.ToLower() ) ) return false;
+            lock( zoneLock ) {
+                if( !zones.ContainsKey( z.ToLower() ) ) return false;
                 zones.Remove( z.ToLower() );
             }
             return true;
@@ -391,9 +391,9 @@ namespace fCraft {
         public Zone[] ListZones() {
             Zone[] output;
             int i = 0;
-            lock ( zoneLock ) {
+            lock( zoneLock ) {
                 output = new Zone[zones.Count];
-                foreach ( Zone zone in zones.Values ) {
+                foreach( Zone zone in zones.Values ) {
                     output[i++] = zone;
                 }
             }
@@ -402,11 +402,11 @@ namespace fCraft {
 
         public bool CheckZones( short x, short y, short h, Player player, ref bool zoneOverride, ref string zoneName ) {
             bool found = false;
-            lock ( zoneLock ) {
-                foreach ( Zone zone in zones.Values ) {
+            lock( zoneLock ) {
+                foreach( Zone zone in zones.Values ) {
                     zoneName = zone.name;
-                    if ( zone.Contains( x, y, h ) ) {
-                        if ( zone.CanBuild( player ) ) {
+                    if( zone.Contains( x, y, h ) ) {
+                        if( zone.CanBuild( player ) ) {
                             zoneOverride = true;
                             return true;
                         } else {
@@ -423,7 +423,7 @@ namespace fCraft {
         #region Block Updates & Simulation
 
         public int Index( int x, int y, int h ) {
-            return (h * widthY + y) * widthX + x;
+            return ( h * widthY + y ) * widthX + x;
         }
 
         public void SetBlock( int x, int y, int h, Block type ) {
@@ -459,7 +459,7 @@ namespace fCraft {
 
         public void ProcessUpdates() {
             int packetsSent = 0;
-            int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate(world);
+            int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate( world );
             BlockUpdate update;
             while( updates.Count > 0 && packetsSent < maxPacketsPerUpdate ) {
                 if( world.locked ) return;
@@ -468,11 +468,15 @@ namespace fCraft {
                 }
                 changesSinceSave++;
                 SetBlock( update.x, update.y, update.h, update.type );
-                world.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin);
+                world.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin );
                 if( update.origin != null ) {
                     update.origin.info.ProcessBlockBuild( update.type );
                 }
                 packetsSent++;
+            }
+
+            if( updates.Count == 0 && world.readyForUnload ) {
+                world.UnloadMap();
             }
 
             /*if( world.loadSendingInProgress ) { //TODO: streamload
@@ -499,16 +503,14 @@ namespace fCraft {
             int step = 8;
             for( int x = 0; x < widthX; x += step ) {
                 for( int y = 0; y < widthY; y += step ) {
-                    for( int h = 0; h < height; h += step ) {
+                    for( int h = 0; h < height; h++ ) {
 
-                        for( int h2 = 0; h2 < step; h2++ ) {
-                            for( int x2 = 0; x2 < step; x2++ ) {
-                                for( int y2 = 0; y2 < step; y2++ ) {
-                                    int index = Index( x + x2, y + y2, h + h2 );
-                                    if( blocks[index] != other.blocks[index] ) {
-                                        QueueUpdate( new BlockUpdate( null, x + x2, y + y2, h + h2, other.blocks[index] ) );
-                                        totalBlockUpdates++;
-                                    }
+                        for( int x2 = 0; x2 < step; x2++ ) {
+                            for( int y2 = 0; y2 < step; y2++ ) {
+                                int index = Index( x + x2, y + y2, h );
+                                if( blocks[index] != other.blocks[index] ) {
+                                    QueueUpdate( new BlockUpdate( null, x + x2, y + y2, h, other.blocks[index] ) );
+                                    totalBlockUpdates++;
                                 }
                             }
                         }
@@ -519,6 +521,9 @@ namespace fCraft {
             return totalBlockUpdates;
         }
 
+        internal int GetQueueLength() {
+            return updates.Count;
+        }
         #endregion
 
         #region Backup

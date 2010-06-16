@@ -35,12 +35,12 @@ namespace fCraft {
         public string name;
         public Dictionary<int, Player> players = new Dictionary<int, Player>();
         public Player[] playerList;
-        public bool locked;
+        public bool locked,
+                    readyForUnload,
+                    neverUnload;
 
         object playerListLock = new object(),
                mapLock = new object();
-
-        public bool neverUnload = false;
 
         //internal bool loadInProgress, loadSendingInProgress, loadProgressReported;
         //internal int totalBlockUpdates, completedBlockUpdates; //TODO: streamload
@@ -62,25 +62,27 @@ namespace fCraft {
         #region Map
 
         public void LoadMap() {
-            try {
-                map = Map.Load( this, GetMapName(), "fcraft" );
-            } catch ( Exception ex ) {
-                Logger.Log( "Could not open the specified file ({0}): {1}", LogType.Error, GetMapName(), ex.Message );
+            lock( mapLock ) {
+                try {
+                    map = Map.Load( this, GetMapName(), "fcraft" );
+                } catch( Exception ex ) {
+                    Logger.Log( "Could not open the specified file ({0}): {1}", LogType.Error, GetMapName(), ex.Message );
+                }
+
+                // or generate a default one
+                if( map == null ) {
+                    Logger.Log( "World.Init: Generating default flatgrass level.", LogType.SystemActivity );
+                    map = new Map( this, 64, 64, 64 );
+
+                    map.spawn.Set( map.widthX / 2 * 32 + 16, map.widthY / 2 * 32 + 16, map.height * 32, 0, 0 );
+
+                    MapCommands.GenerateFlatgrass( map, false );
+
+                    SaveMap( null );
+                }
+
+                if( OnLoaded != null ) OnLoaded();
             }
-
-            // or generate a default one
-            if ( map == null ) {
-                Logger.Log( "World.Init: Generating default flatgrass level.", LogType.SystemActivity );
-                map = new Map( this, 64, 64, 64 );
-
-                map.spawn.Set( map.widthX / 2 * 32 + 16, map.widthY / 2 * 32 + 16, map.height * 32, 0, 0 );
-
-                MapCommands.GenerateFlatgrass( map, false );
-
-                SaveMap( null );
-            }
-
-            if ( OnLoaded != null ) OnLoaded();
         }
 
 
@@ -88,8 +90,9 @@ namespace fCraft {
             lock ( mapLock ) {
                 SaveMap( null );
                 map = null;
+                readyForUnload = false;
+                if( OnUnloaded != null ) OnUnloaded();
             }
-            if ( OnUnloaded != null ) OnUnloaded();
             GC.Collect();
         }
 
@@ -142,6 +145,7 @@ namespace fCraft {
         public void AcceptPlayer( Player player ) {
             lock ( playerListLock ) {
                 lock ( mapLock ) {
+                    readyForUnload = false;
                     if ( map == null ) {
                         LoadMap();
                     }
@@ -191,9 +195,7 @@ namespace fCraft {
 
                 // unload map (if needed)
                 if ( players.Count == 0 && !neverUnload ) {
-                    lock ( mapLock ) {
-                        UnloadMap();
-                    }
+                    readyForUnload = true;
                 }
             }
         }

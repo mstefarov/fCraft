@@ -27,6 +27,7 @@ namespace fCraft {
         }
 
 
+        // Returns the next argument of the command (as a string), or null if there are no more arguments
         public string Next() {
             for( int t, j; offset < message.Length; offset++ ) {
                 if( message[offset] == '"' ) {
@@ -46,12 +47,15 @@ namespace fCraft {
             return null;
         }
 
-
+        
+        // Returns 
         public bool NextInt( out int number ) {
             return Int32.TryParse( Next(), out number );
         }
 
 
+        // Returns the rest of the command, from current offset to the end of string.
+        // If there is nothing to return (string ends at the current offset), returns empty string.
         public string NextAll() {
             for( ; offset < message.Length; offset++ ) {
                 if( message[offset] != ' ' )
@@ -61,6 +65,7 @@ namespace fCraft {
         }
 
 
+        // Resets the argument offset. After calling Rewind, arguments can be read from the beginning again.
         public void Rewind() {
             offset = 1;
             Next();
