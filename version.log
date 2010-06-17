@@ -1,5 +1,17 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-05-21
+2010-06-16
+402
+ Added back /load command, and hooked up MCC. Currenly supported: fCraft/fcm, MCSharp/lvl, indev/mclevel, MinerCPP and LuaCraft (dat). Vanilla support coming soon.
+ Fixed worlds being unloaded before all block updates are processed (thus aborting draw commands).
+ Fixed several potential multiworld-related crashes and freezes.
+ Made Server.UnregisterPlayer check ALL worlds to remove the player, not just most recent one.
+ IRC: Added an information message to notify users of the IRC Bot's online status when joining the server.
+ IRC: Added the ability to send NOTICES.
+ IRC: !status/!help can both be sent to the bot in channel now and it will respond appropriately.
+ IRC: Added a check to see if the IRC Bot is actually enabled and online before sending a notification that it IS online.
+ Drawing-related state is now reset when changing worlds.
+ Added a limiter to the number of block updates that can be processed per tick (even if there are no players in a world). Fixes server becoming unresponsive when doing enormous drawing commands (millions of blocks).
+ Allowed players to /join the world that they are already on.
 401
  *IDLE/AFK CHECKING* This is configurable per-class.
  Added /version command, and added revision to the version string.
