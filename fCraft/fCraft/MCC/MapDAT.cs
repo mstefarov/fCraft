@@ -12,7 +12,8 @@
 //     * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in
 //       the documentation and/or other materials provided with the distribution.
-//     * Neither the name of the [ORGANIZATION] nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+//     * Neither the name of the [ORGANIZATION] nor the names of its contributors may be used to endorse or promote products derived from
+//       this software without specific prior written permission.
 // 
 //  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 //  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -26,21 +27,39 @@
 //  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-/*
+
 using System;
+using System.IO;
+using fCraft;
+
 
 namespace mcc {
     public class MapDAT : IConverter {
         public MapFormats Format {
-        get {
-            return MapFormats.Creative;
+            get { return MapFormats.Creative; }
         }
 
-        public string[] UsedBy {
-            get {
-                return new string[] { "creative" };
-            }
+        public string FileExtension {
+            get { return ".dat"; }
+        }
+
+        public string[] Keywords {
+            get { return new string[] { "vanilla", "creative", "dat" }; }
+        }
+
+
+        public Map Load( Stream MapStream ) {
+            throw new NotImplementedException();
+        }
+
+
+        public bool Save( Map MapToSave, Stream MapStream ) {
+            throw new NotImplementedException();
+        }
+
+
+        public bool Claims( Stream MapStream ) {
+            return false;
         }
     }
 }
-    */

@@ -140,27 +140,13 @@ namespace fCraft {
             }
             Logger.Log( line, LogType.SystemActivity );
 
-            // queue up some tasks to run on the scheduler
-            int saveMapTaskId, autoBackupTaskId;
+            // Check for incoming connections 4 times per second
             AddTask( CheckConnections, 250 );
-            foreach( World world in worlds.Values ) {
-                AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ), world );
 
-                if( Config.GetInt( "SaveInterval" ) > 0 ) {
-                    int saveInterval = Config.GetInt( "SaveInterval" ) * 1000;
-                    saveMapTaskId = AddTask( SaveMap, saveInterval, world, saveInterval );
-                }
+            // Check for idle people every 30 seconds
+            AddTask( CheckIdles, 30000 );
 
-                if( Config.GetInt( "BackupInterval" ) > 0 ) {
-                    int backupInterval = Config.GetInt( "BackupInterval" ) * 1000 * 60;
-                    autoBackupTaskId = AddTask( AutoBackup, backupInterval, world, (Config.GetBool( "BackupOnStartup" ) ? 0 : backupInterval) );
-                }
-
-                AddTask(CheckIdles, 30000); // Check for idle people every 30 seconds
-
-                world.UpdatePlayerList();
-            }
-
+            // Write out initial (empty) playerlist cache
             UpdatePlayerList();
 
             // start the main loop
@@ -233,6 +219,21 @@ namespace fCraft {
                 newWorld.neverUnload = neverUnload;
                 if( neverUnload ) newWorld.LoadMap();
                 worlds.Add( name, newWorld );
+
+                newWorld.updateTaskId = AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ), newWorld );
+
+                if( Config.GetInt( "SaveInterval" ) > 0 ) {
+                    int saveInterval = Config.GetInt( "SaveInterval" ) * 1000;
+                    newWorld.saveTaskId = AddTask( SaveMap, saveInterval, newWorld, saveInterval );
+                }
+
+                if( Config.GetInt( "BackupInterval" ) > 0 ) {
+                    int backupInterval = Config.GetInt( "BackupInterval" ) * 1000 * 60;
+                    newWorld.backupTaskId = AddTask( AutoBackup, backupInterval, newWorld, ( Config.GetBool( "BackupOnStartup" ) ? 0 : backupInterval ) );
+                }
+
+                newWorld.UpdatePlayerList();
+
                 return newWorld;
             }
         }
@@ -271,6 +272,9 @@ namespace fCraft {
                 if ( worldToDelete == null || worldToDelete == defaultWorld ) {
                     return false;
                 } else {
+                    updateTasks.Remove( worldToDelete.updateTaskId );
+                    updateTasks.Remove( worldToDelete.saveTaskId );
+                    updateTasks.Remove( worldToDelete.backupTaskId );
                     worlds.Remove( name.ToLower() );
                     return true;
                 }
@@ -295,11 +299,40 @@ namespace fCraft {
             lock ( worldListLock ) {
                 World oldWorld = FindWorld( name );
                 if ( oldWorld == null ) return false;
+
                 newWorld.name = oldWorld.name;
                 if ( oldWorld == defaultWorld ) {
                     defaultWorld = newWorld;
                 }
+
+                // initialize the player list cache
+                newWorld.UpdatePlayerList();
+
+                // swap worlds
                 worlds[name.ToLower()] = newWorld;
+                
+                // removes tasks associated with the old world
+                updateTasks.Remove( oldWorld.updateTaskId );
+                updateTasks.Remove( oldWorld.saveTaskId );
+                updateTasks.Remove( oldWorld.backupTaskId );
+
+                // if the new world was previously associated with some tasks, remove the old one, and reregister
+                updateTasks.Remove( newWorld.updateTaskId );
+                updateTasks.Remove( newWorld.saveTaskId );
+                updateTasks.Remove( newWorld.backupTaskId );
+
+                // adds tasks to the new world
+                newWorld.updateTaskId = AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ), newWorld );
+
+                if( Config.GetInt( "SaveInterval" ) > 0) {
+                    int saveInterval = Config.GetInt( "SaveInterval" ) * 1000;
+                    newWorld.saveTaskId = AddTask( SaveMap, saveInterval, newWorld, saveInterval );
+                }
+
+                if( Config.GetInt( "BackupInterval" ) > 0) {
+                    int backupInterval = Config.GetInt( "BackupInterval" ) * 1000 * 60;
+                    newWorld.backupTaskId = AddTask( AutoBackup, backupInterval, newWorld, ( Config.GetBool( "BackupOnStartup" ) ? 0 : backupInterval ) );
+                }
                 return true;
             }
         }
@@ -418,18 +451,10 @@ namespace fCraft {
                     }
                 }
 
-                /*if( requestLockDown ) { //TODO
-                    lockDown = true;
-                    Tasks.Restart();
-                    requestLockDown = false;
-                    Thread.Sleep( 100 ); // buffer time for all threads to catch up
-                    map.ClearUpdateQueue();
-                    lockDownReady = true;
-                }*/
-
                 Thread.Sleep( 1 );
             }
         }
+
 
         static void AutoBackup( object param ) {
             World world = (World)param;

@@ -196,6 +196,10 @@ namespace fCraft {
                 return;
             }
 
+            Logger.Log( "Player {0} is attempting to load map \"{1}\" into world \"{2}\".", LogType.UserActivity,
+                        player.name,
+                        fileName,
+                        player.world );
             player.Message( "Attempting to load " + fileName + "..." );
 
             Map map = Map.Load( player.world, fileName, cmd.Next() );
