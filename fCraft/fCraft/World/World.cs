@@ -42,6 +42,8 @@ namespace fCraft {
         object playerListLock = new object(),
                mapLock = new object();
 
+        internal int updateTaskId = -1, saveTaskId = -1, backupTaskId = -1;
+
         //internal bool loadInProgress, loadSendingInProgress, loadProgressReported;
         //internal int totalBlockUpdates, completedBlockUpdates; //TODO: streamload
 
@@ -58,6 +60,7 @@ namespace fCraft {
                 }
             }
         }
+
 
         #region Map
 
@@ -125,12 +128,13 @@ namespace fCraft {
 
 
         public void ChangeMap( Map newMap ) {
-            lock ( mapLock ) {
-                lock ( playerListLock ) {
+            lock( playerListLock ) {
+                lock( mapLock ) {
+                    map = null;
                     World newWorld = new World( name );
                     newWorld.map = newMap;
                     Server.ReplaceWorld( name, newWorld );
-                    foreach ( Player player in playerList ) {
+                    foreach( Player player in playerList ) {
                         player.session.forcedWorldToJoin = newWorld;
                     }
                     newWorld.SaveMap( null );
@@ -143,32 +147,33 @@ namespace fCraft {
         #region PlayerList
 
         public void AcceptPlayer( Player player ) {
-            lock ( playerListLock ) {
-                lock ( mapLock ) {
+            lock( playerListLock ) {
+                lock( mapLock ) {
                     readyForUnload = false;
-                    if ( map == null ) {
+                    if( map == null ) {
                         LoadMap();
                     }
+
+                    if( Config.GetBool( "BackupOnJoin" ) ) {
+                        map.SaveBackup( GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-dd HH-mm}_{2}.fcm", name, DateTime.Now, player.name ) );
+                    }
                 }
+
                 players.Add( player.id, player );
                 UpdatePlayerList();
-            }
-            //UpdatePlayerList();
-            if ( Config.GetBool( "BackupOnJoin" ) ) {
-                map.SaveBackup( GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-dd HH-mm}_{2}.fcm", name, DateTime.Now, player.name ) );
+
+                // Reveal newcommer to existing players
+                if( !player.isHidden ) {
+                    SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
+                    Server.SendToAll( String.Format( "{0}Player {1} joined \"{2}\".", Color.Sys, player.name, name ), player );
+                }
             }
 
-            // Reveal newcommer to existing players
             Logger.Log( "Player {0} joined \"{1}\".", LogType.UserActivity, player.name, name );
 
-            if ( !player.isHidden ) {
-                SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
-                Server.SendToAll( String.Format( "{0}Player {1} joined \"{2}\".", Color.Sys, player.name, name ), player );
-            }
+            if( OnPlayerJoined != null ) OnPlayerJoined( player, this );
 
-            if ( OnPlayerJoined != null ) OnPlayerJoined( player, this );
-
-            if ( locked ) {
+            if( locked ) {
                 player.Message( Color.Red, "This map is currently locked." );
             }
         }

@@ -135,7 +135,7 @@ namespace mcc {
         }
 
 
-        public bool Claims( System.IO.Stream MapStream ) {
+        public bool Claims( Stream MapStream ) {
             MapStream.Seek( 0, SeekOrigin.Begin );
 
             GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true );
