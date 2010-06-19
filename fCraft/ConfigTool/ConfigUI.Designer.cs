@@ -2114,6 +2114,7 @@
             // lPing
             // 
             this.lPing.AutoSize = true;
+            this.lPing.Enabled = false;
             this.lPing.Location = new System.Drawing.Point( 273, 159 );
             this.lPing.Name = "lPing";
             this.lPing.Size = new System.Drawing.Size( 123, 15 );
@@ -2167,6 +2168,7 @@
             // lStartup
             // 
             this.lStartup.AutoSize = true;
+            this.lStartup.Enabled = false;
             this.lStartup.Location = new System.Drawing.Point( 32, 250 );
             this.lStartup.Name = "lStartup";
             this.lStartup.Size = new System.Drawing.Size( 159, 15 );
@@ -2226,6 +2228,7 @@
             // lPolicyColor
             // 
             this.lPolicyColor.AutoSize = true;
+            this.lPolicyColor.Enabled = false;
             this.lPolicyColor.Location = new System.Drawing.Point( 30, 61 );
             this.lPolicyColor.Name = "lPolicyColor";
             this.lPolicyColor.Size = new System.Drawing.Size( 161, 15 );
@@ -2235,6 +2238,7 @@
             // lPolicyIllegal
             // 
             this.lPolicyIllegal.AutoSize = true;
+            this.lPolicyIllegal.Enabled = false;
             this.lPolicyIllegal.Location = new System.Drawing.Point( 8, 90 );
             this.lPolicyIllegal.Name = "lPolicyIllegal";
             this.lPolicyIllegal.Size = new System.Drawing.Size( 183, 15 );

@@ -452,7 +452,9 @@ namespace fCraft {
                 case "AutomaticUpdates":
                     return ValidateEnum( key, value, "Disabled", "Notify", "Prompt", "Auto" );
                 case "BlockUpdateThrottling":
-                    return ValidateInt( key, value, 1, 100000 );
+                    return ValidateInt( key, value, 10, 100000 );
+                case "TickInterval":
+                    return ValidateInt( key, value, 20, 1000 );
                 default:
                     settings[key] = value;
                     return true;
