@@ -60,6 +60,10 @@ namespace mcc {
             map.height = mapTag["Height"].GetShort();
             map.widthY = mapTag["Length"].GetShort();
 
+            if( !map.ValidateHeader() ) {
+                throw new Exception( "One or more of the map dimensions are invalid." );
+            }
+
             map.blocks = mapTag["Blocks"].GetBytes();
             map.ValidateBlockTypes( false );
 

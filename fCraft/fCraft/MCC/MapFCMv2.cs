@@ -70,8 +70,8 @@ namespace mcc {
 
             // Read in the spawn location
             map.spawn.x = reader.ReadInt16();
-            map.spawn.h = reader.ReadInt16();
             map.spawn.y = reader.ReadInt16();
+            map.spawn.h = reader.ReadInt16();
 
             // Read in the spawn orientation
             map.spawn.r = reader.ReadByte();
@@ -79,6 +79,10 @@ namespace mcc {
 
             // Read the metadata
             map.ReadMetadata( reader );
+
+            if( !map.ValidateHeader() ) {
+                throw new Exception( "One or more of the map dimensions are invalid." );
+            }
 
             // Read in the map data
             map.blocks = new Byte[map.GetBlockCount()];
@@ -88,6 +92,7 @@ namespace mcc {
 
             return map;
         }
+
 
         public bool Save( Map MapToSave, Stream MapStream ) {
             BinaryWriter bs = new BinaryWriter( MapStream );
