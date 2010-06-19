@@ -1,5 +1,13 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-06-16
+2010-06-19
+403
+ Fixed spawnpoint being read incorrectly when using /load.
+ Added a note to ban*/unban* commands that's shown when player name is not found: "Use the FULL player name for ban/unban commands."
+ Fixed a thread crash (not server-wide crash) in Session.IoLoop that can be caused by corrupted or malicious handshake packets.
+ Fixed a potential crash when using /info on online players from console.
+ Fixed a potential crash when using /gen from console.
+ Added more fail-safe checks that ensure that map spawn point is always within the map boundaries.
+ Started logging IPs of connections that try sending corrupted or malicious handshake packets.
 402
  Added back /load command, and hooked up MCC. Currenly supported: fCraft/fcm, MCSharp/lvl, indev/mclevel, MinerCPP and LuaCraft (dat). Vanilla support coming soon.
  Fixed worlds being unloaded before all block updates are processed (thus aborting draw commands).

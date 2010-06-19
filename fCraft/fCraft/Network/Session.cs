@@ -87,7 +87,11 @@ namespace fCraft {
                     if( pollCounter > pollInterval ) {
                         if( !client.Connected ||
                             (client.Client.Poll( 1000, SelectMode.SelectRead ) && client.Client.Available == 0) ) {
-                            Logger.Log( "Session.IoLoop: Lost connection to {0}.", LogType.Debug, player.name );
+                            if( player != null ) {
+                                Logger.Log( "Session.IoLoop: Lost connection to player {0} ({1}).", LogType.Debug, player.name, GetIP() );
+                            } else {
+                                Logger.Log( "Session.IoLoop: Lost connection to unidentified player {0}.", LogType.Debug, GetIP() );
+                            }
                             return;
                         }
                         pollCounter = 0;

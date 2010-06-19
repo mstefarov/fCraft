@@ -217,6 +217,7 @@ namespace fCraft {
                     }
                 } else {
                     player.NoPlayerMessage( arg );
+                    player.Message( "Use the FULL player name for ban/unban commands." );
                 }
             } else {
                 player.NoAccessMessage();

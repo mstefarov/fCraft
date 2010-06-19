@@ -58,7 +58,7 @@ namespace mcc {
             GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true );
             BinaryReader bs = new BinaryReader( gs );
 
-            Map m = new Map();
+            Map map = new Map();
 
             // Read in the magic number
             if ( bs.ReadUInt16() != 0x752 ) {
@@ -66,27 +66,31 @@ namespace mcc {
             }
 
             // Read in the map dimesions
-            m.widthX = bs.ReadInt16();
-            m.widthY = bs.ReadInt16();
-            m.height = bs.ReadInt16();
+            map.widthX = bs.ReadInt16();
+            map.widthY = bs.ReadInt16();
+            map.height = bs.ReadInt16();
 
             // Read in the spawn location
-            m.spawn.x = (short)(bs.ReadInt16() * 32);
-            m.spawn.y = (short)(bs.ReadInt16() * 32);
-            m.spawn.h = (short)(bs.ReadInt16() * 32);
+            map.spawn.x = (short)(bs.ReadInt16() * 32);
+            map.spawn.y = (short)(bs.ReadInt16() * 32);
+            map.spawn.h = (short)(bs.ReadInt16() * 32);
 
             // Read in the spawn orientation
-            m.spawn.r = bs.ReadByte();
-            m.spawn.l = bs.ReadByte();
+            map.spawn.r = bs.ReadByte();
+            map.spawn.l = bs.ReadByte();
 
             // Skip over the VisitPermission and BuildPermission bytes
             bs.ReadByte();
             bs.ReadByte();
 
-            // Read in the map data
-            m.blocks = bs.ReadBytes( m.GetBlockCount() );
+            if( !map.ValidateHeader() ) {
+                throw new Exception( "One or more of the map dimensions are invalid." );
+            }
 
-            return m;
+            // Read in the map data
+            map.blocks = bs.ReadBytes( map.GetBlockCount() );
+
+            return map;
         }
 
 

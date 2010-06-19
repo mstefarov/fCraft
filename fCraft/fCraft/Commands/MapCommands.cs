@@ -296,9 +296,14 @@ namespace fCraft {
             }
             int wx, wy, height;
             if( !(cmd.NextInt( out wx ) && cmd.NextInt( out wy ) && cmd.NextInt( out height )) ) {
-                wx = player.world.map.widthX;
-                wy = player.world.map.widthY;
-                height = player.world.map.height;
+                if( player.world != null ) {
+                    wx = player.world.map.widthX;
+                    wy = player.world.map.widthY;
+                    height = player.world.map.height;
+                } else {
+                    player.Message( "Usage: " + Color.Help + "/gen widthX widthY height type filename" );
+                    return;
+                }
                 cmd.Rewind();
             }
             string mode = cmd.Next();
