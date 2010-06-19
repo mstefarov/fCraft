@@ -6,9 +6,9 @@ using System.Text;
 namespace fCraft {
     public class Zone {
         public int xMin, yMin, hMin, xMax, yMax, hMax;
-        public int getWidthX() { return xMax - xMin; }
-        public int getWidthY() { return yMax - yMin; }
-        public int getHeight() { return hMax - hMin; }
+        public int getWidthX() { return xMax - xMin+1; }
+        public int getWidthY() { return yMax - yMin+1; }
+        public int getHeight() { return hMax - hMin+1; }
         public int getVolume() { return getWidthX() * getWidthY() * getHeight(); }
 
         public string name;

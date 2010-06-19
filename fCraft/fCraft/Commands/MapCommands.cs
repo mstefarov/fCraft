@@ -83,7 +83,7 @@ namespace fCraft {
         }
 
 
-        internal static void DoZone( Player player, Command cmd ) {//TODO: better method names
+        internal static void DoZone( Player player, Command cmd ) {//TODO: better method names & documentation
             if( !player.Can( Permissions.ManageZones ) ) {
                 player.NoAccessMessage();
                 return;

@@ -618,6 +618,8 @@ namespace fCraft {
 
             lock( playerListLock ) {
                 if( players.ContainsKey( player.id ) ) {
+                    SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
+                    SendToAll( Color.Sys + player.name + " left the server." );
                     Logger.Log( "{0} left the server.", LogType.UserActivity, player.name );
                     
                     // better safe than sorry: go through ALL worlds looking for leftover players
@@ -627,18 +629,17 @@ namespace fCraft {
                         }
                     }
 
-                    SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
-                    SendToAll( Color.Sys + player.name + " left the server." );
                     players.Remove( player.id );
                     UpdatePlayerList();
-
                     PlayerDB.ProcessLogout( player );
                     PlayerDB.Save();
-                } else {
-                    Logger.Log( "World.UnregisterPlayer: Trying to unregister a non-existent (unknown id) player.", LogType.Warning );
+                    return;
                 }
             }
+
+            Logger.Log( "World.UnregisterPlayer: Trying to unregister a non-existent (unknown id) player.", LogType.Warning );
         }
+
 
         public static void UpdatePlayerList() {
             lock( playerListLock ) {
