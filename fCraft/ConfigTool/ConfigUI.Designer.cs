@@ -1926,6 +1926,7 @@
             // lLogMode
             // 
             this.lLogMode.AutoSize = true;
+            this.lLogMode.Enabled = false;
             this.lLogMode.Location = new System.Drawing.Point( 31, 280 );
             this.lLogMode.Name = "lLogMode";
             this.lLogMode.Size = new System.Drawing.Size( 63, 15 );

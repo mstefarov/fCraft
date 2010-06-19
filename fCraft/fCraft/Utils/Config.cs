@@ -54,14 +54,14 @@ namespace fCraft {
             settings["ClassPrefixesInChat"] = "false";
             settings["ClassPrefixesInList"] = "false";
             settings["SystemMessageColor"] = "yellow";
-            settings["HelpColor"] = "magenta";
+            settings["HelpColor"] = "purple";
             settings["SayColor"] = "yellow";
 
             settings["IRCBot"] = "false"; // Bot is disabled by default
             settings["IRCBotNick"] = "fBot";
             settings["IRCBotNetwork"] = "irc.esper.net";
             settings["IRCBotPort"] = "6667";
-            settings["IRCBotChannels"] = "#fCraft"; // CASE SENSITIVE!!!!!!!!!!!!!!!!!!!!! This can be multiple using csv
+            settings["IRCBotChannels"] = "#changeme"; // CASE SENSITIVE!!!!!!!!!!!!!!!!!!!!! This can be multiple using csv
             settings["IRCBotForwardAll"] = "false"; // Disabled by default
         }
 
@@ -376,11 +376,17 @@ namespace fCraft {
                         return true;
                     }
                 case "Port":
+                case "IRCBotPort":
                     return ValidateInt( key, value, 1, 65535 );
                 case "UploadBandwidth":
                     return ValidateInt( key, value, 1, 10000 );
                 case "ReservedSlotBehavior":
                     return ValidateEnum( key, value, "KickIdle", "KickRandom", "IncreaseMaxPlayers" );
+
+                case "IRCBotNick":
+                    return ValidateString( key, value, 1, 32 );
+                //case "IRCBotNetwork":
+                //case "IRCBotChannels": // don't bother validating network and channel list
 
                 case "IsPublic":
                 case "ClassColorsInChat":// TODO: colors in player names
@@ -392,6 +398,8 @@ namespace fCraft {
                 case "BackupOnlyWhenChanged":
                 case "SendRedundantBlockUpdates":
                 case "NoPartialPositionUpdates":
+                case "IRCBot":
+                case "IRCBotForwardAll":
                     return ValidateBool( key, value );
 
                 case "SystemMessageColor":
@@ -405,17 +413,15 @@ namespace fCraft {
                 case "AntispamMessageCount":
                     return ValidateInt( key, value, 2, 50 );
                 case "AntispamInterval":
-                    return ValidateInt( key, value, 0, 50 );
+                    return ValidateInt( key, value, 0, 60 );
                 case "AntigriefBlockCount":
                     return ValidateInt( key, value, 2, 500 );
                 case "AntigriefInterval":
-                    return ValidateInt( key, value, 0, 50 );
+                    return ValidateInt( key, value, 0, 60 );
                 case "AntispamMuteDuration":
                     return ValidateInt( key, value, 0, 3600 );
-                case "SpamChatAction1":
-                case "SpamChatAction2":
-                case "SpamChatAction3":
-                    return ValidateEnum( key, value, "Warn", "Mute", "Kick", "Demote", "Ban", "BanIP", "BanAll" );
+                case "AntispamMaxWarnings":
+                    return ValidateInt( key, value, 0, 50 );
                 case "SpamBlockAction1":
                 case "SpamBlockAction2":
                 case "SpamBlockAction3":
@@ -423,7 +429,7 @@ namespace fCraft {
 
 
                 case "SaveInterval":
-                    return ValidateInt( key, value, 0, 1000000 );
+                    return ValidateInt( key, value, 1, 100000 );
                 case "BackupInterval":
                     return ValidateInt( key, value, 0, 100000 );
                 case "MaxBackups":
