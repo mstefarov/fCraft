@@ -345,7 +345,7 @@ namespace fCraft {
                 }
 
                 TimeSpan totalTime = info.totalTimeOnServer;
-                if( player.world.FindPlayerExact( name ) != null ) {
+                if( Server.FindPlayerExact(player.name) != null ) {
                     totalTime = totalTime.Add( DateTime.Now.Subtract( info.lastLoginDate ) );
                 }
                 player.Message( String.Format( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
