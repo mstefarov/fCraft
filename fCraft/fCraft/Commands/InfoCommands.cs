@@ -279,7 +279,26 @@ namespace fCraft {
                     player.Message(Color.Help, "/wload [Worldname]");
                     player.Message( "     Create a world with the name [Worldname].");
                     player.Message( "     To make a new customized world use:");
-                    player.Message( Color.Help + "      /gen x y h theme [name] then /wload [name]");
+                    player.Message( Color.Help, "      /gen x y h theme [name] then /wload [name]");
+                    break;
+                case "zone":
+                    player.Message( Color.Help, "/zone ZoneName ClassName" );
+                    player.Message( "     Create a zone that overrides build permissions." );
+                    player.Message( "     This can be used to restrict access to an area," );
+                    player.Message( "     or to designate a guest area." );
+                    break;
+                case "zones":
+                    player.Message( Color.Help, "/zones" );
+                    player.Message( "     Lists the zones defined on the current map." );
+                    break;
+                case "zremove":
+                    player.Message( Color.Help, "/zremove ZoneName" );
+                    player.Message( "     Removes a zone with the specified name from the map." );
+                    break;
+                case "ztest":
+                    player.Message( Color.Help, "/ztest" );
+                    player.Message( "     Allows to test exactly which zones affect a particular" );
+                    player.Message( "     block. Can be used to test and resolve zone overlaps." );
                     break;
                 default:
                     player.Message( "To see detailed help about a command, use " + Color.Help + "/help command" );
@@ -287,11 +306,11 @@ namespace fCraft {
                     player.Message( "To send private messages, write " + Color.Help + "@playername [message]" );
                     player.Message( "To message all players of a class, write " + Color.Help + "@@class [message]" );
                     player.Message( "Below is a list of commands: " );
-                    player.Message( Color.Help, "   ban, banall, baninfo, banip, bring, cancel, class, cuboid," );
-                    player.Message( Color.Help, "   ellipsoid, freeze, gen, genh, grass, help, hide, info," );
-                    player.Message( Color.Help, "   kick, lava, load, lock, paint, roll, save, solid, tp," );
-                    player.Message( Color.Help, "   unban, unbanall, undo, unfreeze, unhide, unlock, user," );
-                    player.Message( Color.Help, "   unbanall, water, worlds, wload " );
+                    player.Message( Color.Help, "  ban, banall, baninfo, banip, bring, cancel, class, cuboid," );
+                    player.Message( Color.Help, "  ellipsoid, freeze, gen, genh, grass, help, hide, info," );
+                    player.Message( Color.Help, "  kick, lava, load, lock, paint, roll, save, solid, tp," );
+                    player.Message( Color.Help, "  unban, unbanall, undo, unfreeze, unhide, unlock, user," );
+                    player.Message( Color.Help, "  unbanall, water, worlds, wload, zone, zones, zremove, ztest" );
                     //TODO: fetch an actual, current list of commands
                     break;
             }

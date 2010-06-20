@@ -20,9 +20,10 @@ namespace fCraft {
             Commands.AddCommand( "gen", Generate, true );
             Commands.AddCommand( "genh", GenerateHollow, true );
 
-            Commands.AddCommand( "zone", DoZone, false );
-            Commands.AddCommand( "zones", ListZones, true );
-            Commands.AddCommand( "zremove", ZoneRemove, true );
+            Commands.AddCommand( "zone", ZoneAdd, false );
+            Commands.AddCommand( "zones", ListZones, false );
+            Commands.AddCommand( "zremove", ZoneRemove, false );
+            Commands.AddCommand( "ztest", ZoneTest, false );
 
             Commands.AddCommand( "worlds", ListWorlds, true );
             Commands.AddCommand( "wload", AddWorld, true );
@@ -83,7 +84,7 @@ namespace fCraft {
         }
 
 
-        internal static void DoZone( Player player, Command cmd ) {//TODO: better method names & documentation
+        internal static void ZoneAdd( Player player, Command cmd ) {//TODO: better method names & documentation
             if( !player.Can( Permissions.ManageZones ) ) {
                 player.NoAccessMessage();
                 return;
@@ -107,20 +108,21 @@ namespace fCraft {
                 return;
             }
             PlayerClass minRank = ClassList.ParseClass( property );
-            
+
             if( minRank != null ) {
                 zone.buildRank = minRank.rank;
                 player.tag = zone;
                 player.marksExpected = 2;
                 player.marks.Clear();
                 player.markCount = 0;
-                player.selectionCallback = MakeZone;
+                player.selectionCallback = ZoneAddCallback;
+                player.Message( "Zone: Place a block or type /mark to use your location." );
+            } else {
+                player.Message( "Unknown player class: " + property );
             }
         }
 
-
-
-        internal static void MakeZone( Player player, Position[] marks, object tag ) {//TODO: better method names
+        internal static void ZoneAddCallback( Player player, Position[] marks, object tag ) {//TODO: better method names
             Zone zone = (Zone)tag;
             zone.xMin = Math.Min( marks[0].x, marks[1].x );
             zone.xMax = Math.Max( marks[0].x, marks[1].x );
@@ -134,6 +136,29 @@ namespace fCraft {
                                   zone.name,
                                   zone.getVolume() );
             player.world.map.AddZone(zone);
+        }
+
+
+        static void ZoneTest( Player player, Command cmd ) {
+            player.marksExpected = 1;
+            player.marks.Clear();
+            player.markCount = 0;
+            player.selectionCallback = ZoneTestCallback;
+            player.Message( "Click the block that you would like to test." );
+        }
+
+        internal static void ZoneTestCallback( Player player, Position[] marks, object tag ) {
+            Zone[] allowed, denied;
+            if( player.world.map.TestZones( marks[0].x, marks[0].y, marks[0].h, player, out allowed, out denied ) ) {
+                foreach( Zone zone in allowed ) {
+                    player.Message( "> " + zone.name + ": " + Color.Lime + "allowed" );
+                }
+                foreach( Zone zone in denied ) {
+                    player.Message( "> " + zone.name + ": " + Color.Red + "denied" );
+                }
+            } else {
+                player.Message( "No zones affect this block." );
+            }
         }
 
 
@@ -157,13 +182,17 @@ namespace fCraft {
 
         internal static void ListZones( Player player, Command cmd ) {
             Zone[] zones = player.world.map.ListZones();
-            foreach( Zone zone in zones ) {
-                PlayerClass rank = ClassList.ParseRank( zone.buildRank );
-                if( rank != null ) {
-                    player.Message( "  " + zone.name + " (" + rank.color + rank.name + Color.Sys + ") - " + zone.getWidthX() + "x" + zone.getWidthY() + "x" + zone.getHeight() );
-                } else {
-                    player.Message( "  " + zone.name + " - " + zone.getWidthX() + "x" + zone.getWidthY() + "x" + zone.getHeight() );
+            if( zones.Length > 0 ) {
+                foreach( Zone zone in zones ) {
+                    PlayerClass rank = ClassList.ParseRank( zone.buildRank );
+                    if( rank != null ) {
+                        player.Message( "  " + zone.name + " (" + rank.color + rank.name + Color.Sys + ") - " + zone.getWidthX() + "x" + zone.getWidthY() + "x" + zone.getHeight() );
+                    } else {
+                        player.Message( "  " + zone.name + " - " + zone.getWidthX() + "x" + zone.getWidthY() + "x" + zone.getHeight() );
+                    }
                 }
+            } else {
+                player.Message( "No zones are defined for this map." );
             }
         }
 

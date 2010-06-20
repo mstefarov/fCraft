@@ -376,6 +376,7 @@ namespace fCraft {
             lock( zoneLock ) {
                 if( zones.ContainsKey( z.name.ToLower() ) ) return false;
                 zones.Add( z.name.ToLower(), z );
+                changesSinceSave++;
             }
             return true;
         }
@@ -384,6 +385,7 @@ namespace fCraft {
             lock( zoneLock ) {
                 if( !zones.ContainsKey( z.ToLower() ) ) return false;
                 zones.Remove( z.ToLower() );
+                changesSinceSave++;
             }
             return true;
         }
@@ -400,21 +402,44 @@ namespace fCraft {
             return output;
         }
 
+        // returns true if ANY zone intersects
         public bool CheckZones( short x, short y, short h, Player player, ref bool zoneOverride, ref string zoneName ) {
             bool found = false;
             lock( zoneLock ) {
                 foreach( Zone zone in zones.Values ) {
-                    zoneName = zone.name;
                     if( zone.Contains( x, y, h ) ) {
-                        if( zone.CanBuild( player ) ) {
-                            zoneOverride = true;
+                        found = true;
+                        if( !zone.CanBuild( player ) ) {
+                            zoneOverride = false;
+                            zoneName = zone.name;
                             return true;
                         } else {
-                            found = true;
+                            zoneOverride = true;
                         }
                     }
                 }
             }
+            return found;
+        }
+
+
+        public bool TestZones( short x, short y, short h, Player player, out Zone[] allowedZones, out Zone[] deniedZones ) {
+            List<Zone> allowed = new List<Zone>(), denied = new List<Zone>();
+            bool found = false;
+            lock( zoneLock ) {
+                foreach( Zone zone in zones.Values ) {
+                    if( zone.Contains( x, y, h ) ) {
+                        found = true;
+                        if( zone.CanBuild( player ) ) {
+                            allowed.Add( zone );
+                        } else {
+                            denied.Add( zone );
+                        }
+                    }
+                }
+            }
+            allowedZones = allowed.ToArray();
+            deniedZones = denied.ToArray();
             return found;
         }
 
