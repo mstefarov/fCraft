@@ -24,70 +24,32 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem( new string[] {
-            "Chat"}, -1, System.Drawing.Color.Empty, System.Drawing.Color.Empty, new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) ) );
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem( new string[] {
-            "Build"}, -1, System.Drawing.Color.Empty, System.Drawing.Color.Empty, new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) ) );
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem( new string[] {
-            "Delete"}, -1, System.Drawing.Color.Empty, System.Drawing.Color.Empty, new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) ) );
-            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem( new string[] {
-            "Place Grass"}, -1, System.Drawing.Color.Empty, System.Drawing.Color.Empty, new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) ) );
-            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem( "Place Water" );
-            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem( "Place Lava" );
-            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem( new string[] {
-            "Place Admincrete"}, -1, System.Drawing.Color.Empty, System.Drawing.Color.Empty, new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) ) );
-            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem( new string[] {
-            "Delete Admincrete"}, -1, System.Drawing.Color.Empty, System.Drawing.Color.Empty, new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) ) );
-            System.Windows.Forms.ListViewItem listViewItem9 = new System.Windows.Forms.ListViewItem( new string[] {
-            "Say"}, -1, System.Drawing.Color.Empty, System.Drawing.Color.Empty, new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) ) );
-            System.Windows.Forms.ListViewItem listViewItem10 = new System.Windows.Forms.ListViewItem( new string[] {
-            "Kick"}, -1, System.Drawing.Color.Empty, System.Drawing.Color.Empty, new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) ) );
-            System.Windows.Forms.ListViewItem listViewItem11 = new System.Windows.Forms.ListViewItem( "Ban" );
-            System.Windows.Forms.ListViewItem listViewItem12 = new System.Windows.Forms.ListViewItem( "Ban IP" );
-            System.Windows.Forms.ListViewItem listViewItem13 = new System.Windows.Forms.ListViewItem( "Ban Multiple" );
-            System.Windows.Forms.ListViewItem listViewItem14 = new System.Windows.Forms.ListViewItem( new string[] {
-            "Promote"}, -1, System.Drawing.Color.Empty, System.Drawing.Color.Empty, new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) ) );
-            System.Windows.Forms.ListViewItem listViewItem15 = new System.Windows.Forms.ListViewItem( new string[] {
-            "Demote"}, -1, System.Drawing.Color.Empty, System.Drawing.Color.Empty, new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) ) );
-            System.Windows.Forms.ListViewItem listViewItem16 = new System.Windows.Forms.ListViewItem( "Hide" );
-            System.Windows.Forms.ListViewItem listViewItem17 = new System.Windows.Forms.ListViewItem( "Change Name" );
-            System.Windows.Forms.ListViewItem listViewItem18 = new System.Windows.Forms.ListViewItem( "View Others\' Info" );
-            System.Windows.Forms.ListViewItem listViewItem19 = new System.Windows.Forms.ListViewItem( "Teleport" );
-            System.Windows.Forms.ListViewItem listViewItem20 = new System.Windows.Forms.ListViewItem( "Bring" );
-            System.Windows.Forms.ListViewItem listViewItem21 = new System.Windows.Forms.ListViewItem( "Freeze" );
-            System.Windows.Forms.ListViewItem listViewItem22 = new System.Windows.Forms.ListViewItem( "Set Spawn" );
-            System.Windows.Forms.ListViewItem listViewItem23 = new System.Windows.Forms.ListViewItem( "Save And Load" );
-            System.Windows.Forms.ListViewItem listViewItem24 = new System.Windows.Forms.ListViewItem( "Lock" );
-            System.Windows.Forms.ListViewItem listViewItem25 = new System.Windows.Forms.ListViewItem( "Control Physics" );
-            System.Windows.Forms.ListViewItem listViewItem26 = new System.Windows.Forms.ListViewItem( "Manage Zones" );
-            System.Windows.Forms.ListViewItem listViewItem27 = new System.Windows.Forms.ListViewItem( "Manage Worlds" );
-            System.Windows.Forms.ListViewItem listViewItem28 = new System.Windows.Forms.ListViewItem( "Draw" );
-            System.Windows.Forms.ListViewItem listViewItem29 = new System.Windows.Forms.ListViewItem( "System Activity" );
-            System.Windows.Forms.ListViewItem listViewItem30 = new System.Windows.Forms.ListViewItem( "Warnings" );
-            System.Windows.Forms.ListViewItem listViewItem31 = new System.Windows.Forms.ListViewItem( "Errors" );
-            System.Windows.Forms.ListViewItem listViewItem32 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
-            System.Windows.Forms.ListViewItem listViewItem33 = new System.Windows.Forms.ListViewItem( "User Activity" );
-            System.Windows.Forms.ListViewItem listViewItem34 = new System.Windows.Forms.ListViewItem( "User Commands" );
-            System.Windows.Forms.ListViewItem listViewItem35 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
-            System.Windows.Forms.ListViewItem listViewItem36 = new System.Windows.Forms.ListViewItem( "Chat" );
-            System.Windows.Forms.ListViewItem listViewItem37 = new System.Windows.Forms.ListViewItem( "Private Chat" );
-            System.Windows.Forms.ListViewItem listViewItem38 = new System.Windows.Forms.ListViewItem( "Class Chat" );
-            System.Windows.Forms.ListViewItem listViewItem39 = new System.Windows.Forms.ListViewItem( "Console Input" );
-            System.Windows.Forms.ListViewItem listViewItem40 = new System.Windows.Forms.ListViewItem( "Console Output" );
-            System.Windows.Forms.ListViewItem listViewItem41 = new System.Windows.Forms.ListViewItem( "Debug Information" );
-            System.Windows.Forms.ListViewItem listViewItem42 = new System.Windows.Forms.ListViewItem( "System Activity" );
-            System.Windows.Forms.ListViewItem listViewItem43 = new System.Windows.Forms.ListViewItem( "Warnings" );
-            System.Windows.Forms.ListViewItem listViewItem44 = new System.Windows.Forms.ListViewItem( "Errors" );
-            System.Windows.Forms.ListViewItem listViewItem45 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
-            System.Windows.Forms.ListViewItem listViewItem46 = new System.Windows.Forms.ListViewItem( "User Activity" );
-            System.Windows.Forms.ListViewItem listViewItem47 = new System.Windows.Forms.ListViewItem( "User Commands" );
-            System.Windows.Forms.ListViewItem listViewItem48 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
-            System.Windows.Forms.ListViewItem listViewItem49 = new System.Windows.Forms.ListViewItem( "Chat" );
-            System.Windows.Forms.ListViewItem listViewItem50 = new System.Windows.Forms.ListViewItem( "Private Chat" );
-            System.Windows.Forms.ListViewItem listViewItem51 = new System.Windows.Forms.ListViewItem( "Class Chat" );
-            System.Windows.Forms.ListViewItem listViewItem52 = new System.Windows.Forms.ListViewItem( "Console Input" );
-            System.Windows.Forms.ListViewItem listViewItem53 = new System.Windows.Forms.ListViewItem( "Console Output" );
-            System.Windows.Forms.ListViewItem listViewItem54 = new System.Windows.Forms.ListViewItem( "Debug Information" );
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem( "System Activity" );
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem( "Warnings" );
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem( "Errors" );
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
+            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem( "User Activity" );
+            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem( "User Commands" );
+            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
+            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem( "Chat" );
+            System.Windows.Forms.ListViewItem listViewItem9 = new System.Windows.Forms.ListViewItem( "Private Chat" );
+            System.Windows.Forms.ListViewItem listViewItem10 = new System.Windows.Forms.ListViewItem( "Class Chat" );
+            System.Windows.Forms.ListViewItem listViewItem11 = new System.Windows.Forms.ListViewItem( "Console Input" );
+            System.Windows.Forms.ListViewItem listViewItem12 = new System.Windows.Forms.ListViewItem( "Console Output" );
+            System.Windows.Forms.ListViewItem listViewItem13 = new System.Windows.Forms.ListViewItem( "Debug Information" );
+            System.Windows.Forms.ListViewItem listViewItem14 = new System.Windows.Forms.ListViewItem( "System Activity" );
+            System.Windows.Forms.ListViewItem listViewItem15 = new System.Windows.Forms.ListViewItem( "Warnings" );
+            System.Windows.Forms.ListViewItem listViewItem16 = new System.Windows.Forms.ListViewItem( "Errors" );
+            System.Windows.Forms.ListViewItem listViewItem17 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
+            System.Windows.Forms.ListViewItem listViewItem18 = new System.Windows.Forms.ListViewItem( "User Activity" );
+            System.Windows.Forms.ListViewItem listViewItem19 = new System.Windows.Forms.ListViewItem( "User Commands" );
+            System.Windows.Forms.ListViewItem listViewItem20 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
+            System.Windows.Forms.ListViewItem listViewItem21 = new System.Windows.Forms.ListViewItem( "Chat" );
+            System.Windows.Forms.ListViewItem listViewItem22 = new System.Windows.Forms.ListViewItem( "Private Chat" );
+            System.Windows.Forms.ListViewItem listViewItem23 = new System.Windows.Forms.ListViewItem( "Class Chat" );
+            System.Windows.Forms.ListViewItem listViewItem24 = new System.Windows.Forms.ListViewItem( "Console Input" );
+            System.Windows.Forms.ListViewItem listViewItem25 = new System.Windows.Forms.ListViewItem( "Console Output" );
+            System.Windows.Forms.ListViewItem listViewItem26 = new System.Windows.Forms.ListViewItem( "Debug Information" );
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -102,6 +64,7 @@
             this.lHelpColor = new System.Windows.Forms.Label();
             this.lMessageColor = new System.Windows.Forms.Label();
             this.gBasic = new System.Windows.Forms.GroupBox();
+            this.bRules = new System.Windows.Forms.Button();
             this.lPort = new System.Windows.Forms.Label();
             this.nPort = new System.Windows.Forms.NumericUpDown();
             this.cReservedSlotBehavior = new System.Windows.Forms.ComboBox();
@@ -192,8 +155,6 @@
             this.lPermissions = new System.Windows.Forms.Label();
             this.lClasses = new System.Windows.Forms.Label();
             this.vClasses = new System.Windows.Forms.ListBox();
-            this.tabPhysics = new System.Windows.Forms.TabPage();
-            this.lComingSoon = new System.Windows.Forms.Label();
             this.tabSavingAndBackup = new System.Windows.Forms.TabPage();
             this.gSaving = new System.Windows.Forms.GroupBox();
             this.xSaveOnShutdown = new System.Windows.Forms.CheckBox();
@@ -257,6 +218,8 @@
             this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
+            this.tabIRC = new System.Windows.Forms.TabPage();
+            this.lTemp = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gAppearence.SuspendLayout();
@@ -282,7 +245,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nKickIdle)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nKickOn)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRank)).BeginInit();
-            this.tabPhysics.SuspendLayout();
             this.tabSavingAndBackup.SuspendLayout();
             this.gSaving.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nSaveInterval)).BeginInit();
@@ -298,6 +260,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPing)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
+            this.tabIRC.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabs
@@ -308,9 +271,9 @@
             this.tabs.Controls.Add( this.tabGeneral );
             this.tabs.Controls.Add( this.tabSecurity );
             this.tabs.Controls.Add( this.tabClasses );
-            this.tabs.Controls.Add( this.tabPhysics );
             this.tabs.Controls.Add( this.tabSavingAndBackup );
             this.tabs.Controls.Add( this.tabLogging );
+            this.tabs.Controls.Add( this.tabIRC );
             this.tabs.Controls.Add( this.tabAdvanced );
             this.tabs.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.tabs.Location = new System.Drawing.Point( 12, 12 );
@@ -344,7 +307,7 @@
             this.gAppearence.Controls.Add( this.lSayColor );
             this.gAppearence.Controls.Add( this.lHelpColor );
             this.gAppearence.Controls.Add( this.lMessageColor );
-            this.gAppearence.Location = new System.Drawing.Point( 8, 220 );
+            this.gAppearence.Location = new System.Drawing.Point( 8, 218 );
             this.gAppearence.Name = "gAppearence";
             this.gAppearence.Size = new System.Drawing.Size( 635, 113 );
             this.gAppearence.TabIndex = 13;
@@ -439,6 +402,7 @@
             // 
             this.gBasic.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gBasic.Controls.Add( this.bRules );
             this.gBasic.Controls.Add( this.lPort );
             this.gBasic.Controls.Add( this.nPort );
             this.gBasic.Controls.Add( this.cReservedSlotBehavior );
@@ -459,10 +423,22 @@
             this.gBasic.Controls.Add( this.lMaxPlayers );
             this.gBasic.Location = new System.Drawing.Point( 8, 13 );
             this.gBasic.Name = "gBasic";
-            this.gBasic.Size = new System.Drawing.Size( 635, 201 );
+            this.gBasic.Size = new System.Drawing.Size( 635, 199 );
             this.gBasic.TabIndex = 12;
             this.gBasic.TabStop = false;
             this.gBasic.Text = "Basic Settings";
+            // 
+            // bRules
+            // 
+            this.bRules.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bRules.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.bRules.Location = new System.Drawing.Point( 529, 155 );
+            this.bRules.Name = "bRules";
+            this.bRules.Size = new System.Drawing.Size( 100, 28 );
+            this.bRules.TabIndex = 14;
+            this.bRules.Text = "Edit rules.txt";
+            this.bRules.UseVisualStyleBackColor = true;
+            this.bRules.Click += new System.EventHandler( this.bRules_Click );
             // 
             // lPort
             // 
@@ -504,7 +480,7 @@
             "Kick player that has been idle longest",
             "Kick random lowest-rank player",
             "Temporarily increase max players"} );
-            this.cReservedSlotBehavior.Location = new System.Drawing.Point( 154, 163 );
+            this.cReservedSlotBehavior.Location = new System.Drawing.Point( 120, 159 );
             this.cReservedSlotBehavior.Name = "cReservedSlotBehavior";
             this.cReservedSlotBehavior.Size = new System.Drawing.Size( 280, 23 );
             this.cReservedSlotBehavior.TabIndex = 30;
@@ -512,11 +488,11 @@
             // lReservedSlotBehavior
             // 
             this.lReservedSlotBehavior.AutoSize = true;
-            this.lReservedSlotBehavior.Location = new System.Drawing.Point( 17, 166 );
+            this.lReservedSlotBehavior.Location = new System.Drawing.Point( 33, 162 );
             this.lReservedSlotBehavior.Name = "lReservedSlotBehavior";
-            this.lReservedSlotBehavior.Size = new System.Drawing.Size( 131, 15 );
+            this.lReservedSlotBehavior.Size = new System.Drawing.Size( 81, 15 );
             this.lReservedSlotBehavior.TabIndex = 29;
-            this.lReservedSlotBehavior.Text = "Reserved slot behavior";
+            this.lReservedSlotBehavior.Text = "Reserved slot";
             // 
             // cDefaultClass
             // 
@@ -1288,6 +1264,7 @@
             // xReserveSlot
             // 
             this.xReserveSlot.AutoSize = true;
+            this.xReserveSlot.Enabled = false;
             this.xReserveSlot.Location = new System.Drawing.Point( 12, 230 );
             this.xReserveSlot.Name = "xReserveSlot";
             this.xReserveSlot.Size = new System.Drawing.Size( 129, 19 );
@@ -1459,63 +1436,6 @@
             this.columnHeader1} );
             this.vPermissions.GridLines = true;
             this.vPermissions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            listViewItem1.StateImageIndex = 0;
-            listViewItem2.StateImageIndex = 0;
-            listViewItem3.StateImageIndex = 0;
-            listViewItem4.StateImageIndex = 0;
-            listViewItem5.StateImageIndex = 0;
-            listViewItem6.StateImageIndex = 0;
-            listViewItem7.StateImageIndex = 0;
-            listViewItem8.StateImageIndex = 0;
-            listViewItem9.StateImageIndex = 0;
-            listViewItem10.StateImageIndex = 0;
-            listViewItem11.StateImageIndex = 0;
-            listViewItem12.StateImageIndex = 0;
-            listViewItem13.StateImageIndex = 0;
-            listViewItem14.StateImageIndex = 0;
-            listViewItem15.StateImageIndex = 0;
-            listViewItem16.StateImageIndex = 0;
-            listViewItem17.StateImageIndex = 0;
-            listViewItem18.StateImageIndex = 0;
-            listViewItem19.StateImageIndex = 0;
-            listViewItem20.StateImageIndex = 0;
-            listViewItem21.StateImageIndex = 0;
-            listViewItem22.StateImageIndex = 0;
-            listViewItem23.StateImageIndex = 0;
-            listViewItem24.StateImageIndex = 0;
-            listViewItem25.StateImageIndex = 0;
-            listViewItem26.StateImageIndex = 0;
-            listViewItem27.StateImageIndex = 0;
-            listViewItem28.StateImageIndex = 0;
-            this.vPermissions.Items.AddRange( new System.Windows.Forms.ListViewItem[] {
-            listViewItem1,
-            listViewItem2,
-            listViewItem3,
-            listViewItem4,
-            listViewItem5,
-            listViewItem6,
-            listViewItem7,
-            listViewItem8,
-            listViewItem9,
-            listViewItem10,
-            listViewItem11,
-            listViewItem12,
-            listViewItem13,
-            listViewItem14,
-            listViewItem15,
-            listViewItem16,
-            listViewItem17,
-            listViewItem18,
-            listViewItem19,
-            listViewItem20,
-            listViewItem21,
-            listViewItem22,
-            listViewItem23,
-            listViewItem24,
-            listViewItem25,
-            listViewItem26,
-            listViewItem27,
-            listViewItem28} );
             this.vPermissions.Location = new System.Drawing.Point( 467, 28 );
             this.vPermissions.MultiSelect = false;
             this.vPermissions.Name = "vPermissions";
@@ -1572,26 +1492,6 @@
             this.vClasses.Size = new System.Drawing.Size( 141, 338 );
             this.vClasses.TabIndex = 0;
             this.vClasses.SelectedIndexChanged += new System.EventHandler( this.vClasses_SelectedIndexChanged );
-            // 
-            // tabPhysics
-            // 
-            this.tabPhysics.Controls.Add( this.lComingSoon );
-            this.tabPhysics.Location = new System.Drawing.Point( 4, 24 );
-            this.tabPhysics.Name = "tabPhysics";
-            this.tabPhysics.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabPhysics.Size = new System.Drawing.Size( 651, 408 );
-            this.tabPhysics.TabIndex = 3;
-            this.tabPhysics.Text = "Physics";
-            this.tabPhysics.UseVisualStyleBackColor = true;
-            // 
-            // lComingSoon
-            // 
-            this.lComingSoon.AutoSize = true;
-            this.lComingSoon.Location = new System.Drawing.Point( 8, 10 );
-            this.lComingSoon.Name = "lComingSoon";
-            this.lComingSoon.Size = new System.Drawing.Size( 89, 15 );
-            this.lComingSoon.TabIndex = 0;
-            this.lComingSoon.Text = "Coming soon...";
             // 
             // tabSavingAndBackup
             // 
@@ -1847,33 +1747,33 @@
             this.columnHeader2} );
             this.vLogFileOptions.GridLines = true;
             this.vLogFileOptions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            listViewItem29.StateImageIndex = 0;
-            listViewItem30.StateImageIndex = 0;
-            listViewItem31.StateImageIndex = 0;
-            listViewItem32.StateImageIndex = 0;
-            listViewItem33.StateImageIndex = 0;
-            listViewItem34.StateImageIndex = 0;
-            listViewItem35.StateImageIndex = 0;
-            listViewItem36.StateImageIndex = 0;
-            listViewItem37.StateImageIndex = 0;
-            listViewItem38.StateImageIndex = 0;
-            listViewItem39.StateImageIndex = 0;
-            listViewItem40.StateImageIndex = 0;
-            listViewItem41.StateImageIndex = 0;
+            listViewItem1.StateImageIndex = 0;
+            listViewItem2.StateImageIndex = 0;
+            listViewItem3.StateImageIndex = 0;
+            listViewItem4.StateImageIndex = 0;
+            listViewItem5.StateImageIndex = 0;
+            listViewItem6.StateImageIndex = 0;
+            listViewItem7.StateImageIndex = 0;
+            listViewItem8.StateImageIndex = 0;
+            listViewItem9.StateImageIndex = 0;
+            listViewItem10.StateImageIndex = 0;
+            listViewItem11.StateImageIndex = 0;
+            listViewItem12.StateImageIndex = 0;
+            listViewItem13.StateImageIndex = 0;
             this.vLogFileOptions.Items.AddRange( new System.Windows.Forms.ListViewItem[] {
-            listViewItem29,
-            listViewItem30,
-            listViewItem31,
-            listViewItem32,
-            listViewItem33,
-            listViewItem34,
-            listViewItem35,
-            listViewItem36,
-            listViewItem37,
-            listViewItem38,
-            listViewItem39,
-            listViewItem40,
-            listViewItem41} );
+            listViewItem1,
+            listViewItem2,
+            listViewItem3,
+            listViewItem4,
+            listViewItem5,
+            listViewItem6,
+            listViewItem7,
+            listViewItem8,
+            listViewItem9,
+            listViewItem10,
+            listViewItem11,
+            listViewItem12,
+            listViewItem13} );
             this.vLogFileOptions.Location = new System.Drawing.Point( 100, 20 );
             this.vLogFileOptions.Name = "vLogFileOptions";
             this.vLogFileOptions.Size = new System.Drawing.Size( 161, 251 );
@@ -1960,33 +1860,33 @@
             this.columnHeader3} );
             this.vConsoleOptions.GridLines = true;
             this.vConsoleOptions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            listViewItem42.StateImageIndex = 0;
-            listViewItem43.StateImageIndex = 0;
-            listViewItem44.StateImageIndex = 0;
-            listViewItem45.StateImageIndex = 0;
-            listViewItem46.StateImageIndex = 0;
-            listViewItem47.StateImageIndex = 0;
-            listViewItem48.StateImageIndex = 0;
-            listViewItem49.StateImageIndex = 0;
-            listViewItem50.StateImageIndex = 0;
-            listViewItem51.StateImageIndex = 0;
-            listViewItem52.StateImageIndex = 0;
-            listViewItem53.StateImageIndex = 0;
-            listViewItem54.StateImageIndex = 0;
+            listViewItem14.StateImageIndex = 0;
+            listViewItem15.StateImageIndex = 0;
+            listViewItem16.StateImageIndex = 0;
+            listViewItem17.StateImageIndex = 0;
+            listViewItem18.StateImageIndex = 0;
+            listViewItem19.StateImageIndex = 0;
+            listViewItem20.StateImageIndex = 0;
+            listViewItem21.StateImageIndex = 0;
+            listViewItem22.StateImageIndex = 0;
+            listViewItem23.StateImageIndex = 0;
+            listViewItem24.StateImageIndex = 0;
+            listViewItem25.StateImageIndex = 0;
+            listViewItem26.StateImageIndex = 0;
             this.vConsoleOptions.Items.AddRange( new System.Windows.Forms.ListViewItem[] {
-            listViewItem42,
-            listViewItem43,
-            listViewItem44,
-            listViewItem45,
-            listViewItem46,
-            listViewItem47,
-            listViewItem48,
-            listViewItem49,
-            listViewItem50,
-            listViewItem51,
-            listViewItem52,
-            listViewItem53,
-            listViewItem54} );
+            listViewItem14,
+            listViewItem15,
+            listViewItem16,
+            listViewItem17,
+            listViewItem18,
+            listViewItem19,
+            listViewItem20,
+            listViewItem21,
+            listViewItem22,
+            listViewItem23,
+            listViewItem24,
+            listViewItem25,
+            listViewItem26} );
             this.vConsoleOptions.Location = new System.Drawing.Point( 88, 20 );
             this.vConsoleOptions.Name = "vConsoleOptions";
             this.vConsoleOptions.Size = new System.Drawing.Size( 161, 251 );
@@ -2380,6 +2280,28 @@
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 
+            // tabIRC
+            // 
+            this.tabIRC.Controls.Add( this.lTemp );
+            this.tabIRC.Location = new System.Drawing.Point( 4, 24 );
+            this.tabIRC.Name = "tabIRC";
+            this.tabIRC.Size = new System.Drawing.Size( 651, 408 );
+            this.tabIRC.TabIndex = 8;
+            this.tabIRC.Text = "IRC";
+            this.tabIRC.UseVisualStyleBackColor = true;
+            // 
+            // lTemp
+            // 
+            this.lTemp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.lTemp.AutoSize = true;
+            this.lTemp.Location = new System.Drawing.Point( 197, 187 );
+            this.lTemp.Name = "lTemp";
+            this.lTemp.Size = new System.Drawing.Size( 261, 15 );
+            this.lTemp.TabIndex = 0;
+            this.lTemp.Text = "Coming soon, for now edit config.xml manually";
+            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2428,8 +2350,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nKickIdle)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nKickOn)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRank)).EndInit();
-            this.tabPhysics.ResumeLayout( false );
-            this.tabPhysics.PerformLayout();
             this.tabSavingAndBackup.ResumeLayout( false );
             this.gSaving.ResumeLayout( false );
             this.gSaving.PerformLayout();
@@ -2450,6 +2370,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPing)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).EndInit();
+            this.tabIRC.ResumeLayout( false );
+            this.tabIRC.PerformLayout();
             this.ResumeLayout( false );
 
         }
@@ -2462,7 +2384,6 @@
         private System.Windows.Forms.Button bResetTab;
         private System.Windows.Forms.TabPage tabGeneral;
         private System.Windows.Forms.TabPage tabClasses;
-        private System.Windows.Forms.TabPage tabPhysics;
         private System.Windows.Forms.Label lServerName;
         private System.Windows.Forms.TextBox tServerName;
         private System.Windows.Forms.Label lMOTD;
@@ -2521,7 +2442,6 @@
         private System.Windows.Forms.Label lSayColor;
         private System.Windows.Forms.ComboBox cDefaultClass;
         private System.Windows.Forms.Label lDefaultClass;
-        private System.Windows.Forms.Label lComingSoon;
         private System.Windows.Forms.GroupBox gSaving;
         private System.Windows.Forms.CheckBox xSaveOnShutdown;
         private System.Windows.Forms.NumericUpDown nSaveInterval;
@@ -2624,5 +2544,8 @@
         private System.Windows.Forms.CheckBox xBackupOnlyWhenChanged;
         private System.Windows.Forms.Label lPort;
         private System.Windows.Forms.NumericUpDown nPort;
+        private System.Windows.Forms.Button bRules;
+        private System.Windows.Forms.TabPage tabIRC;
+        private System.Windows.Forms.Label lTemp;
     }
 }

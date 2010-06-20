@@ -12,11 +12,9 @@ using Color = System.Drawing.Color;
 namespace ConfigTool {
     public partial class ConfigUI : Form {
         Font bold;
-        PlayerClass selectedClass;
-        int colorSys, colorSay, colorHelp;
+        PlayerClass selectedClass, defaultClass;
 
-        //===================================================== INIT ===========
-
+        #region Initialization
         public ConfigUI() {
             InitializeComponent();
             tip.SetToolTip( nUploadBandwidth, "Maximum available upload bandwidth.\n" +
@@ -28,41 +26,26 @@ namespace ConfigTool {
 
             bold = new Font( Font, FontStyle.Bold );
 
+            FillPermissionList();
+
             Load += LoadConfig;
         }
 
-        void ApplyColor( Button button, int color ) {
-            button.Text = fCraft.Color.GetName( color );
-            button.BackColor = ColorPicker.colors[color].background;
-            button.ForeColor = ColorPicker.colors[color].foreground;
-        }
-
-        void SomethingChanged( object sender, EventArgs args ) {
-            bApply.Enabled = true;
-        }
-
-        void AddChangeHandler( Control c ) {
-            if( c is CheckBox ) {
-                ((CheckBox)c).CheckedChanged += SomethingChanged;
-            } else if( c is ComboBox ) {
-                ((ComboBox)c).SelectedIndexChanged += SomethingChanged;
-            } else if( c is ListView ) {
-                ((ListView)c).ItemChecked += SomethingChanged;
-            } else if( c is NumericUpDown ) {
-                ((NumericUpDown)c).ValueChanged += SomethingChanged;
-            } else if( c is ListBox ) {
-                ((ListBox)c).SelectedIndexChanged += SomethingChanged;
-            } else if( c is TextBoxBase ) {
-                c.TextChanged += SomethingChanged;
-            }
-            foreach( Control child in c.Controls ) {
-                AddChangeHandler( child );
+        void FillPermissionList() {
+            ListViewItem item;
+            foreach( Permissions permission in Enum.GetValues( typeof( Permissions ) ) ) {
+#if DEBUG
+#else
+                if( permission == Permissions.AddLandmarks || permission == Permissions.PlaceHardenedBlocks ) continue;
+#endif
+                item = new ListViewItem( permission.ToString() );
+                item.Tag = permission;
+                vPermissions.Items.Add( item );
             }
         }
+        #endregion
 
-
-        //===================================================== LOAD / APPLY CONFIG ===========
-
+        #region Loading & Applying Config
         void LoadConfig( object sender, EventArgs args ) {
 
             if( !File.Exists( Config.ConfigFile ) ) {
@@ -144,86 +127,6 @@ namespace ConfigTool {
             DisableClassOptions();
         }
 
-
-        void DisableClassOptions() {
-            selectedClass = null;
-            bRemoveClass.Enabled = false;
-            tClassName.Text = "";
-            nRank.Value = 0;
-            bColorClass.Text = "";
-            tPrefix.Text = "";
-            FillClassList( cPromoteLimit, "(own class)" );
-            FillClassList( cDemoteLimit, "(own class)" );
-            FillClassList( cKickLimit, "(own class)" );
-            FillClassList( cBanLimit, "(own class)" );
-            cPromoteLimit.SelectedIndex = 0;
-            cDemoteLimit.SelectedIndex = 0;
-            cKickLimit.SelectedIndex = 0;
-            cBanLimit.SelectedIndex = 0;
-            xReserveSlot.Checked = false;
-            xIdleKick.Checked = false;
-            nKickIdle.Value = 0;
-            xKickOn.Checked = false;
-            nKickOn.Value = 0;
-            xBanOn.Checked = false;
-            nBanOn.Value = 0;
-            foreach( ListViewItem item in vPermissions.Items ) {
-                item.Checked = false;
-                item.Font = vPermissions.Font;
-            }
-            gClassOptions.Enabled = false;
-            lPermissions.Enabled = false;
-            vPermissions.Enabled = false;
-        }
-
-
-        void SelectClass( PlayerClass pc ) {
-            if( pc == null ) {
-                DisableClassOptions();
-                return;
-            }
-            selectedClass = pc;
-            tClassName.Text = pc.name;
-            nRank.Value = pc.rank;
-
-            ApplyColor( bColorClass, fCraft.Color.ParseToIndex( pc.color ) );
-
-            tPrefix.Text = pc.prefix;
-            cKickLimit.SelectedIndex = pc.GetMaxKickIndex();
-            cBanLimit.SelectedIndex = pc.GetMaxBanIndex();
-            cPromoteLimit.SelectedIndex = pc.GetMaxPromoteIndex();
-            cDemoteLimit.SelectedIndex = pc.GetMaxDemoteIndex();
-            xReserveSlot.Checked = pc.reservedSlot;
-            xIdleKick.Checked = pc.idleKickTimer > 0;
-            nKickIdle.Value = pc.idleKickTimer;
-            nKickIdle.Enabled = xIdleKick.Checked;
-            xKickOn.Checked = pc.spamKickThreshold > 0;
-            nKickOn.Value = pc.spamKickThreshold;
-            nKickOn.Enabled = xKickOn.Checked;
-            xBanOn.Checked = pc.spamBanThreshold > 0;
-            nBanOn.Value = pc.spamBanThreshold;
-            nBanOn.Enabled = xBanOn.Checked;
-
-            foreach( ListViewItem item in vPermissions.Items ) {
-                item.Checked = pc.permissions[item.Index];
-                if( item.Checked ) {
-                    item.Font = bold;
-                } else {
-                    item.Font = vPermissions.Font;
-                }
-            }
-
-            cKickLimit.Enabled = pc.Can( Permissions.Kick );
-            cBanLimit.Enabled = pc.Can( Permissions.Ban );
-            cPromoteLimit.Enabled = pc.Can( Permissions.Promote );
-            cDemoteLimit.Enabled = pc.Can( Permissions.Demote );
-
-            gClassOptions.Enabled = true;
-            lPermissions.Enabled = true;
-            vPermissions.Enabled = true;
-        }
-
-
         void ApplyTabSavingAndBackup() {
             xSaveOnShutdown.Checked = Config.GetBool( "SaveOnShutdown" );
             xSaveAtInterval.Checked = Config.GetInt( "SaveInterval" ) > 0;
@@ -289,17 +192,9 @@ namespace ConfigTool {
                 box.SelectedIndex = def;
             }
         }
+        #endregion
 
-        void FillClassList( ComboBox box, string firstItem ) {
-            box.Items.Clear();
-            box.Items.Add( firstItem );
-            foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                box.Items.Add( String.Format( "{0,3} {1,1}{2}", pc.rank, pc.prefix, pc.name ) );
-            }
-        }
-
-
-        //===================================================== WRITE CONFIG ===========
+        #region Saving Config
 
         void WriteConfig() {
             Config.errors = "";
@@ -396,41 +291,19 @@ namespace ConfigTool {
             Config.SetValue( value, options[box.SelectedIndex] );
         }
 
+        #endregion
 
+        #region Input Handlers
+
+        #region General
 
         private void bMeasure_Click( object sender, EventArgs e ) {
             System.Diagnostics.Process.Start( "http://www.speedtest.net/" );
         }
 
-        private void vPermissions_ItemChecked( object sender, ItemCheckedEventArgs e ) {
-            if( e.Item.Checked ) {
-                e.Item.Font = bold;
-            } else {
-                e.Item.Font = vPermissions.Font;
-            }
-            if( selectedClass == null ) return;
-            switch( (Permissions)e.Item.Index ) {
-                case Permissions.Ban:
-                    cBanLimit.Enabled = e.Item.Checked;
-                    if( !e.Item.Checked ) vPermissions.Items[(int)Permissions.BanIP].Checked = false;
-                    if( !e.Item.Checked ) vPermissions.Items[(int)Permissions.BanAll].Checked = false;
-                    break;
-                case Permissions.BanIP:
-                    if( e.Item.Checked ) vPermissions.Items[(int)Permissions.Ban].Checked = true;
-                    break;
-                case Permissions.BanAll:
-                    if( e.Item.Checked ) vPermissions.Items[(int)Permissions.Ban].Checked = true;
-                    break;
-                case Permissions.Kick:
-                    cKickLimit.Enabled = e.Item.Checked; break;
-                case Permissions.Promote:
-                    cPromoteLimit.Enabled = e.Item.Checked; break;
-                case Permissions.Demote:
-                    cDemoteLimit.Enabled = e.Item.Checked; break;
-            }
+        #endregion
 
-            selectedClass.permissions[e.Item.Index] = e.Item.Checked;
-        }
+        #region Logging
 
         private void vConsoleOptions_ItemChecked( object sender, ItemCheckedEventArgs e ) {
             if( e.Item.Checked ) {
@@ -448,20 +321,262 @@ namespace ConfigTool {
             }
         }
 
-        private void vClasses_SelectedIndexChanged( object sender, EventArgs e ) {
-                if( vClasses.SelectedIndex != -1 ) {
-                    SelectClass( ClassList.ParseIndex( vClasses.SelectedIndex ) );
-                    bRemoveClass.Enabled = true;
-                } else {
-                    DisableClassOptions();
-                    bRemoveClass.Enabled = false;
-                }
+        private void xLogLimit_CheckedChanged( object sender, EventArgs e ) {
+            nLogLimit.Enabled = xLogLimit.Checked;
         }
-        
+
+        #endregion
+
+        #region Saving & Backup
+
+        private void xSaveAtInterval_CheckedChanged( object sender, EventArgs e ) {
+            nSaveInterval.Enabled = xSaveAtInterval.Checked;
+        }
+
+        private void xBackupAtInterval_CheckedChanged( object sender, EventArgs e ) {
+            nBackupInterval.Enabled = xBackupAtInterval.Checked;
+        }
+
+        private void xMaxBackups_CheckedChanged( object sender, EventArgs e ) {
+            nMaxBackups.Enabled = xMaxBackups.Checked;
+        }
+
+        private void xMaxBackupSize_CheckedChanged( object sender, EventArgs e ) {
+            nMaxBackupSize.Enabled = xMaxBackupSize.Checked;
+        }
+
+        #endregion
+
+        #region Advanced
+
+        private void xPing_CheckedChanged( object sender, EventArgs e ) {
+            nPing.Enabled = xPing.Checked;
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Classes
+
+        void SelectClass( PlayerClass pc ) {
+            if( pc == null ) {
+                DisableClassOptions();
+                return;
+            }
+            selectedClass = pc;
+            tClassName.Text = pc.name;
+            nRank.Value = pc.rank;
+
+            ApplyColor( bColorClass, fCraft.Color.ParseToIndex( pc.color ) );
+
+            tPrefix.Text = pc.prefix;
+            cKickLimit.SelectedIndex = pc.GetMaxKickIndex();
+            cBanLimit.SelectedIndex = pc.GetMaxBanIndex();
+            cPromoteLimit.SelectedIndex = pc.GetMaxPromoteIndex();
+            cDemoteLimit.SelectedIndex = pc.GetMaxDemoteIndex();
+            xReserveSlot.Checked = pc.reservedSlot;
+            xIdleKick.Checked = pc.idleKickTimer > 0;
+            nKickIdle.Value = pc.idleKickTimer;
+            nKickIdle.Enabled = xIdleKick.Checked;
+            xKickOn.Checked = pc.spamKickThreshold > 0;
+            nKickOn.Value = pc.spamKickThreshold;
+            nKickOn.Enabled = xKickOn.Checked;
+            xBanOn.Checked = pc.spamBanThreshold > 0;
+            nBanOn.Value = pc.spamBanThreshold;
+            nBanOn.Enabled = xBanOn.Checked;
+
+            foreach( ListViewItem item in vPermissions.Items ) {
+                item.Checked = pc.permissions[item.Index];
+                if( item.Checked ) {
+                    item.Font = bold;
+                } else {
+                    item.Font = vPermissions.Font;
+                }
+            }
+
+            cKickLimit.Enabled = pc.Can( Permissions.Kick );
+            cBanLimit.Enabled = pc.Can( Permissions.Ban );
+            cPromoteLimit.Enabled = pc.Can( Permissions.Promote );
+            cDemoteLimit.Enabled = pc.Can( Permissions.Demote );
+
+            gClassOptions.Enabled = true;
+            lPermissions.Enabled = true;
+            vPermissions.Enabled = true;
+        }
+
+        void RebuildClassList() {
+            vClasses.Items.Clear();
+            foreach( PlayerClass pc in ClassList.classesByIndex ) {
+                vClasses.Items.Add( String.Format( "{0,3} {1,1}{2}", pc.rank, pc.prefix, pc.name ) );
+            }
+            if( selectedClass != null ) {
+                vClasses.SelectedIndex = selectedClass.index;
+            }
+            SelectClass( selectedClass );
+
+            FillClassList( cDefaultClass, "(lowest class)" );
+            cDefaultClass.SelectedIndex = ClassList.GetIndex( defaultClass );
+
+            FillClassList( cKickLimit, "(own class)" );
+            FillClassList( cBanLimit, "(own class)" );
+            FillClassList( cPromoteLimit, "(own class)" );
+            FillClassList( cDemoteLimit, "(own class)" );
+            if( selectedClass != null ) {
+                cKickLimit.SelectedIndex = selectedClass.GetMaxKickIndex();
+                cBanLimit.SelectedIndex = selectedClass.GetMaxBanIndex();
+                cPromoteLimit.SelectedIndex = selectedClass.GetMaxPromoteIndex();
+                cDemoteLimit.SelectedIndex = selectedClass.GetMaxDemoteIndex();
+            }
+        }
+
+        void DisableClassOptions() {
+            selectedClass = null;
+            bRemoveClass.Enabled = false;
+            tClassName.Text = "";
+            nRank.Value = 0;
+            bColorClass.Text = "";
+            tPrefix.Text = "";
+            FillClassList( cPromoteLimit, "(own class)" );
+            FillClassList( cDemoteLimit, "(own class)" );
+            FillClassList( cKickLimit, "(own class)" );
+            FillClassList( cBanLimit, "(own class)" );
+            cPromoteLimit.SelectedIndex = 0;
+            cDemoteLimit.SelectedIndex = 0;
+            cKickLimit.SelectedIndex = 0;
+            cBanLimit.SelectedIndex = 0;
+            xReserveSlot.Checked = false;
+            xIdleKick.Checked = false;
+            nKickIdle.Value = 0;
+            xKickOn.Checked = false;
+            nKickOn.Value = 0;
+            xBanOn.Checked = false;
+            nBanOn.Value = 0;
+            foreach( ListViewItem item in vPermissions.Items ) {
+                item.Checked = false;
+                item.Font = vPermissions.Font;
+            }
+            gClassOptions.Enabled = false;
+            lPermissions.Enabled = false;
+            vPermissions.Enabled = false;
+        }
+
+        void FillClassList( ComboBox box, string firstItem ) {
+            box.Items.Clear();
+            box.Items.Add( firstItem );
+            foreach( PlayerClass pc in ClassList.classesByIndex ) {
+                box.Items.Add( String.Format( "{0,3} {1,1}{2}", pc.rank, pc.prefix, pc.name ) );
+            }
+        }
+
+        #region Classes Input Handlers
+
+        private void bAddClass_Click( object sender, EventArgs e ) {
+            if( vClasses.Items.Count == 255 ) {
+                MessageBox.Show( "Maximum number of classes (255) reached!", "Warning" );
+                return;
+            }
+            int number = 1;
+            byte rank = 0;
+            while( ClassList.classes.ContainsKey( "class" + number ) ) number++;
+            while( ClassList.ContainsRank( rank ) ) rank++;
+            PlayerClass pc = new PlayerClass();
+            pc.name = "class" + number;
+            pc.rank = rank;
+            for( int i = 0; i < pc.permissions.Length; i++ ) pc.permissions[i] = false;
+            pc.prefix = "";
+            pc.reservedSlot = false;
+            pc.color = "";
+
+            defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
+
+            ClassList.AddClass( pc );
+            RebuildClassList();
+        }
+
+
+        private void tPrefix_Validating( object sender, CancelEventArgs e ) {
+            if( selectedClass == null ) return;
+            if( tPrefix.Text.Length > 0 && !PlayerClass.IsValidPrefix( tPrefix.Text ) ) {
+                MessageBox.Show( "Invalid prefix character!\n" +
+                    "Prefixes may only contain characters that are allowed in chat (except space).", "Warning" );
+                e.Cancel = true;
+            }
+            defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
+            selectedClass.prefix = tPrefix.Text;
+            RebuildClassList();
+        }
+
+
+        private void xReserveSlot_CheckedChanged( object sender, EventArgs e ) {
+            if( selectedClass == null ) return;
+            selectedClass.reservedSlot = xReserveSlot.Checked;
+        }
+
+
+        private void nKickIdle_ValueChanged( object sender, EventArgs e ) {
+            if( selectedClass == null || !xIdleKick.Checked ) return;
+            selectedClass.idleKickTimer = Convert.ToInt32( nKickIdle.Value );
+        }
+
+
+        private void nKickOn_ValueChanged( object sender, EventArgs e ) {
+            if( selectedClass == null || !xKickOn.Checked ) return;
+            selectedClass.spamKickThreshold = Convert.ToInt32( nKickOn.Value );
+        }
+
+
+        private void nBanOn_ValueChanged( object sender, EventArgs e ) {
+            if( selectedClass == null || !xBanOn.Checked ) return;
+            selectedClass.spamBanThreshold = Convert.ToInt32( nBanOn.Value );
+        }
+
+
+        private void cPromoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( selectedClass != null ) {
+                selectedClass.maxPromote = ClassList.ParseIndex( cPromoteLimit.SelectedIndex - 1 );
+            }
+        }
+
+
+        private void cDemoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( selectedClass != null ) {
+                selectedClass.maxDemote = ClassList.ParseIndex( cDemoteLimit.SelectedIndex - 1 );
+            }
+        }
+
+
+        private void cKickLimit_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( selectedClass != null ) {
+                selectedClass.maxKick = ClassList.ParseIndex( cKickLimit.SelectedIndex - 1 );
+            }
+        }
+
+
+        private void cBanLimit_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( selectedClass != null ) {
+                selectedClass.maxBan = ClassList.ParseIndex( cBanLimit.SelectedIndex - 1 );
+            }
+        }
+
+        private void xSpamChatKick_CheckedChanged( object sender, EventArgs e ) {
+            nSpamChatWarnings.Enabled = xSpamChatKick.Checked;
+        }
+
+        private void vClasses_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( vClasses.SelectedIndex != -1 ) {
+                SelectClass( ClassList.ParseIndex( vClasses.SelectedIndex ) );
+                bRemoveClass.Enabled = true;
+            } else {
+                DisableClassOptions();
+                bRemoveClass.Enabled = false;
+            }
+        }
+
 
         private void xIdleKick_CheckedChanged( object sender, EventArgs e ) {
             nKickIdle.Enabled = xIdleKick.Checked;
-            if( selectedClass != null ){
+            if( selectedClass != null ) {
                 if( xIdleKick.Checked ) {
                     nKickIdle.Value = selectedClass.idleKickTimer;
                 } else {
@@ -495,62 +610,34 @@ namespace ConfigTool {
             }
         }
 
-        private void xSaveAtInterval_CheckedChanged( object sender, EventArgs e ) {
-            nSaveInterval.Enabled = xSaveAtInterval.Checked;
-        }
-
-        private void xBackupAtInterval_CheckedChanged( object sender, EventArgs e ) {
-            nBackupInterval.Enabled = xBackupAtInterval.Checked;
-        }
-
-        private void xMaxBackups_CheckedChanged( object sender, EventArgs e ) {
-            nMaxBackups.Enabled = xMaxBackups.Checked;
-        }
-
-        private void xMaxBackupSize_CheckedChanged( object sender, EventArgs e ) {
-            nMaxBackupSize.Enabled = xMaxBackupSize.Checked;
-        }
-
-        private void xLogLimit_CheckedChanged( object sender, EventArgs e ) {
-            nLogLimit.Enabled = xLogLimit.Checked;
-        }
-
-        private void xPing_CheckedChanged( object sender, EventArgs e ) {
-            nPing.Enabled = xPing.Checked;
-        }
-
-        private void bApply_Click( object sender, EventArgs e ) {
-            WriteConfig();
-            if( Config.errors != "" ) {
-                MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
-            } else if( Config.Save() ) {
-                bApply.Enabled = false;
+        private void vPermissions_ItemChecked( object sender, ItemCheckedEventArgs e ) {
+            if( e.Item.Checked ) {
+                e.Item.Font = bold;
             } else {
-                MessageBox.Show( Config.errors, "An error occured while trying to save:" );
+                e.Item.Font = vPermissions.Font;
             }
-        }
+            if( selectedClass == null ) return;
+            switch( (Permissions)e.Item.Tag ) {
+                case Permissions.Ban:
+                    cBanLimit.Enabled = e.Item.Checked;
+                    if( !e.Item.Checked ) vPermissions.Items[(int)Permissions.BanIP].Checked = false;
+                    if( !e.Item.Checked ) vPermissions.Items[(int)Permissions.BanAll].Checked = false;
+                    break;
+                case Permissions.BanIP:
+                    if( e.Item.Checked ) vPermissions.Items[(int)Permissions.Ban].Checked = true;
+                    break;
+                case Permissions.BanAll:
+                    if( e.Item.Checked ) vPermissions.Items[(int)Permissions.Ban].Checked = true;
+                    break;
+                case Permissions.Kick:
+                    cKickLimit.Enabled = e.Item.Checked; break;
+                case Permissions.Promote:
+                    cPromoteLimit.Enabled = e.Item.Checked; break;
+                case Permissions.Demote:
+                    cDemoteLimit.Enabled = e.Item.Checked; break;
+            }
 
-        private void bSave_Click( object sender, EventArgs e ) {
-            WriteConfig();
-            if( Config.errors != "" ) {
-                MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
-            } else if( Config.Save() ) {
-                Application.Exit();
-            } else {
-                MessageBox.Show( Config.errors, "An error occured while trying to save:" );
-            }
-        }
-
-        private void bResetAll_Click( object sender, EventArgs e ) {
-            if( MessageBox.Show( "Are you sure you want to reset everything to defaults?", "Warning", MessageBoxButtons.OKCancel )== DialogResult.OK ) {
-                Config.LoadDefaults();
-                Config.ResetClasses();
-                ApplyTabGeneral();
-                ApplyTabClasses();
-                ApplyTabSavingAndBackup();
-                ApplyTabLogging();
-                ApplyTabAdvanced();
-            }
+            selectedClass.permissions[e.Item.Index] = e.Item.Checked;
         }
 
         private void bRemoveClass_Click( object sender, EventArgs e ) {
@@ -577,9 +664,6 @@ namespace ConfigTool {
             }
         }
 
-        private void bCancel_Click( object sender, EventArgs e ) {
-            Application.Exit();
-        }
 
         private void tClassName_Validating( object sender, CancelEventArgs e ) {
             if( selectedClass == null ) return;
@@ -602,6 +686,7 @@ namespace ConfigTool {
             }
         }
 
+
         private void nRank_Validating( object sender, CancelEventArgs e ) {
             byte rank = Convert.ToByte( nRank.Value );
             if( rank == selectedClass.rank ) return;
@@ -610,114 +695,57 @@ namespace ConfigTool {
                 "Duplicate class ranks are now allowed." );
                 e.Cancel = true;
             } else {
-                defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 ); 
+                defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
                 ClassList.ChangeRank( selectedClass, rank );
                 RebuildClassList();
             }
         }
 
-        PlayerClass defaultClass;
-        void RebuildClassList() {
-            vClasses.Items.Clear();
-            foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                vClasses.Items.Add( String.Format( "{0,3} {1,1}{2}", pc.rank, pc.prefix, pc.name ) );
-            }
-            if( selectedClass != null ) {
-                vClasses.SelectedIndex = selectedClass.index;
-            }
-            SelectClass( selectedClass );
+        #endregion
 
-            FillClassList( cDefaultClass, "(lowest class)" );
-            cDefaultClass.SelectedIndex = ClassList.GetIndex( defaultClass );
+        #endregion
 
-            FillClassList( cKickLimit, "(own class)" );
-            FillClassList( cBanLimit, "(own class)" );
-            FillClassList( cPromoteLimit, "(own class)" );
-            FillClassList( cDemoteLimit, "(own class)" );
-            if( selectedClass != null ) {
-                cKickLimit.SelectedIndex = selectedClass.GetMaxKickIndex();
-                cBanLimit.SelectedIndex = selectedClass.GetMaxBanIndex();
-                cPromoteLimit.SelectedIndex = selectedClass.GetMaxPromoteIndex();
-                cDemoteLimit.SelectedIndex = selectedClass.GetMaxDemoteIndex();
+        #region Apply / Save / Cancel
+
+        private void bApply_Click( object sender, EventArgs e ) {
+            WriteConfig();
+            if( Config.errors != "" ) {
+                MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
+            } else if( Config.Save() ) {
+                bApply.Enabled = false;
+            } else {
+                MessageBox.Show( Config.errors, "An error occured while trying to save:" );
             }
         }
 
-        private void bAddClass_Click( object sender, EventArgs e ) {
-            if( vClasses.Items.Count == 255 ) {
-                MessageBox.Show( "Maximum number of classes (255) reached!", "Warning" );
-                return;
-            }
-            int number = 1;
-            byte rank = 0;
-            while( ClassList.classes.ContainsKey( "class" + number ) ) number++;
-            while( ClassList.ContainsRank( rank ) ) rank++;
-            PlayerClass pc = new PlayerClass();
-            pc.name = "class" + number;
-            pc.rank = rank;
-            for( int i = 0; i < pc.permissions.Length; i++ ) pc.permissions[i] = false;
-            pc.prefix = "";
-            pc.reservedSlot = false;
-            pc.color = "";
-
-            defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
-
-            ClassList.AddClass( pc );
-            RebuildClassList();
-        }
-
-        private void tPrefix_Validating( object sender, CancelEventArgs e ) {
-            if( selectedClass == null ) return;
-            if( tPrefix.Text.Length > 0 && !PlayerClass.IsValidPrefix( tPrefix.Text ) ) {
-                MessageBox.Show( "Invalid prefix character!\n"+
-                    "Prefixes may only contain characters that are allowed in chat (except space).", "Warning" );
-                e.Cancel = true;
-            }
-            defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
-            selectedClass.prefix = tPrefix.Text;
-            RebuildClassList();
-        }
-
-        private void xReserveSlot_CheckedChanged( object sender, EventArgs e ) {
-            if( selectedClass == null ) return;
-            selectedClass.reservedSlot = xReserveSlot.Checked;
-        }
-
-        private void nKickIdle_ValueChanged( object sender, EventArgs e ) {
-            if( selectedClass == null || !xIdleKick.Checked ) return;
-            selectedClass.idleKickTimer = Convert.ToInt32( nKickIdle.Value );
-        }
-
-        private void nKickOn_ValueChanged( object sender, EventArgs e ) {
-            if( selectedClass == null || !xKickOn.Checked ) return;
-            selectedClass.spamKickThreshold = Convert.ToInt32( nKickOn.Value );
-        }
-
-        private void nBanOn_ValueChanged( object sender, EventArgs e ) {
-            if( selectedClass == null || !xBanOn.Checked ) return;
-            selectedClass.spamBanThreshold = Convert.ToInt32( nBanOn.Value );
-        }
-
-        private void cPromoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( selectedClass != null ) {
-                selectedClass.maxPromote = ClassList.ParseIndex( cPromoteLimit.SelectedIndex - 1 );
+        private void bSave_Click( object sender, EventArgs e ) {
+            WriteConfig();
+            if( Config.errors != "" ) {
+                MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
+            } else if( Config.Save() ) {
+                Application.Exit();
+            } else {
+                MessageBox.Show( Config.errors, "An error occured while trying to save:" );
             }
         }
 
-        private void cDemoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( selectedClass != null ) {
-                selectedClass.maxDemote = ClassList.ParseIndex( cDemoteLimit.SelectedIndex - 1 );
-            }
+        private void bCancel_Click( object sender, EventArgs e ) {
+            Application.Exit();
         }
 
-        private void cKickLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( selectedClass != null ) {
-                selectedClass.maxKick = ClassList.ParseIndex( cKickLimit.SelectedIndex-1 );
-            }
-        }
+        #endregion
 
-        private void cBanLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( selectedClass != null ) {
-                selectedClass.maxBan = ClassList.ParseIndex( cBanLimit.SelectedIndex - 1 );
+        #region Reset
+
+        private void bResetAll_Click( object sender, EventArgs e ) {
+            if( MessageBox.Show( "Are you sure you want to reset everything to defaults?", "Warning", MessageBoxButtons.OKCancel ) == DialogResult.OK ) {
+                Config.LoadDefaults();
+                Config.ResetClasses();
+                ApplyTabGeneral();
+                ApplyTabClasses();
+                ApplyTabSavingAndBackup();
+                ApplyTabLogging();
+                ApplyTabAdvanced();
             }
         }
 
@@ -756,6 +784,46 @@ namespace ConfigTool {
             }
         }
 
+        #endregion
+
+        #region Utils
+
+        #region Change Detection
+
+        void SomethingChanged( object sender, EventArgs args ) {
+            bApply.Enabled = true;
+        }
+
+        void AddChangeHandler( Control c ) {
+            if( c is CheckBox ) {
+                ((CheckBox)c).CheckedChanged += SomethingChanged;
+            } else if( c is ComboBox ) {
+                ((ComboBox)c).SelectedIndexChanged += SomethingChanged;
+            } else if( c is ListView ) {
+                ((ListView)c).ItemChecked += SomethingChanged;
+            } else if( c is NumericUpDown ) {
+                ((NumericUpDown)c).ValueChanged += SomethingChanged;
+            } else if( c is ListBox ) {
+                ((ListBox)c).SelectedIndexChanged += SomethingChanged;
+            } else if( c is TextBoxBase ) {
+                c.TextChanged += SomethingChanged;
+            }
+            foreach( Control child in c.Controls ) {
+                AddChangeHandler( child );
+            }
+        }
+
+        #endregion
+
+        #region Colors
+        int colorSys, colorSay, colorHelp;
+
+        void ApplyColor( Button button, int color ) {
+            button.Text = fCraft.Color.GetName( color );
+            button.BackColor = ColorPicker.colors[color].background;
+            button.ForeColor = ColorPicker.colors[color].foreground;
+        }
+
         private void bColorSys_Click( object sender, EventArgs e ) {
             ColorPicker picker = new ColorPicker( "System message color", colorSys );
             picker.ShowDialog();
@@ -784,8 +852,13 @@ namespace ConfigTool {
             selectedClass.color = fCraft.Color.GetName( picker.color );
         }
 
-        private void xSpamChatKick_CheckedChanged( object sender, EventArgs e ) {
-            nSpamChatWarnings.Enabled = xSpamChatKick.Checked;
+        #endregion
+
+        private void bRules_Click( object sender, EventArgs e ) {
+            TextEditorPopup popup = new TextEditorPopup( "rules.txt", "Use common sense!" );
+            popup.ShowDialog();
         }
+
+        #endregion
     }
 }

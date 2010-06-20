@@ -577,6 +577,7 @@ namespace fCraft {
             permissions.Add( guest );
             DefineClass( guest );
 
+
             XElement regular = new XElement( "PlayerClass" );
             regular.Add( new XAttribute( "name", "regular" ) );
             regular.Add( new XAttribute( "rank", 30 ) );
@@ -585,20 +586,27 @@ namespace fCraft {
             regular.Add( new XAttribute( "spamKickAt", 0 ) );
             regular.Add( new XAttribute( "spamBanAt", 0) );
             regular.Add( new XAttribute( "idleKickAfter", 20 ) );
+
             regular.Add( new XElement( "Chat" ) );
             regular.Add( new XElement( "Build" ) );
             regular.Add( new XElement( "Delete" ) );
+
+            regular.Add( new XElement( "PlaceGrass" ) );
+            regular.Add( new XElement( "PlaceWater" ) );
+            regular.Add( new XElement( "PlaceLava" ) );
+            regular.Add( new XElement( "PlaceAdmincrete" ) );
+            regular.Add( new XElement( "DeleteAdmincrete" ) );
+
             temp = new XElement( "Kick" );
             temp.Add( new XAttribute( "max", "regular" ) );
             regular.Add( temp );
-            regular.Add( new XElement( "Teleport" ) );
+
             regular.Add( new XElement( "ViewOthersInfo" ) );
-            regular.Add( new XElement( "PlaceAdmincrete" ) );
-            regular.Add( new XElement( "DeleteAdmincrete" ) );
-            regular.Add( new XElement( "PlaceGrass" ) );
-            regular.Add( new XElement( "PlaceGlitchedSand" ) );
+
+            regular.Add( new XElement( "Teleport" ) );
             permissions.Add( regular );
             DefineClass( regular );
+
 
             XElement op = new XElement( "PlayerClass" );
             op.Add( new XAttribute( "name", "op" ) );
@@ -608,9 +616,18 @@ namespace fCraft {
             op.Add( new XAttribute( "spamKickAt", 0 ) );
             op.Add( new XAttribute( "spamBanAt", 0 ) );
             op.Add( new XAttribute( "idleKickAfter", 0 ) );
+
             op.Add( new XElement( "Chat" ) );
             op.Add( new XElement( "Build" ) );
             op.Add( new XElement( "Delete" ) );
+
+            op.Add( new XElement( "PlaceGrass" ) );
+            op.Add( new XElement( "PlaceWater" ) );
+            op.Add( new XElement( "PlaceLava" ) );
+            op.Add( new XElement( "PlaceAdmincrete" ) );
+            op.Add( new XElement( "DeleteAdmincrete" ) );
+            op.Add( new XElement( "PlaceHardenedBlocks" ) );
+
             op.Add( new XElement( "Say" ) );
             temp = new XElement( "Kick" );
             temp.Add( new XAttribute( "max", "op" ) );
@@ -619,6 +636,7 @@ namespace fCraft {
             temp.Add( new XAttribute( "max", "regular" ) );
             op.Add( temp );
             op.Add( new XElement( "BanIP" ) );
+
             temp = new XElement( "Promote" );
             temp.Add( new XAttribute( "max", "regular" ) );
             op.Add( temp );
@@ -627,17 +645,18 @@ namespace fCraft {
             op.Add( temp );
             op.Add( new XElement( "Hide" ) );
             op.Add( new XElement( "ChangeName" ) );
+
+            op.Add( new XElement( "ViewOthersInfo" ) );
+
             op.Add( new XElement( "Teleport" ) );
             op.Add( new XElement( "Bring" ) );
             op.Add( new XElement( "Freeze" ) );
             op.Add( new XElement( "SetSpawn" ) );
-            op.Add( new XElement( "ViewOthersInfo" ) );
-            op.Add( new XElement( "PlaceHardenedBlocks" ) );
-            op.Add( new XElement( "PlaceAdmincrete" ) );
-            op.Add( new XElement( "DeleteAdmincrete" ) );
-            op.Add( new XElement( "PlaceGrass" ) );
+
+            op.Add( new XElement( "Draw" ) );
             permissions.Add( op );
             DefineClass( op );
+
 
             XElement owner = new XElement( "PlayerClass" );
             owner.Add( new XAttribute( "name", "owner" ) );
@@ -647,9 +666,18 @@ namespace fCraft {
             owner.Add( new XAttribute( "spamKickAt", 0 ) );
             owner.Add( new XAttribute( "spamBanAt", 0 ) );
             owner.Add( new XAttribute( "idleKickAfter", 0 ) );
+
             owner.Add( new XElement( "Chat" ) );
             owner.Add( new XElement( "Build" ) );
             owner.Add( new XElement( "Delete" ) );
+
+            owner.Add( new XElement( "PlaceGrass" ) );
+            owner.Add( new XElement( "PlaceWater" ) );
+            owner.Add( new XElement( "PlaceLava" ) );
+            owner.Add( new XElement( "PlaceAdmincrete" ) );
+            owner.Add( new XElement( "DeleteAdmincrete" ) );
+            owner.Add( new XElement( "PlaceHardenedBlocks" ) );
+
             owner.Add( new XElement( "Say" ) );
             temp = new XElement( "Kick" );
             temp.Add( new XAttribute( "max", "owner" ) );
@@ -659,7 +687,7 @@ namespace fCraft {
             owner.Add( temp );
             owner.Add( new XElement( "BanIP" ) );
             owner.Add( new XElement( "BanAll" ) );
-            owner.Add( new XElement( "BanOfflinePlayers" ) );
+
             temp = new XElement( "Promote" );
             temp.Add( new XAttribute( "max", "owner" ) );
             owner.Add( temp );
@@ -668,25 +696,26 @@ namespace fCraft {
             owner.Add( temp );
             owner.Add( new XElement( "Hide" ) );
             owner.Add( new XElement( "ChangeName" ) );
+
+            owner.Add( new XElement( "ViewOthersInfo" ) );
+
             owner.Add( new XElement( "Teleport" ) );
             owner.Add( new XElement( "Bring" ) );
             owner.Add( new XElement( "Freeze" ) );
             owner.Add( new XElement( "SetSpawn" ) );
-            owner.Add( new XElement( "ViewOthersInfo" ) );
-            owner.Add( new XElement( "PlaceAdmincrete" ) );
-            owner.Add( new XElement( "DeleteAdmincrete" ) );
-            owner.Add( new XElement( "PlaceGrass" ) );
-            owner.Add( new XElement( "PlaceWater" ) );
-            owner.Add( new XElement( "PlaceLava" ) );
+
             owner.Add( new XElement( "SaveAndLoad" ) );
             owner.Add( new XElement( "Lock" ) );
             owner.Add( new XElement( "ControlPhysics" ) );
+            owner.Add( new XElement( "AddLandmarks" ) );
+
             owner.Add( new XElement( "ManageZones" ) );
             owner.Add( new XElement( "ManageWorlds" ) );
-            owner.Add( new XElement( "PlaceHardenedBlocks" ) );
+
             owner.Add( new XElement( "Draw" ) );
             permissions.Add( owner );
             DefineClass( owner );
+
 
             return permissions;
         }
