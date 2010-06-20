@@ -17,13 +17,13 @@ namespace fCraft
     public static class IRCComm
     {
         private static Thread thread;
-        public static string IRCSERVER = Config.GetString("IRCBotNetwork");
-        public static int PORT = Config.GetInt("IRCBotPort");
+        public static string IRCSERVER;
+        public static int PORT;
         public static string USER = "USER fCraftbot 8 * :fCraft IRC Bot";
-        public static string NICK = Config.GetString("IRCBotNick");
+        public static string NICK;
         public static List<string> CHANNELS = new List<string>();
         public static string QUITMSG = "I've been told to go offline now!";
-        public static bool FORWARD_ALL = Config.GetBool("IRCBotForwardAll");
+        public static bool FORWARD_ALL;
 
         private static bool online; // Signifies a *complete* registration with the network (ability to send messages)
         private static bool firstConnect;
@@ -40,6 +40,11 @@ namespace fCraft
 
         public static void Start()
         {
+            IRCSERVER = Config.GetString( "IRCBotNetwork" );
+            PORT = Config.GetInt( "IRCBotPort" );
+            NICK = Config.GetString( "IRCBotNick" );
+            FORWARD_ALL = Config.GetBool( "IRCBotForwardAll" );
+
             string[] tmpChans = Config.GetString("IRCBotChannels").Split(',');
             for(int i = 0; i < tmpChans.Length; ++i)
                 CHANNELS.Add(tmpChans[i]);

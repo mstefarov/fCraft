@@ -1,5 +1,17 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-06-19
+2010-06-20
+404
+ Added a config option 'IRCMsgs' to toggle join/leave messages on/off. Default is disabled to prevent massive spam.
+ Fixed zone borders being off by 1 block.
+ Fixed many bugs in ConfigTool permission list.
+ Fixed a rare crash on shutdown.
+ Fixed heartbeat reporting incorrect port number to heartbeat if the port specified in config was not available.
+ Fixed a possible crash in IRCComm, related to static initializers.
+ Added visual editor for rules.txt to ConfigTool.
+ Added stub tab for IRC settings (coming soon).
+ Adjusted default class permissions slightly, by popular demand:
+ - regulars can now place Water and Lava
+ - ops can now use draw commands
 403
  Fixed spawnpoint being read incorrectly when using /load.
  Added a note to ban*/unban* commands that's shown when player name is not found: "Use the FULL player name for ban/unban commands."

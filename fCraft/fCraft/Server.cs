@@ -31,7 +31,7 @@ namespace fCraft {
         internal static float ticksPerSecond; //TODO: move to server
 
         const int maxPortAttempts = 20;
-
+        public static int port;
 
         public static bool Init() {
             Color.Init();
@@ -98,7 +98,7 @@ namespace fCraft {
             // open the port
             bool portFound = false;
             int attempts = 0;
-            int port = Config.GetInt( "Port" );
+            port = Config.GetInt( "Port" );
 
             do {
                 try {
@@ -169,6 +169,13 @@ namespace fCraft {
         public static void Shutdown() {
             if( OnShutdownStart != null ) OnShutdownStart();
 
+            // kill the main thread
+            Logger.Log( "Server shutting down.", LogType.SystemActivity );
+            continueMainLoop = false;
+            if( mainThread != null && mainThread.IsAlive ) {
+                mainThread.Join();
+            }
+
             // stop accepting new players
             if( listener != null ) {
                 listener.Stop();
@@ -177,13 +184,6 @@ namespace fCraft {
 
             // kill the heartbeat
             Heartbeat.ShutDown();
-
-            // kill the main thread
-            Logger.Log( "Server shutting down.", LogType.SystemActivity );
-            continueMainLoop = false;
-            if( mainThread != null && mainThread.IsAlive ) {
-                mainThread.Join();
-            }
 
             // kill IRC bot
             if( IRCBot.isOnline() == true ) IRCBot.ShutDown();

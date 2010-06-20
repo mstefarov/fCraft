@@ -22,7 +22,7 @@ namespace fCraft {
                                         Server.UrlEncode( Config.GetString( "ServerName" ) ),
                                         Config.GetInt( "MaxPlayers" ),
                                         Config.GetBool( "IsPublic" ),
-                                        Config.GetInt( "Port" ),
+                                        Server.port,
                                         Config.Salt,
                                         Config.ProtocolVersion );
 
