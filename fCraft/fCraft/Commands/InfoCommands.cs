@@ -19,8 +19,32 @@ namespace fCraft {
             Commands.AddCommand( "compass", Compass, false );
 
             Commands.AddCommand( "version", GetVersion, true );
+            Commands.AddCommand( "players", Players, true );
 
             Commands.AddCommand( "dq", DebugQueues, true );
+        }
+
+
+        internal static void Players( Player player, Command cmd ) {
+            Player[] players = Server.playerList;
+            if( players.Length > 0 ) {
+                string line = "List of players: ";
+                bool first = true;
+                foreach( Player p in players ) {
+                    if( p.isHidden ) continue;
+                    if( line.Length + p.name.Length > 62 ) {
+                        player.Message( line );
+                        line = "";
+                    } else if( !first ) {
+                        line += ", ";
+                    }
+                    line += p.name;
+                    first = false;
+                }
+                player.Message( line );
+            } else {
+                player.Message( "There appear to be no players on the server." );
+            }
         }
 
 
@@ -195,6 +219,10 @@ namespace fCraft {
                     player.Message( Color.Help, "/paint" );
                     player.Message( "     Replaces a block instead of deleting it." );
                     break;
+                case "players":
+                    player.Message( Color.Help, "/players" );
+                    player.Message( "     Lists all players on the server (in all worlds)." );
+                    break;
                 case "roll":
                     player.Message( Color.Help, "/roll" );
                     player.Message( "     Gives random number between 1 and 100." );
@@ -308,8 +336,8 @@ namespace fCraft {
                     player.Message( "Below is a list of commands: " );
                     player.Message( Color.Help, "  ban, banall, baninfo, banip, bring, cancel, class, cuboid," );
                     player.Message( Color.Help, "  ellipsoid, freeze, gen, genh, grass, help, hide, info," );
-                    player.Message( Color.Help, "  kick, lava, load, lock, paint, roll, save, solid, tp," );
-                    player.Message( Color.Help, "  unban, unbanall, undo, unfreeze, unhide, unlock, user," );
+                    player.Message( Color.Help, "  kick, lava, load, lock, paint, players, roll, save, solid," );
+                    player.Message( Color.Help, "  tp, unban, unbanall, undo, unfreeze, unhide, unlock, user," );
                     player.Message( Color.Help, "  unbanall, water, worlds, wload, zone, zones, zremove, ztest" );
                     //TODO: fetch an actual, current list of commands
                     break;
