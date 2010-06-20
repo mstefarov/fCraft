@@ -14,7 +14,7 @@ namespace fCraft {
     public static class Server {
         static List<Session> sessions = new List<Session>();
         static Dictionary<int, Player> players = new Dictionary<int, Player>( 255 );
-        static Player[] playerList;
+        internal static Player[] playerList;
         static object playerListLock = new object();
         public static object worldListLock = new object();
 
@@ -576,8 +576,8 @@ namespace fCraft {
 
         public static string PlayerListToString() {
             String players = "";
-            foreach (Player plyr in playerList) {
-                players += plyr.name + ",";
+            foreach (Player player in playerList) {
+                players += player.name + ",";
             }
             return players;
         }
