@@ -1,4 +1,4 @@
-﻿
+﻿// Copyright 2010 Jesse O'Brien <destroyer661@gmail.com>
 // Uncomment this define to get IRC debugging data
 // WARNING: This is a lot of text.
 //#define DEBUG_IRC // This line will give you messages sent back/forth between the bot and server

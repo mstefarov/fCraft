@@ -93,13 +93,13 @@ namespace fCraft {
 
 
         // Handles building/deleting by the player
-        public void SetTile( short x, short y, short h, bool buildMode, Block type ) {
+        public bool SetTile( short x, short y, short h, bool buildMode, Block type ) {
 
-            if( CheckBlockSpam() ) return;
+            if( CheckBlockSpam() ) return true;
 
             if( world.locked ) {
                 SendTileNow( x, y, h );
-                return;
+                return false;
             }
 
             /*if( world.lockDown ) { //TODO: streamload
@@ -113,7 +113,7 @@ namespace fCraft {
                 Math.Abs( y * 32 - pos.y ) > maxRange ||
                 Math.Abs( h * 32 - pos.h ) > maxRange ) {
                 SendTileNow( x, y, h );
-                return;
+                return false;
             }
 
             bool zoneOverride = false;
@@ -122,6 +122,7 @@ namespace fCraft {
                 if( !zoneOverride ) {
                     SendTileNow( x, y, h );
                     Message( "You are not allowed to build in \""+zoneName+"\" zone." );
+                    return false;
                 }
             }
 
@@ -137,7 +138,7 @@ namespace fCraft {
                     Message( String.Format( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
                                             markCount, x, y, h, markCount + 1 ) );
                 }
-                return;
+                return false;
             }
 
             bool can = true;
@@ -201,7 +202,7 @@ namespace fCraft {
                     blockUpdate = new BlockUpdate( this, x, y, h - 1, (byte)Block.DoubleStair );
                     if( !world.FireChangedBlockEvent( ref blockUpdate ) ) {
                         SendTileNow( x, y, h );
-                        return;
+                        return false;
                     }
                     world.map.QueueUpdate( blockUpdate );
                     session.SendNow( PacketWriter.MakeSetBlock( x, y, h - 1, (byte)Block.DoubleStair ) );
@@ -210,7 +211,7 @@ namespace fCraft {
                     blockUpdate = new BlockUpdate( this, x, y, h, (byte)type );
                     if( !world.FireChangedBlockEvent( ref blockUpdate ) ) {
                         SendTileNow( x, y, h );
-                        return;
+                        return false;
                     }
                     world.map.QueueUpdate( blockUpdate );
                     if( update || replaceMode ) {
@@ -221,6 +222,7 @@ namespace fCraft {
                 Message( Color.Red, "You are not permitted to do that." );
                 SendTileNow( x, y, h );
             }
+            return false;
         }
 
 

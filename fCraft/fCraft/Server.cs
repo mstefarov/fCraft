@@ -388,6 +388,7 @@ namespace fCraft {
             }
             for( int i = 0; i < sessions.Count; i++ ) {
                 if( OnPlayerDisconnected != null ) OnPlayerDisconnected( sessions[i] );
+                Server.FirePlayerListChangedEvent();
                 if( sessions[i].canDispose ) {
                     sessions[i].Disconnect();
                     sessions.RemoveAt( i );
@@ -411,6 +412,7 @@ namespace fCraft {
         public static event SimpleEventHandler OnShutdownEnd;
         public static event PlayerChangedWorldEventHandler OnPlayerChangedWorld;
         public static event LogEventHandler OnLog;
+        public static event PlayerListChangedHandler OnPlayerListChanged;
 
         internal static void FireURLChangeEvent( string URL ) {
             if( OnURLChanged != null ) OnURLChanged( URL );
@@ -430,6 +432,17 @@ namespace fCraft {
         }
         internal static void FireWorldChangedEvent( Player player, World oldWorld, World newWorld ) {
             if( OnPlayerChangedWorld != null ) OnPlayerChangedWorld( player, oldWorld, newWorld );
+        }
+        internal static void FirePlayerListChangedEvent() {
+            if( OnPlayerListChanged != null ) {
+                Player[] playerListCache = playerList;
+                string[] list = new string[playerListCache.Length];
+                for( int i = 0; i < list.Length; i++ ) {
+                    list[i] = playerListCache[i].info.playerClass.name + " - " + playerListCache[i].name;
+                }
+                Array.Sort<string>( list );
+                OnPlayerListChanged( list );
+            }
         }
         #endregion
 
