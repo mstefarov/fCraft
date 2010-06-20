@@ -17,4 +17,5 @@ namespace fCraft {
     public delegate void PlayerChangedClassEventHandler( Player target, Player player, PlayerClass oldClass, PlayerClass newClass, ref bool cancel );
 
     public delegate void SimpleEventHandler();
+    public delegate void PlayerListChangedHandler( string[] newPlayerList );
 }

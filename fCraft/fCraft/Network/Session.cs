@@ -218,7 +218,7 @@ namespace fCraft {
                                     KickNow( "Hacking detected: illegal SetTile packet." );
                                     return;
                                 } else {
-                                    player.SetTile( x, y, h, mode == 1, (Block)type );
+                                    if( player.SetTile( x, y, h, mode == 1, (Block)type ) ) return;
                                 }
                                 break;
                         }
@@ -365,6 +365,7 @@ namespace fCraft {
 
             player.info.ProcessLogin( player );
             Server.FirePlayerConnectedEvent( this );
+            Server.FirePlayerListChangedEvent();
 
             // Player is now authenticated. Send server info.
             writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( "ServerName" ), Config.GetString( "MOTD" ) ) );

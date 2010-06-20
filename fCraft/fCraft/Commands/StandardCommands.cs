@@ -347,6 +347,7 @@ namespace fCraft {
                 target.info.playerClass.rank > newClass.rank ) {
                 PlayerClass oldClass = target.info.playerClass;
                 if( !Server.FirePlayerClassChange( target, player, oldClass, newClass ) ) return;
+                Server.FirePlayerListChangedEvent();
 
                 Logger.Log( "{0} changed the class of {1} from {2} to {3}.", LogType.UserActivity, 
                             player.name, target.info.name, target.info.playerClass.name, newClass.name );
