@@ -50,7 +50,7 @@ namespace fCraft {
             IPBanList.Load();
             Commands.Init();
 
-            if (Config.GetBool("IRCBot") && IRCComm.commStatus()) 
+            if (Config.GetBool("IRCBot") && IRCComm.commStatus() && Config.GetBool("IRCMsgs")) 
                 Server.OnPlayerConnected += IRCBot.sendPlayerJoinMsg;
 
             if( OnInit != null ) OnInit();

@@ -58,6 +58,7 @@ namespace fCraft {
             settings["SayColor"] = "yellow";
 
             settings["IRCBot"] = "false"; // Bot is disabled by default
+            settings["IRCMsgs"] = "false"; // Join/quit messages disabled by default
             settings["IRCBotNick"] = "fBot";
             settings["IRCBotNetwork"] = "irc.esper.net";
             settings["IRCBotPort"] = "6667";
