@@ -141,14 +141,14 @@ namespace fCraft {
                     break;
                 case "cub":
                 case "cuboid":
-                    player.Message( Color.Help, "/cub BlockType" + Color.Sys + " or " + Color.Help + "/cuboid BlockType" );
+                    player.Message( Color.Help, "/cub [BlockType]" + Color.Sys + " or " + Color.Help + "/cuboid BlockType" );
                     player.Message( "     Allows to draw a filled cuboid (rectangular area)." );
                     player.Message( "     Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode." );
                     player.Message( "     Type " + Color.Help + "/undo" + Color.Sys + " to undo the last draw operation." );
                     break;
                 case "ell":
                 case "ellipsoid":
-                    player.Message( Color.Help, "/ell BlockType" + Color.Sys + " or " + Color.Help + "/ellipsoid BlockType" );
+                    player.Message( Color.Help, "/ell [BlockType]" + Color.Sys + " or " + Color.Help + "/ellipsoid BlockType" );
                     player.Message( "     Allows to draw a filled ellipsoid (sphere-like area)." );
                     player.Message( "     Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode." );
                     player.Message( "     Type " + Color.Help + "/undo" + Color.Sys + " to undo the last draw operation." );
