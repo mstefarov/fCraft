@@ -44,8 +44,8 @@ namespace mcc {
             get { return ".mclevel"; }
         }
 
-        public string[] Keywords {
-            get { return new string[] { "mclevel", "indev", "nbt" }; }
+        public string ServerName {
+            get { return "indev"; }
         }
 
         public Map Load( Stream MapStream ) {

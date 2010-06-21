@@ -36,7 +36,7 @@ namespace mcc {
     public interface IConverter {
         MapFormats Format { get; }
         string FileExtension { get; }
-        string[] Keywords { get; }
+        string ServerName { get; }
 
         bool Claims( Stream MapStream );
 
