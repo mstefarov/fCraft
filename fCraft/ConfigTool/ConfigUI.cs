@@ -35,10 +35,6 @@ namespace ConfigTool {
         void FillPermissionList() {
             ListViewItem item;
             foreach( Permissions permission in Enum.GetValues( typeof( Permissions ) ) ) {
-#if DEBUG
-#else
-                if( permission == Permissions.AddLandmarks || permission == Permissions.PlaceHardenedBlocks ) continue;
-#endif
                 item = new ListViewItem( permission.ToString() );
                 item.Tag = permission;
                 vPermissions.Items.Add( item );
@@ -667,7 +663,7 @@ namespace ConfigTool {
                     cDemoteLimit.Enabled = e.Item.Checked; break;
             }
 
-            selectedClass.permissions[e.Item.Index] = e.Item.Checked;
+            selectedClass.permissions[(int)e.Item.Tag] = e.Item.Checked;
         }
 
         private void bRemoveClass_Click( object sender, EventArgs e ) {
