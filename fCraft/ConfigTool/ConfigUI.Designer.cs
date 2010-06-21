@@ -188,6 +188,20 @@
             this.lConsoleOptions = new System.Windows.Forms.Label();
             this.vConsoleOptions = new System.Windows.Forms.ListView();
             this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
+            this.tabIRC = new System.Windows.Forms.TabPage();
+            this.gIRCOptions = new System.Windows.Forms.GroupBox();
+            this.xIRCMsgs = new System.Windows.Forms.CheckBox();
+            this.xIRCBotForwardAll = new System.Windows.Forms.CheckBox();
+            this.gIRCNetwork = new System.Windows.Forms.GroupBox();
+            this.tIRCBotChannels = new System.Windows.Forms.TextBox();
+            this.lIRCBotChannels = new System.Windows.Forms.Label();
+            this.nIRCBotPort = new System.Windows.Forms.NumericUpDown();
+            this.lIRCBotPort = new System.Windows.Forms.Label();
+            this.tIRCBotNetwork = new System.Windows.Forms.TextBox();
+            this.lIRCBotNetwork = new System.Windows.Forms.Label();
+            this.lIRCBotNick = new System.Windows.Forms.Label();
+            this.tIRCBotNick = new System.Windows.Forms.TextBox();
+            this.xIRC = new System.Windows.Forms.CheckBox();
             this.tabAdvanced = new System.Windows.Forms.TabPage();
             this.xLowLatencyMode = new System.Windows.Forms.CheckBox();
             this.cUpdater = new System.Windows.Forms.ComboBox();
@@ -218,8 +232,7 @@
             this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
-            this.tabIRC = new System.Windows.Forms.TabPage();
-            this.lTemp = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gAppearence.SuspendLayout();
@@ -256,11 +269,14 @@
             this.gLogFile.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nLogLimit)).BeginInit();
             this.gConsole.SuspendLayout();
+            this.tabIRC.SuspendLayout();
+            this.gIRCOptions.SuspendLayout();
+            this.gIRCNetwork.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nIRCBotPort)).BeginInit();
             this.tabAdvanced.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPing)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
-            this.tabIRC.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabs
@@ -1899,6 +1915,163 @@
             // 
             this.columnHeader3.Width = 157;
             // 
+            // tabIRC
+            // 
+            this.tabIRC.Controls.Add( this.gIRCOptions );
+            this.tabIRC.Controls.Add( this.gIRCNetwork );
+            this.tabIRC.Controls.Add( this.xIRC );
+            this.tabIRC.Location = new System.Drawing.Point( 4, 24 );
+            this.tabIRC.Name = "tabIRC";
+            this.tabIRC.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
+            this.tabIRC.Size = new System.Drawing.Size( 651, 408 );
+            this.tabIRC.TabIndex = 8;
+            this.tabIRC.Text = "IRC";
+            this.tabIRC.UseVisualStyleBackColor = true;
+            // 
+            // gIRCOptions
+            // 
+            this.gIRCOptions.Controls.Add( this.xIRCMsgs );
+            this.gIRCOptions.Controls.Add( this.xIRCBotForwardAll );
+            this.gIRCOptions.Location = new System.Drawing.Point( 8, 173 );
+            this.gIRCOptions.Name = "gIRCOptions";
+            this.gIRCOptions.Size = new System.Drawing.Size( 635, 74 );
+            this.gIRCOptions.TabIndex = 7;
+            this.gIRCOptions.TabStop = false;
+            this.gIRCOptions.Text = "Options";
+            // 
+            // xIRCMsgs
+            // 
+            this.xIRCMsgs.AutoSize = true;
+            this.xIRCMsgs.Location = new System.Drawing.Point( 20, 20 );
+            this.xIRCMsgs.Name = "xIRCMsgs";
+            this.xIRCMsgs.Size = new System.Drawing.Size( 350, 19 );
+            this.xIRCMsgs.TabIndex = 1;
+            this.xIRCMsgs.Text = "Announce in-game when people join/part the IRC channels.";
+            this.xIRCMsgs.UseVisualStyleBackColor = true;
+            // 
+            // xIRCBotForwardAll
+            // 
+            this.xIRCBotForwardAll.AutoSize = true;
+            this.xIRCBotForwardAll.Location = new System.Drawing.Point( 20, 45 );
+            this.xIRCBotForwardAll.Name = "xIRCBotForwardAll";
+            this.xIRCBotForwardAll.Size = new System.Drawing.Size( 365, 19 );
+            this.xIRCBotForwardAll.TabIndex = 7;
+            this.xIRCBotForwardAll.Text = "Forward ALL chat between the server and IRC indiscriminately.";
+            this.xIRCBotForwardAll.UseVisualStyleBackColor = true;
+            // 
+            // gIRCNetwork
+            // 
+            this.gIRCNetwork.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.gIRCNetwork.Controls.Add( this.label1 );
+            this.gIRCNetwork.Controls.Add( this.tIRCBotChannels );
+            this.gIRCNetwork.Controls.Add( this.lIRCBotChannels );
+            this.gIRCNetwork.Controls.Add( this.nIRCBotPort );
+            this.gIRCNetwork.Controls.Add( this.lIRCBotPort );
+            this.gIRCNetwork.Controls.Add( this.tIRCBotNetwork );
+            this.gIRCNetwork.Controls.Add( this.lIRCBotNetwork );
+            this.gIRCNetwork.Controls.Add( this.lIRCBotNick );
+            this.gIRCNetwork.Controls.Add( this.tIRCBotNick );
+            this.gIRCNetwork.Location = new System.Drawing.Point( 8, 38 );
+            this.gIRCNetwork.Name = "gIRCNetwork";
+            this.gIRCNetwork.Size = new System.Drawing.Size( 635, 129 );
+            this.gIRCNetwork.TabIndex = 5;
+            this.gIRCNetwork.TabStop = false;
+            this.gIRCNetwork.Text = "Network";
+            // 
+            // tIRCBotChannels
+            // 
+            this.tIRCBotChannels.Location = new System.Drawing.Point( 118, 74 );
+            this.tIRCBotChannels.MaxLength = 1000;
+            this.tIRCBotChannels.Name = "tIRCBotChannels";
+            this.tIRCBotChannels.Size = new System.Drawing.Size( 511, 21 );
+            this.tIRCBotChannels.TabIndex = 15;
+            // 
+            // lIRCBotChannels
+            // 
+            this.lIRCBotChannels.AutoSize = true;
+            this.lIRCBotChannels.Location = new System.Drawing.Point( 17, 77 );
+            this.lIRCBotChannels.Name = "lIRCBotChannels";
+            this.lIRCBotChannels.Size = new System.Drawing.Size( 95, 15 );
+            this.lIRCBotChannels.TabIndex = 14;
+            this.lIRCBotChannels.Text = "Channels to join";
+            // 
+            // nIRCBotPort
+            // 
+            this.nIRCBotPort.Location = new System.Drawing.Point( 319, 48 );
+            this.nIRCBotPort.Maximum = new decimal( new int[] {
+            65535,
+            0,
+            0,
+            0} );
+            this.nIRCBotPort.Minimum = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            this.nIRCBotPort.Name = "nIRCBotPort";
+            this.nIRCBotPort.Size = new System.Drawing.Size( 70, 21 );
+            this.nIRCBotPort.TabIndex = 13;
+            this.nIRCBotPort.Value = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            // 
+            // lIRCBotPort
+            // 
+            this.lIRCBotPort.AutoSize = true;
+            this.lIRCBotPort.Location = new System.Drawing.Point( 284, 50 );
+            this.lIRCBotPort.Name = "lIRCBotPort";
+            this.lIRCBotPort.Size = new System.Drawing.Size( 29, 15 );
+            this.lIRCBotPort.TabIndex = 12;
+            this.lIRCBotPort.Text = "Port";
+            // 
+            // tIRCBotNetwork
+            // 
+            this.tIRCBotNetwork.Location = new System.Drawing.Point( 118, 47 );
+            this.tIRCBotNetwork.MaxLength = 512;
+            this.tIRCBotNetwork.Name = "tIRCBotNetwork";
+            this.tIRCBotNetwork.Size = new System.Drawing.Size( 160, 21 );
+            this.tIRCBotNetwork.TabIndex = 11;
+            // 
+            // lIRCBotNetwork
+            // 
+            this.lIRCBotNetwork.AutoSize = true;
+            this.lIRCBotNetwork.Location = new System.Drawing.Point( 23, 50 );
+            this.lIRCBotNetwork.Name = "lIRCBotNetwork";
+            this.lIRCBotNetwork.Size = new System.Drawing.Size( 89, 15 );
+            this.lIRCBotNetwork.TabIndex = 10;
+            this.lIRCBotNetwork.Text = "IRC server host";
+            // 
+            // lIRCBotNick
+            // 
+            this.lIRCBotNick.AutoSize = true;
+            this.lIRCBotNick.Location = new System.Drawing.Point( 62, 23 );
+            this.lIRCBotNick.Name = "lIRCBotNick";
+            this.lIRCBotNick.Size = new System.Drawing.Size( 50, 15 );
+            this.lIRCBotNick.TabIndex = 9;
+            this.lIRCBotNick.Text = "Bot nick";
+            // 
+            // tIRCBotNick
+            // 
+            this.tIRCBotNick.Location = new System.Drawing.Point( 118, 20 );
+            this.tIRCBotNick.MaxLength = 32;
+            this.tIRCBotNick.Name = "tIRCBotNick";
+            this.tIRCBotNick.Size = new System.Drawing.Size( 160, 21 );
+            this.tIRCBotNick.TabIndex = 8;
+            // 
+            // xIRC
+            // 
+            this.xIRC.AutoSize = true;
+            this.xIRC.Location = new System.Drawing.Point( 14, 13 );
+            this.xIRC.Name = "xIRC";
+            this.xIRC.Size = new System.Drawing.Size( 149, 19 );
+            this.xIRC.TabIndex = 6;
+            this.xIRC.Text = "Enable IRC integration";
+            this.xIRC.UseVisualStyleBackColor = true;
+            this.xIRC.CheckedChanged += new System.EventHandler( this.xIRC_CheckedChanged );
+            // 
             // tabAdvanced
             // 
             this.tabAdvanced.Controls.Add( this.xLowLatencyMode );
@@ -2280,27 +2453,14 @@
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 
-            // tabIRC
+            // label1
             // 
-            this.tabIRC.Controls.Add( this.lTemp );
-            this.tabIRC.Location = new System.Drawing.Point( 4, 24 );
-            this.tabIRC.Name = "tabIRC";
-            this.tabIRC.Size = new System.Drawing.Size( 651, 408 );
-            this.tabIRC.TabIndex = 8;
-            this.tabIRC.Text = "IRC";
-            this.tabIRC.UseVisualStyleBackColor = true;
-            // 
-            // lTemp
-            // 
-            this.lTemp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.lTemp.AutoSize = true;
-            this.lTemp.Location = new System.Drawing.Point( 197, 187 );
-            this.lTemp.Name = "lTemp";
-            this.lTemp.Size = new System.Drawing.Size( 261, 15 );
-            this.lTemp.TabIndex = 0;
-            this.lTemp.Text = "Coming soon, for now edit config.xml manually";
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point( 118, 102 );
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size( 237, 15 );
+            this.label1.TabIndex = 16;
+            this.label1.Text = "NOTE: Channel names are case-sensitive!";
             // 
             // ConfigUI
             // 
@@ -2365,13 +2525,18 @@
             ((System.ComponentModel.ISupportInitialize)(this.nLogLimit)).EndInit();
             this.gConsole.ResumeLayout( false );
             this.gConsole.PerformLayout();
+            this.tabIRC.ResumeLayout( false );
+            this.tabIRC.PerformLayout();
+            this.gIRCOptions.ResumeLayout( false );
+            this.gIRCOptions.PerformLayout();
+            this.gIRCNetwork.ResumeLayout( false );
+            this.gIRCNetwork.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nIRCBotPort)).EndInit();
             this.tabAdvanced.ResumeLayout( false );
             this.tabAdvanced.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPing)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).EndInit();
-            this.tabIRC.ResumeLayout( false );
-            this.tabIRC.PerformLayout();
             this.ResumeLayout( false );
 
         }
@@ -2546,6 +2711,19 @@
         private System.Windows.Forms.NumericUpDown nPort;
         private System.Windows.Forms.Button bRules;
         private System.Windows.Forms.TabPage tabIRC;
-        private System.Windows.Forms.Label lTemp;
+        private System.Windows.Forms.GroupBox gIRCNetwork;
+        private System.Windows.Forms.CheckBox xIRC;
+        private System.Windows.Forms.CheckBox xIRCMsgs;
+        private System.Windows.Forms.Label lIRCBotChannels;
+        private System.Windows.Forms.NumericUpDown nIRCBotPort;
+        private System.Windows.Forms.Label lIRCBotPort;
+        private System.Windows.Forms.TextBox tIRCBotNetwork;
+        private System.Windows.Forms.Label lIRCBotNetwork;
+        private System.Windows.Forms.Label lIRCBotNick;
+        private System.Windows.Forms.TextBox tIRCBotNick;
+        private System.Windows.Forms.CheckBox xIRCBotForwardAll;
+        private System.Windows.Forms.GroupBox gIRCOptions;
+        private System.Windows.Forms.TextBox tIRCBotChannels;
+        private System.Windows.Forms.Label label1;
     }
 }

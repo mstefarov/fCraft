@@ -65,6 +65,7 @@ namespace ConfigTool {
             ApplyTabClasses();
             ApplyTabSavingAndBackup();
             ApplyTabLogging();
+            ApplyTabIRC();
             ApplyTabAdvanced();
 
             AddChangeHandler( tabs );
@@ -118,7 +119,6 @@ namespace ConfigTool {
         }
 
 
-
         void ApplyTabClasses() {
             vClasses.Items.Clear();
             foreach( PlayerClass playerClass in ClassList.classesByIndex ) {
@@ -127,6 +127,7 @@ namespace ConfigTool {
             }
             DisableClassOptions();
         }
+
 
         void ApplyTabSavingAndBackup() {
             xSaveOnShutdown.Checked = Config.GetBool( "SaveOnShutdown" );
@@ -162,6 +163,21 @@ namespace ConfigTool {
             xLogLimit.Checked = Config.GetInt( "MaxLogs" ) > 0;
             nLogLimit.Value = Convert.ToDecimal( Config.GetInt( "MaxLogs" ) );
             if( !xLogLimit.Checked ) nLogLimit.Enabled = false;
+        }
+
+
+        void ApplyTabIRC() {
+            xIRC.Checked = Config.GetBool( "IRCBot" );
+            tIRCBotNick.Text = Config.GetString( "IRCBotNick" );
+            tIRCBotNetwork.Text = Config.GetString( "IRCBotNetwork" );
+            nIRCBotPort.Value = Convert.ToDecimal( Config.GetInt( "IRCBotPort" ) );
+            tIRCBotChannels.Text = Config.GetString( "IRCBotChannels" );
+
+            xIRCMsgs.Checked = Config.GetBool( "IRCMsgs" );
+            xIRCBotForwardAll.Checked = Config.GetBool( "IRCBotForwardAll" );
+
+            gIRCNetwork.Enabled = xIRC.Checked;
+            gIRCOptions.Enabled = xIRC.Checked;
         }
 
 
@@ -268,6 +284,17 @@ namespace ConfigTool {
             foreach( ListViewItem item in vLogFileOptions.Items ) {
                 Logger.logFileOptions[item.Index] = item.Checked;
             }
+
+
+            Config.SetValue( "IRCBot", xIRC.Checked.ToString() );
+
+            Config.SetValue( "IRCBotNick", tIRCBotNick.Text );
+            Config.SetValue( "IRCBotNetwork", tIRCBotNetwork.Text );
+            Config.SetValue( "IRCBotPort", nIRCBotPort.Value.ToString() );
+            Config.SetValue( "IRCBotChannels", tIRCBotChannels.Text );
+
+            Config.SetValue( "IRCMsgs", xIRCMsgs.Checked.ToString() );
+            Config.SetValue( "IRCBotForwardAll", xIRCBotForwardAll.Checked.ToString() );
 
 
             WriteEnum( cPolicyColor, "PolicyColorCodesInChat", "Disallow", "ConsoleOnly", "Allow" );
@@ -767,15 +794,17 @@ namespace ConfigTool {
                         defaultClass = null;
                         RebuildClassList();
                         break;
-                    case 3:// TODO: Physics
-                        break;
-                    case 4:// Saving and Backup
+                    case 3:// Saving and Backup
                         Config.LoadDefaultsSavingAndBackup();
                         ApplyTabSavingAndBackup();
                         break;
-                    case 5:// Logging
+                    case 4:// Logging
                         Config.LoadDefaultsLogging();
                         ApplyTabLogging();
+                        break;
+                    case 5:// IRC
+                        Config.LoadDefaultsIRC();
+                        ApplyTabIRC();
                         break;
                     case 6:// Advanced
                         Config.LoadDefaultsAdvanced();
@@ -861,5 +890,10 @@ namespace ConfigTool {
         }
 
         #endregion
+
+        private void xIRC_CheckedChanged( object sender, EventArgs e ) {
+            gIRCNetwork.Enabled = xIRC.Checked;
+            gIRCOptions.Enabled = xIRC.Checked;
+        }
     }
 }
