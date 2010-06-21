@@ -107,6 +107,7 @@ namespace fCraft {
             settings["IRCBot"] = "false"; // Bot is disabled by default
             settings["IRCMsgs"] = "false"; // Join/quit messages disabled by default
             settings["IRCBotNick"] = "fBot";
+            settings["IRCBotQuitMsg"] = "I've been told to go offline now.";
             settings["IRCBotNetwork"] = "irc.esper.net";
             settings["IRCBotPort"] = "6667";
             settings["IRCBotChannels"] = "#changeme"; // CASE SENSITIVE!!!!!!!!!!!!!!!!!!!!! This can be multiple using csv
