@@ -23,7 +23,8 @@ namespace fCraft
         public static string NICK;
         public static List<string> CHANNELS = new List<string>();
         public static string QUITMSG = "I've been told to go offline now!";
-        public static bool FORWARD_ALL;
+        public static bool FORWARD_SERVER;
+        public static bool FORWARD_IRC;
 
         private static bool online; // Signifies a *complete* registration with the network (ability to send messages)
         private static bool firstConnect;
@@ -43,7 +44,8 @@ namespace fCraft
             IRCSERVER = Config.GetString( "IRCBotNetwork" );
             PORT = Config.GetInt( "IRCBotPort" );
             NICK = Config.GetString( "IRCBotNick" );
-            FORWARD_ALL = Config.GetBool( "IRCBotForwardAll" );
+            FORWARD_IRC = Config.GetBool( "IRCBotForwardFromIRC" );
+            FORWARD_SERVER = Config.GetBool( "IRCBotForwardFromServer" );
 
             string[] tmpChans = Config.GetString("IRCBotChannels").Split(',');
             for(int i = 0; i < tmpChans.Length; ++i)
@@ -334,9 +336,12 @@ namespace fCraft
             return USER;
         }
 
-        public static bool getForward()
+        public static bool getSendIRC()
         {
-            return FORWARD_ALL;
+            return FORWARD_IRC;
+        }
+        public static bool getSendServer() {
+            return FORWARD_SERVER;
         }
     }
 }

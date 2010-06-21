@@ -121,7 +121,8 @@ namespace fCraft
         private static string BOTHOST;
         private static string COMMA_PREFIX;
         private static string COLON_PREFIX;
-        private static bool FORWARD_ALL;
+        private static bool FORWARD_IRC;
+        private static bool FORWARD_SERVER;
 
         private static string SERVERNAME = Config.GetString("ServerName");
         private static string MOTD = Config.GetString("MOTD");
@@ -155,7 +156,8 @@ namespace fCraft
                 NICK = IRCComm.getNick();
                 CHANNELS = IRCComm.getChannels();
                 USER = IRCComm.getUser();
-                FORWARD_ALL = IRCComm.getForward();
+                FORWARD_IRC = IRCComm.getSendIRC();
+                FORWARD_SERVER = IRCComm.getSendServer();
                 COMMA_PREFIX = NICK + ":";
                 COLON_PREFIX = NICK + ",";
 
@@ -425,7 +427,7 @@ namespace fCraft
                         newMsg.destination = destination.NOTICE;
                         return;
                     }
-                    if (FORWARD_ALL) {
+                    if (FORWARD_IRC) {
                             newMsg.destination = destination.Server;
                     } else {
                         if (newMsg.chatMessage != null && newMsg.chatMessage != "") {

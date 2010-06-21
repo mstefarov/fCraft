@@ -110,7 +110,8 @@ namespace fCraft {
             settings["IRCBotNetwork"] = "irc.esper.net";
             settings["IRCBotPort"] = "6667";
             settings["IRCBotChannels"] = "#changeme"; // CASE SENSITIVE!!!!!!!!!!!!!!!!!!!!! This can be multiple using csv
-            settings["IRCBotForwardAll"] = "false"; // Disabled by default
+            settings["IRCBotForwardFromServer"] = "false"; // Disabled by default
+            settings["IRCBotForwardFromIRC"] = "false"; // Disabled by default
         }
 
 
