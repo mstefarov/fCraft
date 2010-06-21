@@ -41,37 +41,39 @@ namespace fCraft {
                 return;
             }
             string blockName = command.Next();
-            Block block;
-            if( blockName == null || blockName == "" ) {
-                if( mode == DrawMode.Cuboid ) {
-                    player.Message( "Usage: " + Color.Help + "/cuboid blockName" + Color.Sys + " or " + Color.Help + "/cub blockName" );
-                } else {
-                    player.Message( "Usage: " + Color.Help + "/ellipsoid blockName" + Color.Sys + " or " + Color.Help + "/ell blockName" );
-                }
-                return;
-            }
-            try {
-                block = Map.GetBlockByName( blockName );
-            } catch( Exception ) {
-                player.Message( "Unknown block name: " + blockName );
-                return;
-            }
-            player.tag = block;
+            object blockTypeTag = null;
 
             Permissions permission = Permissions.Build;
-            switch( block ) {
-                case Block.Admincrete: permission = Permissions.PlaceAdmincrete; break;
-                case Block.Air: permission = Permissions.Delete; break;
-                case Block.Water:
-                case Block.StillWater: permission = Permissions.PlaceWater; break;
-                case Block.Lava:
-                case Block.StillLava: permission = Permissions.PlaceLava; break;
+
+            // if a type is specified in chat, try to parse it
+            if( blockName != null ) {
+                Block block;
+                try {
+                    block = Map.GetBlockByName( blockName );
+                } catch( Exception ) {
+                    player.Message( "Unknown block name: " + blockName );
+                    return;
+                }
+
+                switch( block ) {
+                    case Block.Admincrete: permission = Permissions.PlaceAdmincrete; break;
+                    case Block.Air: permission = Permissions.Delete; break;
+                    case Block.Water:
+                    case Block.StillWater: permission = Permissions.PlaceWater; break;
+                    case Block.Lava:
+                    case Block.StillLava: permission = Permissions.PlaceLava; break;
+                }
+
+                blockTypeTag = block;
             }
+            // otherwise, use the last-used-block
+
             if( !player.Can( permission ) ) {
                 player.Message( "You are not allowed to draw with this block." );
                 return;
             }
 
+            player.tag = blockTypeTag;
             player.marksExpected = 2;
             player.markCount = 0;
             player.marks.Clear();
@@ -135,7 +137,13 @@ namespace fCraft {
 
         internal static void DrawCuboid( Player player, Position[] marks, object tag ) {
             player.drawingInProgress = true;
-            Block drawBlock = (Block)tag;
+
+            Block drawBlock;
+            if( tag == null ) {
+                drawBlock = player.lastUsedBlockType;
+            } else {
+                drawBlock = (Block)tag;
+            }
 
             // find start/end coordinates
             int sx = Math.Min( marks[0].x, marks[1].x );
@@ -181,7 +189,13 @@ namespace fCraft {
 
         internal static void DrawEllipsoid( Player player, Position[] marks, object tag ) {
             player.drawingInProgress = true;
-            Block drawBlock = (Block)tag;
+
+            Block drawBlock;
+            if( tag == null ) {
+                drawBlock = player.lastUsedBlockType;
+            } else {
+                drawBlock = (Block)tag;
+            }
 
             // find start/end coordinates
             int sx = Math.Min( marks[0].x, marks[1].x );

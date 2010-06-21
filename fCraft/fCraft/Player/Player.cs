@@ -24,6 +24,7 @@ namespace fCraft {
         internal World world;
         public string nick;
         internal DateTime idleTimer = DateTime.UtcNow;
+        internal Block lastUsedBlockType;
 
         const int maxRange = 6 * 32;
 
@@ -94,6 +95,8 @@ namespace fCraft {
 
         // Handles building/deleting by the player
         public bool SetTile( short x, short y, short h, bool buildMode, Block type ) {
+
+            lastUsedBlockType = type;
 
             if( CheckBlockSpam() ) return true;
 
