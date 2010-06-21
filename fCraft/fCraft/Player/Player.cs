@@ -286,7 +286,7 @@ namespace fCraft {
                     // IRC Bot code for sending messages
                     if (IRCBot.isOnline()) 
                     {
-                        if (IRCComm.FORWARD_ALL)
+                        if (IRCComm.FORWARD_SERVER)
                         {
                             IRCMessage newMsg = new IRCMessage();
                             newMsg.chatMessage = nick + ": " + message.Substring(message.IndexOf("#") + 1);
