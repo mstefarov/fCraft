@@ -1,29 +1,27 @@
-﻿/*
- *  Copyright 2010 Jesse O'Brien <destroyer661@gmail.com>
- *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be included in
- *  all copies or substantial portions of the Software.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- *  THE SOFTWARE.
- *
- */
-
-// UnIRCComment this define to get IRC debugging data
-// WARNING: This is a lot of text.
-//#define DEBUG_IRC
+﻿// WARNING: This is a lot of text.
+//#define DEBUG_IRC // Uncomment me to see debug stuff in console
+///* 
+// *  Copyright 2010 Jesse O'Brien <destroyer661@gmail.com>
+// *
+// *  Permission is hereby granted, free of charge, to any person obtaining a copy
+// *  of this software and associated documentation files (the "Software"), to deal
+// *  in the Software without restriction, including without limitation the rights
+// *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// *  copies of the Software, and to permit persons to whom the Software is
+// *  furnished to do so, subject to the following conditions:
+// *
+// *  The above copyright notice and this permission notice shall be included in
+// *  all copies or substantial portions of the Software.
+// *
+// *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// *  THE SOFTWARE.
+// *
+// */
 
 using System;
 using System.Net;
@@ -35,9 +33,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace fCraft
-{
-
+namespace fCraft {
+    #region Structs and Enums
     // A package for authorized host/nick association
     public struct AuthPkg
     {
@@ -73,7 +70,7 @@ namespace fCraft
         RAW
     }
 
-        // A neat&tidy package for an irc message contents
+    // A neat&tidy package for an irc message contents
     public struct IRCMessage{
         public string colour;
         public string host;
@@ -85,7 +82,6 @@ namespace fCraft
         public string chatMessage;
         public string serverMessage;
         public IRCCommands cmd;
-        public bool priority; // true = high
     }
 
     public sealed class IRCColours {
@@ -107,15 +103,19 @@ namespace fCraft
                         LightGray = '\x3' + "15",
                         White = '\x3' + "16";
     }
+    #endregion
 
-    public static class IRCBot
-    {
-        private static Thread thread;
+    public static class IRCBot {
 
+        #region Variables
+
+        private static Thread thread; //self explaining
+
+        // Server/Bot credentials
         public static string IRCSERVER;
         private static int PORT;
         private static string USER;
-        private static string NICK;
+        private static string BOTNICK;
         private static List<string> CHANNELS;
         private static string SERVERHOST;
         private static string BOTHOST;
@@ -123,44 +123,42 @@ namespace fCraft
         private static string COLON_PREFIX;
         private static bool FORWARD_IRC;
         private static bool FORWARD_SERVER;
-
         private static string SERVERNAME = Config.GetString("ServerName");
         private static string MOTD = Config.GetString("MOTD");
         private static string SERVERADDRESS;
 
+        // Temporary player to act as inside the server
         public static Player fBot = new Player(null, "fBot");
 
+        // Message stacks
         private static List<AuthPkg> authedHosts = new List<AuthPkg>();
         private static List<IRCMessage> messageStack = new List<IRCMessage>();
-        private static List<IRCMessage> outMessages = new List<IRCMessage>(); // Low priority message stack
-
-
-        public static StreamWriter writer;
-        public static TcpClient connection;
-        public static NetworkStream stream;
-        public static StreamReader reader;
-
+        private static List<IRCMessage> outMessages = new List<IRCMessage>(); //
+        
+        // Bool to identify if the IRC Bot needs to shutdown
         private static bool doShutdown;
+        #endregion
 
-       public static void Start()
+        public static void Start()
         {
-            thread = new Thread(MessageHandler);
-            thread.IsBackground = true;
-            thread.Start();
             try
             {
                 // Start IRCCommunications
                 IRCComm.Start();
                 IRCSERVER = IRCComm.getServer();
                 PORT = IRCComm.getPort();
-                NICK = IRCComm.getNick();
+                BOTNICK = IRCComm.getBotNick();
                 CHANNELS = IRCComm.getChannels();
                 USER = IRCComm.getUser();
                 FORWARD_IRC = IRCComm.getSendIRC();
                 FORWARD_SERVER = IRCComm.getSendServer();
-                COMMA_PREFIX = NICK + ":";
-                COLON_PREFIX = NICK + ",";
+                COMMA_PREFIX = BOTNICK + ":";
+                COLON_PREFIX = BOTNICK + ",";
 
+                // Start the thread and start parsin' messages
+                thread = new Thread(MessageHandler);
+                thread.IsBackground = true;
+                thread.Start();
             }
             catch (Exception e)
             {
@@ -181,26 +179,28 @@ namespace fCraft
         {
             try
             {
-                // After the IRCCommunications are online, start processing messages
+                // After the IRCComm is online, 
+                // start keeping an eye on the message stack
                 while (true)
                 {
-                    Thread.Sleep(1);
                     
+                    // Always ALWAYS keep the bot's nickname straight, 
+                    // if the server throws 433 the nick will have a number appended
+                    if (BOTNICK != IRCComm.getBotNick()) {
+                        BOTNICK = IRCComm.getBotNick();
+                    }
                     
                     List<IRCMessage> tempMsgStack = new List<IRCMessage>();
                     tempMsgStack.AddRange(messageStack);
-                    if (tempMsgStack.Count > 0)
-                    {
-                        foreach (IRCMessage message in tempMsgStack)
-                        {
+                    if (tempMsgStack.Count > 0) {
+                        foreach (IRCMessage message in tempMsgStack) {
                             IRCMessage newMessage = new IRCMessage();
-                            // If it's a private message (the message target is the bot's nickname), start handling pm IRCCommands
-                            if (message.to == NICK)
-                            {
+                            // If it's a private message to the bot, start handling IRCCommands
+                            if (message.to == BOTNICK) {
                                 newMessage.to = message.nickname;
                                 newMessage.destination = message.destination;
-                                if (message.cmd == IRCCommands.status)
-                                {
+                                if (message.cmd == IRCCommands.status) {
+                                    #region StatusMessage
                                     // Put together all of the status variables from world and such
                                     SERVERADDRESS = Config.ServerURL;
                                     int playersOnline = Server.GetPlayerCount();
@@ -218,8 +218,7 @@ namespace fCraft
                                     // This is broken for now
                                     string[] playerList = Server.PlayerListToString().Split(',');
                                     //// List the players online if there are any
-                                    if (playersOnline > 0)
-                                    {
+                                    if (playersOnline > 0) {
                                         int count = 0;
                                         newMessage.chatMessage = "Players:";
                                         outMessages.Add(newMessage);
@@ -229,8 +228,8 @@ namespace fCraft
                                             ++count;
                                         }
                                     }
-                                }
-                                else if (message.cmd == IRCCommands.help) {
+                                    #endregion
+                                } else if (message.cmd == IRCCommands.help) {
                                     #region HelpMessage
                                     newMessage.chatMessage = "Hello, " + message.nickname + " , you have requested help!";
                                     outMessages.Add(newMessage);
@@ -252,8 +251,7 @@ namespace fCraft
                                     outMessages.Add(newMessage);
                                     newMessage.chatMessage = "     <botname>: - initiates sending a chat message to the server from a channel.";
                                     outMessages.Add(newMessage);
-                                    if (isAuthed(message.nickname, message.host))
-                                    {
+                                    if (isAuthed(message.nickname, message.host)) {
                                         newMessage.chatMessage = "***********************************************************";
                                         outMessages.Add(newMessage);
                                         newMessage.chatMessage = "Authorized User IRCCommands:";
@@ -279,12 +277,11 @@ namespace fCraft
                                     }
                                     #endregion
 
-                                }
-                                else if (message.cmd == IRCCommands.auth) // Authenticate clients
+                                } else if (message.cmd == IRCCommands.auth)
                                 {
+                                    #region Authenticate
                                     string[] authLine = message.chatMessage.Split(' ');
-                                    if (authLine.Length == 2)
-                                    {
+                                    if (authLine.Length == 2) {
                                         // Need an authorization workup here
                                         // registerdnicks.contains(message.nickname)
                                         // password matches registered users password
@@ -296,51 +293,39 @@ namespace fCraft
                                             Logger.Log(message.nickname + " Authenticated to host " + message.host, LogType.IRC);
                                             AuthPkg newAuth = new AuthPkg() { host = message.host, nickname = message.nickname };
                                             authedHosts.Add(newAuth);
-                                        }
-                                        else
-                                        {
+                                        } else {
                                             newMessage.chatMessage = "Sorry, that was the wrong password associated with the nickname - " + message.nickname;
                                             outMessages.Add(newMessage);
                                         }
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         newMessage.chatMessage = "Sorry, your auth request contained too many/few parameters. Try again or type !help for useage.";
                                         outMessages.Add(newMessage);
                                     }
-                                }
-                                else if (message.cmd >= IRCCommands.kick)
-                                {
+                                } else if (message.cmd >= IRCCommands.kick) {
                                     Invoke(ref newMessage, message);
-                                }
-                                else if (message.chatMessage.Contains("Hello") || message.chatMessage.Contains("hello"))
-                                {
+                                } else if (message.chatMessage.Contains("Hello") || message.chatMessage.Contains("hello")) {
                                     newMessage.chatMessage = "Hi there, " + message.nickname + "!";
                                     newMessage.chatMessage = "You can access help by typing '!help'.";
                                     outMessages.Add(newMessage);
-                                }
-                                else
-                                {
+                                } else {
                                     newMessage.chatMessage = "Sorry, unreadable Command. Try typing '!help' for help.";
                                     outMessages.Add(newMessage);
                                 }
+                                    #endregion
                             }
-                            if (message.destination == destination.Server && message.chatMessage != null && message.chatMessage != "")
-                            {
+                            if (message.destination == destination.Server && message.chatMessage != null && message.chatMessage != "") {
                                 string stringToServer = "(IRC)" + message.nickname + ": " + message.chatMessage;
                                 Logger.Log(stringToServer, LogType.IRC);
                                 Server.SendToAll(stringToServer);
                             }
-
+                            // Remove parsed messages from the message stack
                             messageStack.Remove(message);
                         }
+                        // Clean the message stack that we copied
                         tempMsgStack.Clear();
-
-                    }
-                    if (doShutdown == true)
-                    {
-                        return;
-                    }
+                    } else Thread.Sleep(1); // No messages? Sleeeep
+                    
+                    if (doShutdown == true) return;  
                 }
             }
             catch (ThreadAbortException tb)
@@ -423,7 +408,7 @@ namespace fCraft
                 if (CHANNELS.Contains(newMsg.to)) {
                     // check for commands
                     if (checkCommands(ref newMsg)) {
-                        newMsg.to = NICK;
+                        newMsg.to = BOTNICK;
                         newMsg.destination = destination.NOTICE;
                         return;
                     }
@@ -437,20 +422,20 @@ namespace fCraft
                             } else if (newMsg.chatMessage.IndexOf(COLON_PREFIX) != -1) {
                                 newMsg.chatMessage = newMsg.chatMessage.Substring(newMsg.chatMessage.IndexOf(COLON_PREFIX) + COLON_PREFIX.Length).Trim();
                                 newMsg.destination = destination.Server;
-                            } else if (newMsg.chatMessage.IndexOf(NICK) != -1) {
-                                newMsg.chatMessage = newMsg.chatMessage.Substring(newMsg.chatMessage.IndexOf(NICK) + NICK.Length).Trim();
+                            } else if (newMsg.chatMessage.IndexOf(BOTNICK) != -1) {
+                                newMsg.chatMessage = newMsg.chatMessage.Substring(newMsg.chatMessage.IndexOf(BOTNICK) + BOTNICK.Length).Trim();
                                 newMsg.destination = destination.Server;
                             }
                         }
                     }
                 }
 
-                if (newMsg.to == NICK) // Catch chat messages to the bot itself
+                if (newMsg.to == BOTNICK) // Catch chat messages to the bot itself
                 {
                     if (checkCommands(ref newMsg)) return; // Find a command? Return!
                     if (newMsg.chatMessage.Contains("#"))
                     {
-                        newMsg.nickname = NICK;
+                        newMsg.nickname = BOTNICK;
                         newMsg.chatMessage = newMsg.chatMessage.Substring(newMsg.chatMessage.IndexOf("#") + 1);
                         newMsg.destination = destination.Server;
                     }
@@ -462,7 +447,7 @@ namespace fCraft
         private static bool checkCommands(ref IRCMessage newMsg) {
             string[] tmpMessage = newMsg.chatMessage.Split(' ');
             if (tmpMessage.Length == 1 || 
-                tmpMessage.Length == 2 && newMsg.to == NICK ||
+                tmpMessage.Length == 2 && newMsg.to == BOTNICK ||
                 tmpMessage.Length == 2 && newMsg.to == COMMA_PREFIX ||
                 tmpMessage.Length == 2 && newMsg.to == COLON_PREFIX) {
 
@@ -477,6 +462,7 @@ namespace fCraft
         }
         #endregion
 
+        // TODO: rename this method, and rework it a bit
         private static bool Invoke( ref IRCMessage newMessage, IRCMessage message)
         {
             if (isAuthed(message.nickname, message.host))
