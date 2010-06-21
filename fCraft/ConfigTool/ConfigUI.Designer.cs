@@ -1952,7 +1952,6 @@
             this.xIRCBotForwardFromIRC.TabIndex = 8;
             this.xIRCBotForwardFromIRC.Text = "Forward ALL chat from IRC to SERVER.";
             this.xIRCBotForwardFromIRC.UseVisualStyleBackColor = true;
-            this.xIRCBotForwardFromIRC.CheckedChanged += new System.EventHandler(this.xIRCBotForwardFromIRC_CheckedChanged);
             // 
             // xIRCMsgs
             // 
@@ -1963,7 +1962,6 @@
             this.xIRCMsgs.TabIndex = 1;
             this.xIRCMsgs.Text = "Announce in-game when people join/part the IRC channels.";
             this.xIRCMsgs.UseVisualStyleBackColor = true;
-            this.xIRCMsgs.CheckedChanged += new System.EventHandler(this.xIRCMsgs_CheckedChanged);
             // 
             // xIRCBotForwardFromServer
             // 
@@ -1974,7 +1972,6 @@
             this.xIRCBotForwardFromServer.TabIndex = 7;
             this.xIRCBotForwardFromServer.Text = "Forward ALL chat from SERVER to IRC.";
             this.xIRCBotForwardFromServer.UseVisualStyleBackColor = true;
-            this.xIRCBotForwardFromServer.CheckedChanged += new System.EventHandler(this.xIRCBotForwardFromServer_CheckedChanged);
             // 
             // gIRCNetwork
             // 

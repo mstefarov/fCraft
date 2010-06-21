@@ -174,7 +174,8 @@ namespace ConfigTool {
             tIRCBotChannels.Text = Config.GetString( "IRCBotChannels" );
 
             xIRCMsgs.Checked = Config.GetBool( "IRCMsgs" );
-            xIRCBotForwardFromServer.Checked = Config.GetBool( "IRCBotForwardAll" );
+            xIRCBotForwardFromServer.Checked = Config.GetBool( "IRCBotForwardFromServer" );
+            xIRCBotForwardFromIRC.Checked = Config.GetBool( "IRCBotForwardFromIRC" );
 
             gIRCNetwork.Enabled = xIRC.Checked;
             gIRCOptions.Enabled = xIRC.Checked;
@@ -294,7 +295,8 @@ namespace ConfigTool {
             Config.SetValue( "IRCBotChannels", tIRCBotChannels.Text );
 
             Config.SetValue( "IRCMsgs", xIRCMsgs.Checked.ToString() );
-            Config.SetValue( "IRCBotForwardAll", xIRCBotForwardFromServer.Checked.ToString() );
+            Config.SetValue( "IRCBotForwardFromServer", xIRCBotForwardFromServer.Checked.ToString() );
+            Config.SetValue( "IRCBotForwardFromIRC", xIRCBotForwardFromIRC.Checked.ToString() );
 
 
             WriteEnum( cPolicyColor, "PolicyColorCodesInChat", "Disallow", "ConsoleOnly", "Allow" );
