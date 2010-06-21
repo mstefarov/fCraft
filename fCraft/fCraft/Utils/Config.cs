@@ -56,14 +56,6 @@ namespace fCraft {
             settings["SystemMessageColor"] = "yellow";
             settings["HelpColor"] = "purple";
             settings["SayColor"] = "yellow";
-
-            settings["IRCBot"] = "false"; // Bot is disabled by default
-            settings["IRCMsgs"] = "false"; // Join/quit messages disabled by default
-            settings["IRCBotNick"] = "fBot";
-            settings["IRCBotNetwork"] = "irc.esper.net";
-            settings["IRCBotPort"] = "6667";
-            settings["IRCBotChannels"] = "#changeme"; // CASE SENSITIVE!!!!!!!!!!!!!!!!!!!!! This can be multiple using csv
-            settings["IRCBotForwardAll"] = "false"; // Disabled by default
         }
 
 
@@ -111,6 +103,17 @@ namespace fCraft {
         }
 
 
+        public static void LoadDefaultsIRC() {
+            settings["IRCBot"] = "false"; // Bot is disabled by default
+            settings["IRCMsgs"] = "false"; // Join/quit messages disabled by default
+            settings["IRCBotNick"] = "fBot";
+            settings["IRCBotNetwork"] = "irc.esper.net";
+            settings["IRCBotPort"] = "6667";
+            settings["IRCBotChannels"] = "#changeme"; // CASE SENSITIVE!!!!!!!!!!!!!!!!!!!!! This can be multiple using csv
+            settings["IRCBotForwardAll"] = "false"; // Disabled by default
+        }
+
+
         public static void LoadDefaultsAdvanced() {
             settings["PolicyColorCodesInChat"] = "ConsoleOnly"; // can be: "Allow", "ConsoleOnly", "Disallow"
             settings["PolicyIllegalCharacters"] = "Disallow"; // can be: "Allow", "ConsoleOnly", "Disallow"
@@ -133,6 +136,7 @@ namespace fCraft {
             LoadDefaultsSecurity();
             LoadDefaultsSavingAndBackup();
             LoadDefaultsLogging();
+            LoadDefaultsIRC();
             LoadDefaultsAdvanced();
             //locker.ExitWriteLock();
         }
