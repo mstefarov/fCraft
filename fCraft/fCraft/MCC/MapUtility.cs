@@ -46,6 +46,7 @@ namespace mcc {
             AvailableConverters.Add( MapFormats.FCMv2, new MapFCMv2() );
             AvailableConverters.Add( MapFormats.MinerCPP, new MapMinerCPP() );
             AvailableConverters.Add( MapFormats.NBT, new MapNBT() );
+            AvailableConverters.Add( MapFormats.Creative, new MapDAT() );
         }
 
 
@@ -58,27 +59,24 @@ namespace mcc {
         }
 
 
-        public static MapFormats FindFormat( string keyword ) {
-            keyword = keyword.ToLower();
+
+        public static Map TryLoading( string fileName ) {
+            Stream MapStream = File.OpenRead( fileName );
+            string ext = new FileInfo( fileName ).Extension;
             foreach ( IConverter Converter in AvailableConverters.Values ) {
-                foreach ( string tmp in Converter.Keywords ) {
-                    if ( tmp.ToLower() == keyword ) {
-                        return Converter.Format;
-                    }
+                if( Converter.FileExtension == ext  && Converter.Claims( MapStream ) ) {
+                    return Converter.Load( MapStream );
                 }
             }
-            return MapFormats.Unknown;
-        }
-
-
-        public static Map TryLoading( Stream MapStream ) {
-            foreach ( IConverter Converter in AvailableConverters.Values ) {
-                if ( Converter.Claims( MapStream ) ) {
+            foreach( IConverter Converter in AvailableConverters.Values ) {
+                if( Converter.FileExtension != ext && Converter.Claims( MapStream ) ) {
                     return Converter.Load( MapStream );
                 }
             }
             throw new FormatException();
         }
+
+
 
         public static string GetFileExtension( MapFormats format ) {
             return AvailableConverters[format].FileExtension;

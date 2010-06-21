@@ -387,10 +387,10 @@ namespace fCraft {
                 }
             }
             for( int i = 0; i < sessions.Count; i++ ) {
-                if( OnPlayerDisconnected != null ) OnPlayerDisconnected( sessions[i] );
-                Server.FirePlayerListChangedEvent();
                 if( sessions[i].canDispose ) {
                     sessions[i].Disconnect();
+                    if( OnPlayerDisconnected != null ) OnPlayerDisconnected( sessions[i] );
+                    Server.FirePlayerListChangedEvent();
                     sessions.RemoveAt( i );
                     i--;
                     Logger.Log( "Session disposed. Active sessions left: {0}.", LogType.Debug, sessions.Count );

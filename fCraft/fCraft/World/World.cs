@@ -67,7 +67,7 @@ namespace fCraft {
         public void LoadMap() {
             lock( mapLock ) {
                 try {
-                    map = Map.Load( this, GetMapName(), "fcraft" );
+                    map = Map.Load( this, GetMapName() );
                 } catch( Exception ex ) {
                     Logger.Log( "Could not open the specified file ({0}): {1}", LogType.Error, GetMapName(), ex.Message );
                 }

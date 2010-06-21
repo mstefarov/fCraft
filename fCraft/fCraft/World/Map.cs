@@ -42,7 +42,7 @@ namespace fCraft {
 
         #region Saving
         public bool Save( string fileName ) {
-            string tempFileName = fileName + "." + ( new Random().Next().ToString() );
+            string tempFileName = fileName + "." + (new Random().Next().ToString());
 
             using( FileStream fs = File.Create( tempFileName ) ) {
                 try {
@@ -59,12 +59,23 @@ namespace fCraft {
                     return false;
                 }
             }
-            if( File.Exists( fileName ) ) {
-                File.Delete( fileName );
+
+            try {
+                if( File.Exists( fileName ) ) {
+                    File.Delete( fileName );
+                }
+                File.Move( tempFileName, fileName );
+                changesSinceBackup++;
+                Logger.Log( "Saved map succesfully to {0}", LogType.SystemActivity, fileName );
+            } catch( Exception ex ) {
+                Logger.Log( "Error trying to replace " + fileName + ": " + ex.ToString() + ": " + ex.Message, LogType.Error );
+                try {
+                    if( File.Exists( tempFileName ) ) {
+                        File.Delete( tempFileName );
+                    }
+                } catch( Exception ) { }
+                return false;
             }
-            File.Move( tempFileName, fileName );
-            changesSinceBackup++;
-            Logger.Log( "Saved map succesfully to {0}", LogType.SystemActivity, fileName );
             return true;
         }
 
@@ -111,27 +122,14 @@ namespace fCraft {
         #endregion
 
         #region Loading
-        public static Map Load( World _world, string fileName, string formatName ) {
+        public static Map Load( World _world, string fileName ) {
             Map map = null;
 
             // if file exists, go ahead and load
             if( File.Exists( fileName ) ) {
                 map = DoLoad( fileName );
 
-                // if not, try to add the extension (depending on format name)
-            } else if( formatName != null ) {
-                MapFormats format = MapUtility.FindFormat( formatName );
-                if( format != MapFormats.Unknown ) {
-                    if( File.Exists( fileName + MapUtility.GetFileExtension( format ) ) ) {
-                        map = DoLoad( fileName + MapUtility.GetFileExtension( format ) );
-                    } else {
-                        Logger.Log( "Map.Load: Could not find the specified file.", LogType.Error );
-                    }
-                } else {
-                    Logger.Log( "Map.Load: Could not identify the map format: {0}", LogType.Error, formatName );
-                }
-
-                // if all else fails, just try adding ".fcm" to it
+            // otherwise, try to append ".fcm"
             } else {
                 if( File.Exists( fileName + ".fcm" ) ) {
                     map = DoLoad( fileName + ".fcm" );
@@ -151,8 +149,7 @@ namespace fCraft {
         static Map DoLoad( string fileName ) {
             FileStream fs = null;
             try {
-                fs = File.OpenRead( fileName );
-                Map map = MapUtility.TryLoading( fs );
+                Map map = MapUtility.TryLoading( fileName );
                 if( !map.ValidateBlockTypes( true ) ) {
                     throw new Exception( "Invalid block types detected. File is possibly corrupt." );
                 }

@@ -44,10 +44,26 @@ namespace mcc {
             get { return ".lvl"; }
         }
 
-        public string[] Keywords {
-            get { return new string[] { "mcsharp", "mc#", "lvl" }; }
+        public string ServerName {
+            get { return "MCSharp"; }
         }
 
+        byte[] mapping = new byte[256];
+        public MapMCSharp() {
+            mapping[100] = (byte)Block.Glass;
+            mapping[101] = (byte)Block.Obsidian;
+            mapping[102] = (byte)Block.Brick;
+            mapping[103] = (byte)Block.Stone;
+            mapping[104] = (byte)Block.Rocks;
+            mapping[106] = (byte)Block.Water;
+
+            mapping[110] = (byte)Block.Wood;
+            mapping[111] = (byte)Block.Log;
+            mapping[112] = (byte)Block.Lava;
+            mapping[113] = (byte)Block.Obsidian;
+            mapping[114] = (byte)Block.Glass;
+            // all others default to 0/air
+        }
 
         public Map Load( System.IO.Stream MapStream ) {
             // Reset the seeker to the front of the stream
@@ -89,6 +105,12 @@ namespace mcc {
 
             // Read in the map data
             map.blocks = bs.ReadBytes( map.GetBlockCount() );
+
+            for( int i = 0; i < map.blocks.Length; i++ ) {
+                if( map.blocks[i] > 49 ) {
+                    map.blocks[i] = mapping[map.blocks[i]];
+                }
+            }
 
             return map;
         }

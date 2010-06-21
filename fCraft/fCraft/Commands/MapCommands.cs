@@ -231,7 +231,7 @@ namespace fCraft {
                         player.world );
             player.Message( "Attempting to load " + fileName + "..." );
 
-            Map map = Map.Load( player.world, fileName, cmd.Next() );
+            Map map = Map.Load( player.world, fileName );
             if ( map != null ) {
                 player.world.ChangeMap( map );
             } else {

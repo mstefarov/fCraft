@@ -45,8 +45,8 @@ namespace mcc {
             get { return ".fcm"; }
         }
 
-        public string[] Keywords {
-            get { return new string[] { "fcraft", "fcm" }; }
+        public string ServerName {
+            get { return "fCraft"; }
         }
 
         public Map Load( Stream MapStream ) {

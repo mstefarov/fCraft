@@ -45,8 +45,8 @@ namespace mcc {
             get { return ".dat"; }
         }
 
-        public string[] Keywords {
-            get { return new string[] { "minercpp", "mcpp", "luacraft", "dat" }; }
+        public string ServerName {
+            get { return "MinerCPP/LuaCraft"; }
         }
 
 

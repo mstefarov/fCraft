@@ -203,16 +203,17 @@ namespace fCraft {
                     player.Message( "     red block you place is replaced with lava." );
                     break;
                 case "load":
-                    player.Message( Color.Help, "/load MapName" );
-                    player.Message( "     Replaces the map with a specified map by streaming." );
-                    player.Message( "     You do not need to include the \".fbm\" file extension." );
-                    player.Message( "     Note that this can take a VERY long time if the maps are" );
-                    player.Message( "     significantly different." );
+                    player.Message( Color.Help, "/load MapName[.ext]" );
+                    player.Message( "     Replaces the map on the current world with a specified one." );
+                    player.Message( "     You do not need to include the \".fcm\" for fCraft maps." );
+                    player.Message( "     Supported formats: fCraft (fcm), vanilla (server_level.dat)," );
+                    player.Message( "     MCSharp (lvl), MinerCPP/LuaCraft (dat), indev (mclevel)." );
                     break;
                 case "lock":
-                    player.Message( Color.Help, "/lock" );
-                    player.Message( "     Puts the map into a locked, read-only mode." );
-                    player.Message( "     No one can place or delete blocks during lockdown." );
+                    player.Message( Color.Help, "/lock [WorldName]" );
+                    player.Message( "     Puts the world into a locked, read-only mode. No one can " );
+                    player.Message( "     place or delete blocks during lockdown. By default this locks" );
+                    player.Message( "     the world you're on, but you can also lock any world by name." );
                     player.Message( "     Call "+Color.Help+"/unlock"+Color.Sys+" to return to normal." );
                     break;
                 case "paint":
@@ -287,8 +288,9 @@ namespace fCraft {
                     player.Message( "     other players like you have just joined the server." );
                     break;
                 case "unlock":
-                    player.Message( Color.Help, "/unlock" );
-                    player.Message( "     Removes the lockdown set by "+Color.Help+"/lock"+Color.Sys+"." );
+                    player.Message( Color.Help, "/unlock [WorldName]" );
+                    player.Message( "     Removes the lockdown set by " + Color.Help + "/lock" + Color.Sys + "." );
+                    player.Message( "     See " + Color.Help + "/help lock" + Color.Sys + " for more information." );
                     break;
                 case "user":
                     player.Message( Color.Help, "/user PlayerName ClassName" );

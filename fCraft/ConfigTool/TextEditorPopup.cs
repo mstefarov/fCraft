@@ -15,9 +15,10 @@ namespace ConfigTool {
         string oldText, fileName;
 
         public TextEditorPopup( string _fileName, string defaultValue ) {
+            InitializeComponent();
+
             fileName = _fileName;
             Text = "Editing " + fileName;
-            InitializeComponent();
 
             if( File.Exists( fileName ) ) {
                 oldText = File.ReadAllText( fileName );

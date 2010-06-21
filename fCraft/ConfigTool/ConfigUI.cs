@@ -164,10 +164,12 @@ namespace ConfigTool {
 
         void ApplyTabIRC() {
             xIRC.Checked = Config.GetBool( "IRCBot" );
-            tIRCBotNick.Text = Config.GetString( "IRCBotNick" );
             tIRCBotNetwork.Text = Config.GetString( "IRCBotNetwork" );
             nIRCBotPort.Value = Convert.ToDecimal( Config.GetInt( "IRCBotPort" ) );
             tIRCBotChannels.Text = Config.GetString( "IRCBotChannels" );
+
+            tIRCBotNick.Text = Config.GetString( "IRCBotNick" );
+            tIRCBotQuitMsg.Text = Config.GetString( "IRCBotQuitMsg" );
 
             xIRCMsgs.Checked = Config.GetBool( "IRCMsgs" );
             xIRCBotForwardFromServer.Checked = Config.GetBool( "IRCBotForwardFromServer" );
@@ -285,10 +287,12 @@ namespace ConfigTool {
 
             Config.SetValue( "IRCBot", xIRC.Checked.ToString() );
 
-            Config.SetValue( "IRCBotNick", tIRCBotNick.Text );
             Config.SetValue( "IRCBotNetwork", tIRCBotNetwork.Text );
             Config.SetValue( "IRCBotPort", nIRCBotPort.Value.ToString() );
             Config.SetValue( "IRCBotChannels", tIRCBotChannels.Text );
+
+            Config.SetValue( "IRCBotNick", tIRCBotNick.Text );
+            Config.SetValue( "IRCBotQuitMsg", tIRCBotQuitMsg.Text );
 
             Config.SetValue( "IRCMsgs", xIRCMsgs.Checked.ToString() );
             Config.SetValue( "IRCBotForwardFromServer", xIRCBotForwardFromServer.Checked.ToString() );
@@ -371,6 +375,13 @@ namespace ConfigTool {
             nMaxBackupSize.Enabled = xMaxBackupSize.Checked;
         }
 
+        #endregion
+
+        #region IRC
+        private void xIRC_CheckedChanged( object sender, EventArgs e ) {
+            gIRCNetwork.Enabled = xIRC.Checked;
+            gIRCOptions.Enabled = xIRC.Checked;
+        }
         #endregion
 
         #region Advanced
@@ -888,11 +899,6 @@ namespace ConfigTool {
         }
 
         #endregion
-
-        private void xIRC_CheckedChanged( object sender, EventArgs e ) {
-            gIRCNetwork.Enabled = xIRC.Checked;
-            gIRCOptions.Enabled = xIRC.Checked;
-        }
 
     }
 }
