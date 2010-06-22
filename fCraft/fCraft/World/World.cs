@@ -133,6 +133,7 @@ namespace fCraft {
                     map = null;
                     World newWorld = new World( name );
                     newWorld.map = newMap;
+                    newMap.world = newWorld;
                     Server.ReplaceWorld( name, newWorld );
                     foreach( Player player in playerList ) {
                         player.session.forcedWorldToJoin = newWorld;

@@ -8,13 +8,13 @@ namespace fCraft {
     class InfoCommands {
 
         // Register help commands
-        internal static void Init(){
+        internal static void Init() {
             Commands.AddCommand( "help", Help, true );
             Commands.AddCommand( "info", Info, true );
             Commands.AddCommand( "baninfo", BanInfo, true );
             Commands.AddCommand( "class", ClassInfo, true );
             Commands.AddCommand( "rules", Rules, true );
-            
+
             Commands.AddCommand( "where", Compass, false );
             Commands.AddCommand( "compass", Compass, false );
 
@@ -51,7 +51,7 @@ namespace fCraft {
         internal static void DebugQueues( Player player, Command cmd ) {
             lock( Server.worldListLock ) {
                 foreach( World world in Server.worlds.Values ) {
-                    player.Message( ">> " + world.name + ": " + Server.CalculateMaxPacketsPerUpdate( world ) + " rate, " + (world.map!=null?world.map.GetQueueLength() + " in queue.":"UNLOADED") );
+                    player.Message( ">> " + world.name + ": " + Server.CalculateMaxPacketsPerUpdate( world ) + " rate, " + (world.map != null ? world.map.GetQueueLength() + " in queue." : "UNLOADED") );
                 }
             }
         }
@@ -71,7 +71,7 @@ namespace fCraft {
             if( name != null ) {
                 Player target = Server.FindPlayer( name );
                 if( target != null ) {
-                    player.Message( "Coordinates of player \"" + target.name + "\" (on \""+target.world.name+"\"):" );
+                    player.Message( "Coordinates of player \"" + target.name + "\" (on \"" + target.world.name + "\"):" );
                     offset = (int)(target.pos.r / 255f * 64f) + 32;
                 } else {
                     player.NoPlayerMessage( name );
@@ -157,7 +157,7 @@ namespace fCraft {
                     player.Message( Color.Help, "/freeze PlayerName" );
                     player.Message( "     Freezes the specified player in place. This is usually" );
                     player.Message( "     effective, but not hacking-proof. To release the" );
-                    player.Message( "     player, call "+Color.Help+"/release PlayerName" );
+                    player.Message( "     player, call " + Color.Help + "/release PlayerName" );
                     break;
                 case "gen":
                     player.Message( Color.Help, "/gen widthX widthY height theme filename" );
@@ -166,7 +166,7 @@ namespace fCraft {
                     break;
                 case "genh":
                     player.Message( Color.Help, "/genh widthX widthY height type filename" );
-                    player.Message( "     Same as "+Color.Help+"/gen"+Color.Help+", except only" );
+                    player.Message( "     Same as " + Color.Help + "/gen" + Color.Help + ", except only" );
                     player.Message( "     the top 1-thick layer of the terrain is generated." );
                     break;
                 case "grass":
@@ -183,7 +183,17 @@ namespace fCraft {
                     player.Message( "     you left the server, but you can still do anything -" );
                     player.Message( "     chat, build, delete, issue commands - as usual." );
                     player.Message( "     Great way to spy on griefers and scare newbies." );
-                    player.Message( "     Call "+Color.Help+"/show"+Color.Sys+" to disengage." );
+                    player.Message( "     Call " + Color.Help + "/show" + Color.Sys + " to disengage." );
+                    break;
+                case "join":
+                case "j":
+                case "load":
+                case "l":
+                case "goto":
+                    player.Message( Color.Help, "/join WorldName" + Color.Sys + "  or  " + Color.Help + "/j WorldName" );
+                    player.Message( "     Teleports the player to a specified world. You can" );
+                    player.Message( "     see the list of available worlds by using " + Color.Help + "/worlds" );
+                    player.Message( "     Additional command aliases: " + Color.Help + "/load  /l  /goto" );
                     break;
                 case "info":
                     player.Message( Color.Help, "/info [PlayerName]" );
@@ -192,7 +202,7 @@ namespace fCraft {
                     break;
                 case "kick":
                 case "k":
-                    player.Message( Color.Help, "/kick PlayerName [Message]"+Color.Sys+"  or  "+Color.Help +"/k PlayerName [Message]" );
+                    player.Message( Color.Help, "/kick PlayerName [Message]" + Color.Sys + "  or  " + Color.Help + "/k PlayerName [Message]" );
                     player.Message( "     Kicks the specified player from the server." );
                     player.Message( "     Kicked player gets to see the specified message on" );
                     player.Message( "     their disconnect screen." );
@@ -202,19 +212,17 @@ namespace fCraft {
                     player.Message( "     Toggles the lava placement mode. When enabled, any " );
                     player.Message( "     red block you place is replaced with lava." );
                     break;
-                case "load":
-                    player.Message( Color.Help, "/load MapName[.ext]" );
-                    player.Message( "     Replaces the map on the current world with a specified one." );
-                    player.Message( "     You do not need to include the \".fcm\" for fCraft maps." );
-                    player.Message( "     Supported formats: fCraft (fcm), vanilla (server_level.dat)," );
-                    player.Message( "     MCSharp (lvl), MinerCPP/LuaCraft (dat), indev (mclevel)." );
-                    break;
                 case "lock":
                     player.Message( Color.Help, "/lock [WorldName]" );
                     player.Message( "     Puts the world into a locked, read-only mode. No one can " );
                     player.Message( "     place or delete blocks during lockdown. By default this locks" );
                     player.Message( "     the world you're on, but you can also lock any world by name." );
-                    player.Message( "     Call "+Color.Help+"/unlock"+Color.Sys+" to return to normal." );
+                    player.Message( "     Call " + Color.Help + "/unlock" + Color.Sys + " to release lock on a world," );
+                    player.Message( "     or " + Color.Help + "/unlockall" + Color.Sys + " to release all worlds at once." );
+                    break;
+                case "lockall":
+                    player.Message( Color.Help, "/lockall" );
+                    player.Message( "     Applies " + Color.Help + "/lock" + Color.Sys + " to all available worlds." );
                     break;
                 case "paint":
                     player.Message( Color.Help, "/paint" );
@@ -240,7 +248,7 @@ namespace fCraft {
                     break;
                 case "s":
                 case "solid":
-                    player.Message( Color.Help, "/solid"+Color.Sys + "  or  "+Color.Help+"/s" );
+                    player.Message( Color.Help, "/solid" + Color.Sys + "  or  " + Color.Help + "/s" );
                     player.Message( "     Toggles the admincrete placement mode. When enabled, any" );
                     player.Message( "     stone block you place is replaced with admincrete." );
                     break;
@@ -292,6 +300,10 @@ namespace fCraft {
                     player.Message( "     Removes the lockdown set by " + Color.Help + "/lock" + Color.Sys + "." );
                     player.Message( "     See " + Color.Help + "/help lock" + Color.Sys + " for more information." );
                     break;
+                case "unlockall":
+                    player.Message( Color.Help, "/unlockall" );
+                    player.Message( "     Applies " + Color.Help + "/unlock" + Color.Sys + " to all available worlds." );
+                    break;
                 case "user":
                     player.Message( Color.Help, "/user PlayerName ClassName" );
                     player.Message( "     Changes the class of a player to a specified class." );
@@ -301,15 +313,32 @@ namespace fCraft {
                     player.Message( "     Toggles the water placement mode. When enabled, any " );
                     player.Message( "     cyan block you place is replaced with water." );
                     break;
+                case "where":
+                    player.Message( Color.Help, "/where [PlayerName]" );
+                    player.Message( "     Shows information about the location and orientation of a" );
+                    player.Message( "     player. If no name is given, shows player's own info." );
+                    break;
                 case "worlds":
-                    player.Message(Color.Help, "/worlds");
-                    player.Message( "     List all available worlds that you can join.");
+                    player.Message( Color.Help, "/worlds" );
+                    player.Message( "     List all available worlds that you can join." );
                     break;
                 case "wload":
-                    player.Message(Color.Help, "/wload [Worldname]");
-                    player.Message( "     Create a world with the name [Worldname].");
-                    player.Message( "     To make a new customized world use:");
-                    player.Message( Color.Help, "      /gen x y h theme [name] then /wload [name]");
+                    player.Message( Color.Help, "/wload FileName" );
+                    player.Message( "     Replaces the current world's map with the specified map file." );
+                    player.Message( Color.Help, "/wload FileName WorldName" );
+                    player.Message( "     If the world with the specified name exists, its map is" );
+                    player.Message( "     replaced with the specified map file. Otherwise, a new world" );
+                    player.Message( "     is created using the given name and map file." );
+                    player.Message( "     Supported formats: fCraft (fcm), vanilla (server_level.dat)," );
+                    player.Message( "     MCSharp (lvl), MinerCPP/LuaCraft (dat), indev (mclevel)." );
+                    player.Message( "     You can omit the file extension for fCraft (fcm) maps." );
+                    break;
+                case "wremove":
+                    player.Message( Color.Help, "/wremove WorldName" );
+                    player.Message( "     Removes the specified world from the world list, and moves all" );
+                    player.Message( "     players to the default map. The default world itself cannot be" );
+                    player.Message( "     removed with this command. You will need to delete the map" );
+                    player.Message( "     file manually after calling " + Color.Help + "/wremove" + Color.Sys + "." );
                     break;
                 case "zone":
                     player.Message( Color.Help, "/zone ZoneName ClassName" );
@@ -336,11 +365,12 @@ namespace fCraft {
                     player.Message( "To send private messages, write " + Color.Help + "@playername [message]" );
                     player.Message( "To message all players of a class, write " + Color.Help + "@@class [message]" );
                     player.Message( "Below is a list of commands: " );
-                    player.Message( Color.Help, "  ban, banall, baninfo, banip, bring, cancel, class, cuboid," );
-                    player.Message( Color.Help, "  ellipsoid, freeze, gen, genh, grass, help, hide, info," );
-                    player.Message( Color.Help, "  kick, lava, load, lock, paint, players, roll, save, solid," );
-                    player.Message( Color.Help, "  tp, unban, unbanall, undo, unfreeze, unhide, unlock, user," );
-                    player.Message( Color.Help, "  unbanall, water, worlds, wload, zone, zones, zremove, ztest" );
+                    player.Message( Color.Help, "    ban, banall, baninfo, banip, bring, cancel, class, cuboid," );
+                    player.Message( Color.Help, "    ellipsoid, freeze, gen, genh, grass, help, hide, info, join," );
+                    player.Message( Color.Help, "    kick, lava, lock, lockall, paint, players, roll, save, solid," );
+                    player.Message( Color.Help, "    tp, unban, unbanall, unbanip, undo, unfreeze, unhide, unlock," );
+                    player.Message( Color.Help, "    unlockall, user, water, where, worlds, wload, wremove, zone," );
+                    player.Message( Color.Help, "    zones, zremove, ztest" );
                     //TODO: fetch an actual, current list of commands
                     break;
             }
@@ -394,7 +424,7 @@ namespace fCraft {
                 }
 
                 TimeSpan totalTime = info.totalTimeOnServer;
-                if( Server.FindPlayerExact(player.name) != null ) {
+                if( Server.FindPlayerExact( player.name ) != null ) {
                     totalTime = totalTime.Add( DateTime.Now.Subtract( info.lastLoginDate ) );
                 }
                 player.Message( String.Format( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
@@ -416,7 +446,7 @@ namespace fCraft {
                 name = player.name;
             } else if( !player.Can( Permissions.ViewOthersInfo ) ) {
                 player.NoAccessMessage();
-            }else if( IPAddress.TryParse( name, out address ) ) {
+            } else if( IPAddress.TryParse( name, out address ) ) {
                 IPBanInfo info = IPBanList.Get( address );
                 if( info != null ) {
                     player.Message( String.Format( "{0} was banned by {1} on {2:dd MMM yyyy}.",

@@ -69,7 +69,7 @@ namespace fCraft {
                 string[] worldList = File.ReadAllLines( WorldListFile );
                 bool first = true;
                 foreach( string worldName in worldList ) {
-                    World world = AddWorld( worldName, first );
+                    World world = AddWorld( worldName, null, first );
                     if( world != null ) {
                         if( first ) defaultWorld = world;
                         first = false;
@@ -80,11 +80,11 @@ namespace fCraft {
                 }
                 if( worlds.Count == 0 ) {
                     Logger.Log( "Server.Start: Could not load any of the specified worlds. Creating default \"main\" world.", LogType.Error );
-                    defaultWorld = AddWorld( "main", true );
+                    defaultWorld = AddWorld( "main", null, true );
                 }
             } else {
                 Logger.Log( "Server.Start: No world list found. Creating default \"main\" world.", LogType.SystemActivity );
-                defaultWorld = AddWorld( "main", true );
+                defaultWorld = AddWorld( "main", null, true );
             }
 
             // if there is no default world still, die.
@@ -211,13 +211,26 @@ namespace fCraft {
 
         #region Worlds
 
-        public static World AddWorld( string name, bool neverUnload ) {
+        public static World AddWorld( string name, Map map, bool neverUnload ) {
             lock( worldListLock ) {
                 if( worlds.ContainsKey( name ) ) return null;
                 if( !Player.IsValidName( name ) ) return null;
                 World newWorld = new World( name );
                 newWorld.neverUnload = neverUnload;
-                if( neverUnload ) newWorld.LoadMap();
+
+                if( map != null ) {
+                    // if a map is given
+                    newWorld.map = map;
+                    if( !neverUnload ) {
+                        newWorld.UnloadMap();// UnloadMap also saves the map
+                    } else {
+                        newWorld.SaveMap( null );
+                    }
+
+                } else {
+                    // generate default map
+                    if( neverUnload ) newWorld.LoadMap();
+                }
                 worlds.Add( name, newWorld );
 
                 newWorld.updateTaskId = AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ), newWorld );
@@ -272,10 +285,16 @@ namespace fCraft {
                 if ( worldToDelete == null || worldToDelete == defaultWorld ) {
                     return false;
                 } else {
+                    Player[] worldPlayerList = worldToDelete.playerList;
+                    worldToDelete.SendToAll( Color.Sys+"You have been moved to the default map." );
+                    foreach( Player player in worldPlayerList ) {
+                        player.session.forcedWorldToJoin = defaultWorld;
+                    }
                     updateTasks.Remove( worldToDelete.updateTaskId );
                     updateTasks.Remove( worldToDelete.saveTaskId );
                     updateTasks.Remove( worldToDelete.backupTaskId );
                     worlds.Remove( name.ToLower() );
+                    SaveWorldList();
                     return true;
                 }
             }
