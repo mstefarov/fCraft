@@ -8,9 +8,11 @@ namespace fCraft {
         static object loadLock = new object();
 
         internal static void Init() {
-            Commands.AddCommand( "load", Load, false ); //TODO: streamload
             Commands.AddCommand( "join", Join, false );
-            Commands.AddCommand( "save", Save, true );
+            Commands.AddCommand( "j", Join, false );
+            Commands.AddCommand( "load", Join, false );
+            Commands.AddCommand( "l", Join, false );
+            Commands.AddCommand( "goto", Join, false );
 
             Commands.AddCommand( "lock", Lock, true );
             Commands.AddCommand( "unlock", Unlock, true );
@@ -21,17 +23,19 @@ namespace fCraft {
             Commands.AddCommand( "genh", GenerateHollow, true );
 
             Commands.AddCommand( "zone", ZoneAdd, false );
-            Commands.AddCommand( "zones", ListZones, false );
+            Commands.AddCommand( "zones", ZoneList, false );
             Commands.AddCommand( "zremove", ZoneRemove, false );
             Commands.AddCommand( "ztest", ZoneTest, false );
 
-            Commands.AddCommand( "worlds", ListWorlds, true );
-            Commands.AddCommand( "wload", AddWorld, true );
+            Commands.AddCommand( "worlds", WorldList, true );
+            Commands.AddCommand( "wload", WorldLoad, true );
+            Commands.AddCommand( "wremove", WorldRemove, true );
+            Commands.AddCommand( "save", Save, true );
 
             //Commands.AddCommand( "landmark", AddLandmark, false);
         }
 
-        internal static void ListWorlds( Player player, Command cmd ) {
+        internal static void WorldList( Player player, Command cmd ) {
             lock( Server.worldListLock ) {
                 string line = "List of worlds: ";
                 bool first = true;
@@ -49,24 +53,104 @@ namespace fCraft {
             }
         }
 
-        internal static void AddWorld( Player player, Command cmd ) {
-            if( player.Can( Permissions.ManageWorlds ) ) {
-                string worldName = cmd.Next();
-                if( worldName == null || !Player.IsValidName( worldName ) ) {
-                    player.Message( "Invalid world name: \"" + worldName + "\"." );
+
+        internal static void WorldLoad( Player player, Command cmd ) {
+            if( !player.Can( Permissions.ManageWorlds ) ) {
+                player.NoAccessMessage();
+                return;
+            }
+
+            string fileName = cmd.Next();
+            string worldName = cmd.Next();
+
+            if( fileName == null ) {
+                // No params given at all
+                player.Message( "See " + Color.Help + "/help wload" + Color.Sys + " for usage syntax." );
+                return;
+            }
+
+            Logger.Log( "Player {0} is attempting to load map \"{1}\"...", LogType.UserActivity,
+                        player.name,
+                        fileName );
+            player.Message( "Attempting to load " + fileName + "..." );
+
+            Map map = Map.Load( player.world, fileName );
+            if( map == null ) {
+                player.Message( "Could not load specified file." );
+                return;
+            }
+
+            if( worldName == null ) {
+                // Loading to current world
+                if( player.world == null ) {
+                    // if called from console
+                    player.Message( "When using /wload from console, you must specify the world name." );
                 } else {
-                    if( Server.AddWorld( worldName, false ) != null ) {
-                        Server.SendToAll( Color.Sys + player.name + " created a new world named \"" + worldName + "\"." );
-                        Logger.Log( player.name + " created a new world named \"" + worldName + "\".", LogType.UserActivity );
-                        Server.SaveWorldList();
+                    player.world.ChangeMap( map );
+                    player.world.SendToAll( Color.Sys + player.name + " loaded a new map for the world \"" + player.world.name + "\".", player );
+                    player.Message( "New map for the world \"" + player.world.name + "\" has been loaded." );
+
+                    Logger.Log( player.name + " loaded new map for " + player.world.name + " from " + fileName, LogType.UserActivity );
+                }
+
+            } else {
+                // Loading to some other (or new) world
+                if( !Player.IsValidName( worldName ) ) {
+                    player.Message( "Invalid world name: \"" + worldName + "\"." );
+                    return;
+                }
+
+                lock( Server.worldListLock ) {
+                    World world = Server.FindWorld( worldName );
+                    if( world != null ) {
+                        // Replacing existing world's map
+                        world.ChangeMap( map );
+                        world.SendToAll( Color.Sys + player.name + " loaded a new map for the world \"" + world.name + "\".", player );
+                        player.Message( "New map for the world \"" + world.name + "\" has been loaded." );
+                        Logger.Log( player.name + " loaded new map for world \"" + world.name + "\" from " + fileName, LogType.UserActivity );
+
                     } else {
-                        player.Message( "Error occured while trying to create a new world." );
+                        // Adding a new world
+                        if( Server.AddWorld( worldName, map, false ) != null ) {
+                            Server.SendToAll( Color.Sys + player.name + " created a new world named \"" + worldName + "\"." );
+                            Logger.Log( player.name + " created a new world named \"" + worldName + "\".", LogType.UserActivity );
+                            Server.SaveWorldList();
+                        } else {
+                            player.Message( "Error occured while trying to create a new world." );
+                        }
                     }
                 }
-            } else {
-                player.NoAccessMessage();
             }
         }
+
+
+        internal static void WorldRemove( Player player, Command cmd ) {
+            if( !player.Can( Permissions.ManageWorlds ) ) {
+                player.NoAccessMessage();
+                return;
+            }
+
+            string worldName = cmd.Next();
+            if( worldName == null ) {
+                player.Message( "Syntax: " + Color.Help + "/wremove WorldName" );
+                return;
+            }
+
+            lock( Server.worldListLock ) {
+                World world = Server.FindWorld( worldName );
+                if( world == null ) {
+                    player.Message( "World not found: " + worldName );
+                } else if( world == Server.defaultWorld ) {
+                    player.Message( "Deleting the default world is not allowed. Assign a new default first." );
+                } else{
+                    Server.RemoveWorld( worldName );
+                    Server.SendToAll( Color.Sys + player.name + " deleted the world \"" + world.name + "\"",player );
+                    player.Message( "Removed \"" + world.name + "\" from the world list." );
+                    player.Message( "You can now delete the map file (" + world.name + ".fcm) manually." );
+                }
+            }
+        }
+
 
         internal static void Join( Player player, Command cmd ) {
             string worldName = cmd.Next();
@@ -180,7 +264,7 @@ namespace fCraft {
         }
 
 
-        internal static void ListZones( Player player, Command cmd ) {
+        internal static void ZoneList( Player player, Command cmd ) {
             Zone[] zones = player.world.map.ListZones();
             if( zones.Length > 0 ) {
                 foreach( Zone zone in zones ) {
@@ -196,6 +280,7 @@ namespace fCraft {
             }
         }
 
+        #region Commented Out Stuff
 
         //internal static void AddLandmark( Player player, Command cmd ) {
         //    if(!player.Can(Permissions.AddLandmarks)){
@@ -213,33 +298,8 @@ namespace fCraft {
 
         //}
 
-        internal static void Load( Player player, Command cmd ) {
-            if ( !player.Can( Permissions.SaveAndLoad ) ) {
-                player.NoAccessMessage();
-                return;
-            }
 
-            string fileName = cmd.Next();
-            if ( fileName == null ) {
-                player.Message( "Syntax: " + Color.Help + "/load mapName.ext" + Color.Sys + " or " + Color.Help + "/load mapName formatName" );
-                return;
-            }
-
-            Logger.Log( "Player {0} is attempting to load map \"{1}\" into world \"{2}\".", LogType.UserActivity,
-                        player.name,
-                        fileName,
-                        player.world );
-            player.Message( "Attempting to load " + fileName + "..." );
-
-            Map map = Map.Load( player.world, fileName );
-            if ( map != null ) {
-                player.world.ChangeMap( map );
-            } else {
-                player.Message( "Could not load specified file." );
-            }
-        }
-            
-
+        // old stream loading code
         /*internal static void Load( Player player, Command cmd ) {//TODO: streamload
             lock( loadLock ) {
                 if( player.world.loadInProgress || player.world.loadSendingInProgress ) {
@@ -295,9 +355,10 @@ namespace fCraft {
             Tasks.Add( MapSender.StreamLoad, param, true );
         }*/
 
+        #endregion
 
         internal static void Save( Player player, Command cmd ) {
-            if( !player.Can( Permissions.SaveAndLoad ) ) {
+            if( !player.Can( Permissions.ManageWorlds ) ) {
                 player.NoAccessMessage();
                 return;
             }
@@ -319,7 +380,7 @@ namespace fCraft {
 
 
         internal static void Generate( Player player, Command cmd ) {
-            if( !player.Can( Permissions.SaveAndLoad ) ) {
+            if( !player.Can( Permissions.ManageWorlds ) ) {
                 player.NoAccessMessage();
                 return;
             }
@@ -358,7 +419,7 @@ namespace fCraft {
 
 
         internal static void GenerateHollow( Player player, Command cmd ) {
-            if( !player.Can( Permissions.SaveAndLoad ) ) {
+            if( !player.Can( Permissions.ManageWorlds ) ) {
                 player.NoAccessMessage();
                 return;
             }

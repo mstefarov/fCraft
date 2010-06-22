@@ -299,7 +299,10 @@ namespace fCraft {
             if( !Server.VerifyName( player.name, verificationCode ) ) {
                 string standardMessage = String.Format( "Session.LoginSequence: Could not verify player name for {0} ({1}).",
                                                         player.name, GetIP() );
-                if( player.info.timesVisited == 1 || player.info.lastIP.ToString() != GetIP().ToString() ) {
+                if( GetIP().ToString() == "127.0.0.1" &&
+                    (Config.GetString( "VerifyNames" ) == "Balanced" || Config.GetString( "VerifyNames" ) == "Never") ) {
+                    Logger.Log( "{0} Player was identified as connecting from localhost and allowed in.", LogType.SuspiciousActivity, standardMessage );
+                }else if( player.info.timesVisited == 1 || player.info.lastIP.ToString() != GetIP().ToString() ) {
                     switch( Config.GetString( "VerifyNames" ) ) {
                         case "Always":
                         case "Balanced":

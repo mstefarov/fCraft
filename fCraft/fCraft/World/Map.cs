@@ -10,7 +10,7 @@ using mcc;
 namespace fCraft {
     public sealed class Map {
 
-        World world;
+        internal World world;
         internal byte[] blocks;
         public int widthX, widthY, height;
         public Position spawn;

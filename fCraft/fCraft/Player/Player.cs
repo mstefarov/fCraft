@@ -79,7 +79,7 @@ namespace fCraft {
             if( name.Length < 2 || name.Length > 16 ) return false;
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];
-                if( ch < '0' || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < '_' ) || ( ch > '_' && ch < 'a' ) || ch > 'z' ) {
+                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
                     return false;
                 }
             }
@@ -124,7 +124,7 @@ namespace fCraft {
             if( world.map.CheckZones( x, y, h, this, ref zoneOverride, ref zoneName ) ) {
                 if( !zoneOverride ) {
                     SendTileNow( x, y, h );
-                    Message( "You are not allowed to build in \""+zoneName+"\" zone." );
+                    Message( "You are not allowed to build in \"" + zoneName + "\" zone." );
                     return false;
                 }
             }
@@ -189,19 +189,19 @@ namespace fCraft {
             // check that the user has permission to DELETE/REPLACE the block
             if( world.map.GetBlock( x, y, h ) == (byte)Block.Admincrete ) {
                 can &= Can( Permissions.DeleteAdmincrete );
-            } else if( world.map.GetBlock(x,y,h) != (byte)Block.Air ) {
+            } else if( world.map.GetBlock( x, y, h ) != (byte)Block.Air ) {
                 can &= zoneOverride || Can( Permissions.Delete );
             }
 
             // Check to see if the player has hardened mode on or not and make changes accordingly
-            if (hardenedMode == BlockPlacementMode.Hardened) {
-                Message("This mode doesn't work yet.");
+            if( hardenedMode == BlockPlacementMode.Hardened ) {
+                Message( "This mode doesn't work yet." );
             }
 
             // if all is well, try placing it
             if( can ) {
                 BlockUpdate blockUpdate;
-                if( type == Block.Stair && h>0 && world.map.GetBlock( x, y, h - 1 ) == (byte)Block.Stair ) {
+                if( type == Block.Stair && h > 0 && world.map.GetBlock( x, y, h - 1 ) == (byte)Block.Stair ) {
                     blockUpdate = new BlockUpdate( this, x, y, h - 1, (byte)Block.DoubleStair );
                     if( !world.FireChangedBlockEvent( ref blockUpdate ) ) {
                         SendTileNow( x, y, h );
@@ -210,7 +210,7 @@ namespace fCraft {
                     world.map.QueueUpdate( blockUpdate );
                     session.SendNow( PacketWriter.MakeSetBlock( x, y, h - 1, (byte)Block.DoubleStair ) );
                     session.SendNow( PacketWriter.MakeSetBlock( x, y, h, (byte)Block.Air ) );
-                }else{
+                } else {
                     blockUpdate = new BlockUpdate( this, x, y, h, (byte)type );
                     if( !world.FireChangedBlockEvent( ref blockUpdate ) ) {
                         SendTileNow( x, y, h );
@@ -259,8 +259,8 @@ namespace fCraft {
                 double spamTimer = DateTime.Now.Subtract( oldestTime ).TotalSeconds;
                 if( spamTimer < spamBlockTimer ) {
                     session.KickNow( "You were kicked by antigrief system. Slow down." );
-                    Server.SendToAll( Color.Red + name + " was kicked for suspected griefing.");
-                    Logger.Log( name + " was kicked for block spam (" + spamBlockCount + " blocks in " + spamTimer+" seconds)", LogType.SuspiciousActivity );
+                    Server.SendToAll( Color.Red + name + " was kicked for suspected griefing." );
+                    Logger.Log( name + " was kicked for block spam (" + spamBlockCount + " blocks in " + spamTimer + " seconds)", LogType.SuspiciousActivity );
                     return true;
                 }
             }
@@ -272,7 +272,7 @@ namespace fCraft {
         // Parses message incoming from the player
         public void ParseMessage( string message, bool fromConsole ) {
             if( DateTime.Now < mutedUntil ) return;
-            if( world!=null && !world.FireSentMessageEvent( this, ref message ) ) return;
+            if( world != null && !world.FireSentMessageEvent( this, ref message ) ) return;
             switch( Commands.GetMessageType( message ) ) {
                 case MessageType.Chat:
                     if( CheckChatSpam() ) return;
@@ -281,32 +281,27 @@ namespace fCraft {
                     if( Config.GetBool( "ClassPrefixesInChat" ) ) {
                         displayedName = info.playerClass.prefix + displayedName;
                     }
-                    if( Config.GetBool( "ClassColorsInChat" ) && info.playerClass.color != "" && info.playerClass.color!=Color.White ) {
+                    if( Config.GetBool( "ClassColorsInChat" ) && info.playerClass.color != "" && info.playerClass.color != Color.White ) {
                         displayedName = info.playerClass.color + displayedName + Color.White;
                     }
                     Server.SendToAll( displayedName + ": " + message, null );
 
                     // IRC Bot code for sending messages
-                    if (IRCBot.isOnline()) 
-                    {
-                        if (IRCComm.FORWARD_SERVER)
-                        {
+                    if( IRCBot.isOnline() ) {
+                        if( IRCComm.FORWARD_SERVER ) {
                             IRCMessage newMsg = new IRCMessage();
-                            newMsg.chatMessage = nick + ": " + message.Substring(message.IndexOf("#") + 1);
+                            newMsg.chatMessage = nick + ": " + message.Substring( message.IndexOf( "#" ) + 1 );
                             newMsg.destination = destination.Channels;
-                            IRCBot.addOutgoingMessage(newMsg);
+                            IRCBot.addOutgoingMessage( newMsg );
                             IRCComm.Process();
-                        }
-                        else
-                        {
-                            if(message.Contains("#"))
-                            {
+                        } else {
+                            if( message.Contains( "#" ) ) {
                                 IRCMessage newMsg = new IRCMessage();
-                                string tmpChat = message.Substring(message.IndexOf("#") + 1);
-                                if (tmpChat != "") {
+                                string tmpChat = message.Substring( message.IndexOf( "#" ) + 1 );
+                                if( tmpChat != "" ) {
                                     newMsg.chatMessage = nick + ": " + tmpChat;
                                     newMsg.destination = destination.Channels;
-                                    IRCBot.addOutgoingMessage(newMsg);
+                                    IRCBot.addOutgoingMessage( newMsg );
                                     IRCComm.Process();
                                 }
                             }
@@ -427,8 +422,7 @@ namespace fCraft {
             Message( Color.Red, "You do not have access to this command." );
         }
 
-        internal void ResetIdleTimer()
-        {
+        internal void ResetIdleTimer() {
             idleTimer = DateTime.UtcNow;
         }
 

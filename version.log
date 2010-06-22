@@ -1,5 +1,25 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-06-20
+2010-06-21
+405
+ Added back support for vanilla (server_level.dat) maps.
+ Fixed MCSharp importer leaving nonstandard blocks in the map, causing client crashes. Now all MCSharp-specific blocks are converted to normal types.
+ Fixed visual player list not updating in fCraftUI.
+ Added /players command to list ALL players on the server (in all worlds)
+ Made the BlockType parameter optional for /cuboid and /ellipsoid. Now it takes blocktype of the second click (or last-previously-used-blocktype when using /mark) in the absence of the optional parameter.
+ ConfigTool: Added a new tab for IRC setting.
+ ConfigTool: Fixed a bug that prevented  the last 2 checkboxes on the permission list from being saved properly.
+ IRC: Split IRCForwardAll into IRCForwardFromServer and IRCForwardFromIRC to make it easier to manage which messages you want to see.
+ IRC: Added IRCBotQuitMsg to allow users to define their own quit message for the bot. 
+ IRC: Fixed a bug with infinite reconnects on receiving error 433 Nickname already in use.
+ Zones: Changed behavior of overlapping zones:
+  - Before: To touch a block, AT LEAST ONE zone has to allow it
+  - Now: To touch a block, ALL ZONES have to allow it
+ Zones: Added /ztest command that lists all zones affecting a particular block. It can be used to detect and resolve zone overlaps.
+ Zones: Added proper /help entries for /zone, /zones, /zremove, and /ztest, and contextual help for /zone and /zones.
+ Zones: Made zone commands inaccessible from console (it would cause a crash, since zones are world-specific).
+ Fixed OnPlayerDisconnected and OnPlayerListChanged sometimes firing at the wrong time.
+ Added better error handling to Map.Save() in case the target file is not writable.
+ Updated /help entries for /lock, /unlock, and /load commands.
 404
  Fixed zone borders being off by 1 block.
  Fixed a rare crash on shutdown.
@@ -16,7 +36,7 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fixed spawnpoint being read incorrectly when using /load.
  Added a note to ban*/unban* commands that's shown when player name is not found: "Use the FULL player name for ban/unban commands."
  Fixed a thread crash (not server-wide crash) in Session.IoLoop that can be caused by corrupted or malicious handshake packets.
- Fixed a potential crash when using /info on online players from console.
+ Fixed a potential crash when using /info on offline players from console.
  Fixed a potential crash when using /gen from console.
  Added more fail-safe checks that ensure that map spawn point is always within the map boundaries.
  Started logging IPs of connections that try sending corrupted or malicious handshake packets.
