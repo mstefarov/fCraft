@@ -108,13 +108,11 @@
     <Compile Include="Utils\StringTree.cs" />
     <Compile Include="Utils\Position.cs" />
     <Compile Include="Utils\Tasks.cs" />
-    <Compile Include="World\Blocks.cs" />
+    <Compile Include="World\Block.cs" />
     <Compile Include="World\BlockUpdate.cs" />
     <Compile Include="World\EventHandlers.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\MapGenerator.cs" />
-    <Compile Include="World\MapLoaderDAT.cs" />
-    <Compile Include="World\MapSender.cs" />
     <Compile Include="World\World.cs" />
     <Compile Include="World\Zone.cs" />
   </ItemGroup>
