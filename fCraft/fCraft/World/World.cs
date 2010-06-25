@@ -38,6 +38,7 @@ namespace fCraft {
         public bool locked,
                     readyForUnload,
                     neverUnload;
+        PlayerClass classAccess, classBuild;
 
         object playerListLock = new object(),
                mapLock = new object();

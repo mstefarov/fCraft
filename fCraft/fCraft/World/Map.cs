@@ -280,7 +280,7 @@ namespace fCraft {
             blockNames["metal"] = Block.Steel;
             blockNames["silver"] = Block.Steel;
 
-            blockNames["slab"] = Block.DoubleStair;
+            blockNames["slab"] = Block.Stair;
             blockNames["slabs"] = Block.DoubleStair;
             blockNames["stairs"] = Block.DoubleStair;
 
