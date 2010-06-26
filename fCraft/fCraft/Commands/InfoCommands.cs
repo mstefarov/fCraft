@@ -246,6 +246,10 @@ namespace fCraft {
                     player.Message( "     A file extension \".fcm\" is automatically appended." );
                     player.Message( "     If a file with the same name exists, it is replaced." );
                     break;
+                case "setspawn":
+                    player.Message( Color.Help, "/setspawn" );
+                    player.Message( "     Sets current map's spawnpoint to your current location." );
+                    break;
                 case "s":
                 case "solid":
                     player.Message( Color.Help, "/solid" + Color.Sys + "  or  " + Color.Help + "/s" );
@@ -340,6 +344,10 @@ namespace fCraft {
                     player.Message( "     removed with this command. You will need to delete the map" );
                     player.Message( "     file manually after calling " + Color.Help + "/wremove" + Color.Sys + "." );
                     break;
+                case "wrename":
+                    player.Message( Color.Help, "/wrename OldName NewName" );
+                    player.Message( "     Changes the name of a world. Does not require any reloading." );
+                    break;
                 case "zone":
                     player.Message( Color.Help, "/zone ZoneName ClassName" );
                     player.Message( "     Create a zone that overrides build permissions." );
@@ -367,10 +375,10 @@ namespace fCraft {
                     player.Message( "Below is a list of commands: " );
                     player.Message( Color.Help, "    ban, banall, baninfo, banip, bring, cancel, class, cuboid," );
                     player.Message( Color.Help, "    ellipsoid, freeze, gen, genh, grass, help, hide, info, join," );
-                    player.Message( Color.Help, "    kick, lava, lock, lockall, paint, players, roll, save, solid," );
-                    player.Message( Color.Help, "    tp, unban, unbanall, unbanip, undo, unfreeze, unhide, unlock," );
-                    player.Message( Color.Help, "    unlockall, user, water, where, worlds, wload, wremove, zone," );
-                    player.Message( Color.Help, "    zones, zremove, ztest" );
+                    player.Message( Color.Help, "    kick, lava, lock, lockall, paint, players, roll, save," );
+                    player.Message( Color.Help, "    setspawn, solid, tp, unban, unbanall, unbanip, undo, unfreeze," );
+                    player.Message( Color.Help, "    unhide, unlock, unlockall, user, water, where, worlds, wload," );
+                    player.Message( Color.Help, "    wremove, wrename, zone, zones, zremove, ztest" );
                     //TODO: fetch an actual, current list of commands
                     break;
             }
@@ -385,7 +393,7 @@ namespace fCraft {
             if( name == null ) {
                 name = player.name;
             } else if( !player.Can( Permissions.ViewOthersInfo ) ) {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.ViewOthersInfo );
                 return;
             }
 
@@ -445,7 +453,7 @@ namespace fCraft {
             if( name == null ) {
                 name = player.name;
             } else if( !player.Can( Permissions.ViewOthersInfo ) ) {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.ViewOthersInfo );
             } else if( IPAddress.TryParse( name, out address ) ) {
                 IPBanInfo info = IPBanList.Get( address );
                 if( info != null ) {

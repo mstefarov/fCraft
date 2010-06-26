@@ -30,6 +30,7 @@ namespace fCraft {
             Commands.AddCommand( "worlds", WorldList, true );
             Commands.AddCommand( "wload", WorldLoad, true );
             Commands.AddCommand( "wremove", WorldRemove, true );
+            Commands.AddCommand( "wrename", WorldRename, true );
             Commands.AddCommand( "save", Save, true );
 
             //Commands.AddCommand( "landmark", AddLandmark, false);
@@ -56,7 +57,7 @@ namespace fCraft {
 
         internal static void WorldLoad( Player player, Command cmd ) {
             if( !player.Can( Permissions.ManageWorlds ) ) {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.ManageWorlds );
                 return;
             }
 
@@ -124,9 +125,42 @@ namespace fCraft {
         }
 
 
+        internal static void WorldRename( Player player, Command cmd ) {
+            if( !player.Can( Permissions.ManageWorlds ) ) {
+                player.NoAccessMessage( Permissions.ManageWorlds );
+                return;
+            }
+
+            string oldName = cmd.Next();
+            string newName = cmd.Next();
+            if( oldName == null || newName == null ) {
+                player.Message( "Syntax: " + Color.Help + "/wrename OldName NewName" );
+                return;
+            }
+
+            lock( Server.worldListLock ) {
+                World oldWorld = Server.FindWorld( oldName );
+                World newWorld = Server.FindWorld( newName );
+
+                if( oldWorld == null ) {
+                    player.Message( "No world found with the specified name: " + oldName );
+                } else if( newWorld != null ) {
+                    player.Message( "A world with the specified name already exists: " + newName );
+                } else {
+                    oldName = oldWorld.name;
+                    Server.RenameWorld( oldName, newName );
+                    File.Move( oldName + ".fcm", newName + ".fcm" );
+                    Server.SaveWorldList();
+                    Server.SendToAll( player.name + " renamed the world \"" + oldName + "\" to \"" + newName + "\"." );
+                    Logger.Log( player.name + " renamed the world \"" + oldName + "\" to \"" + newName + "\".", LogType.UserActivity );
+                }
+            }
+        }
+
+
         internal static void WorldRemove( Player player, Command cmd ) {
             if( !player.Can( Permissions.ManageWorlds ) ) {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.ManageWorlds );
                 return;
             }
 
@@ -170,7 +204,7 @@ namespace fCraft {
 
         internal static void ZoneAdd( Player player, Command cmd ) {//TODO: better method names & documentation
             if( !player.Can( Permissions.ManageZones ) ) {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.ManageZones );
                 return;
             }
 
@@ -248,7 +282,7 @@ namespace fCraft {
 
         internal static void ZoneRemove( Player player, Command cmd ) {
             if( !player.Can( Permissions.ManageZones ) ) {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.ManageZones );
                 return;
             }
             string zoneName = cmd.Next();
@@ -359,7 +393,7 @@ namespace fCraft {
 
         internal static void Save( Player player, Command cmd ) {
             if( !player.Can( Permissions.ManageWorlds ) ) {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.ManageWorlds );
                 return;
             }
 
@@ -381,7 +415,7 @@ namespace fCraft {
 
         internal static void Generate( Player player, Command cmd ) {
             if( !player.Can( Permissions.ManageWorlds ) ) {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.ManageWorlds );
                 return;
             }
             int wx, wy, height;
@@ -420,7 +454,7 @@ namespace fCraft {
 
         internal static void GenerateHollow( Player player, Command cmd ) {
             if( !player.Can( Permissions.ManageWorlds ) ) {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.ManageWorlds );
                 return;
             }
             int wx, wy, height;
@@ -545,7 +579,7 @@ namespace fCraft {
 
         internal static void Lock( Player player, Command cmd ) {
             if( !player.Can( Permissions.Lock ) ) {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.Lock );
                 return;
             }
             string worldName = cmd.Next();
@@ -567,7 +601,7 @@ namespace fCraft {
 
         internal static void LockAll( Player player, Command cmd ) {
             if( !player.Can( Permissions.Lock ) ) {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.Lock );
                 return;
             }else{
                 lock(Server.worldListLock){
@@ -582,7 +616,7 @@ namespace fCraft {
 
         internal static void Unlock( Player player, Command cmd ) {
             if( !player.Can( Permissions.Lock ) ) {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.Lock );
                 return;
             }
             string worldName = cmd.Next();
@@ -604,7 +638,7 @@ namespace fCraft {
 
         internal static void UnlockAll( Player player, Command cmd ) {
             if( !player.Can( Permissions.Lock ) ) {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.Lock );
                 return;
             } else {
                 lock( Server.worldListLock ) {

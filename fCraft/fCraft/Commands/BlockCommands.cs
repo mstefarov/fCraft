@@ -35,7 +35,7 @@ namespace fCraft {
                 player.mode = BlockPlacementMode.Solid;
                 player.Message( "Solid: ON" );
             } else {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.PlaceAdmincrete );
             }
         }
 
@@ -47,7 +47,7 @@ namespace fCraft {
                 player.hardenedMode = BlockPlacementMode.Hardened;
                 player.Message("Hardened blocks: ON");
             } else {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.PlaceHardenedBlocks );
             }
         }
 
@@ -70,7 +70,7 @@ namespace fCraft {
                 player.mode = BlockPlacementMode.Grass;
                 player.Message( "Grass: ON. Dirt blocks are replaced with grass." );
             } else {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.PlaceGrass );
             }
         }
 
@@ -83,7 +83,7 @@ namespace fCraft {
                 player.mode = BlockPlacementMode.Water;
                 player.Message( "Water: ON. Blue blocks are replaced with water." );
             } else {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.PlaceWater );
             }
         }
 
@@ -96,7 +96,7 @@ namespace fCraft {
                 player.mode = BlockPlacementMode.Lava;
                 player.Message( "Lava: ON. Red blocks are replaced with lava." );
             } else {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.PlaceWater );
             }
         }
     }
