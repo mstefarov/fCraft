@@ -20,7 +20,6 @@ namespace fCraft {
             Commands.AddCommand( "unlockall", UnlockAll, true );
 
             Commands.AddCommand( "gen", Generate, true );
-            Commands.AddCommand( "genh", GenerateHollow, true );
 
             Commands.AddCommand( "zone", ZoneAdd, false );
             Commands.AddCommand( "zones", ZoneList, false );
@@ -151,7 +150,7 @@ namespace fCraft {
                     Server.RenameWorld( oldName, newName );
                     File.Move( oldName + ".fcm", newName + ".fcm" );
                     Server.SaveWorldList();
-                    Server.SendToAll( player.name + " renamed the world \"" + oldName + "\" to \"" + newName + "\"." );
+                    Server.SendToAll( Color.Sys+ player.name + " renamed the world \"" + oldName + "\" to \"" + newName + "\"." );
                     Logger.Log( player.name + " renamed the world \"" + oldName + "\" to \"" + newName + "\".", LogType.UserActivity );
                 }
             }
@@ -451,39 +450,6 @@ namespace fCraft {
             DoGenerate( map, player, mode, filename, rand, false );
         }
 
-
-        internal static void GenerateHollow( Player player, Command cmd ) {
-            if( !player.Can( Permissions.ManageWorlds ) ) {
-                player.NoAccessMessage( Permissions.ManageWorlds );
-                return;
-            }
-            int wx, wy, height;
-            if( !(cmd.NextInt( out wx ) && cmd.NextInt( out wy ) && cmd.NextInt( out height )) ) {
-                wx = player.world.map.widthX;
-                wy = player.world.map.widthY;
-                height = player.world.map.height;
-                cmd.Rewind();
-            }
-            string mode = cmd.Next();
-            string filename = cmd.Next();
-            if( mode == null || filename == null ) {
-                player.Message( "Usage: " + Color.Help + "/genh widthX widthY height type filename" );
-                return;
-            }
-            filename += ".fcm";
-
-            int seed;
-            if( !cmd.NextInt( out seed ) ) {
-                seed = new Random().Next();
-            }
-            Random rand = new Random( seed );
-            player.Message( "Seed: " + Convert.ToBase64String( BitConverter.GetBytes( seed ) ) );
-
-            Map map = new Map( player.world, wx, wy, height );
-            map.spawn.Set( map.widthX / 2 * 32 + 16, map.widthY / 2 * 32 + 16, map.height * 32, 0, 0 );
-
-            DoGenerate( map, player, mode, filename, rand, true );
-        }
 
         internal static void GenerateFlatgrass( Map map, bool hollow ) {
             for ( int i = 0; i < map.widthX; i++ ) {
