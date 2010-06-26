@@ -62,7 +62,7 @@ namespace fCraft {
 
         internal static void Nick( Player player, Command cmd ) {
             if( !player.Can( Permissions.ChangeName ) ) {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.ChangeName );
                 return;
             }
             string name = cmd.Next();
@@ -130,7 +130,7 @@ namespace fCraft {
                     player.Message( "Usage: " + Color.Help + "/say message" );
                 }
             } else {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.Say );
             }
         }
 
@@ -161,66 +161,70 @@ namespace fCraft {
 
 
         internal static void DoBan( Player player, Command cmd, bool banIP, bool banAll, bool unban ) {
-            if( !banAll && !banIP && player.Can( Permissions.Ban ) ||
-                !banAll && player.Can( Permissions.BanIP ) ||
-                player.Can( Permissions.BanAll ) ) {
+            if( !player.Can( Permissions.Ban ) ) {
+                player.NoAccessMessage( Permissions.Ban );
+                return;
+            } else if( banIP && !player.Can( Permissions.BanIP ) ) {
+                player.NoAccessMessage( Permissions.BanIP );
+                return;
+            } else if( banAll && !player.Can( Permissions.BanAll ) ) {
+                player.NoAccessMessage( Permissions.BanAll );
+                return;
+            }
 
-                string arg = cmd.Next();
-                string reason = cmd.NextAll();
-                IPAddress address;
-                Player offender = Server.FindPlayer( arg );
-                PlayerInfo info = PlayerDB.FindPlayerInfoExact( arg );
+            string arg = cmd.Next();
+            string reason = cmd.NextAll();
+            IPAddress address;
+            Player offender = Server.FindPlayer( arg );
+            PlayerInfo info = PlayerDB.FindPlayerInfoExact( arg );
 
-                // ban by IP address
-                if( banIP && IPAddress.TryParse( arg, out address ) ) {
-                    DoIPBan( player, address, reason, null, banAll, unban );
+            // ban by IP address
+            if( banIP && IPAddress.TryParse( arg, out address ) ) {
+                DoIPBan( player, address, reason, null, banAll, unban );
 
                 // ban online players
-                } else if( !unban && offender != null ) {
-                    address = offender.info.lastIP;
-                    if( banIP ) DoIPBan( player, address, reason, offender.name, banAll, unban );
-                    if( unban ) {
-                        if( offender.info.ProcessUnBan( player.name, reason ) ) {
-                            Logger.Log( "{0} was unbanned by {1}.", LogType.UserActivity, offender.info.name, player.name );
-                            Server.SendToAll( Color.Red + offender.name + " was unbanned by " + player.name, offender );
-                        } else {
-                            player.Message( offender.name + " is not currently banned." );
-                        }
-                    }else{
-                        if( offender.info.ProcessBan( player.name, reason ) ) {
-                            Logger.Log( "{0} was banned by {1}.", LogType.UserActivity, offender.info.name, player.name );
-                            Server.SendToAll( Color.Red + offender.name + " was banned by " + player.name, offender );
-                            offender.session.Kick( "You were banned by " + player.name + "!" );
-                        } else {
-                            player.Message( offender.name + " is already banned." );
-                        }
-                    }
-
-                // ban offline players
-                } else if( info != null ) {
-                    address = info.lastIP;
-                    if( banIP ) DoIPBan( player, address, reason, info.name, banAll, unban );
-                    if( unban ) {
-                        if( info.ProcessUnBan( player.name, reason ) ) {
-                            Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity, info.name, player.name );
-                            Server.SendToAll( Color.Red + info.name + " (offline) was unbanned by " + player.name );
-                        } else {
-                            player.Message( info.name + " (offline) is not currenty banned." );
-                        }
+            } else if( !unban && offender != null ) {
+                address = offender.info.lastIP;
+                if( banIP ) DoIPBan( player, address, reason, offender.name, banAll, unban );
+                if( unban ) {
+                    if( offender.info.ProcessUnBan( player.name, reason ) ) {
+                        Logger.Log( "{0} was unbanned by {1}.", LogType.UserActivity, offender.info.name, player.name );
+                        Server.SendToAll( Color.Red + offender.name + " was unbanned by " + player.name, offender );
                     } else {
-                        if( info.ProcessBan( player.name, reason ) ) {
-                            Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity, info.name, player.name );
-                            Server.SendToAll( Color.Red + info.name + " (offline) was banned by " + player.name );
-                        } else {
-                            player.Message( info.name + " (offline) is already banned." );
-                        }
+                        player.Message( offender.name + " is not currently banned." );
                     }
                 } else {
-                    player.NoPlayerMessage( arg );
-                    player.Message( "Use the FULL player name for ban/unban commands." );
+                    if( offender.info.ProcessBan( player.name, reason ) ) {
+                        Logger.Log( "{0} was banned by {1}.", LogType.UserActivity, offender.info.name, player.name );
+                        Server.SendToAll( Color.Red + offender.name + " was banned by " + player.name, offender );
+                        offender.session.Kick( "You were banned by " + player.name + "!" );
+                    } else {
+                        player.Message( offender.name + " is already banned." );
+                    }
+                }
+
+                // ban offline players
+            } else if( info != null ) {
+                address = info.lastIP;
+                if( banIP ) DoIPBan( player, address, reason, info.name, banAll, unban );
+                if( unban ) {
+                    if( info.ProcessUnBan( player.name, reason ) ) {
+                        Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity, info.name, player.name );
+                        Server.SendToAll( Color.Red + info.name + " (offline) was unbanned by " + player.name );
+                    } else {
+                        player.Message( info.name + " (offline) is not currenty banned." );
+                    }
+                } else {
+                    if( info.ProcessBan( player.name, reason ) ) {
+                        Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity, info.name, player.name );
+                        Server.SendToAll( Color.Red + info.name + " (offline) was banned by " + player.name );
+                    } else {
+                        player.Message( info.name + " (offline) is already banned." );
+                    }
                 }
             } else {
-                player.NoAccessMessage();
+                player.NoPlayerMessage( arg );
+                player.Message( "Use the FULL player name for ban/unban commands." );
             }
         }
 
@@ -285,7 +289,7 @@ namespace fCraft {
                                        Color.Sys + " or " + Color.Help + "/k PlayerName [Message]" );
                 }
             } else {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.Kick );
             }
         }
 
@@ -320,8 +324,11 @@ namespace fCraft {
 
             bool promote = target.info.playerClass.rank < newClass.rank;
 
-            if( (promote && !player.Can( Permissions.Promote )) || !promote && !player.Can( Permissions.Demote ) ) {
-                player.NoAccessMessage();
+            if( (promote && !player.Can( Permissions.Promote )) ) {
+                player.NoAccessMessage( Permissions.Promote );
+                return;
+            } else if( !promote && !player.Can( Permissions.Demote ) ) {
+                player.NoAccessMessage( Permissions.Demote );
                 return;
             }
 
@@ -411,7 +418,7 @@ namespace fCraft {
                     }
                 }
             } else {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.Teleport );
             }
         }
 
@@ -430,7 +437,7 @@ namespace fCraft {
                     player.NoPlayerMessage( name );
                 }
             } else {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.Bring );
             }
         }
 
@@ -450,7 +457,7 @@ namespace fCraft {
                     player.NoPlayerMessage(name );
                 }
             } else {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.Freeze );
             }
         }
 
@@ -470,7 +477,7 @@ namespace fCraft {
                     player.NoPlayerMessage( name );
                 }
             } else {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.Freeze );
             }
         }
 
@@ -487,7 +494,7 @@ namespace fCraft {
                     player.Message( "You are already hidden." );
                 }
             } else {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.Hide );
             }
         }
 
@@ -508,7 +515,7 @@ namespace fCraft {
                     player.Message( "You are not currently hidden." );
                 }
             } else {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.Hide );
             }
         }
 
@@ -521,7 +528,7 @@ namespace fCraft {
                 player.Message( "New spawn point saved." );
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity, player.name );
             } else {
-                player.NoAccessMessage();
+                player.NoAccessMessage( Permissions.SetSpawn );
             }
         }
     }

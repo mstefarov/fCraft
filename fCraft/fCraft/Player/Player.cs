@@ -418,8 +418,9 @@ namespace fCraft {
         }
 
 
-        internal void NoAccessMessage() {
+        internal void NoAccessMessage( Permissions permission ) {
             Message( Color.Red, "You do not have access to this command." );
+            Message( Color.Red, "You need " + permission.ToString() + " permission." );
         }
 
         internal void ResetIdleTimer() {
