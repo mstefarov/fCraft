@@ -373,12 +373,12 @@ namespace fCraft {
                     player.Message( "To send private messages, write " + Color.Help + "@playername [message]" );
                     player.Message( "To message all players of a class, write " + Color.Help + "@@class [message]" );
                     player.Message( "Below is a list of commands: " );
-                    player.Message( Color.Help, "    ban, banall, baninfo, banip, bring, cancel, class, cuboid," );
-                    player.Message( Color.Help, "    ellipsoid, freeze, gen, genh, grass, help, hide, info, join," );
-                    player.Message( Color.Help, "    kick, lava, lock, lockall, paint, players, roll, save," );
-                    player.Message( Color.Help, "    setspawn, solid, tp, unban, unbanall, unbanip, undo, unfreeze," );
-                    player.Message( Color.Help, "    unhide, unlock, unlockall, user, water, where, worlds, wload," );
-                    player.Message( Color.Help, "    wremove, wrename, zone, zones, zremove, ztest" );
+                    player.Message( Color.Help, "   ban, banall, baninfo, banip, bring, cancel, class, cuboid" );
+                    player.Message( Color.Help, "   ellipsoid, freeze, gen, grass, help, hide, info, join, kick" );
+                    player.Message( Color.Help, "   lava, lock, lockall, paint, players, roll, save, setspawn" );
+                    player.Message( Color.Help, "   solid, tp, unban, unbanall, unbanip, undo, unfreeze, unhide" );
+                    player.Message( Color.Help, "   unlock, unlockall, user, water, where, worlds, wload" );
+                    player.Message( Color.Help, "   wremove, wrename, zone, zones, zremove, ztest" );
                     //TODO: fetch an actual, current list of commands
                     break;
             }
