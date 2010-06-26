@@ -63,6 +63,11 @@ namespace fCraft {
             string fileName = cmd.Next();
             string worldName = cmd.Next();
 
+            if( worldName == null && player.world == null ) {
+                player.Message( "When using /wload from console, you must specify the world name." );
+                return;
+            }
+
             if( fileName == null ) {
                 // No params given at all
                 player.Message( "See " + Color.Help + "/help wload" + Color.Sys + " for usage syntax." );
@@ -82,16 +87,11 @@ namespace fCraft {
 
             if( worldName == null ) {
                 // Loading to current world
-                if( player.world == null ) {
-                    // if called from console
-                    player.Message( "When using /wload from console, you must specify the world name." );
-                } else {
-                    player.world.ChangeMap( map );
-                    player.world.SendToAll( Color.Sys + player.name + " loaded a new map for the world \"" + player.world.name + "\".", player );
-                    player.Message( "New map for the world \"" + player.world.name + "\" has been loaded." );
+                player.world.ChangeMap( map );
+                player.world.SendToAll( Color.Sys + player.name + " loaded a new map for the world \"" + player.world.name + "\".", player );
+                player.Message( "New map for the world \"" + player.world.name + "\" has been loaded." );
 
-                    Logger.Log( player.name + " loaded new map for " + player.world.name + " from " + fileName, LogType.UserActivity );
-                }
+                Logger.Log( player.name + " loaded new map for " + player.world.name + " from " + fileName, LogType.UserActivity );
 
             } else {
                 // Loading to some other (or new) world

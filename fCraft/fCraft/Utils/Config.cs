@@ -39,7 +39,6 @@ namespace fCraft {
             }
         }
 
-
         public static void LoadDefaultsGeneral() {
             settings["ServerName"] = "Minecraft custom server (fCraft)";
             settings["MOTD"] = "Welcome to the server!";
@@ -88,7 +87,6 @@ namespace fCraft {
             settings["MaxBackupSize"] = "0"; // 0 = no backup file size count limit
         }
 
-
         public static void LoadDefaultsLogging() {
             settings["LogMode"] = "OneFile"; // can be: "None", "OneFile", "SplitBySession", "SplitByDay"
             settings["MaxLogs"] = "0";
@@ -115,6 +113,72 @@ namespace fCraft {
             settings["IRCBotForwardFromIRC"] = "false"; // Disabled by default
         }
 
+
+        enum ConfigKey : byte {
+            ServerName,
+            MOTD,
+            MaxPlayers,
+            DefaultClass,
+            IsPublic,
+            Port,
+            UploadBandwidth,
+            ReservedSlotBehavior,
+
+            ClassColorsInChat,
+            ClassPrefixesInChat,
+            ClassPrefixesInList,
+            SystemMessageColor,
+            HelpColor,
+            SayColor,
+
+            VerifyNames,
+            AnnounceUnverifiedNames,
+            AntispamMessageCount,
+            AntispamInterval,
+            AntispamMuteDuration,
+            AntispamMaxWarnings,
+
+            AntigriefBlockCount,
+            AntigriefInterval,
+            AntigriefAction1,
+            AntigriefAction2,
+            AntigriefAction3,
+
+            SaveOnShutdown,
+            SaveInterval,
+
+            BackupOnStartup,
+            BackupOnJoin,
+            BackupOnlyWhenChanged,
+            BackupInterval,
+            MaxBackups,
+            MaxBackupSize,
+
+            LogMode,
+            MaxLogs,
+
+            IRCBot,
+            IRCMsgs,
+            IRCBotNick,
+            IRCBotQuitMsg,
+            IRCBotNetwork,
+            IRCBotPort,
+            IRCBotChannels,
+            IRCBotForwardFromServer,
+            IRCBotForwardFromIRC,
+
+            PolicyColorCodesInChat,
+            PolicyIllegalCharacters,
+            SendRedundantBlockUpdates,
+            PingInterval,
+            AutomaticUpdates,
+            NoPartialPositionUpdates,
+            ProcessPriority,
+            RunOnStartup,
+            BlockUpdateThrottling,
+            TickInterval,
+            LowLatencyMode
+        }
 
         public static void LoadDefaultsAdvanced() {
             settings["PolicyColorCodesInChat"] = "ConsoleOnly"; // can be: "Allow", "ConsoleOnly", "Disallow"

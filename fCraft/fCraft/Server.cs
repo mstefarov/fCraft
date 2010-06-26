@@ -290,9 +290,12 @@ namespace fCraft {
                     foreach( Player player in worldPlayerList ) {
                         player.session.forcedWorldToJoin = defaultWorld;
                     }
-                    updateTasks.Remove( worldToDelete.updateTaskId );
-                    updateTasks.Remove( worldToDelete.saveTaskId );
-                    updateTasks.Remove( worldToDelete.backupTaskId );
+                    lock( taskListLock ) {
+                        tasks.Remove( worldToDelete.updateTaskId );
+                        tasks.Remove( worldToDelete.saveTaskId );
+                        tasks.Remove( worldToDelete.backupTaskId );
+                        UpdateTaskListCache();
+                    }
                     worlds.Remove( name.ToLower() );
                     SaveWorldList();
                     return true;
@@ -329,16 +332,19 @@ namespace fCraft {
 
                 // swap worlds
                 worlds[name.ToLower()] = newWorld;
-                
-                // removes tasks associated with the old world
-                updateTasks.Remove( oldWorld.updateTaskId );
-                updateTasks.Remove( oldWorld.saveTaskId );
-                updateTasks.Remove( oldWorld.backupTaskId );
+                lock( taskListLock ) {
+                    // removes tasks associated with the old world
+                    tasks.Remove( oldWorld.updateTaskId );
+                    tasks.Remove( oldWorld.saveTaskId );
+                    tasks.Remove( oldWorld.backupTaskId );
 
-                // if the new world was previously associated with some tasks, remove the old one, and reregister
-                updateTasks.Remove( newWorld.updateTaskId );
-                updateTasks.Remove( newWorld.saveTaskId );
-                updateTasks.Remove( newWorld.backupTaskId );
+                    // if the new world was previously associated with some tasks, remove the old one, and reregister
+                    tasks.Remove( newWorld.updateTaskId );
+                    tasks.Remove( newWorld.saveTaskId );
+                    tasks.Remove( newWorld.backupTaskId );
+
+                    UpdateTaskListCache();
+                }
 
                 // adds tasks to the new world
                 newWorld.updateTaskId = AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ), newWorld );
@@ -467,22 +473,26 @@ namespace fCraft {
 
         #region Scheduler
 
-        static int updateTaskCounter = 0;
-        static Dictionary<int, ScheduledTask> updateTasks = new Dictionary<int, ScheduledTask>();
+        static int taskIdCounter = 0;
+        static Dictionary<int, ScheduledTask> tasks = new Dictionary<int, ScheduledTask>();
+        static ScheduledTask[] taskList;
         static Thread mainThread;
         static DateTime serverStart;
         static bool continueMainLoop = true;
-
+        static object taskListLock = new object();
 
         internal static void MainLoop() {
+            ScheduledTask[] taskCache;
+            ScheduledTask task;
             while( continueMainLoop ) {
-                foreach( ScheduledTask task in updateTasks.Values ) {
+                taskCache = taskList;
+                for( int i=0; i<taskCache.Length; i++){
+                    task = taskCache[i];
                     if( task.enabled && task.nextTime < DateTime.UtcNow ) {
                         task.callback( task.param );
                         task.nextTime += TimeSpan.FromMilliseconds( task.interval );
                     }
                 }
-
                 Thread.Sleep( 1 );
             }
         }
@@ -537,15 +547,28 @@ namespace fCraft {
             newTask.callback = task;
             newTask.interval = interval;
             newTask.param = param;
-            updateTasks.Add( updateTaskCounter, newTask );
-            return updateTaskCounter++;
+            tasks.Add( ++taskIdCounter, newTask );
+            UpdateTaskListCache();
+            return taskIdCounter;
         }
 
         internal static void TaskToggle( int id, bool enabled ) {
-            updateTasks[id].nextTime = DateTime.UtcNow;
-            updateTasks[id].enabled = enabled;
+            tasks[id].nextTime = DateTime.UtcNow;
+            tasks[id].enabled = enabled;
+            UpdateTaskListCache();
         }
 
+        static void UpdateTaskListCache() {
+            List<ScheduledTask> tempTaskList = new List<ScheduledTask>();
+            lock( taskListLock ) {
+                foreach( ScheduledTask task in tasks.Values ) {
+                    if( task.enabled ) {
+                        tempTaskList.Add( task );
+                    }
+                }
+            }
+            taskList = tempTaskList.ToArray();
+        }
 
         #endregion
 
