@@ -22,7 +22,6 @@ namespace fCraft {
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
         static Dictionary<string, string> settings = new Dictionary<string, string>();
-        internal static ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
 
         public static string errors = ""; // for ConfigTool
         public static bool logToString = false;

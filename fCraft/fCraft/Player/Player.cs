@@ -349,7 +349,12 @@ namespace fCraft {
 
         // Checks permissions
         public bool Can( Permissions permission ) {
-            return info.playerClass.Can( permission );
+            if( world == null ) return true;
+            if( (permission == Permissions.Build || permission == Permissions.Delete || permission == Permissions.Draw) && world.classBuild.rank > info.playerClass.rank ) {
+                return false;
+            } else {
+                return info.playerClass.Can( permission );
+            }
         }
 
 

@@ -340,7 +340,7 @@ namespace fCraft {
                 case "wremove":
                     player.Message( Color.Help, "/wremove WorldName" );
                     player.Message( "     Removes the specified world from the world list, and moves all" );
-                    player.Message( "     players to the default map. The default world itself cannot be" );
+                    player.Message( "     players to the main world. The main world itself cannot be" );
                     player.Message( "     removed with this command. You will need to delete the map" );
                     player.Message( "     file manually after calling " + Color.Help + "/wremove" + Color.Sys + "." );
                     break;

@@ -38,7 +38,7 @@ namespace fCraft {
         public bool locked,
                     readyForUnload,
                     neverUnload;
-        PlayerClass classAccess, classBuild;
+        public PlayerClass classAccess, classBuild;
 
         object playerListLock = new object(),
                mapLock = new object();
@@ -51,6 +51,8 @@ namespace fCraft {
 
         public World( string _name ) {
             name = _name;
+            classAccess = ClassList.lowestClass;
+            classBuild = ClassList.lowestClass;
         }
 
         // Prepare for shutdown
@@ -362,17 +364,5 @@ namespace fCraft {
             return !cancel;
         }
         #endregion
-
-        /*
-        public void UpdatePlayerList() { //TODO
-            List<string> playerList = new List<string>();
-            Player p;
-            for( int i = 1; i < players.Length; i++ ) {
-                p = players[i];
-                if( p != null ) playerList.Add( p.info.playerClass.name + " - " + p.name );
-            }
-            //Server.FirePlayerListChange( playerList.ToArray() ); //TODO
-        }*/
-
     }
 }
