@@ -30,10 +30,12 @@ namespace fCraft {
             Commands.AddCommand( "wload", WorldLoad, true );
             Commands.AddCommand( "wremove", WorldRemove, true );
             Commands.AddCommand( "wrename", WorldRename, true );
+            //Commands.AddCommand( "wperm", WorldPermissions, true );
             Commands.AddCommand( "save", Save, true );
 
             //Commands.AddCommand( "landmark", AddLandmark, false);
         }
+
 
         internal static void WorldList( Player player, Command cmd ) {
             lock( Server.worldListLock ) {
