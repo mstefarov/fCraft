@@ -324,6 +324,7 @@ namespace fCraft {
                     }
                     root.Add( temp );
                 }
+                root.Add( new XAttribute( "main", mainWorld.name ) );
                 doc.Add( root );
                 doc.Save( WorldListFile );
             }
