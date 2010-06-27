@@ -8,6 +8,8 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.IO;
+using System.Xml;
+using System.Xml.Linq;
 
 
 namespace fCraft {
@@ -18,9 +20,9 @@ namespace fCraft {
         static object playerListLock = new object();
         public static object worldListLock = new object();
 
-        const string WorldListFile = "worlds.txt";
+        const string WorldListFile = "worlds.xml";
         public static Dictionary<string, World> worlds = new Dictionary<string, World>();
-        public static World defaultWorld;
+        public static World mainWorld;
 
         static TcpListener listener;
 
@@ -58,40 +60,13 @@ namespace fCraft {
             return true;
         }
 
-
+        
         // Opens a socket for listening for incoming connections
         public static bool Start() {
 
             Player.Console = new Player( null, "(console)" ); //TODO
 
-            // Read world list
-            if( File.Exists( WorldListFile ) ) {
-                string[] worldList = File.ReadAllLines( WorldListFile );
-                bool first = true;
-                foreach( string worldName in worldList ) {
-                    World world = AddWorld( worldName, null, first );
-                    if( world != null ) {
-                        if( first ) defaultWorld = world;
-                        first = false;
-                        Logger.Log( "Server.Start: Loaded world \"" + worldName + "\".", LogType.Debug );
-                    } else {
-                        Logger.Log( "Server.Start: Error loading world \"" + worldName + "\"", LogType.Error );
-                    }
-                }
-                if( worlds.Count == 0 ) {
-                    Logger.Log( "Server.Start: Could not load any of the specified worlds. Creating default \"main\" world.", LogType.Error );
-                    defaultWorld = AddWorld( "main", null, true );
-                }
-            } else {
-                Logger.Log( "Server.Start: No world list found. Creating default \"main\" world.", LogType.SystemActivity );
-                defaultWorld = AddWorld( "main", null, true );
-            }
-
-            // if there is no default world still, die.
-            if( defaultWorld == null ) {
-                Logger.Log( "Could not create the default world!", LogType.FatalError );
-                return false;
-            }
+            if( !LoadWorldList() ) return false;
 
             SaveWorldList();
 
@@ -129,7 +104,7 @@ namespace fCraft {
             serverStart = DateTime.Now;
 
             // list loaded worlds
-            string line = "Available worlds: ";
+            string line = "All available worlds: ";
             bool firstPrintedWorld = true;
             foreach( string worldName in Server.worlds.Keys ) {
                 if( !firstPrintedWorld ) {
@@ -139,6 +114,7 @@ namespace fCraft {
                 firstPrintedWorld = false;
             }
             Logger.Log( line, LogType.SystemActivity );
+            Logger.Log( "Main world: \"" + mainWorld.name + "\".", LogType.SystemActivity );
 
             // Check for incoming connections 4 times per second
             AddTask( CheckConnections, 250 );
@@ -162,7 +138,6 @@ namespace fCraft {
             return true;
         }
 
-        
         // shuts down the server and aborts threads
         // NOTE: Do not call from any of the usual threads (main, heartbeat, tasks).
         // Call from UI thread or a new separate thread only.
@@ -211,6 +186,151 @@ namespace fCraft {
 
         #region Worlds
 
+        #region World List Saving/Loading
+
+        static bool LoadWorldList() {
+            if( File.Exists( WorldListFile ) ) {
+                try {
+                    LoadWorldListXML();
+                } catch( Exception ex ) {
+                    Logger.Log( "An error occured while trying to parse the world list: " + Environment.NewLine + ex.ToString(), LogType.FatalError );
+                    return false;
+                }
+            } else if( File.Exists( "worlds.txt" ) ) {
+                LoadWorldListTXT();
+            } else {
+                Logger.Log( "Server.Start: No world list found. Creating default \"main\" world.", LogType.SystemActivity );
+                mainWorld = AddWorld( "main", null, true );
+            }
+
+            if( worlds.Count == 0 ) {
+                Logger.Log( "Server.Start: Could not load any of the specified worlds, or no worlds were specified. Creating default \"main\" world.", LogType.Error );
+                mainWorld = AddWorld( "main", null, true );
+            }
+
+            // if there is no default world still, die.
+            if( mainWorld == null ) {
+                Logger.Log( "World creation failed. Shutting down.", LogType.FatalError );
+                return false;
+            } else {
+                if( mainWorld.classAccess != ClassList.lowestClass ) {
+                    Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. Access permission for \"" + mainWorld.name + "\" has been reset.", LogType.Warning );
+                    mainWorld.classAccess = ClassList.lowestClass;
+                }
+                if( !mainWorld.neverUnload ) {
+                    mainWorld.neverUnload = true;
+                    mainWorld.LoadMap();
+                }
+            }
+
+            return true;
+        }
+
+
+        static void LoadWorldListXML() {
+            XDocument doc = XDocument.Load( WorldListFile );
+            XElement root = doc.Root;
+            World firstWorld = null;
+            XAttribute temp = null;
+            string worldName;
+            bool noUnload = false;
+
+            foreach( XElement el in root.Elements( "World" ) ) {
+                if( (temp = el.Attribute( "name" )) == null ) {
+                    Logger.Log( "Server.ParseWorldListXML: World tag with no name skipped.", LogType.Error );
+                    continue;
+                }
+                worldName = temp.Value;
+                if( !Player.IsValidName( worldName ) ) {
+                    Logger.Log( "Server.ParseWorldListXML: Invalid world name skipped: \"" + worldName + "\"", LogType.Error );
+                    continue;
+                }
+
+                noUnload = (el.Attribute( "noUnload" ) != null);
+
+                World world = AddWorld( worldName, null, noUnload );
+
+                if( world == null ) {
+                    Logger.Log( "Server.ParseWorldListXML: Error loading world \"" + worldName + "\"", LogType.Error );
+                } else {
+                    if( firstWorld == null ) firstWorld = world;
+                    Logger.Log( "Server.ParseWorldListXML: Loaded world \"" + worldName + "\"", LogType.Debug );
+
+                    LoadWorldClassRestriction( world, ref world.classAccess, "access", el );
+                    LoadWorldClassRestriction( world, ref world.classBuild, "build", el );
+                }
+            }
+
+            temp = root.Attribute( "main" );
+
+            // note: both of these MAY be null, and ParseWorldList() should catch it
+            if( temp != null ) {
+                mainWorld = FindWorld( temp.Value );
+            } else {
+                mainWorld = firstWorld;
+            }
+        }
+
+
+        static void LoadWorldClassRestriction( World world, ref PlayerClass field, string fieldType, XElement element ) {
+            XAttribute temp;
+            PlayerClass playerClass;
+            if( (temp = element.Attribute( fieldType )) != null ) {
+                if( (playerClass = ClassList.FindClass( temp.Value )) != null ) {
+                    field = playerClass;
+                } else {
+                    Logger.Log( "Server.ParseWorldListXML: Could not parse the specified {0} class for world \"{1}\": \"{2}\". No access limit was set.", LogType.Error,
+                                fieldType,
+                                world.name,
+                                temp.Value );
+                    field = ClassList.lowestClass;
+                }
+            } else {
+                field = ClassList.lowestClass;
+            }
+        }
+
+
+        static void LoadWorldListTXT() {
+            string[] worldList = File.ReadAllLines( "worlds.txt" );
+            bool first = true;
+            foreach( string worldName in worldList ) {
+                World world = AddWorld( worldName, null, first );
+                if( world != null ) {
+                    if( first ) mainWorld = world;
+                    first = false;
+                    Logger.Log( "Server.ParseWorldListTXT: Loaded world \"" + worldName + "\"", LogType.Debug );
+                } else {
+                    Logger.Log( "Server.ParseWorldListTXT: Error loading world \"" + worldName + "\"", LogType.Error );
+                }
+            }
+            File.Delete( "worlds.txt" );
+        }
+
+
+        public static void SaveWorldList() {
+            // Save world list
+            lock( worldListLock ) {
+                XDocument doc = new XDocument();
+                XElement root = new XElement("fCraftWorldList");
+                XElement temp;
+                foreach( World world in worlds.Values ) {
+                    temp = new XElement( "World" );
+                    temp.Add( new XAttribute( "name", world.name ) );
+                    temp.Add( new XAttribute( "access", world.classAccess.name ) );
+                    temp.Add( new XAttribute( "build", world.classBuild.name ) );
+                    if( world.neverUnload ) {
+                        temp.Add( new XAttribute( "nounload", true ) );
+                    }
+                    root.Add( temp );
+                }
+                doc.Add( root );
+                doc.Save( WorldListFile );
+            }
+        }
+
+        #endregion
+
         public static World AddWorld( string name, Map map, bool neverUnload ) {
             lock( worldListLock ) {
                 if( worlds.ContainsKey( name ) ) return null;
@@ -252,21 +372,6 @@ namespace fCraft {
         }
 
 
-        public static void SaveWorldList() {
-            // Save world list
-            using( StreamWriter writer = File.CreateText( WorldListFile ) ) {
-                lock ( worldListLock ) {
-                    writer.WriteLine( defaultWorld.name );
-                    foreach ( string worldName in worlds.Keys ) {
-                        if ( worldName != defaultWorld.name ) {
-                            writer.WriteLine( worldName );
-                        }
-                    }
-                }
-            }
-        }
-
-
         public static World FindWorld( string name ) {
             if( name == null ) return null;
             lock( worldListLock ) {
@@ -282,13 +387,13 @@ namespace fCraft {
         public static bool RemoveWorld( string name ) {
             lock ( worldListLock ) {
                 World worldToDelete = FindWorld( name );
-                if ( worldToDelete == null || worldToDelete == defaultWorld ) {
+                if ( worldToDelete == null || worldToDelete == mainWorld ) {
                     return false;
                 } else {
                     Player[] worldPlayerList = worldToDelete.playerList;
-                    worldToDelete.SendToAll( Color.Sys+"You have been moved to the default map." );
+                    worldToDelete.SendToAll( Color.Sys+"You have been moved to the main world." );
                     foreach( Player player in worldPlayerList ) {
-                        player.session.forcedWorldToJoin = defaultWorld;
+                        player.session.forcedWorldToJoin = mainWorld;
                     }
                     lock( taskListLock ) {
                         tasks.Remove( worldToDelete.updateTaskId );
@@ -323,8 +428,8 @@ namespace fCraft {
                 if ( oldWorld == null ) return false;
 
                 newWorld.name = oldWorld.name;
-                if ( oldWorld == defaultWorld ) {
-                    defaultWorld = newWorld;
+                if ( oldWorld == mainWorld ) {
+                    mainWorld = newWorld;
                 }
 
                 // initialize the player list cache
@@ -406,11 +511,12 @@ namespace fCraft {
             if( listener.Pending() ) {
                 Logger.Log( "Server.ListenerHandler: Incoming connection", LogType.Debug );
                 try {
-                    sessions.Add( new Session( defaultWorld, listener.AcceptTcpClient() ) );
+                    sessions.Add( new Session( listener.AcceptTcpClient() ) );
                 } catch( Exception ex ) {
                     Logger.Log( "ERROR: Could not accept incoming connection: " + ex.Message, LogType.Error );
                 }
             }
+            // this loop does not need to be thread-safe since only mainthread can alter session list
             for( int i = 0; i < sessions.Count; i++ ) {
                 if( sessions[i].canDispose ) {
                     sessions[i].Disconnect();

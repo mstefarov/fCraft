@@ -50,14 +50,18 @@ namespace fCraftUI {
                     StartServer();
                 }
             } else {
-                Logger.Log( "---- Could Not Initialize World ----", LogType.FatalError );
+                Logger.Log( "---- Could Not Initialize Server ----", LogType.FatalError );
             }
         }
 
 
         public void StartServer() {
             Process.GetCurrentProcess().PriorityClass = Config.GetBasePriority();
-            Server.Start();
+            if( Server.Start() ) {
+                console.Enabled = true;
+            }else{
+                Logger.Log( "---- Could Not Start The Server ----", LogType.FatalError );
+            }
         }
 
         void HandleShutDown( object sender, CancelEventArgs e ) {

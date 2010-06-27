@@ -22,16 +22,13 @@ namespace fCraft {
         PacketWriter writer;
         public Queue<Packet> outputQueue, priorityOutputQueue;
         object queueLock, priorityQueueLock;
-        World startingWorld;
         internal World forcedWorldToJoin = null;
 
         int fullPositionUpdateCounter = 0;
         const int fullPositionUpdateInterval = 10;
 
 
-        public Session( World _world, TcpClient _client ) {
-
-            startingWorld = _world;
+        public Session( TcpClient _client ) {
             loginTime = DateTime.Now;
 
             canReceive = true;
@@ -275,7 +272,7 @@ namespace fCraft {
             }
 
             // check if player is banned
-            player = new Player( startingWorld, playerName, this, startingWorld.map.spawn );
+            player = new Player( Server.mainWorld, playerName, this, Server.mainWorld.map.spawn );
             if( player.info.banned ) {
                 player.info.ProcessFailedLogin( player );
                 Logger.Log( "Banned player {0} tried to log in.", LogType.SuspiciousActivity, player.name );
@@ -396,12 +393,20 @@ namespace fCraft {
         }
 
 
-        public void JoinWorld( World newWorld, bool useHandshakePacket ) {
+        public bool JoinWorld( World newWorld, bool useHandshakePacket ) {
+
+            if( newWorld.classAccess.rank > player.info.playerClass.rank ) {
+                return false;
+            }
 
             if( !newWorld.FirePlayerTriedToJoinEvent( player ) ) {
-                return;
+                return false;
             }
+
             isBetweenWorlds = true;
+            if( player.world != null ) {
+                player.world.ReleasePlayer( player );
+            }
             ClearQueues();
 
             client.NoDelay = false;
@@ -440,6 +445,8 @@ namespace fCraft {
                 bytesSent += chunkSize;
             }
 
+            writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( "ServerName" ), "Almost there..." ) );
+
             // Done sending over level copy
             writer.Write( PacketWriter.MakeLevelEnd( player.world.map ) );
 
@@ -462,6 +469,8 @@ namespace fCraft {
 
             // Done.
             GC.Collect();
+
+            return true;
         }
 
 

@@ -121,6 +121,8 @@ namespace fCraft {
                     }
                 }
             }
+
+            GC.Collect();
         }
 
 
@@ -173,8 +175,8 @@ namespace fCraft {
                 World world = Server.FindWorld( worldName );
                 if( world == null ) {
                     player.Message( "World not found: " + worldName );
-                } else if( world == Server.defaultWorld ) {
-                    player.Message( "Deleting the default world is not allowed. Assign a new default first." );
+                } else if( world == Server.mainWorld ) {
+                    player.Message( "Deleting the main world is not allowed. Assign a new main first." );
                 } else{
                     Server.RemoveWorld( worldName );
                     Server.SendToAll( Color.Sys + player.name + " deleted the world \"" + world.name + "\"",player );
@@ -182,6 +184,8 @@ namespace fCraft {
                     player.Message( "You can now delete the map file (" + world.name + ".fcm) manually." );
                 }
             }
+
+            GC.Collect();
         }
 
 
@@ -193,8 +197,11 @@ namespace fCraft {
             }
             World world = Server.FindWorld( worldName );
             if( world != null ) {
-                player.world.ReleasePlayer( player );
-                player.session.JoinWorld( world, true );
+                if( world.classAccess.rank > player.info.playerClass.rank ) {
+                    player.Message( "Cannot join world \"" + world.name + "\": must be " + world.classAccess.name + " or higher." );
+                } else {
+                    player.session.JoinWorld( world, true );
+                }
             } else {
                 player.Message( "No world found with the name \"" + worldName + "\"." );
             }

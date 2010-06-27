@@ -73,6 +73,7 @@
             // 
             this.console.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.console.Enabled = false;
             this.console.Location = new System.Drawing.Point( 12, 447 );
             this.console.Multiline = true;
             this.console.Name = "console";
