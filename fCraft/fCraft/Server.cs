@@ -526,7 +526,7 @@ namespace fCraft {
                     sessions.RemoveAt( i );
                     i--;
                     Logger.Log( "Session disposed. Active sessions left: {0}.", LogType.Debug, sessions.Count );
-                    GC.Collect();
+                    GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
                 }
             }
         }

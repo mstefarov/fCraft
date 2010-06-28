@@ -128,7 +128,7 @@ namespace fCraft {
                         player.world.map.QueueUpdate( player.drawUndoBuffer.Dequeue() );
                     }
                 }
-                GC.Collect();
+                GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
             } else {
                 player.Message( "There is currently nothing to undo." );
             }
@@ -182,7 +182,7 @@ namespace fCraft {
                                   player.name,
                                   blocks,
                                   drawBlock.ToString() );
-            GC.Collect();
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
             player.drawingInProgress = false;
         }
 
@@ -266,7 +266,7 @@ namespace fCraft {
                                   player.name,
                                   blocks,
                                   drawBlock.ToString() );
-            GC.Collect();
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
     }
 }

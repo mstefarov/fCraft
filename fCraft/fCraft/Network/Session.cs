@@ -468,7 +468,7 @@ namespace fCraft {
             Server.FireWorldChangedEvent( player, oldWorld, newWorld );
 
             // Done.
-            GC.Collect();
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
 
             return true;
         }

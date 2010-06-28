@@ -30,10 +30,138 @@ namespace fCraft {
             Commands.AddCommand( "wload", WorldLoad, true );
             Commands.AddCommand( "wremove", WorldRemove, true );
             Commands.AddCommand( "wrename", WorldRename, true );
-            //Commands.AddCommand( "wperm", WorldPermissions, true );
+            Commands.AddCommand( "waccess", WorldAccess, true );
+            Commands.AddCommand( "wmain", WorldMain, true );
+            Commands.AddCommand( "wbuild", WorldBuild, true );
             Commands.AddCommand( "save", Save, true );
 
             //Commands.AddCommand( "landmark", AddLandmark, false);
+        }
+
+
+        internal static void WorldMain( Player player, Command cmd ) {
+            string worldName = cmd.Next();
+            if( worldName == null ) {
+                player.Message( "Usage: " + Color.Help + "/wmain WorldName" );
+                return;
+            }
+            World world = Server.FindWorld( worldName );
+            if( world == null ) {
+                player.Message( "No world \"" + worldName + "\" found." );
+            } else if( world == Server.mainWorld ) {
+                player.Message( "World \"" + world.name + "\" is already set as main." );
+            } else if( player.Can( Permissions.ManageWorlds ) ) {
+                if( world.classAccess != ClassList.lowestClass ) {
+                    world.classAccess = ClassList.lowestClass;
+                    player.Message( "The main world cannot have access restrictions." );
+                    player.Message( "Access restrictions were removed from world \"" + world.name + "\"" );
+                }
+                world.neverUnload = false;
+                world.LoadMap();
+                Server.mainWorld.neverUnload = true;
+                Server.mainWorld = world;
+                Server.SaveWorldList();
+
+                Server.SendToAll( player.name + " set \"" + world.name + "\" to be the main world." );
+                Logger.Log( player.name + " set \"" + world.name + "\" to be the main world.", LogType.UserActivity );
+            } else {
+                player.NoAccessMessage( Permissions.ManageWorlds );
+            }
+        }
+
+        internal static void WorldAccess( Player player, Command cmd ) {
+            string worldName = cmd.Next();
+            string className = cmd.Next();
+
+            if( worldName == null ) {
+                if( player.world != null ) {
+                    if( player.world.classAccess == ClassList.lowestClass ) {
+                        player.Message( "This world (" + player.world.name + ") can be visited by anyone." );
+                    } else {
+                        player.Message( "This world (" + player.world.name + ") can only be visited by " + player.world.classAccess.name + "+" );
+                    }
+                } else {
+                    player.Message( "When calling /waccess from console, you must specify the world name." );
+                }
+                return;
+            }
+
+            World world = Server.FindWorld( worldName );
+            if( world == null ) {
+                player.Message( "No world \"" + worldName + "\" found." );
+            } else if( className == null ) {
+                if( world.classAccess == ClassList.lowestClass ) {
+                    player.Message( "World \"" + world.name + "\" can be visited by anyone." );
+                } else {
+                    player.Message( "World \"" + world.name + "\" can only be visited by " + world.classAccess.name + "+" );
+                }
+            } else if( player.Can( Permissions.ManageWorlds ) ) {
+                PlayerClass playerClass = ClassList.FindClass( className );
+                if( playerClass == null ) {
+                    player.Message( "No class \"" + className + "\" found." );
+                } else if( world == Server.mainWorld ) {
+                    player.Message( "The main world cannot have access restrictions." );
+                } else {
+                    world.classAccess = playerClass;
+                    Server.SaveWorldList();
+                    if( world.classAccess == ClassList.lowestClass ) {
+                        Server.SendToAll( player.name + " made the world \"" + world.name + "\" accessible to anyone." );
+                    } else {
+                        Server.SendToAll( player.name + " made the world \"" + world.name + "\" accessible only to " + world.classAccess.name + "+" );
+                    }
+                    Logger.Log( player.name + " made the world \"" + world.name + "\" accessible to " + world.classAccess.name + "+", LogType.UserActivity );
+                }
+            } else {
+                player.NoAccessMessage( Permissions.ManageWorlds );
+            }
+        }
+
+
+        internal static void WorldBuild( Player player, Command cmd ) {
+            if( !player.Can( Permissions.ManageWorlds ) ) {
+                player.NoAccessMessage( Permissions.ManageWorlds );
+                return;
+            }
+            string worldName = cmd.Next();
+            string className = cmd.Next();
+
+            if( worldName == null ) {
+                if( player.world != null ) {
+                    if( player.world.classBuild == ClassList.lowestClass ) {
+                        player.Message( "This world (" + player.world.name + ") can be modified by anyone." );
+                    } else {
+                        player.Message( "This world (" + player.world.name + ") can only be modified by " + player.world.classBuild.name + "+" );
+                    }
+                } else {
+                    player.Message( "When calling /waccess from console, you must specify the world name." );
+                }
+                return;
+            }
+
+            World world = Server.FindWorld( worldName );
+            if( world == null ) {
+                player.Message( "No world \"" + worldName + "\" found." );
+            } else if( className == null ) {
+                if( world.classBuild == ClassList.lowestClass ) {
+                    player.Message( "World \"" + world.name + "\" can be modified by anyone." );
+                } else {
+                    player.Message( "World \"" + world.name + "\" can be only modified by " + world.classBuild.name + "+" );
+                }
+            } else {
+                PlayerClass playerClass = ClassList.FindClass( className );
+                if( playerClass == null ) {
+                    player.Message( "No class \"" + className + "\" found." );
+                } else{
+                    world.classBuild = playerClass;
+                    Server.SaveWorldList();
+                    if( world.classAccess == ClassList.lowestClass ) {
+                        Server.SendToAll( player.name + " made the world \"" + world.name + "\" modifiable by anyone." );
+                    } else {
+                        Server.SendToAll( player.name + " made the world \"" + world.name + "\" modifiable only by " + world.classAccess.name + "+" );
+                    }
+                    Logger.Log( player.name + " made the world \"" + world.name + "\" modifiable by " + world.classAccess.name + "+", LogType.UserActivity );
+                }
+            }
         }
 
 
@@ -124,7 +252,7 @@ namespace fCraft {
                 }
             }
 
-            GC.Collect();
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
 
@@ -187,7 +315,7 @@ namespace fCraft {
                 }
             }
 
-            GC.Collect();
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
 
