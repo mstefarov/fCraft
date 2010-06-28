@@ -93,8 +93,7 @@ namespace fCraft {
 
         public static void GenerationTask( object task ) {
             ((MapGenerator)task).Generate();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
         void Feedback( string message ) {

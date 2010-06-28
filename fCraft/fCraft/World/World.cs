@@ -69,6 +69,7 @@ namespace fCraft {
 
         public void LoadMap() {
             lock( mapLock ) {
+                if( map != null ) return;
                 try {
                     map = Map.Load( this, GetMapName() );
                 } catch( Exception ex ) {
@@ -99,7 +100,7 @@ namespace fCraft {
                 readyForUnload = false;
                 if( OnUnloaded != null ) OnUnloaded();
             }
-            GC.Collect();
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
 

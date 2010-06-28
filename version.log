@@ -1,5 +1,24 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-06-21
+2010-06-28
+410
+ Implemented per-world access and build permissions.
+ Changed worlds.txt format to worlds.xml. Your old worlds.txt file will be converted automatically.
+ New world-related commands:
+  /wmain changes the main world
+  /waccess and /wbuild allow setting per-world permissions
+  /wremove allows deleting worlds
+  /wrename allows renaming worlds without reloading
+ /wload command is significantly improved (see /help wload for more info). The functionality of the old /load command has been merged with /wload. Now /load is an alias for /join, together with /l, /j, and /goto.
+ Removed SaveAndLoad permission - it became redundant with ManageWorlds. Please check your config to ensure that permissions remain consistent.
+ Added new and previously-missing (/lockall, /unlockall, /where, /me, /rules, /setspawn) commands to /help.
+ Disabled verify-names check for localhost (127.0.0.1) when running in Balanced mode.
+ When player is denied access to some command, server now names the specific permission that's needed.
+ Fixed a potential desync issue when one player rejoins a world, and another joins it simultaneously.
+ Removed /genh command and /compass alias for the /where command.
+ Added a fail-safe exception check when executing console commands. Now the server will stay up even if an exception occurs while executing console command.
+ Improved the way server reacts to fatal errors on startup. Now there is a clear indication that server cannot start.
+ "default map" is now referred to as "main world" for consistency. 
+ Improved garbage collection.
 405
  Added back support for vanilla (server_level.dat) maps.
  Fixed MCSharp importer leaving nonstandard blocks in the map, causing client crashes. Now all MCSharp-specific blocks are converted to normal types.

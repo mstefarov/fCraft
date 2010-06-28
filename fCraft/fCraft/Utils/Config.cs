@@ -242,8 +242,8 @@ namespace fCraft {
 
             XAttribute attr = config.Attribute( "version" );
             int version;
-            if( fromFile && (attr == null || !Int32.TryParse( attr.Value, out version ) || version < ConfigVersion) ) {
-                Log( "Config.Load: Your config.xml was made for an older version of fCraft. " +
+            if( fromFile && (attr == null || !Int32.TryParse( attr.Value, out version ) || version != ConfigVersion) ) {
+                Log( "Config.Load: Your config.xml was made for a different version of fCraft. " +
                     "Some obsolete settings might be ignored, and some recently-added settings will be set to their default values. " +
                     "It is recommended that you run ConfigTool to make sure everything is in order.", LogType.Warning );
             }
