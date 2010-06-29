@@ -30,8 +30,6 @@ namespace fCraft {
         Bring,
         Freeze,
         SetSpawn,
-
-        //SaveAndLoad,       // live backup/rollback
         Lock,
 
         ControlPhysics,

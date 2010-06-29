@@ -147,7 +147,6 @@ namespace fCraft {
 
 
         static Map DoLoad( string fileName ) {
-            FileStream fs = null;
             try {
                 Map map = MapUtility.TryLoading( fileName );
                 if( !map.ValidateBlockTypes( true ) ) {
@@ -165,10 +164,6 @@ namespace fCraft {
                             ex.Message );
                 return null;
 
-            } finally {
-                if( fs != null ) {
-                    fs.Close();
-                }
             }
         }
 

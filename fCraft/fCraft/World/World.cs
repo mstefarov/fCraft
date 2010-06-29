@@ -45,9 +45,6 @@ namespace fCraft {
 
         internal int updateTaskId = -1, saveTaskId = -1, backupTaskId = -1;
 
-        //internal bool loadInProgress, loadSendingInProgress, loadProgressReported;
-        //internal int totalBlockUpdates, completedBlockUpdates; //TODO: streamload
-
 
         public World( string _name ) {
             name = _name;
@@ -142,7 +139,6 @@ namespace fCraft {
                     foreach( Player player in playerList ) {
                         player.session.forcedWorldToJoin = newWorld;
                     }
-                    newWorld.SaveMap( null );
                 }
             }
         }
