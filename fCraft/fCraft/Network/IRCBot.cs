@@ -123,8 +123,8 @@ namespace fCraft {
         private static string COLON_PREFIX;
         private static bool FORWARD_IRC;
         private static bool FORWARD_SERVER;
-        private static string SERVERNAME = Config.GetString("ServerName");
-        private static string MOTD = Config.GetString("MOTD");
+        private static string SERVERNAME = Config.GetString( ConfigKey.ServerName);
+        private static string MOTD = Config.GetString( ConfigKey.MOTD);
         private static string SERVERADDRESS;
 
         // Temporary player to act as inside the server

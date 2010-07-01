@@ -372,7 +372,7 @@ namespace fCraft {
                     player.Message( "You demoted " + target.name + " to " + newClass.color + newClass.name + "." );
                     target.Message( "You have been demoted to " + newClass.color + newClass.name + Color.Sys + " by " + player.name + "!" );
                 }
-                if( Config.GetBool( "ClassPrefixesInList" ) || Config.GetBool( "ClassColorsInChat" ) ) {
+                if( Config.GetBool( ConfigKey.ClassPrefixesInList ) || Config.GetBool( ConfigKey.ClassColorsInChat ) ) {
                     target.world.UpdatePlayer( target );
                 }
             } else {

@@ -78,15 +78,15 @@ namespace fCraft
         {
             try {
                 // Load up server/bot values from config
-                IRCSERVER = Config.GetString("IRCBotNetwork");
-                PORT = Config.GetInt("IRCBotPort");
-                BOTNICK = Config.GetString("IRCBotNick");
-                FORWARD_IRC = Config.GetBool("IRCBotForwardFromIRC");
-                FORWARD_SERVER = Config.GetBool("IRCBotForwardFromServer");
-                QUITMSG = Config.GetString("IRCBotQuitMsg");
+                IRCSERVER = Config.GetString( ConfigKey.IRCBotNetwork);
+                PORT = Config.GetInt( ConfigKey.IRCBotPort);
+                BOTNICK = Config.GetString( ConfigKey.IRCBotNick);
+                FORWARD_IRC = Config.GetBool( ConfigKey.IRCBotForwardFromIRC);
+                FORWARD_SERVER = Config.GetBool( ConfigKey.IRCBotForwardFromServer);
+                QUITMSG = Config.GetString( ConfigKey.IRCBotQuitMsg);
 
                 // Parse channels from the config by comma seperation
-                string[] tmpChans = Config.GetString("IRCBotChannels").Split(',');
+                string[] tmpChans = Config.GetString( ConfigKey.IRCBotChannels).Split(',');
                 for (int i = 0; i < tmpChans.Length; ++i)
                     CHANNELS.Add(tmpChans[i]);
 

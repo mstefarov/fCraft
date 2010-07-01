@@ -52,7 +52,7 @@ namespace fCraft {
             IPBanList.Load();
             Commands.Init();
 
-            if (Config.GetBool("IRCBot") && IRCComm.commStatus() && Config.GetBool("IRCMsgs")) 
+            if (Config.GetBool( ConfigKey.IRCBot) && IRCComm.commStatus() && Config.GetBool( ConfigKey.IRCMsgs)) 
                 Server.OnPlayerConnected += IRCBot.sendPlayerJoinMsg;
 
             if( OnInit != null ) OnInit();
@@ -73,7 +73,7 @@ namespace fCraft {
             // open the port
             bool portFound = false;
             int attempts = 0;
-            port = Config.GetInt( "Port" );
+            port = Config.GetInt( ConfigKey.Port );
 
             do {
                 try {
@@ -131,7 +131,7 @@ namespace fCraft {
 
             Heartbeat.Start();
 
-            if( Config.GetBool( "IRCBot" ) ) IRCBot.Start();
+            if( Config.GetBool( ConfigKey.IRCBot ) ) IRCBot.Start();
 
             // fire OnStart event
             if( OnStart != null ) OnStart();
@@ -354,16 +354,16 @@ namespace fCraft {
                 }
                 worlds.Add( name, newWorld );
 
-                newWorld.updateTaskId = AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ), newWorld );
+                newWorld.updateTaskId = AddTask( UpdateBlocks, Config.GetInt( ConfigKey.TickInterval ), newWorld );
 
-                if( Config.GetInt( "SaveInterval" ) > 0 ) {
-                    int saveInterval = Config.GetInt( "SaveInterval" ) * 1000;
+                if( Config.GetInt( ConfigKey.SaveInterval ) > 0 ) {
+                    int saveInterval = Config.GetInt( ConfigKey.SaveInterval ) * 1000;
                     newWorld.saveTaskId = AddTask( SaveMap, saveInterval, newWorld, saveInterval );
                 }
 
-                if( Config.GetInt( "BackupInterval" ) > 0 ) {
-                    int backupInterval = Config.GetInt( "BackupInterval" ) * 1000 * 60;
-                    newWorld.backupTaskId = AddTask( AutoBackup, backupInterval, newWorld, ( Config.GetBool( "BackupOnStartup" ) ? 0 : backupInterval ) );
+                if( Config.GetInt( ConfigKey.BackupInterval ) > 0 ) {
+                    int backupInterval = Config.GetInt( ConfigKey.BackupInterval ) * 1000 * 60;
+                    newWorld.backupTaskId = AddTask( AutoBackup, backupInterval, newWorld, ( Config.GetBool( ConfigKey.BackupOnStartup ) ? 0 : backupInterval ) );
                 }
 
                 newWorld.UpdatePlayerList();
@@ -453,16 +453,16 @@ namespace fCraft {
                 }
 
                 // adds tasks to the new world
-                newWorld.updateTaskId = AddTask( UpdateBlocks, Config.GetInt( "TickInterval" ), newWorld );
+                newWorld.updateTaskId = AddTask( UpdateBlocks, Config.GetInt( ConfigKey.TickInterval ), newWorld );
 
-                if( Config.GetInt( "SaveInterval" ) > 0) {
-                    int saveInterval = Config.GetInt( "SaveInterval" ) * 1000;
+                if( Config.GetInt( ConfigKey.SaveInterval ) > 0) {
+                    int saveInterval = Config.GetInt( ConfigKey.SaveInterval ) * 1000;
                     newWorld.saveTaskId = AddTask( SaveMap, saveInterval, newWorld, saveInterval );
                 }
 
-                if( Config.GetInt( "BackupInterval" ) > 0) {
-                    int backupInterval = Config.GetInt( "BackupInterval" ) * 1000 * 60;
-                    newWorld.backupTaskId = AddTask( AutoBackup, backupInterval, newWorld, ( Config.GetBool( "BackupOnStartup" ) ? 0 : backupInterval ) );
+                if( Config.GetInt( ConfigKey.BackupInterval ) > 0) {
+                    int backupInterval = Config.GetInt( ConfigKey.BackupInterval ) * 1000 * 60;
+                    newWorld.backupTaskId = AddTask( AutoBackup, backupInterval, newWorld, ( Config.GetBool( ConfigKey.BackupOnStartup ) ? 0 : backupInterval ) );
                 }
                 return true;
             }
@@ -755,7 +755,7 @@ namespace fCraft {
         // Add a newly-logged-in player to the list, and notify existing players.
         public static bool RegisterPlayer( Player player ) {
             lock( playerListLock ) {
-                if( players.Count >= Config.GetInt( "MaxPlayers" ) ) {
+                if( players.Count >= Config.GetInt( ConfigKey.MaxPlayers ) ) {
                     return false;
                 }
                 for( int i = 0; i < 255; i++ ) {

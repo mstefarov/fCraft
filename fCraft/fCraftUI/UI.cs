@@ -30,11 +30,11 @@ namespace fCraftUI {
 
 
             if( Server.Init() ) {
-                Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( "ServerName" );
+                Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
 
                 UpdaterResult update = Updater.CheckForUpdates();
                 if( update.UpdateAvailable ) {
-                    if( Config.GetString( "AutomaticUpdates" ) == "Notify" ) {
+                    if( Config.GetString( ConfigKey.AutomaticUpdates ) == "Notify" ) {
                         Log( String.Format( Environment.NewLine +
                                             "*** A new version of fCraft is available: v{0:0.000}, released {1:0} day(s) ago. ***"+
                                             Environment.NewLine,
@@ -42,7 +42,7 @@ namespace fCraftUI {
                                             DateTime.Now.Subtract( update.ReleaseDate ).TotalDays ), LogType.ConsoleOutput );
                         StartServer();
                     } else {
-                        UpdateWindow updateWindow = new UpdateWindow( update, this, Config.GetString( "AutomaticUpdates" ) == "Auto" );
+                        UpdateWindow updateWindow = new UpdateWindow( update, this, Config.GetString( ConfigKey.AutomaticUpdates ) == "Auto" );
                         updateWindow.StartPosition = FormStartPosition.CenterParent;
                         updateWindow.ShowDialog();
                     }
