@@ -297,10 +297,10 @@ namespace fCraft {
                 string standardMessage = String.Format( "Session.LoginSequence: Could not verify player name for {0} ({1}).",
                                                         player.name, GetIP() );
                 if( GetIP().ToString() == "127.0.0.1" &&
-                    (Config.GetString( "VerifyNames" ) == "Balanced" || Config.GetString( "VerifyNames" ) == "Never") ) {
+                    (Config.GetString( ConfigKey.VerifyNames ) == "Balanced" || Config.GetString( ConfigKey.VerifyNames ) == "Never") ) {
                     Logger.Log( "{0} Player was identified as connecting from localhost and allowed in.", LogType.SuspiciousActivity, standardMessage );
                 }else if( player.info.timesVisited == 1 || player.info.lastIP.ToString() != GetIP().ToString() ) {
-                    switch( Config.GetString( "VerifyNames" ) ) {
+                    switch( Config.GetString( ConfigKey.VerifyNames ) ) {
                         case "Always":
                         case "Balanced":
                             player.info.ProcessFailedLogin( player );
@@ -316,7 +316,7 @@ namespace fCraft {
                             break;
                     }
                 } else {
-                    switch( Config.GetString( "VerifyNames" ) ) {
+                    switch( Config.GetString( ConfigKey.VerifyNames ) ) {
                         case "Always":
                             player.info.ProcessFailedLogin( player );
                             Logger.Log( "{0} IP matched previous records for that name. " +
@@ -329,7 +329,7 @@ namespace fCraft {
                             Logger.Log( "{0} IP matched previous records for that name. Player was allowed in.", LogType.SuspiciousActivity,
                                         standardMessage );
                             player.Message( Color.Red, "Your name could not be verified." );
-                            if( Config.GetBool( "AnnounceUnverifiedNames" ) ) {
+                            if( Config.GetBool( ConfigKey.AnnounceUnverifiedNames ) ) {
                                 Server.SendToAll( Color.Red + "Name of " + player.name + " could not be verified, but IP matches.", player );
                             }
                             break;
@@ -347,14 +347,16 @@ namespace fCraft {
                 return;
             }
 
-            potentialClone = Server.FindPlayer( GetIP() );
-            if( potentialClone != null ) {
-                player.info.ProcessFailedLogin( player );
-                Logger.Log( "Session.LoginSequence: Player {0} tried to log in from same IP ({1}) as {2}.", LogType.SuspiciousActivity,
-                    player.name, GetIP().ToString(), potentialClone.name );
-                potentialClone.Message( "Warning: someone just attempted to log in using your IP." );
-                KickNow( "Only one connection per IP allowed!" );
-                return;
+            if( Config.GetBool( ConfigKey.LimitOneConnectionPerIP ) ) {
+                potentialClone = Server.FindPlayer( GetIP() );
+                if( potentialClone != null ) {
+                    player.info.ProcessFailedLogin( player );
+                    Logger.Log( "Session.LoginSequence: Player {0} tried to log in from same IP ({1}) as {2}.", LogType.SuspiciousActivity,
+                        player.name, GetIP().ToString(), potentialClone.name );
+                    potentialClone.Message( "Warning: someone just attempted to log in using your IP." );
+                    KickNow( "Only one connection per IP allowed!" );
+                    return;
+                }
             }
 
             // Register player for future block updates
@@ -368,15 +370,15 @@ namespace fCraft {
             Server.FirePlayerListChangedEvent();
 
             // Player is now authenticated. Send server info.
-            writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( "ServerName" ), Config.GetString( "MOTD" ) ) );
+            writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), Config.GetString( ConfigKey.MOTD ) ) );
 
             JoinWorld( player.world, false );
 
             // Welcome message
             if( player.info.timesVisited > 1 ) {
-                player.Message( "Welcome back to " + Config.GetString( "ServerName" ) );
+                player.Message( "Welcome back to " + Config.GetString( ConfigKey.ServerName ) );
             } else {
-                player.Message( "Welcome to " + Config.GetString( "ServerName" ) );
+                player.Message( "Welcome to " + Config.GetString( ConfigKey.ServerName ) );
             }
 
             player.Message( String.Format( "Your player class is {0}{1}{2}. Type /help for details.",
@@ -417,7 +419,7 @@ namespace fCraft {
 
             // Start sending over the level copy
             if( useHandshakePacket ) {
-                writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( "ServerName" ), "Loading world \"" + player.world.name + "\"" ) );
+                writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), "Loading world \"" + player.world.name + "\"" ) );
             }
             writer.WriteLevelBegin();
             byte[] buffer = new byte[1024];
@@ -445,7 +447,7 @@ namespace fCraft {
                 bytesSent += chunkSize;
             }
 
-            writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( "ServerName" ), "Almost there..." ) );
+            writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), "Almost there..." ) );
 
             // Done sending over level copy
             writer.Write( PacketWriter.MakeLevelEnd( player.world.map ) );
@@ -461,7 +463,7 @@ namespace fCraft {
             // Send player list
             player.world.SendPlayerList( player );
 
-            if( Config.GetBool( "LowLatencyMode" ) ) {
+            if( Config.GetBool( ConfigKey.LowLatencyMode ) ) {
                 client.NoDelay = true;
             }
 

@@ -6,9 +6,77 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Diagnostics;
-
+using System.Linq;
 
 namespace fCraft {
+
+
+    public enum ConfigKey : byte {
+        ServerName,
+        MOTD,
+        MaxPlayers,
+        DefaultClass,
+        IsPublic,
+        Port,
+        UploadBandwidth,
+        ReservedSlotBehavior,
+
+        ClassColorsInChat,
+        ClassPrefixesInChat,
+        ClassPrefixesInList,
+        SystemMessageColor,
+        HelpColor,
+        SayColor,
+
+        VerifyNames,
+        AnnounceUnverifiedNames,
+
+        LimitOneConnectionPerIP,
+
+        AntispamMessageCount,
+        AntispamInterval,
+        AntispamMuteDuration,
+        AntispamMaxWarnings,
+
+        AntigriefBlockCount,
+        AntigriefInterval,
+
+        SaveOnShutdown,
+        SaveInterval,
+
+        BackupOnStartup,
+        BackupOnJoin,
+        BackupOnlyWhenChanged,
+        BackupInterval,
+        MaxBackups,
+        MaxBackupSize,
+
+        LogMode,
+        MaxLogs,
+
+        IRCBot,
+        IRCMsgs,
+        IRCBotNick,
+        IRCBotQuitMsg,
+        IRCBotNetwork,
+        IRCBotPort,
+        IRCBotChannels,
+        IRCBotForwardFromServer,
+        IRCBotForwardFromIRC,
+
+        PolicyColorCodesInChat,
+        PolicyIllegalCharacters,
+        SendRedundantBlockUpdates,
+        PingInterval,
+        AutomaticUpdates,
+        NoPartialPositionUpdates,
+        ProcessPriority,
+        RunOnStartup,
+        BlockUpdateThrottling,
+        TickInterval,
+        LowLatencyMode
+    }
+
     public static class Config {
 
         internal static int Salt;
@@ -21,7 +89,7 @@ namespace fCraft {
         public const int MaxPlayersSupported = 256;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
-        static Dictionary<string, string> settings = new Dictionary<string, string>();
+        static Dictionary<ConfigKey, string> settings = new Dictionary<ConfigKey, string>();
 
         public static string errors = ""; // for ConfigTool
         public static bool logToString = false;
@@ -39,56 +107,54 @@ namespace fCraft {
         }
 
         public static void LoadDefaultsGeneral() {
-            settings["ServerName"] = "Minecraft custom server (fCraft)";
-            settings["MOTD"] = "Welcome to the server!";
-            settings["MaxPlayers"] = "16";
-            settings["DefaultClass"] = ""; // empty = lowest rank
-            settings["IsPublic"] = "false";
-            settings["Port"] = "25565";
-            settings["UploadBandwidth"] = "100"; 
-            settings["ReservedSlotBehavior"] = "IncreaseMaxPlayers"; // can be "KickIdle", "KickRandom", "IncreaseMaxPlayers"
+            settings[ConfigKey.ServerName] = "Minecraft custom server (fCraft)";
+            settings[ConfigKey.MOTD] = "Welcome to the server!";
+            settings[ConfigKey.MaxPlayers] = "16";
+            settings[ConfigKey.DefaultClass] = ""; // empty = lowest rank
+            settings[ConfigKey.IsPublic] = "false";
+            settings[ConfigKey.Port] = "25565";
+            settings[ConfigKey.UploadBandwidth] = "100";
+            settings[ConfigKey.ReservedSlotBehavior] = "IncreaseMaxPlayers"; // can be "KickIdle", "KickRandom", "IncreaseMaxPlayers"
 
-            settings["ClassColorsInChat"] = "true";
-            settings["ClassPrefixesInChat"] = "false";
-            settings["ClassPrefixesInList"] = "false";
-            settings["SystemMessageColor"] = "yellow";
-            settings["HelpColor"] = "purple";
-            settings["SayColor"] = "yellow";
+            settings[ConfigKey.ClassColorsInChat] = "true";
+            settings[ConfigKey.ClassPrefixesInChat] = "false";
+            settings[ConfigKey.ClassPrefixesInList] = "false";
+            settings[ConfigKey.SystemMessageColor] = "yellow";
+            settings[ConfigKey.HelpColor] = "purple";
+            settings[ConfigKey.SayColor] = "yellow";
         }
 
 
         public static void LoadDefaultsSecurity() {
-            settings["VerifyNames"] = "Balanced"; // can be "Always," "Balanced," or "Never"
-            settings["AnnounceUnverifiedNames"] = "True";
+            settings[ConfigKey.VerifyNames] = "Balanced"; // can be "Always," "Balanced," or "Never"
+            settings[ConfigKey.AnnounceUnverifiedNames] = "True";
+            settings[ConfigKey.LimitOneConnectionPerIP] = "True";
 
-            settings["AntispamMessageCount"] = "4";
-            settings["AntispamInterval"] = "5";
-            settings["AntispamMuteDuration"] = "5";
-            settings["AntispamMaxWarnings"] = "2";
+            settings[ConfigKey.AntispamMessageCount] = "4";
+            settings[ConfigKey.AntispamInterval] = "5";
+            settings[ConfigKey.AntispamMuteDuration] = "5";
+            settings[ConfigKey.AntispamMaxWarnings] = "2";
 
-            settings["AntigriefBlockCount"] = "35";
-            settings["AntigriefInterval"] = "5";
-            settings["AntigriefAction1"] = "Warn";
-            settings["AntigriefAction2"] = "Kick";
-            settings["AntigriefAction3"] = "BanIP";
+            settings[ConfigKey.AntigriefBlockCount] = "35";
+            settings[ConfigKey.AntigriefInterval] = "5";
         }
 
 
         public static void LoadDefaultsSavingAndBackup() {
-            settings["SaveOnShutdown"] = "true";
-            settings["SaveInterval"] = "60"; // 0 = no auto save
+            settings[ConfigKey.SaveOnShutdown] = "true";
+            settings[ConfigKey.SaveInterval] = "60"; // 0 = no auto save
 
-            settings["BackupOnStartup"] = "false";
-            settings["BackupOnJoin"] = "false";
-            settings["BackupOnlyWhenChanged"] = "true";
-            settings["BackupInterval"] = "20"; // 0 = no auto backup
-            settings["MaxBackups"] = "100"; // 0 = no backup file count limit
-            settings["MaxBackupSize"] = "0"; // 0 = no backup file size count limit
+            settings[ConfigKey.BackupOnStartup] = "false";
+            settings[ConfigKey.BackupOnJoin] = "false";
+            settings[ConfigKey.BackupOnlyWhenChanged] = "true";
+            settings[ConfigKey.BackupInterval] = "20"; // 0 = no auto backup
+            settings[ConfigKey.MaxBackups] = "100"; // 0 = no backup file count limit
+            settings[ConfigKey.MaxBackupSize] = "0"; // 0 = no backup file size count limit
         }
 
         public static void LoadDefaultsLogging() {
-            settings["LogMode"] = "OneFile"; // can be: "None", "OneFile", "SplitBySession", "SplitByDay"
-            settings["MaxLogs"] = "0";
+            settings[ConfigKey.LogMode] = "OneFile"; // can be: "None", "OneFile", "SplitBySession", "SplitByDay"
+            settings[ConfigKey.MaxLogs] = "0";
             for( int i = 0; i < Logger.consoleOptions.Length; i++ ) {
                 Logger.consoleOptions[i] = true;
             }
@@ -101,96 +167,30 @@ namespace fCraft {
 
 
         public static void LoadDefaultsIRC() {
-            settings["IRCBot"] = "false"; // Bot is disabled by default
-            settings["IRCMsgs"] = "false"; // Join/quit messages disabled by default
-            settings["IRCBotNick"] = "fBot";
-            settings["IRCBotQuitMsg"] = "I've been told to go offline now.";
-            settings["IRCBotNetwork"] = "irc.esper.net";
-            settings["IRCBotPort"] = "6667";
-            settings["IRCBotChannels"] = "#changeme"; // CASE SENSITIVE!!!!!!!!!!!!!!!!!!!!! This can be multiple using csv
-            settings["IRCBotForwardFromServer"] = "false"; // Disabled by default
-            settings["IRCBotForwardFromIRC"] = "false"; // Disabled by default
+            settings[ConfigKey.IRCBot] = "false"; // Bot is disabled by default
+            settings[ConfigKey.IRCMsgs] = "false"; // Join/quit messages disabled by default
+            settings[ConfigKey.IRCBotNick] = "fBot";
+            settings[ConfigKey.IRCBotQuitMsg] = "I've been told to go offline now.";
+            settings[ConfigKey.IRCBotNetwork] = "irc.esper.net";
+            settings[ConfigKey.IRCBotPort] = "6667";
+            settings[ConfigKey.IRCBotChannels] = "#changeme"; // CASE SENSITIVE!!!!!!!!!!!!!!!!!!!!! This can be multiple using csv
+            settings[ConfigKey.IRCBotForwardFromServer] = "false"; // Disabled by default
+            settings[ConfigKey.IRCBotForwardFromIRC] = "false"; // Disabled by default
         }
 
-
-        enum ConfigKey : byte {
-            ServerName,
-            MOTD,
-            MaxPlayers,
-            DefaultClass,
-            IsPublic,
-            Port,
-            UploadBandwidth,
-            ReservedSlotBehavior,
-
-            ClassColorsInChat,
-            ClassPrefixesInChat,
-            ClassPrefixesInList,
-            SystemMessageColor,
-            HelpColor,
-            SayColor,
-
-            VerifyNames,
-            AnnounceUnverifiedNames,
-            AntispamMessageCount,
-            AntispamInterval,
-            AntispamMuteDuration,
-            AntispamMaxWarnings,
-
-            AntigriefBlockCount,
-            AntigriefInterval,
-            AntigriefAction1,
-            AntigriefAction2,
-            AntigriefAction3,
-
-            SaveOnShutdown,
-            SaveInterval,
-
-            BackupOnStartup,
-            BackupOnJoin,
-            BackupOnlyWhenChanged,
-            BackupInterval,
-            MaxBackups,
-            MaxBackupSize,
-
-            LogMode,
-            MaxLogs,
-
-            IRCBot,
-            IRCMsgs,
-            IRCBotNick,
-            IRCBotQuitMsg,
-            IRCBotNetwork,
-            IRCBotPort,
-            IRCBotChannels,
-            IRCBotForwardFromServer,
-            IRCBotForwardFromIRC,
-
-            PolicyColorCodesInChat,
-            PolicyIllegalCharacters,
-            SendRedundantBlockUpdates,
-            PingInterval,
-            AutomaticUpdates,
-            NoPartialPositionUpdates,
-            ProcessPriority,
-            RunOnStartup,
-            BlockUpdateThrottling,
-            TickInterval,
-            LowLatencyMode
-        }
 
         public static void LoadDefaultsAdvanced() {
-            settings["PolicyColorCodesInChat"] = "ConsoleOnly"; // can be: "Allow", "ConsoleOnly", "Disallow"
-            settings["PolicyIllegalCharacters"] = "Disallow"; // can be: "Allow", "ConsoleOnly", "Disallow"
-            settings["SendRedundantBlockUpdates"] = "false";
-            settings["PingInterval"] = "0"; // 0 = ping disabled
-            settings["AutomaticUpdates"] = "Prompt"; // can be "Disabled", "Notify", "Prompt", and "Auto"
-            settings["NoPartialPositionUpdates"] = "false";
-            settings["ProcessPriority"] = "";
-            settings["RunOnStartup"] = "Never"; // can be "Always", "OnUnexpectedShutdown", or "Never"
-            settings["BlockUpdateThrottling"] = "2500";
-            settings["TickInterval"] = "100";
-            settings["LowLatencyMode"] = "false";
+            settings[ConfigKey.PolicyColorCodesInChat] = "ConsoleOnly"; // can be: "Allow", "ConsoleOnly", "Disallow"
+            settings[ConfigKey.PolicyIllegalCharacters] = "Disallow"; // can be: "Allow", "ConsoleOnly", "Disallow"
+            settings[ConfigKey.SendRedundantBlockUpdates] = "false";
+            settings[ConfigKey.PingInterval] = "0"; // 0 = ping disabled
+            settings[ConfigKey.AutomaticUpdates] = "Prompt"; // can be "Disabled", "Notify", "Prompt", and "Auto"
+            settings[ConfigKey.NoPartialPositionUpdates] = "false";
+            settings[ConfigKey.ProcessPriority] = "";
+            settings[ConfigKey.RunOnStartup] = "Never"; // can be "Always", "OnUnexpectedShutdown", or "Never"
+            settings[ConfigKey.BlockUpdateThrottling] = "2500";
+            settings[ConfigKey.TickInterval] = "100";
+            settings[ConfigKey.LowLatencyMode] = "false";
         }
 
 
@@ -268,7 +268,7 @@ namespace fCraft {
             // parse rank-limit permissions
             foreach( PlayerClass pc in ClassList.classesByIndex ) {
                 if( !ClassList.ParseClassLimits( pc ) ) {
-                    Log( "Could not parse one of the rank-limits for kick, ban, promote, and/or demote permissions for {0}. "+
+                    Log( "Could not parse one of the rank-limits for kick, ban, promote, and/or demote permissions for {0}. " +
                          "Any unrecognized limits were reset to default (own class).", LogType.Warning, pc.name );
                 }
             }
@@ -296,10 +296,11 @@ namespace fCraft {
             }
 
             // Load config
+            string[] keyNames = Enum.GetNames(typeof(ConfigKey));
             foreach( XElement element in config.Elements() ) {
-                if( settings.ContainsKey( element.Name.ToString() ) ) {
+                if( keyNames.Contains<string>( element.Name.ToString() ) ) {
                     // known key
-                    SetValue( element.Name.ToString(), element.Value );
+                    SetValue( (ConfigKey)Enum.Parse(typeof(ConfigKey), element.Name.ToString()), element.Value );
                 } else if( element.Name.ToString() != "ConsoleOptions" &&
                     element.Name.ToString() != "LogFileOptions" &&
                     element.Name.ToString() != "Classes" ) {
@@ -313,14 +314,14 @@ namespace fCraft {
         }
 
 
-        public static bool Save( ) {
+        public static bool Save() {
             XDocument file = new XDocument();
 
             XElement config = new XElement( ConfigRootName );
             config.Add( new XAttribute( "version", ConfigVersion ) );
 
-            foreach( KeyValuePair<string, string> pair in settings ) {
-                config.Add( new XElement( pair.Key, pair.Value ) );
+            foreach( KeyValuePair<ConfigKey, string> pair in settings ) {
+                config.Add( new XElement( pair.Key.ToString(), pair.Value ) );
             }
 
             XElement consoleOptions = new XElement( "ConsoleOptions" );
@@ -351,10 +352,10 @@ namespace fCraft {
                 if( playerClass.idleKickTimer > 0 ) classTag.Add( new XAttribute( "idleKickAfter", playerClass.idleKickTimer ) );
                 if( playerClass.reservedSlot ) classTag.Add( new XAttribute( "reserveSlot", playerClass.reservedSlot ) );
                 XElement temp;
-                for( int i = 0; i < Enum.GetValues(typeof(Permissions)).Length; i++ ) {
+                for( int i = 0; i < Enum.GetValues( typeof( Permissions ) ).Length; i++ ) {
                     if( playerClass.permissions[i] ) {
                         temp = new XElement( ((Permissions)i).ToString() );
-                        if( i == (int)Permissions.Ban && playerClass.maxBan!=null ) {
+                        if( i == (int)Permissions.Ban && playerClass.maxBan != null ) {
                             temp.Add( new XAttribute( "max", playerClass.maxBan.name ) );
                         } else if( i == (int)Permissions.Kick && playerClass.maxKick != null ) {
                             temp.Add( new XAttribute( "max", playerClass.maxKick.name ) );
@@ -396,43 +397,43 @@ namespace fCraft {
 
         internal static void ApplyConfig() {
             // TODO: logging settings
-            //Logger.Threshold = (LogLevel)Enum.Parse( typeof( LogLevel ), settings["LogThreshold"] );
+            //Logger.Threshold = (LogLevel)Enum.Parse( typeof( LogLevel ), settings[ConfigKey.LogThreshold"] );
 
             // chat colors
-            Color.Sys = Color.Parse( settings["SystemMessageColor"] );
-            Color.Say = Color.Parse( settings["SayColor"] );
-            Color.Help = Color.Parse( settings["HelpColor"] );
+            Color.Sys = Color.Parse( settings[ConfigKey.SystemMessageColor] );
+            Color.Say = Color.Parse( settings[ConfigKey.SayColor] );
+            Color.Help = Color.Parse( settings[ConfigKey.HelpColor] );
 
             // default class
-            if( ClassList.ParseClass( settings["DefaultClass"] ) != null ) {
-                ClassList.defaultClass = ClassList.ParseClass( settings["DefaultClass"] );
+            if( ClassList.ParseClass( settings[ConfigKey.DefaultClass] ) != null ) {
+                ClassList.defaultClass = ClassList.ParseClass( settings[ConfigKey.DefaultClass] );
             } else {
                 ClassList.defaultClass = ClassList.lowestClass;
                 Log( "Config.ParseConfig: No default player class defined; assuming that the lowest rank ({0}) is the default.",
                             LogType.Warning, ClassList.defaultClass.name );
             }
 
-            Player.spamChatCount = GetInt( "AntispamMessageCount" );
-            Player.spamChatTimer = GetInt( "AntispamInterval" );
-            Player.spamBlockCount = GetInt( "AntigriefBlockCount" );
-            Player.spamBlockTimer = GetInt( "AntigriefInterval" );
-            Player.muteDuration = TimeSpan.FromSeconds( GetInt( "AntispamMuteDuration" ) );
+            Player.spamChatCount = GetInt( ConfigKey.AntispamMessageCount );
+            Player.spamChatTimer = GetInt( ConfigKey.AntispamInterval );
+            Player.spamBlockCount = GetInt( ConfigKey.AntigriefBlockCount );
+            Player.spamBlockTimer = GetInt( ConfigKey.AntigriefInterval );
+            Player.muteDuration = TimeSpan.FromSeconds( GetInt( ConfigKey.AntispamMuteDuration ) );
 
-            Server.maxUploadSpeed = GetInt("UploadBandwidth");
-            Server.packetsPerSecond = GetInt("BlockUpdateThrottling" );
-            Server.ticksPerSecond = 1000 / (float)GetInt( "TickInterval" );
+            Server.maxUploadSpeed = GetInt( ConfigKey.UploadBandwidth );
+            Server.packetsPerSecond = GetInt( ConfigKey.BlockUpdateThrottling );
+            Server.ticksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
         }
 
 
-        public static bool SetValue( string key, string value ) {
+        public static bool SetValue( ConfigKey key, string value ) {
             switch( key ) {
-                case "ServerName":
+                case ConfigKey.ServerName:
                     return ValidateString( key, value, 1, 64 );
-                case "MOTD":
+                case ConfigKey.MOTD:
                     return ValidateString( key, value, 0, 64 );
-                case "MaxPlayers":
+                case ConfigKey.MaxPlayers:
                     return ValidateInt( key, value, 1, MaxPlayersSupported );
-                case "DefaultClass":
+                case ConfigKey.DefaultClass:
                     if( value != "" ) {
                         if( ClassList.ParseClass( value ) != null ) {
                             settings[key] = ClassList.ParseClass( value ).name;
@@ -445,85 +446,82 @@ namespace fCraft {
                         settings[key] = "";
                         return true;
                     }
-                case "Port":
-                case "IRCBotPort":
+                case ConfigKey.Port:
+                case ConfigKey.IRCBotPort:
                     return ValidateInt( key, value, 1, 65535 );
-                case "UploadBandwidth":
+                case ConfigKey.UploadBandwidth:
                     return ValidateInt( key, value, 1, 10000 );
-                case "ReservedSlotBehavior":
+                case ConfigKey.ReservedSlotBehavior:
                     return ValidateEnum( key, value, "KickIdle", "KickRandom", "IncreaseMaxPlayers" );
 
-                case "IRCBotNick":
+                case ConfigKey.IRCBotNick:
                     return ValidateString( key, value, 1, 32 );
                 //case "IRCBotNetwork":
                 //case "IRCBotChannels": // don't bother validating network and channel list
 
-                case "IsPublic":
-                case "ClassColorsInChat":// TODO: colors in player names
-                case "ClassPrefixesInChat":
-                case "ClassPrefixesInList":
-                case "SaveOnShutdown":
-                case "BackupOnStartup":
-                case "BackupOnJoin":
-                case "BackupOnlyWhenChanged":
-                case "SendRedundantBlockUpdates":
-                case "NoPartialPositionUpdates":
-                case "IRCBot":
-                case "IRCBotForwardAll":
+                case ConfigKey.IsPublic:
+                case ConfigKey.ClassColorsInChat:
+                case ConfigKey.ClassPrefixesInChat:
+                case ConfigKey.ClassPrefixesInList:
+                case ConfigKey.SaveOnShutdown:
+                case ConfigKey.BackupOnStartup:
+                case ConfigKey.BackupOnJoin:
+                case ConfigKey.BackupOnlyWhenChanged:
+                case ConfigKey.SendRedundantBlockUpdates:
+                case ConfigKey.NoPartialPositionUpdates:
+                case ConfigKey.IRCBot:
+                case ConfigKey.IRCBotForwardFromServer:
+                case ConfigKey.IRCBotForwardFromIRC:
                     return ValidateBool( key, value );
 
-                case "SystemMessageColor":
-                case "HelpColor":
-                case "SayColor":
+                case ConfigKey.SystemMessageColor:
+                case ConfigKey.HelpColor:
+                case ConfigKey.SayColor:
                     return ValidateColor( key, value );
 
 
-                case "VerifyNames":
+                case ConfigKey.VerifyNames:
                     return ValidateEnum( key, value, "Always", "Balanced", "Never" );
-                case "AntispamMessageCount":
+                case ConfigKey.AntispamMessageCount:
                     return ValidateInt( key, value, 2, 50 );
-                case "AntispamInterval":
+                case ConfigKey.AntispamInterval:
                     return ValidateInt( key, value, 0, 60 );
-                case "AntigriefBlockCount":
+                case ConfigKey.AntigriefBlockCount:
                     return ValidateInt( key, value, 2, 500 );
-                case "AntigriefInterval":
+                case ConfigKey.AntigriefInterval:
                     return ValidateInt( key, value, 0, 60 );
-                case "AntispamMuteDuration":
+                case ConfigKey.AntispamMuteDuration:
                     return ValidateInt( key, value, 0, 3600 );
-                case "AntispamMaxWarnings":
+                case ConfigKey.AntispamMaxWarnings:
                     return ValidateInt( key, value, 0, 50 );
-                case "SpamBlockAction1":
-                case "SpamBlockAction2":
-                case "SpamBlockAction3":
-                    return ValidateEnum( key, value, "Warn", "Kick", "Demote", "Ban", "BanIP", "BanAll" );
 
 
-                case "SaveInterval":
+                case ConfigKey.SaveInterval:
                     return ValidateInt( key, value, 1, 100000 );
-                case "BackupInterval":
+                case ConfigKey.BackupInterval:
                     return ValidateInt( key, value, 0, 100000 );
-                case "MaxBackups":
+                case ConfigKey.MaxBackups:
                     return ValidateInt( key, value, 0, 100000 );
-                case "MaxBackupSize":
+                case ConfigKey.MaxBackupSize:
                     return ValidateInt( key, value, 0, 1000000 );
 
-                case "LogMode":
+                case ConfigKey.LogMode:
                     return ValidateEnum( key, value, "None", "OneFile", "SplitBySession", "SplitByDay" );
-                case "MaxLogs":
+                case ConfigKey.MaxLogs:
                     return ValidateInt( key, value, 0, 100000 );
 
-                case "PolicyColorCodesInChat":
-                case "PolicyIllegalCharacters":
+                case ConfigKey.PolicyColorCodesInChat:
+                case ConfigKey.PolicyIllegalCharacters:
                     return ValidateEnum( key, value, "Allow", "ConsoleOnly", "Disallow" );
-                case "ProcessPriority":
+                case ConfigKey.ProcessPriority:
                     return ValidateEnum( key, value, "", "High", "AboveNormal", "Normal", "BelowNormal", "Low" );
-                case "RunOnStartup":
+                case ConfigKey.RunOnStartup:
                     return ValidateEnum( key, value, "Always", "OnUnexpectedShutdown", "Never" );
-                case "AutomaticUpdates":
+                case ConfigKey.AutomaticUpdates:
                     return ValidateEnum( key, value, "Disabled", "Notify", "Prompt", "Auto" );
-                case "BlockUpdateThrottling":
+                case ConfigKey.BlockUpdateThrottling:
                     return ValidateInt( key, value, 10, 100000 );
-                case "TickInterval":
+                case ConfigKey.TickInterval:
                     return ValidateInt( key, value, 20, 1000 );
                 default:
                     settings[key] = value;
@@ -532,7 +530,7 @@ namespace fCraft {
         }
 
 
-        static bool  ValidateInt( string key, string value, int minRange, int maxRange ) {
+        static bool ValidateInt( ConfigKey key, string value, int minRange, int maxRange ) {
             int temp;
             if( Int32.TryParse( value, out temp ) ) {
                 if( temp >= minRange && temp <= maxRange ) {
@@ -549,7 +547,7 @@ namespace fCraft {
             }
         }
 
-        static bool  ValidateBool( string key, string value ) {
+        static bool ValidateBool( ConfigKey key, string value ) {
             bool temp;
             if( Boolean.TryParse( value, out temp ) ) {
                 settings[key] = temp.ToString();
@@ -561,7 +559,7 @@ namespace fCraft {
             }
         }
 
-        static bool ValidateColor( string key, string value ) {
+        static bool ValidateColor( ConfigKey key, string value ) {
             if( Color.Parse( value ) != null ) {
                 settings[key] = value;
                 return true;
@@ -572,12 +570,12 @@ namespace fCraft {
             }
         }
 
-        static bool ValidateString( string key, string value, int minLength, int maxLength ) {
-            if( key.Length < minLength ) {
+        static bool ValidateString( ConfigKey key, string value, int minLength, int maxLength ) {
+            if( value.Length < minLength ) {
                 Log( "Config.SetValue: Specified value for {0} is too short (expected length: {1}...{2}). Using default ({3}).", LogType.Warning,
                     key, minLength, maxLength, settings[key] );
                 return false;
-            } else if( key.Length > maxLength ) {
+            } else if( value.Length > maxLength ) {
                 settings[key] = value.Substring( 0, maxLength );
                 Log( "Config.SetValue: Specified value for {0} is too long (expected length: {1}...{2}). The value has been truncated to \"{3}\".", LogType.Warning,
                     key, minLength, maxLength, settings[key] );
@@ -588,7 +586,7 @@ namespace fCraft {
             }
         }
 
-        static bool ValidateEnum( string key, string value, params string[] options ) {
+        static bool ValidateEnum( ConfigKey key, string value, params string[] options ) {
             for( int i = 0; i < options.Length; i++ ) {
                 if( value.ToLower() == options[i].ToLower() ) {
                     settings[key] = options[i];
@@ -602,15 +600,15 @@ namespace fCraft {
         }
 
 
-        public static string GetString( string key ) {
+        public static string GetString( ConfigKey key ) {
             return settings[key];
         }
 
-        public static int GetInt( string key ) {
+        public static int GetInt( ConfigKey key ) {
             return Int32.Parse( settings[key] );
         }
 
-        public static bool GetBool( string key ) {
+        public static bool GetBool( ConfigKey key ) {
             return Boolean.Parse( settings[key] );
         }
 
@@ -653,7 +651,7 @@ namespace fCraft {
             regular.Add( new XAttribute( "color", "white" ) );
             regular.Add( new XAttribute( "prefix", "" ) );
             regular.Add( new XAttribute( "spamKickAt", 0 ) );
-            regular.Add( new XAttribute( "spamBanAt", 0) );
+            regular.Add( new XAttribute( "spamBanAt", 0 ) );
             regular.Add( new XAttribute( "idleKickAfter", 20 ) );
 
             regular.Add( new XElement( "Chat" ) );
@@ -810,7 +808,7 @@ namespace fCraft {
                 return true;
             }
 
-            
+
             if( (attr = el.Attribute( "rank" )) == null ) {
                 Log( "Config.DefineClass: No rank specified for {0}. Class definition was ignored.", LogType.Warning, playerClass.name );
                 return false;
@@ -875,9 +873,9 @@ namespace fCraft {
 
             // read permissions
             XElement temp;
-            for( int i = 0; i < Enum.GetValues(typeof(Permissions)).Length; i++ ) {
+            for( int i = 0; i < Enum.GetValues( typeof( Permissions ) ).Length; i++ ) {
                 string permission = ((Permissions)i).ToString();
-                if( (temp=el.Element( permission )) != null ) {
+                if( (temp = el.Element( permission )) != null ) {
                     playerClass.permissions[i] = true;
                     if( i == (int)Permissions.Promote ) {
                         if( (attr = temp.Attribute( "max" )) != null ) {
@@ -922,7 +920,7 @@ namespace fCraft {
 
 
         public static ProcessPriorityClass GetBasePriority() {
-            switch( GetString( "ProcessPriority" ) ) {
+            switch( GetString( ConfigKey.ProcessPriority ) ) {
                 case "High": return System.Diagnostics.ProcessPriorityClass.High;
                 case "AboveNormal": return System.Diagnostics.ProcessPriorityClass.AboveNormal;
                 case "BelowNormal": return System.Diagnostics.ProcessPriorityClass.BelowNormal;

@@ -238,7 +238,7 @@ namespace fCraft {
                 DateTime oldestTime = spamChatLog.Dequeue();
                 if( DateTime.Now.Subtract( oldestTime ).TotalSeconds < spamChatTimer ) {
                     muteWarnings++;
-                    if( muteWarnings > Config.GetInt( "AntispamMaxWarnings" ) ) {
+                    if( muteWarnings > Config.GetInt( ConfigKey.AntispamMaxWarnings ) ) {
                         session.KickNow( "You were kicked for repeated spamming." );
                         Server.SendToAll( Color.Red + name + " was kicked for suspected spamming." );
                     } else {
@@ -278,10 +278,10 @@ namespace fCraft {
                     if( CheckChatSpam() ) return;
                     info.linesWritten++;
                     string displayedName = nick;
-                    if( Config.GetBool( "ClassPrefixesInChat" ) ) {
+                    if( Config.GetBool( ConfigKey.ClassPrefixesInChat ) ) {
                         displayedName = info.playerClass.prefix + displayedName;
                     }
-                    if( Config.GetBool( "ClassColorsInChat" ) && info.playerClass.color != "" && info.playerClass.color != Color.White ) {
+                    if( Config.GetBool( ConfigKey.ClassColorsInChat ) && info.playerClass.color != "" && info.playerClass.color != Color.White ) {
                         displayedName = info.playerClass.color + displayedName + Color.White;
                     }
                     Server.SendToAll( displayedName + ": " + message, null );
@@ -391,10 +391,10 @@ namespace fCraft {
         // gets name with all the optional fluff (color/prefix)
         public string GetListName() {
             string displayedName = nick;
-            if( Config.GetBool( "ClassPrefixesInList" ) ) {
+            if( Config.GetBool( ConfigKey.ClassPrefixesInList ) ) {
                 displayedName = info.playerClass.prefix + displayedName;
             }
-            if( Config.GetBool( "ClassColorsInChat" ) && info.playerClass.color != "" && info.playerClass.color != Color.White ) {
+            if( Config.GetBool( ConfigKey.ClassColorsInChat ) && info.playerClass.color != "" && info.playerClass.color != Color.White ) {
                 displayedName = info.playerClass.color + displayedName;
             }
             return displayedName;

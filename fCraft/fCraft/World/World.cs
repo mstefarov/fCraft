@@ -55,7 +55,7 @@ namespace fCraft {
         // Prepare for shutdown
         public void Shutdown() {
             lock ( mapLock ) {
-                if ( Config.GetBool( "SaveOnShutdown" ) && map != null ) {
+                if ( Config.GetBool( ConfigKey.SaveOnShutdown ) && map != null ) {
                     SaveMap( null );
                 }
             }
@@ -155,7 +155,7 @@ namespace fCraft {
                         LoadMap();
                     }
 
-                    if( Config.GetBool( "BackupOnJoin" ) ) {
+                    if( Config.GetBool( ConfigKey.BackupOnJoin ) ) {
                         map.SaveBackup( GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-dd HH-mm}_{2}.fcm", name, DateTime.Now, player.name ) );
                     }
                 }

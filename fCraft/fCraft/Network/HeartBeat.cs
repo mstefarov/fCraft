@@ -19,9 +19,9 @@ namespace fCraft {
             thread.IsBackground = true;
 
             staticData = String.Format( "name={0}&max={1}&public={2}&port={3}&salt={4}&version={5}",
-                                        Server.UrlEncode( Config.GetString( "ServerName" ) ),
-                                        Config.GetInt( "MaxPlayers" ),
-                                        Config.GetBool( "IsPublic" ),
+                                        Server.UrlEncode( Config.GetString( ConfigKey.ServerName ) ),
+                                        Config.GetInt( ConfigKey.MaxPlayers ),
+                                        Config.GetBool( ConfigKey.IsPublic ),
                                         Server.port,
                                         Config.Salt,
                                         Config.ProtocolVersion );

@@ -545,7 +545,7 @@ namespace fCraft {
 
         #region Backup
         public void SaveBackup( string sourceName, string targetName ) {
-            if( changesSinceBackup == 0 && Config.GetBool( "BackupOnlyWhenChanged" ) ) return;
+            if( changesSinceBackup == 0 && Config.GetBool( ConfigKey.BackupOnlyWhenChanged ) ) return;
             if( !Directory.Exists( "backups" ) ) {
                 Directory.CreateDirectory( "backups" );
             }
@@ -559,8 +559,8 @@ namespace fCraft {
                     files.Enqueue( info[i].Name );
                 }
             }
-            if( Config.GetInt( "MaxBackups" ) > 0 ) {
-                while( files.Count > Config.GetInt( "MaxBackups" ) ) {
+            if( Config.GetInt( ConfigKey.MaxBackups ) > 0 ) {
+                while( files.Count > Config.GetInt( ConfigKey.MaxBackups ) ) {
                     File.Delete( "backups/" + files.Dequeue() );
                 }
             }

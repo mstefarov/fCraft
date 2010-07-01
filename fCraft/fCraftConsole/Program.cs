@@ -45,7 +45,7 @@ namespace fCraftConsole {
                 Process.GetCurrentProcess().PriorityClass = Config.GetBasePriority();
 
                 if( Server.Start() ) {
-                    Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( "ServerName" );
+                    Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
                     Console.WriteLine( "** Running fCraft version " + Updater.GetVersionString() + ". **" );
                                        
                     string input = "";

@@ -85,17 +85,11 @@
             this.lMaxPlayers = new System.Windows.Forms.Label();
             this.tabSecurity = new System.Windows.Forms.TabPage();
             this.gAntigrief = new System.Windows.Forms.GroupBox();
-            this.cSpamAction3 = new System.Windows.Forms.ComboBox();
             this.lSpamBlockRate = new System.Windows.Forms.Label();
-            this.lSpamAction3 = new System.Windows.Forms.Label();
             this.nSpamBlockCount = new System.Windows.Forms.NumericUpDown();
-            this.cSpamAction2 = new System.Windows.Forms.ComboBox();
             this.lSpamBlocks = new System.Windows.Forms.Label();
-            this.lSpamAction2 = new System.Windows.Forms.Label();
             this.nSpamBlockTimer = new System.Windows.Forms.NumericUpDown();
-            this.cSpamAction1 = new System.Windows.Forms.ComboBox();
             this.lSpamBlockSeconds = new System.Windows.Forms.Label();
-            this.lSpamAction1 = new System.Windows.Forms.Label();
             this.gSpamChat = new System.Windows.Forms.GroupBox();
             this.lSpamChatWarnings = new System.Windows.Forms.Label();
             this.nSpamChatWarnings = new System.Windows.Forms.NumericUpDown();
@@ -117,6 +111,7 @@
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.gVerify = new System.Windows.Forms.GroupBox();
+            this.xLimitOneConnectionPerIP = new System.Windows.Forms.CheckBox();
             this.xAnnounceUnverified = new System.Windows.Forms.CheckBox();
             this.lVerifyNames = new System.Windows.Forms.Label();
             this.cVerifyNames = new System.Windows.Forms.ComboBox();
@@ -190,12 +185,12 @@
             this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
             this.tabIRC = new System.Windows.Forms.TabPage();
             this.gIRCOptions = new System.Windows.Forms.GroupBox();
-            this.lIRCBotQuitMsg = new System.Windows.Forms.Label();
             this.xIRCBotForwardFromIRC = new System.Windows.Forms.CheckBox();
-            this.tIRCBotQuitMsg = new System.Windows.Forms.TextBox();
             this.xIRCMsgs = new System.Windows.Forms.CheckBox();
             this.xIRCBotForwardFromServer = new System.Windows.Forms.CheckBox();
             this.gIRCNetwork = new System.Windows.Forms.GroupBox();
+            this.lIRCBotQuitMsg = new System.Windows.Forms.Label();
+            this.tIRCBotQuitMsg = new System.Windows.Forms.TextBox();
             this.lIRCBotChannels2 = new System.Windows.Forms.Label();
             this.lIRCBotChannels3 = new System.Windows.Forms.Label();
             this.tIRCBotChannels = new System.Windows.Forms.TextBox();
@@ -237,6 +232,7 @@
             this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gAppearence.SuspendLayout();
@@ -304,6 +300,7 @@
             // 
             // tabGeneral
             // 
+            this.tabGeneral.Controls.Add( this.label1 );
             this.tabGeneral.Controls.Add( this.gAppearence );
             this.tabGeneral.Controls.Add( this.gBasic );
             this.tabGeneral.Location = new System.Drawing.Point( 4, 24 );
@@ -693,40 +690,17 @@
             // 
             // gAntigrief
             // 
-            this.gAntigrief.Controls.Add( this.cSpamAction3 );
             this.gAntigrief.Controls.Add( this.lSpamBlockRate );
-            this.gAntigrief.Controls.Add( this.lSpamAction3 );
             this.gAntigrief.Controls.Add( this.nSpamBlockCount );
-            this.gAntigrief.Controls.Add( this.cSpamAction2 );
             this.gAntigrief.Controls.Add( this.lSpamBlocks );
-            this.gAntigrief.Controls.Add( this.lSpamAction2 );
             this.gAntigrief.Controls.Add( this.nSpamBlockTimer );
-            this.gAntigrief.Controls.Add( this.cSpamAction1 );
             this.gAntigrief.Controls.Add( this.lSpamBlockSeconds );
-            this.gAntigrief.Controls.Add( this.lSpamAction1 );
-            this.gAntigrief.Location = new System.Drawing.Point( 8, 298 );
+            this.gAntigrief.Location = new System.Drawing.Point( 8, 321 );
             this.gAntigrief.Name = "gAntigrief";
-            this.gAntigrief.Size = new System.Drawing.Size( 635, 97 );
+            this.gAntigrief.Size = new System.Drawing.Size( 635, 63 );
             this.gAntigrief.TabIndex = 21;
             this.gAntigrief.TabStop = false;
             this.gAntigrief.Text = "Grief Bot / Autoclicker Prevension";
-            // 
-            // cSpamAction3
-            // 
-            this.cSpamAction3.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cSpamAction3.Enabled = false;
-            this.cSpamAction3.FormattingEnabled = true;
-            this.cSpamAction3.Items.AddRange( new object[] {
-            "Warn",
-            "Kick",
-            "Demote",
-            "Ban",
-            "BanIP",
-            "BanAll"} );
-            this.cSpamAction3.Location = new System.Drawing.Point( 548, 66 );
-            this.cSpamAction3.Name = "cSpamAction3";
-            this.cSpamAction3.Size = new System.Drawing.Size( 81, 23 );
-            this.cSpamAction3.TabIndex = 26;
             // 
             // lSpamBlockRate
             // 
@@ -736,16 +710,6 @@
             this.lSpamBlockRate.Size = new System.Drawing.Size( 131, 15 );
             this.lSpamBlockRate.TabIndex = 5;
             this.lSpamBlockRate.Text = "Limit build / delete rate";
-            // 
-            // lSpamAction3
-            // 
-            this.lSpamAction3.AutoSize = true;
-            this.lSpamAction3.Enabled = false;
-            this.lSpamAction3.Location = new System.Drawing.Point( 457, 69 );
-            this.lSpamAction3.Name = "lSpamAction3";
-            this.lSpamAction3.Size = new System.Drawing.Size( 85, 15 );
-            this.lSpamAction3.TabIndex = 25;
-            this.lSpamAction3.Text = "Third offense+";
             // 
             // nSpamBlockCount
             // 
@@ -769,23 +733,6 @@
             0,
             0} );
             // 
-            // cSpamAction2
-            // 
-            this.cSpamAction2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cSpamAction2.Enabled = false;
-            this.cSpamAction2.FormattingEnabled = true;
-            this.cSpamAction2.Items.AddRange( new object[] {
-            "Warn",
-            "Kick",
-            "Demote",
-            "Ban",
-            "BanIP",
-            "BanAll"} );
-            this.cSpamAction2.Location = new System.Drawing.Point( 353, 66 );
-            this.cSpamAction2.Name = "cSpamAction2";
-            this.cSpamAction2.Size = new System.Drawing.Size( 81, 23 );
-            this.cSpamAction2.TabIndex = 24;
-            // 
             // lSpamBlocks
             // 
             this.lSpamBlocks.AutoSize = true;
@@ -794,16 +741,6 @@
             this.lSpamBlocks.Size = new System.Drawing.Size( 55, 15 );
             this.lSpamBlocks.TabIndex = 7;
             this.lSpamBlocks.Text = "blocks in";
-            // 
-            // lSpamAction2
-            // 
-            this.lSpamAction2.AutoSize = true;
-            this.lSpamAction2.Enabled = false;
-            this.lSpamAction2.Location = new System.Drawing.Point( 249, 69 );
-            this.lSpamAction2.Name = "lSpamAction2";
-            this.lSpamAction2.Size = new System.Drawing.Size( 98, 15 );
-            this.lSpamAction2.TabIndex = 23;
-            this.lSpamAction2.Text = "Second offsense";
             // 
             // nSpamBlockTimer
             // 
@@ -827,23 +764,6 @@
             0,
             0} );
             // 
-            // cSpamAction1
-            // 
-            this.cSpamAction1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cSpamAction1.Enabled = false;
-            this.cSpamAction1.FormattingEnabled = true;
-            this.cSpamAction1.Items.AddRange( new object[] {
-            "Warn",
-            "Kick",
-            "Demote",
-            "Ban",
-            "BanIP",
-            "BanAll"} );
-            this.cSpamAction1.Location = new System.Drawing.Point( 143, 66 );
-            this.cSpamAction1.Name = "cSpamAction1";
-            this.cSpamAction1.Size = new System.Drawing.Size( 81, 23 );
-            this.cSpamAction1.TabIndex = 22;
-            // 
             // lSpamBlockSeconds
             // 
             this.lSpamBlockSeconds.AutoSize = true;
@@ -852,16 +772,6 @@
             this.lSpamBlockSeconds.Size = new System.Drawing.Size( 53, 15 );
             this.lSpamBlockSeconds.TabIndex = 9;
             this.lSpamBlockSeconds.Text = "seconds";
-            // 
-            // lSpamAction1
-            // 
-            this.lSpamAction1.AutoSize = true;
-            this.lSpamAction1.Enabled = false;
-            this.lSpamAction1.Location = new System.Drawing.Point( 15, 69 );
-            this.lSpamAction1.Name = "lSpamAction1";
-            this.lSpamAction1.Size = new System.Drawing.Size( 122, 15 );
-            this.lSpamAction1.TabIndex = 21;
-            this.lSpamAction1.Text = "Action on first offense";
             // 
             // gSpamChat
             // 
@@ -876,7 +786,7 @@
             this.gSpamChat.Controls.Add( this.lSpamChatMessages );
             this.gSpamChat.Controls.Add( this.nSpamChatCount );
             this.gSpamChat.Controls.Add( this.lSpamChat );
-            this.gSpamChat.Location = new System.Drawing.Point( 8, 198 );
+            this.gSpamChat.Location = new System.Drawing.Point( 8, 221 );
             this.gSpamChat.Name = "gSpamChat";
             this.gSpamChat.Size = new System.Drawing.Size( 635, 94 );
             this.gSpamChat.TabIndex = 20;
@@ -1016,12 +926,12 @@
             this.gHackingDetection.Controls.Add( this.checkBox2 );
             this.gHackingDetection.Controls.Add( this.checkBox1 );
             this.gHackingDetection.Enabled = false;
-            this.gHackingDetection.Location = new System.Drawing.Point( 8, 75 );
+            this.gHackingDetection.Location = new System.Drawing.Point( 8, 98 );
             this.gHackingDetection.Name = "gHackingDetection";
             this.gHackingDetection.Size = new System.Drawing.Size( 635, 117 );
             this.gHackingDetection.TabIndex = 19;
             this.gHackingDetection.TabStop = false;
-            this.gHackingDetection.Text = "Hacking Detection (Server-wide)";
+            this.gHackingDetection.Text = "Hacking Detection";
             // 
             // label11
             // 
@@ -1090,15 +1000,26 @@
             // 
             // gVerify
             // 
+            this.gVerify.Controls.Add( this.xLimitOneConnectionPerIP );
             this.gVerify.Controls.Add( this.xAnnounceUnverified );
             this.gVerify.Controls.Add( this.lVerifyNames );
             this.gVerify.Controls.Add( this.cVerifyNames );
             this.gVerify.Location = new System.Drawing.Point( 8, 13 );
             this.gVerify.Name = "gVerify";
-            this.gVerify.Size = new System.Drawing.Size( 635, 56 );
+            this.gVerify.Size = new System.Drawing.Size( 635, 79 );
             this.gVerify.TabIndex = 18;
             this.gVerify.TabStop = false;
             this.gVerify.Text = "Name Verification";
+            // 
+            // xLimitOneConnectionPerIP
+            // 
+            this.xLimitOneConnectionPerIP.AutoSize = true;
+            this.xLimitOneConnectionPerIP.Location = new System.Drawing.Point( 294, 47 );
+            this.xLimitOneConnectionPerIP.Name = "xLimitOneConnectionPerIP";
+            this.xLimitOneConnectionPerIP.Size = new System.Drawing.Size( 161, 19 );
+            this.xLimitOneConnectionPerIP.TabIndex = 20;
+            this.xLimitOneConnectionPerIP.Text = "Limit 1 connection per IP";
+            this.xLimitOneConnectionPerIP.UseVisualStyleBackColor = true;
             // 
             // xAnnounceUnverified
             // 
@@ -1947,15 +1868,6 @@
             this.gIRCOptions.TabStop = false;
             this.gIRCOptions.Text = "Options";
             // 
-            // lIRCBotQuitMsg
-            // 
-            this.lIRCBotQuitMsg.AutoSize = true;
-            this.lIRCBotQuitMsg.Location = new System.Drawing.Point( 296, 102 );
-            this.lIRCBotQuitMsg.Name = "lIRCBotQuitMsg";
-            this.lIRCBotQuitMsg.Size = new System.Drawing.Size( 126, 15 );
-            this.lIRCBotQuitMsg.TabIndex = 19;
-            this.lIRCBotQuitMsg.Text = "Custom quit message";
-            // 
             // xIRCBotForwardFromIRC
             // 
             this.xIRCBotForwardFromIRC.AutoSize = true;
@@ -1965,14 +1877,6 @@
             this.xIRCBotForwardFromIRC.TabIndex = 8;
             this.xIRCBotForwardFromIRC.Text = "Forward ALL chat from IRC to SERVER.";
             this.xIRCBotForwardFromIRC.UseVisualStyleBackColor = true;
-            // 
-            // tIRCBotQuitMsg
-            // 
-            this.tIRCBotQuitMsg.Location = new System.Drawing.Point( 428, 99 );
-            this.tIRCBotQuitMsg.MaxLength = 32;
-            this.tIRCBotQuitMsg.Name = "tIRCBotQuitMsg";
-            this.tIRCBotQuitMsg.Size = new System.Drawing.Size( 193, 21 );
-            this.tIRCBotQuitMsg.TabIndex = 18;
             // 
             // xIRCMsgs
             // 
@@ -2016,6 +1920,23 @@
             this.gIRCNetwork.TabIndex = 5;
             this.gIRCNetwork.TabStop = false;
             this.gIRCNetwork.Text = "Network";
+            // 
+            // lIRCBotQuitMsg
+            // 
+            this.lIRCBotQuitMsg.AutoSize = true;
+            this.lIRCBotQuitMsg.Location = new System.Drawing.Point( 296, 102 );
+            this.lIRCBotQuitMsg.Name = "lIRCBotQuitMsg";
+            this.lIRCBotQuitMsg.Size = new System.Drawing.Size( 126, 15 );
+            this.lIRCBotQuitMsg.TabIndex = 19;
+            this.lIRCBotQuitMsg.Text = "Custom quit message";
+            // 
+            // tIRCBotQuitMsg
+            // 
+            this.tIRCBotQuitMsg.Location = new System.Drawing.Point( 428, 99 );
+            this.tIRCBotQuitMsg.MaxLength = 32;
+            this.tIRCBotQuitMsg.Name = "tIRCBotQuitMsg";
+            this.tIRCBotQuitMsg.Size = new System.Drawing.Size( 193, 21 );
+            this.tIRCBotQuitMsg.TabIndex = 18;
             // 
             // lIRCBotChannels2
             // 
@@ -2510,6 +2431,16 @@
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.label1.Location = new System.Drawing.Point( 96, 362 );
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size( 458, 15 );
+            this.label1.TabIndex = 14;
+            this.label1.Text = "NOTE: Grayed-out and disabled controls are NOT IMPLEMENTED YET.";
+            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2527,6 +2458,7 @@
             this.Text = "fCraft Config Tool";
             this.tabs.ResumeLayout( false );
             this.tabGeneral.ResumeLayout( false );
+            this.tabGeneral.PerformLayout();
             this.gAppearence.ResumeLayout( false );
             this.gAppearence.PerformLayout();
             this.gBasic.ResumeLayout( false );
@@ -2741,12 +2673,6 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.CheckBox xLowLatencyMode;
-        private System.Windows.Forms.ComboBox cSpamAction3;
-        private System.Windows.Forms.Label lSpamAction3;
-        private System.Windows.Forms.ComboBox cSpamAction2;
-        private System.Windows.Forms.Label lSpamAction2;
-        private System.Windows.Forms.ComboBox cSpamAction1;
-        private System.Windows.Forms.Label lSpamAction1;
         private System.Windows.Forms.GroupBox gAntigrief;
         private System.Windows.Forms.CheckBox xSpamChatKick;
         private System.Windows.Forms.Label lSpamMuteSeconds;
@@ -2777,5 +2703,7 @@
         private System.Windows.Forms.CheckBox xIRCBotForwardFromIRC;
         private System.Windows.Forms.Label lIRCBotQuitMsg;
         private System.Windows.Forms.TextBox tIRCBotQuitMsg;
+        private System.Windows.Forms.CheckBox xLimitOneConnectionPerIP;
+        private System.Windows.Forms.Label label1;
     }
 }
