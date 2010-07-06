@@ -370,11 +370,7 @@ namespace fCraft {
 
         // Queues a system message
         public void Message( string message ) {
-            if( session == null ) {
-                Logger.LogConsole( message );
-            } else {
-                Send( PacketWriter.MakeMessage( Color.Sys + message ) );
-            }
+			Message(Color.Sys, message);
         }
 
 
