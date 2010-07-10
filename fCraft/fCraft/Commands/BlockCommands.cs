@@ -12,7 +12,7 @@ namespace fCraft {
         Hardened
     }
 
-    sealed class BlockCommands {
+    static class BlockCommands {
 
         // Register help commands
         internal static void Init(){
@@ -92,11 +92,11 @@ namespace fCraft {
             if( player.mode == BlockPlacementMode.Lava ) {
                 player.mode = BlockPlacementMode.Normal;
                 player.Message( "Lava: OFF." );
-            } else if( player.Can( Permissions.PlaceWater ) ) {
+            } else if( player.Can( Permissions.PlaceLava ) ) {
                 player.mode = BlockPlacementMode.Lava;
                 player.Message( "Lava: ON. Red blocks are replaced with lava." );
             } else {
-                player.NoAccessMessage( Permissions.PlaceWater );
+                player.NoAccessMessage( Permissions.PlaceLava );
             }
         }
     }

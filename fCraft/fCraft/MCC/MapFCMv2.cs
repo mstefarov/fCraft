@@ -33,9 +33,9 @@ using System.IO.Compression;
 using fCraft;
 
 namespace mcc {
-    public class MapFCMv2 : IConverter {
+    public sealed class MapFCMv2 : IConverter {
 
-        const uint identifier = 0xfc000002u;
+        public const uint Identifier = 0xfc000002u;
 
         public MapFormats Format {
             get { return MapFormats.FCMv2; }
@@ -59,7 +59,7 @@ namespace mcc {
             BinaryReader reader = new BinaryReader( MapStream );
 
             // Read in the magic number
-            if ( reader.ReadUInt32() != identifier ) {
+            if ( reader.ReadUInt32() != Identifier ) {
                 throw new FormatException();
             }
 
@@ -98,7 +98,7 @@ namespace mcc {
             BinaryWriter bs = new BinaryWriter( MapStream );
 
             // Write the magic number
-            bs.Write( identifier );
+            bs.Write( Identifier );
 
             // Write the map dimensions
             bs.Write( MapToSave.widthX );
@@ -134,7 +134,7 @@ namespace mcc {
             BinaryReader reader = new BinaryReader( MapStream );
 
             try {
-                return reader.ReadUInt32() == identifier;
+                return reader.ReadUInt32() == Identifier;
             } catch ( IOException ) {
                 return false;
             }

@@ -32,8 +32,7 @@ using System.Text;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace fCraft
-{
+namespace fCraft {
     public static class IRCComm {
         #region Variables
 
@@ -63,7 +62,7 @@ namespace fCraft
         public static event IRCComm.MessageAddedHandler MessageAdded;
 
         internal static void MessageAddedEvent() {
-            if (MessageAdded != null) MessageAdded();
+            if( MessageAdded != null ) MessageAdded();
         }
 
         // Socket and Stream variables
@@ -74,67 +73,63 @@ namespace fCraft
 
         #endregion
 
-        public static void Start()
-        {
+        public static void Start() {
             try {
                 // Load up server/bot values from config
-                IRCSERVER = Config.GetString( ConfigKey.IRCBotNetwork);
-                PORT = Config.GetInt( ConfigKey.IRCBotPort);
-                BOTNICK = Config.GetString( ConfigKey.IRCBotNick);
-                FORWARD_IRC = Config.GetBool( ConfigKey.IRCBotForwardFromIRC);
-                FORWARD_SERVER = Config.GetBool( ConfigKey.IRCBotForwardFromServer);
-                QUITMSG = Config.GetString( ConfigKey.IRCBotQuitMsg);
+                IRCSERVER = Config.GetString( ConfigKey.IRCBotNetwork );
+                PORT = Config.GetInt( ConfigKey.IRCBotPort );
+                BOTNICK = Config.GetString( ConfigKey.IRCBotNick );
+                FORWARD_IRC = Config.GetBool( ConfigKey.IRCBotForwardFromIRC );
+                FORWARD_SERVER = Config.GetBool( ConfigKey.IRCBotForwardFromServer );
+                QUITMSG = Config.GetString( ConfigKey.IRCBotQuitMsg );
 
                 // Parse channels from the config by comma seperation
-                string[] tmpChans = Config.GetString( ConfigKey.IRCBotChannels).Split(',');
-                for (int i = 0; i < tmpChans.Length; ++i)
-                    CHANNELS.Add(tmpChans[i]);
+                string[] tmpChans = Config.GetString( ConfigKey.IRCBotChannels ).Split( ',' );
+                for( int i = 0; i < tmpChans.Length; ++i )
+                    CHANNELS.Add( tmpChans[i] );
 
                 // Subscribe message added event
                 //MessageAdded += new MessageAddedHandler();
 
                 // Start the thread and initialize a connection
-                thread = new Thread(CommHandler);
+                thread = new Thread( CommHandler );
                 thread.IsBackground = true;
                 thread.Start();
-            } catch (Exception ex) {
-                Console.WriteLine(ex.ToString());
+            } catch( Exception ex ) {
+                Console.WriteLine( ex.ToString() );
             }
         }
 
-        static void CommHandler()
-        {
+        static void CommHandler() {
             try {
                 #region Initialize connection and register
                 // Initiate connection and bring the streams to life!
-                connection = new TcpClient(IRCSERVER, PORT);
+                connection = new TcpClient( IRCSERVER, PORT );
                 stream = connection.GetStream();
-                reader = new StreamReader(stream);
-                writer = new StreamWriter(stream);
+                reader = new StreamReader( stream );
+                writer = new StreamWriter( stream );
 
                 // IRC Registration RFC demands you send your user credentials
                 serverMsg.chatMessage = USER;
-                    SendRaw(ref serverMsg);
+                SendRaw( ref serverMsg );
                 // Then send the nickname you will use
                 serverMsg.chatMessage = "NICK " + BOTNICK + "\r\n";
-                    SendRaw(ref serverMsg);
+                SendRaw( ref serverMsg );
 
                 // After registration is done
                 firstConnect = true;
                 #endregion
-                while (true)
-                {
+                while( true ) {
                     // Prevent exceptions being thrown on thread.abort()
-                    if (connection.Connected != true)
-                    {
+                    if( connection.Connected != true ) {
                         online = false;
-                        throw new Exception("Connection was severed somehow.");
+                        throw new Exception( "Connection was severed somehow." );
                     }
                     // If the server is going offline, return, else process messages
-                    if (doShutdown) return;
+                    if( doShutdown ) return;
                     else {
                         Process();
-                        Thread.Sleep(500);
+                        Thread.Sleep( 500 );
                     }
 
                     #region Read stream and parse messages
@@ -148,62 +143,57 @@ namespace fCraft
                     do // Read input while data is available
                     {
                         // Read from the stream and place the read buffer into serverInput
-                        numberOfBytesRead = stream.Read(myReadBuffer, 0, myReadBuffer.Length); 
-                        serverInput = String.Concat(myCompleteMessage, Encoding.ASCII.GetString(myReadBuffer, 0, numberOfBytesRead));  
+                        numberOfBytesRead = stream.Read( myReadBuffer, 0, myReadBuffer.Length );
+                        serverInput = String.Concat( myCompleteMessage, Encoding.ASCII.GetString( myReadBuffer, 0, numberOfBytesRead ) );
 #if DEBUG_IRC_RAW
 Console.WriteLine("*BYTES* :" + numberOfBytesRead);
 #endif
                         // Split each line in the buffer by \r\n
                         String[] splitParam = new String[1];
                         splitParam[0] = "\r\n";
-                        String[] tmpServerMsgs = serverInput.Split(splitParam, System.StringSplitOptions.RemoveEmptyEntries);
+                        String[] tmpServerMsgs = serverInput.Split( splitParam, System.StringSplitOptions.RemoveEmptyEntries );
 
                         // Loop through each line we have and parse it
-                        foreach (String msg in tmpServerMsgs)
-                        {
+                        foreach( String msg in tmpServerMsgs ) {
 
 #if DEBUG_IRC_RAW
 Console.WriteLine("*SERVERMSG* :" + msg);
 #endif
                             // check each message for errors
-                            if (firstConnect) initialize(msg); // If the server has just registered, join channels etc.
-                            else if (msg.StartsWith("ERROR :Closing Link:"))
-                                throw new Exception("Connection was terminated by the server.");
+                            if( firstConnect ) Init( msg ); // If the server has just registered, join channels etc.
+                            else if( msg.StartsWith( "ERROR :Closing Link:" ) )
+                                throw new Exception( "Connection was terminated by the server." );
                             else // If no errors are found, parse the message
                             {
                                 IRCMessage message = new IRCMessage();
-                                IRCBot.parseMsg(ref message, msg);
+                                IRCBot.ParseMsg( ref message, msg );
                                 // Parse the message for something useful (commands, etc)
-                                if (message.chatMessage != null && message.chatMessage != "") {
-                                    IRCBot.AddMessage(message);
+                                if( message.chatMessage != null && message.chatMessage != "" ) {
+                                    IRCBot.AddMessage( message );
                                     // TODO: Instead of only adding messages to a stack, throw an event too
                                 }
                             }
                         }
-                        Thread.Sleep(100);
-                    } while (stream.DataAvailable);
+                        Thread.Sleep( 100 );
+                    } while( stream.DataAvailable );
                     #endregion
                 }
-            }
-            catch (ThreadAbortException ex)
-            {
-                Console.WriteLine(ex.ToString());
+            } catch( ThreadAbortException ex ) {
+                Console.WriteLine( ex.ToString() );
                 thread.Abort();
-            }
-            catch (Exception ex)
-            {
-                if (doShutdown) return;
-           
-                if(ex.Message.Contains("(433)")){
+            } catch( Exception ex ) {
+                if( doShutdown ) return;
+
+                if( ex.Message.Contains( "(433)" ) ) {
                     BOTNICK = BOTNICK + NICKVALUE;
                     NICKVALUE++;
                 }
 
-                Logger.Log("IRC Bot has been disconnected, trying to restart: "+ex.Message, LogType.Error);
+                Logger.Log( "IRC Bot has been disconnected, trying to restart: " + ex.Message, LogType.Error );
 #if DEBUG_IRC_RAW
 Console.WriteLine(ex.ToString());
 #endif
-                Thread.Sleep(10000);
+                Thread.Sleep( 10000 );
                 firstConnect = true;
 
                 CommHandler();
@@ -212,138 +202,122 @@ Console.WriteLine(ex.ToString());
 
         // This method is a 'first run' method which runs 
         // only when the bot is A) First connecting and B) has registered with the IRC server
-        private static void initialize(string msg) {
-            IRCBot.parseMsg(ref serverMsg, msg);
-            if (msg.Contains("376")) // 376 is the end of MOTD command from the server, a great time to finally join channels
+        private static void Init( string msg ) {
+            IRCBot.ParseMsg( ref serverMsg, msg );
+            if( msg.Contains( "376" ) ) // 376 is the end of MOTD command from the server, a great time to finally join channels
             {
-                foreach (string channel in CHANNELS) {
+                foreach( string channel in CHANNELS ) {
                     serverMsg.chatMessage = "JOIN " + channel + "\r\n";
-                    SendRaw(ref serverMsg);
+                    SendRaw( ref serverMsg );
                 }
-                Logger.Log("IRCBot is now connected to " + IRCSERVER + ":" + PORT + ".", LogType.IRC);
+                Logger.Log( "IRCBot is now connected to " + IRCSERVER + ":" + PORT + ".", LogType.IRC );
                 string ircConnected = "The bot, '" + BOTNICK + "', is in channel(s):";
-                foreach (string channel in CHANNELS)
+                foreach( string channel in CHANNELS )
                     ircConnected += " | " + channel;
-                Logger.Log(ircConnected, LogType.IRC);
+                Logger.Log( ircConnected, LogType.IRC );
                 //Logger.Log("** Remember ** IRC Channel names are case sensitive,\n double check your config if things aren't working proper!",LogType.IRC);
 
                 firstConnect = false;
                 online = true;
             }
             serverMsg.chatMessage = "";
-            if (msg.Contains("433")) { // 433 is username already in use
-                throw new Exception("Username " + BOTNICK + " already in use (433).");
+            if( msg.Contains( "433" ) ) { // 433 is username already in use
+                throw new Exception( "Username " + BOTNICK + " already in use (433)." );
             }
         }
 
         // Process messages that need to be sent to the IRC server
-        public static void Process()
-        {
-            outMessages.AddRange( IRCBot.getOutMessages() );
+        public static void Process() {
+            outMessages.AddRange( IRCBot.GetOutgoingMessages() );
 
             // Process messages on the stack
-            if (outMessages.Count > 0)
-            {
+            if( outMessages.Count > 0 ) {
                 int count = 0;
-                foreach (IRCMessage msg in outMessages)
-                {
+                foreach( IRCMessage msg in outMessages ) {
                     // Prevent spamming the entire stack at once and getting kicked for flooding
-                    if (count == 4) Thread.Sleep(5000);
-                    if (msg.destination == destination.PM)
-                        SendPM(msg);
-                    else if (msg.destination == destination.Channels)
-                        SendMsgChannels(msg);
-                    else if (msg.destination == destination.NOTICE)
-                        SendNotice(msg);
-                    else if (msg.destination == destination.RAW) {
+                    if( count == 4 ) Thread.Sleep( 5000 );
+                    if( msg.destination == Destination.PM )
+                        SendPM( msg );
+                    else if( msg.destination == Destination.Channels )
+                        SendMsgChannels( msg );
+                    else if( msg.destination == Destination.NOTICE )
+                        SendNotice( msg );
+                    else if( msg.destination == Destination.RAW ) {
                         IRCMessage rawMsg = new IRCMessage();
                         rawMsg = msg;
-                        SendRaw(ref rawMsg);
+                        SendRaw( ref rawMsg );
                     }
-                    
-                    IRCBot.rmOutgoingMessage(msg);
+
+                    IRCBot.RemoveOutgoingMessage( msg );
                 }
                 outMessages.Clear();
             }
         }
 
-        public static bool SendMsgChannels(IRCMessage message)
-        {
-            try
-            {
-                foreach (string channel in CHANNELS)
-                {
+        public static bool SendMsgChannels( IRCMessage message ) {
+            try {
+                foreach( string channel in CHANNELS ) {
 #if DEBUG_IRC
 Console.WriteLine("*SENT-MESSAGE* :" + message.chatMessage + " | to: " + message.to);
 #endif
-                    if (message.colour != null && message.colour != "")
-                        writer.WriteLine("PRIVMSG " + channel + " :" + message.colour + message.chatMessage + "\r\n");
+                    if( message.colour != null && message.colour != "" )
+                        writer.WriteLine( "PRIVMSG " + channel + " :" + message.colour + message.chatMessage + "\r\n" );
                     else
-                        writer.WriteLine("PRIVMSG " + channel + " :" + message.chatMessage + "\r\n");
-                    
+                        writer.WriteLine( "PRIVMSG " + channel + " :" + message.chatMessage + "\r\n" );
+
                     writer.Flush();
                 }
                 return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
+            } catch( Exception e ) {
+                Console.WriteLine( e.ToString() );
                 return false;
             }
         }
 
-        public static bool SendPM(IRCMessage message)
-        {
-            try
-            {
-#if DEBUG_IRC
-Console.WriteLine("*SENT-PM* :" + message.chatMessage + " | to: " + message.to);
-#endif
-                if (message.colour != null && message.colour != "")
-                    writer.WriteLine("PRIVMSG " + message.to + " :" + message.colour + message.chatMessage + "\r\n");
-                else
-                    writer.WriteLine("PRIVMSG " + message.to + " :" + message.chatMessage + "\r\n");
-                writer.Flush();
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-                return false;
-            }
-        }
-
-        public static bool SendNotice(IRCMessage message) {
+        public static bool SendPM( IRCMessage message ) {
             try {
 #if DEBUG_IRC
 Console.WriteLine("*SENT-PM* :" + message.chatMessage + " | to: " + message.to);
 #endif
-                if (message.colour != null && message.colour != "")
-                    writer.WriteLine("NOTICE " + message.to + " :" + message.colour + message.chatMessage + "\r\n");
+                if( message.colour != null && message.colour != "" )
+                    writer.WriteLine( "PRIVMSG " + message.to + " :" + message.colour + message.chatMessage + "\r\n" );
                 else
-                    writer.WriteLine("NOTICE " + message.to + " :" + message.chatMessage + "\r\n");
+                    writer.WriteLine( "PRIVMSG " + message.to + " :" + message.chatMessage + "\r\n" );
                 writer.Flush();
                 return true;
-            } catch (Exception e) {
-                Console.WriteLine(e.ToString());
+            } catch( Exception e ) {
+                Console.WriteLine( e.ToString() );
                 return false;
             }
         }
 
-        internal static bool SendRaw(ref IRCMessage message)
-        {
-            try
-            {
+        public static bool SendNotice( IRCMessage message ) {
+            try {
+#if DEBUG_IRC
+Console.WriteLine("*SENT-PM* :" + message.chatMessage + " | to: " + message.to);
+#endif
+                if( message.colour != null && message.colour != "" )
+                    writer.WriteLine( "NOTICE " + message.to + " :" + message.colour + message.chatMessage + "\r\n" );
+                else
+                    writer.WriteLine( "NOTICE " + message.to + " :" + message.chatMessage + "\r\n" );
+                writer.Flush();
+                return true;
+            } catch( Exception e ) {
+                Console.WriteLine( e.ToString() );
+                return false;
+            }
+        }
+
+        internal static bool SendRaw( ref IRCMessage message ) {
+            try {
 #if DEBUG_IRC
 Console.WriteLine("*SENT-RAW* :" + message.chatMessage );
 #endif
-                writer.WriteLine(message.chatMessage);
+                writer.WriteLine( message.chatMessage );
                 writer.Flush();
                 return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
+            } catch( Exception e ) {
+                Console.WriteLine( e.ToString() );
                 return false;
             }
         }
@@ -351,47 +325,40 @@ Console.WriteLine("*SENT-RAW* :" + message.chatMessage );
         #region Utilities
         public static void ShutDown() {
             serverMsg.chatMessage = "QUIT :" + QUITMSG;
-            SendRaw(ref serverMsg);
+            SendRaw( ref serverMsg );
             doShutdown = true;
-            thread.Join(1000);
-            if (thread != null && thread.IsAlive) thread.Abort();
-            if (reader != null) reader.Close();
-            if (writer != null) writer.Close();
-            if (connection != null) connection.Close();
-            Logger.Log("IRCBot disconnected from " + IRCSERVER + ":" + PORT + ".", LogType.IRC);
+            thread.Join( 1000 );
+            if( thread != null && thread.IsAlive ) thread.Abort();
+            if( reader != null ) reader.Close();
+            if( writer != null ) writer.Close();
+            if( connection != null ) connection.Close();
+            Logger.Log( "IRCBot disconnected from " + IRCSERVER + ":" + PORT + ".", LogType.IRC );
         }
-        public static bool commStatus() {
+        public static bool CommStatus() {
             return online;
         }
-        public static bool initConnect()
-        {
+        public static bool InitConnect() {
             return firstConnect;
         }
-        public static string getServer()
-        {
+        public static string GetServer() {
             return IRCSERVER;
         }
-        public static string getBotNick()
-        {
+        public static string GetBotNick() {
             return BOTNICK;
         }
-        public static int getPort()
-        {
+        public static int GetPort() {
             return PORT;
         }
-        public static List<string> getChannels()
-        {
+        public static List<string> GetChannels() {
             return CHANNELS;
         }
-        public static string getUser()
-        {
+        public static string GetUser() {
             return USER;
         }
-        public static bool getSendIRC()
-        {
+        public static bool GetSendIRC() {
             return FORWARD_IRC;
         }
-        public static bool getSendServer() {
+        public static bool GetSendServer() {
             return FORWARD_SERVER;
         }
         #endregion

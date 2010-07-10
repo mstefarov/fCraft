@@ -6,12 +6,12 @@ using System.Text;
 
 
 namespace fCraft {
-    public class Zone {
+    public sealed class Zone {
         public int xMin, yMin, hMin, xMax, yMax, hMax;
-        public int getWidthX() { return xMax - xMin+1; }
-        public int getWidthY() { return yMax - yMin+1; }
-        public int getHeight() { return hMax - hMin+1; }
-        public int getVolume() { return getWidthX() * getWidthY() * getHeight(); }
+        public int GetWidthX() { return xMax - xMin+1; }
+        public int GetWidthY() { return yMax - yMin+1; }
+        public int GetHeight() { return hMax - hMin+1; }
+        public int GetVolume() { return GetWidthX() * GetWidthY() * GetHeight(); }
 
         public string name;
 

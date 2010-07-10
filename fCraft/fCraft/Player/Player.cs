@@ -100,7 +100,7 @@ namespace fCraft {
 
             if( CheckBlockSpam() ) return true;
 
-            if( world.locked ) {
+            if( world.isLocked ) {
                 SendTileNow( x, y, h );
                 return false;
             }
@@ -240,7 +240,7 @@ namespace fCraft {
                     muteWarnings++;
                     if( muteWarnings > Config.GetInt( ConfigKey.AntispamMaxWarnings ) ) {
                         session.KickNow( "You were kicked for repeated spamming." );
-                        Server.SendToAll( Color.Red + name + " was kicked for suspected spamming." );
+                        Server.SendToAll( Color.Red + GetLogName() + " was kicked for repeated spamming." );
                     } else {
                         mutedUntil = DateTime.Now.Add( muteDuration );
                         Message( "You have been muted for " + muteDuration.TotalSeconds + " seconds. Slow down." );
@@ -259,8 +259,8 @@ namespace fCraft {
                 double spamTimer = DateTime.Now.Subtract( oldestTime ).TotalSeconds;
                 if( spamTimer < spamBlockTimer ) {
                     session.KickNow( "You were kicked by antigrief system. Slow down." );
-                    Server.SendToAll( Color.Red + name + " was kicked for suspected griefing." );
-                    Logger.Log( name + " was kicked for block spam (" + spamBlockCount + " blocks in " + spamTimer + " seconds)", LogType.SuspiciousActivity );
+                    Server.SendToAll( Color.Red + GetLogName() + " was kicked for suspected griefing." );
+                    Logger.Log( GetLogName() + " was kicked for block spam (" + spamBlockCount + " blocks in " + spamTimer + " seconds)", LogType.SuspiciousActivity );
                     return true;
                 }
             }
@@ -287,12 +287,12 @@ namespace fCraft {
                     Server.SendToAll( displayedName + ": " + message, null );
 
                     // IRC Bot code for sending messages
-                    if( IRCBot.isOnline() ) {
+                    if( IRCBot.IsOnline() ) {
                         if( IRCComm.FORWARD_SERVER ) {
                             IRCMessage newMsg = new IRCMessage();
                             newMsg.chatMessage = nick + ": " + message.Substring( message.IndexOf( "#" ) + 1 );
-                            newMsg.destination = destination.Channels;
-                            IRCBot.addOutgoingMessage( newMsg );
+                            newMsg.destination = Destination.Channels;
+                            IRCBot.AddOutgoingMessage( newMsg );
                             IRCComm.Process();
                         } else {
                             if( message.Contains( "#" ) ) {
@@ -300,18 +300,18 @@ namespace fCraft {
                                 string tmpChat = message.Substring( message.IndexOf( "#" ) + 1 );
                                 if( tmpChat != "" ) {
                                     newMsg.chatMessage = nick + ": " + tmpChat;
-                                    newMsg.destination = destination.Channels;
-                                    IRCBot.addOutgoingMessage( newMsg );
+                                    newMsg.destination = Destination.Channels;
+                                    IRCBot.AddOutgoingMessage( newMsg );
                                     IRCComm.Process();
                                 }
                             }
                         }
                     }
-                    Logger.Log( "{0}: {1}", LogType.WorldChat, name, message );
+                    Logger.Log( "{0}: {1}", LogType.WorldChat, GetLogName(), message );
                     break;
 
                 case MessageType.Command:
-                    Logger.Log( "{0}: {1}", LogType.UserCommand, name, message );
+                    Logger.Log( "{0}: {1}", LogType.UserCommand, GetLogName(), message );
                     Commands.ParseCommand( this, message, fromConsole );
                     break;
 
@@ -320,7 +320,7 @@ namespace fCraft {
                     string otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
                     Player otherPlayer = Server.FindPlayer( otherPlayerName );
                     if( otherPlayer != null ) {
-                        Logger.Log( "{0} to {1}: {2}", LogType.WorldChat, name, otherPlayer.name, message );
+                        Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat, GetLogName(), otherPlayer.GetLogName(), message );
                         otherPlayer.Message( Color.Gray, "from " + name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
                         Message( Color.Gray, "to " + otherPlayer.name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
                     } else {
@@ -333,8 +333,8 @@ namespace fCraft {
                     string className = message.Substring( 2, message.IndexOf( ' ' ) - 2 );
                     PlayerClass playerClass = ClassList.FindClass( className );
                     if( playerClass != null ) {
-                        Logger.Log( "{0} to {1}: {2}", LogType.ClassChat, name, playerClass.name, message );
-                        Packet classMsg = PacketWriter.MakeMessage( Color.Gray + "[" + playerClass.color + playerClass.name + Color.Gray + "]" + name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
+                        Logger.Log( "{0} to class {1}: {2}", LogType.ClassChat, GetLogName(), playerClass.name, message );
+                        Packet classMsg = PacketWriter.MakeMessage( Color.Gray + "[" + playerClass.color + playerClass.name + Color.Gray + "]" + nick + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
                         Server.SendToClass( classMsg, playerClass );
                         if( info.playerClass != playerClass ) {
                             Send( classMsg );
@@ -394,6 +394,15 @@ namespace fCraft {
                 displayedName = info.playerClass.color + displayedName;
             }
             return displayedName;
+        }
+
+
+        public string GetLogName() {
+            if( nick != name ) {
+                return name + " (aka " + nick + ")";
+            } else {
+                return name;
+            }
         }
 
 

@@ -41,6 +41,7 @@
             this.tRules.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.tRules.Size = new System.Drawing.Size( 485, 212 );
             this.tRules.TabIndex = 0;
+            this.tRules.WordWrap = false;
             this.tRules.KeyDown += new System.Windows.Forms.KeyEventHandler( this.tRules_KeyDown );
             // 
             // bOK

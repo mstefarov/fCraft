@@ -309,7 +309,7 @@ namespace mcc {
         }
 
 
-        public class NBTEnumerator : IEnumerator<NBTag> {
+        public sealed class NBTEnumerator : IEnumerator<NBTag> {
             NBTag[] tags;
             int index = -1;
 
@@ -351,13 +351,13 @@ namespace mcc {
     }
 
 
-    class NBTList : NBTag {
+    sealed class NBTList : NBTag {
         public NBTag[] Tags;
         public NBTType ListType;
     }
 
 
-    class NBTCompound : NBTag {
+    sealed class NBTCompound : NBTag {
         public Dictionary<string, NBTag> Tags = new Dictionary<string, NBTag>();
     }
 }

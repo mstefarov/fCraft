@@ -17,7 +17,7 @@ namespace fCraft {
         public int index;
 
         // these need to be parsed after all classes are added
-        public string maxPromoteVal="", maxDemoteVal="", maxKickVal="", maxBanVal="";
+        internal string maxPromoteVal = "", maxDemoteVal = "", maxKickVal = "", maxBanVal = "";
 
         public PlayerClass() {
             permissions = new bool[Enum.GetValues( typeof( Permissions ) ).Length];
@@ -65,7 +65,7 @@ namespace fCraft {
 
         public int GetMaxKickIndex() {
             if( maxKick == null ) return 0;
-            else return maxKick.index+1;
+            else return maxKick.index + 1;
         }
 
         public int GetMaxBanIndex() {

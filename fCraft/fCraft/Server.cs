@@ -35,39 +35,46 @@ namespace fCraft {
         const int maxPortAttempts = 20;
         public static int port;
 
-        public static bool Init() {
-            Color.Init();
-            Map.Init();
+        internal static string Salt = "";
 
+
+        public static bool Init() {
             Logger.Init();
+            GenerateSalt();
+
+            // try to load the config
             if( !Config.Load() ) return false;
             Config.ApplyConfig();
             if( !Config.Save() ) return false;
 
-            // allocate player list
-            Tasks.Init();
+            // start the task thread
+            Tasks.Start();
 
             // load player DB
             PlayerDB.Load();
             IPBanList.Load();
+
+            // prepare the list of commands
             Commands.Init();
 
-            if (Config.GetBool( ConfigKey.IRCBot) && IRCComm.commStatus() && Config.GetBool( ConfigKey.IRCMsgs)) 
-                Server.OnPlayerConnected += IRCBot.sendPlayerJoinMsg;
+            // hook up IRC
+            if( Config.GetBool( ConfigKey.IRCBot ) && IRCComm.CommStatus() && Config.GetBool( ConfigKey.IRCMsgs ) )
+                Server.OnPlayerConnected += IRCBot.SendPlayerJoinMsg;
+
 
             if( OnInit != null ) OnInit();
 
             return true;
         }
 
-        
+
         // Opens a socket for listening for incoming connections
         public static bool Start() {
 
-            Player.Console = new Player( null, "(console)" ); //TODO
+            Player.Console = new Player( null, "(console)" );
 
+            // try to load the world list
             if( !LoadWorldList() ) return false;
-
             SaveWorldList();
 
             // open the port
@@ -90,7 +97,6 @@ namespace fCraft {
                 }
             } while( !portFound && attempts < maxPortAttempts );
 
-
             // if the port still cannot be opened after [maxPortAttempts] attemps, die.
             if( !portFound ) {
                 Logger.Log( "Could not start listening after {0} tries. Giving up!", LogType.FatalError,
@@ -98,10 +104,9 @@ namespace fCraft {
                 return false;
             }
 
+            serverStart = DateTime.Now;
             Logger.Log( "Server.Run: now accepting connections at port {0}.", LogType.Debug,
                         port );
-
-            serverStart = DateTime.Now;
 
             // list loaded worlds
             string line = "All available worlds: ";
@@ -125,7 +130,7 @@ namespace fCraft {
             // Write out initial (empty) playerlist cache
             UpdatePlayerList();
 
-            // start the main loop
+            // start the main loop - server is now connectible
             mainThread = new Thread( MainLoop );
             mainThread.Start();
 
@@ -161,7 +166,7 @@ namespace fCraft {
             Heartbeat.ShutDown();
 
             // kill IRC bot
-            if( IRCBot.isOnline() == true ) IRCBot.ShutDown();
+            if( IRCBot.IsOnline() == true ) IRCBot.Shutdown();
 
             // kill background tasks
             Tasks.ShutDown();
@@ -233,7 +238,6 @@ namespace fCraft {
             World firstWorld = null;
             XAttribute temp = null;
             string worldName;
-            bool noUnload = false;
 
             foreach( XElement el in root.Elements( "World" ) ) {
                 if( (temp = el.Attribute( "name" )) == null ) {
@@ -246,13 +250,12 @@ namespace fCraft {
                     continue;
                 }
 
-                noUnload = (el.Attribute( "noUnload" ) != null);
-
-                World world = AddWorld( worldName, null, noUnload );
+                World world = AddWorld( worldName, null, (el.Attribute( "noUnload" ) != null) );
 
                 if( world == null ) {
                     Logger.Log( "Server.ParseWorldListXML: Error loading world \"" + worldName + "\"", LogType.Error );
                 } else {
+                    world.isHidden = (el.Attribute( "hidden" ) != null);
                     if( firstWorld == null ) firstWorld = world;
                     Logger.Log( "Server.ParseWorldListXML: Loaded world \"" + worldName + "\"", LogType.Debug );
 
@@ -312,7 +315,7 @@ namespace fCraft {
             // Save world list
             lock( worldListLock ) {
                 XDocument doc = new XDocument();
-                XElement root = new XElement("fCraftWorldList");
+                XElement root = new XElement( "fCraftWorldList" );
                 XElement temp;
                 foreach( World world in worlds.Values ) {
                     temp = new XElement( "World" );
@@ -320,7 +323,10 @@ namespace fCraft {
                     temp.Add( new XAttribute( "access", world.classAccess.name ) );
                     temp.Add( new XAttribute( "build", world.classBuild.name ) );
                     if( world.neverUnload ) {
-                        temp.Add( new XAttribute( "nounload", true ) );
+                        temp.Add( new XAttribute( "noUnload", true ) );
+                    }
+                    if( world.isHidden ) {
+                        temp.Add( new XAttribute( "hidden", true ) );
                     }
                     root.Add( temp );
                 }
@@ -363,7 +369,7 @@ namespace fCraft {
 
                 if( Config.GetInt( ConfigKey.BackupInterval ) > 0 ) {
                     int backupInterval = Config.GetInt( ConfigKey.BackupInterval ) * 1000 * 60;
-                    newWorld.backupTaskId = AddTask( AutoBackup, backupInterval, newWorld, ( Config.GetBool( ConfigKey.BackupOnStartup ) ? 0 : backupInterval ) );
+                    newWorld.backupTaskId = AddTask( AutoBackup, backupInterval, newWorld, (Config.GetBool( ConfigKey.BackupOnStartup ) ? 0 : backupInterval) );
                 }
 
                 newWorld.UpdatePlayerList();
@@ -376,7 +382,7 @@ namespace fCraft {
         public static World FindWorld( string name ) {
             if( name == null ) return null;
             lock( worldListLock ) {
-                if ( worlds.ContainsKey( name.ToLower() ) ) {
+                if( worlds.ContainsKey( name.ToLower() ) ) {
                     return worlds[name.ToLower()];
                 } else {
                     return null;
@@ -386,13 +392,13 @@ namespace fCraft {
 
 
         public static bool RemoveWorld( string name ) {
-            lock ( worldListLock ) {
+            lock( worldListLock ) {
                 World worldToDelete = FindWorld( name );
-                if ( worldToDelete == null || worldToDelete == mainWorld ) {
+                if( worldToDelete == null || worldToDelete == mainWorld ) {
                     return false;
                 } else {
                     Player[] worldPlayerList = worldToDelete.playerList;
-                    worldToDelete.SendToAll( Color.Sys+"You have been moved to the main world." );
+                    worldToDelete.SendToAll( Color.Sys + "You have been moved to the main world." );
                     foreach( Player player in worldPlayerList ) {
                         player.session.forcedWorldToJoin = mainWorld;
                     }
@@ -411,10 +417,10 @@ namespace fCraft {
 
 
         public static bool RenameWorld( string oldName, string newName ) {
-            lock ( worldListLock ) {
+            lock( worldListLock ) {
                 World oldWorld = FindWorld( oldName );
                 World newWorld = FindWorld( newName );
-                if ( oldWorld == null || newWorld != null ) return false;
+                if( oldWorld == null || newWorld != null ) return false;
                 worlds.Remove( oldName.ToLower() );
                 oldWorld.name = newName;
                 worlds.Add( newName.ToLower(), oldWorld );
@@ -424,12 +430,12 @@ namespace fCraft {
 
 
         public static bool ReplaceWorld( string name, World newWorld ) {
-            lock ( worldListLock ) {
+            lock( worldListLock ) {
                 World oldWorld = FindWorld( name );
-                if ( oldWorld == null ) return false;
+                if( oldWorld == null ) return false;
 
                 newWorld.name = oldWorld.name;
-                if ( oldWorld == mainWorld ) {
+                if( oldWorld == mainWorld ) {
                     mainWorld = newWorld;
                 }
 
@@ -455,14 +461,14 @@ namespace fCraft {
                 // adds tasks to the new world
                 newWorld.updateTaskId = AddTask( UpdateBlocks, Config.GetInt( ConfigKey.TickInterval ), newWorld );
 
-                if( Config.GetInt( ConfigKey.SaveInterval ) > 0) {
+                if( Config.GetInt( ConfigKey.SaveInterval ) > 0 ) {
                     int saveInterval = Config.GetInt( ConfigKey.SaveInterval ) * 1000;
                     newWorld.saveTaskId = AddTask( SaveMap, saveInterval, newWorld, saveInterval );
                 }
 
-                if( Config.GetInt( ConfigKey.BackupInterval ) > 0) {
+                if( Config.GetInt( ConfigKey.BackupInterval ) > 0 ) {
                     int backupInterval = Config.GetInt( ConfigKey.BackupInterval ) * 1000 * 60;
-                    newWorld.backupTaskId = AddTask( AutoBackup, backupInterval, newWorld, ( Config.GetBool( ConfigKey.BackupOnStartup ) ? 0 : backupInterval ) );
+                    newWorld.backupTaskId = AddTask( AutoBackup, backupInterval, newWorld, (Config.GetBool( ConfigKey.BackupOnStartup ) ? 0 : backupInterval) );
                 }
                 return true;
             }
@@ -570,7 +576,7 @@ namespace fCraft {
                 Player[] playerListCache = playerList;
                 string[] list = new string[playerListCache.Length];
                 for( int i = 0; i < list.Length; i++ ) {
-                    list[i] = playerListCache[i].info.playerClass.name + " - " + playerListCache[i].name;
+                    list[i] = playerListCache[i].info.playerClass.name + " - " + playerListCache[i].GetLogName();
                 }
                 Array.Sort<string>( list );
                 OnPlayerListChanged( list );
@@ -593,7 +599,7 @@ namespace fCraft {
             ScheduledTask task;
             while( continueMainLoop ) {
                 taskCache = taskList;
-                for( int i=0; i<taskCache.Length; i++){
+                for( int i = 0; i < taskCache.Length; i++ ) {
                     task = taskCache[i];
                     if( task.enabled && task.nextTime < DateTime.UtcNow ) {
                         task.callback( task.param );
@@ -681,6 +687,16 @@ namespace fCraft {
 
         #region Utilities
 
+        static void GenerateSalt() {
+            // generate random salt
+            Random rand = new Random();
+            int saltLength = rand.Next( 12, 16 );
+            string saltChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.~";
+            for( int i = 0; i < saltLength; i++ ) {
+                Salt += saltChars[rand.Next( 0, saltChars.Length - 1 )];
+            }
+        }
+
         public static char[] reservedChars = { ' ', '!', '*', '\'', '(', ')', ';', ':', '@', '&',
                                                  '=', '+', '$', ',', '/', '?', '%', '#', '[', ']' };
         public static string UrlEncode( string input ) {
@@ -698,10 +714,9 @@ namespace fCraft {
             return output.ToString();
         }
 
-
         public static bool VerifyName( string name, string hash ) {
             MD5 hasher = MD5.Create();
-            byte[] data = hasher.ComputeHash( Encoding.ASCII.GetBytes( Config.Salt + name ) );
+            byte[] data = hasher.ComputeHash( Encoding.ASCII.GetBytes( Server.Salt + name ) );
             for( int i = 0; i < 16; i += 2 ) {
                 if( hash[i] + "" + hash[i + 1] != data[i / 2].ToString( "x2" ) ) {
                     return false;
@@ -709,7 +724,6 @@ namespace fCraft {
             }
             return true;
         }
-
 
         public static int CalculateMaxPacketsPerUpdate( World world ) {
             int packetsPerTick = (int)(packetsPerSecond / ticksPerSecond);
@@ -728,17 +742,17 @@ namespace fCraft {
             return maxPacketsPerUpdate;
         }
 
-        public static int htons( int value ) {
+        public static int SwapBytes( int value ) {
             return IPAddress.HostToNetworkOrder( value );
         }
 
-        public static short htons( short value ) {
+        public static short SwapBytes( short value ) {
             return IPAddress.HostToNetworkOrder( value );
         }
 
         public static string PlayerListToString() {
             String players = "";
-            foreach (Player player in playerList) {
+            foreach( Player player in playerList ) {
                 players += player.name + ",";
             }
             return players;
@@ -773,20 +787,15 @@ namespace fCraft {
 
         // Remove player from the list, and notify remaining players
         public static void UnregisterPlayer( Player player ) {
-            if( player == null ) {
-                Logger.Log( "Server.UnregisterPlayer: Trying to unregister a non-existent (null) player.", LogType.Debug );
-                return;
-            }
-
             lock( playerListLock ) {
                 if( players.ContainsKey( player.id ) ) {
                     SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
-                    SendToAll( Color.Sys + player.name + " left the server." );
+                    SendToAll( Color.Sys + player.GetLogName() + " left the server." );
                     Logger.Log( "{0} left the server.", LogType.UserActivity, player.name );
-                    
+
                     // better safe than sorry: go through ALL worlds looking for leftover players
-                    lock ( worldListLock ) {
-                        foreach ( World world in worlds.Values ) {
+                    lock( worldListLock ) {
+                        foreach( World world in worlds.Values ) {
                             world.ReleasePlayer( player );
                         }
                     }
@@ -795,11 +804,10 @@ namespace fCraft {
                     UpdatePlayerList();
                     PlayerDB.ProcessLogout( player );
                     PlayerDB.Save();
-                    return;
+                } else {
+                    Logger.Log( "World.UnregisterPlayer: Trying to unregister a non-existent (unknown id) player.", LogType.Warning );
                 }
             }
-
-            Logger.Log( "World.UnregisterPlayer: Trying to unregister a non-existent (unknown id) player.", LogType.Warning );
         }
 
 
@@ -849,6 +857,18 @@ namespace fCraft {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i].name == name ) {
+                    return tempList[i];
+                }
+            }
+            return null;
+        }
+
+
+        // Get player by name without autocompletion
+        public static Player FindPlayerByNick( string nick ) {
+            Player[] tempList = playerList;
+            for( int i = 0; i < tempList.Length; i++ ) {
+                if( tempList[i] != null && tempList[i].nick == nick ) {
                     return tempList[i];
                 }
             }

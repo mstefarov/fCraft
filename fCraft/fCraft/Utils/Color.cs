@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 
 namespace fCraft {
-    public sealed class Color {
+    public static class Color {
         public const string Black   = "&0",
                             Navy    = "&1",
                             Green   = "&2",
@@ -29,8 +29,7 @@ namespace fCraft {
         static SortedList<char, string> colors = new SortedList<char, string>(16);
 
 
-        public static void Init() {
-            if( colors.Count > 0 ) return;
+        static Color() {
             colors.Add( '0', "black" );
             colors.Add( '1', "navy" );
             colors.Add( '2', "green" );

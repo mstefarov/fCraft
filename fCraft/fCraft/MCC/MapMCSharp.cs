@@ -34,7 +34,7 @@ using fCraft;
 
 
 namespace mcc {
-    public class MapMCSharp : IConverter {
+    public sealed class MapMCSharp : IConverter {
 
         public MapFormats Format {
             get { return MapFormats.MCSharp; }

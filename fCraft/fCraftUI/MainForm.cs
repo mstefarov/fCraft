@@ -11,11 +11,11 @@ using fCraft;
 
 
 namespace fCraftUI {
-    public partial class UI : Form {
+    public partial class MainForm : Form {
         bool shuttingDown = false;
         string[] args;
 
-        public UI( string[] _args ) {
+        public MainForm( string[] _args ) {
             args = _args;
             InitializeComponent();
             Shown += StartUp;
@@ -77,7 +77,9 @@ namespace fCraftUI {
             if( shuttingDown ) return;
             if( logBox.InvokeRequired ) {
                 LogDelegate d = new LogDelegate( LogInternal );
-                Invoke( d, new object[] { message } );
+                try {
+                    Invoke( d, new object[] { message } );
+                }catch{};
             } else {
                 LogInternal( message );
             }

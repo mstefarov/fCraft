@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Net;
+using System.Net.Cache;
 using System.Threading;
 using System.Text;
 using System.IO;
@@ -15,7 +16,7 @@ namespace fCraft {
 
 
         public static void Start() {
-            thread = new Thread( HeartBeatHandler );
+            thread = new Thread( HeartbeatHandler );
             thread.IsBackground = true;
 
             staticData = String.Format( "name={0}&max={1}&public={2}&port={3}&salt={4}&version={5}",
@@ -23,14 +24,14 @@ namespace fCraft {
                                         Config.GetInt( ConfigKey.MaxPlayers ),
                                         Config.GetBool( ConfigKey.IsPublic ),
                                         Server.port,
-                                        Config.Salt,
+                                        Server.Salt,
                                         Config.ProtocolVersion );
 
             thread.Start();
         }
 
 
-        static void HeartBeatHandler() {
+        static void HeartbeatHandler() {
             HttpWebRequest request;
             bool hasReportedServerURL = false;
 
@@ -40,7 +41,7 @@ namespace fCraft {
                     request.Method = "POST";
                     request.Timeout = 15000; // 15s timeout
                     request.ContentType = "application/x-www-form-urlencoded";
-                    request.CachePolicy = new System.Net.Cache.RequestCachePolicy( System.Net.Cache.RequestCacheLevel.NoCacheNoStore );
+                    request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
                     byte[] formData = Encoding.ASCII.GetBytes( staticData + "&users=" + Server.GetPlayerCount() );
                     request.ContentLength = formData.Length;
 
@@ -61,10 +62,10 @@ namespace fCraft {
                     request.Abort();
 
                 } catch( Exception ex ) {
-                    Logger.Log( "HeartBeat: {0}", LogType.Error, ex.Message );
+                    Logger.Log( "Heartbeat: {0}", LogType.Error, ex.Message );
                 }
 
-                Thread.Sleep( Config.HeartBeatDelay );
+                Thread.Sleep( Config.HeartbeatDelay );
             }
         }
 

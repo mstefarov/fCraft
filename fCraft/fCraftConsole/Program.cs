@@ -28,7 +28,7 @@ using System.Diagnostics;
 
 
 namespace fCraftConsole {
-    class Program {
+    static class Program {
         static void Main( string[] args ) {
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;

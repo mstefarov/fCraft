@@ -11,7 +11,7 @@ using System.Windows.Forms;
 namespace ConfigTool {
     internal partial class ColorPicker : Form {
         public static Dictionary<int, ColorPair> colors = new Dictionary<int, ColorPair>();
-        public static void Init() {
+        static ColorPicker() {
             colors.Add( 0, new ColorPair( Color.White, Color.Black ) );
             colors.Add( 8, new ColorPair( Color.White, Color.DimGray ) );
             colors.Add( 1, new ColorPair( Color.White, Color.Navy ) );
