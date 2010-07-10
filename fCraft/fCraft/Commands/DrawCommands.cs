@@ -6,32 +6,27 @@ namespace fCraft {
 
     enum DrawMode {
         Cuboid,
-        Ellipsoid
+        Ellipsoid,
+        Fill
     }
 
-    class DrawCommands {
+    static class DrawCommands {
 
         internal static void Init(){
-            Commands.AddCommand( "cuboid", Cuboid, true );
-            Commands.AddCommand( "cub", Cuboid, true );
-            Commands.AddCommand( "ellipsoid", Ellipsoid, true );
-            Commands.AddCommand( "ell", Ellipsoid, true );
-            Commands.AddCommand( "mark", Mark, true );
-            Commands.AddCommand( "undo", UndoDraw, true );
-            Commands.AddCommand( "cancel", CancelDraw, true );
+            Commands.AddCommand( "cuboid", Cuboid, false );
+            Commands.AddCommand( "cub", Cuboid, false );
+            Commands.AddCommand( "ellipsoid", Ellipsoid, false );
+            Commands.AddCommand( "ell", Ellipsoid, false );
+            Commands.AddCommand( "mark", Mark, false );
+            Commands.AddCommand( "undo", UndoDraw, false );
+            Commands.AddCommand( "cancel", CancelDraw, false );
+
+            //Commands.AddCommand( "xpipe", Pipe, false );
+            //Commands.AddCommand( "fill", Fill, false );
         }
 
 
-        internal static void Cuboid( Player player, Command command ) {
-            Draw( player, command, DrawMode.Cuboid );
-        }
-
-        internal static void Ellipsoid( Player player, Command command ) {
-            Draw( player, command, DrawMode.Ellipsoid );
-        }
-
-
-        internal static void Draw( Player player, Command command, DrawMode mode ) {
+        internal static void Pipe( Player player, Command command ) {
             if( !player.Can( Permissions.Draw ) ) {
                 player.NoAccessMessage( Permissions.Draw );
                 return;
@@ -41,6 +36,31 @@ namespace fCraft {
                 return;
             }
             string blockName = command.Next();
+        }
+
+
+        internal static void Cuboid( Player player, Command cmd ) {
+            Draw( player, cmd, DrawMode.Cuboid );
+        }
+
+        internal static void Ellipsoid( Player player, Command cmd ) {
+            Draw( player, cmd, DrawMode.Ellipsoid );
+        }
+
+        internal static void Fill( Player player, Command cmd ) {
+            Draw( player, cmd, DrawMode.Fill );
+        }
+
+        internal static void Draw( Player player, Command cmd, DrawMode mode ) {
+            if( !player.Can( Permissions.Draw ) ) {
+                player.NoAccessMessage( Permissions.Draw );
+                return;
+            }
+            if( player.drawingInProgress ) {
+                player.Message( "Another draw command is already in progress. Please wait." );
+                return;
+            }
+            string blockName = cmd.Next();
             object blockTypeTag = null;
 
             Permissions permission = Permissions.Build;
@@ -74,16 +94,23 @@ namespace fCraft {
             }
 
             player.tag = blockTypeTag;
-            player.marksExpected = 2;
+            switch( mode ) {
+                case DrawMode.Cuboid:
+                    player.selectionCallback = DrawCuboid;
+                    player.marksExpected = 2;
+                    break;
+                case DrawMode.Ellipsoid:
+                    player.selectionCallback = DrawEllipsoid;
+                    player.marksExpected = 2;
+                    break;
+                case DrawMode.Fill:
+                    player.selectionCallback = DoFill;
+                    player.marksExpected = 1;
+                    break;
+            }
             player.markCount = 0;
             player.marks.Clear();
             player.Message( mode.ToString() + ": Place a block or type /mark to use your location." );
-
-            if( mode == DrawMode.Cuboid ) {
-                player.selectionCallback = DrawCuboid;
-            } else {
-                player.selectionCallback = DrawEllipsoid;
-            }
         }
 
 
@@ -123,7 +150,7 @@ namespace fCraft {
                 if( player.drawingInProgress ) {
                     player.Message( "Cannot undo a drawing-in-progress. Wait for it to finish." );
                 } else {
-                    player.world.SendToAll( Color.Sys + player.name + " initiated /drawundo. " + player.drawUndoBuffer.Count + " blocks to replace...", null );
+                    player.world.SendToAll( Color.Sys + player.nick + " initiated /drawundo. " + player.drawUndoBuffer.Count + " blocks to replace...", null );
                     while( player.drawUndoBuffer.Count > 0 ) {
                         player.world.map.QueueUpdate( player.drawUndoBuffer.Dequeue() );
                     }
@@ -179,7 +206,7 @@ namespace fCraft {
             }
             player.Message( "Drawing " + blocks + " blocks... The map is now being updated." );
             Logger.Log( "{0} initiated drawing a cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
-                                  player.name,
+                                  player.GetLogName(),
                                   blocks,
                                   drawBlock.ToString() );
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
@@ -263,10 +290,16 @@ namespace fCraft {
             player.drawingInProgress = false;
             player.Message( "Drawing " + blocks + " blocks... The map is now being updated." );
             Logger.Log( "{0} initiated drawing a cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
-                                  player.name,
+                                  player.GetLogName(),
                                   blocks,
                                   drawBlock.ToString() );
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+        }
+
+
+        internal static void DoFill( Player player, Position[] marks, object tag ) {
+            player.drawingInProgress = true;
+            player.drawingInProgress = false;
         }
     }
 }

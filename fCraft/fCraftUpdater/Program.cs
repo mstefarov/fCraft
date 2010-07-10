@@ -26,7 +26,7 @@ using System.IO;
 
 
 namespace fCraftUpdater {
-    class Program {
+    static class Program {
         static string ExtractorFile = "UpdateExtractor.exe";
         static string[] fileList = { "fCraft.dll", "fCraftUI.exe", "ConfigTool.exe" };
 

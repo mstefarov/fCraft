@@ -82,7 +82,7 @@ namespace fCraft {
 
         void WriteHeader( FileStream fs ) {
             BinaryWriter writer = new BinaryWriter( fs );
-            writer.Write( Config.LevelFormatID );
+            writer.Write( MapFCMv2.Identifier );
             writer.Write( (ushort)widthX );
             writer.Write( (ushort)widthY );
             writer.Write( (ushort)height );
@@ -232,7 +232,7 @@ namespace fCraft {
 
         #region Utilities
         static Dictionary<string, Block> blockNames = new Dictionary<string, Block>();
-        public static void Init() {
+        static Map() {
             foreach( string block in Enum.GetNames( typeof( Block ) ) ) {
                 blockNames.Add( block.ToLower(), (Block)Enum.Parse( typeof( Block ), block ) );
             }
@@ -324,7 +324,7 @@ namespace fCraft {
             using( GZipStream compressor = new GZipStream( stream, CompressionMode.Compress ) ) {
                 if( prependBlockCount ) {
                     // convert block count to big-endian
-                    int convertedBlockCount = Server.htons( blocks.Length );
+                    int convertedBlockCount = Server.SwapBytes( blocks.Length );
                     // write block count to gzip stream
                     compressor.Write( BitConverter.GetBytes( convertedBlockCount ), 0, sizeof( int ) );
                 }
@@ -479,7 +479,7 @@ namespace fCraft {
             int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate( world );
             BlockUpdate update;
             while( updates.Count > 0 && packetsSent < maxPacketsPerUpdate ) {
-                if( world.locked ) return;
+                if( world.isLocked ) return;
                 lock( queueLock ) {
                     update = updates.Dequeue();
                 }
@@ -492,7 +492,7 @@ namespace fCraft {
                 packetsSent++;
             }
 
-            if( updates.Count == 0 && world.readyForUnload ) {
+            if( updates.Count == 0 && world.isReadyForUnload ) {
                 world.UnloadMap();
             }
 
@@ -567,7 +567,7 @@ namespace fCraft {
             Logger.Log( "AutoBackup: " + targetName, LogType.SystemActivity );
         }
 
-        class FileInfoComparer : IComparer<FileInfo> {
+        sealed class FileInfoComparer : IComparer<FileInfo> {
             public static FileInfoComparer instance = new FileInfoComparer();
             public int Compare( FileInfo x, FileInfo y ) {
                 return x.CreationTime.CompareTo( y.CreationTime );

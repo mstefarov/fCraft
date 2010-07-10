@@ -13,10 +13,10 @@ namespace fCraftUI {
         UpdaterResult update;
         static string UpdaterFile = "Updater.exe";
         WebClient downloader = new WebClient();
-        UI parent;
+        MainForm parent;
         bool auto;
 
-        public UpdateWindow( UpdaterResult _update, UI _parent, bool _auto ) {
+        public UpdateWindow( UpdaterResult _update, MainForm _parent, bool _auto ) {
             InitializeComponent();
             parent = _parent;
             update = _update;

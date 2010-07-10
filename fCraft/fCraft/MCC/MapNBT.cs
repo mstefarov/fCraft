@@ -34,7 +34,7 @@ using fCraft;
 
 
 namespace mcc {
-    public class MapNBT : IConverter {
+    public sealed class MapNBT : IConverter {
 
         public MapFormats Format {
             get { return MapFormats.NBT; }

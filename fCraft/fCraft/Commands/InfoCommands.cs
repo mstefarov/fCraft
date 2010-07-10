@@ -5,7 +5,7 @@ using System.IO;
 
 
 namespace fCraft {
-    class InfoCommands {
+    static class InfoCommands {
 
         // Register help commands
         internal static void Init() {
@@ -16,6 +16,7 @@ namespace fCraft {
             Commands.AddCommand( "rules", Rules, true );
 
             Commands.AddCommand( "where", Compass, false );
+            Commands.AddCommand( "whois", Whois, true );
             Commands.AddCommand( "compass", Compass, false );
 
             Commands.AddCommand( "version", GetVersion, true );
@@ -32,13 +33,13 @@ namespace fCraft {
                 bool first = true;
                 foreach( Player p in players ) {
                     if( p.isHidden ) continue;
-                    if( line.Length + p.name.Length > 62 ) {
+                    if( line.Length + p.nick.Length > 62 ) {
                         player.Message( line );
                         line = "";
                     } else if( !first ) {
                         line += ", ";
                     }
-                    line += p.name;
+                    line += p.nick;
                     first = false;
                 }
                 player.Message( line );
@@ -65,24 +66,27 @@ namespace fCraft {
                                 "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . ";
 
         internal static void Compass( Player player, Command cmd ) {
-            int offset = (int)(player.pos.r / 255f * 64f) + 32;
+            int offset;
             string name = cmd.Next();
 
+            Player target = player;
+
             if( name != null ) {
-                Player target = Server.FindPlayer( name );
+                target = Server.FindPlayer( name );
                 if( target != null ) {
-                    player.Message( "Coordinates of player \"" + target.name + "\" (on \"" + target.world.name + "\"):" );
-                    offset = (int)(target.pos.r / 255f * 64f) + 32;
+                    player.Message( "Coordinates of player \"" + target.nick + "\" (on \"" + target.world.name + "\"):" );
                 } else {
                     player.NoPlayerMessage( name );
                     return;
                 }
             }
 
+            offset = (int)(target.pos.r / 255f * 64f) + 32;
+
             player.Message( Color.Silver, String.Format( "({0},{1},{2}) - {3}[{4}{5}{6}{3}{7}]",
-                            player.pos.x / 32,
-                            player.pos.y / 32,
-                            player.pos.h / 32,
+                            target.pos.x / 32,
+                            target.pos.y / 32,
+                            target.pos.h / 32,
                             Color.White,
                             compass.Substring( offset - 12, 11 ),
                             Color.Red,
@@ -227,7 +231,15 @@ namespace fCraft {
                 case "me":
                     player.Message( Color.Help, "/me Message" );
                     player.Message( "     Sends IRC-style action message prefixed with your name:" );
-                    player.Message( "     * "+player.name+" Message" );
+                    player.Message( "     * " + player.nick + " Message" );
+                    break;
+                case "nick":
+                    player.Message( Color.Help, "/nick NewName" );
+                    player.Message( "     Allows temporarily changing your displayed name." );
+                    player.Message( "     The new name is shown in chat, player list, and in-game." );
+                    player.Message( "     The skin also changes to match the new name." );
+                    player.Message( Color.Help, "/nick" );
+                    player.Message( "     Resets your name to the normal one." );
                     break;
                 case "paint":
                     player.Message( Color.Help, "/paint" );
@@ -407,13 +419,33 @@ namespace fCraft {
                     player.Message( "Below is a list of commands: " );
                     player.Message( Color.Help, "    ban, banall, baninfo, banip, bring, cancel, class, cuboid" );
                     player.Message( Color.Help, "    ellipsoid, freeze, gen, grass, help, hide, info, join" );
-                    player.Message( Color.Help, "    kick, lava, lock, lockall, me, paint, players, roll, rules" );
-                    player.Message( Color.Help, "    save, setspawn, solid, tp, unban, unbanall, unbanip, undo" );
-                    player.Message( Color.Help, "    unhide, unfreeze, unlock, unlockall, user, waccess, water" );
-                    player.Message( Color.Help, "    wbuild, where, worlds, wload, wmain, wremove, wrename" );
-                    player.Message( Color.Help, "    zone, zones, zremove, ztest" );
+                    player.Message( Color.Help, "    kick, lava, lock, lockall, me, nick paint, players, roll" );
+                    player.Message( Color.Help, "    rules, save, setspawn, solid, tp, unban, unbanall," );
+                    player.Message( Color.Help, "    unbanip, undo, unhide, unfreeze, unlock, unlockall, user," );
+                    player.Message( Color.Help, "    waccess, water, wbuild, where, worlds, wload, wmain" );
+                    player.Message( Color.Help, "    wremove, wrename, zone, zones, zremove, ztest" );
                     //TODO: fetch an actual, current list of commands
                     break;
+            }
+        }
+
+
+        internal static void Whois( Player player, Command cmd ) {
+            string name = cmd.Next();
+            if( name == null ) {
+                player.Message( "Usage: " + Color.Help + "/whois PlayerNickname" );
+                return;
+            }
+
+            Player target = Server.FindPlayerByNick( name );
+            if( target != null ) {
+                if( target.nick != target.name ) {
+                    player.Message( "Player named " + target.name + " is using a nickname \"" + target.nick + "\"" );
+                } else {
+                    player.Message( "Player named " + target.name + " is not using any nickname." );
+                }
+            } else {
+                player.NoPlayerMessage( name );
             }
         }
 
@@ -430,10 +462,17 @@ namespace fCraft {
                 return;
             }
 
+            Player target = Server.FindPlayerByNick( name );
+            if( target != null && target.nick != target.name ) {
+                player.Message( Color.Red, "Warning: Player named " + target.name + " is using a nickname \"" + target.nick + "\"" );
+                player.Message( Color.Red, "The information below is for the REAL " + name );
+            }
+
             PlayerInfo info;
             if( !PlayerDB.FindPlayerInfo( name, out info ) ) {
                 player.ManyPlayersMessage( name );
             } else if( info != null ) {
+
                 if( DateTime.Now.Subtract( info.lastLoginDate ).TotalDays < 1 ) {
                     player.Message( String.Format( "About {0}: Last login {1:F1} hours ago from {2}",
                                                         info.name,

@@ -46,7 +46,7 @@ namespace fCraft {
             client.ReceiveTimeout = 10000;
 
             reader = new BinaryReader( client.GetStream() );
-            writer = new PacketWriter( new BinaryWriter( client.GetStream() ) );
+            writer = new PacketWriter( client.GetStream() );
 
             Logger.Log( "Session: {0}", LogType.Debug, ToString() );
 
@@ -72,7 +72,7 @@ namespace fCraft {
                 while( !canDispose ) {
                     Thread.Sleep( 1 );
 
-                    if ( forcedWorldToJoin != null ) {
+                    if( forcedWorldToJoin != null ) {
                         JoinWorld( forcedWorldToJoin, true );
                         forcedWorldToJoin = null;
                         continue;
@@ -85,7 +85,7 @@ namespace fCraft {
                         if( !client.Connected ||
                             (client.Client.Poll( 1000, SelectMode.SelectRead ) && client.Client.Available == 0) ) {
                             if( player != null ) {
-                                Logger.Log( "Session.IoLoop: Lost connection to player {0} ({1}).", LogType.Debug, player.name, GetIP() );
+                                Logger.Log( "Session.IoLoop: Lost connection to player {0} ({1}).", LogType.Debug, player.GetLogName(), GetIP() );
                             } else {
                                 Logger.Log( "Session.IoLoop: Lost connection to unidentified player {0}.", LogType.Debug, GetIP() );
                             }
@@ -103,7 +103,7 @@ namespace fCraft {
                         writer.Write( packet.data );
                         packetsSent++;
                         if( packet.data[0] == (byte)OutputCodes.Disconnect ) {
-                            Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug, player.name );
+                            Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug, player.GetLogName() );
                             return;
                         }
                     }
@@ -117,7 +117,7 @@ namespace fCraft {
                         packetsSent++;
                         if( packet.data[0] == (byte)OutputCodes.Disconnect ) {
                             writer.Flush();
-                            Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug, player.name );
+                            Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug, player.GetLogName() );
                             return;
                         }
                     }
@@ -135,7 +135,7 @@ namespace fCraft {
                                 if( Player.CheckForIllegalChars( message ) ) {
                                     Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.",
                                                 LogType.SuspiciousActivity,
-                                                player.name );
+                                                player.GetLogName() );
                                     KickNow( "Illegal characters in chat." );
                                     return;
                                 } else {
@@ -155,7 +155,7 @@ namespace fCraft {
                                 newPos.l = reader.ReadByte();
 
                                 if( newPos.h < 0 /*|| newPos.x < -32 || newPos.x >= player.world.map.widthX * 32 + 32 || newPos.y < -32 || newPos.y > player.world.map.widthY * 32 + 32*/ ) {
-                                    Logger.Log( player.name + " was kicked for moving out of map boundaries.", LogType.SuspiciousActivity );
+                                    Logger.Log( player.GetLogName() + " was kicked for moving out of map boundaries.", LogType.SuspiciousActivity );
                                     KickNow( "Hacking detected: out of map boundaries." );
                                     return;
                                 }
@@ -163,24 +163,24 @@ namespace fCraft {
                                 Position delta = new Position(), oldPos = player.pos;
                                 bool posChanged, rotChanged;
 
-                                if( !player.isHidden ) {
-                                    delta.Set( newPos.x - oldPos.x, newPos.y - oldPos.y, newPos.h - oldPos.h, newPos.r, newPos.l );
-                                    posChanged = delta.x != 0 || delta.y != 0 || delta.h != 0;
-                                    rotChanged = newPos.r != oldPos.r || newPos.l != oldPos.l;
+                                delta.Set( newPos.x - oldPos.x, newPos.y - oldPos.y, newPos.h - oldPos.h, newPos.r, newPos.l );
+                                posChanged = delta.x != 0 || delta.y != 0 || delta.h != 0;
+                                rotChanged = newPos.r != oldPos.r || newPos.l != oldPos.l;
 
-                                    if( rotChanged ) player.ResetIdleTimer();
+                                if( rotChanged ) player.ResetIdleTimer();
 
-                                    if( player.isFrozen ) {
-                                        if( rotChanged ) {
-                                            player.world.SendToAll( PacketWriter.MakeRotate( player.id, newPos ), player );
-                                            player.pos.r = newPos.r;
-                                            player.pos.l = newPos.l;
-                                        }
-                                        if( posChanged ) {
-                                            SendNow( PacketWriter.MakeTeleport( 255, player.pos ) );
-                                        }
+                                if( player.isFrozen ) {
+                                    if( rotChanged ) {
+                                        player.world.SendToAll( PacketWriter.MakeRotate( player.id, newPos ), player );
+                                        player.pos.r = newPos.r;
+                                        player.pos.l = newPos.l;
+                                    }
+                                    if( posChanged ) {
+                                        SendNow( PacketWriter.MakeTeleport( 255, player.pos ) );
+                                    }
 
-                                    } else {
+                                } else {
+                                    if( !player.isHidden ) {
                                         if( delta.FitsIntoByte() && fullPositionUpdateCounter < fullPositionUpdateInterval ) {
                                             if( posChanged && rotChanged ) {
                                                 player.world.SendToAll( PacketWriter.MakeMoveRotate( player.id, delta ), player );
@@ -192,12 +192,12 @@ namespace fCraft {
                                         } else if( !delta.IsZero() && !player.isFrozen ) {
                                             player.world.SendToAll( PacketWriter.MakeTeleport( player.id, newPos ), player );
                                         }
-                                        player.pos = newPos;
                                     }
-
-                                    fullPositionUpdateCounter++;
-                                    if( fullPositionUpdateCounter >= fullPositionUpdateInterval ) fullPositionUpdateCounter = 0;
+                                    player.pos = newPos;
                                 }
+
+                                fullPositionUpdateCounter++;
+                                if( fullPositionUpdateCounter >= fullPositionUpdateInterval ) fullPositionUpdateCounter = 0;
                                 break;
 
                             // Set tile
@@ -208,10 +208,10 @@ namespace fCraft {
                                 y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
                                 mode = reader.ReadByte();
                                 type = reader.ReadByte();
-                                if ( isBetweenWorlds ) continue;
+                                if( isBetweenWorlds ) continue;
                                 if( type > 49 || x < 0 || x > player.world.map.widthX || y < 0 || y > player.world.map.widthY || h < 0 || h > player.world.map.height ) {
-                                    Logger.Log( player.name + " was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity );
-                                    Server.SendToAll( player.name + " was kicked for attempted hacking.", null );
+                                    Logger.Log( player.GetLogName() + " was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity );
+                                    Server.SendToAll( player.GetLogName() + " was kicked for attempted hacking.", null );
                                     KickNow( "Hacking detected: illegal SetTile packet." );
                                     return;
                                 } else {
@@ -455,7 +455,7 @@ namespace fCraft {
             // Send new spawn
             player.pos = player.world.map.spawn;
             Thread.Sleep( 100 );
-            writer.WriteAddEntity( 255, player.name, player.pos );
+            writer.WriteAddEntity( 255, player, player.pos );
             writer.WriteTeleport( 255, player.pos );
 
             isBetweenWorlds = false;
@@ -528,8 +528,10 @@ namespace fCraft {
 
 
         public void Disconnect() {
-            Server.UnregisterPlayer( player );
-            player = null;
+            if( player != null ) {
+                Server.UnregisterPlayer( player );
+                player = null;
+            }
 
             if( ioThread != null ) {
                 if( ioThread.IsAlive ) {

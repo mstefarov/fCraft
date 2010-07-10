@@ -19,7 +19,6 @@ namespace fCraft {
         IsPublic,
         Port,
         UploadBandwidth,
-        ReservedSlotBehavior,
 
         ClassColorsInChat,
         ClassPrefixesInChat,
@@ -77,15 +76,13 @@ namespace fCraft {
         LowLatencyMode
     }
 
-    public static class Config {
 
-        internal static int Salt;
+    public static class Config {
         public static string ServerURL;
-        public const int HeartBeatDelay = 50000;
+        public const int HeartbeatDelay = 50000;
 
         public const int ProtocolVersion = 7;
         public const int ConfigVersion = 100;
-        public const uint LevelFormatID = 0xFC000002;
         public const int MaxPlayersSupported = 256;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
@@ -114,7 +111,6 @@ namespace fCraft {
             settings[ConfigKey.IsPublic] = "false";
             settings[ConfigKey.Port] = "25565";
             settings[ConfigKey.UploadBandwidth] = "100";
-            settings[ConfigKey.ReservedSlotBehavior] = "IncreaseMaxPlayers"; // can be "KickIdle", "KickRandom", "IncreaseMaxPlayers"
 
             settings[ConfigKey.ClassColorsInChat] = "true";
             settings[ConfigKey.ClassPrefixesInChat] = "false";
@@ -209,8 +205,6 @@ namespace fCraft {
 
         public static bool Load() {
             // generate random salt
-            Salt = new Random().Next();
-
             LoadDefaults();
             bool fromFile = false;
 
@@ -451,8 +445,6 @@ namespace fCraft {
                     return ValidateInt( key, value, 1, 65535 );
                 case ConfigKey.UploadBandwidth:
                     return ValidateInt( key, value, 1, 10000 );
-                case ConfigKey.ReservedSlotBehavior:
-                    return ValidateEnum( key, value, "KickIdle", "KickRandom", "IncreaseMaxPlayers" );
 
                 case ConfigKey.IRCBotNick:
                     return ValidateString( key, value, 1, 32 );

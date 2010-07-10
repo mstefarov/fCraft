@@ -6,7 +6,7 @@ using System.Threading;
 namespace fCraft {
 
     // used by Server.MainLoop
-    internal class ScheduledTask {
+    internal sealed class ScheduledTask {
         public DateTime nextTime;
         public int interval;
         public TaskCallback callback;
@@ -27,7 +27,7 @@ namespace fCraft {
         static bool keepGoing;
 
 
-        public static void Init() {
+        public static void Start() {
             keepGoing = true;
             taskThread = new Thread( TaskLoop );
             taskThread.IsBackground = true;
@@ -47,7 +47,7 @@ namespace fCraft {
             ShutDown();
             tasks.Clear();
             priorityTasks.Clear();
-            Init();
+            Start();
         }
 
 

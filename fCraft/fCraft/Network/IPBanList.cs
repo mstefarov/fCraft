@@ -40,7 +40,7 @@ namespace fCraft {
 
         internal static void Save() {
             Logger.Log( "IPBanList.Save: Saving IP ban list ({0} records).", LogType.Debug, bans.Count );
-            string tempFile = BanFile + ( new Random() ).Next().ToString();
+            string tempFile = BanFile + (new Random()).Next().ToString();
             lock( locker ) {
                 using( StreamWriter writer = File.CreateText( tempFile ) ) {
                     writer.WriteLine( Header );
@@ -105,21 +105,21 @@ namespace fCraft {
         public DateTime lastAttemptDate;
 
 
-        public IPBanInfo( string[] fields ){
-            address = IPAddress.Parse(fields[0]);
+        public IPBanInfo( string[] fields ) {
+            address = IPAddress.Parse( fields[0] );
             bannedBy = fields[1];
-            banDate = DateTime.Parse(fields[2]);
-            banReason = PlayerInfo.UnEscape(fields[3]);
+            banDate = DateTime.Parse( fields[2] );
+            banReason = PlayerInfo.UnEscape( fields[3] );
             if( fields[4] == "-" ) {
                 playerName = null;
             } else {
                 playerName = fields[4];
             }
 
-            attempts = Int16.Parse(fields[5]);
+            attempts = Int16.Parse( fields[5] );
             lastAttemptName = fields[6];
-            if( fields[7]=="-") lastAttemptDate = DateTime.MinValue;
-            else lastAttemptDate = DateTime.Parse(fields[7]);
+            if( fields[7] == "-" ) lastAttemptDate = DateTime.MinValue;
+            else lastAttemptDate = DateTime.Parse( fields[7] );
         }
 
 

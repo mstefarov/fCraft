@@ -35,8 +35,9 @@ namespace fCraft {
         public string name;
         public Dictionary<int, Player> players = new Dictionary<int, Player>();
         public Player[] playerList;
-        public bool locked,
-                    readyForUnload,
+        public bool isLocked,
+                    isHidden,
+                    isReadyForUnload,
                     neverUnload;
         public PlayerClass classAccess, classBuild;
 
@@ -94,7 +95,7 @@ namespace fCraft {
             lock ( mapLock ) {
                 SaveMap( null );
                 map = null;
-                readyForUnload = false;
+                isReadyForUnload = false;
                 if( OnUnloaded != null ) OnUnloaded();
             }
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
@@ -116,14 +117,14 @@ namespace fCraft {
 
 
         public void Lock() {
-            locked = true;
+            isLocked = true;
             if ( map != null ) map.ClearUpdateQueue();
             SendToAll( Color.Red + "Map is now on lockdown!" );
         }
 
 
         public void Unlock() {
-            locked = false;
+            isLocked = false;
             SendToAll( "Map lockdown has ended." );
         }
 
@@ -150,7 +151,7 @@ namespace fCraft {
         public void AcceptPlayer( Player player ) {
             lock( playerListLock ) {
                 lock( mapLock ) {
-                    readyForUnload = false;
+                    isReadyForUnload = false;
                     if( map == null ) {
                         LoadMap();
                     }
@@ -166,15 +167,15 @@ namespace fCraft {
                 // Reveal newcommer to existing players
                 if( !player.isHidden ) {
                     SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
-                    Server.SendToAll( String.Format( "{0}Player {1} joined \"{2}\".", Color.Sys, player.name, name ), player );
+                    Server.SendToAll( String.Format( "{0}Player {1} joined \"{2}\".", Color.Sys, player.GetLogName(), name ), player );
                 }
             }
 
-            Logger.Log( "Player {0} joined \"{1}\".", LogType.UserActivity, player.name, name );
+            Logger.Log( "Player {0} joined \"{1}\".", LogType.UserActivity, player.GetLogName(), name );
 
             if( OnPlayerJoined != null ) OnPlayerJoined( player, this );
 
-            if( locked ) {
+            if( isLocked ) {
                 player.Message( Color.Red, "This map is currently locked." );
             }
         }
@@ -201,7 +202,7 @@ namespace fCraft {
 
                 // unload map (if needed)
                 if ( players.Count == 0 && !neverUnload ) {
-                    readyForUnload = true;
+                    isReadyForUnload = true;
                 }
             }
         }

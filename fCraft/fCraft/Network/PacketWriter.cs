@@ -7,49 +7,33 @@ using System.Net;
 
 namespace fCraft {
     // Protocol encoder for outgoing packets
-    sealed class PacketWriter {
-        BinaryWriter writer;
+    sealed class PacketWriter : BinaryWriter {
 
+        public PacketWriter( Stream stream ) : base( stream ) { }
 
-        public PacketWriter( BinaryWriter _writer ) {
-            writer = _writer;
-        }
-
-
+        #region Direct Writing
         public void Write( OutputCodes opcode ) {
-            writer.Write( (byte)opcode );
+            Write( (byte)opcode );
         }
 
-        public void Write( byte data ) {
-            writer.Write( data );
+        public override void Write( short data ) {
+            base.Write( Server.SwapBytes( data ) );
         }
 
-        public void Write( sbyte data ) {
-            writer.Write( data );
+        public override void Write( int data ) {
+            Write( IPAddress.HostToNetworkOrder( data ) );
         }
 
-        public void Write( short data ) {
-            writer.Write( SwapBytes( data ) );
-        }
-
-        public void Write( int data ) {
-            writer.Write( IPAddress.HostToNetworkOrder( data ) );
-        }
-
-        public void Write( string data ) {
-            writer.Write( Encoding.ASCII.GetBytes( data.PadRight( 64 ).Substring( 0, 64 ) ) );
-        }
-
-        public void Write( byte[] data ) {
-            writer.Write( data );
+        public override void Write( string data ) {
+            Write( Encoding.ASCII.GetBytes( data.PadRight( 64 ).Substring( 0, 64 ) ) );
         }
 
         public void Write( Packet packet ) {
-            writer.Write( packet.data );
+            Write( packet.data );
         }
-        public void Flush() {
-            writer.Flush();
-        }
+
+
+        #region Direct Writing Whole Packets
 
         // below are builders for specific packet codes
         public void WriteDisconnect( string reason ) {
@@ -68,16 +52,14 @@ namespace fCraft {
         public void WriteLevelChunk( byte[] chunk, int chunkSize, byte progress ) {
             Write( OutputCodes.LevelChunk );
             Write( (short)chunkSize );
-            writer.Write( chunk, 0, 1024 );
+            Write( chunk, 0, 1024 );
             Write( (byte)progress );
         }
 
- 
-
-        public void WriteAddEntity( byte id, string name, Position pos ) {
+        public void WriteAddEntity( byte id, Player player, Position pos ) {
             Write( OutputCodes.AddEntity );
             Write( id );
-            Write( name );
+            Write( player.GetListName() );
             Write( (short)pos.x );
             Write( (short)pos.h );
             Write( (short)pos.y );
@@ -94,6 +76,11 @@ namespace fCraft {
             Write( pos.r );
             Write( pos.l );
         }
+        #endregion
+
+        #endregion
+
+        #region Packet Making
 
         internal static Packet MakeHandshake( Player player, string serverName, string MOTD ) {
             Packet packet = new Packet( 131 );
@@ -210,20 +197,15 @@ namespace fCraft {
             return packet;
         }
 
+        #endregion
 
-        internal void Close() {
-            writer.Close();
-        }
-
+        #region Utilities
 
         internal static void ToNetOrder( int number, byte[] arr, int offset ) {
             arr[offset] = (byte)((number & 0xff00) >> 8);
             arr[offset + 1] = (byte)(number & 0x00ff);
         }
 
-
-        internal static short SwapBytes( short number ) {
-            return unchecked( (short)(((number & 0xff00) >> 8) | ((number & 0x00ff) << 8)) );
-        }
+        #endregion
     }
 }

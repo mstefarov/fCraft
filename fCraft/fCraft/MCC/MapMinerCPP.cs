@@ -35,7 +35,7 @@ using fCraft;
 
 
 namespace mcc {
-    public class MapMinerCPP : IConverter {
+    public sealed class MapMinerCPP : IConverter {
 
         public MapFormats Format {
             get { return MapFormats.MinerCPP; }
