@@ -124,7 +124,7 @@ namespace fCraft {
         public static void LoadDefaultsSecurity() {
             settings[ConfigKey.VerifyNames] = "Balanced"; // can be "Always," "Balanced," or "Never"
             settings[ConfigKey.AnnounceUnverifiedNames] = "True";
-            settings[ConfigKey.LimitOneConnectionPerIP] = "True";
+            settings[ConfigKey.LimitOneConnectionPerIP] = "False";
 
             settings[ConfigKey.AntispamMessageCount] = "4";
             settings[ConfigKey.AntispamInterval] = "5";

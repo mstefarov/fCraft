@@ -151,7 +151,7 @@ namespace fCraft {
 
             // kill the main thread
             Logger.Log( "Server shutting down.", LogType.SystemActivity );
-            continueMainLoop = false;
+            shuttingDown = true;
             if( mainThread != null && mainThread.IsAlive ) {
                 mainThread.Join();
             }
@@ -591,13 +591,13 @@ namespace fCraft {
         static ScheduledTask[] taskList;
         static Thread mainThread;
         static DateTime serverStart;
-        static bool continueMainLoop = true;
+        public static bool shuttingDown = false;
         static object taskListLock = new object();
 
         internal static void MainLoop() {
             ScheduledTask[] taskCache;
             ScheduledTask task;
-            while( continueMainLoop ) {
+            while( !shuttingDown ) {
                 taskCache = taskList;
                 for( int i = 0; i < taskCache.Length; i++ ) {
                     task = taskCache[i];

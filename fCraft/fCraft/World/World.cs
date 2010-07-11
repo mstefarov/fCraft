@@ -45,13 +45,35 @@ namespace fCraft {
                mapLock = new object();
 
         internal int updateTaskId = -1, saveTaskId = -1, backupTaskId = -1;
-
+        AutoResetEvent waiter = new AutoResetEvent( false );
+        Thread thread;
+        internal bool canDispose = false;
 
         public World( string _name ) {
             name = _name;
             classAccess = ClassList.lowestClass;
             classBuild = ClassList.lowestClass;
+            thread = new Thread( WorldLoop );
+            thread.IsBackground = true;
         }
+
+
+        void WorldLoop() {
+            while( !Server.shuttingDown ) {
+                waiter.WaitOne(); // wait for players to connect
+                LoadMap();
+                while( true ) {
+                    // update logic
+                    lock( playerListLock ) {
+                        if( players.Count == 0 ) break;
+                    }
+                }
+                UnloadMap();
+            }
+            Shutdown();
+            canDispose = true;
+        }
+
 
         // Prepare for shutdown
         public void Shutdown() {
