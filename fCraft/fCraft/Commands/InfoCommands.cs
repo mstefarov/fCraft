@@ -15,9 +15,8 @@ namespace fCraft {
             Commands.AddCommand( "class", ClassInfo, true );
             Commands.AddCommand( "rules", Rules, true );
 
-            Commands.AddCommand( "where", Compass, false );
+            Commands.AddCommand( "where", Where, false );
             Commands.AddCommand( "whois", Whois, true );
-            Commands.AddCommand( "compass", Compass, false );
 
             Commands.AddCommand( "version", GetVersion, true );
             Commands.AddCommand( "players", Players, true );
@@ -65,7 +64,7 @@ namespace fCraft {
         static string compass = "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . " +
                                 "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . ";
 
-        internal static void Compass( Player player, Command cmd ) {
+        internal static void Where( Player player, Command cmd ) {
             int offset;
             string name = cmd.Next();
 
@@ -359,6 +358,10 @@ namespace fCraft {
                     player.Message( "     Shows information about the location and orientation of a" );
                     player.Message( "     player. If no name is given, shows player's own info." );
                     break;
+                case "whois":
+                    player.Message( Color.Help, "/whois PlayerNickName" );
+                    player.Message( "     Shows whether a player uses a real name or nickname." );
+                    break;
                 case "worlds":
                     player.Message( Color.Help, "/worlds" );
                     player.Message( "     List all available worlds that you can join." );
@@ -416,14 +419,14 @@ namespace fCraft {
                     }
                     player.Message( "To send private messages, write " + Color.Help + "@playername [message]" );
                     player.Message( "To message all players of a class, write " + Color.Help + "@@class [message]" );
-                    player.Message( "Below is a list of commands: " );
+                    player.Message( "Below is a list of all commands:" );
                     player.Message( Color.Help, "    ban, banall, baninfo, banip, bring, cancel, class, cuboid" );
                     player.Message( Color.Help, "    ellipsoid, freeze, gen, grass, help, hide, info, join" );
                     player.Message( Color.Help, "    kick, lava, lock, lockall, me, nick paint, players, roll" );
-                    player.Message( Color.Help, "    rules, save, setspawn, solid, tp, unban, unbanall," );
-                    player.Message( Color.Help, "    unbanip, undo, unhide, unfreeze, unlock, unlockall, user," );
-                    player.Message( Color.Help, "    waccess, water, wbuild, where, worlds, wload, wmain" );
-                    player.Message( Color.Help, "    wremove, wrename, zone, zones, zremove, ztest" );
+                    player.Message( Color.Help, "    rules, save, setspawn, solid, tp, unban, unbanall" );
+                    player.Message( Color.Help, "    unbanip, undo, unhide, unfreeze, unlock, unlockall, user" );
+                    player.Message( Color.Help, "    waccess, water, wbuild, where, whois, worlds, wload" );
+                    player.Message( Color.Help, "    wmain, wremove, wrename, zone, zones, zremove, ztest" );
                     //TODO: fetch an actual, current list of commands
                     break;
             }
