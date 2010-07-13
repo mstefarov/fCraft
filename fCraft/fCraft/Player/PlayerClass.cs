@@ -30,35 +30,19 @@ namespace fCraft {
 
 
         public bool CanKick( PlayerClass other ) {
-            if( maxKick == null ) {
-                return rank >= other.rank;
-            } else {
-                return maxKick.rank >= other.rank;
-            }
+            return maxKick.rank >= other.rank;
         }
 
         public bool CanBan( PlayerClass other ) {
-            if( maxBan == null ) {
-                return rank >= other.rank;
-            } else {
-                return maxBan.rank >= other.rank;
-            }
+            return maxBan.rank >= other.rank;
         }
 
         public bool CanPromote( PlayerClass other ) {
-            if( maxPromote == null ) {
-                return rank >= other.rank;
-            } else {
-                return maxPromote.rank >= other.rank;
-            }
+            return maxPromote.rank >= other.rank;
         }
 
         public bool CanDemote( PlayerClass other ) {
-            if( maxDemote == null ) {
-                return rank >= other.rank;
-            } else {
-                return maxDemote.rank >= other.rank;
-            }
+            return maxDemote.rank >= other.rank;
         }
 
 
