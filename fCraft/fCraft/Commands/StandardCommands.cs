@@ -113,11 +113,11 @@ namespace fCraft {
                         min = t1;
                         max = t2;
                     }
-                } else if( t1 >= 1 ){
+                } else if( t1 >= 1 ) {
                     max = t1;
                 }
             }
-            num = rand.Next( min, max+1 );
+            num = rand.Next( min, max + 1 );
             string msg = Color.Silver + player.nick + " rolled " + num + " (" + min + "..." + max + ")";
             Logger.LogConsole( msg );
             Server.SendToAll( msg );
@@ -186,16 +186,14 @@ namespace fCraft {
 
                 // ban online players
             } else if( !unban && offender != null ) {
-                address = offender.info.lastIP;
-                if( banIP ) DoIPBan( player, address, reason, offender.name, banAll, unban );
-                if( unban ) {
-                    if( offender.info.ProcessUnBan( player.name, reason ) ) {
-                        Logger.Log( "{0} was unbanned by {1}.", LogType.UserActivity, offender.info.name, player.GetLogName() );
-                        Server.SendToAll( Color.Red + offender.name + " was unbanned by " + player.nick, offender );
-                    } else {
-                        player.Message( offender.name + " is not currently banned." );
-                    }
+
+                // check permissions
+                if( !player.info.playerClass.CanBan( offender.info.playerClass ) ) {
+                    player.Message( "You can only ban players ranked " + player.info.playerClass.maxBan.color + player.info.playerClass.maxBan.name + Color.Sys + " or lower." );
+                    player.Message( offender.GetLogName() + " is ranked " + offender.info.playerClass.name + "." );
                 } else {
+                    address = offender.info.lastIP;
+                    if( banIP ) DoIPBan( player, address, reason, offender.name, banAll, unban );
                     if( offender.info.ProcessBan( player.name, reason ) ) {
                         Logger.Log( "{0} was banned by {1}.", LogType.UserActivity, offender.info.name, player.GetLogName() );
                         Server.SendToAll( Color.Red + offender.name + " was banned by " + player.nick, offender );
@@ -207,21 +205,31 @@ namespace fCraft {
 
                 // ban offline players
             } else if( info != null ) {
-                address = info.lastIP;
-                if( banIP ) DoIPBan( player, address, reason, info.name, banAll, unban );
-                if( unban ) {
-                    if( info.ProcessUnBan( player.name, reason ) ) {
-                        Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity, info.name, player.GetLogName() );
-                        Server.SendToAll( Color.Red + info.name + " (offline) was unbanned by " + player.nick );
+                if( !player.info.playerClass.CanBan( offender.info.playerClass ) ) {
+                    PlayerClass maxRank = player.info.playerClass.maxBan;
+                    if( maxRank == null ) {
+                        player.Message( "You can only ban players ranked " + player.info.playerClass.color + player.info.playerClass.name + Color.Sys + " or lower." );
                     } else {
-                        player.Message( info.name + " (offline) is not currenty banned." );
+                        player.Message( "You can only ban players ranked " + maxRank.color + maxRank.name + Color.Sys + " or lower." );
                     }
+                    player.Message( offender.GetLogName() + " is ranked " + offender.info.playerClass.name + "." );
                 } else {
-                    if( info.ProcessBan( player.name, reason ) ) {
-                        Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity, info.name, player.GetLogName() );
-                        Server.SendToAll( Color.Red + info.name + " (offline) was banned by " + player.nick );
+                    address = info.lastIP;
+                    if( banIP ) DoIPBan( player, address, reason, info.name, banAll, unban );
+                    if( unban ) {
+                        if( info.ProcessUnBan( player.name, reason ) ) {
+                            Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity, info.name, player.GetLogName() );
+                            Server.SendToAll( Color.Red + info.name + " (offline) was unbanned by " + player.nick );
+                        } else {
+                            player.Message( info.name + " (offline) is not currenty banned." );
+                        }
                     } else {
-                        player.Message( info.name + " (offline) is already banned." );
+                        if( info.ProcessBan( player.name, reason ) ) {
+                            Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity, info.name, player.GetLogName() );
+                            Server.SendToAll( Color.Red + info.name + " (offline) was banned by " + player.nick );
+                        } else {
+                            player.Message( info.name + " (offline) is already banned." );
+                        }
                     }
                 }
             } else {
@@ -279,7 +287,10 @@ namespace fCraft {
                 string msg = cmd.NextAll();
                 Player offender = Server.FindPlayer( name );
                 if( offender != null ) {
-                    if( player.info.playerClass.maxKick.rank >= offender.info.playerClass.rank ) {
+                    if( !player.info.playerClass.CanKick( offender.info.playerClass ) ) {
+                        player.Message( "You can only kick players ranked " + player.info.playerClass.maxKick.color + player.info.playerClass.maxKick.name + Color.Sys + " or lower." );
+                        player.Message( offender.GetLogName() + " is ranked " + offender.info.playerClass.name + "." );
+                    } else {
                         Server.SendToAll( Color.Red + offender.nick + " was kicked by " + player.nick );
                         if( msg != null && msg != "" ) {
                             Logger.Log( "{0} was kicked by {1}. Memo: {2}", LogType.UserActivity, offender.GetLogName(), player.GetLogName(), msg );
@@ -288,9 +299,6 @@ namespace fCraft {
                             Logger.Log( "{0} was kicked by {1}", LogType.UserActivity, offender.GetLogName(), player.GetLogName() );
                             offender.session.Kick( "You have been kicked by " + player.GetLogName() );
                         }
-                    } else {
-                        player.Message( Color.Red, "You can only kick players ranked " + player.info.playerClass.maxKick.name + " or lower." );
-                        player.Message( Color.Red, offender.GetLogName() + " is ranked " + offender.info.playerClass.name + "." );
                     }
                 } else {
                     player.NoPlayerMessage( name );
@@ -340,21 +348,13 @@ namespace fCraft {
                 return;
             }
 
-            if( promote && !player.info.playerClass.CanPromote(newClass) ) {
-                PlayerClass maxRank = player.info.playerClass.maxPromote;
-                if( maxRank == null ) {
-                    player.Message( "You can only promote players up to " + player.info.playerClass.color + player.info.playerClass.name );
-                } else {
-                    player.Message( "You can only promote players up to " + maxRank.color + maxRank.name );
-                }
+            if( promote && !player.info.playerClass.CanPromote( newClass ) ) {
+                player.Message( "You can only promote players up to " + player.info.playerClass.maxPromote.color + player.info.playerClass.maxPromote.name );
+                player.Message( target.GetLogName() + " is ranked " + target.info.playerClass.name + "." );
                 return;
-            } else if( !promote && !player.info.playerClass.CanDemote(target.info.playerClass) ) {
-                PlayerClass maxRank = player.info.playerClass.maxDemote;
-                if( maxRank == null ) {
-                    player.Message( "You can only demote players that are " + player.info.playerClass.color + player.info.playerClass.name + Color.Sys + " or lower." );
-                } else {
-                    player.Message( "You can only demote players that are " + maxRank.color + maxRank.name + Color.Sys + " or lower." );
-                }
+            } else if( !promote && !player.info.playerClass.CanDemote( target.info.playerClass ) ) {
+                player.Message( "You can only demote players that are " + player.info.playerClass.maxDemote.color + player.info.playerClass.maxDemote.name + Color.Sys + " or lower." );
+                player.Message( target.GetLogName() + " is ranked " + target.info.playerClass.name + "." );
                 return;
             }
 
@@ -397,22 +397,22 @@ namespace fCraft {
         internal static void TP( Player player, Command cmd ) {
             if( player.Can( Permissions.Teleport ) ) {
                 string name = cmd.Next();
-                if ( name == null ) {
+                if( name == null ) {
                     player.Send( PacketWriter.MakeTeleport( 255, player.world.map.spawn ) );
                 } else {
                     Player target = player.world.FindPlayer( name );
-                    if ( target != null ) {
+                    if( target != null ) {
                         Position pos = target.pos;
                         pos.x += 1;
                         pos.y += 1;
                         pos.h += 1;
                         player.Send( PacketWriter.MakeTeleport( 255, pos ) );
-                    } else if ( cmd.Next() == null ) {
+                    } else if( cmd.Next() == null ) {
                         player.NoPlayerMessage( name );
                     } else {
                         cmd.Rewind();
                         int x, y, h;
-                        if ( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out h ) ) {
+                        if( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out h ) ) {
                             if( x < 0 || x > player.world.map.widthX ||
                                  y < 0 || y > player.world.map.widthY ||
                                  y < 0 || y > player.world.map.height ) {
@@ -522,7 +522,7 @@ namespace fCraft {
                                                      Color.Sys,
                                                      player.name,
                                                      player.info.playerClass.color,
-                                                     player.info.playerClass.name),
+                                                     player.info.playerClass.name ),
                                       player );
                     player.isHidden = false;
                 } else {
