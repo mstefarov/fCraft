@@ -275,6 +275,7 @@ namespace fCraft {
             if( world != null && !world.FireSentMessageEvent( this, ref message ) ) return;
             switch( Commands.GetMessageType( message ) ) {
                 case MessageType.Chat:
+                    if( !Can( Permissions.Chat ) ) return;
                     if( CheckChatSpam() ) return;
                     info.linesWritten++;
                     string displayedName = nick;
@@ -316,6 +317,7 @@ namespace fCraft {
                     break;
 
                 case MessageType.PrivateChat:
+                    if( !Can( Permissions.Chat ) ) return;
                     if( CheckChatSpam() ) return;
                     string otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
                     Player otherPlayer = Server.FindPlayer( otherPlayerName );
@@ -329,6 +331,7 @@ namespace fCraft {
                     break;
 
                 case MessageType.ClassChat:
+                    if( !Can( Permissions.Chat ) ) return;
                     if( CheckChatSpam() ) return;
                     string className = message.Substring( 2, message.IndexOf( ' ' ) - 2 );
                     PlayerClass playerClass = ClassList.FindClass( className );

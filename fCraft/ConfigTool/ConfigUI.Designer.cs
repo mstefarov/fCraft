@@ -83,6 +83,10 @@
             this.lPublic = new System.Windows.Forms.Label();
             this.lMaxPlayers = new System.Windows.Forms.Label();
             this.tabWorlds = new System.Windows.Forms.TabPage();
+            this.bWorldDel = new System.Windows.Forms.Button();
+            this.bWorldDup = new System.Windows.Forms.Button();
+            this.bWorldGen = new System.Windows.Forms.Button();
+            this.bWorldLoad = new System.Windows.Forms.Button();
             this.dgWorlds = new System.Windows.Forms.DataGridView();
             this.wName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Map = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -239,7 +243,6 @@
             this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gAppearence.SuspendLayout();
@@ -671,7 +674,10 @@
             // 
             // tabWorlds
             // 
-            this.tabWorlds.Controls.Add( this.label2 );
+            this.tabWorlds.Controls.Add( this.bWorldDel );
+            this.tabWorlds.Controls.Add( this.bWorldDup );
+            this.tabWorlds.Controls.Add( this.bWorldGen );
+            this.tabWorlds.Controls.Add( this.bWorldLoad );
             this.tabWorlds.Controls.Add( this.dgWorlds );
             this.tabWorlds.Location = new System.Drawing.Point( 4, 24 );
             this.tabWorlds.Name = "tabWorlds";
@@ -680,6 +686,46 @@
             this.tabWorlds.TabIndex = 9;
             this.tabWorlds.Text = "Worlds";
             this.tabWorlds.UseVisualStyleBackColor = true;
+            // 
+            // bWorldDel
+            // 
+            this.bWorldDel.Enabled = false;
+            this.bWorldDel.Location = new System.Drawing.Point( 523, 13 );
+            this.bWorldDel.Name = "bWorldDel";
+            this.bWorldDel.Size = new System.Drawing.Size( 120, 28 );
+            this.bWorldDel.TabIndex = 4;
+            this.bWorldDel.Text = "Delete World";
+            this.bWorldDel.UseVisualStyleBackColor = true;
+            // 
+            // bWorldDup
+            // 
+            this.bWorldDup.Enabled = false;
+            this.bWorldDup.Location = new System.Drawing.Point( 261, 13 );
+            this.bWorldDup.Name = "bWorldDup";
+            this.bWorldDup.Size = new System.Drawing.Size( 120, 28 );
+            this.bWorldDup.TabIndex = 3;
+            this.bWorldDup.Text = "Duplicate World";
+            this.bWorldDup.UseVisualStyleBackColor = true;
+            // 
+            // bWorldGen
+            // 
+            this.bWorldGen.Enabled = false;
+            this.bWorldGen.Location = new System.Drawing.Point( 135, 13 );
+            this.bWorldGen.Name = "bWorldGen";
+            this.bWorldGen.Size = new System.Drawing.Size( 120, 28 );
+            this.bWorldGen.TabIndex = 2;
+            this.bWorldGen.Text = "Generate New";
+            this.bWorldGen.UseVisualStyleBackColor = true;
+            // 
+            // bWorldLoad
+            // 
+            this.bWorldLoad.Enabled = false;
+            this.bWorldLoad.Location = new System.Drawing.Point( 9, 13 );
+            this.bWorldLoad.Name = "bWorldLoad";
+            this.bWorldLoad.Size = new System.Drawing.Size( 120, 28 );
+            this.bWorldLoad.TabIndex = 1;
+            this.bWorldLoad.Text = "Load World";
+            this.bWorldLoad.UseVisualStyleBackColor = true;
             // 
             // dgWorlds
             // 
@@ -694,11 +740,11 @@
             this.wBackup} );
             this.dgWorlds.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.dgWorlds.Enabled = false;
-            this.dgWorlds.Location = new System.Drawing.Point( 9, 62 );
+            this.dgWorlds.Location = new System.Drawing.Point( 9, 47 );
             this.dgWorlds.Name = "dgWorlds";
             this.dgWorlds.RowHeadersVisible = false;
             this.dgWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgWorlds.Size = new System.Drawing.Size( 634, 333 );
+            this.dgWorlds.Size = new System.Drawing.Size( 634, 348 );
             this.dgWorlds.TabIndex = 0;
             // 
             // wName
@@ -2494,16 +2540,6 @@
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.label2.Location = new System.Drawing.Point( 267, 26 );
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size( 91, 15 );
-            this.label2.TabIndex = 15;
-            this.label2.Text = "Coming soon";
-            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2530,7 +2566,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nUploadBandwidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayers)).EndInit();
             this.tabWorlds.ResumeLayout( false );
-            this.tabWorlds.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgWorlds)).EndInit();
             this.tabClasses.ResumeLayout( false );
             this.tabClasses.PerformLayout();
@@ -2777,6 +2812,9 @@
         private System.Windows.Forms.DataGridViewComboBoxColumn wAccess;
         private System.Windows.Forms.DataGridViewComboBoxColumn wBuild;
         private System.Windows.Forms.DataGridViewComboBoxColumn wBackup;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button bWorldDel;
+        private System.Windows.Forms.Button bWorldDup;
+        private System.Windows.Forms.Button bWorldGen;
+        private System.Windows.Forms.Button bWorldLoad;
     }
 }

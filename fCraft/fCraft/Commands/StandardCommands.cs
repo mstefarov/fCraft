@@ -205,14 +205,14 @@ namespace fCraft {
 
                 // ban offline players
             } else if( info != null ) {
-                if( !player.info.playerClass.CanBan( offender.info.playerClass ) ) {
+                if( !player.info.playerClass.CanBan( info.playerClass ) ) {
                     PlayerClass maxRank = player.info.playerClass.maxBan;
                     if( maxRank == null ) {
                         player.Message( "You can only ban players ranked " + player.info.playerClass.color + player.info.playerClass.name + Color.Sys + " or lower." );
                     } else {
                         player.Message( "You can only ban players ranked " + maxRank.color + maxRank.name + Color.Sys + " or lower." );
                     }
-                    player.Message( offender.GetLogName() + " is ranked " + offender.info.playerClass.name + "." );
+                    player.Message( info.name + " is ranked " + info.playerClass.name + "." );
                 } else {
                     address = info.lastIP;
                     if( banIP ) DoIPBan( player, address, reason, info.name, banAll, unban );
