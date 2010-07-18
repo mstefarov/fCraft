@@ -24,6 +24,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem( "System Activity" );
             System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem( "Warnings" );
             System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem( "Errors" );
@@ -83,17 +84,15 @@
             this.lPublic = new System.Windows.Forms.Label();
             this.lMaxPlayers = new System.Windows.Forms.Label();
             this.tabWorlds = new System.Windows.Forms.TabPage();
-            this.bWorldDel = new System.Windows.Forms.Button();
-            this.bWorldDup = new System.Windows.Forms.Button();
-            this.bWorldGen = new System.Windows.Forms.Button();
-            this.bWorldLoad = new System.Windows.Forms.Button();
-            this.dgWorlds = new System.Windows.Forms.DataGridView();
-            this.wName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Map = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.wHidden = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.wAccess = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.wBuild = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.wBackup = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.bAddWorld = new System.Windows.Forms.Button();
+            this.bWorldDelete = new System.Windows.Forms.Button();
+            this.dgvWorlds = new System.Windows.Forms.DataGridView();
+            this.dgvcName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvcDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvcHidden = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.dgvcAccess = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.dgvcBuild = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.dgvcBackup = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.tabClasses = new System.Windows.Forms.TabPage();
             this.gClassOptions = new System.Windows.Forms.GroupBox();
             this.bColorClass = new System.Windows.Forms.Button();
@@ -243,6 +242,7 @@
             this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
+            this.bWorldEdit = new System.Windows.Forms.Button();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gAppearence.SuspendLayout();
@@ -251,7 +251,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nUploadBandwidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayers)).BeginInit();
             this.tabWorlds.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgWorlds)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvWorlds)).BeginInit();
             this.tabClasses.SuspendLayout();
             this.gClassOptions.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nBanOn)).BeginInit();
@@ -373,7 +373,6 @@
             this.bColorSay.Name = "bColorSay";
             this.bColorSay.Size = new System.Drawing.Size( 100, 23 );
             this.bColorSay.TabIndex = 21;
-            this.bColorSay.UseVisualStyleBackColor = true;
             this.bColorSay.Click += new System.EventHandler( this.bColorSay_Click );
             // 
             // bColorHelp
@@ -382,7 +381,6 @@
             this.bColorHelp.Name = "bColorHelp";
             this.bColorHelp.Size = new System.Drawing.Size( 100, 23 );
             this.bColorHelp.TabIndex = 20;
-            this.bColorHelp.UseVisualStyleBackColor = true;
             this.bColorHelp.Click += new System.EventHandler( this.bColorHelp_Click );
             // 
             // bColorSys
@@ -391,7 +389,6 @@
             this.bColorSys.Name = "bColorSys";
             this.bColorSys.Size = new System.Drawing.Size( 100, 23 );
             this.bColorSys.TabIndex = 19;
-            this.bColorSys.UseVisualStyleBackColor = true;
             this.bColorSys.Click += new System.EventHandler( this.bColorSys_Click );
             // 
             // xListPrefixes
@@ -674,11 +671,10 @@
             // 
             // tabWorlds
             // 
-            this.tabWorlds.Controls.Add( this.bWorldDel );
-            this.tabWorlds.Controls.Add( this.bWorldDup );
-            this.tabWorlds.Controls.Add( this.bWorldGen );
-            this.tabWorlds.Controls.Add( this.bWorldLoad );
-            this.tabWorlds.Controls.Add( this.dgWorlds );
+            this.tabWorlds.Controls.Add( this.bWorldEdit );
+            this.tabWorlds.Controls.Add( this.bAddWorld );
+            this.tabWorlds.Controls.Add( this.bWorldDelete );
+            this.tabWorlds.Controls.Add( this.dgvWorlds );
             this.tabWorlds.Location = new System.Drawing.Point( 4, 24 );
             this.tabWorlds.Name = "tabWorlds";
             this.tabWorlds.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
@@ -687,101 +683,95 @@
             this.tabWorlds.Text = "Worlds";
             this.tabWorlds.UseVisualStyleBackColor = true;
             // 
-            // bWorldDel
+            // bAddWorld
             // 
-            this.bWorldDel.Enabled = false;
-            this.bWorldDel.Location = new System.Drawing.Point( 523, 13 );
-            this.bWorldDel.Name = "bWorldDel";
-            this.bWorldDel.Size = new System.Drawing.Size( 120, 28 );
-            this.bWorldDel.TabIndex = 4;
-            this.bWorldDel.Text = "Delete World";
-            this.bWorldDel.UseVisualStyleBackColor = true;
+            this.bAddWorld.Enabled = false;
+            this.bAddWorld.Location = new System.Drawing.Point( 9, 13 );
+            this.bAddWorld.Name = "bAddWorld";
+            this.bAddWorld.Size = new System.Drawing.Size( 120, 28 );
+            this.bAddWorld.TabIndex = 5;
+            this.bAddWorld.Text = "Add World";
+            this.bAddWorld.UseVisualStyleBackColor = true;
+            this.bAddWorld.Click += new System.EventHandler( this.bAddWorld_Click );
             // 
-            // bWorldDup
+            // bWorldDelete
             // 
-            this.bWorldDup.Enabled = false;
-            this.bWorldDup.Location = new System.Drawing.Point( 261, 13 );
-            this.bWorldDup.Name = "bWorldDup";
-            this.bWorldDup.Size = new System.Drawing.Size( 120, 28 );
-            this.bWorldDup.TabIndex = 3;
-            this.bWorldDup.Text = "Duplicate World";
-            this.bWorldDup.UseVisualStyleBackColor = true;
+            this.bWorldDelete.Enabled = false;
+            this.bWorldDelete.Location = new System.Drawing.Point( 523, 13 );
+            this.bWorldDelete.Name = "bWorldDelete";
+            this.bWorldDelete.Size = new System.Drawing.Size( 120, 28 );
+            this.bWorldDelete.TabIndex = 4;
+            this.bWorldDelete.Text = "Delete World";
+            this.bWorldDelete.UseVisualStyleBackColor = true;
+            this.bWorldDelete.Click += new System.EventHandler( this.bWorldDel_Click );
             // 
-            // bWorldGen
+            // dgvWorlds
             // 
-            this.bWorldGen.Enabled = false;
-            this.bWorldGen.Location = new System.Drawing.Point( 135, 13 );
-            this.bWorldGen.Name = "bWorldGen";
-            this.bWorldGen.Size = new System.Drawing.Size( 120, 28 );
-            this.bWorldGen.TabIndex = 2;
-            this.bWorldGen.Text = "Generate New";
-            this.bWorldGen.UseVisualStyleBackColor = true;
+            this.dgvWorlds.AllowUserToDeleteRows = false;
+            this.dgvWorlds.AllowUserToResizeRows = false;
+            this.dgvWorlds.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvWorlds.Columns.AddRange( new System.Windows.Forms.DataGridViewColumn[] {
+            this.dgvcName,
+            this.dgvcDescription,
+            this.dgvcHidden,
+            this.dgvcAccess,
+            this.dgvcBuild,
+            this.dgvcBackup} );
+            this.dgvWorlds.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
+            this.dgvWorlds.Enabled = false;
+            this.dgvWorlds.Location = new System.Drawing.Point( 9, 47 );
+            this.dgvWorlds.MultiSelect = false;
+            this.dgvWorlds.Name = "dgvWorlds";
+            this.dgvWorlds.RowHeadersVisible = false;
+            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvWorlds.Size = new System.Drawing.Size( 634, 348 );
+            this.dgvWorlds.TabIndex = 0;
+            this.dgvWorlds.SelectionChanged += new System.EventHandler( this.dgvWorlds_SelectionChanged );
             // 
-            // bWorldLoad
+            // dgvcName
             // 
-            this.bWorldLoad.Enabled = false;
-            this.bWorldLoad.Location = new System.Drawing.Point( 9, 13 );
-            this.bWorldLoad.Name = "bWorldLoad";
-            this.bWorldLoad.Size = new System.Drawing.Size( 120, 28 );
-            this.bWorldLoad.TabIndex = 1;
-            this.bWorldLoad.Text = "Load World";
-            this.bWorldLoad.UseVisualStyleBackColor = true;
+            this.dgvcName.DataPropertyName = "Name";
+            this.dgvcName.HeaderText = "World Name";
+            this.dgvcName.Name = "dgvcName";
+            this.dgvcName.Width = 110;
             // 
-            // dgWorlds
+            // dgvcDescription
             // 
-            this.dgWorlds.AllowUserToResizeRows = false;
-            this.dgWorlds.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgWorlds.Columns.AddRange( new System.Windows.Forms.DataGridViewColumn[] {
-            this.wName,
-            this.Map,
-            this.wHidden,
-            this.wAccess,
-            this.wBuild,
-            this.wBackup} );
-            this.dgWorlds.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
-            this.dgWorlds.Enabled = false;
-            this.dgWorlds.Location = new System.Drawing.Point( 9, 47 );
-            this.dgWorlds.Name = "dgWorlds";
-            this.dgWorlds.RowHeadersVisible = false;
-            this.dgWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgWorlds.Size = new System.Drawing.Size( 634, 348 );
-            this.dgWorlds.TabIndex = 0;
+            this.dgvcDescription.DataPropertyName = "Description";
+            this.dgvcDescription.HeaderText = "";
+            this.dgvcDescription.Name = "dgvcDescription";
+            this.dgvcDescription.Width = 180;
             // 
-            // wName
+            // dgvcHidden
             // 
-            this.wName.HeaderText = "World Name";
-            this.wName.Name = "wName";
-            this.wName.Width = 110;
+            this.dgvcHidden.DataPropertyName = "Hidden";
+            this.dgvcHidden.HeaderText = "Hide";
+            this.dgvcHidden.Name = "dgvcHidden";
+            this.dgvcHidden.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.dgvcHidden.Width = 40;
             // 
-            // Map
+            // dgvcAccess
             // 
-            this.Map.HeaderText = "";
-            this.Map.Name = "Map";
-            this.Map.Width = 180;
+            this.dgvcAccess.DataPropertyName = "AccessPermission";
+            this.dgvcAccess.HeaderText = "Access";
+            this.dgvcAccess.Name = "dgvcAccess";
+            this.dgvcAccess.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             // 
-            // wHidden
+            // dgvcBuild
             // 
-            this.wHidden.HeaderText = "Hide";
-            this.wHidden.Name = "wHidden";
-            this.wHidden.Width = 40;
+            this.dgvcBuild.DataPropertyName = "BuildPermission";
+            this.dgvcBuild.HeaderText = "Build";
+            this.dgvcBuild.Name = "dgvcBuild";
+            this.dgvcBuild.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             // 
-            // wAccess
+            // dgvcBackup
             // 
-            this.wAccess.HeaderText = "Access";
-            this.wAccess.Name = "wAccess";
-            this.wAccess.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // wBuild
-            // 
-            this.wBuild.HeaderText = "Build";
-            this.wBuild.Name = "wBuild";
-            this.wBuild.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // wBackup
-            // 
-            this.wBackup.HeaderText = "Backup";
-            this.wBackup.Name = "wBackup";
-            this.wBackup.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.dgvcBackup.DataPropertyName = "Backup";
+            this.dgvcBackup.HeaderText = "Backup";
+            this.dgvcBackup.Name = "dgvcBackup";
+            this.dgvcBackup.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             // 
             // tabClasses
             // 
@@ -2540,6 +2530,16 @@
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 
+            // bWorldEdit
+            // 
+            this.bWorldEdit.Enabled = false;
+            this.bWorldEdit.Location = new System.Drawing.Point( 135, 13 );
+            this.bWorldEdit.Name = "bWorldEdit";
+            this.bWorldEdit.Size = new System.Drawing.Size( 120, 28 );
+            this.bWorldEdit.TabIndex = 6;
+            this.bWorldEdit.Text = "Edit";
+            this.bWorldEdit.UseVisualStyleBackColor = true;
+            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2566,7 +2566,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nUploadBandwidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayers)).EndInit();
             this.tabWorlds.ResumeLayout( false );
-            ((System.ComponentModel.ISupportInitialize)(this.dgWorlds)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvWorlds)).EndInit();
             this.tabClasses.ResumeLayout( false );
             this.tabClasses.PerformLayout();
             this.gClassOptions.ResumeLayout( false );
@@ -2805,16 +2805,15 @@
         private System.Windows.Forms.CheckBox xLimitOneConnectionPerIP;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TabPage tabWorlds;
-        private System.Windows.Forms.DataGridView dgWorlds;
-        private System.Windows.Forms.DataGridViewTextBoxColumn wName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Map;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn wHidden;
-        private System.Windows.Forms.DataGridViewComboBoxColumn wAccess;
-        private System.Windows.Forms.DataGridViewComboBoxColumn wBuild;
-        private System.Windows.Forms.DataGridViewComboBoxColumn wBackup;
-        private System.Windows.Forms.Button bWorldDel;
-        private System.Windows.Forms.Button bWorldDup;
-        private System.Windows.Forms.Button bWorldGen;
-        private System.Windows.Forms.Button bWorldLoad;
+        private System.Windows.Forms.DataGridView dgvWorlds;
+        private System.Windows.Forms.Button bWorldDelete;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dgvcName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dgvcDescription;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn dgvcHidden;
+        private System.Windows.Forms.DataGridViewComboBoxColumn dgvcAccess;
+        private System.Windows.Forms.DataGridViewComboBoxColumn dgvcBuild;
+        private System.Windows.Forms.DataGridViewComboBoxColumn dgvcBackup;
+        private System.Windows.Forms.Button bAddWorld;
+        private System.Windows.Forms.Button bWorldEdit;
     }
 }

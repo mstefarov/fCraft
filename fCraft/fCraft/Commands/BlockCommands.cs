@@ -8,13 +8,11 @@ namespace fCraft {
         Grass,
         Lava,
         Solid,
-        Water,
-        Hardened
+        Water
     }
 
     static class BlockCommands {
 
-        // Register help commands
         internal static void Init(){
             Commands.AddCommand( "grass", Grass, false );
             Commands.AddCommand( "water", Water, false );
@@ -22,8 +20,6 @@ namespace fCraft {
             Commands.AddCommand( "solid", Solid, false );
             Commands.AddCommand( "s", Solid, false );
             Commands.AddCommand( "paint", Paint, false );
-            Commands.AddCommand( "harden", Hardened, false );
-            Commands.AddCommand( "h", Hardened, false );
         }
 
 
@@ -36,18 +32,6 @@ namespace fCraft {
                 player.Message( "Solid: ON" );
             } else {
                 player.NoAccessMessage( Permissions.PlaceAdmincrete );
-            }
-        }
-
-        internal static void Hardened(Player player, Command cmd){
-            if (player.hardenedMode == BlockPlacementMode.Hardened) {
-                player.hardenedMode = BlockPlacementMode.Normal;
-                player.Message("Hardened blocks: OFF");
-            } else if (player.Can(Permissions.PlaceHardenedBlocks)) {
-                player.hardenedMode = BlockPlacementMode.Hardened;
-                player.Message("Hardened blocks: ON");
-            } else {
-                player.NoAccessMessage( Permissions.PlaceHardenedBlocks );
             }
         }
 

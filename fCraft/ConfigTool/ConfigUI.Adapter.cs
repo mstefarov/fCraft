@@ -67,13 +67,16 @@ namespace ConfigTool {
 
 
         void ApplyTabWorlds() {
-            dgWorlds.Rows.Clear();
             List<string> classes = new List<string>();
             foreach( PlayerClass pc in ClassList.classesByIndex ) {
                 classes.Add( String.Format( "{0,3} {1,1}{2}", pc.rank, pc.prefix, pc.name ) );
             }
-            wAccess.DataSource = classes;
-            wBuild.DataSource = classes;
+
+            dgvcAccess.DataSource = classes;
+            dgvcBuild.DataSource = classes;
+            dgvcBackup.DataSource = BackupEnum;
+
+            dgvWorlds.DataSource = worlds;
         }
 
 
