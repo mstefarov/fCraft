@@ -72,6 +72,9 @@
     <EmbeddedResource Include="ConfigUI.resx">
       <DependentUpon>ConfigUI.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="AddWorldPopup.resx">
+      <DependentUpon>AddWorldPopup.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="TextEditorPopup.resx">
       <DependentUpon>TextEditorPopup.cs</DependentUpon>
     </EmbeddedResource>
@@ -90,6 +93,13 @@
     <Compile Include="ConfigUI.Adapter.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="AddWorldPopup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddWorldPopup.Designer.cs">
+      <DependentUpon>AddWorldPopup.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WorldListEntry.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

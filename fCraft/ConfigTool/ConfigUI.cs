@@ -14,6 +14,7 @@ namespace ConfigTool {
     public partial class ConfigUI : Form {
         Font bold;
         PlayerClass selectedClass, defaultClass;
+        BindingList<WorldListEntry> worlds = new BindingList<WorldListEntry>();
 
         static string[] BackupEnum = new string[] { "Never", "5 Minutes", "10 Minutes", "15 Minutes", "20 Minutes", "30 Minutes", "45 Minutes", "1 Hour", "2 Hours", "3 Hours", "4 Hours", "6 Hours", "8 Hours", "12 Hours", "24 Hours" };
 
@@ -25,17 +26,16 @@ namespace ConfigTool {
 
             FillPermissionList();
 
-            wBackup.DataSource = BackupEnum;
-
             Load += LoadConfig;
         }
+
 
         void FillPermissionList() {
             ListViewItem item;
             foreach( Permissions permission in Enum.GetValues( typeof( Permissions ) ) ) {
                 item = new ListViewItem( permission.ToString() );
                 item.Tag = permission;
-                if( permission == Permissions.AddLandmarks || permission == Permissions.ControlPhysics || permission == Permissions.PlaceHardenedBlocks ) {
+                if( permission == Permissions.AddLandmarks || permission == Permissions.ControlPhysics ) {
                     item.ForeColor = Color.LightGray;
                 }
                 vPermissions.Items.Add( item );
@@ -49,6 +49,37 @@ namespace ConfigTool {
 
         private void bMeasure_Click( object sender, EventArgs e ) {
             System.Diagnostics.Process.Start( "http://www.speedtest.net/" );
+        }
+
+        #endregion
+
+        #region Worlds
+
+        private void bWorldLoad_Click( object sender, EventArgs e ) {
+            List<string> classes = new List<string>();
+            foreach( PlayerClass pc in ClassList.classesByIndex ) {
+                classes.Add( String.Format( "{0,3} {1,1}{2}", pc.rank, pc.prefix, pc.name ) );
+            }
+            worlds.Add( new WorldListEntry() {
+                AccessPermission = classes[0],
+                Backup = "Never",
+                BuildPermission = classes[1],
+                Description = "description",
+                Hidden = true,
+                Name = "main"
+            } );
+        }
+
+        private void bWorldDup_Click( object sender, EventArgs e ) {
+            if( dgvWorlds.SelectedRows.Count > 0 ) {
+                worlds.Add( new WorldListEntry( worlds[dgvWorlds.SelectedRows[0].Index] ) );
+            }
+        }
+
+        private void bWorldDel_Click( object sender, EventArgs e ) {
+            if( dgvWorlds.SelectedRows.Count > 0 ) {
+                worlds.RemoveAt( dgvWorlds.SelectedRows[0].Index );
+            }
         }
 
         #endregion
@@ -623,5 +654,15 @@ namespace ConfigTool {
         }
 
         #endregion
+
+        private void bAddWorld_Click( object sender, EventArgs e ) {
+            new AddWorldPopup().ShowDialog();
+        }
+
+        private void dgvWorlds_SelectionChanged( object sender, EventArgs e ) {
+            bool oneRowSelected = (dgvWorlds.SelectedRows.Count == 1);
+            bWorldDelete.Enabled = oneRowSelected;
+            bWorldEdit.Enabled = oneRowSelected;
+        }
     }
 }

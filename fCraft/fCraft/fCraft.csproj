@@ -44,9 +44,10 @@
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
+    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>
@@ -55,6 +56,8 @@
     <WarningLevel>4</WarningLevel>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -87,6 +90,7 @@
     <Compile Include="Network\IRCComm.cs" />
     <Compile Include="Network\IPBanList.cs" />
     <Compile Include="Network\IRCBot.cs" />
+    <Compile Include="Utils\IsoCat.cs" />
     <Compile Include="Utils\Updater.cs" />
     <Compile Include="Player\ClassList.cs" />
     <Compile Include="Player\Permissions.cs" />

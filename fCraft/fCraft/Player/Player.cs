@@ -17,7 +17,6 @@ namespace fCraft {
         public object locker = new object();
         internal BlockPlacementMode mode;
         public bool replaceMode;
-        internal BlockPlacementMode hardenedMode;
         public bool isFrozen = false,
                     isHidden = false;
         public static Player Console;
@@ -191,11 +190,6 @@ namespace fCraft {
                 can &= Can( Permissions.DeleteAdmincrete );
             } else if( world.map.GetBlock( x, y, h ) != (byte)Block.Air ) {
                 can &= zoneOverride || Can( Permissions.Delete );
-            }
-
-            // Check to see if the player has hardened mode on or not and make changes accordingly
-            if( hardenedMode == BlockPlacementMode.Hardened ) {
-                Message( "This mode doesn't work yet." );
             }
 
             // if all is well, try placing it
