@@ -18,7 +18,7 @@ namespace fCraft {
         Queue<BlockUpdate> updates = new Queue<BlockUpdate>();
         object queueLock = new object(), metaLock = new object(), zoneLock = new object();
         public int changesSinceSave, changesSinceBackup;
-
+        public short[,] shadows;
 
         internal Map() { }
 
