@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using Color = System.Drawing.Color;
 
 /*
 The MIT License
@@ -27,26 +28,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-namespace fListBot {
+namespace fCraft {
 
-    class Map {
-        public byte[] blocks; // standard minecraft tiles
-        public short[,] shadows; // heightmap
-        public short widthX; // equivalent to Notch's X
-        public short height; // equivalent to Notch's Y
-        public short widthY; // equivalent to Notch's Z
-        public short dim;
+    public enum IsoCatMode {
+        Normal,
+        Peeled,
+        Cut
     }
 
-    unsafe class IsoCat {
+    unsafe public class IsoCat {
         static byte[] tiles, stiles;
         static int tileX, tileY;
         static int maxTileDim;
         static int tileStride;
-        const string Tileset = "tileset3.tif",
-                     TilesetShadowed = "tileset3s.tif";
+        const string Tileset = "tileset.tif",
+                     TilesetShadowed = "tileset_s.tif";
 
-        public static void Init() {
+        static IsoCat() {
             using( Bitmap tilesBmp = (Bitmap)Bitmap.FromFile( Tileset ) ) {
 
                 tileX = tilesBmp.Width / 50;
@@ -60,7 +58,7 @@ namespace fListBot {
                     for( int y = 0; y < tileY; y++ ) {
                         for( int x = 0; x < tileX; x++ ) {
                             int p = i * tileStride + (y * tileX + x) * 4;
-                            Color c = tilesBmp.GetPixel( x + i * tileX, y );
+                            System.Drawing.Color c = tilesBmp.GetPixel( x + i * tileX, y );
                             tiles[p] = c.B;
                             tiles[p + 1] = c.G;
                             tiles[p + 2] = c.R;
@@ -78,7 +76,7 @@ namespace fListBot {
                     for( int y = 0; y < tileY; y++ ) {
                         for( int x = 0; x < tileX; x++ ) {
                             int p = i * tileStride + (y * tileX + x) * 4;
-                            Color c = stilesBmp.GetPixel( x + i * tileX, y );
+                            System.Drawing.Color c = stilesBmp.GetPixel( x + i * tileX, y );
                             stiles[p] = c.B;
                             stiles[p + 1] = c.G;
                             stiles[p + 2] = c.R;
@@ -94,9 +92,9 @@ namespace fListBot {
         int imageWidth, imageHeight;
         int x = 0, y = 0, h = 0;
         byte block = 0;
-        int rot, mode;
+        int rot;
+        IsoCatMode mode;
         Map map;
-        string filename;
         Bitmap imageBmp;
         BitmapData imageData;
 
@@ -108,13 +106,12 @@ namespace fListBot {
         int imageStride;
 
 
-        public IsoCat( Map _map, string _filename, int _mode, int _rot ) {
+        public IsoCat( Map _map, IsoCatMode _mode, int _rot ) {
             rot = _rot;
             mode = _mode;
             map = _map;
-            filename = _filename;
 
-            dim = map.dim;
+            dim = Math.Max( map.widthX, map.widthY );
             dim2 = dim / 2 - 1;
             dim1 = dim - 1;
 
@@ -133,12 +130,14 @@ namespace fListBot {
             isoX = (tileX / 4 * imageStride + tileX * 2);
             isoY = (tileY / 4 * imageStride - tileY * 2);
             isoH = (-tileY / 2 * imageStride);
+
+            map.shadows = new short[map.widthX, map.widthY];
         }
 
 
 
         byte* bp, ctp;
-        public unsafe Bitmap Draw() {
+        public unsafe Bitmap Draw( ref Rectangle cropRectangle ) {
             int blockRight, blockLeft, blockUp;
 
             fixed( byte* bpx = map.blocks ) {
@@ -150,10 +149,10 @@ namespace fListBot {
                             if( block != 0 ) {
 
                                 switch( rot ) {
-                                    case 0: ctp = (h >= map.shadows[y,x] ? tp : stp); break;
-                                    case 1: ctp = (h >= map.shadows[x,dim1 - y] ? tp : stp); break;
-                                    case 2: ctp = (h >= map.shadows[dim1 - y,dim1 - x] ? tp : stp); break;
-                                    default: ctp = (h >= map.shadows[dim1 - x,y] ? tp : stp); break;
+                                    case 0: ctp = (h >= map.shadows[y, x] ? tp : stp); break;
+                                    case 1: ctp = (h >= map.shadows[x, dim1 - y] ? tp : stp); break;
+                                    case 2: ctp = (h >= map.shadows[dim1 - y, dim1 - x] ? tp : stp); break;
+                                    default: ctp = (h >= map.shadows[dim1 - x, y] ? tp : stp); break;
                                 }
 
                                 if( x != dim1 ) blockRight = GetBlock( x + 1, y, h );
@@ -166,7 +165,7 @@ namespace fListBot {
                                 if( blockUp == 0 || blockLeft == 0 || blockRight == 0 || // air
                                     blockUp == 8 || blockLeft == 8 || blockRight == 8 || // water
                                     blockUp == 9 || blockLeft == 9 || blockRight == 9 || // water
-                                    (block != 20 && (blockUp == 20 || blockLeft == 20 || blockRight == 20 )) || // glass
+                                    (block != 20 && (blockUp == 20 || blockLeft == 20 || blockRight == 20)) || // glass
                                     blockUp == 18 || blockLeft == 18 || blockRight == 18 || // foliage
                                     blockLeft == 44 || blockRight == 44 || // step
 
@@ -195,39 +194,102 @@ namespace fListBot {
                     }
                 }
             }
+
+            int xMin = 0, xMax = imageWidth - 1, yMin = 0, yMax = imageHeight - 1;
+            bool cont = true;
+            int offset;
+
+            // find left bound (xMin)
+            for( int x = 0; cont && x < imageWidth; x++ ) {
+                offset = x * 4 + 3;
+                for( int y = 0; y < imageHeight; y++ ) {
+                    if( image[offset] > 0 ) {
+                        xMin = x;
+                        cont = false;
+                        break;
+                    }
+                    offset += imageStride;
+                }
+            }
+
+            // find top bound (yMin)
+            cont = true;
+            for( int y = 0; cont && y < imageHeight; y++ ) {
+                offset = imageStride * y + xMin * 4 + 3;
+                for( int x = xMin; x < imageWidth; x++ ) {
+                    if( image[offset] > 0 ) {
+                        yMin = y;
+                        cont = false;
+                        break;
+                    }
+                    offset += 4;
+                }
+            }
+
+            // find right bound (xMax)
+            cont = true;
+            for( int x = imageWidth - 1; cont && x >= xMin; x-- ) {
+                offset = imageStride - 1 - x * 4 + yMin * imageStride;
+                for( int y = yMin; y < imageHeight; y++ ) {
+                    if( image[offset] > 0 ) {
+                        xMax = x;
+                        cont = false;
+                        break;
+                    }
+                    offset += imageStride;
+                }
+            }
+
+            // find bottom bound (yMax)
+            cont = true;
+            for( int y = imageHeight - 1; cont && y >= yMin; y-- ) {
+                offset = imageStride * y + 3 + xMin * 4;
+                for( int x = xMin; x < xMax; x++ ) {
+                    if( image[offset] > 0 ) {
+                        yMax = y;
+                        cont = false;
+                        break;
+                    }
+                    offset += 4;
+                }
+            }
+
+            cropRectangle = new Rectangle( xMin, yMin, xMax - xMin, yMax - yMin );
+
             imageBmp.UnlockBits( imageData );
             return imageBmp;
         }
 
 
         unsafe void BlendTile() {
-            int xpos = x * isoX + y * isoY + h * isoH + isoOffset;
+            int pos = x * isoX + y * isoY + h * isoH + isoOffset;
             if( block > 49 ) return;
             int tileOffset = block * tileStride;
-            BlendPixel( xpos, tileOffset );
-            BlendPixel( xpos + 4, tileOffset + 4 );
-            BlendPixel( xpos + 8, tileOffset + 8 );
-            BlendPixel( xpos + 12, tileOffset + 12 );
-            xpos += imageStride;
-            BlendPixel( xpos, tileOffset + 16 );
-            BlendPixel( xpos + 4, tileOffset + 20 );
-            BlendPixel( xpos + 8, tileOffset + 24 );
-            BlendPixel( xpos + 12, tileOffset + 28 );
-            xpos += imageStride;
-            BlendPixel( xpos, tileOffset + 32 );
-            BlendPixel( xpos + 4, tileOffset + 36 );
-            BlendPixel( xpos + 8, tileOffset + 40 );
-            BlendPixel( xpos + 12, tileOffset + 44 );
-            xpos += imageStride;
-            BlendPixel( xpos, tileOffset + 48 );
-            BlendPixel( xpos + 4, tileOffset + 52 );
-            BlendPixel( xpos + 8, tileOffset + 56 );
-            BlendPixel( xpos + 12, tileOffset + 60 );
+            BlendPixel( pos, tileOffset );
+            BlendPixel( pos + 4, tileOffset + 4 );
+            BlendPixel( pos + 8, tileOffset + 8 );
+            BlendPixel( pos + 12, tileOffset + 12 );
+            pos += imageStride;
+            BlendPixel( pos, tileOffset + 16 );
+            BlendPixel( pos + 4, tileOffset + 20 );
+            BlendPixel( pos + 8, tileOffset + 24 );
+            BlendPixel( pos + 12, tileOffset + 28 );
+            pos += imageStride;
+            BlendPixel( pos, tileOffset + 32 );
+            BlendPixel( pos + 4, tileOffset + 36 );
+            BlendPixel( pos + 8, tileOffset + 40 );
+            BlendPixel( pos + 12, tileOffset + 44 );
+            pos += imageStride;
+            BlendPixel( pos, tileOffset + 48 );
+            BlendPixel( pos + 4, tileOffset + 52 );
+            BlendPixel( pos + 8, tileOffset + 56 );
+            BlendPixel( pos + 12, tileOffset + 60 );
         }
 
 
         byte tA;
         int FA, SA, DA;
+        // inspired by http://www.devmaster.net/wiki/Alpha_blending
         unsafe void BlendPixel( int imageOffset, int tileOffset ) {
             if( ctp[tileOffset + 3] == 0 ) return;
 
@@ -237,8 +299,8 @@ namespace fListBot {
             FA = tA + ((255 - tA) * image[imageOffset + 3]) / 255;
 
             // Get percentage (out of 256) of source alpha compared to final alpha
-            SA = 0;
-            if( FA != 0 ) SA = tA * 255 / FA;
+            if( FA == 0 ) SA = 0;
+            else SA = tA * 255 / FA;
 
             // Destination percentage is just the additive inverse.
             DA = 255 - SA;
@@ -264,17 +326,18 @@ namespace fListBot {
 
             byte bl = (byte)(bp[xpos]);
             int test = bl;
-            if( mode == 0 ) {
-
+            if( mode == IsoCatMode.Normal ) {
                 return bp[xpos];
+
             } else if( bp[xpos] != 0 ) {
-                if( mode == 1 && (xx == dim1 || yy == dim1 || hh == map.height - 1) ) {
+                if( mode == IsoCatMode.Peeled && (xx == dim1 || yy == dim1 || hh == map.height - 1) ) {
                     return 0;
-                } else if( mode == 2 && xx > dim2 && yy > dim2 ) {
+                } else if( mode == IsoCatMode.Cut && xx > dim2 && yy > dim2 ) {
                     return 0;
                 } else {
                     return bp[xpos];
                 }
+
             } else {
                 return 0;
             }

@@ -29,7 +29,6 @@
             this.rEmpty = new System.Windows.Forms.RadioButton();
             this.rFlatgrass = new System.Windows.Forms.RadioButton();
             this.rTerrain = new System.Windows.Forms.RadioButton();
-            this.pIsoCat = new System.Windows.Forms.Panel();
             this.nWidthX = new System.Windows.Forms.NumericUpDown();
             this.nWidthY = new System.Windows.Forms.NumericUpDown();
             this.nHeight = new System.Windows.Forms.NumericUpDown();
@@ -61,13 +60,16 @@
             this.xHidden = new System.Windows.Forms.CheckBox();
             this.fileBrowser = new System.Windows.Forms.OpenFileDialog();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
-            this.tStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tStatus1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.preview = new System.Windows.Forms.PictureBox();
+            this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
             this.gMap.SuspendLayout();
             this.statusStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.SuspendLayout();
             // 
             // lX2
@@ -130,14 +132,6 @@
             this.rTerrain.Text = "Generate realistic terrain";
             this.rTerrain.UseVisualStyleBackColor = true;
             this.rTerrain.CheckedChanged += new System.EventHandler( this.rTerrain_CheckedChanged );
-            // 
-            // pIsoCat
-            // 
-            this.pIsoCat.BackColor = System.Drawing.Color.Black;
-            this.pIsoCat.Location = new System.Drawing.Point( 384, 12 );
-            this.pIsoCat.Name = "pIsoCat";
-            this.pIsoCat.Size = new System.Drawing.Size( 328, 270 );
-            this.pIsoCat.TabIndex = 11;
             // 
             // nWidthX
             // 
@@ -313,6 +307,7 @@
             this.bGenerate.TabIndex = 16;
             this.bGenerate.Text = "Generate";
             this.bGenerate.UseVisualStyleBackColor = true;
+            this.bGenerate.Click += new System.EventHandler( this.bGenerate_Click );
             // 
             // cWorld
             // 
@@ -369,6 +364,7 @@
             // 
             // lPreview
             // 
+            this.lPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lPreview.AutoSize = true;
             this.lPreview.Location = new System.Drawing.Point( 530, 293 );
             this.lPreview.Name = "lPreview";
@@ -378,6 +374,7 @@
             // 
             // bOK
             // 
+            this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.bOK.Location = new System.Drawing.Point( 612, 381 );
             this.bOK.Name = "bOK";
@@ -388,6 +385,7 @@
             // 
             // bCancel
             // 
+            this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.Location = new System.Drawing.Point( 506, 381 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 25 );
@@ -473,23 +471,25 @@
             // 
             // bPreviewPrev
             // 
-            this.bPreviewPrev.Enabled = false;
+            this.bPreviewPrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bPreviewPrev.Location = new System.Drawing.Point( 500, 288 );
             this.bPreviewPrev.Name = "bPreviewPrev";
             this.bPreviewPrev.Size = new System.Drawing.Size( 24, 23 );
             this.bPreviewPrev.TabIndex = 26;
             this.bPreviewPrev.Text = "<";
             this.bPreviewPrev.UseVisualStyleBackColor = true;
+            this.bPreviewPrev.Click += new System.EventHandler( this.bPreviewPrev_Click );
             // 
             // bPreviewNext
             // 
-            this.bPreviewNext.Enabled = false;
+            this.bPreviewNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bPreviewNext.Location = new System.Drawing.Point( 581, 288 );
             this.bPreviewNext.Name = "bPreviewNext";
             this.bPreviewNext.Size = new System.Drawing.Size( 24, 23 );
             this.bPreviewNext.TabIndex = 27;
             this.bPreviewNext.Text = ">";
             this.bPreviewNext.UseVisualStyleBackColor = true;
+            this.bPreviewNext.Click += new System.EventHandler( this.bPreviewNext_Click );
             // 
             // xHidden
             // 
@@ -508,31 +508,53 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange( new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripProgressBar1,
-            this.tStatus} );
+            this.tStatus1,
+            this.tStatus2,
+            this.progressBar} );
             this.statusStrip1.Location = new System.Drawing.Point( 0, 416 );
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size( 724, 22 );
             this.statusStrip1.TabIndex = 29;
             this.statusStrip1.Text = "statusStrip1";
             // 
-            // toolStripProgressBar1
+            // tStatus1
             // 
-            this.toolStripProgressBar1.Name = "toolStripProgressBar1";
-            this.toolStripProgressBar1.Size = new System.Drawing.Size( 100, 16 );
-            this.toolStripProgressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            this.tStatus1.Name = "tStatus1";
+            this.tStatus1.Size = new System.Drawing.Size( 44, 17 );
+            this.tStatus1.Text = "status1";
             // 
-            // tStatus
+            // progressBar
             // 
-            this.tStatus.Name = "tStatus";
-            this.tStatus.Size = new System.Drawing.Size( 104, 17 );
-            this.tStatus.Text = "Loading main.fcm";
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size( 100, 16 );
+            this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            this.progressBar.Visible = false;
+            // 
+            // preview
+            // 
+            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.preview.BackColor = System.Drawing.Color.Black;
+            this.preview.Location = new System.Drawing.Point( 384, 12 );
+            this.preview.Name = "preview";
+            this.preview.Padding = new System.Windows.Forms.Padding( 5 );
+            this.preview.Size = new System.Drawing.Size( 328, 270 );
+            this.preview.TabIndex = 30;
+            this.preview.TabStop = false;
+            // 
+            // tStatus2
+            // 
+            this.tStatus2.Name = "tStatus2";
+            this.tStatus2.Size = new System.Drawing.Size( 44, 17 );
+            this.tStatus2.Text = "status2";
             // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size( 724, 438 );
+            this.Controls.Add( this.preview );
             this.Controls.Add( this.statusStrip1 );
             this.Controls.Add( this.xHidden );
             this.Controls.Add( this.bPreviewNext );
@@ -549,7 +571,6 @@
             this.Controls.Add( this.bOK );
             this.Controls.Add( this.lPreview );
             this.Controls.Add( this.gMap );
-            this.Controls.Add( this.pIsoCat );
             this.Name = "AddWorldPopup";
             this.Text = "Add World";
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).EndInit();
@@ -559,6 +580,7 @@
             this.gMap.PerformLayout();
             this.statusStrip1.ResumeLayout( false );
             this.statusStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.ResumeLayout( false );
             this.PerformLayout();
 
@@ -572,7 +594,6 @@
         private System.Windows.Forms.RadioButton rEmpty;
         private System.Windows.Forms.RadioButton rFlatgrass;
         private System.Windows.Forms.RadioButton rTerrain;
-        private System.Windows.Forms.Panel pIsoCat;
         private System.Windows.Forms.NumericUpDown nWidthX;
         private System.Windows.Forms.NumericUpDown nWidthY;
         private System.Windows.Forms.NumericUpDown nHeight;
@@ -604,7 +625,9 @@
         private System.Windows.Forms.CheckBox xHidden;
         private System.Windows.Forms.OpenFileDialog fileBrowser;
         private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
-        private System.Windows.Forms.ToolStripStatusLabel tStatus;
+        private System.Windows.Forms.ToolStripProgressBar progressBar;
+        private System.Windows.Forms.ToolStripStatusLabel tStatus1;
+        private System.Windows.Forms.PictureBox preview;
+        private System.Windows.Forms.ToolStripStatusLabel tStatus2;
     }
 }

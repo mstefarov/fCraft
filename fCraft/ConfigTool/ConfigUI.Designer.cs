@@ -84,6 +84,7 @@
             this.lPublic = new System.Windows.Forms.Label();
             this.lMaxPlayers = new System.Windows.Forms.Label();
             this.tabWorlds = new System.Windows.Forms.TabPage();
+            this.bWorldEdit = new System.Windows.Forms.Button();
             this.bAddWorld = new System.Windows.Forms.Button();
             this.bWorldDelete = new System.Windows.Forms.Button();
             this.dgvWorlds = new System.Windows.Forms.DataGridView();
@@ -242,7 +243,6 @@
             this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
-            this.bWorldEdit = new System.Windows.Forms.Button();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gAppearence.SuspendLayout();
@@ -683,6 +683,16 @@
             this.tabWorlds.Text = "Worlds";
             this.tabWorlds.UseVisualStyleBackColor = true;
             // 
+            // bWorldEdit
+            // 
+            this.bWorldEdit.Enabled = false;
+            this.bWorldEdit.Location = new System.Drawing.Point( 135, 13 );
+            this.bWorldEdit.Name = "bWorldEdit";
+            this.bWorldEdit.Size = new System.Drawing.Size( 120, 28 );
+            this.bWorldEdit.TabIndex = 6;
+            this.bWorldEdit.Text = "Edit";
+            this.bWorldEdit.UseVisualStyleBackColor = true;
+            // 
             // bAddWorld
             // 
             this.bAddWorld.Enabled = false;
@@ -696,6 +706,7 @@
             // 
             // bWorldDelete
             // 
+            this.bWorldDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.bWorldDelete.Enabled = false;
             this.bWorldDelete.Location = new System.Drawing.Point( 523, 13 );
             this.bWorldDelete.Name = "bWorldDelete";
@@ -709,6 +720,9 @@
             // 
             this.dgvWorlds.AllowUserToDeleteRows = false;
             this.dgvWorlds.AllowUserToResizeRows = false;
+            this.dgvWorlds.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvWorlds.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvWorlds.Columns.AddRange( new System.Windows.Forms.DataGridViewColumn[] {
             this.dgvcName,
@@ -2529,16 +2543,6 @@
             this.bApply.TabIndex = 6;
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
-            // 
-            // bWorldEdit
-            // 
-            this.bWorldEdit.Enabled = false;
-            this.bWorldEdit.Location = new System.Drawing.Point( 135, 13 );
-            this.bWorldEdit.Name = "bWorldEdit";
-            this.bWorldEdit.Size = new System.Drawing.Size( 120, 28 );
-            this.bWorldEdit.TabIndex = 6;
-            this.bWorldEdit.Text = "Edit";
-            this.bWorldEdit.UseVisualStyleBackColor = true;
             // 
             // ConfigUI
             // 
