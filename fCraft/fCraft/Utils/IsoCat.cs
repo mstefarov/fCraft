@@ -135,7 +135,7 @@ namespace fCraft {
 
 
         byte* bp, ctp;
-        public unsafe Bitmap Draw( ref Rectangle cropRectangle, DoWorkEventArgs e, BackgroundWorker worker ) {
+        public unsafe Bitmap Draw( ref Rectangle cropRectangle, BackgroundWorker worker ) {
             int blockRight, blockLeft, blockUp;
             try {
                 fixed( byte* bpx = map.blocks ) {
@@ -148,9 +148,9 @@ namespace fCraft {
 
                                     switch( rot ) {
                                         case 0: ctp = (h >= map.shadows[x, y] ? tp : stp); break;
-                                        case 1: ctp = (h >= map.shadows[y, dim1 - x] ? tp : stp); break;
+                                        case 1: ctp = (h >= map.shadows[dim1 - y, x] ? tp : stp); break;
                                         case 2: ctp = (h >= map.shadows[dim1 - x, dim1 - y] ? tp : stp); break;
-                                        case 3: ctp = (h >= map.shadows[dim1 - y, x] ? tp : stp); break;
+                                        case 3: ctp = (h >= map.shadows[y, dim1 - x] ? tp : stp); break;
                                     }
 
                                     if( x != dim1 ) blockRight = GetBlock( x + 1, y, h );
@@ -186,8 +186,8 @@ namespace fCraft {
                                 if( y == dim ) {
                                     h++;
                                     y = 0;
-                                    if( worker.CancellationPending ) return null;
-                                    else worker.ReportProgress( h * 100 / map.height );
+                                        if( worker.CancellationPending ) return null;
+                                        worker.ReportProgress( h * 100 / map.height );
                                 }
                             }
                         }

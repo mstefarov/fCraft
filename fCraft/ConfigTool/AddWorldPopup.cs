@@ -109,6 +109,7 @@ namespace ConfigTool {
         #endregion Loading
 
         #region Preview
+
         IsoCat renderer;
 
         void Redraw() {
@@ -117,7 +118,10 @@ namespace ConfigTool {
                 progressBar.Style = ProgressBarStyle.Continuous;
                 if( bwRenderer.IsBusy ) {
                     bwRenderer.CancelAsync();
-                    while( bwRenderer.IsBusy ) Thread.Sleep( 1 );
+                    while( bwRenderer.IsBusy ) {
+                        Thread.Sleep( 1 );
+                        Application.DoEvents();
+                    }
                 }
                 bwRenderer.RunWorkerAsync();
             }
@@ -127,9 +131,11 @@ namespace ConfigTool {
             renderer = new IsoCat( map, IsoCatMode.Peeled, previewRotation );
             Rectangle cropRectangle = new Rectangle();
             if( bwRenderer.CancellationPending ) return;
-            Bitmap rawImage = renderer.Draw( ref cropRectangle, e, bwRenderer );
+            Bitmap rawImage = renderer.Draw( ref cropRectangle, bwRenderer );
             if( bwRenderer.CancellationPending ) return;
-            if( rawImage != null ) previewImage = rawImage.Clone( cropRectangle, rawImage.PixelFormat );
+            if( rawImage != null ) {
+                previewImage = rawImage.Clone( cropRectangle, rawImage.PixelFormat );
+            }
         }
 
         void AsyncDrawProgress( object sender, ProgressChangedEventArgs e ) {
