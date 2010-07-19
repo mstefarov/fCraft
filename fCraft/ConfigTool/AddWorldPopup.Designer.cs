@@ -61,9 +61,9 @@
             this.fileBrowser = new System.Windows.Forms.OpenFileDialog();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tStatus1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.preview = new System.Windows.Forms.PictureBox();
-            this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
@@ -109,6 +109,7 @@
             this.rEmpty.TabStop = true;
             this.rEmpty.Text = "Empty map";
             this.rEmpty.UseVisualStyleBackColor = true;
+            this.rEmpty.CheckedChanged += new System.EventHandler( this.rEmpty_CheckedChanged );
             // 
             // rFlatgrass
             // 
@@ -120,6 +121,7 @@
             this.rFlatgrass.TabStop = true;
             this.rFlatgrass.Text = "Generate flatgrass";
             this.rFlatgrass.UseVisualStyleBackColor = true;
+            this.rFlatgrass.CheckedChanged += new System.EventHandler( this.rFlatgrass_CheckedChanged );
             // 
             // rTerrain
             // 
@@ -256,12 +258,7 @@
             // cTheme
             // 
             this.cTheme.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cTheme.FormattingEnabled = true;
-            this.cTheme.Items.AddRange( new object[] {
-            "Grassland",
-            "Desert",
-            "Arctic",
-            "Hell"} );
+            this.cTheme.Enabled = false;
             this.cTheme.Location = new System.Drawing.Point( 273, 206 );
             this.cTheme.Name = "cTheme";
             this.cTheme.Size = new System.Drawing.Size( 86, 21 );
@@ -270,6 +267,7 @@
             // lTheme
             // 
             this.lTheme.AutoSize = true;
+            this.lTheme.Enabled = false;
             this.lTheme.Location = new System.Drawing.Point( 227, 209 );
             this.lTheme.Name = "lTheme";
             this.lTheme.Size = new System.Drawing.Size( 40, 13 );
@@ -279,12 +277,7 @@
             // cTerrain
             // 
             this.cTerrain.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cTerrain.FormattingEnabled = true;
-            this.cTerrain.Items.AddRange( new object[] {
-            "Mountains",
-            "Hills",
-            "Island",
-            "Lake"} );
+            this.cTerrain.Enabled = false;
             this.cTerrain.Location = new System.Drawing.Point( 127, 206 );
             this.cTerrain.Name = "cTerrain";
             this.cTerrain.Size = new System.Drawing.Size( 86, 21 );
@@ -293,6 +286,7 @@
             // lTerrain
             // 
             this.lTerrain.AutoSize = true;
+            this.lTerrain.Enabled = false;
             this.lTerrain.Location = new System.Drawing.Point( 81, 209 );
             this.lTerrain.Name = "lTerrain";
             this.lTerrain.Size = new System.Drawing.Size( 40, 13 );
@@ -301,6 +295,7 @@
             // 
             // bGenerate
             // 
+            this.bGenerate.Enabled = false;
             this.bGenerate.Location = new System.Drawing.Point( 84, 233 );
             this.bGenerate.Name = "bGenerate";
             this.bGenerate.Size = new System.Drawing.Size( 75, 23 );
@@ -312,6 +307,7 @@
             // cWorld
             // 
             this.cWorld.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cWorld.Enabled = false;
             this.cWorld.FormattingEnabled = true;
             this.cWorld.Items.AddRange( new object[] {
             "main (64x64x64)"} );
@@ -366,7 +362,7 @@
             // 
             this.lPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lPreview.AutoSize = true;
-            this.lPreview.Location = new System.Drawing.Point( 530, 293 );
+            this.lPreview.Location = new System.Drawing.Point( 534, 346 );
             this.lPreview.Name = "lPreview";
             this.lPreview.Size = new System.Drawing.Size( 45, 13 );
             this.lPreview.TabIndex = 16;
@@ -376,7 +372,7 @@
             // 
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bOK.Location = new System.Drawing.Point( 612, 381 );
+            this.bOK.Location = new System.Drawing.Point( 655, 382 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 25 );
             this.bOK.TabIndex = 17;
@@ -386,7 +382,7 @@
             // bCancel
             // 
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bCancel.Location = new System.Drawing.Point( 506, 381 );
+            this.bCancel.Location = new System.Drawing.Point( 549, 382 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 25 );
             this.bCancel.TabIndex = 18;
@@ -472,7 +468,7 @@
             // bPreviewPrev
             // 
             this.bPreviewPrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bPreviewPrev.Location = new System.Drawing.Point( 500, 288 );
+            this.bPreviewPrev.Location = new System.Drawing.Point( 504, 341 );
             this.bPreviewPrev.Name = "bPreviewPrev";
             this.bPreviewPrev.Size = new System.Drawing.Size( 24, 23 );
             this.bPreviewPrev.TabIndex = 26;
@@ -483,7 +479,7 @@
             // bPreviewNext
             // 
             this.bPreviewNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bPreviewNext.Location = new System.Drawing.Point( 581, 288 );
+            this.bPreviewNext.Location = new System.Drawing.Point( 585, 341 );
             this.bPreviewNext.Name = "bPreviewNext";
             this.bPreviewNext.Size = new System.Drawing.Size( 24, 23 );
             this.bPreviewNext.TabIndex = 27;
@@ -511,9 +507,9 @@
             this.tStatus1,
             this.tStatus2,
             this.progressBar} );
-            this.statusStrip1.Location = new System.Drawing.Point( 0, 416 );
+            this.statusStrip1.Location = new System.Drawing.Point( 0, 417 );
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size( 724, 22 );
+            this.statusStrip1.Size = new System.Drawing.Size( 767, 22 );
             this.statusStrip1.TabIndex = 29;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -522,6 +518,12 @@
             this.tStatus1.Name = "tStatus1";
             this.tStatus1.Size = new System.Drawing.Size( 44, 17 );
             this.tStatus1.Text = "status1";
+            // 
+            // tStatus2
+            // 
+            this.tStatus2.Name = "tStatus2";
+            this.tStatus2.Size = new System.Drawing.Size( 44, 17 );
+            this.tStatus2.Text = "status2";
             // 
             // progressBar
             // 
@@ -539,21 +541,16 @@
             this.preview.Location = new System.Drawing.Point( 384, 12 );
             this.preview.Name = "preview";
             this.preview.Padding = new System.Windows.Forms.Padding( 5 );
-            this.preview.Size = new System.Drawing.Size( 328, 270 );
+            this.preview.Size = new System.Drawing.Size( 371, 323 );
+            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.preview.TabIndex = 30;
             this.preview.TabStop = false;
-            // 
-            // tStatus2
-            // 
-            this.tStatus2.Name = "tStatus2";
-            this.tStatus2.Size = new System.Drawing.Size( 44, 17 );
-            this.tStatus2.Text = "status2";
             // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 724, 438 );
+            this.ClientSize = new System.Drawing.Size( 767, 439 );
             this.Controls.Add( this.preview );
             this.Controls.Add( this.statusStrip1 );
             this.Controls.Add( this.xHidden );

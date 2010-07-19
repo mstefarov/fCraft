@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using Color = System.Drawing.Color;
+using System.ComponentModel;
+
 
 /*
 The MIT License
@@ -41,11 +43,10 @@ namespace fCraft {
         static int tileX, tileY;
         static int maxTileDim;
         static int tileStride;
-        const string Tileset = "tileset.tif",
-                     TilesetShadowed = "tileset_s.tif";
 
         static IsoCat() {
-            using( Bitmap tilesBmp = (Bitmap)Bitmap.FromFile( Tileset ) ) {
+
+            using( Bitmap tilesBmp = fCraft.Properties.Resources.Tileset ) {
 
                 tileX = tilesBmp.Width / 50;
                 tileY = tilesBmp.Height;
@@ -68,7 +69,7 @@ namespace fCraft {
                 }
             }
 
-            using( Bitmap stilesBmp = (Bitmap)Bitmap.FromFile( TilesetShadowed ) ) {
+            using( Bitmap stilesBmp = fCraft.Properties.Resources.TilesetShadowed ) {
 
                 stiles = new byte[50 * tileStride];
 
@@ -100,7 +101,6 @@ namespace fCraft {
 
         int dim, dim2, dim1;
 
-
         int isoOffset, isoX, isoY, isoH;
 
         int imageStride;
@@ -130,134 +130,140 @@ namespace fCraft {
             isoX = (tileX / 4 * imageStride + tileX * 2);
             isoY = (tileY / 4 * imageStride - tileY * 2);
             isoH = (-tileY / 2 * imageStride);
-
-            map.shadows = new short[map.widthX, map.widthY];
         }
 
 
 
         byte* bp, ctp;
-        public unsafe Bitmap Draw( ref Rectangle cropRectangle ) {
+        public unsafe Bitmap Draw( ref Rectangle cropRectangle, DoWorkEventArgs e, BackgroundWorker worker ) {
             int blockRight, blockLeft, blockUp;
+            try {
+                fixed( byte* bpx = map.blocks ) {
+                    fixed( byte* tp = tiles ) {
+                        fixed( byte* stp = stiles ) {
+                            bp = bpx;
+                            while( h < map.height ) {
+                                block = GetBlock( x, y, h );
+                                if( block != 0 ) {
 
-            fixed( byte* bpx = map.blocks ) {
-                fixed( byte* tp = tiles ) {
-                    fixed( byte* stp = stiles ) {
-                        bp = bpx;
-                        while( h < map.height ) {
-                            block = GetBlock( x, y, h );
-                            if( block != 0 ) {
+                                    switch( rot ) {
+                                        case 0: ctp = (h >= map.shadows[x, y] ? tp : stp); break;
+                                        case 1: ctp = (h >= map.shadows[y, dim1 - x] ? tp : stp); break;
+                                        case 2: ctp = (h >= map.shadows[dim1 - x, dim1 - y] ? tp : stp); break;
+                                        case 3: ctp = (h >= map.shadows[dim1 - y, x] ? tp : stp); break;
+                                    }
 
-                                switch( rot ) {
-                                    case 0: ctp = (h >= map.shadows[y, x] ? tp : stp); break;
-                                    case 1: ctp = (h >= map.shadows[x, dim1 - y] ? tp : stp); break;
-                                    case 2: ctp = (h >= map.shadows[dim1 - y, dim1 - x] ? tp : stp); break;
-                                    default: ctp = (h >= map.shadows[dim1 - x, y] ? tp : stp); break;
+                                    if( x != dim1 ) blockRight = GetBlock( x + 1, y, h );
+                                    else blockRight = 0;
+                                    if( y != dim1 ) blockLeft = GetBlock( x, y + 1, h );
+                                    else blockLeft = 0;
+                                    if( h != map.height - 1 ) blockUp = GetBlock( x, y, h + 1 );
+                                    else blockUp = 0;
+
+                                    if( blockUp == 0 || blockLeft == 0 || blockRight == 0 || // air
+                                        blockUp == 8 || blockLeft == 8 || blockRight == 8 || // water
+                                        blockUp == 9 || blockLeft == 9 || blockRight == 9 || // water
+                                        (block != 20 && (blockUp == 20 || blockLeft == 20 || blockRight == 20)) || // glass
+                                        blockUp == 18 || blockLeft == 18 || blockRight == 18 || // foliage
+                                        blockLeft == 44 || blockRight == 44 || // step
+
+                                        blockUp == 10 || blockLeft == 10 || blockRight == 10 || // lava
+                                        blockUp == 11 || blockLeft == 11 || blockRight == 11 || // lava
+
+                                        blockUp == 37 || blockLeft == 37 || blockRight == 37 || // flower
+                                        blockUp == 38 || blockLeft == 38 || blockRight == 38 || // flower
+                                        blockUp == 6 || blockLeft == 6 || blockRight == 6 || // tree
+                                        blockUp == 39 || blockLeft == 39 || blockRight == 39 || // mushroom
+                                        blockUp == 40 || blockLeft == 40 || blockRight == 40 ) // mushroom
+                                        BlendTile();
                                 }
 
-                                if( x != dim1 ) blockRight = GetBlock( x + 1, y, h );
-                                else blockRight = 0;
-                                if( y != dim1 ) blockLeft = GetBlock( x, y + 1, h );
-                                else blockLeft = 0;
-                                if( h != map.height - 1 ) blockUp = GetBlock( x, y, h + 1 );
-                                else blockUp = 0;
-
-                                if( blockUp == 0 || blockLeft == 0 || blockRight == 0 || // air
-                                    blockUp == 8 || blockLeft == 8 || blockRight == 8 || // water
-                                    blockUp == 9 || blockLeft == 9 || blockRight == 9 || // water
-                                    (block != 20 && (blockUp == 20 || blockLeft == 20 || blockRight == 20)) || // glass
-                                    blockUp == 18 || blockLeft == 18 || blockRight == 18 || // foliage
-                                    blockLeft == 44 || blockRight == 44 || // step
-
-                                    blockUp == 10 || blockLeft == 10 || blockRight == 10 || // lava
-                                    blockUp == 11 || blockLeft == 11 || blockRight == 11 || // lava
-
-                                    blockUp == 37 || blockLeft == 37 || blockRight == 37 || // flower
-                                    blockUp == 38 || blockLeft == 38 || blockRight == 38 || // flower
-                                    blockUp == 6 || blockLeft == 6 || blockRight == 6 || // tree
-                                    blockUp == 39 || blockLeft == 39 || blockRight == 39 || // mushroom
-                                    blockUp == 40 || blockLeft == 40 || blockRight == 40 ) // mushroom
-                                    BlendTile();
-                            }
-
-                            x++;
-                            if( x == dim ) {
-                                y++;
-                                x = 0;
-                            }
-                            if( y == dim ) {
-                                h++;
-                                y = 0;
-                                //TODO: update status if( dim % 16 == 0 ) task.UpdateDrawStatus( h / (float)map.height );
+                                x++;
+                                if( x == dim ) {
+                                    y++;
+                                    x = 0;
+                                }
+                                if( y == dim ) {
+                                    h++;
+                                    y = 0;
+                                    if( worker.CancellationPending ) return null;
+                                    else worker.ReportProgress( h * 100 / map.height );
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            int xMin = 0, xMax = imageWidth - 1, yMin = 0, yMax = imageHeight - 1;
-            bool cont = true;
-            int offset;
+                int xMin = 0, xMax = imageWidth - 1, yMin = 0, yMax = imageHeight - 1;
+                bool cont = true;
+                int offset;
 
-            // find left bound (xMin)
-            for( int x = 0; cont && x < imageWidth; x++ ) {
-                offset = x * 4 + 3;
-                for( int y = 0; y < imageHeight; y++ ) {
-                    if( image[offset] > 0 ) {
-                        xMin = x;
-                        cont = false;
-                        break;
+                // find left bound (xMin)
+                for( int x = 0; cont && x < imageWidth; x++ ) {
+                    offset = x * 4 + 3;
+                    for( int y = 0; y < imageHeight; y++ ) {
+                        if( image[offset] > 0 ) {
+                            xMin = x;
+                            cont = false;
+                            break;
+                        }
+                        offset += imageStride;
                     }
-                    offset += imageStride;
                 }
-            }
 
-            // find top bound (yMin)
-            cont = true;
-            for( int y = 0; cont && y < imageHeight; y++ ) {
-                offset = imageStride * y + xMin * 4 + 3;
-                for( int x = xMin; x < imageWidth; x++ ) {
-                    if( image[offset] > 0 ) {
-                        yMin = y;
-                        cont = false;
-                        break;
+                if( worker.CancellationPending ) return null;
+
+                // find top bound (yMin)
+                cont = true;
+                for( int y = 0; cont && y < imageHeight; y++ ) {
+                    offset = imageStride * y + xMin * 4 + 3;
+                    for( int x = xMin; x < imageWidth; x++ ) {
+                        if( image[offset] > 0 ) {
+                            yMin = y;
+                            cont = false;
+                            break;
+                        }
+                        offset += 4;
                     }
-                    offset += 4;
                 }
-            }
 
-            // find right bound (xMax)
-            cont = true;
-            for( int x = imageWidth - 1; cont && x >= xMin; x-- ) {
-                offset = imageStride - 1 - x * 4 + yMin * imageStride;
-                for( int y = yMin; y < imageHeight; y++ ) {
-                    if( image[offset] > 0 ) {
-                        xMax = x;
-                        cont = false;
-                        break;
+                if( worker.CancellationPending ) return null;
+
+                // find right bound (xMax)
+                cont = true;
+                for( int x = imageWidth - 1; cont && x >= xMin; x-- ) {
+                    offset = imageStride - 1 - x * 4 + yMin * imageStride;
+                    for( int y = yMin; y < imageHeight; y++ ) {
+                        if( image[offset] > 0 ) {
+                            xMax = x;
+                            cont = false;
+                            break;
+                        }
+                        offset += imageStride;
                     }
-                    offset += imageStride;
                 }
-            }
 
-            // find bottom bound (yMax)
-            cont = true;
-            for( int y = imageHeight - 1; cont && y >= yMin; y-- ) {
-                offset = imageStride * y + 3 + xMin * 4;
-                for( int x = xMin; x < xMax; x++ ) {
-                    if( image[offset] > 0 ) {
-                        yMax = y;
-                        cont = false;
-                        break;
+                if( worker.CancellationPending ) return null;
+
+                // find bottom bound (yMax)
+                cont = true;
+                for( int y = imageHeight - 1; cont && y >= yMin; y-- ) {
+                    offset = imageStride * y + 3 + xMin * 4;
+                    for( int x = xMin; x < xMax; x++ ) {
+                        if( image[offset] > 0 ) {
+                            yMax = y;
+                            cont = false;
+                            break;
+                        }
+                        offset += 4;
                     }
-                    offset += 4;
                 }
+
+                cropRectangle = new Rectangle( xMin, yMin, xMax - xMin, yMax - yMin );
+                return imageBmp;
+            } finally {
+                imageBmp.UnlockBits( imageData );
             }
-
-            cropRectangle = new Rectangle( xMin, yMin, xMax - xMin, yMax - yMin );
-
-            imageBmp.UnlockBits( imageData );
-            return imageBmp;
         }
 
 
@@ -313,29 +319,28 @@ namespace fCraft {
 
 
         byte GetBlock( int xx, int yy, int hh ) {
-            int xpos;
-            if( rot == 0 ) {
-                xpos = (hh * dim + yy) * dim + xx;
-            } else if( rot == 1 ) {
-                xpos = (hh * dim + xx) * dim + (dim1 - yy);
-            } else if( rot == 2 ) {
-                xpos = (hh * dim + (dim1 - yy)) * dim + (dim1 - xx);
-            } else {
-                xpos = (hh * dim + (dim1 - xx)) * dim + yy;
+            int pos;
+            switch( rot ) {
+                case 0:
+                    pos = (hh * dim + yy) * dim + xx; break;
+                case 1:
+                    pos = (hh * dim + xx) * dim + (dim1 - yy); break;
+                case 2:
+                    pos = (hh * dim + (dim1 - yy)) * dim + (dim1 - xx); break;
+                default:
+                    pos = (hh * dim + (dim1 - xx)) * dim + yy; break;
             }
 
-            byte bl = (byte)(bp[xpos]);
-            int test = bl;
             if( mode == IsoCatMode.Normal ) {
-                return bp[xpos];
+                return bp[pos];
 
-            } else if( bp[xpos] != 0 ) {
+            } else if( bp[pos] != 0 ) {
                 if( mode == IsoCatMode.Peeled && (xx == dim1 || yy == dim1 || hh == map.height - 1) ) {
                     return 0;
                 } else if( mode == IsoCatMode.Cut && xx > dim2 && yy > dim2 ) {
                     return 0;
                 } else {
-                    return bp[xpos];
+                    return bp[pos];
                 }
 
             } else {

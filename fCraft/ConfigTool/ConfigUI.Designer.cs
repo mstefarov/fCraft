@@ -685,7 +685,6 @@
             // 
             // bWorldEdit
             // 
-            this.bWorldEdit.Enabled = false;
             this.bWorldEdit.Location = new System.Drawing.Point( 135, 13 );
             this.bWorldEdit.Name = "bWorldEdit";
             this.bWorldEdit.Size = new System.Drawing.Size( 120, 28 );
@@ -695,7 +694,6 @@
             // 
             // bAddWorld
             // 
-            this.bAddWorld.Enabled = false;
             this.bAddWorld.Location = new System.Drawing.Point( 9, 13 );
             this.bAddWorld.Name = "bAddWorld";
             this.bAddWorld.Size = new System.Drawing.Size( 120, 28 );
@@ -707,7 +705,6 @@
             // bWorldDelete
             // 
             this.bWorldDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bWorldDelete.Enabled = false;
             this.bWorldDelete.Location = new System.Drawing.Point( 523, 13 );
             this.bWorldDelete.Name = "bWorldDelete";
             this.bWorldDelete.Size = new System.Drawing.Size( 120, 28 );
@@ -732,7 +729,6 @@
             this.dgvcBuild,
             this.dgvcBackup} );
             this.dgvWorlds.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
-            this.dgvWorlds.Enabled = false;
             this.dgvWorlds.Location = new System.Drawing.Point( 9, 47 );
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";

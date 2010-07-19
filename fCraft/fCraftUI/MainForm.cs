@@ -28,29 +28,33 @@ namespace fCraftUI {
             Server.OnURLChanged += SetURL;
             Server.OnPlayerListChanged += UpdatePlayerList; //TODO
 
+            try {
+                if( Server.Init() ) {
+                    Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
 
-            if( Server.Init() ) {
-                Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
-
-                UpdaterResult update = Updater.CheckForUpdates();
-                if( update.UpdateAvailable ) {
-                    if( Config.GetString( ConfigKey.AutomaticUpdates ) == "Notify" ) {
-                        Log( String.Format( Environment.NewLine +
-                                            "*** A new version of fCraft is available: v{0:0.000}, released {1:0} day(s) ago. ***"+
-                                            Environment.NewLine,
-                                            Decimal.Divide( update.NewVersionNumber, 1000 ),
-                                            DateTime.Now.Subtract( update.ReleaseDate ).TotalDays ), LogType.ConsoleOutput );
-                        StartServer();
+                    UpdaterResult update = Updater.CheckForUpdates();
+                    if( update.UpdateAvailable ) {
+                        if( Config.GetString( ConfigKey.AutomaticUpdates ) == "Notify" ) {
+                            Log( String.Format( Environment.NewLine +
+                                                "*** A new version of fCraft is available: v{0:0.000}, released {1:0} day(s) ago. ***" +
+                                                Environment.NewLine,
+                                                Decimal.Divide( update.NewVersionNumber, 1000 ),
+                                                DateTime.Now.Subtract( update.ReleaseDate ).TotalDays ), LogType.ConsoleOutput );
+                            StartServer();
+                        } else {
+                            UpdateWindow updateWindow = new UpdateWindow( update, this, Config.GetString( ConfigKey.AutomaticUpdates ) == "Auto" );
+                            updateWindow.StartPosition = FormStartPosition.CenterParent;
+                            updateWindow.ShowDialog();
+                        }
                     } else {
-                        UpdateWindow updateWindow = new UpdateWindow( update, this, Config.GetString( ConfigKey.AutomaticUpdates ) == "Auto" );
-                        updateWindow.StartPosition = FormStartPosition.CenterParent;
-                        updateWindow.ShowDialog();
+                        StartServer();
                     }
                 } else {
-                    StartServer();
+                    Logger.Log( "---- Could Not Initialize Server ----", LogType.FatalError );
                 }
-            } else {
-                Logger.Log( "---- Could Not Initialize Server ----", LogType.FatalError );
+            } catch( Exception ex ) {
+                MessageBox.Show( ex.ToString(), "fCraft crashed!" );
+                System.IO.File.WriteAllText( "crash.log", ex.ToString() + Environment.NewLine + ex.StackTrace );
             }
         }
 
