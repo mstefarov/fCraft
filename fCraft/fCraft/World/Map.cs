@@ -298,6 +298,22 @@ namespace fCraft {
         }
 
 
+        public void CalculateShadows() {
+            if( shadows != null ) return;
+            else shadows = new short[widthX, widthY];
+            for( int x = 0; x < widthX; x++ ) {
+                for( int y = 0; y < widthY; y++ ) {
+                    for( int h = height; h >= 0; h-- ) {
+                        if( GetBlock( x, y, h ) > 0 ) {
+                            shadows[x, y] = (short)h;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+
         internal static Block GetBlockByName( string block ) {
             return blockNames[block];
         }

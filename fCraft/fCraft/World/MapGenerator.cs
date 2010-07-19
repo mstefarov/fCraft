@@ -199,5 +199,25 @@ namespace fCraft {
             double Max = SmallSize / gBigSize * roughness;
             return (rand.NextDouble() - 0.5) * Max;
         }
+
+
+        public static void GenerateFlatgrass( Map map, bool hollow ) {
+            for( int i = 0; i < map.widthX; i++ ) {
+                for( int j = 0; j < map.widthY; j++ ) {
+                    if( !hollow ) {
+                        for( int k = 1; k < map.height / 2 - 1; k++ ) {
+                            if( k < map.height / 2 - 5 ) {
+                                map.SetBlock( i, j, k, Block.Stone );
+                            } else {
+                                map.SetBlock( i, j, k, Block.Dirt );
+                            }
+                        }
+                    }
+                    map.SetBlock( i, j, map.height / 2 - 1, Block.Grass );
+                }
+            }
+
+            map.MakeFloodBarrier();
+        }
     }
 }
