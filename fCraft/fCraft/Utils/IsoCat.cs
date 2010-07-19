@@ -186,8 +186,10 @@ namespace fCraft {
                                 if( y == dim ) {
                                     h++;
                                     y = 0;
+                                    if( h % 4 == 0 ) {
                                         if( worker.CancellationPending ) return null;
-                                        worker.ReportProgress( h * 100 / map.height );
+                                        worker.ReportProgress( (h * 100) / map.height );
+                                    }
                                 }
                             }
                         }
@@ -232,10 +234,10 @@ namespace fCraft {
                 // find right bound (xMax)
                 cont = true;
                 for( int x = imageWidth - 1; cont && x >= xMin; x-- ) {
-                    offset = imageStride - 1 - x * 4 + yMin * imageStride;
+                    offset = x * 4 + 3 + yMin * imageStride;
                     for( int y = yMin; y < imageHeight; y++ ) {
                         if( image[offset] > 0 ) {
-                            xMax = x;
+                            xMax = x + 1;
                             cont = false;
                             break;
                         }
@@ -251,7 +253,7 @@ namespace fCraft {
                     offset = imageStride * y + 3 + xMin * 4;
                     for( int x = xMin; x < xMax; x++ ) {
                         if( image[offset] > 0 ) {
-                            yMax = y;
+                            yMax = y + 1;
                             cont = false;
                             break;
                         }
@@ -286,10 +288,10 @@ namespace fCraft {
             BlendPixel( pos + 8, tileOffset + 40 );
             BlendPixel( pos + 12, tileOffset + 44 );
             pos += imageStride;
-            BlendPixel( pos, tileOffset + 48 );
+            //BlendPixel( pos, tileOffset + 48 ); // bottom left block, always blank in current tileset
             BlendPixel( pos + 4, tileOffset + 52 );
             BlendPixel( pos + 8, tileOffset + 56 );
-            BlendPixel( pos + 12, tileOffset + 60 );
+            //BlendPixel( pos + 12, tileOffset + 60 ); // bottom right block, always blank in current tileset
         }
 
 

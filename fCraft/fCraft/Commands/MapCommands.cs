@@ -587,15 +587,15 @@ namespace fCraft {
             Map map = new Map( player.world, wx, wy, height );
             map.spawn.Set( map.widthX / 2 * 32 + 16, map.widthY / 2 * 32 + 16, map.height * 32, 0, 0 );
 
-            DoGenerate( map, player, mode, filename, false );
+            DoGenerate( map, player, mode, filename );
         }
 
 
-        internal static void DoGenerate( Map map, Player player, string mode, string filename, bool hollow ) {
+        internal static void DoGenerate( Map map, Player player, string mode, string filename ) {
             switch( mode ) {
                 case "flatgrass":
                     player.Message( "Generating flatgrass map..." );
-                    MapGenerator.GenerateFlatgrass( map, hollow );
+                    MapGenerator.GenerateFlatgrass( map );
 
                     if( map.Save( filename ) ) {
                         player.Message( "Map generation: Done." );
@@ -635,22 +635,22 @@ namespace fCraft {
 
                 case "hills":
                     player.Message( "Generating terrain..." );
-                    Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( map, player, filename, MapGenType.Hills ), false );
+                    Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( map, player, filename, MapGenType.Hills, MapGenTheme.Normal ), false );
                     break;
 
                 case "mountains":
                     player.Message( "Generating terrain..." );
-                    Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( map, player, filename, MapGenType.Mountains ), false );
+                    Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( map, player, filename, MapGenType.Mountains, MapGenTheme.Normal ), false );
                     break;
 
                 case "lake":
                     player.Message( "Generating terrain..." );
-                    Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( map, player, filename, MapGenType.Lake ), false );
+                    Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( map, player, filename, MapGenType.Lake, MapGenTheme.Normal ), false );
                     break;
 
                 case "island":
                     player.Message( "Generating terrain..." );
-                    Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( map, player, filename, MapGenType.Island ), false );
+                    Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( map, player, filename, MapGenType.Island, MapGenTheme.Normal ), false );
                     break;
 
                 default:

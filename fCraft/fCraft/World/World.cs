@@ -103,7 +103,7 @@ namespace fCraft {
 
                     map.spawn.Set( map.widthX / 2 * 32 + 16, map.widthY / 2 * 32 + 16, map.height * 32, 0, 0 );
 
-                    MapGenerator.GenerateFlatgrass( map, false );
+                    MapGenerator.GenerateFlatgrass( map );
 
                     SaveMap( null );
                 }
