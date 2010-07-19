@@ -21,6 +21,7 @@ namespace ConfigTool {
         object redrawLock = new object();
         Map map;
         MapGenType genType;
+        MapGenTheme genTheme;
         Stopwatch stopwatch;
         int previewRotation = 0;
         Bitmap previewImage;
@@ -36,8 +37,8 @@ namespace ConfigTool {
             cBuild.SelectedIndex = 0;
             cBackup.SelectedIndex = 0;
             cWorld.SelectedIndex = 0;
-            cTerrain.SelectedIndex = 0;
-            cTheme.SelectedIndex = 0;
+            cTerrain.SelectedIndex = (int)MapGenType.Coast;
+            cTheme.SelectedIndex = (int)MapGenTheme.Normal;
 
             // this forces calling all the *_CheckedChanged methods, disabling everything unnecessary
             rLoad.Checked = true;
@@ -136,6 +137,7 @@ namespace ConfigTool {
             if( rawImage != null ) {
                 previewImage = rawImage.Clone( cropRectangle, rawImage.PixelFormat );
             }
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
         void AsyncDrawProgress( object sender, ProgressChangedEventArgs e ) {
@@ -183,6 +185,7 @@ namespace ConfigTool {
 
             Refresh();
             genType = (MapGenType)cTerrain.SelectedIndex;
+            genTheme = (MapGenTheme)cTheme.SelectedIndex;
             bwGenerator.RunWorkerAsync();
         }
 
@@ -192,9 +195,11 @@ namespace ConfigTool {
         void AsyncGen( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
             map = new Map( null, Convert.ToInt32( nWidthX.Value ), Convert.ToInt32( nWidthY.Value ), Convert.ToInt32( nHeight.Value ) );
-            generator = new MapGenerator( map, null, null, genType );
+            generator = new MapGenerator( map, null, null, genType, genTheme );
             generator.Generate();
             map.CalculateShadows();
+            MapGenerator.GenerateTrees( map );
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
         void AsyncGenCompleted( object sender, RunWorkerCompletedEventArgs e ) {
@@ -238,8 +243,9 @@ namespace ConfigTool {
         void AsyncFlatgrassGen( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
             map = new Map( null, Convert.ToInt32( nWidthX.Value ), Convert.ToInt32( nWidthY.Value ), Convert.ToInt32( nHeight.Value ) );
-            MapGenerator.GenerateFlatgrass( map, false );
+            MapGenerator.GenerateFlatgrass( map );
             map.CalculateShadows();
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
         void AsyncFlatgrassGenCompleted( object sender, RunWorkerCompletedEventArgs e ) {

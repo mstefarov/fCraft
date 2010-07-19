@@ -1,88 +1,144 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
 
-
 namespace fCraft {
 
     // TODO: themes
     public enum MapGenTheme {
-        Normal,
-        Rocky,
+        Arctic,
         Desert,
         Hell,
-        Tundra,
-        Arctic
+        Normal,
+        Rocky,
+        Tundra
     }
 
     public enum MapGenType {
         Mountains,
         Hills,
         Lake,
-        Island
+        Island,
+        Coast
     }
 
     public class MapGenerator {
-        double roughness, gBigSize, smoothingOver, smoothingUnder, water, midpoint, sides;
+        double roughness, gBigSize, smoothingOver, smoothingUnder, midpoint, sidesMin, sidesMax;
         Random rand = new Random();
         Map map;
         Player player;
         string filename;
 
-        public MapGenerator( Map _map, Player _player, string _filename, MapGenType type ) {
+
+        Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock, bDeepWaterSurface;
+
+
+        public MapGenerator( Map _map, Player _player, string _filename, MapGenType type, MapGenTheme theme ) {
             map = _map;
             player = _player;
             filename = _filename;
 
             switch( type ) {
                 case MapGenType.Hills:
-                    SetParams( 1, 1, 0.5, 0.5, 0, 0.5 );
+                    SetParams( 1, 1, 0.5, 0, 0.5, 0.55 );
                     break;
                 case MapGenType.Mountains:
-                    SetParams( 4, 1, 0.5, 0.5, 0.1, 0.5 );
+                    SetParams( 4, 1, 0.5, 0.1, 0.5, 0.7 );
                     break;
                 case MapGenType.Lake:
-                    SetParams( 1, 0.6, 0.9, 0.5, -0.35, 0.55 );
+                    SetParams( 1, 0.6, 0.9, -0.3, 0.53, 0.6 );
                     break;
                 case MapGenType.Island:
-                    SetParams( 1, 0.6, 1, 0.5, 0.3, 0.35 );
+                    SetParams( 1, 0.6, 0.9, 0.3, 0.30, 0.45 );
+                    break;
+                case MapGenType.Coast:
+                    SetParams( 1, 0.6, 1, 0, 0.35, 0.65 );
+                    break;
+            }
+
+            switch( theme ) {
+                case MapGenTheme.Arctic:
+                    bWaterSurface = Block.Glass;
+                    bDeepWaterSurface = Block.Water;
+                    bGroundSurface = Block.White;
+                    bWater = Block.Water;
+                    bGround = Block.White;
+                    bSeaFloor = Block.White;
+                    bBedrock = Block.Stone;
+                    break;
+                case MapGenTheme.Desert:
+                    bWaterSurface = Block.Air;
+                    bDeepWaterSurface = Block.Air;
+                    bGroundSurface = Block.Sand;
+                    bWater = Block.Air;
+                    bGround = Block.Sand;
+                    bSeaFloor = Block.Sand;
+                    bBedrock = Block.Stone;
+                    break;
+                case MapGenTheme.Hell:
+                    bWaterSurface = Block.Lava;
+                    bDeepWaterSurface = Block.Lava;
+                    bGroundSurface = Block.Rocks;
+                    bWater = Block.Lava;
+                    bGround = Block.Stone;
+                    bSeaFloor = Block.Obsidian;
+                    bBedrock = Block.Stone;
+                    break;
+                case MapGenTheme.Normal:
+                    bWaterSurface = Block.Water;
+                    bDeepWaterSurface = Block.Water;
+                    bGroundSurface = Block.Grass;
+                    bWater = Block.Water;
+                    bGround = Block.Dirt;
+                    bSeaFloor = Block.Sand;
+                    bBedrock = Block.Stone;
+                    break;
+                case MapGenTheme.Rocky:
+                    bWaterSurface = Block.Water;
+                    bDeepWaterSurface = Block.Water;
+                    bGroundSurface = Block.Rocks;
+                    bWater = Block.Water;
+                    bGround = Block.Stone;
+                    bSeaFloor = Block.Rocks;
+                    bBedrock = Block.Stone;
+                    break;
+                case MapGenTheme.Tundra:
+                    bWaterSurface = Block.Glass;
+                    bDeepWaterSurface = Block.Water;
+                    bGroundSurface = Block.White;
+                    bWater = Block.Water;
+                    bGround = Block.Dirt;
+                    bSeaFloor = Block.Dirt;
+                    bBedrock = Block.Stone;
                     break;
             }
         }
 
-        public void SetParams(double _roughness, double _smoothingOver, double _smoothingUnder, double _water, double _midpoint, double _sides ){
-                        roughness = _roughness;
+
+        public void SetParams( double _roughness, double _smoothingOver, double _smoothingUnder, double _midpoint, double _sidesMin, double _sidesMax ) {
+            roughness = _roughness;
             smoothingOver = _smoothingOver;
             smoothingUnder = _smoothingUnder;
             midpoint = _midpoint;
-            sides = _sides;
-            water = _water;
+            sidesMin = _sidesMin;
+            sidesMax = _sidesMax;
         }
-        
 
-
-        Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock;
 
         public void Generate() {
             double[,] heightmap = GenerateHeightmap( map.widthX, map.widthY );
             double level;
             int ilevel, iwater;
             Feedback( "Filling..." );
+            iwater = map.height / 2;
 
             // TODO: slope estimation
-            bWaterSurface = Block.Water;
-            bGroundSurface = Block.Grass;
-            bWater = Block.Water;
-            bGround = Block.Dirt;
-            bSeaFloor = Block.Sand;
-            bBedrock = Block.Stone;
 
             for( int x = 0; x < map.widthX; x++ ) {
                 for( int y = 0; y < map.widthY; y++ ) {
                     level = heightmap[x, y];
                     ilevel = (int)(level * map.height);
-                    iwater = (int)(water * map.height);
                     if( ilevel > iwater ) {
-                        ilevel = (int)(((level - water) * smoothingOver + water) * map.height);
+                        ilevel = (int)(((level - 0.5) * smoothingOver + 0.5) * map.height);
                         map.SetBlock( x, y, ilevel, bGroundSurface );
                         for( int i = ilevel - 1; i > 0; i-- ) {
                             if( ilevel - i < 5 ) {
@@ -92,8 +148,12 @@ namespace fCraft {
                             }
                         }
                     } else {
-                        ilevel = (int)(((level - water) * smoothingUnder + water) * map.height);
-                        map.SetBlock( x, y, iwater, bWaterSurface );
+                        ilevel = (int)(((level - 0.5) * smoothingUnder + 0.5) * map.height);
+                        if( iwater - ilevel > 3 ) {
+                            map.SetBlock( x, y, iwater, bDeepWaterSurface );
+                        } else {
+                            map.SetBlock( x, y, iwater, bWaterSurface );
+                        }
                         for( int i = iwater - 1; i > ilevel; i-- ) {
                             map.SetBlock( x, y, i, bWater );
                         }
@@ -122,17 +182,20 @@ namespace fCraft {
         }
 
         double[,] GenerateHeightmap( int iWidth, int iHeight ) {
-            double c1, c2, c3, c4;
             double[,] points = new double[iWidth + 1, iHeight + 1];
 
-            //Assign the four corners of the intial grid random color values
-            //These will end up being the colors of the four corners
-            c1 = sides + (rand.NextDouble() - 0.5) * 0.05;
-            c2 = sides + (rand.NextDouble() - 0.5) * 0.05;
-            c3 = sides + (rand.NextDouble() - 0.5) * 0.05;
-            c4 = sides + (rand.NextDouble() - 0.5) * 0.05;
+            double sideDelta = (sidesMax - sidesMin);
+            double[] sides = new double[4];
+            sides[0] = rand.NextDouble() * sideDelta;
+            sides[1] = rand.NextDouble() * sideDelta;
+            sides[2] = rand.NextDouble() * sideDelta;
+            while( (sides[0] < sideDelta / 2 && sides[1] < sideDelta / 2 && sides[2] < sideDelta / 2 && sides[3] < sideDelta / 2) ||
+                (sides[0] > sideDelta / 2 && sides[1] > sideDelta / 2 && sides[2] > sideDelta / 2 && sides[3] > sideDelta / 2) ) {
+                sides[3] = rand.NextDouble() * sideDelta;
+            }
+
             gBigSize = iWidth + iHeight;
-            DivideGrid( ref points, 0, 0, iWidth, iHeight, c1, c2, c3, c4, true );
+            DivideGrid( ref points, 0, 0, iWidth, iHeight, sidesMin + sides[0], sidesMin + sides[1], sidesMin + sides[2], sidesMin + sides[3], true );
             return points;
         }
 
@@ -145,21 +208,21 @@ namespace fCraft {
 
             if( width > 1 || height > 1 ) {
                 if( isTop ) {
-                    Middle = ((c1 + c2 + c3 + c4) / 4) + midpoint;	//Randomly displace the midpoint!
+                    Middle = ((c1 + c2 + c3 + c4) / 4) + midpoint; // Randomly displace the midpoint!
                 } else {
-                    Middle = ((c1 + c2 + c3 + c4) / 4) + Displace( newWidth + newHeight );	//Randomly displace the midpoint!
+                    Middle = ((c1 + c2 + c3 + c4) / 4) + Displace( newWidth + newHeight ); // Randomly displace the midpoint!
                 }
-                Edge1 = ((c1 + c2) / 2);	//Calculate the edges by averaging the two corners of each edge.
+                Edge1 = ((c1 + c2) / 2); //Calculate the edges by averaging the two corners of each edge.
                 Edge2 = ((c2 + c3) / 2);
                 Edge3 = ((c3 + c4) / 2);
-                Edge4 = ((c4 + c1) / 2);//
-                //Make sure that the midpoint doesn't accidentally "randomly displaced" past the boundaries!
+                Edge4 = ((c4 + c1) / 2);
+                // Make sure that the midpoint doesn't accidentally "randomly displaced" past the boundaries!
                 Middle = Rectify( Middle );
                 Edge1 = Rectify( Edge1 );
                 Edge2 = Rectify( Edge2 );
                 Edge3 = Rectify( Edge3 );
                 Edge4 = Rectify( Edge4 );
-                //Do the operation over again for each of the four new grids.
+                // Do the operation over again for each of the four new grids.
                 DivideGrid( ref points, x, y, newWidth, newHeight, c1, Edge1, Middle, Edge4, false );
                 DivideGrid( ref points, x + newWidth, y, width - newWidth, newHeight, Edge1, c2, Edge2, Middle, false );
                 if( isTop ) Feedback( "Heightmap: 50%" );
@@ -167,8 +230,8 @@ namespace fCraft {
                 DivideGrid( ref points, x, y + newHeight, newWidth, height - newHeight, Edge4, Middle, Edge3, c4, false );
                 if( isTop ) Feedback( "Heightmap: 100%" );
             } else {
-                //This is the "base case," where each grid piece is less than the size of a pixel.
-                //The four corners of the grid piece will be averaged and drawn as a single pixel.
+                // This is the "base case," where each grid piece is less than the size of a pixel.
+                // The four corners of the grid piece will be averaged and drawn as a single pixel.
                 double c = (c1 + c2 + c3 + c4) / 4;
 
                 points[(int)(x), (int)(y)] = c;
@@ -201,16 +264,14 @@ namespace fCraft {
         }
 
 
-        public static void GenerateFlatgrass( Map map, bool hollow ) {
+        public static void GenerateFlatgrass( Map map ) {
             for( int i = 0; i < map.widthX; i++ ) {
                 for( int j = 0; j < map.widthY; j++ ) {
-                    if( !hollow ) {
-                        for( int k = 1; k < map.height / 2 - 1; k++ ) {
-                            if( k < map.height / 2 - 5 ) {
-                                map.SetBlock( i, j, k, Block.Stone );
-                            } else {
-                                map.SetBlock( i, j, k, Block.Dirt );
-                            }
+                    for( int k = 1; k < map.height / 2 - 1; k++ ) {
+                        if( k < map.height / 2 - 5 ) {
+                            map.SetBlock( i, j, k, Block.Stone );
+                        } else {
+                            map.SetBlock( i, j, k, Block.Dirt );
                         }
                     }
                     map.SetBlock( i, j, map.height / 2 - 1, Block.Grass );
@@ -218,6 +279,58 @@ namespace fCraft {
             }
 
             map.MakeFloodBarrier();
+        }
+
+
+        public static void GenerateTrees( Map map ) {
+
+            int MinHeight = 4;
+            int MaxHeight = 6;
+            int MinTrunkPadding = 5;
+            int MaxTrunkPadding = 10;
+            int BorderPadding = 4;
+            int TopLayers = 2;
+            double Odds = 0.618;
+            bool OnlyAir = true;
+
+            Random rn = new Random();
+            int nx, ny, nz, nh;
+            int radius;
+
+            for( int x = BorderPadding; x < map.widthX - BorderPadding; x += rn.Next( MinTrunkPadding, MaxTrunkPadding ) ) {
+                for( int y = BorderPadding; y < map.widthY - BorderPadding; y += rn.Next( MinTrunkPadding, MaxTrunkPadding ) ) {
+                    nx = x + rn.Next( -(MinTrunkPadding / 2), (MaxTrunkPadding / 2) );
+                    ny = y + rn.Next( -(MinTrunkPadding / 2), (MaxTrunkPadding / 2) );
+                    nz = map.shadows[nx, ny];
+
+                    if( map.GetBlock( nx, ny, nz ) == (byte)Block.Grass ) {
+                        // Pick a random height for the tree between Min and Max,
+                        // discarding this tree if it would breach the top of the map
+                        if( (nh = rn.Next( MinHeight, MaxHeight )) + nz + nh / 2 > map.height )
+                            continue;
+
+                        // Generate the trunk of the tree
+                        for( int z = 1; z <= nh; z++ )
+                            map.SetBlock( nx, ny, nz + z, Block.Log );
+
+                        for( int i = -1; i < nh / 2; i++ ) {
+                            // Should we draw thin (2x2) or thicker (4x4) foliage
+                            radius = (i >= (nh / 2) - TopLayers) ? 1 : 2;
+                            // Draw the foliage
+                            for( int xoff = -radius; xoff < radius + 1; xoff++ ) {
+                                for( int yoff = -radius; yoff < radius + 1; yoff++ ) {
+                                    // Drop random leaves from the edges
+                                    if( rn.NextDouble() > Odds && Math.Abs( xoff ) == Math.Abs( yoff ) && Math.Abs( xoff ) == radius )
+                                        continue;
+                                    // By default only replace an existing block if its air
+                                    if( OnlyAir != true || map.GetBlock( nx + xoff, ny + yoff, nz + nh + i ) == (byte)Block.Air )
+                                        map.SetBlock( nx + xoff, ny + yoff, nz + nh + i, Block.Leaves );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
