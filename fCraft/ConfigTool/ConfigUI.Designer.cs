@@ -369,26 +369,32 @@
             // 
             // bColorSay
             // 
+            this.bColorSay.BackColor = System.Drawing.Color.White;
             this.bColorSay.Location = new System.Drawing.Point( 440, 77 );
             this.bColorSay.Name = "bColorSay";
             this.bColorSay.Size = new System.Drawing.Size( 100, 23 );
             this.bColorSay.TabIndex = 21;
+            this.bColorSay.UseVisualStyleBackColor = false;
             this.bColorSay.Click += new System.EventHandler( this.bColorSay_Click );
             // 
             // bColorHelp
             // 
+            this.bColorHelp.BackColor = System.Drawing.Color.White;
             this.bColorHelp.Location = new System.Drawing.Point( 440, 48 );
             this.bColorHelp.Name = "bColorHelp";
             this.bColorHelp.Size = new System.Drawing.Size( 100, 23 );
             this.bColorHelp.TabIndex = 20;
+            this.bColorHelp.UseVisualStyleBackColor = false;
             this.bColorHelp.Click += new System.EventHandler( this.bColorHelp_Click );
             // 
             // bColorSys
             // 
+            this.bColorSys.BackColor = System.Drawing.Color.White;
             this.bColorSys.Location = new System.Drawing.Point( 440, 19 );
             this.bColorSys.Name = "bColorSys";
             this.bColorSys.Size = new System.Drawing.Size( 100, 23 );
             this.bColorSys.TabIndex = 19;
+            this.bColorSys.UseVisualStyleBackColor = false;
             this.bColorSys.Click += new System.EventHandler( this.bColorSys_Click );
             // 
             // xListPrefixes
@@ -839,11 +845,12 @@
             // 
             // bColorClass
             // 
+            this.bColorClass.BackColor = System.Drawing.Color.White;
             this.bColorClass.Location = new System.Drawing.Point( 96, 73 );
             this.bColorClass.Name = "bColorClass";
             this.bColorClass.Size = new System.Drawing.Size( 100, 24 );
             this.bColorClass.TabIndex = 20;
-            this.bColorClass.UseVisualStyleBackColor = true;
+            this.bColorClass.UseVisualStyleBackColor = false;
             this.bColorClass.Click += new System.EventHandler( this.bColorClass_Click );
             // 
             // xBanOn
