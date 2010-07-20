@@ -1,5 +1,7 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Linq;
+
 
 namespace fCraft {
 
@@ -9,8 +11,7 @@ namespace fCraft {
         Desert,
         Hell,
         Normal,
-        Rocky,
-        Tundra
+        Rocky
     }
 
     public enum MapGenType {
@@ -18,7 +19,8 @@ namespace fCraft {
         Hills,
         Lake,
         Island,
-        Coast
+        Coast,
+        River
     }
 
     public class MapGenerator {
@@ -28,21 +30,21 @@ namespace fCraft {
         Player player;
         string filename;
 
-
         Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock, bDeepWaterSurface;
+        MapGenType type;
 
-
-        public MapGenerator( Map _map, Player _player, string _filename, MapGenType type, MapGenTheme theme ) {
+        public MapGenerator( Map _map, Player _player, string _filename, MapGenType _type, MapGenTheme theme ) {
             map = _map;
             player = _player;
             filename = _filename;
+            type = _type;
 
-            switch( type ) {
+            switch( _type ) {
                 case MapGenType.Hills:
-                    SetParams( 1, 1, 0.5, 0, 0.5, 0.55 );
+                    SetParams( 1, 1, 2, 0, 0.52, 0.6 );
                     break;
                 case MapGenType.Mountains:
-                    SetParams( 4, 1, 0.5, 0.1, 0.5, 0.7 );
+                    SetParams( 4, 1, 0.4, 0.1, 0.5, 0.7 );
                     break;
                 case MapGenType.Lake:
                     SetParams( 1, 0.6, 0.9, -0.3, 0.53, 0.6 );
@@ -51,7 +53,10 @@ namespace fCraft {
                     SetParams( 1, 0.6, 0.9, 0.3, 0.30, 0.45 );
                     break;
                 case MapGenType.Coast:
-                    SetParams( 1, 0.6, 1, 0, 0.35, 0.65 );
+                    SetParams( 1, 0.6, 1, 0, 0.4, 0.6 );
+                    break;
+                case MapGenType.River:
+                    SetParams( 3, 1, 1, -.1, 0, 1 );
                     break;
             }
 
@@ -101,15 +106,6 @@ namespace fCraft {
                     bSeaFloor = Block.Rocks;
                     bBedrock = Block.Stone;
                     break;
-                case MapGenTheme.Tundra:
-                    bWaterSurface = Block.Glass;
-                    bDeepWaterSurface = Block.Water;
-                    bGroundSurface = Block.White;
-                    bWater = Block.Water;
-                    bGround = Block.Dirt;
-                    bSeaFloor = Block.Dirt;
-                    bBedrock = Block.Stone;
-                    break;
             }
         }
 
@@ -126,6 +122,22 @@ namespace fCraft {
 
         public void Generate() {
             double[,] heightmap = GenerateHeightmap( map.widthX, map.widthY );
+
+            if( type == MapGenType.River ) {
+                double min = double.MaxValue, max = double.MinValue;
+                for( int x = 0; x < map.widthX; x++ ) {
+                    for( int y = 0; y < map.widthY; y++ ) {
+                        min = Math.Min( min, heightmap[x, y] );
+                        max = Math.Max( max, heightmap[x, y] );
+                    }
+                }
+                for( int x = 0; x < map.widthX; x++ ) {
+                    for( int y = 0; y < map.widthY; y++ ) {
+                        heightmap[x, y] = Math.Abs( (heightmap[x, y]-min)/(max-min) * 2 - 1 )*.3+.4;
+                    }
+                }
+            }
+
             double level;
             int ilevel, iwater;
             Feedback( "Filling..." );
@@ -138,7 +150,7 @@ namespace fCraft {
                     level = heightmap[x, y];
                     ilevel = (int)(level * map.height);
                     if( ilevel > iwater ) {
-                        ilevel = (int)(((level - 0.5) * smoothingOver + 0.5) * map.height);
+                        ilevel = (int)( ((level - 0.5) * smoothingOver + 0.5) * map.height );
                         map.SetBlock( x, y, ilevel, bGroundSurface );
                         for( int i = ilevel - 1; i > 0; i-- ) {
                             if( ilevel - i < 5 ) {
@@ -148,7 +160,7 @@ namespace fCraft {
                             }
                         }
                     } else {
-                        ilevel = (int)(((level - 0.5) * smoothingUnder + 0.5) * map.height);
+                        ilevel = (int)(( (level - 0.5)* smoothingUnder + 0.5) * map.height);
                         if( iwater - ilevel > 3 ) {
                             map.SetBlock( x, y, iwater, bDeepWaterSurface );
                         } else {
@@ -186,14 +198,22 @@ namespace fCraft {
 
             double sideDelta = (sidesMax - sidesMin);
             double[] sides = new double[4];
-            sides[0] = rand.NextDouble() * sideDelta;
-            sides[1] = rand.NextDouble() * sideDelta;
-            sides[2] = rand.NextDouble() * sideDelta;
-            while( (sides[0] < sideDelta / 2 && sides[1] < sideDelta / 2 && sides[2] < sideDelta / 2 && sides[3] < sideDelta / 2) ||
-                (sides[0] > sideDelta / 2 && sides[1] > sideDelta / 2 && sides[2] > sideDelta / 2 && sides[3] > sideDelta / 2) ) {
-                sides[3] = rand.NextDouble() * sideDelta;
+            if( type == MapGenType.River ) {
+                sides[0] = rand.NextDouble()*.5;
+                sides[1] = rand.NextDouble()*.5;
+                sides[2] = rand.NextDouble()*.5+.5;
+                sides[3] = rand.NextDouble()*.5+.5;
+                sides = sides.OrderBy( r => rand.Next() ).ToArray();
+            } else {
+                sides[0] = rand.NextDouble() * sideDelta;
+                sides[1] = rand.NextDouble() * sideDelta;
+                sides[2] = rand.NextDouble() * sideDelta;
+                while( (sides[0] < sideDelta / 2 && sides[1] < sideDelta / 2 && sides[2] < sideDelta / 2 && sides[3] < sideDelta / 2) ||
+                    (sides[0] > sideDelta / 2 && sides[1] > sideDelta / 2 && sides[2] > sideDelta / 2 && sides[3] > sideDelta / 2) ) {
+                    sides[3] = rand.NextDouble() * sideDelta;
+                }
             }
-
+            
             gBigSize = iWidth + iHeight;
             DivideGrid( ref points, 0, 0, iWidth, iHeight, sidesMin + sides[0], sidesMin + sides[1], sidesMin + sides[2], sidesMin + sides[3], true );
             return points;
