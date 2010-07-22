@@ -144,6 +144,7 @@ namespace fCraft {
                     break;
                 case "cub":
                 case "cuboid":
+                case "blb":
                     player.Message( Color.Help, "/cub [BlockType]" + Color.Sys + " or " + Color.Help + "/cuboid BlockType" );
                     player.Message( "     Allows to draw a filled cuboid (rectangular area)." );
                     player.Message( "     Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode." );
@@ -160,7 +161,7 @@ namespace fCraft {
                     player.Message( Color.Help, "/freeze PlayerName" );
                     player.Message( "     Freezes the specified player in place. This is usually" );
                     player.Message( "     effective, but not hacking-proof. To release the" );
-                    player.Message( "     player, call " + Color.Help + "/release PlayerName" );
+                    player.Message( "     player, call " + Color.Help + "/unfreeze PlayerName" );
                     break;
                 case "gen":
                     player.Message( Color.Help, "/gen widthX widthY height theme filename" );

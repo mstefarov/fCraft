@@ -9,6 +9,7 @@ namespace fCraft {
     public enum MapGenTheme {
         Arctic,
         Desert,
+        Forest,
         Hell,
         Normal,
         Rocky
@@ -29,19 +30,35 @@ namespace fCraft {
         Map map;
         Player player;
         string filename;
+        int groundThickness=5, seaFloorThickness=3;
 
         Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock, bDeepWaterSurface;
         MapGenType type;
+        MapGenTheme theme;
 
-        public MapGenerator( Map _map, Player _player, string _filename, MapGenType _type, MapGenTheme theme ) {
+        public MapGenerator( Map _map, Player _player, string _filename, MapGenType _type, MapGenTheme _theme ) {
             map = _map;
             player = _player;
             filename = _filename;
             type = _type;
+            theme = _theme;
+        }
 
-            switch( _type ) {
+
+        public void SetParams( double _roughness, double _smoothingOver, double _smoothingUnder, double _midpoint, double _sidesMin, double _sidesMax ) {
+            roughness = _roughness;
+            smoothingOver = _smoothingOver;
+            smoothingUnder = _smoothingUnder;
+            midpoint = _midpoint;
+            sidesMin = _sidesMin;
+            sidesMax = _sidesMax;
+        }
+
+
+        void ApplyType() {
+            switch( type ) {
                 case MapGenType.Hills:
-                    SetParams( 1, 1, 2, 0, 0.52, 0.6 );
+                    SetParams( 1, 1, 1.5, 0, 0.52, 0.6 );
                     break;
                 case MapGenType.Mountains:
                     SetParams( 4, 1, 0.4, 0.1, 0.5, 0.7 );
@@ -53,13 +70,15 @@ namespace fCraft {
                     SetParams( 1, 0.6, 0.9, 0.3, 0.30, 0.45 );
                     break;
                 case MapGenType.Coast:
-                    SetParams( 1, 0.6, 1, 0, 0.4, 0.6 );
+                    SetParams( 1.5, 0.75, 1, 0, 0.4, 0.63 );
                     break;
                 case MapGenType.River:
                     SetParams( 3, 1, 1, -.1, 0, 1 );
                     break;
             }
+        }
 
+        void ApplyTheme() {
             switch( theme ) {
                 case MapGenTheme.Arctic:
                     bWaterSurface = Block.Glass;
@@ -69,10 +88,11 @@ namespace fCraft {
                     bGround = Block.White;
                     bSeaFloor = Block.White;
                     bBedrock = Block.Stone;
+                    groundThickness = 1;
                     break;
                 case MapGenTheme.Desert:
-                    bWaterSurface = Block.Air;
-                    bDeepWaterSurface = Block.Air;
+                    bWaterSurface = Block.Water;
+                    bDeepWaterSurface = Block.Water;
                     bGroundSurface = Block.Sand;
                     bWater = Block.Air;
                     bGround = Block.Sand;
@@ -88,6 +108,7 @@ namespace fCraft {
                     bSeaFloor = Block.Obsidian;
                     bBedrock = Block.Stone;
                     break;
+                case MapGenTheme.Forest:
                 case MapGenTheme.Normal:
                     bWaterSurface = Block.Water;
                     bDeepWaterSurface = Block.Water;
@@ -110,17 +131,10 @@ namespace fCraft {
         }
 
 
-        public void SetParams( double _roughness, double _smoothingOver, double _smoothingUnder, double _midpoint, double _sidesMin, double _sidesMax ) {
-            roughness = _roughness;
-            smoothingOver = _smoothingOver;
-            smoothingUnder = _smoothingUnder;
-            midpoint = _midpoint;
-            sidesMin = _sidesMin;
-            sidesMax = _sidesMax;
-        }
-
-
         public void Generate() {
+            ApplyType();
+            ApplyTheme();
+
             double[,] heightmap = GenerateHeightmap( map.widthX, map.widthY );
 
             if( type == MapGenType.River ) {
@@ -150,35 +164,42 @@ namespace fCraft {
                     level = heightmap[x, y];
                     ilevel = (int)(level * map.height);
                     if( ilevel > iwater ) {
-                        ilevel = (int)( ((level - 0.5) * smoothingOver + 0.5) * map.height );
+                        ilevel = (int)(((level - 0.5) * smoothingOver + 0.5) * map.height);
                         map.SetBlock( x, y, ilevel, bGroundSurface );
                         for( int i = ilevel - 1; i > 0; i-- ) {
-                            if( ilevel - i < 5 ) {
+                            if( ilevel - i < groundThickness ) {
                                 map.SetBlock( x, y, i, bGround );
                             } else {
                                 map.SetBlock( x, y, i, bBedrock );
                             }
                         }
                     } else {
-                        ilevel = (int)(( (level - 0.5)* smoothingUnder + 0.5) * map.height);
+                        ilevel = (int)(((level - 0.5) * smoothingUnder + 0.5) * map.height);
                         if( iwater - ilevel > 3 ) {
                             map.SetBlock( x, y, iwater, bDeepWaterSurface );
                         } else {
                             map.SetBlock( x, y, iwater, bWaterSurface );
                         }
-                        for( int i = iwater - 1; i > ilevel; i-- ) {
+                        for( int i = iwater; i > ilevel; i-- ) {
                             map.SetBlock( x, y, i, bWater );
                         }
-                        map.SetBlock( x, y, ilevel, bSeaFloor );
-                        for( int i = ilevel - 1; i > 0; i-- ) {
-                            map.SetBlock( x, y, i, bBedrock );
+                        for( int i = ilevel; i > 0; i-- ) {
+                            if( ilevel - i < seaFloorThickness ) {
+                                map.SetBlock( x, y, i, bSeaFloor );
+                            } else {
+                                map.SetBlock( x, y, i, bBedrock );
+                            }
                         }
                     }
                 }
             }
-            map.MakeFloodBarrier();
+            if( theme == MapGenTheme.Forest ) {
+                GenerateTrees( map );
+            }
+
             Feedback( "Done." );
         }
+
 
         public static void GenerationTask( object task ) {
             MapGenerator gen = (MapGenerator)task;
@@ -187,11 +208,13 @@ namespace fCraft {
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
+
         void Feedback( string message ) {
             if( player != null ) {
                 player.Message( "Map generation: " + message );
             }
         }
+
 
         double[,] GenerateHeightmap( int iWidth, int iHeight ) {
             double[,] points = new double[iWidth + 1, iHeight + 1];
@@ -297,13 +320,10 @@ namespace fCraft {
                     map.SetBlock( i, j, map.height / 2 - 1, Block.Grass );
                 }
             }
-
-            map.MakeFloodBarrier();
         }
 
 
         public static void GenerateTrees( Map map ) {
-
             int MinHeight = 4;
             int MaxHeight = 6;
             int MinTrunkPadding = 5;
@@ -316,6 +336,8 @@ namespace fCraft {
             Random rn = new Random();
             int nx, ny, nz, nh;
             int radius;
+
+            map.CalculateShadows();
 
             for( int x = BorderPadding; x < map.widthX - BorderPadding; x += rn.Next( MinTrunkPadding, MaxTrunkPadding ) ) {
                 for( int y = BorderPadding; y < map.widthY - BorderPadding; y += rn.Next( MinTrunkPadding, MaxTrunkPadding ) ) {

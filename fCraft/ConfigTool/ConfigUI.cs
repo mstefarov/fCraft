@@ -16,7 +16,7 @@ namespace ConfigTool {
         PlayerClass selectedClass, defaultClass;
         BindingList<WorldListEntry> worlds = new BindingList<WorldListEntry>();
 
-        static string[] BackupEnum = new string[] { "Never", "5 Minutes", "10 Minutes", "15 Minutes", "20 Minutes", "30 Minutes", "45 Minutes", "1 Hour", "2 Hours", "3 Hours", "4 Hours", "6 Hours", "8 Hours", "12 Hours", "24 Hours" };
+        public static string[] BackupEnum = new string[] { "Never", "5 Minutes", "10 Minutes", "15 Minutes", "20 Minutes", "30 Minutes", "45 Minutes", "1 Hour", "2 Hours", "3 Hours", "4 Hours", "6 Hours", "8 Hours", "12 Hours", "24 Hours" };
 
         #region Initialization
         public ConfigUI() {
@@ -253,7 +253,7 @@ namespace ConfigTool {
             box.Items.Clear();
             box.Items.Add( firstItem );
             foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                box.Items.Add( String.Format( "{0,3} {1,1}{2}", pc.rank, pc.prefix, pc.name ) );
+                box.Items.Add( pc.ToComboBoxOption() );
             }
         }
 
@@ -656,7 +656,7 @@ namespace ConfigTool {
         #endregion
 
         private void bAddWorld_Click( object sender, EventArgs e ) {
-            new AddWorldPopup().ShowDialog();
+            new AddWorldPopup(null).ShowDialog();
         }
 
         private void dgvWorlds_SelectionChanged( object sender, EventArgs e ) {
