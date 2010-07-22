@@ -15,6 +15,7 @@ namespace fCraft {
         internal static void Init(){
             Commands.AddCommand( "cuboid", Cuboid, false );
             Commands.AddCommand( "cub", Cuboid, false );
+            Commands.AddCommand( "blb", Cuboid, false );
             Commands.AddCommand( "ellipsoid", Ellipsoid, false );
             Commands.AddCommand( "ell", Ellipsoid, false );
             Commands.AddCommand( "mark", Mark, false );

@@ -106,7 +106,6 @@
             this.rEmpty.Name = "rEmpty";
             this.rEmpty.Size = new System.Drawing.Size( 77, 17 );
             this.rEmpty.TabIndex = 8;
-            this.rEmpty.TabStop = true;
             this.rEmpty.Text = "Empty map";
             this.rEmpty.UseVisualStyleBackColor = true;
             this.rEmpty.CheckedChanged += new System.EventHandler( this.rEmpty_CheckedChanged );
@@ -118,7 +117,6 @@
             this.rFlatgrass.Name = "rFlatgrass";
             this.rFlatgrass.Size = new System.Drawing.Size( 111, 17 );
             this.rFlatgrass.TabIndex = 9;
-            this.rFlatgrass.TabStop = true;
             this.rFlatgrass.Text = "Generate flatgrass";
             this.rFlatgrass.UseVisualStyleBackColor = true;
             this.rFlatgrass.CheckedChanged += new System.EventHandler( this.rFlatgrass_CheckedChanged );
@@ -130,7 +128,6 @@
             this.rTerrain.Name = "rTerrain";
             this.rTerrain.Size = new System.Drawing.Size( 139, 17 );
             this.rTerrain.TabIndex = 10;
-            this.rTerrain.TabStop = true;
             this.rTerrain.Text = "Generate realistic terrain";
             this.rTerrain.UseVisualStyleBackColor = true;
             this.rTerrain.CheckedChanged += new System.EventHandler( this.rTerrain_CheckedChanged );
@@ -254,6 +251,7 @@
             this.xFloodBarrier.TabIndex = 21;
             this.xFloodBarrier.Text = "Add a flood barrier";
             this.xFloodBarrier.UseVisualStyleBackColor = true;
+            this.xFloodBarrier.CheckedChanged += new System.EventHandler( this.xFloodBarrier_CheckedChanged );
             // 
             // cTheme
             // 
@@ -337,6 +335,7 @@
             // rLoad
             // 
             this.rLoad.AutoSize = true;
+            this.rLoad.Checked = true;
             this.rLoad.Location = new System.Drawing.Point( 6, 68 );
             this.rLoad.Name = "rLoad";
             this.rLoad.Size = new System.Drawing.Size( 88, 17 );
@@ -353,7 +352,6 @@
             this.rCopy.Name = "rCopy";
             this.rCopy.Size = new System.Drawing.Size( 115, 17 );
             this.rCopy.TabIndex = 11;
-            this.rCopy.TabStop = true;
             this.rCopy.Text = "Copy existing world";
             this.rCopy.UseVisualStyleBackColor = true;
             this.rCopy.CheckedChanged += new System.EventHandler( this.rCopy_CheckedChanged );
@@ -404,8 +402,6 @@
             // 
             this.cAccess.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cAccess.FormattingEnabled = true;
-            this.cAccess.Items.AddRange( new object[] {
-            "(lowest class)"} );
             this.cAccess.Location = new System.Drawing.Point( 140, 38 );
             this.cAccess.Name = "cAccess";
             this.cAccess.Size = new System.Drawing.Size( 132, 21 );
@@ -415,8 +411,6 @@
             // 
             this.cBuild.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cBuild.FormattingEnabled = true;
-            this.cBuild.Items.AddRange( new object[] {
-            " 80  +op"} );
             this.cBuild.Location = new System.Drawing.Point( 140, 65 );
             this.cBuild.Name = "cBuild";
             this.cBuild.Size = new System.Drawing.Size( 132, 21 );

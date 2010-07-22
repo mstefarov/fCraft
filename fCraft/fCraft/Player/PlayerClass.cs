@@ -85,5 +85,9 @@ namespace fCraft {
             return val[0] > ' ' && val[0] != '&' && val[0] != '`' && val[0] != '^' && val[0] <= '}';
         }
 
+
+        public string ToComboBoxOption() {
+            return String.Format( "{0,3} {1,1}{2}", rank, prefix, name );
+        }
     }
 }

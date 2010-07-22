@@ -13,7 +13,7 @@ using fCraft;
 
 
 namespace ConfigTool {
-    public partial class AddWorldPopup : Form {
+    partial class AddWorldPopup : Form {
         BackgroundWorker bwLoader = new BackgroundWorker(),
                          bwGenerator = new BackgroundWorker(),
                          bwRenderer = new BackgroundWorker(),
@@ -25,23 +25,35 @@ namespace ConfigTool {
         Stopwatch stopwatch;
         int previewRotation = 0;
         Bitmap previewImage;
+        bool floodBarrier = false;
 
+        WorldListEntry world;
+
+        public AddWorldPopup( WorldListEntry _world )
+            : this() {
+            world = _world;
+
+            cBackup.Items.AddRange( ConfigUI.BackupEnum );
+
+            if( world == null ) {
+                world = new WorldListEntry();
+                cAccess.SelectedIndex = 0;
+                cBuild.SelectedIndex = 0;
+                cBackup.SelectedIndex = 5;
+            } else {
+                cAccess.SelectedIndex = ClassList.ParseClass( world.AccessPermission ).index + 1;
+                cBuild.SelectedIndex = ClassList.ParseClass( world.BuildPermission ).index + 1;
+            }
+            cWorld.SelectedIndex = 0;
+            cTerrain.SelectedIndex = (int)MapGenType.River;
+            cTheme.SelectedIndex = (int)MapGenTheme.Normal;
+        }
 
         public AddWorldPopup() {
             InitializeComponent();
 
             cTerrain.Items.AddRange( Enum.GetNames( typeof( MapGenType ) ) );
             cTheme.Items.AddRange( Enum.GetNames( typeof( MapGenTheme ) ) );
-
-            cAccess.SelectedIndex = 0;
-            cBuild.SelectedIndex = 0;
-            cBackup.SelectedIndex = 0;
-            cWorld.SelectedIndex = 0;
-            cTerrain.SelectedIndex = (int)MapGenType.Coast;
-            cTheme.SelectedIndex = (int)MapGenTheme.Normal;
-
-            // this forces calling all the *_CheckedChanged methods, disabling everything unnecessary
-            rLoad.Checked = true;
 
             bwLoader.DoWork += AsyncLoad;
             bwLoader.RunWorkerCompleted += AsyncLoadCompleted;
@@ -57,6 +69,17 @@ namespace ConfigTool {
 
             bwFlatgrassGen.DoWork += AsyncFlatgrassGen;
             bwFlatgrassGen.RunWorkerCompleted += AsyncFlatgrassGenCompleted;
+
+            nWidthX.Validating += MapDimensionValidating;
+            nWidthY.Validating += MapDimensionValidating;
+            nHeight.Validating += MapDimensionValidating;
+
+            cAccess.Items.Add( "(everyone)" );
+            cBuild.Items.Add( "(everyone)" );
+            foreach( PlayerClass pc in ClassList.classesByIndex ) {
+                cAccess.Items.Add( pc.ToComboBoxOption() );
+                cBuild.Items.Add( pc.ToComboBoxOption() );
+            }
 
             tStatus1.Text = "";
             tStatus2.Text = "";
@@ -129,7 +152,7 @@ namespace ConfigTool {
         }
 
         void AsyncDraw( object sender, DoWorkEventArgs e ) {
-            renderer = new IsoCat( map, IsoCatMode.Peeled, previewRotation );
+            renderer = new IsoCat( map, IsoCatMode.Normal, previewRotation );
             Rectangle cropRectangle = new Rectangle();
             if( bwRenderer.CancellationPending ) return;
             Bitmap rawImage = renderer.Draw( ref cropRectangle, bwRenderer );
@@ -137,6 +160,7 @@ namespace ConfigTool {
             if( rawImage != null ) {
                 previewImage = rawImage.Clone( cropRectangle, rawImage.PixelFormat );
             }
+            renderer = null;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
@@ -194,12 +218,14 @@ namespace ConfigTool {
         // terrain
         void AsyncGen( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
+            map = null;
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
             map = new Map( null, Convert.ToInt32( nWidthX.Value ), Convert.ToInt32( nWidthY.Value ), Convert.ToInt32( nHeight.Value ) );
             generator = new MapGenerator( map, null, null, genType, genTheme );
             generator.Generate();
+            if( floodBarrier ) map.MakeFloodBarrier();
             map.CalculateShadows();
-            MapGenerator.GenerateTrees( map );
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
         }
 
         void AsyncGenCompleted( object sender, RunWorkerCompletedEventArgs e ) {
@@ -214,14 +240,17 @@ namespace ConfigTool {
             gMap.Enabled = true;
         }
 
-        
+
         // empty (done without BackgroundWorker, it's fast enough)
         private void rEmpty_CheckedChanged( object sender, EventArgs e ) {
             if( rEmpty.Checked ) {
+                map = null;
+                GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
                 map = new Map( null, Convert.ToInt32( nWidthX.Value ), Convert.ToInt32( nWidthY.Value ), Convert.ToInt32( nHeight.Value ) );
                 map.MakeFloodBarrier();
                 map.shadows = new short[map.widthX, map.widthY]; // skip shadow calculations, there is no overlap
                 Redraw();
+                GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
             }
         }
 
@@ -242,10 +271,13 @@ namespace ConfigTool {
 
         void AsyncFlatgrassGen( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
+            map = null;
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
             map = new Map( null, Convert.ToInt32( nWidthX.Value ), Convert.ToInt32( nWidthY.Value ), Convert.ToInt32( nHeight.Value ) );
             MapGenerator.GenerateFlatgrass( map );
+            if( floodBarrier ) map.MakeFloodBarrier();
             map.CalculateShadows();
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
         }
 
         void AsyncFlatgrassGenCompleted( object sender, RunWorkerCompletedEventArgs e ) {
@@ -275,6 +307,14 @@ namespace ConfigTool {
         private void rCopy_CheckedChanged( object sender, EventArgs e ) {
             cWorld.Enabled = rCopy.Checked;
             ToggleDimensions();
+        }
+
+        private void xFloodBarrier_CheckedChanged( object sender, EventArgs e ) {
+            floodBarrier = xFloodBarrier.Checked;
+        }
+
+        private void MapDimensionValidating( object sender, CancelEventArgs e ) {
+            ((NumericUpDown)sender).Value = Convert.ToInt32( ((NumericUpDown)sender).Value / 16 ) * 16;
         }
     }
 }
