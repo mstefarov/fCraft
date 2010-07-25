@@ -51,7 +51,7 @@
             this.bOK.Location = new System.Drawing.Point( 292, 231 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 28 );
-            this.bOK.TabIndex = 2;
+            this.bOK.TabIndex = 1;
             this.bOK.Text = "OK";
             this.bOK.Click += new System.EventHandler( this.bOK_Click );
             // 
@@ -63,7 +63,7 @@
             this.bCancel.Location = new System.Drawing.Point( 398, 231 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 28 );
-            this.bCancel.TabIndex = 3;
+            this.bCancel.TabIndex = 2;
             this.bCancel.Text = "Cancel";
             this.bCancel.Click += new System.EventHandler( this.bCancel_Click );
             // 

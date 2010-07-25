@@ -662,7 +662,10 @@ namespace ConfigTool {
         #endregion
 
         private void bAddWorld_Click( object sender, EventArgs e ) {
-            new AddWorldPopup(null).ShowDialog();
+            AddWorldPopup popup = new AddWorldPopup(null);
+            if( popup.ShowDialog() == DialogResult.OK ) {
+                worlds.Add( popup.world );
+            }
         }
 
         private void dgvWorlds_SelectionChanged( object sender, EventArgs e ) {

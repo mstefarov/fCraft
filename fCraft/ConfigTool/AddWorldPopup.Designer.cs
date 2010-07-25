@@ -64,12 +64,14 @@
             this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.preview = new System.Windows.Forms.PictureBox();
+            this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
             this.gMap.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
+            this.previewLayout.SuspendLayout();
             this.SuspendLayout();
             // 
             // lX2
@@ -152,7 +154,7 @@
             0} );
             this.nWidthX.Name = "nWidthX";
             this.nWidthX.Size = new System.Drawing.Size( 54, 20 );
-            this.nWidthX.TabIndex = 12;
+            this.nWidthX.TabIndex = 0;
             this.nWidthX.Value = new decimal( new int[] {
             64,
             0,
@@ -179,7 +181,7 @@
             0} );
             this.nWidthY.Name = "nWidthY";
             this.nWidthY.Size = new System.Drawing.Size( 54, 20 );
-            this.nWidthY.TabIndex = 13;
+            this.nWidthY.TabIndex = 1;
             this.nWidthY.Value = new decimal( new int[] {
             64,
             0,
@@ -206,7 +208,7 @@
             0} );
             this.nHeight.Name = "nHeight";
             this.nHeight.Size = new System.Drawing.Size( 54, 20 );
-            this.nHeight.TabIndex = 14;
+            this.nHeight.TabIndex = 2;
             this.nHeight.Value = new decimal( new int[] {
             64,
             0,
@@ -238,7 +240,7 @@
             this.gMap.Location = new System.Drawing.Point( 13, 142 );
             this.gMap.Name = "gMap";
             this.gMap.Size = new System.Drawing.Size( 365, 264 );
-            this.gMap.TabIndex = 15;
+            this.gMap.TabIndex = 5;
             this.gMap.TabStop = false;
             this.gMap.Text = "Map";
             // 
@@ -248,7 +250,7 @@
             this.xFloodBarrier.Location = new System.Drawing.Point( 127, 45 );
             this.xFloodBarrier.Name = "xFloodBarrier";
             this.xFloodBarrier.Size = new System.Drawing.Size( 112, 17 );
-            this.xFloodBarrier.TabIndex = 21;
+            this.xFloodBarrier.TabIndex = 3;
             this.xFloodBarrier.Text = "Add a flood barrier";
             this.xFloodBarrier.UseVisualStyleBackColor = true;
             this.xFloodBarrier.CheckedChanged += new System.EventHandler( this.xFloodBarrier_CheckedChanged );
@@ -260,7 +262,7 @@
             this.cTheme.Location = new System.Drawing.Point( 273, 206 );
             this.cTheme.Name = "cTheme";
             this.cTheme.Size = new System.Drawing.Size( 86, 21 );
-            this.cTheme.TabIndex = 20;
+            this.cTheme.TabIndex = 12;
             // 
             // lTheme
             // 
@@ -279,7 +281,7 @@
             this.cTerrain.Location = new System.Drawing.Point( 127, 206 );
             this.cTerrain.Name = "cTerrain";
             this.cTerrain.Size = new System.Drawing.Size( 86, 21 );
-            this.cTerrain.TabIndex = 18;
+            this.cTerrain.TabIndex = 11;
             // 
             // lTerrain
             // 
@@ -297,7 +299,7 @@
             this.bGenerate.Location = new System.Drawing.Point( 84, 233 );
             this.bGenerate.Name = "bGenerate";
             this.bGenerate.Size = new System.Drawing.Size( 75, 23 );
-            this.bGenerate.TabIndex = 16;
+            this.bGenerate.TabIndex = 13;
             this.bGenerate.Text = "Generate";
             this.bGenerate.UseVisualStyleBackColor = true;
             this.bGenerate.Click += new System.EventHandler( this.bGenerate_Click );
@@ -312,7 +314,7 @@
             this.cWorld.Location = new System.Drawing.Point( 127, 95 );
             this.cWorld.Name = "cWorld";
             this.cWorld.Size = new System.Drawing.Size( 132, 21 );
-            this.cWorld.TabIndex = 15;
+            this.cWorld.TabIndex = 7;
             // 
             // tFile
             // 
@@ -320,14 +322,14 @@
             this.tFile.Name = "tFile";
             this.tFile.ReadOnly = true;
             this.tFile.Size = new System.Drawing.Size( 178, 20 );
-            this.tFile.TabIndex = 14;
+            this.tFile.TabIndex = 4;
             // 
             // bBrowse
             // 
             this.bBrowse.Location = new System.Drawing.Point( 284, 67 );
             this.bBrowse.Name = "bBrowse";
             this.bBrowse.Size = new System.Drawing.Size( 75, 23 );
-            this.bBrowse.TabIndex = 13;
+            this.bBrowse.TabIndex = 5;
             this.bBrowse.Text = "Browse";
             this.bBrowse.UseVisualStyleBackColor = true;
             this.bBrowse.Click += new System.EventHandler( this.bBrowse_Click );
@@ -339,7 +341,7 @@
             this.rLoad.Location = new System.Drawing.Point( 6, 68 );
             this.rLoad.Name = "rLoad";
             this.rLoad.Size = new System.Drawing.Size( 88, 17 );
-            this.rLoad.TabIndex = 12;
+            this.rLoad.TabIndex = 3;
             this.rLoad.TabStop = true;
             this.rLoad.Text = "Load from file";
             this.rLoad.UseVisualStyleBackColor = true;
@@ -351,39 +353,44 @@
             this.rCopy.Location = new System.Drawing.Point( 6, 96 );
             this.rCopy.Name = "rCopy";
             this.rCopy.Size = new System.Drawing.Size( 115, 17 );
-            this.rCopy.TabIndex = 11;
+            this.rCopy.TabIndex = 6;
             this.rCopy.Text = "Copy existing world";
             this.rCopy.UseVisualStyleBackColor = true;
             this.rCopy.CheckedChanged += new System.EventHandler( this.rCopy_CheckedChanged );
             // 
             // lPreview
             // 
-            this.lPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.lPreview.AutoSize = true;
-            this.lPreview.Location = new System.Drawing.Point( 534, 346 );
+            this.lPreview.Location = new System.Drawing.Point( 158, 336 );
             this.lPreview.Name = "lPreview";
-            this.lPreview.Size = new System.Drawing.Size( 45, 13 );
+            this.lPreview.Size = new System.Drawing.Size( 54, 28 );
             this.lPreview.TabIndex = 16;
             this.lPreview.Text = "Preview";
+            this.lPreview.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // bOK
             // 
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bOK.Location = new System.Drawing.Point( 655, 382 );
+            this.bOK.Location = new System.Drawing.Point( 549, 382 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 25 );
-            this.bOK.TabIndex = 17;
+            this.bOK.TabIndex = 8;
             this.bOK.Text = "OK";
             this.bOK.UseVisualStyleBackColor = true;
             // 
             // bCancel
             // 
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bCancel.Location = new System.Drawing.Point( 549, 382 );
+            this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.bCancel.Location = new System.Drawing.Point( 655, 382 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 25 );
-            this.bCancel.TabIndex = 18;
+            this.bCancel.TabIndex = 7;
             this.bCancel.Text = "Cancel";
             this.bCancel.UseVisualStyleBackColor = true;
             // 
@@ -396,7 +403,8 @@
             this.cBackup.Location = new System.Drawing.Point( 140, 92 );
             this.cBackup.Name = "cBackup";
             this.cBackup.Size = new System.Drawing.Size( 110, 21 );
-            this.cBackup.TabIndex = 17;
+            this.cBackup.TabIndex = 3;
+            this.cBackup.SelectedIndexChanged += new System.EventHandler( this.cBackup_SelectedIndexChanged );
             // 
             // cAccess
             // 
@@ -405,7 +413,8 @@
             this.cAccess.Location = new System.Drawing.Point( 140, 38 );
             this.cAccess.Name = "cAccess";
             this.cAccess.Size = new System.Drawing.Size( 132, 21 );
-            this.cAccess.TabIndex = 19;
+            this.cAccess.TabIndex = 1;
+            this.cAccess.SelectedIndexChanged += new System.EventHandler( this.cAccess_SelectedIndexChanged );
             // 
             // cBuild
             // 
@@ -414,7 +423,8 @@
             this.cBuild.Location = new System.Drawing.Point( 140, 65 );
             this.cBuild.Name = "cBuild";
             this.cBuild.Size = new System.Drawing.Size( 132, 21 );
-            this.cBuild.TabIndex = 20;
+            this.cBuild.TabIndex = 2;
+            this.cBuild.SelectedIndexChanged += new System.EventHandler( this.cBuild_SelectedIndexChanged );
             // 
             // lName
             // 
@@ -457,15 +467,17 @@
             this.tName.Location = new System.Drawing.Point( 140, 12 );
             this.tName.Name = "tName";
             this.tName.Size = new System.Drawing.Size( 132, 20 );
-            this.tName.TabIndex = 25;
+            this.tName.TabIndex = 0;
+            this.tName.TextChanged += new System.EventHandler( this.tName_TextChanged );
+            this.tName.Validating += new System.ComponentModel.CancelEventHandler( this.tName_Validating );
             // 
             // bPreviewPrev
             // 
-            this.bPreviewPrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bPreviewPrev.Location = new System.Drawing.Point( 504, 341 );
+            this.bPreviewPrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bPreviewPrev.Location = new System.Drawing.Point( 130, 339 );
             this.bPreviewPrev.Name = "bPreviewPrev";
-            this.bPreviewPrev.Size = new System.Drawing.Size( 24, 23 );
-            this.bPreviewPrev.TabIndex = 26;
+            this.bPreviewPrev.Size = new System.Drawing.Size( 22, 22 );
+            this.bPreviewPrev.TabIndex = 0;
             this.bPreviewPrev.Text = "<";
             this.bPreviewPrev.UseVisualStyleBackColor = true;
             this.bPreviewPrev.Click += new System.EventHandler( this.bPreviewPrev_Click );
@@ -473,10 +485,10 @@
             // bPreviewNext
             // 
             this.bPreviewNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bPreviewNext.Location = new System.Drawing.Point( 585, 341 );
+            this.bPreviewNext.Location = new System.Drawing.Point( 218, 339 );
             this.bPreviewNext.Name = "bPreviewNext";
-            this.bPreviewNext.Size = new System.Drawing.Size( 24, 23 );
-            this.bPreviewNext.TabIndex = 27;
+            this.bPreviewNext.Size = new System.Drawing.Size( 22, 22 );
+            this.bPreviewNext.TabIndex = 1;
             this.bPreviewNext.Text = ">";
             this.bPreviewNext.UseVisualStyleBackColor = true;
             this.bPreviewNext.Click += new System.EventHandler( this.bPreviewNext_Click );
@@ -487,7 +499,7 @@
             this.xHidden.Location = new System.Drawing.Point( 140, 119 );
             this.xHidden.Name = "xHidden";
             this.xHidden.Size = new System.Drawing.Size( 132, 17 );
-            this.xHidden.TabIndex = 28;
+            this.xHidden.TabIndex = 4;
             this.xHidden.Text = "Hide from the world list";
             this.xHidden.UseVisualStyleBackColor = true;
             // 
@@ -532,24 +544,44 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.preview.BackColor = System.Drawing.Color.Black;
-            this.preview.Location = new System.Drawing.Point( 384, 12 );
+            this.previewLayout.SetColumnSpan( this.preview, 3 );
+            this.preview.Location = new System.Drawing.Point( 3, 3 );
             this.preview.Name = "preview";
             this.preview.Padding = new System.Windows.Forms.Padding( 5 );
-            this.preview.Size = new System.Drawing.Size( 371, 323 );
+            this.preview.Size = new System.Drawing.Size( 365, 330 );
             this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.preview.TabIndex = 30;
             this.preview.TabStop = false;
+            // 
+            // previewLayout
+            // 
+            this.previewLayout.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.previewLayout.ColumnCount = 3;
+            this.previewLayout.ColumnStyles.Add( new System.Windows.Forms.ColumnStyle( System.Windows.Forms.SizeType.Percent, 50F ) );
+            this.previewLayout.ColumnStyles.Add( new System.Windows.Forms.ColumnStyle( System.Windows.Forms.SizeType.Absolute, 60F ) );
+            this.previewLayout.ColumnStyles.Add( new System.Windows.Forms.ColumnStyle( System.Windows.Forms.SizeType.Percent, 50F ) );
+            this.previewLayout.Controls.Add( this.preview, 0, 0 );
+            this.previewLayout.Controls.Add( this.bPreviewPrev, 0, 1 );
+            this.previewLayout.Controls.Add( this.bPreviewNext, 2, 1 );
+            this.previewLayout.Controls.Add( this.lPreview, 1, 1 );
+            this.previewLayout.Location = new System.Drawing.Point( 384, 12 );
+            this.previewLayout.Name = "previewLayout";
+            this.previewLayout.RowCount = 2;
+            this.previewLayout.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Percent, 100F ) );
+            this.previewLayout.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Absolute, 28F ) );
+            this.previewLayout.Size = new System.Drawing.Size( 371, 364 );
+            this.previewLayout.TabIndex = 6;
             // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size( 767, 439 );
-            this.Controls.Add( this.preview );
+            this.Controls.Add( this.previewLayout );
             this.Controls.Add( this.statusStrip1 );
             this.Controls.Add( this.xHidden );
-            this.Controls.Add( this.bPreviewNext );
-            this.Controls.Add( this.bPreviewPrev );
             this.Controls.Add( this.tName );
             this.Controls.Add( this.lBackup );
             this.Controls.Add( this.lBuild );
@@ -560,7 +592,6 @@
             this.Controls.Add( this.cBackup );
             this.Controls.Add( this.bCancel );
             this.Controls.Add( this.bOK );
-            this.Controls.Add( this.lPreview );
             this.Controls.Add( this.gMap );
             this.Name = "AddWorldPopup";
             this.ShowIcon = false;
@@ -574,6 +605,8 @@
             this.statusStrip1.ResumeLayout( false );
             this.statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
+            this.previewLayout.ResumeLayout( false );
+            this.previewLayout.PerformLayout();
             this.ResumeLayout( false );
             this.PerformLayout();
 
@@ -622,5 +655,6 @@
         private System.Windows.Forms.ToolStripStatusLabel tStatus1;
         private System.Windows.Forms.PictureBox preview;
         private System.Windows.Forms.ToolStripStatusLabel tStatus2;
+        private System.Windows.Forms.TableLayoutPanel previewLayout;
     }
 }

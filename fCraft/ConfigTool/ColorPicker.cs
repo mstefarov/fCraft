@@ -54,15 +54,6 @@ namespace ConfigTool {
             be.Click += delegate( Object o, EventArgs a ) { color = 14; Close(); };
             bf.Click += delegate( Object o, EventArgs a ) { color = 15; Close(); };
         }
-
-        private void b0_Click( object sender, EventArgs e ) {
-            color = 0;
-            Close();
-        }
-
-        private void bCancel_Click( object sender, EventArgs e ) {
-            Close();
-        }
     }
 
     internal struct ColorPair {

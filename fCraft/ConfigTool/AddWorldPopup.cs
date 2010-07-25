@@ -27,31 +27,30 @@ namespace ConfigTool {
         Bitmap previewImage;
         bool floodBarrier = false;
 
-        WorldListEntry world;
+        internal WorldListEntry world;
 
         public AddWorldPopup( WorldListEntry _world )
             : this() {
-            world = _world;
-
-            cBackup.Items.AddRange( ConfigUI.BackupEnum );
-
-            if( world == null ) {
+            
+            if( _world == null ) {
                 world = new WorldListEntry();
                 cAccess.SelectedIndex = 0;
                 cBuild.SelectedIndex = 0;
                 cBackup.SelectedIndex = 5;
             } else {
+                world = new WorldListEntry( _world );
                 cAccess.SelectedIndex = ClassList.ParseClass( world.AccessPermission ).index + 1;
                 cBuild.SelectedIndex = ClassList.ParseClass( world.BuildPermission ).index + 1;
             }
             cWorld.SelectedIndex = 0;
             cTerrain.SelectedIndex = (int)MapGenType.River;
-            cTheme.SelectedIndex = (int)MapGenTheme.Normal;
+            cTheme.SelectedIndex = (int)MapGenTheme.Forest;
         }
 
         public AddWorldPopup() {
             InitializeComponent();
 
+            cBackup.Items.AddRange( ConfigUI.BackupEnum );
             cTerrain.Items.AddRange( Enum.GetNames( typeof( MapGenType ) ) );
             cTheme.Items.AddRange( Enum.GetNames( typeof( MapGenTheme ) ) );
 
@@ -315,6 +314,36 @@ namespace ConfigTool {
 
         private void MapDimensionValidating( object sender, CancelEventArgs e ) {
             ((NumericUpDown)sender).Value = Convert.ToInt32( ((NumericUpDown)sender).Value / 16 ) * 16;
+        }
+
+        private void tName_TextChanged( object sender, EventArgs e ) {
+            world.Name = tName.Text;
+        }
+
+        private void tName_Validating( object sender, CancelEventArgs e ) {
+            e.Cancel = !Player.IsValidName( tName.Text );
+        }
+
+        private void cAccess_SelectedIndexChanged( object sender, EventArgs e ) {
+            PlayerClass pc = ClassList.ParseIndex(cAccess.SelectedIndex);
+            if( pc == null ) {
+                world.AccessPermission = "(everyone)";
+            } else {
+                world.AccessPermission = pc.ToComboBoxOption();
+            }
+        }
+
+        private void cBuild_SelectedIndexChanged( object sender, EventArgs e ) {
+            PlayerClass pc = ClassList.ParseIndex( cBuild.SelectedIndex );
+            if( pc == null ) {
+                world.BuildPermission = "(everyone)";
+            } else {
+                world.BuildPermission = pc.ToComboBoxOption();
+            }
+        }
+
+        private void cBackup_SelectedIndexChanged( object sender, EventArgs e ) {
+            world.Backup = cBackup.SelectedItem.ToString();
         }
     }
 }
