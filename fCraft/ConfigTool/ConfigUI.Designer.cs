@@ -691,12 +691,14 @@
             // 
             // bWorldEdit
             // 
+            this.bWorldEdit.Enabled = false;
             this.bWorldEdit.Location = new System.Drawing.Point( 135, 13 );
             this.bWorldEdit.Name = "bWorldEdit";
             this.bWorldEdit.Size = new System.Drawing.Size( 120, 28 );
             this.bWorldEdit.TabIndex = 2;
             this.bWorldEdit.Text = "Edit";
             this.bWorldEdit.UseVisualStyleBackColor = true;
+            this.bWorldEdit.Click += new System.EventHandler( this.bWorldEdit_Click );
             // 
             // bAddWorld
             // 
@@ -711,6 +713,7 @@
             // bWorldDelete
             // 
             this.bWorldDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bWorldDelete.Enabled = false;
             this.bWorldDelete.Location = new System.Drawing.Point( 523, 13 );
             this.bWorldDelete.Name = "bWorldDelete";
             this.bWorldDelete.Size = new System.Drawing.Size( 120, 28 );
@@ -721,6 +724,7 @@
             // 
             // dgvWorlds
             // 
+            this.dgvWorlds.AllowUserToAddRows = false;
             this.dgvWorlds.AllowUserToDeleteRows = false;
             this.dgvWorlds.AllowUserToResizeRows = false;
             this.dgvWorlds.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)

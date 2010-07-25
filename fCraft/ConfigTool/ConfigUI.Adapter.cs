@@ -68,8 +68,9 @@ namespace ConfigTool {
 
         void ApplyTabWorlds() {
             List<string> classes = new List<string>();
+            classes.Add( WorldListEntry.DefaultClassOption );
             foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                classes.Add( String.Format( "{0,3} {1,1}{2}", pc.rank, pc.prefix, pc.name ) );
+                classes.Add( pc.ToComboBoxOption());
             }
 
             dgvcAccess.DataSource = classes;
@@ -82,9 +83,8 @@ namespace ConfigTool {
 
         void ApplyTabClasses() {
             vClasses.Items.Clear();
-            foreach( PlayerClass playerClass in ClassList.classesByIndex ) {
-                string line = String.Format( "{0,3} {1,1}{2}", playerClass.rank, playerClass.prefix, playerClass.name );
-                vClasses.Items.Add( line );
+            foreach( PlayerClass pc in ClassList.classesByIndex ) {
+                vClasses.Items.Add( pc.ToComboBoxOption() );
             }
             DisableClassOptions();
         }

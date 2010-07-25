@@ -502,6 +502,7 @@
             this.xHidden.TabIndex = 4;
             this.xHidden.Text = "Hide from the world list";
             this.xHidden.UseVisualStyleBackColor = true;
+            this.xHidden.CheckedChanged += new System.EventHandler( this.xHidden_CheckedChanged );
             // 
             // fileBrowser
             // 
@@ -597,6 +598,7 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.Text = "Add World";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.AddWorldPopup_FormClosing );
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).EndInit();

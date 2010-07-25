@@ -34,13 +34,20 @@ namespace ConfigTool {
             
             if( _world == null ) {
                 world = new WorldListEntry();
+                int worldNameCounter = 1;
+                for( ; ConfigUI.IsWorldNameTaken( "NewWorld" + worldNameCounter ); worldNameCounter++ ) ;
+                world.Name = "NewWorld" + worldNameCounter;
+                tName.Text = world.Name;
                 cAccess.SelectedIndex = 0;
                 cBuild.SelectedIndex = 0;
                 cBackup.SelectedIndex = 5;
             } else {
                 world = new WorldListEntry( _world );
-                cAccess.SelectedIndex = ClassList.ParseClass( world.AccessPermission ).index + 1;
-                cBuild.SelectedIndex = ClassList.ParseClass( world.BuildPermission ).index + 1;
+                tName.Text = world.Name;
+                cAccess.SelectedItem = world.AccessPermission;
+                cBuild.SelectedItem = world.BuildPermission;
+                cBackup.SelectedItem = world.Backup;
+                xHidden.Checked = world.Hidden;
             }
             cWorld.SelectedIndex = 0;
             cTerrain.SelectedIndex = (int)MapGenType.River;
@@ -85,7 +92,7 @@ namespace ConfigTool {
         }
 
 
-        #region Loading
+        #region Loading/Saving
 
         private void rLoad_CheckedChanged( object sender, EventArgs e ) {
             tFile.Enabled = rLoad.Checked;
@@ -243,6 +250,10 @@ namespace ConfigTool {
         // empty (done without BackgroundWorker, it's fast enough)
         private void rEmpty_CheckedChanged( object sender, EventArgs e ) {
             if( rEmpty.Checked ) {
+                tStatus1.Text = "Generating...";
+                progressBar.Visible = true;
+                progressBar.Style = ProgressBarStyle.Marquee;
+                Refresh();
                 map = null;
                 GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
                 map = new Map( null, Convert.ToInt32( nWidthX.Value ), Convert.ToInt32( nWidthY.Value ), Convert.ToInt32( nHeight.Value ) );
@@ -250,6 +261,7 @@ namespace ConfigTool {
                 map.shadows = new short[map.widthX, map.widthY]; // skip shadow calculations, there is no overlap
                 Redraw();
                 GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
+                tStatus1.Text = "";
             }
         }
 
@@ -293,7 +305,7 @@ namespace ConfigTool {
 
         #endregion
 
-
+        #region Input Handlers
         void ToggleDimensions() {
             bool isMapGenerated = (rEmpty.Checked || rFlatgrass.Checked || rTerrain.Checked);
             if( !isMapGenerated ) xFloodBarrier.Checked = false;
@@ -325,25 +337,37 @@ namespace ConfigTool {
         }
 
         private void cAccess_SelectedIndexChanged( object sender, EventArgs e ) {
-            PlayerClass pc = ClassList.ParseIndex(cAccess.SelectedIndex);
-            if( pc == null ) {
-                world.AccessPermission = "(everyone)";
-            } else {
-                world.AccessPermission = pc.ToComboBoxOption();
-            }
+            world.AccessPermission = cAccess.SelectedItem.ToString();
         }
 
         private void cBuild_SelectedIndexChanged( object sender, EventArgs e ) {
-            PlayerClass pc = ClassList.ParseIndex( cBuild.SelectedIndex );
-            if( pc == null ) {
-                world.BuildPermission = "(everyone)";
-            } else {
-                world.BuildPermission = pc.ToComboBoxOption();
-            }
+            world.BuildPermission = cBuild.SelectedItem.ToString();
         }
 
         private void cBackup_SelectedIndexChanged( object sender, EventArgs e ) {
             world.Backup = cBackup.SelectedItem.ToString();
+        }
+
+        private void xHidden_CheckedChanged( object sender, EventArgs e ) {
+            world.Hidden = xHidden.Checked;
+        }
+        #endregion
+
+        private void AddWorldPopup_FormClosing( object sender, FormClosingEventArgs e ) {
+            if( DialogResult == DialogResult.OK ) {
+                if( map == null ) {
+                    e.Cancel = true;
+                } else {
+                    bwRenderer.CancelAsync();
+                    Enabled = false;
+                    progressBar.Visible = true;
+                    progressBar.Style = ProgressBarStyle.Marquee;
+                    tStatus1.Text = "Saving map...";
+                    tStatus2.Text = "";
+                    Refresh();
+                    map.Save( world.Name + ".fcm" );
+                }
+            }
         }
     }
 }
