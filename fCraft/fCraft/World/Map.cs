@@ -42,7 +42,7 @@ namespace fCraft {
 
         #region Saving
         public bool Save( string fileName ) {
-            string tempFileName = fileName + "." + (new Random().Next().ToString());
+            string tempFileName = Path.GetTempFileName();
 
             using( FileStream fs = File.Create( tempFileName ) ) {
                 try {

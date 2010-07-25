@@ -14,7 +14,13 @@ namespace ConfigTool {
     public partial class ConfigUI : Form {
         Font bold;
         PlayerClass selectedClass, defaultClass;
-        BindingList<WorldListEntry> worlds = new BindingList<WorldListEntry>();
+        static BindingList<WorldListEntry> worlds = new BindingList<WorldListEntry>();
+        internal static bool IsWorldNameTaken( string name ) {
+            foreach( WorldListEntry world in worlds ) {
+                if( world.Name == name ) return true;
+            }
+            return false;
+        }
 
         public static string[] BackupEnum = new string[] { "Never", "5 Minutes", "10 Minutes", "15 Minutes", "20 Minutes", "30 Minutes", "45 Minutes", "1 Hour", "2 Hours", "3 Hours", "4 Hours", "6 Hours", "8 Hours", "12 Hours", "24 Hours" };
 
@@ -55,30 +61,34 @@ namespace ConfigTool {
 
         #region Worlds
 
-        private void bWorldLoad_Click( object sender, EventArgs e ) {
-            List<string> classes = new List<string>();
-            foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                classes.Add( String.Format( "{0,3} {1,1}{2}", pc.rank, pc.prefix, pc.name ) );
+        private void bAddWorld_Click( object sender, EventArgs e ) {
+            AddWorldPopup popup = new AddWorldPopup( null );
+            if( popup.ShowDialog() == DialogResult.OK ) {
+                worlds.Add( popup.world );
             }
-            worlds.Add( new WorldListEntry() {
-                AccessPermission = classes[0],
-                Backup = "Never",
-                BuildPermission = classes[1],
-                Description = "description",
-                Hidden = true,
-                Name = "main"
-            } );
         }
 
-        private void bWorldDup_Click( object sender, EventArgs e ) {
-            if( dgvWorlds.SelectedRows.Count > 0 ) {
-                worlds.Add( new WorldListEntry( worlds[dgvWorlds.SelectedRows[0].Index] ) );
+
+        private void bWorldEdit_Click( object sender, EventArgs e ) {
+            AddWorldPopup popup = new AddWorldPopup( worlds[dgvWorlds.SelectedRows[0].Index] );
+            if( popup.ShowDialog() == DialogResult.OK ) {
+                worlds[dgvWorlds.SelectedRows[0].Index] = popup.world;
             }
+        }
+
+        private void dgvWorlds_SelectionChanged( object sender, EventArgs e ) {
+            bool oneRowSelected = (dgvWorlds.SelectedRows.Count == 1);
+            bWorldDelete.Enabled = oneRowSelected;
+            bWorldEdit.Enabled = oneRowSelected;
         }
 
         private void bWorldDel_Click( object sender, EventArgs e ) {
             if( dgvWorlds.SelectedRows.Count > 0 ) {
-                worlds.RemoveAt( dgvWorlds.SelectedRows[0].Index );
+                WorldListEntry world = worlds[dgvWorlds.SelectedRows[0].Index];
+                if( File.Exists( world.Name + ".fcm" ) && MessageBox.Show( "Do you want to delete the map file (" + world.Name + ".fcm) as well?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
+                    File.Delete( world.Name + ".fcm" );
+                }
+                worlds.Remove( world );
             }
         }
 
@@ -661,17 +671,6 @@ namespace ConfigTool {
 
         #endregion
 
-        private void bAddWorld_Click( object sender, EventArgs e ) {
-            AddWorldPopup popup = new AddWorldPopup(null);
-            if( popup.ShowDialog() == DialogResult.OK ) {
-                worlds.Add( popup.world );
-            }
-        }
 
-        private void dgvWorlds_SelectionChanged( object sender, EventArgs e ) {
-            bool oneRowSelected = (dgvWorlds.SelectedRows.Count == 1);
-            bWorldDelete.Enabled = oneRowSelected;
-            bWorldEdit.Enabled = oneRowSelected;
-        }
     }
 }
