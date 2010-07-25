@@ -149,7 +149,15 @@ namespace ConfigTool {
 
         void SelectClass( PlayerClass pc ) {
             if( pc == null ) {
+                if( vClasses.SelectedIndex != -1 ) {
+                    vClasses.ClearSelected();
+                    return;
+                }
                 DisableClassOptions();
+                return;
+            }
+            if( vClasses.SelectedIndex != pc.index ) {
+                vClasses.SelectedIndex = pc.index;
                 return;
             }
             selectedClass = pc;
@@ -266,9 +274,10 @@ namespace ConfigTool {
             }
             int number = 1;
             byte rank = 0;
-            while( ClassList.classes.ContainsKey( "class" + number ) ) number++;
+            while( ClassList.classesByName.ContainsKey( "class" + number ) ) number++;
             while( ClassList.ContainsRank( rank ) ) rank++;
             PlayerClass pc = new PlayerClass();
+            pc.ID = ClassList.GenerateID();
             pc.name = "class" + number;
             pc.rank = rank;
             for( int i = 0; i < pc.permissions.Length; i++ ) pc.permissions[i] = false;
@@ -279,7 +288,36 @@ namespace ConfigTool {
             defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
 
             ClassList.AddClass( pc );
+            selectedClass = null;
             RebuildClassList();
+            SelectClass( pc );
+        }
+
+        private void bRemoveClass_Click( object sender, EventArgs e ) {
+            if( vClasses.SelectedItem != null ) {
+                selectedClass = null;
+                int index = vClasses.SelectedIndex;
+
+                DeleteClassPopup popup = new DeleteClassPopup( ClassList.classesByIndex[index] );
+                if( popup.ShowDialog() != DialogResult.OK ) return;
+
+                PlayerClass defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
+                if( defaultClass != null && index == defaultClass.index ) {
+                    defaultClass = null;
+                    MessageBox.Show( "DefaultClass has been reset to \"(lowest class)\"", "Warning" );
+                }
+
+                if( ClassList.DeleteClass( index, ClassList.classesByIndex[popup.substituteIndex] ) ) { //TODO: crashes
+                    MessageBox.Show( "Some of the rank limits for kick, ban, promote, and/or demote have been reset.", "Warning" );
+                }
+                vClasses.Items.RemoveAt( index );
+
+                RebuildClassList();
+
+                if( index < vClasses.Items.Count ) {
+                    vClasses.SelectedIndex = index;
+                }
+            }
         }
 
 
@@ -295,24 +333,20 @@ namespace ConfigTool {
             RebuildClassList();
         }
 
-
         private void xReserveSlot_CheckedChanged( object sender, EventArgs e ) {
             if( selectedClass == null ) return;
             selectedClass.reservedSlot = xReserveSlot.Checked;
         }
-
 
         private void nKickIdle_ValueChanged( object sender, EventArgs e ) {
             if( selectedClass == null || !xIdleKick.Checked ) return;
             selectedClass.idleKickTimer = Convert.ToInt32( nKickIdle.Value );
         }
 
-
         private void nKickOn_ValueChanged( object sender, EventArgs e ) {
             if( selectedClass == null || !xKickOn.Checked ) return;
             selectedClass.spamKickThreshold = Convert.ToInt32( nKickOn.Value );
         }
-
 
         private void nBanOn_ValueChanged( object sender, EventArgs e ) {
             if( selectedClass == null || !xBanOn.Checked ) return;
@@ -326,13 +360,11 @@ namespace ConfigTool {
             }
         }
 
-
         private void cDemoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
             if( selectedClass != null ) {
                 selectedClass.maxDemote = ClassList.ParseIndex( cDemoteLimit.SelectedIndex - 1 );
             }
         }
-
 
         private void cKickLimit_SelectedIndexChanged( object sender, EventArgs e ) {
             if( selectedClass != null ) {
@@ -340,12 +372,12 @@ namespace ConfigTool {
             }
         }
 
-
         private void cBanLimit_SelectedIndexChanged( object sender, EventArgs e ) {
             if( selectedClass != null ) {
                 selectedClass.maxBan = ClassList.ParseIndex( cBanLimit.SelectedIndex - 1 );
             }
         }
+
 
         private void xSpamChatKick_CheckedChanged( object sender, EventArgs e ) {
             nSpamChatWarnings.Enabled = xSpamChatKick.Checked;
@@ -360,7 +392,6 @@ namespace ConfigTool {
                 bRemoveClass.Enabled = false;
             }
         }
-
 
         private void xIdleKick_CheckedChanged( object sender, EventArgs e ) {
             nKickIdle.Enabled = xIdleKick.Checked;
@@ -428,30 +459,6 @@ namespace ConfigTool {
             selectedClass.permissions[(int)e.Item.Tag] = e.Item.Checked;
         }
 
-        private void bRemoveClass_Click( object sender, EventArgs e ) {
-            if( vClasses.SelectedItem != null ) {
-                selectedClass = null;
-                int index = vClasses.SelectedIndex;
-
-                PlayerClass defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
-                if( defaultClass != null && index == defaultClass.index ) {
-                    defaultClass = null;
-                    MessageBox.Show( "DefaultClass has been reset to \"(lowest class)\"", "Warning" );
-                }
-
-                if( ClassList.DeleteClass( index ) ) {
-                    MessageBox.Show( "Some of the rank limits for kick, ban, promote, and/or demote have been reset.", "Warning" );
-                }
-                vClasses.Items.RemoveAt( index );
-
-                RebuildClassList();
-
-                if( index < vClasses.Items.Count ) {
-                    vClasses.SelectedIndex = index;
-                }
-            }
-        }
-
 
         private void tClassName_Validating( object sender, CancelEventArgs e ) {
             if( selectedClass == null ) return;
@@ -473,7 +480,6 @@ namespace ConfigTool {
                 RebuildClassList();
             }
         }
-
 
         private void nRank_Validating( object sender, CancelEventArgs e ) {
             byte rank = Convert.ToByte( nRank.Value );

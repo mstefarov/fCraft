@@ -200,56 +200,56 @@ namespace ConfigTool {
             Config.errors = "";
             Config.SetValue( ConfigKey.ServerName, tServerName.Text );
             Config.SetValue( ConfigKey.MOTD, tMOTD.Text );
-            Config.SetValue( ConfigKey.MaxPlayers, nMaxPlayers.Value.ToString() );
+            Config.SetValue( ConfigKey.MaxPlayers, nMaxPlayers.Value );
             if( cDefaultClass.SelectedIndex == 0 ) {
                 Config.SetValue( ConfigKey.DefaultClass, "" );
             } else {
-                Config.SetValue( ConfigKey.DefaultClass, ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 ).name );
+                Config.SetValue( ConfigKey.DefaultClass, ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 ) );
             }
-            Config.SetValue( ConfigKey.IsPublic, cPublic.SelectedIndex == 0 ? "True" : "False" );
-            Config.SetValue( ConfigKey.Port, nPort.Value.ToString() );
-            Config.SetValue( ConfigKey.UploadBandwidth, nUploadBandwidth.Value.ToString() );
-            Config.SetValue( ConfigKey.ClassColorsInChat, xClassColors.Checked.ToString() );
-            Config.SetValue( ConfigKey.ClassPrefixesInChat, xChatPrefixes.Checked.ToString() );
-            Config.SetValue( ConfigKey.ClassPrefixesInList, xListPrefixes.Checked.ToString() );
+            Config.SetValue( ConfigKey.IsPublic, cPublic.SelectedIndex == 0 );
+            Config.SetValue( ConfigKey.Port, nPort.Value );
+            Config.SetValue( ConfigKey.UploadBandwidth, nUploadBandwidth.Value );
+            Config.SetValue( ConfigKey.ClassColorsInChat, xClassColors.Checked );
+            Config.SetValue( ConfigKey.ClassPrefixesInChat, xChatPrefixes.Checked );
+            Config.SetValue( ConfigKey.ClassPrefixesInList, xListPrefixes.Checked );
             Config.SetValue( ConfigKey.SystemMessageColor, fCraft.Color.GetName( colorSys ) );
             Config.SetValue( ConfigKey.HelpColor, fCraft.Color.GetName( colorHelp ) );
             Config.SetValue( ConfigKey.SayColor, fCraft.Color.GetName( colorSay ) );
 
 
             WriteEnum( cVerifyNames, ConfigKey.VerifyNames, "Never", "Balanced", "Always" );
-            Config.SetValue( ConfigKey.AnnounceUnverifiedNames, xAnnounceUnverified.Checked.ToString() );
-            Config.SetValue( ConfigKey.LimitOneConnectionPerIP, xLimitOneConnectionPerIP.Checked.ToString() );
+            Config.SetValue( ConfigKey.AnnounceUnverifiedNames, xAnnounceUnverified.Checked );
+            Config.SetValue( ConfigKey.LimitOneConnectionPerIP, xLimitOneConnectionPerIP.Checked );
 
-            Config.SetValue( ConfigKey.AntispamMessageCount, nSpamChatCount.Value.ToString() );
-            Config.SetValue( ConfigKey.AntispamInterval, nSpamChatTimer.Value.ToString() );
-            Config.SetValue( ConfigKey.AntispamMuteDuration, nSpamMute.Value.ToString() );
+            Config.SetValue( ConfigKey.AntispamMessageCount, nSpamChatCount.Value );
+            Config.SetValue( ConfigKey.AntispamInterval, nSpamChatTimer.Value );
+            Config.SetValue( ConfigKey.AntispamMuteDuration, nSpamMute.Value );
 
-            if( xSpamChatKick.Checked ) Config.SetValue( ConfigKey.AntispamMaxWarnings, nSpamChatWarnings.Value.ToString() );
-            else Config.SetValue( ConfigKey.AntispamMaxWarnings, "0" );
+            if( xSpamChatKick.Checked ) Config.SetValue( ConfigKey.AntispamMaxWarnings, nSpamChatWarnings.Value );
+            else Config.SetValue( ConfigKey.AntispamMaxWarnings, 0 );
 
-            Config.SetValue( ConfigKey.AntigriefBlockCount, nSpamBlockCount.Value.ToString() );
-            Config.SetValue( ConfigKey.AntigriefInterval, nSpamBlockTimer.Value.ToString() );
+            Config.SetValue( ConfigKey.AntigriefBlockCount, nSpamBlockCount.Value );
+            Config.SetValue( ConfigKey.AntigriefInterval, nSpamBlockTimer.Value );
 
 
 
-            Config.SetValue( ConfigKey.SaveOnShutdown, xSaveOnShutdown.Checked.ToString() );
-            if( xSaveAtInterval.Checked ) Config.SetValue( ConfigKey.SaveInterval, nSaveInterval.Value.ToString() );
-            else Config.SetValue( ConfigKey.SaveInterval, "0" );
-            Config.SetValue( ConfigKey.BackupOnStartup, xBackupOnStartup.Checked.ToString() );
-            Config.SetValue( ConfigKey.BackupOnJoin, xBackupOnJoin.Checked.ToString() );
-            Config.SetValue( ConfigKey.BackupOnlyWhenChanged, xBackupOnlyWhenChanged.Checked.ToString() );
+            Config.SetValue( ConfigKey.SaveOnShutdown, xSaveOnShutdown.Checked );
+            if( xSaveAtInterval.Checked ) Config.SetValue( ConfigKey.SaveInterval, nSaveInterval.Value );
+            else Config.SetValue( ConfigKey.SaveInterval, 0 );
+            Config.SetValue( ConfigKey.BackupOnStartup, xBackupOnStartup.Checked );
+            Config.SetValue( ConfigKey.BackupOnJoin, xBackupOnJoin.Checked );
+            Config.SetValue( ConfigKey.BackupOnlyWhenChanged, xBackupOnlyWhenChanged.Checked );
 
-            if( xBackupAtInterval.Checked ) Config.SetValue( ConfigKey.BackupInterval, nBackupInterval.Value.ToString() );
-            else Config.SetValue( ConfigKey.BackupInterval, "0" );
-            if( xMaxBackups.Checked ) Config.SetValue( ConfigKey.MaxBackups, nMaxBackups.Value.ToString() );
-            else Config.SetValue( ConfigKey.MaxBackups, "0" );
-            if( xMaxBackupSize.Checked ) Config.SetValue( ConfigKey.MaxBackupSize, nMaxBackupSize.Value.ToString() );
-            else Config.SetValue( ConfigKey.MaxBackupSize, "0" );
+            if( xBackupAtInterval.Checked ) Config.SetValue( ConfigKey.BackupInterval, nBackupInterval.Value );
+            else Config.SetValue( ConfigKey.BackupInterval, 0 );
+            if( xMaxBackups.Checked ) Config.SetValue( ConfigKey.MaxBackups, nMaxBackups.Value );
+            else Config.SetValue( ConfigKey.MaxBackups, 0 );
+            if( xMaxBackupSize.Checked ) Config.SetValue( ConfigKey.MaxBackupSize, nMaxBackupSize.Value );
+            else Config.SetValue( ConfigKey.MaxBackupSize, 0 );
 
 
             WriteEnum( cLogMode, ConfigKey.LogMode, "None", "OneFile", "SplitBySession", "SplitByDay" );
-            if( xLogLimit.Checked ) Config.SetValue( ConfigKey.MaxLogs, nLogLimit.Value.ToString() );
+            if( xLogLimit.Checked ) Config.SetValue( ConfigKey.MaxLogs, nLogLimit.Value );
             else Config.SetValue( ConfigKey.MaxLogs, "0" );
             foreach( ListViewItem item in vConsoleOptions.Items ) {
                 Logger.consoleOptions[item.Index] = item.Checked;
@@ -259,36 +259,36 @@ namespace ConfigTool {
             }
 
 
-            Config.SetValue( ConfigKey.IRCBot, xIRC.Checked.ToString() );
+            Config.SetValue( ConfigKey.IRCBot, xIRC.Checked );
 
             Config.SetValue( ConfigKey.IRCBotNetwork, tIRCBotNetwork.Text );
-            Config.SetValue( ConfigKey.IRCBotPort, nIRCBotPort.Value.ToString() );
+            Config.SetValue( ConfigKey.IRCBotPort, nIRCBotPort.Value );
             Config.SetValue( ConfigKey.IRCBotChannels, tIRCBotChannels.Text );
 
             Config.SetValue( ConfigKey.IRCBotNick, tIRCBotNick.Text );
             Config.SetValue( ConfigKey.IRCBotQuitMsg, tIRCBotQuitMsg.Text );
 
-            Config.SetValue( ConfigKey.IRCMsgs, xIRCMsgs.Checked.ToString() );
-            Config.SetValue( ConfigKey.IRCBotForwardFromServer, xIRCBotForwardFromServer.Checked.ToString() );
-            Config.SetValue( ConfigKey.IRCBotForwardFromIRC, xIRCBotForwardFromIRC.Checked.ToString() );
+            Config.SetValue( ConfigKey.IRCMsgs, xIRCMsgs.Checked );
+            Config.SetValue( ConfigKey.IRCBotForwardFromServer, xIRCBotForwardFromServer.Checked );
+            Config.SetValue( ConfigKey.IRCBotForwardFromIRC, xIRCBotForwardFromIRC.Checked );
 
 
             WriteEnum( cPolicyColor, ConfigKey.PolicyColorCodesInChat, "Disallow", "ConsoleOnly", "Allow" );
             WriteEnum( cPolicyIllegal, ConfigKey.PolicyIllegalCharacters, "Disallow", "ConsoleOnly", "Allow" );
 
-            Config.SetValue( ConfigKey.SendRedundantBlockUpdates, xRedundantPacket.Checked.ToString() );
-            if( xPing.Checked ) Config.SetValue( ConfigKey.PingInterval, nPing.Value.ToString() );
-            else Config.SetValue( ConfigKey.PingInterval, "0" );
-            Config.SetValue( ConfigKey.NoPartialPositionUpdates, xAbsoluteUpdates.Checked.ToString() );
-            Config.SetValue( ConfigKey.TickInterval, Convert.ToInt32( nTickInterval.Value ).ToString() );
+            Config.SetValue( ConfigKey.SendRedundantBlockUpdates, xRedundantPacket.Checked );
+            if( xPing.Checked ) Config.SetValue( ConfigKey.PingInterval, nPing.Value );
+            else Config.SetValue( ConfigKey.PingInterval, 0 );
+            Config.SetValue( ConfigKey.NoPartialPositionUpdates, xAbsoluteUpdates.Checked );
+            Config.SetValue( ConfigKey.TickInterval, Convert.ToInt32( nTickInterval.Value ) );
 
             WriteEnum( cProcessPriority, ConfigKey.ProcessPriority, "", "High", "AboveNormal", "Normal", "BelowNormal", "Low" );
             WriteEnum( cStartup, ConfigKey.RunOnStartup, "Always", "OnUnexpectedShutdown", "Never" );
             WriteEnum( cUpdater, ConfigKey.AutomaticUpdates, "Disabled", "Notify", "Prompt", "Auto" );
 
-            Config.SetValue( ConfigKey.BlockUpdateThrottling, Convert.ToInt32( nThrottling.Value ).ToString() );
+            Config.SetValue( ConfigKey.BlockUpdateThrottling, Convert.ToInt32( nThrottling.Value ) );
 
-            Config.SetValue( ConfigKey.LowLatencyMode, xLowLatencyMode.Checked.ToString() );
+            Config.SetValue( ConfigKey.LowLatencyMode, xLowLatencyMode.Checked );
         }
 
 

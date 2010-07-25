@@ -201,7 +201,7 @@ namespace fCraft {
                     Logger.Log( "An error occured while trying to parse the world list: " + Environment.NewLine + ex.ToString(), LogType.FatalError );
                     return false;
                 }
-            } else if( File.Exists( "worlds.txt" ) ) {
+            } else if( File.Exists( "worlds.txt" ) ) { // LEGACY
                 LoadWorldListTXT();
             } else {
                 Logger.Log( "Server.Start: No world list found. Creating default \"main\" world.", LogType.SystemActivity );
@@ -279,7 +279,7 @@ namespace fCraft {
             XAttribute temp;
             PlayerClass playerClass;
             if( (temp = element.Attribute( fieldType )) != null ) {
-                if( (playerClass = ClassList.FindClass( temp.Value )) != null ) {
+                if( (playerClass = ClassList.ParseClass( temp.Value )) != null ) {
                     field = playerClass;
                 } else {
                     Logger.Log( "Server.ParseWorldListXML: Could not parse the specified {0} class for world \"{1}\": \"{2}\". No access limit was set.", LogType.Error,
@@ -294,7 +294,7 @@ namespace fCraft {
         }
 
 
-        static void LoadWorldListTXT() {
+        static void LoadWorldListTXT() { // LEGACY
             string[] worldList = File.ReadAllLines( "worlds.txt" );
             bool first = true;
             foreach( string worldName in worldList ) {
@@ -320,8 +320,8 @@ namespace fCraft {
                 foreach( World world in worlds.Values ) {
                     temp = new XElement( "World" );
                     temp.Add( new XAttribute( "name", world.name ) );
-                    temp.Add( new XAttribute( "access", world.classAccess.name ) );
-                    temp.Add( new XAttribute( "build", world.classBuild.name ) );
+                    temp.Add( new XAttribute( "access", world.classAccess ) );
+                    temp.Add( new XAttribute( "build", world.classBuild ) );
                     if( world.neverUnload ) {
                         temp.Add( new XAttribute( "noUnload", true ) );
                     }

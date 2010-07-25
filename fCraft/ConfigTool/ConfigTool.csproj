@@ -75,6 +75,9 @@
     <EmbeddedResource Include="AddWorldPopup.resx">
       <DependentUpon>AddWorldPopup.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="DeleteClassPopup.resx">
+      <DependentUpon>DeleteClassPopup.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="TextEditorPopup.resx">
       <DependentUpon>TextEditorPopup.cs</DependentUpon>
     </EmbeddedResource>
@@ -98,6 +101,12 @@
     </Compile>
     <Compile Include="AddWorldPopup.Designer.cs">
       <DependentUpon>AddWorldPopup.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DeleteClassPopup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DeleteClassPopup.Designer.cs">
+      <DependentUpon>DeleteClassPopup.cs</DependentUpon>
     </Compile>
     <Compile Include="WorldListEntry.cs" />
   </ItemGroup>

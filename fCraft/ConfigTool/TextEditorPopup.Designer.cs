@@ -86,6 +86,9 @@
             this.Controls.Add( this.bOK );
             this.Controls.Add( this.tRules );
             this.Name = "TextEditorPopup";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "TextEditorPopup";
             this.ResumeLayout( false );
             this.PerformLayout();

@@ -239,7 +239,7 @@
             // bCancel
             // 
             this.bCancel.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bCancel.Location = new System.Drawing.Point( 89, 333 );
+            this.bCancel.Location = new System.Drawing.Point( 88, 330 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 25 );
             this.bCancel.TabIndex = 16;
@@ -251,7 +251,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 8F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 278, 370 );
+            this.ClientSize = new System.Drawing.Size( 278, 367 );
             this.Controls.Add( this.bCancel );
             this.Controls.Add( this.bf );
             this.Controls.Add( this.b7 );
@@ -270,9 +270,14 @@
             this.Controls.Add( this.b8 );
             this.Controls.Add( this.b0 );
             this.Font = new System.Drawing.Font( "Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject( "$this.Icon" )));
             this.Margin = new System.Windows.Forms.Padding( 4, 3, 4, 3 );
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "ColorPicker";
+            this.ShowIcon = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "ColorPicker";
             this.ResumeLayout( false );
 

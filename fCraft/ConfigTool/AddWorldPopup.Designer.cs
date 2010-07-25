@@ -563,6 +563,8 @@
             this.Controls.Add( this.lPreview );
             this.Controls.Add( this.gMap );
             this.Name = "AddWorldPopup";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "Add World";
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).EndInit();

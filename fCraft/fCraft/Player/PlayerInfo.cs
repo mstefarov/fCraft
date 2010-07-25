@@ -160,7 +160,7 @@ namespace fCraft {
             fields[0] = name;
             fields[1] = lastIP.ToString();
 
-            fields[2] = playerClass.name;
+            fields[2] = playerClass.ToString();
             if( classChangeDate == DateTime.MinValue ) fields[3] = "-";
             else fields[3] = classChangeDate.ToString( DateFormat );
             fields[4] = classChangedBy;
