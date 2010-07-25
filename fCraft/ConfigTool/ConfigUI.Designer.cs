@@ -332,7 +332,7 @@
             this.bRules.Location = new System.Drawing.Point( 8, 300 );
             this.bRules.Name = "bRules";
             this.bRules.Size = new System.Drawing.Size( 100, 28 );
-            this.bRules.TabIndex = 14;
+            this.bRules.TabIndex = 2;
             this.bRules.Text = "Edit rules.txt";
             this.bRules.UseVisualStyleBackColor = true;
             this.bRules.Click += new System.EventHandler( this.bRules_Click );
@@ -363,7 +363,7 @@
             this.gAppearence.Location = new System.Drawing.Point( 8, 181 );
             this.gAppearence.Name = "gAppearence";
             this.gAppearence.Size = new System.Drawing.Size( 635, 113 );
-            this.gAppearence.TabIndex = 13;
+            this.gAppearence.TabIndex = 1;
             this.gAppearence.TabStop = false;
             this.gAppearence.Text = "Appearence Tweaks";
             // 
@@ -373,7 +373,7 @@
             this.bColorSay.Location = new System.Drawing.Point( 440, 77 );
             this.bColorSay.Name = "bColorSay";
             this.bColorSay.Size = new System.Drawing.Size( 100, 23 );
-            this.bColorSay.TabIndex = 21;
+            this.bColorSay.TabIndex = 5;
             this.bColorSay.UseVisualStyleBackColor = false;
             this.bColorSay.Click += new System.EventHandler( this.bColorSay_Click );
             // 
@@ -383,7 +383,7 @@
             this.bColorHelp.Location = new System.Drawing.Point( 440, 48 );
             this.bColorHelp.Name = "bColorHelp";
             this.bColorHelp.Size = new System.Drawing.Size( 100, 23 );
-            this.bColorHelp.TabIndex = 20;
+            this.bColorHelp.TabIndex = 4;
             this.bColorHelp.UseVisualStyleBackColor = false;
             this.bColorHelp.Click += new System.EventHandler( this.bColorHelp_Click );
             // 
@@ -393,7 +393,7 @@
             this.bColorSys.Location = new System.Drawing.Point( 440, 19 );
             this.bColorSys.Name = "bColorSys";
             this.bColorSys.Size = new System.Drawing.Size( 100, 23 );
-            this.bColorSys.TabIndex = 19;
+            this.bColorSys.TabIndex = 3;
             this.bColorSys.UseVisualStyleBackColor = false;
             this.bColorSys.Click += new System.EventHandler( this.bColorSys_Click );
             // 
@@ -403,7 +403,7 @@
             this.xListPrefixes.Location = new System.Drawing.Point( 39, 81 );
             this.xListPrefixes.Name = "xListPrefixes";
             this.xListPrefixes.Size = new System.Drawing.Size( 201, 19 );
-            this.xListPrefixes.TabIndex = 5;
+            this.xListPrefixes.TabIndex = 2;
             this.xListPrefixes.Text = "Show class prefixes in player list";
             this.xListPrefixes.UseVisualStyleBackColor = true;
             // 
@@ -413,7 +413,7 @@
             this.xChatPrefixes.Location = new System.Drawing.Point( 39, 52 );
             this.xChatPrefixes.Name = "xChatPrefixes";
             this.xChatPrefixes.Size = new System.Drawing.Size( 173, 19 );
-            this.xChatPrefixes.TabIndex = 4;
+            this.xChatPrefixes.TabIndex = 1;
             this.xChatPrefixes.Text = "Show class prefixes in chat";
             this.xChatPrefixes.UseVisualStyleBackColor = true;
             // 
@@ -423,7 +423,7 @@
             this.xClassColors.Location = new System.Drawing.Point( 39, 23 );
             this.xClassColors.Name = "xClassColors";
             this.xClassColors.Size = new System.Drawing.Size( 163, 19 );
-            this.xClassColors.TabIndex = 3;
+            this.xClassColors.TabIndex = 0;
             this.xClassColors.Text = "Show class colors in chat";
             this.xClassColors.UseVisualStyleBackColor = true;
             // 
@@ -477,7 +477,7 @@
             this.gBasic.Location = new System.Drawing.Point( 8, 13 );
             this.gBasic.Name = "gBasic";
             this.gBasic.Size = new System.Drawing.Size( 635, 162 );
-            this.gBasic.TabIndex = 12;
+            this.gBasic.TabIndex = 0;
             this.gBasic.TabStop = false;
             this.gBasic.Text = "Basic Settings";
             // 
@@ -505,7 +505,7 @@
             0} );
             this.nPort.Name = "nPort";
             this.nPort.Size = new System.Drawing.Size( 71, 21 );
-            this.nPort.TabIndex = 31;
+            this.nPort.TabIndex = 7;
             this.nPort.Value = new decimal( new int[] {
             1,
             0,
@@ -519,7 +519,7 @@
             this.cDefaultClass.Location = new System.Drawing.Point( 440, 74 );
             this.cDefaultClass.Name = "cDefaultClass";
             this.cDefaultClass.Size = new System.Drawing.Size( 189, 23 );
-            this.cDefaultClass.TabIndex = 13;
+            this.cDefaultClass.TabIndex = 6;
             // 
             // lDefaultClass
             // 
@@ -544,7 +544,7 @@
             this.bMeasure.Location = new System.Drawing.Point( 231, 130 );
             this.bMeasure.Name = "bMeasure";
             this.bMeasure.Size = new System.Drawing.Size( 75, 23 );
-            this.bMeasure.TabIndex = 11;
+            this.bMeasure.TabIndex = 5;
             this.bMeasure.Text = "Measure";
             this.bMeasure.UseVisualStyleBackColor = true;
             this.bMeasure.Click += new System.EventHandler( this.bMeasure_Click );
@@ -597,7 +597,7 @@
             0} );
             this.nUploadBandwidth.Name = "nUploadBandwidth";
             this.nUploadBandwidth.Size = new System.Drawing.Size( 67, 21 );
-            this.nUploadBandwidth.TabIndex = 9;
+            this.nUploadBandwidth.TabIndex = 4;
             this.nUploadBandwidth.Value = new decimal( new int[] {
             10,
             0,
@@ -612,7 +612,7 @@
             this.tMOTD.MaxLength = 64;
             this.tMOTD.Name = "tMOTD";
             this.tMOTD.Size = new System.Drawing.Size( 509, 21 );
-            this.tMOTD.TabIndex = 2;
+            this.tMOTD.TabIndex = 1;
             // 
             // lMOTD
             // 
@@ -633,7 +633,7 @@
             this.cPublic.Location = new System.Drawing.Point( 120, 103 );
             this.cPublic.Name = "cPublic";
             this.cPublic.Size = new System.Drawing.Size( 67, 23 );
-            this.cPublic.TabIndex = 7;
+            this.cPublic.TabIndex = 3;
             // 
             // nMaxPlayers
             // 
@@ -650,7 +650,7 @@
             0} );
             this.nMaxPlayers.Name = "nMaxPlayers";
             this.nMaxPlayers.Size = new System.Drawing.Size( 48, 21 );
-            this.nMaxPlayers.TabIndex = 4;
+            this.nMaxPlayers.TabIndex = 2;
             this.nMaxPlayers.Value = new decimal( new int[] {
             1,
             0,
@@ -694,7 +694,7 @@
             this.bWorldEdit.Location = new System.Drawing.Point( 135, 13 );
             this.bWorldEdit.Name = "bWorldEdit";
             this.bWorldEdit.Size = new System.Drawing.Size( 120, 28 );
-            this.bWorldEdit.TabIndex = 6;
+            this.bWorldEdit.TabIndex = 2;
             this.bWorldEdit.Text = "Edit";
             this.bWorldEdit.UseVisualStyleBackColor = true;
             // 
@@ -703,7 +703,7 @@
             this.bAddWorld.Location = new System.Drawing.Point( 9, 13 );
             this.bAddWorld.Name = "bAddWorld";
             this.bAddWorld.Size = new System.Drawing.Size( 120, 28 );
-            this.bAddWorld.TabIndex = 5;
+            this.bAddWorld.TabIndex = 1;
             this.bAddWorld.Text = "Add World";
             this.bAddWorld.UseVisualStyleBackColor = true;
             this.bAddWorld.Click += new System.EventHandler( this.bAddWorld_Click );
@@ -714,7 +714,7 @@
             this.bWorldDelete.Location = new System.Drawing.Point( 523, 13 );
             this.bWorldDelete.Name = "bWorldDelete";
             this.bWorldDelete.Size = new System.Drawing.Size( 120, 28 );
-            this.bWorldDelete.TabIndex = 4;
+            this.bWorldDelete.TabIndex = 3;
             this.bWorldDelete.Text = "Delete World";
             this.bWorldDelete.UseVisualStyleBackColor = true;
             this.bWorldDelete.Click += new System.EventHandler( this.bWorldDel_Click );
@@ -839,7 +839,7 @@
             this.gClassOptions.Location = new System.Drawing.Point( 155, 13 );
             this.gClassOptions.Name = "gClassOptions";
             this.gClassOptions.Size = new System.Drawing.Size( 303, 382 );
-            this.gClassOptions.TabIndex = 9;
+            this.gClassOptions.TabIndex = 1;
             this.gClassOptions.TabStop = false;
             this.gClassOptions.Text = "Class Options";
             // 
@@ -849,7 +849,7 @@
             this.bColorClass.Location = new System.Drawing.Point( 96, 73 );
             this.bColorClass.Name = "bColorClass";
             this.bColorClass.Size = new System.Drawing.Size( 100, 24 );
-            this.bColorClass.TabIndex = 20;
+            this.bColorClass.TabIndex = 2;
             this.bColorClass.UseVisualStyleBackColor = false;
             this.bColorClass.Click += new System.EventHandler( this.bColorClass_Click );
             // 
@@ -859,7 +859,7 @@
             this.xBanOn.Location = new System.Drawing.Point( 12, 309 );
             this.xBanOn.Name = "xBanOn";
             this.xBanOn.Size = new System.Drawing.Size( 141, 19 );
-            this.xBanOn.TabIndex = 9;
+            this.xBanOn.TabIndex = 13;
             this.xBanOn.Text = "Ban for blockspam at";
             this.xBanOn.UseVisualStyleBackColor = true;
             this.xBanOn.CheckedChanged += new System.EventHandler( this.xBanOn_CheckedChanged );
@@ -887,7 +887,7 @@
             this.nBanOn.Location = new System.Drawing.Point( 160, 308 );
             this.nBanOn.Name = "nBanOn";
             this.nBanOn.Size = new System.Drawing.Size( 58, 21 );
-            this.nBanOn.TabIndex = 7;
+            this.nBanOn.TabIndex = 14;
             this.nBanOn.ValueChanged += new System.EventHandler( this.nBanOn_ValueChanged );
             // 
             // nKickIdle
@@ -900,7 +900,7 @@
             0} );
             this.nKickIdle.Name = "nKickIdle";
             this.nKickIdle.Size = new System.Drawing.Size( 59, 21 );
-            this.nKickIdle.TabIndex = 18;
+            this.nKickIdle.TabIndex = 10;
             this.nKickIdle.ValueChanged += new System.EventHandler( this.nKickIdle_ValueChanged );
             // 
             // xKickOn
@@ -909,7 +909,7 @@
             this.xKickOn.Location = new System.Drawing.Point( 12, 282 );
             this.xKickOn.Name = "xKickOn";
             this.xKickOn.Size = new System.Drawing.Size( 142, 19 );
-            this.xKickOn.TabIndex = 6;
+            this.xKickOn.TabIndex = 11;
             this.xKickOn.Text = "Kick for blockspam at";
             this.xKickOn.UseVisualStyleBackColor = true;
             this.xKickOn.CheckedChanged += new System.EventHandler( this.xKickOn_CheckedChanged );
@@ -929,7 +929,7 @@
             this.xIdleKick.Location = new System.Drawing.Point( 12, 255 );
             this.xIdleKick.Name = "xIdleKick";
             this.xIdleKick.Size = new System.Drawing.Size( 98, 19 );
-            this.xIdleKick.TabIndex = 17;
+            this.xIdleKick.TabIndex = 9;
             this.xIdleKick.Text = "Kick if idle for";
             this.xIdleKick.UseVisualStyleBackColor = true;
             this.xIdleKick.CheckedChanged += new System.EventHandler( this.xIdleKick_CheckedChanged );
@@ -939,7 +939,7 @@
             this.nKickOn.Location = new System.Drawing.Point( 160, 281 );
             this.nKickOn.Name = "nKickOn";
             this.nKickOn.Size = new System.Drawing.Size( 58, 21 );
-            this.nKickOn.TabIndex = 4;
+            this.nKickOn.TabIndex = 12;
             this.nKickOn.ValueChanged += new System.EventHandler( this.nKickOn_ValueChanged );
             // 
             // xReserveSlot
@@ -949,7 +949,7 @@
             this.xReserveSlot.Location = new System.Drawing.Point( 12, 230 );
             this.xReserveSlot.Name = "xReserveSlot";
             this.xReserveSlot.Size = new System.Drawing.Size( 129, 19 );
-            this.xReserveSlot.TabIndex = 16;
+            this.xReserveSlot.TabIndex = 8;
             this.xReserveSlot.Text = "Reserve player slot";
             this.xReserveSlot.UseVisualStyleBackColor = true;
             this.xReserveSlot.CheckedChanged += new System.EventHandler( this.xReserveSlot_CheckedChanged );
@@ -961,7 +961,7 @@
             this.cBanLimit.Location = new System.Drawing.Point( 96, 190 );
             this.cBanLimit.Name = "cBanLimit";
             this.cBanLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cBanLimit.TabIndex = 15;
+            this.cBanLimit.TabIndex = 7;
             this.cBanLimit.SelectedIndexChanged += new System.EventHandler( this.cBanLimit_SelectedIndexChanged );
             // 
             // cKickLimit
@@ -971,7 +971,7 @@
             this.cKickLimit.Location = new System.Drawing.Point( 96, 161 );
             this.cKickLimit.Name = "cKickLimit";
             this.cKickLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cKickLimit.TabIndex = 14;
+            this.cKickLimit.TabIndex = 6;
             this.cKickLimit.SelectedIndexChanged += new System.EventHandler( this.cKickLimit_SelectedIndexChanged );
             // 
             // cDemoteLimit
@@ -981,7 +981,7 @@
             this.cDemoteLimit.Location = new System.Drawing.Point( 96, 132 );
             this.cDemoteLimit.Name = "cDemoteLimit";
             this.cDemoteLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cDemoteLimit.TabIndex = 13;
+            this.cDemoteLimit.TabIndex = 5;
             this.cDemoteLimit.SelectedIndexChanged += new System.EventHandler( this.cDemoteLimit_SelectedIndexChanged );
             // 
             // cPromoteLimit
@@ -991,7 +991,7 @@
             this.cPromoteLimit.Location = new System.Drawing.Point( 96, 103 );
             this.cPromoteLimit.Name = "cPromoteLimit";
             this.cPromoteLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cPromoteLimit.TabIndex = 12;
+            this.cPromoteLimit.TabIndex = 4;
             this.cPromoteLimit.SelectedIndexChanged += new System.EventHandler( this.cPromoteLimit_SelectedIndexChanged );
             // 
             // lBanLimit
@@ -1036,7 +1036,7 @@
             this.tPrefix.MaxLength = 1;
             this.tPrefix.Name = "tPrefix";
             this.tPrefix.Size = new System.Drawing.Size( 22, 21 );
-            this.tPrefix.TabIndex = 7;
+            this.tPrefix.TabIndex = 3;
             this.tPrefix.Validating += new System.ComponentModel.CancelEventHandler( this.tPrefix_Validating );
             // 
             // lPrefix
@@ -1058,7 +1058,7 @@
             0} );
             this.nRank.Name = "nRank";
             this.nRank.Size = new System.Drawing.Size( 54, 21 );
-            this.nRank.TabIndex = 5;
+            this.nRank.TabIndex = 1;
             this.nRank.Validating += new System.ComponentModel.CancelEventHandler( this.nRank_Validating );
             // 
             // lRank
@@ -1085,7 +1085,7 @@
             this.tClassName.MaxLength = 16;
             this.tClassName.Name = "tClassName";
             this.tClassName.Size = new System.Drawing.Size( 143, 21 );
-            this.tClassName.TabIndex = 1;
+            this.tClassName.TabIndex = 0;
             this.tClassName.Validating += new System.ComponentModel.CancelEventHandler( this.tClassName_Validating );
             // 
             // lClassName
@@ -1103,7 +1103,7 @@
             this.bRemoveClass.Location = new System.Drawing.Point( 85, 372 );
             this.bRemoveClass.Name = "bRemoveClass";
             this.bRemoveClass.Size = new System.Drawing.Size( 64, 23 );
-            this.bRemoveClass.TabIndex = 8;
+            this.bRemoveClass.TabIndex = 4;
             this.bRemoveClass.Text = "Remove";
             this.bRemoveClass.UseVisualStyleBackColor = true;
             this.bRemoveClass.Click += new System.EventHandler( this.bRemoveClass_Click );
@@ -1122,7 +1122,7 @@
             this.vPermissions.Name = "vPermissions";
             this.vPermissions.ShowGroups = false;
             this.vPermissions.Size = new System.Drawing.Size( 176, 367 );
-            this.vPermissions.TabIndex = 7;
+            this.vPermissions.TabIndex = 2;
             this.vPermissions.UseCompatibleStateImageBehavior = false;
             this.vPermissions.View = System.Windows.Forms.View.Details;
             this.vPermissions.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler( this.vPermissions_ItemChecked );
@@ -1137,7 +1137,7 @@
             this.bAddClass.Location = new System.Drawing.Point( 8, 372 );
             this.bAddClass.Name = "bAddClass";
             this.bAddClass.Size = new System.Drawing.Size( 57, 23 );
-            this.bAddClass.TabIndex = 4;
+            this.bAddClass.TabIndex = 3;
             this.bAddClass.Text = "Add";
             this.bAddClass.UseVisualStyleBackColor = true;
             this.bAddClass.Click += new System.EventHandler( this.bAddClass_Click );
@@ -1198,7 +1198,7 @@
             this.gAntigrief.Location = new System.Drawing.Point( 8, 321 );
             this.gAntigrief.Name = "gAntigrief";
             this.gAntigrief.Size = new System.Drawing.Size( 635, 63 );
-            this.gAntigrief.TabIndex = 21;
+            this.gAntigrief.TabIndex = 3;
             this.gAntigrief.TabStop = false;
             this.gAntigrief.Text = "Grief Bot / Autoclicker Prevension";
             // 
@@ -1226,7 +1226,7 @@
             0} );
             this.nSpamBlockCount.Name = "nSpamBlockCount";
             this.nSpamBlockCount.Size = new System.Drawing.Size( 62, 21 );
-            this.nSpamBlockCount.TabIndex = 6;
+            this.nSpamBlockCount.TabIndex = 0;
             this.nSpamBlockCount.Value = new decimal( new int[] {
             2,
             0,
@@ -1257,7 +1257,7 @@
             0} );
             this.nSpamBlockTimer.Name = "nSpamBlockTimer";
             this.nSpamBlockTimer.Size = new System.Drawing.Size( 62, 21 );
-            this.nSpamBlockTimer.TabIndex = 8;
+            this.nSpamBlockTimer.TabIndex = 1;
             this.nSpamBlockTimer.Value = new decimal( new int[] {
             1,
             0,
@@ -1289,7 +1289,7 @@
             this.gSpamChat.Location = new System.Drawing.Point( 8, 221 );
             this.gSpamChat.Name = "gSpamChat";
             this.gSpamChat.Size = new System.Drawing.Size( 635, 94 );
-            this.gSpamChat.TabIndex = 20;
+            this.gSpamChat.TabIndex = 2;
             this.gSpamChat.TabStop = false;
             this.gSpamChat.Text = "Chat Spam Prevention";
             // 
@@ -1307,7 +1307,7 @@
             this.nSpamChatWarnings.Location = new System.Drawing.Point( 376, 58 );
             this.nSpamChatWarnings.Name = "nSpamChatWarnings";
             this.nSpamChatWarnings.Size = new System.Drawing.Size( 62, 21 );
-            this.nSpamChatWarnings.TabIndex = 11;
+            this.nSpamChatWarnings.TabIndex = 4;
             // 
             // xSpamChatKick
             // 
@@ -1315,7 +1315,7 @@
             this.xSpamChatKick.Location = new System.Drawing.Point( 294, 59 );
             this.xSpamChatKick.Name = "xSpamChatKick";
             this.xSpamChatKick.Size = new System.Drawing.Size( 76, 19 );
-            this.xSpamChatKick.TabIndex = 10;
+            this.xSpamChatKick.TabIndex = 3;
             this.xSpamChatKick.Text = "Kick after";
             this.xSpamChatKick.UseVisualStyleBackColor = true;
             this.xSpamChatKick.CheckedChanged += new System.EventHandler( this.xSpamChatKick_CheckedChanged );
@@ -1343,7 +1343,7 @@
             this.nSpamMute.Location = new System.Drawing.Point( 143, 57 );
             this.nSpamMute.Name = "nSpamMute";
             this.nSpamMute.Size = new System.Drawing.Size( 62, 21 );
-            this.nSpamMute.TabIndex = 8;
+            this.nSpamMute.TabIndex = 2;
             // 
             // lSpamMute
             // 
@@ -1369,7 +1369,7 @@
             0} );
             this.nSpamChatTimer.Name = "nSpamChatTimer";
             this.nSpamChatTimer.Size = new System.Drawing.Size( 62, 21 );
-            this.nSpamChatTimer.TabIndex = 3;
+            this.nSpamChatTimer.TabIndex = 1;
             this.nSpamChatTimer.Value = new decimal( new int[] {
             1,
             0,
@@ -1400,7 +1400,7 @@
             0} );
             this.nSpamChatCount.Name = "nSpamChatCount";
             this.nSpamChatCount.Size = new System.Drawing.Size( 62, 21 );
-            this.nSpamChatCount.TabIndex = 1;
+            this.nSpamChatCount.TabIndex = 0;
             this.nSpamChatCount.Value = new decimal( new int[] {
             2,
             0,
@@ -1429,7 +1429,7 @@
             this.gHackingDetection.Location = new System.Drawing.Point( 8, 98 );
             this.gHackingDetection.Name = "gHackingDetection";
             this.gHackingDetection.Size = new System.Drawing.Size( 635, 117 );
-            this.gHackingDetection.TabIndex = 19;
+            this.gHackingDetection.TabIndex = 1;
             this.gHackingDetection.TabStop = false;
             this.gHackingDetection.Text = "Hacking Detection";
             // 
@@ -1447,7 +1447,7 @@
             this.numericUpDown7.Location = new System.Drawing.Point( 143, 82 );
             this.numericUpDown7.Name = "numericUpDown7";
             this.numericUpDown7.Size = new System.Drawing.Size( 62, 21 );
-            this.numericUpDown7.TabIndex = 5;
+            this.numericUpDown7.TabIndex = 2;
             // 
             // label10
             // 
@@ -1474,7 +1474,7 @@
             this.checkBox3.Location = new System.Drawing.Point( 294, 57 );
             this.checkBox3.Name = "checkBox3";
             this.checkBox3.Size = new System.Drawing.Size( 235, 19 );
-            this.checkBox3.TabIndex = 2;
+            this.checkBox3.TabIndex = 4;
             this.checkBox3.Text = "Allow players to leave map boundaries";
             this.checkBox3.UseVisualStyleBackColor = true;
             // 
@@ -1507,7 +1507,7 @@
             this.gVerify.Location = new System.Drawing.Point( 8, 13 );
             this.gVerify.Name = "gVerify";
             this.gVerify.Size = new System.Drawing.Size( 635, 79 );
-            this.gVerify.TabIndex = 18;
+            this.gVerify.TabIndex = 0;
             this.gVerify.TabStop = false;
             this.gVerify.Text = "Name Verification";
             // 
@@ -1517,7 +1517,7 @@
             this.xLimitOneConnectionPerIP.Location = new System.Drawing.Point( 294, 47 );
             this.xLimitOneConnectionPerIP.Name = "xLimitOneConnectionPerIP";
             this.xLimitOneConnectionPerIP.Size = new System.Drawing.Size( 161, 19 );
-            this.xLimitOneConnectionPerIP.TabIndex = 20;
+            this.xLimitOneConnectionPerIP.TabIndex = 2;
             this.xLimitOneConnectionPerIP.Text = "Limit 1 connection per IP";
             this.xLimitOneConnectionPerIP.UseVisualStyleBackColor = true;
             // 
@@ -1527,7 +1527,7 @@
             this.xAnnounceUnverified.Location = new System.Drawing.Point( 294, 22 );
             this.xAnnounceUnverified.Name = "xAnnounceUnverified";
             this.xAnnounceUnverified.Size = new System.Drawing.Size( 264, 19 );
-            this.xAnnounceUnverified.TabIndex = 19;
+            this.xAnnounceUnverified.TabIndex = 1;
             this.xAnnounceUnverified.Text = "Announce unverified name warnings in chat";
             this.xAnnounceUnverified.UseVisualStyleBackColor = true;
             // 
@@ -1551,7 +1551,7 @@
             this.cVerifyNames.Location = new System.Drawing.Point( 143, 20 );
             this.cVerifyNames.Name = "cVerifyNames";
             this.cVerifyNames.Size = new System.Drawing.Size( 100, 23 );
-            this.cVerifyNames.TabIndex = 17;
+            this.cVerifyNames.TabIndex = 0;
             // 
             // tabSavingAndBackup
             // 
@@ -1576,7 +1576,7 @@
             this.gSaving.Location = new System.Drawing.Point( 8, 13 );
             this.gSaving.Name = "gSaving";
             this.gSaving.Size = new System.Drawing.Size( 635, 77 );
-            this.gSaving.TabIndex = 5;
+            this.gSaving.TabIndex = 0;
             this.gSaving.TabStop = false;
             this.gSaving.Text = "Saving";
             // 
@@ -1636,7 +1636,7 @@
             this.gBackups.Location = new System.Drawing.Point( 8, 96 );
             this.gBackups.Name = "gBackups";
             this.gBackups.Size = new System.Drawing.Size( 635, 158 );
-            this.gBackups.TabIndex = 4;
+            this.gBackups.TabIndex = 1;
             this.gBackups.TabStop = false;
             this.gBackups.Text = "Backups";
             // 
@@ -1646,7 +1646,7 @@
             this.xBackupOnlyWhenChanged.Location = new System.Drawing.Point( 366, 47 );
             this.xBackupOnlyWhenChanged.Name = "xBackupOnlyWhenChanged";
             this.xBackupOnlyWhenChanged.Size = new System.Drawing.Size( 260, 19 );
-            this.xBackupOnlyWhenChanged.TabIndex = 14;
+            this.xBackupOnlyWhenChanged.TabIndex = 3;
             this.xBackupOnlyWhenChanged.Text = "Skip timed backups if map hasn\'t changed.";
             this.xBackupOnlyWhenChanged.UseVisualStyleBackColor = true;
             // 
@@ -1665,7 +1665,7 @@
             this.xMaxBackupSize.Location = new System.Drawing.Point( 16, 126 );
             this.xMaxBackupSize.Name = "xMaxBackupSize";
             this.xMaxBackupSize.Size = new System.Drawing.Size( 302, 19 );
-            this.xMaxBackupSize.TabIndex = 11;
+            this.xMaxBackupSize.TabIndex = 7;
             this.xMaxBackupSize.Text = "Delete old backups if the folder takes up more than";
             this.xMaxBackupSize.UseVisualStyleBackColor = true;
             this.xMaxBackupSize.CheckedChanged += new System.EventHandler( this.xMaxBackupSize_CheckedChanged );
@@ -1675,7 +1675,7 @@
             this.nMaxBackupSize.Location = new System.Drawing.Point( 324, 125 );
             this.nMaxBackupSize.Name = "nMaxBackupSize";
             this.nMaxBackupSize.Size = new System.Drawing.Size( 51, 21 );
-            this.nMaxBackupSize.TabIndex = 12;
+            this.nMaxBackupSize.TabIndex = 8;
             // 
             // xMaxBackups
             // 
@@ -1683,7 +1683,7 @@
             this.xMaxBackups.Location = new System.Drawing.Point( 16, 98 );
             this.xMaxBackups.Name = "xMaxBackups";
             this.xMaxBackups.Size = new System.Drawing.Size( 251, 19 );
-            this.xMaxBackups.TabIndex = 7;
+            this.xMaxBackups.TabIndex = 5;
             this.xMaxBackups.Text = "Delete old backups if there are more than";
             this.xMaxBackups.UseVisualStyleBackColor = true;
             this.xMaxBackups.CheckedChanged += new System.EventHandler( this.xMaxBackups_CheckedChanged );
@@ -1694,7 +1694,7 @@
             this.xBackupOnStartup.Location = new System.Drawing.Point( 16, 20 );
             this.xBackupOnStartup.Name = "xBackupOnStartup";
             this.xBackupOnStartup.Size = new System.Drawing.Size( 162, 19 );
-            this.xBackupOnStartup.TabIndex = 6;
+            this.xBackupOnStartup.TabIndex = 0;
             this.xBackupOnStartup.Text = "Create backup on startup";
             this.xBackupOnStartup.UseVisualStyleBackColor = true;
             // 
@@ -1712,14 +1712,14 @@
             this.nMaxBackups.Location = new System.Drawing.Point( 273, 97 );
             this.nMaxBackups.Name = "nMaxBackups";
             this.nMaxBackups.Size = new System.Drawing.Size( 51, 21 );
-            this.nMaxBackups.TabIndex = 9;
+            this.nMaxBackups.TabIndex = 6;
             // 
             // nBackupInterval
             // 
             this.nBackupInterval.Location = new System.Drawing.Point( 158, 45 );
             this.nBackupInterval.Name = "nBackupInterval";
             this.nBackupInterval.Size = new System.Drawing.Size( 48, 21 );
-            this.nBackupInterval.TabIndex = 4;
+            this.nBackupInterval.TabIndex = 2;
             // 
             // lBackupIntervalUnits
             // 
@@ -1747,7 +1747,7 @@
             this.xBackupOnJoin.Location = new System.Drawing.Point( 16, 72 );
             this.xBackupOnJoin.Name = "xBackupOnJoin";
             this.xBackupOnJoin.Size = new System.Drawing.Size( 236, 19 );
-            this.xBackupOnJoin.TabIndex = 0;
+            this.xBackupOnJoin.TabIndex = 4;
             this.xBackupOnJoin.Text = "Create backup whenever a player joins";
             this.xBackupOnJoin.UseVisualStyleBackColor = true;
             // 
@@ -1786,7 +1786,7 @@
             this.xLogLimit.Location = new System.Drawing.Point( 34, 306 );
             this.xLogLimit.Name = "xLogLimit";
             this.xLogLimit.Size = new System.Drawing.Size( 102, 19 );
-            this.xLogLimit.TabIndex = 7;
+            this.xLogLimit.TabIndex = 2;
             this.xLogLimit.Text = "Only keep last";
             this.xLogLimit.UseVisualStyleBackColor = true;
             this.xLogLimit.CheckedChanged += new System.EventHandler( this.xLogLimit_CheckedChanged );
@@ -1837,7 +1837,7 @@
             this.vLogFileOptions.Location = new System.Drawing.Point( 100, 20 );
             this.vLogFileOptions.Name = "vLogFileOptions";
             this.vLogFileOptions.Size = new System.Drawing.Size( 161, 251 );
-            this.vLogFileOptions.TabIndex = 5;
+            this.vLogFileOptions.TabIndex = 0;
             this.vLogFileOptions.UseCompatibleStateImageBehavior = false;
             this.vLogFileOptions.View = System.Windows.Forms.View.Details;
             this.vLogFileOptions.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler( this.vLogFileOptions_ItemChecked );
@@ -1950,7 +1950,7 @@
             this.vConsoleOptions.Location = new System.Drawing.Point( 88, 20 );
             this.vConsoleOptions.Name = "vConsoleOptions";
             this.vConsoleOptions.Size = new System.Drawing.Size( 161, 251 );
-            this.vConsoleOptions.TabIndex = 7;
+            this.vConsoleOptions.TabIndex = 0;
             this.vConsoleOptions.UseCompatibleStateImageBehavior = false;
             this.vConsoleOptions.View = System.Windows.Forms.View.Details;
             this.vConsoleOptions.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler( this.vConsoleOptions_ItemChecked );
@@ -1980,7 +1980,7 @@
             this.gIRCOptions.Location = new System.Drawing.Point( 8, 179 );
             this.gIRCOptions.Name = "gIRCOptions";
             this.gIRCOptions.Size = new System.Drawing.Size( 635, 96 );
-            this.gIRCOptions.TabIndex = 7;
+            this.gIRCOptions.TabIndex = 2;
             this.gIRCOptions.TabStop = false;
             this.gIRCOptions.Text = "Options";
             // 
@@ -1990,7 +1990,7 @@
             this.xIRCBotForwardFromIRC.Location = new System.Drawing.Point( 21, 70 );
             this.xIRCBotForwardFromIRC.Name = "xIRCBotForwardFromIRC";
             this.xIRCBotForwardFromIRC.Size = new System.Drawing.Size( 240, 19 );
-            this.xIRCBotForwardFromIRC.TabIndex = 8;
+            this.xIRCBotForwardFromIRC.TabIndex = 2;
             this.xIRCBotForwardFromIRC.Text = "Forward ALL chat from IRC to SERVER.";
             this.xIRCBotForwardFromIRC.UseVisualStyleBackColor = true;
             // 
@@ -2000,7 +2000,7 @@
             this.xIRCMsgs.Location = new System.Drawing.Point( 21, 20 );
             this.xIRCMsgs.Name = "xIRCMsgs";
             this.xIRCMsgs.Size = new System.Drawing.Size( 350, 19 );
-            this.xIRCMsgs.TabIndex = 1;
+            this.xIRCMsgs.TabIndex = 0;
             this.xIRCMsgs.Text = "Announce in-game when people join/part the IRC channels.";
             this.xIRCMsgs.UseVisualStyleBackColor = true;
             // 
@@ -2010,7 +2010,7 @@
             this.xIRCBotForwardFromServer.Location = new System.Drawing.Point( 21, 45 );
             this.xIRCBotForwardFromServer.Name = "xIRCBotForwardFromServer";
             this.xIRCBotForwardFromServer.Size = new System.Drawing.Size( 240, 19 );
-            this.xIRCBotForwardFromServer.TabIndex = 7;
+            this.xIRCBotForwardFromServer.TabIndex = 1;
             this.xIRCBotForwardFromServer.Text = "Forward ALL chat from SERVER to IRC.";
             this.xIRCBotForwardFromServer.UseVisualStyleBackColor = true;
             // 
@@ -2033,7 +2033,7 @@
             this.gIRCNetwork.Location = new System.Drawing.Point( 8, 38 );
             this.gIRCNetwork.Name = "gIRCNetwork";
             this.gIRCNetwork.Size = new System.Drawing.Size( 635, 135 );
-            this.gIRCNetwork.TabIndex = 5;
+            this.gIRCNetwork.TabIndex = 1;
             this.gIRCNetwork.TabStop = false;
             this.gIRCNetwork.Text = "Network";
             // 
@@ -2052,7 +2052,7 @@
             this.tIRCBotQuitMsg.MaxLength = 32;
             this.tIRCBotQuitMsg.Name = "tIRCBotQuitMsg";
             this.tIRCBotQuitMsg.Size = new System.Drawing.Size( 193, 21 );
-            this.tIRCBotQuitMsg.TabIndex = 18;
+            this.tIRCBotQuitMsg.TabIndex = 4;
             // 
             // lIRCBotChannels2
             // 
@@ -2079,7 +2079,7 @@
             this.tIRCBotChannels.MaxLength = 1000;
             this.tIRCBotChannels.Name = "tIRCBotChannels";
             this.tIRCBotChannels.Size = new System.Drawing.Size( 491, 21 );
-            this.tIRCBotChannels.TabIndex = 15;
+            this.tIRCBotChannels.TabIndex = 2;
             // 
             // lIRCBotChannels
             // 
@@ -2105,7 +2105,7 @@
             0} );
             this.nIRCBotPort.Name = "nIRCBotPort";
             this.nIRCBotPort.Size = new System.Drawing.Size( 70, 21 );
-            this.nIRCBotPort.TabIndex = 13;
+            this.nIRCBotPort.TabIndex = 1;
             this.nIRCBotPort.Value = new decimal( new int[] {
             1,
             0,
@@ -2127,7 +2127,7 @@
             this.tIRCBotNetwork.MaxLength = 512;
             this.tIRCBotNetwork.Name = "tIRCBotNetwork";
             this.tIRCBotNetwork.Size = new System.Drawing.Size( 160, 21 );
-            this.tIRCBotNetwork.TabIndex = 11;
+            this.tIRCBotNetwork.TabIndex = 0;
             // 
             // lIRCBotNetwork
             // 
@@ -2153,7 +2153,7 @@
             this.tIRCBotNick.MaxLength = 32;
             this.tIRCBotNick.Name = "tIRCBotNick";
             this.tIRCBotNick.Size = new System.Drawing.Size( 160, 21 );
-            this.tIRCBotNick.TabIndex = 8;
+            this.tIRCBotNick.TabIndex = 3;
             // 
             // xIRC
             // 
@@ -2161,7 +2161,7 @@
             this.xIRC.Location = new System.Drawing.Point( 14, 13 );
             this.xIRC.Name = "xIRC";
             this.xIRC.Size = new System.Drawing.Size( 149, 19 );
-            this.xIRC.TabIndex = 6;
+            this.xIRC.TabIndex = 0;
             this.xIRC.Text = "Enable IRC integration";
             this.xIRC.UseVisualStyleBackColor = true;
             this.xIRC.CheckedChanged += new System.EventHandler( this.xIRC_CheckedChanged );
@@ -2205,7 +2205,7 @@
             this.xLowLatencyMode.Location = new System.Drawing.Point( 11, 376 );
             this.xLowLatencyMode.Name = "xLowLatencyMode";
             this.xLowLatencyMode.Size = new System.Drawing.Size( 613, 19 );
-            this.xLowLatencyMode.TabIndex = 40;
+            this.xLowLatencyMode.TabIndex = 11;
             this.xLowLatencyMode.Text = "Experimental low-latency mode (disables Nagle\'s alrorithm, reducing latency but i" +
                 "ncreasing bandwidth use).";
             this.xLowLatencyMode.UseVisualStyleBackColor = true;
@@ -2222,7 +2222,7 @@
             this.cUpdater.Location = new System.Drawing.Point( 197, 276 );
             this.cUpdater.Name = "cUpdater";
             this.cUpdater.Size = new System.Drawing.Size( 200, 23 );
-            this.cUpdater.TabIndex = 39;
+            this.cUpdater.TabIndex = 8;
             // 
             // bUpdater
             // 
@@ -2262,7 +2262,7 @@
             0} );
             this.nThrottling.Name = "nThrottling";
             this.nThrottling.Size = new System.Drawing.Size( 59, 21 );
-            this.nThrottling.TabIndex = 36;
+            this.nThrottling.TabIndex = 9;
             this.nThrottling.Value = new decimal( new int[] {
             2500,
             0,
@@ -2294,7 +2294,7 @@
             this.nPing.Location = new System.Drawing.Point( 220, 157 );
             this.nPing.Name = "nPing";
             this.nPing.Size = new System.Drawing.Size( 47, 21 );
-            this.nPing.TabIndex = 33;
+            this.nPing.TabIndex = 4;
             // 
             // xAbsoluteUpdates
             // 
@@ -2303,7 +2303,7 @@
             this.xAbsoluteUpdates.Location = new System.Drawing.Point( 11, 184 );
             this.xAbsoluteUpdates.Name = "xAbsoluteUpdates";
             this.xAbsoluteUpdates.Size = new System.Drawing.Size( 326, 19 );
-            this.xAbsoluteUpdates.TabIndex = 32;
+            this.xAbsoluteUpdates.TabIndex = 5;
             this.xAbsoluteUpdates.Text = "Do not use partial position updates (opcodes 9, 10, 11).";
             this.xAbsoluteUpdates.UseVisualStyleBackColor = true;
             // 
@@ -2314,7 +2314,7 @@
             this.xPing.Location = new System.Drawing.Point( 11, 158 );
             this.xPing.Name = "xPing";
             this.xPing.Size = new System.Drawing.Size( 203, 19 );
-            this.xPing.TabIndex = 31;
+            this.xPing.TabIndex = 3;
             this.xPing.Text = "Send useless ping packets every";
             this.xPing.UseVisualStyleBackColor = true;
             this.xPing.CheckedChanged += new System.EventHandler( this.xPing_CheckedChanged );
@@ -2330,7 +2330,7 @@
             this.cStartup.Location = new System.Drawing.Point( 197, 247 );
             this.cStartup.Name = "cStartup";
             this.cStartup.Size = new System.Drawing.Size( 252, 23 );
-            this.cStartup.TabIndex = 30;
+            this.cStartup.TabIndex = 7;
             // 
             // lStartup
             // 
@@ -2355,7 +2355,7 @@
             this.cProcessPriority.Location = new System.Drawing.Point( 197, 218 );
             this.cProcessPriority.Name = "cProcessPriority";
             this.cProcessPriority.Size = new System.Drawing.Size( 109, 23 );
-            this.cProcessPriority.TabIndex = 24;
+            this.cProcessPriority.TabIndex = 6;
             // 
             // lProcessPriority
             // 
@@ -2363,7 +2363,7 @@
             this.lProcessPriority.Location = new System.Drawing.Point( 101, 221 );
             this.lProcessPriority.Name = "lProcessPriority";
             this.lProcessPriority.Size = new System.Drawing.Size( 90, 15 );
-            this.lProcessPriority.TabIndex = 23;
+            this.lProcessPriority.TabIndex = 6;
             this.lProcessPriority.Text = "Process priority";
             // 
             // cPolicyIllegal
@@ -2378,7 +2378,7 @@
             this.cPolicyIllegal.Location = new System.Drawing.Point( 197, 87 );
             this.cPolicyIllegal.Name = "cPolicyIllegal";
             this.cPolicyIllegal.Size = new System.Drawing.Size( 160, 23 );
-            this.cPolicyIllegal.TabIndex = 21;
+            this.cPolicyIllegal.TabIndex = 1;
             // 
             // xRedundantPacket
             // 
@@ -2387,7 +2387,7 @@
             this.xRedundantPacket.Location = new System.Drawing.Point( 11, 132 );
             this.xRedundantPacket.Name = "xRedundantPacket";
             this.xRedundantPacket.Size = new System.Drawing.Size( 554, 19 );
-            this.xRedundantPacket.TabIndex = 22;
+            this.xRedundantPacket.TabIndex = 2;
             this.xRedundantPacket.Text = "When a player changes a block, send him the redundant update packet anyway (vanil" +
                 "la behavior).";
             this.xRedundantPacket.UseVisualStyleBackColor = true;
@@ -2424,7 +2424,7 @@
             this.cPolicyColor.Location = new System.Drawing.Point( 197, 58 );
             this.cPolicyColor.Name = "cPolicyColor";
             this.cPolicyColor.Size = new System.Drawing.Size( 160, 23 );
-            this.cPolicyColor.TabIndex = 19;
+            this.cPolicyColor.TabIndex = 0;
             // 
             // lTickIntervalUnits
             // 
@@ -2455,7 +2455,7 @@
             0} );
             this.nTickInterval.Name = "nTickInterval";
             this.nTickInterval.Size = new System.Drawing.Size( 59, 21 );
-            this.nTickInterval.TabIndex = 16;
+            this.nTickInterval.TabIndex = 10;
             this.nTickInterval.Value = new decimal( new int[] {
             100,
             0,
@@ -2513,7 +2513,7 @@
             this.bResetTab.Location = new System.Drawing.Point( 132, 454 );
             this.bResetTab.Name = "bResetTab";
             this.bResetTab.Size = new System.Drawing.Size( 100, 28 );
-            this.bResetTab.TabIndex = 3;
+            this.bResetTab.TabIndex = 5;
             this.bResetTab.Text = "Reset Tab";
             this.bResetTab.UseVisualStyleBackColor = true;
             this.bResetTab.Click += new System.EventHandler( this.bResetTab_Click );
@@ -2543,7 +2543,7 @@
             this.bApply.Location = new System.Drawing.Point( 567, 454 );
             this.bApply.Name = "bApply";
             this.bApply.Size = new System.Drawing.Size( 100, 28 );
-            this.bApply.TabIndex = 6;
+            this.bApply.TabIndex = 3;
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 

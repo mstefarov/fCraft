@@ -20,6 +20,7 @@ namespace fCraft {
 
         public int buildRank = 0;
         public PlayerClass build;
+        const int VERSION = 2;
 
 
         public Zone( string raw ) {
@@ -62,11 +63,12 @@ namespace fCraft {
 
 
         public string Serialize() {
-            return String.Format( "{0},{1},{2}",
+            return String.Format( "{0},{1},{2},{3}",
                                   String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
                                                  name, xMin, yMin, hMin, xMax, yMax, hMax, buildRank ),
                                   String.Join( " ", includedPlayers.ToArray() ),
-                                  String.Join( " ", excludedPlayers.ToArray() ) );
+                                  String.Join( " ", excludedPlayers.ToArray() ),
+                                  VERSION );
         }
 
 

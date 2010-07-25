@@ -54,7 +54,6 @@
             this.b0.TabIndex = 0;
             this.b0.Text = "Black - 0";
             this.b0.UseVisualStyleBackColor = false;
-            this.b0.Click += new System.EventHandler( this.b0_Click );
             // 
             // b8
             // 
@@ -64,7 +63,7 @@
             this.b8.Margin = new System.Windows.Forms.Padding( 0 );
             this.b8.Name = "b8";
             this.b8.Size = new System.Drawing.Size( 130, 40 );
-            this.b8.TabIndex = 1;
+            this.b8.TabIndex = 8;
             this.b8.Text = "Gray - 8";
             this.b8.UseVisualStyleBackColor = false;
             // 
@@ -76,7 +75,7 @@
             this.b1.Margin = new System.Windows.Forms.Padding( 0 );
             this.b1.Name = "b1";
             this.b1.Size = new System.Drawing.Size( 130, 40 );
-            this.b1.TabIndex = 2;
+            this.b1.TabIndex = 1;
             this.b1.Text = "Navy - 1";
             this.b1.UseVisualStyleBackColor = false;
             // 
@@ -88,7 +87,7 @@
             this.b9.Margin = new System.Windows.Forms.Padding( 0 );
             this.b9.Name = "b9";
             this.b9.Size = new System.Drawing.Size( 130, 40 );
-            this.b9.TabIndex = 3;
+            this.b9.TabIndex = 9;
             this.b9.Text = "Blue - 9";
             this.b9.UseVisualStyleBackColor = false;
             // 
@@ -100,7 +99,7 @@
             this.b2.Margin = new System.Windows.Forms.Padding( 0 );
             this.b2.Name = "b2";
             this.b2.Size = new System.Drawing.Size( 130, 40 );
-            this.b2.TabIndex = 4;
+            this.b2.TabIndex = 2;
             this.b2.Text = "Green - 2";
             this.b2.UseVisualStyleBackColor = false;
             // 
@@ -112,7 +111,7 @@
             this.ba.Margin = new System.Windows.Forms.Padding( 0 );
             this.ba.Name = "ba";
             this.ba.Size = new System.Drawing.Size( 130, 40 );
-            this.ba.TabIndex = 5;
+            this.ba.TabIndex = 10;
             this.ba.Text = "Lime - a";
             this.ba.UseVisualStyleBackColor = false;
             // 
@@ -124,7 +123,7 @@
             this.b3.Margin = new System.Windows.Forms.Padding( 0 );
             this.b3.Name = "b3";
             this.b3.Size = new System.Drawing.Size( 130, 40 );
-            this.b3.TabIndex = 6;
+            this.b3.TabIndex = 3;
             this.b3.Text = "Teal - 3";
             this.b3.UseVisualStyleBackColor = false;
             // 
@@ -136,7 +135,7 @@
             this.bb.Margin = new System.Windows.Forms.Padding( 0 );
             this.bb.Name = "bb";
             this.bb.Size = new System.Drawing.Size( 130, 40 );
-            this.bb.TabIndex = 7;
+            this.bb.TabIndex = 11;
             this.bb.Text = "Aqua - b";
             this.bb.UseVisualStyleBackColor = false;
             // 
@@ -148,7 +147,7 @@
             this.b4.Margin = new System.Windows.Forms.Padding( 0 );
             this.b4.Name = "b4";
             this.b4.Size = new System.Drawing.Size( 130, 40 );
-            this.b4.TabIndex = 8;
+            this.b4.TabIndex = 4;
             this.b4.Text = "Maroon - 4";
             this.b4.UseVisualStyleBackColor = false;
             // 
@@ -160,7 +159,7 @@
             this.bc.Margin = new System.Windows.Forms.Padding( 0 );
             this.bc.Name = "bc";
             this.bc.Size = new System.Drawing.Size( 130, 40 );
-            this.bc.TabIndex = 9;
+            this.bc.TabIndex = 12;
             this.bc.Text = "Red - c";
             this.bc.UseVisualStyleBackColor = false;
             // 
@@ -172,7 +171,7 @@
             this.b5.Margin = new System.Windows.Forms.Padding( 0 );
             this.b5.Name = "b5";
             this.b5.Size = new System.Drawing.Size( 130, 40 );
-            this.b5.TabIndex = 10;
+            this.b5.TabIndex = 5;
             this.b5.Text = "Purple - 5";
             this.b5.UseVisualStyleBackColor = false;
             // 
@@ -184,7 +183,7 @@
             this.bd.Margin = new System.Windows.Forms.Padding( 0 );
             this.bd.Name = "bd";
             this.bd.Size = new System.Drawing.Size( 130, 40 );
-            this.bd.TabIndex = 11;
+            this.bd.TabIndex = 13;
             this.bd.Text = "Magenta - d";
             this.bd.UseVisualStyleBackColor = false;
             // 
@@ -208,7 +207,7 @@
             this.b7.Margin = new System.Windows.Forms.Padding( 0 );
             this.b7.Name = "b7";
             this.b7.Size = new System.Drawing.Size( 130, 40 );
-            this.b7.TabIndex = 14;
+            this.b7.TabIndex = 7;
             this.b7.Text = "Silver - 7";
             this.b7.UseVisualStyleBackColor = false;
             // 
@@ -220,7 +219,7 @@
             this.be.Margin = new System.Windows.Forms.Padding( 0 );
             this.be.Name = "be";
             this.be.Size = new System.Drawing.Size( 130, 40 );
-            this.be.TabIndex = 13;
+            this.be.TabIndex = 14;
             this.be.Text = "Yellow - e";
             this.be.UseVisualStyleBackColor = false;
             // 
@@ -232,12 +231,13 @@
             this.b6.Margin = new System.Windows.Forms.Padding( 0 );
             this.b6.Name = "b6";
             this.b6.Size = new System.Drawing.Size( 130, 40 );
-            this.b6.TabIndex = 12;
+            this.b6.TabIndex = 6;
             this.b6.Text = "Olive - 6";
             this.b6.UseVisualStyleBackColor = false;
             // 
             // bCancel
             // 
+            this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.bCancel.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.bCancel.Location = new System.Drawing.Point( 88, 330 );
             this.bCancel.Name = "bCancel";
@@ -245,7 +245,6 @@
             this.bCancel.TabIndex = 16;
             this.bCancel.Text = "Cancel";
             this.bCancel.UseVisualStyleBackColor = true;
-            this.bCancel.Click += new System.EventHandler( this.bCancel_Click );
             // 
             // ColorPicker
             // 
