@@ -19,11 +19,18 @@ namespace fCraft {
         public HashSet<string> excludedPlayers = new HashSet<string>();
 
         public int buildRank = 0;
+        public PlayerClass build;
 
 
         public Zone( string raw ) {
             string[] parts = raw.Split( ',' );
-            if( parts.Length < 3 ) throw new Exception( "Corrupt zone definition" );
+            int version = 1;
+            if( parts.Length == 4 ) {
+                version = Int32.Parse( parts[3] );
+            } else if( parts.Length != 3 ) {
+                throw new Exception( "Unrecognized zone definition" );
+            }
+
             string[] header = parts[0].Split( ' ' );
             name = header[0];
             xMin = Int32.Parse( header[1] );
@@ -32,7 +39,12 @@ namespace fCraft {
             xMax = Int32.Parse( header[4] );
             yMax = Int32.Parse( header[5] );
             hMax = Int32.Parse( header[6] );
-            buildRank = Int32.Parse( header[7] );
+
+            if( version == 1 ) { // LEGACY
+                build = ClassList.ParseRank( Int32.Parse( header[7] ) );
+            } else {
+                build = ClassList.ParseClass( header[7] );
+            }
 
             foreach( string player in parts[1].Split( ' ' ) ) {
                 if( !Player.IsValidName( player ) ) continue;

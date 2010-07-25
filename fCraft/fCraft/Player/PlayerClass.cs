@@ -9,6 +9,7 @@ namespace fCraft {
         public string name;
         public byte rank;
         public string color;
+        public string ID;
         public bool[] permissions;
         public PlayerClass maxPromote, maxDemote, maxKick, maxBan;
         public string prefix = "";
@@ -79,6 +80,17 @@ namespace fCraft {
             return true;
         }
 
+        public static bool IsValidID( string ID ) {
+            if( ID.Length != 16 ) return false;
+            for( int i = 0; i < ID.Length; i++ ) {
+                char ch = ID[i];
+                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < 'a') || ch > 'z' ) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public static bool IsValidPrefix( string val ) {
             if( val.Length == 0 ) return true;
             if( val.Length > 1 ) return false;
@@ -88,6 +100,10 @@ namespace fCraft {
 
         public string ToComboBoxOption() {
             return String.Format( "{0,3} {1,1}{2}", rank, prefix, name );
+        }
+
+        public override string ToString() {
+            return name + "#" + ID;
         }
     }
 }
