@@ -33,6 +33,7 @@
             this.nWidthY = new System.Windows.Forms.NumericUpDown();
             this.nHeight = new System.Windows.Forms.NumericUpDown();
             this.gMap = new System.Windows.Forms.GroupBox();
+            this.rExisting = new System.Windows.Forms.RadioButton();
             this.xFloodBarrier = new System.Windows.Forms.CheckBox();
             this.cTheme = new System.Windows.Forms.ComboBox();
             this.lTheme = new System.Windows.Forms.Label();
@@ -104,7 +105,7 @@
             // rEmpty
             // 
             this.rEmpty.AutoSize = true;
-            this.rEmpty.Location = new System.Drawing.Point( 6, 124 );
+            this.rEmpty.Location = new System.Drawing.Point( 6, 153 );
             this.rEmpty.Name = "rEmpty";
             this.rEmpty.Size = new System.Drawing.Size( 77, 17 );
             this.rEmpty.TabIndex = 8;
@@ -115,7 +116,7 @@
             // rFlatgrass
             // 
             this.rFlatgrass.AutoSize = true;
-            this.rFlatgrass.Location = new System.Drawing.Point( 6, 152 );
+            this.rFlatgrass.Location = new System.Drawing.Point( 6, 181 );
             this.rFlatgrass.Name = "rFlatgrass";
             this.rFlatgrass.Size = new System.Drawing.Size( 111, 17 );
             this.rFlatgrass.TabIndex = 9;
@@ -126,7 +127,7 @@
             // rTerrain
             // 
             this.rTerrain.AutoSize = true;
-            this.rTerrain.Location = new System.Drawing.Point( 6, 180 );
+            this.rTerrain.Location = new System.Drawing.Point( 6, 209 );
             this.rTerrain.Name = "rTerrain";
             this.rTerrain.Size = new System.Drawing.Size( 139, 17 );
             this.rTerrain.TabIndex = 10;
@@ -217,6 +218,7 @@
             // 
             // gMap
             // 
+            this.gMap.Controls.Add( this.rExisting );
             this.gMap.Controls.Add( this.xFloodBarrier );
             this.gMap.Controls.Add( this.cTheme );
             this.gMap.Controls.Add( this.lTheme );
@@ -239,10 +241,20 @@
             this.gMap.Controls.Add( this.lX1 );
             this.gMap.Location = new System.Drawing.Point( 13, 142 );
             this.gMap.Name = "gMap";
-            this.gMap.Size = new System.Drawing.Size( 365, 264 );
+            this.gMap.Size = new System.Drawing.Size( 365, 288 );
             this.gMap.TabIndex = 5;
             this.gMap.TabStop = false;
             this.gMap.Text = "Map";
+            // 
+            // rExisting
+            // 
+            this.rExisting.AutoSize = true;
+            this.rExisting.Location = new System.Drawing.Point( 6, 69 );
+            this.rExisting.Name = "rExisting";
+            this.rExisting.Size = new System.Drawing.Size( 105, 17 );
+            this.rExisting.TabIndex = 20;
+            this.rExisting.Text = "Use existing map";
+            this.rExisting.UseVisualStyleBackColor = true;
             // 
             // xFloodBarrier
             // 
@@ -259,7 +271,7 @@
             // 
             this.cTheme.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cTheme.Enabled = false;
-            this.cTheme.Location = new System.Drawing.Point( 273, 206 );
+            this.cTheme.Location = new System.Drawing.Point( 273, 232 );
             this.cTheme.Name = "cTheme";
             this.cTheme.Size = new System.Drawing.Size( 86, 21 );
             this.cTheme.TabIndex = 12;
@@ -268,7 +280,7 @@
             // 
             this.lTheme.AutoSize = true;
             this.lTheme.Enabled = false;
-            this.lTheme.Location = new System.Drawing.Point( 227, 209 );
+            this.lTheme.Location = new System.Drawing.Point( 227, 235 );
             this.lTheme.Name = "lTheme";
             this.lTheme.Size = new System.Drawing.Size( 40, 13 );
             this.lTheme.TabIndex = 19;
@@ -278,7 +290,7 @@
             // 
             this.cTerrain.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cTerrain.Enabled = false;
-            this.cTerrain.Location = new System.Drawing.Point( 127, 206 );
+            this.cTerrain.Location = new System.Drawing.Point( 127, 232 );
             this.cTerrain.Name = "cTerrain";
             this.cTerrain.Size = new System.Drawing.Size( 86, 21 );
             this.cTerrain.TabIndex = 11;
@@ -287,7 +299,7 @@
             // 
             this.lTerrain.AutoSize = true;
             this.lTerrain.Enabled = false;
-            this.lTerrain.Location = new System.Drawing.Point( 81, 209 );
+            this.lTerrain.Location = new System.Drawing.Point( 81, 235 );
             this.lTerrain.Name = "lTerrain";
             this.lTerrain.Size = new System.Drawing.Size( 40, 13 );
             this.lTerrain.TabIndex = 17;
@@ -296,7 +308,7 @@
             // bGenerate
             // 
             this.bGenerate.Enabled = false;
-            this.bGenerate.Location = new System.Drawing.Point( 84, 233 );
+            this.bGenerate.Location = new System.Drawing.Point( 84, 259 );
             this.bGenerate.Name = "bGenerate";
             this.bGenerate.Size = new System.Drawing.Size( 75, 23 );
             this.bGenerate.TabIndex = 13;
@@ -311,14 +323,14 @@
             this.cWorld.FormattingEnabled = true;
             this.cWorld.Items.AddRange( new object[] {
             "main (64x64x64)"} );
-            this.cWorld.Location = new System.Drawing.Point( 127, 95 );
+            this.cWorld.Location = new System.Drawing.Point( 127, 124 );
             this.cWorld.Name = "cWorld";
             this.cWorld.Size = new System.Drawing.Size( 132, 21 );
             this.cWorld.TabIndex = 7;
             // 
             // tFile
             // 
-            this.tFile.Location = new System.Drawing.Point( 100, 69 );
+            this.tFile.Location = new System.Drawing.Point( 100, 96 );
             this.tFile.Name = "tFile";
             this.tFile.ReadOnly = true;
             this.tFile.Size = new System.Drawing.Size( 178, 20 );
@@ -326,7 +338,7 @@
             // 
             // bBrowse
             // 
-            this.bBrowse.Location = new System.Drawing.Point( 284, 67 );
+            this.bBrowse.Location = new System.Drawing.Point( 284, 94 );
             this.bBrowse.Name = "bBrowse";
             this.bBrowse.Size = new System.Drawing.Size( 75, 23 );
             this.bBrowse.TabIndex = 5;
@@ -337,12 +349,10 @@
             // rLoad
             // 
             this.rLoad.AutoSize = true;
-            this.rLoad.Checked = true;
-            this.rLoad.Location = new System.Drawing.Point( 6, 68 );
+            this.rLoad.Location = new System.Drawing.Point( 6, 97 );
             this.rLoad.Name = "rLoad";
             this.rLoad.Size = new System.Drawing.Size( 88, 17 );
             this.rLoad.TabIndex = 3;
-            this.rLoad.TabStop = true;
             this.rLoad.Text = "Load from file";
             this.rLoad.UseVisualStyleBackColor = true;
             this.rLoad.CheckedChanged += new System.EventHandler( this.rLoad_CheckedChanged );
@@ -350,7 +360,7 @@
             // rCopy
             // 
             this.rCopy.AutoSize = true;
-            this.rCopy.Location = new System.Drawing.Point( 6, 96 );
+            this.rCopy.Location = new System.Drawing.Point( 6, 125 );
             this.rCopy.Name = "rCopy";
             this.rCopy.Size = new System.Drawing.Size( 115, 17 );
             this.rCopy.TabIndex = 6;
@@ -364,7 +374,7 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.lPreview.AutoSize = true;
-            this.lPreview.Location = new System.Drawing.Point( 158, 336 );
+            this.lPreview.Location = new System.Drawing.Point( 158, 359 );
             this.lPreview.Name = "lPreview";
             this.lPreview.Size = new System.Drawing.Size( 54, 28 );
             this.lPreview.TabIndex = 16;
@@ -376,7 +386,7 @@
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bOK.Location = new System.Drawing.Point( 549, 382 );
+            this.bOK.Location = new System.Drawing.Point( 549, 405 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 25 );
             this.bOK.TabIndex = 8;
@@ -387,7 +397,7 @@
             // 
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.bCancel.Location = new System.Drawing.Point( 655, 382 );
+            this.bCancel.Location = new System.Drawing.Point( 655, 405 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 25 );
             this.bCancel.TabIndex = 7;
@@ -398,8 +408,6 @@
             // 
             this.cBackup.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cBackup.FormattingEnabled = true;
-            this.cBackup.Items.AddRange( new object[] {
-            "Never"} );
             this.cBackup.Location = new System.Drawing.Point( 140, 92 );
             this.cBackup.Name = "cBackup";
             this.cBackup.Size = new System.Drawing.Size( 110, 21 );
@@ -474,7 +482,7 @@
             // bPreviewPrev
             // 
             this.bPreviewPrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bPreviewPrev.Location = new System.Drawing.Point( 130, 339 );
+            this.bPreviewPrev.Location = new System.Drawing.Point( 130, 362 );
             this.bPreviewPrev.Name = "bPreviewPrev";
             this.bPreviewPrev.Size = new System.Drawing.Size( 22, 22 );
             this.bPreviewPrev.TabIndex = 0;
@@ -485,7 +493,7 @@
             // bPreviewNext
             // 
             this.bPreviewNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bPreviewNext.Location = new System.Drawing.Point( 218, 339 );
+            this.bPreviewNext.Location = new System.Drawing.Point( 218, 362 );
             this.bPreviewNext.Name = "bPreviewNext";
             this.bPreviewNext.Size = new System.Drawing.Size( 22, 22 );
             this.bPreviewNext.TabIndex = 1;
@@ -514,7 +522,7 @@
             this.tStatus1,
             this.tStatus2,
             this.progressBar} );
-            this.statusStrip1.Location = new System.Drawing.Point( 0, 417 );
+            this.statusStrip1.Location = new System.Drawing.Point( 0, 440 );
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size( 767, 22 );
             this.statusStrip1.TabIndex = 29;
@@ -549,7 +557,7 @@
             this.preview.Location = new System.Drawing.Point( 3, 3 );
             this.preview.Name = "preview";
             this.preview.Padding = new System.Windows.Forms.Padding( 5 );
-            this.preview.Size = new System.Drawing.Size( 365, 330 );
+            this.preview.Size = new System.Drawing.Size( 365, 353 );
             this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.preview.TabIndex = 30;
             this.preview.TabStop = false;
@@ -572,14 +580,14 @@
             this.previewLayout.RowCount = 2;
             this.previewLayout.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Percent, 100F ) );
             this.previewLayout.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Absolute, 28F ) );
-            this.previewLayout.Size = new System.Drawing.Size( 371, 364 );
+            this.previewLayout.Size = new System.Drawing.Size( 371, 387 );
             this.previewLayout.TabIndex = 6;
             // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 767, 439 );
+            this.ClientSize = new System.Drawing.Size( 767, 462 );
             this.Controls.Add( this.previewLayout );
             this.Controls.Add( this.statusStrip1 );
             this.Controls.Add( this.xHidden );
@@ -658,5 +666,6 @@
         private System.Windows.Forms.PictureBox preview;
         private System.Windows.Forms.ToolStripStatusLabel tStatus2;
         private System.Windows.Forms.TableLayoutPanel previewLayout;
+        private System.Windows.Forms.RadioButton rExisting;
     }
 }

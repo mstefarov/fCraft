@@ -33,6 +33,7 @@ namespace ConfigTool {
             : this() {
             
             if( _world == null ) {
+                Text = "Adding a New World";
                 world = new WorldListEntry();
                 int worldNameCounter = 1;
                 for( ; ConfigUI.IsWorldNameTaken( "NewWorld" + worldNameCounter ); worldNameCounter++ ) ;
@@ -42,6 +43,7 @@ namespace ConfigTool {
                 cBuild.SelectedIndex = 0;
                 cBackup.SelectedIndex = 5;
             } else {
+                Text = "Editing World \"" + _world.Name + "\"";
                 world = new WorldListEntry( _world );
                 tName.Text = world.Name;
                 cAccess.SelectedItem = world.AccessPermission;
@@ -49,15 +51,31 @@ namespace ConfigTool {
                 cBackup.SelectedItem = world.Backup;
                 xHidden.Checked = world.Hidden;
             }
+
+            FileToLoad = world.Name + ".fcm";
+            if( File.Exists( FileToLoad ) ) {
+                rExisting.Enabled = true;
+                rExisting.Checked = true;
+                tStatus1.Text = "Loading " + new FileInfo( FileToLoad ).Name;
+                progressBar.Visible = true;
+                progressBar.Style = ProgressBarStyle.Marquee;
+
+                bwLoader.RunWorkerAsync();
+            } else {
+                rExisting.Enabled = false;
+                rLoad.Checked = true;
+            }
+
             cWorld.SelectedIndex = 0;
             cTerrain.SelectedIndex = (int)MapGenType.River;
             cTheme.SelectedIndex = (int)MapGenTheme.Forest;
         }
 
+
         public AddWorldPopup() {
             InitializeComponent();
 
-            cBackup.Items.AddRange( ConfigUI.BackupEnum );
+            cBackup.Items.AddRange( World.BackupEnum );
             cTerrain.Items.AddRange( Enum.GetNames( typeof( MapGenType ) ) );
             cTheme.Items.AddRange( Enum.GetNames( typeof( MapGenTheme ) ) );
 
@@ -108,17 +126,18 @@ namespace ConfigTool {
             tFile.Text = fileBrowser.FileName;
             tFile.SelectAll();
 
-            tStatus1.Text = "Loading " + new FileInfo( tFile.Text ).Name;
+            FileToLoad = tFile.Text;
+            tStatus1.Text = "Loading " + new FileInfo( FileToLoad ).Name;
             progressBar.Visible = true;
             progressBar.Style = ProgressBarStyle.Marquee;
 
-            Refresh();
             bwLoader.RunWorkerAsync();
         }
 
+        string FileToLoad;
         void AsyncLoad( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
-            map = Map.Load( null, tFile.Text );
+            map = Map.Load( null, FileToLoad );
             map.CalculateShadows();
         }
 

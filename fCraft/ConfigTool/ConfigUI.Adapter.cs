@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.Xml;
+using System.Xml.Linq;
 using fCraft;
 using Color = System.Drawing.Color;
 
@@ -29,6 +31,8 @@ namespace ConfigTool {
                 MessageBox.Show( Config.errors, "Error occured while trying to load config" );
             }
 
+            LoadWorldList();
+
             ApplyTabGeneral();
             ApplyTabWorlds();
             ApplyTabClasses();
@@ -40,6 +44,31 @@ namespace ConfigTool {
 
             AddChangeHandler( tabs );
             bApply.Enabled = false;
+        }
+
+        void LoadWorldList() {
+            worlds.Clear();
+            if( File.Exists( "worlds.xml" ) ) {
+                try {
+                    XDocument doc = XDocument.Load( "worlds.xml" );
+                    XElement root = doc.Root;
+                    string errorLog = "";
+                    foreach( XElement el in root.Elements( "World" ) ) {
+                        try {
+                            worlds.Add( new WorldListEntry( el ) );
+                        } catch( Exception ex ) {
+                            errorLog += ex + Environment.NewLine;
+                        }
+                    }
+                    if( errorLog != "" ) {
+                        MessageBox.Show( "Some errors occured while loading the world list:" + Environment.NewLine + errorLog, "Warning" );
+                    }
+                } catch( Exception ex ) {
+                    MessageBox.Show( "Error occured while loading the world list: " + Environment.NewLine + ex, "Warning" );
+                }
+            } else {
+                MessageBox.Show( "World list (worlds.xml) not found. Assuming 0 worlds.", "Warning" );
+            }
         }
 
 
@@ -75,7 +104,7 @@ namespace ConfigTool {
 
             dgvcAccess.DataSource = classes;
             dgvcBuild.DataSource = classes;
-            dgvcBackup.DataSource = BackupEnum;
+            dgvcBackup.DataSource = World.BackupEnum;
 
             dgvWorlds.DataSource = worlds;
         }
@@ -196,7 +225,7 @@ namespace ConfigTool {
 
         #region Saving Config
 
-        void WriteConfig() {
+        void SaveConfig() {
             Config.errors = "";
             Config.SetValue( ConfigKey.ServerName, tServerName.Text );
             Config.SetValue( ConfigKey.MOTD, tMOTD.Text );
@@ -289,8 +318,23 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.BlockUpdateThrottling, Convert.ToInt32( nThrottling.Value ) );
 
             Config.SetValue( ConfigKey.LowLatencyMode, xLowLatencyMode.Checked );
+
+            SaveWorldList();
         }
 
+        void SaveWorldList() {
+            try {
+                XDocument doc = new XDocument();
+                XElement root = new XElement( "fCraftWorldList" );
+                foreach( WorldListEntry world in worlds ) {
+                    root.Add( world.Serialize() );
+                }
+                doc.Add( root );
+                doc.Save( "worlds.xml" );
+            } catch( Exception ex ) {
+                MessageBox.Show( "An error occured while trying to save world list (worlds.xml):" + Environment.NewLine + ex );
+            }
+        }
 
         void WriteEnum( ComboBox box, ConfigKey value, params string[] options ) {
             Config.SetValue( value, options[box.SelectedIndex] );
