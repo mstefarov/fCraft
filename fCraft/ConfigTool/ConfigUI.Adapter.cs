@@ -72,6 +72,7 @@ namespace ConfigTool {
                         foreach( WorldListEntry world in worlds ) {
                             if( world.name.ToLower() == mainWorldAttr.Value.ToLower() ) {
                                 cMainWorld.SelectedItem = world.name;
+                                break;
                             }
                         }
                     }
@@ -118,6 +119,11 @@ namespace ConfigTool {
             dgvcAccess.DataSource = classes;
             dgvcBuild.DataSource = classes;
             dgvcBackup.DataSource = World.BackupEnum;
+
+            foreach( DataGridViewRow row in dgvWorlds.Rows ) {
+                ((DataGridViewComboBoxCell)row.Cells[3]).DataSource = classes;
+                ((DataGridViewComboBoxCell)row.Cells[4]).DataSource = classes;
+            }
 
             dgvWorlds.DataSource = worlds;
         }

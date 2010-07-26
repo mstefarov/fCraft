@@ -45,9 +45,16 @@ namespace ConfigTool {
         }
 
         internal static void HandleWorldRename( string from, string to ) {
-            if( instance.cMainWorld.SelectedItem.ToString() == from ) {
+            if( instance.cMainWorld.SelectedItem == null ) {
+                instance.cMainWorld.SelectedIndex = 0;
+            } else {
+                string mainWorldName = instance.cMainWorld.SelectedItem.ToString();
                 instance.FillWorldList();
-                instance.cMainWorld.SelectedItem = to;
+                if( mainWorldName == from ) {
+                    instance.cMainWorld.SelectedItem = to;
+                } else {
+                    instance.cMainWorld.SelectedItem = mainWorldName;
+                }
             }
         }
 
@@ -77,12 +84,25 @@ namespace ConfigTool {
             if( popup.ShowDialog() == DialogResult.OK ) {
                 worlds.Add( popup.world );
             }
+            string mainWorldName;
+            if( cMainWorld.SelectedItem == null ) {
+                FillWorldList();
+                if( cMainWorld.Items.Count > 0 ) {
+                    cMainWorld.SelectedIndex = 0;
+                }
+            } else {
+                mainWorldName = cMainWorld.SelectedItem.ToString();
+                cMainWorld.SelectedItem = mainWorldName;
+                FillWorldList();
+            }
         }
 
         private void bWorldEdit_Click( object sender, EventArgs e ) {
             AddWorldPopup popup = new AddWorldPopup( worlds[dgvWorlds.SelectedRows[0].Index] );
             if( popup.ShowDialog() == DialogResult.OK ) {
+                string oldName = worlds[dgvWorlds.SelectedRows[0].Index].name;
                 worlds[dgvWorlds.SelectedRows[0].Index] = popup.world;
+                HandleWorldRename( oldName, popup.world.name );
             }
         }
 
@@ -95,10 +115,36 @@ namespace ConfigTool {
         private void bWorldDel_Click( object sender, EventArgs e ) {
             if( dgvWorlds.SelectedRows.Count > 0 ) {
                 WorldListEntry world = worlds[dgvWorlds.SelectedRows[0].Index];
-                if( File.Exists( world.Name + ".fcm" ) && MessageBox.Show( "Do you want to delete the map file (" + world.Name + ".fcm) as well?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
-                    File.Delete( world.Name + ".fcm" );
+                string fileName = world.Name + ".fcm";
+                if( File.Exists( fileName ) &&
+                    MessageBox.Show( "Do you want to delete the map file (" + fileName + ") as well?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
+                    try {
+                        File.Delete( fileName );
+                    } catch( Exception ex ) {
+                        MessageBox.Show( "Error occured while trying to delete \"" + fileName + "\":" + Environment.NewLine + ex, "Error" );
+                    }
                 }
+
                 worlds.Remove( world );
+
+                // handle change of main world
+                if( cMainWorld.SelectedItem == null ) {
+                    FillWorldList();
+                    if( cMainWorld.Items.Count > 0 ) {
+                        cMainWorld.SelectedIndex = 0;
+                    }
+                } else {
+                    string mainWorldName = cMainWorld.SelectedItem.ToString();
+                    FillWorldList();
+                    if( mainWorldName == world.name ) {
+                        MessageBox.Show( "Main world has been reset." );
+                        if( cMainWorld.Items.Count > 0 ) {
+                            cMainWorld.SelectedIndex = 0;
+                        }
+                    } else {
+                        cMainWorld.SelectedItem = mainWorldName;
+                    }
+                }
             }
         }
 
@@ -311,26 +357,49 @@ namespace ConfigTool {
             selectedClass = null;
             RebuildClassList();
             SelectClass( pc );
+
+            ApplyTabWorlds();
         }
 
         private void bRemoveClass_Click( object sender, EventArgs e ) {
             if( vClasses.SelectedItem != null ) {
                 selectedClass = null;
                 int index = vClasses.SelectedIndex;
+                PlayerClass deletedClass = ClassList.classesByIndex[index];
 
-                DeleteClassPopup popup = new DeleteClassPopup( ClassList.classesByIndex[index] );
+                // Ask for substitute class
+                DeleteClassPopup popup = new DeleteClassPopup( deletedClass );
                 if( popup.ShowDialog() != DialogResult.OK ) return;
 
+                // Update default class
                 PlayerClass defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
-                if( defaultClass != null && index == defaultClass.index ) {
-                    defaultClass = null;
-                    MessageBox.Show( "DefaultClass has been reset to \"(lowest class)\"", "Warning" );
+                if( defaultClass == deletedClass ) {
+                    defaultClass = popup.substituteClass;
+                    MessageBox.Show( "DefaultClass has been changed to \"" + popup.substituteClass.name + "\"", "Warning" );
                 }
 
-                if( ClassList.DeleteClass( index, ClassList.classesByIndex[popup.substituteIndex] ) ) { //TODO: crashes
+                // Delete class
+                if( ClassList.DeleteClass( index, popup.substituteClass ) ) { //TODO: crashes
                     MessageBox.Show( "Some of the rank limits for kick, ban, promote, and/or demote have been reset.", "Warning" );
                 }
                 vClasses.Items.RemoveAt( index );
+
+                // Update world permissions
+                string worldUpdates = "";
+                foreach( WorldListEntry world in worlds ) {
+                    if( world.accessClass == deletedClass ) {
+                        world.AccessPermission = popup.substituteClass.ToComboBoxOption();
+                        worldUpdates += " - " + world.name + ": access permission changed" + Environment.NewLine;
+                    }
+                    if( world.buildClass == deletedClass ) {
+                        world.BuildPermission = popup.substituteClass.ToComboBoxOption();
+                        worldUpdates += " - " + world.name + ": build permission changed" + Environment.NewLine;
+                    }
+                }
+                ApplyTabWorlds();
+                if( worldUpdates != "" ) {
+                    MessageBox.Show( "The following worlds were affected:" + Environment.NewLine + worldUpdates, "Warning" );
+                }
 
                 RebuildClassList();
 
