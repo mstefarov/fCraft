@@ -31,6 +31,12 @@ namespace fCraft {
 
     public sealed class World {
 
+        public static string[] BackupEnum = new string[] {
+            "Never", "5 Minutes", "10 Minutes", "15 Minutes", "20 Minutes",
+            "30 Minutes", "45 Minutes", "1 Hour", "2 Hours", "3 Hours",
+            "4 Hours", "6 Hours", "8 Hours", "12 Hours", "24 Hours"
+        };
+
         public Map map;
         public string name;
         public Dictionary<int, Player> players = new Dictionary<int, Player>();
