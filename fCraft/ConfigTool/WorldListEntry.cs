@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Xml;
 using System.Xml.Linq;
+using System.IO;
 using fCraft;
 
 
 namespace ConfigTool {
     class WorldListEntry {
         public const string DefaultClassOption = "(everyone)";
+        Map cachedMapHeader = null;
+        bool loadingFailed = false;
+
         public WorldListEntry() { }
+
         public WorldListEntry( WorldListEntry original ) {
-            Name = original.Name;
-            Description = original.Description;
+            name = original.Name;
             Hidden = original.Hidden;
             AccessPermission = original.AccessPermission;
             BuildPermission = original.BuildPermission;
@@ -26,7 +30,7 @@ namespace ConfigTool {
             if( !Player.IsValidName( temp.Value ) ) {
                 throw new Exception( "WorldListEntity: Cannot parse XML: Invalid world name skipped \"" + temp.Value + "\"." );
             }
-            Name = temp.Value;
+            name = temp.Value;
 
             if( (temp = el.Attribute( "hidden" )) != null ) {
                 bool hidden;
@@ -68,8 +72,43 @@ namespace ConfigTool {
             }
         }
 
-        public string Name { get; set; }
-        public string Description { get; set; }
+        internal string name;
+        public string Name {
+            get {
+                return name;
+            }
+            set {
+                if( !Player.IsValidName( value ) ) {
+                    throw new FormatException( "Invalid world name" );
+                } else if( value != name && ConfigUI.IsWorldNameTaken( value ) ) {
+                    throw new FormatException( "Duplicate world names are not allowed." );
+                } else {
+                    string oldName = name;
+                    name = value;
+                    if( File.Exists( name + ".fcm" ) && value != name ) {
+                        File.Move( name + ".fcm", value + ".fcm" );
+                    }
+                    ConfigUI.HandleWorldRename( oldName, value );
+                }
+            }
+        }
+
+        public string Description {
+            get {
+                if( cachedMapHeader == null && !loadingFailed ) {
+                    cachedMapHeader = Map.LoadHeaderOnly( name + ".fcm" );
+                    if( cachedMapHeader == null ) {
+                        loadingFailed = true;
+                    }
+                }
+                if( loadingFailed ) {
+                    return "(cannot load file)";
+                } else {
+                    return String.Format( "{0} x {1} x {2}", cachedMapHeader.widthX, cachedMapHeader.widthY, cachedMapHeader.height );
+                }
+            }
+        }
+
         public bool Hidden { get; set; }
 
         internal PlayerClass accessClass;

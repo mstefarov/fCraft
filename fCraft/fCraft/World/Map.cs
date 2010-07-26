@@ -145,6 +145,26 @@ namespace fCraft {
             return map;
         }
 
+        public static Map LoadHeaderOnly( string fileName ) {
+            try {
+                Map map = new Map();
+                BinaryReader reader = new BinaryReader( File.OpenRead( fileName ) );
+
+                // Read in the magic number
+                if( reader.ReadUInt32() != mcc.MapFCMv2.Identifier ) {
+                    throw new FormatException();
+                }
+
+                // Read in the map dimesions
+                map.widthX = reader.ReadInt16();
+                map.widthY = reader.ReadInt16();
+                map.height = reader.ReadInt16();
+                return map;
+            } catch( Exception ex ) {
+                Logger.Log( "Error occured while trying to parse header of " + fileName + ": " + ex, LogType.Error );
+                return null;
+            }
+        }
 
         static Map DoLoad( string fileName ) {
             try {

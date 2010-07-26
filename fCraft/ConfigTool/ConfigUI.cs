@@ -12,27 +12,25 @@ using Color = System.Drawing.Color;
 
 namespace ConfigTool {
     public partial class ConfigUI : Form {
+        static ConfigUI instance;
         Font bold;
         PlayerClass selectedClass, defaultClass;
-        static BindingList<WorldListEntry> worlds = new BindingList<WorldListEntry>();
-        internal static bool IsWorldNameTaken( string name ) {
-            foreach( WorldListEntry world in worlds ) {
-                if( world.Name == name ) return true;
-            }
-            return false;
-        }
+        internal static BindingList<WorldListEntry> worlds = new BindingList<WorldListEntry>();
 
         #region Initialization
+
         public ConfigUI() {
+            instance = this;
             InitializeComponent();
 
             bold = new Font( Font, FontStyle.Bold );
 
             FillPermissionList();
-
+            dgvWorlds.DataError += delegate( object sender, DataGridViewDataErrorEventArgs e ) {
+                MessageBox.Show( e.Exception.Message, "Data Error" );
+            };
             Load += LoadConfig;
         }
-
 
         void FillPermissionList() {
             ListViewItem item;
@@ -45,6 +43,21 @@ namespace ConfigTool {
                 vPermissions.Items.Add( item );
             }
         }
+
+        internal static void HandleWorldRename( string from, string to ) {
+            if( instance.cMainWorld.SelectedItem.ToString() == from ) {
+                instance.FillWorldList();
+                instance.cMainWorld.SelectedItem = to;
+            }
+        }
+
+        void FillWorldList() {
+            cMainWorld.Items.Clear();
+            foreach( WorldListEntry world in worlds ) {
+                cMainWorld.Items.Add( world.name );
+            }
+        }
+
         #endregion
 
         #region Input Handlers
@@ -65,7 +78,6 @@ namespace ConfigTool {
                 worlds.Add( popup.world );
             }
         }
-
 
         private void bWorldEdit_Click( object sender, EventArgs e ) {
             AddWorldPopup popup = new AddWorldPopup( worlds[dgvWorlds.SelectedRows[0].Index] );
@@ -559,8 +571,6 @@ namespace ConfigTool {
                         ApplyTabGeneral();
                         break;
                     case 1:// Worlds
-                        //TODO
-                        ApplyTabWorlds();
                         break;
                     case 2:// Classes
                         Config.ResetClasses();
@@ -667,8 +677,17 @@ namespace ConfigTool {
             popup.ShowDialog();
         }
 
+        internal static bool IsWorldNameTaken( string name ) {
+            foreach( WorldListEntry world in worlds ) {
+                if( world.Name == name ) return true;
+            }
+            return false;
+        }
+
+        private void tabs_SelectedIndexChanged( object sender, EventArgs e ) {
+            bResetTab.Enabled = !(tabs.SelectedTab == tabWorlds);
+        }
+
         #endregion
-
-
     }
 }

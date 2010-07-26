@@ -27,6 +27,8 @@ namespace ConfigTool {
         Bitmap previewImage;
         bool floodBarrier = false;
 
+        string originalWorldName = null;
+
         internal WorldListEntry world;
 
         public AddWorldPopup( WorldListEntry _world )
@@ -37,7 +39,7 @@ namespace ConfigTool {
                 world = new WorldListEntry();
                 int worldNameCounter = 1;
                 for( ; ConfigUI.IsWorldNameTaken( "NewWorld" + worldNameCounter ); worldNameCounter++ ) ;
-                world.Name = "NewWorld" + worldNameCounter;
+                world.name = "NewWorld" + worldNameCounter;
                 tName.Text = world.Name;
                 cAccess.SelectedIndex = 0;
                 cBuild.SelectedIndex = 0;
@@ -45,6 +47,7 @@ namespace ConfigTool {
             } else {
                 Text = "Editing World \"" + _world.Name + "\"";
                 world = new WorldListEntry( _world );
+                originalWorldName = world.Name;
                 tName.Text = world.Name;
                 cAccess.SelectedItem = world.AccessPermission;
                 cBuild.SelectedItem = world.BuildPermission;
@@ -66,9 +69,16 @@ namespace ConfigTool {
                 rLoad.Checked = true;
             }
 
-            cWorld.SelectedIndex = 0;
             cTerrain.SelectedIndex = (int)MapGenType.River;
             cTheme.SelectedIndex = (int)MapGenTheme.Forest;
+
+            // Fill in the "Copy existing world" combobox
+            foreach( WorldListEntry otherWorld in ConfigUI.worlds ) {
+                if( otherWorld != _world ) {
+                    cWorld.Items.Add( otherWorld.name + " (" + otherWorld.Description + ")" );
+                }
+            }
+            cWorld.SelectedIndex = 0;
         }
 
 
@@ -347,12 +357,12 @@ namespace ConfigTool {
             ((NumericUpDown)sender).Value = Convert.ToInt32( ((NumericUpDown)sender).Value / 16 ) * 16;
         }
 
-        private void tName_TextChanged( object sender, EventArgs e ) {
-            world.Name = tName.Text;
-        }
-
         private void tName_Validating( object sender, CancelEventArgs e ) {
             e.Cancel = !Player.IsValidName( tName.Text );
+        }
+
+        private void tName_Validated( object sender, EventArgs e ) {
+            world.name = tName.Text;
         }
 
         private void cAccess_SelectedIndexChanged( object sender, EventArgs e ) {
@@ -385,8 +395,16 @@ namespace ConfigTool {
                     tStatus2.Text = "";
                     Refresh();
                     map.Save( world.Name + ".fcm" );
+                    if( originalWorldName != null && originalWorldName != world.Name && File.Exists( originalWorldName + ".fcm" )
+                        && MessageBox.Show( "Map was saved to "+world.Name+".fcm"+Environment.NewLine+"Delete the old map file (" + originalWorldName + ".fcm)?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
+                        File.Delete( originalWorldName + ".fcm" );
+                    }
                 }
             }
+        }
+
+        private void rExisting_CheckedChanged( object sender, EventArgs e ) {
+            ToggleDimensions();
         }
     }
 }

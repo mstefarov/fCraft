@@ -88,6 +88,12 @@
             this.bAddWorld = new System.Windows.Forms.Button();
             this.bWorldDelete = new System.Windows.Forms.Button();
             this.dgvWorlds = new System.Windows.Forms.DataGridView();
+            this.dgvcName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvcDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvcHidden = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.dgvcAccess = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.dgvcBuild = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.dgvcBackup = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.tabClasses = new System.Windows.Forms.TabPage();
             this.gClassOptions = new System.Windows.Forms.GroupBox();
             this.bColorClass = new System.Windows.Forms.Button();
@@ -237,12 +243,8 @@
             this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
-            this.dgvcName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvcDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvcHidden = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.dgvcAccess = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.dgvcBuild = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.dgvcBackup = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.lMainWorld = new System.Windows.Forms.Label();
+            this.cMainWorld = new System.Windows.Forms.ComboBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gAppearence.SuspendLayout();
@@ -310,6 +312,7 @@
             this.tabs.SelectedIndex = 0;
             this.tabs.Size = new System.Drawing.Size( 659, 436 );
             this.tabs.TabIndex = 0;
+            this.tabs.SelectedIndexChanged += new System.EventHandler( this.tabs_SelectedIndexChanged );
             // 
             // tabGeneral
             // 
@@ -677,6 +680,8 @@
             // 
             // tabWorlds
             // 
+            this.tabWorlds.Controls.Add( this.cMainWorld );
+            this.tabWorlds.Controls.Add( this.lMainWorld );
             this.tabWorlds.Controls.Add( this.bWorldEdit );
             this.tabWorlds.Controls.Add( this.bAddWorld );
             this.tabWorlds.Controls.Add( this.bWorldDelete );
@@ -749,6 +754,50 @@
             this.dgvWorlds.Size = new System.Drawing.Size( 634, 348 );
             this.dgvWorlds.TabIndex = 0;
             this.dgvWorlds.SelectionChanged += new System.EventHandler( this.dgvWorlds_SelectionChanged );
+            // 
+            // dgvcName
+            // 
+            this.dgvcName.DataPropertyName = "Name";
+            this.dgvcName.HeaderText = "World Name";
+            this.dgvcName.Name = "dgvcName";
+            this.dgvcName.Width = 110;
+            // 
+            // dgvcDescription
+            // 
+            this.dgvcDescription.DataPropertyName = "Description";
+            this.dgvcDescription.HeaderText = "";
+            this.dgvcDescription.Name = "dgvcDescription";
+            this.dgvcDescription.ReadOnly = true;
+            this.dgvcDescription.Width = 180;
+            // 
+            // dgvcHidden
+            // 
+            this.dgvcHidden.DataPropertyName = "Hidden";
+            this.dgvcHidden.HeaderText = "Hide";
+            this.dgvcHidden.Name = "dgvcHidden";
+            this.dgvcHidden.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.dgvcHidden.Width = 40;
+            // 
+            // dgvcAccess
+            // 
+            this.dgvcAccess.DataPropertyName = "AccessPermission";
+            this.dgvcAccess.HeaderText = "Access";
+            this.dgvcAccess.Name = "dgvcAccess";
+            this.dgvcAccess.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // dgvcBuild
+            // 
+            this.dgvcBuild.DataPropertyName = "BuildPermission";
+            this.dgvcBuild.HeaderText = "Build";
+            this.dgvcBuild.Name = "dgvcBuild";
+            this.dgvcBuild.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // dgvcBackup
+            // 
+            this.dgvcBackup.DataPropertyName = "Backup";
+            this.dgvcBackup.HeaderText = "Backup";
+            this.dgvcBackup.Name = "dgvcBackup";
+            this.dgvcBackup.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             // 
             // tabClasses
             // 
@@ -2508,49 +2557,23 @@
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 
-            // dgvcName
+            // lMainWorld
             // 
-            this.dgvcName.DataPropertyName = "Name";
-            this.dgvcName.HeaderText = "World Name";
-            this.dgvcName.Name = "dgvcName";
-            this.dgvcName.Width = 110;
+            this.lMainWorld.AutoSize = true;
+            this.lMainWorld.Location = new System.Drawing.Point( 294, 20 );
+            this.lMainWorld.Name = "lMainWorld";
+            this.lMainWorld.Size = new System.Drawing.Size( 71, 15 );
+            this.lMainWorld.TabIndex = 4;
+            this.lMainWorld.Text = "Main world:";
             // 
-            // dgvcDescription
+            // cMainWorld
             // 
-            this.dgvcDescription.DataPropertyName = "Description";
-            this.dgvcDescription.HeaderText = "";
-            this.dgvcDescription.Name = "dgvcDescription";
-            this.dgvcDescription.ReadOnly = true;
-            this.dgvcDescription.Width = 180;
-            // 
-            // dgvcHidden
-            // 
-            this.dgvcHidden.DataPropertyName = "Hidden";
-            this.dgvcHidden.HeaderText = "Hide";
-            this.dgvcHidden.Name = "dgvcHidden";
-            this.dgvcHidden.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.dgvcHidden.Width = 40;
-            // 
-            // dgvcAccess
-            // 
-            this.dgvcAccess.DataPropertyName = "AccessPermission";
-            this.dgvcAccess.HeaderText = "Access";
-            this.dgvcAccess.Name = "dgvcAccess";
-            this.dgvcAccess.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // dgvcBuild
-            // 
-            this.dgvcBuild.DataPropertyName = "BuildPermission";
-            this.dgvcBuild.HeaderText = "Build";
-            this.dgvcBuild.Name = "dgvcBuild";
-            this.dgvcBuild.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // dgvcBackup
-            // 
-            this.dgvcBackup.DataPropertyName = "Backup";
-            this.dgvcBackup.HeaderText = "Backup";
-            this.dgvcBackup.Name = "dgvcBackup";
-            this.dgvcBackup.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.cMainWorld.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cMainWorld.FormattingEnabled = true;
+            this.cMainWorld.Location = new System.Drawing.Point( 371, 17 );
+            this.cMainWorld.Name = "cMainWorld";
+            this.cMainWorld.Size = new System.Drawing.Size( 102, 23 );
+            this.cMainWorld.TabIndex = 5;
             // 
             // ConfigUI
             // 
@@ -2578,6 +2601,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nUploadBandwidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayers)).EndInit();
             this.tabWorlds.ResumeLayout( false );
+            this.tabWorlds.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvWorlds)).EndInit();
             this.tabClasses.ResumeLayout( false );
             this.tabClasses.PerformLayout();
@@ -2827,5 +2851,7 @@
         private System.Windows.Forms.DataGridViewComboBoxColumn dgvcAccess;
         private System.Windows.Forms.DataGridViewComboBoxColumn dgvcBuild;
         private System.Windows.Forms.DataGridViewComboBoxColumn dgvcBackup;
+        private System.Windows.Forms.ComboBox cMainWorld;
+        private System.Windows.Forms.Label lMainWorld;
     }
 }
