@@ -46,12 +46,14 @@ namespace ConfigTool {
             bApply.Enabled = false;
         }
 
+
         void LoadWorldList() {
             worlds.Clear();
             if( File.Exists( "worlds.xml" ) ) {
                 try {
                     XDocument doc = XDocument.Load( "worlds.xml" );
                     XElement root = doc.Root;
+
                     string errorLog = "";
                     foreach( XElement el in root.Elements( "World" ) ) {
                         try {
@@ -63,6 +65,17 @@ namespace ConfigTool {
                     if( errorLog != "" ) {
                         MessageBox.Show( "Some errors occured while loading the world list:" + Environment.NewLine + errorLog, "Warning" );
                     }
+
+                    FillWorldList();
+                    XAttribute mainWorldAttr = root.Attribute( "main" );
+                    if( mainWorldAttr != null ) {
+                        foreach( WorldListEntry world in worlds ) {
+                            if( world.name.ToLower() == mainWorldAttr.Value.ToLower() ) {
+                                cMainWorld.SelectedItem = world.name;
+                            }
+                        }
+                    }
+
                 } catch( Exception ex ) {
                     MessageBox.Show( "Error occured while loading the world list: " + Environment.NewLine + ex, "Warning" );
                 }
@@ -328,6 +341,9 @@ namespace ConfigTool {
                 XElement root = new XElement( "fCraftWorldList" );
                 foreach( WorldListEntry world in worlds ) {
                     root.Add( world.Serialize() );
+                }
+                if( cMainWorld.SelectedItem != null ) {
+                    root.Add( new XAttribute( "main", cMainWorld.SelectedItem ) );
                 }
                 doc.Add( root );
                 doc.Save( "worlds.xml" );

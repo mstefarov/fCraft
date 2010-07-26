@@ -255,6 +255,7 @@
             this.rExisting.TabIndex = 20;
             this.rExisting.Text = "Use existing map";
             this.rExisting.UseVisualStyleBackColor = true;
+            this.rExisting.CheckedChanged += new System.EventHandler( this.rExisting_CheckedChanged );
             // 
             // xFloodBarrier
             // 
@@ -330,6 +331,7 @@
             // 
             // tFile
             // 
+            this.tFile.Enabled = false;
             this.tFile.Location = new System.Drawing.Point( 100, 96 );
             this.tFile.Name = "tFile";
             this.tFile.ReadOnly = true;
@@ -338,6 +340,7 @@
             // 
             // bBrowse
             // 
+            this.bBrowse.Enabled = false;
             this.bBrowse.Location = new System.Drawing.Point( 284, 94 );
             this.bBrowse.Name = "bBrowse";
             this.bBrowse.Size = new System.Drawing.Size( 75, 23 );
@@ -476,7 +479,7 @@
             this.tName.Name = "tName";
             this.tName.Size = new System.Drawing.Size( 132, 20 );
             this.tName.TabIndex = 0;
-            this.tName.TextChanged += new System.EventHandler( this.tName_TextChanged );
+            this.tName.Validated += new System.EventHandler( this.tName_Validated );
             this.tName.Validating += new System.ComponentModel.CancelEventHandler( this.tName_Validating );
             // 
             // bPreviewPrev
