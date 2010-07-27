@@ -27,9 +27,9 @@
             this.logBox = new System.Windows.Forms.TextBox();
             this.urlDisplay = new System.Windows.Forms.TextBox();
             this.URLLabel = new System.Windows.Forms.Label();
-            this.console = new System.Windows.Forms.TextBox();
             this.playerList = new System.Windows.Forms.ListBox();
             this.playerListLabel = new System.Windows.Forms.Label();
+            this.console = new fCraftUI.ConsoleBox();
             this.SuspendLayout();
             // 
             // logBox
@@ -69,18 +69,6 @@
             this.URLLabel.TabIndex = 2;
             this.URLLabel.Text = "Server URL:";
             // 
-            // console
-            // 
-            this.console.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.console.Enabled = false;
-            this.console.Location = new System.Drawing.Point( 12, 447 );
-            this.console.Multiline = true;
-            this.console.Name = "console";
-            this.console.Size = new System.Drawing.Size( 768, 20 );
-            this.console.TabIndex = 3;
-            this.console.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler( this.console_Enter );
-            // 
             // playerList
             // 
             this.playerList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
@@ -103,19 +91,26 @@
             this.playerListLabel.TabIndex = 5;
             this.playerListLabel.Text = "Player list";
             // 
-            // UI
+            // console
+            // 
+            this.console.Location = new System.Drawing.Point( 13, 448 );
+            this.console.Name = "console";
+            this.console.Size = new System.Drawing.Size( 767, 20 );
+            this.console.TabIndex = 6;
+            // 
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size( 792, 479 );
+            this.Controls.Add( this.console );
             this.Controls.Add( this.playerListLabel );
             this.Controls.Add( this.playerList );
-            this.Controls.Add( this.console );
             this.Controls.Add( this.URLLabel );
             this.Controls.Add( this.urlDisplay );
             this.Controls.Add( this.logBox );
             this.Icon = ((System.Drawing.Icon)(resources.GetObject( "$this.Icon" )));
-            this.Name = "UI";
+            this.Name = "MainForm";
             this.Text = "fCraft";
             this.ResumeLayout( false );
             this.PerformLayout();
@@ -127,9 +122,9 @@
         private System.Windows.Forms.TextBox logBox;
         private System.Windows.Forms.TextBox urlDisplay;
         private System.Windows.Forms.Label URLLabel;
-        private System.Windows.Forms.TextBox console;
         private System.Windows.Forms.ListBox playerList;
         private System.Windows.Forms.Label playerListLabel;
+        private ConsoleBox console;
     }
 }
 

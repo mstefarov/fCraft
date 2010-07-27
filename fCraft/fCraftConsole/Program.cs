@@ -33,36 +33,43 @@ namespace fCraftConsole {
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;
 
-            if( Server.Init() ) {
+            try {
+                if( Server.Init() ) {
 
-                UpdaterResult update = Updater.CheckForUpdates();
-                if( update.UpdateAvailable ) {
-                    Console.WriteLine( "** A new version of fCraft is available: v{0:0.000}, released {1:0} day(s) ago. **",
-                                       Decimal.Divide( update.NewVersionNumber, 1000 ),
-                                       DateTime.Now.Subtract( update.ReleaseDate ).TotalDays );
-                }
-
-                Process.GetCurrentProcess().PriorityClass = Config.GetBasePriority();
-
-                if( Server.Start() ) {
-                    Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
-                    Console.WriteLine( "** Running fCraft version " + Updater.GetVersionString() + ". **" );
-                                       
-                    string input = "";
-                    Console.WriteLine( "** Server is now ready. To shutdown, type /exit. URL is in externalurl.txt **" );
-                    while( (input = Console.ReadLine()) != "/exit" ) {
-                        Player.Console.ParseMessage( input, true );
+                    UpdaterResult update = Updater.CheckForUpdates();
+                    if( update.UpdateAvailable ) {
+                        Console.WriteLine( "** A new version of fCraft is available: v{0:0.000}, released {1:0} day(s) ago. **",
+                                           Decimal.Divide( update.NewVersionNumber, 1000 ),
+                                           DateTime.Now.Subtract( update.ReleaseDate ).TotalDays );
                     }
-                    Server.Shutdown();
+
+                    Process.GetCurrentProcess().PriorityClass = Config.GetBasePriority();
+
+                    if( Server.Start() ) {
+                        Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
+                        Console.WriteLine( "** Running fCraft version " + Updater.GetVersionString() + ". **" );
+
+                        string input = "";
+                        Console.WriteLine( "** Server is now ready. To shutdown, type /exit. URL is in externalurl.txt **" );
+                        while( (input = Console.ReadLine()) != "/exit" ) {
+                            Player.Console.ParseMessage( input, true );
+                        }
+                        Server.Shutdown();
+                    } else {
+                        Console.WriteLine( "** Failed to start the server **" );
+                        Server.Shutdown();
+                        Console.ReadLine();
+                    }
                 } else {
-                    Console.WriteLine( "** Failed to start the server **" );
+                    Console.WriteLine( "** Failed to initialize the server **" );
                     Server.Shutdown();
                     Console.ReadLine();
                 }
-            } else {
-                Console.WriteLine( "** Failed to initialize the server **" );
-                Server.Shutdown();
-                Console.ReadLine();
+            } catch( Exception ex ) {
+                System.IO.File.WriteAllText( "crash.log", ex.ToString() + Environment.NewLine + ex.StackTrace );
+                Console.WriteLine( "fCraft crashed! Crash message saved to crash.log." );
+                Console.Write( ex );
+                Console.Title = "fCraft crashed!";
             }
         }
 

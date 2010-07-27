@@ -31,7 +31,12 @@ namespace fCraftUI {
         static void Main( string[] args ) {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault( false );
-            Application.Run( new MainForm( args ) );
+            try {
+                Application.Run( new MainForm( args ) );
+            } catch( Exception ex ) {
+                MessageBox.Show( ex.ToString(), "fCraft crashed! Crash message saved to crash.log" + Environment.NewLine + ex );
+                System.IO.File.WriteAllText( "crash.log", ex.ToString() + Environment.NewLine + ex.StackTrace );
+            }
         }
     }
 }
