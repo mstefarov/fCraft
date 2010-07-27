@@ -25,67 +25,12 @@ namespace ConfigTool {
         int previewRotation = 0;
         Bitmap previewImage;
         bool floodBarrier = false;
-
         string originalWorldName = null;
-
         internal WorldListEntry world;
-
-        public AddWorldPopup( WorldListEntry _world )
-            : this() {
-            
-            if( _world == null ) {
-                Text = "Adding a New World";
-                world = new WorldListEntry();
-                int worldNameCounter = 1;
-                for( ; ConfigUI.IsWorldNameTaken( "NewWorld" + worldNameCounter ); worldNameCounter++ ) ;
-                world.name = "NewWorld" + worldNameCounter;
-                tName.Text = world.Name;
-                cAccess.SelectedIndex = 0;
-                cBuild.SelectedIndex = 0;
-                cBackup.SelectedIndex = 5;
-            } else {
-                Text = "Editing World \"" + _world.Name + "\"";
-                world = new WorldListEntry( _world );
-                originalWorldName = world.Name;
-                tName.Text = world.Name;
-                cAccess.SelectedItem = world.AccessPermission;
-                cBuild.SelectedItem = world.BuildPermission;
-                cBackup.SelectedItem = world.Backup;
-                xHidden.Checked = world.Hidden;
-            }
-
-            FileToLoad = world.Name + ".fcm";
-            if( File.Exists( FileToLoad ) ) {
-                rExisting.Enabled = true;
-                rExisting.Checked = true;
-                tStatus1.Text = "Loading " + new FileInfo( FileToLoad ).Name;
-                progressBar.Visible = true;
-                progressBar.Style = ProgressBarStyle.Marquee;
-
-                bwLoader.RunWorkerAsync();
-            } else {
-                rExisting.Enabled = false;
-                rLoad.Checked = true;
-            }
-
-            cTerrain.SelectedIndex = (int)MapGenType.River;
-            cTheme.SelectedIndex = (int)MapGenTheme.Forest;
-
-            // Fill in the "Copy existing world" combobox
-            foreach( WorldListEntry otherWorld in ConfigUI.worlds ) {
-                if( otherWorld != _world ) {
-                    cWorld.Items.Add( otherWorld.name + " (" + otherWorld.Description + ")" );
-                }
-            }
-            if( cWorld.Items.Count > 0 ) {
-                cWorld.SelectedIndex = 0;
-            } else {
-                rCopy.Enabled = false;
-            }
-        }
+        List<WorldListEntry> copyOptionsList = new List<WorldListEntry>();
 
 
-        public AddWorldPopup() {
+        public AddWorldPopup( WorldListEntry _world ) {
             InitializeComponent();
 
             cBackup.Items.AddRange( World.BackupEnum );
@@ -117,10 +62,70 @@ namespace ConfigTool {
 
             tStatus1.Text = "";
             tStatus2.Text = "";
+
+            if( _world == null ) {
+                Text = "Adding a New World";
+                world = new WorldListEntry();
+                int worldNameCounter = 1;
+                for( ; ConfigUI.IsWorldNameTaken( "NewWorld" + worldNameCounter ); worldNameCounter++ ) ;
+                world.name = "NewWorld" + worldNameCounter;
+                tName.Text = world.Name;
+                cAccess.SelectedIndex = 0;
+                cBuild.SelectedIndex = 0;
+                cBackup.SelectedIndex = 5;
+            } else {
+                Text = "Editing World \"" + _world.Name + "\"";
+                world = new WorldListEntry( _world );
+                originalWorldName = world.Name;
+                tName.Text = world.Name;
+                cAccess.SelectedItem = world.AccessPermission;
+                cBuild.SelectedItem = world.BuildPermission;
+                cBackup.SelectedItem = world.Backup;
+                xHidden.Checked = world.Hidden;
+            }
+
+            fileToLoad = world.Name + ".fcm";
+            if( File.Exists( fileToLoad ) ) {
+                rExisting.Enabled = true;
+                rExisting.Checked = true;
+            } else {
+                rExisting.Enabled = false;
+                rLoad.Checked = true;
+            }
+
+            cTerrain.SelectedIndex = (int)MapGenType.River;
+            cTheme.SelectedIndex = (int)MapGenTheme.Forest;
+
+            // Fill in the "Copy existing world" combobox
+            foreach( WorldListEntry otherWorld in ConfigUI.worlds ) {
+                if( otherWorld != _world ) {
+                    cWorld.Items.Add( otherWorld.name + " (" + otherWorld.Description + ")" );
+                    copyOptionsList.Add( otherWorld );
+                }
+            }
+
+            if( cWorld.Items.Count > 0 ) {
+                cWorld.SelectedIndex = 0;
+            } else {
+                rCopy.Enabled = false;
+            }
         }
 
 
         #region Loading/Saving
+
+        void StartLoadingMap( string _fileToLoad ) {
+            fileToLoad = _fileToLoad;
+            tStatus1.Text = "Loading " + new FileInfo( fileToLoad ).Name;
+            progressBar.Visible = true;
+            progressBar.Style = ProgressBarStyle.Marquee;
+            bwLoader.RunWorkerAsync();
+        }
+
+        private void rExisting_CheckedChanged( object sender, EventArgs e ) {
+            ToggleDimensions();
+            if( rExisting.Checked ) StartLoadingMap( world.name + ".fcm" );
+        }
 
         private void rLoad_CheckedChanged( object sender, EventArgs e ) {
             tFile.Enabled = rLoad.Checked;
@@ -136,18 +141,13 @@ namespace ConfigTool {
             tFile.Text = fileBrowser.FileName;
             tFile.SelectAll();
 
-            FileToLoad = tFile.Text;
-            tStatus1.Text = "Loading " + new FileInfo( FileToLoad ).Name;
-            progressBar.Visible = true;
-            progressBar.Style = ProgressBarStyle.Marquee;
-
-            bwLoader.RunWorkerAsync();
+            StartLoadingMap( fileBrowser.FileName );
         }
 
-        string FileToLoad;
+        string fileToLoad;
         void AsyncLoad( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
-            map = Map.Load( null, FileToLoad );
+            map = Map.Load( null, fileToLoad );
             map.CalculateShadows();
         }
 
@@ -163,6 +163,7 @@ namespace ConfigTool {
                 tStatus2.Text = ", drawing...";
                 Redraw();
             }
+            if( rCopy.Checked ) bShow.Enabled = true;
             gMap.Enabled = true;
         }
         #endregion Loading
@@ -347,15 +348,24 @@ namespace ConfigTool {
                     Refresh();
                     map.Save( world.Name + ".fcm" );
                     if( originalWorldName != null && originalWorldName != world.Name && File.Exists( originalWorldName + ".fcm" )
-                        && MessageBox.Show( "Map was saved to "+world.Name+".fcm"+Environment.NewLine+"Delete the old map file (" + originalWorldName + ".fcm)?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
+                        && MessageBox.Show( "Map was saved to " + world.Name + ".fcm" + Environment.NewLine + "Delete the old map file (" + originalWorldName + ".fcm)?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
                         File.Delete( originalWorldName + ".fcm" );
                     }
                 }
             }
         }
 
-        private void rExisting_CheckedChanged( object sender, EventArgs e ) {
-            ToggleDimensions();
+        private void bShow_Click( object sender, EventArgs e ) {
+            if( cWorld.SelectedIndex != -1 && File.Exists( copyOptionsList[cWorld.SelectedIndex].name + ".fcm" ) ) {
+                bShow.Enabled = false;
+                StartLoadingMap( copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
+            }
+        }
+
+        private void cWorld_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( cWorld.SelectedIndex != -1 ) {
+                bShow.Enabled = File.Exists( copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
+            }
         }
     }
 }
