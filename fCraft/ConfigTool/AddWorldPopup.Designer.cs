@@ -33,6 +33,7 @@
             this.nWidthY = new System.Windows.Forms.NumericUpDown();
             this.nHeight = new System.Windows.Forms.NumericUpDown();
             this.gMap = new System.Windows.Forms.GroupBox();
+            this.bShow = new System.Windows.Forms.Button();
             this.rExisting = new System.Windows.Forms.RadioButton();
             this.xFloodBarrier = new System.Windows.Forms.CheckBox();
             this.cTheme = new System.Windows.Forms.ComboBox();
@@ -216,6 +217,7 @@
             // 
             // gMap
             // 
+            this.gMap.Controls.Add( this.bShow );
             this.gMap.Controls.Add( this.rExisting );
             this.gMap.Controls.Add( this.xFloodBarrier );
             this.gMap.Controls.Add( this.cTheme );
@@ -243,6 +245,16 @@
             this.gMap.TabIndex = 5;
             this.gMap.TabStop = false;
             this.gMap.Text = "Map";
+            // 
+            // bShow
+            // 
+            this.bShow.Location = new System.Drawing.Point( 285, 123 );
+            this.bShow.Name = "bShow";
+            this.bShow.Size = new System.Drawing.Size( 74, 23 );
+            this.bShow.TabIndex = 23;
+            this.bShow.Text = "Show";
+            this.bShow.UseVisualStyleBackColor = true;
+            this.bShow.Click += new System.EventHandler( this.bShow_Click );
             // 
             // rExisting
             // 
@@ -322,8 +334,9 @@
             this.cWorld.FormattingEnabled = true;
             this.cWorld.Location = new System.Drawing.Point( 127, 124 );
             this.cWorld.Name = "cWorld";
-            this.cWorld.Size = new System.Drawing.Size( 232, 21 );
+            this.cWorld.Size = new System.Drawing.Size( 152, 21 );
             this.cWorld.TabIndex = 7;
+            this.cWorld.SelectedIndexChanged += new System.EventHandler( this.cWorld_SelectedIndexChanged );
             // 
             // tFile
             // 
@@ -331,15 +344,15 @@
             this.tFile.Location = new System.Drawing.Point( 100, 96 );
             this.tFile.Name = "tFile";
             this.tFile.ReadOnly = true;
-            this.tFile.Size = new System.Drawing.Size( 178, 20 );
+            this.tFile.Size = new System.Drawing.Size( 179, 20 );
             this.tFile.TabIndex = 4;
             // 
             // bBrowse
             // 
             this.bBrowse.Enabled = false;
-            this.bBrowse.Location = new System.Drawing.Point( 284, 94 );
+            this.bBrowse.Location = new System.Drawing.Point( 285, 94 );
             this.bBrowse.Name = "bBrowse";
-            this.bBrowse.Size = new System.Drawing.Size( 75, 23 );
+            this.bBrowse.Size = new System.Drawing.Size( 74, 23 );
             this.bBrowse.TabIndex = 5;
             this.bBrowse.Text = "Browse";
             this.bBrowse.UseVisualStyleBackColor = true;
@@ -666,5 +679,6 @@
         private System.Windows.Forms.ToolStripStatusLabel tStatus2;
         private System.Windows.Forms.TableLayoutPanel previewLayout;
         private System.Windows.Forms.RadioButton rExisting;
+        private System.Windows.Forms.Button bShow;
     }
 }

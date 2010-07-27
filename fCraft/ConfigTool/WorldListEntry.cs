@@ -9,7 +9,7 @@ namespace ConfigTool {
     class WorldListEntry {
         public const string DefaultClassOption = "(everyone)";
         Map cachedMapHeader = null;
-        bool loadingFailed = false;
+        internal bool loadingFailed = false;
 
         public WorldListEntry() { }
 
