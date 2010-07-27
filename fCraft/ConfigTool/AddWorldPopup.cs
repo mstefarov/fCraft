@@ -16,8 +16,7 @@ namespace ConfigTool {
     partial class AddWorldPopup : Form {
         BackgroundWorker bwLoader = new BackgroundWorker(),
                          bwGenerator = new BackgroundWorker(),
-                         bwRenderer = new BackgroundWorker(),
-                         bwFlatgrassGen = new BackgroundWorker();
+                         bwRenderer = new BackgroundWorker();
         object redrawLock = new object();
         Map map;
         MapGenType genType;
@@ -78,7 +77,11 @@ namespace ConfigTool {
                     cWorld.Items.Add( otherWorld.name + " (" + otherWorld.Description + ")" );
                 }
             }
-            cWorld.SelectedIndex = 0;
+            if( cWorld.Items.Count > 0 ) {
+                cWorld.SelectedIndex = 0;
+            } else {
+                rCopy.Enabled = false;
+            }
         }
 
 
@@ -100,9 +103,6 @@ namespace ConfigTool {
             bwRenderer.DoWork += AsyncDraw;
             bwRenderer.ProgressChanged += AsyncDrawProgress;
             bwRenderer.RunWorkerCompleted += AsyncDrawCompleted;
-
-            bwFlatgrassGen.DoWork += AsyncFlatgrassGen;
-            bwFlatgrassGen.RunWorkerCompleted += AsyncFlatgrassGenCompleted;
 
             nWidthX.Validating += MapDimensionValidating;
             nWidthY.Validating += MapDimensionValidating;
@@ -229,12 +229,13 @@ namespace ConfigTool {
 
         #region Generation
 
+        MapGenerator generator;
+
         private void rTerrain_CheckedChanged( object sender, EventArgs e ) {
             lTerrain.Enabled = rTerrain.Checked;
             cTerrain.Enabled = rTerrain.Checked;
             lTheme.Enabled = rTerrain.Checked;
             cTheme.Enabled = rTerrain.Checked;
-            bGenerate.Enabled = rTerrain.Checked;
         }
 
         private void bGenerate_Click( object sender, EventArgs e ) {
@@ -250,79 +251,26 @@ namespace ConfigTool {
             bwGenerator.RunWorkerAsync();
         }
 
-        MapGenerator generator;
-
-        // terrain
         void AsyncGen( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
             map = null;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
             map = new Map( null, Convert.ToInt32( nWidthX.Value ), Convert.ToInt32( nWidthY.Value ), Convert.ToInt32( nHeight.Value ) );
-            generator = new MapGenerator( map, null, null, genType, genTheme );
-            generator.Generate();
+
+            if( rTerrain.Checked ) {
+                generator = new MapGenerator( map, null, null, genType, genTheme );
+                generator.Generate();
+                generator = null;
+            } else if( rFlatgrass.Checked ) {
+                MapGenerator.GenerateFlatgrass( map );
+            }
+
             if( floodBarrier ) map.MakeFloodBarrier();
             map.CalculateShadows();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
         }
 
         void AsyncGenCompleted( object sender, RunWorkerCompletedEventArgs e ) {
-            stopwatch.Stop();
-            if( map == null ) {
-                tStatus1.Text = "Generation failed!";
-            } else {
-                tStatus1.Text = "Generation succesful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
-                tStatus2.Text = ", drawing...";
-                Redraw();
-            }
-            gMap.Enabled = true;
-        }
-
-
-        // empty (done without BackgroundWorker, it's fast enough)
-        private void rEmpty_CheckedChanged( object sender, EventArgs e ) {
-            if( rEmpty.Checked ) {
-                tStatus1.Text = "Generating...";
-                progressBar.Visible = true;
-                progressBar.Style = ProgressBarStyle.Marquee;
-                Refresh();
-                map = null;
-                GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-                map = new Map( null, Convert.ToInt32( nWidthX.Value ), Convert.ToInt32( nWidthY.Value ), Convert.ToInt32( nHeight.Value ) );
-                map.MakeFloodBarrier();
-                map.shadows = new short[map.widthX, map.widthY]; // skip shadow calculations, there is no overlap
-                Redraw();
-                GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-                tStatus1.Text = "";
-            }
-        }
-
-
-        // flatgrass
-        private void rFlatgrass_CheckedChanged( object sender, EventArgs e ) {
-            if( rFlatgrass.Checked ) {
-                gMap.Enabled = false;
-
-                tStatus1.Text = "Generating...";
-                progressBar.Visible = true;
-                progressBar.Style = ProgressBarStyle.Marquee;
-
-                Refresh();
-                bwFlatgrassGen.RunWorkerAsync();
-            }
-        }
-
-        void AsyncFlatgrassGen( object sender, DoWorkEventArgs e ) {
-            stopwatch = Stopwatch.StartNew();
-            map = null;
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-            map = new Map( null, Convert.ToInt32( nWidthX.Value ), Convert.ToInt32( nWidthY.Value ), Convert.ToInt32( nHeight.Value ) );
-            MapGenerator.GenerateFlatgrass( map );
-            if( floodBarrier ) map.MakeFloodBarrier();
-            map.CalculateShadows();
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-        }
-
-        void AsyncFlatgrassGenCompleted( object sender, RunWorkerCompletedEventArgs e ) {
             stopwatch.Stop();
             if( map == null ) {
                 tStatus1.Text = "Generation failed!";
@@ -344,6 +292,7 @@ namespace ConfigTool {
             nWidthX.Enabled = isMapGenerated;
             nWidthY.Enabled = isMapGenerated;
             nHeight.Enabled = isMapGenerated;
+            bGenerate.Enabled = isMapGenerated;
         }
 
         private void rCopy_CheckedChanged( object sender, EventArgs e ) {
