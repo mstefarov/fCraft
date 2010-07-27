@@ -1,5 +1,48 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-06-28
+420
+ Feature: New "Worlds" tab in ConfigTool for managing your world list
+ Feature: Isometric map previews and map generation in ConfigTool
+ Feature: Implemented a class-ID system that allows adding/renaming/deleting classes without breaking compatibility. DeleteClassPopup was added for this
+ Feature: Added LimitOneConnectionPerIP option to config & configtool
+ Feature: Worlds can now be hidden from the /worlds list
+ Feature: Added /whois command for checking if a player is using real name or nickname. BE CAREFUL WITH "ChangeName" PERMISSION!
+ Feature: fCraft now generates crash.txt on unhandled fatal errors
+ Feature: Implemented theme support, and added 2 new terrain types (Coast and River) for MapGenerator. See "/help gen" for details, or use ConfigTool.
+ Feature: Pressing Up/Down keys in fCraftUI will show previously typed commands.
+ Fix: Fixed a bug in /wmain and /wload that sometimes made the server unconnectable after changing map
+ Fix: Limits on the /kick command now apply correctly
+ Fix: Fixed /wbuild and /waccess showing wrong messages
+ Fix: Fixed hidden players unable to build due to grief protection
+ Fix: Added /nick and /whois entries to /help
+ Fix: Removed the ability to call draw commands from console (caused crash)
+ Fix: Fixed /lava checking PlaceWater permission instead of PlaceLava
+ Fix: A debug message about "attempting to unregister an non-existent player" is no longer logged every time VerifyNames fails
+ Fix: When using /where command on other players, correct coordinates are now shown]
+ Fix: Player's classes are now updated in fCraftUI list when promoted/demoted
+ Fix: PMs are now logged as LogType.PrivateChat (instead of generic LogType.WorldChat)
+ Fix: /hide and /unhide now use Color.Sys instead of hardcoded Color.Yellow
+ Fix: Player's nicknames (as set by /nick) are applied correctly and preserved when changing worlds
+ Fix: Added missing checks for "Chat" permissions
+ Fix: Color buttons in ConfigTool now show correct background color under Mono
+ Fix: Fixed help entry to /freeze showing incorrect information
+ Fix: Corrected tab order in all ConfigTool forms
+ Change: Added /blb as another alias for /cuboid
+ Change: Removed ReservedSlotBehavior config key
+ Change: Disabled word wrapping in rules.txt editor popup
+ Change: /unhide now resets the player's nick
+ Change: Both player's real name and nickname (if any) are now recorded in the log
+ Change: Added a warning to /info when looking up nicknames (instead of real names)
+ Change: Heartbeat salt generation (used to verify names) is now more secure
+ Change: Removed CanPlaceHardenedBlocks from permission list
+ Change: All map generator terrain types have been tweaked for improved appearence
+ Change: Centered all ConfigTool popup windows (AddWorldPopup, ColorPicker, DeleteClassPopup, TextEditorPopup)
+ Change: Hid unneeded icons and buttons from ConfigTool popups
+ Change: Changed the way zones store rank restriction (as part of the compatibility assurance), and added versioning to zone definitions
+ Change: Map.Save() now creates temporary files in the OS-specific temporary folder, not in same folder where fCraft is installed
+ Change: World permissions are now updated automatically when a class is deleted
+ Refactor: Improved consistency in code naming conventions, especially in IRC code
+ Refactor: Improved code organization in many areas
 410
  Implemented per-world access and build permissions.
  Changed worlds.txt format to worlds.xml. Your old worlds.txt file will be converted automatically.

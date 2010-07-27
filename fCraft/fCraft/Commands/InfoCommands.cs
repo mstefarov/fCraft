@@ -164,14 +164,12 @@ namespace fCraft {
                     player.Message( "     player, call " + Color.Help + "/unfreeze PlayerName" );
                     break;
                 case "gen":
-                    player.Message( Color.Help, "/gen widthX widthY height theme filename" );
-                    player.Message( "     Generates a map. Currently these theme are implemented:" );
-                    player.Message( "     empty, flatgrass, mountains, hills, lake, island" );
-                    break;
-                case "genh":
-                    player.Message( Color.Help, "/genh widthX widthY height type filename" );
-                    player.Message( "     Same as " + Color.Help + "/gen" + Color.Help + ", except only" );
-                    player.Message( "     the top 1-thick layer of the terrain is generated." );
+                    player.Message( Color.Help, "/gen widthX widthY height theme terrain filename" );
+                    player.Message( "     Generates a map file. Available themes:" );
+                    player.Message( "     " + String.Join( ",", Enum.GetNames( typeof( MapGenTheme ) ) ) );
+                    player.Message( "     Available terrain types:" );
+                    player.Message( "     Empty,Flatgrass," + String.Join( ",", Enum.GetNames( typeof( MapGenType ) ) ) );
+                    player.Message( "     NOTE: Map is saved TO FILE ONLY, use /wload to load it." );
                     break;
                 case "grass":
                     player.Message( Color.Help, "/grass" );

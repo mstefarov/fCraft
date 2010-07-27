@@ -115,6 +115,8 @@ namespace ConfigTool {
         #region Loading/Saving
 
         void StartLoadingMap( string _fileToLoad ) {
+            gMap.Enabled = false;
+            bOK.Enabled = false;
             fileToLoad = _fileToLoad;
             tStatus1.Text = "Loading " + new FileInfo( fileToLoad ).Name;
             progressBar.Visible = true;
@@ -161,10 +163,11 @@ namespace ConfigTool {
                 nWidthY.Value = map.widthY;
                 nHeight.Value = map.height;
                 tStatus2.Text = ", drawing...";
-                Redraw();
+                Redraw(true);
             }
             if( rCopy.Checked ) bShow.Enabled = true;
             gMap.Enabled = true;
+            bOK.Enabled = true;
         }
         #endregion Loading
 
@@ -172,7 +175,7 @@ namespace ConfigTool {
 
         IsoCat renderer;
 
-        void Redraw() {
+        void Redraw( bool drawAgain ) {
             lock( redrawLock ) {
                 progressBar.Visible = true;
                 progressBar.Style = ProgressBarStyle.Continuous;
@@ -183,7 +186,7 @@ namespace ConfigTool {
                         Application.DoEvents();
                     }
                 }
-                bwRenderer.RunWorkerAsync();
+                if(drawAgain) bwRenderer.RunWorkerAsync();
             }
         }
 
@@ -215,7 +218,7 @@ namespace ConfigTool {
             if( previewRotation == 0 ) previewRotation = 3;
             else previewRotation--;
             tStatus2.Text = ", redrawing...";
-            Redraw();
+            Redraw(true);
         }
 
         private void bPreviewNext_Click( object sender, EventArgs e ) {
@@ -223,7 +226,7 @@ namespace ConfigTool {
             if( previewRotation == 3 ) previewRotation = 0;
             else previewRotation++;
             tStatus2.Text = ", redrawing...";
-            Redraw();
+            Redraw(true);
         }
 
         #endregion
@@ -241,6 +244,7 @@ namespace ConfigTool {
 
         private void bGenerate_Click( object sender, EventArgs e ) {
             gMap.Enabled = false;
+            bOK.Enabled = false;
 
             tStatus1.Text = "Generating...";
             progressBar.Visible = true;
@@ -278,9 +282,10 @@ namespace ConfigTool {
             } else {
                 tStatus1.Text = "Generation succesful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
                 tStatus2.Text = ", drawing...";
-                Redraw();
+                Redraw(true);
             }
             gMap.Enabled = true;
+            bOK.Enabled = true;
         }
 
         #endregion
@@ -335,6 +340,7 @@ namespace ConfigTool {
         #endregion
 
         private void AddWorldPopup_FormClosing( object sender, FormClosingEventArgs e ) {
+            Redraw( false );
             if( DialogResult == DialogResult.OK ) {
                 if( map == null ) {
                     e.Cancel = true;

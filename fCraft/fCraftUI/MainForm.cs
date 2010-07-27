@@ -20,9 +20,10 @@ namespace fCraftUI {
             InitializeComponent();
             Shown += StartUp;
             FormClosing += HandleShutDown;
+            console.OnCommand += console_Enter;
         }
 
-        
+
         void StartUp( object sender, EventArgs a ) {
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;
@@ -63,7 +64,7 @@ namespace fCraftUI {
             Process.GetCurrentProcess().PriorityClass = Config.GetBasePriority();
             if( Server.Start() ) {
                 console.Enabled = true;
-            }else{
+            } else {
                 Logger.Log( "---- Could Not Start The Server ----", LogType.FatalError );
             }
         }
@@ -83,7 +84,7 @@ namespace fCraftUI {
                 LogDelegate d = new LogDelegate( LogInternal );
                 try {
                     Invoke( d, new object[] { message } );
-                }catch{};
+                } catch { };
             } else {
                 LogInternal( message );
             }
@@ -94,7 +95,7 @@ namespace fCraftUI {
             if( logBox.Lines.Length > 1000 ) {
                 logBox.Text = "----- cut off, see fCraft.log for complete log -----" +
                     Environment.NewLine +
-                    logBox.Text.Substring( logBox.GetFirstCharIndexFromLine(50) );
+                    logBox.Text.Substring( logBox.GetFirstCharIndexFromLine( 50 ) );
             }
             logBox.SelectionStart = logBox.Text.Length;
             logBox.ScrollToCaret();
@@ -113,7 +114,7 @@ namespace fCraftUI {
         void SetURLInternal( string URL ) {
             urlDisplay.Text = URL;
             urlDisplay.Enabled = true;
-            urlDisplay.SelectAll();
+            urlDisplay.Select();
         }
 
 
@@ -135,24 +136,22 @@ namespace fCraftUI {
         }
 
 
-        private void console_Enter( object sender, PreviewKeyDownEventArgs e ) {
-            if( e.KeyValue == (char)13 ) {
-                string[] separator = { Environment.NewLine };
-                string[] lines = console.Text.Trim().Split( separator, StringSplitOptions.RemoveEmptyEntries );
-                foreach( string line in lines ) {
+        private void console_Enter() {
+            string[] separator = { Environment.NewLine };
+            string[] lines = console.Text.Trim().Split( separator, StringSplitOptions.RemoveEmptyEntries );
+            foreach( string line in lines ) {
 #if DEBUG
                     Player.Console.ParseMessage( line, true );
 #else
-                    try {
-                        Player.Console.ParseMessage( line, true );
-                    } catch( Exception ex ) {
-                        Logger.LogConsole( "Error occured while trying to execute last console command: " );
-                        Logger.LogConsole( ex.ToString() + ": " + ex.Message );
-                    }
-#endif
+                try {
+                    Player.Console.ParseMessage( line, true );
+                } catch( Exception ex ) {
+                    Logger.LogConsole( "Error occured while trying to execute last console command: " );
+                    Logger.LogConsole( ex.ToString() + ": " + ex.Message );
                 }
-                console.Text = "";
+#endif
             }
+            console.Text = "";
         }
     }
 }
