@@ -111,7 +111,6 @@
             this.rEmpty.TabIndex = 8;
             this.rEmpty.Text = "Empty map";
             this.rEmpty.UseVisualStyleBackColor = true;
-            this.rEmpty.CheckedChanged += new System.EventHandler( this.rEmpty_CheckedChanged );
             // 
             // rFlatgrass
             // 
@@ -122,7 +121,6 @@
             this.rFlatgrass.TabIndex = 9;
             this.rFlatgrass.Text = "Generate flatgrass";
             this.rFlatgrass.UseVisualStyleBackColor = true;
-            this.rFlatgrass.CheckedChanged += new System.EventHandler( this.rFlatgrass_CheckedChanged );
             // 
             // rTerrain
             // 
@@ -309,9 +307,9 @@
             // bGenerate
             // 
             this.bGenerate.Enabled = false;
-            this.bGenerate.Location = new System.Drawing.Point( 84, 259 );
+            this.bGenerate.Location = new System.Drawing.Point( 186, 168 );
             this.bGenerate.Name = "bGenerate";
-            this.bGenerate.Size = new System.Drawing.Size( 75, 23 );
+            this.bGenerate.Size = new System.Drawing.Size( 92, 43 );
             this.bGenerate.TabIndex = 13;
             this.bGenerate.Text = "Generate";
             this.bGenerate.UseVisualStyleBackColor = true;
@@ -322,11 +320,9 @@
             this.cWorld.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cWorld.Enabled = false;
             this.cWorld.FormattingEnabled = true;
-            this.cWorld.Items.AddRange( new object[] {
-            "main (64x64x64)"} );
             this.cWorld.Location = new System.Drawing.Point( 127, 124 );
             this.cWorld.Name = "cWorld";
-            this.cWorld.Size = new System.Drawing.Size( 132, 21 );
+            this.cWorld.Size = new System.Drawing.Size( 232, 21 );
             this.cWorld.TabIndex = 7;
             // 
             // tFile
