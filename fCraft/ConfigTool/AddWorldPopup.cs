@@ -210,6 +210,7 @@ namespace ConfigTool {
         }
 
         private void bPreviewPrev_Click( object sender, EventArgs e ) {
+            if( map == null ) return;
             if( previewRotation == 0 ) previewRotation = 3;
             else previewRotation--;
             tStatus2.Text = ", redrawing...";
@@ -217,6 +218,7 @@ namespace ConfigTool {
         }
 
         private void bPreviewNext_Click( object sender, EventArgs e ) {
+            if( map == null ) return;
             if( previewRotation == 3 ) previewRotation = 0;
             else previewRotation++;
             tStatus2.Text = ", redrawing...";

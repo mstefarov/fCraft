@@ -99,24 +99,28 @@ namespace fCraft {
         Bitmap imageBmp;
         BitmapData imageData;
 
-        int dim, dim2, dim1;
-
+        int dimX, dimY, dimX1, dimY1, dimX2, dimY2;
+        int offsetX, offsetY;
         int isoOffset, isoX, isoY, isoH;
 
         int imageStride;
-
 
         public IsoCat( Map _map, IsoCatMode _mode, int _rot ) {
             rot = _rot;
             mode = _mode;
             map = _map;
 
-            dim = Math.Max( map.widthX, map.widthY );
-            dim2 = dim / 2 - 1;
-            dim1 = dim - 1;
+            dimX = map.widthX;
+            dimY = map.widthY;
+            offsetY = Math.Max( 0, map.widthX - map.widthY );
+            offsetX = Math.Max( 0, map.widthY - map.widthX );
+            dimX2 = dimX / 2 - 1;
+            dimY2 = dimY / 2 - 1;
+            dimX1 = dimX - 1;
+            dimY1 = dimY - 1;
 
-            imageWidth = tileX * dim + tileY / 2 * map.height + tileX * 2;
-            imageHeight = tileY / 2 * map.height + maxTileDim / 2 * Math.Max( dim, map.height ) + tileY * 2;
+            imageWidth = tileX * Math.Max( dimX, dimY ) + tileY / 2 * map.height + tileX * 2;
+            imageHeight = tileY / 2 * map.height + maxTileDim / 2 * Math.Max( Math.Max( dimX, dimY ), map.height ) + tileY * 2;
 
             imageBmp = new Bitmap( imageWidth, imageHeight, PixelFormat.Format32bppArgb );
             imageData = imageBmp.LockBits( new Rectangle( 0, 0, imageBmp.Width, imageBmp.Height ),
@@ -148,14 +152,14 @@ namespace fCraft {
 
                                     switch( rot ) {
                                         case 0: ctp = (h >= map.shadows[x, y] ? tp : stp); break;
-                                        case 1: ctp = (h >= map.shadows[dim1 - y, x] ? tp : stp); break;
-                                        case 2: ctp = (h >= map.shadows[dim1 - x, dim1 - y] ? tp : stp); break;
-                                        case 3: ctp = (h >= map.shadows[y, dim1 - x] ? tp : stp); break;
+                                        case 1: ctp = (h >= map.shadows[dimX1 - y, x] ? tp : stp); break;
+                                        case 2: ctp = (h >= map.shadows[dimX1 - x, dimY1 - y] ? tp : stp); break;
+                                        case 3: ctp = (h >= map.shadows[y, dimY1 - x] ? tp : stp); break;
                                     }
 
-                                    if( x != dim1 ) blockRight = GetBlock( x + 1, y, h );
+                                    if( x != (rot==1||rot==3?dimY1:dimX1) ) blockRight = GetBlock( x + 1, y, h );
                                     else blockRight = 0;
-                                    if( y != dim1 ) blockLeft = GetBlock( x, y + 1, h );
+                                    if( y != (rot == 1 || rot == 3 ? dimX1 : dimY1) ) blockLeft = GetBlock( x, y + 1, h );
                                     else blockLeft = 0;
                                     if( h != map.height - 1 ) blockUp = GetBlock( x, y, h + 1 );
                                     else blockUp = 0;
@@ -179,11 +183,11 @@ namespace fCraft {
                                 }
 
                                 x++;
-                                if( x == dim ) {
+                                if( x == (rot == 1 || rot == 3 ? dimY : dimX) ) {
                                     y++;
                                     x = 0;
                                 }
-                                if( y == dim ) {
+                                if( y == (rot == 1 || rot == 3 ? dimX : dimY) ) {
                                     h++;
                                     y = 0;
                                     if( h % 4 == 0 ) {
@@ -270,7 +274,7 @@ namespace fCraft {
 
 
         unsafe void BlendTile() {
-            int pos = x * isoX + y * isoY + h * isoH + isoOffset;
+            int pos = (x + (rot == 1 || rot == 3 ? offsetY : offsetX)) * isoX + (y + (rot == 1 || rot == 3 ? offsetX : offsetY)) * isoY + h * isoH + isoOffset;
             if( block > 49 ) return;
             int tileOffset = block * tileStride;
             BlendPixel( pos, tileOffset );
@@ -324,22 +328,26 @@ namespace fCraft {
             int pos;
             switch( rot ) {
                 case 0:
-                    pos = (hh * dim + yy) * dim + xx; break;
+                    pos = (hh * dimY + yy) * dimX + xx;
+                    break;
                 case 1:
-                    pos = (hh * dim + xx) * dim + (dim1 - yy); break;
+                    pos = (hh * dimY + xx) * dimX + (dimX1 - yy);
+                    break;
                 case 2:
-                    pos = (hh * dim + (dim1 - yy)) * dim + (dim1 - xx); break;
+                    pos = (hh * dimY + (dimY1 - yy)) * dimX + (dimX1 - xx);
+                    break;
                 default:
-                    pos = (hh * dim + (dim1 - xx)) * dim + yy; break;
+                    pos = (hh * dimY + (dimY1 - xx)) * dimX + yy;
+                    break;
             }
 
             if( mode == IsoCatMode.Normal ) {
                 return bp[pos];
 
             } else if( bp[pos] != 0 ) {
-                if( mode == IsoCatMode.Peeled && (xx == dim1 || yy == dim1 || hh == map.height - 1) ) {
+                if( mode == IsoCatMode.Peeled && (xx == (rot == 1 || rot == 3 ? dimY1 : dimX1) || yy == (rot == 1 || rot == 3 ? dimX1 : dimY1) || hh == map.height - 1) ) {
                     return 0;
-                } else if( mode == IsoCatMode.Cut && xx > dim2 && yy > dim2 ) {
+                } else if( mode == IsoCatMode.Cut && xx > (rot == 1 || rot == 3 ? dimY2 : dimX2) && yy > (rot == 1 || rot == 3 ? dimX2 : dimY2) ) {
                     return 0;
                 } else {
                     return bp[pos];
