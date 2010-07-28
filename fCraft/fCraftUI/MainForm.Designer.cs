@@ -93,6 +93,8 @@
             // 
             // console
             // 
+            this.console.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.console.Location = new System.Drawing.Point( 13, 448 );
             this.console.Name = "console";
             this.console.Size = new System.Drawing.Size( 767, 20 );

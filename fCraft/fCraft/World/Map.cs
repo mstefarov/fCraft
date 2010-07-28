@@ -15,7 +15,7 @@ namespace fCraft {
         public int widthX, widthY, height;
         public Position spawn;
         public Dictionary<string, string> meta = new Dictionary<string, string>();
-        Queue<BlockUpdate> updates = new Queue<BlockUpdate>();
+        ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
         object queueLock = new object(), metaLock = new object(), zoneLock = new object();
         public int changesSinceSave, changesSinceBackup;
         public short[,] shadows;
@@ -504,21 +504,18 @@ namespace fCraft {
 
 
         internal void ClearUpdateQueue() {
-            lock( queueLock ) {
-                updates.Clear();
-            }
+            BlockUpdate temp = new BlockUpdate();
+            while( updates.Dequeue( ref temp ) ) ;
         }
 
 
         public void ProcessUpdates() {
             int packetsSent = 0;
             int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate( world );
-            BlockUpdate update;
-            while( updates.Count > 0 && packetsSent < maxPacketsPerUpdate ) {
+            BlockUpdate update = new BlockUpdate();
+            while( packetsSent < maxPacketsPerUpdate ) {
                 if( world.isLocked ) return;
-                lock( queueLock ) {
-                    update = updates.Dequeue();
-                }
+                if( !updates.Dequeue( ref update ) ) break;
                 changesSinceSave++;
                 SetBlock( update.x, update.y, update.h, update.type );
                 world.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin );
@@ -528,26 +525,9 @@ namespace fCraft {
                 packetsSent++;
             }
 
-            if( updates.Count == 0 && world.isReadyForUnload ) {
+            if( packetsSent == 0 && world.isReadyForUnload ) {
                 world.UnloadMap();
             }
-
-            /*if( world.loadSendingInProgress ) { //TODO: streamload
-                if( packetsSent < maxPacketsPerUpdate ) {
-                    GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-                    GC.WaitForPendingFinalizers();
-                    world.SendToAll( PacketWriter.MakeMessage( Color.Red+"Map load complete." ), null );
-                    Logger.Log( "Load command finished succesfully.", LogType.SystemActivity );
-                    world.loadSendingInProgress = false;
-                    //world.EndLockDown();
-                } else {
-                    if( !world.loadProgressReported && world.completedBlockUpdates / (float)world.totalBlockUpdates > 0.5f ) {
-                        world.SendToAll( PacketWriter.MakeMessage( Color.Red + "Map loading: 50%" ), null );
-                        world.loadProgressReported = true;
-                    }
-                    world.completedBlockUpdates += packetsSent;
-                }
-            }*/
         }
 
 
@@ -572,10 +552,6 @@ namespace fCraft {
                 }
             }
             return totalBlockUpdates;
-        }
-
-        internal int GetQueueLength() {
-            return updates.Count;
         }
         #endregion
 

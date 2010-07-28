@@ -20,8 +20,6 @@ namespace fCraft {
 
             Commands.AddCommand( "version", GetVersion, true );
             Commands.AddCommand( "players", Players, true );
-
-            Commands.AddCommand( "dq", DebugQueues, true );
         }
 
 
@@ -47,14 +45,6 @@ namespace fCraft {
             }
         }
 
-
-        internal static void DebugQueues( Player player, Command cmd ) {
-            lock( Server.worldListLock ) {
-                foreach( World world in Server.worlds.Values ) {
-                    player.Message( ">> " + world.name + ": " + Server.CalculateMaxPacketsPerUpdate( world ) + " rate, " + (world.map != null ? world.map.GetQueueLength() + " in queue." : "UNLOADED") );
-                }
-            }
-        }
 
         internal static void GetVersion( Player player, Command cmd ) {
             player.Message( "fCraft custom server " + Updater.GetVersionString() );
