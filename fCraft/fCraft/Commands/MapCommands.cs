@@ -322,6 +322,9 @@ namespace fCraft {
                 } else {
                     oldName = oldWorld.name;
                     Server.RenameWorld( oldName, newName );
+                    if( File.Exists( newName + ".fcm" ) ) {
+                        File.Delete( newName + ".fcm" );
+                    }
                     File.Move( oldName + ".fcm", newName + ".fcm" );
                     Server.SaveWorldList();
                     Server.SendToAll( Color.Sys + player.nick + " renamed the world \"" + oldName + "\" to \"" + newName + "\"." );

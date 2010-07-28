@@ -310,7 +310,7 @@ namespace fCraft {
         public static void GenerateFlatgrass( Map map ) {
             for( int i = 0; i < map.widthX; i++ ) {
                 for( int j = 0; j < map.widthY; j++ ) {
-                    for( int k = 1; k < map.height / 2 - 1; k++ ) {
+                    for( int k = 0; k < map.height / 2 - 1; k++ ) {
                         if( k < map.height / 2 - 5 ) {
                             map.SetBlock( i, j, k, Block.Stone );
                         } else {

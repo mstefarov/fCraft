@@ -95,6 +95,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Utils\ConcurrentQueue.cs" />
     <Compile Include="Utils\ConfigKey.cs" />
     <Compile Include="Utils\IsoCat.cs" />
     <Compile Include="Utils\Updater.cs" />
