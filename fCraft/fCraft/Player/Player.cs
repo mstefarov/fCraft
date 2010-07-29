@@ -345,13 +345,16 @@ namespace fCraft {
 
 
         // Checks permissions
-        public bool Can( Permissions permission ) {
+        public bool Can( params Permissions[] permissions ) {
             if( world == null ) return true;
-            if( (permission == Permissions.Build || permission == Permissions.Delete || permission == Permissions.Draw) && world.classBuild.rank > info.playerClass.rank ) {
-                return false;
-            } else {
-                return info.playerClass.Can( permission );
+            foreach( Permissions permission in permissions ) {
+                if( (permission == Permissions.Build || permission == Permissions.Delete || permission == Permissions.Draw) && world.classBuild.rank > info.playerClass.rank ) {
+                    return false;
+                } else if(!info.playerClass.Can( permission )){
+                    return false;
+                }
             }
+            return true;
         }
 
 
@@ -425,9 +428,16 @@ namespace fCraft {
         }
 
 
-        internal void NoAccessMessage( Permissions permission ) {
+        internal void NoAccessMessage( params Permissions[] permissions ) {
             Message( Color.Red, "You do not have access to this command." );
-            Message( Color.Red, "You need " + permission.ToString() + " permission." );
+            if( permissions.Length == 1 ) {
+                Message( Color.Red, "You need " + permissions[0].ToString() + " permission." );
+            } else {
+                Message( Color.Red, "You need the following permissions:" );
+                foreach( Permissions permission in permissions ) {
+                    Message( Color.Red, permission.ToString() );
+                }
+            }
         }
 
         internal void ResetIdleTimer() {

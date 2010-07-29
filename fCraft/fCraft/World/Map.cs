@@ -44,7 +44,7 @@ namespace fCraft {
         public bool Save( string fileName ) {
             string tempFileName = Path.GetTempFileName();
 
-            using( FileStream fs = File.Create( tempFileName ) ) {
+            using( FileStream fs = File.OpenWrite( tempFileName ) ) {
                 try {
                     WriteHeader( fs );
                     WriteMetadata( new BinaryWriter( fs ) );
@@ -53,27 +53,19 @@ namespace fCraft {
                 } catch( IOException ex ) {
                     Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
                                    tempFileName, ex.Message );
-                    if( File.Exists( tempFileName ) ) {
-                        File.Delete( tempFileName );
-                    }
+                    try { File.Delete( tempFileName ); } catch { }
                     return false;
                 }
             }
 
             try {
-                if( File.Exists( fileName ) ) {
-                    File.Delete( fileName );
-                }
+                File.Delete( fileName );
                 File.Move( tempFileName, fileName );
                 changesSinceBackup++;
                 Logger.Log( "Saved map succesfully to {0}", LogType.SystemActivity, fileName );
             } catch( Exception ex ) {
                 Logger.Log( "Error trying to replace " + fileName + ": " + ex.ToString() + ": " + ex.Message, LogType.Error );
-                try {
-                    if( File.Exists( tempFileName ) ) {
-                        File.Delete( tempFileName );
-                    }
-                } catch( Exception ) { }
+                try { File.Delete( tempFileName ); } catch { }
                 return false;
             }
             return true;

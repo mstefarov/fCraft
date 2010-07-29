@@ -15,7 +15,7 @@ namespace fCraft {
     public delegate void PlayerChangedBlockEventHandler( World world, ref BlockUpdate update, ref bool cancel );
     public delegate void PlayerSentMessageEventHandler( Player player, World world, ref string message, ref bool cancel );
 
-    public delegate void PlayerChangedClassEventHandler( Player target, Player player, PlayerClass oldClass, PlayerClass newClass, ref bool cancel );
+    public delegate void PlayerChangedClassEventHandler( PlayerInfo target, Player player, PlayerClass oldClass, PlayerClass newClass, ref bool cancel );
 
     public delegate void SimpleEventHandler();
     public delegate void PlayerListChangedHandler( string[] newPlayerList );

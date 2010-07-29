@@ -14,6 +14,7 @@ namespace fCraft {
             InfoCommands.Init();
             StandardCommands.Init();
             DrawCommands.Init();
+            ImportCommands.Init();
         }
 
 

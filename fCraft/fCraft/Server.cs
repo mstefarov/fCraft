@@ -39,7 +39,6 @@ namespace fCraft {
 
 
         public static bool Init() {
-            Logger.Init();
             GenerateSalt();
 
             // try to load the config
@@ -563,7 +562,7 @@ namespace fCraft {
             if( OnPlayerConnected != null ) OnPlayerConnected( session, ref cancel );
             return !cancel;
         }
-        internal static bool FirePlayerClassChange( Player target, Player player, PlayerClass oldClass, PlayerClass newClass ) {
+        internal static bool FirePlayerClassChange( PlayerInfo target, Player player, PlayerClass oldClass, PlayerClass newClass ) {
             bool cancel = false;
             if( OnPlayerClassChanged != null ) OnPlayerClassChanged( target, player, oldClass, newClass, ref cancel );
             return !cancel;

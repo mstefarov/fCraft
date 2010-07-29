@@ -30,19 +30,26 @@ namespace fCraft {
 
     public static class Logger {
         static object locker = new object();
-        public static bool[] consoleOptions = new bool[15];
-        public static bool[] logFileOptions = new bool[15];
+        public static bool[] consoleOptions;
+        public static bool[] logFileOptions;
 
         const string LogFileName = "fCraft.log";
 
-        internal static void Init() {
+        static Logger() {
             // TODO: log splitting
-            if( !File.Exists( LogFileName ) ) {
-                FileStream fs = File.Create( LogFileName );
-                fs.Close();
+            consoleOptions = new bool[15];
+            logFileOptions = new bool[15];
+            for( int i = 0; i < consoleOptions.Length; i++ ) {
+                consoleOptions[i] = true;
+                logFileOptions[i] = true;
             }
-            Log( "------ Log Starts {0} ({1}) ------", LogType.Debug,
-                        DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() );
+
+            // Create log file
+            using( FileStream fs = File.OpenWrite( LogFileName ) ) { }
+
+            // Mark start of logging
+            Log( "------ Log Starts {0} ({1}) ------", LogType.SystemActivity,
+DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() );
         }
 
         public static void Log( string message, LogType type, params object[] values ) {
