@@ -199,7 +199,7 @@ namespace fCraft {
 
             if( spawn.x > widthX * 32 || spawn.y > widthY * 32 || spawn.h > height * 32 || spawn.x < 0 || spawn.y < 0 || spawn.h < 0 ) {
                 Logger.Log( "Map.ReadHeader: Spawn coordinates are outside the valid range! Using center of the map instead.", LogType.Warning );
-                spawn.Set( widthX / 2 * 32, widthY / 2 * 32, height / 2 * 32, 0, 0 );
+                ResetSpawn();
             }
 
             return true;
@@ -310,6 +310,10 @@ namespace fCraft {
             blockNames["mossystones"] = Block.MossyRocks;
         }
 
+
+        public void ResetSpawn() {
+            spawn.Set( widthX * 16, widthY * 16, height * 32, 0, 0 );
+        }
 
         public void CalculateShadows() {
             if( shadows != null ) return;

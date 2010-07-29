@@ -65,6 +65,8 @@ namespace fCraft {
                 }
                 StandardCommands.DoChangeClass( player, info, null, targetClass );
             }
+
+            PlayerDB.Save();
         }
 
 
@@ -112,6 +114,8 @@ namespace fCraft {
                     StandardCommands.DoBan( player, name, reason, false, false, false );
                 }
             }
+
+            PlayerDB.Save();
         }
     }
 }
