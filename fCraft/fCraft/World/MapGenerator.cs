@@ -197,7 +197,9 @@ namespace fCraft {
                 GenerateTrees( map );
             }
 
-            Feedback( "Done." );
+            map.ResetSpawn();
+
+            Feedback( "Generation done." );
         }
 
 
@@ -320,6 +322,7 @@ namespace fCraft {
                     map.SetBlock( i, j, map.height / 2 - 1, Block.Grass );
                 }
             }
+            map.ResetSpawn();
         }
 
 

@@ -594,7 +594,7 @@ namespace fCraft {
             }
 
             Map map = new Map( player.world, wx, wy, height );
-            map.spawn.Set( map.widthX / 2 * 32 + 16, map.widthY / 2 * 32 + 16, map.height * 32, 0, 0 );
+            map.ResetSpawn();
 
             if( typeName == "flatgrass" ) {
                 player.Message( "Generating flatgrass map..." );

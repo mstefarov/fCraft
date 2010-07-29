@@ -21,22 +21,6 @@ namespace fCraft {
             Commands.AddCommand( "mark", Mark, false );
             Commands.AddCommand( "undo", UndoDraw, false );
             Commands.AddCommand( "cancel", CancelDraw, false );
-
-            //Commands.AddCommand( "xpipe", Pipe, false );
-            //Commands.AddCommand( "fill", Fill, false );
-        }
-
-
-        internal static void Pipe( Player player, Command command ) {
-            if( !player.Can( Permissions.Draw ) ) {
-                player.NoAccessMessage( Permissions.Draw );
-                return;
-            }
-            if( player.drawingInProgress ) {
-                player.Message( "Another draw command is already in progress. Please wait." );
-                return;
-            }
-            string blockName = command.Next();
         }
 
 
@@ -151,7 +135,7 @@ namespace fCraft {
                 if( player.drawingInProgress ) {
                     player.Message( "Cannot undo a drawing-in-progress. Wait for it to finish." );
                 } else {
-                    player.world.SendToAll( Color.Sys + player.nick + " initiated /drawundo. " + player.drawUndoBuffer.Count + " blocks to replace...", null );
+                    player.world.SendToAll( Color.Sys + player.nick + " initiated /undo. " + player.drawUndoBuffer.Count + " blocks to replace...", null );
                     while( player.drawUndoBuffer.Count > 0 ) {
                         player.world.map.QueueUpdate( player.drawUndoBuffer.Dequeue() );
                     }

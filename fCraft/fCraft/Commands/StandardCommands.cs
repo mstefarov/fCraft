@@ -388,8 +388,11 @@ namespace fCraft {
 
                 Server.FirePlayerListChangedEvent();
 
-                player.Message( "You promoted " + targetInfo.name + " to " + newClass.color + newClass.name );
-                player.Message( "You demoted " + targetInfo.name + " to " + newClass.color + newClass.name );
+                if( promote ) {
+                    player.Message( "You promoted " + targetInfo.name + " to " + newClass.color + newClass.name );
+                } else {
+                    player.Message( "You demoted " + targetInfo.name + " to " + newClass.color + newClass.name );
+                }
 
                 if( target != null ) {
                     target.Send( PacketWriter.MakeSetPermission( target ) );
