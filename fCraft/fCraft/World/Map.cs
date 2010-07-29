@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using System.Net;
 using mcc;
 
 
@@ -16,7 +17,7 @@ namespace fCraft {
         public Position spawn;
         public Dictionary<string, string> meta = new Dictionary<string, string>();
         ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
-        object queueLock = new object(), metaLock = new object(), zoneLock = new object();
+        object metaLock = new object(), zoneLock = new object();
         public int changesSinceSave, changesSinceBackup;
         public short[,] shadows;
 
@@ -352,7 +353,7 @@ namespace fCraft {
             using( GZipStream compressor = new GZipStream( stream, CompressionMode.Compress ) ) {
                 if( prependBlockCount ) {
                     // convert block count to big-endian
-                    int convertedBlockCount = Server.SwapBytes( blocks.Length );
+                    int convertedBlockCount = IPAddress.HostToNetworkOrder( blocks.Length );
                     // write block count to gzip stream
                     compressor.Write( BitConverter.GetBytes( convertedBlockCount ), 0, sizeof( int ) );
                 }
@@ -489,9 +490,7 @@ namespace fCraft {
 
 
         internal void QueueUpdate( BlockUpdate update ) {
-            lock( queueLock ) {
-                updates.Enqueue( update );
-            }
+            updates.Enqueue( update );
         }
 
 

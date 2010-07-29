@@ -360,7 +360,7 @@ namespace fCraft {
                 return;
             }
 
-            string fullName = (target == null ? targetInfo.name :target.GetLogName() );
+            string fullName = (target == null ? targetInfo.name : target.GetLogName());
 
             // Make sure player has the specific permissions (including limits)
             if( promote && !player.info.playerClass.CanPromote( newClass ) ) {
@@ -372,7 +372,7 @@ namespace fCraft {
                 player.Message( fullName + " is ranked " + targetInfo.playerClass.name + "." );
                 return;
             }
-            
+
             // Do the class change
             if( (promote && targetInfo.playerClass.rank < newClass.rank) ||
                 (!promote && targetInfo.playerClass.rank > newClass.rank) ) {
@@ -387,21 +387,21 @@ namespace fCraft {
                 targetInfo.classChangedBy = player.name;
 
                 Server.FirePlayerListChangedEvent();
-                
-                if(target!=null){
-                target.Send( PacketWriter.MakeSetPermission( target ) );
 
-                target.mode = BlockPlacementMode.Normal;
-                if( promote ) {
-                    player.Message( "You promoted " + target.name + " to " + newClass.color + newClass.name );
-                    target.Message( "You have been promoted to " + newClass.color + newClass.name + Color.Sys + " by " + player.nick );
-                } else {
-                    player.Message( "You demoted " + target.name + " to " + newClass.color + newClass.name );
-                    target.Message( "You have been demoted to " + newClass.color + newClass.name + Color.Sys + " by " + player.nick );
-                }
-                if( Config.GetBool( ConfigKey.ClassPrefixesInList ) || Config.GetBool( ConfigKey.ClassColorsInChat ) ) {
+                player.Message( "You promoted " + targetInfo.name + " to " + newClass.color + newClass.name );
+                player.Message( "You demoted " + targetInfo.name + " to " + newClass.color + newClass.name );
+
+                if( target != null ) {
+                    target.Send( PacketWriter.MakeSetPermission( target ) );
+
+                    target.mode = BlockPlacementMode.Normal;
+                    if( promote ) {
+                        target.Message( "You have been promoted to " + newClass.color + newClass.name + Color.Sys + " by " + player.GetLogName() );
+                    } else {
+                        target.Message( "You have been demoted to " + newClass.color + newClass.name + Color.Sys + " by " + player.GetLogName() );
+                    }
+
                     target.world.UpdatePlayer( target );
-                }
                 }
             } else {
                 if( promote ) {

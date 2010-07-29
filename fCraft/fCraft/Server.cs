@@ -29,7 +29,7 @@ namespace fCraft {
         public static int maxUploadSpeed,   // set by Config.ApplyConfig
                           packetsPerSecond, // set by Config.ApplyConfig
                           maxSessionPacketsPerTick = 128,
-                          maxBlockUpdatesPerTick = 50000; // used when there are no players in a world
+                          maxBlockUpdatesPerTick = 60000; // used when there are no players in a world
         internal static float ticksPerSecond; //TODO: move to server
 
         const int maxPortAttempts = 20;
@@ -263,11 +263,16 @@ namespace fCraft {
                 }
             }
 
-            temp = root.Attribute( "main" );
-
-            // note: both of these MAY be null, and ParseWorldList() should catch it
-            if( temp != null ) {
+            if( (temp = root.Attribute( "main" )) != null ) {
                 mainWorld = FindWorld( temp.Value );
+                // if specified main world does not exist, use first-defined world
+                if( mainWorld == null && firstWorld != null ) {
+                    Logger.Log( "The specified main world \"{0}\" does not exist. \"{1}\" was designated main instead. You can use /wmain to change it.", LogType.Warning,
+                                temp.Value, firstWorld.name );
+                    mainWorld = firstWorld;
+                }
+                // if firstWorld was also null, LoadWorldList() should try creating a new mainWorld
+
             } else {
                 mainWorld = firstWorld;
             }
@@ -739,14 +744,6 @@ namespace fCraft {
             }
 
             return maxPacketsPerUpdate;
-        }
-
-        public static int SwapBytes( int value ) {
-            return IPAddress.HostToNetworkOrder( value );
-        }
-
-        public static short SwapBytes( short value ) {
-            return IPAddress.HostToNetworkOrder( value );
         }
 
         public static string PlayerListToString() {

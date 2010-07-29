@@ -31,6 +31,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Net;
 using fCraft;
 
 
@@ -70,7 +71,7 @@ namespace mcc {
                         // bypassing the header crap
                         int pointer = i + 6;
                         Array.Copy( data, pointer, temp, 0, sizeof( short ) );
-                        pointer += Server.SwapBytes( BitConverter.ToInt16( temp, 0 ) );
+                        pointer += IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
                         pointer += 13;
 
                         int headerEnd = 0;
@@ -91,23 +92,23 @@ namespace mcc {
 
                             pointer += 1;
                             Array.Copy( data, pointer, temp, 0, sizeof( short ) );
-                            short skip = Server.SwapBytes( BitConverter.ToInt16( temp, 0 ) );
+                            short skip = IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
                             pointer += 2;
 
                             // look for relevant variables
                             Array.Copy( data, headerEnd + offset - 4, temp, 0, sizeof( int ) );
                             if( MemCmp( data, pointer, "width" ) ) {
-                                map.widthX = (ushort)Server.SwapBytes( BitConverter.ToInt32( temp, 0 ) );
+                                map.widthX = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
                             } else if( MemCmp( data, pointer, "depth" ) ) {
-                                map.height = (ushort)Server.SwapBytes( BitConverter.ToInt32( temp, 0 ) );
+                                map.height = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
                             } else if( MemCmp( data, pointer, "height" ) ) {
-                                map.widthY = (ushort)Server.SwapBytes( BitConverter.ToInt32( temp, 0 ) );
+                                map.widthY = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
                             } else if( MemCmp( data, pointer, "xSpawn" ) ) {
-                                map.spawn.x = (short)(Server.SwapBytes( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                                map.spawn.x = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
                             } else if( MemCmp( data, pointer, "ySpawn" ) ) {
-                                map.spawn.h = (short)(Server.SwapBytes( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                                map.spawn.h = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
                             } else if( MemCmp( data, pointer, "zSpawn" ) ) {
-                                map.spawn.y = (short)(Server.SwapBytes( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                                map.spawn.y = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
                             }
 
                             pointer += skip;

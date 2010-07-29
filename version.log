@@ -1,5 +1,13 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-06-29
+422
+ Feature: Further improved network performance by introducing nonblocking (lock-free) data structure to packet output buffer
+ Fix: Fixed "world creation failed" error if worlds.xml defined a non-existing world to be main
+ Fix: Added back missing messages when doing /user on offline users
+ Fix: Fixed player name color not being updated when their class changes
+ Fix: Added missing /help entries for /importbans and /importranks
+ Change: Improved help messages for /lock, /unban, /unbanip, /undo, /wload, /wmain, and /wremove
+ Change: Tweaked default values of BlockUpdateThrottling and maxBlockUpdatesPerTick for maximum lag-free performance
 421
  Feature: Added the ability to promote/demote offline and unseen (not in PlayerDB) players
  Feature: Added the ability to ban unseen players

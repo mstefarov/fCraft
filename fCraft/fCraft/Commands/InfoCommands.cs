@@ -187,6 +187,18 @@ namespace fCraft {
                     player.Message( "     see the list of available worlds by using " + Color.Help + "/worlds" );
                     player.Message( "     Additional command aliases: " + Color.Help + "/load  /l  /goto" );
                     break;
+                case "importbans":
+                    player.Message( Color.Help, "/importbans SoftwareName FileName" );
+                    player.Message( "     Imports ban list from formats used by other servers." );
+                    player.Message( "     Currently only MCSharp/MCZall files are supported." );
+                    break;
+                case "importranks":
+                    player.Message( Color.Help, "/importranks SoftwareName FileName RankName" );
+                    player.Message( "     Imports player list from formats used by other servers." );
+                    player.Message( "     All players listed in the specified file are added" );
+                    player.Message( "     to PlayerDB with the specified rank." );
+                    player.Message( "     Currently only MCSharp/MCZall files are supported." );
+                    break;
                 case "info":
                     player.Message( Color.Help, "/info [PlayerName]" );
                     player.Message( "     Displays some information and stats about the player." );
@@ -206,10 +218,10 @@ namespace fCraft {
                     break;
                 case "lock":
                     player.Message( Color.Help, "/lock [WorldName]" );
-                    player.Message( "     Puts the world into a locked, read-only mode. No one can " );
-                    player.Message( "     place or delete blocks during lockdown. By default this locks" );
-                    player.Message( "     the world you're on, but you can also lock any world by name." );
-                    player.Message( "     Call " + Color.Help + "/unlock" + Color.Sys + " to release lock on a world," );
+                    player.Message( "     Puts the world into a locked, read-only mode. No one can" );
+                    player.Message( "     place or delete blocks during lockdown. By default this" );
+                    player.Message( "     locks the world you're on, but you can also lock any" );
+                    player.Message( "     world by name. Call " + Color.Help + "/unlock" + Color.Sys + " to release lock on a world," );
                     player.Message( "     or " + Color.Help + "/unlockall" + Color.Sys + " to release all worlds at once." );
                     break;
                 case "lockall":
@@ -272,8 +284,9 @@ namespace fCraft {
                     break;
                 case "unban":
                     player.Message( Color.Help, "/unban PlayerName [memo]" );
-                    player.Message( "     Removes ban for a specified player. Does NOT remove IP ban." );
-                    player.Message( "     Any text after the player name will be saved as a memo." );
+                    player.Message( "     Removes ban for a specified player. Does NOT remove IP" );
+                    player.Message( "     bans. Any text after the player name will be saved as" );
+                    player.Message( "     a memo." );
                     break;
                 case "unbanall":
                     player.Message( Color.Help, "/unbanall PlayerName [memo]" );
@@ -290,14 +303,14 @@ namespace fCraft {
                     player.Message( "     Any text after the player name will be saved as a memo." );
                     player.Message( Color.Help, "/unbanip IPAddress" );
                     player.Message( "     Removes ban for a specified IP address. Note that this" );
-                    player.Message( "     does NOT remove any individual bans of players associated" );
-                    player.Message( "     with this IP address." );
+                    player.Message( "     does NOT remove any individual bans of player names" );
+                    player.Message( "     associated with this IP address." );
                     break;
                 case "undo":
                     player.Message( Color.Help, "/undo" );
-                    player.Message( "     Selectively removes changes from the last draw operation." );
-                    player.Message( "     Note that only commands involving up to ~2 million blocks" );
-                    player.Message( "     can be undone with this command." );
+                    player.Message( "     Selectively removes changes from your last drawing" );
+                    player.Message( "     command. Note that commands involving over 2 million" );
+                    player.Message( "     blocks cannot be undone due to memory restrictions." );
                     break;
                 case "unfreeze":
                     player.Message( Color.Help, "/unfreeze PlayerName" );
@@ -357,26 +370,27 @@ namespace fCraft {
                     break;
                 case "wload":
                     player.Message( Color.Help, "/wload FileName" );
-                    player.Message( "     Replaces the current world's map with the specified map file." );
+                    player.Message( "     Replaces the current world's map with the specified map" );
+                    player.Message( "     file. The old map is overwritten." );
                     player.Message( Color.Help, "/wload FileName WorldName" );
                     player.Message( "     If the world with the specified name exists, its map is" );
-                    player.Message( "     replaced with the specified map file. Otherwise, a new world" );
-                    player.Message( "     is created using the given name and map file." );
-                    player.Message( "     Supported formats: fCraft (fcm), vanilla (server_level.dat)," );
-                    player.Message( "     MCSharp (lvl), MinerCPP/LuaCraft (dat), indev (mclevel)." );
-                    player.Message( "     You can omit the file extension for fCraft (fcm) maps." );
+                    player.Message( "     replaced with the specified map file. Otherwise, a new" );
+                    player.Message( "     world is created using the given name and map file." );
+                    player.Message( "     Supported formats: fCraft (fcm), MCSharp/MCZall (lvl)," );
+                    player.Message( "     vanilla (server_level.dat),  MinerCPP/LuaCraft (dat)," );
+                    player.Message( "     indev (mclevel). Note: infinite maps NOT supported." );
                     break;
                 case "wmain":
                     player.Message( Color.Help, "/wmain WorldName" );
                     player.Message( "     Sets the specified world as the new main world." );
-                    player.Message( "     Main world is the world that newly-connected players join." );
+                    player.Message( "     Main world is what newly-connected players join first." );
                     break;
                 case "wremove":
                     player.Message( Color.Help, "/wremove WorldName" );
-                    player.Message( "     Removes the specified world from the world list, and moves all" );
-                    player.Message( "     players to the main world. The main world itself cannot be" );
-                    player.Message( "     removed with this command. You will need to delete the map" );
-                    player.Message( "     file manually after calling " + Color.Help + "/wremove" + Color.Sys + "." );
+                    player.Message( "     Deletes the specified world from the world list, and" );
+                    player.Message( "     moves all players from it to the main world. The main" );
+                    player.Message( "     world itself cannot be removed with this command." );
+                    player.Message( "     You will need to delete the map file manually." );
                     break;
                 case "wrename":
                     player.Message( Color.Help, "/wrename OldName NewName" );
@@ -408,14 +422,15 @@ namespace fCraft {
                     }
                     player.Message( "To send private messages, write " + Color.Help + "@playername [message]" );
                     player.Message( "To message all players of a class, write " + Color.Help + "@@class [message]" );
-                    player.Message( "Below is a list of all commands:" );
-                    player.Message( Color.Help, "    ban, banall, baninfo, banip, bring, cancel, class, cuboid" );
-                    player.Message( Color.Help, "    ellipsoid, freeze, gen, grass, help, hide, info, join" );
-                    player.Message( Color.Help, "    kick, lava, lock, lockall, me, nick paint, players, roll" );
-                    player.Message( Color.Help, "    rules, save, setspawn, solid, tp, unban, unbanall" );
-                    player.Message( Color.Help, "    unbanip, undo, unhide, unfreeze, unlock, unlockall, user" );
-                    player.Message( Color.Help, "    waccess, water, wbuild, where, whois, worlds, wload" );
-                    player.Message( Color.Help, "    wmain, wremove, wrename, zone, zones, zremove, ztest" );
+                    player.Message( "To see a list of all commands, write "+Color.Help+"/commands" );
+                    player.Message( Color.Help, "   ban, banall, baninfo, banip, bring, cancel, class, cuboid" );
+                    player.Message( Color.Help, "   ellipsoid, freeze, gen, grass, help, hide, importbans" );
+                    player.Message( Color.Help, "   importranks, info, join, kick, lava, lock, lockall, me" );
+                    player.Message( Color.Help, "   nick, paint, players, roll, rules, save, setspawn, solid" );
+                    player.Message( Color.Help, "   tp, unban, unbanall, unbanip, undo, unhide, unfreeze" );
+                    player.Message( Color.Help, "   unlock, unlockall, user, waccess, water, wbuild, where" );
+                    player.Message( Color.Help, "   whois, worlds, wload, wmain, wremove, wrename, zone, zones" );
+                    player.Message( Color.Help, "   zremove, ztest" );
                     //TODO: fetch an actual, current list of commands
                     break;
             }
