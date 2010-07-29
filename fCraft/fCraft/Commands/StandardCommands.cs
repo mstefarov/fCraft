@@ -344,10 +344,11 @@ namespace fCraft {
         internal static void DoChangeClass( Player player, PlayerInfo targetInfo, Player target, PlayerClass newClass ) {
 
             bool promote = (targetInfo.playerClass.rank < newClass.rank);
+            string targetFullName = (target == null ? targetInfo.name : target.GetLogName());
 
             // Make sure it's not same rank
             if( targetInfo.playerClass == newClass ) {
-                player.Message( target.GetLogName() + " is already " + newClass.color + newClass.name );
+                player.Message( targetFullName + " is already " + newClass.color + newClass.name );
                 return;
             }
 
@@ -360,16 +361,14 @@ namespace fCraft {
                 return;
             }
 
-            string fullName = (target == null ? targetInfo.name : target.GetLogName());
-
             // Make sure player has the specific permissions (including limits)
             if( promote && !player.info.playerClass.CanPromote( newClass ) ) {
                 player.Message( "You can only promote players up to " + player.info.playerClass.maxPromote.color + player.info.playerClass.maxPromote.name );
-                player.Message( fullName + " is ranked " + targetInfo.playerClass.name + "." );
+                player.Message( targetFullName + " is ranked " + targetInfo.playerClass.name + "." );
                 return;
             } else if( !promote && !player.info.playerClass.CanDemote( targetInfo.playerClass ) ) {
                 player.Message( "You can only demote players that are " + player.info.playerClass.maxDemote.color + player.info.playerClass.maxDemote.name + Color.Sys + " or lower." );
-                player.Message( fullName + " is ranked " + targetInfo.playerClass.name + "." );
+                player.Message( targetFullName + " is ranked " + targetInfo.playerClass.name + "." );
                 return;
             }
 
@@ -381,7 +380,7 @@ namespace fCraft {
                 if( !Server.FirePlayerClassChange( targetInfo, player, oldClass, newClass ) ) return;
 
                 Logger.Log( "{0} changed the class of {1} from {2} to {3}.", LogType.UserActivity,
-                            player.GetLogName(), fullName, targetInfo.playerClass.name, newClass.name );
+                            player.GetLogName(), targetFullName, targetInfo.playerClass.name, newClass.name );
                 targetInfo.playerClass = newClass;
                 targetInfo.classChangeDate = DateTime.Now;
                 targetInfo.classChangedBy = player.name;
@@ -408,9 +407,9 @@ namespace fCraft {
                 }
             } else {
                 if( promote ) {
-                    player.Message( target.GetLogName() + " is already same or lower rank than " + newClass.name );
+                    player.Message( targetFullName + " is already same or lower rank than " + newClass.name );
                 } else {
-                    player.Message( target.GetLogName() + " is already same or higher rank than " + newClass.name );
+                    player.Message( targetFullName + " is already same or higher rank than " + newClass.name );
                 }
             }
         }

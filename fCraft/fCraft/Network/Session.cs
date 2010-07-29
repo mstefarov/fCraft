@@ -224,9 +224,10 @@ namespace fCraft {
             } catch( SocketException ex ) {
                 Logger.Log( "Session.IoLoop: {0}.", LogType.Warning, ex.Message );
 #if DEBUG
+                // CRASH on errors
 #else
             } catch( Exception ex ) {
-                Logger.Log( "Session.IoLoop: {0}: {1}.", LogType.Error, ex.ToString(), ex.Message );
+                Logger.Log( "Session.IoLoop: {1}.", LogType.Error, ex );
 #endif
             } finally {
                 canQueue = false;
