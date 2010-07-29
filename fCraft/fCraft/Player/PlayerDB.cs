@@ -23,6 +23,14 @@ namespace fCraft {
         public static ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
 
 
+        public static PlayerInfo AddFakeEntry( string name ) {
+            PlayerInfo info = new PlayerInfo( name, ClassList.defaultClass );
+            locker.EnterWriteLock();
+            list.Add( info );
+            locker.ExitWriteLock();
+            return info;
+        }
+
         public static void Load() {
             if( File.Exists( DBFile ) ) {
                 using( StreamReader reader = File.OpenText( DBFile ) ) {
@@ -51,7 +59,7 @@ namespace fCraft {
 
         public static void Save() {
             Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count() );
-            string tempFile = DBFile + (new Random()).Next().ToString();
+            string tempFile = Path.GetTempFileName();
             locker.EnterReadLock();
             using( StreamWriter writer = File.CreateText( tempFile ) ) {
                 writer.WriteLine( Header );

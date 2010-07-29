@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\DrawCommands.cs" />
+    <Compile Include="Commands\ImportCommands.cs" />
     <Compile Include="Commands\MapCommands.cs" />
     <Compile Include="Commands\BlockCommands.cs" />
     <Compile Include="Commands\Commands.cs" />

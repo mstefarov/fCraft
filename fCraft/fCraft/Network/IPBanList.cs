@@ -56,6 +56,7 @@ namespace fCraft {
 
         public static bool Add( IPBanInfo ban ) {
             lock( locker ) {
+                if( ban == null ) return true;
                 if( !bans.ContainsKey( ban.address.ToString() ) ) {
                     bans.Add( ban.address.ToString(), ban );
                     Save();
@@ -78,8 +79,11 @@ namespace fCraft {
         }
 
 
+        // Returns true if address was banned (and was unbanned)
+        // Returns false if address was not banned (and is still not banned) or if address is null
         public static bool Remove( IPAddress address ) {
             lock( locker ) {
+                if( address == null ) return false;
                 if( bans.Remove( address.ToString() ) ) {
                     Save();
                     return true;

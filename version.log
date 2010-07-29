@@ -1,5 +1,16 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-06-28
+2010-06-29
+421
+ Feature: Added the ability to promote/demote offline and unseen (not in PlayerDB) players
+ Feature: Added the ability to ban unseen players
+ Feature: Added ability to import bans and ranks from MCSharp/MCZall formats. An associated "Import" permission was added. See "/help importbans" and "/help importranks" for more information. Importer for ip-bans and iCraft/Hyvebuild/Myne format are coming soon.
+ Feature: Improved BlockUpdateQueue performance (faster drawing commands!) by switching to a lock-free data structure
+ Fix: Fixed startup errors not being logged if config.xml has not been parsed yet
+ Fix: Fixed ConfigUI input box not aligning properly when window is resized
+ Fix: Fixed "flatgrass" generated maps being 1 block off vertically
+ Change: Updated PlayerDB and IPBanList to use standard temporary folder (instead of dumping temp files into fCraft directory)
+ Change: Added "logging starts" marker that's written to console and log on-startup
+ Change: fCraftUI log now displays the last 2000 lines (up from 1000 lines)
 420
  Feature: New "Worlds" tab in ConfigTool for managing your world list
  Feature: Isometric map previews and map generation in ConfigTool

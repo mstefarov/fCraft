@@ -66,7 +66,7 @@ namespace fCraftConsole {
                     Console.ReadLine();
                 }
             } catch( Exception ex ) {
-                System.IO.File.WriteAllText( "crash.log", ex.ToString() + Environment.NewLine + ex.StackTrace );
+                System.IO.File.WriteAllText( "crash.log", ex + Environment.NewLine + ex.StackTrace );
                 Console.WriteLine( "fCraft crashed! Crash message saved to crash.log." );
                 Console.Write( ex );
                 Console.Title = "fCraft crashed!";

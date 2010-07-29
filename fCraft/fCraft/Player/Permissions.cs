@@ -37,6 +37,7 @@ namespace fCraft {
 
         ManageZones,
         ManageWorlds,
+        Import,
 
         Draw
     }

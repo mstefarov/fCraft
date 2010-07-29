@@ -14,6 +14,7 @@ namespace fCraftUI {
     public partial class MainForm : Form {
         bool shuttingDown = false;
         string[] args;
+        const int MaxLinesInLog = 2000;
 
         public MainForm( string[] _args ) {
             args = _args;
@@ -92,7 +93,7 @@ namespace fCraftUI {
 
         void LogInternal( string message ) {
             logBox.AppendText( message + Environment.NewLine );
-            if( logBox.Lines.Length > 1000 ) {
+            if( logBox.Lines.Length > MaxLinesInLog ) {
                 logBox.Text = "----- cut off, see fCraft.log for complete log -----" +
                     Environment.NewLine +
                     logBox.Text.Substring( logBox.GetFirstCharIndexFromLine( 50 ) );
