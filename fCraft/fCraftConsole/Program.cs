@@ -43,7 +43,7 @@ namespace fCraftConsole {
                                            DateTime.Now.Subtract( update.ReleaseDate ).TotalDays );
                     }
 
-                    Process.GetCurrentProcess().PriorityClass = Config.GetBasePriority();
+                    Process.GetCurrentProcess().PriorityClass = Config.GetProcessPriority();
 
                     if( Server.Start() ) {
                         Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );

@@ -62,7 +62,7 @@ namespace fCraftUI {
 
 
         public void StartServer() {
-            Process.GetCurrentProcess().PriorityClass = Config.GetBasePriority();
+            Process.GetCurrentProcess().PriorityClass = Config.GetProcessPriority();
             if( Server.Start() ) {
                 console.Enabled = true;
             } else {

@@ -70,7 +70,7 @@ namespace fCraft {
                 return;
             }
 
-            string mapFileName = Path.GetFileName( mapName ) + ".fcm";
+            string mapFileName = "maps/" + mapName + ".fcm";
             player.Message( "Saving map to \"" + mapFileName + "\"..." );
             if( player.world.map.Save( mapFileName ) ) {
                 player.Message( "Map saved succesfully." );
@@ -322,10 +322,10 @@ namespace fCraft {
                 } else {
                     oldName = oldWorld.name;
                     Server.RenameWorld( oldName, newName );
-                    if( File.Exists( newName + ".fcm" ) ) {
-                        File.Delete( newName + ".fcm" );
+                    if( File.Exists( "maps/" + newName + ".fcm" ) ) {
+                        File.Delete( "maps/" + newName + ".fcm" );
                     }
-                    File.Move( oldName + ".fcm", newName + ".fcm" );
+                    File.Move( "maps/" + oldName + ".fcm", "maps/" + newName + ".fcm" );
                     Server.SaveWorldList();
                     Server.SendToAll( Color.Sys + player.nick + " renamed the world \"" + oldName + "\" to \"" + newName + "\"." );
                     Logger.Log( player.GetLogName() + " renamed the world \"" + oldName + "\" to \"" + newName + "\".", LogType.UserActivity );
@@ -502,62 +502,6 @@ namespace fCraft {
         //}
 
 
-        // old stream loading code
-        /*internal static void Load( Player player, Command cmd ) {//TODO: streamload
-            lock( loadLock ) {
-                if( player.world.loadInProgress || player.world.loadSendingInProgress ) {
-                    player.Message( "Loading already in progress, please wait." );
-                    return;
-                }
-                player.world.loadInProgress = true;
-            }
-
-            if( !player.Can( Permissions.SaveAndLoad ) ) {
-                player.NoAccessMessage();
-                player.world.loadInProgress = false;
-                return;
-            }
-
-            string mapName = cmd.Next();
-            if( mapName == null ) {
-                player.Message( "Syntax: " + Color.Help + "/load mapName" );
-                player.world.loadInProgress = false;
-                return;
-            }
-
-            string mapFileName = mapName + ".fcm";
-            if( !File.Exists( mapFileName ) ) {
-                player.Message( "No backup file \"" + mapName + "\" found." );
-                player.world.loadInProgress = false;
-                return;
-            }
-
-            Map newMap = Map.Load( player.world, mapFileName );
-            if( newMap == null ) {
-                player.Message( "Could not load \"" + mapFileName + "\". Check logfile for details." );
-                player.world.loadInProgress = false;
-                return;
-            }
-
-            if( newMap.widthX != player.world.map.widthX ||
-                newMap.widthY != player.world.map.widthY ||
-                newMap.height != player.world.map.height ) {
-                player.Message( "Map sizes of \"" + mapName + "\" and the current map do not match." );
-                player.world.loadInProgress = false;
-                return;
-            }
-
-            Logger.Log( "{0} is loading the map \"{1}\".", LogType.UserActivity, player.name, mapName );
-            player.Message( "Loading map \"" + mapName + "\"..." );
-            //player.world.BeginLockDown();
-            MapSenderParams param = new MapSenderParams() {
-                map = newMap,
-                player = player,
-                world = player.world
-            };
-            Tasks.Add( MapSender.StreamLoad, param, true );
-        }*/
-
         #endregion
 
         #region Generation
@@ -588,6 +532,10 @@ namespace fCraft {
             if( fileName == null ) {
                 player.Message( "See " + Color.Help + "/help gen" + Color.Sys + " for usage information." );
                 return;
+            }
+
+            if( !fileName.StartsWith( "maps/" ) ) {
+                fileName = "maps/" + fileName;
             }
             if( !fileName.ToLower().EndsWith( ".fcm" ) ) {
                 fileName += ".fcm";

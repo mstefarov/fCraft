@@ -889,7 +889,7 @@ namespace fCraft {
         }
 
 
-        public static ProcessPriorityClass GetBasePriority() {
+        public static ProcessPriorityClass GetProcessPriority() {
             switch( GetString( ConfigKey.ProcessPriority ) ) {
                 case "High": return ProcessPriorityClass.High;
                 case "AboveNormal": return ProcessPriorityClass.AboveNormal;

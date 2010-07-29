@@ -19,6 +19,8 @@ namespace ConfigTool {
         #region Loading & Applying Config
 
         void LoadConfig( object sender, EventArgs args ) {
+            Server.ResetWorkingDirectory();
+            Server.CheckMapDirectory();
 
             if( !File.Exists( Config.ConfigFile ) ) {
                 MessageBox.Show( "config.xml was not found. Using defaults." );

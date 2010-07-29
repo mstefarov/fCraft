@@ -14,7 +14,7 @@ namespace fCraft {
         public Player player;
         public DateTime loginTime;
         public bool canReceive, canSend, canQueue, canDispose;
-        public bool isBetweenWorlds = true;
+        public bool isBetweenWorlds = true,showMessageOnDisconnect = false;
 
         Thread ioThread;
         TcpClient client;
@@ -45,7 +45,7 @@ namespace fCraft {
             reader = new BinaryReader( client.GetStream() );
             writer = new PacketWriter( client.GetStream() );
 
-            Logger.Log( "Session: {0}", LogType.Debug, ToString() );
+            Logger.Log( "Server.CheckConnections: Incoming connection from "+GetIP().ToString(), LogType.Debug );
 
             ioThread = new Thread( IoLoop );
             ioThread.IsBackground = true;
@@ -236,7 +236,6 @@ namespace fCraft {
         }
 
 
-        // login logic
         void LoginSequence() {
             byte opcode = reader.ReadByte();
             if( opcode != (byte)InputCodes.Handshake ) {
@@ -354,7 +353,7 @@ namespace fCraft {
 
             // Register player for future block updates
             if( !Server.RegisterPlayer( player ) ) {
-                KickNow( "Sorry, server is full." );
+                KickNow( "Sorry, server is full (" + Server.playerList.Length + "/" + Config.GetInt( ConfigKey.MaxPlayers ) + ")" );
                 return;
             }
 
@@ -365,6 +364,8 @@ namespace fCraft {
             // Player is now authenticated. Send server info.
             writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), Config.GetString( ConfigKey.MOTD ) ) );
 
+            Server.SendToAll( player.name + " connected.", player );
+            showMessageOnDisconnect = true;
             JoinWorld( player.world, false );
 
             // Welcome message
@@ -423,7 +424,7 @@ namespace fCraft {
                 player.world.map.GetCompressedCopy( stream, true );
                 blockData = stream.ToArray();
             }
-            Logger.Log( "Session.LoginSequence: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
+            Logger.Log( "Session.JoinWorld: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
                            blockData.Length, player.name );
 
             while ( bytesSent < blockData.Length ) {

@@ -84,6 +84,8 @@
             this.lPublic = new System.Windows.Forms.Label();
             this.lMaxPlayers = new System.Windows.Forms.Label();
             this.tabWorlds = new System.Windows.Forms.TabPage();
+            this.cMainWorld = new System.Windows.Forms.ComboBox();
+            this.lMainWorld = new System.Windows.Forms.Label();
             this.bWorldEdit = new System.Windows.Forms.Button();
             this.bAddWorld = new System.Windows.Forms.Button();
             this.bWorldDelete = new System.Windows.Forms.Button();
@@ -243,8 +245,6 @@
             this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
-            this.lMainWorld = new System.Windows.Forms.Label();
-            this.cMainWorld = new System.Windows.Forms.ComboBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gAppearence.SuspendLayout();
@@ -694,6 +694,24 @@
             this.tabWorlds.Text = "Worlds";
             this.tabWorlds.UseVisualStyleBackColor = true;
             // 
+            // cMainWorld
+            // 
+            this.cMainWorld.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cMainWorld.FormattingEnabled = true;
+            this.cMainWorld.Location = new System.Drawing.Point( 371, 17 );
+            this.cMainWorld.Name = "cMainWorld";
+            this.cMainWorld.Size = new System.Drawing.Size( 102, 23 );
+            this.cMainWorld.TabIndex = 5;
+            // 
+            // lMainWorld
+            // 
+            this.lMainWorld.AutoSize = true;
+            this.lMainWorld.Location = new System.Drawing.Point( 294, 20 );
+            this.lMainWorld.Name = "lMainWorld";
+            this.lMainWorld.Size = new System.Drawing.Size( 71, 15 );
+            this.lMainWorld.TabIndex = 4;
+            this.lMainWorld.Text = "Main world:";
+            // 
             // bWorldEdit
             // 
             this.bWorldEdit.Enabled = false;
@@ -955,7 +973,6 @@
             // xReserveSlot
             // 
             this.xReserveSlot.AutoSize = true;
-            this.xReserveSlot.Enabled = false;
             this.xReserveSlot.Location = new System.Drawing.Point( 12, 230 );
             this.xReserveSlot.Name = "xReserveSlot";
             this.xReserveSlot.Size = new System.Drawing.Size( 129, 19 );
@@ -2556,24 +2573,6 @@
             this.bApply.TabIndex = 3;
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
-            // 
-            // lMainWorld
-            // 
-            this.lMainWorld.AutoSize = true;
-            this.lMainWorld.Location = new System.Drawing.Point( 294, 20 );
-            this.lMainWorld.Name = "lMainWorld";
-            this.lMainWorld.Size = new System.Drawing.Size( 71, 15 );
-            this.lMainWorld.TabIndex = 4;
-            this.lMainWorld.Text = "Main world:";
-            // 
-            // cMainWorld
-            // 
-            this.cMainWorld.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cMainWorld.FormattingEnabled = true;
-            this.cMainWorld.Location = new System.Drawing.Point( 371, 17 );
-            this.cMainWorld.Name = "cMainWorld";
-            this.cMainWorld.Size = new System.Drawing.Size( 102, 23 );
-            this.cMainWorld.TabIndex = 5;
             // 
             // ConfigUI
             // 
