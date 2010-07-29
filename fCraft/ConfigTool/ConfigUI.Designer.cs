@@ -1898,10 +1898,8 @@
             // cLogMode
             // 
             this.cLogMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cLogMode.Enabled = false;
             this.cLogMode.FormattingEnabled = true;
             this.cLogMode.Items.AddRange( new object[] {
-            "None",
             "One long file",
             "Multiple files, split by session",
             "Multiple files, split by day"} );

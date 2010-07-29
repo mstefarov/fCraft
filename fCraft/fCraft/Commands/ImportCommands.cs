@@ -1,7 +1,9 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.Net;
 
 
 namespace fCraft {
@@ -109,13 +111,19 @@ namespace fCraft {
             }
 
             string reason = "(import from " + server + ")";
+            IPAddress ip;
             foreach( string name in names ) {
                 if( Player.IsValidName( name ) ) {
                     StandardCommands.DoBan( player, name, reason, false, false, false );
+                } else if( IPAddress.TryParse( name, out ip ) ) {
+                    StandardCommands.DoIPBan( player, ip, reason, "", false, false );
+                } else {
+                    player.Message( "Could not parse \"" + name + "\" as either player name or IP address. Skipping." );
                 }
             }
 
             PlayerDB.Save();
+            IPBanList.Save();
         }
     }
 }

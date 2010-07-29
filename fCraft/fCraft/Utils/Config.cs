@@ -94,7 +94,7 @@ namespace fCraft {
         }
 
         public static void LoadDefaultsLogging() {
-            settings[ConfigKey.LogMode] = "OneFile"; // can be: "None", "OneFile", "SplitBySession", "SplitByDay"
+            settings[ConfigKey.LogMode] = LogSplittingType.OneFile.ToString(); // can be: "OneFile", "SplitBySession", "SplitByDay"
             settings[ConfigKey.MaxLogs] = "0";
             for( int i = 0; i < Logger.consoleOptions.Length; i++ ) {
                 Logger.consoleOptions[i] = true;
@@ -228,18 +228,19 @@ namespace fCraft {
             }
 
             // Load config
-            string[] keyNames = Enum.GetNames(typeof(ConfigKey));
+            string[] keyNames = Enum.GetNames( typeof( ConfigKey ) );
             foreach( XElement element in config.Elements() ) {
                 if( keyNames.Contains<string>( element.Name.ToString() ) ) {
                     // known key
-                    SetValue( (ConfigKey)Enum.Parse(typeof(ConfigKey), element.Name.ToString()), element.Value );
+                    SetValue( (ConfigKey)Enum.Parse( typeof( ConfigKey ), element.Name.ToString(), true ), element.Value );
+
                 } else if( element.Name.ToString() != "ConsoleOptions" &&
                     element.Name.ToString() != "LogFileOptions" &&
-                    element.Name.ToString() != "Classes" ) {
+                    element.Name.ToString() != "Classes" &&
+                    element.Name.ToString() != "LegacyRankMapping" ) {
+
                     // unknown key
                     Log( "Unrecognized entry ignored: {0} = {1}", LogType.Debug, element.Name, element.Value );
-                    //TODO: custom settings store
-                    //settings.Add( element.Name.ToString(), element.Value );
                 }
             }
             return true;
@@ -310,7 +311,7 @@ namespace fCraft {
 
 
             XElement legacyRankMappingTag = new XElement( "LegacyRankMapping" );
-            foreach( KeyValuePair<string,string> pair in ClassList.legacyRankMapping){
+            foreach( KeyValuePair<string, string> pair in ClassList.legacyRankMapping ) {
                 XElement rankPair = new XElement( "LegacyRankPair" );
                 rankPair.Add( new XAttribute( "from", pair.Key ), new XAttribute( "to", pair.Value ) );
                 legacyRankMappingTag.Add( rankPair );
@@ -342,8 +343,8 @@ namespace fCraft {
 
 
         internal static void ApplyConfig() {
-            // TODO: logging settings
-            //Logger.Threshold = (LogLevel)Enum.Parse( typeof( LogLevel ), settings[ConfigKey.LogThreshold"] );
+            Logger.split = (LogSplittingType)Enum.Parse( typeof( LogSplittingType ), settings[ConfigKey.LogMode] );
+            Logger.MarkLogStart();
 
             // chat colors
             Color.Sys = Color.Parse( settings[ConfigKey.SystemMessageColor] );
@@ -451,7 +452,7 @@ namespace fCraft {
                     return ValidateInt( key, value, 0, 1000000 );
 
                 case ConfigKey.LogMode:
-                    return ValidateEnum( key, value, "None", "OneFile", "SplitBySession", "SplitByDay" );
+                    return ValidateEnum( key, value, "OneFile", "SplitBySession", "SplitByDay" );
                 case ConfigKey.MaxLogs:
                     return ValidateInt( key, value, 0, 100000 );
 
@@ -761,7 +762,7 @@ namespace fCraft {
             // ID
             attr = el.Attribute( "id" );
             if( attr == null ) {
-                Log( "Config.DefineClass: Class \""+playerClass.name+"\" was issued a new unique ID.", LogType.Warning );
+                Log( "Config.DefineClass: Class \"" + playerClass.name + "\" was issued a new unique ID.", LogType.Warning );
                 playerClass.ID = ClassList.GenerateID();
             } else if( !PlayerClass.IsValidID( attr.Value.Trim() ) ) {
                 Log( "Config.DefineClass: Invalid ID specified for class \"{0}\". ID must be alphanumeric, and exactly 16 characters long.", LogType.Error, playerClass.name );
