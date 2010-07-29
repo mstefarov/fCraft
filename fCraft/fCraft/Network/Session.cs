@@ -20,8 +20,7 @@ namespace fCraft {
         TcpClient client;
         BinaryReader reader;
         PacketWriter writer;
-        public Queue<Packet> outputQueue, priorityOutputQueue;
-        object queueLock, priorityQueueLock;
+        public ConcurrentQueue<Packet> outputQueue, priorityOutputQueue;
         internal World forcedWorldToJoin = null;
 
         int fullPositionUpdateCounter = 0;
@@ -36,10 +35,8 @@ namespace fCraft {
             canSend = false;
             canDispose = false;
 
-            outputQueue = new Queue<Packet>();
-            priorityOutputQueue = new Queue<Packet>();
-            queueLock = new object();
-            priorityQueueLock = new object();
+            outputQueue = new ConcurrentQueue<Packet>();
+            priorityOutputQueue = new ConcurrentQueue<Packet>();
 
             client = _client;
             client.SendTimeout = 10000;
@@ -59,7 +56,7 @@ namespace fCraft {
         void IoLoop() {
             short x, y, h;
             byte mode, type, opcode;
-            Packet packet;
+            Packet packet = new Packet();
 
             int pollInterval = 200;
             int pollCounter = 0;
@@ -96,10 +93,8 @@ namespace fCraft {
                     pollCounter++;
 
                     // send priority output to player
-                    while( canSend && priorityOutputQueue.Count > 0 && packetsSent < Server.maxSessionPacketsPerTick ) {
-                        lock( priorityQueueLock ) {
-                            packet = priorityOutputQueue.Dequeue();
-                        }
+                    while( canSend && packetsSent < Server.maxSessionPacketsPerTick ) {
+                        if( !priorityOutputQueue.Dequeue( ref packet ) ) break;
                         writer.Write( packet.data );
                         packetsSent++;
                         if( packet.data[0] == (byte)OutputCodes.Disconnect ) {
@@ -109,10 +104,8 @@ namespace fCraft {
                     }
 
                     // send output to player
-                    while( canSend && outputQueue.Count > 0 && packetsSent < Server.maxSessionPacketsPerTick ) {
-                        lock( queueLock ) {
-                            packet = outputQueue.Dequeue();
-                        }
+                    while( canSend && packetsSent < Server.maxSessionPacketsPerTick ) {
+                        if( !outputQueue.Dequeue( ref packet ) ) break;
                         writer.Write( packet.data );
                         packetsSent++;
                         if( packet.data[0] == (byte)OutputCodes.Disconnect ) {
@@ -389,9 +382,8 @@ namespace fCraft {
 
 
         internal void ClearQueues() {
-            lock ( queueLock ) {
-                outputQueue.Clear();
-            }
+            Packet temp = new Packet();
+            while( outputQueue.Dequeue( ref temp ) ) { }
         }
 
 
@@ -488,13 +480,9 @@ namespace fCraft {
         public void Send( Packet packet, bool isHighPriority ) {
             if( canQueue ) {
                 if( isHighPriority ) {
-                    lock( priorityQueueLock ) {
-                        priorityOutputQueue.Enqueue( packet );
-                    }
+                    priorityOutputQueue.Enqueue( packet );
                 } else {
-                    lock( queueLock ) {
-                        outputQueue.Enqueue( packet );
-                    }
+                    outputQueue.Enqueue( packet );
                 }
             }
         }

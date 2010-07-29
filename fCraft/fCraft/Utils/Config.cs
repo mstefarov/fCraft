@@ -127,7 +127,7 @@ namespace fCraft {
             settings[ConfigKey.NoPartialPositionUpdates] = "false";
             settings[ConfigKey.ProcessPriority] = "";
             settings[ConfigKey.RunOnStartup] = "Never"; // can be "Always", "OnUnexpectedShutdown", or "Never"
-            settings[ConfigKey.BlockUpdateThrottling] = "2500";
+            settings[ConfigKey.BlockUpdateThrottling] = "2048";
             settings[ConfigKey.TickInterval] = "100";
             settings[ConfigKey.LowLatencyMode] = "false";
         }

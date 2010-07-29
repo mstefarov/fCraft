@@ -17,11 +17,11 @@ namespace fCraft {
         }
 
         public override void Write( short data ) {
-            base.Write( Server.SwapBytes( data ) );
+            base.Write( IPAddress.HostToNetworkOrder( data ) );
         }
 
         public override void Write( int data ) {
-            Write( IPAddress.HostToNetworkOrder( data ) );
+            base.Write( IPAddress.HostToNetworkOrder( data ) );
         }
 
         public override void Write( string data ) {

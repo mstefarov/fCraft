@@ -44,9 +44,6 @@ namespace fCraft {
                 logFileOptions[i] = true;
             }
 
-            // Create log file
-            using( FileStream fs = File.OpenWrite( LogFileName ) ) { }
-
             // Mark start of logging
             Log( "------ Log Starts {0} ({1}) ------", LogType.SystemActivity,
 DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() );
@@ -75,9 +72,7 @@ DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() );
             if( logFileOptions[(int)type] ) {
                 lock( locker ) {
                     try {
-                        using( StreamWriter writer = File.AppendText( LogFileName ) ) {
-                            writer.WriteLine( line );
-                        }
+                        File.AppendAllText( LogFileName, line + Environment.NewLine );
                     } catch( Exception e ) {
                         Console.WriteLine( e.Message.ToString() );
                     }
