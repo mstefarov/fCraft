@@ -26,29 +26,37 @@ namespace fCraft {
         public static PlayerInfo AddFakeEntry( string name ) {
             PlayerInfo info = new PlayerInfo( name, ClassList.defaultClass );
             locker.EnterWriteLock();
-            list.Add( info );
-            locker.ExitWriteLock();
+            try {
+                list.Add( info );
+            } finally {
+                locker.ExitWriteLock();
+            }
             return info;
         }
 
         public static void Load() {
             if( File.Exists( DBFile ) ) {
-                using( StreamReader reader = File.OpenText( DBFile ) ) {
-                    reader.ReadLine(); // header
-                    while( !reader.EndOfStream ) {
-                        string[] fields = reader.ReadLine().Split( ',' );
-                        if( fields.Length == PlayerInfo.fieldCount ) {
-                            try {
-                                PlayerInfo info = new PlayerInfo( fields );
-                                tree.Add( info.name, info );
-                                list.Add( info );
-                            } catch( FormatException ex ) {
-                                Logger.Log( "PlayerDB.Load: Could not parse a record: {0}.", LogType.Error, ex.Message );
-                            } catch( IOException ex ) {
-                                Logger.Log( "PlayerDB.Load: Error while trying to read from file: {0}.", LogType.Error, ex.Message );
+                locker.EnterWriteLock();
+                try {
+                    using( StreamReader reader = File.OpenText( DBFile ) ) {
+                        reader.ReadLine(); // header
+                        while( !reader.EndOfStream ) {
+                            string[] fields = reader.ReadLine().Split( ',' );
+                            if( fields.Length == PlayerInfo.fieldCount ) {
+                                try {
+                                    PlayerInfo info = new PlayerInfo( fields );
+                                    tree.Add( info.name, info );
+                                    list.Add( info );
+                                } catch( FormatException ex ) {
+                                    Logger.Log( "PlayerDB.Load: Could not parse a record: {0}.", LogType.Error, ex.Message );
+                                } catch( IOException ex ) {
+                                    Logger.Log( "PlayerDB.Load: Error while trying to read from file: {0}.", LogType.Error, ex.Message );
+                                }
                             }
                         }
                     }
+                } finally {
+                    locker.ExitWriteLock();
                 }
                 Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records).", LogType.Debug, tree.Count() );
             } else {
@@ -61,13 +69,16 @@ namespace fCraft {
             Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count() );
             string tempFile = Path.GetTempFileName();
             locker.EnterReadLock();
-            using( StreamWriter writer = File.CreateText( tempFile ) ) {
-                writer.WriteLine( Header );
-                foreach( PlayerInfo entry in list ) {
-                    writer.WriteLine( entry.Serialize() );
+            try {
+                using( StreamWriter writer = File.CreateText( tempFile ) ) {
+                    writer.WriteLine( Header );
+                    foreach( PlayerInfo entry in list ) {
+                        writer.WriteLine( entry.Serialize() );
+                    }
                 }
+            } finally {
+                locker.ExitReadLock();
             }
-            locker.ExitReadLock();
             File.Delete( DBFile );
             File.Move( tempFile, DBFile );
         }
@@ -75,27 +86,38 @@ namespace fCraft {
 
         public static PlayerInfo FindPlayerInfo( Player player ) {
             if( player == null ) return null;
-            
-            locker.EnterWriteLock();
-            PlayerInfo info = tree.Get( player.name );
-            if( info == null ) {
-                info = new PlayerInfo( player );
-                tree.Add( player.name, info );
-                list.Add( info );
+            PlayerInfo info;
+            locker.EnterUpgradeableReadLock();
+            try {
+                info = tree.Get( player.name );
+                if( info == null ) {
+                    info = new PlayerInfo( player );
+                    locker.EnterWriteLock();
+                    try {
+                        tree.Add( player.name, info );
+                        list.Add( info );
+                    } finally {
+                        locker.ExitWriteLock();
+                    }
+                }
+            } finally {
+                locker.ExitUpgradeableReadLock();
             }
-            locker.ExitWriteLock();
             return info;
         }
 
 
         public static List<PlayerInfo> FindPlayersByIP( IPAddress address ) {
             List<PlayerInfo> result = new List<PlayerInfo>();
-            lock( locker ) {
-                foreach( PlayerInfo info in list ){
+            locker.EnterReadLock();
+            try {
+                foreach( PlayerInfo info in list ) {
                     if( info.lastIP == address ) {
                         result.Add( info );
                     }
                 }
+            } finally {
+                locker.ExitReadLock();
             }
             return result;
         }
@@ -108,9 +130,12 @@ namespace fCraft {
             }
 
             bool noDupe;
-            locker.EnterWriteLock();
-            noDupe = tree.Get( name, out info );
-            locker.ExitWriteLock();
+            locker.EnterReadLock();
+            try {
+                noDupe = tree.Get( name, out info );
+            } finally {
+                locker.ExitReadLock();
+            }
 
             return noDupe;
         }
@@ -118,10 +143,13 @@ namespace fCraft {
 
         public static PlayerInfo FindPlayerInfoExact( string name ) {
             if( name == null ) return null;
-
-            locker.EnterWriteLock();
-            PlayerInfo info = tree.Get( name );
-            locker.ExitWriteLock();
+            PlayerInfo info;
+            locker.EnterReadLock();
+            try {
+                info = tree.Get( name );
+            } finally {
+                locker.ExitReadLock();
+            }
 
             return info;
         }
@@ -129,8 +157,11 @@ namespace fCraft {
         internal static void ProcessLogout( Player player ) {
             if( player == null ) return;
             locker.EnterWriteLock();
-            tree.Get( player.name ).ProcessLogout( player );
-            locker.ExitWriteLock();
+            try {
+                tree.Get( player.name ).ProcessLogout( player );
+            } finally {
+                locker.ExitWriteLock();
+            }
         }
     }
 }
