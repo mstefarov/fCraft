@@ -122,10 +122,13 @@ namespace fCraft {
             if( File.Exists( fileName ) ) {
                 map = DoLoad( fileName );
 
-            // otherwise, try to append ".fcm"
-            } else {
+            } else { // otherwise, try to append ".fcm" and/or prepend "maps/"
                 if( File.Exists( fileName + ".fcm" ) ) {
                     map = DoLoad( fileName + ".fcm" );
+                }else if( File.Exists( "maps/" + fileName ) ) {
+                    map = DoLoad( "maps/" + fileName );
+                } else if( File.Exists( "maps/" + fileName + ".fcm" ) ) {
+                    map = DoLoad( "maps/" + fileName + ".fcm" );
                 } else {
                     Logger.Log( "Map.Load: Could not find the specified file: {0}", LogType.Error, fileName );
                 }
@@ -140,6 +143,19 @@ namespace fCraft {
 
         public static Map LoadHeaderOnly( string fileName ) {
             try {
+                if( !File.Exists( fileName ) ) {
+                    if( File.Exists( fileName + ".fcm" ) ) {
+                        fileName += ".fcm";
+                    } else if( File.Exists( "maps/" + fileName ) ) {
+                        fileName = "maps/" + fileName;
+                    } else if( File.Exists( "maps/" + fileName + ".fcm" ) ) {
+                        fileName = "maps/" + fileName + ".fcm";
+                    } else {
+                        Logger.Log( "Map.LoadHeaderOnly: File \"" + fileName + "\" not found.", LogType.Error );
+                        return null;
+                    }
+                }
+
                 Map map = new Map();
                 BinaryReader reader = new BinaryReader( File.OpenRead( fileName ) );
 
@@ -154,7 +170,7 @@ namespace fCraft {
                 map.height = reader.ReadInt16();
                 return map;
             } catch( Exception ex ) {
-                Logger.Log( "Error occured while trying to parse header of " + fileName + ": " + ex, LogType.Error );
+                Logger.Log( "Map.LoadHeaderOnly: Error occured while trying to parse header of " + fileName + ": " + ex, LogType.Error );
                 return null;
             }
         }
@@ -553,26 +569,49 @@ namespace fCraft {
         #region Backup
         public void SaveBackup( string sourceName, string targetName ) {
             if( changesSinceBackup == 0 && Config.GetBool( ConfigKey.BackupOnlyWhenChanged ) ) return;
+
             if( !Directory.Exists( "backups" ) ) {
-                Directory.CreateDirectory( "backups" );
+                try {
+                    Directory.CreateDirectory( "backups" );
+                } catch( Exception ex ) {
+                    Logger.Log( "Map.SaveBackup: Error occured while trying to create backup directory: "+ex, LogType.Error );
+                    return;
+                }
             }
+            
             changesSinceBackup = 0;
-            File.Copy( sourceName, targetName, true );
+
+            try {
+                File.Copy( sourceName, targetName, true );
+            }catch(Exception ex){
+                Logger.Log( "Map.SaveBackup: Error occured while trying to save backup to \""+targetName+"\": " + ex, LogType.Error );
+                return;
+            }
+
             FileInfo[] info = new DirectoryInfo( "backups" ).GetFiles();
             Array.Sort<FileInfo>( info, FileInfoComparer.instance );
+
             Queue<string> files = new Queue<string>();
             for( int i = 0; i < info.Length; i++ ) {
                 if( info[i].Extension == ".fcm" ) {
                     files.Enqueue( info[i].Name );
                 }
             }
+
             if( Config.GetInt( ConfigKey.MaxBackups ) > 0 ) {
                 while( files.Count > Config.GetInt( ConfigKey.MaxBackups ) ) {
-                    File.Delete( "backups/" + files.Dequeue() );
+                    try {
+                        File.Delete( "backups/" + files.Dequeue() );
+                    } catch( Exception ex ) {
+                        Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup: " + ex, LogType.Error );
+                        return;
+                    }
                 }
             }
+
             Logger.Log( "AutoBackup: " + targetName, LogType.SystemActivity );
         }
+
 
         sealed class FileInfoComparer : IComparer<FileInfo> {
             public static FileInfoComparer instance = new FileInfoComparer();

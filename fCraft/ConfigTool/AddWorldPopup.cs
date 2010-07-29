@@ -84,7 +84,7 @@ namespace ConfigTool {
                 xHidden.Checked = world.Hidden;
             }
 
-            fileToLoad = world.Name + ".fcm";
+            fileToLoad = "maps/" + world.Name + ".fcm";
             if( File.Exists( fileToLoad ) ) {
                 rExisting.Enabled = true;
                 rExisting.Checked = true;
@@ -126,7 +126,7 @@ namespace ConfigTool {
 
         private void rExisting_CheckedChanged( object sender, EventArgs e ) {
             ToggleDimensions();
-            if( rExisting.Checked ) StartLoadingMap( world.name + ".fcm" );
+            if( rExisting.Checked ) StartLoadingMap( "maps/" + world.Name + ".fcm" );
         }
 
         private void rLoad_CheckedChanged( object sender, EventArgs e ) {
@@ -352,25 +352,25 @@ namespace ConfigTool {
                     tStatus1.Text = "Saving map...";
                     tStatus2.Text = "";
                     Refresh();
-                    map.Save( world.Name + ".fcm" );
-                    if( originalWorldName != null && originalWorldName != world.Name && File.Exists( originalWorldName + ".fcm" )
-                        && MessageBox.Show( "Map was saved to " + world.Name + ".fcm" + Environment.NewLine + "Delete the old map file (" + originalWorldName + ".fcm)?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
-                        File.Delete( originalWorldName + ".fcm" );
+                    map.Save( "maps/" + world.Name + ".fcm" );
+                    string oldFile = "maps/" + originalWorldName + ".fcm";
+                    if( originalWorldName != null && originalWorldName != world.Name && File.Exists( oldFile ) ) {
+                        File.Delete( oldFile );
                     }
                 }
             }
         }
 
         private void bShow_Click( object sender, EventArgs e ) {
-            if( cWorld.SelectedIndex != -1 && File.Exists( copyOptionsList[cWorld.SelectedIndex].name + ".fcm" ) ) {
+            if( cWorld.SelectedIndex != -1 && File.Exists( "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm" ) ) {
                 bShow.Enabled = false;
-                StartLoadingMap( copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
+                StartLoadingMap( "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
             }
         }
 
         private void cWorld_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cWorld.SelectedIndex != -1 ) {
-                bShow.Enabled = File.Exists( copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
+                bShow.Enabled = File.Exists( "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
             }
         }
     }

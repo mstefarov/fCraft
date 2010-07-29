@@ -129,7 +129,7 @@ namespace fCraft {
 
 
         public string GetMapName() {
-            return name + ".fcm";
+            return "maps/" + name + ".fcm";
         }
 
 
@@ -203,7 +203,7 @@ namespace fCraft {
             if( OnPlayerJoined != null ) OnPlayerJoined( player, this );
 
             if( isLocked ) {
-                player.Message( Color.Red, "This map is currently locked." );
+                player.Message( Color.Red, "This map is currently locked (read-only)." );
             }
         }
 

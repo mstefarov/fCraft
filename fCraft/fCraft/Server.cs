@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
+using System.Diagnostics;
 
 
 namespace fCraft {
@@ -38,13 +39,38 @@ namespace fCraft {
         internal static string Salt = "";
 
 
+        public static void CheckMapDirectory() {
+            // move files, if necessary
+            if( !Directory.Exists( "maps" ) ) {
+                Directory.CreateDirectory( "maps" );
+                string[] files = Directory.GetFiles( Directory.GetCurrentDirectory(), "*.fcm" );
+                if( files.Length > 0 ) {
+                    Logger.Log( "Server.Init: fCraft now uses a dedicated /maps/ folder for storing map files. Your maps have been moved automatically.", LogType.SystemActivity );
+
+                    foreach( string file in files ) {
+                        string newFile = "maps/" + new FileInfo( file ).Name;
+                        File.Move( file, newFile );
+                    }
+                }
+            }
+        }
+
+        public static void ResetWorkingDirectory() {
+            // reset working directory to same folder as the executable
+            Directory.SetCurrentDirectory( Path.GetDirectoryName( Process.GetCurrentProcess().MainModule.FileName ) );
+        }
+
         public static bool Init() {
+            ResetWorkingDirectory();
+
             GenerateSalt();
 
             // try to load the config
             if( !Config.Load() ) return false;
             Config.ApplyConfig();
             if( !Config.Save() ) return false;
+
+            CheckMapDirectory();
 
             // start the task thread
             Tasks.Start();
@@ -254,7 +280,13 @@ namespace fCraft {
                 if( world == null ) {
                     Logger.Log( "Server.ParseWorldListXML: Error loading world \"" + worldName + "\"", LogType.Error );
                 } else {
-                    world.isHidden = (el.Attribute( "hidden" ) != null);
+                    if( (temp = el.Attribute( "hidden" )) != null ) {
+                        if( !Boolean.TryParse( temp.Value, out world.isHidden ) ) {
+                            Logger.Log( "Server.ParseWorldListXML: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.", LogType.Warning,
+                                        worldName );
+                            world.isHidden = false;
+                        }
+                    }
                     if( firstWorld == null ) firstWorld = world;
                     Logger.Log( "Server.ParseWorldListXML: Loaded world \"" + worldName + "\"", LogType.Debug );
 
@@ -489,9 +521,11 @@ namespace fCraft {
                 }
             }
         }
+
         public static void SendToAll( Packet packet ) {
             SendToAll( packet, null );
         }
+
         public static void SendToAll( Packet packet, Player except ) {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -500,9 +534,11 @@ namespace fCraft {
                 }
             }
         }
+
         public static void SendToAll( string message ) {
             SendToAll( PacketWriter.MakeMessage( message ), null );
         }
+
         public static void SendToAll( string message, Player except ) {
             SendToAll( PacketWriter.MakeMessage( message ), except );
         }
@@ -520,11 +556,10 @@ namespace fCraft {
         // checks for incoming connections and disposes old sessions
         internal static void CheckConnections( object param ) {
             if( listener.Pending() ) {
-                Logger.Log( "Server.ListenerHandler: Incoming connection", LogType.Debug );
                 try {
                     sessions.Add( new Session( listener.AcceptTcpClient() ) );
                 } catch( Exception ex ) {
-                    Logger.Log( "ERROR: Could not accept incoming connection: " + ex.Message, LogType.Error );
+                    Logger.Log( "Server.CheckConnections: Could not accept incoming connection: " + ex, LogType.Error );
                 }
             }
             // this loop does not need to be thread-safe since only mainthread can alter session list
@@ -535,7 +570,7 @@ namespace fCraft {
                     Server.FirePlayerListChangedEvent();
                     sessions.RemoveAt( i );
                     i--;
-                    Logger.Log( "Session disposed. Active sessions left: {0}.", LogType.Debug, sessions.Count );
+                    Logger.Log( "Server.CheckConnections: Session disposed. Active sessions left: {0}.", LogType.Debug, sessions.Count );
                     GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
                 }
             }
@@ -765,7 +800,7 @@ namespace fCraft {
         // Add a newly-logged-in player to the list, and notify existing players.
         public static bool RegisterPlayer( Player player ) {
             lock( playerListLock ) {
-                if( players.Count >= Config.GetInt( ConfigKey.MaxPlayers ) ) {
+                if( players.Count >= Config.GetInt( ConfigKey.MaxPlayers ) && !player.info.playerClass.reservedSlot ) {
                     return false;
                 }
                 for( int i = 0; i < 255; i++ ) {
@@ -786,7 +821,7 @@ namespace fCraft {
             lock( playerListLock ) {
                 if( players.ContainsKey( player.id ) ) {
                     SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
-                    SendToAll( Color.Sys + player.GetLogName() + " left the server." );
+                    if( player.session.showMessageOnDisconnect ) SendToAll( Color.Sys + player.GetLogName() + " left the server." );
                     Logger.Log( "{0} left the server.", LogType.UserActivity, player.name );
 
                     // better safe than sorry: go through ALL worlds looking for leftover players
