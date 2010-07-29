@@ -19,12 +19,18 @@ namespace fCraft {
         GlobalChat,
         PrivateChat,
         ClassChat,
-        
+
         ConsoleInput,
         ConsoleOutput,
 
         IRC,
         Debug
+    }
+
+    public enum LogSplittingType {
+        OneFile,
+        SplitBySession,
+        SplitByDay
     }
 
 
@@ -33,7 +39,10 @@ namespace fCraft {
         public static bool[] consoleOptions;
         public static bool[] logFileOptions;
 
-        const string LogFileName = "fCraft.log";
+        const string LogFileName = "fCraft.log", LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss", ShortDateFormat = "yyyy'-'MM'-'dd";
+        public static LogSplittingType split = LogSplittingType.OneFile;
+
+        static string sessionStart = DateTime.Now.ToString( LongDateFormat );
 
         static Logger() {
             // TODO: log splitting
@@ -44,13 +53,24 @@ namespace fCraft {
                 logFileOptions[i] = true;
             }
 
+            if( !Directory.Exists( "logs" ) ) {
+                Directory.CreateDirectory( "logs" );
+                if( File.Exists( LogFileName ) ) {
+                    File.Move( LogFileName, "logs/_OldLog.log" );
+                }
+            }
+
+            MarkLogStart();
+        }
+
+        public static void MarkLogStart() {
             // Mark start of logging
             Log( "------ Log Starts {0} ({1}) ------", LogType.SystemActivity,
-DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() );
+                 DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() );
         }
 
         public static void Log( string message, LogType type, params object[] values ) {
-            Log( String.Format(message,values), type );
+            Log( String.Format( message, values ), type );
         }
 
 
@@ -70,12 +90,22 @@ DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() );
             //TODO: check if logging is enabled
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message;
             if( logFileOptions[(int)type] ) {
-                lock( locker ) {
-                    try {
-                        File.AppendAllText( LogFileName, line + Environment.NewLine );
-                    } catch( Exception e ) {
-                        Console.WriteLine( e.Message.ToString() );
+                try {
+                    if( split == LogSplittingType.SplitBySession ) {
+                        lock( locker ) {
+                            File.AppendAllText( "logs/" + sessionStart + ".log", line + Environment.NewLine );
+                        }
+                    } else if( split == LogSplittingType.SplitByDay ) {
+                        lock( locker ) {
+                            File.AppendAllText( "logs/" + DateTime.Now.ToString( ShortDateFormat ) + ".log", line + Environment.NewLine );
+                        }
+                    } else {
+                        lock( locker ) {
+                            File.AppendAllText( "logs/" + LogFileName, line + Environment.NewLine );
+                        }
                     }
+                } catch( Exception ex ) {
+                    Server.FireLogEvent( "Logger.Log: "+ex, type );
                 }
             }
             if( consoleOptions[(int)type] ) Server.FireLogEvent( line, type );

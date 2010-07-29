@@ -187,7 +187,7 @@ namespace ConfigTool {
                 item.Checked = Logger.logFileOptions[item.Index];
             }
 
-            ApplyEnum( cLogMode, ConfigKey.LogMode, 1, "None", "OneFile", "SplitBySession", "SplitByDay" );
+            ApplyEnum( cLogMode, ConfigKey.LogMode, 0, "OneFile", "SplitBySession", "SplitByDay" );
 
             xLogLimit.Checked = Config.GetInt( ConfigKey.MaxLogs ) > 0;
             nLogLimit.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.MaxLogs ) );
@@ -298,7 +298,7 @@ namespace ConfigTool {
             else Config.SetValue( ConfigKey.MaxBackupSize, 0 );
 
 
-            WriteEnum( cLogMode, ConfigKey.LogMode, "None", "OneFile", "SplitBySession", "SplitByDay" );
+            WriteEnum( cLogMode, ConfigKey.LogMode, "OneFile", "SplitBySession", "SplitByDay" );
             if( xLogLimit.Checked ) Config.SetValue( ConfigKey.MaxLogs, nLogLimit.Value );
             else Config.SetValue( ConfigKey.MaxLogs, "0" );
             foreach( ListViewItem item in vConsoleOptions.Items ) {

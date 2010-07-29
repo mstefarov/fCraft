@@ -1,5 +1,23 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-06-29
+423
+ Feature: /importbans now also supports "banned-ip.txt"
+ Feature: Logs are now stored in /logs/ folder. Your fCraft.log file will be moved there automatically and renamed to "_OldLog.log"
+ Feature: Log splitting now works by day or by session. Set "LogMode" key in config.xml or see Logging tab in ConfigTool.
+ Feature: All maps are now stored in /maps/ folder. Your map files will be moved automatically first time you start ConfigTool/fCraftConsole/fCraftU
+ Feature: Reserved slots now work
+ Fix: Fixed a bug in fCraft.Server.LoadWorldListXML that could make all worlds hidden.
+ Fix: "player connected" message shown when someone connects, instead of just "player joined world"
+ Fix: "player left the server" message is not shown if the player got kicked before LoginSequence finished (e.g. if server was full)
+ Fix: Added back IP logging for incoming connections
+ Fix: Fixed ConfigTool-generated maps not having correct spawn point
+ Fix: Fixed /user showing both promote and demote messages at once
+ Fix: Removed references to old "/drawundo" command name in "/undo" messages
+ Fix: Fixed "Unrecognized entry ignored: LegacyRankMapping =" warning
+ Change: Made /importbans and /importranks save PlayerDB at once
+ Change: fCraft now forcibly resets its working directory to the same path where the executable is
+ Change: Removed "delete old file?" prompt when renaming worlds in AddWorldPopup. Now it just does it, to match tabWorlds' DataGridView behavior
+ Change: Added additional error checks to Map.Backup() 
 422
  Feature: Further improved network performance by introducing nonblocking (lock-free) data structure to packet output buffer
  Fix: Fixed "world creation failed" error if worlds.xml defined a non-existing world to be main
