@@ -190,7 +190,7 @@ namespace fCraft {
                 PlayerClass playerClass = ClassList.FindClass( className );
                 if( playerClass == null ) {
                     player.Message( "No class \"" + className + "\" found." );
-                } else{
+                } else {
                     world.classBuild = playerClass;
                     Server.SaveWorldList();
                     if( world.classBuild == ClassList.lowestClass ) {
@@ -215,7 +215,7 @@ namespace fCraft {
                     if( line.Length + world.name.Length > 62 ) {
                         player.Message( line );
                         line = "";
-                    } else if(!first) {
+                    } else if( !first ) {
                         line += ", ";
                     }
                     line += world.name;
@@ -352,7 +352,7 @@ namespace fCraft {
                     player.Message( "World not found: " + worldName );
                 } else if( world == Server.mainWorld ) {
                     player.Message( "Deleting the main world is not allowed. Assign a new main first." );
-                } else{
+                } else {
                     Server.RemoveWorld( worldName );
                     Server.SendToAll( Color.Sys + player.nick + " deleted the world \"" + world.name + "\"", player );
                     player.Message( "Removed \"" + world.name + "\" from the world list." );
@@ -419,7 +419,7 @@ namespace fCraft {
                                   player.name,
                                   zone.name,
                                   zone.GetVolume() );
-            player.world.map.AddZone(zone);
+            player.world.map.AddZone( zone );
         }
 
 
@@ -615,9 +615,9 @@ namespace fCraft {
             if( !player.Can( Permissions.Lock ) ) {
                 player.NoAccessMessage( Permissions.Lock );
                 return;
-            }else{
-                lock(Server.worldListLock){
-                    foreach(World world in Server.worlds.Values){
+            } else {
+                lock( Server.worldListLock ) {
+                    foreach( World world in Server.worlds.Values ) {
                         world.Lock();
                     }
                 }
@@ -661,8 +661,6 @@ namespace fCraft {
                 player.Message( "All worlds are now unlocked." );
             }
         }
-
-
         #endregion
     }
 }
