@@ -24,7 +24,7 @@ namespace fCraft {
 
     public static class Updater {
         static int version = 423;
-        static int revision = 122;
+        static int revision = 123;
 
         public static UpdaterResult CheckForUpdates() {
             UpdaterResult result = new UpdaterResult( version );
@@ -36,7 +36,7 @@ namespace fCraft {
                 request.UserAgent = "fCraft";
                 request.Timeout = 6000;
                 request.ReadWriteTimeout = 6000;
-                request.CachePolicy = new RequestCachePolicy( System.Net.Cache.RequestCacheLevel.NoCacheNoStore );
+                request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
 
                 using( WebResponse response = request.GetResponse() ) {
                     using( StreamReader reader = new StreamReader( response.GetResponseStream() ) ) {

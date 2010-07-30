@@ -394,7 +394,7 @@ namespace fCraft {
                     // generate default map
                     if( neverUnload ) newWorld.LoadMap();
                 }
-                worlds.Add( name, newWorld );
+                worlds.Add( name.ToLower(), newWorld );
 
                 newWorld.updateTaskId = AddTask( UpdateBlocks, Config.GetInt( ConfigKey.TickInterval ), newWorld );
 
