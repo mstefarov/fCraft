@@ -48,9 +48,11 @@ namespace fCraft {
             World world = Server.FindWorld( worldName );
             if( world != null ) {
                 if( world.classAccess.rank > player.info.playerClass.rank ) {
-                    player.Message( "Cannot join world \"" + world.name + "\": must be " + world.classAccess.name + " or higher." );
+                    player.Message( "Cannot join world \"" + world.name + "\": must be " + world.classAccess.color + world.classAccess.name + Color.Sys + " or higher." );
                 } else {
-                    player.session.JoinWorld( world, true );
+                    if( !player.session.JoinWorld( world, true ) ) {
+                        player.Message( "Failed to join world." );
+                    }
                 }
             } else {
                 player.Message( "No world found with the name \"" + worldName + "\"." );
@@ -64,13 +66,13 @@ namespace fCraft {
                 return;
             }
 
-            string mapName = cmd.Next();
-            if( mapName == null ) {
+            string fileName = cmd.Next();
+            if( fileName == null ) {
                 player.Message( "Syntax: " + Color.Help + "/save mapName" );
                 return;
             }
 
-            string mapFileName = "maps/" + mapName + ".fcm";
+            string mapFileName = "maps/" + fileName + ".fcm";
             player.Message( "Saving map to \"" + mapFileName + "\"..." );
             if( player.world.map.Save( mapFileName ) ) {
                 player.Message( "Map saved succesfully." );
@@ -595,14 +597,21 @@ namespace fCraft {
                 return;
             }
             string worldName = cmd.Next();
-            World world = player.world;
+
+            World world;
             if( worldName != null ) {
                 world = Server.FindWorld( worldName );
                 if( world == null ) {
                     player.Message( "No world found with the name \"" + worldName + "\"." );
                     return;
                 }
+            } else if( player.world != null ) {
+                world = player.world;
+            } else {
+                player.Message( "When called from console, /lock requires a world name." );
+                return;
             }
+
             if( world.isLocked ) {
                 player.Message( "The world is already locked." );
             } else {
@@ -632,14 +641,21 @@ namespace fCraft {
                 return;
             }
             string worldName = cmd.Next();
-            World world = player.world;
+
+            World world;
             if( worldName != null ) {
                 world = Server.FindWorld( worldName );
                 if( world == null ) {
                     player.Message( "No world found with the name \"" + worldName + "\"." );
                     return;
                 }
+            } else if( player.world != null ) {
+                world = player.world;
+            } else {
+                player.Message( "When called from console, /lock requires a world name." );
+                return;
             }
+
             if( !world.isLocked ) {
                 player.Message( "The world is already unlocked." );
             } else {
