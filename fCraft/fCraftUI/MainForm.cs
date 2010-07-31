@@ -38,9 +38,9 @@ namespace fCraftUI {
                     if( update.UpdateAvailable ) {
                         if( Config.GetString( ConfigKey.AutomaticUpdates ) == "Notify" ) {
                             Log( String.Format( Environment.NewLine +
-                                                "*** A new version of fCraft is available: v{0:0.000}, released {1:0} day(s) ago. ***" +
+                                                "*** A new version of fCraft is available: v{0}, released {1:0} day(s) ago. ***" +
                                                 Environment.NewLine,
-                                                Decimal.Divide( update.NewVersionNumber, 1000 ),
+                                                update.GetVersionString(),
                                                 DateTime.Now.Subtract( update.ReleaseDate ).TotalDays ), LogType.ConsoleOutput );
                             StartServer();
                         } else {

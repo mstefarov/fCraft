@@ -52,15 +52,15 @@ namespace fCraft {
 
         internal int updateTaskId = -1, saveTaskId = -1, backupTaskId = -1;
         AutoResetEvent waiter = new AutoResetEvent( false );
-        Thread thread;
+        //Thread thread;
         internal bool canDispose = false;
 
         public World( string _name ) {
             name = _name;
             classAccess = ClassList.lowestClass;
             classBuild = ClassList.lowestClass;
-            thread = new Thread( WorldLoop );
-            thread.IsBackground = true;
+            //thread = new Thread( WorldLoop );
+            //thread.IsBackground = true;
         }
 
 

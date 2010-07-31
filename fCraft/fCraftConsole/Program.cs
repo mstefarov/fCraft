@@ -38,8 +38,8 @@ namespace fCraftConsole {
 
                     UpdaterResult update = Updater.CheckForUpdates();
                     if( update.UpdateAvailable ) {
-                        Console.WriteLine( "** A new version of fCraft is available: v{0:0.000}, released {1:0} day(s) ago. **",
-                                           Decimal.Divide( update.NewVersionNumber, 1000 ),
+                        Console.WriteLine( "** A new version of fCraft is available: {0}, released {1:0} day(s) ago. **",
+                                           update.GetVersionString(),
                                            DateTime.Now.Subtract( update.ReleaseDate ).TotalDays );
                     }
 

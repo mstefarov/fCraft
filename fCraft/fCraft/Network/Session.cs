@@ -365,7 +365,7 @@ namespace fCraft {
             // Player is now authenticated. Send server info.
             writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), Config.GetString( ConfigKey.MOTD ) ) );
 
-            Server.SendToAll( player.name + " connected.", player );
+            Server.ShowPlayerConnectedMessage( player );
             showMessageOnDisconnect = true;
             JoinWorld( player.world, false );
 
