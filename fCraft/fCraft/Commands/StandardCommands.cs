@@ -536,12 +536,7 @@ namespace fCraft {
                         player.Message( "For security reasons, your nick was reset." );
                     }
                     player.world.SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
-                    Server.SendToAll( String.Format( "{0}{1} ({2}{3}{0}) has joined the server.",
-                                                     Color.Sys,
-                                                     player.name,
-                                                     player.info.playerClass.color,
-                                                     player.info.playerClass.name ),
-                                      player );
+                    Server.ShowPlayerConnectedMessage( player );
                     player.isHidden = false;
                 } else {
                     player.Message( "You are not currently hidden." );

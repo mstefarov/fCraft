@@ -19,12 +19,16 @@ namespace fCraft {
         public string ChangeLog;
         public DateTime ReleaseDate;
         public int NewVersionNumber;
+
+        public string GetVersionString(){
+            return Decimal.Divide( NewVersionNumber, 1000 ).ToString( "0.000" );
+        }
     }
 
 
     public static class Updater {
-        static int version = 423;
-        static int revision = 123;
+        static int version = 424;
+        static int revision = 124;
 
         public static UpdaterResult CheckForUpdates() {
             UpdaterResult result = new UpdaterResult( version );

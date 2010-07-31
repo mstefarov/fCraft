@@ -6,7 +6,7 @@ using System.IO;
 
 namespace fCraft {
     static class InfoCommands {
-
+        public const string RuleFile = "rules.txt";
         // Register help commands
         internal static void Init() {
             Commands.AddCommand( "help", Help, true );
@@ -415,14 +415,9 @@ namespace fCraft {
                     player.Message( "     Allows to test exactly which zones affect a particular" );
                     player.Message( "     block. Can be used to test and resolve zone overlaps." );
                     break;
-                default:
-                    player.Message( "To see detailed help about a command, use " + Color.Help + "/help command" );
-                    if( player.world != null ) {
-                        player.Message( "To find out about your permissions, use " + Color.Help + "/class " + player.info.playerClass.name );
-                    }
-                    player.Message( "To send private messages, write " + Color.Help + "@playername [message]" );
-                    player.Message( "To message all players of a class, write " + Color.Help + "@@class [message]" );
-                    player.Message( "To see a list of all commands, write "+Color.Help+"/commands" );
+
+                case "commads":
+                    player.Message( "List of all commands:" );
                     player.Message( Color.Help, "   ban, banall, baninfo, banip, bring, cancel, class, cuboid" );
                     player.Message( Color.Help, "   ellipsoid, freeze, gen, grass, help, hide, importbans" );
                     player.Message( Color.Help, "   importranks, info, join, kick, lava, lock, lockall, me" );
@@ -431,6 +426,16 @@ namespace fCraft {
                     player.Message( Color.Help, "   unlock, unlockall, user, waccess, water, wbuild, where" );
                     player.Message( Color.Help, "   whois, worlds, wload, wmain, wremove, wrename, zone, zones" );
                     player.Message( Color.Help, "   zremove, ztest" );
+                    break;
+
+                default:
+                    player.Message( "To see detailed help about a command, use " + Color.Help + "/help command" );
+                    if( player.world != null ) {
+                        player.Message( "To find out about your permissions, use " + Color.Help + "/class " + player.info.playerClass.name );
+                    }
+                    player.Message( "To send private messages, write " + Color.Help + "@playername [message]" );
+                    player.Message( "To message all players of a class, write " + Color.Help + "@@class [message]" );
+                    player.Message( "To see a list of all commands, write " + Color.Help + "/help commands" );
                     //TODO: fetch an actual, current list of commands
                     break;
             }
@@ -635,8 +640,10 @@ namespace fCraft {
                 player.Message( "Rules: Use common sense!" );
             } else {
                 try {
-                    foreach( string ruleLine in File.ReadAllLines( "rules.txt" ) ) {
-                        player.Message( ruleLine );
+                    foreach( string ruleLine in File.ReadAllLines( RuleFile ) ) {
+                        if( ruleLine.Trim().Length > 0 ) {
+                            player.Message( ruleLine );
+                        }
                     }
                 } catch( Exception ex ) {
                     Logger.Log( "Error while trying to retrieve rules.txt: {0}", LogType.Error, ex.Message );

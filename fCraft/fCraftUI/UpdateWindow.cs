@@ -22,8 +22,8 @@ namespace fCraftUI {
             update = _update;
             auto = _auto;
             changelog.Text = update.ChangeLog;
-            title.Text = String.Format( "A new version is available: v{0:0.000}, released {1:0} day(s) ago.",
-                                        Decimal.Divide( update.NewVersionNumber, 1000 ),
+            title.Text = String.Format( "A new version is available: v{0}, released {1:0} day(s) ago.",
+                                        update.GetVersionString(),
                                         DateTime.Now.Subtract( update.ReleaseDate ).TotalDays );
             Shown += Download;
         }

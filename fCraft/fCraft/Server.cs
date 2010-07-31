@@ -792,6 +792,15 @@ namespace fCraft {
         #endregion
 
         #region PlayerList
+        public static void ShowPlayerConnectedMessage( Player player ) {
+            SendToAll( String.Format( "{0}{1} ({2}{3}{0}) has joined the server.",
+                                      Color.Sys,
+                                      player.name,
+                                      player.info.playerClass.color,
+                                      player.info.playerClass.name ),
+                                      player );
+        }
+
         // Return player count
         public static int GetPlayerCount() {
             return sessions.Count;
