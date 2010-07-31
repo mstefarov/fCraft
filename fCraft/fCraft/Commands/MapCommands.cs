@@ -50,7 +50,7 @@ namespace fCraft {
                 if( world.classAccess.rank > player.info.playerClass.rank ) {
                     player.Message( "Cannot join world \"" + world.name + "\": must be " + world.classAccess.color + world.classAccess.name + Color.Sys + " or higher." );
                 } else {
-                    if( !player.session.JoinWorld( world, true ) ) {
+                    if( !player.session.JoinWorldNow( world, true ) ) {
                         player.Message( "Failed to join world." );
                     }
                 }

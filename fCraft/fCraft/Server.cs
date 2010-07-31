@@ -436,7 +436,7 @@ namespace fCraft {
                     Player[] worldPlayerList = worldToDelete.playerList;
                     worldToDelete.SendToAll( Color.Sys + "You have been moved to the main world." );
                     foreach( Player player in worldPlayerList ) {
-                        player.session.forcedWorldToJoin = mainWorld;
+                        player.session.JoinWorld( mainWorld );
                     }
                     lock( taskListLock ) {
                         tasks.Remove( worldToDelete.updateTaskId );
@@ -641,7 +641,11 @@ namespace fCraft {
                 for( int i = 0; i < taskCache.Length; i++ ) {
                     task = taskCache[i];
                     if( task.enabled && task.nextTime < DateTime.UtcNow ) {
-                        task.callback( task.param );
+                        try {
+                            task.callback( task.param );
+                        } catch( Exception ex ) {
+                            Logger.Log( "Server.MainLoop: Exception was thrown by a scheduled task. Normally this would crash the server. Exception details follow: " + ex, LogType.Error );
+                        }
                         task.nextTime += TimeSpan.FromMilliseconds( task.interval );
                     }
                 }
