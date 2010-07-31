@@ -165,7 +165,7 @@ namespace fCraft {
                     newMap.world = newWorld;
                     Server.ReplaceWorld( name, newWorld );
                     foreach( Player player in playerList ) {
-                        player.session.forcedWorldToJoin = newWorld;
+                        player.session.JoinWorld( newWorld );
                     }
                 }
             }

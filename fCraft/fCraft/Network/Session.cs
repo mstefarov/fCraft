@@ -14,14 +14,15 @@ namespace fCraft {
         public Player player;
         public DateTime loginTime;
         public bool canReceive, canSend, canQueue, canDispose;
-        public bool isBetweenWorlds = true,showMessageOnDisconnect = false;
+        public bool isBetweenWorlds = true, showMessageOnDisconnect = false;
+        object joinWorldLock = new object();
 
         Thread ioThread;
         TcpClient client;
         BinaryReader reader;
         PacketWriter writer;
         public ConcurrentQueue<Packet> outputQueue, priorityOutputQueue;
-        internal World forcedWorldToJoin = null;
+        World forcedWorldToJoin = null;
 
         int fullPositionUpdateCounter = 0;
         const int fullPositionUpdateInterval = 10;
@@ -69,10 +70,11 @@ namespace fCraft {
                 while( !canDispose ) {
                     Thread.Sleep( 1 );
 
-                    if( forcedWorldToJoin != null ) {
-                        JoinWorld( forcedWorldToJoin, true );
-                        forcedWorldToJoin = null;
-                        continue;
+                    lock( joinWorldLock ) {
+                        if( forcedWorldToJoin != null ) {
+                            JoinWorldNow( forcedWorldToJoin, true );
+                            forcedWorldToJoin = null;
+                        }
                     }
 
                     packetsSent = 0;
@@ -367,7 +369,7 @@ namespace fCraft {
 
             Server.ShowPlayerConnectedMessage( player );
             showMessageOnDisconnect = true;
-            JoinWorld( player.world, false );
+            JoinWorldNow( player.world, false );
 
             // Welcome message
             if( player.info.timesVisited > 1 ) {
@@ -388,15 +390,21 @@ namespace fCraft {
             while( outputQueue.Dequeue( ref temp ) ) { }
         }
 
+        public void JoinWorld( World newWorld ) {
+            lock( joinWorldLock ) {
+                forcedWorldToJoin = newWorld;
+            }
+        }
 
-        public bool JoinWorld( World newWorld, bool useHandshakePacket ) {
+        internal bool JoinWorldNow( World newWorld, bool useHandshakePacket ) {
             if( newWorld == null ) {
                 Logger.Log( "Session.JoinWorld: Requested to join a non-existing (null) world.", LogType.Error );
                 return false;
             }
 
             if( newWorld.classAccess.rank > player.info.playerClass.rank ) {
-                Logger.Log( "Session.JoinWorld: Player asked to be released from its world, but the world did not contain the player.", LogType.Error );
+                Logger.Log( "Session.JoinWorld: Access limits prevented {0} from joining {1}.", LogType.Error,
+                            player.name, newWorld.name );
                 return false;
             }
 
