@@ -65,7 +65,6 @@
             this.bCancel.Size = new System.Drawing.Size( 100, 28 );
             this.bCancel.TabIndex = 2;
             this.bCancel.Text = "Cancel";
-            this.bCancel.Click += new System.EventHandler( this.bCancel_Click );
             // 
             // lWarning
             // 

@@ -343,7 +343,11 @@ namespace fCraft {
                     Logger.Log( "Server.ParseWorldListTXT: Error loading world \"" + worldName + "\"", LogType.Error );
                 }
             }
-            File.Delete( "worlds.txt" );
+            try {
+                File.Delete( "worlds.txt" );
+            } catch( Exception ex ) {
+                Logger.Log( "Server.LoadWorldListTXT: An error occured while trying to delete \"worlds.txt\": " + ex, LogType.Error );
+            }
         }
 
 

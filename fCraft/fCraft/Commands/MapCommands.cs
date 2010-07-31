@@ -323,14 +323,26 @@ namespace fCraft {
                     player.Message( "A world with the specified name already exists: " + newName );
                 } else {
                     oldName = oldWorld.name;
-                    Server.RenameWorld( oldName, newName );
-                    if( File.Exists( "maps/" + newName + ".fcm" ) ) {
-                        File.Delete( "maps/" + newName + ".fcm" );
+
+                    lock( oldWorld.mapLock ) {
+                        Server.RenameWorld( oldName, newName );
+
+                        // Move files
+                        string oldFileName = "maps/" + oldName + ".fcm";
+                        string newFileName = "maps/" + newName + ".fcm";
+                        try {
+                            File.Delete( newFileName );
+                            File.Move( oldFileName, newFileName );
+                        } catch( Exception ex ) {
+                            Logger.Log( "MapCommands.WorldRename: A file with the same name as renamed world may already exist, " +
+                                        "and an error occured while trying to use it: " + ex, LogType.Error );
+                        }
                     }
-                    File.Move( "maps/" + oldName + ".fcm", "maps/" + newName + ".fcm" );
+
                     Server.SaveWorldList();
                     Server.SendToAll( Color.Sys + player.nick + " renamed the world \"" + oldName + "\" to \"" + newName + "\"." );
-                    Logger.Log( player.GetLogName() + " renamed the world \"" + oldName + "\" to \"" + newName + "\".", LogType.UserActivity );
+                    Logger.Log( "{0} renamed the world \"{1}\" to \"{2}\".", LogType.UserActivity,
+                                player.GetLogName(), oldName, newName );
                 }
             }
         }

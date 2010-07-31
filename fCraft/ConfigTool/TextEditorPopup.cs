@@ -42,15 +42,7 @@ namespace ConfigTool {
         }
 
         private void bOK_Click( object sender, EventArgs e ) {
-            if( tRules.Text.Length > 0 ) {
-                File.WriteAllText( fileName, tRules.Text );
-            } else {
-                File.Delete( fileName );
-            }
-            Close();
-        }
-
-        private void bCancel_Click( object sender, EventArgs e ) {
+            File.WriteAllText( fileName, tRules.Text );
             Close();
         }
     }

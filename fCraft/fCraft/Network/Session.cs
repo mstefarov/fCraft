@@ -487,6 +487,8 @@ namespace fCraft {
             // Send player list
             newWorld.SendPlayerList( player );
 
+            player.Message( "Joined world \"" + newWorld.name + "\"" );
+
             if( Config.GetBool( ConfigKey.LowLatencyMode ) ) {
                 client.NoDelay = true;
             }

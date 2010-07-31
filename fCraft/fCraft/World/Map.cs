@@ -45,27 +45,29 @@ namespace fCraft {
         public bool Save( string fileName ) {
             string tempFileName = Path.GetTempFileName();
 
-            using( FileStream fs = File.OpenWrite( tempFileName ) ) {
-                try {
+            try {
+                using( FileStream fs = File.OpenWrite( tempFileName ) ) {
                     WriteHeader( fs );
                     WriteMetadata( new BinaryWriter( fs ) );
                     changesSinceSave = 0;
                     GetCompressedCopy( fs, false );
-                } catch( IOException ex ) {
-                    Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
-                                   tempFileName, ex.Message );
-                    try { File.Delete( tempFileName ); } catch { }
-                    return false;
                 }
+            } catch( IOException ex ) {
+                Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
+                               tempFileName, ex.Message );
+                try { File.Delete( tempFileName ); } catch { }
+                return false;
             }
 
             try {
                 File.Delete( fileName );
                 File.Move( tempFileName, fileName );
                 changesSinceBackup++;
-                Logger.Log( "Saved map succesfully to {0}", LogType.SystemActivity, fileName );
+                Logger.Log( "Saved map succesfully to {0}", LogType.SystemActivity,
+                            fileName );
             } catch( Exception ex ) {
-                Logger.Log( "Error trying to replace " + fileName + ": " + ex.ToString() + ": " + ex.Message, LogType.Error );
+                Logger.Log( "Error trying to replace file \"{0}\": {1}", LogType.Error,
+                            fileName, ex );
                 try { File.Delete( tempFileName ); } catch { }
                 return false;
             }
@@ -588,23 +590,18 @@ namespace fCraft {
                 return;
             }
 
-            FileInfo[] info = new DirectoryInfo( "backups" ).GetFiles();
-            Array.Sort<FileInfo>( info, FileInfoComparer.instance );
-
-            Queue<string> files = new Queue<string>();
-            for( int i = 0; i < info.Length; i++ ) {
-                if( info[i].Extension == ".fcm" ) {
-                    files.Enqueue( info[i].Name );
-                }
-            }
+            FileInfo[] backupList = new DirectoryInfo( "backups" ).GetFiles( "*.fcm" );
+            Array.Sort<FileInfo>( backupList, FileInfoComparer.instance );
 
             if( Config.GetInt( ConfigKey.MaxBackups ) > 0 ) {
-                while( files.Count > Config.GetInt( ConfigKey.MaxBackups ) ) {
+                for( int i = backupList.Length - 1; i > Config.GetInt( ConfigKey.MaxBackups ); i-- ) {
                     try {
-                        File.Delete( "backups/" + files.Dequeue() );
+                        File.Delete( backupList[i].FullName );
+                        Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.Error,
+                                    backupList[i].Name );
                     } catch( Exception ex ) {
-                        Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup: " + ex, LogType.Error );
-                        return;
+                        Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": " + ex, LogType.Error,
+                                    backupList[i].Name );
                     }
                 }
             }

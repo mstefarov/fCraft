@@ -79,8 +79,12 @@ namespace fCraft {
             } finally {
                 locker.ExitReadLock();
             }
-            File.Delete( DBFile );
-            File.Move( tempFile, DBFile );
+            try {
+                File.Delete( DBFile );
+                File.Move( tempFile, DBFile );
+            } catch( Exception ex ) {
+                Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );
+            }
         }
 
 

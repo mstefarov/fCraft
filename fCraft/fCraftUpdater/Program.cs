@@ -61,7 +61,9 @@ namespace fCraftUpdater {
             extractionProcess.WaitForExit();
 
             // clean up
-            File.Delete( ExtractorFile );
+            try {
+                File.Delete( ExtractorFile );
+            } catch { }
             Console.WriteLine( "Done." );
 
             Process.Start( "fCraftUI.exe" );

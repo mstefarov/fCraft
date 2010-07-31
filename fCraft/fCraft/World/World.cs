@@ -47,8 +47,8 @@ namespace fCraft {
                     neverUnload;
         public PlayerClass classAccess, classBuild;
 
-        object playerListLock = new object(),
-               mapLock = new object();
+        internal object playerListLock = new object(),
+                        mapLock = new object();
 
         internal int updateTaskId = -1, saveTaskId = -1, backupTaskId = -1;
         AutoResetEvent waiter = new AutoResetEvent( false );
