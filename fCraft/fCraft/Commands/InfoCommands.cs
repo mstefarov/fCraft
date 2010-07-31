@@ -26,20 +26,21 @@ namespace fCraft {
         internal static void Players( Player player, Command cmd ) {
             Player[] players = Server.playerList;
             if( players.Length > 0 ) {
-                string line = "List of players: ";
+                player.Message("There are "+players.Length+" players on the server :");
+                string line = "";
                 bool first = true;
                 foreach( Player p in players ) {
                     if( p.isHidden ) continue;
-                    if( line.Length + p.nick.Length > 62 ) {
+                    if( line.Length + p.nick.Length > 60 ) {
                         player.Message( line );
                         line = "";
                     } else if( !first ) {
-                        line += ", ";
+                        line += Color.Sys + ", ";
                     }
-                    line += p.nick;
+                    line += p.info.playerClass.color + p.nick;
                     first = false;
                 }
-                player.Message( line );
+                player.Message( "", line );
             } else {
                 player.Message( "There appear to be no players on the server." );
             }
@@ -91,21 +92,23 @@ namespace fCraft {
                     player.Message( Color.Help, "/ban PlayerName [memo]" );
                     player.Message( "     Bans a specified player by name. Does NOT ban IP." );
                     player.Message( "     Any text after the player name will be saved as a memo." );
+                    player.Message( "     Ban information can be viewed with " + Color.Help + "/baninfo" );
                     break;
                 case "banall":
                     player.Message( Color.Help, "/banall PlayerName [memo]" );
-                    player.Message( "     Bans the player, player's IP, and all other players who" );
-                    player.Message( "     recently used the same IP. Brutal." );
+                    player.Message( "     Bans the player name, IP, and all other player names" );
+                    player.Message( "     associated with the same IP. Use " + Color.Help + "/unbanall" + Color.Sys + " to undo." );
                     player.Message( Color.Help, "/banall IPAddress [memo]" );
-                    player.Message( "     Bans the specified IP address and all players who" );
-                    player.Message( "     recently used the IP." );
+                    player.Message( "     Bans the specified IP address and all player names" );
+                    player.Message( "     associated with the same IP." );
                     player.Message( "     Any text after the first param will be saved as a memo." );
+                    player.Message( "     Ban information can be viewed with " + Color.Help + "/baninfo" );
                     break;
                 case "baninfo":
                     player.Message( Color.Help, "/baninfo [PlayerName]" );
-                    player.Message( "     Prints information about past and present bans and" );
-                    player.Message( "     unbans associated with the player. If no name is" );
-                    player.Message( "     given, this prints your own ban info." );
+                    player.Message( "     Prints information about past and present bans" );
+                    player.Message( "     associated with the player. If no name is given," );
+                    player.Message( "     this prints your own ban info." );
                     player.Message( Color.Help, "/baninfo IPAddress" );
                     player.Message( "     Prints current ban information associated with the" );
                     player.Message( "     given IP address." );
@@ -118,6 +121,7 @@ namespace fCraft {
                     player.Message( Color.Help, "/banip IPAddress [memo]" );
                     player.Message( "     Bans the specified IP address." );
                     player.Message( "     Any text after the first param will be saved as a memo." );
+                    player.Message( "     Ban information can be viewed with " + Color.Help + "/baninfo" );
                     break;
                 case "bring":
                     player.Message( Color.Help, "/bring PlayerName" );
@@ -127,25 +131,43 @@ namespace fCraft {
                     player.Message( Color.Help, "/cancel" );
                     player.Message( "     Cancels the last /cuboid or /ellipsoid command." );
                     break;
+                case "ranks":
                 case "class":
+                case "classes":
                     player.Message( Color.Help, "/class [ClassName]" );
                     player.Message( "     Prints permission information for a specified class." );
                     player.Message( "     If no class name is given, prints a list of classes." );
                     break;
-                case "cub":
                 case "cuboid":
+                case "cub":
                 case "blb":
-                    player.Message( Color.Help, "/cub [BlockType]" + Color.Sys + " or " + Color.Help + "/cuboid BlockType" );
-                    player.Message( "     Allows to draw a filled cuboid (rectangular area)." );
+                    player.Message( Color.Help, "/cub [BlockType]" );
+                    player.Message( "     Allows to fill a rectangular area (cuboid) with blocks." );
+                    player.Message( "     If BlockType is omitted, uses the block that player is" );
+                    player.Message( "     holding. Can be called by alias " + Color.Help + "/cuboid " + Color.Sys + " or " + Color.Help + "/blb" );
                     player.Message( "     Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode." );
                     player.Message( "     Type " + Color.Help + "/undo" + Color.Sys + " to undo the last draw operation." );
+                    player.Message( "     Use " + Color.Help + "/lock" + Color.Sys + " to cancel drawing after it started." );
+                    break;
+                case "cuboidh":
+                case "cubh":
+                case "bhb":
+                    player.Message( Color.Help, "/cubh [BlockType]" );
+                    player.Message( "     Allows to box a rectangular area (cuboid) with blocks." );
+                    player.Message( "     If BlockType is omitted, uses the block that player is" );
+                    player.Message( "     holding. Can be called by alias " + Color.Help + "/cuboidh " + Color.Sys + " or " + Color.Help + "/bhb" );
+                    player.Message( "     Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode." );
+                    player.Message( "     Type " + Color.Help + "/undo" + Color.Sys + " to undo the last draw operation." );
+                    player.Message( "     Use " + Color.Help + "/lock" + Color.Sys + " to cancel drawing after it started." );
                     break;
                 case "ell":
                 case "ellipsoid":
                     player.Message( Color.Help, "/ell [BlockType]" + Color.Sys + " or " + Color.Help + "/ellipsoid BlockType" );
-                    player.Message( "     Allows to draw a filled ellipsoid (sphere-like area)." );
-                    player.Message( "     Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode." );
+                    player.Message( "     Allows to fill a sphere-like area (ellipsoid) with blocks" );
+                    player.Message( "     If BlockType is omitted, uses the block that player is" );
+                    player.Message( "     holding. Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode." );
                     player.Message( "     Type " + Color.Help + "/undo" + Color.Sys + " to undo the last draw operation." );
+                    player.Message( "     Use " + Color.Help + "/lock" + Color.Sys + " to cancel drawing after it started." );
                     break;
                 case "freeze":
                     player.Message( Color.Help, "/freeze PlayerName" );
@@ -173,9 +195,9 @@ namespace fCraft {
                     player.Message( Color.Help, "/hide" );
                     player.Message( "     Enabled invisible mode. It looks to other players like" );
                     player.Message( "     you left the server, but you can still do anything -" );
-                    player.Message( "     chat, build, delete, issue commands - as usual." );
+                    player.Message( "     chat, build, delete, type commands - as usual." );
                     player.Message( "     Great way to spy on griefers and scare newbies." );
-                    player.Message( "     Call " + Color.Help + "/show" + Color.Sys + " to disengage." );
+                    player.Message( "     Call " + Color.Help + "/unhide" + Color.Sys + " to reveal yourself." );
                     break;
                 case "join":
                 case "j":
@@ -429,13 +451,15 @@ namespace fCraft {
                     break;
 
                 default:
-                    player.Message( "To see detailed help about a command, use " + Color.Help + "/help command" );
+                    player.Message( "To see detailed help about a command, write " + Color.Help + "/help command" );
                     if( player.world != null ) {
-                        player.Message( "To find out about your permissions, use " + Color.Help + "/class " + player.info.playerClass.name );
+                        player.Message( "To find out about your permissions, write " + Color.Help + "/class " + player.info.playerClass.name );
                     }
+                    player.Message( "To see a list of all commands, write " + Color.Help + "/help commands" );
+                    player.Message( "To list available worlds, write " + Color.Help + "/worlds" );
+                    player.Message( "To join a specific world, write "+Color.Help+"/join WorldName" );
                     player.Message( "To send private messages, write " + Color.Help + "@playername [message]" );
                     player.Message( "To message all players of a class, write " + Color.Help + "@@class [message]" );
-                    player.Message( "To see a list of all commands, write " + Color.Help + "/help commands" );
                     //TODO: fetch an actual, current list of commands
                     break;
             }
