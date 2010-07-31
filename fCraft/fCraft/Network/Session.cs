@@ -383,38 +383,56 @@ namespace fCraft {
         }
 
 
-        internal void ClearQueues() {
+        internal void ClearBlockUpdateQueue() {
             Packet temp = new Packet();
             while( outputQueue.Dequeue( ref temp ) ) { }
         }
 
 
         public bool JoinWorld( World newWorld, bool useHandshakePacket ) {
+            if( newWorld == null ) {
+                Logger.Log( "Session.JoinWorld: Requested to join a non-existing (null) world.", LogType.Error );
+                return false;
+            }
 
             if( newWorld.classAccess.rank > player.info.playerClass.rank ) {
+                Logger.Log( "Session.JoinWorld: Player asked to be released from its world, but the world did not contain the player.", LogType.Error );
                 return false;
             }
 
             if( !newWorld.FirePlayerTriedToJoinEvent( player ) ) {
+                Logger.Log( "Session.JoinWorld: FirePlayerTriedToJoinEvent prevented {0} from joining {1}", LogType.Warning,
+                            player.name, newWorld.name );
                 return false;
             }
 
+            // prevents accepting block updates from player while he's switching worlds
             isBetweenWorlds = true;
-            if( player.world != null ) {
-                player.world.ReleasePlayer( player );
-            }
-            ClearQueues();
-
-            client.NoDelay = false;
 
             World oldWorld = player.world;
-            newWorld.AcceptPlayer( player );
+
+            // remove player from the old world
+            if( player.world != null ) {
+                if( !player.world.ReleasePlayer( player ) ) {
+                    Logger.Log( "Session.JoinWorld: Player asked to be released from its world, but the world did not contain the player.", LogType.Error );
+                }
+                Player[] oldWorldPlayerList = player.world.playerList;
+                foreach( Player otherPlayer in oldWorldPlayerList ) {
+                    SendNow( PacketWriter.MakeRemoveEntity( otherPlayer.id ) );
+                }
+            }
+
+            ClearBlockUpdateQueue();
+
+            // try to join the new world
+            if( !newWorld.AcceptPlayer( player ) ) return false;
             player.world = newWorld;
 
             // Start sending over the level copy
             if( useHandshakePacket ) {
-                writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), "Loading world \"" + player.world.name + "\"" ) );
+                writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), "Loading world \"" + newWorld.name + "\"" ) );
             }
+
             writer.WriteLevelBegin();
             byte[] buffer = new byte[1024];
             int bytesSent = 0;
@@ -427,6 +445,9 @@ namespace fCraft {
             }
             Logger.Log( "Session.JoinWorld: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
                            blockData.Length, player.name );
+
+            // disable low-latency-mode to avoid wasting bandwidth for map transfer
+            client.NoDelay = false;
 
             while ( bytesSent < blockData.Length ) {
                 int chunkSize = blockData.Length - bytesSent;
@@ -444,18 +465,19 @@ namespace fCraft {
             writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), "Almost there..." ) );
 
             // Done sending over level copy
-            writer.Write( PacketWriter.MakeLevelEnd( player.world.map ) );
+            writer.Write( PacketWriter.MakeLevelEnd( newWorld.map ) );
+
+            // Begin accepting block changes again
+            isBetweenWorlds = false;
 
             // Send new spawn
-            player.pos = player.world.map.spawn;
+            player.pos = newWorld.map.spawn;
             Thread.Sleep( 100 );
             writer.WriteAddEntity( 255, player, player.pos );
             writer.WriteTeleport( 255, player.pos );
 
-            isBetweenWorlds = false;
-
             // Send player list
-            player.world.SendPlayerList( player );
+            newWorld.SendPlayerList( player );
 
             if( Config.GetBool( ConfigKey.LowLatencyMode ) ) {
                 client.NoDelay = true;

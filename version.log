@@ -1,10 +1,18 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-06-29
+424
+ Fix: Fixed /unhide and normal connection getting different messages
+ Fix: Fixed client crash when viewing /rules if the rule file has blank lines
+ Fix: Worlds with capital letters in the name are joinable again
+ Fix: Potential crash in DoClassChange() if target player is already same rank AND is not currently on the server
+ Change: Moved the command list to /help commands
+ Change: Performance and thread-safety improvements to PlayerDB
+ Change: Disabled some more debugging code to avoid taking up unnecessary resources
 423
  Feature: /importbans now also supports "banned-ip.txt"
  Feature: Logs are now stored in /logs/ folder. Your fCraft.log file will be moved there automatically and renamed to "_OldLog.log"
  Feature: Log splitting now works by day or by session. Set "LogMode" key in config.xml or see Logging tab in ConfigTool.
- Feature: All maps are now stored in /maps/ folder. Your map files will be moved automatically first time you start ConfigTool/fCraftConsole/fCraftU
+ Feature: All maps are now stored in /maps/ folder. Your map files will be moved automatically first time you start ConfigTool/fCraftConsole/fCraftUI
  Feature: Reserved slots now work
  Fix: Fixed a bug in fCraft.Server.LoadWorldListXML that could make all worlds hidden.
  Fix: "player connected" message shown when someone connects, instead of just "player joined world"

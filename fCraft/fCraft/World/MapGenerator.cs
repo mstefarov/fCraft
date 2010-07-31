@@ -29,17 +29,17 @@ namespace fCraft {
         Random rand = new Random();
         Map map;
         Player player;
-        string filename;
-        int groundThickness=5, seaFloorThickness=3;
+        string fileName;
+        int groundThickness = 5, seaFloorThickness = 3;
 
         Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock, bDeepWaterSurface;
         MapGenType type;
         MapGenTheme theme;
 
-        public MapGenerator( Map _map, Player _player, string _filename, MapGenType _type, MapGenTheme _theme ) {
+        public MapGenerator( Map _map, Player _player, string _fileName, MapGenType _type, MapGenTheme _theme ) {
             map = _map;
             player = _player;
-            filename = _filename;
+            fileName = _fileName;
             type = _type;
             theme = _theme;
         }
@@ -147,7 +147,7 @@ namespace fCraft {
                 }
                 for( int x = 0; x < map.widthX; x++ ) {
                     for( int y = 0; y < map.widthY; y++ ) {
-                        heightmap[x, y] = Math.Abs( (heightmap[x, y]-min)/(max-min) * 2 - 1 )*.3+.4;
+                        heightmap[x, y] = Math.Abs( (heightmap[x, y] - min) / (max - min) * 2 - 1 ) * .3 + .4;
                     }
                 }
             }
@@ -206,7 +206,7 @@ namespace fCraft {
         public static void GenerationTask( object task ) {
             MapGenerator gen = (MapGenerator)task;
             gen.Generate();
-            gen.map.Save( gen.filename );
+            gen.map.Save( gen.fileName );
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
@@ -224,10 +224,10 @@ namespace fCraft {
             double sideDelta = (sidesMax - sidesMin);
             double[] sides = new double[4];
             if( type == MapGenType.River ) {
-                sides[0] = rand.NextDouble()*.5;
-                sides[1] = rand.NextDouble()*.5;
-                sides[2] = rand.NextDouble()*.5+.5;
-                sides[3] = rand.NextDouble()*.5+.5;
+                sides[0] = rand.NextDouble() * .5;
+                sides[1] = rand.NextDouble() * .5;
+                sides[2] = rand.NextDouble() * .5 + .5;
+                sides[3] = rand.NextDouble() * .5 + .5;
                 sides = sides.OrderBy( r => rand.Next() ).ToArray();
             } else {
                 sides[0] = rand.NextDouble() * sideDelta;
@@ -238,7 +238,7 @@ namespace fCraft {
                     sides[3] = rand.NextDouble() * sideDelta;
                 }
             }
-            
+
             gBigSize = iWidth + iHeight;
             DivideGrid( ref points, 0, 0, iWidth, iHeight, sidesMin + sides[0], sidesMin + sides[1], sidesMin + sides[2], sidesMin + sides[3], true );
             return points;
