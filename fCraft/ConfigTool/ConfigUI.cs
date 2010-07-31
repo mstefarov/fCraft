@@ -115,13 +115,14 @@ namespace ConfigTool {
         private void bWorldDel_Click( object sender, EventArgs e ) {
             if( dgvWorlds.SelectedRows.Count > 0 ) {
                 WorldListEntry world = worlds[dgvWorlds.SelectedRows[0].Index];
-                string fileName = world.Name + ".fcm";
+                string fileName = "maps/" + world.Name + ".fcm";
                 if( File.Exists( fileName ) &&
                     MessageBox.Show( "Do you want to delete the map file (" + fileName + ") as well?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
                     try {
                         File.Delete( fileName );
                     } catch( Exception ex ) {
-                        MessageBox.Show( "Error occured while trying to delete \"" + fileName + "\":" + Environment.NewLine + ex, "Error" );
+                        MessageBox.Show( "You have to delete the file ("+fileName+") manually. "+
+                            "An error occured while trying to delete it automatically:" + Environment.NewLine + ex, "Error" );
                     }
                 }
 

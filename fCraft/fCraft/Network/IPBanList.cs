@@ -40,7 +40,7 @@ namespace fCraft {
 
         internal static void Save() {
             Logger.Log( "IPBanList.Save: Saving IP ban list ({0} records).", LogType.Debug, bans.Count );
-            string tempFile = BanFile + (new Random()).Next().ToString();
+            string tempFile = Path.GetTempFileName();
             lock( locker ) {
                 using( StreamWriter writer = File.CreateText( tempFile ) ) {
                     writer.WriteLine( Header );
@@ -49,8 +49,12 @@ namespace fCraft {
                     }
                 }
             }
-            File.Delete( BanFile );
-            File.Move( tempFile, BanFile );
+            try {
+                File.Delete( BanFile );
+                File.Move( tempFile, BanFile );
+            } catch( Exception ex ) {
+                Logger.Log( "IPBanList.Save: An error occured while trying to save ban list file: " + ex, LogType.Error );
+            }
         }
 
 

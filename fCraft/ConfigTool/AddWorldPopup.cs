@@ -355,7 +355,12 @@ namespace ConfigTool {
                     map.Save( "maps/" + world.Name + ".fcm" );
                     string oldFile = "maps/" + originalWorldName + ".fcm";
                     if( originalWorldName != null && originalWorldName != world.Name && File.Exists( oldFile ) ) {
-                        File.Delete( oldFile );
+                        try {
+                            File.Delete( oldFile );
+                        } catch( Exception ex ) {
+                            MessageBox.Show( "You can delete the old file (" + oldFile + ") manually. "+
+                                "An error occured while trying to delete it automatically: " + Environment.NewLine + ex, "Error" );
+                        }
                     }
                 }
             }

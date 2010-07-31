@@ -416,7 +416,7 @@ namespace fCraft {
                     player.Message( "     block. Can be used to test and resolve zone overlaps." );
                     break;
 
-                case "commads":
+                case "commands":
                     player.Message( "List of all commands:" );
                     player.Message( Color.Help, "   ban, banall, baninfo, banip, bring, cancel, class, cuboid" );
                     player.Message( Color.Help, "   ellipsoid, freeze, gen, grass, help, hide, importbans" );
