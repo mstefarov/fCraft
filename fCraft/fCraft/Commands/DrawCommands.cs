@@ -6,6 +6,7 @@ namespace fCraft {
 
     enum DrawMode {
         Cuboid,
+        CuboidHollow,
         Ellipsoid,
         Fill
     }
@@ -16,8 +17,14 @@ namespace fCraft {
             Commands.AddCommand( "cuboid", Cuboid, false );
             Commands.AddCommand( "cub", Cuboid, false );
             Commands.AddCommand( "blb", Cuboid, false );
+
+            Commands.AddCommand( "cuboidh", CuboidHollow, false );
+            Commands.AddCommand( "cubh", CuboidHollow, false );
+            Commands.AddCommand( "bhb", CuboidHollow, false );
+
             Commands.AddCommand( "ellipsoid", Ellipsoid, false );
             Commands.AddCommand( "ell", Ellipsoid, false );
+
             Commands.AddCommand( "mark", Mark, false );
             Commands.AddCommand( "undo", UndoDraw, false );
             Commands.AddCommand( "cancel", CancelDraw, false );
@@ -26,6 +33,10 @@ namespace fCraft {
 
         internal static void Cuboid( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Cuboid );
+        }
+
+        internal static void CuboidHollow( Player player, Command cmd ) {
+            Draw( player, cmd, DrawMode.CuboidHollow );
         }
 
         internal static void Ellipsoid( Player player, Command cmd ) {
@@ -82,6 +93,10 @@ namespace fCraft {
             switch( mode ) {
                 case DrawMode.Cuboid:
                     player.selectionCallback = DrawCuboid;
+                    player.marksExpected = 2;
+                    break;
+                case DrawMode.CuboidHollow:
+                    player.selectionCallback = DrawCuboidHollow;
                     player.marksExpected = 2;
                     break;
                 case DrawMode.Ellipsoid:
@@ -165,11 +180,10 @@ namespace fCraft {
             int sh = Math.Min( marks[0].h, marks[1].h );
             int eh = Math.Max( marks[0].h, marks[1].h );
 
-            int blocks;
             byte block;
             int step = 8;
 
-            blocks = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
+            int blocks = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
             if( blocks > 2000000 ) {
                 player.Message( "NOTE: This draw command is too massive to undo." );
             }
@@ -199,6 +213,69 @@ namespace fCraft {
         }
 
 
+
+        internal static void DrawCuboidHollow( Player player, Position[] marks, object tag ) {
+            player.drawingInProgress = true;
+
+            byte drawBlock;
+            if( tag == null ) {
+                drawBlock = (byte)player.lastUsedBlockType;
+            } else {
+                drawBlock = (byte)tag;
+            }
+
+            // find start/end coordinates
+            int sx = Math.Min( marks[0].x, marks[1].x );
+            int ex = Math.Max( marks[0].x, marks[1].x );
+            int sy = Math.Min( marks[0].y, marks[1].y );
+            int ey = Math.Max( marks[0].y, marks[1].y );
+            int sh = Math.Min( marks[0].h, marks[1].h );
+            int eh = Math.Max( marks[0].h, marks[1].h );
+
+            int blocks = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1) -
+                         (ex - sx - 1) * (ey - sy - 1) * (eh - sh - 1);
+
+            if( blocks > 2000000 ) {
+                player.Message( "NOTE: This draw command is too massive to undo." );
+            }
+
+            for( int x = sx; x <= ex; x++ ) {
+                for( int y = sy; y <= ey; y++ ) {
+                    DrawOneBlock( player, drawBlock, x, y, sh );
+                    DrawOneBlock( player, drawBlock, x, y, eh );
+                }
+            }
+            for( int x = sx; x <= ex; x++ ) {
+                for( int h = sh; h <= eh; h++ ) {
+                    DrawOneBlock( player, drawBlock, x, sy, h );
+                    DrawOneBlock( player, drawBlock, x, ey, h );
+                }
+            }
+            for( int y = sy; y <= ey; y++ ) {
+                for( int h = sh; h <= eh; h++ ) {
+                    DrawOneBlock( player, drawBlock, sx, y, h );
+                    DrawOneBlock( player, drawBlock, ex, y, h );
+                }
+            }
+
+            player.Message( "Drawing " + blocks + " blocks... The map is now being updated." );
+            Logger.Log( "{0} initiated drawing a hollow cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
+                                  player.GetLogName(),
+                                  blocks,
+                                  ((Block)drawBlock).ToString() );
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+            player.drawingInProgress = false;
+        }
+
+
+        static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int h ) {
+            byte block = player.world.map.GetBlock( x, y, h );
+            if( block == drawBlock || block == (byte)Block.Admincrete && !player.Can( Permissions.DeleteAdmincrete ) ) return;
+            player.drawUndoBuffer.Enqueue( new BlockUpdate( Player.Console, x, y, h, block ) );
+            player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x, y, h, drawBlock ) );
+        }
+
+
         internal static void DrawEllipsoid( Player player, Position[] marks, object tag ) {
             player.drawingInProgress = true;
 
@@ -217,11 +294,10 @@ namespace fCraft {
             int sh = Math.Min( marks[0].h, marks[1].h );
             int eh = Math.Max( marks[0].h, marks[1].h );
 
-            int blocks;
             byte block;
             int step = 8;
 
-            blocks = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
+            int blocks = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
             if( blocks > 2000000 ) {
                 player.Message( "NOTE: This draw command is too massive to undo." );
             }
