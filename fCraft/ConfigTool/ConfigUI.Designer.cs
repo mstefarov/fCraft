@@ -54,9 +54,15 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
+            this.gInformation = new System.Windows.Forms.GroupBox();
+            this.lAnnouncements = new System.Windows.Forms.Label();
+            this.nAnnouncements = new System.Windows.Forms.NumericUpDown();
+            this.xAnnouncements = new System.Windows.Forms.CheckBox();
             this.bRules = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
+            this.bAnnouncements = new System.Windows.Forms.Button();
             this.gAppearence = new System.Windows.Forms.GroupBox();
+            this.bColorAnnouncement = new System.Windows.Forms.Button();
+            this.lColorAnnouncement = new System.Windows.Forms.Label();
             this.bColorSay = new System.Windows.Forms.Button();
             this.bColorHelp = new System.Windows.Forms.Button();
             this.bColorSys = new System.Windows.Forms.Button();
@@ -247,6 +253,8 @@
             this.bApply = new System.Windows.Forms.Button();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
+            this.gInformation.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nAnnouncements)).BeginInit();
             this.gAppearence.SuspendLayout();
             this.gBasic.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nPort)).BeginInit();
@@ -316,8 +324,7 @@
             // 
             // tabGeneral
             // 
-            this.tabGeneral.Controls.Add( this.bRules );
-            this.tabGeneral.Controls.Add( this.label1 );
+            this.tabGeneral.Controls.Add( this.gInformation );
             this.tabGeneral.Controls.Add( this.gAppearence );
             this.tabGeneral.Controls.Add( this.gBasic );
             this.tabGeneral.Location = new System.Drawing.Point( 4, 24 );
@@ -328,32 +335,92 @@
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
             // 
+            // gInformation
+            // 
+            this.gInformation.Controls.Add( this.lAnnouncements );
+            this.gInformation.Controls.Add( this.nAnnouncements );
+            this.gInformation.Controls.Add( this.xAnnouncements );
+            this.gInformation.Controls.Add( this.bRules );
+            this.gInformation.Controls.Add( this.bAnnouncements );
+            this.gInformation.Location = new System.Drawing.Point( 8, 336 );
+            this.gInformation.Name = "gInformation";
+            this.gInformation.Size = new System.Drawing.Size( 635, 59 );
+            this.gInformation.TabIndex = 16;
+            this.gInformation.TabStop = false;
+            this.gInformation.Text = "Information";
+            // 
+            // lAnnouncements
+            // 
+            this.lAnnouncements.AutoSize = true;
+            this.lAnnouncements.Location = new System.Drawing.Point( 322, 27 );
+            this.lAnnouncements.Name = "lAnnouncements";
+            this.lAnnouncements.Size = new System.Drawing.Size( 28, 15 );
+            this.lAnnouncements.TabIndex = 17;
+            this.lAnnouncements.Text = "min";
+            // 
+            // nAnnouncements
+            // 
+            this.nAnnouncements.Location = new System.Drawing.Point( 266, 25 );
+            this.nAnnouncements.Maximum = new decimal( new int[] {
+            60,
+            0,
+            0,
+            0} );
+            this.nAnnouncements.Minimum = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            this.nAnnouncements.Name = "nAnnouncements";
+            this.nAnnouncements.Size = new System.Drawing.Size( 50, 21 );
+            this.nAnnouncements.TabIndex = 16;
+            this.nAnnouncements.Value = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            // 
+            // xAnnouncements
+            // 
+            this.xAnnouncements.AutoSize = true;
+            this.xAnnouncements.Location = new System.Drawing.Point( 40, 26 );
+            this.xAnnouncements.Name = "xAnnouncements";
+            this.xAnnouncements.Size = new System.Drawing.Size( 220, 19 );
+            this.xAnnouncements.TabIndex = 6;
+            this.xAnnouncements.Text = "Show random announcement every";
+            this.xAnnouncements.UseVisualStyleBackColor = true;
+            this.xAnnouncements.CheckedChanged += new System.EventHandler( this.xAnnouncements_CheckedChanged );
+            // 
             // bRules
             // 
             this.bRules.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.bRules.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bRules.Location = new System.Drawing.Point( 8, 300 );
+            this.bRules.Location = new System.Drawing.Point( 532, 20 );
             this.bRules.Name = "bRules";
-            this.bRules.Size = new System.Drawing.Size( 100, 28 );
+            this.bRules.Size = new System.Drawing.Size( 98, 28 );
             this.bRules.TabIndex = 2;
-            this.bRules.Text = "Edit rules.txt";
+            this.bRules.Text = "Edit Rules";
             this.bRules.UseVisualStyleBackColor = true;
             this.bRules.Click += new System.EventHandler( this.bRules_Click );
             // 
-            // label1
+            // bAnnouncements
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.label1.Location = new System.Drawing.Point( 97, 362 );
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size( 457, 15 );
-            this.label1.TabIndex = 14;
-            this.label1.Text = "NOTE: Grayed-out and disabled settings are NOT IMPLEMENTED YET.";
+            this.bAnnouncements.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bAnnouncements.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.bAnnouncements.Location = new System.Drawing.Point( 361, 20 );
+            this.bAnnouncements.Name = "bAnnouncements";
+            this.bAnnouncements.Size = new System.Drawing.Size( 165, 28 );
+            this.bAnnouncements.TabIndex = 15;
+            this.bAnnouncements.Text = "Edit Announcement List";
+            this.bAnnouncements.UseVisualStyleBackColor = true;
+            this.bAnnouncements.Click += new System.EventHandler( this.bAnnouncements_Click );
             // 
             // gAppearence
             // 
             this.gAppearence.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gAppearence.Controls.Add( this.bColorAnnouncement );
+            this.gAppearence.Controls.Add( this.lColorAnnouncement );
             this.gAppearence.Controls.Add( this.bColorSay );
             this.gAppearence.Controls.Add( this.bColorHelp );
             this.gAppearence.Controls.Add( this.bColorSys );
@@ -365,10 +432,29 @@
             this.gAppearence.Controls.Add( this.lMessageColor );
             this.gAppearence.Location = new System.Drawing.Point( 8, 181 );
             this.gAppearence.Name = "gAppearence";
-            this.gAppearence.Size = new System.Drawing.Size( 635, 113 );
+            this.gAppearence.Size = new System.Drawing.Size( 635, 149 );
             this.gAppearence.TabIndex = 1;
             this.gAppearence.TabStop = false;
             this.gAppearence.Text = "Appearence Tweaks";
+            // 
+            // bColorAnnouncement
+            // 
+            this.bColorAnnouncement.BackColor = System.Drawing.Color.White;
+            this.bColorAnnouncement.Location = new System.Drawing.Point( 440, 106 );
+            this.bColorAnnouncement.Name = "bColorAnnouncement";
+            this.bColorAnnouncement.Size = new System.Drawing.Size( 100, 23 );
+            this.bColorAnnouncement.TabIndex = 7;
+            this.bColorAnnouncement.UseVisualStyleBackColor = false;
+            this.bColorAnnouncement.Click += new System.EventHandler( this.bColorAnnouncement_Click );
+            // 
+            // lColorAnnouncement
+            // 
+            this.lColorAnnouncement.AutoSize = true;
+            this.lColorAnnouncement.Location = new System.Drawing.Point( 283, 110 );
+            this.lColorAnnouncement.Name = "lColorAnnouncement";
+            this.lColorAnnouncement.Size = new System.Drawing.Size( 151, 15 );
+            this.lColorAnnouncement.TabIndex = 6;
+            this.lColorAnnouncement.Text = "Announcement/Rule Color";
             // 
             // bColorSay
             // 
@@ -2589,7 +2675,9 @@
             this.Text = "fCraft Config Tool";
             this.tabs.ResumeLayout( false );
             this.tabGeneral.ResumeLayout( false );
-            this.tabGeneral.PerformLayout();
+            this.gInformation.ResumeLayout( false );
+            this.gInformation.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nAnnouncements)).EndInit();
             this.gAppearence.ResumeLayout( false );
             this.gAppearence.PerformLayout();
             this.gBasic.ResumeLayout( false );
@@ -2836,7 +2924,6 @@
         private System.Windows.Forms.Label lIRCBotQuitMsg;
         private System.Windows.Forms.TextBox tIRCBotQuitMsg;
         private System.Windows.Forms.CheckBox xLimitOneConnectionPerIP;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TabPage tabWorlds;
         private System.Windows.Forms.DataGridView dgvWorlds;
         private System.Windows.Forms.Button bWorldDelete;
@@ -2850,5 +2937,12 @@
         private System.Windows.Forms.DataGridViewComboBoxColumn dgvcBackup;
         private System.Windows.Forms.ComboBox cMainWorld;
         private System.Windows.Forms.Label lMainWorld;
+        private System.Windows.Forms.GroupBox gInformation;
+        private System.Windows.Forms.CheckBox xAnnouncements;
+        private System.Windows.Forms.Button bAnnouncements;
+        private System.Windows.Forms.Label lAnnouncements;
+        private System.Windows.Forms.NumericUpDown nAnnouncements;
+        private System.Windows.Forms.Button bColorAnnouncement;
+        private System.Windows.Forms.Label lColorAnnouncement;
     }
 }

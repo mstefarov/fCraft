@@ -46,10 +46,10 @@ namespace fCraft {
         internal bool drawingInProgress = false;
 
         internal SelectionCallback selectionCallback;
-        internal Stack<Position> marks = new Stack<Position>();
-        internal int markCount = 0;
+        internal Stack<Position> drawMarks = new Stack<Position>();
+        internal int drawMarkCount = 0;
         internal int marksExpected = 0;
-        internal object tag; // can be used for 'block' or 'zone' or whatever
+        internal object drawArgs; // can be used for 'block' or 'zone' or whatever
 
 
         // This constructor is used to create dummy players (such as Console and /dummy)
@@ -131,14 +131,14 @@ namespace fCraft {
             // action block handling
             if( marksExpected > 0 ) {
                 SendTileNow( x, y, h );
-                marks.Push( new Position( x, y, h ) );
-                markCount++;
-                if( markCount >= marksExpected ) {
+                drawMarks.Push( new Position( x, y, h ) );
+                drawMarkCount++;
+                if( drawMarkCount >= marksExpected ) {
                     marksExpected = 0;
-                    selectionCallback( this, marks.ToArray(), tag );
+                    selectionCallback( this, drawMarks.ToArray(), drawArgs );
                 } else {
                     Message( String.Format( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
-                                            markCount, x, y, h, markCount + 1 ) );
+                                            drawMarkCount, x, y, h, drawMarkCount + 1 ) );
                 }
                 return false;
             }

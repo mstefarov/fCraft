@@ -704,7 +704,7 @@ namespace ConfigTool {
         #endregion
 
         #region Colors
-        int colorSys, colorSay, colorHelp;
+        int colorSys, colorSay, colorHelp, colorAnnouncement;
 
         void ApplyColor( Button button, int color ) {
             button.Text = fCraft.Color.GetName( color );
@@ -733,8 +733,15 @@ namespace ConfigTool {
             ApplyColor( bColorSay, colorSay );
         }
 
+        private void bColorAnnouncement_Click( object sender, EventArgs e ) {
+            ColorPicker picker = new ColorPicker( "Announcement color", colorSay );
+            picker.ShowDialog();
+            colorAnnouncement = picker.color;
+            ApplyColor( bColorAnnouncement, colorAnnouncement );
+        }
+
         private void bColorClass_Click( object sender, EventArgs e ) {
-            ColorPicker picker = new ColorPicker( "Class color for \""+selectedClass.name+"\"", fCraft.Color.ParseToIndex(selectedClass.color) );
+            ColorPicker picker = new ColorPicker( "Class color for \"" + selectedClass.name + "\"", fCraft.Color.ParseToIndex( selectedClass.color ) );
             picker.ShowDialog();
             ApplyColor( bColorClass, picker.color );
             selectedClass.color = fCraft.Color.GetName( picker.color );
@@ -759,5 +766,15 @@ namespace ConfigTool {
         }
 
         #endregion
+
+        private void bAnnouncements_Click( object sender, EventArgs e ) {
+            TextEditorPopup popup = new TextEditorPopup( Server.AnnouncementsFile, "" );
+            popup.ShowDialog();
+        }
+
+        private void xAnnouncements_CheckedChanged( object sender, EventArgs e ) {
+            nAnnouncements.Enabled = xAnnouncements.Checked;
+            bAnnouncements.Enabled = xAnnouncements.Checked;
+        }
     }
 }

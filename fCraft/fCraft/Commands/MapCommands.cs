@@ -408,10 +408,10 @@ namespace fCraft {
 
             if( minRank != null ) {
                 zone.buildRank = minRank.rank;
-                player.tag = zone;
+                player.drawArgs = zone;
                 player.marksExpected = 2;
-                player.marks.Clear();
-                player.markCount = 0;
+                player.drawMarks.Clear();
+                player.drawMarkCount = 0;
                 player.selectionCallback = ZoneAddCallback;
                 player.Message( "Zone: Place a block or type /mark to use your location." );
             } else {
@@ -439,8 +439,8 @@ namespace fCraft {
 
         static void ZoneTest( Player player, Command cmd ) {
             player.marksExpected = 1;
-            player.marks.Clear();
-            player.markCount = 0;
+            player.drawMarks.Clear();
+            player.drawMarkCount = 0;
             player.selectionCallback = ZoneTestCallback;
             player.Message( "Click the block that you would like to test." );
         }

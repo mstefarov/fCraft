@@ -108,6 +108,11 @@ namespace ConfigTool {
             ApplyColor( bColorHelp, colorHelp );
             colorSay = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.SayColor ) );
             ApplyColor( bColorSay, colorSay );
+            colorAnnouncement = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.AnnouncementColor ) );
+            ApplyColor( bColorAnnouncement, colorAnnouncement );
+
+            xAnnouncements.Checked = (Config.GetInt( ConfigKey.AnnouncementInterval ) > 0);
+            nAnnouncements.Value = Config.GetInt( ConfigKey.AnnouncementInterval );
         }
 
 
@@ -266,6 +271,9 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.HelpColor, fCraft.Color.GetName( colorHelp ) );
             Config.SetValue( ConfigKey.SayColor, fCraft.Color.GetName( colorSay ) );
 
+            Config.SetValue( ConfigKey.AnnouncementColor, fCraft.Color.GetName( colorAnnouncement ) );
+            if( xAnnouncements.Checked ) Config.SetValue( ConfigKey.AnnouncementInterval, nAnnouncements.Value );
+            else Config.SetValue( ConfigKey.AnnouncementInterval, 0 );
 
             WriteEnum( cVerifyNames, ConfigKey.VerifyNames, "Never", "Balanced", "Always" );
             Config.SetValue( ConfigKey.AnnounceUnverifiedNames, xAnnounceUnverified.Checked );
