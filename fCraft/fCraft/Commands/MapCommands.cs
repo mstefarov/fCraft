@@ -25,6 +25,7 @@ namespace fCraft {
             Commands.AddCommand( "zones", ZoneList, false );
             Commands.AddCommand( "zremove", ZoneRemove, false );
             Commands.AddCommand( "ztest", ZoneTest, false );
+            Commands.AddCommand( "zedit", ZoneEdit, false );
 
             Commands.AddCommand( "worlds", WorldList, true );
             Commands.AddCommand( "wload", WorldLoad, true );
@@ -381,6 +382,45 @@ namespace fCraft {
 
         #region Zone Commands
 
+        internal static void ZoneEdit( Player player, Command cmd ) {
+            if( !player.Can( Permissions.ManageZones ) ) {
+                player.NoAccessMessage( Permissions.ManageZones );
+                return;
+            }
+            string name = cmd.Next();
+            if( name == null ) {
+                player.Message( "No zone name specified. See " + Color.Help + "/help zedit" );
+                return;
+            }
+
+            Zone zone;
+            if( player.world.map.zones.ContainsKey( name.ToLower() ) ) {
+                zone = player.world.map.zones[name.ToLower()];
+            } else {
+                player.Message( "No zone found with the name \"" + name + "\". See " + Color.Help + "/zones" );
+                return;
+            }
+
+            string property = cmd.Next();
+            if( property == null ) {
+                player.Message( "No class name specified. See " + Color.Help + "/help zedit" );
+                return;
+            }
+
+            PlayerClass minRank = ClassList.ParseClass( property );
+            if( minRank == null ) {
+                player.Message( "Unrecognized class name: \"" + property + "\"" );
+                return;
+            } else {
+                zone.build = minRank;
+                player.world.map.changesSinceSave++;
+                player.world.SaveMap( null );
+                player.Message( String.Format( "Permission for zone \"{0}\" changed to {1}{2}+", name, minRank.color, minRank.name ) );
+            }
+        }
+
+
+
         internal static void ZoneAdd( Player player, Command cmd ) {//TODO: better method names & documentation
             if( !player.Can( Permissions.ManageZones ) ) {
                 player.NoAccessMessage( Permissions.ManageZones );
@@ -392,10 +432,17 @@ namespace fCraft {
                 player.Message( "No zone name specified. See " + Color.Help + "/help zone" );
                 return;
             }
+
             if( !Player.IsValidName( name ) ) {
                 player.Message( "\"" + name + "\" is not a valid zone name" );
                 return;
             }
+
+            if( player.world.map.zones.ContainsKey( name.ToLower() ) ) {
+                player.Message( "A zone with this name already exists. Use " + Color.Help + "/zedit" + Color.Sys + " to edit." );
+                return;
+            }
+
             Zone zone = new Zone();
             zone.name = name;
 
@@ -407,12 +454,12 @@ namespace fCraft {
             PlayerClass minRank = ClassList.ParseClass( property );
 
             if( minRank != null ) {
-                zone.buildRank = minRank.rank;
+                zone.build = minRank;
                 player.drawArgs = zone;
-                player.marksExpected = 2;
+                player.drawMarksExpected = 2;
                 player.drawMarks.Clear();
                 player.drawMarkCount = 0;
-                player.selectionCallback = ZoneAddCallback;
+                player.drawCallback = ZoneAddCallback;
                 player.Message( "Zone: Place a block or type /mark to use your location." );
             } else {
                 player.Message( "Unknown player class: " + property );
@@ -438,10 +485,10 @@ namespace fCraft {
 
 
         static void ZoneTest( Player player, Command cmd ) {
-            player.marksExpected = 1;
+            player.drawMarksExpected = 1;
             player.drawMarks.Clear();
             player.drawMarkCount = 0;
-            player.selectionCallback = ZoneTestCallback;
+            player.drawCallback = ZoneTestCallback;
             player.Message( "Click the block that you would like to test." );
         }
 
@@ -483,12 +530,14 @@ namespace fCraft {
             Zone[] zones = player.world.map.ListZones();
             if( zones.Length > 0 ) {
                 foreach( Zone zone in zones ) {
-                    PlayerClass rank = ClassList.ParseRank( zone.buildRank );
-                    if( rank != null ) {
-                        player.Message( "  " + zone.name + " (" + rank.color + rank.name + Color.Sys + ") - " + zone.GetWidthX() + "x" + zone.GetWidthY() + "x" + zone.GetHeight() );
-                    } else {
-                        player.Message( "  " + zone.name + " - " + zone.GetWidthX() + "x" + zone.GetWidthY() + "x" + zone.GetHeight() );
-                    }
+                    player.Message( String.Format( "  {0} ({1}{2}{3}) - {4}x{5}x{6}",
+                                                   zone.name,
+                                                   zone.build.color,
+                                                   zone.build.name,
+                                                   Color.Sys,
+                                                   zone.GetWidthX(),
+                                                   zone.GetWidthY(),
+                                                   zone.GetHeight() ) );
                 }
             } else {
                 player.Message( "No zones are defined for this map." );

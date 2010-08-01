@@ -109,20 +109,20 @@ namespace fCraft {
             player.drawArgs = (object)block;
             switch( mode ) {
                 case DrawMode.Cuboid:
-                    player.selectionCallback = DrawCuboid;
-                    player.marksExpected = 2;
+                    player.drawCallback = DrawCuboid;
+                    player.drawMarksExpected = 2;
                     break;
                 case DrawMode.CuboidHollow:
-                    player.selectionCallback = DrawCuboidHollow;
-                    player.marksExpected = 2;
+                    player.drawCallback = DrawCuboidHollow;
+                    player.drawMarksExpected = 2;
                     break;
                 case DrawMode.Ellipsoid:
-                    player.selectionCallback = DrawEllipsoid;
-                    player.marksExpected = 2;
+                    player.drawCallback = DrawEllipsoid;
+                    player.drawMarksExpected = 2;
                     break;
                 case DrawMode.Fill:
-                    player.selectionCallback = DoFill;
-                    player.marksExpected = 1;
+                    player.drawCallback = DoFill;
+                    player.drawMarksExpected = 1;
                     break;
                 case DrawMode.Replace:
                     string replacementBlockName = cmd.Next();
@@ -137,8 +137,8 @@ namespace fCraft {
                         player.Message( "Unknown block name: " + replacementBlockName );
                         return;
                     }
-                    player.selectionCallback = DrawReplace;
-                    player.marksExpected = 2;
+                    player.drawCallback = DrawReplace;
+                    player.drawMarksExpected = 2;
                     player.drawArgs = new ReplaceArgs() {
                         oldBlock = block,
                         replacementBlock = replacementBlock
@@ -154,12 +154,12 @@ namespace fCraft {
 
         internal static void Mark( Player player, Command command ) {
             Position pos = new Position( (short)(player.pos.x / 32), (short)(player.pos.y / 32), (short)(player.pos.h / 32) );
-            if( player.marksExpected > 0 ) {
+            if( player.drawMarksExpected > 0 ) {
                 player.drawMarks.Push( pos );
                 player.drawMarkCount++;
-                if( player.drawMarkCount >= player.marksExpected ) {
-                    player.selectionCallback( player, player.drawMarks.ToArray(), player.drawArgs );
-                    player.marksExpected = 0;
+                if( player.drawMarkCount >= player.drawMarksExpected ) {
+                    player.drawCallback( player, player.drawMarks.ToArray(), player.drawArgs );
+                    player.drawMarksExpected = 0;
                 } else {
                     player.Message( String.Format( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
                                                    player.drawMarkCount, pos.x, pos.y, pos.h, player.drawMarkCount + 1 ) );
@@ -171,8 +171,8 @@ namespace fCraft {
 
 
         internal static void CancelDraw( Player player, Command command ) {
-            if( player.marksExpected > 0 ) {
-                player.marksExpected = 0;
+            if( player.drawMarksExpected > 0 ) {
+                player.drawMarksExpected = 0;
             } else {
                 player.Message( "There is currently nothing to cancel." );
             }

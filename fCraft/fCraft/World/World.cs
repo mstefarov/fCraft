@@ -224,7 +224,7 @@ namespace fCraft {
 
                 // clear drawing status
                 player.drawUndoBuffer.Clear();
-                player.marksExpected = 0;
+                player.drawMarksExpected = 0;
                 player.drawMarks.Clear();
                 player.drawMarkCount = 0;
 

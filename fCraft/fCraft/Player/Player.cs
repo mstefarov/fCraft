@@ -45,10 +45,10 @@ namespace fCraft {
         internal Queue<BlockUpdate> drawUndoBuffer = new Queue<BlockUpdate>();
         internal bool drawingInProgress = false;
 
-        internal SelectionCallback selectionCallback;
+        internal SelectionCallback drawCallback;
         internal Stack<Position> drawMarks = new Stack<Position>();
         internal int drawMarkCount = 0;
-        internal int marksExpected = 0;
+        internal int drawMarksExpected = 0;
         internal object drawArgs; // can be used for 'block' or 'zone' or whatever
 
 
@@ -120,22 +120,24 @@ namespace fCraft {
 
             bool zoneOverride = false;
             string zoneName = "";
-            if( world.map.CheckZones( x, y, h, this, ref zoneOverride, ref zoneName ) ) {
-                if( !zoneOverride ) {
-                    SendTileNow( x, y, h );
-                    Message( "You are not allowed to build in \"" + zoneName + "\" zone." );
-                    return false;
+            if( drawMarksExpected != 1 ) {
+                if( world.map.CheckZones( x, y, h, this, ref zoneOverride, ref zoneName ) ) {
+                    if( !zoneOverride ) {
+                        SendTileNow( x, y, h );
+                        Message( "You are not allowed to build in \"" + zoneName + "\" zone." );
+                        return false;
+                    }
                 }
             }
 
             // action block handling
-            if( marksExpected > 0 ) {
+            if( drawMarksExpected > 0 ) {
                 SendTileNow( x, y, h );
                 drawMarks.Push( new Position( x, y, h ) );
                 drawMarkCount++;
-                if( drawMarkCount >= marksExpected ) {
-                    marksExpected = 0;
-                    selectionCallback( this, drawMarks.ToArray(), drawArgs );
+                if( drawMarkCount >= drawMarksExpected ) {
+                    drawMarksExpected = 0;
+                    drawCallback( this, drawMarks.ToArray(), drawArgs );
                 } else {
                     Message( String.Format( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
                                             drawMarkCount, x, y, h, drawMarkCount + 1 ) );

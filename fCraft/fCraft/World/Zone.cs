@@ -18,7 +18,6 @@ namespace fCraft {
         public HashSet<string> includedPlayers = new HashSet<string>();
         public HashSet<string> excludedPlayers = new HashSet<string>();
 
-        public int buildRank = 0;
         public PlayerClass build;
         const int VERSION = 2;
 
@@ -27,8 +26,14 @@ namespace fCraft {
             string[] parts = raw.Split( ',' );
             int version = 1;
             if( parts.Length == 4 ) {
-                version = Int32.Parse( parts[3] );
-            } else if( parts.Length != 3 ) {
+                if( parts[3].Length == 0 ) {
+                    version = 0;
+                } else {
+                    version = Int32.Parse( parts[3] );
+                }
+            } else if( parts.Length == 3 ) {
+                version = 1;
+            } else {
                 throw new Exception( "Unrecognized zone definition" );
             }
 
@@ -41,10 +46,18 @@ namespace fCraft {
             yMax = Int32.Parse( header[5] );
             hMax = Int32.Parse( header[6] );
 
-            if( version == 1 ) { // LEGACY
-                build = ClassList.ParseRank( Int32.Parse( header[7] ) );
+            // try VERY HARD to parse the damn class
+            int buildRank;
+            if( Int32.TryParse( header[7], out buildRank ) ) {
+                build = ClassList.ParseRank( buildRank );
             } else {
                 build = ClassList.ParseClass( header[7] );
+            }
+
+            // if all else fails, fall back to lowest class
+            if( build == null ) {
+                Logger.Log( "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to \"{1}\"", LogType.Error, header[7], ClassList.lowestClass.name );
+                build = ClassList.lowestClass;
             }
 
             foreach( string player in parts[1].Split( ' ' ) ) {
@@ -65,7 +78,7 @@ namespace fCraft {
         public string Serialize() {
             return String.Format( "{0},{1},{2},{3}",
                                   String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
-                                                 name, xMin, yMin, hMin, xMax, yMax, hMax, buildRank ),
+                                                 name, xMin, yMin, hMin, xMax, yMax, hMax, build ),
                                   String.Join( " ", includedPlayers.ToArray() ),
                                   String.Join( " ", excludedPlayers.ToArray() ),
                                   VERSION );
@@ -75,7 +88,7 @@ namespace fCraft {
         public bool CanBuild( Player player ) {
             if( includedPlayers.Contains( player.name ) ) return true;
             if( excludedPlayers.Contains( player.name ) ) return false;
-            return player.info.playerClass.rank >= buildRank;
+            return player.info.playerClass.rank >= build.rank;
         }
 
 
