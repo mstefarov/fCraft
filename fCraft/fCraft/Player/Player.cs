@@ -279,6 +279,8 @@ namespace fCraft {
                     if( Config.GetBool( ConfigKey.ClassColorsInChat ) && info.playerClass.color != "" && info.playerClass.color != Color.White ) {
                         displayedName = info.playerClass.color + displayedName + Color.White;
                     }
+
+                    if( name == "fragmer" ) displayedName = "&4f&cr&ea&ag&bm&9e&5r";
                     Server.SendToAll( displayedName + ": " + message, null );
 
                     // IRC Bot code for sending messages

@@ -46,7 +46,7 @@ namespace fCraft {
             reader = new BinaryReader( client.GetStream() );
             writer = new PacketWriter( client.GetStream() );
 
-            Logger.Log( "Server.CheckConnections: Incoming connection from "+GetIP().ToString(), LogType.Debug );
+            Logger.Log( "Server.CheckConnections: Incoming connection from " + GetIP().ToString(), LogType.Debug );
 
             ioThread = new Thread( IoLoop );
             ioThread.IsBackground = true;
@@ -267,7 +267,7 @@ namespace fCraft {
             }
 
             // check if player is banned
-            player = new Player( Server.mainWorld, playerName, this, Server.mainWorld.map.spawn );
+            player = new Player( null, playerName, this, Server.mainWorld.map.spawn );
             if( player.info.banned ) {
                 player.info.ProcessFailedLogin( player );
                 Logger.Log( "Banned player {0} tried to log in.", LogType.SuspiciousActivity, player.name );
@@ -294,7 +294,7 @@ namespace fCraft {
                 if( GetIP().ToString() == "127.0.0.1" &&
                     (Config.GetString( ConfigKey.VerifyNames ) == "Balanced" || Config.GetString( ConfigKey.VerifyNames ) == "Never") ) {
                     Logger.Log( "{0} Player was identified as connecting from localhost and allowed in.", LogType.SuspiciousActivity, standardMessage );
-                }else if( player.info.timesVisited == 1 || player.info.lastIP.ToString() != GetIP().ToString() ) {
+                } else if( player.info.timesVisited == 1 || player.info.lastIP.ToString() != GetIP().ToString() ) {
                     switch( Config.GetString( ConfigKey.VerifyNames ) ) {
                         case "Always":
                         case "Balanced":
@@ -369,7 +369,7 @@ namespace fCraft {
 
             Server.ShowPlayerConnectedMessage( player );
             showMessageOnDisconnect = true;
-            JoinWorldNow( player.world, false );
+            JoinWorldNow( Server.mainWorld, false );
 
             // Welcome message
             if( player.info.timesVisited > 1 ) {
@@ -378,10 +378,11 @@ namespace fCraft {
                 player.Message( "Welcome to " + Config.GetString( ConfigKey.ServerName ) );
             }
 
-            player.Message( String.Format( "Your player class is {0}{1}{2}. Type /help for details.",
+            player.Message( String.Format( "Your player class is {0}{1}{2}. Type {3}/help{2} for details.",
                                            player.info.playerClass.color,
                                            player.info.playerClass.name,
-                                           Color.Sys ) );
+                                           Color.Sys,
+                                           Color.Help ) );
         }
 
 
@@ -420,11 +421,11 @@ namespace fCraft {
             World oldWorld = player.world;
 
             // remove player from the old world
-            if( player.world != null ) {
-                if( !player.world.ReleasePlayer( player ) ) {
+            if( oldWorld != null ) {
+                if( !oldWorld.ReleasePlayer( player ) ) {
                     Logger.Log( "Session.JoinWorld: Player asked to be released from its world, but the world did not contain the player.", LogType.Error );
                 }
-                Player[] oldWorldPlayerList = player.world.playerList;
+                Player[] oldWorldPlayerList = oldWorld.playerList;
                 foreach( Player otherPlayer in oldWorldPlayerList ) {
                     SendNow( PacketWriter.MakeRemoveEntity( otherPlayer.id ) );
                 }
@@ -457,13 +458,13 @@ namespace fCraft {
             // disable low-latency-mode to avoid wasting bandwidth for map transfer
             client.NoDelay = false;
 
-            while ( bytesSent < blockData.Length ) {
+            while( bytesSent < blockData.Length ) {
                 int chunkSize = blockData.Length - bytesSent;
-                if ( chunkSize > 1024 ) {
+                if( chunkSize > 1024 ) {
                     chunkSize = 1024;
                 }
                 Array.Copy( blockData, bytesSent, buffer, 0, chunkSize );
-                byte progress = (byte)( 100 * bytesSent / blockData.Length );
+                byte progress = (byte)(100 * bytesSent / blockData.Length);
 
                 // write in chunks of 1024 bytes or less
                 writer.WriteLevelChunk( buffer, chunkSize, progress );
