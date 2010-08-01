@@ -1,5 +1,17 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-07-31
+2010-08-01
+427
+ Feature: Added /zedit command for changing zone permissions after creation
+ Feature: New aliases for drawing commands: /c /e /h /r /m
+ Fix: Fix for cuboid command kicking players with "Block.Undefined" if called with no optional BlockType parameter
+ Fix: Fixed zone definitions getting corrupted.
+ Fix: Allowed /save command to be used from console and from remote worlds. Previously you had to join the world to save it.
+ Fix: Fixed potential crash in /winfo when looking up unloaded worlds.
+ Fix: Fixed /zone allowing duplicate names, then kicking the client.
+ Fix: Fixed /ztest showing the standard "you are not allowed to build in this zone" message instead of the expected zone list.
+ Fix: Fixed incorrect description of draw log messages, and backup error messages
+ Fix: Fixed false triggering of "Player asked to be released from its world, but the world did not contain the player" error
+ Change: Fruitified fragmer's name 
 426
  Feature: Announcements! You can define a list of announcements to show periodically. A random line from announcements.txt will be shown to all players at specified interval (in minutes).
  Feature: /replace command.

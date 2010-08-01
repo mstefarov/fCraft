@@ -67,18 +67,53 @@ namespace fCraft {
                 return;
             }
 
-            string fileName = cmd.Next();
-            if( fileName == null ) {
-                player.Message( "Syntax: " + Color.Help + "/save mapName" );
+            string p1 = cmd.Next(), p2 = cmd.Next();
+            if( p1 == null ) {
+                player.Message( "See " + Color.Help + "/help save" + Color.Sys + " for usage information." );
                 return;
             }
 
+            World world = player.world;
+            string fileName;
+            if( p2 == null ) {
+                fileName = p1;
+                if( world == null ) {
+                    player.Message( "When called from console, /save requires WorldName. See \"/help save\" for details." );
+                    return;
+                }
+            } else {
+                fileName = p2;
+                world = Server.FindWorld( p1 );
+                if( world == null ) {
+                    player.Message( "No world found named \"" + p1 + "\"." );
+                    return;
+                }
+            }
+
+
             string mapFileName = "maps/" + fileName + ".fcm";
+
             player.Message( "Saving map to \"" + mapFileName + "\"..." );
-            if( player.world.map.Save( mapFileName ) ) {
+
+            string mapSavingError = "Map saving failed. See server logs for details.";
+            Map map = world.map;
+            if( map == null ) {
+                if( File.Exists( world.GetMapName() ) ) {
+                    try {
+                        File.Copy( world.GetMapName(), mapFileName, true );
+                    } catch( Exception ex ) {
+                        Logger.Log( "StandardCommands.Save: Error occured while trying to copy an unloaded map: " + ex, LogType.Error );
+                        player.Message( mapSavingError );
+                    }
+                } else {
+                    Logger.Log( "StandardCommands.Save: Map for world \"" + world.name + "\" is unloaded, and file does not exist.", LogType.Error );
+                    player.Message( mapSavingError );
+                }
+            } else if( map.Save( mapFileName ) ) {
                 player.Message( "Map saved succesfully." );
             } else {
-                player.Message( "Map saving failed. See server logs for details." );
+                Logger.Log( "StandardCommands.Save: Saving world \"" + world.name + "\" failed.", LogType.Error );
+                player.Message( mapSavingError );
             }
         }
 
