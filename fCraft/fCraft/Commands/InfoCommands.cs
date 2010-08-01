@@ -46,8 +46,20 @@ namespace fCraft {
 
             player.Message( String.Format( "World \"{0}\" has {1} players on.",
                                            world.name, world.playerList.Length ) );
-            player.Message( String.Format( "Map dimensions are {0} x {1} x {2}",
-                                           world.map.widthX, world.map.widthY, world.map.height ) );
+
+            // If map is not currently loaded, grab its header from disk
+            Map map = world.map;
+            if( map == null ) {
+                map = Map.LoadHeaderOnly( world.GetMapName() );
+            }
+            if( map == null ) {
+                player.Message( "Map information could not be loaded." );
+            } else {
+                player.Message( String.Format( "Map dimensions are {0} x {1} x {2}",
+                                               world.map.widthX, world.map.widthY, world.map.height ) );
+            }
+
+            // Print access/build limits
             if( world.classAccess != ClassList.lowestClass ) {
                 player.Message( String.Format( "Requires players to be ranked {0}{1}{2}+ to join.", world.classAccess.color, world.classAccess.name, Color.Sys ) );
             } else {
