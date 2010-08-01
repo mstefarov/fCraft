@@ -25,17 +25,22 @@ namespace fCraft {
             Commands.AddCommand( "cuboid", Cuboid, false );
             Commands.AddCommand( "cub", Cuboid, false );
             Commands.AddCommand( "blb", Cuboid, false );
+            Commands.AddCommand( "c", Cuboid, false );
 
             Commands.AddCommand( "cuboidh", CuboidHollow, false );
             Commands.AddCommand( "cubh", CuboidHollow, false );
             Commands.AddCommand( "bhb", CuboidHollow, false );
+            Commands.AddCommand( "h", CuboidHollow, false );
 
             Commands.AddCommand( "replace", Replace, false );
+            Commands.AddCommand( "r", Replace, false );
 
             Commands.AddCommand( "ellipsoid", Ellipsoid, false );
             Commands.AddCommand( "ell", Ellipsoid, false );
+            Commands.AddCommand( "e", Ellipsoid, false );
 
             Commands.AddCommand( "mark", Mark, false );
+            Commands.AddCommand( "m", Mark, false );
             Commands.AddCommand( "undo", UndoDraw, false );
             Commands.AddCommand( "cancel", CancelDraw, false );
         }
@@ -236,10 +241,11 @@ namespace fCraft {
             }
 
             player.Message( "Replacing " + blocks + " blocks... The map is now being updated." );
-            Logger.Log( "{0} initiated drawing a cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
+            Logger.Log( "{0} initiated replacing {1} {2} blocks with {3}.", LogType.UserActivity,
                                   player.GetLogName(),
                                   blocks,
-                                  oldBlock.ToString() );
+                                  (Block)oldBlock,
+                                  (Block)replacementBlock );
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
             player.drawingInProgress = false;
         }
@@ -248,11 +254,9 @@ namespace fCraft {
         internal static void DrawCuboid( Player player, Position[] marks, object tag ) {
             player.drawingInProgress = true;
 
-            Block drawBlock;
-            if( tag == null ) {
+            Block drawBlock = (Block)tag;
+            if( drawBlock == Block.Undefined ) {
                 drawBlock = player.lastUsedBlockType;
-            } else {
-                drawBlock = (Block)tag;
             }
 
             // find start/end coordinates
@@ -304,11 +308,9 @@ namespace fCraft {
         internal static void DrawCuboidHollow( Player player, Position[] marks, object tag ) {
             player.drawingInProgress = true;
 
-            byte drawBlock;
-            if( tag == null ) {
+            byte drawBlock = (byte)tag;
+            if( drawBlock == (byte)Block.Undefined ) {
                 drawBlock = (byte)player.lastUsedBlockType;
-            } else {
-                drawBlock = (byte)tag;
             }
 
             // find start/end coordinates
@@ -369,11 +371,9 @@ namespace fCraft {
         internal static void DrawEllipsoid( Player player, Position[] marks, object tag ) {
             player.drawingInProgress = true;
 
-            Block drawBlock;
-            if( tag == null ) {
-                drawBlock = player.lastUsedBlockType;
-            } else {
-                drawBlock = (Block)tag;
+            byte drawBlock = (byte)tag;
+            if( drawBlock == (byte)Block.Undefined ) {
+                drawBlock = (byte)player.lastUsedBlockType;
             }
 
             // find start/end coordinates
@@ -439,7 +439,7 @@ namespace fCraft {
             }
             player.drawingInProgress = false;
             player.Message( "Drawing " + blocks + " blocks... The map is now being updated." );
-            Logger.Log( "{0} initiated drawing a cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
+            Logger.Log( "{0} initiated drawing an ellipsoid containing {1} blocks of type {2}.", LogType.UserActivity,
                                   player.GetLogName(),
                                   blocks,
                                   drawBlock.ToString() );

@@ -597,7 +597,7 @@ namespace fCraft {
                 for( int i = backupList.Length - 1; i > Config.GetInt( ConfigKey.MaxBackups ); i-- ) {
                     try {
                         File.Delete( backupList[i].FullName );
-                        Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.Error,
+                        Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
                                     backupList[i].Name );
                     } catch( Exception ex ) {
                         Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": " + ex, LogType.Error,
