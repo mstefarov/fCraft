@@ -20,13 +20,51 @@ namespace fCraft {
 
             Commands.AddCommand( "version", GetVersion, true );
             Commands.AddCommand( "players", Players, true );
+
+            Commands.AddCommand( "mapinfo", WorldInfo, true );
+            Commands.AddCommand( "winfo", WorldInfo, true );
+        }
+
+
+        internal static void WorldInfo( Player player, Command cmd ) {
+            string worldName = cmd.Next();
+            if( worldName == null ) {
+                if( player.world == null ) {
+                    player.Message( "Please specify a world name when calling /winfo form console." );
+                    return;
+                } else {
+                    worldName = player.world.name;
+                }
+            }
+
+            World world = Server.FindWorld( worldName );
+            if( world == null ) {
+                player.Message( "Unrecognized world name: \"" + worldName + "\"." );
+                player.Message( "See " + Color.Help + "/worlds" + Color.Sys + " for a list of worlds." );
+                return;
+            }
+
+            player.Message( String.Format( "World \"{0}\" has {1} players on.",
+                                           world.name, world.playerList.Length ) );
+            player.Message( String.Format( "Map dimensions are {0} x {1} x {2}",
+                                           world.map.widthX, world.map.widthY, world.map.height ) );
+            if( world.classAccess != ClassList.lowestClass ) {
+                player.Message( String.Format( "Requires players to be ranked {0}{1}{2}+ to join.", world.classAccess.color, world.classAccess.name, Color.Sys ) );
+            } else {
+                player.Message( "Anyone can join \"" + world.name + "\"." );
+            }
+            if( world.classBuild != ClassList.lowestClass ) {
+                player.Message( String.Format( "Requires players to be ranked {0}{1}{2}+ to build.", world.classBuild.color, world.classBuild.name, Color.Sys ) );
+            } else {
+                player.Message( "Anyone can build on \"" + world.name + "\"." );
+            }
         }
 
 
         internal static void Players( Player player, Command cmd ) {
             Player[] players = Server.playerList;
             if( players.Length > 0 ) {
-                player.Message("There are "+players.Length+" players on the server :");
+                player.Message( "There are " + players.Length + " players on the server :" );
                 string line = "";
                 bool first = true;
                 foreach( Player p in players ) {
@@ -271,6 +309,13 @@ namespace fCraft {
                     player.Message( Color.Help, "/players" );
                     player.Message( "     Lists all players on the server (in all worlds)." );
                     break;
+                case "replace":
+                    player.Message( Color.Help, "/replace TargetBlock ReplacementBlock" );
+                    player.Message( "     Replaces all blocks of specified type in an area." );
+                    player.Message( "     Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode." );
+                    player.Message( "     Type " + Color.Help + "/undo" + Color.Sys + " to undo the last draw operation." );
+                    player.Message( "     Use " + Color.Help + "/lock" + Color.Sys + " to cancel drawing after it started." );
+                    break;
                 case "roll":
                     player.Message( Color.Help, "/roll" );
                     player.Message( "     Gives random number between 1 and 100." );
@@ -386,6 +431,13 @@ namespace fCraft {
                     player.Message( Color.Help, "/whois PlayerNickName" );
                     player.Message( "     Shows whether a player uses a real name or nickname." );
                     break;
+                case "mapinfo":
+                case "winfo":
+                    player.Message( Color.Help, "/winfo [WorldName]" );
+                    player.Message( "     Shows information about a world: player count," );
+                    player.Message( "     map dimensions, permissions, etc." );
+                    player.Message( "     If no WorldName is given, shows info for current world." );
+                    break;
                 case "worlds":
                     player.Message( Color.Help, "/worlds" );
                     player.Message( "     List all available worlds that you can join." );
@@ -441,23 +493,23 @@ namespace fCraft {
                 case "commands":
                     player.Message( "List of all commands:" );
                     player.Message( Color.Help, "   ban, banall, baninfo, banip, bring, cancel, class, cuboid" );
-                    player.Message( Color.Help, "   ellipsoid, freeze, gen, grass, help, hide, importbans" );
-                    player.Message( Color.Help, "   importranks, info, join, kick, lava, lock, lockall, me" );
-                    player.Message( Color.Help, "   nick, paint, players, roll, rules, save, setspawn, solid" );
-                    player.Message( Color.Help, "   tp, unban, unbanall, unbanip, undo, unhide, unfreeze" );
-                    player.Message( Color.Help, "   unlock, unlockall, user, waccess, water, wbuild, where" );
-                    player.Message( Color.Help, "   whois, worlds, wload, wmain, wremove, wrename, zone, zones" );
-                    player.Message( Color.Help, "   zremove, ztest" );
+                    player.Message( Color.Help, "   cuboidh, ellipsoid, freeze, gen, grass, help, hide" );
+                    player.Message( Color.Help, "   importbans, importranks, info, join, kick, lava, lock" );
+                    player.Message( Color.Help, "   lockall, me, nick, paint, players, replace, roll, rules" );
+                    player.Message( Color.Help, "   save, setspawn, solid, tp, unban, unbanall, unbanip, undo" );
+                    player.Message( Color.Help, "   unhide, unfreeze, unlock, unlockall, user, waccess, water" );
+                    player.Message( Color.Help, "   wbuild, where, whois, winfo, worlds, wload, wmain, wremove" );
+                    player.Message( Color.Help, "   wrename, zone, zones, zremove, ztest" );
                     break;
 
                 default:
-                    player.Message( "To see detailed help about a command, write " + Color.Help + "/help command" );
+                    player.Message( "To see detailed help for a command, write " + Color.Help + "/help CommandName" );
                     if( player.world != null ) {
                         player.Message( "To find out about your permissions, write " + Color.Help + "/class " + player.info.playerClass.name );
                     }
                     player.Message( "To see a list of all commands, write " + Color.Help + "/help commands" );
                     player.Message( "To list available worlds, write " + Color.Help + "/worlds" );
-                    player.Message( "To join a specific world, write "+Color.Help+"/join WorldName" );
+                    player.Message( "To join a specific world, write " + Color.Help + "/join WorldName" );
                     player.Message( "To send private messages, write " + Color.Help + "@playername [message]" );
                     player.Message( "To message all players of a class, write " + Color.Help + "@@class [message]" );
                     //TODO: fetch an actual, current list of commands
@@ -657,16 +709,21 @@ namespace fCraft {
         }
 
 
-        const string rulesFile = "rules.txt";
+        const string RulesFile = "rules.txt";
+
         // Prints rules (if any are defined)
         internal static void Rules( Player player, Command cmd ) {
-            if( !File.Exists( rulesFile ) ) {
+            if( !File.Exists( RulesFile ) ) {
                 player.Message( "Rules: Use common sense!" );
             } else {
                 try {
                     foreach( string ruleLine in File.ReadAllLines( RuleFile ) ) {
                         if( ruleLine.Trim().Length > 0 ) {
-                            player.Message( ruleLine );
+                            if( ruleLine.StartsWith( "&" ) ) {
+                                player.Message( "", ruleLine );
+                            } else {
+                                player.Message( Color.Announcement, ruleLine );
+                            }
                         }
                     }
                 } catch( Exception ex ) {

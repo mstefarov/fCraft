@@ -22,9 +22,7 @@ namespace fCraft {
                             Yellow  = "&e",
                             White   = "&f";
 
-        public static string Sys =     Yellow,
-                             Help = Magenta,
-                             Say =     Yellow;
+        public static string Sys, Help, Say, Announcement;
 
         static SortedList<char, string> colors = new SortedList<char, string>(16);
 

@@ -1,5 +1,26 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-06-29
+2010-07-31
+426
+ Feature: Announcements! You can define a list of announcements to show periodically. A random line from announcements.txt will be shown to all players at specified interval (in minutes).
+ Feature: /replace command.
+ Feature: /undo command has been improved for more flexibility and better performance.
+ Feature: /winfo (alias: /mapinfo) is added for displaying world name, player count, map dimensions, and access/build permissions.
+ Fix: Fixed a bug that caused duplicate entries to be added to PlayerDB when doing /importranks or /importbans.
+ Change: New ConfigKeys: AnnouncementColor (default: green) and AnnouncementInterval (default: 5 minutes).
+ Change: Draw command stride increased to 16x16x16, for better theoretical performance.
+425
+ Feature: Added hollow draw command (/cubh) and aliases (/cuboidh and /bhb)
+ Feature: /players now shows class colors and a total number of players. Breakdown of /players by world is coming soon
+ Feature: Added "Joined world WorldName" message that shows when changing worlds
+ Fix: Improved several /help entries
+ Fix: Fixed a bug in Map.SaveBackup() that could cause a crash if MaxBackups was set
+ Fix: Fixed a bug in ConfigUI where "Delete World" button could leave the map file behind and/or cause an error
+ Fix: Calling lock/unlock from console without a WorldName now shows a nicer error message
+ Change: Improved safety checks of /join command
+ Change: Added a catch-all exception handler into Server.MainLoop
+ Change: Added exception handlers for EVERY single piece of code that requires file access
+ Change: Added more thread safety in MapCommands.WorldRename that resolves a potential race condition with Map.Save
+ Change: Modified IPBanList to use the standard temp folder (instead of fCraft working path) for its temp files
 424
  Fix: Fixed /unhide and normal connection getting different messages
  Fix: Fixed client crash when viewing /rules if the rule file has blank lines

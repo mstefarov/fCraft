@@ -13,11 +13,11 @@ namespace fCraft {
         static List<PlayerInfo> list = new List<PlayerInfo>();
 
         public const string DBFile = "PlayerDB.txt",
-                            Header = "playerName,lastIP,playerClass,classChangeDate,classChangedBy,"+
-                                     "banStatus,banDate,bannedBy,unbanDate,unbannedBy,"+
-                                     "firstLoginDate,lastLoginDate,lastFailedLoginDate,"+
+                            Header = "playerName,lastIP,playerClass,classChangeDate,classChangedBy," +
+                                     "banStatus,banDate,bannedBy,unbanDate,unbannedBy," +
+                                     "firstLoginDate,lastLoginDate,lastFailedLoginDate," +
                                      "lastFailedLoginIP,failedLoginCount,totalTimeOnServer," +
-                                     "blocksBuilt,blocksDeleted,timesVisited,"+
+                                     "blocksBuilt,blocksDeleted,timesVisited," +
                                      "linesWritten,thanksReceived,warningsReceived";
 
         public static ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
@@ -28,11 +28,13 @@ namespace fCraft {
             locker.EnterWriteLock();
             try {
                 list.Add( info );
+                tree.Add( info.name, info );
             } finally {
                 locker.ExitWriteLock();
             }
             return info;
         }
+
 
         public static void Load() {
             if( File.Exists( DBFile ) ) {
@@ -45,8 +47,13 @@ namespace fCraft {
                             if( fields.Length == PlayerInfo.fieldCount ) {
                                 try {
                                     PlayerInfo info = new PlayerInfo( fields );
-                                    tree.Add( info.name, info );
-                                    list.Add( info );
+                                    PlayerInfo dupe = tree.Get( info.name );
+                                    if( dupe == null ) {
+                                        tree.Add( info.name, info );
+                                        list.Add( info );
+                                    } else {
+                                        Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error, info.name );
+                                    }
                                 } catch( FormatException ex ) {
                                     Logger.Log( "PlayerDB.Load: Could not parse a record: {0}.", LogType.Error, ex.Message );
                                 } catch( IOException ex ) {
@@ -157,6 +164,7 @@ namespace fCraft {
 
             return info;
         }
+
 
         internal static void ProcessLogout( Player player ) {
             if( player == null ) return;

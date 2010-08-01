@@ -18,6 +18,9 @@ namespace fCraft {
         HelpColor,
         SayColor,
 
+        AnnouncementColor,
+        AnnouncementInterval,
+
         VerifyNames,
         AnnounceUnverifiedNames,
 

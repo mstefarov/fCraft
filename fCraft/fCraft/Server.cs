@@ -155,6 +155,11 @@ namespace fCraft {
             // Write out initial (empty) playerlist cache
             UpdatePlayerList();
 
+            // Announcements
+            if( Config.GetInt( ConfigKey.AnnouncementInterval ) > 0 ) {
+                AddTask( ShowRandomAnnouncement, Config.GetInt( ConfigKey.AnnouncementInterval ) * 60000 );
+            }
+
             // start the main loop - server is now connectible
             mainThread = new Thread( MainLoop );
             mainThread.Start();
@@ -728,6 +733,21 @@ namespace fCraft {
                 }
             }
             taskList = tempTaskList.ToArray();
+        }
+
+        public const string AnnouncementsFile = "announcements.txt";
+        static void ShowRandomAnnouncement( object param ) {
+            if( File.Exists( AnnouncementsFile ) ) {
+                string[] lines = File.ReadAllLines( AnnouncementsFile );
+                string line = lines[new Random().Next( 0, lines.Length )];
+                if( line.Trim().Length > 0 ) {
+                    if( line.StartsWith( "&" ) ) {
+                        SendToAll( line );
+                    } else {
+                        SendToAll( Color.Announcement + line );
+                    }
+                }
+            }
         }
 
         #endregion

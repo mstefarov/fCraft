@@ -65,6 +65,9 @@ namespace fCraft {
             settings[ConfigKey.SystemMessageColor] = "yellow";
             settings[ConfigKey.HelpColor] = "purple";
             settings[ConfigKey.SayColor] = "yellow";
+
+            settings[ConfigKey.AnnouncementColor] = "green";
+            settings[ConfigKey.AnnouncementInterval] = "5";
         }
 
         public static void LoadDefaultsSecurity() {
@@ -350,6 +353,7 @@ namespace fCraft {
             Color.Sys = Color.Parse( settings[ConfigKey.SystemMessageColor] );
             Color.Say = Color.Parse( settings[ConfigKey.SayColor] );
             Color.Help = Color.Parse( settings[ConfigKey.HelpColor] );
+            Color.Announcement = Color.Parse( settings[ConfigKey.AnnouncementColor] );
 
             // default class
             if( ClassList.ParseClass( settings[ConfigKey.DefaultClass] ) != null ) {
@@ -405,6 +409,9 @@ namespace fCraft {
                 //case "IRCBotNetwork":
                 //case "IRCBotChannels": // don't bother validating network and channel list
 
+                case ConfigKey.AnnouncementInterval:
+                    return ValidateInt( key, value, 1, 60 );
+
                 case ConfigKey.IsPublic:
                 case ConfigKey.ClassColorsInChat:
                 case ConfigKey.ClassPrefixesInChat:
@@ -423,8 +430,8 @@ namespace fCraft {
                 case ConfigKey.SystemMessageColor:
                 case ConfigKey.HelpColor:
                 case ConfigKey.SayColor:
+                case ConfigKey.AnnouncementColor:
                     return ValidateColor( key, value );
-
 
                 case ConfigKey.VerifyNames:
                     return ValidateEnum( key, value, "Always", "Balanced", "Never" );
