@@ -91,16 +91,15 @@ namespace fCraft {
 
         byte* image;
         int imageWidth, imageHeight;
-        int x = 0, y = 0, h = 0;
-        byte block = 0;
-        int rot;
+        int x, y, h;
+        byte block;
         IsoCatMode mode;
         Map map;
         Bitmap imageBmp;
         BitmapData imageData;
 
         int dimX, dimY, dimX1, dimY1, dimX2, dimY2;
-        int offsetX, offsetY;
+        int offsetX, offsetY, rot;
         int isoOffset, isoX, isoY, isoH;
 
         int imageStride;

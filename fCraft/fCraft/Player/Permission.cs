@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace fCraft {
-    public enum Permissions {
+    public enum Permission {
         Chat,
         Build,
         Delete,

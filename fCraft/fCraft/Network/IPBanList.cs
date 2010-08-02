@@ -118,9 +118,7 @@ namespace fCraft {
             bannedBy = fields[1];
             banDate = DateTime.Parse( fields[2] );
             banReason = PlayerInfo.UnEscape( fields[3] );
-            if( fields[4] == "-" ) {
-                playerName = null;
-            } else {
+            if( fields[4] != "-" ) {
                 playerName = fields[4];
             }
 
@@ -142,7 +140,7 @@ namespace fCraft {
             }
             playerName = _playerName;
 
-            attempts = 0;
+            //attempts = 0;
             lastAttemptName = _playerName;
             lastAttemptDate = DateTime.MinValue;
         }

@@ -10,7 +10,7 @@ namespace fCraft {
         public DateTime nextTime;
         public int interval;
         public TaskCallback callback;
-        public object param = null;
+        public object param;
         public bool enabled = true;
     }
 
@@ -35,7 +35,7 @@ namespace fCraft {
         }
 
 
-        public static void ShutDown() {
+        public static void Shutdown() {
             keepGoing = false;
             if( taskThread != null && taskThread.IsAlive ) {
                 taskThread.Join();
@@ -44,7 +44,7 @@ namespace fCraft {
 
 
         public static void Restart() {
-            ShutDown();
+            Shutdown();
             tasks.Clear();
             priorityTasks.Clear();
             Start();

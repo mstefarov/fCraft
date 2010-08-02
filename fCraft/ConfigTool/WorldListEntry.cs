@@ -8,8 +8,8 @@ using fCraft;
 namespace ConfigTool {
     class WorldListEntry {
         public const string DefaultClassOption = "(everyone)";
-        Map cachedMapHeader = null;
-        internal bool loadingFailed = false;
+        Map cachedMapHeader;
+        internal bool loadingFailed;
 
         public WorldListEntry() { }
 
@@ -22,7 +22,7 @@ namespace ConfigTool {
         }
 
         public WorldListEntry( XElement el ) {
-            XAttribute temp = null;
+            XAttribute temp;
 
             if( (temp = el.Attribute( "name" )) == null ) {
                 throw new Exception( "WorldListEntity: Cannot parse XML: Unnamed worlds are not allowed." );
@@ -58,8 +58,6 @@ namespace ConfigTool {
                 if( accessClass == null ) {
                     throw new Exception( "WorldListEntity: Cannot parse XML: Unrecognized class specified for \"access\" permission." );
                 }
-            } else {
-                accessClass = null;
             }
 
             if( (temp = el.Attribute( "build" )) != null ) {
@@ -67,8 +65,6 @@ namespace ConfigTool {
                 if( buildClass == null ) {
                     throw new Exception( "WorldListEntity: Cannot parse XML: Unrecognized class specified for \"build\" permission." );
                 }
-            } else {
-                buildClass = null;
             }
         }
 

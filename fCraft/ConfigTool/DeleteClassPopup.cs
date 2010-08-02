@@ -11,7 +11,8 @@ using fCraft;
 
 namespace ConfigTool {
     public partial class DeleteClassPopup : Form {
-        internal PlayerClass substituteClass = null;
+        internal PlayerClass substituteClass;
+
         public DeleteClassPopup( PlayerClass _pc ) {
             InitializeComponent();
             foreach( PlayerClass pc in ClassList.classesByIndex ) {
@@ -22,6 +23,7 @@ namespace ConfigTool {
             lWarning.Text = String.Format( lWarning.Text, _pc.name );
             cSubstitute.SelectedIndex = cSubstitute.Items.Count - 1;
         }
+
 
         private void cSubstitute_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cSubstitute.SelectedIndex >= 0 ) {

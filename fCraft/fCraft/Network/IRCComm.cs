@@ -168,7 +168,7 @@ Console.WriteLine("*SERVERMSG* :" + msg);
                                 IRCMessage message = new IRCMessage();
                                 IRCBot.ParseMsg( ref message, msg );
                                 // Parse the message for something useful (commands, etc)
-                                if( message.chatMessage != null && message.chatMessage != "" ) {
+                                if( message.chatMessage != null && message.chatMessage.Length > 0 ) {
                                     IRCBot.AddMessage( message );
                                     // TODO: Instead of only adding messages to a stack, throw an event too
                                 }
@@ -260,8 +260,8 @@ Console.WriteLine(ex.ToString());
 #if DEBUG_IRC
 Console.WriteLine("*SENT-MESSAGE* :" + message.chatMessage + " | to: " + message.to);
 #endif
-                    if( message.colour != null && message.colour != "" )
-                        writer.WriteLine( "PRIVMSG " + channel + " :" + message.colour + message.chatMessage + "\r\n" );
+                    if( message.color != null && message.color.Length > 0 )
+                        writer.WriteLine( "PRIVMSG " + channel + " :" + message.color + message.chatMessage + "\r\n" );
                     else
                         writer.WriteLine( "PRIVMSG " + channel + " :" + message.chatMessage + "\r\n" );
 
@@ -279,8 +279,8 @@ Console.WriteLine("*SENT-MESSAGE* :" + message.chatMessage + " | to: " + message
 #if DEBUG_IRC
 Console.WriteLine("*SENT-PM* :" + message.chatMessage + " | to: " + message.to);
 #endif
-                if( message.colour != null && message.colour != "" )
-                    writer.WriteLine( "PRIVMSG " + message.to + " :" + message.colour + message.chatMessage + "\r\n" );
+                if( message.color != null && message.color.Length > 0 )
+                    writer.WriteLine( "PRIVMSG " + message.to + " :" + message.color + message.chatMessage + "\r\n" );
                 else
                     writer.WriteLine( "PRIVMSG " + message.to + " :" + message.chatMessage + "\r\n" );
                 writer.Flush();
@@ -296,8 +296,8 @@ Console.WriteLine("*SENT-PM* :" + message.chatMessage + " | to: " + message.to);
 #if DEBUG_IRC
 Console.WriteLine("*SENT-PM* :" + message.chatMessage + " | to: " + message.to);
 #endif
-                if( message.colour != null && message.colour != "" )
-                    writer.WriteLine( "NOTICE " + message.to + " :" + message.colour + message.chatMessage + "\r\n" );
+                if( message.color != null && message.color.Length > 0 )
+                    writer.WriteLine( "NOTICE " + message.to + " :" + message.color + message.chatMessage + "\r\n" );
                 else
                     writer.WriteLine( "NOTICE " + message.to + " :" + message.chatMessage + "\r\n" );
                 writer.Flush();
@@ -323,7 +323,7 @@ Console.WriteLine("*SENT-RAW* :" + message.chatMessage );
         }
 
         #region Utilities
-        public static void ShutDown() {
+        public static void Shutdown() {
             serverMsg.chatMessage = "QUIT :" + QUITMSG;
             SendRaw( ref serverMsg );
             doShutdown = true;

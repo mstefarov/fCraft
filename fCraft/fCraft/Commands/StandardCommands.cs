@@ -51,8 +51,8 @@ namespace fCraft {
 
 
         internal static void Nick( Player player, Command cmd ) {
-            if( !player.Can( Permissions.ChangeName ) ) {
-                player.NoAccessMessage( Permissions.ChangeName );
+            if( !player.Can( Permission.ChangeName ) ) {
+                player.NoAccessMessage( Permission.ChangeName );
                 return;
             }
 
@@ -115,7 +115,7 @@ namespace fCraft {
 
 
         internal static void Say( Player player, Command cmd ) {
-            if( player.Can( Permissions.Say ) ) {
+            if( player.Can( Permission.Say ) ) {
                 string msg = cmd.NextAll();
                 if( msg != null && msg.Trim().Length > 0 ) {
                     Server.SendToAll( Color.Say + msg.Trim() );
@@ -123,7 +123,7 @@ namespace fCraft {
                     player.Message( "Usage: " + Color.Help + "/say message" );
                 }
             } else {
-                player.NoAccessMessage( Permissions.Say );
+                player.NoAccessMessage( Permission.Say );
             }
         }
 
@@ -153,14 +153,14 @@ namespace fCraft {
         }
 
         internal static void DoBan( Player player, string nameOrIP, string reason, bool banIP, bool banAll, bool unban ) {
-            if( !player.Can( Permissions.Ban ) ) {
-                player.NoAccessMessage( Permissions.Ban );
+            if( !player.Can( Permission.Ban ) ) {
+                player.NoAccessMessage( Permission.Ban );
                 return;
-            } else if( banIP && !player.Can( Permissions.BanIP ) ) {
-                player.NoAccessMessage( Permissions.BanIP );
+            } else if( banIP && !player.Can( Permission.BanIP ) ) {
+                player.NoAccessMessage( Permission.BanIP );
                 return;
-            } else if( banAll && !player.Can( Permissions.BanAll ) ) {
-                player.NoAccessMessage( Permissions.BanAll );
+            } else if( banAll && !player.Can( Permission.BanAll ) ) {
+                player.NoAccessMessage( Permission.BanAll );
                 return;
             }
 
@@ -273,8 +273,8 @@ namespace fCraft {
 
 
         internal static void Kick( Player player, Command cmd ) {
-            if( !player.Can( Permissions.Kick ) ) {
-                player.NoAccessMessage( Permissions.Kick );
+            if( !player.Can( Permission.Kick ) ) {
+                player.NoAccessMessage( Permission.Kick );
                 return;
             }
 
@@ -288,7 +288,7 @@ namespace fCraft {
                         player.Message( offender.GetLogName() + " is ranked " + offender.info.playerClass.name + "." );
                     } else {
                         Server.SendToAll( Color.Red + offender.nick + " was kicked by " + player.nick );
-                        if( msg != null && msg != "" ) {
+                        if( msg != null && msg.Length > 0 ) {
                             Logger.Log( "{0} was kicked by {1}. Memo: {2}", LogType.UserActivity, offender.GetLogName(), player.GetLogName(), msg );
                             offender.session.Kick( "Kicked by " + player.GetLogName() + ": " + msg );
                         } else {
@@ -353,11 +353,11 @@ namespace fCraft {
             }
 
             // Make sure player has the general permissions
-            if( (promote && !player.Can( Permissions.Promote )) ) {
-                player.NoAccessMessage( Permissions.Promote );
+            if( (promote && !player.Can( Permission.Promote )) ) {
+                player.NoAccessMessage( Permission.Promote );
                 return;
-            } else if( !promote && !player.Can( Permissions.Demote ) ) {
-                player.NoAccessMessage( Permissions.Demote );
+            } else if( !promote && !player.Can( Permission.Demote ) ) {
+                player.NoAccessMessage( Permission.Demote );
                 return;
             }
 
@@ -416,7 +416,7 @@ namespace fCraft {
 
 
         internal static void TP( Player player, Command cmd ) {
-            if( player.Can( Permissions.Teleport ) ) {
+            if( player.Can( Permission.Teleport ) ) {
                 string name = cmd.Next();
                 if( name == null ) {
                     player.Send( PacketWriter.MakeTeleport( 255, player.world.map.spawn ) );
@@ -448,13 +448,13 @@ namespace fCraft {
                     }
                 }
             } else {
-                player.NoAccessMessage( Permissions.Teleport );
+                player.NoAccessMessage( Permission.Teleport );
             }
         }
 
 
         internal static void Bring( Player player, Command cmd ) {
-            if( player.Can( Permissions.Bring ) ) {
+            if( player.Can( Permission.Bring ) ) {
                 string name = cmd.Next();
                 Player target = player.world.FindPlayer( name );
                 if( target != null ) {
@@ -467,13 +467,13 @@ namespace fCraft {
                     player.NoPlayerMessage( name );
                 }
             } else {
-                player.NoAccessMessage( Permissions.Bring );
+                player.NoAccessMessage( Permission.Bring );
             }
         }
 
 
         internal static void Freeze( Player player, Command cmd ) {
-            if( player.Can( Permissions.Freeze ) ) {
+            if( player.Can( Permission.Freeze ) ) {
                 string name = cmd.Next();
                 Player target = Server.FindPlayer( name );
                 if( target != null ) {
@@ -487,12 +487,12 @@ namespace fCraft {
                     player.NoPlayerMessage( name );
                 }
             } else {
-                player.NoAccessMessage( Permissions.Freeze );
+                player.NoAccessMessage( Permission.Freeze );
             }
         }
 
         internal static void Unfreeze( Player player, Command cmd ) {
-            if( player.Can( Permissions.Freeze ) ) {
+            if( player.Can( Permission.Freeze ) ) {
                 string name = cmd.Next();
                 Player target = Server.FindPlayer( name );
                 if( target != null ) {
@@ -506,13 +506,13 @@ namespace fCraft {
                     player.NoPlayerMessage( name );
                 }
             } else {
-                player.NoAccessMessage( Permissions.Freeze );
+                player.NoAccessMessage( Permission.Freeze );
             }
         }
 
 
         internal static void Hide( Player player, Command cmd ) {
-            if( player.Can( Permissions.Hide ) ) {
+            if( player.Can( Permission.Hide ) ) {
                 if( !player.isHidden ) {
                     Server.SendToAll( PacketWriter.MakeRemoveEntity( player.id ), null );
                     Server.SendToAll( Color.Sys + player.nick + " left the server." );
@@ -523,12 +523,12 @@ namespace fCraft {
                     player.Message( "You are already hidden." );
                 }
             } else {
-                player.NoAccessMessage( Permissions.Hide );
+                player.NoAccessMessage( Permission.Hide );
             }
         }
 
         internal static void Unhide( Player player, Command cmd ) {
-            if( player.Can( Permissions.Hide ) ) {
+            if( player.Can( Permission.Hide ) ) {
                 if( player.isHidden ) {
                     player.Message( Color.Gray, "You are no longer hidden." );
                     if( player.nick != player.name ) {
@@ -542,20 +542,20 @@ namespace fCraft {
                     player.Message( "You are not currently hidden." );
                 }
             } else {
-                player.NoAccessMessage( Permissions.Hide );
+                player.NoAccessMessage( Permission.Hide );
             }
         }
 
 
         internal static void SetSpawn( Player player, Command cmd ) {
-            if( player.Can( Permissions.SetSpawn ) ) {
+            if( player.Can( Permission.SetSpawn ) ) {
                 player.world.map.spawn = player.pos;
                 player.world.map.changesSinceSave++;
                 player.Send( PacketWriter.MakeTeleport( 255, player.world.map.spawn ), true );
                 player.Message( "New spawn point saved." );
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity, player.GetLogName() );
             } else {
-                player.NoAccessMessage( Permissions.SetSpawn );
+                player.NoAccessMessage( Permission.SetSpawn );
             }
         }
     }

@@ -19,23 +19,10 @@ namespace fCraft {
         public HashSet<string> excludedPlayers = new HashSet<string>();
 
         public PlayerClass build;
-        const int VERSION = 2;
 
 
         public Zone( string raw ) {
             string[] parts = raw.Split( ',' );
-            int version = 1;
-            if( parts.Length == 4 ) {
-                if( parts[3].Length == 0 ) {
-                    version = 0;
-                } else {
-                    version = Int32.Parse( parts[3] );
-                }
-            } else if( parts.Length == 3 ) {
-                version = 1;
-            } else {
-                throw new Exception( "Unrecognized zone definition" );
-            }
 
             string[] header = parts[0].Split( ' ' );
             name = header[0];
@@ -76,12 +63,11 @@ namespace fCraft {
 
 
         public string Serialize() {
-            return String.Format( "{0},{1},{2},{3}",
+            return String.Format( "{0},{1},{2}",
                                   String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
                                                  name, xMin, yMin, hMin, xMax, yMax, hMax, build ),
                                   String.Join( " ", includedPlayers.ToArray() ),
-                                  String.Join( " ", excludedPlayers.ToArray() ),
-                                  VERSION );
+                                  String.Join( " ", excludedPlayers.ToArray() ) );
         }
 
 

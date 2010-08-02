@@ -52,7 +52,7 @@ namespace fCraft {
         }
 
         public static string GetName( string color ) {
-            if( color != null && color != "" && Parse( color ) != null ) {
+            if( color != null && color.Length > 0 && Parse( color ) != null ) {
                 return GetName( Parse( color )[1] );
             } else {
                 return "";

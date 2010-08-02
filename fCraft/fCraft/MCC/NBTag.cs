@@ -35,7 +35,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-namespace mcc {
+namespace Mcc {
 
     enum NBTType : byte {
         End,
@@ -191,7 +191,7 @@ namespace mcc {
 #region Saving
         public void WriteTag( BinaryWriter writer ) {
             writer.Write( (byte)Type );
-            if( Name != "" ) WriteString( Name, writer );
+            if( Name.Length > 0 ) WriteString( Name, writer );
             switch( Type ) {
                 case NBTType.End: return;
 

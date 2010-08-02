@@ -64,7 +64,7 @@ namespace ConfigTool {
                             errorLog += ex + Environment.NewLine;
                         }
                     }
-                    if( errorLog != "" ) {
+                    if( errorLog.Length > 0 ) {
                         MessageBox.Show( "Some errors occured while loading the world list:" + Environment.NewLine + errorLog, "Warning" );
                     }
 
@@ -235,7 +235,7 @@ namespace ConfigTool {
         }
 
 
-        void ApplyEnum( ComboBox box, ConfigKey key, int def, params string[] options ) {
+        static void ApplyEnum( ComboBox box, ConfigKey key, int def, params string[] options ) {
             int index = Array.IndexOf<string>( options, Config.GetString( key ) );
             if( index != -1 ) {
                 box.SelectedIndex = index;
@@ -362,7 +362,7 @@ namespace ConfigTool {
             }
         }
 
-        void WriteEnum( ComboBox box, ConfigKey value, params string[] options ) {
+        static void WriteEnum( ComboBox box, ConfigKey value, params string[] options ) {
             Config.SetValue( value, options[box.SelectedIndex] );
         }
 

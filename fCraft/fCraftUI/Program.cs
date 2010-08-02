@@ -32,7 +32,7 @@ namespace fCraftUI {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault( false );
             try {
-                Application.Run( new MainForm( args ) );
+                Application.Run( new MainForm() );
             } catch( Exception ex ) {
                 MessageBox.Show( ex.ToString(), "fCraft crashed! Crash message saved to crash.log" + Environment.NewLine + ex );
                 System.IO.File.WriteAllText( "crash.log", ex.ToString() + Environment.NewLine + ex.StackTrace );

@@ -27,11 +27,11 @@ namespace fCraft {
             if( player.mode == BlockPlacementMode.Solid ){
                 player.mode = BlockPlacementMode.Normal;
                 player.Message( "Solid: OFF" );
-            } else if( player.Can( Permissions.PlaceAdmincrete ) ) {
+            } else if( player.Can( Permission.PlaceAdmincrete ) ) {
                 player.mode = BlockPlacementMode.Solid;
                 player.Message( "Solid: ON" );
             } else {
-                player.NoAccessMessage( Permissions.PlaceAdmincrete );
+                player.NoAccessMessage( Permission.PlaceAdmincrete );
             }
         }
 
@@ -50,11 +50,11 @@ namespace fCraft {
             if( player.mode == BlockPlacementMode.Grass ) {
                 player.mode = BlockPlacementMode.Normal;
                 player.Message( "Grass: OFF" );
-            } else if( player.Can( Permissions.PlaceGrass ) ) {
+            } else if( player.Can( Permission.PlaceGrass ) ) {
                 player.mode = BlockPlacementMode.Grass;
                 player.Message( "Grass: ON. Dirt blocks are replaced with grass." );
             } else {
-                player.NoAccessMessage( Permissions.PlaceGrass );
+                player.NoAccessMessage( Permission.PlaceGrass );
             }
         }
 
@@ -63,11 +63,11 @@ namespace fCraft {
             if( player.mode == BlockPlacementMode.Water ) {
                 player.mode = BlockPlacementMode.Normal;
                 player.Message( "Water: OFF" );
-            } else if( player.Can( Permissions.PlaceWater ) ) {
+            } else if( player.Can( Permission.PlaceWater ) ) {
                 player.mode = BlockPlacementMode.Water;
                 player.Message( "Water: ON. Blue blocks are replaced with water." );
             } else {
-                player.NoAccessMessage( Permissions.PlaceWater );
+                player.NoAccessMessage( Permission.PlaceWater );
             }
         }
 
@@ -76,11 +76,11 @@ namespace fCraft {
             if( player.mode == BlockPlacementMode.Lava ) {
                 player.mode = BlockPlacementMode.Normal;
                 player.Message( "Lava: OFF." );
-            } else if( player.Can( Permissions.PlaceLava ) ) {
+            } else if( player.Can( Permission.PlaceLava ) ) {
                 player.mode = BlockPlacementMode.Lava;
                 player.Message( "Lava: ON. Red blocks are replaced with lava." );
             } else {
-                player.NoAccessMessage( Permissions.PlaceLava );
+                player.NoAccessMessage( Permission.PlaceLava );
             }
         }
     }

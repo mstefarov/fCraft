@@ -16,9 +16,9 @@ namespace fCraft {
         public Position pos;
         public object locker = new object();
         internal BlockPlacementMode mode;
-        public bool replaceMode;
-        public bool isFrozen = false,
-                    isHidden = false;
+        public bool replaceMode,
+                    isFrozen,
+                    isHidden;
         public static Player Console;
         internal World world;
         public string nick;
@@ -35,18 +35,18 @@ namespace fCraft {
         public static int spamChatTimer = 4;
         Queue<DateTime> spamChatLog = new Queue<DateTime>( spamChatCount );
 
-        int muteWarnings = 0;
+        int muteWarnings;
         public static TimeSpan muteDuration = TimeSpan.FromSeconds( 5 );
         DateTime mutedUntil = DateTime.MinValue;
 
         // selection
         internal Queue<BlockUpdate> drawUndoBuffer = new Queue<BlockUpdate>();
-        internal bool drawingInProgress = false;
+        internal bool drawingInProgress;
 
         internal SelectionCallback drawCallback;
         internal Stack<Position> drawMarks = new Stack<Position>();
-        internal int drawMarkCount = 0;
-        internal int drawMarksExpected = 0;
+        internal int drawMarkCount,
+                     drawMarksExpected;
         internal object drawArgs; // can be used for 'block' or 'zone' or whatever
 
 
@@ -88,7 +88,7 @@ namespace fCraft {
 
         // Determines what OP-code to send to the player. It only matters for deleting admincrete.
         public byte GetOPPacketCode() {
-            return (byte)(Can( Permissions.DeleteAdmincrete ) ? 100 : 0);
+            return (byte)(Can( Permission.DeleteAdmincrete ) ? 100 : 0);
         }
 
 
@@ -175,13 +175,13 @@ namespace fCraft {
             // check if the user has the permission to BUILD the block
             if( buildMode || replaceMode ) {
                 if( type == Block.Lava || type == Block.StillLava ) {
-                    can = Can( Permissions.PlaceLava );
+                    can = Can( Permission.PlaceLava );
                 } else if( type == Block.Water || type == Block.StillWater ) {
-                    can = Can( Permissions.PlaceWater );
+                    can = Can( Permission.PlaceWater );
                 } else if( type == Block.Admincrete ) {
-                    can = Can( Permissions.PlaceAdmincrete );
+                    can = Can( Permission.PlaceAdmincrete );
                 } else {
-                    can = zoneOverride || Can( Permissions.Build );
+                    can = zoneOverride || Can( Permission.Build );
                 }
             } else {
                 type = Block.Air;
@@ -189,9 +189,9 @@ namespace fCraft {
 
             // check that the user has permission to DELETE/REPLACE the block
             if( world.map.GetBlock( x, y, h ) == (byte)Block.Admincrete ) {
-                can &= Can( Permissions.DeleteAdmincrete );
+                can &= Can( Permission.DeleteAdmincrete );
             } else if( world.map.GetBlock( x, y, h ) != (byte)Block.Air ) {
-                can &= zoneOverride || Can( Permissions.Delete );
+                can &= zoneOverride || Can( Permission.Delete );
             }
 
             // if all is well, try placing it
@@ -272,14 +272,14 @@ namespace fCraft {
             if( world != null && !world.FireSentMessageEvent( this, ref message ) ) return;
             switch( Commands.GetMessageType( message ) ) {
                 case MessageType.Chat:
-                    if( !Can( Permissions.Chat ) ) return;
+                    if( !Can( Permission.Chat ) ) return;
                     if( CheckChatSpam() ) return;
                     info.linesWritten++;
                     string displayedName = nick;
                     if( Config.GetBool( ConfigKey.ClassPrefixesInChat ) ) {
                         displayedName = info.playerClass.prefix + displayedName;
                     }
-                    if( Config.GetBool( ConfigKey.ClassColorsInChat ) && info.playerClass.color != "" && info.playerClass.color != Color.White ) {
+                    if( Config.GetBool( ConfigKey.ClassColorsInChat ) && info.playerClass.color.Length > 0 && info.playerClass.color != Color.White ) {
                         displayedName = info.playerClass.color + displayedName + Color.White;
                     }
 
@@ -298,7 +298,7 @@ namespace fCraft {
                             if( message.Contains( "#" ) ) {
                                 IRCMessage newMsg = new IRCMessage();
                                 string tmpChat = message.Substring( message.IndexOf( "#" ) + 1 );
-                                if( tmpChat != "" ) {
+                                if( tmpChat.Length > 0 ) {
                                     newMsg.chatMessage = nick + ": " + tmpChat;
                                     newMsg.destination = Destination.Channels;
                                     IRCBot.AddOutgoingMessage( newMsg );
@@ -316,7 +316,7 @@ namespace fCraft {
                     break;
 
                 case MessageType.PrivateChat:
-                    if( !Can( Permissions.Chat ) ) return;
+                    if( !Can( Permission.Chat ) ) return;
                     if( CheckChatSpam() ) return;
                     string otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
                     Player otherPlayer = Server.FindPlayer( otherPlayerName );
@@ -330,7 +330,7 @@ namespace fCraft {
                     break;
 
                 case MessageType.ClassChat:
-                    if( !Can( Permissions.Chat ) ) return;
+                    if( !Can( Permission.Chat ) ) return;
                     if( CheckChatSpam() ) return;
                     string className = message.Substring( 2, message.IndexOf( ' ' ) - 2 );
                     PlayerClass playerClass = ClassList.FindClass( className );
@@ -350,10 +350,10 @@ namespace fCraft {
 
 
         // Checks permissions
-        public bool Can( params Permissions[] permissions ) {
+        public bool Can( params Permission[] permissions ) {
             if( world == null ) return true;
-            foreach( Permissions permission in permissions ) {
-                if( (permission == Permissions.Build || permission == Permissions.Delete || permission == Permissions.Draw) && world.classBuild.rank > info.playerClass.rank ) {
+            foreach( Permission permission in permissions ) {
+                if( (permission == Permission.Build || permission == Permission.Delete || permission == Permission.Draw) && world.classBuild.rank > info.playerClass.rank ) {
                     return false;
                 } else if( !info.playerClass.Can( permission ) ) {
                     return false;
@@ -400,7 +400,7 @@ namespace fCraft {
             if( Config.GetBool( ConfigKey.ClassPrefixesInList ) ) {
                 displayedName = info.playerClass.prefix + displayedName;
             }
-            if( Config.GetBool( ConfigKey.ClassColorsInChat ) && info.playerClass.color != "" && info.playerClass.color != Color.White ) {
+            if( Config.GetBool( ConfigKey.ClassColorsInChat ) && info.playerClass.color.Length > 0 && info.playerClass.color != Color.White ) {
                 displayedName = info.playerClass.color + displayedName;
             }
             return displayedName;
@@ -438,13 +438,13 @@ namespace fCraft {
         }
 
 
-        internal void NoAccessMessage( params Permissions[] permissions ) {
+        internal void NoAccessMessage( params Permission[] permissions ) {
             Message( Color.Red, "You do not have access to this command." );
             if( permissions.Length == 1 ) {
                 Message( Color.Red, "You need " + permissions[0].ToString() + " permission." );
             } else {
                 Message( Color.Red, "You need the following permissions:" );
-                foreach( Permissions permission in permissions ) {
+                foreach( Permission permission in permissions ) {
                     Message( Color.Red, permission.ToString() );
                 }
             }

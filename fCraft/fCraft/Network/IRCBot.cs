@@ -42,7 +42,7 @@ namespace fCraft {
         public string nickname;
     }
 
-    public enum IRCCommands {
+    public enum IRCCommand {
         none,
         help,
         status,
@@ -70,7 +70,7 @@ namespace fCraft {
 
     // A neat&tidy package for an irc message contents
     public struct IRCMessage {
-        public string colour;
+        public string color;
         public string host;
         public string user;
         public string to;
@@ -79,7 +79,7 @@ namespace fCraft {
         public string type;
         public string chatMessage;
         public string serverMessage;
-        public IRCCommands cmd;
+        public IRCCommand cmd;
     }
 
     public static class IRCColours {
@@ -111,8 +111,6 @@ namespace fCraft {
 
         // Server/Bot credentials
         public static string IRCSERVER;
-        private static int PORT;
-        private static string USER;
         private static string BOTNICK;
         private static List<string> CHANNELS;
         private static string SERVERHOST;
@@ -120,7 +118,6 @@ namespace fCraft {
         private static string COMMA_PREFIX;
         private static string COLON_PREFIX;
         private static bool FORWARD_IRC;
-        private static bool FORWARD_SERVER;
 
         // Temporary player to act as inside the server
         public static Player fBot = new Player( null, "fBot" );
@@ -139,12 +136,9 @@ namespace fCraft {
                 // Start IRCCommunications
                 IRCComm.Start();
                 IRCSERVER = IRCComm.GetServer();
-                PORT = IRCComm.GetPort();
                 BOTNICK = IRCComm.GetBotNick();
                 CHANNELS = IRCComm.GetChannels();
-                USER = IRCComm.GetUser();
                 FORWARD_IRC = IRCComm.GetSendIRC();
-                FORWARD_SERVER = IRCComm.GetSendServer();
                 COMMA_PREFIX = BOTNICK + ":";
                 COLON_PREFIX = BOTNICK + ",";
 
@@ -187,7 +181,7 @@ namespace fCraft {
                             if( message.to == BOTNICK ) {
                                 newMessage.to = message.nickname;
                                 newMessage.destination = message.destination;
-                                if( message.cmd == IRCCommands.status ) {
+                                if( message.cmd == IRCCommand.status ) {
                                     #region StatusMessage
                                     // Put together all of the status variables from world and such
                                     newMessage.chatMessage = message.nickname + ", you have requested a status update.";
@@ -215,7 +209,7 @@ namespace fCraft {
                                         }
                                     }
                                     #endregion
-                                } else if( message.cmd == IRCCommands.help ) {
+                                } else if( message.cmd == IRCCommand.help ) {
                                     #region HelpMessage
                                     newMessage.chatMessage = "Hello, " + message.nickname + " , you have requested help!";
                                     outMessages.Add( newMessage );
@@ -263,7 +257,7 @@ namespace fCraft {
                                     }
                                     #endregion
 
-                                } else if( message.cmd == IRCCommands.auth ) {
+                                } else if( message.cmd == IRCCommand.auth ) {
                                     #region Authenticate
                                     string[] authLine = message.chatMessage.Split( ' ' );
                                     if( authLine.Length == 2 ) {
@@ -272,7 +266,6 @@ namespace fCraft {
                                         // password matches registered users password
                                         if( authLine[1] == "auth0riz3m3" )// Bot auth password
                                         {
-                                            string authResponse = message.nickname + " Authenticated to host " + message.host;
                                             newMessage.chatMessage = message.nickname + ", you have authenticated with the host " + message.host + ".";
                                             outMessages.Add( newMessage );
                                             Logger.Log( message.nickname + " Authenticated to host " + message.host, LogType.IRC );
@@ -286,7 +279,7 @@ namespace fCraft {
                                         newMessage.chatMessage = "Sorry, your auth request contained too many/few parameters. Try again or type !help for useage.";
                                         outMessages.Add( newMessage );
                                     }
-                                } else if( message.cmd >= IRCCommands.kick ) {
+                                } else if( message.cmd >= IRCCommand.kick ) {
                                     Invoke( ref newMessage, message );
                                 } else if( message.chatMessage.Contains( "Hello" ) || message.chatMessage.Contains( "hello" ) ) {
                                     newMessage.chatMessage = "Hi there, " + message.nickname + "!";
@@ -298,7 +291,7 @@ namespace fCraft {
                                 }
                                     #endregion
                             }
-                            if( message.destination == Destination.Server && message.chatMessage != null && message.chatMessage != "" ) {
+                            if( message.destination == Destination.Server && message.chatMessage != null && message.chatMessage.Length > 0 ) {
                                 string stringToServer = "(IRC)" + message.nickname + ": " + message.chatMessage;
                                 Logger.Log( stringToServer, LogType.IRC );
                                 Server.SendToAll( stringToServer );
@@ -339,7 +332,7 @@ namespace fCraft {
                     return;
                 } else {
                     SERVERHOST = input.Substring( 6, input.Length - 6 );
-                    if( BOTHOST != "" ) {
+                    if( BOTHOST.Length > 0 ) {
                         newMsg.type = "RAW";
                         newMsg.chatMessage = "PONG :" + BOTHOST + " " + SERVERHOST;
                         newMsg.destination = Destination.RAW;
@@ -385,7 +378,7 @@ namespace fCraft {
                     if( FORWARD_IRC ) {
                         newMsg.destination = Destination.Server;
                     } else {
-                        if( newMsg.chatMessage != null && newMsg.chatMessage != "" ) {
+                        if( newMsg.chatMessage != null && newMsg.chatMessage.Length > 0 ) {
                             if( newMsg.chatMessage.IndexOf( COMMA_PREFIX ) != -1 ) {
                                 newMsg.chatMessage = newMsg.chatMessage.Substring( newMsg.chatMessage.IndexOf( COMMA_PREFIX ) + COMMA_PREFIX.Length ).Trim();
                                 newMsg.destination = Destination.Server;
@@ -420,7 +413,7 @@ namespace fCraft {
                 tmpMessage.Length == 2 && newMsg.to == COMMA_PREFIX ||
                 tmpMessage.Length == 2 && newMsg.to == COLON_PREFIX ) {
 
-                foreach( IRCCommands item in Enum.GetValues( typeof( IRCCommands ) ) ) {
+                foreach( IRCCommand item in Enum.GetValues( typeof( IRCCommand ) ) ) {
                     if( newMsg.chatMessage.Contains( "!" + item.ToString() ) ) {
                         newMsg.cmd = item;
                         return true;
@@ -448,7 +441,7 @@ namespace fCraft {
                         return true;
                     } else if( pIsOnline == false ) {
                         PlayerDB.FindPlayerInfo( cmdLine[1], out OfflineOffender );
-                        if( OfflineOffender != null && message.cmd != IRCCommands.kick ) {
+                        if( OfflineOffender != null && message.cmd != IRCCommand.kick ) {
                             HandlePlayer( ref newMessage, ref message, cmdLine[1] );
                             return true;
                         } else {
@@ -473,39 +466,39 @@ namespace fCraft {
         internal static void HandlePlayer( ref IRCMessage newMessage, ref IRCMessage message, string command ) {
             // Fix this with above 
             switch( message.cmd ) {
-                case (IRCCommands.kick):
+                case (IRCCommand.kick):
                     Commands.ParseCommand( fBot, "/kick " + command, true );
                     newMessage.chatMessage = " Kicked player: " + command + "!";
                     break;
-                case (IRCCommands.ban):
+                case (IRCCommand.ban):
                     Commands.ParseCommand( fBot, "/ban " + command, true );
                     newMessage.chatMessage = " Banned(player): " + command + "!";
                     break;
-                case (IRCCommands.banip):
+                case (IRCCommand.banip):
                     Commands.ParseCommand( fBot, "/banip " + command, true );
                     newMessage.chatMessage = "Banned(ip): " + command + "!";
                     break;
-                case (IRCCommands.banall):
+                case (IRCCommand.banall):
                     Commands.ParseCommand( fBot, "/banall " + command, true );
                     newMessage.chatMessage = " Banned(all): " + command + "!";
                     break;
-                case (IRCCommands.unban):
+                case (IRCCommand.unban):
                     Commands.ParseCommand( fBot, "/unban " + command, true );
                     newMessage.chatMessage = " Unbanned: " + command + "!";
                     break;
-                case (IRCCommands.unbanip):
+                case (IRCCommand.unbanip):
                     Commands.ParseCommand( fBot, "/unbanip " + command, true );
                     newMessage.chatMessage = " Unbanned(ip): " + command + "!";
                     break;
-                case (IRCCommands.unbanall):
+                case (IRCCommand.unbanall):
                     Commands.ParseCommand( fBot, "/unbanall " + command, true );
                     newMessage.chatMessage = " Unbanned(all): " + command + "!";
                     break;
-                case (IRCCommands.slock):
+                case (IRCCommand.slock):
                     Commands.ParseCommand( fBot, "/lock " + command, true );
                     newMessage.chatMessage = " Initiated a Lockdown on the server!";
                     break;
-                case (IRCCommands.unlock):
+                case (IRCCommand.unlock):
                     Commands.ParseCommand( fBot, "/unlock " + command, true );
                     newMessage.chatMessage = " Revoked a Lockdown on the server!";
                     break;
@@ -545,7 +538,7 @@ namespace fCraft {
 
         public static void Shutdown() {
             doShutdown = true;
-            IRCComm.ShutDown();
+            IRCComm.Shutdown();
             thread.Join( 1000 );
             if( thread != null && thread.IsAlive ) thread.Abort();
         }

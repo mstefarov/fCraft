@@ -220,25 +220,25 @@ namespace fCraft {
 
         public static bool ParseClassLimits( PlayerClass pc ) {
             bool ok = true;
-            if( pc.maxKickVal == "" ) {
+            if( pc.maxKickVal.Length == 0 ) {
                 pc.maxKick = pc;
             } else {
                 pc.maxKick = ParseClass( pc.maxKickVal );
                 ok &= (pc.maxKick != null);
             }
-            if( pc.maxBanVal == "" ) {
+            if( pc.maxBanVal.Length == 0 ) {
                 pc.maxBan = pc;
             } else {
                 pc.maxBan = ParseClass( pc.maxBanVal );
                 ok &= (pc.maxBan != null);
             }
-            if( pc.maxPromoteVal == "" ) {
+            if( pc.maxPromoteVal.Length == 0 ) {
                 pc.maxPromote = pc;
             } else {
                 pc.maxPromote = ParseClass( pc.maxPromoteVal );
                 ok &= (pc.maxPromote != null);
             }
-            if( pc.maxDemoteVal == "" ) {
+            if( pc.maxDemoteVal.Length == 0 ) {
                 pc.maxDemote = pc;
             } else {
                 pc.maxDemote = ParseClass( pc.maxDemoteVal );

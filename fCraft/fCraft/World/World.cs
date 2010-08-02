@@ -53,7 +53,7 @@ namespace fCraft {
         internal int updateTaskId = -1, saveTaskId = -1, backupTaskId = -1;
         AutoResetEvent waiter = new AutoResetEvent( false );
         //Thread thread;
-        internal bool canDispose = false;
+        internal bool canDispose;
 
         public World( string _name ) {
             name = _name;

@@ -34,11 +34,11 @@ using System.Net;
 using fCraft;
 
 
-namespace mcc {
+namespace Mcc {
     public sealed class MapMinerCPP : IConverter {
 
-        public MapFormats Format {
-            get { return MapFormats.MinerCPP; }
+        public MapFormat Format {
+            get { return MapFormat.MinerCPP; }
         }
 
         public string FileExtension {
@@ -50,15 +50,15 @@ namespace mcc {
         }
 
 
-        public Map Load( Stream MapStream ) {
+        public Map Load( Stream mapStream ) {
             // Reset the seeker to the front of the stream
             // This should probably be done differently.
-            MapStream.Seek( 0, SeekOrigin.Begin );
+            mapStream.Seek( 0, SeekOrigin.Begin );
 
             Map m = new Map();
 
             // Setup a GZipStream to decompress and read the map file
-            using ( GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true ) ) {
+            using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
                 BinaryReader bs = new BinaryReader( gs );
 
                 // Read in the magic number
@@ -97,9 +97,9 @@ namespace mcc {
         }
 
 
-        public bool Save( Map MapToSave, System.IO.Stream MapStream ) {
+        public bool Save( Map mapToSave, Stream mapStream ) {
             // Todo: Implement saving
-            using ( GZipStream gs = new GZipStream( MapStream, CompressionMode.Compress, true ) ) {
+            using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress, true ) ) {
                 BinaryWriter bs = new BinaryWriter( gs );
 
                 // Write out the magic number
@@ -107,24 +107,24 @@ namespace mcc {
 
                 // Save the map dimensions
                 // XYZ(?)
-                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)MapToSave.widthX ) );
-                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)MapToSave.height ) );
-                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)MapToSave.widthY ) );
+                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.widthX ) );
+                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.height ) );
+                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.widthY ) );
 
                 // Save the spawn location
-                bs.Write( IPAddress.HostToNetworkOrder( MapToSave.spawn.x ) );
-                bs.Write( IPAddress.HostToNetworkOrder( MapToSave.spawn.h ) );
-                bs.Write( IPAddress.HostToNetworkOrder( MapToSave.spawn.y ) );
+                bs.Write( IPAddress.HostToNetworkOrder( mapToSave.spawn.x ) );
+                bs.Write( IPAddress.HostToNetworkOrder( mapToSave.spawn.h ) );
+                bs.Write( IPAddress.HostToNetworkOrder( mapToSave.spawn.y ) );
 
                 // Save the spawn orientation
-                bs.Write( MapToSave.spawn.r );
-                bs.Write( MapToSave.spawn.l );
+                bs.Write( mapToSave.spawn.r );
+                bs.Write( mapToSave.spawn.l );
 
                 // Write out the block count (which is totally useless, can't stress that enough.)
-                bs.Write( IPAddress.HostToNetworkOrder( MapToSave.blocks.Length ) );
+                bs.Write( IPAddress.HostToNetworkOrder( mapToSave.blocks.Length ) );
 
                 // Write out the map data
-                bs.Write( MapToSave.blocks );
+                bs.Write( mapToSave.blocks );
 
                 // Make sure the output gets flushed, fixes a bug in mono where the destructor doesn't flush
                 // on its own
@@ -135,10 +135,10 @@ namespace mcc {
         }
 
 
-        public bool Claims( Stream MapStream ) {
-            MapStream.Seek( 0, SeekOrigin.Begin );
+        public bool Claims( Stream mapStream ) {
+            mapStream.Seek( 0, SeekOrigin.Begin );
 
-            GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true );
+            GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
             BinaryReader bs = new BinaryReader( gs );
 
             try {

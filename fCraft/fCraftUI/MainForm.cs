@@ -11,13 +11,13 @@ using fCraft;
 
 
 namespace fCraftUI {
+
     public partial class MainForm : Form {
-        bool shuttingDown = false;
-        string[] args;
+        bool shuttingDown;
         const int MaxLinesInLog = 2000;
 
-        public MainForm( string[] _args ) {
-            args = _args;
+
+        public MainForm() {
             InitializeComponent();
             Shown += StartUp;
             FormClosing += HandleShutDown;

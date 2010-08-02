@@ -551,8 +551,8 @@ namespace fCraft {
             string name = cmd.Next();
             if( name == null ) {
                 name = player.name;
-            } else if( !player.Can( Permissions.ViewOthersInfo ) ) {
-                player.NoAccessMessage( Permissions.ViewOthersInfo );
+            } else if( !player.Can( Permission.ViewOthersInfo ) ) {
+                player.NoAccessMessage( Permission.ViewOthersInfo );
                 return;
             }
 
@@ -618,8 +618,8 @@ namespace fCraft {
             IPAddress address;
             if( name == null ) {
                 name = player.name;
-            } else if( !player.Can( Permissions.ViewOthersInfo ) ) {
-                player.NoAccessMessage( Permissions.ViewOthersInfo );
+            } else if( !player.Can( Permission.ViewOthersInfo ) ) {
+                player.NoAccessMessage( Permission.ViewOthersInfo );
             } else if( IPAddress.TryParse( name, out address ) ) {
                 IPBanInfo info = IPBanList.Get( address );
                 if( info != null ) {
@@ -636,7 +636,7 @@ namespace fCraft {
                                                             info.lastAttemptDate,
                                                             info.lastAttemptName ) );
                     }
-                    if( info.banReason != "" ) {
+                    if( info.banReason.Length > 0 ) {
                         player.Message( "  Memo: " + info.banReason );
                     }
                 } else {
@@ -656,7 +656,7 @@ namespace fCraft {
                         player.Message( String.Format( "  Last banned by {0} on {1:dd MMM yyyy}.",
                                                             info.bannedBy,
                                                             info.banDate ) );
-                        if( info.banReason != "" ) {
+                        if( info.banReason.Length > 0 ) {
                             player.Message( "  Ban memo: " + info.banReason );
                         }
                     }
@@ -664,7 +664,7 @@ namespace fCraft {
                         player.Message( String.Format( "  Unbanned by {0} on {1:dd MMM yyyy}.",
                                                             info.unbannedBy,
                                                             info.unbanDate ) );
-                        if( info.unbanReason != "" ) {
+                        if( info.unbanReason.Length > 0 ) {
                             player.Message( "  Unban memo: " + info.unbanReason );
                         }
                     }
@@ -694,7 +694,7 @@ namespace fCraft {
                 string line = "";
                 for( int i = 0; i < playerClass.permissions.Length; i++ ) {
                     if( playerClass.permissions[i] ) {
-                        string addition = Enum.GetName( typeof( Permissions ), (Permissions)i ).ToLower();
+                        string addition = Enum.GetName( typeof( Permission ), (Permission)i ).ToLower();
                         if( line.Length + addition.Length > 62 ) {
                             player.Message( line.Substring( 0, line.Length - 2 ) );
                             line = addition + ", ";

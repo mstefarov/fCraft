@@ -32,16 +32,16 @@ using System.IO;
 using fCraft;
 
 
-namespace mcc {
+namespace Mcc {
     public interface IConverter {
-        MapFormats Format { get; }
+        MapFormat Format { get; }
         string FileExtension { get; }
         string ServerName { get; }
 
-        bool Claims( Stream MapStream );
+        bool Claims( Stream mapStream );
 
-        Map Load( Stream MapStream );
+        Map Load( Stream mapStream );
 
-        bool Save( Map MapToSave, Stream MapStream );
+        bool Save( Map mapToSave, Stream mapStream );
     }
 }
