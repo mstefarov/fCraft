@@ -28,7 +28,7 @@ namespace fCraft {
 
     public static class Updater {
         static int version = 428;
-        static int revision = 138;
+        static int revision = 139;
 
         public static UpdaterResult CheckForUpdates() {
             UpdaterResult result = new UpdaterResult( version );

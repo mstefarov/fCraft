@@ -110,7 +110,7 @@ namespace fCraft {
                 return;
             }
 
-            player.drawArgs = (object)block;
+            player.drawArgs = (byte)block;
             switch( mode ) {
                 case DrawMode.Cuboid:
                     player.drawCallback = DrawCuboid;
@@ -266,9 +266,9 @@ namespace fCraft {
         internal static void DrawCuboid( Player player, Position[] marks, object tag ) {
             player.drawingInProgress = true;
 
-            Block drawBlock = (Block)tag;
-            if( drawBlock == Block.Undefined ) {
-                drawBlock = player.lastUsedBlockType;
+            byte drawBlock = (byte)tag;
+            if( drawBlock == (byte)Block.Undefined ) {
+                drawBlock = (byte)player.lastUsedBlockType;
             }
 
             // find start/end coordinates
