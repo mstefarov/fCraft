@@ -15,7 +15,7 @@ namespace ConfigTool {
         static ConfigUI instance;
         Font bold;
         PlayerClass selectedClass, defaultClass;
-        internal static BindingList<WorldListEntry> worlds = new BindingList<WorldListEntry>();
+        internal static SortableBindingList<WorldListEntry> worlds = new SortableBindingList<WorldListEntry>();
 
         #region Initialization
 
