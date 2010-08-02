@@ -233,7 +233,7 @@ namespace fCraft {
                 // CRASH on errors
 #else
             } catch( Exception ex ) {
-                Logger.Log( "Session.IoLoop: {1}.", LogType.Error, ex );
+                Logger.Log( "Session.IoLoop: {0}.", LogType.Error, ex );
 #endif
             } finally {
                 canQueue = false;
