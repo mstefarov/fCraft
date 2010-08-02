@@ -245,6 +245,7 @@ namespace ConfigTool {
             xAntiGrief.Checked = (pc.antiGriefBlocks > 0 && pc.antiGriefSeconds > 0);
             nAntiGriefBlocks.Value = pc.antiGriefBlocks;
             nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
+            nAntiGriefSeconds.Value = pc.antiGriefSeconds;
             nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
             xDrawLimit.Checked = (pc.drawLimit > 0);
             nDrawLimit.Value = pc.drawLimit;

@@ -285,8 +285,8 @@ namespace fCraft {
                 classTag.Add( new XAttribute( "rank", playerClass.rank ) );
                 classTag.Add( new XAttribute( "color", Color.GetName( playerClass.color ) ) );
                 if( playerClass.prefix.Length > 0 ) classTag.Add( new XAttribute( "prefix", playerClass.prefix ) );
-                if( playerClass.antiGriefBlocks > 0 ) classTag.Add( new XAttribute( "antiGriefBlocks", playerClass.antiGriefBlocks ) );
-                if( playerClass.antiGriefSeconds > 0 ) classTag.Add( new XAttribute( "antiGriefSeconds", playerClass.antiGriefSeconds ) );
+                classTag.Add( new XAttribute( "antiGriefBlocks", playerClass.antiGriefBlocks ) );
+                classTag.Add( new XAttribute( "antiGriefSeconds", playerClass.antiGriefSeconds ) );
                 if( playerClass.drawLimit > 0 ) classTag.Add( new XAttribute( "drawLimit", playerClass.drawLimit ) );
                 if( playerClass.idleKickTimer > 0 ) classTag.Add( new XAttribute( "idleKickAfter", playerClass.idleKickTimer ) );
                 if( playerClass.reservedSlot ) classTag.Add( new XAttribute( "reserveSlot", playerClass.reservedSlot ) );
