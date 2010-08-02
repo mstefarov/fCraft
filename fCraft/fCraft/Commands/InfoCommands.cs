@@ -76,21 +76,15 @@ namespace fCraft {
         internal static void Players( Player player, Command cmd ) {
             Player[] players = Server.playerList;
             if( players.Length > 0 ) {
-                player.Message( "There are " + players.Length + " players on the server :" );
-                string line = "";
+                string playerListString = "There are " + players.Length + " players on the server: ";
                 bool first = true;
                 foreach( Player p in players ) {
                     if( p.isHidden ) continue;
-                    if( line.Length + p.nick.Length > 60 ) {
-                        player.Message( line );
-                        line = "";
-                    } else if( !first ) {
-                        line += Color.Sys + ", ";
-                    }
-                    line += p.info.playerClass.color + p.nick;
+                    if( !first ) playerListString += ", ";
+                    playerListString += p.info.playerClass.color + p.nick;
                     first = false;
                 }
-                player.Message( "", line );
+                player.Message( playerListString );
             } else {
                 player.Message( "There appear to be no players on the server." );
             }

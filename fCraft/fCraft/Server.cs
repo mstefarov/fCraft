@@ -545,11 +545,15 @@ namespace fCraft {
         }
 
         public static void SendToAll( string message ) {
-            SendToAll( PacketWriter.MakeMessage( message ), null );
+            foreach( Packet p in PacketWriter.MakeWrappedMessage( message ) ) {
+                SendToAll( p );
+            }
         }
 
         public static void SendToAll( string message, Player except ) {
-            SendToAll( PacketWriter.MakeMessage( message ), except );
+            foreach( Packet p in PacketWriter.MakeWrappedMessage( message ) ) {
+                SendToAll( p,except );
+            }
         }
 
         // Broadcast to a specific class
