@@ -56,7 +56,7 @@ namespace fCraft {
                 player.Message( "Map information could not be loaded." );
             } else {
                 player.Message( String.Format( "Map dimensions are {0} x {1} x {2}",
-                                               world.map.widthX, world.map.widthY, world.map.height ) );
+                                               map.widthX, map.widthY, map.height ) );
             }
 
             // Print access/build limits
