@@ -501,8 +501,8 @@ namespace ConfigTool {
                 if( xKickIdle.Checked ) {
                     nKickIdle.Value = selectedClass.idleKickTimer;
                 } else {
-                    selectedClass.idleKickTimer = 0;
                     nKickIdle.Value = 0;
+                    selectedClass.idleKickTimer = 0;
                 }
             }
         }
@@ -513,6 +513,11 @@ namespace ConfigTool {
                 if( xAntiGrief.Checked ) {
                     nAntiGriefBlocks.Value = selectedClass.antiGriefBlocks;
                     nAntiGriefSeconds.Value = selectedClass.antiGriefSeconds;
+                } else {
+                    nAntiGriefBlocks.Value = 0;
+                    selectedClass.antiGriefBlocks = 0;
+                    nAntiGriefSeconds.Value = 0;
+                    selectedClass.antiGriefSeconds = 0;
                 }
                 nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
                 nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
@@ -527,8 +532,8 @@ namespace ConfigTool {
                     double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
                     lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed ); ;
                 } else {
-                    selectedClass.drawLimit = 0;
                     nDrawLimit.Value = 0;
+                    selectedClass.drawLimit = 0;
                     lDrawLimitUnits.Text = "blocks";
                 }
                 nDrawLimit.Enabled = xDrawLimit.Checked;
