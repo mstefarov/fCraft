@@ -15,7 +15,7 @@ namespace fCraft {
         public const int HeartbeatDelay = 50000;
 
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 100;
+        public const int ConfigVersion = 101;
         public const int MaxPlayersSupported = 256;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
@@ -79,9 +79,6 @@ namespace fCraft {
             settings[ConfigKey.AntispamInterval] = "5";
             settings[ConfigKey.AntispamMuteDuration] = "5";
             settings[ConfigKey.AntispamMaxWarnings] = "2";
-
-            settings[ConfigKey.AntigriefBlockCount] = "35";
-            settings[ConfigKey.AntigriefInterval] = "5";
         }
 
         public static void LoadDefaultsSavingAndBackup() {
@@ -171,8 +168,8 @@ namespace fCraft {
             int version;
             if( fromFile && (attr == null || !Int32.TryParse( attr.Value, out version ) || version != ConfigVersion) ) {
                 Log( "Config.Load: Your config.xml was made for a different version of fCraft. " +
-                    "Some obsolete settings might be ignored, and some recently-added settings will be set to their default values. " +
-                    "It is recommended that you run ConfigTool to make sure everything is in order.", LogType.Warning );
+                     "Some obsolete settings might be ignored, and some recently-added settings will be set to their default values. " +
+                     "It is recommended that you run ConfigTool to make sure everything is in order.", LogType.Warning );
             }
 
 
@@ -288,8 +285,9 @@ namespace fCraft {
                 classTag.Add( new XAttribute( "rank", playerClass.rank ) );
                 classTag.Add( new XAttribute( "color", Color.GetName( playerClass.color ) ) );
                 if( playerClass.prefix.Length > 0 ) classTag.Add( new XAttribute( "prefix", playerClass.prefix ) );
-                if( playerClass.spamKickThreshold > 0 ) classTag.Add( new XAttribute( "spamKickAt", playerClass.spamKickThreshold ) );
-                if( playerClass.spamBanThreshold > 0 ) classTag.Add( new XAttribute( "spamBanAt", playerClass.spamBanThreshold ) );
+                if( playerClass.antiGriefBlocks > 0 ) classTag.Add( new XAttribute( "antiGriefBlocks", playerClass.antiGriefBlocks ) );
+                if( playerClass.antiGriefSeconds > 0 ) classTag.Add( new XAttribute( "antiGriefSeconds", playerClass.antiGriefSeconds ) );
+                if( playerClass.drawLimit > 0 ) classTag.Add( new XAttribute( "drawLimit", playerClass.drawLimit ) );
                 if( playerClass.idleKickTimer > 0 ) classTag.Add( new XAttribute( "idleKickAfter", playerClass.idleKickTimer ) );
                 if( playerClass.reservedSlot ) classTag.Add( new XAttribute( "reserveSlot", playerClass.reservedSlot ) );
                 XElement temp;
@@ -366,8 +364,6 @@ namespace fCraft {
 
             Player.spamChatCount = GetInt( ConfigKey.AntispamMessageCount );
             Player.spamChatTimer = GetInt( ConfigKey.AntispamInterval );
-            Player.spamBlockCount = GetInt( ConfigKey.AntigriefBlockCount );
-            Player.spamBlockTimer = GetInt( ConfigKey.AntigriefInterval );
             Player.muteDuration = TimeSpan.FromSeconds( GetInt( ConfigKey.AntispamMuteDuration ) );
 
             Server.maxUploadSpeed = GetInt( ConfigKey.UploadBandwidth );
@@ -438,10 +434,6 @@ namespace fCraft {
                 case ConfigKey.AntispamMessageCount:
                     return ValidateInt( key, value, 2, 50 );
                 case ConfigKey.AntispamInterval:
-                    return ValidateInt( key, value, 0, 60 );
-                case ConfigKey.AntigriefBlockCount:
-                    return ValidateInt( key, value, 2, 500 );
-                case ConfigKey.AntigriefInterval:
                     return ValidateInt( key, value, 0, 60 );
                 case ConfigKey.AntispamMuteDuration:
                     return ValidateInt( key, value, 0, 3600 );
@@ -589,8 +581,9 @@ namespace fCraft {
             guest.Add( new XAttribute( "rank", 0 ) );
             guest.Add( new XAttribute( "color", "silver" ) );
             guest.Add( new XAttribute( "prefix", "" ) );
-            guest.Add( new XAttribute( "spamKickAt", 0 ) );
-            guest.Add( new XAttribute( "spamBanAt", 0 ) );
+            guest.Add( new XAttribute( "drawLimit", 512 ) );
+            guest.Add( new XAttribute( "antiGriefBlocks", 35 ) );
+            guest.Add( new XAttribute( "antiGriefSeconds", 5 ) );
             guest.Add( new XAttribute( "idleKickAfter", 20 ) );
             guest.Add( new XElement( "Chat" ) );
             guest.Add( new XElement( "Build" ) );
@@ -605,8 +598,9 @@ namespace fCraft {
             regular.Add( new XAttribute( "rank", 30 ) );
             regular.Add( new XAttribute( "color", "white" ) );
             regular.Add( new XAttribute( "prefix", "" ) );
-            regular.Add( new XAttribute( "spamKickAt", 0 ) );
-            regular.Add( new XAttribute( "spamBanAt", 0 ) );
+            regular.Add( new XAttribute( "drawLimit", 4096 ) );
+            regular.Add( new XAttribute( "antiGriefBlocks", 45 ) );
+            regular.Add( new XAttribute( "antiGriefSeconds", 6 ) );
             regular.Add( new XAttribute( "idleKickAfter", 20 ) );
 
             regular.Add( new XElement( "Chat" ) );
@@ -626,6 +620,8 @@ namespace fCraft {
             regular.Add( new XElement( "ViewOthersInfo" ) );
 
             regular.Add( new XElement( "Teleport" ) );
+
+            regular.Add( new XElement( "Draw" ) );
             permissions.Add( regular );
             DefineClass( regular );
 
@@ -636,8 +632,9 @@ namespace fCraft {
             op.Add( new XAttribute( "rank", 80 ) );
             op.Add( new XAttribute( "color", "aqua" ) );
             op.Add( new XAttribute( "prefix", "-" ) );
-            op.Add( new XAttribute( "spamKickAt", 0 ) );
-            op.Add( new XAttribute( "spamBanAt", 0 ) );
+            op.Add( new XAttribute( "drawLimit", 0 ) );
+            op.Add( new XAttribute( "antiGriefBlocks", 0 ) );
+            op.Add( new XAttribute( "antiGriefSeconds", 0 ) );
             op.Add( new XAttribute( "idleKickAfter", 0 ) );
 
             op.Add( new XElement( "Chat" ) );
@@ -676,6 +673,7 @@ namespace fCraft {
             op.Add( new XElement( "Freeze" ) );
             op.Add( new XElement( "SetSpawn" ) );
 
+            op.Add( new XElement( "Lock" ) );
             op.Add( new XElement( "Draw" ) );
             permissions.Add( op );
             DefineClass( op );
@@ -687,8 +685,9 @@ namespace fCraft {
             owner.Add( new XAttribute( "rank", 100 ) );
             owner.Add( new XAttribute( "color", "red" ) );
             owner.Add( new XAttribute( "prefix", "+" ) );
-            owner.Add( new XAttribute( "spamKickAt", 0 ) );
-            owner.Add( new XAttribute( "spamBanAt", 0 ) );
+            owner.Add( new XAttribute( "drawLimit", 0 ) );
+            owner.Add( new XAttribute( "antiGriefBlocks", 0 ) );
+            owner.Add( new XAttribute( "antiGriefSeconds", 0 ) );
             owner.Add( new XAttribute( "idleKickAfter", 0 ) );
 
             owner.Add( new XElement( "Chat" ) );
@@ -808,27 +807,57 @@ namespace fCraft {
                     playerClass.prefix = attr.Value;
                 } else {
                     Log( "Config.DefineClass: Invalid prefix specified for {0}.", LogType.Warning, playerClass.name );
-                    playerClass.prefix = "";
                 }
             }
 
-            if( (attr = el.Attribute( "spamKickAt" )) != null ) {
-                if( !Int32.TryParse( attr.Value, out playerClass.spamKickThreshold ) ) {
-                    Log( "Config.DefineClass: Could not parse the value for spamKickAt for {0}. Assuming 0 (never).", LogType.Warning, playerClass.name );
-                    playerClass.spamKickThreshold = 0;
+
+
+            int unvalidatedValue = 0;
+            if( (attr = el.Attribute( "antiGriefBlocks" )) != null ) {
+                if( Int32.TryParse( attr.Value, out unvalidatedValue ) ) {
+                    if( unvalidatedValue >= 0 && unvalidatedValue < 1000 ) {
+                        playerClass.antiGriefBlocks = unvalidatedValue;
+                    }else{
+                        Log( "Config.DefineClass: Values for antiGriefBlocks in not within valid range (0-1000) for {0}. Assuming default ({1}).", LogType.Warning,
+                             playerClass.name, playerClass.antiGriefBlocks );
+                    }
+                }else{
+                    Log( "Config.DefineClass: Could not parse the value for antiGriefBlocks for {0}. Assuming default ({1}).", LogType.Warning,
+                         playerClass.name, playerClass.antiGriefBlocks );
                 }
-            } else {
-                playerClass.spamKickThreshold = 0;
             }
 
-            if( (attr = el.Attribute( "spamBanAt" )) != null ) {
-                if( !Int32.TryParse( attr.Value, out playerClass.spamBanThreshold ) ) {
-                    Log( "Config.DefineClass: Could not parse the value for spamBanAt for {0}. Assuming 0 (never).", LogType.Warning, playerClass.name );
-                    playerClass.spamBanThreshold = 0;
+
+            if( (attr = el.Attribute( "antiGriefSeconds" )) != null ) {
+                if( Int32.TryParse( attr.Value, out unvalidatedValue ) ) {
+                    if( unvalidatedValue >= 0 && unvalidatedValue < 100 ) {
+                        playerClass.antiGriefSeconds = unvalidatedValue;
+                    } else {
+                        Log( "Config.DefineClass: Values for antiGriefSeconds in not within valid range (0-1000) for {0}. Assuming default ({1}).", LogType.Warning,
+                             playerClass.name, playerClass.antiGriefSeconds );
+                    }
+                } else {
+                    Log( "Config.DefineClass: Could not parse the value for antiGriefSeconds for {0}. Assuming default ({1}).", LogType.Warning,
+                         playerClass.name, playerClass.antiGriefSeconds );
                 }
-            } else {
-                playerClass.spamBanThreshold = 0;
             }
+
+
+            if( (attr = el.Attribute( "drawLimit" )) != null ) {
+                if( Int32.TryParse( attr.Value, out unvalidatedValue ) ) {
+                    if( unvalidatedValue >= 0 && unvalidatedValue < 100000000 ) {
+                        playerClass.drawLimit = unvalidatedValue;
+                    } else {
+                        Log( "Config.DefineClass: Values for drawLimit in not within valid range (0-1000) for {0}. Assuming default ({1}).", LogType.Warning,
+                             playerClass.name, playerClass.drawLimit );
+                    }
+                } else {
+                    Log( "Config.DefineClass: Could not parse the value for drawLimit for {0}. Assuming default ({1}).", LogType.Warning,
+                         playerClass.name, playerClass.drawLimit );
+                }
+            }
+
+
 
             if( (attr = el.Attribute( "idleKickAfter" )) != null ) {
                 if( !Int32.TryParse( attr.Value, out playerClass.idleKickTimer ) ) {

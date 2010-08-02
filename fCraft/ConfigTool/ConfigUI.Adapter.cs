@@ -157,9 +157,6 @@ namespace ConfigTool {
             xSpamChatKick.Checked = Config.GetInt( ConfigKey.AntispamMaxWarnings ) > 0;
             nSpamChatWarnings.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.AntispamMaxWarnings ) );
             if( !xSpamChatKick.Checked ) nSpamChatWarnings.Enabled = false;
-
-            nSpamBlockCount.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.AntigriefBlockCount ) );
-            nSpamBlockTimer.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.AntigriefInterval ) );
         }
 
 
@@ -285,9 +282,6 @@ namespace ConfigTool {
 
             if( xSpamChatKick.Checked ) Config.SetValue( ConfigKey.AntispamMaxWarnings, nSpamChatWarnings.Value );
             else Config.SetValue( ConfigKey.AntispamMaxWarnings, 0 );
-
-            Config.SetValue( ConfigKey.AntigriefBlockCount, nSpamBlockCount.Value );
-            Config.SetValue( ConfigKey.AntigriefInterval, nSpamBlockTimer.Value );
 
 
 

@@ -31,9 +31,6 @@ namespace fCraft {
         AntispamMuteDuration,
         AntispamMaxWarnings,
 
-        AntigriefBlockCount,
-        AntigriefInterval,
-
         SaveOnShutdown,
         SaveInterval,
 

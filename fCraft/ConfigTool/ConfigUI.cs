@@ -239,15 +239,16 @@ namespace ConfigTool {
             cPromoteLimit.SelectedIndex = pc.GetMaxPromoteIndex();
             cDemoteLimit.SelectedIndex = pc.GetMaxDemoteIndex();
             xReserveSlot.Checked = pc.reservedSlot;
-            xIdleKick.Checked = pc.idleKickTimer > 0;
+            xKickIdle.Checked = pc.idleKickTimer > 0;
             nKickIdle.Value = pc.idleKickTimer;
-            nKickIdle.Enabled = xIdleKick.Checked;
-            xKickOn.Checked = pc.spamKickThreshold > 0;
-            nKickOn.Value = pc.spamKickThreshold;
-            nKickOn.Enabled = xKickOn.Checked;
-            xBanOn.Checked = pc.spamBanThreshold > 0;
-            nBanOn.Value = pc.spamBanThreshold;
-            nBanOn.Enabled = xBanOn.Checked;
+            nKickIdle.Enabled = xKickIdle.Checked;
+            xAntiGrief.Checked = (pc.antiGriefBlocks > 0 && pc.antiGriefSeconds > 0);
+            nAntiGriefBlocks.Value = pc.antiGriefBlocks;
+            nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
+            nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
+            xDrawLimit.Checked = (pc.drawLimit > 0);
+            nDrawLimit.Value = pc.drawLimit;
+            nDrawLimit.Enabled = xDrawLimit.Checked;
 
             foreach( ListViewItem item in vPermissions.Items ) {
                 item.Checked = pc.permissions[item.Index];
@@ -262,6 +263,9 @@ namespace ConfigTool {
             cBanLimit.Enabled = pc.Can( Permissions.Ban );
             cPromoteLimit.Enabled = pc.Can( Permissions.Promote );
             cDemoteLimit.Enabled = pc.Can( Permissions.Demote );
+
+            xDrawLimit.Enabled = pc.Can( Permissions.Draw );
+            nDrawLimit.Enabled &= pc.Can( Permissions.Draw );
 
             gClassOptions.Enabled = true;
             lPermissions.Enabled = true;
@@ -309,12 +313,12 @@ namespace ConfigTool {
             cKickLimit.SelectedIndex = 0;
             cBanLimit.SelectedIndex = 0;
             xReserveSlot.Checked = false;
-            xIdleKick.Checked = false;
+            xKickIdle.Checked = false;
             nKickIdle.Value = 0;
-            xKickOn.Checked = false;
-            nKickOn.Value = 0;
-            xBanOn.Checked = false;
-            nBanOn.Value = 0;
+            xAntiGrief.Checked = false;
+            nAntiGriefBlocks.Value = 0;
+            xDrawLimit.Checked = false;
+            nDrawLimit.Value = 0;
             foreach( ListViewItem item in vPermissions.Items ) {
                 item.Checked = false;
                 item.Font = vPermissions.Font;
@@ -429,18 +433,25 @@ namespace ConfigTool {
         }
 
         private void nKickIdle_ValueChanged( object sender, EventArgs e ) {
-            if( selectedClass == null || !xIdleKick.Checked ) return;
+            if( selectedClass == null || !xKickIdle.Checked ) return;
             selectedClass.idleKickTimer = Convert.ToInt32( nKickIdle.Value );
         }
 
-        private void nKickOn_ValueChanged( object sender, EventArgs e ) {
-            if( selectedClass == null || !xKickOn.Checked ) return;
-            selectedClass.spamKickThreshold = Convert.ToInt32( nKickOn.Value );
+        private void nAntiGriefBlocks_ValueChanged( object sender, EventArgs e ) {
+            if( selectedClass == null || !xAntiGrief.Checked ) return;
+            selectedClass.antiGriefBlocks = Convert.ToInt32( nAntiGriefBlocks.Value );
         }
 
-        private void nBanOn_ValueChanged( object sender, EventArgs e ) {
-            if( selectedClass == null || !xBanOn.Checked ) return;
-            selectedClass.spamBanThreshold = Convert.ToInt32( nBanOn.Value );
+        private void nAntiGriefSeconds_ValueChanged( object sender, EventArgs e ) {
+            if( selectedClass == null || !xAntiGrief.Checked ) return;
+            selectedClass.antiGriefSeconds = Convert.ToInt32( nAntiGriefSeconds.Value );
+        }
+
+        private void nDrawLimit_ValueChanged( object sender, EventArgs e ) {
+            if( selectedClass == null || !xDrawLimit.Checked ) return;
+            selectedClass.drawLimit = Convert.ToInt32( nDrawLimit.Value );
+            double cubed = Math.Pow(Convert.ToDouble( nDrawLimit.Value ),1/3d);
+            lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed ); ;
         }
 
 
@@ -483,10 +494,10 @@ namespace ConfigTool {
             }
         }
 
-        private void xIdleKick_CheckedChanged( object sender, EventArgs e ) {
-            nKickIdle.Enabled = xIdleKick.Checked;
+        private void xKickIdle_CheckedChanged( object sender, EventArgs e ) {
+            nKickIdle.Enabled = xKickIdle.Checked;
             if( selectedClass != null ) {
-                if( xIdleKick.Checked ) {
+                if( xKickIdle.Checked ) {
                     nKickIdle.Value = selectedClass.idleKickTimer;
                 } else {
                     selectedClass.idleKickTimer = 0;
@@ -495,32 +506,37 @@ namespace ConfigTool {
             }
         }
 
-        private void xKickOn_CheckedChanged( object sender, EventArgs e ) {
-            nKickOn.Enabled = xKickOn.Checked;
+        private void xAntiGrief_CheckedChanged( object sender, EventArgs e ) {
+            nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
             if( selectedClass != null ) {
-                if( xKickOn.Checked ) {
-                    nKickOn.Value = selectedClass.spamKickThreshold;
-                } else {
-                    selectedClass.spamKickThreshold = 0;
-                    nKickOn.Value = 0;
+                if( xAntiGrief.Checked ) {
+                    nAntiGriefBlocks.Value = selectedClass.antiGriefBlocks;
+                    nAntiGriefSeconds.Value = selectedClass.antiGriefSeconds;
                 }
+                nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
+                nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
             }
         }
 
-        private void xBanOn_CheckedChanged( object sender, EventArgs e ) {
-            nBanOn.Enabled = xBanOn.Checked;
+        private void xDrawLimit_CheckedChanged( object sender, EventArgs e ) {
+            nDrawLimit.Enabled = xDrawLimit.Checked;
             if( selectedClass != null ) {
-                if( xBanOn.Checked ) {
-                    nBanOn.Value = selectedClass.spamBanThreshold;
+                if( xDrawLimit.Checked ) {
+                    nDrawLimit.Value = selectedClass.drawLimit;
+                    double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
+                    lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed ); ;
                 } else {
-                    selectedClass.spamBanThreshold = 0;
-                    nBanOn.Value = 0;
+                    selectedClass.drawLimit = 0;
+                    nDrawLimit.Value = 0;
+                    lDrawLimitUnits.Text = "blocks";
                 }
+                nDrawLimit.Enabled = xDrawLimit.Checked;
             }
         }
 
         private void vPermissions_ItemChecked( object sender, ItemCheckedEventArgs e ) {
-            if( e.Item.Checked ) {
+            bool check = e.Item.Checked;
+            if( check ) {
                 e.Item.Font = bold;
             } else {
                 e.Item.Font = vPermissions.Font;
@@ -528,22 +544,26 @@ namespace ConfigTool {
             if( selectedClass == null ) return;
             switch( (Permissions)e.Item.Tag ) {
                 case Permissions.Ban:
-                    cBanLimit.Enabled = e.Item.Checked;
-                    if( !e.Item.Checked ) vPermissions.Items[(int)Permissions.BanIP].Checked = false;
-                    if( !e.Item.Checked ) vPermissions.Items[(int)Permissions.BanAll].Checked = false;
+                    cBanLimit.Enabled = check;
+                    if( !check ) {
+                        vPermissions.Items[(int)Permissions.BanIP].Checked = false;
+                        vPermissions.Items[(int)Permissions.BanAll].Checked = false;
+                    }
                     break;
                 case Permissions.BanIP:
-                    if( e.Item.Checked ) vPermissions.Items[(int)Permissions.Ban].Checked = true;
+                    if( check ) vPermissions.Items[(int)Permissions.Ban].Checked = true;
                     break;
                 case Permissions.BanAll:
-                    if( e.Item.Checked ) vPermissions.Items[(int)Permissions.Ban].Checked = true;
+                    if( check ) vPermissions.Items[(int)Permissions.Ban].Checked = true;
                     break;
                 case Permissions.Kick:
-                    cKickLimit.Enabled = e.Item.Checked; break;
+                    cKickLimit.Enabled = check; break;
                 case Permissions.Promote:
-                    cPromoteLimit.Enabled = e.Item.Checked; break;
+                    cPromoteLimit.Enabled = check; break;
                 case Permissions.Demote:
-                    cDemoteLimit.Enabled = e.Item.Checked; break;
+                    cDemoteLimit.Enabled = check; break;
+                case Permissions.Draw:
+                    xDrawLimit.Enabled = check; break;
             }
 
             selectedClass.permissions[(int)e.Item.Tag] = e.Item.Checked;

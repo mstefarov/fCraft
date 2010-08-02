@@ -13,7 +13,7 @@ namespace fCraft {
         public bool[] permissions;
         public PlayerClass maxPromote, maxDemote, maxKick, maxBan;
         public string prefix = "";
-        public int spamKickThreshold, spamBanThreshold, idleKickTimer;
+        public int idleKickTimer, drawLimit = 0, antiGriefBlocks = 35, antiGriefSeconds = 5;
         public bool reservedSlot;
         public int index;
 

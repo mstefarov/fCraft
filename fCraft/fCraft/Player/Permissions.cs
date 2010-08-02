@@ -12,7 +12,9 @@ namespace fCraft {
         PlaceAdmincrete,  // build admincrete
         DeleteAdmincrete, // delete admincrete
 
+        ViewOthersInfo,
         Say,
+
         Kick,
         Ban,
         BanIP,
@@ -23,7 +25,7 @@ namespace fCraft {
         Hide,         // go invisible!
         ChangeName,   // change own name
 
-        ViewOthersInfo,
+        Draw,
 
         Teleport,
         Bring,
@@ -31,14 +33,13 @@ namespace fCraft {
         SetSpawn,
         Lock,
 
+        ManageZones,
+        ManageWorlds,
+        Import,
+        
         ControlPhysics,
 
         AddLandmarks,
 
-        ManageZones,
-        ManageWorlds,
-        Import,
-
-        Draw
     }
 }

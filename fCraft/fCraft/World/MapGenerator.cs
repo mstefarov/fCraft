@@ -166,7 +166,7 @@ namespace fCraft {
                     if( ilevel > iwater ) {
                         ilevel = (int)(((level - 0.5) * smoothingOver + 0.5) * map.height);
                         map.SetBlock( x, y, ilevel, bGroundSurface );
-                        for( int i = ilevel - 1; i > 0; i-- ) {
+                        for( int i = ilevel - 1; i >= 0; i-- ) {
                             if( ilevel - i < groundThickness ) {
                                 map.SetBlock( x, y, i, bGround );
                             } else {
@@ -183,7 +183,7 @@ namespace fCraft {
                         for( int i = iwater; i > ilevel; i-- ) {
                             map.SetBlock( x, y, i, bWater );
                         }
-                        for( int i = ilevel; i > 0; i-- ) {
+                        for( int i = ilevel; i >= 0; i-- ) {
                             if( ilevel - i < seaFloorThickness ) {
                                 map.SetBlock( x, y, i, bSeaFloor );
                             } else {
