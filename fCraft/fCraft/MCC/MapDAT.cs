@@ -35,10 +35,10 @@ using System.Net;
 using fCraft;
 
 
-namespace mcc {
+namespace Mcc {
     public sealed class MapDAT : IConverter {
-        public MapFormats Format {
-            get { return MapFormats.Creative; }
+        public MapFormat Format {
+            get { return MapFormat.Creative; }
         }
 
         public string FileExtension {
@@ -50,18 +50,18 @@ namespace mcc {
         }
 
 
-        public Map Load( Stream MapStream ) {
+        public Map Load( Stream mapStream ) {
             byte[] temp = new byte[8];
             Map map = new Map();
             byte[] data;
             int length;
             try {
-                MapStream.Seek( -4, SeekOrigin.End );
-                MapStream.Read( temp, 0, sizeof( int ) );
-                MapStream.Seek( 0, SeekOrigin.Begin );
+                mapStream.Seek( -4, SeekOrigin.End );
+                mapStream.Read( temp, 0, sizeof( int ) );
+                mapStream.Seek( 0, SeekOrigin.Begin );
                 length = BitConverter.ToInt32( temp, 0 );
                 data = new byte[length];
-                using( GZipStream reader = new GZipStream( MapStream, CompressionMode.Decompress, true ) ) {
+                using( GZipStream reader = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
                     reader.Read( data, 0, length );
                 }
 
@@ -148,22 +148,22 @@ namespace mcc {
         }
 
 
-        public bool Save( Map MapToSave, Stream MapStream ) {
+        public bool Save( Map mapToSave, Stream mapStream ) {
             throw new NotImplementedException();
         }
 
 
-        public bool Claims( Stream MapStream ) {
+        public bool Claims( Stream mapStream ) {
             byte[] temp = new byte[8];
             byte[] data;
             int length;
             try {
-                MapStream.Seek( -4, SeekOrigin.End );
-                MapStream.Read( temp, 0, sizeof( int ) );
-                MapStream.Seek( 0, SeekOrigin.Begin );
+                mapStream.Seek( -4, SeekOrigin.End );
+                mapStream.Read( temp, 0, sizeof( int ) );
+                mapStream.Seek( 0, SeekOrigin.Begin );
                 length = BitConverter.ToInt32( temp, 0 );
                 data = new byte[length];
-                using( GZipStream reader = new GZipStream( MapStream, CompressionMode.Decompress, true ) ) {
+                using( GZipStream reader = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
                     reader.Read( data, 0, length );
                 }
 

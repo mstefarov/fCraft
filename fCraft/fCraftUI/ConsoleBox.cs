@@ -12,7 +12,7 @@ namespace fCraftUI {
         const int WM_SYSKEYDOWN = 0x104;
         public SimpleEventHandler OnCommand;
         List<string> log = new List<string>();
-        int logPointer = 0;
+        int logPointer;
 
         protected override bool ProcessCmdKey( ref Message msg, Keys keyData ) {
             if( keyData == Keys.Up ) {
@@ -39,7 +39,7 @@ namespace fCraftUI {
 
             } else if( keyData == Keys.Enter ) {
                 if( msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_KEYDOWN ) {
-                    if( Text != "" ) {
+                    if( Text.Length > 0 ) {
                         log.Add( Text );
                         if( log.Count > 100 ) log.RemoveAt( 0 );
                         logPointer = log.Count;

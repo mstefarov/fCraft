@@ -5,7 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Net;
-using mcc;
+using Mcc;
 
 
 namespace fCraft {
@@ -109,7 +109,7 @@ namespace fCraft {
         }
 
 
-        void WriteLengthPrefixedString( BinaryWriter writer, string s ) {
+        static void WriteLengthPrefixedString( BinaryWriter writer, string s ) {
             byte[] stringData = ASCIIEncoding.ASCII.GetBytes( s );
             writer.Write( stringData.Length );
             writer.Write( stringData );
@@ -162,7 +162,7 @@ namespace fCraft {
                 BinaryReader reader = new BinaryReader( File.OpenRead( fileName ) );
 
                 // Read in the magic number
-                if( reader.ReadUInt32() != mcc.MapFCMv2.Identifier ) {
+                if( reader.ReadUInt32() != Mcc.MapFCMv2.Identifier ) {
                     throw new FormatException();
                 }
 
@@ -248,7 +248,7 @@ namespace fCraft {
             }
         }
 
-        string ReadLengthPrefixedString( BinaryReader reader ) {
+        static string ReadLengthPrefixedString( BinaryReader reader ) {
             int length = reader.ReadInt32();
             byte[] stringData = reader.ReadBytes( length );
             return ASCIIEncoding.ASCII.GetString( stringData );

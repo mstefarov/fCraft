@@ -34,28 +34,28 @@ using System.Collections.Generic;
 using fCraft;
 
 
-namespace mcc {
+namespace Mcc {
 
     public static class MapUtility {
 
-        private static Dictionary<MapFormats, IConverter> AvailableConverters = new Dictionary<MapFormats, IConverter>();
+        private static Dictionary<MapFormat, IConverter> AvailableConverters = new Dictionary<MapFormat, IConverter>();
 
 
         static MapUtility() {
-            AvailableConverters.Add( MapFormats.MCSharp, new MapMCSharp() );
-            AvailableConverters.Add( MapFormats.FCMv2, new MapFCMv2() );
-            AvailableConverters.Add( MapFormats.MinerCPP, new MapMinerCPP() );
-            AvailableConverters.Add( MapFormats.NBT, new MapNBT() );
-            AvailableConverters.Add( MapFormats.Creative, new MapDAT() );
+            AvailableConverters.Add( MapFormat.MCSharp, new MapMCSharp() );
+            AvailableConverters.Add( MapFormat.FCMv2, new MapFCMv2() );
+            AvailableConverters.Add( MapFormat.MinerCPP, new MapMinerCPP() );
+            AvailableConverters.Add( MapFormat.NBT, new MapNBT() );
+            AvailableConverters.Add( MapFormat.Creative, new MapDAT() );
         }
 
 
-        public static MapFormats Identify( Stream MapStream ) {
+        public static MapFormat Identify( Stream mapStream ) {
             foreach ( IConverter Converter in AvailableConverters.Values ) {
-                if ( Converter.Claims( MapStream ) )
+                if ( Converter.Claims( mapStream ) )
                     return Converter.Format;
             }
-            return MapFormats.Unknown;
+            return MapFormat.Unknown;
         }
 
 
@@ -78,13 +78,13 @@ namespace mcc {
 
 
 
-        public static string GetFileExtension( MapFormats format ) {
+        public static string GetFileExtension( MapFormat format ) {
             return AvailableConverters[format].FileExtension;
         }
 
-        public static bool TrySaving( Map MapToSave, Stream MapStream, MapFormats Format ) {
-            if ( AvailableConverters.ContainsKey( Format ) ) {
-                return AvailableConverters[Format].Save( MapToSave, MapStream );
+        public static bool TrySaving( Map mapToSave, Stream mapStream, MapFormat format ) {
+            if ( AvailableConverters.ContainsKey( format ) ) {
+                return AvailableConverters[format].Save( mapToSave, mapStream );
             }
             throw new FormatException();
         }

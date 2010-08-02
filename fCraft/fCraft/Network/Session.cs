@@ -13,8 +13,12 @@ namespace fCraft {
     public sealed class Session {
         public Player player;
         public DateTime loginTime;
-        public bool canReceive, canSend, canQueue, canDispose;
-        public bool isBetweenWorlds = true, showMessageOnDisconnect = false;
+        public bool canReceive,
+                    canSend,
+                    canQueue,
+                    canDispose;
+        public bool isBetweenWorlds = true,
+                    showMessageOnDisconnect;
         object joinWorldLock = new object();
 
         Thread ioThread;
@@ -22,9 +26,9 @@ namespace fCraft {
         BinaryReader reader;
         PacketWriter writer;
         public ConcurrentQueue<Packet> outputQueue, priorityOutputQueue;
-        World forcedWorldToJoin = null;
+        World forcedWorldToJoin;
 
-        int fullPositionUpdateCounter = 0;
+        int fullPositionUpdateCounter;
         const int fullPositionUpdateInterval = 10;
 
 
@@ -33,8 +37,8 @@ namespace fCraft {
 
             canReceive = true;
             canQueue = true;
-            canSend = false;
-            canDispose = false;
+            //canSend = false;
+            //canDispose = false;
 
             outputQueue = new ConcurrentQueue<Packet>();
             priorityOutputQueue = new ConcurrentQueue<Packet>();
@@ -99,7 +103,7 @@ namespace fCraft {
                         if( !priorityOutputQueue.Dequeue( ref packet ) ) break;
                         writer.Write( packet.data );
                         packetsSent++;
-                        if( packet.data[0] == (byte)OutputCodes.Disconnect ) {
+                        if( packet.data[0] == (byte)OutputCode.Disconnect ) {
                             Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug, player.GetLogName() );
                             return;
                         }
@@ -110,7 +114,7 @@ namespace fCraft {
                         if( !outputQueue.Dequeue( ref packet ) ) break;
                         writer.Write( packet.data );
                         packetsSent++;
-                        if( packet.data[0] == (byte)OutputCodes.Disconnect ) {
+                        if( packet.data[0] == (byte)OutputCode.Disconnect ) {
                             writer.Flush();
                             Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug, player.GetLogName() );
                             return;
@@ -120,10 +124,10 @@ namespace fCraft {
                     // get input from player
                     while( canReceive && client.GetStream().DataAvailable ) {
                         opcode = reader.ReadByte();
-                        switch( (InputCodes)opcode ) {
+                        switch( (InputCode)opcode ) {
 
                             // Message
-                            case InputCodes.Message:
+                            case InputCode.Message:
                                 player.ResetIdleTimer();
                                 reader.ReadByte();
                                 string message = ReadString();
@@ -139,7 +143,7 @@ namespace fCraft {
                                 break;
 
                             // Player movement
-                            case InputCodes.MoveRotate:
+                            case InputCode.MoveRotate:
 
                                 reader.ReadByte();
                                 Position newPos = new Position();
@@ -196,7 +200,7 @@ namespace fCraft {
                                 break;
 
                             // Set tile
-                            case InputCodes.SetTile:
+                            case InputCode.SetTile:
                                 player.ResetIdleTimer();
                                 x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
                                 h = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
@@ -241,7 +245,7 @@ namespace fCraft {
 
         void LoginSequence() {
             byte opcode = reader.ReadByte();
-            if( opcode != (byte)InputCodes.Handshake ) {
+            if( opcode != (byte)InputCode.Handshake ) {
                 Logger.Log( "Session.LoginSequence: Unexpected opcode in the first packet: {0}.", LogType.Error, opcode );
                 KickNow( "Unexpected handshake message - possible protocol mismatch!" );
                 return;

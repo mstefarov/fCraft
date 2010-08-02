@@ -29,11 +29,11 @@
 
 using System;
 
-namespace mcc {
+namespace Mcc {
     // <summary>
     // Enum defining all of the MapFormats supported by mcc
     // </summary>
-    public enum MapFormats {
+    public enum MapFormat {
         FCMv2,
         // Map format used by fCraft.
         // - Support added by Matvei

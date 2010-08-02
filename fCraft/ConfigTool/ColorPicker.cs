@@ -9,8 +9,9 @@ using System.Windows.Forms;
 
 
 namespace ConfigTool {
-    internal partial class ColorPicker : Form {
+    internal sealed partial class ColorPicker : Form {
         public static Dictionary<int, ColorPair> colors = new Dictionary<int, ColorPair>();
+
         static ColorPicker() {
             colors.Add( 0, new ColorPair( Color.White, Color.Black ) );
             colors.Add( 8, new ColorPair( Color.White, Color.DimGray ) );
@@ -54,14 +55,14 @@ namespace ConfigTool {
             be.Click += delegate( Object o, EventArgs a ) { color = 14; Close(); };
             bf.Click += delegate( Object o, EventArgs a ) { color = 15; Close(); };
         }
-    }
 
-    internal struct ColorPair {
-        public ColorPair( Color _foreground, Color _background ) {
-            foreground = _foreground;
-            background = _background;
+        internal struct ColorPair {
+            public ColorPair( Color _foreground, Color _background ) {
+                foreground = _foreground;
+                background = _background;
+            }
+            public Color foreground;
+            public Color background;
         }
-        public Color foreground;
-        public Color background;
     }
 }

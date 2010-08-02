@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 
 namespace fCraft {
-    public enum LogType : byte {
+    public enum LogType {
         SystemActivity,
         Warning,
         Error,

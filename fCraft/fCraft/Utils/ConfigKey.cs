@@ -2,7 +2,7 @@
 
 
 namespace fCraft {
-    public enum ConfigKey : byte {
+    public enum ConfigKey {
         ServerName,
         MOTD,
         MaxPlayers,

@@ -33,11 +33,11 @@ using System.IO.Compression;
 using fCraft;
 
 
-namespace mcc {
+namespace Mcc {
     public sealed class MapNBT : IConverter {
 
-        public MapFormats Format {
-            get { return MapFormats.NBT; }
+        public MapFormat Format {
+            get { return MapFormat.NBT; }
         }
 
         public string FileExtension {
@@ -48,9 +48,9 @@ namespace mcc {
             get { return "indev"; }
         }
 
-        public Map Load( Stream MapStream ) {
-            MapStream.Seek( 0, SeekOrigin.Begin );
-            GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true );
+        public Map Load( Stream mapStream ) {
+            mapStream.Seek( 0, SeekOrigin.Begin );
+            GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
             NBTag tag = NBTag.ReadStream( gs );
 
             Map map = new Map();
@@ -77,15 +77,15 @@ namespace mcc {
         }
 
 
-        public bool Save( Map MapToSave, Stream MapStream ) {
+        public bool Save( Map mapToSave, Stream mapStream ) {
             throw new NotImplementedException();
         }
 
 
-        public bool Claims( Stream MapStream ) {
-            MapStream.Seek( 0, SeekOrigin.Begin );
+        public bool Claims( Stream mapStream ) {
+            mapStream.Seek( 0, SeekOrigin.Begin );
 
-            GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true );
+            GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
             BinaryReader bs = new BinaryReader( gs );
 
             try {

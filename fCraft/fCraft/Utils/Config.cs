@@ -22,7 +22,7 @@ namespace fCraft {
         static Dictionary<ConfigKey, string> settings = new Dictionary<ConfigKey, string>();
 
         public static string errors = ""; // for ConfigTool
-        public static bool logToString = false;
+        public static bool logToString;
 
         static void Log( string format, LogType type, params object[] args ) {
             Log( String.Format( format, args ), type );
@@ -291,16 +291,16 @@ namespace fCraft {
                 if( playerClass.idleKickTimer > 0 ) classTag.Add( new XAttribute( "idleKickAfter", playerClass.idleKickTimer ) );
                 if( playerClass.reservedSlot ) classTag.Add( new XAttribute( "reserveSlot", playerClass.reservedSlot ) );
                 XElement temp;
-                for( int i = 0; i < Enum.GetValues( typeof( Permissions ) ).Length; i++ ) {
+                for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
                     if( playerClass.permissions[i] ) {
-                        temp = new XElement( ((Permissions)i).ToString() );
-                        if( i == (int)Permissions.Ban && playerClass.maxBan != null ) {
+                        temp = new XElement( ((Permission)i).ToString() );
+                        if( i == (int)Permission.Ban && playerClass.maxBan != null ) {
                             temp.Add( new XAttribute( "max", playerClass.maxBan ) );
-                        } else if( i == (int)Permissions.Kick && playerClass.maxKick != null ) {
+                        } else if( i == (int)Permission.Kick && playerClass.maxKick != null ) {
                             temp.Add( new XAttribute( "max", playerClass.maxKick ) );
-                        } else if( i == (int)Permissions.Promote && playerClass.maxPromote != null ) {
+                        } else if( i == (int)Permission.Promote && playerClass.maxPromote != null ) {
                             temp.Add( new XAttribute( "max", playerClass.maxPromote ) );
-                        } else if( i == (int)Permissions.Demote && playerClass.maxDemote != null ) {
+                        } else if( i == (int)Permission.Demote && playerClass.maxDemote != null ) {
                             temp.Add( new XAttribute( "max", playerClass.maxDemote ) );
                         }
                         classTag.Add( temp );
@@ -382,7 +382,7 @@ namespace fCraft {
                 case ConfigKey.MaxPlayers:
                     return ValidateInt( key, value, 1, MaxPlayersSupported );
                 case ConfigKey.DefaultClass:
-                    if( value != "" ) {
+                    if( value.Length > 0 ) {
                         if( ClassList.ParseClass( value ) != null ) {
                             settings[key] = ClassList.ParseClass( value ).name;
                             return true;
@@ -880,29 +880,29 @@ namespace fCraft {
 
             // read permissions
             XElement temp;
-            for( int i = 0; i < Enum.GetValues( typeof( Permissions ) ).Length; i++ ) {
-                string permission = ((Permissions)i).ToString();
+            for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
+                string permission = ((Permission)i).ToString();
                 if( (temp = el.Element( permission )) != null ) {
                     playerClass.permissions[i] = true;
-                    if( i == (int)Permissions.Promote ) {
+                    if( i == (int)Permission.Promote ) {
                         if( (attr = temp.Attribute( "max" )) != null ) {
                             playerClass.maxPromoteVal = attr.Value;
                         } else {
                             playerClass.maxPromoteVal = "";
                         }
-                    } else if( i == (int)Permissions.Demote ) {
+                    } else if( i == (int)Permission.Demote ) {
                         if( (attr = temp.Attribute( "max" )) != null ) {
                             playerClass.maxDemoteVal = attr.Value;
                         } else {
                             playerClass.maxDemoteVal = "";
                         }
-                    } else if( i == (int)Permissions.Kick ) {
+                    } else if( i == (int)Permission.Kick ) {
                         if( (attr = temp.Attribute( "max" )) != null ) {
                             playerClass.maxKickVal = attr.Value;
                         } else {
                             playerClass.maxKickVal = "";
                         }
-                    } else if( i == (int)Permissions.Ban ) {
+                    } else if( i == (int)Permission.Ban ) {
                         if( (attr = temp.Attribute( "max" )) != null ) {
                             playerClass.maxBanVal = attr.Value;
                         } else {
@@ -913,12 +913,12 @@ namespace fCraft {
             }
 
             // check for consistency in ban permissions
-            if( !playerClass.Can( Permissions.Ban ) &&
-                (playerClass.Can( Permissions.BanAll ) || playerClass.Can( Permissions.BanIP )) ) {
+            if( !playerClass.Can( Permission.Ban ) &&
+                (playerClass.Can( Permission.BanAll ) || playerClass.Can( Permission.BanIP )) ) {
                 Log( "Class \"{0}\" is allowed to BanIP and/or BanAll but not allowed to Ban.\n" +
                     "Assuming that all ban permissions were ment to be off.", LogType.Warning, playerClass.name );
-                playerClass.permissions[(int)Permissions.BanIP] = false;
-                playerClass.permissions[(int)Permissions.BanAll] = false;
+                playerClass.permissions[(int)Permission.BanIP] = false;
+                playerClass.permissions[(int)Permission.BanAll] = false;
             }
 
             ClassList.AddClass( playerClass );

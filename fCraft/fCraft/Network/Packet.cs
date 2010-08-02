@@ -14,7 +14,7 @@ namespace fCraft {
     }
 
 
-    public enum InputCodes {
+    public enum InputCode {
         Handshake = 0,
         Ping = 1,
         SetTile = 5,
@@ -23,7 +23,7 @@ namespace fCraft {
     };
 
 
-    public enum OutputCodes {
+    public enum OutputCode {
         Handshake = 0,
         Ping = 1,
         LevelBegin = 2,

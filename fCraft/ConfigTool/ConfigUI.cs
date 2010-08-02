@@ -34,10 +34,10 @@ namespace ConfigTool {
 
         void FillPermissionList() {
             ListViewItem item;
-            foreach( Permissions permission in Enum.GetValues( typeof( Permissions ) ) ) {
+            foreach( Permission permission in Enum.GetValues( typeof( Permission ) ) ) {
                 item = new ListViewItem( permission.ToString() );
                 item.Tag = permission;
-                if( permission == Permissions.AddLandmarks || permission == Permissions.ControlPhysics ) {
+                if( permission == Permission.AddLandmarks || permission == Permission.ControlPhysics ) {
                     item.ForeColor = Color.LightGray;
                 }
                 vPermissions.Items.Add( item );
@@ -259,13 +259,13 @@ namespace ConfigTool {
                 }
             }
 
-            cKickLimit.Enabled = pc.Can( Permissions.Kick );
-            cBanLimit.Enabled = pc.Can( Permissions.Ban );
-            cPromoteLimit.Enabled = pc.Can( Permissions.Promote );
-            cDemoteLimit.Enabled = pc.Can( Permissions.Demote );
+            cKickLimit.Enabled = pc.Can( Permission.Kick );
+            cBanLimit.Enabled = pc.Can( Permission.Ban );
+            cPromoteLimit.Enabled = pc.Can( Permission.Promote );
+            cDemoteLimit.Enabled = pc.Can( Permission.Demote );
 
-            xDrawLimit.Enabled = pc.Can( Permissions.Draw );
-            nDrawLimit.Enabled &= pc.Can( Permissions.Draw );
+            xDrawLimit.Enabled = pc.Can( Permission.Draw );
+            nDrawLimit.Enabled &= pc.Can( Permission.Draw );
 
             gClassOptions.Enabled = true;
             lPermissions.Enabled = true;
@@ -328,7 +328,7 @@ namespace ConfigTool {
             vPermissions.Enabled = false;
         }
 
-        void FillClassList( ComboBox box, string firstItem ) {
+        static void FillClassList( ComboBox box, string firstItem ) {
             box.Items.Clear();
             box.Items.Add( firstItem );
             foreach( PlayerClass pc in ClassList.classesByIndex ) {
@@ -402,7 +402,7 @@ namespace ConfigTool {
                     }
                 }
                 ApplyTabWorlds();
-                if( worldUpdates != "" ) {
+                if( worldUpdates.Length > 0 ) {
                     MessageBox.Show( "The following worlds were affected:" + Environment.NewLine + worldUpdates, "Warning" );
                 }
 
@@ -542,27 +542,27 @@ namespace ConfigTool {
                 e.Item.Font = vPermissions.Font;
             }
             if( selectedClass == null ) return;
-            switch( (Permissions)e.Item.Tag ) {
-                case Permissions.Ban:
+            switch( (Permission)e.Item.Tag ) {
+                case Permission.Ban:
                     cBanLimit.Enabled = check;
                     if( !check ) {
-                        vPermissions.Items[(int)Permissions.BanIP].Checked = false;
-                        vPermissions.Items[(int)Permissions.BanAll].Checked = false;
+                        vPermissions.Items[(int)Permission.BanIP].Checked = false;
+                        vPermissions.Items[(int)Permission.BanAll].Checked = false;
                     }
                     break;
-                case Permissions.BanIP:
-                    if( check ) vPermissions.Items[(int)Permissions.Ban].Checked = true;
+                case Permission.BanIP:
+                    if( check ) vPermissions.Items[(int)Permission.Ban].Checked = true;
                     break;
-                case Permissions.BanAll:
-                    if( check ) vPermissions.Items[(int)Permissions.Ban].Checked = true;
+                case Permission.BanAll:
+                    if( check ) vPermissions.Items[(int)Permission.Ban].Checked = true;
                     break;
-                case Permissions.Kick:
+                case Permission.Kick:
                     cKickLimit.Enabled = check; break;
-                case Permissions.Promote:
+                case Permission.Promote:
                     cPromoteLimit.Enabled = check; break;
-                case Permissions.Demote:
+                case Permission.Demote:
                     cDemoteLimit.Enabled = check; break;
-                case Permissions.Draw:
+                case Permission.Draw:
                     xDrawLimit.Enabled = check; break;
             }
 
@@ -613,7 +613,7 @@ namespace ConfigTool {
 
         private void bApply_Click( object sender, EventArgs e ) {
             SaveConfig();
-            if( Config.errors != "" ) {
+            if( Config.errors.Length > 0 ) {
                 MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
             } else if( Config.Save() ) {
                 bApply.Enabled = false;
@@ -624,7 +624,7 @@ namespace ConfigTool {
 
         private void bSave_Click( object sender, EventArgs e ) {
             SaveConfig();
-            if( Config.errors != "" ) {
+            if( Config.errors.Length > 0 ) {
                 MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
             } else if( Config.Save() ) {
                 Application.Exit();
@@ -726,7 +726,7 @@ namespace ConfigTool {
         #region Colors
         int colorSys, colorSay, colorHelp, colorAnnouncement;
 
-        void ApplyColor( Button button, int color ) {
+        static void ApplyColor( Button button, int color ) {
             button.Text = fCraft.Color.GetName( color );
             button.BackColor = ColorPicker.colors[color].background;
             button.ForeColor = ColorPicker.colors[color].foreground;

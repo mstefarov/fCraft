@@ -68,8 +68,8 @@ namespace fCraft {
 
 
         internal static void Draw( Player player, Command cmd, DrawMode mode ) {
-            if( !player.Can( Permissions.Draw ) ) {
-                player.NoAccessMessage( Permissions.Draw );
+            if( !player.Can( Permission.Draw ) ) {
+                player.NoAccessMessage( Permission.Draw );
                 return;
             }
             if( player.drawingInProgress ) {
@@ -79,7 +79,7 @@ namespace fCraft {
             string blockName = cmd.Next();
             Block block = Block.Undefined;
 
-            Permissions permission = Permissions.Build;
+            Permission permission = Permission.Build;
 
             // if a type is specified in chat, try to parse it
             if( blockName != null ) {
@@ -92,15 +92,15 @@ namespace fCraft {
 
                 switch( block ) {
                     case Block.Admincrete:
-                        permission = Permissions.PlaceAdmincrete; break;
+                        permission = Permission.PlaceAdmincrete; break;
                     case Block.Air:
-                        permission = Permissions.Delete; break;
+                        permission = Permission.Delete; break;
                     case Block.Water:
                     case Block.StillWater:
-                        permission = Permissions.PlaceWater; break;
+                        permission = Permission.PlaceWater; break;
                     case Block.Lava:
                     case Block.StillLava:
-                        permission = Permissions.PlaceLava; break;
+                        permission = Permission.PlaceLava; break;
                 }
             }
             // otherwise, use the last-used-block
@@ -184,8 +184,8 @@ namespace fCraft {
 
 
         internal static void UndoDraw( Player player, Command command ) {
-            if( !player.Can( Permissions.Draw ) ) {
-                player.NoAccessMessage( Permissions.Draw );
+            if( !player.Can( Permission.Draw ) ) {
+                player.NoAccessMessage( Permission.Draw );
                 return;
             }
             if( player.drawUndoBuffer.Count > 0 ) {
@@ -237,7 +237,7 @@ namespace fCraft {
                             for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
                                 block = player.world.map.GetBlock( x + x3, y + y3, h );
                                 if( block != oldBlock ) continue;
-                                if( block == (byte)Block.Admincrete && !player.Can( Permissions.DeleteAdmincrete ) ) continue;
+                                if( block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) continue;
                                 player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h, replacementBlock ) );
                                 if( blocks < MaxUndoCount ) {
                                     player.drawUndoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, oldBlock ) );
@@ -299,7 +299,7 @@ namespace fCraft {
                             for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
                                 block = player.world.map.GetBlock( x + x3, y + y3, h );
                                 if( block == (byte)drawBlock ) continue;
-                                if( block == (byte)Block.Admincrete && !player.Can( Permissions.DeleteAdmincrete ) ) continue;
+                                if( block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) continue;
                                 
                                 player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h, (byte)drawBlock ) );
                                 if( blocks < MaxUndoCount ) {
@@ -384,7 +384,7 @@ namespace fCraft {
 
         static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int h, ref int blocks, ref bool cannotUndo ) {
             byte block = player.world.map.GetBlock( x, y, h );
-            if( block == drawBlock || block == (byte)Block.Admincrete && !player.Can( Permissions.DeleteAdmincrete ) ) return;
+            if( block == drawBlock || block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) return;
 
             player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x, y, h, drawBlock ) );
             if( blocks < MaxUndoCount ) {
@@ -456,7 +456,7 @@ namespace fCraft {
                                 if( (dx * dx) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 <= 1 ) {
                                     block = player.world.map.GetBlock( x + x3, y + y3, h );
                                     if( block == (byte)drawBlock ) continue;
-                                    if( block == (byte)Block.Admincrete && !player.Can( Permissions.DeleteAdmincrete ) ) continue;
+                                    if( block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) continue;
 
                                     player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h, (byte)drawBlock ) );
                                     if( blocks < MaxUndoCount ) {

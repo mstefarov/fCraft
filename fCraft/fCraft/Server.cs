@@ -193,13 +193,13 @@ namespace fCraft {
             }
 
             // kill the heartbeat
-            Heartbeat.ShutDown();
+            Heartbeat.Shutdown();
 
             // kill IRC bot
             if( IRCBot.IsOnline() == true ) IRCBot.Shutdown();
 
             // kill background tasks
-            Tasks.ShutDown();
+            Tasks.Shutdown();
 
             // kick all players
             lock( playerListLock ) {
@@ -638,12 +638,12 @@ namespace fCraft {
 
         #region Scheduler
 
-        static int taskIdCounter = 0;
+        static int taskIdCounter;
         static Dictionary<int, ScheduledTask> tasks = new Dictionary<int, ScheduledTask>();
         static ScheduledTask[] taskList;
         static Thread mainThread;
         static DateTime serverStart;
-        public static bool shuttingDown = false;
+        public static bool shuttingDown;
         static object taskListLock = new object();
 
         internal static void MainLoop() {

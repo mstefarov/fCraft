@@ -293,7 +293,7 @@ namespace fCraft {
         }
 
 
-        double Rectify( double iNum ) {
+        static double Rectify( double iNum ) {
             if( iNum < 0 ) {
                 iNum = 0;
             } else if( iNum > 1.0 ) {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 
 namespace fCraft {
-    public class ConcurrentQueue<T> {
+    public sealed class ConcurrentQueue<T> {
         class Node {
             public T value;
             public Pointer next;
@@ -36,8 +36,8 @@ namespace fCraft {
                 count = c;
             }
         }
-        private Pointer Head;
-        private Pointer Tail;
+        Pointer Head;
+        Pointer Tail;
 
         public ConcurrentQueue() {
             Node node = new Node();
@@ -53,7 +53,7 @@ namespace fCraft {
         /// <param name="compared"></param>
         /// <param name="exchange"></param>
         /// <returns></returns>
-        private bool CAS( ref Pointer destination, Pointer compared, Pointer exchange ) {
+        static bool CAS( ref Pointer destination, Pointer compared, Pointer exchange ) {
             if( compared.ptr == Interlocked.CompareExchange( ref destination.ptr, exchange.ptr, compared.ptr ) ) {
                 Interlocked.Exchange( ref destination.count, exchange.count );
                 return true;
@@ -61,6 +61,7 @@ namespace fCraft {
 
             return false;
         }
+
 
         public bool Dequeue( ref T t ) {
             Pointer head;

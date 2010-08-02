@@ -7,7 +7,7 @@ using System.Net;
 
 
 namespace fCraft {
-    class ImportCommands {
+    static class ImportCommands {
         internal static void Init() {
             Commands.AddCommand( "importranks", ImportRanks, true );
             Commands.AddCommand( "importbans", ImportBans, true );
@@ -15,8 +15,8 @@ namespace fCraft {
 
 
         static void ImportRanks( Player player, Command cmd ) {
-            if( !player.Can( Permissions.Import, Permissions.Promote, Permissions.Demote ) ) {
-                player.NoAccessMessage( Permissions.Import, Permissions.Promote, Permissions.Demote );
+            if( !player.Can( Permission.Import, Permission.Promote, Permission.Demote ) ) {
+                player.NoAccessMessage( Permission.Import, Permission.Promote, Permission.Demote );
                 return;
             }
 
@@ -73,8 +73,8 @@ namespace fCraft {
 
 
         static void ImportBans( Player player, Command cmd ) {
-            if( !player.Can( Permissions.Import, Permissions.Ban ) ) {
-                player.NoAccessMessage( Permissions.Import, Permissions.Ban );
+            if( !player.Can( Permission.Import, Permission.Ban ) ) {
+                player.NoAccessMessage( Permission.Import, Permission.Ban );
                 return;
             }
 

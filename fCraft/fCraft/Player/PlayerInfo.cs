@@ -49,7 +49,7 @@ namespace fCraft {
             classChangeDate = DateTime.MinValue;
             classChangedBy = "-";
 
-            banned = false;
+            //banned = false;
             banDate = DateTime.MinValue;
             bannedBy = "-";
             unbanDate = DateTime.MinValue;
@@ -62,15 +62,16 @@ namespace fCraft {
 
             lastFailedLoginDate = DateTime.MinValue;
             lastFailedLoginIP = IPAddress.None;
-            failedLoginCount = 0;
+            //failedLoginCount = 0;
 
             totalTimeOnServer = new TimeSpan( 0 );
-            blocksBuilt = 0;
-            blocksDeleted = 0;
+            //blocksBuilt = 0;
+            //blocksDeleted = 0;
             timesVisited = 1;
-            linesWritten = 0;
-            thanksReceived = 0;
-            warningsReceived = 0;
+
+            //linesWritten = 0;
+            //thanksReceived = 0;
+            //warningsReceived = 0;
         }
 
 
@@ -83,7 +84,7 @@ namespace fCraft {
             classChangeDate = DateTime.MinValue;
             classChangedBy = "-";
 
-            banned = false;
+            //banned = false;
             banDate = DateTime.MinValue;
             bannedBy = "-";
             unbanDate = DateTime.MinValue;
@@ -91,21 +92,21 @@ namespace fCraft {
             banReason = "-";
             unbanReason = "-";
 
-            lastFailedLoginDate = DateTime.MinValue;
-            lastFailedLoginIP = IPAddress.None;
-            failedLoginCount = 0;
-
             firstLoginDate = DateTime.Now;
             lastLoginDate = firstLoginDate;
 
+            lastFailedLoginDate = DateTime.MinValue;
+            lastFailedLoginIP = IPAddress.None;
+            //failedLoginCount = 0;
+
             totalTimeOnServer = new TimeSpan( 0 );
-            blocksBuilt = 0;
-            blocksDeleted = 0;
+            //blocksBuilt = 0;
+            //blocksDeleted = 0;
             timesVisited = 1;
 
-            linesWritten = 0;
-            thanksReceived = 0;
-            warningsReceived = 0;
+            //linesWritten = 0;
+            //thanksReceived = 0;
+            //warningsReceived = 0;
         }
 
 

@@ -33,11 +33,11 @@ using System.IO.Compression;
 using fCraft;
 
 
-namespace mcc {
+namespace Mcc {
     public sealed class MapMCSharp : IConverter {
 
-        public MapFormats Format {
-            get { return MapFormats.MCSharp; }
+        public MapFormat Format {
+            get { return MapFormat.MCSharp; }
         }
 
         public string FileExtension {
@@ -65,13 +65,13 @@ namespace mcc {
             // all others default to 0/air
         }
 
-        public Map Load( System.IO.Stream MapStream ) {
+        public Map Load( Stream mapStream ) {
             // Reset the seeker to the front of the stream
             // This should probably be done differently.
-            MapStream.Seek( 0, SeekOrigin.Begin );
+            mapStream.Seek( 0, SeekOrigin.Begin );
 
             // Setup a GZipStream to decompress and read the map file
-            GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true );
+            GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
             BinaryReader bs = new BinaryReader( gs );
 
             Map map = new Map();
@@ -116,33 +116,33 @@ namespace mcc {
         }
 
 
-        public bool Save( Map MapToSave, Stream MapStream ) {
-            using ( GZipStream gs = new GZipStream( MapStream, CompressionMode.Compress, true ) ) {
+        public bool Save( Map mapToSave, Stream mapStream ) {
+            using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress, true ) ) {
                 BinaryWriter bs = new BinaryWriter( gs );
 
                 // Write the magic number
                 bs.Write( (ushort)0x752 );
 
                 // Write the map dimensions
-                bs.Write( MapToSave.widthX );
-                bs.Write( MapToSave.widthY );
-                bs.Write( MapToSave.height );
+                bs.Write( mapToSave.widthX );
+                bs.Write( mapToSave.widthY );
+                bs.Write( mapToSave.height );
 
                 // Write the spawn location
-                bs.Write( MapToSave.spawn.x/32 );
-                bs.Write( MapToSave.spawn.y/32 );
-                bs.Write( MapToSave.spawn.h/32 );
+                bs.Write( mapToSave.spawn.x/32 );
+                bs.Write( mapToSave.spawn.y/32 );
+                bs.Write( mapToSave.spawn.h/32 );
 
                 //Write the spawn orientation
-                bs.Write( MapToSave.spawn.r );
-                bs.Write( MapToSave.spawn.l );
+                bs.Write( mapToSave.spawn.r );
+                bs.Write( mapToSave.spawn.l );
 
                 // Write the VistPermission and BuildPermission bytes
                 bs.Write( (byte)0 );
                 bs.Write( (byte)0 );
 
                 // Write the map data
-                bs.Write( MapToSave.blocks, 0, MapToSave.blocks.Length );
+                bs.Write( mapToSave.blocks, 0, mapToSave.blocks.Length );
 
                 bs.Close();
             }
@@ -150,10 +150,10 @@ namespace mcc {
         }
 
 
-        public bool Claims( Stream MapStream ) {
-            MapStream.Seek( 0, SeekOrigin.Begin );
+        public bool Claims( Stream mapStream ) {
+            mapStream.Seek( 0, SeekOrigin.Begin );
 
-            GZipStream gs = new GZipStream( MapStream, CompressionMode.Decompress, true );
+            GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
             BinaryReader bs = new BinaryReader( gs );
 
             try {

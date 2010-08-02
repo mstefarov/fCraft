@@ -3,7 +3,7 @@ using System;
 
 
 namespace fCraft {
-    public enum Block : byte {
+    public enum Block {
         Undefined = 255, // for error checking
 
         Air = 0,

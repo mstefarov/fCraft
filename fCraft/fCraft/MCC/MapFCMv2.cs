@@ -32,13 +32,13 @@ using System.IO;
 using System.IO.Compression;
 using fCraft;
 
-namespace mcc {
+namespace Mcc {
     public sealed class MapFCMv2 : IConverter {
 
         public const uint Identifier = 0xfc000002u;
 
-        public MapFormats Format {
-            get { return MapFormats.FCMv2; }
+        public MapFormat Format {
+            get { return MapFormat.FCMv2; }
         }
 
         public string FileExtension {
@@ -49,14 +49,14 @@ namespace mcc {
             get { return "fCraft"; }
         }
 
-        public Map Load( Stream MapStream ) {
+        public Map Load( Stream mapStream ) {
             // Reset the seeker to the front of the stream
             // This should probably be done differently.
-            MapStream.Seek( 0, SeekOrigin.Begin );
+            mapStream.Seek( 0, SeekOrigin.Begin );
 
             Map map = new Map();
 
-            BinaryReader reader = new BinaryReader( MapStream );
+            BinaryReader reader = new BinaryReader( mapStream );
 
             // Read in the magic number
             if ( reader.ReadUInt32() != Identifier ) {
@@ -86,7 +86,7 @@ namespace mcc {
 
             // Read in the map data
             map.blocks = new Byte[map.GetBlockCount()];
-            using ( GZipStream decompressor = new GZipStream( MapStream, CompressionMode.Decompress, true ) ) {
+            using ( GZipStream decompressor = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
                 decompressor.Read( map.blocks, 0, map.blocks.Length );
             }
 
@@ -94,32 +94,32 @@ namespace mcc {
         }
 
 
-        public bool Save( Map MapToSave, Stream MapStream ) {
-            BinaryWriter bs = new BinaryWriter( MapStream );
+        public bool Save( Map mapToSave, Stream mapStream ) {
+            BinaryWriter bs = new BinaryWriter( mapStream );
 
             // Write the magic number
             bs.Write( Identifier );
 
             // Write the map dimensions
-            bs.Write( MapToSave.widthX );
-            bs.Write( MapToSave.widthY );
-            bs.Write( MapToSave.height );
+            bs.Write( mapToSave.widthX );
+            bs.Write( mapToSave.widthY );
+            bs.Write( mapToSave.height );
 
             // Write the spawn location
-            bs.Write( MapToSave.spawn.x );
-            bs.Write( MapToSave.spawn.y );
-            bs.Write( MapToSave.spawn.h );
+            bs.Write( mapToSave.spawn.x );
+            bs.Write( mapToSave.spawn.y );
+            bs.Write( mapToSave.spawn.h );
 
             // Write the spawn orientation
-            bs.Write( MapToSave.spawn.r );
-            bs.Write( MapToSave.spawn.l );
+            bs.Write( mapToSave.spawn.r );
+            bs.Write( mapToSave.spawn.l );
 
             // Skip metadata pair count
-            MapToSave.WriteMetadata( bs );
+            mapToSave.WriteMetadata( bs );
 
             // Write the map data
-            using ( GZipStream gs = new GZipStream( MapStream, CompressionMode.Compress, true ) ) {
-                gs.Write( MapToSave.blocks, 0, MapToSave.blocks.Length );
+            using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress, true ) ) {
+                gs.Write( mapToSave.blocks, 0, mapToSave.blocks.Length );
             }
 
             bs.Close();
@@ -128,10 +128,10 @@ namespace mcc {
         }
 
 
-        public bool Claims( Stream MapStream ) {
-            MapStream.Seek( 0, SeekOrigin.Begin );
+        public bool Claims( Stream mapStream ) {
+            mapStream.Seek( 0, SeekOrigin.Begin );
 
-            BinaryReader reader = new BinaryReader( MapStream );
+            BinaryReader reader = new BinaryReader( mapStream );
 
             try {
                 return reader.ReadUInt32() == Identifier;

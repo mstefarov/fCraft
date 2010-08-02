@@ -5,8 +5,6 @@ using System.IO;
 
 namespace fCraft {
     static class MapCommands {
-        static object loadLock = new object();
-
         internal static void Init() {
             Commands.AddCommand( "join", Join, false );
             Commands.AddCommand( "j", Join, false );
@@ -62,8 +60,8 @@ namespace fCraft {
 
 
         internal static void Save( Player player, Command cmd ) {
-            if( !player.Can( Permissions.ManageWorlds ) ) {
-                player.NoAccessMessage( Permissions.ManageWorlds );
+            if( !player.Can( Permission.ManageWorlds ) ) {
+                player.NoAccessMessage( Permission.ManageWorlds );
                 return;
             }
 
@@ -130,7 +128,7 @@ namespace fCraft {
                 player.Message( "No world \"" + worldName + "\" found." );
             } else if( world == Server.mainWorld ) {
                 player.Message( "World \"" + world.name + "\" is already set as main." );
-            } else if( player.Can( Permissions.ManageWorlds ) ) {
+            } else if( player.Can( Permission.ManageWorlds ) ) {
                 if( world.classAccess != ClassList.lowestClass ) {
                     world.classAccess = ClassList.lowestClass;
                     player.Message( "The main world cannot have access restrictions." );
@@ -145,7 +143,7 @@ namespace fCraft {
                 Server.SendToAll( Color.Sys + player.nick + " set \"" + world.name + "\" to be the main world." );
                 Logger.Log( player.GetLogName() + " set \"" + world.name + "\" to be the main world.", LogType.UserActivity );
             } else {
-                player.NoAccessMessage( Permissions.ManageWorlds );
+                player.NoAccessMessage( Permission.ManageWorlds );
             }
         }
 
@@ -176,7 +174,7 @@ namespace fCraft {
                 } else {
                     player.Message( "World \"" + world.name + "\" can only be visited by " + world.classAccess.color + world.classAccess.name + "+" );
                 }
-            } else if( player.Can( Permissions.ManageWorlds ) ) {
+            } else if( player.Can( Permission.ManageWorlds ) ) {
                 PlayerClass playerClass = ClassList.FindClass( className );
                 if( playerClass == null ) {
                     player.Message( "No class \"" + className + "\" found." );
@@ -193,7 +191,7 @@ namespace fCraft {
                     Logger.Log( player.GetLogName() + " made the world \"" + world.name + "\" accessible to " + world.classAccess.name + "+", LogType.UserActivity );
                 }
             } else {
-                player.NoAccessMessage( Permissions.ManageWorlds );
+                player.NoAccessMessage( Permission.ManageWorlds );
             }
         }
 
@@ -224,7 +222,7 @@ namespace fCraft {
                 } else {
                     player.Message( "World \"" + world.name + "\" can be only modified by " + world.classBuild.color + world.classBuild.name + "+" );
                 }
-            } else if( player.Can( Permissions.ManageWorlds ) ) {
+            } else if( player.Can( Permission.ManageWorlds ) ) {
                 PlayerClass playerClass = ClassList.FindClass( className );
                 if( playerClass == null ) {
                     player.Message( "No class \"" + className + "\" found." );
@@ -239,7 +237,7 @@ namespace fCraft {
                     Logger.Log( player.GetLogName() + " made the world \"" + world.name + "\" modifiable by " + world.classBuild.name + "+", LogType.UserActivity );
                 }
             } else {
-                player.NoAccessMessage( Permissions.ManageWorlds );
+                player.NoAccessMessage( Permission.ManageWorlds );
             }
         }
 
@@ -265,8 +263,8 @@ namespace fCraft {
 
 
         internal static void WorldLoad( Player player, Command cmd ) {
-            if( !player.Can( Permissions.ManageWorlds ) ) {
-                player.NoAccessMessage( Permissions.ManageWorlds );
+            if( !player.Can( Permission.ManageWorlds ) ) {
+                player.NoAccessMessage( Permission.ManageWorlds );
                 return;
             }
 
@@ -337,8 +335,8 @@ namespace fCraft {
 
 
         internal static void WorldRename( Player player, Command cmd ) {
-            if( !player.Can( Permissions.ManageWorlds ) ) {
-                player.NoAccessMessage( Permissions.ManageWorlds );
+            if( !player.Can( Permission.ManageWorlds ) ) {
+                player.NoAccessMessage( Permission.ManageWorlds );
                 return;
             }
 
@@ -385,8 +383,8 @@ namespace fCraft {
 
 
         internal static void WorldRemove( Player player, Command cmd ) {
-            if( !player.Can( Permissions.ManageWorlds ) ) {
-                player.NoAccessMessage( Permissions.ManageWorlds );
+            if( !player.Can( Permission.ManageWorlds ) ) {
+                player.NoAccessMessage( Permission.ManageWorlds );
                 return;
             }
 
@@ -418,8 +416,8 @@ namespace fCraft {
         #region Zone Commands
 
         internal static void ZoneEdit( Player player, Command cmd ) {
-            if( !player.Can( Permissions.ManageZones ) ) {
-                player.NoAccessMessage( Permissions.ManageZones );
+            if( !player.Can( Permission.ManageZones ) ) {
+                player.NoAccessMessage( Permission.ManageZones );
                 return;
             }
             string name = cmd.Next();
@@ -457,8 +455,8 @@ namespace fCraft {
 
 
         internal static void ZoneAdd( Player player, Command cmd ) {//TODO: better method names & documentation
-            if( !player.Can( Permissions.ManageZones ) ) {
-                player.NoAccessMessage( Permissions.ManageZones );
+            if( !player.Can( Permission.ManageZones ) ) {
+                player.NoAccessMessage( Permission.ManageZones );
                 return;
             }
 
@@ -544,8 +542,8 @@ namespace fCraft {
 
 
         internal static void ZoneRemove( Player player, Command cmd ) {
-            if( !player.Can( Permissions.ManageZones ) ) {
-                player.NoAccessMessage( Permissions.ManageZones );
+            if( !player.Can( Permission.ManageZones ) ) {
+                player.NoAccessMessage( Permission.ManageZones );
                 return;
             }
             string zoneName = cmd.Next();
@@ -606,8 +604,8 @@ namespace fCraft {
 
         internal static void Generate( Player player, Command cmd ) {
 
-            if( !player.Can( Permissions.ManageWorlds ) ) {
-                player.NoAccessMessage( Permissions.ManageWorlds );
+            if( !player.Can( Permission.ManageWorlds ) ) {
+                player.NoAccessMessage( Permission.ManageWorlds );
                 return;
             }
 
@@ -688,8 +686,8 @@ namespace fCraft {
         #region Locking
 
         internal static void Lock( Player player, Command cmd ) {
-            if( !player.Can( Permissions.Lock ) ) {
-                player.NoAccessMessage( Permissions.Lock );
+            if( !player.Can( Permission.Lock ) ) {
+                player.NoAccessMessage( Permission.Lock );
                 return;
             }
             string worldName = cmd.Next();
@@ -717,8 +715,8 @@ namespace fCraft {
 
 
         internal static void LockAll( Player player, Command cmd ) {
-            if( !player.Can( Permissions.Lock ) ) {
-                player.NoAccessMessage( Permissions.Lock );
+            if( !player.Can( Permission.Lock ) ) {
+                player.NoAccessMessage( Permission.Lock );
                 return;
             } else {
                 lock( Server.worldListLock ) {
@@ -732,8 +730,8 @@ namespace fCraft {
 
 
         internal static void Unlock( Player player, Command cmd ) {
-            if( !player.Can( Permissions.Lock ) ) {
-                player.NoAccessMessage( Permissions.Lock );
+            if( !player.Can( Permission.Lock ) ) {
+                player.NoAccessMessage( Permission.Lock );
                 return;
             }
             string worldName = cmd.Next();
@@ -761,8 +759,8 @@ namespace fCraft {
 
 
         internal static void UnlockAll( Player player, Command cmd ) {
-            if( !player.Can( Permissions.Lock ) ) {
-                player.NoAccessMessage( Permissions.Lock );
+            if( !player.Can( Permission.Lock ) ) {
+                player.NoAccessMessage( Permission.Lock );
                 return;
             } else {
                 lock( Server.worldListLock ) {

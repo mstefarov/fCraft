@@ -11,21 +11,30 @@ namespace fCraft {
         public string color;
         public string ID;
         public bool[] permissions;
-        public PlayerClass maxPromote, maxDemote, maxKick, maxBan;
+        public PlayerClass maxPromote,
+                           maxDemote,
+                           maxKick,
+                           maxBan;
         public string prefix = "";
-        public int idleKickTimer, drawLimit = 0, antiGriefBlocks = 35, antiGriefSeconds = 5;
+        public int idleKickTimer,
+                   drawLimit,
+                   antiGriefBlocks = 35,
+                   antiGriefSeconds = 5;
         public bool reservedSlot;
         public int index;
 
         // these need to be parsed after all classes are added
-        internal string maxPromoteVal = "", maxDemoteVal = "", maxKickVal = "", maxBanVal = "";
+        internal string maxPromoteVal = "",
+                        maxDemoteVal = "",
+                        maxKickVal = "",
+                        maxBanVal = "";
 
         public PlayerClass() {
-            permissions = new bool[Enum.GetValues( typeof( Permissions ) ).Length];
+            permissions = new bool[Enum.GetValues( typeof( Permission ) ).Length];
         }
 
 
-        public bool Can( Permissions permission ) {
+        public bool Can( Permission permission ) {
             return permissions[(int)permission];
         }
 

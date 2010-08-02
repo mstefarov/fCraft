@@ -70,7 +70,7 @@ namespace fCraft {
         }
 
 
-        public static void ShutDown() {
+        public static void Shutdown() {
             if( thread != null && thread.IsAlive ) {
                 thread.Abort();
             }

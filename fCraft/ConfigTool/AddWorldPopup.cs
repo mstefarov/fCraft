@@ -22,10 +22,10 @@ namespace ConfigTool {
         MapGenType genType;
         MapGenTheme genTheme;
         Stopwatch stopwatch;
-        int previewRotation = 0;
+        int previewRotation;
         Bitmap previewImage;
-        bool floodBarrier = false;
-        string originalWorldName = null;
+        bool floodBarrier;
+        string originalWorldName;
         internal WorldListEntry world;
         List<WorldListEntry> copyOptionsList = new List<WorldListEntry>();
 

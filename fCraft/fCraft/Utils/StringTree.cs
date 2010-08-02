@@ -91,7 +91,7 @@ namespace fCraft {
 
 
         // Decodes ASCII into internal letter code.
-        int CharCode( char ch ) {
+        static int CharCode( char ch ) {
             if( ch >= 'a' && ch <= 'z' )
                 return ch - 'a';
             if( ch >= 'A' && ch <= 'Z' )
@@ -100,12 +100,11 @@ namespace fCraft {
                 return ch - '0' + 26;
             return 36;
         }
-    }
 
-
-    sealed class StringNode {
-        public byte tag = StringTree.EMPTY;
-        public StringNode[] children = new StringNode[37];
-        public PlayerInfo payload = null;
+        sealed class StringNode {
+            public byte tag = StringTree.EMPTY;
+            public StringNode[] children = new StringNode[37];
+            public PlayerInfo payload;
+        }
     }
 }
