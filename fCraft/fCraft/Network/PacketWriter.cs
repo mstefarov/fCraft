@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Net;
+using System.Collections.Generic;
 
 
 namespace fCraft {
@@ -153,9 +154,9 @@ namespace fCraft {
             Packet packet = new Packet( 7 );
             packet.data[0] = (byte)OutputCodes.MoveRotate;
             packet.data[1] = (byte)id;
-            packet.data[2] = (byte)(pos.x&0xFF);
-            packet.data[3] = (byte)(pos.h&0xFF);
-            packet.data[4] = (byte)(pos.y&0xFF);
+            packet.data[2] = (byte)(pos.x & 0xFF);
+            packet.data[3] = (byte)(pos.h & 0xFF);
+            packet.data[4] = (byte)(pos.y & 0xFF);
             packet.data[5] = pos.r;
             packet.data[6] = pos.l;
             return packet;
@@ -207,5 +208,102 @@ namespace fCraft {
         }
 
         #endregion
+
+        internal static IEnumerable<Packet> MakeWrappedMessage( string text ) {
+            /* STEP 1: Split */
+            int lastIndex = 0;
+
+            List<string> segments = new List<string>();
+            for( int i = 0; i < text.Length; i++ ) {
+                if( IsColorCode( text[i] ) && i > 0 && text[i - 1] == '&' ) {
+                    // split at color codes
+                    if( i > 1 ) {
+                        segments.Add( text.Substring( lastIndex, i - lastIndex - 1 ) );
+                        lastIndex = i - 1;
+                    }
+
+                } else if( text[i] == ' ' ) {
+                    for( ; i < text.Length && text[i] == ' '; i++ ) ;
+                    i--;
+                    // split at spaces
+                    segments.Add( text.Substring( lastIndex, i - lastIndex ) );
+                    lastIndex = i;
+                }
+            }
+
+            // add remainder of the string
+            if( lastIndex != text.Length ) {
+                segments.Add( text.Substring( lastIndex ) );
+            }
+
+
+            /* STEP 2: Delete empty segments */
+            for( int i = segments.Count - 1; i >= 0; i-- ) {
+                if( segments[i].Length == 0 ) segments.RemoveAt( i );
+            }
+
+
+            /* STEP 3: Join segments into strings */
+            string line = "";
+            string lastColorCode = "";
+            List<string> lines = new List<string>();
+
+            for( int i = 0; i < segments.Count; i++ ) {
+                if( line.Length + segments[i].TrimEnd().Length + 1 > 64 ) {
+                    // end of line, start new one
+                    lines.Add( line );
+
+                    if( segments[i].TrimStart().StartsWith( "&" ) ) {
+                        lastColorCode = segments[i].Substring( 0, 2 );
+                        line = "> " + segments[i].TrimStart();
+
+                    } else {
+                        line = "> " + lastColorCode + segments[i].TrimStart();
+                    }
+                } else {
+                    // apending to line
+                    if( segments[i].TrimStart().StartsWith( "&" ) ) {
+                        lastColorCode = segments[i].Substring( 0, 2 );
+                        line += segments[i];
+                    } else {
+                        line += segments[i];
+                    }
+                }
+            }
+
+            // last line
+            lines.Add( line );
+
+
+            /* STEP 4: Remove consecutive colorcodes */
+            for( int l = 0; l < lines.Count; l++ ) {
+                for( int i = 0; i < lines[l].Length - 3; i++ ) {
+                    if( lines[l][i] == '&' && IsColorCode( lines[l][i + 1] ) && lines[l][i + 2] == '&' && IsColorCode( lines[l][i + 3] ) ) {
+                        lines[l] = lines[l].Substring( 0, i ) + lines[l].Substring( i + 2 );
+                        i--;
+                    }
+                }
+            }
+
+            /* STEP 5: Remove trailing whitespace and colorcodes */
+            for( int l = lines.Count - 1; l >= 0; l-- ) {
+                int i = lines[l].Length - 1;
+                for( ; i >= 0 && (lines[l][i] == ' ' || lines[l][i] == '&' || IsColorCode( lines[l][i] ) && i > 0 && lines[l][i - 1] == '&'); i-- ) ;
+                if( i == 0 ) {
+                    lines.RemoveAt( l );
+                } else {
+                    lines[l] = lines[l].Substring( 0, i + 1 );
+                }
+            }
+
+            /* STEP 6: DONE */
+            foreach( string processedLine in lines ) {
+                yield return MakeMessage( processedLine );
+            }
+        }
+
+        static bool IsColorCode( char c ) {
+            return (c >= '0' && c <= '9' || c >= 'a' && c <= 'f');
+        }
     }
 }

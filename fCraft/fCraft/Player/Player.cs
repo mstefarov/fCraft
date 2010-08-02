@@ -282,7 +282,7 @@ namespace fCraft {
                         displayedName = info.playerClass.color + displayedName + Color.White;
                     }
 
-                    if( name == "fragmer" ) displayedName = "&4f&cr&ea&ag&bm&9e&5r";
+                    if( name == "fragmer" ) displayedName = "&4f&cr&ea&ag&bm&9e&5r&f";
                     Server.SendToAll( displayedName + ": " + message, null );
 
                     // IRC Bot code for sending messages
@@ -354,7 +354,7 @@ namespace fCraft {
             foreach( Permissions permission in permissions ) {
                 if( (permission == Permissions.Build || permission == Permissions.Delete || permission == Permissions.Draw) && world.classBuild.rank > info.playerClass.rank ) {
                     return false;
-                } else if(!info.playerClass.Can( permission )){
+                } else if( !info.playerClass.Can( permission ) ) {
                     return false;
                 }
             }
@@ -374,7 +374,7 @@ namespace fCraft {
 
         // Queues a system message
         public void Message( string message ) {
-			Message(Color.Sys, message);
+            Message( Color.Sys, message );
         }
 
 
@@ -383,7 +383,9 @@ namespace fCraft {
             if( session == null ) {
                 Logger.LogConsole( message );
             } else {
-                session.Send( PacketWriter.MakeMessage( color + message ) );
+                foreach( Packet p in PacketWriter.MakeWrappedMessage( color + message ) ) {
+                    session.Send( p );
+                }
             }
         }
 
