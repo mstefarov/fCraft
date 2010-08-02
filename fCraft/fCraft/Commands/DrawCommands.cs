@@ -91,12 +91,16 @@ namespace fCraft {
                 }
 
                 switch( block ) {
-                    case Block.Admincrete: permission = Permissions.PlaceAdmincrete; break;
-                    case Block.Air: permission = Permissions.Delete; break;
+                    case Block.Admincrete:
+                        permission = Permissions.PlaceAdmincrete; break;
+                    case Block.Air:
+                        permission = Permissions.Delete; break;
                     case Block.Water:
-                    case Block.StillWater: permission = Permissions.PlaceWater; break;
+                    case Block.StillWater:
+                        permission = Permissions.PlaceWater; break;
                     case Block.Lava:
-                    case Block.StillLava: permission = Permissions.PlaceLava; break;
+                    case Block.StillLava:
+                        permission = Permissions.PlaceLava; break;
                 }
             }
             // otherwise, use the last-used-block
@@ -214,10 +218,18 @@ namespace fCraft {
             int sh = Math.Min( marks[0].h, marks[1].h );
             int eh = Math.Max( marks[0].h, marks[1].h );
 
-            byte block;
+            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
+            if( player.CanDraw( volume ) ) {
+                player.Message( String.Format( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                               player.info.playerClass.drawLimit, volume ) );
+                return;
+            }
+
+            player.drawUndoBuffer.Clear();
 
             bool cannotUndo = false;
             int blocks = 0;
+            byte block;
             for( int x = sx; x <= ex; x += DrawStride ) {
                 for( int y = sy; y <= ey; y += DrawStride ) {
                     for( int h = sh; h <= eh; h++ ) {
@@ -267,11 +279,19 @@ namespace fCraft {
             int sh = Math.Min( marks[0].h, marks[1].h );
             int eh = Math.Max( marks[0].h, marks[1].h );
 
-            byte block;
+            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
+            if( player.CanDraw( volume ) ) {
+                player.Message( String.Format( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                               player.info.playerClass.drawLimit, volume ) );
+                return;
+            }
+
+            player.drawUndoBuffer.Clear();
 
             int blocks = 0;
             bool cannotUndo = false;
 
+            byte block;
             for( int x = sx; x <= ex; x += DrawStride ) {
                 for( int y = sy; y <= ey; y += DrawStride ) {
                     for( int h = sh; h <= eh; h++ ) {
@@ -320,6 +340,15 @@ namespace fCraft {
             int ey = Math.Max( marks[0].y, marks[1].y );
             int sh = Math.Min( marks[0].h, marks[1].h );
             int eh = Math.Max( marks[0].h, marks[1].h );
+
+            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1) - (ex - sx - 1) * (ey - sy - 1) * (eh - sh - 1);
+            if( player.CanDraw( volume ) ) {
+                player.Message( String.Format( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                               player.info.playerClass.drawLimit, volume ) );
+                return;
+            }
+
+            player.drawUndoBuffer.Clear();
 
             int blocks = 0;
             bool cannotUndo = false;
@@ -384,8 +413,6 @@ namespace fCraft {
             int sh = Math.Min( marks[0].h, marks[1].h );
             int eh = Math.Max( marks[0].h, marks[1].h );
 
-            byte block;
-
             // find axis lengths
             double rx = (ex - sx + 1) / 2 + .25;
             double ry = (ey - sy + 1) / 2 + .25;
@@ -400,12 +427,20 @@ namespace fCraft {
             double cy = (ey + sy) / 2;
             double ch = (eh + sh) / 2;
 
-            // prepare to draw
+
+            int volume = (int)((3 / 4d) * Math.PI * rx * ry * rh);
+            if( player.CanDraw(volume) ) {
+                player.Message( String.Format( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                               player.info.playerClass.drawLimit, volume ) );
+                return;
+            }
+
             player.drawUndoBuffer.Clear();
 
             int blocks = 0;
             bool cannotUndo = false;
 
+            byte block;
             for( int x = sx; x <= ex; x += DrawStride ) {
                 for( int y = sy; y <= ey; y += DrawStride ) {
                     for( int h = sh; h <= eh; h++ ) {

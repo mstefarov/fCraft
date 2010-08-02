@@ -1,5 +1,18 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-08-01
+2010-08-02
+428
+ Feature: Line wrapping. Yes, finally.
+ Feature: Per-class draw limits. Defaults are: owner unlimited, op unlimited, regular 4096 (16x16x16), guest 512 (8*8*8)
+ Feature: Per-class antigrief detection. Defaults are: owner unmetered, op umetered, regular 45/6 (7.5 blocks/second), guest 35/5 (7 blocks/second)
+ Feature: Memory usage of draw commands has been reduced by 6 bytes per block (37% improvement).
+ Fix: Extra color codes fixed in /players command.
+ Fix: Fixed a bug with /undo that caused more than one command to be undone at once.
+ Fix: Fixed maps generated with "Realistic terrain" (MapGenerator) having an empty layer at the bottom of the map.
+ Change: Default classes have been tweaked:
+         - regular can now use draw commands
+         - op can now lock/unlock
+ Change: Improved arrangement of Permission list items.
+ Change: Removed obsolete ConfigKey variables AntigriefBlockCount and AntigriefBlockInterval
 427
  Feature: Added /zedit command for changing zone permissions after creation
  Feature: New aliases for drawing commands: /c /e /h /r /m

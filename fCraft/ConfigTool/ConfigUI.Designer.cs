@@ -104,16 +104,19 @@
             this.dgvcBackup = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.tabClasses = new System.Windows.Forms.TabPage();
             this.gClassOptions = new System.Windows.Forms.GroupBox();
+            this.lAntiGrief1 = new System.Windows.Forms.Label();
+            this.lAntiGrief3 = new System.Windows.Forms.Label();
+            this.nAntiGriefSeconds = new System.Windows.Forms.NumericUpDown();
             this.bColorClass = new System.Windows.Forms.Button();
-            this.xBanOn = new System.Windows.Forms.CheckBox();
-            this.lBanOnUnits = new System.Windows.Forms.Label();
+            this.xDrawLimit = new System.Windows.Forms.CheckBox();
+            this.lDrawLimitUnits = new System.Windows.Forms.Label();
             this.lKickIdleUnits = new System.Windows.Forms.Label();
-            this.nBanOn = new System.Windows.Forms.NumericUpDown();
+            this.nDrawLimit = new System.Windows.Forms.NumericUpDown();
             this.nKickIdle = new System.Windows.Forms.NumericUpDown();
-            this.xKickOn = new System.Windows.Forms.CheckBox();
-            this.lKickOnUnits = new System.Windows.Forms.Label();
-            this.xIdleKick = new System.Windows.Forms.CheckBox();
-            this.nKickOn = new System.Windows.Forms.NumericUpDown();
+            this.xAntiGrief = new System.Windows.Forms.CheckBox();
+            this.lAntiGrief2 = new System.Windows.Forms.Label();
+            this.xKickIdle = new System.Windows.Forms.CheckBox();
+            this.nAntiGriefBlocks = new System.Windows.Forms.NumericUpDown();
             this.xReserveSlot = new System.Windows.Forms.CheckBox();
             this.cBanLimit = new System.Windows.Forms.ComboBox();
             this.cKickLimit = new System.Windows.Forms.ComboBox();
@@ -138,12 +141,6 @@
             this.lClasses = new System.Windows.Forms.Label();
             this.vClasses = new System.Windows.Forms.ListBox();
             this.tabSecurity = new System.Windows.Forms.TabPage();
-            this.gAntigrief = new System.Windows.Forms.GroupBox();
-            this.lSpamBlockRate = new System.Windows.Forms.Label();
-            this.nSpamBlockCount = new System.Windows.Forms.NumericUpDown();
-            this.lSpamBlocks = new System.Windows.Forms.Label();
-            this.nSpamBlockTimer = new System.Windows.Forms.NumericUpDown();
-            this.lSpamBlockSeconds = new System.Windows.Forms.Label();
             this.gSpamChat = new System.Windows.Forms.GroupBox();
             this.lSpamChatWarnings = new System.Windows.Forms.Label();
             this.nSpamChatWarnings = new System.Windows.Forms.NumericUpDown();
@@ -264,14 +261,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvWorlds)).BeginInit();
             this.tabClasses.SuspendLayout();
             this.gClassOptions.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nBanOn)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefSeconds)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nDrawLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nKickIdle)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nKickOn)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefBlocks)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRank)).BeginInit();
             this.tabSecurity.SuspendLayout();
-            this.gAntigrief.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nSpamBlockCount)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nSpamBlockTimer)).BeginInit();
             this.gSpamChat.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nSpamChatWarnings)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSpamMute)).BeginInit();
@@ -924,16 +919,19 @@
             // 
             this.gClassOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gClassOptions.Controls.Add( this.lAntiGrief1 );
+            this.gClassOptions.Controls.Add( this.lAntiGrief3 );
+            this.gClassOptions.Controls.Add( this.nAntiGriefSeconds );
             this.gClassOptions.Controls.Add( this.bColorClass );
-            this.gClassOptions.Controls.Add( this.xBanOn );
-            this.gClassOptions.Controls.Add( this.lBanOnUnits );
+            this.gClassOptions.Controls.Add( this.xDrawLimit );
+            this.gClassOptions.Controls.Add( this.lDrawLimitUnits );
             this.gClassOptions.Controls.Add( this.lKickIdleUnits );
-            this.gClassOptions.Controls.Add( this.nBanOn );
+            this.gClassOptions.Controls.Add( this.nDrawLimit );
             this.gClassOptions.Controls.Add( this.nKickIdle );
-            this.gClassOptions.Controls.Add( this.xKickOn );
-            this.gClassOptions.Controls.Add( this.lKickOnUnits );
-            this.gClassOptions.Controls.Add( this.xIdleKick );
-            this.gClassOptions.Controls.Add( this.nKickOn );
+            this.gClassOptions.Controls.Add( this.xAntiGrief );
+            this.gClassOptions.Controls.Add( this.lAntiGrief2 );
+            this.gClassOptions.Controls.Add( this.xKickIdle );
+            this.gClassOptions.Controls.Add( this.nAntiGriefBlocks );
             this.gClassOptions.Controls.Add( this.xReserveSlot );
             this.gClassOptions.Controls.Add( this.cBanLimit );
             this.gClassOptions.Controls.Add( this.cKickLimit );
@@ -957,6 +955,32 @@
             this.gClassOptions.TabStop = false;
             this.gClassOptions.Text = "Class Options";
             // 
+            // lAntiGrief1
+            // 
+            this.lAntiGrief1.AutoSize = true;
+            this.lAntiGrief1.Location = new System.Drawing.Point( 22, 319 );
+            this.lAntiGrief1.Name = "lAntiGrief1";
+            this.lAntiGrief1.Size = new System.Drawing.Size( 47, 15 );
+            this.lAntiGrief1.TabIndex = 22;
+            this.lAntiGrief1.Text = "Kick on";
+            // 
+            // lAntiGrief3
+            // 
+            this.lAntiGrief3.AutoSize = true;
+            this.lAntiGrief3.Location = new System.Drawing.Point( 244, 319 );
+            this.lAntiGrief3.Name = "lAntiGrief3";
+            this.lAntiGrief3.Size = new System.Drawing.Size( 53, 15 );
+            this.lAntiGrief3.TabIndex = 21;
+            this.lAntiGrief3.Text = "seconds";
+            // 
+            // nAntiGriefSeconds
+            // 
+            this.nAntiGriefSeconds.Location = new System.Drawing.Point( 193, 317 );
+            this.nAntiGriefSeconds.Name = "nAntiGriefSeconds";
+            this.nAntiGriefSeconds.Size = new System.Drawing.Size( 45, 21 );
+            this.nAntiGriefSeconds.TabIndex = 20;
+            this.nAntiGriefSeconds.ValueChanged += new System.EventHandler( this.nAntiGriefSeconds_ValueChanged );
+            // 
             // bColorClass
             // 
             this.bColorClass.BackColor = System.Drawing.Color.White;
@@ -967,25 +991,25 @@
             this.bColorClass.UseVisualStyleBackColor = false;
             this.bColorClass.Click += new System.EventHandler( this.bColorClass_Click );
             // 
-            // xBanOn
+            // xDrawLimit
             // 
-            this.xBanOn.AutoSize = true;
-            this.xBanOn.Location = new System.Drawing.Point( 12, 309 );
-            this.xBanOn.Name = "xBanOn";
-            this.xBanOn.Size = new System.Drawing.Size( 141, 19 );
-            this.xBanOn.TabIndex = 13;
-            this.xBanOn.Text = "Ban for blockspam at";
-            this.xBanOn.UseVisualStyleBackColor = true;
-            this.xBanOn.CheckedChanged += new System.EventHandler( this.xBanOn_CheckedChanged );
+            this.xDrawLimit.AutoSize = true;
+            this.xDrawLimit.Location = new System.Drawing.Point( 12, 357 );
+            this.xDrawLimit.Name = "xDrawLimit";
+            this.xDrawLimit.Size = new System.Drawing.Size( 81, 19 );
+            this.xDrawLimit.TabIndex = 13;
+            this.xDrawLimit.Text = "Draw limit";
+            this.xDrawLimit.UseVisualStyleBackColor = true;
+            this.xDrawLimit.CheckedChanged += new System.EventHandler( this.xDrawLimit_CheckedChanged );
             // 
-            // lBanOnUnits
+            // lDrawLimitUnits
             // 
-            this.lBanOnUnits.AutoSize = true;
-            this.lBanOnUnits.Location = new System.Drawing.Point( 224, 310 );
-            this.lBanOnUnits.Name = "lBanOnUnits";
-            this.lBanOnUnits.Size = new System.Drawing.Size( 64, 15 );
-            this.lBanOnUnits.TabIndex = 8;
-            this.lBanOnUnits.Text = "blocks/sec";
+            this.lDrawLimitUnits.AutoSize = true;
+            this.lDrawLimitUnits.Location = new System.Drawing.Point( 172, 358 );
+            this.lDrawLimitUnits.Name = "lDrawLimitUnits";
+            this.lDrawLimitUnits.Size = new System.Drawing.Size( 42, 15 );
+            this.lDrawLimitUnits.TabIndex = 8;
+            this.lDrawLimitUnits.Text = "blocks";
             // 
             // lKickIdleUnits
             // 
@@ -996,13 +1020,23 @@
             this.lKickIdleUnits.TabIndex = 19;
             this.lKickIdleUnits.Text = "minutes";
             // 
-            // nBanOn
+            // nDrawLimit
             // 
-            this.nBanOn.Location = new System.Drawing.Point( 160, 308 );
-            this.nBanOn.Name = "nBanOn";
-            this.nBanOn.Size = new System.Drawing.Size( 58, 21 );
-            this.nBanOn.TabIndex = 14;
-            this.nBanOn.ValueChanged += new System.EventHandler( this.nBanOn_ValueChanged );
+            this.nDrawLimit.Increment = new decimal( new int[] {
+            32,
+            0,
+            0,
+            0} );
+            this.nDrawLimit.Location = new System.Drawing.Point( 99, 356 );
+            this.nDrawLimit.Maximum = new decimal( new int[] {
+            100000000,
+            0,
+            0,
+            0} );
+            this.nDrawLimit.Name = "nDrawLimit";
+            this.nDrawLimit.Size = new System.Drawing.Size( 67, 21 );
+            this.nDrawLimit.TabIndex = 14;
+            this.nDrawLimit.ValueChanged += new System.EventHandler( this.nDrawLimit_ValueChanged );
             // 
             // nKickIdle
             // 
@@ -1017,44 +1051,49 @@
             this.nKickIdle.TabIndex = 10;
             this.nKickIdle.ValueChanged += new System.EventHandler( this.nKickIdle_ValueChanged );
             // 
-            // xKickOn
+            // xAntiGrief
             // 
-            this.xKickOn.AutoSize = true;
-            this.xKickOn.Location = new System.Drawing.Point( 12, 282 );
-            this.xKickOn.Name = "xKickOn";
-            this.xKickOn.Size = new System.Drawing.Size( 142, 19 );
-            this.xKickOn.TabIndex = 11;
-            this.xKickOn.Text = "Kick for blockspam at";
-            this.xKickOn.UseVisualStyleBackColor = true;
-            this.xKickOn.CheckedChanged += new System.EventHandler( this.xKickOn_CheckedChanged );
+            this.xAntiGrief.AutoSize = true;
+            this.xAntiGrief.Location = new System.Drawing.Point( 12, 292 );
+            this.xAntiGrief.Name = "xAntiGrief";
+            this.xAntiGrief.Size = new System.Drawing.Size( 207, 19 );
+            this.xAntiGrief.TabIndex = 11;
+            this.xAntiGrief.Text = "Enable grief/autoclicker detection";
+            this.xAntiGrief.UseVisualStyleBackColor = true;
+            this.xAntiGrief.CheckedChanged += new System.EventHandler( this.xAntiGrief_CheckedChanged );
             // 
-            // lKickOnUnits
+            // lAntiGrief2
             // 
-            this.lKickOnUnits.AutoSize = true;
-            this.lKickOnUnits.Location = new System.Drawing.Point( 224, 283 );
-            this.lKickOnUnits.Name = "lKickOnUnits";
-            this.lKickOnUnits.Size = new System.Drawing.Size( 64, 15 );
-            this.lKickOnUnits.TabIndex = 5;
-            this.lKickOnUnits.Text = "blocks/sec";
+            this.lAntiGrief2.AutoSize = true;
+            this.lAntiGrief2.Location = new System.Drawing.Point( 132, 319 );
+            this.lAntiGrief2.Name = "lAntiGrief2";
+            this.lAntiGrief2.Size = new System.Drawing.Size( 55, 15 );
+            this.lAntiGrief2.TabIndex = 5;
+            this.lAntiGrief2.Text = "blocks in";
             // 
-            // xIdleKick
+            // xKickIdle
             // 
-            this.xIdleKick.AutoSize = true;
-            this.xIdleKick.Location = new System.Drawing.Point( 12, 255 );
-            this.xIdleKick.Name = "xIdleKick";
-            this.xIdleKick.Size = new System.Drawing.Size( 98, 19 );
-            this.xIdleKick.TabIndex = 9;
-            this.xIdleKick.Text = "Kick if idle for";
-            this.xIdleKick.UseVisualStyleBackColor = true;
-            this.xIdleKick.CheckedChanged += new System.EventHandler( this.xIdleKick_CheckedChanged );
+            this.xKickIdle.AutoSize = true;
+            this.xKickIdle.Location = new System.Drawing.Point( 12, 255 );
+            this.xKickIdle.Name = "xKickIdle";
+            this.xKickIdle.Size = new System.Drawing.Size( 98, 19 );
+            this.xKickIdle.TabIndex = 9;
+            this.xKickIdle.Text = "Kick if idle for";
+            this.xKickIdle.UseVisualStyleBackColor = true;
+            this.xKickIdle.CheckedChanged += new System.EventHandler( this.xKickIdle_CheckedChanged );
             // 
-            // nKickOn
+            // nAntiGriefBlocks
             // 
-            this.nKickOn.Location = new System.Drawing.Point( 160, 281 );
-            this.nKickOn.Name = "nKickOn";
-            this.nKickOn.Size = new System.Drawing.Size( 58, 21 );
-            this.nKickOn.TabIndex = 12;
-            this.nKickOn.ValueChanged += new System.EventHandler( this.nKickOn_ValueChanged );
+            this.nAntiGriefBlocks.Location = new System.Drawing.Point( 75, 317 );
+            this.nAntiGriefBlocks.Maximum = new decimal( new int[] {
+            1000,
+            0,
+            0,
+            0} );
+            this.nAntiGriefBlocks.Name = "nAntiGriefBlocks";
+            this.nAntiGriefBlocks.Size = new System.Drawing.Size( 51, 21 );
+            this.nAntiGriefBlocks.TabIndex = 12;
+            this.nAntiGriefBlocks.ValueChanged += new System.EventHandler( this.nAntiGriefBlocks_ValueChanged );
             // 
             // xReserveSlot
             // 
@@ -1289,7 +1328,6 @@
             // 
             // tabSecurity
             // 
-            this.tabSecurity.Controls.Add( this.gAntigrief );
             this.tabSecurity.Controls.Add( this.gSpamChat );
             this.tabSecurity.Controls.Add( this.gHackingDetection );
             this.tabSecurity.Controls.Add( this.gVerify );
@@ -1300,91 +1338,6 @@
             this.tabSecurity.TabIndex = 7;
             this.tabSecurity.Text = "Security";
             this.tabSecurity.UseVisualStyleBackColor = true;
-            // 
-            // gAntigrief
-            // 
-            this.gAntigrief.Controls.Add( this.lSpamBlockRate );
-            this.gAntigrief.Controls.Add( this.nSpamBlockCount );
-            this.gAntigrief.Controls.Add( this.lSpamBlocks );
-            this.gAntigrief.Controls.Add( this.nSpamBlockTimer );
-            this.gAntigrief.Controls.Add( this.lSpamBlockSeconds );
-            this.gAntigrief.Location = new System.Drawing.Point( 8, 321 );
-            this.gAntigrief.Name = "gAntigrief";
-            this.gAntigrief.Size = new System.Drawing.Size( 635, 63 );
-            this.gAntigrief.TabIndex = 3;
-            this.gAntigrief.TabStop = false;
-            this.gAntigrief.Text = "Grief Bot / Autoclicker Prevension";
-            // 
-            // lSpamBlockRate
-            // 
-            this.lSpamBlockRate.AutoSize = true;
-            this.lSpamBlockRate.Location = new System.Drawing.Point( 6, 31 );
-            this.lSpamBlockRate.Name = "lSpamBlockRate";
-            this.lSpamBlockRate.Size = new System.Drawing.Size( 131, 15 );
-            this.lSpamBlockRate.TabIndex = 5;
-            this.lSpamBlockRate.Text = "Limit build / delete rate";
-            // 
-            // nSpamBlockCount
-            // 
-            this.nSpamBlockCount.Location = new System.Drawing.Point( 143, 29 );
-            this.nSpamBlockCount.Maximum = new decimal( new int[] {
-            500,
-            0,
-            0,
-            0} );
-            this.nSpamBlockCount.Minimum = new decimal( new int[] {
-            2,
-            0,
-            0,
-            0} );
-            this.nSpamBlockCount.Name = "nSpamBlockCount";
-            this.nSpamBlockCount.Size = new System.Drawing.Size( 62, 21 );
-            this.nSpamBlockCount.TabIndex = 0;
-            this.nSpamBlockCount.Value = new decimal( new int[] {
-            2,
-            0,
-            0,
-            0} );
-            // 
-            // lSpamBlocks
-            // 
-            this.lSpamBlocks.AutoSize = true;
-            this.lSpamBlocks.Location = new System.Drawing.Point( 209, 31 );
-            this.lSpamBlocks.Name = "lSpamBlocks";
-            this.lSpamBlocks.Size = new System.Drawing.Size( 55, 15 );
-            this.lSpamBlocks.TabIndex = 7;
-            this.lSpamBlocks.Text = "blocks in";
-            // 
-            // nSpamBlockTimer
-            // 
-            this.nSpamBlockTimer.Location = new System.Drawing.Point( 294, 29 );
-            this.nSpamBlockTimer.Maximum = new decimal( new int[] {
-            50,
-            0,
-            0,
-            0} );
-            this.nSpamBlockTimer.Minimum = new decimal( new int[] {
-            1,
-            0,
-            0,
-            0} );
-            this.nSpamBlockTimer.Name = "nSpamBlockTimer";
-            this.nSpamBlockTimer.Size = new System.Drawing.Size( 62, 21 );
-            this.nSpamBlockTimer.TabIndex = 1;
-            this.nSpamBlockTimer.Value = new decimal( new int[] {
-            1,
-            0,
-            0,
-            0} );
-            // 
-            // lSpamBlockSeconds
-            // 
-            this.lSpamBlockSeconds.AutoSize = true;
-            this.lSpamBlockSeconds.Location = new System.Drawing.Point( 362, 31 );
-            this.lSpamBlockSeconds.Name = "lSpamBlockSeconds";
-            this.lSpamBlockSeconds.Size = new System.Drawing.Size( 53, 15 );
-            this.lSpamBlockSeconds.TabIndex = 9;
-            this.lSpamBlockSeconds.Text = "seconds";
             // 
             // gSpamChat
             // 
@@ -2692,15 +2645,12 @@
             this.tabClasses.PerformLayout();
             this.gClassOptions.ResumeLayout( false );
             this.gClassOptions.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nBanOn)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefSeconds)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nDrawLimit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nKickIdle)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nKickOn)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefBlocks)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRank)).EndInit();
             this.tabSecurity.ResumeLayout( false );
-            this.gAntigrief.ResumeLayout( false );
-            this.gAntigrief.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nSpamBlockCount)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nSpamBlockTimer)).EndInit();
             this.gSpamChat.ResumeLayout( false );
             this.gSpamChat.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nSpamChatWarnings)).EndInit();
@@ -2786,11 +2736,10 @@
         private System.Windows.Forms.Label lPrefix;
         private System.Windows.Forms.NumericUpDown nRank;
         private System.Windows.Forms.Label lRank;
-        private System.Windows.Forms.CheckBox xKickOn;
-        private System.Windows.Forms.Label lKickOnUnits;
-        private System.Windows.Forms.NumericUpDown nKickOn;
-        private System.Windows.Forms.CheckBox xBanOn;
-        private System.Windows.Forms.Label lBanOnUnits;
+        private System.Windows.Forms.Label lAntiGrief2;
+        private System.Windows.Forms.NumericUpDown nAntiGriefBlocks;
+        private System.Windows.Forms.CheckBox xDrawLimit;
+        private System.Windows.Forms.Label lDrawLimitUnits;
         private System.Windows.Forms.Label lBanLimit;
         private System.Windows.Forms.Label lKickLimit;
         private System.Windows.Forms.Label lDemoteLimit;
@@ -2844,10 +2793,10 @@
         private System.Windows.Forms.CheckBox xReserveSlot;
         private System.Windows.Forms.ComboBox cStartup;
         private System.Windows.Forms.Label lStartup;
-        private System.Windows.Forms.NumericUpDown nBanOn;
+        private System.Windows.Forms.NumericUpDown nDrawLimit;
         private System.Windows.Forms.Label lKickIdleUnits;
         private System.Windows.Forms.NumericUpDown nKickIdle;
-        private System.Windows.Forms.CheckBox xIdleKick;
+        private System.Windows.Forms.CheckBox xKickIdle;
         private System.Windows.Forms.CheckBox xPing;
         private System.Windows.Forms.CheckBox xAbsoluteUpdates;
         private System.Windows.Forms.Label lMaxBackups;
@@ -2879,11 +2828,6 @@
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.GroupBox gSpamChat;
         private System.Windows.Forms.CheckBox checkBox4;
-        private System.Windows.Forms.Label lSpamBlockSeconds;
-        private System.Windows.Forms.NumericUpDown nSpamBlockTimer;
-        private System.Windows.Forms.Label lSpamBlocks;
-        private System.Windows.Forms.NumericUpDown nSpamBlockCount;
-        private System.Windows.Forms.Label lSpamBlockRate;
         private System.Windows.Forms.Label lSpamChatSeconds;
         private System.Windows.Forms.NumericUpDown nSpamChatTimer;
         private System.Windows.Forms.Label lSpamChatMessages;
@@ -2893,7 +2837,6 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.CheckBox xLowLatencyMode;
-        private System.Windows.Forms.GroupBox gAntigrief;
         private System.Windows.Forms.CheckBox xSpamChatKick;
         private System.Windows.Forms.Label lSpamMuteSeconds;
         private System.Windows.Forms.NumericUpDown nSpamMute;
@@ -2944,5 +2887,9 @@
         private System.Windows.Forms.NumericUpDown nAnnouncements;
         private System.Windows.Forms.Button bColorAnnouncement;
         private System.Windows.Forms.Label lColorAnnouncement;
+        private System.Windows.Forms.Label lAntiGrief3;
+        private System.Windows.Forms.NumericUpDown nAntiGriefSeconds;
+        private System.Windows.Forms.CheckBox xAntiGrief;
+        private System.Windows.Forms.Label lAntiGrief1;
     }
 }

@@ -28,7 +28,7 @@ namespace fCraftUI {
         void StartUp( object sender, EventArgs a ) {
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;
-            Server.OnPlayerListChanged += UpdatePlayerList; //TODO
+            Server.OnPlayerListChanged += UpdatePlayerList;
 
             try {
                 if( Server.Init() ) {

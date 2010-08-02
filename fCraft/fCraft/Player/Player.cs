@@ -29,9 +29,7 @@ namespace fCraft {
 
 
         // grief/spam detection
-        public static int spamBlockCount = 35;
-        public static int spamBlockTimer = 5;
-        Queue<DateTime> spamBlockLog = new Queue<DateTime>( spamBlockCount );
+        Queue<DateTime> spamBlockLog;
 
         public static int spamChatCount = 3;
         public static int spamChatTimer = 4;
@@ -59,6 +57,7 @@ namespace fCraft {
             name = _name;
             nick = name;
             info = new PlayerInfo( _name, ClassList.highestClass );
+            spamBlockLog = new Queue<DateTime>( info.playerClass.antiGriefBlocks );
         }
 
 
@@ -70,6 +69,7 @@ namespace fCraft {
             session = _session;
             pos = _pos;
             info = PlayerDB.FindPlayerInfo( this );
+            spamBlockLog = new Queue<DateTime>( info.playerClass.antiGriefBlocks );
         }
 
 
@@ -250,13 +250,14 @@ namespace fCraft {
 
 
         bool CheckBlockSpam() {
-            if( spamBlockLog.Count >= spamBlockCount ) {
+            if( info.playerClass.antiGriefBlocks == 0 && info.playerClass.antiGriefSeconds == 0 ) return false;
+            if( spamBlockLog.Count >= info.playerClass.antiGriefBlocks ) {
                 DateTime oldestTime = spamBlockLog.Dequeue();
                 double spamTimer = DateTime.Now.Subtract( oldestTime ).TotalSeconds;
-                if( spamTimer < spamBlockTimer ) {
+                if( spamTimer < info.playerClass.antiGriefSeconds ) {
                     session.KickNow( "You were kicked by antigrief system. Slow down." );
                     Server.SendToAll( Color.Red + GetLogName() + " was kicked for suspected griefing." );
-                    Logger.Log( GetLogName() + " was kicked for block spam (" + spamBlockCount + " blocks in " + spamTimer + " seconds)", LogType.SuspiciousActivity );
+                    Logger.Log( GetLogName() + " was kicked for block spam (" + info.playerClass.antiGriefBlocks + " blocks in " + spamTimer + " seconds)", LogType.SuspiciousActivity );
                     return true;
                 }
             }
@@ -361,6 +362,9 @@ namespace fCraft {
             return true;
         }
 
+        public bool CanDraw( int volume ){
+            return (info.playerClass.drawLimit > 0) && (volume > info.playerClass.drawLimit);
+        }
 
         // safety wrapper for session.Send
         public void Send( Packet packet ) {
