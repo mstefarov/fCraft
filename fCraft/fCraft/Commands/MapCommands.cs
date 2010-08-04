@@ -286,7 +286,6 @@ namespace fCraft {
         static CommandDescriptor cdWorldList = new CommandDescriptor {
             name = "worlds",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.ManageWorlds },
             usage = "/worlds [all]",
             help = "Shows a list of worlds available for you to join. " +
                    "If the optional \"all\" is added, also shows unavailable (restricted) worlds.",
@@ -306,7 +305,7 @@ namespace fCraft {
                 bool first = true;
                 foreach( World world in Server.worlds.Values ) {
                     if( world.isHidden ) continue;
-                    if( !first ) {
+                    if( first ) {
                         line += ", ";
                         first = false;
                     }
