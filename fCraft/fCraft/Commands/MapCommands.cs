@@ -49,12 +49,12 @@ namespace fCraft {
             }
             World world = Server.FindWorld( worldName );
             if( world != null ) {
-                if( world.classAccess.rank > player.info.playerClass.rank ) {
-                    player.Message( "Cannot join world \"" + world.name + "\": must be " + world.classAccess.color + world.classAccess.name + Color.Sys + " or higher." );
-                } else {
+                if( player.CanJoin(world) ) {
                     if( !player.session.JoinWorldNow( world, true ) ) {
                         player.Message( "Failed to join world." );
                     }
+                } else {
+                    player.Message( "Cannot join world \"" + world.name + "\": must be " + world.classAccess.color + world.classAccess.name + Color.Sys + " or higher." );
                 }
             } else {
                 player.Message( "No world found with the name \"" + worldName + "\"." );
@@ -295,18 +295,26 @@ namespace fCraft {
 
         internal static void WorldList( Player player, Command cmd ) {
             lock( Server.worldListLock ) {
-                string line = "List of worlds: ";
+                bool listAll = (cmd.Next() != null);
+                string line;
+                if( listAll ) {
+                    line = "List of all worlds: ";
+                } else {
+                    line = "List of available worlds: ";
+                }
+
                 bool first = true;
                 foreach( World world in Server.worlds.Values ) {
                     if( world.isHidden ) continue;
-                    if( line.Length + world.name.Length > 62 ) {
-                        player.Message( line );
-                        line = "";
-                    } else if( !first ) {
+                    if( !first ) {
                         line += ", ";
+                        first = false;
                     }
-                    line += world.name;
-                    first = false;
+                    if( player.CanJoin( world ) ) {
+                        line += world.name;
+                    } else if( listAll ) {
+                        line += Color.Red + world.name + Color.Sys;
+                    }
                 }
                 player.Message( line );
             }

@@ -72,12 +72,12 @@ namespace fCraft {
 
             // Print access/build limits
             if( world.classAccess != ClassList.lowestClass ) {
-                player.Message( String.Format( "Requires players to be ranked {0}{1}{2}+ to join.", world.classAccess.color, world.classAccess.name, Color.Sys ) );
+                player.Message( String.Format( "Requires players to be ranked {0}{1}&S+ to join.", world.classAccess.color, world.classAccess.name ) );
             } else {
                 player.Message( "Anyone can join \"" + world.name + "\"." );
             }
             if( world.classBuild != ClassList.lowestClass ) {
-                player.Message( String.Format( "Requires players to be ranked {0}{1}{2}+ to build.", world.classBuild.color, world.classBuild.name, Color.Sys ) );
+                player.Message( String.Format( "Requires players to be ranked {0}{1}&S+ to build.", world.classBuild.color, world.classBuild.name ) );
             } else {
                 player.Message( "Anyone can build on \"" + world.name + "\"." );
             }
