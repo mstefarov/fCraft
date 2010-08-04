@@ -1,5 +1,8 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-08-04
+430
+ Fix: Fixed messed-up /worlds command. Sorry about that.
+ Change: Downgraded standard Session.IoLoop messages that occur on player disconnect from Warning to Debug.
 429
  Feature: Command-handler infrastructure has been redesigned. This will allow much more flexibility for devs and plugin makers later.
  Feature: "/help commands" now only shows available commands by default. Type "/help commands all" to see all commands.

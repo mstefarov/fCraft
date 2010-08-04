@@ -223,19 +223,19 @@ namespace fCraft {
                     }
                 }
 
-            } catch( ThreadAbortException ) {
-                Logger.Log( "Session.IoLoop: Thread aborted!", LogType.Error );
+            } catch( ThreadAbortException ex ) {
+                Logger.Log( "Session.IoLoop: Thread aborted: {0}", LogType.Error, ex );
 
             } catch( IOException ex ) {
-                Logger.Log( "Session.IoLoop: {0}.", LogType.Warning, ex.Message );
+                Logger.Log( "Session.IoLoop: {0}", LogType.Debug, ex.Message );
 
             } catch( SocketException ex ) {
-                Logger.Log( "Session.IoLoop: {0}.", LogType.Warning, ex.Message );
+                Logger.Log( "Session.IoLoop: {0}", LogType.Debug, ex.Message );
 #if DEBUG
                 // CRASH on errors
 #else
             } catch( Exception ex ) {
-                Logger.Log( "Session.IoLoop: {0}.", LogType.Error, ex );
+                Logger.Log( "Session.IoLoop: {0}", LogType.Error, ex );
 #endif
             } finally {
                 canQueue = false;
