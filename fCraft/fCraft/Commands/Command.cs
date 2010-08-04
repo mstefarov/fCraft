@@ -4,8 +4,6 @@ using System.Collections.Generic;
 
 
 namespace fCraft {
-    delegate void CommandHandler( Player source, Command message );
-
     enum MessageType {
         Chat,
         PrivateChat,
@@ -14,7 +12,7 @@ namespace fCraft {
         Invalid
     }
 
-    sealed class Command {
+    public sealed class Command {
         int offset;
         string message;
         public string name;

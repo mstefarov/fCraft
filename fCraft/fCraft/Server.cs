@@ -80,7 +80,7 @@ namespace fCraft {
             IPBanList.Load();
 
             // prepare the list of commands
-            Commands.Init();
+            CommandList.Init();
 
             // hook up IRC
             if( Config.GetBool( ConfigKey.IRCBot ) && IRCComm.CommStatus() && Config.GetBool( ConfigKey.IRCMsgs ) )
@@ -545,14 +545,20 @@ namespace fCraft {
         }
 
         public static void SendToAll( string message ) {
-            foreach( Packet p in PacketWriter.MakeWrappedMessage( message ) ) {
-                SendToAll( p );
-            }
+            SendToAll( ">", message, null );
+        }
+
+        public static void SendToAll( string prefix, string message ) {
+            SendToAll( prefix, message, null );
         }
 
         public static void SendToAll( string message, Player except ) {
-            foreach( Packet p in PacketWriter.MakeWrappedMessage( message ) ) {
-                SendToAll( p,except );
+            SendToAll( ">", message, except );
+        }
+
+        public static void SendToAll( string prefix, string message, Player except ) {
+            foreach( Packet p in PacketWriter.MakeWrappedMessage( prefix,message,false ) ) {
+                SendToAll( p, except );
             }
         }
 

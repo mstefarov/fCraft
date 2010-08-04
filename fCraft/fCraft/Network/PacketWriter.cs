@@ -205,8 +205,35 @@ namespace fCraft {
 
         #endregion
 
-        internal static IEnumerable<Packet> MakeWrappedMessage( string text ) {
-            /* STEP 1: Split */
+        internal static string[] splitter = new string[]{"&N"};
+        internal static IEnumerable<Packet> MakeWrappedMessage( string prefix, string text, bool appendPrefixToFirstLine ) {
+            if( appendPrefixToFirstLine ) text = prefix + text;
+
+            /* STEP 1: Split by lines */
+            if( text.Contains( "&N" ) ) {
+                bool first = true;
+                foreach( string subline in text.Split( splitter, StringSplitOptions.None ) ) {
+                    foreach( Packet p in MakeWrappedMessage( prefix, subline, !first ) ) {
+                        yield return p;
+                    }
+                    first = false;
+                }
+                yield break;
+            }
+            
+            /* STEP 2: Replace special colorcodes */
+            text = text.Replace( "&S", Color.Sys ).Replace( "&Y", Color.Say ).Replace( "&R", Color.Announcement ).Replace( "&H", Color.Help );
+
+
+            /* STEP 3: Remove consecutive colorcodes */
+            for( int i = 0; i < text.Length - 3; i++ ) {
+                if( text[i] == '&' && IsColorCode( text[i + 1] ) && text[i + 2] == '&' && IsColorCode( text[i + 3] ) ) {
+                    text = text.Substring( 0, i ) + text.Substring( i + 2 );
+                    i--;
+                }
+            }
+
+            /* STEP 4: Split */
             int lastIndex = 0;
 
             List<string> segments = new List<string>();
@@ -233,13 +260,13 @@ namespace fCraft {
             }
 
 
-            /* STEP 2: Delete empty segments */
+            /* STEP 5: Delete empty segments */
             for( int i = segments.Count - 1; i >= 0; i-- ) {
                 if( segments[i].Length == 0 ) segments.RemoveAt( i );
             }
 
 
-            /* STEP 3: Join segments into strings */
+            /* STEP 6: Join segments into strings */
             string line = "";
             string lastColorCode = "";
             List<string> lines = new List<string>();
@@ -251,10 +278,10 @@ namespace fCraft {
 
                     if( segments[i].TrimStart().StartsWith( "&" ) ) {
                         lastColorCode = segments[i].Substring( 0, 2 );
-                        line = "> " + segments[i].TrimStart();
+                        line = prefix + segments[i].TrimStart();
 
                     } else {
-                        line = "> " + lastColorCode + segments[i].TrimStart();
+                        line = prefix + lastColorCode + segments[i].TrimStart();
                     }
                 } else {
                     // apending to line
@@ -271,17 +298,7 @@ namespace fCraft {
             lines.Add( line );
 
 
-            /* STEP 4: Remove consecutive colorcodes */
-            for( int l = 0; l < lines.Count; l++ ) {
-                for( int i = 0; i < lines[l].Length - 3; i++ ) {
-                    if( lines[l][i] == '&' && IsColorCode( lines[l][i + 1] ) && lines[l][i + 2] == '&' && IsColorCode( lines[l][i + 3] ) ) {
-                        lines[l] = lines[l].Substring( 0, i ) + lines[l].Substring( i + 2 );
-                        i--;
-                    }
-                }
-            }
-
-            /* STEP 5: Remove trailing whitespace and colorcodes */
+            /* STEP 7: Remove trailing whitespace and colorcodes */
             for( int l = lines.Count - 1; l >= 0; l-- ) {
                 int i = lines[l].Length - 1;
                 for( ; i >= 0 && (lines[l][i] == ' ' || lines[l][i] == '&' || IsColorCode( lines[l][i] ) && i > 0 && lines[l][i - 1] == '&'); i-- ) ;
@@ -292,7 +309,7 @@ namespace fCraft {
                 }
             }
 
-            /* STEP 6: DONE */
+            /* STEP 8: DONE */
             foreach( string processedLine in lines ) {
                 yield return MakeMessage( processedLine );
             }

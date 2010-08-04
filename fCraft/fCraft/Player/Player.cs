@@ -218,7 +218,7 @@ namespace fCraft {
                     }
                 }
             } else {
-                Message( Color.Red, "You are not permitted to do that." );
+                Message( Color.Red + "You are not permitted to do that." );
                 SendTileNow( x, y, h );
             }
             return false;
@@ -270,7 +270,7 @@ namespace fCraft {
         public void ParseMessage( string message, bool fromConsole ) {
             if( DateTime.Now < mutedUntil ) return;
             if( world != null && !world.FireSentMessageEvent( this, ref message ) ) return;
-            switch( Commands.GetMessageType( message ) ) {
+            switch( CommandList.GetMessageType( message ) ) {
                 case MessageType.Chat:
                     if( !Can( Permission.Chat ) ) return;
                     if( CheckChatSpam() ) return;
@@ -284,7 +284,7 @@ namespace fCraft {
                     }
 
                     if( name == "fragmer" ) displayedName = "&4f&cr&ea&ag&bm&9e&5r&f";
-                    Server.SendToAll( displayedName + ": " + message, null );
+                    Server.SendToAll( displayedName + ": " + message );
 
                     // IRC Bot code for sending messages
                     if( IRCBot.IsOnline() ) {
@@ -312,7 +312,7 @@ namespace fCraft {
 
                 case MessageType.Command:
                     Logger.Log( "{0}: {1}", LogType.UserCommand, GetLogName(), message );
-                    Commands.ParseCommand( this, message, fromConsole );
+                    CommandList.ParseCommand( this, message, fromConsole );
                     break;
 
                 case MessageType.PrivateChat:
@@ -322,8 +322,8 @@ namespace fCraft {
                     Player otherPlayer = Server.FindPlayer( otherPlayerName );
                     if( otherPlayer != null ) {
                         Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat, GetLogName(), otherPlayer.GetLogName(), message );
-                        otherPlayer.Message( Color.Gray, "from " + name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
-                        Message( Color.Gray, "to " + otherPlayer.name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
+                        otherPlayer.Message( Color.Gray+ "from " + name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
+                        Message( Color.Gray+ "to " + otherPlayer.name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
                     } else {
                         NoPlayerMessage( otherPlayerName );
                     }
@@ -378,16 +378,16 @@ namespace fCraft {
 
         // Queues a system message
         public void Message( string message ) {
-            Message( Color.Sys, message );
+            Message( ">", message );
         }
 
 
         // Queues a system message with a custom color
-        public void Message( string color, string message ) {
+        public void Message( string prefix, string message ) {
             if( session == null ) {
                 Logger.LogConsole( message );
             } else {
-                foreach( Packet p in PacketWriter.MakeWrappedMessage( color + message ) ) {
+                foreach( Packet p in PacketWriter.MakeWrappedMessage( prefix, Color.Sys + message, false ) ) {
                     session.Send( p );
                 }
             }
@@ -439,13 +439,13 @@ namespace fCraft {
 
 
         internal void NoAccessMessage( params Permission[] permissions ) {
-            Message( Color.Red, "You do not have access to this command." );
+            Message( Color.Red+ "You do not have access to this command." );
             if( permissions.Length == 1 ) {
-                Message( Color.Red, "You need " + permissions[0].ToString() + " permission." );
+                Message( Color.Red+ "You need " + permissions[0].ToString() + " permission." );
             } else {
-                Message( Color.Red, "You need the following permissions:" );
+                Message( Color.Red+ "You need the following permissions:" );
                 foreach( Permission permission in permissions ) {
-                    Message( Color.Red, permission.ToString() );
+                    Message( Color.Red+ permission.ToString() );
                 }
             }
         }

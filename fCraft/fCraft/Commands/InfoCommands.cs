@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using System.IO;
+using System.Collections.Generic;
 
 
 namespace fCraft {
@@ -9,22 +10,32 @@ namespace fCraft {
         public const string RuleFile = "rules.txt";
         // Register help commands
         internal static void Init() {
-            Commands.AddCommand( "help", Help, true );
-            Commands.AddCommand( "info", Info, true );
-            Commands.AddCommand( "baninfo", BanInfo, true );
-            Commands.AddCommand( "class", ClassInfo, true );
-            Commands.AddCommand( "rules", Rules, true );
+            CommandList.RegisterCommand( cdWorldInfo );
+            CommandList.RegisterCommand( cdInfo );
+            CommandList.RegisterCommand( cdBanInfo );
+            CommandList.RegisterCommand( cdClassInfo );
 
-            Commands.AddCommand( "where", Where, false );
-            Commands.AddCommand( "whois", Whois, true );
+            CommandList.RegisterCommand( cdGetVersion );
+            CommandList.RegisterCommand( cdRules );
+            CommandList.RegisterCommand( cdHelp );
 
-            Commands.AddCommand( "version", GetVersion, true );
-            Commands.AddCommand( "players", Players, true );
+            CommandList.RegisterCommand( cdWhere );
+            CommandList.RegisterCommand( cdWhois );
 
-            Commands.AddCommand( "mapinfo", WorldInfo, true );
-            Commands.AddCommand( "winfo", WorldInfo, true );
+            CommandList.RegisterCommand( cdPlayers );
+            CommandList.RegisterCommand( cdClasses );
         }
 
+
+
+        static CommandDescriptor cdWorldInfo = new CommandDescriptor {
+            name = "winfo",
+            consoleSafe=true,
+            usage = "/winfo [WorldName]",
+            help = "Shows information about a world: player count, map dimensions, permissions, etc." +
+                   "If no WorldName is given, shows info for current world.",
+            handler = WorldInfo
+        };
 
         internal static void WorldInfo( Player player, Command cmd ) {
             string worldName = cmd.Next();
@@ -73,6 +84,16 @@ namespace fCraft {
         }
 
 
+
+        static CommandDescriptor cdPlayers = new CommandDescriptor {
+            name = "players",
+            consoleSafe = true,
+            usage = "/players [WorldName]",
+            help = "Lists all players on the server (in all worlds). "+
+                   "If a WorldName is given, only lists players on that one world.",
+            handler = Players
+        };
+
         internal static void Players( Player player, Command cmd ) {
             Player[] players = Server.playerList;
             if( players.Length > 0 ) {
@@ -91,10 +112,29 @@ namespace fCraft {
         }
 
 
+
+        static CommandDescriptor cdGetVersion = new CommandDescriptor {
+            name = "version",
+            consoleSafe = true,
+            help = "Shows server software name and version.",
+            handler = GetVersion
+        };
+
         internal static void GetVersion( Player player, Command cmd ) {
             player.Message( "fCraft custom server " + Updater.GetVersionString() );
         }
 
+
+
+        static CommandDescriptor cdWhere = new CommandDescriptor {
+            name = "where",
+            aliases = new string[]{"compass"},
+            consoleSafe = true,
+            usage = "/where [PlayerName]",
+            help = "Shows information about the location and orientation of a player. "+
+                   "If no name is given, shows player's own info.",
+            handler = GetVersion
+        };
 
         static string compass = "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . " +
                                 "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . ";
@@ -113,11 +153,14 @@ namespace fCraft {
                     player.NoPlayerMessage( name );
                     return;
                 }
+            } else if( player.world == null ) {
+                player.Message( "When called form console, " + Color.Help + "/where" + Color.Sys + " requires a player name." );
+                return;
             }
 
             offset = (int)(target.pos.r / 255f * 64f) + 32;
 
-            player.Message( Color.Silver, String.Format( "({0},{1},{2}) - {3}[{4}{5}{6}{3}{7}]",
+            player.Message( Color.Silver + String.Format( "({0},{1},{2}) - {3}[{4}{5}{6}{3}{7}]",
                             target.pos.x / 32,
                             target.pos.y / 32,
                             target.pos.h / 32,
@@ -129,405 +172,78 @@ namespace fCraft {
         }
 
 
-        // Main help command
+
+        static CommandDescriptor cdHelp = new CommandDescriptor {
+            name = "help",
+            consoleSafe = true,
+            usage = "/help [CommandName]",
+            help = "...",
+            handler = Help
+        };
+
+        const string HelpPrefix = "&S    ";
         internal static void Help( Player player, Command cmd ) {
-            switch( cmd.Next() ) {
-                case "ban":
-                    player.Message( Color.Help, "/ban PlayerName [memo]" );
-                    player.Message( "     Bans a specified player by name. Does NOT ban IP." );
-                    player.Message( "     Any text after the player name will be saved as a memo." );
-                    player.Message( "     Ban information can be viewed with " + Color.Help + "/baninfo" );
-                    break;
-                case "banall":
-                    player.Message( Color.Help, "/banall PlayerName [memo]" );
-                    player.Message( "     Bans the player name, IP, and all other player names" );
-                    player.Message( "     associated with the same IP. Use " + Color.Help + "/unbanall" + Color.Sys + " to undo." );
-                    player.Message( Color.Help, "/banall IPAddress [memo]" );
-                    player.Message( "     Bans the specified IP address and all player names" );
-                    player.Message( "     associated with the same IP." );
-                    player.Message( "     Any text after the first param will be saved as a memo." );
-                    player.Message( "     Ban information can be viewed with " + Color.Help + "/baninfo" );
-                    break;
-                case "baninfo":
-                    player.Message( Color.Help, "/baninfo [PlayerName]" );
-                    player.Message( "     Prints information about past and present bans" );
-                    player.Message( "     associated with the player. If no name is given," );
-                    player.Message( "     this prints your own ban info." );
-                    player.Message( Color.Help, "/baninfo IPAddress" );
-                    player.Message( "     Prints current ban information associated with the" );
-                    player.Message( "     given IP address." );
-                    break;
-                case "banip":
-                    player.Message( Color.Help, "/banip PlayerName [memo]" );
-                    player.Message( "     Bans the player's IP address. If player is not online," );
-                    player.Message( "     last known IP address associated with the name is used." );
-                    player.Message( "     Note: does NOT ban the player name, just the IP." );
-                    player.Message( Color.Help, "/banip IPAddress [memo]" );
-                    player.Message( "     Bans the specified IP address." );
-                    player.Message( "     Any text after the first param will be saved as a memo." );
-                    player.Message( "     Ban information can be viewed with " + Color.Help + "/baninfo" );
-                    break;
-                case "bring":
-                    player.Message( Color.Help, "/bring PlayerName" );
-                    player.Message( "     Teleports the specified player to your location." );
-                    break;
-                case "cancel":
-                    player.Message( Color.Help, "/cancel" );
-                    player.Message( "     Cancels the last /cuboid or /ellipsoid command." );
-                    break;
-                case "ranks":
-                case "class":
-                case "classes":
-                    player.Message( Color.Help, "/class [ClassName]" );
-                    player.Message( "     Prints permission information for a specified class." );
-                    player.Message( "     If no class name is given, prints a list of classes." );
-                    break;
-                case "cuboid":
-                case "cub":
-                case "blb":
-                    player.Message( Color.Help, "/cub [BlockType]" );
-                    player.Message( "     Allows to fill a rectangular area (cuboid) with blocks." );
-                    player.Message( "     If BlockType is omitted, uses the block that player is" );
-                    player.Message( "     holding. Can be called by alias " + Color.Help + "/cuboid " + Color.Sys + " or " + Color.Help + "/blb" );
-                    player.Message( "     Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode." );
-                    player.Message( "     Type " + Color.Help + "/undo" + Color.Sys + " to undo the last draw operation." );
-                    player.Message( "     Use " + Color.Help + "/lock" + Color.Sys + " to cancel drawing after it started." );
-                    break;
-                case "cuboidh":
-                case "cubh":
-                case "bhb":
-                    player.Message( Color.Help, "/cubh [BlockType]" );
-                    player.Message( "     Allows to box a rectangular area (cuboid) with blocks." );
-                    player.Message( "     If BlockType is omitted, uses the block that player is" );
-                    player.Message( "     holding. Can be called by alias " + Color.Help + "/cuboidh " + Color.Sys + " or " + Color.Help + "/bhb" );
-                    player.Message( "     Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode." );
-                    player.Message( "     Type " + Color.Help + "/undo" + Color.Sys + " to undo the last draw operation." );
-                    player.Message( "     Use " + Color.Help + "/lock" + Color.Sys + " to cancel drawing after it started." );
-                    break;
-                case "ell":
-                case "ellipsoid":
-                    player.Message( Color.Help, "/ell [BlockType]" + Color.Sys + " or " + Color.Help + "/ellipsoid BlockType" );
-                    player.Message( "     Allows to fill a sphere-like area (ellipsoid) with blocks" );
-                    player.Message( "     If BlockType is omitted, uses the block that player is" );
-                    player.Message( "     holding. Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode." );
-                    player.Message( "     Type " + Color.Help + "/undo" + Color.Sys + " to undo the last draw operation." );
-                    player.Message( "     Use " + Color.Help + "/lock" + Color.Sys + " to cancel drawing after it started." );
-                    break;
-                case "freeze":
-                    player.Message( Color.Help, "/freeze PlayerName" );
-                    player.Message( "     Freezes the specified player in place. This is usually" );
-                    player.Message( "     effective, but not hacking-proof. To release the" );
-                    player.Message( "     player, call " + Color.Help + "/unfreeze PlayerName" );
-                    break;
-                case "gen":
-                    player.Message( Color.Help, "/gen widthX widthY height theme terrain filename" );
-                    player.Message( "     Generates a map file. Available themes:" );
-                    player.Message( "     " + String.Join( ",", Enum.GetNames( typeof( MapGenTheme ) ) ) );
-                    player.Message( "     Available terrain types:" );
-                    player.Message( "     Empty,Flatgrass," + String.Join( ",", Enum.GetNames( typeof( MapGenType ) ) ) );
-                    player.Message( "     NOTE: Map is saved TO FILE ONLY, use /wload to load it." );
-                    break;
-                case "grass":
-                    player.Message( Color.Help, "/grass" );
-                    player.Message( "     Toggles the grass placement mode. When enabled, any " );
-                    player.Message( "     dirt block you place is replaced with a grass block." );
-                    break;
-                case "help":
-                    player.Message( "doh." );
-                    break;
-                case "hide":
-                    player.Message( Color.Help, "/hide" );
-                    player.Message( "     Enabled invisible mode. It looks to other players like" );
-                    player.Message( "     you left the server, but you can still do anything -" );
-                    player.Message( "     chat, build, delete, type commands - as usual." );
-                    player.Message( "     Great way to spy on griefers and scare newbies." );
-                    player.Message( "     Call " + Color.Help + "/unhide" + Color.Sys + " to reveal yourself." );
-                    break;
-                case "join":
-                case "j":
-                case "load":
-                case "l":
-                case "goto":
-                    player.Message( Color.Help, "/join WorldName" + Color.Sys + "  or  " + Color.Help + "/j WorldName" );
-                    player.Message( "     Teleports the player to a specified world. You can" );
-                    player.Message( "     see the list of available worlds by using " + Color.Help + "/worlds" );
-                    player.Message( "     Additional command aliases: " + Color.Help + "/load  /l  /goto" );
-                    break;
-                case "importbans":
-                    player.Message( Color.Help, "/importbans SoftwareName FileName" );
-                    player.Message( "     Imports ban list from formats used by other servers." );
-                    player.Message( "     Currently only MCSharp/MCZall files are supported." );
-                    break;
-                case "importranks":
-                    player.Message( Color.Help, "/importranks SoftwareName FileName RankName" );
-                    player.Message( "     Imports player list from formats used by other servers." );
-                    player.Message( "     All players listed in the specified file are added" );
-                    player.Message( "     to PlayerDB with the specified rank." );
-                    player.Message( "     Currently only MCSharp/MCZall files are supported." );
-                    break;
-                case "info":
-                    player.Message( Color.Help, "/info [PlayerName]" );
-                    player.Message( "     Displays some information and stats about the player." );
-                    player.Message( "     If no name is given, shows your own stats." );
-                    break;
-                case "kick":
-                case "k":
-                    player.Message( Color.Help, "/kick PlayerName [Message]" + Color.Sys + "  or  " + Color.Help + "/k PlayerName [Message]" );
-                    player.Message( "     Kicks the specified player from the server." );
-                    player.Message( "     Kicked player gets to see the specified message on" );
-                    player.Message( "     their disconnect screen." );
-                    break;
-                case "lava":
-                    player.Message( Color.Help, "/lava" );
-                    player.Message( "     Toggles the lava placement mode. When enabled, any " );
-                    player.Message( "     red block you place is replaced with lava." );
-                    break;
-                case "lock":
-                    player.Message( Color.Help, "/lock [WorldName]" );
-                    player.Message( "     Puts the world into a locked, read-only mode. No one can" );
-                    player.Message( "     place or delete blocks during lockdown. By default this" );
-                    player.Message( "     locks the world you're on, but you can also lock any" );
-                    player.Message( "     world by name. Call " + Color.Help + "/unlock" + Color.Sys + " to release lock on a world," );
-                    player.Message( "     or " + Color.Help + "/unlockall" + Color.Sys + " to release all worlds at once." );
-                    break;
-                case "lockall":
-                    player.Message( Color.Help, "/lockall" );
-                    player.Message( "     Applies " + Color.Help + "/lock" + Color.Sys + " to all available worlds." );
-                    break;
-                case "me":
-                    player.Message( Color.Help, "/me Message" );
-                    player.Message( "     Sends IRC-style action message prefixed with your name:" );
-                    player.Message( "     * " + player.nick + " Message" );
-                    break;
-                case "nick":
-                    player.Message( Color.Help, "/nick NewName" );
-                    player.Message( "     Allows temporarily changing your displayed name." );
-                    player.Message( "     The new name is shown in chat, player list, and in-game." );
-                    player.Message( "     The skin also changes to match the new name." );
-                    player.Message( Color.Help, "/nick" );
-                    player.Message( "     Resets your name to the normal one." );
-                    break;
-                case "paint":
-                    player.Message( Color.Help, "/paint" );
-                    player.Message( "     Replaces a block instead of deleting it." );
-                    break;
-                case "players":
-                    player.Message( Color.Help, "/players" );
-                    player.Message( "     Lists all players on the server (in all worlds)." );
-                    break;
-                case "replace":
-                    player.Message( Color.Help, "/replace TargetBlock ReplacementBlock" );
-                    player.Message( "     Replaces all blocks of specified type in an area." );
-                    player.Message( "     Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode." );
-                    player.Message( "     Type " + Color.Help + "/undo" + Color.Sys + " to undo the last draw operation." );
-                    player.Message( "     Use " + Color.Help + "/lock" + Color.Sys + " to cancel drawing after it started." );
-                    break;
-                case "roll":
-                    player.Message( Color.Help, "/roll" );
-                    player.Message( "     Gives random number between 1 and 100." );
-                    player.Message( Color.Help, "/roll [max]" );
-                    player.Message( "     Gives number between 1 and max." );
-                    player.Message( Color.Help, "/roll [min] [max]" );
-                    player.Message( "     Gives number between min and max." );
-                    break;
-                case "rules":
-                    player.Message( Color.Help, "/rules" );
-                    player.Message( "     Displays a list of this server's rules." );
-                    break;
-                case "save":
-                    player.Message( Color.Help, "/save MapName" );
-                    player.Message( "     Saves a map copy to a file with the specified name." );
-                    player.Message( "     A file extension \".fcm\" is automatically appended." );
-                    player.Message( "     If a file with the same name exists, it is replaced." );
-                    break;
-                case "setspawn":
-                    player.Message( Color.Help, "/setspawn" );
-                    player.Message( "     Sets current map's spawnpoint to your current location." );
-                    break;
-                case "s":
-                case "solid":
-                    player.Message( Color.Help, "/solid" + Color.Sys + "  or  " + Color.Help + "/s" );
-                    player.Message( "     Toggles the admincrete placement mode. When enabled, any" );
-                    player.Message( "     stone block you place is replaced with admincrete." );
-                    break;
-                case "tp":
-                    player.Message( Color.Help, "/tp [PlayerName]" );
-                    player.Message( "     Teleports you to a specified player's location." );
-                    player.Message( "     If no name is given, teleports you to map spawn." );
-                    break;
-                case "unban":
-                    player.Message( Color.Help, "/unban PlayerName [memo]" );
-                    player.Message( "     Removes ban for a specified player. Does NOT remove IP" );
-                    player.Message( "     bans. Any text after the player name will be saved as" );
-                    player.Message( "     a memo." );
-                    break;
-                case "unbanall":
-                    player.Message( Color.Help, "/unbanall PlayerName [memo]" );
-                    player.Message( "     Removes ban from the specified player, player's IP, and" );
-                    player.Message( "     from all players who recently used the same IP." );
-                    player.Message( Color.Help, "/unbanall IPAddress [memo]" );
-                    player.Message( "     Removes ban from the specified IP, and from all players" );
-                    player.Message( "     who recently used the IP." );
-                    player.Message( "     Any text after the first param will be saved as a memo." );
-                    break;
-                case "unbanip":
-                    player.Message( Color.Help, "/unbanip PlayerName [memo]" );
-                    player.Message( "     Removes ban for a specified player and associated IP." );
-                    player.Message( "     Any text after the player name will be saved as a memo." );
-                    player.Message( Color.Help, "/unbanip IPAddress" );
-                    player.Message( "     Removes ban for a specified IP address. Note that this" );
-                    player.Message( "     does NOT remove any individual bans of player names" );
-                    player.Message( "     associated with this IP address." );
-                    break;
-                case "undo":
-                    player.Message( Color.Help, "/undo" );
-                    player.Message( "     Selectively removes changes from your last drawing" );
-                    player.Message( "     command. Note that commands involving over 2 million" );
-                    player.Message( "     blocks cannot be undone due to memory restrictions." );
-                    break;
-                case "unfreeze":
-                    player.Message( Color.Help, "/unfreeze PlayerName" );
-                    player.Message( "     Returns movement control back to a frozen player." );
-                    break;
-                case "unhide":
-                    player.Message( Color.Help, "/unhide" );
-                    player.Message( "     Disables the " + Color.Help + "/hide" + Color.Sys + " invisible mode. It looks to" );
-                    player.Message( "     other players like you have just joined the server." );
-                    break;
-                case "unlock":
-                    player.Message( Color.Help, "/unlock [WorldName]" );
-                    player.Message( "     Removes the lockdown set by " + Color.Help + "/lock" + Color.Sys + "." );
-                    player.Message( "     See " + Color.Help + "/help lock" + Color.Sys + " for more information." );
-                    break;
-                case "unlockall":
-                    player.Message( Color.Help, "/unlockall" );
-                    player.Message( "     Applies " + Color.Help + "/unlock" + Color.Sys + " to all available worlds." );
-                    break;
-                case "user":
-                    player.Message( Color.Help, "/user PlayerName ClassName" );
-                    player.Message( "     Changes the class of a player to a specified class." );
-                    break;
-                case "waccess":
-                    player.Message( Color.Help, "/waccess" );
-                    player.Message( "     Shows the access permission for player's current world." );
-                    player.Message( Color.Help, "/waccess WorldName" );
-                    player.Message( "     Shows the access permission for the specified world." );
-                    player.Message( Color.Help, "/waccess WorldName ClassName" );
-                    player.Message( "     Changes the access permission for the specified world." );
-                    break;
-                case "water":
-                    player.Message( Color.Help, "/water" );
-                    player.Message( "     Toggles the water placement mode. When enabled, any" );
-                    player.Message( "     cyan block you place is replaced with water." );
-                    break;
-                case "wbuild":
-                    player.Message( Color.Help, "/wbuild" );
-                    player.Message( "     Shows the build permission for player's current world." );
-                    player.Message( Color.Help, "/wbuild [WorldName]" );
-                    player.Message( "     Shows the build permission for the specified world." );
-                    player.Message( Color.Help, "/wbuild WorldName ClassName" );
-                    player.Message( "     Changes the build permission for the specified world." );
-                    break;
-                case "where":
-                    player.Message( Color.Help, "/where [PlayerName]" );
-                    player.Message( "     Shows information about the location and orientation of a" );
-                    player.Message( "     player. If no name is given, shows player's own info." );
-                    break;
-                case "whois":
-                    player.Message( Color.Help, "/whois PlayerNickName" );
-                    player.Message( "     Shows whether a player uses a real name or nickname." );
-                    break;
-                case "mapinfo":
-                case "winfo":
-                    player.Message( Color.Help, "/winfo [WorldName]" );
-                    player.Message( "     Shows information about a world: player count," );
-                    player.Message( "     map dimensions, permissions, etc." );
-                    player.Message( "     If no WorldName is given, shows info for current world." );
-                    break;
-                case "worlds":
-                    player.Message( Color.Help, "/worlds" );
-                    player.Message( "     List all available worlds that you can join." );
-                    break;
-                case "wload":
-                    player.Message( Color.Help, "/wload FileName" );
-                    player.Message( "     Replaces the current world's map with the specified map" );
-                    player.Message( "     file. The old map is overwritten." );
-                    player.Message( Color.Help, "/wload FileName WorldName" );
-                    player.Message( "     If the world with the specified name exists, its map is" );
-                    player.Message( "     replaced with the specified map file. Otherwise, a new" );
-                    player.Message( "     world is created using the given name and map file." );
-                    player.Message( "     Supported formats: fCraft (fcm), MCSharp/MCZall (lvl)," );
-                    player.Message( "     vanilla (server_level.dat),  MinerCPP/LuaCraft (dat)," );
-                    player.Message( "     indev (mclevel). Note: infinite maps NOT supported." );
-                    break;
-                case "wmain":
-                    player.Message( Color.Help, "/wmain WorldName" );
-                    player.Message( "     Sets the specified world as the new main world." );
-                    player.Message( "     Main world is what newly-connected players join first." );
-                    break;
-                case "wremove":
-                    player.Message( Color.Help, "/wremove WorldName" );
-                    player.Message( "     Deletes the specified world from the world list, and" );
-                    player.Message( "     moves all players from it to the main world. The main" );
-                    player.Message( "     world itself cannot be removed with this command." );
-                    player.Message( "     You will need to delete the map file manually." );
-                    break;
-                case "wrename":
-                    player.Message( Color.Help, "/wrename OldName NewName" );
-                    player.Message( "     Changes the name of a world. Does not require any reloading." );
-                    break;
-                case "zone":
-                    player.Message( Color.Help, "/zone ZoneName ClassName" );
-                    player.Message( "     Create a zone that overrides build permissions." );
-                    player.Message( "     This can be used to restrict access to an area," );
-                    player.Message( "     or to designate a guest area." );
-                    break;
-                case "zones":
-                    player.Message( Color.Help, "/zones" );
-                    player.Message( "     Lists the zones defined on the current map." );
-                    break;
-                case "zremove":
-                    player.Message( Color.Help, "/zremove ZoneName" );
-                    player.Message( "     Removes a zone with the specified name from the map." );
-                    break;
-                case "ztest":
-                    player.Message( Color.Help, "/ztest" );
-                    player.Message( "     Allows to test exactly which zones affect a particular" );
-                    player.Message( "     block. Can be used to test and resolve zone overlaps." );
-                    break;
+            string commandName = cmd.Next();
 
-                case "commands":
-                    player.Message( "List of all commands:" );
-                    player.Message( Color.Help, "   ban, banall, baninfo, banip, bring, cancel, class, cuboid" );
-                    player.Message( Color.Help, "   cuboidh, ellipsoid, freeze, gen, grass, help, hide" );
-                    player.Message( Color.Help, "   importbans, importranks, info, join, kick, lava, lock" );
-                    player.Message( Color.Help, "   lockall, me, nick, paint, players, replace, roll, rules" );
-                    player.Message( Color.Help, "   save, setspawn, solid, tp, unban, unbanall, unbanip, undo" );
-                    player.Message( Color.Help, "   unhide, unfreeze, unlock, unlockall, user, waccess, water" );
-                    player.Message( Color.Help, "   wbuild, where, whois, winfo, worlds, wload, wmain, wremove" );
-                    player.Message( Color.Help, "   wrename, zone, zones, zremove, ztest" );
-                    break;
+            if( commandName == "commands" ) {
+                if( cmd.Next() != null ) {
+                    player.Message( "&S    ", "List of all available commands:&N" + CommandList.GetCommandList( player, true ) );
+                } else {
+                    player.Message( "&S    ", "List of all commands:&N" + CommandList.GetCommandList( player, false ) );
+                }
 
-                default:
-                    player.Message( "To see detailed help for a command, write " + Color.Help + "/help CommandName" );
-                    if( player.world != null ) {
-                        player.Message( "To find out about your permissions, write " + Color.Help + "/class " + player.info.playerClass.name );
+            } else if( commandName != null ) {
+                CommandDescriptor descriptor = CommandList.GetDescriptor( commandName );
+                if( descriptor == null ) {
+                    player.Message( "Unknown command: \"" + cmd.name + "\"" );
+                    return;
+                }
+
+                string helpString = Color.Help + descriptor.usage + "&N";
+
+                if( descriptor.aliases != null ) {
+                    string aliases = "Aliases: &H";
+                    bool first=true;
+                    foreach( string alias in descriptor.aliases ) {
+                        aliases += (first ? "" : "&S, &H") + alias;
+                        first = false;
                     }
-                    player.Message( "To see a list of all commands, write " + Color.Help + "/help commands" );
-                    player.Message( "To list available worlds, write " + Color.Help + "/worlds" );
-                    player.Message( "To join a specific world, write " + Color.Help + "/join WorldName" );
-                    player.Message( "To send private messages, write " + Color.Help + "@playername [message]" );
-                    player.Message( "To message all players of a class, write " + Color.Help + "@@class [message]" );
-                    //TODO: fetch an actual, current list of commands
-                    break;
+                    helpString += aliases + "&N";
+                }
+
+                if( descriptor.helpHandler != null ) {
+                    helpString += descriptor.helpHandler( player );
+                } else {
+                    helpString += descriptor.help;
+                }
+                player.Message( HelpPrefix, helpString );
+
+            } else {
+                player.Message( "To see a list of all commands, write " + Color.Help + "/help commands" );
+                player.Message( "To see detailed help for a command, write " + Color.Help + "/help CommandName" );
+                if( player.world != null ) {
+                    player.Message( "To find out about your permissions, write " + Color.Help + "/class " + player.info.playerClass.name );
+                }
+                player.Message( "To list available worlds, write " + Color.Help + "/worlds" );
+                player.Message( "To send private messages, write " + Color.Help + "@PlayerName Message" );
+                player.Message( "To message all players of a class, write " + Color.Help + "@@Class Message" );
             }
         }
 
 
+
+        static CommandDescriptor cdWhois = new CommandDescriptor {
+            name = "whois",
+            consoleSafe = true,
+            usage = "/whois PlayerNicknameOrName",
+            help = "Shows whether a player uses a real name or nickname. Note: case-sensitive.",
+            handler = Whois
+        };
+
         internal static void Whois( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
-                player.Message( "Usage: " + Color.Help + "/whois PlayerNickname" );
+                cdWhere.PrintUsage( player );
                 return;
             }
 
@@ -544,9 +260,17 @@ namespace fCraft {
         }
 
 
-        // Player information display.
-        //     When used without arguments, shows players's own stats.
-        //     An optional argument allows to look at other people's stats.
+
+        static CommandDescriptor cdInfo = new CommandDescriptor {
+            name = "info",
+            aliases = new string[] { "pinfo" },
+            consoleSafe = true,
+            usage = "/info [PlayerName]",
+            help = "Displays some information and stats about the player. " +
+                   "If no name is given, shows your own stats.",
+            handler = Info
+        };
+
         internal static void Info( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
@@ -558,8 +282,8 @@ namespace fCraft {
 
             Player target = Server.FindPlayerByNick( name );
             if( target != null && target.nick != target.name ) {
-                player.Message( Color.Red, "Warning: Player named " + target.name + " is using a nickname \"" + target.nick + "\"" );
-                player.Message( Color.Red, "The information below is for the REAL " + name );
+                player.Message( Color.Red + "Warning: Player named " + target.name + " is using a nickname \"" + target.nick + "\"" );
+                player.Message( Color.Red + "The information below is for the REAL " + name );
             }
 
             PlayerInfo info;
@@ -610,9 +334,16 @@ namespace fCraft {
         }
 
 
-        // Shows ban information.
-        //     When used without arguments, shows players's own ban stats.
-        //     An optional argument allows to look at other people's ban stats.
+
+        static CommandDescriptor cdBanInfo = new CommandDescriptor {
+            name = "baninfo",
+            consoleSafe = true,
+            usage = "/baninfo [PlayerName|IPAddress]",
+            help = "Prints information about past and present bans/unbans associated with the PlayerName or IP. " +
+                   "If no name is given, this prints your own ban info.",
+            handler = BanInfo
+        };
+
         internal static void BanInfo( Player player, Command cmd ) {
             string name = cmd.Next();
             IPAddress address;
@@ -686,6 +417,16 @@ namespace fCraft {
         }
 
 
+
+        static CommandDescriptor cdClassInfo = new CommandDescriptor {
+            name = "cinfo",
+            aliases = new string[]{"class"},
+            consoleSafe = true,
+            usage = "/cinfo ClassName",
+            help = "Shows a list of permissions granted to a class. To see a list of all classes, use &H/classes",
+            handler = BanInfo
+        };
+
         // Shows general information about a particular class.
         internal static void ClassInfo( Player player, Command cmd ) {
             PlayerClass playerClass = ClassList.FindClass( cmd.Next() );
@@ -706,14 +447,33 @@ namespace fCraft {
                 if( line.Length > 2 ) {
                     player.Message( line.Substring( 0, line.Length - 2 ) );
                 }
-            } else {
-                player.Message( "Below is a list of classes. For detail see " + Color.Help + "/class classname" );
-                foreach( PlayerClass classListEntry in ClassList.classesByIndex ) {
-                    player.Message( classListEntry.color, "    " + classListEntry.name + " (rank " + classListEntry.rank + ")" );
-                }
             }
         }
 
+
+
+        static CommandDescriptor cdClasses = new CommandDescriptor {
+            name = "classes",
+            consoleSafe = true,
+            help = "Shows a list of all defined classes/ranks.",
+            handler = Classes
+        };
+
+        internal static void Classes( Player player, Command cmd ) {
+            player.Message( "Below is a list of classes. For detail see " + Color.Help + cdClassInfo.usage );
+            foreach( PlayerClass classListEntry in ClassList.classesByIndex ) {
+                player.Message( classListEntry.color + "    " + classListEntry.name + " (rank " + classListEntry.rank + ")" );
+            }
+        }
+
+
+
+        static CommandDescriptor cdRules = new CommandDescriptor {
+            name = "rules",
+            consoleSafe = true,
+            help = "Shows a list of rules defined by server operator(s).",
+            handler = Rules
+        };
 
         const string RulesFile = "rules.txt";
 
@@ -725,11 +485,7 @@ namespace fCraft {
                 try {
                     foreach( string ruleLine in File.ReadAllLines( RuleFile ) ) {
                         if( ruleLine.Trim().Length > 0 ) {
-                            if( ruleLine.StartsWith( "&" ) ) {
-                                player.Message( "", ruleLine );
-                            } else {
-                                player.Message( Color.Announcement, ruleLine );
-                            }
+                            player.Message( Color.Announcement + ruleLine );
                         }
                     }
                 } catch( Exception ex ) {

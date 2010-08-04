@@ -6,37 +6,40 @@ using System.IO;
 namespace fCraft {
     static class MapCommands {
         internal static void Init() {
-            Commands.AddCommand( "join", Join, false );
-            Commands.AddCommand( "j", Join, false );
-            Commands.AddCommand( "load", Join, false );
-            Commands.AddCommand( "l", Join, false );
-            Commands.AddCommand( "goto", Join, false );
+            CommandList.RegisterCommand( cdJoin );
 
-            Commands.AddCommand( "lock", Lock, true );
-            Commands.AddCommand( "unlock", Unlock, true );
-            Commands.AddCommand( "lockall", LockAll, true );
-            Commands.AddCommand( "unlockall", UnlockAll, true );
+            CommandList.RegisterCommand( cdSave );
+            CommandList.RegisterCommand( cdWorldMain );
+            CommandList.RegisterCommand( cdWorldAccess );
+            CommandList.RegisterCommand( cdWorldBuild );
+            CommandList.RegisterCommand( cdWorldList );
+            CommandList.RegisterCommand( cdWorldLoad );
+            CommandList.RegisterCommand( cdWorldRename );
+            CommandList.RegisterCommand( cdWorldRemove );
 
-            Commands.AddCommand( "gen", Generate, true );
+            CommandList.RegisterCommand( cdZoneEdit );
+            CommandList.RegisterCommand( cdZoneAdd );
+            CommandList.RegisterCommand( cdZoneTest );
+            CommandList.RegisterCommand( cdZoneList );
+            CommandList.RegisterCommand( cdZoneRemove );
 
-            Commands.AddCommand( "zone", ZoneAdd, false );
-            Commands.AddCommand( "zones", ZoneList, false );
-            Commands.AddCommand( "zremove", ZoneRemove, false );
-            Commands.AddCommand( "ztest", ZoneTest, false );
-            Commands.AddCommand( "zedit", ZoneEdit, false );
+            CommandList.RegisterCommand( cdGenerate );
 
-            Commands.AddCommand( "worlds", WorldList, true );
-            Commands.AddCommand( "wload", WorldLoad, true );
-            Commands.AddCommand( "wremove", WorldRemove, true );
-            Commands.AddCommand( "wrename", WorldRename, true );
-            Commands.AddCommand( "waccess", WorldAccess, true );
-            Commands.AddCommand( "wmain", WorldMain, true );
-            Commands.AddCommand( "wbuild", WorldBuild, true );
-            Commands.AddCommand( "save", Save, true );
-
-            //Commands.AddCommand( "landmark", AddLandmark, false);
+            CommandList.RegisterCommand( cdLock );
+            CommandList.RegisterCommand( cdLockAll );
+            CommandList.RegisterCommand( cdUnlock );
+            CommandList.RegisterCommand( cdUnlockAll );
         }
 
+
+
+        static CommandDescriptor cdJoin = new CommandDescriptor {
+            name = "join",
+            aliases = new string[] { "j", "load", "l", "goto", "map" },
+            usage = "/join WorldName",
+            help = "Teleports the player to a specified world. You can see the list of available worlds by using &H/worlds",
+            handler = Join
+        };
 
         internal static void Join( Player player, Command cmd ) {
             string worldName = cmd.Next();
@@ -59,12 +62,19 @@ namespace fCraft {
         }
 
 
-        internal static void Save( Player player, Command cmd ) {
-            if( !player.Can( Permission.ManageWorlds ) ) {
-                player.NoAccessMessage( Permission.ManageWorlds );
-                return;
-            }
 
+        static CommandDescriptor cdSave = new CommandDescriptor {
+            name = "save",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.ManageWorlds },
+            usage = "/save FileName &Sor&H /save WorldName FileName",
+            help = "Saves a map copy to a file with the specified name. " +
+                   "The \".fcm\" file extension can be omitted. " +
+                   "If a file with the same name already exists, it will be overwritten.",
+            handler = Save
+        };
+
+        internal static void Save( Player player, Command cmd ) {
             string p1 = cmd.Next(), p2 = cmd.Next();
             if( p1 == null ) {
                 player.Message( "See " + Color.Help + "/help save" + Color.Sys + " for usage information." );
@@ -115,7 +125,18 @@ namespace fCraft {
             }
         }
 
+
+
         #region World Commands
+
+        static CommandDescriptor cdWorldMain = new CommandDescriptor {
+            name = "wmain",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.ManageWorlds },
+            usage = "/wmain [WorldName]",
+            help = "Sets the specified world as the new main world. Main world is what newly-connected players join first.",
+            handler = WorldMain
+        };
 
         internal static void WorldMain( Player player, Command cmd ) {
             string worldName = cmd.Next();
@@ -123,12 +144,13 @@ namespace fCraft {
                 player.Message( "Usage: " + Color.Help + "/wmain WorldName" );
                 return;
             }
+
             World world = Server.FindWorld( worldName );
             if( world == null ) {
                 player.Message( "No world \"" + worldName + "\" found." );
             } else if( world == Server.mainWorld ) {
                 player.Message( "World \"" + world.name + "\" is already set as main." );
-            } else if( player.Can( Permission.ManageWorlds ) ) {
+            } else {
                 if( world.classAccess != ClassList.lowestClass ) {
                     world.classAccess = ClassList.lowestClass;
                     player.Message( "The main world cannot have access restrictions." );
@@ -142,11 +164,21 @@ namespace fCraft {
 
                 Server.SendToAll( Color.Sys + player.nick + " set \"" + world.name + "\" to be the main world." );
                 Logger.Log( player.GetLogName() + " set \"" + world.name + "\" to be the main world.", LogType.UserActivity );
-            } else {
-                player.NoAccessMessage( Permission.ManageWorlds );
             }
         }
 
+
+
+        static CommandDescriptor cdWorldAccess = new CommandDescriptor {
+            name = "waccess",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.ManageWorlds },
+            usage = "/waccess [WorldName [ClassName]]",
+            help = "Shows access permission for player's current world. " +
+                   "If optional WorldName parameter is given, shows access permission for another world. " +
+                   "If ClassName parameter is also given, sets access permission for specified world.",
+            handler = WorldAccess
+        };
 
         internal static void WorldAccess( Player player, Command cmd ) {
             string worldName = cmd.Next();
@@ -174,7 +206,7 @@ namespace fCraft {
                 } else {
                     player.Message( "World \"" + world.name + "\" can only be visited by " + world.classAccess.color + world.classAccess.name + "+" );
                 }
-            } else if( player.Can( Permission.ManageWorlds ) ) {
+            } else {
                 PlayerClass playerClass = ClassList.FindClass( className );
                 if( playerClass == null ) {
                     player.Message( "No class \"" + className + "\" found." );
@@ -190,11 +222,21 @@ namespace fCraft {
                     }
                     Logger.Log( player.GetLogName() + " made the world \"" + world.name + "\" accessible to " + world.classAccess.name + "+", LogType.UserActivity );
                 }
-            } else {
-                player.NoAccessMessage( Permission.ManageWorlds );
             }
         }
 
+
+
+        static CommandDescriptor cdWorldBuild = new CommandDescriptor {
+            name = "wbuild",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.ManageWorlds },
+            usage = "/wbuild [WorldName [ClassName]]",
+            help = "Shows build permission for player's current world. " +
+                   "If optional WorldName parameter is given, shows build permission for another world. " +
+                   "If ClassName parameter is also given, sets build permission for specified world.",
+            handler = WorldBuild
+        };
 
         internal static void WorldBuild( Player player, Command cmd ) {
             string worldName = cmd.Next();
@@ -222,7 +264,7 @@ namespace fCraft {
                 } else {
                     player.Message( "World \"" + world.name + "\" can be only modified by " + world.classBuild.color + world.classBuild.name + "+" );
                 }
-            } else if( player.Can( Permission.ManageWorlds ) ) {
+            } else {
                 PlayerClass playerClass = ClassList.FindClass( className );
                 if( playerClass == null ) {
                     player.Message( "No class \"" + className + "\" found." );
@@ -236,11 +278,20 @@ namespace fCraft {
                     }
                     Logger.Log( player.GetLogName() + " made the world \"" + world.name + "\" modifiable by " + world.classBuild.name + "+", LogType.UserActivity );
                 }
-            } else {
-                player.NoAccessMessage( Permission.ManageWorlds );
             }
         }
 
+
+
+        static CommandDescriptor cdWorldList = new CommandDescriptor {
+            name = "worlds",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.ManageWorlds },
+            usage = "/worlds [all]",
+            help = "Shows a list of worlds available for you to join. " +
+                   "If the optional \"all\" is added, also shows unavailable (restricted) worlds.",
+            handler = WorldList
+        };
 
         internal static void WorldList( Player player, Command cmd ) {
             lock( Server.worldListLock ) {
@@ -262,12 +313,21 @@ namespace fCraft {
         }
 
 
-        internal static void WorldLoad( Player player, Command cmd ) {
-            if( !player.Can( Permission.ManageWorlds ) ) {
-                player.NoAccessMessage( Permission.ManageWorlds );
-                return;
-            }
 
+        static CommandDescriptor cdWorldLoad = new CommandDescriptor {
+            name = "wload",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.ManageWorlds },
+            usage = "/wload FileName [WorldName]",
+            help = "If WorldName parameter is not given, replaces the current world's map with the specified map. The old map is overwritten. " +
+                   "If the world with the specified name exists, its map is replaced with the specified map file. " +
+                   "Otherwise, a new world is created using the given name and map file. " +
+                   "Supported formats: fCraft (fcm), MCSharp/MCZall (lvl), vanilla (server_level.dat), MinerCPP/LuaCraft (dat), " +
+                   "indev (mclevel). Note: infinite maps NOT supported.",
+            handler = WorldLoad
+        };
+
+        internal static void WorldLoad( Player player, Command cmd ) {
             string fileName = cmd.Next();
             string worldName = cmd.Next();
 
@@ -334,12 +394,17 @@ namespace fCraft {
         }
 
 
-        internal static void WorldRename( Player player, Command cmd ) {
-            if( !player.Can( Permission.ManageWorlds ) ) {
-                player.NoAccessMessage( Permission.ManageWorlds );
-                return;
-            }
 
+        static CommandDescriptor cdWorldRename = new CommandDescriptor {
+            name = "wrename",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.ManageWorlds },
+            usage = "/wrename OldName NewName",
+            help = "Changes the name of a world. Does not require any reloading.",
+            handler = WorldRename
+        };
+
+        internal static void WorldRename( Player player, Command cmd ) {
             string oldName = cmd.Next();
             string newName = cmd.Next();
             if( oldName == null || newName == null ) {
@@ -382,12 +447,19 @@ namespace fCraft {
         }
 
 
-        internal static void WorldRemove( Player player, Command cmd ) {
-            if( !player.Can( Permission.ManageWorlds ) ) {
-                player.NoAccessMessage( Permission.ManageWorlds );
-                return;
-            }
 
+        static CommandDescriptor cdWorldRemove = new CommandDescriptor {
+            name = "wremove",
+            aliases = new string[] { "wdelete" },
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.ManageWorlds },
+            usage = "/wremove WorldName",
+            help = "Removes the specified world from the world list, and moves all players from it to the main world. " +
+                   "The main world itself cannot be removed with this command. You will need to delete the map file manually.",
+            handler = WorldRemove
+        };
+
+        internal static void WorldRemove( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
                 player.Message( "Syntax: " + Color.Help + "/wremove WorldName" );
@@ -415,11 +487,15 @@ namespace fCraft {
 
         #region Zone Commands
 
+        static CommandDescriptor cdZoneEdit = new CommandDescriptor {
+            name = "zedit",
+            permissions = new Permission[] { Permission.ManageZones },
+            usage = "/zedit ZoneName ClassName",
+            help = "Allows editing the zone permissions after creation.",
+            handler = ZoneEdit
+        };
+
         internal static void ZoneEdit( Player player, Command cmd ) {
-            if( !player.Can( Permission.ManageZones ) ) {
-                player.NoAccessMessage( Permission.ManageZones );
-                return;
-            }
             string name = cmd.Next();
             if( name == null ) {
                 player.Message( "No zone name specified. See " + Color.Help + "/help zedit" );
@@ -454,12 +530,18 @@ namespace fCraft {
 
 
 
-        internal static void ZoneAdd( Player player, Command cmd ) {//TODO: better method names & documentation
-            if( !player.Can( Permission.ManageZones ) ) {
-                player.NoAccessMessage( Permission.ManageZones );
-                return;
-            }
+        static CommandDescriptor cdZoneAdd = new CommandDescriptor {
+            name = "zadd",
+            aliases = new string[] { "zone" },
+            permissions = new Permission[] { Permission.ManageZones },
+            usage = "/zadd ZoneName ClassName",
+            help = "Create a zone that overrides build permissions. " +
+                   "This can be used to restrict access to an area (by setting ClassName to a high rank) " +
+                   "or to designate a guest area (by setting ClassName to a class that normally can't build).",
+            handler = ZoneAdd
+        };
 
+        internal static void ZoneAdd( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 player.Message( "No zone name specified. See " + Color.Help + "/help zone" );
@@ -499,7 +581,6 @@ namespace fCraft {
             }
         }
 
-
         internal static void ZoneAddCallback( Player player, Position[] marks, object tag ) {//TODO: better method names
             Zone zone = (Zone)tag;
             zone.xMin = Math.Min( marks[0].x, marks[1].x );
@@ -516,6 +597,13 @@ namespace fCraft {
             player.world.map.AddZone( zone );
         }
 
+
+
+        static CommandDescriptor cdZoneTest = new CommandDescriptor {
+            name = "ztest",
+            help = "Allows to test exactly which zones affect a particular block. Can be used to find and resolve zone overlaps.",
+            handler = ZoneTest
+        };
 
         static void ZoneTest( Player player, Command cmd ) {
             player.drawMarksExpected = 1;
@@ -541,11 +629,17 @@ namespace fCraft {
         }
 
 
+
+        static CommandDescriptor cdZoneRemove = new CommandDescriptor {
+            name = "zremove",
+            aliases = new string[] { "zdelete" },
+            permissions = new Permission[] { Permission.ManageZones },
+            usage = "/zremove ZoneName",
+            help = "Removes a zone with the specified name from the map.",
+            handler = ZoneRemove
+        };
+
         internal static void ZoneRemove( Player player, Command cmd ) {
-            if( !player.Can( Permission.ManageZones ) ) {
-                player.NoAccessMessage( Permission.ManageZones );
-                return;
-            }
             string zoneName = cmd.Next();
             if( zoneName == null ) {
                 player.Message( "Usage: " + Color.Help + "/zremove ZoneName" );
@@ -558,6 +652,13 @@ namespace fCraft {
             }
         }
 
+
+
+        static CommandDescriptor cdZoneList = new CommandDescriptor {
+            name = "zones",
+            help = "Lists all zones defined on the current map/world.",
+            handler = ZoneList
+        };
 
         internal static void ZoneList( Player player, Command cmd ) {
             Zone[] zones = player.world.map.ListZones();
@@ -602,13 +703,22 @@ namespace fCraft {
 
         #region Generation
 
+
+        static CommandDescriptor cdGenerate = new CommandDescriptor {
+            name = "gen",
+            consoleSafe = true,
+            usage = "/gen widthX widthY height theme terrain filename",
+            helpHandler = delegate( Player player ) {
+                return "Generates a map file. Available themes:&N" +
+                       String.Join( ",", Enum.GetNames( typeof( MapGenTheme ) ) ) + "&N" +
+                       "Available terrain types:&N" +
+                       "Empty,Flatgrass," + String.Join( ",", Enum.GetNames( typeof( MapGenType ) ) ) + "&N" +
+                       "NOTE: Map is saved TO FILE ONLY, use /wload to load it.";
+            },
+            handler = Generate
+        };
+
         internal static void Generate( Player player, Command cmd ) {
-
-            if( !player.Can( Permission.ManageWorlds ) ) {
-                player.NoAccessMessage( Permission.ManageWorlds );
-                return;
-            }
-
             int wx, wy, height;
             if( !(cmd.NextInt( out wx ) && cmd.NextInt( out wy ) && cmd.NextInt( out height )) ) {
                 if( player.world != null ) {
@@ -647,7 +757,7 @@ namespace fCraft {
                 if( map.Save( fileName ) ) {
                     player.Message( "Map generation: Done." );
                 } else {
-                    player.Message( Color.Red, "An error occured while generating the map." );
+                    player.Message( Color.Red + "An error occured while generating the map." );
                 }
             } else if( typeName == "empty" ) {
                 player.Message( "Generating empty map..." );
@@ -656,7 +766,7 @@ namespace fCraft {
                 if( map.Save( fileName ) ) {
                     player.Message( "Map generation: Done." );
                 } else {
-                    player.Message( Color.Red, "An error occured while generating the map." );
+                    player.Message( Color.Red + "An error occured while generating the map." );
                 }
             } else {
                 MapGenType type;
@@ -685,11 +795,18 @@ namespace fCraft {
 
         #region Locking
 
+        static CommandDescriptor cdLock = new CommandDescriptor {
+            name = "lock",
+            consoleSafe = true,
+            usage = "/lock [WorldName]",
+            help = "Puts the world into a locked, read-only mode. " +
+                   "No one can place or delete blocks during lockdown. " +
+                   "By default this locks the world you're on, but you can also lock any world by name. " +
+                   "Call &H/unlock&S to release lock on a world, or &H/unlockall&S to release all worlds at once.",
+            handler = Lock
+        };
+
         internal static void Lock( Player player, Command cmd ) {
-            if( !player.Can( Permission.Lock ) ) {
-                player.NoAccessMessage( Permission.Lock );
-                return;
-            }
             string worldName = cmd.Next();
 
             World world;
@@ -714,26 +831,34 @@ namespace fCraft {
         }
 
 
+
+        static CommandDescriptor cdLockAll = new CommandDescriptor {
+            name = "lockall",
+            consoleSafe = true,
+            help = "Applies &H/lock&S to all available worlds.",
+            handler = LockAll
+        };
+
         internal static void LockAll( Player player, Command cmd ) {
-            if( !player.Can( Permission.Lock ) ) {
-                player.NoAccessMessage( Permission.Lock );
-                return;
-            } else {
-                lock( Server.worldListLock ) {
-                    foreach( World world in Server.worlds.Values ) {
-                        world.Lock();
-                    }
+            lock( Server.worldListLock ) {
+                foreach( World world in Server.worlds.Values ) {
+                    world.Lock();
                 }
-                player.Message( "All worlds are now locked." );
             }
+            player.Message( "All worlds are now locked." );
         }
 
 
+
+        static CommandDescriptor cdUnlock = new CommandDescriptor {
+            name = "unlock",
+            consoleSafe=true,
+            usage = "/unlock [WorldName]",
+            help = "Removes the lockdown set by &H/lock&S. See &H/help lock&S for more information.",
+            handler = Unlock
+        };
+
         internal static void Unlock( Player player, Command cmd ) {
-            if( !player.Can( Permission.Lock ) ) {
-                player.NoAccessMessage( Permission.Lock );
-                return;
-            }
             string worldName = cmd.Next();
 
             World world;
@@ -758,18 +883,21 @@ namespace fCraft {
         }
 
 
+
+        static CommandDescriptor cdUnlockAll = new CommandDescriptor {
+            name = "unlockall",
+            consoleSafe = true,
+            help = "Applies &H/unlock&S to all available worlds",
+            handler = UnlockAll
+        };
+
         internal static void UnlockAll( Player player, Command cmd ) {
-            if( !player.Can( Permission.Lock ) ) {
-                player.NoAccessMessage( Permission.Lock );
-                return;
-            } else {
-                lock( Server.worldListLock ) {
-                    foreach( World world in Server.worlds.Values ) {
-                        world.Unlock();
-                    }
+            lock( Server.worldListLock ) {
+                foreach( World world in Server.worlds.Values ) {
+                    world.Unlock();
                 }
-                player.Message( "All worlds are now unlocked." );
             }
+            player.Message( "All worlds are now unlocked." );
         }
         #endregion
     }

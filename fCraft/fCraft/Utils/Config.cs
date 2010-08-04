@@ -63,7 +63,7 @@ namespace fCraft {
             settings[ConfigKey.ClassPrefixesInChat] = "false";
             settings[ConfigKey.ClassPrefixesInList] = "false";
             settings[ConfigKey.SystemMessageColor] = "yellow";
-            settings[ConfigKey.HelpColor] = "purple";
+            settings[ConfigKey.HelpColor] = "Lime";
             settings[ConfigKey.SayColor] = "yellow";
 
             settings[ConfigKey.AnnouncementColor] = "green";

@@ -8,39 +8,51 @@ namespace fCraft {
 
         // Register standard commands.
         internal static void Init() {
-            Commands.AddCommand( "k", Kick, true );
-            Commands.AddCommand( "kick", Kick, true );
 
-            Commands.AddCommand( "ban", Ban, true );
-            Commands.AddCommand( "banip", BanIP, true );
-            Commands.AddCommand( "banall", BanAll, true );
-            Commands.AddCommand( "unban", Unban, true );
-            Commands.AddCommand( "unbanip", UnbanIP, true );
-            Commands.AddCommand( "unbanall", UnbanAll, true );
+            string banCommonHelp = "Ban information can be viewed with &H/baninfo";
 
-            Commands.AddCommand( "user", ChangeClass, true );
+            CommandList.RegisterCommand( cdMe );
 
-            Commands.AddCommand( "tp", TP, false );
-            Commands.AddCommand( "bring", Bring, false );
-            Commands.AddCommand( "freeze", Freeze, false );
-            Commands.AddCommand( "unfreeze", Unfreeze, false );
-            Commands.AddCommand( "setspawn", SetSpawn, false );
+            CommandList.RegisterCommand( cdNick );
+            CommandList.RegisterCommand( cdRoll );
+            CommandList.RegisterCommand( cdSay );
 
-            Commands.AddCommand( "hide", Hide, false );
-            Commands.AddCommand( "unhide", Unhide, false );
+            cdBan.help += banCommonHelp;
+            cdBanIP.help += banCommonHelp;
+            cdBanAll.help += banCommonHelp;
+            cdUnban.help += banCommonHelp;
+            cdUnbanIP.help += banCommonHelp;
+            cdUnbanAll.help += banCommonHelp;
 
-            Commands.AddCommand( "say", Say, true );
+            CommandList.RegisterCommand( cdBan );
+            CommandList.RegisterCommand( cdBanIP );
+            CommandList.RegisterCommand( cdBanAll );
+            CommandList.RegisterCommand( cdUnban );
+            CommandList.RegisterCommand( cdUnbanIP );
+            CommandList.RegisterCommand( cdUnbanAll );
 
-            Commands.AddCommand( "roll", Roll, true );
+            CommandList.RegisterCommand( cdKick );
+            CommandList.RegisterCommand( cdChangeClass );
+            CommandList.RegisterCommand( cdTP );
+            CommandList.RegisterCommand( cdBring );
 
-            Commands.AddCommand( "d", Dummy, false );
-            Commands.AddCommand( "dummy", Dummy, false );
+            CommandList.RegisterCommand( cdFreeze );
+            CommandList.RegisterCommand( cdUnfreeze );
 
-            Commands.AddCommand( "nick", Nick, true );
-
-            Commands.AddCommand( "me", Me, true );
+            CommandList.RegisterCommand( cdHide );
+            CommandList.RegisterCommand( cdUnhide );
+            CommandList.RegisterCommand( cdSetSpawn );
         }
 
+
+
+        static CommandDescriptor cdMe = new CommandDescriptor {
+            name = "me",
+            consoleSafe = true,
+            usage = "/me Message",
+            help = "Sends IRC-style action message prefixed with your name.",
+            handler = Me
+        };
 
         internal static void Me( Player player, Command cmd ) {
             string msg = cmd.NextAll().Trim();
@@ -50,12 +62,20 @@ namespace fCraft {
         }
 
 
-        internal static void Nick( Player player, Command cmd ) {
-            if( !player.Can( Permission.ChangeName ) ) {
-                player.NoAccessMessage( Permission.ChangeName );
-                return;
-            }
 
+        static CommandDescriptor cdNick = new CommandDescriptor {
+            name = "nick",
+            consoleSafe = true,
+            permissions = new Permission[]{ Permission.ChangeName },
+            usage = "/nick [Nickname]",
+            help = "Allows temporarily changing your displayed name. "+
+                   "The new name is shown in chat and player list. "+
+                   "The skin also changes to match the new name. " +
+                   "To reset the name back to normal, write &H/nick&S without any parameters.",
+            handler = Nick
+        };
+
+        internal static void Nick( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 if( player.nick != player.name ) {
@@ -77,22 +97,17 @@ namespace fCraft {
         }
 
 
-        internal static void Dummy( Player player, Command cmd ) {
-            string name = cmd.Next();
-            if( name == null ) {
-                player.Message( Color.Sys, "Usage: " + Color.Help + "/dummy name" );
-                return;
-            }
-            if( !Player.IsValidName( name ) ) {
-                player.Message( Color.Sys, "Invalid name format." );
-                return;
-            }
-            Position pos = player.pos;
-            Player dummy = new Player( player.world, name );
-            dummy.id = player.id + 100;
-            player.world.SendToAll( PacketWriter.MakeAddEntity( dummy, pos ), null );
-        }
 
+        static CommandDescriptor cdRoll = new CommandDescriptor {
+            name = "roll",
+            consoleSafe = true,
+            help = "Gives random number between 1 and 100.&N"+
+                   "&H/roll MaxNumber&N"+
+                   "Gives number between 1 and max.&N"+
+                   "&H/roll MinNumber MaxNumber&N"+
+                   "Gives number between min and max.",
+            handler = Roll
+        };
 
         internal static void Roll( Player player, Command cmd ) {
             Random rand = new Random();
@@ -114,6 +129,17 @@ namespace fCraft {
         }
 
 
+
+        static CommandDescriptor cdSay = new CommandDescriptor {
+            name = "say",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.Say },
+            usage = "/say Message",
+            help = "Shows a message in special color, without the player name prefix. "+
+                   "Can be used for making announcements.",
+            handler = Say
+        };
+
         internal static void Say( Player player, Command cmd ) {
             if( player.Can( Permission.Say ) ) {
                 string msg = cmd.NextAll();
@@ -128,42 +154,108 @@ namespace fCraft {
         }
 
 
+
+        static CommandDescriptor cdBan = new CommandDescriptor {
+            name = "ban",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.Ban },
+            usage = "/ban PlayerName [Memo]",
+            help = "Bans a specified player by name. Note: Does NOT ban IP. "+
+                   "Any text after the player name will be saved as a memo. ",
+            handler = Ban
+        };
+
         internal static void Ban( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), false, false, false );
         }
+
+
+
+        static CommandDescriptor cdBanIP = new CommandDescriptor {
+            name = "banip",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.Ban, Permission.BanIP },
+            usage = "/banip PlayerName|IPAddress [Memo]",
+            help = "Bans the player's IP. If player is not online, last known IP associated with the name is used. "+
+                   "You can also type in the IP address directly. Note: does NOT ban the player name, just the IP." +
+                   "Any text after PlayerName/IP will be saved as a memo. ",
+            handler = BanIP
+        };
 
         internal static void BanIP( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), true, false, false );
         }
 
+
+
+        static CommandDescriptor cdBanAll = new CommandDescriptor {
+            name = "banall",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
+            usage = "/banall PlayerName|IPAddress [Memo]",
+            help = "Bans the player's name, IP, and all other names associated with the IP. "+
+                   "If player is not online, last known IP associated with the name is used. " +
+                   "You can also type in the IP address directly. " +
+                   "Any text after PlayerName/IP will be saved as a memo. ",
+            handler = BanAll
+        };
+
         internal static void BanAll( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), true, true, false );
         }
+
+
+
+        static CommandDescriptor cdUnban = new CommandDescriptor {
+            name = "unban",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.Ban },
+            usage = "/unban PlayerName [Memo]",
+            help = "Removes ban for a specified player. Does NOT remove associated IP bans. " +
+                   "Any text after the player name will be saved as a memo. ",
+            handler = Unban
+        };
 
         internal static void Unban( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), false, false, true );
         }
 
+
+
+        static CommandDescriptor cdUnbanIP = new CommandDescriptor {
+            name = "unbanip",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.Ban, Permission.BanIP },
+            usage = "/unbanip PlayerName|IPaddress [Memo]",
+            help = "Removes ban for a specified player's last known IP. Does NOT remove the name bans. " +
+                   "You can also type in the IP address directly. "+
+                   "Any text after the player name will be saved as a memo. ",
+            handler = UnbanIP
+        };
+
         internal static void UnbanIP( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), true, false, true );
         }
+
+
+
+        static CommandDescriptor cdUnbanAll = new CommandDescriptor {
+            name = "unbanall",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
+            usage = "/unbanall PlayerName|IPaddress [Memo]",
+            help = "Removes ban for a specified player's name, last known IP, and all other names associated with the IP. " +
+                   "You can also type in the IP address directly. " +
+                   "Any text after the player name will be saved as a memo. ",
+            handler = UnbanAll
+        };
 
         internal static void UnbanAll( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), true, true, true );
         }
 
-        internal static void DoBan( Player player, string nameOrIP, string reason, bool banIP, bool banAll, bool unban ) {
-            if( !player.Can( Permission.Ban ) ) {
-                player.NoAccessMessage( Permission.Ban );
-                return;
-            } else if( banIP && !player.Can( Permission.BanIP ) ) {
-                player.NoAccessMessage( Permission.BanIP );
-                return;
-            } else if( banAll && !player.Can( Permission.BanAll ) ) {
-                player.NoAccessMessage( Permission.BanAll );
-                return;
-            }
 
+        internal static void DoBan( Player player, string nameOrIP, string reason, bool banIP, bool banAll, bool unban ) {
             if( nameOrIP == null ) {
                 player.Message( "Please specify player name or IP to ban." );
                 return;
@@ -272,12 +364,19 @@ namespace fCraft {
         }
 
 
-        internal static void Kick( Player player, Command cmd ) {
-            if( !player.Can( Permission.Kick ) ) {
-                player.NoAccessMessage( Permission.Kick );
-                return;
-            }
 
+        static CommandDescriptor cdKick = new CommandDescriptor {
+            name = "kick",
+            aliases = new string[]{"k"},
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.Kick },
+            usage = "/kick PlayerName [Message]",
+            help = "Kicks the specified player from the server. " +
+                   "Kicked player gets to see the specified message on their disconnect screen.",
+            handler = Kick
+        };
+
+        internal static void Kick( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name != null ) {
                 string msg = cmd.NextAll();
@@ -305,6 +404,16 @@ namespace fCraft {
             }
         }
 
+
+
+        static CommandDescriptor cdChangeClass = new CommandDescriptor {
+            name = "user",
+            aliases = new string[] { "rank", "promote", "demote" },
+            consoleSafe = true,
+            usage = "/user PlayerName ClassName",
+            help = "Changes the class/rank of a player to a specified class.",
+            handler = ChangeClass
+        };
 
         internal static void ChangeClass( Player player, Command cmd ) {
             string name = cmd.Next();
@@ -415,8 +524,17 @@ namespace fCraft {
         }
 
 
+
+        static CommandDescriptor cdTP = new CommandDescriptor {
+            name = "tp",
+            aliases = new string[]{"spawn"},
+            permissions = new Permission[]{Permission.Teleport},
+            usage = "/tp [PlayerName]",
+            help = "Teleports you to a specified player's location. If no name is given, teleports you to map spawn.",
+            handler = TP
+        };
+
         internal static void TP( Player player, Command cmd ) {
-            if( player.Can( Permission.Teleport ) ) {
                 string name = cmd.Next();
                 if( name == null ) {
                     player.Send( PacketWriter.MakeTeleport( 255, player.world.map.spawn ) );
@@ -447,14 +565,19 @@ namespace fCraft {
                         }
                     }
                 }
-            } else {
-                player.NoAccessMessage( Permission.Teleport );
-            }
         }
 
 
+
+        static CommandDescriptor cdBring = new CommandDescriptor {
+            name = "bring",
+            permissions = new Permission[] { Permission.Bring },
+            usage = "/bring PlayerName",
+            help = "Teleports you to a specified player's location. If no name is given, teleports you to map spawn.",
+            handler = TP
+        };
+
         internal static void Bring( Player player, Command cmd ) {
-            if( player.Can( Permission.Bring ) ) {
                 string name = cmd.Next();
                 Player target = player.world.FindPlayer( name );
                 if( target != null ) {
@@ -466,14 +589,22 @@ namespace fCraft {
                 } else {
                     player.NoPlayerMessage( name );
                 }
-            } else {
-                player.NoAccessMessage( Permission.Bring );
-            }
         }
 
 
+
+        static CommandDescriptor cdFreeze = new CommandDescriptor {
+            name = "freeze",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.Freeze },
+            usage = "/freeze PlayerName",
+            help = "Freezes the specified player in place. "+
+                   "This is usually effective, but not hacking-proof. "+
+                   "To release the player, use &H/unfreeze PlayerName",
+            handler = Freeze
+        };
+
         internal static void Freeze( Player player, Command cmd ) {
-            if( player.Can( Permission.Freeze ) ) {
                 string name = cmd.Next();
                 Player target = Server.FindPlayer( name );
                 if( target != null ) {
@@ -486,13 +617,20 @@ namespace fCraft {
                 } else {
                     player.NoPlayerMessage( name );
                 }
-            } else {
-                player.NoAccessMessage( Permission.Freeze );
-            }
         }
 
+
+
+        static CommandDescriptor cdUnfreeze = new CommandDescriptor {
+            name = "unfreeze",
+            consoleSafe=true,
+            permissions = new Permission[] { Permission.Freeze },
+            usage = "/unfreeze PlayerName",
+            help = "Releases the player from a frozen state. See &H/freeze&S for more information.",
+            handler = Unfreeze
+        };
+
         internal static void Unfreeze( Player player, Command cmd ) {
-            if( player.Can( Permission.Freeze ) ) {
                 string name = cmd.Next();
                 Player target = Server.FindPlayer( name );
                 if( target != null ) {
@@ -505,32 +643,47 @@ namespace fCraft {
                 } else {
                     player.NoPlayerMessage( name );
                 }
-            } else {
-                player.NoAccessMessage( Permission.Freeze );
-            }
         }
 
+
+
+        static CommandDescriptor cdHide = new CommandDescriptor {
+            name = "hide",
+            permissions = new Permission[] { Permission.Hide },
+            help = "Enables invisible mode. It looks to other players like you left the server, "+
+                   "but you can still do anything - chat, build, delete, type commands - as usual. "+
+                   "Great way to spy on griefers and scare newbies. "+
+                   "Call &H/unhide&S to reveal yourself.",
+            handler = Hide
+        };
 
         internal static void Hide( Player player, Command cmd ) {
-            if( player.Can( Permission.Hide ) ) {
-                if( !player.isHidden ) {
-                    Server.SendToAll( PacketWriter.MakeRemoveEntity( player.id ), null );
-                    Server.SendToAll( Color.Sys + player.nick + " left the server." );
-                    player.isHidden = true;
-                    player.Message( Color.Gray, "You are now hidden." );
-                    player.nick = player.name;
-                } else {
-                    player.Message( "You are already hidden." );
-                }
+            if( !player.isHidden ) {
+                Server.SendToAll( PacketWriter.MakeRemoveEntity( player.id ), null );
+                Server.SendToAll( Color.Sys + player.nick + " left the server." );
+                player.isHidden = true;
+                player.Message( Color.Gray + "You are now hidden." );
+                player.nick = player.name;
             } else {
-                player.NoAccessMessage( Permission.Hide );
+                player.Message( "You are already hidden." );
             }
         }
+
+
+
+        static CommandDescriptor cdUnhide = new CommandDescriptor {
+            name = "unhide",
+            permissions = new Permission[] { Permission.Hide },
+            usage = "/unhide PlayerName",
+            help = "Disables the &H/hide&S invisible mode. "+
+                   "It looks to other players like you just joined the server.",
+            handler = Unhide
+        };
 
         internal static void Unhide( Player player, Command cmd ) {
             if( player.Can( Permission.Hide ) ) {
                 if( player.isHidden ) {
-                    player.Message( Color.Gray, "You are no longer hidden." );
+                    player.Message( Color.Gray+ "You are no longer hidden." );
                     if( player.nick != player.name ) {
                         player.nick = player.name;
                         player.Message( "For security reasons, your nick was reset." );
@@ -546,6 +699,14 @@ namespace fCraft {
             }
         }
 
+
+
+        static CommandDescriptor cdSetSpawn = new CommandDescriptor {
+            name = "setspawn",
+            permissions = new Permission[] { Permission.SetSpawn },
+            help = "Assigns your current location to be the spawn point of the map/world.",
+            handler = SetSpawn
+        };
 
         internal static void SetSpawn( Player player, Command cmd ) {
             if( player.Can( Permission.SetSpawn ) ) {

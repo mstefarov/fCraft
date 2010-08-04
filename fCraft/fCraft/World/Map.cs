@@ -613,7 +613,7 @@ namespace fCraft {
         sealed class FileInfoComparer : IComparer<FileInfo> {
             public static FileInfoComparer instance = new FileInfoComparer();
             public int Compare( FileInfo x, FileInfo y ) {
-                return x.CreationTime.CompareTo( y.CreationTime );
+                return -x.CreationTime.CompareTo( y.CreationTime );
             }
         }
         #endregion
