@@ -1,5 +1,22 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-08-02
+2010-08-04
+429
+ Feature: Command-handler infrastructure has been redesigned. This will allow much more flexibility for devs and plugin makers later.
+ Feature: "/help commands" now only shows available commands by default. Type "/help commands all" to see all commands.
+ Feature: /worlds command now only available worlds by default. Type "/worlds all" to include worlds inaccessible to you.
+ Feature: Help entries added for /zedit, /mark, /version, /rules, and /say.
+ Feature: ConfigTool World tab columns are now sortable.
+ Fix: Fixed "max backups" in ConfigTool being limited to 100. Now it's at a more reasonable limit of 100000.
+ Fix: Fixed Map.Backup() deleting the newest (instead of the oldest) backup if the total number of files was limited.
+ Fix: Fixed an ERROR that popped up if a player got disconnected during the login process (while player=null).
+ Fix: FormatException crash fixed that caused whole server to go down instead of a player thread.
+ Fix: Several draw-related bugs and crashes fixed.
+ Fix: Fixed crash in /winfo when used on unloaded worlds.
+ Fix: Fixed a bug in Config that caused antigrief to be re-enabled every load.
+ Fix: Fixed a bug in ConfigTool that didn't update AntiGriefSeconds properly when changing between classes.
+ Change: Many /help entries have been improved.
+ Change: Split /class command into two: /classes (aka /ranks) shows a list of classes, and /class (aka /cinfo or /classinfo) shows permission list (missed from last release notes).
+ Change: Added /spawn as an alias for /tp (missed from last release notes).
 428
  Feature: Line wrapping. Yes, finally.
  Feature: Per-class draw limits. Defaults are: owner unlimited, op unlimited, regular 4096 (16x16x16), guest 512 (8*8*8)

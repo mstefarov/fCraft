@@ -348,23 +348,7 @@ namespace fCraft {
             }
         }
 
-
-        // Checks permissions
-        public bool Can( params Permission[] permissions ) {
-            if( world == null ) return true;
-            foreach( Permission permission in permissions ) {
-                if( (permission == Permission.Build || permission == Permission.Delete || permission == Permission.Draw) && world.classBuild.rank > info.playerClass.rank ) {
-                    return false;
-                } else if( !info.playerClass.Can( permission ) ) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public bool CanDraw( int volume ){
-            return (info.playerClass.drawLimit > 0) && (volume > info.playerClass.drawLimit);
-        }
+        
 
         // safety wrapper for session.Send
         public void Send( Packet packet ) {
@@ -454,5 +438,30 @@ namespace fCraft {
             idleTimer = DateTime.UtcNow;
         }
 
+
+
+        #region Permission Checks
+
+        public bool Can( params Permission[] permissions ) {
+            if( world == null ) return true;
+            foreach( Permission permission in permissions ) {
+                if( (permission == Permission.Build || permission == Permission.Delete || permission == Permission.Draw) && world.classBuild.rank > info.playerClass.rank ) {
+                    return false;
+                } else if( !info.playerClass.Can( permission ) ) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public bool CanDraw( int volume ) {
+            return (info.playerClass.drawLimit > 0) && (volume > info.playerClass.drawLimit);
+        }
+
+        public bool CanJoin( World world ) {
+            return info.playerClass.rank >= world.classAccess.rank;
+        }
+
+        #endregion
     }
 }
