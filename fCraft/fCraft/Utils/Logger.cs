@@ -76,6 +76,12 @@ namespace fCraft {
 
         public static void LogConsole( string message ) {
             // TODO: move to log
+            if( message.Contains( "&N" ) ) {
+                foreach( string line in message.Split( PacketWriter.splitter, StringSplitOptions.RemoveEmptyEntries ) ) {
+                    LogConsole( line );
+                }
+                return;
+            }
             string processedMessage = "# ";
             for( int i = 0; i < message.Length; i++ ) {
                 if( message[i] == '&' ) i++;

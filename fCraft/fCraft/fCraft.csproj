@@ -72,11 +72,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CommandDescriptor.cs" />
     <Compile Include="Commands\DrawCommands.cs" />
     <Compile Include="Commands\ImportCommands.cs" />
     <Compile Include="Commands\MapCommands.cs" />
     <Compile Include="Commands\BlockCommands.cs" />
-    <Compile Include="Commands\Commands.cs" />
+    <Compile Include="Commands\CommandList.cs" />
     <Compile Include="Commands\InfoCommands.cs" />
     <Compile Include="Commands\StandardCommands.cs" />
     <Compile Include="MCC\IConverter.cs" />

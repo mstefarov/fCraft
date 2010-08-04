@@ -209,7 +209,7 @@ namespace fCraft {
             if( OnPlayerJoined != null ) OnPlayerJoined( player, this );
 
             if( isLocked ) {
-                player.Message( Color.Red, "This map is currently locked (read-only)." );
+                player.Message( Color.Red + "This map is currently locked (read-only)." );
             }
 
             return true;

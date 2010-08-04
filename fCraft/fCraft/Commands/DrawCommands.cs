@@ -21,57 +21,93 @@ namespace fCraft {
             public Block oldBlock, replacementBlock;
         }
 
+
         internal static void Init() {
-            Commands.AddCommand( "cuboid", Cuboid, false );
-            Commands.AddCommand( "cub", Cuboid, false );
-            Commands.AddCommand( "blb", Cuboid, false );
-            Commands.AddCommand( "c", Cuboid, false );
+            string generalDrawingHelp = "Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode. "+
+                                 "Type " + Color.Help + "/undo" + Color.Sys + " to undo the last draw operation." +
+                                 "Use " + Color.Help + "/lock" + Color.Sys + " to cancel drawing after it started.";
 
-            Commands.AddCommand( "cuboidh", CuboidHollow, false );
-            Commands.AddCommand( "cubh", CuboidHollow, false );
-            Commands.AddCommand( "bhb", CuboidHollow, false );
-            Commands.AddCommand( "h", CuboidHollow, false );
+            cdCuboid.help += generalDrawingHelp;
+            cdCuboidHollow.help += generalDrawingHelp;
+            cdEllipsoid.help += generalDrawingHelp;
+            cdReplace.help += generalDrawingHelp;
 
-            Commands.AddCommand( "replace", Replace, false );
-            Commands.AddCommand( "r", Replace, false );
+            CommandList.RegisterCommand( cdCuboid );
+            CommandList.RegisterCommand( cdCuboidHollow );
+            CommandList.RegisterCommand( cdEllipsoid );
+            CommandList.RegisterCommand( cdReplace );
 
-            Commands.AddCommand( "ellipsoid", Ellipsoid, false );
-            Commands.AddCommand( "ell", Ellipsoid, false );
-            Commands.AddCommand( "e", Ellipsoid, false );
-
-            Commands.AddCommand( "mark", Mark, false );
-            Commands.AddCommand( "m", Mark, false );
-            Commands.AddCommand( "undo", UndoDraw, false );
-            Commands.AddCommand( "cancel", CancelDraw, false );
+            CommandList.RegisterCommand(cdMark);
+            CommandList.RegisterCommand(cdCancel);
+            CommandList.RegisterCommand(cdUndo);
         }
 
+
+
+        static CommandDescriptor cdCuboid = new CommandDescriptor {
+            name = "cuboid",
+            aliases = new string[] { "c", "cub", "blb" },
+            permissions = new Permission[] { Permission.Draw },
+            usage = "/cuboid [BlockName]",
+            help = "Allows to fill a rectangular area (cuboid) with blocks. "+
+                   "If BlockType is omitted, uses the block that player is holding.",
+            handler = Cuboid
+        };
 
         internal static void Cuboid( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Cuboid );
         }
 
-        internal static void Replace( Player player, Command cmd ) {
-            Draw( player, cmd, DrawMode.Replace );
-        }
+
+
+        static CommandDescriptor cdCuboidHollow = new CommandDescriptor {
+            name = "cuboidh",
+            aliases = new string[] { "h", "cubh", "bhb" },
+            permissions = new Permission[] { Permission.Draw },
+            usage = "/cuboidh [BlockName]",
+            help = "Allows to box a rectangular area (cuboid) with blocks. "+
+                   "If BlockType is omitted, uses the block that player is holding.",
+            handler = CuboidHollow
+        };
 
         internal static void CuboidHollow( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.CuboidHollow );
         }
 
+
+
+        static CommandDescriptor cdEllipsoid = new CommandDescriptor {
+            name = "ellipsoid",
+            aliases = new string[] { "e", "ell", "spheroid" },
+            permissions = new Permission[] { Permission.Draw },
+            usage = "/ellipsoid [BlockName]",
+            help = "Allows to fill a sphere-like area (ellipsoid) with blocks. "+
+                   "If BlockType is omitted, uses the block that player is holding.",
+            handler = Ellipsoid
+        };
+
         internal static void Ellipsoid( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Ellipsoid );
         }
 
-        internal static void Fill( Player player, Command cmd ) {
-            Draw( player, cmd, DrawMode.Fill );
+
+
+        static CommandDescriptor cdReplace = new CommandDescriptor {
+            name = "replace",
+            aliases = new string[] { "r" },
+            permissions = new Permission[] { Permission.Draw },
+            usage = "/replace BlockName ReplacementName",
+            help = "Replaces all blocks of specified type in an area.",
+            handler = Replace
+        };
+
+        internal static void Replace( Player player, Command cmd ) {
+            Draw( player, cmd, DrawMode.Replace );
         }
 
 
+
         internal static void Draw( Player player, Command cmd, DrawMode mode ) {
-            if( !player.Can( Permission.Draw ) ) {
-                player.NoAccessMessage( Permission.Draw );
-                return;
-            }
             if( player.drawingInProgress ) {
                 player.Message( "Another draw command is already in progress. Please wait." );
                 return;
@@ -156,6 +192,15 @@ namespace fCraft {
         }
 
 
+
+        static CommandDescriptor cdMark = new CommandDescriptor {
+            name = "mark",
+            aliases = new string[] { "m" },
+            help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. "+
+                   "You can mark in places where making blocks is difficult (e.g. mid-air).",
+            handler = Mark
+        };
+
         internal static void Mark( Player player, Command command ) {
             Position pos = new Position( (short)(player.pos.x / 32), (short)(player.pos.y / 32), (short)(player.pos.h / 32) );
             if( player.drawMarksExpected > 0 ) {
@@ -174,7 +219,15 @@ namespace fCraft {
         }
 
 
-        internal static void CancelDraw( Player player, Command command ) {
+
+        static CommandDescriptor cdCancel = new CommandDescriptor {
+            name = "cancel",
+            help = "Cancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. "+
+                   "If you wish to stop a drawing in-progress, use &H/lock&S instead.",
+            handler = Cancel
+        };
+
+        internal static void Cancel( Player player, Command command ) {
             if( player.drawMarksExpected > 0 ) {
                 player.drawMarksExpected = 0;
             } else {
@@ -183,7 +236,15 @@ namespace fCraft {
         }
 
 
-        internal static void UndoDraw( Player player, Command command ) {
+
+        static CommandDescriptor cdUndo = new CommandDescriptor {
+            name = "undo",
+            help = "Selectively removes changes from your last drawing command. "+
+                   "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
+            handler = Undo
+        };
+
+        internal static void Undo( Player player, Command command ) {
             if( !player.Can( Permission.Draw ) ) {
                 player.NoAccessMessage( Permission.Draw );
                 return;

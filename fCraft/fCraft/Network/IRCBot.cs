@@ -120,7 +120,7 @@ namespace fCraft {
         private static bool FORWARD_IRC;
 
         // Temporary player to act as inside the server
-        public static Player fBot = new Player( null, "fBot" );
+        public static Player fBot;
 
         // Message stacks
         private static List<AuthPkg> authedHosts = new List<AuthPkg>();
@@ -133,6 +133,8 @@ namespace fCraft {
 
         public static void Start() {
             try {
+                fBot = new Player( null, "fBot" );
+
                 // Start IRCCommunications
                 IRCComm.Start();
                 IRCSERVER = IRCComm.GetServer();
@@ -467,39 +469,39 @@ namespace fCraft {
             // Fix this with above 
             switch( message.cmd ) {
                 case (IRCCommand.kick):
-                    Commands.ParseCommand( fBot, "/kick " + command, true );
+                    CommandList.ParseCommand( fBot, "/kick " + command, true );
                     newMessage.chatMessage = " Kicked player: " + command + "!";
                     break;
                 case (IRCCommand.ban):
-                    Commands.ParseCommand( fBot, "/ban " + command, true );
+                    CommandList.ParseCommand( fBot, "/ban " + command, true );
                     newMessage.chatMessage = " Banned(player): " + command + "!";
                     break;
                 case (IRCCommand.banip):
-                    Commands.ParseCommand( fBot, "/banip " + command, true );
+                    CommandList.ParseCommand( fBot, "/banip " + command, true );
                     newMessage.chatMessage = "Banned(ip): " + command + "!";
                     break;
                 case (IRCCommand.banall):
-                    Commands.ParseCommand( fBot, "/banall " + command, true );
+                    CommandList.ParseCommand( fBot, "/banall " + command, true );
                     newMessage.chatMessage = " Banned(all): " + command + "!";
                     break;
                 case (IRCCommand.unban):
-                    Commands.ParseCommand( fBot, "/unban " + command, true );
+                    CommandList.ParseCommand( fBot, "/unban " + command, true );
                     newMessage.chatMessage = " Unbanned: " + command + "!";
                     break;
                 case (IRCCommand.unbanip):
-                    Commands.ParseCommand( fBot, "/unbanip " + command, true );
+                    CommandList.ParseCommand( fBot, "/unbanip " + command, true );
                     newMessage.chatMessage = " Unbanned(ip): " + command + "!";
                     break;
                 case (IRCCommand.unbanall):
-                    Commands.ParseCommand( fBot, "/unbanall " + command, true );
+                    CommandList.ParseCommand( fBot, "/unbanall " + command, true );
                     newMessage.chatMessage = " Unbanned(all): " + command + "!";
                     break;
                 case (IRCCommand.slock):
-                    Commands.ParseCommand( fBot, "/lock " + command, true );
+                    CommandList.ParseCommand( fBot, "/lock " + command, true );
                     newMessage.chatMessage = " Initiated a Lockdown on the server!";
                     break;
                 case (IRCCommand.unlock):
-                    Commands.ParseCommand( fBot, "/unlock " + command, true );
+                    CommandList.ParseCommand( fBot, "/unlock " + command, true );
                     newMessage.chatMessage = " Revoked a Lockdown on the server!";
                     break;
             }

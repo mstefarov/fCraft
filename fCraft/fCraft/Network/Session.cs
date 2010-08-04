@@ -71,6 +71,8 @@ namespace fCraft {
                 LoginSequence();
                 canSend = true;
 
+                if( player == null ) return;
+
                 while( !canDispose ) {
                     Thread.Sleep( 1 );
 
@@ -210,7 +212,7 @@ namespace fCraft {
                                 if( isBetweenWorlds ) continue;
                                 if( type > 49 || x < 0 || x > player.world.map.widthX || y < 0 || y > player.world.map.widthY || h < 0 || h > player.world.map.height ) {
                                     Logger.Log( player.GetLogName() + " was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity );
-                                    Server.SendToAll( player.GetLogName() + " was kicked for attempted hacking.", null );
+                                    Server.SendToAll( player.GetLogName() + " was kicked for attempted hacking." );
                                     KickNow( "Hacking detected: illegal SetTile packet." );
                                     return;
                                 } else {
@@ -310,7 +312,7 @@ namespace fCraft {
                             Logger.Log( "{0} IP did not match. Player was allowed in anyway because VerifyNames is set to Never.",
                                         LogType.SuspiciousActivity,
                                         standardMessage );
-                            player.Message( Color.Red, "Your name could not be verified." );
+                            player.Message( Color.Red + "Your name could not be verified." );
                             Server.SendToAll( Color.Red + "Name and IP of " + player.name + " could not be verified!", player );
                             break;
                     }
@@ -327,7 +329,7 @@ namespace fCraft {
                         case "Never":
                             Logger.Log( "{0} IP matched previous records for that name. Player was allowed in.", LogType.SuspiciousActivity,
                                         standardMessage );
-                            player.Message( Color.Red, "Your name could not be verified." );
+                            player.Message( Color.Red + "Your name could not be verified." );
                             if( Config.GetBool( ConfigKey.AnnounceUnverifiedNames ) ) {
                                 Server.SendToAll( Color.Red + "Name of " + player.name + " could not be verified, but IP matches.", player );
                             }
