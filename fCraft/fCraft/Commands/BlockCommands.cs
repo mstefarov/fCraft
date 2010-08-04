@@ -103,7 +103,7 @@ namespace fCraft {
             name = "lava",
             permissions = new Permission[] { Permission.PlaceLava },
             help = "Toggles the lava placement mode. When enabled, any red block you place is replaced with lava.",
-            handler = Water
+            handler = Lava
         };
 
         internal static void Lava( Player player, Command cmd ) {
