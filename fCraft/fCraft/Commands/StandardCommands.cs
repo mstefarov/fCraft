@@ -574,7 +574,7 @@ namespace fCraft {
             permissions = new Permission[] { Permission.Bring },
             usage = "/bring PlayerName",
             help = "Teleports you to a specified player's location. If no name is given, teleports you to map spawn.",
-            handler = TP
+            handler = Bring
         };
 
         internal static void Bring( Player player, Command cmd ) {

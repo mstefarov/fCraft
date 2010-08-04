@@ -133,7 +133,7 @@ namespace fCraft {
             usage = "/where [PlayerName]",
             help = "Shows information about the location and orientation of a player. "+
                    "If no name is given, shows player's own info.",
-            handler = GetVersion
+            handler = Where
         };
 
         static string compass = "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . " +
@@ -420,11 +420,11 @@ namespace fCraft {
 
         static CommandDescriptor cdClassInfo = new CommandDescriptor {
             name = "cinfo",
-            aliases = new string[]{"class"},
+            aliases = new string[]{"class","classinfo"},
             consoleSafe = true,
             usage = "/cinfo ClassName",
             help = "Shows a list of permissions granted to a class. To see a list of all classes, use &H/classes",
-            handler = BanInfo
+            handler = ClassInfo
         };
 
         // Shows general information about a particular class.
