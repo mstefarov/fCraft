@@ -305,17 +305,17 @@ namespace fCraft {
                 bool first = true;
                 foreach( World world in Server.worlds.Values ) {
                     if( world.isHidden ) continue;
-                    if( first ) {
+                    if( !first ) {
                         line += ", ";
-                        first = false;
                     }
                     if( player.CanJoin( world ) ) {
                         line += world.name;
                     } else if( listAll ) {
                         line += Color.Red + world.name + Color.Sys;
                     }
+                    first = false;
                 }
-                player.Message( line );
+                player.Message( "&S    ", line );
             }
         }
 
