@@ -8,11 +8,10 @@ namespace fCraft {
     delegate void SelectionCallback( Player player, Position[] marks, object tag );
 
     public sealed class Player {
-
         public string name;
         internal Session session;
         public PlayerInfo info;
-        public int id;
+        public int id = -1; // should not default to any valid id
         public Position pos;
         public object locker = new object();
         internal BlockPlacementMode mode;

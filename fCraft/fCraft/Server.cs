@@ -22,7 +22,7 @@ namespace fCraft {
         public static object worldListLock = new object();
 
         const string WorldListFile = "worlds.xml";
-        public static Dictionary<string, World> worlds = new Dictionary<string, World>();
+        public static SortedDictionary<string, World> worlds = new SortedDictionary<string, World>();
         public static World mainWorld;
 
         static TcpListener listener;
@@ -869,17 +869,19 @@ namespace fCraft {
                 if( players.ContainsKey( player.id ) ) {
                     SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
                     if( player.session.showMessageOnDisconnect ) SendToAll( Color.Sys + player.GetLogName() + " left the server." );
-                    Logger.Log( "{0} left the server.", LogType.UserActivity, player.name );
+                    Logger.Log( "{0} left the server.", LogType.UserActivity, player.GetLogName() );
 
-                    // better safe than sorry: go through ALL worlds looking for leftover players
-                    lock( worldListLock ) {
-                        foreach( World world in worlds.Values ) {
-                            world.ReleasePlayer( player );
+                    if( player.session.hasRegistered ) {
+                        // better safe than sorry: go through ALL worlds looking for leftover players
+                        lock( worldListLock ) {
+                            foreach( World world in worlds.Values ) {
+                                world.ReleasePlayer( player );
+                            }
                         }
+                        players.Remove( player.id );
+                        UpdatePlayerList();
                     }
 
-                    players.Remove( player.id );
-                    UpdatePlayerList();
                     PlayerDB.ProcessLogout( player );
                     PlayerDB.Save();
                 } else {
