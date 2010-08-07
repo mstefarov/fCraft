@@ -30,6 +30,7 @@ namespace fCraft {
 
         int fullPositionUpdateCounter;
         const int fullPositionUpdateInterval = 10;
+        internal bool hasRegistered = false;
 
 
         public Session( TcpClient _client ) {
@@ -365,6 +366,7 @@ namespace fCraft {
                 KickNow( "Sorry, server is full (" + Server.playerList.Length + "/" + Config.GetInt( ConfigKey.MaxPlayers ) + ")" );
                 return;
             }
+            hasRegistered = true;
 
             player.info.ProcessLogin( player );
             Server.FirePlayerConnectedEvent( this );
