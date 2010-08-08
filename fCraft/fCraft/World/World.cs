@@ -47,8 +47,12 @@ namespace fCraft {
                     neverUnload;
         public PlayerClass classAccess, classBuild;
 
+        public string lockedBy, unlockedBy;
+        public DateTime lockedDate, unlockedDate;
+
         internal object playerListLock = new object(),
-                        mapLock = new object();
+                        mapLock = new object(),
+                        lockLock = new object();
 
         internal int updateTaskId = -1, saveTaskId = -1, backupTaskId = -1;
         AutoResetEvent waiter = new AutoResetEvent( false );
@@ -139,19 +143,6 @@ namespace fCraft {
                     map.Save( GetMapName() );
                 }
             }
-        }
-
-
-        public void Lock() {
-            isLocked = true;
-            if( map != null ) map.ClearUpdateQueue();
-            SendToAll( Color.Red + "Map is now on lockdown!" );
-        }
-
-
-        public void Unlock() {
-            isLocked = false;
-            SendToAll( "Map lockdown has ended." );
         }
 
 
@@ -397,5 +388,36 @@ namespace fCraft {
             return !cancel;
         }
         #endregion
+
+        public bool Lock( Player player ) {
+            lock( lockLock ) {
+                if( isLocked ) {
+                    return false;
+                } else {
+                    lockedBy = player.name;
+                    lockedDate = DateTime.UtcNow;
+                    isLocked = true;
+                    if( map != null ) map.ClearUpdateQueue();
+                    SendToAll( Color.Red + "Map was locked by " + player.GetLogName() );
+                    Logger.Log( "World \"{0}\" was locked by {1}", LogType.UserActivity, name, player.name );
+                    return true;
+                }
+            }
+        }
+
+        public bool Unlock( Player player ) {
+            lock( lockLock ) {
+                if( isLocked ) {
+                    unlockedBy = player.name;
+                    unlockedDate = DateTime.UtcNow;
+                    isLocked = false;
+                    SendToAll( Color.Red + "Map was unlocked by "+player.GetLogName() );
+                    Logger.Log( "World \"{0}\" was unlocked by {1}", LogType.UserActivity, name, player.name );
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
     }
 }

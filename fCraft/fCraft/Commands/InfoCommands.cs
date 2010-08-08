@@ -30,6 +30,7 @@ namespace fCraft {
 
         static CommandDescriptor cdWorldInfo = new CommandDescriptor {
             name = "winfo",
+            aliases = new string[]{"mapinfo"},
             consoleSafe=true,
             usage = "/winfo [WorldName]",
             help = "Shows information about a world: player count, map dimensions, permissions, etc." +
@@ -55,7 +56,7 @@ namespace fCraft {
                 return;
             }
 
-            player.Message( String.Format( "World \"{0}\" has {1} players on.",
+            player.Message( String.Format( "World \"{0}\" has {1} player(s) on.",
                                            world.name, world.playerList.Length ) );
 
             // If map is not currently loaded, grab its header from disk
@@ -71,15 +72,26 @@ namespace fCraft {
             }
 
             // Print access/build limits
-            if( world.classAccess != ClassList.lowestClass ) {
-                player.Message( String.Format( "Requires players to be ranked {0}{1}&S+ to join.", world.classAccess.color, world.classAccess.name ) );
+            if( world.classAccess == ClassList.lowestClass && world.classBuild == ClassList.lowestClass ) {
+                player.Message( "Anyone can join or build on " + world.name );
             } else {
-                player.Message( "Anyone can join \"" + world.name + "\"." );
+                if( world.classAccess != ClassList.lowestClass ) {
+                    player.Message( String.Format( "Requires players to be ranked {0}{1}&S+ to join.", world.classAccess.color, world.classAccess.name ) );
+                } else {
+                    player.Message( "Anyone can join " + world.name );
+                }
+                if( world.classBuild != ClassList.lowestClass ) {
+                    player.Message( String.Format( "Requires players to be ranked {0}{1}&S+ to build.", world.classBuild.color, world.classBuild.name ) );
+                } else {
+                    player.Message( "Anyone can build on " + world.name );
+                }
             }
-            if( world.classBuild != ClassList.lowestClass ) {
-                player.Message( String.Format( "Requires players to be ranked {0}{1}&S+ to build.", world.classBuild.color, world.classBuild.name ) );
-            } else {
-                player.Message( "Anyone can build on \"" + world.name + "\"." );
+
+            // Print lock/unlock information
+            if( world.isLocked ) {
+                player.Message( string.Format( world.name + " was locked {0:0}min ago by {1}", DateTime.UtcNow.Subtract( world.lockedDate ).TotalMinutes, world.lockedBy ) );
+            } else if( world.unlockedBy!=null ){
+                player.Message( string.Format( world.name + " was unlocked {0:0}min ago by {1}", DateTime.UtcNow.Subtract( world.lockedDate ).TotalMinutes, world.lockedBy ) );
             }
         }
 

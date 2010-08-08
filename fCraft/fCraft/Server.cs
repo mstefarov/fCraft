@@ -749,6 +749,7 @@ namespace fCraft {
         static void ShowRandomAnnouncement( object param ) {
             if( File.Exists( AnnouncementsFile ) ) {
                 string[] lines = File.ReadAllLines( AnnouncementsFile );
+                if( lines.Length == 0 ) return;
                 string line = lines[new Random().Next( 0, lines.Length )];
                 if( line.Trim().Length > 0 ) {
                     if( line.StartsWith( "&" ) ) {

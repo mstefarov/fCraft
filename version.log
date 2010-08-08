@@ -1,5 +1,17 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-08-04
+2010-08-08
+433
+ Feature: /winfo now shows who locked/unlocked the map, and how long ago.
+ Fix: Fixed a error message that showed up when announcements.txt was blank.
+ Fix: Permission check added back to lock/unlock commands.
+ Fix: "mapinfo" added back as alias for /winfo
+ Fix: Fixed locked maps not getting unloaded when all players left
+432
+ Fix: List of worlds printed by /worlds is now sorted alphabetically.
+ Fix: Fixed an obscure half-disconnect bug that left players with id=0 who happened to be on the main world in a semi-disconnected state IF someone else was kicked halfway through the login process before it was assigned an id.
+431
+ Fix: Fixed still messed-up /worlds command.
+ Change: Downgraded standard Session.IoLoop messages that occur on player disconnect from Warning to Debug.
 430
  Fix: Fixed messed-up /worlds command. Sorry about that.
  Change: Downgraded standard Session.IoLoop messages that occur on player disconnect from Warning to Debug.
