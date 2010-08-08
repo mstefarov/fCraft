@@ -523,11 +523,15 @@ namespace fCraft {
 
 
         public void ProcessUpdates() {
+            if( world.isLocked ) {
+                if( world.isReadyForUnload ) world.UnloadMap();
+                return;
+            }
+
             int packetsSent = 0;
             int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate( world );
             BlockUpdate update = new BlockUpdate();
             while( packetsSent < maxPacketsPerUpdate ) {
-                if( world.isLocked ) return;
                 if( !updates.Dequeue( ref update ) ) break;
                 changesSinceSave++;
                 SetBlock( update.x, update.y, update.h, update.type );

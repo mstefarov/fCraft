@@ -49,7 +49,7 @@ namespace fCraft {
             }
             World world = Server.FindWorld( worldName );
             if( world != null ) {
-                if( player.CanJoin(world) ) {
+                if( player.CanJoin( world ) ) {
                     if( !player.session.JoinWorldNow( world, true ) ) {
                         player.Message( "Failed to join world." );
                     }
@@ -805,6 +805,7 @@ namespace fCraft {
         static CommandDescriptor cdLock = new CommandDescriptor {
             name = "lock",
             consoleSafe = true,
+            permissions = new Permission[] { Permission.Lock },
             usage = "/lock [WorldName]",
             help = "Puts the world into a locked, read-only mode. " +
                    "No one can place or delete blocks during lockdown. " +
@@ -830,10 +831,8 @@ namespace fCraft {
                 return;
             }
 
-            if( world.isLocked ) {
+            if( !world.Lock( player ) ) {
                 player.Message( "The world is already locked." );
-            } else {
-                world.Lock();
             }
         }
 
@@ -842,6 +841,7 @@ namespace fCraft {
         static CommandDescriptor cdLockAll = new CommandDescriptor {
             name = "lockall",
             consoleSafe = true,
+            permissions = new Permission[] { Permission.Lock },
             help = "Applies &H/lock&S to all available worlds.",
             handler = LockAll
         };
@@ -849,7 +849,7 @@ namespace fCraft {
         internal static void LockAll( Player player, Command cmd ) {
             lock( Server.worldListLock ) {
                 foreach( World world in Server.worlds.Values ) {
-                    world.Lock();
+                    world.Lock( player );
                 }
             }
             player.Message( "All worlds are now locked." );
@@ -859,7 +859,8 @@ namespace fCraft {
 
         static CommandDescriptor cdUnlock = new CommandDescriptor {
             name = "unlock",
-            consoleSafe=true,
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.Lock },
             usage = "/unlock [WorldName]",
             help = "Removes the lockdown set by &H/lock&S. See &H/help lock&S for more information.",
             handler = Unlock
@@ -882,10 +883,8 @@ namespace fCraft {
                 return;
             }
 
-            if( !world.isLocked ) {
+            if( !world.Unlock( player ) ) {
                 player.Message( "The world is already unlocked." );
-            } else {
-                world.Unlock();
             }
         }
 
@@ -894,6 +893,7 @@ namespace fCraft {
         static CommandDescriptor cdUnlockAll = new CommandDescriptor {
             name = "unlockall",
             consoleSafe = true,
+            permissions = new Permission[] { Permission.Lock },
             help = "Applies &H/unlock&S to all available worlds",
             handler = UnlockAll
         };
@@ -901,7 +901,7 @@ namespace fCraft {
         internal static void UnlockAll( Player player, Command cmd ) {
             lock( Server.worldListLock ) {
                 foreach( World world in Server.worlds.Values ) {
-                    world.Unlock();
+                    world.Unlock( player );
                 }
             }
             player.Message( "All worlds are now unlocked." );
