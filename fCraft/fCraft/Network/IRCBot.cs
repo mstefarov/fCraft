@@ -334,7 +334,7 @@ namespace fCraft {
                     return;
                 } else {
                     SERVERHOST = input.Substring( 6, input.Length - 6 );
-                    if( BOTHOST.Length > 0 ) {
+                    if( BOTHOST != "" ) {
                         newMsg.type = "RAW";
                         newMsg.chatMessage = "PONG :" + BOTHOST + " " + SERVERHOST;
                         newMsg.destination = Destination.RAW;

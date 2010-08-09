@@ -156,7 +156,7 @@ namespace fCraft {
                                         case 3: ctp = (h >= map.shadows[y, dimY1 - x] ? tp : stp); break;
                                     }
 
-                                    if( x != (rot==1||rot==3?dimY1:dimX1) ) blockRight = GetBlock( x + 1, y, h );
+                                    if( x != (rot == 1 || rot == 3 ? dimY1 : dimX1) ) blockRight = GetBlock( x + 1, y, h );
                                     else blockRight = 0;
                                     if( y != (rot == 1 || rot == 3 ? dimX1 : dimY1) ) blockLeft = GetBlock( x, y + 1, h );
                                     else blockLeft = 0;
@@ -268,6 +268,11 @@ namespace fCraft {
                 return imageBmp;
             } finally {
                 imageBmp.UnlockBits( imageData );
+                if( worker.CancellationPending && imageBmp != null ) {
+                    try {
+                        imageBmp.Dispose();
+                    } catch { }
+                }
             }
         }
 
