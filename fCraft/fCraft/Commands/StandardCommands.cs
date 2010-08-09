@@ -302,7 +302,7 @@ namespace fCraft {
                     address = info.lastIP;
                     if( banIP ) DoIPBan( player, address, reason, info.name, banAll, unban );
                     if( unban ) {
-                        if( info.ProcessUnBan( player.name, reason ) ) {
+                        if( info.ProcessUnban( player.name, reason ) ) {
                             Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity, info.name, player.GetLogName() );
                             Server.SendToAll( Color.Red + info.name + " (offline) was unbanned by " + player.nick );
                         } else {
@@ -338,7 +338,7 @@ namespace fCraft {
                 }
                 if( banAll ) {
                     foreach( PlayerInfo otherInfo in PlayerDB.FindPlayersByIP( address ) ) {
-                        if( otherInfo.ProcessUnBan( player.name, reason + "~UnBanAll" ) ) {
+                        if( otherInfo.ProcessUnban( player.name, reason + "~UnBanAll" ) ) {
                             player.Message( otherInfo.name + " matched the IP and was also unbanned." );
                         }
                     }

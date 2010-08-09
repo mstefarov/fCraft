@@ -284,11 +284,14 @@ namespace fCraft {
             blockNames["sappling"] = Block.Plant;
             blockNames["adminium"] = Block.Admincrete;
             blockNames["opcrete"] = Block.Admincrete;
+            blockNames["gold_ore"] = Block.GoldOre;
+            blockNames["iron_ore"] = Block.IronOre;
             blockNames["ore"] = Block.IronOre;
             blockNames["coals"] = Block.Coal;
             blockNames["coalore"] = Block.Coal;
             blockNames["blackore"] = Block.Coal;
 
+            blockNames["tree"] = Block.Log;
             blockNames["trunk"] = Block.Log;
             blockNames["stump"] = Block.Log;
             blockNames["treestump"] = Block.Log;
@@ -296,17 +299,28 @@ namespace fCraft {
 
             blockNames["leaf"] = Block.Leaves;
             blockNames["foliage"] = Block.Leaves;
+
+            blockNames["greenyellow"] = Block.Lime;
+            blockNames["yellowgreen"] = Block.Lime;
+            blockNames["springgreen"] = Block.Teal;
+            blockNames["purple"] = Block.Violet;
             blockNames["grey"] = Block.Gray;
+
+            blockNames["yellow_flower"] = Block.YellowFlower;
             blockNames["flower"] = Block.YellowFlower;
+            blockNames["red_flower"] = Block.RedFlower;
 
             blockNames["mushroom"] = Block.BrownMushroom;
             blockNames["shroom"] = Block.BrownMushroom;
+            blockNames["brown_shroom"] = Block.BrownMushroom;
+            blockNames["red_shroom"] = Block.BrownMushroom;
 
             blockNames["iron"] = Block.Steel;
             blockNames["metal"] = Block.Steel;
             blockNames["silver"] = Block.Steel;
 
             blockNames["slab"] = Block.Stair;
+            blockNames["double_stair"] = Block.DoubleStair;
             blockNames["slabs"] = Block.DoubleStair;
             blockNames["stairs"] = Block.DoubleStair;
 
@@ -326,6 +340,8 @@ namespace fCraft {
             blockNames["mossyrock"] = Block.MossyRocks;
             blockNames["mossystone"] = Block.MossyRocks;
             blockNames["mossystones"] = Block.MossyRocks;
+            blockNames["mossycobblestone"] = Block.MossyRocks;
+            blockNames["mossy_cobblestone"] = Block.MossyRocks;
         }
 
 

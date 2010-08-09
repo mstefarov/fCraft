@@ -209,7 +209,11 @@ namespace ConfigTool {
 
         void AsyncDrawCompleted( object sender, RunWorkerCompletedEventArgs e ) {
             tStatus2.Text = "";
-            preview.Image = previewImage;
+            if( previewImage != null && previewImage != preview.Image ) {
+                Image oldImage = preview.Image;
+                if( oldImage != null ) oldImage.Dispose();
+                preview.Image = previewImage;
+            }
             progressBar.Visible = false;
         }
 

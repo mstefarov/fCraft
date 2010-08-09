@@ -132,8 +132,8 @@ namespace fCraft {
             if( fields[8] != "-" ) unbanDate = DateTime.Parse( fields[8] );
             else unbanDate = DateTime.MinValue;
             unbannedBy = fields[9];
-            banReason = UnEscape(fields[10]);
-            unbanReason = UnEscape(fields[11]);
+            banReason = Unescape(fields[10]);
+            unbanReason = Unescape(fields[11]);
 
             if( fields[12] != "-" ) lastFailedLoginDate = DateTime.Parse( fields[12] );
             else lastFailedLoginDate = DateTime.MinValue;
@@ -234,7 +234,7 @@ namespace fCraft {
         }
         
 
-        public bool ProcessUnBan( string _unbannedBy, string _unbanReason ) {
+        public bool ProcessUnban( string _unbannedBy, string _unbanReason ) {
             if( banned ) {
                 banned = false;
                 unbannedBy = _unbannedBy;
@@ -262,7 +262,7 @@ namespace fCraft {
             return str.Replace("\\","\\\\").Replace("'","\\'");
         }
 
-        public static string UnEscape( string str ) {
+        public static string Unescape( string str ) {
             return str.Replace( "\\'", "'" ).Replace( "\\\\", "\\" );
         }
     }

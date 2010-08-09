@@ -47,8 +47,8 @@ namespace fCraft {
 
         YellowFlower = 37,
         RedFlower = 38,
-        RedMushroom = 39,
-        BrownMushroom = 40,
+        BrownMushroom = 39,
+        RedMushroom = 40,
         
         Gold = 41,
         Steel = 42,
