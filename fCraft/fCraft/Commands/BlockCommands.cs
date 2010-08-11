@@ -130,11 +130,7 @@ namespace fCraft {
             Block originalBlock, replacementBlock;
             if( !cmd.NextBlockType(out originalBlock)) {
                     player.Message( "All bindings have been reset." );
-                    foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
-                        if( block != Block.Undefined ) {
-                            player.ResetBind( block );
-                        }
-                    }
+                    player.ResetAllBinds();
                 return;
             }else if( originalBlock == Block.Undefined ) {
                 player.Message( "Unrecognized original block name." );
