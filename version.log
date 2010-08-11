@@ -1,5 +1,8 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-08-08
+2010-08-11
+434
+ Feature: new /bind command allows mapping any block to any other. Now you can place those unbuildable blocks (water, lava, grass, double-step) in any way you wish. For compatibility, old commands (/water, /solid, /lava, /grass) have been preserved.
+ Change: "step" added as an alias for Stair block. "doublestep" added as an alias for DoubleStair.
 433
  Feature: /winfo now shows who locked/unlocked the map, and how long ago.
  Fix: Fixed a error message that showed up when announcements.txt was blank.

@@ -68,16 +68,19 @@ namespace Mcc {
         public static Map TryLoading( string fileName ) {
             Stream MapStream = File.OpenRead( fileName );
             string ext = new FileInfo( fileName ).Extension;
+            // first try all converters for the file extension
             foreach ( IConverter Converter in AvailableConverters.Values ) {
                 if( Converter.FileExtension == ext  && Converter.Claims( MapStream ) ) {
                     return Converter.Load( MapStream );
                 }
             }
+            // then try the rest
             foreach( IConverter Converter in AvailableConverters.Values ) {
                 if( Converter.FileExtension != ext && Converter.Claims( MapStream ) ) {
                     return Converter.Load( MapStream );
                 }
             }
+            // if all else fails
             throw new FormatException();
         }
 

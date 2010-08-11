@@ -62,6 +62,20 @@ namespace fCraft {
             return "";
         }
 
+        public bool NextBlockType( out Block block ) {
+            block = Block.Undefined;
+            string blockName = Next();
+            if( blockName == null ) {
+                return false;
+            }
+            try {
+                block = Map.GetBlockByName( blockName );
+                return true;
+            } catch( Exception ) {
+                return false;
+            }
+        }
+
 
         // Resets the argument offset. After calling Rewind, arguments can be read from the beginning again.
         public void Rewind() {
