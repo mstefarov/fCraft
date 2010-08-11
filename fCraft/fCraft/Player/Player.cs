@@ -58,6 +58,7 @@ namespace fCraft {
             nick = name;
             info = new PlayerInfo( _name, ClassList.highestClass );
             spamBlockLog = new Queue<DateTime>( info.playerClass.antiGriefBlocks );
+            ResetAllBinds();
         }
 
 
@@ -70,6 +71,7 @@ namespace fCraft {
             pos = _pos;
             info = PlayerDB.FindPlayerInfo( this );
             spamBlockLog = new Queue<DateTime>( info.playerClass.antiGriefBlocks );
+            ResetAllBinds();
         }
 
 
@@ -435,6 +437,13 @@ namespace fCraft {
             return bindings[(byte)type];
         }
 
+        public void ResetAllBinds() {
+            foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
+                if( block != Block.Undefined ) {
+                    ResetBind( block );
+                }
+            }
+        }
 
         #region Permission Checks
 
