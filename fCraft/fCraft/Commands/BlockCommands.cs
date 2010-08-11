@@ -3,14 +3,6 @@ using System;
 
 
 namespace fCraft {
-    enum BlockPlacementMode {
-        Normal,
-        Grass,
-        Lava,
-        Solid,
-        Water
-    }
-
     static class BlockCommands {
 
         internal static void Init(){
@@ -19,6 +11,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdGrass );
             CommandList.RegisterCommand( cdWater );
             CommandList.RegisterCommand( cdLava );
+            CommandList.RegisterCommand( cdBind );
         }
 
 
@@ -33,12 +26,12 @@ namespace fCraft {
         };
 
         internal static void Solid( Player player, Command cmd ) {
-            if( player.mode == BlockPlacementMode.Solid ){
-                player.mode = BlockPlacementMode.Normal;
+            if( player.GetBind( Block.Stone ) == Block.Admincrete ) {
+                player.ResetBind( Block.Stone );
                 player.Message( "Solid: OFF" );
             } else {
-                player.mode = BlockPlacementMode.Solid;
-                player.Message( "Solid: ON" );
+                player.Bind( Block.Stone, Block.Admincrete );
+                player.Message( "Solid: ON. Stone blocks are replaced with admincrete." );
             }
         }
 
@@ -69,11 +62,11 @@ namespace fCraft {
         };
 
         internal static void Grass( Player player, Command cmd ) {
-            if( player.mode == BlockPlacementMode.Grass ) {
-                player.mode = BlockPlacementMode.Normal;
+            if( player.GetBind( Block.Dirt ) == Block.Grass ) {
+                player.ResetBind( Block.Dirt );
                 player.Message( "Grass: OFF" );
             } else {
-                player.mode = BlockPlacementMode.Grass;
+                player.Bind( Block.Dirt, Block.Grass );
                 player.Message( "Grass: ON. Dirt blocks are replaced with grass." );
             }
         }
@@ -88,11 +81,15 @@ namespace fCraft {
         };
 
         internal static void Water( Player player, Command cmd ) {
-            if( player.mode == BlockPlacementMode.Water ) {
-                player.mode = BlockPlacementMode.Normal;
+            if( player.GetBind( Block.Aqua ) == Block.Water ||
+                player.GetBind( Block.Cyan ) == Block.Water ||
+                player.GetBind( Block.Blue ) == Block.Water ) {
+                player.ResetBind( Block.Aqua, Block.Cyan, Block.Blue );
                 player.Message( "Water: OFF" );
             } else {
-                player.mode = BlockPlacementMode.Water;
+                player.Bind( Block.Aqua, Block.Water );
+                player.Bind( Block.Cyan, Block.Water );
+                player.Bind( Block.Blue, Block.Water );
                 player.Message( "Water: ON. Blue blocks are replaced with water." );
             }
         }
@@ -107,12 +104,74 @@ namespace fCraft {
         };
 
         internal static void Lava( Player player, Command cmd ) {
-            if( player.mode == BlockPlacementMode.Lava ) {
-                player.mode = BlockPlacementMode.Normal;
-                player.Message( "Lava: OFF." );
+            if( player.GetBind( Block.Red ) == Block.Lava ){
+                player.ResetBind( Block.Red );
+                player.Message( "Lava: OFF" );
             } else {
-                player.mode = BlockPlacementMode.Lava;
+                player.Bind( Block.Red, Block.Lava );
                 player.Message( "Lava: ON. Red blocks are replaced with lava." );
+            }
+        }
+
+
+
+        static CommandDescriptor cdBind = new CommandDescriptor {
+            name = "bind",
+            aliases = new string[] { "b" },
+            permissions = new Permission[] { Permission.Build },
+            help = "Assigns one blocktype to another. "+
+                   "Allows to build blocktypes that are not normally buildable directly: admincrete, lava, water, grass, double step. "+
+                   "Calling &H/bind BlockType&S without second parameter resets the binding. If used with no params, ALL bindings are reset.",
+            usage = "/bind OriginalBlockType ReplacementBlockType",
+            handler = Bind
+        };
+
+        internal static void Bind( Player player, Command cmd ){
+            Block originalBlock, replacementBlock;
+            if( !cmd.NextBlockType(out originalBlock)) {
+                    player.Message( "All bindings have been reset." );
+                    foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
+                        if( block != Block.Undefined ) {
+                            player.ResetBind( block );
+                        }
+                    }
+                return;
+            }else if( originalBlock == Block.Undefined ) {
+                player.Message( "Unrecognized original block name." );
+                return;
+            }
+
+            if( !cmd.NextBlockType( out replacementBlock ) ) {
+                if( player.GetBind( originalBlock ) != originalBlock ) {
+                    player.Message( originalBlock.ToString() + " is no longer bound to " + player.GetBind( originalBlock ).ToString() );
+                    player.ResetBind( originalBlock );
+                } else {
+                    player.Message( originalBlock.ToString() + " is not bound to anything." );
+                }
+            } else if( replacementBlock == Block.Undefined ) {
+                player.Message( "Unrecognized replacement block name." );
+            }else{
+                Permission permission = Permission.Build;
+                switch( replacementBlock ) {
+                    case Block.Grass:
+                        permission = Permission.PlaceGrass;
+                        break;
+                    case Block.Admincrete:
+                        permission = Permission.PlaceAdmincrete;
+                        break;
+                    case Block.Water:
+                        permission = Permission.PlaceWater;
+                        break;
+                    case Block.Lava:
+                        permission = Permission.PlaceLava;
+                        break;
+                }
+                if( player.Can( permission ) ) {
+                    player.Bind( originalBlock, replacementBlock );
+                    player.Message( originalBlock.ToString() + " is now replaced with " + replacementBlock.ToString() );
+                }else{
+                    player.Message( Color.Red + "You do not have " + permission.ToString() + " permission." );
+                }
             }
         }
     }

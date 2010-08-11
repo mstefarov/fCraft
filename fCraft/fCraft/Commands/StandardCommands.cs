@@ -504,8 +504,6 @@ namespace fCraft {
 
                 if( target != null ) {
                     target.Send( PacketWriter.MakeSetPermission( target ) );
-
-                    target.mode = BlockPlacementMode.Normal;
                     if( promote ) {
                         target.Message( "You have been promoted to " + newClass.color + newClass.name + Color.Sys + " by " + player.GetLogName() );
                     } else {

@@ -14,7 +14,6 @@ namespace fCraft {
         public int id = -1; // should not default to any valid id
         public Position pos;
         public object locker = new object();
-        internal BlockPlacementMode mode;
         public bool replaceMode,
                     isFrozen,
                     isHidden;
@@ -23,6 +22,8 @@ namespace fCraft {
         public string nick;
         internal DateTime idleTimer = DateTime.UtcNow;
         internal Block lastUsedBlockType;
+
+        internal Block[] bindings = new Block[50];
 
         const int maxRange = 6 * 32;
 
@@ -145,34 +146,15 @@ namespace fCraft {
             }
 
             bool can = true;
-            bool update = true;
+
+            // block replacement
+            bool update = (type != bindings[(byte)type]);
+            type = bindings[(byte)type];
+
             if( type == Block.Air ) buildMode = false;
 
-            // handle special placement modes
-            switch( mode ) {
-                case BlockPlacementMode.Grass:
-                    if( type == Block.Dirt )
-                        type = Block.Grass;
-                    break;
-                case BlockPlacementMode.Lava:
-                    if( type == Block.Orange || type == Block.Red )
-                        type = Block.Lava;
-                    break;
-                case BlockPlacementMode.Solid:
-                    if( type == Block.Stone )
-                        type = Block.Admincrete;
-                    break;
-                case BlockPlacementMode.Water:
-                    if( type == Block.Aqua || type == Block.Cyan || type == Block.Blue )
-                        type = Block.Water;
-                    break;
-                default:
-                    update = false;
-                    break;
-            }
-
             // check if the user has the permission to BUILD the block
-            if( buildMode || replaceMode ) {
+            if( buildMode ) {
                 if( type == Block.Lava || type == Block.StillLava ) {
                     can = Can( Permission.PlaceLava );
                 } else if( type == Block.Water || type == Block.StillWater ) {
@@ -437,6 +419,21 @@ namespace fCraft {
             idleTimer = DateTime.UtcNow;
         }
 
+
+        // bindings
+        public void Bind( Block type, Block replacement ) {
+            bindings[(byte)type] = replacement;
+        }
+
+        public void ResetBind( params Block[] types ) {
+            foreach( Block type in types ) {
+                bindings[(byte)type] = type;
+            }
+        }
+
+        public Block GetBind( Block type ) {
+            return bindings[(byte)type];
+        }
 
 
         #region Permission Checks

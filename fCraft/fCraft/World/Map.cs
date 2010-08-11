@@ -264,8 +264,10 @@ namespace fCraft {
         #region Utilities
         static Dictionary<string, Block> blockNames = new Dictionary<string, Block>();
         static Map() {
-            foreach( string block in Enum.GetNames( typeof( Block ) ) ) {
-                blockNames.Add( block.ToLower(), (Block)Enum.Parse( typeof( Block ), block ) );
+            foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
+                if( block != Block.Undefined ) {
+                    blockNames.Add( block.ToString().ToLower(), block );
+                }
             }
 
             // alternative names for some blocks
@@ -319,10 +321,12 @@ namespace fCraft {
             blockNames["metal"] = Block.Steel;
             blockNames["silver"] = Block.Steel;
 
+            blockNames["step"] = Block.Stair;
+            blockNames["doublestep"] = Block.DoubleStair;
             blockNames["slab"] = Block.Stair;
-            blockNames["double_stair"] = Block.DoubleStair;
             blockNames["slabs"] = Block.DoubleStair;
             blockNames["stairs"] = Block.DoubleStair;
+            blockNames["double_stair"] = Block.DoubleStair;
 
             blockNames["bricks"] = Block.Brick;
             blockNames["explosive"] = Block.TNT;
