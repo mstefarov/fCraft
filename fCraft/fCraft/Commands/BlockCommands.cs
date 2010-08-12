@@ -44,8 +44,8 @@ namespace fCraft {
         };
 
         internal static void Paint( Player player, Command cmd ) {
-            player.replaceMode = !player.replaceMode;
-            if( player.replaceMode ){
+            player.isPainting = !player.isPainting;
+            if( player.isPainting ){
                 player.Message( "Replacement mode: ON" );
             } else {
                 player.Message( "Replacement mode: OFF" );
@@ -133,19 +133,19 @@ namespace fCraft {
                     player.ResetAllBinds();
                 return;
             }else if( originalBlock == Block.Undefined ) {
-                player.Message( "Unrecognized original block name." );
+                player.Message( "Bind: Unrecognized original block name." );
                 return;
             }
 
             if( !cmd.NextBlockType( out replacementBlock ) ) {
                 if( player.GetBind( originalBlock ) != originalBlock ) {
-                    player.Message( originalBlock.ToString() + " is no longer bound to " + player.GetBind( originalBlock ).ToString() );
+                    player.Message( "{0} is no longer bound to {1}", originalBlock, player.GetBind( originalBlock ) );
                     player.ResetBind( originalBlock );
                 } else {
-                    player.Message( originalBlock.ToString() + " is not bound to anything." );
+                    player.Message( "{0} is not bound to anything.", originalBlock );
                 }
             } else if( replacementBlock == Block.Undefined ) {
-                player.Message( "Unrecognized replacement block name." );
+                player.Message( "Bind: Unrecognized replacement block name." );
             }else{
                 Permission permission = Permission.Build;
                 switch( replacementBlock ) {
@@ -164,7 +164,7 @@ namespace fCraft {
                 }
                 if( player.Can( permission ) ) {
                     player.Bind( originalBlock, replacementBlock );
-                    player.Message( originalBlock.ToString() + " is now replaced with " + replacementBlock.ToString() );
+                    player.Message( "{0} is now replaced with {1}", originalBlock, replacementBlock );
                 }else{
                     player.Message( Color.Red + "You do not have " + permission.ToString() + " permission." );
                 }

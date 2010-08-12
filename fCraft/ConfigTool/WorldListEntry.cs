@@ -6,7 +6,7 @@ using fCraft;
 
 
 namespace ConfigTool {
-    class WorldListEntry {
+    sealed class WorldListEntry {
         public const string DefaultClassOption = "(everyone)";
         Map cachedMapHeader;
         internal bool loadingFailed;

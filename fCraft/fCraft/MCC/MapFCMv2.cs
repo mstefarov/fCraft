@@ -39,8 +39,8 @@ using fCraft;
 
 namespace Mcc {
     public sealed class MapFCMv2 : IConverter {
-
-        public const uint Identifier = 0xfc000002u;
+        [CLSCompliantAttribute( false )]
+        public const uint Identifier = 0xfc000002;
 
         public MapFormat Format {
             get { return MapFormat.FCMv2; }

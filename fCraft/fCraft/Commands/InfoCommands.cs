@@ -3,6 +3,7 @@ using System;
 using System.Net;
 using System.IO;
 using System.Collections.Generic;
+using System.Text;
 
 
 namespace fCraft {
@@ -199,9 +200,9 @@ namespace fCraft {
 
             if( commandName == "commands" ) {
                 if( cmd.Next() != null ) {
-                    player.Message( "&S    ", "List of all available commands:&N" + CommandList.GetCommandList( player, true ) );
+                    player.MessagePrefixed( "&S    ", "List of all available commands:&N" + CommandList.GetCommandList( player, true ) );
                 } else {
-                    player.Message( "&S    ", "List of all commands:&N" + CommandList.GetCommandList( player, false ) );
+                    player.MessagePrefixed( "&S    ", "List of all commands:&N" + CommandList.GetCommandList( player, false ) );
                 }
 
             } else if( commandName != null ) {
@@ -228,7 +229,7 @@ namespace fCraft {
                 } else {
                     helpString += descriptor.help;
                 }
-                player.Message( HelpPrefix, helpString );
+                player.MessagePrefixed( HelpPrefix, helpString );
 
             } else {
                 player.Message( "To see a list of all commands, write " + Color.Help + "/help commands" );
@@ -444,21 +445,19 @@ namespace fCraft {
             PlayerClass playerClass = ClassList.FindClass( cmd.Next() );
             if( playerClass != null ) {
                 player.Message( "Players of class \"" + playerClass.name + "\" can do the following:" );
-                string line = "";
+
+                bool first = true;
+                StringBuilder sb = new StringBuilder();
                 for( int i = 0; i < playerClass.permissions.Length; i++ ) {
                     if( playerClass.permissions[i] ) {
-                        string addition = Enum.GetName( typeof( Permission ), (Permission)i ).ToLower();
-                        if( line.Length + addition.Length > 62 ) {
-                            player.Message( line.Substring( 0, line.Length - 2 ) );
-                            line = addition + ", ";
-                        } else {
-                            line += addition + ", ";
+                        sb.Append( (Permission)i );
+                        if( !first ) {
+                            sb.Append( ", " );
                         }
+                        first = false;
                     }
                 }
-                if( line.Length > 2 ) {
-                    player.Message( line.Substring( 0, line.Length - 2 ) );
-                }
+                player.Message( sb.ToString() );
             }
         }
 

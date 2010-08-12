@@ -566,30 +566,6 @@ namespace fCraft {
                 world.UnloadMap();
             }
         }
-
-
-        public int CompareAndUpdate( Map other ) {
-            int totalBlockUpdates = 0;
-            int step = 8;
-            for( int x = 0; x < widthX; x += step ) {
-                for( int y = 0; y < widthY; y += step ) {
-                    for( int h = 0; h < height; h++ ) {
-
-                        for( int x2 = 0; x2 < step; x2++ ) {
-                            for( int y2 = 0; y2 < step; y2++ ) {
-                                int index = Index( x + x2, y + y2, h );
-                                if( blocks[index] != other.blocks[index] ) {
-                                    QueueUpdate( new BlockUpdate( null, x + x2, y + y2, h, other.blocks[index] ) );
-                                    totalBlockUpdates++;
-                                }
-                            }
-                        }
-
-                    }
-                }
-            }
-            return totalBlockUpdates;
-        }
         #endregion
 
         #region Backup

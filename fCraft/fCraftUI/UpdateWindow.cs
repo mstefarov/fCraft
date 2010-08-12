@@ -9,7 +9,7 @@ using fCraft;
 
 
 namespace fCraftUI {
-    public partial class UpdateWindow : Form {
+    public sealed partial class UpdateWindow : Form {
         UpdaterResult update;
         static string UpdaterFile = "Updater.exe";
         WebClient downloader = new WebClient();

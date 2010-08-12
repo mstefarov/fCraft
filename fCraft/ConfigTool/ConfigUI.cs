@@ -11,7 +11,7 @@ using Color = System.Drawing.Color;
 
 
 namespace ConfigTool {
-    public partial class ConfigUI : Form {
+    public sealed partial class ConfigUI : Form {
         static ConfigUI instance;
         Font bold;
         PlayerClass selectedClass, defaultClass;

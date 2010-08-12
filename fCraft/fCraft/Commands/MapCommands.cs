@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
 using System.IO;
+using System.Text;
 
 
 namespace fCraft {
@@ -295,27 +296,27 @@ namespace fCraft {
         internal static void WorldList( Player player, Command cmd ) {
             lock( Server.worldListLock ) {
                 bool listAll = (cmd.Next() != null);
-                string line;
+                StringBuilder sb = new StringBuilder();
                 if( listAll ) {
-                    line = "List of all worlds: ";
+                    sb.Append("List of all worlds: ");
                 } else {
-                    line = "List of available worlds: ";
+                    sb.Append("List of available worlds: ");
                 }
 
                 bool first = true;
                 foreach( World world in Server.worlds.Values ) {
                     if( world.isHidden ) continue;
                     if( !first ) {
-                        line += ", ";
+                        sb.Append( ", " );
                     }
                     if( player.CanJoin( world ) ) {
-                        line += world.name;
+                        sb.Append( world.name );
                     } else if( listAll ) {
-                        line += Color.Red + world.name + Color.Sys;
+                        sb.Append( Color.Red ).Append( world.name ).Append( Color.Sys );
                     }
                     first = false;
                 }
-                player.Message( "&S    ", line );
+                player.MessagePrefixed( "&S    ", sb.ToString() );
             }
         }
 
@@ -577,11 +578,11 @@ namespace fCraft {
 
             if( minRank != null ) {
                 zone.build = minRank;
-                player.drawArgs = zone;
-                player.drawMarksExpected = 2;
-                player.drawMarks.Clear();
-                player.drawMarkCount = 0;
-                player.drawCallback = ZoneAddCallback;
+                player.selectionArgs = zone;
+                player.selectionMarksExpected = 2;
+                player.selectionMarks.Clear();
+                player.selectionMarkCount = 0;
+                player.selectionCallback = ZoneAddCallback;
                 player.Message( "Zone: Place a block or type /mark to use your location." );
             } else {
                 player.Message( "Unknown player class: " + property );
@@ -613,10 +614,10 @@ namespace fCraft {
         };
 
         static void ZoneTest( Player player, Command cmd ) {
-            player.drawMarksExpected = 1;
-            player.drawMarks.Clear();
-            player.drawMarkCount = 0;
-            player.drawCallback = ZoneTestCallback;
+            player.selectionMarksExpected = 1;
+            player.selectionMarks.Clear();
+            player.selectionMarkCount = 0;
+            player.selectionCallback = ZoneTestCallback;
             player.Message( "Click the block that you would like to test." );
         }
 

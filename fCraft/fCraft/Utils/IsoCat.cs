@@ -38,7 +38,7 @@ namespace fCraft {
         Cut
     }
 
-    unsafe public class IsoCat {
+    unsafe public sealed class IsoCat {
         static byte[] tiles, stiles;
         static int tileX, tileY;
         static int maxTileDim;

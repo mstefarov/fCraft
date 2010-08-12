@@ -12,7 +12,7 @@ using fCraft;
 
 namespace fCraftUI {
 
-    public partial class MainForm : Form {
+    public sealed partial class MainForm : Form {
         bool shuttingDown;
         const int MaxLinesInLog = 2000;
 

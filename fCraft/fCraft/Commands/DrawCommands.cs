@@ -8,22 +8,34 @@ namespace fCraft {
         Cuboid,
         CuboidHollow,
         Ellipsoid,
-        Fill,
         Replace
     }
+
+
+    class CopyInformation {
+        public byte[, ,] buffer;
+        public int widthX, widthY, height;
+    }
+
+
+    struct ReplaceArgs {
+        public Block oldBlock, replacementBlock;
+    }
+
+    struct PasteArgs {
+        public bool doInclude, doExclude;
+        public Block type;
+    }
+
 
     static class DrawCommands {
 
         const int MaxUndoCount = 2000000;
         const int DrawStride = 16;
 
-        public class ReplaceArgs {
-            public Block oldBlock, replacementBlock;
-        }
-
 
         internal static void Init() {
-            string generalDrawingHelp = "Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode. "+
+            string generalDrawingHelp = "Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode. " +
                                  "Type " + Color.Help + "/undo" + Color.Sys + " to undo the last draw operation." +
                                  "Use " + Color.Help + "/lock" + Color.Sys + " to cancel drawing after it started.";
 
@@ -37,11 +49,13 @@ namespace fCraft {
             CommandList.RegisterCommand( cdEllipsoid );
             CommandList.RegisterCommand( cdReplace );
 
-            CommandList.RegisterCommand(cdMark);
-            CommandList.RegisterCommand(cdCancel);
-            CommandList.RegisterCommand(cdUndo);
-        }
+            CommandList.RegisterCommand( cdMark );
+            CommandList.RegisterCommand( cdCancel );
+            CommandList.RegisterCommand( cdUndo );
 
+            CommandList.RegisterCommand( cdCopy );
+            CommandList.RegisterCommand( cdPaste );
+        }
 
 
         static CommandDescriptor cdCuboid = new CommandDescriptor {
@@ -49,7 +63,7 @@ namespace fCraft {
             aliases = new string[] { "c", "cub", "blb" },
             permissions = new Permission[] { Permission.Draw },
             usage = "/cuboid [BlockName]",
-            help = "Allows to fill a rectangular area (cuboid) with blocks. "+
+            help = "Allows to fill a rectangular area (cuboid) with blocks. " +
                    "If BlockType is omitted, uses the block that player is holding.",
             handler = Cuboid
         };
@@ -65,7 +79,7 @@ namespace fCraft {
             aliases = new string[] { "h", "cubh", "bhb" },
             permissions = new Permission[] { Permission.Draw },
             usage = "/cuboidh [BlockName]",
-            help = "Allows to box a rectangular area (cuboid) with blocks. "+
+            help = "Allows to box a rectangular area (cuboid) with blocks. " +
                    "If BlockType is omitted, uses the block that player is holding.",
             handler = CuboidHollow
         };
@@ -81,7 +95,7 @@ namespace fCraft {
             aliases = new string[] { "e", "ell", "spheroid" },
             permissions = new Permission[] { Permission.Draw },
             usage = "/ellipsoid [BlockName]",
-            help = "Allows to fill a sphere-like area (ellipsoid) with blocks. "+
+            help = "Allows to fill a sphere-like area (ellipsoid) with blocks. " +
                    "If BlockType is omitted, uses the block that player is holding.",
             handler = Ellipsoid
         };
@@ -122,7 +136,7 @@ namespace fCraft {
                 try {
                     block = Map.GetBlockByName( blockName );
                 } catch( Exception ) {
-                    player.Message( "Unknown block name: " + blockName );
+                    player.Message( "Draw: Unrecognized block name: " + blockName );
                     return;
                 }
 
@@ -146,23 +160,19 @@ namespace fCraft {
                 return;
             }
 
-            player.drawArgs = (byte)block;
+            player.selectionArgs = (byte)block;
             switch( mode ) {
                 case DrawMode.Cuboid:
-                    player.drawCallback = DrawCuboid;
-                    player.drawMarksExpected = 2;
+                    player.selectionCallback = DrawCuboid;
+                    player.selectionMarksExpected = 2;
                     break;
                 case DrawMode.CuboidHollow:
-                    player.drawCallback = DrawCuboidHollow;
-                    player.drawMarksExpected = 2;
+                    player.selectionCallback = DrawCuboidHollow;
+                    player.selectionMarksExpected = 2;
                     break;
                 case DrawMode.Ellipsoid:
-                    player.drawCallback = DrawEllipsoid;
-                    player.drawMarksExpected = 2;
-                    break;
-                case DrawMode.Fill:
-                    player.drawCallback = DoFill;
-                    player.drawMarksExpected = 1;
+                    player.selectionCallback = DrawEllipsoid;
+                    player.selectionMarksExpected = 2;
                     break;
                 case DrawMode.Replace:
                     string replacementBlockName = cmd.Next();
@@ -174,20 +184,20 @@ namespace fCraft {
                     try {
                         replacementBlock = Map.GetBlockByName( replacementBlockName );
                     } catch( Exception ) {
-                        player.Message( "Unknown block name: " + replacementBlockName );
+                        player.Message( "Replace: Unrecognized block name: " + replacementBlockName );
                         return;
                     }
-                    player.drawCallback = DrawReplace;
-                    player.drawMarksExpected = 2;
-                    player.drawArgs = new ReplaceArgs() {
+                    player.selectionCallback = DrawReplace;
+                    player.selectionMarksExpected = 2;
+                    player.selectionArgs = new ReplaceArgs() {
                         oldBlock = block,
                         replacementBlock = replacementBlock
                     };
                     player.Message( "Replacing " + block + " with " + replacementBlock );
                     break;
             }
-            player.drawMarkCount = 0;
-            player.drawMarks.Clear();
+            player.selectionMarkCount = 0;
+            player.selectionMarks.Clear();
             player.Message( mode.ToString() + ": Place a block or type /mark to use your location." );
         }
 
@@ -196,22 +206,22 @@ namespace fCraft {
         static CommandDescriptor cdMark = new CommandDescriptor {
             name = "mark",
             aliases = new string[] { "m" },
-            help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. "+
+            help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. " +
                    "You can mark in places where making blocks is difficult (e.g. mid-air).",
             handler = Mark
         };
 
         internal static void Mark( Player player, Command command ) {
-            Position pos = new Position( (short)(player.pos.x / 32), (short)(player.pos.y / 32), (short)(player.pos.h / 32) );
-            if( player.drawMarksExpected > 0 ) {
-                player.drawMarks.Push( pos );
-                player.drawMarkCount++;
-                if( player.drawMarkCount >= player.drawMarksExpected ) {
-                    player.drawCallback( player, player.drawMarks.ToArray(), player.drawArgs );
-                    player.drawMarksExpected = 0;
+            Position pos = new Position( (short)( player.pos.x / 32 ), (short)( player.pos.y / 32 ), (short)( player.pos.h / 32 ) );
+            if( player.selectionMarksExpected > 0 ) {
+                player.selectionMarks.Enqueue( pos );
+                player.selectionMarkCount++;
+                if( player.selectionMarkCount >= player.selectionMarksExpected ) {
+                    player.selectionCallback( player, player.selectionMarks.ToArray(), player.selectionArgs );
+                    player.selectionMarksExpected = 0;
                 } else {
                     player.Message( String.Format( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
-                                                   player.drawMarkCount, pos.x, pos.y, pos.h, player.drawMarkCount + 1 ) );
+                                                   player.selectionMarkCount, pos.x, pos.y, pos.h, player.selectionMarkCount + 1 ) );
                 }
             } else {
                 player.Message( "Cannot mark - no draw or zone commands initiated." );
@@ -222,14 +232,14 @@ namespace fCraft {
 
         static CommandDescriptor cdCancel = new CommandDescriptor {
             name = "cancel",
-            help = "Cancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. "+
+            help = "Cancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. " +
                    "If you wish to stop a drawing in-progress, use &H/lock&S instead.",
             handler = Cancel
         };
 
         internal static void Cancel( Player player, Command command ) {
-            if( player.drawMarksExpected > 0 ) {
-                player.drawMarksExpected = 0;
+            if( player.selectionMarksExpected > 0 ) {
+                player.selectionMarksExpected = 0;
             } else {
                 player.Message( "There is currently nothing to cancel." );
             }
@@ -239,7 +249,7 @@ namespace fCraft {
 
         static CommandDescriptor cdUndo = new CommandDescriptor {
             name = "undo",
-            help = "Selectively removes changes from your last drawing command. "+
+            help = "Selectively removes changes from your last drawing command. " +
                    "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
             handler = Undo
         };
@@ -249,13 +259,13 @@ namespace fCraft {
                 player.NoAccessMessage( Permission.Draw );
                 return;
             }
-            if( player.drawUndoBuffer.Count > 0 ) {
+            if( player.undoBuffer.Count > 0 ) {
                 if( player.drawingInProgress ) {
                     player.Message( "Cannot undo a drawing-in-progress. Wait for it to finish." );
                 } else {
-                    player.world.SendToAll( Color.Sys + player.nick + " initiated /undo. " + player.drawUndoBuffer.Count + " blocks to replace...", null );
-                    while( player.drawUndoBuffer.Count > 0 ) {
-                        player.world.map.QueueUpdate( player.drawUndoBuffer.Dequeue() );
+                    player.world.SendToAll( Color.Sys + player.nick + " initiated /undo. " + player.undoBuffer.Count + " blocks to replace...", null );
+                    while( player.undoBuffer.Count > 0 ) {
+                        player.world.map.QueueUpdate( player.undoBuffer.Dequeue() );
                     }
                 }
                 GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
@@ -268,8 +278,8 @@ namespace fCraft {
         internal static void DrawReplace( Player player, Position[] marks, object drawArgs ) {
             player.drawingInProgress = true;
 
-            byte oldBlock = (byte)((ReplaceArgs)drawArgs).oldBlock,
-                 replacementBlock = (byte)((ReplaceArgs)drawArgs).replacementBlock;
+            byte oldBlock = (byte)( (ReplaceArgs)drawArgs ).oldBlock,
+                 replacementBlock = (byte)( (ReplaceArgs)drawArgs ).replacementBlock;
 
             // find start/end coordinates
             int sx = Math.Min( marks[0].x, marks[1].x );
@@ -279,14 +289,14 @@ namespace fCraft {
             int sh = Math.Min( marks[0].h, marks[1].h );
             int eh = Math.Max( marks[0].h, marks[1].h );
 
-            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
+            int volume = ( ex - sx + 1 ) * ( ey - sy + 1 ) * ( eh - sh + 1 );
             if( player.CanDraw( volume ) ) {
                 player.Message( String.Format( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                                player.info.playerClass.drawLimit, volume ) );
                 return;
             }
 
-            player.drawUndoBuffer.Clear();
+            player.undoBuffer.Clear();
 
             bool cannotUndo = false;
             int blocks = 0;
@@ -301,8 +311,8 @@ namespace fCraft {
                                 if( block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) continue;
                                 player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h, replacementBlock ) );
                                 if( blocks < MaxUndoCount ) {
-                                    player.drawUndoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, oldBlock ) );
-                                }else if( !cannotUndo ){
+                                    player.undoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, oldBlock ) );
+                                } else if( !cannotUndo ) {
                                     player.Message( "NOTE: This draw command is too massive to undo." );
                                     cannotUndo = true;
                                 }
@@ -340,14 +350,14 @@ namespace fCraft {
             int sh = Math.Min( marks[0].h, marks[1].h );
             int eh = Math.Max( marks[0].h, marks[1].h );
 
-            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
+            int volume = ( ex - sx + 1 ) * ( ey - sy + 1 ) * ( eh - sh + 1 );
             if( player.CanDraw( volume ) ) {
                 player.Message( String.Format( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                                player.info.playerClass.drawLimit, volume ) );
                 return;
             }
 
-            player.drawUndoBuffer.Clear();
+            player.undoBuffer.Clear();
 
             int blocks = 0;
             bool cannotUndo = false;
@@ -361,10 +371,10 @@ namespace fCraft {
                                 block = player.world.map.GetBlock( x + x3, y + y3, h );
                                 if( block == (byte)drawBlock ) continue;
                                 if( block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) continue;
-                                
+
                                 player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h, (byte)drawBlock ) );
                                 if( blocks < MaxUndoCount ) {
-                                    player.drawUndoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, block ) );
+                                    player.undoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, block ) );
                                 } else if( !cannotUndo ) {
                                     player.Message( "NOTE: This draw command is too massive to undo." );
                                     cannotUndo = true;
@@ -385,7 +395,6 @@ namespace fCraft {
         }
 
 
-
         internal static void DrawCuboidHollow( Player player, Position[] marks, object tag ) {
             player.drawingInProgress = true;
 
@@ -402,14 +411,14 @@ namespace fCraft {
             int sh = Math.Min( marks[0].h, marks[1].h );
             int eh = Math.Max( marks[0].h, marks[1].h );
 
-            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1) - (ex - sx - 1) * (ey - sy - 1) * (eh - sh - 1);
+            int volume = ( ex - sx + 1 ) * ( ey - sy + 1 ) * ( eh - sh + 1 ) - ( ex - sx - 1 ) * ( ey - sy - 1 ) * ( eh - sh - 1 );
             if( player.CanDraw( volume ) ) {
                 player.Message( String.Format( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                                player.info.playerClass.drawLimit, volume ) );
                 return;
             }
 
-            player.drawUndoBuffer.Clear();
+            player.undoBuffer.Clear();
 
             int blocks = 0;
             bool cannotUndo = false;
@@ -437,24 +446,9 @@ namespace fCraft {
             Logger.Log( "{0} initiated drawing a hollow cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
                                   player.GetLogName(),
                                   blocks,
-                                  ((Block)drawBlock).ToString() );
+                                  ( (Block)drawBlock ).ToString() );
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
             player.drawingInProgress = false;
-        }
-
-
-        static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int h, ref int blocks, ref bool cannotUndo ) {
-            byte block = player.world.map.GetBlock( x, y, h );
-            if( block == drawBlock || block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) return;
-
-            player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x, y, h, drawBlock ) );
-            if( blocks < MaxUndoCount ) {
-                player.drawUndoBuffer.Enqueue( new BlockUpdate( Player.Console, x, y, h, block ) );
-            } else if( !cannotUndo ) {
-                player.Message( "NOTE: This draw command is too massive to undo." );
-                cannotUndo = true;
-            }
-            blocks++;
         }
 
 
@@ -475,28 +469,28 @@ namespace fCraft {
             int eh = Math.Max( marks[0].h, marks[1].h );
 
             // find axis lengths
-            double rx = (ex - sx + 1) / 2 + .25;
-            double ry = (ey - sy + 1) / 2 + .25;
-            double rh = (eh - sh + 1) / 2 + .25;
+            double rx = ( ex - sx + 1 ) / 2 + .25;
+            double ry = ( ey - sy + 1 ) / 2 + .25;
+            double rh = ( eh - sh + 1 ) / 2 + .25;
 
-            double rx2 = 1 / (rx * rx);
-            double ry2 = 1 / (ry * ry);
-            double rh2 = 1 / (rh * rh);
+            double rx2 = 1 / ( rx * rx );
+            double ry2 = 1 / ( ry * ry );
+            double rh2 = 1 / ( rh * rh );
 
             // find center points
-            double cx = (ex + sx) / 2;
-            double cy = (ey + sy) / 2;
-            double ch = (eh + sh) / 2;
+            double cx = ( ex + sx ) / 2;
+            double cy = ( ey + sy ) / 2;
+            double ch = ( eh + sh ) / 2;
 
 
-            int volume = (int)((3 / 4d) * Math.PI * rx * ry * rh);
-            if( player.CanDraw(volume) ) {
+            int volume = (int)( ( 3 / 4d ) * Math.PI * rx * ry * rh );
+            if( player.CanDraw( volume ) ) {
                 player.Message( String.Format( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                                player.info.playerClass.drawLimit, volume ) );
                 return;
             }
 
-            player.drawUndoBuffer.Clear();
+            player.undoBuffer.Clear();
 
             int blocks = 0;
             bool cannotUndo = false;
@@ -509,19 +503,19 @@ namespace fCraft {
                             for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
 
                                 // get relative coordinates
-                                double dx = (x + x3 - cx);
-                                double dy = (y + y3 - cy);
-                                double dh = (h - ch);
+                                double dx = ( x + x3 - cx );
+                                double dy = ( y + y3 - cy );
+                                double dh = ( h - ch );
 
                                 // test if it's inside ellipse
-                                if( (dx * dx) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 <= 1 ) {
+                                if( ( dx * dx ) * rx2 + ( dy * dy ) * ry2 + ( dh * dh ) * rh2 <= 1 ) {
                                     block = player.world.map.GetBlock( x + x3, y + y3, h );
                                     if( block == (byte)drawBlock ) continue;
                                     if( block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) continue;
 
                                     player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h, (byte)drawBlock ) );
                                     if( blocks < MaxUndoCount ) {
-                                        player.drawUndoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, block ) );
+                                        player.undoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, block ) );
                                     } else if( !cannotUndo ) {
                                         player.Message( "Warning: This draw command is too massive to undo." );
                                         cannotUndo = true;
@@ -543,9 +537,205 @@ namespace fCraft {
         }
 
 
-        internal static void DoFill( Player player, Position[] marks, object tag ) {
+        static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int h, ref int blocks, ref bool cannotUndo ) {
+            byte block = player.world.map.GetBlock( x, y, h );
+            if( block == drawBlock || block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) return;
+
+            player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x, y, h, drawBlock ) );
+            if( blocks < MaxUndoCount ) {
+                player.undoBuffer.Enqueue( new BlockUpdate( Player.Console, x, y, h, block ) );
+            } else if( !cannotUndo ) {
+                player.Message( "NOTE: This draw command is too massive to undo." );
+                cannotUndo = true;
+            }
+            blocks++;
+        }
+
+
+        #region Copy and Paste
+
+        static CommandDescriptor cdCopy = new CommandDescriptor {
+            name = "copy",
+            permissions = new Permission[] { Permission.CopyAndPaste },
+            help = "Copy blocks for pasting. Used together with &H/paste&S command. Note that pasting starts at the same corner that you started &H/copy&S from.",
+            handler = Copy
+        };
+
+        internal static void Copy( Player player, Command cmd ) {
+            player.selectionCallback = DoCopy;
+            player.selectionMarksExpected = 2;
+            player.selectionMarkCount = 0;
+            player.selectionMarks.Clear();
+            player.Message( "Copy: Place a block or type /mark to use your location." );
+        }
+
+        internal static void DoCopy( Player player, Position[] marks, object tag ) {
+            int sx = Math.Min( marks[0].x, marks[1].x );
+            int ex = Math.Max( marks[0].x, marks[1].x );
+            int sy = Math.Min( marks[0].y, marks[1].y );
+            int ey = Math.Max( marks[0].y, marks[1].y );
+            int sh = Math.Min( marks[0].h, marks[1].h );
+            int eh = Math.Max( marks[0].h, marks[1].h );
+
+            int volume = ( ex - sx + 1 ) * ( ey - sy + 1 ) * ( eh - sh + 1 );
+            if( player.CanDraw( volume ) ) {
+                player.Message( String.Format( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                               player.info.playerClass.drawLimit, volume ) );
+                return;
+            }
+
+            CopyInformation copyInfo = new CopyInformation();
+
+            // remember dimensions and orientation
+            copyInfo.widthX = marks[1].x - marks[0].x;
+            copyInfo.widthY = marks[1].y - marks[0].y;
+            copyInfo.height = marks[1].h - marks[0].h;
+
+            copyInfo.buffer = new byte[ex - sx + 1, ey - sy + 1, eh - sh + 1];
+
+            for( int x = sx; x <= ex; x++ ) {
+                for( int y = sy; y <= ey; y++ ) {
+                    for( int h = sh; h <= eh; h++ ) {
+                        copyInfo.buffer[x - sx, y - sy, h - sh] = player.world.map.GetBlock( x, y, h );
+                    }
+                }
+            }
+
+            string orientation = ( copyInfo.height > 0 ? "bottom " : "top " );
+            orientation += ( copyInfo.widthY > 0 ? "south" : "north" );
+            orientation += ( copyInfo.widthX > 0 ? "west" : "east" );
+
+            player.copyInformation = copyInfo;
+            player.Message( volume + " blocks were copied. You can now &H/paste" );
+            player.Message( "Origin at " + orientation + " corner." );
+
+            Logger.Log( "{0} copied {1} blocks.", LogType.UserActivity, player.GetLogName(), volume );
+        }
+
+
+        static CommandDescriptor cdPaste = new CommandDescriptor {
+            name = "paste",
+            permissions = new Permission[] { Permission.CopyAndPaste },
+            help = "Paste previously copied blocks. Used together with &H/copy&S command. " +
+                   "Note that pasting starts at the same corner that you started &H/copy&S from.",
+            handler = Paste
+        };
+
+        internal static void Paste( Player player, Command cmd ) {
+            if( player.copyInformation == null ) {
+                player.Message( "Nothing to paste! Copy something first." );
+                return;
+            }
+
+            Block excludedType;
+            if( cmd.NextBlockType( out excludedType ) ) {
+                player.selectionArgs = new PasteArgs {
+                    doExclude = true,
+                    type = excludedType
+                };
+                player.Message( "Ready to paste all EXCEPT "+excludedType.ToString() );
+            } else {
+                cmd.Rewind();
+                if( cmd.Next() != null ) {
+                    player.Message( "Paste: Unrecognized block type." );
+                    return;
+                }
+                player.selectionArgs = new PasteArgs();
+            }
+
+            player.selectionCallback = DoPaste;
+            player.selectionMarksExpected = 1;
+            player.selectionMarkCount = 0;
+            player.selectionMarks.Clear();
+
+            player.Message( "Paste: Place a block or type /mark to use your location. " );
+        }
+
+        static CommandDescriptor cdPasteOnly = new CommandDescriptor {
+            name = "pasteonly",
+            permissions = new Permission[] { Permission.CopyAndPaste },
+            help = "Paste previously copied blocks ONLY of specified blocktype. Used together with &H/copy&S command. " +
+                   "Note that pasting starts at the same corner that you started &H/copy&S from.",
+            usage = "/pasteonly BlockType",
+            handler = PasteOnly
+        };
+
+        internal static void PasteOnly( Player player, Command cmd ) {
+            if( player.copyInformation == null ) {
+                player.Message( "Nothing to paste! Copy something first." );
+                return;
+            }
+
+            Block includedType;
+            if( !cmd.NextBlockType( out includedType ) ) {
+                player.Message( "Paste: Unrecognized block type." );
+                return;
+            }
+
+            player.selectionCallback = DoPaste;
+            player.selectionMarksExpected = 1;
+            player.selectionMarkCount = 0;
+            player.selectionMarks.Clear();
+
+            player.selectionArgs = new PasteArgs {
+                doInclude = true,
+                type = includedType
+            };
+
+            player.Message( "Ready to paste ONLY " + includedType.ToString() );
+            player.Message( "Paste: Place a block or type /mark to use your location. " );
+        }
+
+        internal static void DoPaste( Player player, Position[] marks, object tag ) {
+            if( player.drawingInProgress ) {
+                player.Message( "Another draw command is already in progress. Please wait." );
+                return;
+            }
             player.drawingInProgress = true;
+            CopyInformation info = player.copyInformation;
+
+            PasteArgs args = (PasteArgs)tag;
+            byte specialType = (byte)args.type;
+            Map map = player.world.map;
+
+            int sx = Math.Min( marks[0].x, marks[0].x + info.widthX );
+            int ex = Math.Max( marks[0].x, marks[0].x + info.widthX );
+            int sy = Math.Min( marks[0].y, marks[0].y + info.widthY );
+            int ey = Math.Max( marks[0].y, marks[0].y + info.widthY );
+            int sh = Math.Min( marks[0].h, marks[0].h + info.height );
+            int eh = Math.Max( marks[0].h, marks[0].h + info.height );
+
+            if( sx < 0 || ex > map.widthX - 1 ) {
+                player.Message( "Warning: Not enough room horizontally (X), paste cut off." );
+            }
+            if( sy < 0 || ey > map.widthY - 1 ) {
+                player.Message( "Warning: Not enough room horizontally (Y), paste cut off." );
+            }
+            if( sh < 0 || eh > map.height - 1 ) {
+                player.Message( "Warning: Not enough room vertically, paste cut off." );
+            }
+
+            int blocks = 0;
+            bool cannotUndo = false;
+
+            byte block;
+
+            for( int x = sx; x <= ex; x++ ) {
+                for( int y = sy; y <= ey; y++ ) {
+                    for( int h = sh; h <= eh; h++ ) {
+                        block = info.buffer[x - sx, y - sy, h - sh];
+                        if( !( args.doExclude && block == specialType ) ||
+                            !( args.doInclude && block != specialType ) ) {
+                            DrawOneBlock( player, block, x, y, h, ref blocks, ref cannotUndo );
+                        }
+                    }
+                }
+            }
+
+            player.Message( blocks + " blocks pasted. The map is now being updated..." );
             player.drawingInProgress = false;
         }
+
+        #endregion
     }
 }

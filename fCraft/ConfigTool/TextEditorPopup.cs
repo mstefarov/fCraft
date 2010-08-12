@@ -10,7 +10,7 @@ using System.IO;
 
 
 namespace ConfigTool {
-    public partial class TextEditorPopup : Form {
+    public sealed partial class TextEditorPopup : Form {
 
         string oldText, fileName;
 
