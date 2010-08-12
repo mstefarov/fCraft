@@ -13,7 +13,7 @@ using fCraft;
 
 
 namespace ConfigTool {
-    partial class AddWorldPopup : Form {
+    sealed partial class AddWorldPopup : Form {
         BackgroundWorker bwLoader = new BackgroundWorker(),
                          bwGenerator = new BackgroundWorker(),
                          bwRenderer = new BackgroundWorker();

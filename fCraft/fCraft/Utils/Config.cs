@@ -675,6 +675,7 @@ namespace fCraft {
 
             op.Add( new XElement( "Lock" ) );
             op.Add( new XElement( "Draw" ) );
+            op.Add( new XElement( "CopyAndPaste" ) );
             permissions.Add( op );
             DefineClass( op );
 
@@ -735,6 +736,7 @@ namespace fCraft {
             owner.Add( new XElement( "ManageWorlds" ) );
             owner.Add( new XElement( "Import" ) );
             owner.Add( new XElement( "Draw" ) );
+            owner.Add( new XElement( "CopyAndPaste" ) );
             permissions.Add( owner );
             DefineClass( owner );
 

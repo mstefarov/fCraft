@@ -15,7 +15,7 @@ using Color = System.Drawing.Color;
 namespace ConfigTool {
     // This section handles transfer of settings from Config to the specific UI controls, and vice versa
     // Effectively, it's an adapter between Config and ConfigUI representations of the settings
-    public partial class ConfigUI : Form {
+    public sealed partial class ConfigUI : Form {
         #region Loading & Applying Config
 
         void LoadConfig( object sender, EventArgs args ) {

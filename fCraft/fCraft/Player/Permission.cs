@@ -26,6 +26,7 @@ namespace fCraft {
         ChangeName,   // change own name
 
         Draw,
+        CopyAndPaste,
 
         Teleport,
         Bring,

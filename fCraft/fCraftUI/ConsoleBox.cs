@@ -7,7 +7,7 @@ using System.ComponentModel;
 using fCraft;
 
 namespace fCraftUI {
-    class ConsoleBox : TextBox {
+    sealed class ConsoleBox : TextBox {
         const int WM_KEYDOWN = 0x100;
         const int WM_SYSKEYDOWN = 0x104;
         public SimpleEventHandler OnCommand;

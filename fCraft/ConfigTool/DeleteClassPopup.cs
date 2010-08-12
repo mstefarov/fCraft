@@ -10,7 +10,7 @@ using fCraft;
 
 
 namespace ConfigTool {
-    public partial class DeleteClassPopup : Form {
+    public sealed partial class DeleteClassPopup : Form {
         internal PlayerClass substituteClass;
 
         public DeleteClassPopup( PlayerClass _pc ) {

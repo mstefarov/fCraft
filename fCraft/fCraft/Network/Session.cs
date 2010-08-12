@@ -217,7 +217,7 @@ namespace fCraft {
                                     KickNow( "Hacking detected: illegal SetTile packet." );
                                     return;
                                 } else {
-                                    if( player.SetTile( x, y, h, mode == 1, (Block)type ) ) return;
+                                    if( player.PlaceBlock( x, y, h, mode == 1, (Block)type ) ) return;
                                 }
                                 break;
                         }

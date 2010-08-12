@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace fCraft {
     public sealed class ConcurrentQueue<T> {
-        class Node {
+        sealed class Node {
             public T value;
             public Pointer next;
             /// <summary>

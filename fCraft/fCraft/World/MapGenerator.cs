@@ -21,10 +21,11 @@ namespace fCraft {
         Lake,
         Island,
         Coast,
-        River
+        River,
+        Cliffs
     }
 
-    public class MapGenerator {
+    public sealed class MapGenerator {
         double roughness, gBigSize, smoothingOver, smoothingUnder, midpoint, sidesMin, sidesMax;
         Random rand = new Random();
         Map map;
@@ -32,7 +33,7 @@ namespace fCraft {
         string fileName;
         int groundThickness = 5, seaFloorThickness = 3;
 
-        Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock, bDeepWaterSurface;
+        Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock, bDeepWaterSurface, bCliff;
         MapGenType type;
         MapGenTheme theme;
 
@@ -63,6 +64,9 @@ namespace fCraft {
                 case MapGenType.Mountains:
                     SetParams( 4, 1, 0.4, 0.1, 0.5, 0.7 );
                     break;
+                case MapGenType.Cliffs:
+                    SetParams( 3, 1.2, 0.6, 0, 0.45, 0.65 );
+                    break;
                 case MapGenType.Lake:
                     SetParams( 1, 0.6, 0.9, -0.3, 0.53, 0.6 );
                     break;
@@ -88,6 +92,7 @@ namespace fCraft {
                     bGround = Block.White;
                     bSeaFloor = Block.White;
                     bBedrock = Block.Stone;
+                    bCliff = Block.Stone;
                     groundThickness = 1;
                     break;
                 case MapGenTheme.Desert:
@@ -98,15 +103,17 @@ namespace fCraft {
                     bGround = Block.Sand;
                     bSeaFloor = Block.Sand;
                     bBedrock = Block.Stone;
+                    bCliff = Block.Gravel;
                     break;
                 case MapGenTheme.Hell:
                     bWaterSurface = Block.Lava;
                     bDeepWaterSurface = Block.Lava;
-                    bGroundSurface = Block.Rocks;
+                    bGroundSurface = Block.Obsidian;
                     bWater = Block.Lava;
                     bGround = Block.Stone;
                     bSeaFloor = Block.Obsidian;
                     bBedrock = Block.Stone;
+                    bCliff = Block.Rocks;
                     break;
                 case MapGenTheme.Forest:
                 case MapGenTheme.Normal:
@@ -117,6 +124,7 @@ namespace fCraft {
                     bGround = Block.Dirt;
                     bSeaFloor = Block.Sand;
                     bBedrock = Block.Stone;
+                    bCliff = Block.Rocks;
                     break;
                 case MapGenTheme.Rocky:
                     bWaterSurface = Block.Water;
@@ -126,6 +134,7 @@ namespace fCraft {
                     bGround = Block.Stone;
                     bSeaFloor = Block.Rocks;
                     bBedrock = Block.Stone;
+                    bCliff = Block.Stone;
                     break;
             }
         }
@@ -136,6 +145,7 @@ namespace fCraft {
             ApplyTheme();
 
             double[,] heightmap = GenerateHeightmap( map.widthX, map.widthY );
+            double[,] blendmap = null;
 
             if( type == MapGenType.River ) {
                 double min = double.MaxValue, max = double.MinValue;
@@ -145,9 +155,33 @@ namespace fCraft {
                         max = Math.Max( max, heightmap[x, y] );
                     }
                 }
+                    for( int x = 0; x < map.widthX; x++ ) {
+                        for( int y = 0; y < map.widthY; y++ ) {
+                            heightmap[x, y] = Math.Abs( ( heightmap[x, y] - min ) / ( max - min ) * 2 - 1 ) * .3 + .4;
+                        }
+                    }
+            } else if( type == MapGenType.Cliffs ) {
+                groundThickness = Math.Max( 1, groundThickness / 2 );
+                double[,] heightmap1 = heightmap;
+                double[,] heightmap2 = GenerateHeightmap( map.widthX, map.widthY );
+                roughness = 10;
+                blendmap = GenerateHeightmap( map.widthX, map.widthY );
+                double min = double.MaxValue, max = double.MinValue;
                 for( int x = 0; x < map.widthX; x++ ) {
                     for( int y = 0; y < map.widthY; y++ ) {
-                        heightmap[x, y] = Math.Abs( (heightmap[x, y] - min) / (max - min) * 2 - 1 ) * .3 + .4;
+                        min = Math.Min( min, blendmap[x, y] );
+                        max = Math.Max( max, blendmap[x, y] );
+                    }
+                }
+                double steepness = Math.Max( map.widthX, map.widthY ) / 5;
+                for( int x = 0; x < map.widthX; x++ ) {
+                    for( int y = 0; y < map.widthY; y++ ) {
+                        blendmap[x, y] = Math.Min( 1, Math.Max( 0, ( heightmap[x, y] - min ) / ( max - min ) * steepness * 2 - steepness ) );
+                    }
+                }
+                for( int x = 0; x < map.widthX; x++ ) {
+                    for( int y = 0; y < map.widthY; y++ ) {
+                        heightmap[x, y] = heightmap1[x, y] * blendmap[x, y] + heightmap2[x, y] * ( 1 - blendmap[x, y] );
                     }
                 }
             }
@@ -165,10 +199,18 @@ namespace fCraft {
                     ilevel = (int)(level * map.height);
                     if( ilevel > iwater ) {
                         ilevel = (int)(((level - 0.5) * smoothingOver + 0.5) * map.height);
-                        map.SetBlock( x, y, ilevel, bGroundSurface );
+                        if( blendmap != null && blendmap[x, y] > .25 && blendmap[x, y] < .75 ) {
+                            map.SetBlock( x, y, ilevel, bCliff );
+                        }else{
+                            map.SetBlock( x, y, ilevel, bGroundSurface );
+                        }
                         for( int i = ilevel - 1; i >= 0; i-- ) {
                             if( ilevel - i < groundThickness ) {
-                                map.SetBlock( x, y, i, bGround );
+                                if( blendmap != null && blendmap[x, y] > .01 && blendmap[x, y] < .99 ) {
+                                    map.SetBlock( x, y, i, bCliff );
+                                } else {
+                                    map.SetBlock( x, y, i, bGround );
+                                }
                             } else {
                                 map.SetBlock( x, y, i, bBedrock );
                             }
