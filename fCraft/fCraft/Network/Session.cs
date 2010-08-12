@@ -470,6 +470,11 @@ namespace fCraft {
                 int chunkSize = blockData.Length - bytesSent;
                 if( chunkSize > 1024 ) {
                     chunkSize = 1024;
+                } else {
+                    // CRC fix for ManicDigger
+                    for( int i = 0; i < buffer.Length; i++ ) {
+                        buffer[i] = 0;
+                    }
                 }
                 Array.Copy( blockData, bytesSent, buffer, 0, chunkSize );
                 byte progress = (byte)(100 * bytesSent / blockData.Length);

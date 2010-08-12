@@ -209,7 +209,7 @@ namespace fCraft {
                 if( world.classAccess == ClassList.lowestClass ) {
                     player.Message( "World \"{0}\" can be visited by anyone.", world.name );
                 } else {
-                    player.Message( "World \"{0}\" can only be visited by ",
+                    player.Message( "World \"{0}\" can only be visited by {1}{2}+",
                         world.name,
                         world.classAccess.color,
                         world.classAccess.name );
@@ -228,7 +228,7 @@ namespace fCraft {
                     } else {
                         Server.SendToAll( Color.Sys + player.nick + " made the world \"" + world.name + "\" accessible only to " + world.classAccess.color + world.classAccess.name + "+" );
                     }
-                    Logger.Log( "{0} made the world \"{1}\" accessible to {3}+", LogType.UserActivity,
+                    Logger.Log( "{0} made the world \"{1}\" accessible to {2}+", LogType.UserActivity,
                                 player.GetLogName(),
                                 world.name,
                                 world.classAccess.name );
