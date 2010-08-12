@@ -1,5 +1,12 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-08-11
+2010-08-12
+435
+ Feature: Added /copy, /paste, and /pasteonly commands. Rotation coming soon.
+ Feature: Added CopyAndPaste permission, granted to op and owner by default.
+ Feature: Added MapGenType.Cliffs - similar to Mountains type, but with cliffs!
+ Fix: Fixed /paint command
+ Fix: Fixed /baninfo now showing any information if used without parameters.
+ Change: Replaced surface rocks in MapGenTheme.Hell with Obsidian.
 434
  Feature: new /bind command allows mapping any block to any other. Now you can place those unbuildable blocks (water, lava, grass, double-step) in any way you wish. For compatibility, old commands (/water, /solid, /lava, /grass) have been preserved.
  Change: "step" added as an alias for Stair block. "doublestep" added as an alias for DoubleStair.

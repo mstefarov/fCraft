@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 
 namespace fCraft {
@@ -23,15 +24,18 @@ namespace fCraft {
 
 
         public static string GetCommandList( Player player, bool listAll ) {
-            string cmdList = "";
+            StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( CommandDescriptor cmd in commands.Values ) {
                 if( listAll || cmd.permissions == null || player.Can( cmd.permissions ) ) {
-                    cmdList += (first ? "" : ", ") + cmd.name;
+                    if(!first){
+                        sb.Append(", ");
+                    }
+                    sb.Append( cmd.name );
                     first = false;
                 }
             }
-            return cmdList;
+            return sb.ToString();
         }
 
 
@@ -94,7 +98,7 @@ namespace fCraft {
             CommandDescriptor descriptor = GetDescriptor( cmd.name );
 
             if( descriptor == null ) {
-                player.Message( "Unknown command \"" + cmd.name + "\"" );
+                player.Message( "Unknown command \"{0}\"", cmd.name );
                 return;
             }
 

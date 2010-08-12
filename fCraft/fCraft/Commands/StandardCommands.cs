@@ -88,7 +88,7 @@ namespace fCraft {
                 }
             } else if( Player.IsValidName( name ) ) {
                 Server.SendToAll( Color.Sys + player.nick + " is now known as " + name, player );
-                player.Message( "You are now known as " + name + ". Use " + Color.Help + "/nick" + Color.Sys + " again to reset." );
+                player.Message( "You are now known as {0}. Use &H/nick&S again to reset.", name );
                 player.nick = name;
                 if( player.world != null ) player.world.UpdatePlayer( player );
             } else {
@@ -146,7 +146,7 @@ namespace fCraft {
                 if( msg != null && msg.Trim().Length > 0 ) {
                     Server.SendToAll( Color.Say + msg.Trim() );
                 } else {
-                    player.Message( "Usage: " + Color.Help + "/say message" );
+                    cdSay.PrintUsage( player );
                 }
             } else {
                 player.NoAccessMessage( Permission.Say );

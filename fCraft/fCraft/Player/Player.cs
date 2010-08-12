@@ -78,7 +78,7 @@ namespace fCraft {
                         Server.SendToAll( Color.Red + GetLogName() + " was kicked for repeated spamming." );
                     } else {
                         mutedUntil = DateTime.Now.Add( muteDuration );
-                        Message( "You have been muted for " + muteDuration.TotalSeconds + " seconds. Slow down." );
+                        Message( "You have been muted for {0} seconds. Slow down.", muteDuration.TotalSeconds );
                     }
                     return true;
                 }
@@ -142,9 +142,18 @@ namespace fCraft {
                     string otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
                     Player otherPlayer = Server.FindPlayer( otherPlayerName );
                     if( otherPlayer != null ) {
-                        Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat, GetLogName(), otherPlayer.GetLogName(), message );
-                        otherPlayer.Message( Color.Gray + "from " + name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
-                        Message( Color.Gray + "to " + otherPlayer.name + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
+                        Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
+                                    GetLogName(),
+                                    otherPlayer.GetLogName(),
+                                    message );
+                        otherPlayer.Message( "{0}from {1}: {2}",
+                                             Color.Gray,
+                                             name,
+                                             message.Substring( message.IndexOf( ' ' ) + 1 ) );
+                        Message( "{0}to {1}: {2}",
+                                 Color.Gray,
+                                 otherPlayer.name,
+                                 message.Substring( message.IndexOf( ' ' ) + 1 ) );
                     } else {
                         NoPlayerMessage( otherPlayerName );
                     }
@@ -170,13 +179,9 @@ namespace fCraft {
         }
 
 
-        // Queues a system message
-        public void Message( string message ) {
-            MessagePrefixed( ">", message );
-        }
 
         public void Message( string message, params object[] args ) {
-            Message( string.Format( message, args ) );
+            MessagePrefixed( ">", String.Format( message, args ) );
         }
 
 
@@ -221,7 +226,7 @@ namespace fCraft {
         internal void NoAccessMessage( params Permission[] permissions ) {
             Message( Color.Red + "You do not have access to this command." );
             if( permissions.Length == 1 ) {
-                Message( Color.Red + "You need " + permissions[0].ToString() + " permission." );
+                Message( Color.Red + "You need {0} permission.", permissions[0] );
             } else {
                 Message( Color.Red + "You need the following permissions:" );
                 foreach( Permission permission in permissions ) {
@@ -249,7 +254,7 @@ namespace fCraft {
 
             if( world.isLocked ) {
                 SendBlockNow( x, y, h );
-                Message( "Map is locked." );
+                Message( "This map is currently locked (read-only)." );
                 return false;
             }
 
@@ -268,7 +273,7 @@ namespace fCraft {
                 if( world.map.CheckZones( x, y, h, this, ref zoneOverride, ref zoneName ) ) {
                     if( !zoneOverride ) {
                         SendBlockNow( x, y, h );
-                        Message( "You are not allowed to build in \"" + zoneName + "\" zone." );
+                        Message( "You are not allowed to build in \"{0}\" zone.", zoneName );
                         return false;
                     }
                 }
@@ -347,7 +352,7 @@ namespace fCraft {
                     }
                 }
             } else {
-                Message( Color.Red + "You are not permitted to do that." );
+                Message( "{0}You are not permitted to do that.", Color.Red );
                 SendBlockNow( x, y, h );
             }
             return false;

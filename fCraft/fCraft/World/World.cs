@@ -191,16 +191,23 @@ namespace fCraft {
                 // Reveal newcommer to existing players
                 if( !player.isHidden ) {
                     SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
-                    Server.SendToAll( String.Format( "{0}Player {1} joined \"{2}\".", Color.Sys, player.GetLogName(), name ), player );
+                    Server.SendToAll( String.Format( "&SPlayer {0} joined \"{1}\".",
+                                                     player.GetLogName(), name ), player );
                 }
             }
 
-            Logger.Log( "Player {0} joined \"{1}\".", LogType.UserActivity, player.GetLogName(), name );
+            Logger.Log( "Player {0} joined \"{1}\".", LogType.UserActivity,
+                        player.GetLogName(),
+                        name );
 
             if( OnPlayerJoined != null ) OnPlayerJoined( player, this );
 
             if( isLocked ) {
-                player.Message( Color.Red + "This map is currently locked (read-only)." );
+                player.Message( "{0}This map is currently locked (read-only).", Color.Red );
+            }
+
+            if( player.isHidden ) {
+                player.Message( "Reminder: You are still hidden." );
             }
 
             return true;

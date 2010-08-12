@@ -30,13 +30,13 @@ namespace fCraft {
 
             // Make sure all parameters are specified
             if( file == null ) {
-                player.Message( "Syntax: " + Color.Help + cdImportBans.usage );
+                cdImportBans.PrintUsage( player );
                 return;
             }
 
             // Check if file exists
             if( !File.Exists( file ) ) {
-                player.Message( "File not found: " + file );
+                player.Message( "File not found: {0}", file );
                 return;
             }
 
@@ -48,12 +48,14 @@ namespace fCraft {
                     try {
                         names = File.ReadAllLines( file );
                     } catch( Exception ex ) {
-                        Logger.Log( "Could not open \"{0}\" to import bans: {1}", LogType.Error, file, ex.Message );
+                        Logger.Log( "Could not open \"{0}\" to import bans: {1}", LogType.Error,
+                                    file,
+                                    ex );
                         return;
                     }
                     break;
                 default:
-                    player.Message( "fCraft does not support importing from " + server + "." );
+                    player.Message( "fCraft does not support importing from {0}", server );
                     return;
             }
 
@@ -65,7 +67,7 @@ namespace fCraft {
                 } else if( IPAddress.TryParse( name, out ip ) ) {
                     StandardCommands.DoIPBan( player, ip, reason, "", false, false );
                 } else {
-                    player.Message( "Could not parse \"" + name + "\" as either player name or IP address. Skipping." );
+                    player.Message( "Could not parse \"{0}\" as either name or IP. Skipping.", name );
                 }
             }
 
@@ -86,43 +88,45 @@ namespace fCraft {
         };
 
         static void ImportRanks( Player player, Command cmd ) {
-            string server = cmd.Next();
-            string file = cmd.Next();
-            string target = cmd.Next();
+            string serverName = cmd.Next();
+            string fileName = cmd.Next();
+            string targetName = cmd.Next();
 
 
             // Make sure all parameters are specified
-            if( target == null ) {
-                player.Message( "Usage: " + Color.Help + cdImportRanks.usage );
+            if( targetName == null ) {
+                cdImportRanks.PrintUsage( player );
                 return;
             }
 
             // Check if file exists
-            if( !File.Exists( file ) ) {
-                player.Message( "File not found: " + file );
+            if( !File.Exists( fileName ) ) {
+                player.Message( "File not found: {0}", fileName );
                 return;
             }
 
-            PlayerClass targetClass = ClassList.ParseClass( target );
+            PlayerClass targetClass = ClassList.ParseClass( targetName );
             if( targetClass == null ) {
-                player.Message( "\"" + target + "\" is not a recognized player class." );
+                player.Message( "Unrecognized player class: \"{0}\"", targetName );
                 return;
             }
 
             string[] names;
 
-            switch( server.ToLower() ) {
+            switch( serverName.ToLower() ) {
                 case "mcsharp":
                 case "mczall":
                     try {
-                        names = File.ReadAllLines( file );
+                        names = File.ReadAllLines( fileName );
                     } catch( Exception ex ) {
-                        Logger.Log( "Could not open \"{0}\" to import ranks: {1}", LogType.Error, file, ex.Message );
+                        Logger.Log( "Could not open \"{0}\" to import ranks: {1}", LogType.Error,
+                                    fileName,
+                                    ex );
                         return;
                     }
                     break;
                 default:
-                    player.Message( "fCraft does not support importing from " + server + "." );
+                    player.Message( "fCraft does not support importing from {0}", serverName );
                     return;
             }
 

@@ -343,9 +343,9 @@ namespace fCraft {
                 if( world != null ) {
                     if( first ) mainWorld = world;
                     first = false;
-                    Logger.Log( "Server.ParseWorldListTXT: Loaded world \"" + worldName + "\"", LogType.Debug );
+                    Logger.Log( "Server.ParseWorldListTXT: Loaded world \"{0}\"", LogType.Debug, worldName );
                 } else {
-                    Logger.Log( "Server.ParseWorldListTXT: Error loading world \"" + worldName + "\"", LogType.Error );
+                    Logger.Log( "Server.ParseWorldListTXT: Error loading world \"{0}\"", LogType.Error, worldName );
                 }
             }
             try {
