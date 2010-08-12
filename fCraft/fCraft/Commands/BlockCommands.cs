@@ -166,7 +166,7 @@ namespace fCraft {
                     player.Bind( originalBlock, replacementBlock );
                     player.Message( "{0} is now replaced with {1}", originalBlock, replacementBlock );
                 }else{
-                    player.Message( Color.Red + "You do not have " + permission.ToString() + " permission." );
+                    player.Message( "{0}You do not have {1} permission.", Color.Red, permission );
                 }
             }
         }

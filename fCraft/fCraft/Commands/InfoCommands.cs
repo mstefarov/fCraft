@@ -31,8 +31,8 @@ namespace fCraft {
 
         static CommandDescriptor cdWorldInfo = new CommandDescriptor {
             name = "winfo",
-            aliases = new string[]{"mapinfo"},
-            consoleSafe=true,
+            aliases = new string[] { "mapinfo" },
+            consoleSafe = true,
             usage = "/winfo [WorldName]",
             help = "Shows information about a world: player count, map dimensions, permissions, etc." +
                    "If no WorldName is given, shows info for current world.",
@@ -52,13 +52,14 @@ namespace fCraft {
 
             World world = Server.FindWorld( worldName );
             if( world == null ) {
-                player.Message( "Unrecognized world name: \"" + worldName + "\"." );
-                player.Message( "See " + Color.Help + "/worlds" + Color.Sys + " for a list of worlds." );
+                player.Message( "Unrecognized world name: \"{0}\".", worldName );
+                player.Message( "See &H/worlds&S for a list of worlds." );
                 return;
             }
 
-            player.Message( String.Format( "World \"{0}\" has {1} player(s) on.",
-                                           world.name, world.playerList.Length ) );
+            player.Message( "World \"{0}\" has {1} player(s) on.",
+                            world.name,
+                            world.playerList.Length );
 
             // If map is not currently loaded, grab its header from disk
             Map map = world.map;
@@ -68,31 +69,37 @@ namespace fCraft {
             if( map == null ) {
                 player.Message( "Map information could not be loaded." );
             } else {
-                player.Message( String.Format( "Map dimensions are {0} x {1} x {2}",
-                                               map.widthX, map.widthY, map.height ) );
+                player.Message( "Map dimensions are {0} x {1} x {2}",
+                                map.widthX, map.widthY, map.height );
             }
 
             // Print access/build limits
             if( world.classAccess == ClassList.lowestClass && world.classBuild == ClassList.lowestClass ) {
-                player.Message( "Anyone can join or build on " + world.name );
+                player.Message( "Anyone can join or build on {0}", world.name );
             } else {
                 if( world.classAccess != ClassList.lowestClass ) {
-                    player.Message( String.Format( "Requires players to be ranked {0}{1}&S+ to join.", world.classAccess.color, world.classAccess.name ) );
+                    player.Message( "Requires players to be ranked {0}{1}&S+ to join.", world.classAccess.color, world.classAccess.name );
                 } else {
-                    player.Message( "Anyone can join " + world.name );
+                    player.Message( "Anyone can join {0}", world.name );
                 }
                 if( world.classBuild != ClassList.lowestClass ) {
-                    player.Message( String.Format( "Requires players to be ranked {0}{1}&S+ to build.", world.classBuild.color, world.classBuild.name ) );
+                    player.Message( "Requires players to be ranked {0}{1}&S+ to build.", world.classBuild.color, world.classBuild.name );
                 } else {
-                    player.Message( "Anyone can build on " + world.name );
+                    player.Message( "Anyone can build on {0}", world.name );
                 }
             }
 
             // Print lock/unlock information
             if( world.isLocked ) {
-                player.Message( string.Format( world.name + " was locked {0:0}min ago by {1}", DateTime.UtcNow.Subtract( world.lockedDate ).TotalMinutes, world.lockedBy ) );
-            } else if( world.unlockedBy!=null ){
-                player.Message( string.Format( world.name + " was unlocked {0:0}min ago by {1}", DateTime.UtcNow.Subtract( world.lockedDate ).TotalMinutes, world.lockedBy ) );
+                player.Message( "{0} was locked {1:0}min ago by {2}",
+                                world.name,
+                                DateTime.UtcNow.Subtract( world.lockedDate ).TotalMinutes,
+                                world.lockedBy );
+            } else if( world.unlockedBy != null ) {
+                player.Message( "{0} was unlocked {1:0}min ago by {2}",
+                                world.name,
+                                DateTime.UtcNow.Subtract( world.lockedDate ).TotalMinutes,
+                                world.lockedBy );
             }
         }
 
@@ -102,7 +109,7 @@ namespace fCraft {
             name = "players",
             consoleSafe = true,
             usage = "/players [WorldName]",
-            help = "Lists all players on the server (in all worlds). "+
+            help = "Lists all players on the server (in all worlds). " +
                    "If a WorldName is given, only lists players on that one world.",
             handler = Players
         };
@@ -110,15 +117,17 @@ namespace fCraft {
         internal static void Players( Player player, Command cmd ) {
             Player[] players = Server.playerList;
             if( players.Length > 0 ) {
-                string playerListString = "There are " + players.Length + " players on the server: ";
+
+                StringBuilder sb = new StringBuilder( "There are " );
+                sb.Append( players.Length ).Append( " players on the server: " );
                 bool first = true;
                 foreach( Player p in players ) {
                     if( p.isHidden ) continue;
-                    if( !first ) playerListString += ", ";
-                    playerListString += p.info.playerClass.color + p.nick;
+                    if( !first ) sb.Append( ", " );
+                    sb.Append( p.info.playerClass.color ).Append( p.nick );
                     first = false;
                 }
-                player.Message( playerListString );
+                player.Message( sb.ToString() );
             } else {
                 player.Message( "There appear to be no players on the server." );
             }
@@ -134,17 +143,17 @@ namespace fCraft {
         };
 
         internal static void GetVersion( Player player, Command cmd ) {
-            player.Message( "fCraft custom server " + Updater.GetVersionString() );
+            player.Message( "fCraft custom server {0}", Updater.GetVersionString() );
         }
 
 
 
         static CommandDescriptor cdWhere = new CommandDescriptor {
             name = "where",
-            aliases = new string[]{"compass"},
+            aliases = new string[] { "compass" },
             consoleSafe = true,
             usage = "/where [PlayerName]",
-            help = "Shows information about the location and orientation of a player. "+
+            help = "Shows information about the location and orientation of a player. " +
                    "If no name is given, shows player's own info.",
             handler = Where
         };
@@ -161,19 +170,22 @@ namespace fCraft {
             if( name != null ) {
                 target = Server.FindPlayer( name );
                 if( target != null ) {
-                    player.Message( "Coordinates of player \"" + target.nick + "\" (on \"" + target.world.name + "\"):" );
+                    player.Message( "Coordinates of player \"{0}\" (on \"{1}\"):",
+                                    target.nick,
+                                    target.world.name );
                 } else {
                     player.NoPlayerMessage( name );
                     return;
                 }
             } else if( player.world == null ) {
-                player.Message( "When called form console, " + Color.Help + "/where" + Color.Sys + " requires a player name." );
+                player.Message( "When called form console, &H/where&S requires a player name." );
                 return;
             }
 
             offset = (int)(target.pos.r / 255f * 64f) + 32;
 
-            player.Message( Color.Silver + String.Format( "({0},{1},{2}) - {3}[{4}{5}{6}{3}{7}]",
+            player.Message( "{0}({1},{2},{3}) - {4}[{5}{6}{7}{4}{8}]",
+                            Color.Silver,
                             target.pos.x / 32,
                             target.pos.y / 32,
                             target.pos.h / 32,
@@ -181,7 +193,7 @@ namespace fCraft {
                             compass.Substring( offset - 12, 11 ),
                             Color.Red,
                             compass.Substring( offset - 1, 3 ),
-                            compass.Substring( offset + 2, 11 ) ) );
+                            compass.Substring( offset + 2, 11 ) );
         }
 
 
@@ -200,46 +212,49 @@ namespace fCraft {
 
             if( commandName == "commands" ) {
                 if( cmd.Next() != null ) {
-                    player.MessagePrefixed( "&S    ", "List of all available commands:&N" + CommandList.GetCommandList( player, true ) );
+                    player.MessagePrefixed( "&S    ", "List of all available commands:&N{0}", CommandList.GetCommandList( player, true ) );
                 } else {
-                    player.MessagePrefixed( "&S    ", "List of all commands:&N" + CommandList.GetCommandList( player, false ) );
+                    player.MessagePrefixed( "&S    ", "List of all commands:&N{0}", CommandList.GetCommandList( player, false ) );
                 }
 
             } else if( commandName != null ) {
                 CommandDescriptor descriptor = CommandList.GetDescriptor( commandName );
                 if( descriptor == null ) {
-                    player.Message( "Unknown command: \"" + cmd.name + "\"" );
+                    player.Message( "Unknown command: \"{0}\"", cmd.name );
                     return;
                 }
-
-                string helpString = Color.Help + descriptor.usage + "&N";
+                StringBuilder sb = new StringBuilder( Color.Help );
+                sb.Append( descriptor.usage ).Append( "&N" );
 
                 if( descriptor.aliases != null ) {
-                    string aliases = "Aliases: &H";
-                    bool first=true;
+                    sb.Append( "Aliases: &H" );
+                    bool first = true;
                     foreach( string alias in descriptor.aliases ) {
-                        aliases += (first ? "" : "&S, &H") + alias;
+                        if( !first ) {
+                            sb.Append( "&S, &H" );
+                        }
+                        sb.Append( alias );
                         first = false;
                     }
-                    helpString += aliases + "&N";
+                    sb.Append( "&N" );
                 }
 
                 if( descriptor.helpHandler != null ) {
-                    helpString += descriptor.helpHandler( player );
+                    sb.Append( descriptor.helpHandler( player ) );
                 } else {
-                    helpString += descriptor.help;
+                    sb.Append( descriptor.help );
                 }
-                player.MessagePrefixed( HelpPrefix, helpString );
+                player.MessagePrefixed( HelpPrefix, sb.ToString() );
 
             } else {
-                player.Message( "To see a list of all commands, write " + Color.Help + "/help commands" );
-                player.Message( "To see detailed help for a command, write " + Color.Help + "/help CommandName" );
+                player.Message( "To see a list of all commands, write &H/help commands" );
+                player.Message( "To see detailed help for a command, write &H/help CommandName" );
                 if( player.world != null ) {
-                    player.Message( "To find out about your permissions, write " + Color.Help + "/class " + player.info.playerClass.name );
+                    player.Message( "To find out about your permissions, write &H/class {0}", player.info.playerClass.name );
                 }
-                player.Message( "To list available worlds, write " + Color.Help + "/worlds" );
-                player.Message( "To send private messages, write " + Color.Help + "@PlayerName Message" );
-                player.Message( "To message all players of a class, write " + Color.Help + "@@Class Message" );
+                player.Message( "To list available worlds, write &H/worlds" );
+                player.Message( "To send private messages, write &H@PlayerName Message" );
+                player.Message( "To message all players of a class, write &H@@Class Message" );
             }
         }
 
@@ -263,9 +278,12 @@ namespace fCraft {
             Player target = Server.FindPlayerByNick( name );
             if( target != null ) {
                 if( target.nick != target.name ) {
-                    player.Message( "Player named " + target.name + " is using a nickname \"" + target.nick + "\"" );
+                    player.Message( "Player named {0} is using a nickname \"{1}\"",
+                                    target.name,
+                                    target.nick );
                 } else {
-                    player.Message( "Player named " + target.name + " is not using any nickname." );
+                    player.Message( "Player named {0} is not using any nickname.",
+                                    target.name );
                 }
             } else {
                 player.NoPlayerMessage( name );
@@ -295,8 +313,8 @@ namespace fCraft {
 
             Player target = Server.FindPlayerByNick( name );
             if( target != null && target.nick != target.name ) {
-                player.Message( Color.Red + "Warning: Player named " + target.name + " is using a nickname \"" + target.nick + "\"" );
-                player.Message( Color.Red + "The information below is for the REAL " + name );
+                player.Message( "{0}Warning: Player named {1} is using a nickname \"{2}\"", Color.Red, target.name, target.nick );
+                player.Message( "{0}The information below is for the REAL {1}", Color.Red, name );
             }
 
             PlayerInfo info;
@@ -305,42 +323,42 @@ namespace fCraft {
             } else if( info != null ) {
 
                 if( DateTime.Now.Subtract( info.lastLoginDate ).TotalDays < 1 ) {
-                    player.Message( String.Format( "About {0}: Last login {1:F1} hours ago from {2}",
-                                                        info.name,
-                                                        DateTime.Now.Subtract( info.lastLoginDate ).TotalHours,
-                                                        info.lastIP ) );
+                    player.Message( "About {0}: Last login {1:F1} hours ago from {2}",
+                                    info.name,
+                                    DateTime.Now.Subtract( info.lastLoginDate ).TotalHours,
+                                    info.lastIP );
                 } else {
-                    player.Message( String.Format( "About {0}: Last login {1:F1} days ago from {2}",
-                                                        info.name,
-                                                        DateTime.Now.Subtract( info.lastLoginDate ).TotalDays,
-                                                        info.lastIP ) );
+                    player.Message( "About {0}: Last login {1:F1} days ago from {2}",
+                                    info.name,
+                                    DateTime.Now.Subtract( info.lastLoginDate ).TotalDays,
+                                    info.lastIP );
                 }
-                player.Message( String.Format( "  Logged in {0} time(s) since {1:dd MMM yyyy}.",
-                                                    info.timesVisited,
-                                                    info.firstLoginDate ) );
+                player.Message( "  Logged in {0} time(s) since {1:dd MMM yyyy}.",
+                                info.timesVisited,
+                                info.firstLoginDate );
 
-                player.Message( String.Format( "  Built {0} and deleted {1} blocks, and wrote {2} messages.",
-                                                    info.blocksBuilt,
-                                                    info.blocksDeleted,
-                                                    info.linesWritten ) );
+                player.Message( "  Built {0} and deleted {1} blocks, and wrote {2} messages.",
+                                info.blocksBuilt,
+                                info.blocksDeleted,
+                                info.linesWritten );
 
                 if( player.info.classChangedBy != "-" ) {
-                    player.Message( String.Format( "  Promoted to {0} by {1} on {2:dd MMM yyyy}.",
-                                                        info.playerClass.name,
-                                                        info.classChangedBy,
-                                                        info.classChangeDate ) );
+                    player.Message( "  Promoted to {0} by {1} on {2:dd MMM yyyy}.",
+                                    info.playerClass.name,
+                                    info.classChangedBy,
+                                    info.classChangeDate );
                 } else {
-                    player.Message( String.Format( "  Class is {0} (default).",
-                                                        info.playerClass.name ) );
+                    player.Message( "  Class is {0} (default).",
+                                    info.playerClass.name );
                 }
 
                 TimeSpan totalTime = info.totalTimeOnServer;
                 if( Server.FindPlayerExact( player.name ) != null ) {
                     totalTime = totalTime.Add( DateTime.Now.Subtract( info.lastLoginDate ) );
                 }
-                player.Message( String.Format( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
-                                                    totalTime.TotalHours,
-                                                    totalTime.TotalMinutes ) );
+                player.Message( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
+                                totalTime.TotalHours,
+                                totalTime.TotalMinutes );
             } else {
                 player.NoPlayerMessage( name );
             }
@@ -364,27 +382,30 @@ namespace fCraft {
                 name = player.name;
             } else if( !player.Can( Permission.ViewOthersInfo ) ) {
                 player.NoAccessMessage( Permission.ViewOthersInfo );
-            } else if( IPAddress.TryParse( name, out address ) ) {
+            }
+            
+            if( IPAddress.TryParse( name, out address ) ) {
                 IPBanInfo info = IPBanList.Get( address );
                 if( info != null ) {
-                    player.Message( String.Format( "{0} was banned by {1} on {2:dd MMM yyyy}.",
-                                                        info.address,
-                                                        info.bannedBy,
-                                                        info.banDate ) );
+                    player.Message( "{0} was banned by {1} on {2:dd MMM yyyy}.",
+                                    info.address,
+                                    info.bannedBy,
+                                    info.banDate );
                     if( info.playerName != null ) {
-                        player.Message( "  IP ban was banned by association with " + info.playerName );
+                        player.Message( "  IP ban was banned by association with {0}",
+                                        info.playerName );
                     }
                     if( info.attempts > 0 ) {
-                        player.Message( "  There have been " + info.attempts + " attempts to log in, most recently" );
-                        player.Message( String.Format( "  on {0:dd MMM yyyy} by {1}.",
-                                                            info.lastAttemptDate,
-                                                            info.lastAttemptName ) );
+                        player.Message( "  There have been {0} attempts to log in, most recently", info.attempts );
+                        player.Message( "  on {0:dd MMM yyyy} by {1}.",
+                                        info.lastAttemptDate,
+                                        info.lastAttemptName );
                     }
                     if( info.banReason.Length > 0 ) {
-                        player.Message( "  Memo: " + info.banReason );
+                        player.Message( "  Memo: {0}", info.banReason );
                     }
                 } else {
-                    player.Message( address.ToString() + " is currently NOT banned." );
+                    player.Message( "{0} is currently NOT banned.", address );
                 }
             } else {
                 PlayerInfo info;
@@ -392,24 +413,24 @@ namespace fCraft {
                     player.ManyPlayersMessage( name );
                 } else if( info != null ) {
                     if( info.banned ) {
-                        player.Message( "Player " + info.name + " is currently " + Color.Red + "banned." );
+                        player.Message( "Player {0} is currently {1}banned.", info.name, Color.Red );
                     } else {
-                        player.Message( "Player " + info.name + " is currently NOT banned." );
+                        player.Message( "Player {0} is currently NOT banned.", info.name );
                     }
                     if( info.bannedBy != "-" ) {
-                        player.Message( String.Format( "  Last banned by {0} on {1:dd MMM yyyy}.",
-                                                            info.bannedBy,
-                                                            info.banDate ) );
+                        player.Message( "  Last banned by {0} on {1:dd MMM yyyy}.",
+                                        info.bannedBy,
+                                        info.banDate );
                         if( info.banReason.Length > 0 ) {
-                            player.Message( "  Ban memo: " + info.banReason );
+                            player.Message( "  Last ban memo: {0}", info.banReason );
                         }
                     }
                     if( info.unbannedBy != "-" ) {
-                        player.Message( String.Format( "  Unbanned by {0} on {1:dd MMM yyyy}.",
-                                                            info.unbannedBy,
-                                                            info.unbanDate ) );
+                        player.Message( "  Unbanned by {0} on {1:dd MMM yyyy}.",
+                                        info.unbannedBy,
+                                        info.unbanDate );
                         if( info.unbanReason.Length > 0 ) {
-                            player.Message( "  Unban memo: " + info.unbanReason );
+                            player.Message( "  Last unban memo: {0}", info.unbanReason );
                         }
                     }
                     if( info.banDate != DateTime.MinValue ) {
@@ -419,9 +440,9 @@ namespace fCraft {
                         } else {
                             banDuration = info.unbanDate.Subtract( info.banDate );
                         }
-                        player.Message( String.Format( "  Last ban duration: {0} days and {1:F1} hours.",
-                                                            (int)banDuration.TotalDays,
-                                                            banDuration.TotalHours ) );
+                        player.Message( "  Last ban duration: {0} days and {1:F1} hours.",
+                                        (int)banDuration.TotalDays,
+                                        banDuration.TotalHours );
                     }
                 } else {
                     player.NoPlayerMessage( name );
@@ -433,7 +454,7 @@ namespace fCraft {
 
         static CommandDescriptor cdClassInfo = new CommandDescriptor {
             name = "cinfo",
-            aliases = new string[]{"class","classinfo"},
+            aliases = new string[] { "class", "classinfo" },
             consoleSafe = true,
             usage = "/cinfo ClassName",
             help = "Shows a list of permissions granted to a class. To see a list of all classes, use &H/classes",
@@ -444,16 +465,17 @@ namespace fCraft {
         internal static void ClassInfo( Player player, Command cmd ) {
             PlayerClass playerClass = ClassList.FindClass( cmd.Next() );
             if( playerClass != null ) {
-                player.Message( "Players of class \"" + playerClass.name + "\" can do the following:" );
-
                 bool first = true;
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder( "Players of class " );
+                sb.AppendFormat( "Players of class {0}{1}&S can do the following: ",
+                                 playerClass.color,
+                                 playerClass.name );
                 for( int i = 0; i < playerClass.permissions.Length; i++ ) {
                     if( playerClass.permissions[i] ) {
-                        sb.Append( (Permission)i );
                         if( !first ) {
                             sb.Append( ", " );
                         }
+                        sb.Append( (Permission)i );
                         first = false;
                     }
                 }
@@ -471,9 +493,12 @@ namespace fCraft {
         };
 
         internal static void Classes( Player player, Command cmd ) {
-            player.Message( "Below is a list of classes. For detail see " + Color.Help + cdClassInfo.usage );
+            player.Message( "Below is a list of classes. For detail see &H{0}", cdClassInfo.usage );
             foreach( PlayerClass classListEntry in ClassList.classesByIndex ) {
-                player.Message( classListEntry.color + "    " + classListEntry.name + " (rank " + classListEntry.rank + ")" );
+                player.Message( "{0}    {1} (rank {2})",
+                                classListEntry.color,
+                                classListEntry.name,
+                                classListEntry.rank );
             }
         }
 

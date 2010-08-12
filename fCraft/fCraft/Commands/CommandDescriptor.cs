@@ -21,9 +21,9 @@ namespace fCraft {
 
         public void PrintUsage( Player player ) {
             if( usage != null ) {
-                player.Message( "Usage: " + Color.Help + usage );
+                player.Message( "Usage: &H{0}", usage );
             } else {
-                player.Message( "Usage: " + Color.Help + "/" + name );
+                player.Message( "Usage: &H/{0}", name );
             }
         }
     }

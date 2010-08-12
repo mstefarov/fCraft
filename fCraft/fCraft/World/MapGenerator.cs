@@ -255,7 +255,7 @@ namespace fCraft {
 
         void Feedback( string message ) {
             if( player != null ) {
-                player.Message( "Map generation: " + message );
+                player.Message( "Map generation: {0}", message );
             }
         }
 
