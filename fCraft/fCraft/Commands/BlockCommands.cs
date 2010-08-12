@@ -139,10 +139,13 @@ namespace fCraft {
 
             if( !cmd.NextBlockType( out replacementBlock ) ) {
                 if( player.GetBind( originalBlock ) != originalBlock ) {
-                    player.Message( "{0} is no longer bound to {1}", originalBlock, player.GetBind( originalBlock ) );
+                    player.Message( "{0} is no longer bound to {1}",
+                                    originalBlock,
+                                    player.GetBind( originalBlock ) );
                     player.ResetBind( originalBlock );
                 } else {
-                    player.Message( "{0} is not bound to anything.", originalBlock );
+                    player.Message( "{0} is not bound to anything.",
+                                    originalBlock );
                 }
             } else if( replacementBlock == Block.Undefined ) {
                 player.Message( "Bind: Unrecognized replacement block name." );

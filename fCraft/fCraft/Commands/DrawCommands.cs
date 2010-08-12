@@ -615,7 +615,9 @@ namespace fCraft {
                             (copyInfo.widthY > 0 ? "south" : "north"),
                             (copyInfo.widthX > 0 ? "west" : "east") );
 
-            Logger.Log( "{0} copied {1} blocks.", LogType.UserActivity, player.GetLogName(), volume );
+            Logger.Log( "{0} copied {1} blocks.", LogType.UserActivity,
+                        player.GetLogName(),
+                        volume );
         }
 
 
@@ -742,6 +744,10 @@ namespace fCraft {
 
             player.Message( "{0} blocks pasted. The map is now being updated...", blocks );
             player.drawingInProgress = false;
+
+            Logger.Log( "{0} pasted {1} blocks.", LogType.UserActivity,
+                        player.GetLogName(),
+                        blocks );
         }
 
         #endregion
