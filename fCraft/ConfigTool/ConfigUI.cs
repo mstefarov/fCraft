@@ -30,6 +30,11 @@ namespace ConfigTool {
                 MessageBox.Show( e.Exception.Message, "Data Error" );
             };
             Load += LoadConfig;
+
+#if DEBUG
+#else
+            MessageBox.Show("You are using an EXPERIMENTAL VERSION. Use a stable version instead (0.435).");
+#endif
         }
 
         void FillPermissionList() {

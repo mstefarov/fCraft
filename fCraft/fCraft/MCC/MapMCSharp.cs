@@ -88,13 +88,13 @@ namespace Mcc {
 
             // Read in the map dimesions
             map.widthX = bs.ReadInt16();
-            map.widthY = bs.ReadInt16();
             map.height = bs.ReadInt16();
+            map.widthY = bs.ReadInt16();
 
             // Read in the spawn location
             map.spawn.x = (short)(bs.ReadInt16() * 32);
-            map.spawn.y = (short)(bs.ReadInt16() * 32);
             map.spawn.h = (short)(bs.ReadInt16() * 32);
+            map.spawn.y = (short)(bs.ReadInt16() * 32);
 
             // Read in the spawn orientation
             map.spawn.r = bs.ReadByte();
@@ -130,13 +130,13 @@ namespace Mcc {
 
                 // Write the map dimensions
                 bs.Write( mapToSave.widthX );
-                bs.Write( mapToSave.widthY );
                 bs.Write( mapToSave.height );
+                bs.Write( mapToSave.widthY );
 
                 // Write the spawn location
                 bs.Write( mapToSave.spawn.x/32 );
-                bs.Write( mapToSave.spawn.y/32 );
-                bs.Write( mapToSave.spawn.h/32 );
+                bs.Write( mapToSave.spawn.h / 32 );
+                bs.Write( mapToSave.spawn.y / 32 );
 
                 //Write the spawn orientation
                 bs.Write( mapToSave.spawn.r );
@@ -157,21 +157,13 @@ namespace Mcc {
 
         public bool Claims( Stream mapStream ) {
             mapStream.Seek( 0, SeekOrigin.Begin );
-
-            GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-            BinaryReader bs = new BinaryReader( gs );
-
             try {
-                if ( bs.ReadUInt16() == 0x752 ) {
-                    return true;
-                }
-            } catch ( IOException ) {
-                return false;
-            } catch ( InvalidDataException ) {
+                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
+                BinaryReader bs = new BinaryReader( gs );
+                return (bs.ReadUInt16() == 0x752);
+            } catch( Exception ) {
                 return false;
             }
-
-            return false;
         }
 
     }

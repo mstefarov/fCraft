@@ -52,6 +52,7 @@ namespace Mcc {
             AvailableConverters.Add( MapFormat.MinerCPP, new MapMinerCPP() );
             AvailableConverters.Add( MapFormat.NBT, new MapNBT() );
             AvailableConverters.Add( MapFormat.Creative, new MapDAT() );
+            AvailableConverters.Add( MapFormat.JTE, new MapJTE() );
         }
 
 

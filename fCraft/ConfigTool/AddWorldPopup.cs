@@ -115,7 +115,6 @@ namespace ConfigTool {
         #region Loading/Saving
 
         void StartLoadingMap( string _fileToLoad ) {
-            gMap.Enabled = false;
             bOK.Enabled = false;
             fileToLoad = _fileToLoad;
             tStatus1.Text = "Loading " + new FileInfo( fileToLoad ).Name;
@@ -136,8 +135,6 @@ namespace ConfigTool {
         }
 
         private void bBrowse_Click( object sender, EventArgs e ) {
-            gMap.Enabled = false;
-
             fileBrowser.FileName = tFile.Text;
             fileBrowser.ShowDialog();
             tFile.Text = fileBrowser.FileName;
@@ -166,7 +163,6 @@ namespace ConfigTool {
                 Redraw(true);
             }
             if( rCopy.Checked ) bShow.Enabled = true;
-            gMap.Enabled = true;
             bOK.Enabled = true;
         }
         #endregion Loading
@@ -247,7 +243,6 @@ namespace ConfigTool {
         }
 
         private void bGenerate_Click( object sender, EventArgs e ) {
-            gMap.Enabled = false;
             bOK.Enabled = false;
 
             tStatus1.Text = "Generating...";
@@ -288,7 +283,6 @@ namespace ConfigTool {
                 tStatus2.Text = ", drawing...";
                 Redraw(true);
             }
-            gMap.Enabled = true;
             bOK.Enabled = true;
         }
 
