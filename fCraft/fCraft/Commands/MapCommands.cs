@@ -350,7 +350,7 @@ namespace fCraft {
                    "If the world with the specified name exists, its map is replaced with the specified map file. " +
                    "Otherwise, a new world is created using the given name and map file. " +
                    "Supported formats: fCraft (fcm), MCSharp/MCZall (lvl), vanilla (server_level.dat), MinerCPP/LuaCraft (dat), " +
-                   "indev (mclevel). Note: infinite maps NOT supported.",
+                   "JTE (gz), indev (mclevel). Note: infinite maps NOT supported.",
             handler = WorldLoad
         };
 

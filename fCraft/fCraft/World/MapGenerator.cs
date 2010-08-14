@@ -65,7 +65,7 @@ namespace fCraft {
                     SetParams( 4, 1, 0.4, 0.1, 0.5, 0.7 );
                     break;
                 case MapGenType.Cliffs:
-                    SetParams( 3, 1.2, 0.6, 0, 0.45, 0.65 );
+                    SetParams( 3, 1.2, 0.6, 0, 0.55, 0.7 );
                     break;
                 case MapGenType.Lake:
                     SetParams( 1, 0.6, 0.9, -0.3, 0.53, 0.6 );
@@ -144,8 +144,10 @@ namespace fCraft {
             ApplyType();
             ApplyTheme();
 
-            double[,] heightmap = GenerateHeightmap( map.widthX, map.widthY );
-            double[,] blendmap = null;
+            roughness = 0.5;
+
+            float[,] heightmap = GenerateHeightmap( map.widthX, map.widthY );
+            float[,] blendmap = null;
 
             if( type == MapGenType.River ) {
                 double min = double.MaxValue, max = double.MinValue;
@@ -157,14 +159,15 @@ namespace fCraft {
                 }
                     for( int x = 0; x < map.widthX; x++ ) {
                         for( int y = 0; y < map.widthY; y++ ) {
-                            heightmap[x, y] = Math.Abs( ( heightmap[x, y] - min ) / ( max - min ) * 2 - 1 ) * .3 + .4;
+                            heightmap[x, y] = (float)(Math.Abs( ( heightmap[x, y] - min ) / ( max - min ) * 2 - 1 ) * .3 + .4);
                         }
                     }
             } else if( type == MapGenType.Cliffs ) {
                 groundThickness = Math.Max( 1, groundThickness / 2 );
-                double[,] heightmap1 = heightmap;
-                double[,] heightmap2 = GenerateHeightmap( map.widthX, map.widthY );
-                roughness = 10;
+                float[,] heightmap1 = heightmap;
+                SetParams( 3, 1.2, 0.6, -.05, 0.4, 0.55 );
+                float[,] heightmap2 = GenerateHeightmap( map.widthX, map.widthY );
+                SetParams( 4, 1, 1, 0, 0.5, 0.5 );
                 blendmap = GenerateHeightmap( map.widthX, map.widthY );
                 double min = double.MaxValue, max = double.MinValue;
                 for( int x = 0; x < map.widthX; x++ ) {
@@ -176,7 +179,7 @@ namespace fCraft {
                 double steepness = Math.Max( map.widthX, map.widthY ) / 5;
                 for( int x = 0; x < map.widthX; x++ ) {
                     for( int y = 0; y < map.widthY; y++ ) {
-                        blendmap[x, y] = Math.Min( 1, Math.Max( 0, ( heightmap[x, y] - min ) / ( max - min ) * steepness * 2 - steepness ) );
+                        blendmap[x, y] = (float)Math.Min( 1, Math.Max( 0, ( heightmap[x, y] - min ) / ( max - min ) * steepness * 2 - steepness ) );
                     }
                 }
                 for( int x = 0; x < map.widthX; x++ ) {
@@ -260,7 +263,14 @@ namespace fCraft {
         }
 
 
-        double[,] GenerateHeightmap( int iWidth, int iHeight ) {
+
+        float[,] GenerateHeightmap( int iWidth, int iHeight ) {
+            Noise theNoise = new Noise( rand );
+            int octaves = (int)Math.Log( Math.Max( iWidth, iHeight ), 2 );
+            float[,] map = theNoise.PerlinMap( iWidth, iHeight, octaves, (float)roughness );
+            Noise.Normalize( map, (float)sidesMin, (float)sidesMax );
+            return map;
+
             double[,] points = new double[iWidth + 1, iHeight + 1];
 
             double sideDelta = (sidesMax - sidesMin);
@@ -283,7 +293,7 @@ namespace fCraft {
 
             gBigSize = iWidth + iHeight;
             DivideGrid( ref points, 0, 0, iWidth, iHeight, sidesMin + sides[0], sidesMin + sides[1], sidesMin + sides[2], sidesMin + sides[3], true );
-            return points;
+            //return points;
         }
 
 
@@ -371,8 +381,8 @@ namespace fCraft {
         public static void GenerateTrees( Map map ) {
             int MinHeight = 4;
             int MaxHeight = 6;
-            int MinTrunkPadding = 5;
-            int MaxTrunkPadding = 10;
+            int MinTrunkPadding = 6;
+            int MaxTrunkPadding = 11;
             int BorderPadding = 4;
             int TopLayers = 2;
             double Odds = 0.618;

@@ -60,6 +60,9 @@ namespace Mcc {
         NBT,
         // Format used by indev and infdev
         // - Support added by Matvei
+        JTE,
+        // Format used by JTE's server
+        // - Support added by Matvei
         Unknown
         // Returned when the map could not be identified
     }
