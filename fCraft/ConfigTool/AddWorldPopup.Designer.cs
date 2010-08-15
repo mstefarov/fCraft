@@ -64,7 +64,6 @@
             this.tStatus1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
-            this.preview = new System.Windows.Forms.PictureBox();
             this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
             this.maskedTextBox1 = new System.Windows.Forms.MaskedTextBox();
@@ -107,11 +106,11 @@
             this.tabFlatgrass = new System.Windows.Forms.TabPage();
             this.tabHeightmap = new System.Windows.Forms.TabPage();
             this.tabTerrain = new System.Windows.Forms.TabPage();
+            this.preview = new ConfigTool.CustomPictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
             this.statusStrip.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.previewLayout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
@@ -124,6 +123,7 @@
             this.tabLoad.SuspendLayout();
             this.tabCopy.SuspendLayout();
             this.tabTerrain.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.SuspendLayout();
             // 
             // lX2
@@ -578,21 +578,6 @@
             this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.progressBar.Visible = false;
             // 
-            // preview
-            // 
-            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.preview.BackColor = System.Drawing.Color.Black;
-            this.previewLayout.SetColumnSpan( this.preview, 3 );
-            this.preview.Location = new System.Drawing.Point( 3, 3 );
-            this.preview.Name = "preview";
-            this.preview.Padding = new System.Windows.Forms.Padding( 5 );
-            this.preview.Size = new System.Drawing.Size( 514, 482 );
-            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.preview.TabIndex = 30;
-            this.preview.TabStop = false;
-            // 
             // previewLayout
             // 
             this.previewLayout.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
@@ -602,10 +587,10 @@
             this.previewLayout.ColumnStyles.Add( new System.Windows.Forms.ColumnStyle( System.Windows.Forms.SizeType.Percent, 50F ) );
             this.previewLayout.ColumnStyles.Add( new System.Windows.Forms.ColumnStyle( System.Windows.Forms.SizeType.Absolute, 60F ) );
             this.previewLayout.ColumnStyles.Add( new System.Windows.Forms.ColumnStyle( System.Windows.Forms.SizeType.Percent, 50F ) );
-            this.previewLayout.Controls.Add( this.preview, 0, 0 );
             this.previewLayout.Controls.Add( this.bPreviewPrev, 0, 1 );
             this.previewLayout.Controls.Add( this.bPreviewNext, 2, 1 );
             this.previewLayout.Controls.Add( this.lPreview, 1, 1 );
+            this.previewLayout.Controls.Add( this.preview, 0, 0 );
             this.previewLayout.Location = new System.Drawing.Point( 397, 12 );
             this.previewLayout.Name = "previewLayout";
             this.previewLayout.RowCount = 2;
@@ -918,6 +903,7 @@
             // 
             // button2
             // 
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button2.Location = new System.Drawing.Point( 397, 534 );
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size( 125, 25 );
@@ -1061,6 +1047,20 @@
             this.tabTerrain.TabIndex = 5;
             this.tabTerrain.Text = "Terrain";
             // 
+            // preview
+            // 
+            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.preview.BackColor = System.Drawing.Color.Black;
+            this.previewLayout.SetColumnSpan( this.preview, 3 );
+            this.preview.Location = new System.Drawing.Point( 3, 3 );
+            this.preview.Name = "preview";
+            this.preview.Size = new System.Drawing.Size( 514, 482 );
+            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.preview.TabIndex = 17;
+            this.preview.TabStop = false;
+            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -1091,7 +1091,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).EndInit();
             this.statusStrip.ResumeLayout( false );
             this.statusStrip.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.previewLayout.ResumeLayout( false );
             this.previewLayout.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
@@ -1108,6 +1107,7 @@
             this.tabCopy.ResumeLayout( false );
             this.tabTerrain.ResumeLayout( false );
             this.tabTerrain.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.ResumeLayout( false );
             this.PerformLayout();
 
@@ -1153,7 +1153,6 @@
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripProgressBar progressBar;
         private System.Windows.Forms.ToolStripStatusLabel tStatus1;
-        private System.Windows.Forms.PictureBox preview;
         private System.Windows.Forms.ToolStripStatusLabel tStatus2;
         private System.Windows.Forms.TableLayoutPanel previewLayout;
         private System.Windows.Forms.RadioButton rExisting;
@@ -1199,5 +1198,6 @@
         private System.Windows.Forms.TabPage tabFlatgrass;
         private System.Windows.Forms.TabPage tabHeightmap;
         private System.Windows.Forms.TabPage tabTerrain;
+        private CustomPictureBox preview;
     }
 }

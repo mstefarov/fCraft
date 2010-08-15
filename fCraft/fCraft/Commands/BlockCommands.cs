@@ -5,7 +5,7 @@ using System;
 namespace fCraft {
     static class BlockCommands {
 
-        internal static void Init(){
+        internal static void Init() {
             CommandList.RegisterCommand( cdSolid );
             CommandList.RegisterCommand( cdPaint );
             CommandList.RegisterCommand( cdGrass );
@@ -45,7 +45,7 @@ namespace fCraft {
 
         internal static void Paint( Player player, Command cmd ) {
             player.isPainting = !player.isPainting;
-            if( player.isPainting ){
+            if( player.isPainting ) {
                 player.Message( "Replacement mode: ON" );
             } else {
                 player.Message( "Replacement mode: OFF" );
@@ -104,7 +104,7 @@ namespace fCraft {
         };
 
         internal static void Lava( Player player, Command cmd ) {
-            if( player.GetBind( Block.Red ) == Block.Lava ){
+            if( player.GetBind( Block.Red ) == Block.Lava ) {
                 player.ResetBind( Block.Red );
                 player.Message( "Lava: OFF" );
             } else {
@@ -119,20 +119,20 @@ namespace fCraft {
             name = "bind",
             aliases = new string[] { "b" },
             permissions = new Permission[] { Permission.Build },
-            help = "Assigns one blocktype to another. "+
-                   "Allows to build blocktypes that are not normally buildable directly: admincrete, lava, water, grass, double step. "+
+            help = "Assigns one blocktype to another. " +
+                   "Allows to build blocktypes that are not normally buildable directly: admincrete, lava, water, grass, double step. " +
                    "Calling &H/bind BlockType&S without second parameter resets the binding. If used with no params, ALL bindings are reset.",
             usage = "/bind OriginalBlockType ReplacementBlockType",
             handler = Bind
         };
 
-        internal static void Bind( Player player, Command cmd ){
+        internal static void Bind( Player player, Command cmd ) {
             Block originalBlock, replacementBlock;
-            if( !cmd.NextBlockType(out originalBlock)) {
-                    player.Message( "All bindings have been reset." );
-                    player.ResetAllBinds();
+            if( !cmd.NextBlockType( out originalBlock ) ) {
+                player.Message( "All bindings have been reset." );
+                player.ResetAllBinds();
                 return;
-            }else if( originalBlock == Block.Undefined ) {
+            } else if( originalBlock == Block.Undefined ) {
                 player.Message( "Bind: Unrecognized original block name." );
                 return;
             }
@@ -149,7 +149,7 @@ namespace fCraft {
                 }
             } else if( replacementBlock == Block.Undefined ) {
                 player.Message( "Bind: Unrecognized replacement block name." );
-            }else{
+            } else {
                 Permission permission = Permission.Build;
                 switch( replacementBlock ) {
                     case Block.Grass:
@@ -168,7 +168,7 @@ namespace fCraft {
                 if( player.Can( permission ) ) {
                     player.Bind( originalBlock, replacementBlock );
                     player.Message( "{0} is now replaced with {1}", originalBlock, replacementBlock );
-                }else{
+                } else {
                     player.Message( "{0}You do not have {1} permission.", Color.Red, permission );
                 }
             }

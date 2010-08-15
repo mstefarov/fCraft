@@ -176,16 +176,12 @@ namespace fCraft {
                     player.selectionMarksExpected = 2;
                     break;
                 case DrawMode.Replace:
-                    string replacementBlockName = cmd.Next();
-                    if( replacementBlockName == null ) {
+                    Block replacementBlock;
+                    if( !cmd.NextBlockType( out replacementBlock ) ) {
                         cdReplace.PrintUsage( player );
                         return;
-                    }
-                    Block replacementBlock;
-                    try {
-                        replacementBlock = Map.GetBlockByName( replacementBlockName );
-                    } catch( Exception ) {
-                        player.Message( "Replace: Unrecognized block name: \"{0}\"", replacementBlockName );
+                    } else if( replacementBlock == Block.Undefined ) {
+                        player.Message( "Replace: Unrecognized block name" );
                         return;
                     }
                     player.selectionCallback = DrawReplace;
@@ -625,7 +621,7 @@ namespace fCraft {
             name = "paste",
             permissions = new Permission[] { Permission.CopyAndPaste },
             help = "Paste previously copied blocks. Used together with &H/copy&S command. " +
-                   "Note that pasting starts at the same corner that you started &H/copy&S from. "+
+                   "Note that pasting starts at the same corner that you started &H/copy&S from. " +
                    "If the optional parameter is given, blocks of specified type are excluded while pasting.",
             usage = "/paste [ExcludedBlockType]",
             handler = Paste
@@ -638,19 +634,16 @@ namespace fCraft {
             }
 
             Block excludedType;
-            if( cmd.NextBlockType( out excludedType ) ) {
+            if( !cmd.NextBlockType( out excludedType ) ) {
+                player.selectionArgs = new PasteArgs();
+            } else if( excludedType == Block.Undefined ) {
+                player.Message( "Paste: Unrecognized block type." );
+            } else {
                 player.selectionArgs = new PasteArgs {
                     doExclude = true,
                     type = excludedType
                 };
                 player.Message( "Ready to paste all EXCEPT {0}", excludedType );
-            } else {
-                cmd.Rewind();
-                if( cmd.Next() != null ) {
-                    player.Message( "Paste: Unrecognized block type." );
-                    return;
-                }
-                player.selectionArgs = new PasteArgs();
             }
 
             player.selectionCallback = DoPaste;
@@ -678,7 +671,10 @@ namespace fCraft {
 
             Block includedType;
             if( !cmd.NextBlockType( out includedType ) ) {
-                player.Message( "Paste: Unrecognized block type." );
+                cdPasteOnly.PrintUsage( player );
+                return;
+            } else if( includedType == Block.Undefined ) {
+                player.Message( "PasteOnly: Unrecognized block type." );
                 return;
             }
 

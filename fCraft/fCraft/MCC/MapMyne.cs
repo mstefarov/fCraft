@@ -35,39 +35,26 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Net;
 using fCraft;
 
 
 namespace Mcc {
-    public sealed class MapMCSharp : IConverter {
+    public sealed class MapMyne : IConverter {
 
         public MapFormat Format {
-            get { return MapFormat.MCSharp; }
+            get { return MapFormat.JTE; }
         }
 
         public string FileExtension {
-            get { return ".lvl"; }
+            get { return ".gz"; }
         }
 
         public string ServerName {
-            get { return "MCSharp"; }
+            get { return "Myne"; }
         }
 
-        static byte[] mapping = new byte[256];
-        static MapMCSharp() {
-            mapping[100] = (byte)Block.Glass;
-            mapping[101] = (byte)Block.Obsidian;
-            mapping[102] = (byte)Block.Brick;
-            mapping[103] = (byte)Block.Stone;
-            mapping[104] = (byte)Block.Rocks;
-            mapping[106] = (byte)Block.Water;
-
-            mapping[110] = (byte)Block.Wood;
-            mapping[111] = (byte)Block.Log;
-            mapping[112] = (byte)Block.Lava;
-            mapping[113] = (byte)Block.Obsidian;
-            mapping[114] = (byte)Block.Glass;
-            // all others default to 0/air
+        public MapMyne() {
         }
 
         public Map Load( Stream mapStream ) {
@@ -81,28 +68,21 @@ namespace Mcc {
 
             Map map = new Map();
 
-            // Read in the magic number
-            if ( bs.ReadUInt16() != 0x752 ) {
-                throw new FormatException();
-            }
-
-            // Read in the map dimesions
-            map.widthX = bs.ReadInt16();
-            map.height = bs.ReadInt16();
-            map.widthY = bs.ReadInt16();
+            bs.ReadByte(); // version, either 1 or 2
 
             // Read in the spawn location
-            map.spawn.x = (short)(bs.ReadInt16() * 32);
-            map.spawn.h = (short)(bs.ReadInt16() * 32);
-            map.spawn.y = (short)(bs.ReadInt16() * 32);
+            map.spawn.x = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
+            map.spawn.h = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
+            map.spawn.y = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
 
             // Read in the spawn orientation
             map.spawn.r = bs.ReadByte();
             map.spawn.l = bs.ReadByte();
 
-            // Skip over the VisitPermission and BuildPermission bytes
-            bs.ReadByte();
-            bs.ReadByte();
+            // Read in the map dimesions
+            map.widthX = IPAddress.NetworkToHostOrder(bs.ReadInt16());
+            map.widthY = IPAddress.NetworkToHostOrder(bs.ReadInt16());
+            map.height = IPAddress.NetworkToHostOrder(bs.ReadInt16());
 
             if( !map.ValidateHeader() ) {
                 throw new Exception( "One or more of the map dimensions are invalid." );
@@ -110,12 +90,6 @@ namespace Mcc {
 
             // Read in the map data
             map.blocks = bs.ReadBytes( map.GetBlockCount() );
-
-            for( int i = 0; i < map.blocks.Length; i++ ) {
-                if( map.blocks[i] > 49 ) {
-                    map.blocks[i] = mapping[map.blocks[i]];
-                }
-            }
 
             return map;
         }
@@ -126,25 +100,21 @@ namespace Mcc {
                 BinaryWriter bs = new BinaryWriter( gs );
 
                 // Write the magic number
-                bs.Write( (ushort)0x752 );
-
-                // Write the map dimensions
-                bs.Write( mapToSave.widthX );
-                bs.Write( mapToSave.height );
-                bs.Write( mapToSave.widthY );
+                bs.Write( (byte)0x01 );
 
                 // Write the spawn location
-                bs.Write( mapToSave.spawn.x/32 );
-                bs.Write( mapToSave.spawn.h / 32 );
-                bs.Write( mapToSave.spawn.y / 32 );
+                bs.Write( IPAddress.NetworkToHostOrder((short)(mapToSave.spawn.x/32)) );
+                bs.Write( IPAddress.NetworkToHostOrder((short)(mapToSave.spawn.h/32)) );
+                bs.Write( IPAddress.NetworkToHostOrder((short)(mapToSave.spawn.y/32)) );
 
                 //Write the spawn orientation
                 bs.Write( mapToSave.spawn.r );
                 bs.Write( mapToSave.spawn.l );
 
-                // Write the VistPermission and BuildPermission bytes
-                bs.Write( (byte)0 );
-                bs.Write( (byte)0 );
+                // Write the map dimensions
+                bs.Write( IPAddress.NetworkToHostOrder( mapToSave.widthX ) );
+                bs.Write( IPAddress.NetworkToHostOrder( mapToSave.widthY ) );
+                bs.Write( IPAddress.NetworkToHostOrder( mapToSave.height ) );
 
                 // Write the map data
                 bs.Write( mapToSave.blocks, 0, mapToSave.blocks.Length );
@@ -160,7 +130,8 @@ namespace Mcc {
             try {
                 GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
                 BinaryReader bs = new BinaryReader( gs );
-                return (bs.ReadUInt16() == 0x752);
+                byte version = bs.ReadByte();
+                return (version == 1 || version == 2);
             } catch( Exception ) {
                 return false;
             }
