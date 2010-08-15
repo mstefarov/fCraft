@@ -53,6 +53,7 @@ namespace Mcc {
             AvailableConverters.Add( MapFormat.NBT, new MapNBT() );
             AvailableConverters.Add( MapFormat.Creative, new MapDAT() );
             AvailableConverters.Add( MapFormat.JTE, new MapJTE() );
+            AvailableConverters.Add( MapFormat.D3, new MapD3() );
         }
 
 

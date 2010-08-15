@@ -44,7 +44,7 @@ namespace Mcc {
         // - Support added by Matvei
         FCMv3,
         // Future map format used by fCraft
-        // - Support pending (Assigned to Matvei)
+        // - Planned
         MCSharp,
         // Map format used by MCSharp
         // - Support added by Tyler
@@ -53,7 +53,7 @@ namespace Mcc {
         // - Support added by Tyler
         Myne,
         // Map format used by Myne and its children (Mainly Hyvebuild)
-        // - Support pending (Assigned to Tyler)
+        // - Support added by Matvei
         Creative,
         // Creative makes more sense then the original "Vanilla"
         // - Support added by Tyler
@@ -62,6 +62,9 @@ namespace Mcc {
         // - Support added by Matvei
         JTE,
         // Format used by JTE's server
+        // - Support added by Matvei
+        D3,
+        // Format used by D3 server
         // - Support added by Matvei
         Unknown
         // Returned when the map could not be identified

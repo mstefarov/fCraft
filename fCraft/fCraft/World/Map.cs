@@ -370,7 +370,12 @@ namespace fCraft {
 
 
         internal static Block GetBlockByName( string block ) {
-            return blockNames[block];
+            block = block.ToLower();
+            if( blockNames.ContainsKey( block ) ) {
+                return blockNames[block];
+            } else {
+                return Block.Undefined;
+            }
         }
 
 

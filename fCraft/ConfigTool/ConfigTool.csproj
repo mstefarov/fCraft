@@ -105,6 +105,9 @@
     <Compile Include="AddWorldPopup.Designer.cs">
       <DependentUpon>AddWorldPopup.cs</DependentUpon>
     </Compile>
+    <Compile Include="CustomPictureBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="DeleteClassPopup.cs">
       <SubType>Form</SubType>
     </Compile>

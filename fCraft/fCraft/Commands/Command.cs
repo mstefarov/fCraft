@@ -68,12 +68,8 @@ namespace fCraft {
             if( blockName == null ) {
                 return false;
             }
-            try {
-                block = Map.GetBlockByName( blockName );
-                return true;
-            } catch( Exception ) {
-                return false;
-            }
+            block = Map.GetBlockByName( blockName );
+            return true;
         }
 
 
