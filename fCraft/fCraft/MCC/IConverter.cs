@@ -43,9 +43,9 @@ namespace Mcc {
         string FileExtension { get; }
         string ServerName { get; }
 
-        bool Claims( Stream mapStream );
+        bool Claims( Stream mapStream, string fileName );
 
-        Map Load( Stream mapStream );
+        Map Load( Stream mapStream, string fileName );
 
         bool Save( Map mapToSave, Stream mapStream );
     }

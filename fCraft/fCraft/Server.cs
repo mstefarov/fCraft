@@ -45,7 +45,7 @@ namespace fCraft {
                 Directory.CreateDirectory( "maps" );
                 string[] files = Directory.GetFiles( Directory.GetCurrentDirectory(), "*.fcm" );
                 if( files.Length > 0 ) {
-                    Logger.Log( "Server.Init: fCraft now uses a dedicated /maps/ folder for storing map files. Your maps have been moved automatically.", LogType.SystemActivity );
+                    Logger.Log( "Server.Init: fCraft now uses a dedicated /maps/ directory for storing map files. Your maps have been moved automatically.", LogType.SystemActivity );
 
                     foreach( string file in files ) {
                         string newFile = "maps/" + new FileInfo( file ).Name;
@@ -56,7 +56,7 @@ namespace fCraft {
         }
 
         public static void ResetWorkingDirectory() {
-            // reset working directory to same folder as the executable
+            // reset working directory to same directory as the executable
             Directory.SetCurrentDirectory( Path.GetDirectoryName( Process.GetCurrentProcess().MainModule.FileName ) );
         }
 

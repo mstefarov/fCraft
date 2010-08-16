@@ -118,29 +118,42 @@ namespace fCraft {
 
         #region Loading
         public static Map Load( World _world, string fileName ) {
-            Map map = null;
-
-            // if file exists, go ahead and load
-            if( File.Exists( fileName ) ) {
-                map = DoLoad( fileName );
-
-            } else { // otherwise, try to append ".fcm" and/or prepend "maps/"
+            // locate the file
+            if( !File.Exists( fileName ) && !Directory.Exists( fileName ) ) {
+                // try to append ".fcm" and/or prepend "maps/"
                 if( File.Exists( fileName + ".fcm" ) ) {
-                    map = DoLoad( fileName + ".fcm" );
-                }else if( File.Exists( "maps/" + fileName ) ) {
-                    map = DoLoad( "maps/" + fileName );
+                    fileName += ".fcm";
+                } else if( File.Exists( "maps/" + fileName ) || Directory.Exists("maps/" + fileName) ) {
+                    fileName = "maps/" + fileName;
                 } else if( File.Exists( "maps/" + fileName + ".fcm" ) ) {
-                    map = DoLoad( "maps/" + fileName + ".fcm" );
+                    fileName = "maps/" + fileName + ".fcm";
                 } else {
                     Logger.Log( "Map.Load: Could not find the specified file: {0}", LogType.Error, fileName );
+                    return null;
                 }
             }
 
-            if( map != null ) {
+            // do the loading
+            try {
+                Map map = MapUtility.TryLoading( fileName );
+                if( !map.ValidateBlockTypes( true ) ) {
+                    Logger.Log( "Map.Load: Invalid block types detected in \"{0}\". File may be corrupt, or format unsupported.", LogType.Error,
+                                fileName );
+                }
                 map.world = _world;
-            }
+                return map;
 
-            return map;
+            } catch( EndOfStreamException ) {
+                Logger.Log( "Map.Load: Unexpected end of file \"{0}\". File may be corrupt, or format unsupported.", LogType.Error,
+                            fileName );
+                return null;
+
+            } catch( Exception ex ) {
+                Logger.Log( "Map.Load: Error trying to read from \"{0}\": {1}", LogType.Error,
+                            fileName,
+                            ex.Message );
+                return null;
+            }
         }
 
         public static Map LoadHeaderOnly( string fileName ) {
@@ -177,26 +190,6 @@ namespace fCraft {
             }
         }
 
-        static Map DoLoad( string fileName ) {
-            try {
-                Map map = MapUtility.TryLoading( fileName );
-                if( !map.ValidateBlockTypes( true ) ) {
-                    throw new Exception( "Invalid block types detected. File is possibly corrupt." );
-                }
-                return map;
-
-            } catch( EndOfStreamException ) {
-                Logger.Log( "Map.Load: Unexpected end of file - possible corruption!", LogType.Error );
-                return null;
-
-            } catch( Exception ex ) {
-                Logger.Log( "Map.Load: Error trying to read from \"{0}\": {1}", LogType.Error,
-                            fileName,
-                            ex.Message );
-                return null;
-
-            }
-        }
 
 
         internal bool ValidateHeader() {

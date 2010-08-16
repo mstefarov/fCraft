@@ -54,7 +54,7 @@ namespace Mcc {
         }
 
 
-        public Map Load( Stream mapStream ) {
+        public Map Load( Stream mapStream, string fileName ) {
             byte[] temp = new byte[8];
             Map map = new Map();
             byte[] data;
@@ -157,7 +157,7 @@ namespace Mcc {
         }
 
 
-        public bool Claims( Stream mapStream ) {
+        public bool Claims( Stream mapStream, string fileName ) {
             byte[] temp = new byte[8];
             byte[] data;
             int length;

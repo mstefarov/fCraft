@@ -70,7 +70,7 @@ namespace Mcc {
             // all others default to 0/air
         }
 
-        public Map Load( Stream mapStream ) {
+        public Map Load( Stream mapStream, string fileName ) {
             // Reset the seeker to the front of the stream
             // This should probably be done differently.
             mapStream.Seek( 0, SeekOrigin.Begin );
@@ -155,7 +155,7 @@ namespace Mcc {
         }
 
 
-        public bool Claims( Stream mapStream ) {
+        public bool Claims( Stream mapStream, string fileName ) {
             mapStream.Seek( 0, SeekOrigin.Begin );
             try {
                 GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
