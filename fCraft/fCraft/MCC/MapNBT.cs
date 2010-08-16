@@ -53,7 +53,7 @@ namespace Mcc {
             get { return "indev"; }
         }
 
-        public Map Load( Stream mapStream ) {
+        public Map Load( Stream mapStream, string fileName ) {
             mapStream.Seek( 0, SeekOrigin.Begin );
             GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
             NBTag tag = NBTag.ReadStream( gs );
@@ -87,7 +87,7 @@ namespace Mcc {
         }
 
 
-        public bool Claims( Stream mapStream ) {
+        public bool Claims( Stream mapStream, string fileName ) {
             mapStream.Seek( 0, SeekOrigin.Begin );
 
             GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );

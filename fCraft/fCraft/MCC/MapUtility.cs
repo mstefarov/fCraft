@@ -54,12 +54,13 @@ namespace Mcc {
             AvailableConverters.Add( MapFormat.Creative, new MapDAT() );
             AvailableConverters.Add( MapFormat.JTE, new MapJTE() );
             AvailableConverters.Add( MapFormat.D3, new MapD3() );
+            AvailableConverters.Add( MapFormat.Myne, new MapMyne() );
         }
 
 
-        public static MapFormat Identify( Stream mapStream ) {
+        public static MapFormat Identify( Stream mapStream, string fileName ) {
             foreach ( IConverter Converter in AvailableConverters.Values ) {
-                if ( Converter.Claims( mapStream ) )
+                if( Converter.Claims( mapStream, fileName ) )
                     return Converter.Format;
             }
             return MapFormat.Unknown;
@@ -68,22 +69,31 @@ namespace Mcc {
 
 
         public static Map TryLoading( string fileName ) {
-            Stream MapStream = File.OpenRead( fileName );
-            string ext = new FileInfo( fileName ).Extension;
-            // first try all converters for the file extension
-            foreach ( IConverter Converter in AvailableConverters.Values ) {
-                if( Converter.FileExtension == ext  && Converter.Claims( MapStream ) ) {
-                    return Converter.Load( MapStream );
+            if( File.Exists( fileName ) ) {
+                using( Stream MapStream = File.OpenRead( fileName ) ) {
+                    string ext = new FileInfo( fileName ).Extension;
+                    // first try all converters for the file extension
+                    foreach( IConverter Converter in AvailableConverters.Values ) {
+                        if( Converter.FileExtension == ext && Converter.Claims( MapStream, fileName ) ) {
+                            return Converter.Load( MapStream, fileName );
+                        }
+                    }
+                    // then try the rest
+                    foreach( IConverter Converter in AvailableConverters.Values ) {
+                        if( Converter.FileExtension != ext && Converter.Claims( MapStream, fileName ) ) {
+                            return Converter.Load( MapStream, fileName );
+                        }
+                    }
                 }
+                // if all else fails
+                throw new FormatException();
+
+            } else if( Directory.Exists( fileName ) ) {
+                return AvailableConverters[MapFormat.Myne].Load( null, fileName );
+
+            } else {
+                throw new FileNotFoundException();
             }
-            // then try the rest
-            foreach( IConverter Converter in AvailableConverters.Values ) {
-                if( Converter.FileExtension != ext && Converter.Claims( MapStream ) ) {
-                    return Converter.Load( MapStream );
-                }
-            }
-            // if all else fails
-            throw new FormatException();
         }
 
 

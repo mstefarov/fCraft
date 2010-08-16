@@ -56,31 +56,31 @@ namespace Mcc {
 
         static byte[] mapping = new byte[256];
         static MapJTE() {
-            mapping[254] = (byte)Block.Sponge;      // lava sponge
-            mapping[253] = (byte)Block.TNT;         // dynamite
-            mapping[252] = (byte)Block.Sponge;      // supersponge
-            mapping[251] = (byte)Block.Water;       // watervator
-            mapping[250] = (byte)Block.White;       // soccer
-            mapping[249] = (byte)Block.Red;         // fire
-            mapping[248] = (byte)Block.Red;         // badfire
-            mapping[247] = (byte)Block.Red;         // hellfire
-            mapping[246] = (byte)Block.Black;       // ashes
-            mapping[245] = (byte)Block.Orange;      // torch
-            mapping[244] = (byte)Block.Orange;      // safetorch
-            mapping[243] = (byte)Block.Orange;      // helltorch
-            mapping[242] = (byte)Block.Red;         // uberfire
-            mapping[241] = (byte)Block.Red;         // godfire
-            mapping[240] = (byte)Block.TNT;         // nuke
-            mapping[239] = (byte)Block.Lava;        // lavavator
-            mapping[238] = (byte)Block.Admincrete;  // instawall
-            mapping[237] = (byte)Block.Admincrete;  // spleef
-            mapping[236] = (byte)Block.Green;       // resetspleef
-            mapping[235] = (byte)Block.Red;         // deletespleef
-            mapping[234] = (byte)Block.Sponge;      // godsponge
+            mapping[255] = (byte)Block.Sponge;      // lava sponge
+            mapping[254] = (byte)Block.TNT;         // dynamite
+            mapping[253] = (byte)Block.Sponge;      // supersponge
+            mapping[252] = (byte)Block.Water;       // watervator
+            mapping[251] = (byte)Block.White;       // soccer
+            mapping[250] = (byte)Block.Red;         // fire
+            mapping[249] = (byte)Block.Red;         // badfire
+            mapping[248] = (byte)Block.Red;         // hellfire
+            mapping[247] = (byte)Block.Black;       // ashes
+            mapping[246] = (byte)Block.Orange;      // torch
+            mapping[245] = (byte)Block.Orange;      // safetorch
+            mapping[244] = (byte)Block.Orange;      // helltorch
+            mapping[243] = (byte)Block.Red;         // uberfire
+            mapping[242] = (byte)Block.Red;         // godfire
+            mapping[241] = (byte)Block.TNT;         // nuke
+            mapping[240] = (byte)Block.Lava;        // lavavator
+            mapping[239] = (byte)Block.Admincrete;  // instawall
+            mapping[238] = (byte)Block.Admincrete;  // spleef
+            mapping[237] = (byte)Block.Green;       // resetspleef
+            mapping[236] = (byte)Block.Red;         // deletespleef
+            mapping[235] = (byte)Block.Sponge;      // godsponge
             // all others default to 0/air
         }
 
-        public Map Load( Stream mapStream ) {
+        public Map Load( Stream mapStream, string fileName ) {
             // Reset the seeker to the front of the stream
             // This should probably be done differently.
             mapStream.Seek( 0, SeekOrigin.Begin );
@@ -154,7 +154,7 @@ namespace Mcc {
         }
 
 
-        public bool Claims( Stream mapStream ) {
+        public bool Claims( Stream mapStream, string fileName ) {
             mapStream.Seek( 0, SeekOrigin.Begin );
             try {
                 GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );

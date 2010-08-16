@@ -1732,7 +1732,7 @@
             this.xMaxBackupSize.Name = "xMaxBackupSize";
             this.xMaxBackupSize.Size = new System.Drawing.Size( 302, 19 );
             this.xMaxBackupSize.TabIndex = 7;
-            this.xMaxBackupSize.Text = "Delete old backups if the folder takes up more than";
+            this.xMaxBackupSize.Text = "Delete old backups if the directory takes up more than";
             this.xMaxBackupSize.UseVisualStyleBackColor = true;
             this.xMaxBackupSize.CheckedChanged += new System.EventHandler( this.xMaxBackupSize_CheckedChanged );
             // 
@@ -1771,7 +1771,7 @@
             this.lMaxBackups.Name = "lMaxBackups";
             this.lMaxBackups.Size = new System.Drawing.Size( 142, 15 );
             this.lMaxBackups.TabIndex = 10;
-            this.lMaxBackups.Text = "files in the backup folder.";
+            this.lMaxBackups.Text = "files in the backup directory.";
             // 
             // nMaxBackups
             // 

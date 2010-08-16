@@ -37,17 +37,18 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using fCraft;
+using System.Collections.Generic;
 
 
 namespace Mcc {
     public sealed class MapMyne : IConverter {
 
         public MapFormat Format {
-            get { return MapFormat.JTE; }
+            get { return MapFormat.Myne; }
         }
 
         public string FileExtension {
-            get { return ".gz"; }
+            get { return ""; }
         }
 
         public string ServerName {
@@ -57,85 +58,133 @@ namespace Mcc {
         public MapMyne() {
         }
 
-        public Map Load( Stream mapStream ) {
-            // Reset the seeker to the front of the stream
-            // This should probably be done differently.
+        public Map Load( Stream inputStream, string dirName ) {
+            DirectoryInfo dirInfo = new DirectoryInfo( dirName );
+
+            string dataFileName = dirInfo.FullName + "/blocks.gz";
+            string metaFileName = dirInfo.FullName + "/world.meta";
+
+            if( !File.Exists( dataFileName ) || !File.Exists( metaFileName ) ) {
+                throw new FileNotFoundException( "When loading myne maps, both .gz and .meta files are required." );
+            }
+
+            Map map = new Map();
+            using( Stream metaStream = File.OpenRead( metaFileName ) ) {
+                LoadMeta( map, metaStream );
+            }
+            using( Stream dataStream = File.OpenRead( dataFileName ) ) {
+                LoadBlocks( map, dataStream );
+            }
+
+            return map;
+        }
+
+
+
+        void LoadBlocks( Map map, Stream mapStream ) {
             mapStream.Seek( 0, SeekOrigin.Begin );
 
             // Setup a GZipStream to decompress and read the map file
             GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
             BinaryReader bs = new BinaryReader( gs );
 
-            Map map = new Map();
-
-            bs.ReadByte(); // version, either 1 or 2
-
-            // Read in the spawn location
-            map.spawn.x = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
-            map.spawn.h = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
-            map.spawn.y = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
-
-            // Read in the spawn orientation
-            map.spawn.r = bs.ReadByte();
-            map.spawn.l = bs.ReadByte();
-
-            // Read in the map dimesions
-            map.widthX = IPAddress.NetworkToHostOrder(bs.ReadInt16());
-            map.widthY = IPAddress.NetworkToHostOrder(bs.ReadInt16());
-            map.height = IPAddress.NetworkToHostOrder(bs.ReadInt16());
-
-            if( !map.ValidateHeader() ) {
-                throw new Exception( "One or more of the map dimensions are invalid." );
+            int blockCount = IPAddress.HostToNetworkOrder( bs.ReadInt32() );
+            if( blockCount != map.widthY * map.widthX * map.height ) {
+                throw new Exception( "Map dimensions in the metadata do not match dimensions of the block array." );
             }
 
-            // Read in the map data
-            map.blocks = bs.ReadBytes( map.GetBlockCount() );
+            map.blocks = new byte[blockCount];
+            bs.Read( map.blocks, 0, map.blocks.Length );
+        }
 
-            return map;
+
+        void LoadMeta( Map map, Stream stream ) {
+            INIFile metaFile = new INIFile( stream );
+            if( metaFile.IsEmpty() ) {
+                throw new Exception( "Metadata file is empty or incorrectly formatted." );
+            }
+            if( !metaFile.Contains( "size", "x", "y", "z" ) ) {
+                throw new Exception( "Metadata file is missing map dimensions." );
+            }
+
+            map.widthX = Int32.Parse( metaFile["size", "x"] );
+            map.widthY = Int32.Parse( metaFile["size", "z"] );
+            map.height = Int32.Parse( metaFile["size", "y"] );
+
+            if( metaFile.Contains( "spawn", "x", "y", "z", "h" ) ) {
+                map.spawn.Set( Int16.Parse( metaFile["spawn", "x"] ) * 32 + 16,
+                               Int16.Parse( metaFile["spawn", "z"] ) * 32 + 16,
+                               Int16.Parse( metaFile["spawn", "y"] ) * 32 + 16,
+                               Byte.Parse( metaFile["spawn", "h"] ),
+                               0 );
+            } else {
+                map.ResetSpawn();
+            }
         }
 
 
         public bool Save( Map mapToSave, Stream mapStream ) {
-            using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress, true ) ) {
-                BinaryWriter bs = new BinaryWriter( gs );
-
-                // Write the magic number
-                bs.Write( (byte)0x01 );
-
-                // Write the spawn location
-                bs.Write( IPAddress.NetworkToHostOrder((short)(mapToSave.spawn.x/32)) );
-                bs.Write( IPAddress.NetworkToHostOrder((short)(mapToSave.spawn.h/32)) );
-                bs.Write( IPAddress.NetworkToHostOrder((short)(mapToSave.spawn.y/32)) );
-
-                //Write the spawn orientation
-                bs.Write( mapToSave.spawn.r );
-                bs.Write( mapToSave.spawn.l );
-
-                // Write the map dimensions
-                bs.Write( IPAddress.NetworkToHostOrder( mapToSave.widthX ) );
-                bs.Write( IPAddress.NetworkToHostOrder( mapToSave.widthY ) );
-                bs.Write( IPAddress.NetworkToHostOrder( mapToSave.height ) );
-
-                // Write the map data
-                bs.Write( mapToSave.blocks, 0, mapToSave.blocks.Length );
-
-                bs.Close();
-            }
-            return true;
+            throw new NotImplementedException();
         }
 
 
-        public bool Claims( Stream mapStream ) {
-            mapStream.Seek( 0, SeekOrigin.Begin );
-            try {
-                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-                BinaryReader bs = new BinaryReader( gs );
-                byte version = bs.ReadByte();
-                return (version == 1 || version == 2);
-            } catch( Exception ) {
+        public bool Claims( Stream inputStream, string fileName ) {
+            // Checks are done in Load() instead, because Myne uses multiple files per map.
+            return false;
+        }
+    }
+
+    class INIFile {
+        public string separator = "=";
+        Dictionary<string, Dictionary<string, string>> contents = new Dictionary<string, Dictionary<string, string>>();
+
+        public string this[string section, string key] {
+            get {
+                return contents[section][key];
+            }
+            set {
+                if( !contents.ContainsKey( section ) ) {
+                    contents[section] = new Dictionary<string, string>();
+                }
+                contents[section][key] = value;
+            }
+        }
+
+        public INIFile( Stream fileStream ) {
+            StreamReader reader = new StreamReader( fileStream );
+            Dictionary<string, string> section = null;
+            while( !reader.EndOfStream ) {
+                string line = reader.ReadLine().Trim();
+                if( line.StartsWith( "#" ) ) continue;
+                if( line.StartsWith( "[" ) ) {
+                    string sectionName = line.Substring( 1, line.IndexOf( ']' ) - 1 ).Trim().ToLower();
+                    section = new Dictionary<string, string>();
+                    contents.Add( sectionName, section );
+                } else if( line.Contains( separator ) && section != null ) {
+                    string keyName = line.Substring( 0, line.IndexOf( separator ) ).TrimEnd().ToLower();
+                    string valueName = line.Substring( line.IndexOf( separator ) + 1 ).TrimStart();
+                    section.Add( keyName, valueName );
+                }
+            }
+        }
+
+        public bool ContainsSection( string section ) {
+            return contents.ContainsKey( section.ToLower() );
+        }
+
+        public bool Contains( string section, params string[] keys ) {
+            if( contents.ContainsKey( section.ToLower() ) ) {
+                foreach( string key in keys ) {
+                    if( !contents[section.ToLower()].ContainsKey( key.ToLower() ) ) return false;
+                }
+                return true;
+            } else {
                 return false;
             }
         }
 
+        public bool IsEmpty() {
+            return (contents.Count == 0);
+        }
     }
 }
