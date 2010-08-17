@@ -721,9 +721,10 @@ namespace fCraft {
                 player.Message( "Warning: Not enough room vertically, paste cut off." );
             }
 
+            player.undoBuffer.Clear();
+
             int blocks = 0;
             bool cannotUndo = false;
-
             byte block;
 
             for( int x = sx; x <= ex; x++ ) {
