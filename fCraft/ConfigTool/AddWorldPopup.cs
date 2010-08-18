@@ -30,12 +30,13 @@ namespace ConfigTool {
         internal WorldListEntry world;
         List<WorldListEntry> copyOptionsList = new List<WorldListEntry>();
 
+        Tabs tab;
 
         public AddWorldPopup( WorldListEntry _world ) {
             InitializeComponent();
 
             cBackup.Items.AddRange( World.BackupEnum );
-            cTerrain.Items.AddRange( Enum.GetNames( typeof( MapGenType ) ) );
+            cPreset.Items.AddRange( Enum.GetNames( typeof( MapGenType ) ) );
             cTheme.Items.AddRange( Enum.GetNames( typeof( MapGenTheme ) ) );
 
             bwLoader.DoWork += AsyncLoad;
@@ -85,18 +86,6 @@ namespace ConfigTool {
                 xHidden.Checked = world.Hidden;
             }
 
-            fileToLoad = "maps/" + world.Name + ".fcm";
-            if( File.Exists( fileToLoad ) ) {
-                rExisting.Enabled = true;
-                rExisting.Checked = true;
-            } else {
-                rExisting.Enabled = false;
-                rLoad.Checked = true;
-            }
-
-            cTerrain.SelectedIndex = (int)MapGenType.River;
-            cTheme.SelectedIndex = (int)MapGenTheme.Forest;
-
             // Fill in the "Copy existing world" combobox
             foreach( WorldListEntry otherWorld in ConfigUI.worlds ) {
                 if( otherWorld != _world ) {
@@ -105,11 +94,23 @@ namespace ConfigTool {
                 }
             }
 
+            // Disable "copy" tab if there are no other worlds
             if( cWorld.Items.Count > 0 ) {
                 cWorld.SelectedIndex = 0;
             } else {
-                rCopy.Enabled = false;
+                tabs.TabPages.Remove( tabCopy );
             }
+
+            // Disable "existing map" tab if there are no other worlds
+            fileToLoad = "maps/" + world.Name + ".fcm";
+            if( !File.Exists( fileToLoad ) ) {
+                tabs.TabPages.Remove( tabExisting );
+                tabs.SelectTab( tabLoad );
+            }
+
+            // Set Generator comboboxes to defaults
+            cPreset.SelectedIndex = (int)MapGenType.River;
+            cTheme.SelectedIndex = (int)MapGenTheme.Forest;
         }
 
 
@@ -122,17 +123,6 @@ namespace ConfigTool {
             progressBar.Visible = true;
             progressBar.Style = ProgressBarStyle.Marquee;
             bwLoader.RunWorkerAsync();
-        }
-
-        private void rExisting_CheckedChanged( object sender, EventArgs e ) {
-            ToggleDimensions();
-            if( rExisting.Checked ) StartLoadingMap( "maps/" + world.Name + ".fcm" );
-        }
-
-        private void rLoad_CheckedChanged( object sender, EventArgs e ) {
-            tFile.Enabled = rLoad.Checked;
-            bBrowse.Enabled = rLoad.Checked;
-            ToggleDimensions();
         }
 
         private void bBrowse_Click( object sender, EventArgs e ) {
@@ -161,9 +151,11 @@ namespace ConfigTool {
                 nWidthY.Value = map.widthY;
                 nHeight.Value = map.height;
                 tStatus2.Text = ", drawing...";
-                Redraw(true);
+                Redraw( true );
             }
-            if( rCopy.Checked ) bShow.Enabled = true;
+            if( tab == Tabs.CopyWorld ) {
+                bShow.Enabled = true;
+            }
             bOK.Enabled = true;
         }
         #endregion Loading
@@ -183,7 +175,7 @@ namespace ConfigTool {
                         Application.DoEvents();
                     }
                 }
-                if(drawAgain) bwRenderer.RunWorkerAsync();
+                if( drawAgain ) bwRenderer.RunWorkerAsync();
             }
         }
 
@@ -219,7 +211,7 @@ namespace ConfigTool {
             if( previewRotation == 0 ) previewRotation = 3;
             else previewRotation--;
             tStatus2.Text = ", redrawing...";
-            Redraw(true);
+            Redraw( true );
         }
 
         private void bPreviewNext_Click( object sender, EventArgs e ) {
@@ -227,7 +219,7 @@ namespace ConfigTool {
             if( previewRotation == 3 ) previewRotation = 0;
             else previewRotation++;
             tStatus2.Text = ", redrawing...";
-            Redraw(true);
+            Redraw( true );
         }
 
         #endregion
@@ -236,12 +228,6 @@ namespace ConfigTool {
 
         MapGenerator generator;
 
-        private void rTerrain_CheckedChanged( object sender, EventArgs e ) {
-            lTerrain.Enabled = rTerrain.Checked;
-            cTerrain.Enabled = rTerrain.Checked;
-            lTheme.Enabled = rTerrain.Checked;
-            cTheme.Enabled = rTerrain.Checked;
-        }
 
         private void bGenerate_Click( object sender, EventArgs e ) {
             bOK.Enabled = false;
@@ -251,7 +237,7 @@ namespace ConfigTool {
             progressBar.Style = ProgressBarStyle.Marquee;
 
             Refresh();
-            genType = (MapGenType)cTerrain.SelectedIndex;
+            genType = (MapGenType)cPreset.SelectedIndex;
             genTheme = (MapGenTheme)cTheme.SelectedIndex;
             bwGenerator.RunWorkerAsync();
         }
@@ -262,11 +248,11 @@ namespace ConfigTool {
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
             map = new Map( null, Convert.ToInt32( nWidthX.Value ), Convert.ToInt32( nWidthY.Value ), Convert.ToInt32( nHeight.Value ) );
 
-            if( rTerrain.Checked ) {
+            if( tab == Tabs.Generator ) {
                 generator = new MapGenerator( map, null, null, genType, genTheme );
                 generator.Generate();
                 generator = null;
-            } else if( rFlatgrass.Checked ) {
+            } else if( tab == Tabs.Flatgrass ) {
                 MapGenerator.GenerateFlatgrass( map );
             }
 
@@ -282,7 +268,7 @@ namespace ConfigTool {
             } else {
                 tStatus1.Text = "Generation succesful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
                 tStatus2.Text = ", drawing...";
-                Redraw(true);
+                Redraw( true );
             }
             bOK.Enabled = true;
         }
@@ -290,21 +276,6 @@ namespace ConfigTool {
         #endregion
 
         #region Input Handlers
-        void ToggleDimensions() {
-            bool isMapGenerated = (rEmpty.Checked || rFlatgrass.Checked || rTerrain.Checked);
-            if( !isMapGenerated ) xFloodBarrier.Checked = false;
-            xFloodBarrier.Enabled = isMapGenerated;
-            nWidthX.Enabled = isMapGenerated;
-            nWidthY.Enabled = isMapGenerated;
-            nHeight.Enabled = isMapGenerated;
-            bGenerate.Enabled = isMapGenerated;
-        }
-
-        private void rCopy_CheckedChanged( object sender, EventArgs e ) {
-            cWorld.Enabled = rCopy.Checked;
-            ToggleDimensions();
-        }
-
         private void xFloodBarrier_CheckedChanged( object sender, EventArgs e ) {
             floodBarrier = xFloodBarrier.Checked;
         }
@@ -357,7 +328,7 @@ namespace ConfigTool {
                         try {
                             File.Delete( oldFile );
                         } catch( Exception ex ) {
-                            MessageBox.Show( "You can delete the old file (" + oldFile + ") manually. "+
+                            MessageBox.Show( "You can delete the old file (" + oldFile + ") manually. " +
                                 "An error occured while trying to delete it automatically: " + Environment.NewLine + ex, "Error" );
                         }
                     }
@@ -377,5 +348,61 @@ namespace ConfigTool {
                 bShow.Enabled = File.Exists( "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
             }
         }
+
+        private void xAdvanced_CheckedChanged( object sender, EventArgs e ) {
+            gTerrainFeatures.Visible = xAdvanced.Checked;
+            gHeightmapCreation.Visible = xAdvanced.Checked;
+            gTrees.Visible = xAdvanced.Checked;
+        }
+
+        #region Tabs
+        private void tabs_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( tabs.SelectedTab == tabExisting ) {
+                tab = Tabs.ExistingMap;
+            } else if( tabs.SelectedTab == tabLoad ) {
+                tab = Tabs.LoadFile;
+            } else if( tabs.SelectedTab == tabCopy ) {
+                tab = Tabs.CopyWorld;
+            } else if( tabs.SelectedTab == tabFlatgrass ) {
+                tab = Tabs.Flatgrass;
+            } else if( tabs.SelectedTab == tabHeightmap ) {
+                tab = Tabs.Heightmap;
+            } else {
+                tab = Tabs.Generator;
+            }
+
+            switch( tab ) {
+                case Tabs.ExistingMap:
+                    StartLoadingMap( "maps/" + world.Name + ".fcm" );
+                    return;
+                case Tabs.LoadFile:
+                    if( tFile.Text != "" ) {
+                        tFile.SelectAll();
+                        StartLoadingMap( tFile.Text );
+                    }
+                    return;
+                case Tabs.CopyWorld:
+                    if( cWorld.SelectedIndex != -1 ) {
+                        bShow.Enabled = File.Exists( "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
+                    }
+                    return;
+                case Tabs.Flatgrass:
+                    return;
+                case Tabs.Heightmap:
+                    return;
+                case Tabs.Generator:
+                    return;
+            }
+        }
+
+        enum Tabs {
+            ExistingMap,
+            LoadFile,
+            CopyWorld,
+            Flatgrass,
+            Heightmap,
+            Generator
+        }
+        #endregion
     }
 }

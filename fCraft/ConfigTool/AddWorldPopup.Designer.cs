@@ -26,25 +26,19 @@
             this.lX2 = new System.Windows.Forms.Label();
             this.lX1 = new System.Windows.Forms.Label();
             this.lDim = new System.Windows.Forms.Label();
-            this.rEmpty = new System.Windows.Forms.RadioButton();
-            this.rFlatgrass = new System.Windows.Forms.RadioButton();
-            this.rTerrain = new System.Windows.Forms.RadioButton();
             this.nWidthX = new System.Windows.Forms.NumericUpDown();
             this.nWidthY = new System.Windows.Forms.NumericUpDown();
             this.nHeight = new System.Windows.Forms.NumericUpDown();
             this.bShow = new System.Windows.Forms.Button();
-            this.rExisting = new System.Windows.Forms.RadioButton();
             this.xFloodBarrier = new System.Windows.Forms.CheckBox();
             this.cTheme = new System.Windows.Forms.ComboBox();
             this.lTheme = new System.Windows.Forms.Label();
-            this.cTerrain = new System.Windows.Forms.ComboBox();
-            this.lTerrain = new System.Windows.Forms.Label();
+            this.cPreset = new System.Windows.Forms.ComboBox();
+            this.lPreset = new System.Windows.Forms.Label();
             this.bGenerate = new System.Windows.Forms.Button();
             this.cWorld = new System.Windows.Forms.ComboBox();
             this.tFile = new System.Windows.Forms.TextBox();
             this.bBrowse = new System.Windows.Forms.Button();
-            this.rLoad = new System.Windows.Forms.RadioButton();
-            this.rCopy = new System.Windows.Forms.RadioButton();
             this.lPreview = new System.Windows.Forms.Label();
             this.bOK = new System.Windows.Forms.Button();
             this.bCancel = new System.Windows.Forms.Button();
@@ -66,87 +60,83 @@
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
             this.preview = new ConfigTool.CustomPictureBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.maskedTextBox1 = new System.Windows.Forms.MaskedTextBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
-            this.trackBar1 = new System.Windows.Forms.TrackBar();
-            this.trackBar2 = new System.Windows.Forms.TrackBar();
-            this.label3 = new System.Windows.Forms.Label();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
-            this.trackBar3 = new System.Windows.Forms.TrackBar();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.lFeatureSizeUnit = new System.Windows.Forms.Label();
-            this.trackBar4 = new System.Windows.Forms.TrackBar();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.label12 = new System.Windows.Forms.Label();
-            this.label13 = new System.Windows.Forms.Label();
-            this.label15 = new System.Windows.Forms.Label();
-            this.label16 = new System.Windows.Forms.Label();
-            this.trackBar6 = new System.Windows.Forms.TrackBar();
-            this.checkBox4 = new System.Windows.Forms.CheckBox();
-            this.button2 = new System.Windows.Forms.Button();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.lSeed = new System.Windows.Forms.Label();
+            this.mtSeed = new System.Windows.Forms.MaskedTextBox();
+            this.bSeed = new System.Windows.Forms.Button();
+            this.lDetailSize = new System.Windows.Forms.Label();
+            this.sDetailSize = new System.Windows.Forms.TrackBar();
+            this.sRoughness = new System.Windows.Forms.TrackBar();
+            this.lRoughness = new System.Windows.Forms.Label();
+            this.xMarbledMode = new System.Windows.Forms.CheckBox();
+            this.xLayeredHeightmap = new System.Windows.Forms.CheckBox();
+            this.xMatchWaterCoverage = new System.Windows.Forms.CheckBox();
+            this.sMatchWaterCoverage = new System.Windows.Forms.TrackBar();
+            this.lMatchWaterCoverageDisplay = new System.Windows.Forms.Label();
+            this.lRoughnessDisplay = new System.Windows.Forms.Label();
+            this.lDetailSizeDisplay = new System.Windows.Forms.Label();
+            this.sCornerBias = new System.Windows.Forms.TrackBar();
+            this.nMaxHeight = new System.Windows.Forms.TextBox();
+            this.lMaxHeight = new System.Windows.Forms.Label();
+            this.lMaxHeightUnits = new System.Windows.Forms.Label();
+            this.lMaxDepth = new System.Windows.Forms.Label();
+            this.lMaxDepthUnits = new System.Windows.Forms.Label();
+            this.nMaxDepth = new System.Windows.Forms.TextBox();
+            this.lCornerBiasVariationDisplay = new System.Windows.Forms.Label();
+            this.lCornerBias = new System.Windows.Forms.Label();
+            this.lMidpointBias = new System.Windows.Forms.Label();
+            this.lCornerBiasDisplay = new System.Windows.Forms.Label();
+            this.sMidpointBias = new System.Windows.Forms.TrackBar();
+            this.xTrees = new System.Windows.Forms.CheckBox();
+            this.bSavePreview = new System.Windows.Forms.Button();
+            this.tabs = new System.Windows.Forms.TabControl();
             this.tabExisting = new System.Windows.Forms.TabPage();
             this.tabLoad = new System.Windows.Forms.TabPage();
             this.tabCopy = new System.Windows.Forms.TabPage();
             this.tabFlatgrass = new System.Windows.Forms.TabPage();
             this.tabHeightmap = new System.Windows.Forms.TabPage();
             this.tabTerrain = new System.Windows.Forms.TabPage();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.label14 = new System.Windows.Forms.Label();
-            this.trackBar5 = new System.Windows.Forms.TrackBar();
-            this.label7 = new System.Windows.Forms.Label();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label21 = new System.Windows.Forms.Label();
-            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
-            this.label22 = new System.Windows.Forms.Label();
-            this.numericUpDown4 = new System.Windows.Forms.NumericUpDown();
-            this.label23 = new System.Windows.Forms.Label();
-            this.label20 = new System.Windows.Forms.Label();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
-            this.label19 = new System.Windows.Forms.Label();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.label18 = new System.Windows.Forms.Label();
-            this.label17 = new System.Windows.Forms.Label();
+            this.xAdvanced = new System.Windows.Forms.CheckBox();
+            this.gMapSize = new System.Windows.Forms.GroupBox();
+            this.gTerrainFeatures = new System.Windows.Forms.GroupBox();
+            this.lMidpointBiasDisplay = new System.Windows.Forms.Label();
+            this.sCornerBiasVariation = new System.Windows.Forms.TrackBar();
+            this.gHeightmapCreation = new System.Windows.Forms.GroupBox();
+            this.gTrees = new System.Windows.Forms.GroupBox();
+            this.lTreeHeightUnits = new System.Windows.Forms.Label();
+            this.nTreeHeightVariation = new System.Windows.Forms.NumericUpDown();
+            this.lTreeHeightVariation = new System.Windows.Forms.Label();
+            this.nTreeHeight = new System.Windows.Forms.NumericUpDown();
+            this.lTreeHeight = new System.Windows.Forms.Label();
+            this.lTreeSpacingUnits = new System.Windows.Forms.Label();
+            this.nTreeSpacingVariation = new System.Windows.Forms.NumericUpDown();
+            this.lTreeSpacingVariation = new System.Windows.Forms.Label();
+            this.nTreeSpacing = new System.Windows.Forms.NumericUpDown();
+            this.lTreeSpacing = new System.Windows.Forms.Label();
+            this.lMapFileOptions = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar6)).BeginInit();
-            this.tabControl1.SuspendLayout();
-            this.tabExisting.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.sDetailSize)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sRoughness)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sMatchWaterCoverage)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sCornerBias)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sMidpointBias)).BeginInit();
+            this.tabs.SuspendLayout();
             this.tabLoad.SuspendLayout();
             this.tabCopy.SuspendLayout();
             this.tabTerrain.SuspendLayout();
-            this.groupBox4.SuspendLayout();
-            this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar5)).BeginInit();
-            this.groupBox2.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            this.gMapSize.SuspendLayout();
+            this.gTerrainFeatures.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.sCornerBiasVariation)).BeginInit();
+            this.gHeightmapCreation.SuspendLayout();
+            this.gTrees.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nTreeHeightVariation)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nTreeHeight)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacingVariation)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacing)).BeginInit();
             this.SuspendLayout();
             // 
             // lX2
@@ -175,37 +165,6 @@
             this.lDim.Size = new System.Drawing.Size( 61, 13 );
             this.lDim.TabIndex = 3;
             this.lDim.Text = "Dimensions";
-            // 
-            // rEmpty
-            // 
-            this.rEmpty.AutoSize = true;
-            this.rEmpty.Location = new System.Drawing.Point( 6, 90 );
-            this.rEmpty.Name = "rEmpty";
-            this.rEmpty.Size = new System.Drawing.Size( 77, 17 );
-            this.rEmpty.TabIndex = 8;
-            this.rEmpty.Text = "Empty map";
-            this.rEmpty.UseVisualStyleBackColor = true;
-            // 
-            // rFlatgrass
-            // 
-            this.rFlatgrass.AutoSize = true;
-            this.rFlatgrass.Location = new System.Drawing.Point( 6, 118 );
-            this.rFlatgrass.Name = "rFlatgrass";
-            this.rFlatgrass.Size = new System.Drawing.Size( 111, 17 );
-            this.rFlatgrass.TabIndex = 9;
-            this.rFlatgrass.Text = "Generate flatgrass";
-            this.rFlatgrass.UseVisualStyleBackColor = true;
-            // 
-            // rTerrain
-            // 
-            this.rTerrain.AutoSize = true;
-            this.rTerrain.Location = new System.Drawing.Point( 6, 172 );
-            this.rTerrain.Name = "rTerrain";
-            this.rTerrain.Size = new System.Drawing.Size( 139, 17 );
-            this.rTerrain.TabIndex = 10;
-            this.rTerrain.Text = "Generate realistic terrain";
-            this.rTerrain.UseVisualStyleBackColor = true;
-            this.rTerrain.CheckedChanged += new System.EventHandler( this.rTerrain_CheckedChanged );
             // 
             // nWidthX
             // 
@@ -298,21 +257,10 @@
             this.bShow.UseVisualStyleBackColor = true;
             this.bShow.Click += new System.EventHandler( this.bShow_Click );
             // 
-            // rExisting
-            // 
-            this.rExisting.AutoSize = true;
-            this.rExisting.Location = new System.Drawing.Point( 6, 6 );
-            this.rExisting.Name = "rExisting";
-            this.rExisting.Size = new System.Drawing.Size( 105, 17 );
-            this.rExisting.TabIndex = 20;
-            this.rExisting.Text = "Use existing map";
-            this.rExisting.UseVisualStyleBackColor = true;
-            this.rExisting.CheckedChanged += new System.EventHandler( this.rExisting_CheckedChanged );
-            // 
             // xFloodBarrier
             // 
             this.xFloodBarrier.AutoSize = true;
-            this.xFloodBarrier.Location = new System.Drawing.Point( 248, 8 );
+            this.xFloodBarrier.Location = new System.Drawing.Point( 253, 8 );
             this.xFloodBarrier.Name = "xFloodBarrier";
             this.xFloodBarrier.Size = new System.Drawing.Size( 112, 17 );
             this.xFloodBarrier.TabIndex = 3;
@@ -323,7 +271,6 @@
             // cTheme
             // 
             this.cTheme.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cTheme.Enabled = false;
             this.cTheme.Location = new System.Drawing.Point( 153, 33 );
             this.cTheme.Name = "cTheme";
             this.cTheme.Size = new System.Drawing.Size( 86, 21 );
@@ -332,38 +279,34 @@
             // lTheme
             // 
             this.lTheme.AutoSize = true;
-            this.lTheme.Enabled = false;
             this.lTheme.Location = new System.Drawing.Point( 107, 36 );
             this.lTheme.Name = "lTheme";
             this.lTheme.Size = new System.Drawing.Size( 40, 13 );
             this.lTheme.TabIndex = 19;
             this.lTheme.Text = "Theme";
             // 
-            // cTerrain
+            // cPreset
             // 
-            this.cTerrain.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cTerrain.Enabled = false;
-            this.cTerrain.Location = new System.Drawing.Point( 153, 6 );
-            this.cTerrain.Name = "cTerrain";
-            this.cTerrain.Size = new System.Drawing.Size( 86, 21 );
-            this.cTerrain.TabIndex = 11;
+            this.cPreset.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cPreset.Location = new System.Drawing.Point( 153, 6 );
+            this.cPreset.Name = "cPreset";
+            this.cPreset.Size = new System.Drawing.Size( 86, 21 );
+            this.cPreset.TabIndex = 11;
             // 
-            // lTerrain
+            // lPreset
             // 
-            this.lTerrain.AutoSize = true;
-            this.lTerrain.Enabled = false;
-            this.lTerrain.Location = new System.Drawing.Point( 110, 9 );
-            this.lTerrain.Name = "lTerrain";
-            this.lTerrain.Size = new System.Drawing.Size( 37, 13 );
-            this.lTerrain.TabIndex = 17;
-            this.lTerrain.Text = "Preset";
+            this.lPreset.AutoSize = true;
+            this.lPreset.Location = new System.Drawing.Point( 110, 9 );
+            this.lPreset.Name = "lPreset";
+            this.lPreset.Size = new System.Drawing.Size( 37, 13 );
+            this.lPreset.TabIndex = 17;
+            this.lPreset.Text = "Preset";
             // 
             // bGenerate
             // 
-            this.bGenerate.Enabled = false;
             this.bGenerate.Location = new System.Drawing.Point( 6, 6 );
             this.bGenerate.Name = "bGenerate";
-            this.bGenerate.Size = new System.Drawing.Size( 95, 71 );
+            this.bGenerate.Size = new System.Drawing.Size( 95, 50 );
             this.bGenerate.TabIndex = 13;
             this.bGenerate.Text = "Generate";
             this.bGenerate.UseVisualStyleBackColor = true;
@@ -372,7 +315,6 @@
             // cWorld
             // 
             this.cWorld.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cWorld.Enabled = false;
             this.cWorld.FormattingEnabled = true;
             this.cWorld.Location = new System.Drawing.Point( 6, 6 );
             this.cWorld.Name = "cWorld";
@@ -382,7 +324,6 @@
             // 
             // tFile
             // 
-            this.tFile.Enabled = false;
             this.tFile.Location = new System.Drawing.Point( 6, 6 );
             this.tFile.Name = "tFile";
             this.tFile.ReadOnly = true;
@@ -391,7 +332,6 @@
             // 
             // bBrowse
             // 
-            this.bBrowse.Enabled = false;
             this.bBrowse.Location = new System.Drawing.Point( 191, 4 );
             this.bBrowse.Name = "bBrowse";
             this.bBrowse.Size = new System.Drawing.Size( 74, 23 );
@@ -400,35 +340,13 @@
             this.bBrowse.UseVisualStyleBackColor = true;
             this.bBrowse.Click += new System.EventHandler( this.bBrowse_Click );
             // 
-            // rLoad
-            // 
-            this.rLoad.AutoSize = true;
-            this.rLoad.Location = new System.Drawing.Point( 6, 34 );
-            this.rLoad.Name = "rLoad";
-            this.rLoad.Size = new System.Drawing.Size( 88, 17 );
-            this.rLoad.TabIndex = 3;
-            this.rLoad.Text = "Load from file";
-            this.rLoad.UseVisualStyleBackColor = true;
-            this.rLoad.CheckedChanged += new System.EventHandler( this.rLoad_CheckedChanged );
-            // 
-            // rCopy
-            // 
-            this.rCopy.AutoSize = true;
-            this.rCopy.Location = new System.Drawing.Point( 6, 62 );
-            this.rCopy.Name = "rCopy";
-            this.rCopy.Size = new System.Drawing.Size( 115, 17 );
-            this.rCopy.TabIndex = 6;
-            this.rCopy.Text = "Copy existing world";
-            this.rCopy.UseVisualStyleBackColor = true;
-            this.rCopy.CheckedChanged += new System.EventHandler( this.rCopy_CheckedChanged );
-            // 
             // lPreview
             // 
             this.lPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.lPreview.AutoSize = true;
-            this.lPreview.Location = new System.Drawing.Point( 265, 569 );
+            this.lPreview.Location = new System.Drawing.Point( 265, 544 );
             this.lPreview.Name = "lPreview";
             this.lPreview.Size = new System.Drawing.Size( 54, 28 );
             this.lPreview.TabIndex = 16;
@@ -440,7 +358,7 @@
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bOK.Location = new System.Drawing.Point( 776, 615 );
+            this.bOK.Location = new System.Drawing.Point( 776, 590 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 25 );
             this.bOK.TabIndex = 8;
@@ -451,7 +369,7 @@
             // 
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.bCancel.Location = new System.Drawing.Point( 882, 615 );
+            this.bCancel.Location = new System.Drawing.Point( 882, 590 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 25 );
             this.bCancel.TabIndex = 7;
@@ -536,7 +454,7 @@
             // bPreviewPrev
             // 
             this.bPreviewPrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bPreviewPrev.Location = new System.Drawing.Point( 237, 572 );
+            this.bPreviewPrev.Location = new System.Drawing.Point( 237, 547 );
             this.bPreviewPrev.Name = "bPreviewPrev";
             this.bPreviewPrev.Size = new System.Drawing.Size( 22, 22 );
             this.bPreviewPrev.TabIndex = 0;
@@ -547,7 +465,7 @@
             // bPreviewNext
             // 
             this.bPreviewNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bPreviewNext.Location = new System.Drawing.Point( 325, 572 );
+            this.bPreviewNext.Location = new System.Drawing.Point( 325, 547 );
             this.bPreviewNext.Name = "bPreviewNext";
             this.bPreviewNext.Size = new System.Drawing.Size( 22, 22 );
             this.bPreviewNext.TabIndex = 1;
@@ -576,7 +494,7 @@
             this.tStatus1,
             this.tStatus2,
             this.progressBar} );
-            this.statusStrip.Location = new System.Drawing.Point( 0, 643 );
+            this.statusStrip.Location = new System.Drawing.Point( 0, 618 );
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size( 994, 22 );
             this.statusStrip.TabIndex = 29;
@@ -619,7 +537,7 @@
             this.previewLayout.RowCount = 2;
             this.previewLayout.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Percent, 100F ) );
             this.previewLayout.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Absolute, 28F ) );
-            this.previewLayout.Size = new System.Drawing.Size( 585, 597 );
+            this.previewLayout.Size = new System.Drawing.Size( 585, 572 );
             this.previewLayout.TabIndex = 6;
             // 
             // preview
@@ -631,333 +549,295 @@
             this.previewLayout.SetColumnSpan( this.preview, 3 );
             this.preview.Location = new System.Drawing.Point( 3, 3 );
             this.preview.Name = "preview";
-            this.preview.Size = new System.Drawing.Size( 579, 563 );
+            this.preview.Size = new System.Drawing.Size( 579, 538 );
             this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.preview.TabIndex = 17;
             this.preview.TabStop = false;
             // 
-            // label1
+            // lSeed
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point( 115, 63 );
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size( 32, 13 );
-            this.label1.TabIndex = 20;
-            this.label1.Text = "Seed";
+            this.lSeed.AutoSize = true;
+            this.lSeed.Location = new System.Drawing.Point( 115, 63 );
+            this.lSeed.Name = "lSeed";
+            this.lSeed.Size = new System.Drawing.Size( 32, 13 );
+            this.lSeed.TabIndex = 20;
+            this.lSeed.Text = "Seed";
             // 
-            // maskedTextBox1
+            // mtSeed
             // 
-            this.maskedTextBox1.Location = new System.Drawing.Point( 153, 60 );
-            this.maskedTextBox1.Name = "maskedTextBox1";
-            this.maskedTextBox1.Size = new System.Drawing.Size( 86, 20 );
-            this.maskedTextBox1.TabIndex = 21;
+            this.mtSeed.Location = new System.Drawing.Point( 153, 60 );
+            this.mtSeed.Name = "mtSeed";
+            this.mtSeed.Size = new System.Drawing.Size( 86, 20 );
+            this.mtSeed.TabIndex = 21;
             // 
-            // button1
+            // bSeed
             // 
-            this.button1.Location = new System.Drawing.Point( 245, 58 );
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size( 74, 23 );
-            this.button1.TabIndex = 22;
-            this.button1.Text = "Randomize";
-            this.button1.UseVisualStyleBackColor = true;
+            this.bSeed.Location = new System.Drawing.Point( 245, 58 );
+            this.bSeed.Name = "bSeed";
+            this.bSeed.Size = new System.Drawing.Size( 74, 23 );
+            this.bSeed.TabIndex = 22;
+            this.bSeed.Text = "Randomize";
+            this.bSeed.UseVisualStyleBackColor = true;
             // 
-            // label2
+            // lDetailSize
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point( 19, 22 );
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size( 55, 13 );
-            this.label2.TabIndex = 23;
-            this.label2.Text = "Detail size";
+            this.lDetailSize.AutoSize = true;
+            this.lDetailSize.Location = new System.Drawing.Point( 22, 22 );
+            this.lDetailSize.Name = "lDetailSize";
+            this.lDetailSize.Size = new System.Drawing.Size( 55, 13 );
+            this.lDetailSize.TabIndex = 23;
+            this.lDetailSize.Text = "Detail size";
             // 
-            // trackBar1
+            // sDetailSize
             // 
-            this.trackBar1.AutoSize = false;
-            this.trackBar1.Location = new System.Drawing.Point( 80, 19 );
-            this.trackBar1.Maximum = 8;
-            this.trackBar1.Minimum = 1;
-            this.trackBar1.Name = "trackBar1";
-            this.trackBar1.Size = new System.Drawing.Size( 116, 27 );
-            this.trackBar1.TabIndex = 24;
-            this.trackBar1.Value = 1;
+            this.sDetailSize.AutoSize = false;
+            this.sDetailSize.Location = new System.Drawing.Point( 83, 19 );
+            this.sDetailSize.Maximum = 8;
+            this.sDetailSize.Minimum = 1;
+            this.sDetailSize.Name = "sDetailSize";
+            this.sDetailSize.Size = new System.Drawing.Size( 116, 27 );
+            this.sDetailSize.TabIndex = 24;
+            this.sDetailSize.Value = 1;
             // 
-            // trackBar2
+            // sRoughness
             // 
-            this.trackBar2.AutoSize = false;
-            this.trackBar2.Location = new System.Drawing.Point( 80, 52 );
-            this.trackBar2.Maximum = 100;
-            this.trackBar2.Name = "trackBar2";
-            this.trackBar2.Size = new System.Drawing.Size( 116, 27 );
-            this.trackBar2.TabIndex = 26;
-            this.trackBar2.TickFrequency = 10;
-            this.trackBar2.Value = 25;
+            this.sRoughness.AutoSize = false;
+            this.sRoughness.Location = new System.Drawing.Point( 83, 52 );
+            this.sRoughness.Maximum = 100;
+            this.sRoughness.Name = "sRoughness";
+            this.sRoughness.Size = new System.Drawing.Size( 116, 27 );
+            this.sRoughness.TabIndex = 26;
+            this.sRoughness.TickFrequency = 10;
+            this.sRoughness.Value = 25;
             // 
-            // label3
+            // lRoughness
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point( 13, 54 );
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size( 61, 13 );
-            this.label3.TabIndex = 25;
-            this.label3.Text = "Roughness";
+            this.lRoughness.AutoSize = true;
+            this.lRoughness.Location = new System.Drawing.Point( 16, 54 );
+            this.lRoughness.Name = "lRoughness";
+            this.lRoughness.Size = new System.Drawing.Size( 61, 13 );
+            this.lRoughness.TabIndex = 25;
+            this.lRoughness.Text = "Roughness";
             // 
-            // checkBox1
+            // xMarbledMode
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point( 236, 53 );
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size( 93, 17 );
-            this.checkBox1.TabIndex = 27;
-            this.checkBox1.Text = "Marbled mode";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.xMarbledMode.AutoSize = true;
+            this.xMarbledMode.Location = new System.Drawing.Point( 236, 53 );
+            this.xMarbledMode.Name = "xMarbledMode";
+            this.xMarbledMode.Size = new System.Drawing.Size( 93, 17 );
+            this.xMarbledMode.TabIndex = 27;
+            this.xMarbledMode.Text = "Marbled mode";
+            this.xMarbledMode.UseVisualStyleBackColor = true;
             // 
-            // checkBox2
+            // xLayeredHeightmap
             // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point( 236, 21 );
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size( 116, 17 );
-            this.checkBox2.TabIndex = 28;
-            this.checkBox2.Text = "Layered heightmap";
-            this.checkBox2.UseVisualStyleBackColor = true;
+            this.xLayeredHeightmap.AutoSize = true;
+            this.xLayeredHeightmap.Location = new System.Drawing.Point( 236, 21 );
+            this.xLayeredHeightmap.Name = "xLayeredHeightmap";
+            this.xLayeredHeightmap.Size = new System.Drawing.Size( 116, 17 );
+            this.xLayeredHeightmap.TabIndex = 28;
+            this.xLayeredHeightmap.Text = "Layered heightmap";
+            this.xLayeredHeightmap.UseVisualStyleBackColor = true;
             // 
-            // label4
+            // xMatchWaterCoverage
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point( 9, 88 );
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size( 65, 13 );
-            this.label4.TabIndex = 29;
-            this.label4.Text = "Interpolation";
+            this.xMatchWaterCoverage.AutoSize = true;
+            this.xMatchWaterCoverage.Location = new System.Drawing.Point( 30, 19 );
+            this.xMatchWaterCoverage.Name = "xMatchWaterCoverage";
+            this.xMatchWaterCoverage.Size = new System.Drawing.Size( 144, 17 );
+            this.xMatchWaterCoverage.TabIndex = 31;
+            this.xMatchWaterCoverage.Text = "Match % water coverage";
+            this.xMatchWaterCoverage.UseVisualStyleBackColor = true;
             // 
-            // comboBox1
+            // sMatchWaterCoverage
             // 
-            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange( new object[] {
-            "Bilinear",
-            "Cosine",
-            "Bicubic"} );
-            this.comboBox1.Location = new System.Drawing.Point( 80, 85 );
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size( 99, 21 );
-            this.comboBox1.TabIndex = 30;
+            this.sMatchWaterCoverage.AutoSize = false;
+            this.sMatchWaterCoverage.Location = new System.Drawing.Point( 176, 19 );
+            this.sMatchWaterCoverage.Maximum = 100;
+            this.sMatchWaterCoverage.Name = "sMatchWaterCoverage";
+            this.sMatchWaterCoverage.Size = new System.Drawing.Size( 141, 27 );
+            this.sMatchWaterCoverage.TabIndex = 32;
+            this.sMatchWaterCoverage.TickFrequency = 10;
+            this.sMatchWaterCoverage.Value = 50;
             // 
-            // checkBox3
+            // lMatchWaterCoverageDisplay
             // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point( 30, 19 );
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size( 144, 17 );
-            this.checkBox3.TabIndex = 31;
-            this.checkBox3.Text = "Match % water coverage";
-            this.checkBox3.UseVisualStyleBackColor = true;
+            this.lMatchWaterCoverageDisplay.AutoSize = true;
+            this.lMatchWaterCoverageDisplay.Location = new System.Drawing.Point( 319, 20 );
+            this.lMatchWaterCoverageDisplay.Name = "lMatchWaterCoverageDisplay";
+            this.lMatchWaterCoverageDisplay.Size = new System.Drawing.Size( 27, 13 );
+            this.lMatchWaterCoverageDisplay.TabIndex = 33;
+            this.lMatchWaterCoverageDisplay.Text = "50%";
             // 
-            // trackBar3
+            // lRoughnessDisplay
             // 
-            this.trackBar3.AutoSize = false;
-            this.trackBar3.Location = new System.Drawing.Point( 176, 19 );
-            this.trackBar3.Maximum = 100;
-            this.trackBar3.Name = "trackBar3";
-            this.trackBar3.Size = new System.Drawing.Size( 141, 27 );
-            this.trackBar3.TabIndex = 32;
-            this.trackBar3.TickFrequency = 10;
-            this.trackBar3.Value = 50;
+            this.lRoughnessDisplay.AutoSize = true;
+            this.lRoughnessDisplay.Location = new System.Drawing.Point( 198, 54 );
+            this.lRoughnessDisplay.Name = "lRoughnessDisplay";
+            this.lRoughnessDisplay.Size = new System.Drawing.Size( 27, 13 );
+            this.lRoughnessDisplay.TabIndex = 34;
+            this.lRoughnessDisplay.Text = "25%";
             // 
-            // label5
+            // lDetailSizeDisplay
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point( 319, 20 );
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size( 27, 13 );
-            this.label5.TabIndex = 33;
-            this.label5.Text = "50%";
+            this.lDetailSizeDisplay.AutoSize = true;
+            this.lDetailSizeDisplay.Location = new System.Drawing.Point( 198, 22 );
+            this.lDetailSizeDisplay.Name = "lDetailSizeDisplay";
+            this.lDetailSizeDisplay.Size = new System.Drawing.Size( 25, 13 );
+            this.lDetailSizeDisplay.TabIndex = 35;
+            this.lDetailSizeDisplay.Text = "1×1";
             // 
-            // label6
+            // sCornerBias
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point( 195, 54 );
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size( 27, 13 );
-            this.label6.TabIndex = 34;
-            this.label6.Text = "25%";
+            this.sCornerBias.AutoSize = false;
+            this.sCornerBias.Location = new System.Drawing.Point( 80, 59 );
+            this.sCornerBias.Maximum = 100;
+            this.sCornerBias.Name = "sCornerBias";
+            this.sCornerBias.Size = new System.Drawing.Size( 116, 27 );
+            this.sCornerBias.TabIndex = 37;
+            this.sCornerBias.TickFrequency = 10;
+            this.sCornerBias.Value = 50;
             // 
-            // lFeatureSizeUnit
+            // nMaxHeight
             // 
-            this.lFeatureSizeUnit.AutoSize = true;
-            this.lFeatureSizeUnit.Location = new System.Drawing.Point( 198, 22 );
-            this.lFeatureSizeUnit.Name = "lFeatureSizeUnit";
-            this.lFeatureSizeUnit.Size = new System.Drawing.Size( 25, 13 );
-            this.lFeatureSizeUnit.TabIndex = 35;
-            this.lFeatureSizeUnit.Text = "1×1";
+            this.nMaxHeight.Location = new System.Drawing.Point( 80, 51 );
+            this.nMaxHeight.Name = "nMaxHeight";
+            this.nMaxHeight.Size = new System.Drawing.Size( 54, 20 );
+            this.nMaxHeight.TabIndex = 39;
             // 
-            // trackBar4
+            // lMaxHeight
             // 
-            this.trackBar4.AutoSize = false;
-            this.trackBar4.Location = new System.Drawing.Point( 81, 59 );
-            this.trackBar4.Maximum = 100;
-            this.trackBar4.Name = "trackBar4";
-            this.trackBar4.Size = new System.Drawing.Size( 116, 27 );
-            this.trackBar4.TabIndex = 37;
-            this.trackBar4.TickFrequency = 10;
-            this.trackBar4.Value = 50;
+            this.lMaxHeight.AutoSize = true;
+            this.lMaxHeight.Location = new System.Drawing.Point( 10, 54 );
+            this.lMaxHeight.Name = "lMaxHeight";
+            this.lMaxHeight.Size = new System.Drawing.Size( 64, 13 );
+            this.lMaxHeight.TabIndex = 40;
+            this.lMaxHeight.Text = "Peak height";
             // 
-            // textBox1
+            // lMaxHeightUnits
             // 
-            this.textBox1.Location = new System.Drawing.Point( 81, 51 );
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size( 54, 20 );
-            this.textBox1.TabIndex = 39;
+            this.lMaxHeightUnits.AutoSize = true;
+            this.lMaxHeightUnits.Location = new System.Drawing.Point( 141, 54 );
+            this.lMaxHeightUnits.Name = "lMaxHeightUnits";
+            this.lMaxHeightUnits.Size = new System.Drawing.Size( 38, 13 );
+            this.lMaxHeightUnits.TabIndex = 41;
+            this.lMaxHeightUnits.Text = "blocks";
             // 
-            // label8
+            // lMaxDepth
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point( 10, 54 );
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size( 64, 13 );
-            this.label8.TabIndex = 40;
-            this.label8.Text = "Peak height";
+            this.lMaxDepth.AutoSize = true;
+            this.lMaxDepth.Location = new System.Drawing.Point( 198, 54 );
+            this.lMaxDepth.Name = "lMaxDepth";
+            this.lMaxDepth.Size = new System.Drawing.Size( 57, 13 );
+            this.lMaxDepth.TabIndex = 42;
+            this.lMaxDepth.Text = "Max depth";
             // 
-            // label9
+            // lMaxDepthUnits
             // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point( 141, 54 );
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size( 38, 13 );
-            this.label9.TabIndex = 41;
-            this.label9.Text = "blocks";
+            this.lMaxDepthUnits.AutoSize = true;
+            this.lMaxDepthUnits.Location = new System.Drawing.Point( 318, 54 );
+            this.lMaxDepthUnits.Name = "lMaxDepthUnits";
+            this.lMaxDepthUnits.Size = new System.Drawing.Size( 38, 13 );
+            this.lMaxDepthUnits.TabIndex = 44;
+            this.lMaxDepthUnits.Text = "blocks";
             // 
-            // label10
+            // nMaxDepth
             // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point( 198, 54 );
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size( 57, 13 );
-            this.label10.TabIndex = 42;
-            this.label10.Text = "Max depth";
+            this.nMaxDepth.Location = new System.Drawing.Point( 261, 51 );
+            this.nMaxDepth.Name = "nMaxDepth";
+            this.nMaxDepth.Size = new System.Drawing.Size( 51, 20 );
+            this.nMaxDepth.TabIndex = 43;
             // 
-            // label11
+            // lCornerBiasVariationDisplay
             // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point( 318, 54 );
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size( 38, 13 );
-            this.label11.TabIndex = 44;
-            this.label11.Text = "blocks";
+            this.lCornerBiasVariationDisplay.AutoSize = true;
+            this.lCornerBiasVariationDisplay.Location = new System.Drawing.Point( 319, 62 );
+            this.lCornerBiasVariationDisplay.Name = "lCornerBiasVariationDisplay";
+            this.lCornerBiasVariationDisplay.Size = new System.Drawing.Size( 21, 13 );
+            this.lCornerBiasVariationDisplay.TabIndex = 47;
+            this.lCornerBiasVariationDisplay.Text = "0%";
             // 
-            // textBox2
+            // lCornerBias
             // 
-            this.textBox2.Location = new System.Drawing.Point( 261, 51 );
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size( 51, 20 );
-            this.textBox2.TabIndex = 43;
+            this.lCornerBias.AutoSize = true;
+            this.lCornerBias.Location = new System.Drawing.Point( 12, 62 );
+            this.lCornerBias.Name = "lCornerBias";
+            this.lCornerBias.Size = new System.Drawing.Size( 60, 13 );
+            this.lCornerBias.TabIndex = 48;
+            this.lCornerBias.Text = "Corner bias";
             // 
-            // label12
+            // lMidpointBias
             // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point( 319, 62 );
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size( 21, 13 );
-            this.label12.TabIndex = 47;
-            this.label12.Text = "0%";
+            this.lMidpointBias.AutoSize = true;
+            this.lMidpointBias.Location = new System.Drawing.Point( 5, 92 );
+            this.lMidpointBias.Name = "lMidpointBias";
+            this.lMidpointBias.Size = new System.Drawing.Size( 69, 13 );
+            this.lMidpointBias.TabIndex = 50;
+            this.lMidpointBias.Text = "Midpoint bias";
             // 
-            // label13
+            // lCornerBiasDisplay
             // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point( 15, 62 );
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size( 60, 13 );
-            this.label13.TabIndex = 48;
-            this.label13.Text = "Corner bias";
+            this.lCornerBiasDisplay.AutoSize = true;
+            this.lCornerBiasDisplay.Location = new System.Drawing.Point( 195, 62 );
+            this.lCornerBiasDisplay.Name = "lCornerBiasDisplay";
+            this.lCornerBiasDisplay.Size = new System.Drawing.Size( 38, 13 );
+            this.lCornerBiasDisplay.TabIndex = 52;
+            this.lCornerBiasDisplay.Text = "0% +/-";
             // 
-            // label15
+            // sMidpointBias
             // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point( 6, 92 );
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size( 69, 13 );
-            this.label15.TabIndex = 50;
-            this.label15.Text = "Midpoint bias";
+            this.sMidpointBias.AutoSize = false;
+            this.sMidpointBias.Location = new System.Drawing.Point( 80, 92 );
+            this.sMidpointBias.Maximum = 100;
+            this.sMidpointBias.Name = "sMidpointBias";
+            this.sMidpointBias.Size = new System.Drawing.Size( 116, 27 );
+            this.sMidpointBias.TabIndex = 51;
+            this.sMidpointBias.TickFrequency = 10;
+            this.sMidpointBias.Value = 50;
             // 
-            // label16
+            // xTrees
             // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point( 195, 62 );
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size( 38, 13 );
-            this.label16.TabIndex = 52;
-            this.label16.Text = "0% +/-";
+            this.xTrees.AutoSize = true;
+            this.xTrees.Location = new System.Drawing.Point( 253, 35 );
+            this.xTrees.Name = "xTrees";
+            this.xTrees.Size = new System.Drawing.Size( 71, 17 );
+            this.xTrees.TabIndex = 53;
+            this.xTrees.Text = "Add trees";
+            this.xTrees.UseVisualStyleBackColor = true;
             // 
-            // trackBar6
+            // bSavePreview
             // 
-            this.trackBar6.AutoSize = false;
-            this.trackBar6.Location = new System.Drawing.Point( 81, 92 );
-            this.trackBar6.Maximum = 100;
-            this.trackBar6.Name = "trackBar6";
-            this.trackBar6.Size = new System.Drawing.Size( 116, 27 );
-            this.trackBar6.TabIndex = 51;
-            this.trackBar6.TickFrequency = 10;
-            this.trackBar6.Value = 50;
+            this.bSavePreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.bSavePreview.Location = new System.Drawing.Point( 397, 590 );
+            this.bSavePreview.Name = "bSavePreview";
+            this.bSavePreview.Size = new System.Drawing.Size( 125, 25 );
+            this.bSavePreview.TabIndex = 53;
+            this.bSavePreview.Text = "Save Preview Image...";
+            this.bSavePreview.UseVisualStyleBackColor = true;
             // 
-            // checkBox4
+            // tabs
             // 
-            this.checkBox4.AutoSize = true;
-            this.checkBox4.Location = new System.Drawing.Point( 248, 31 );
-            this.checkBox4.Name = "checkBox4";
-            this.checkBox4.Size = new System.Drawing.Size( 71, 17 );
-            this.checkBox4.TabIndex = 53;
-            this.checkBox4.Text = "Add trees";
-            this.checkBox4.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button2.Location = new System.Drawing.Point( 397, 615 );
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size( 125, 25 );
-            this.button2.TabIndex = 53;
-            this.button2.Text = "Save Preview Image...";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // radioButton1
-            // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point( 6, 146 );
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size( 123, 17 );
-            this.radioButton1.TabIndex = 54;
-            this.radioButton1.Text = "Generate from image";
-            this.radioButton1.UseVisualStyleBackColor = true;
-            // 
-            // tabControl1
-            // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            this.tabs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)));
-            this.tabControl1.Controls.Add( this.tabExisting );
-            this.tabControl1.Controls.Add( this.tabLoad );
-            this.tabControl1.Controls.Add( this.tabCopy );
-            this.tabControl1.Controls.Add( this.tabFlatgrass );
-            this.tabControl1.Controls.Add( this.tabHeightmap );
-            this.tabControl1.Controls.Add( this.tabTerrain );
-            this.tabControl1.Location = new System.Drawing.Point( 12, 108 );
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size( 379, 532 );
-            this.tabControl1.TabIndex = 54;
+            this.tabs.Controls.Add( this.tabExisting );
+            this.tabs.Controls.Add( this.tabLoad );
+            this.tabs.Controls.Add( this.tabCopy );
+            this.tabs.Controls.Add( this.tabFlatgrass );
+            this.tabs.Controls.Add( this.tabHeightmap );
+            this.tabs.Controls.Add( this.tabTerrain );
+            this.tabs.Location = new System.Drawing.Point( 12, 108 );
+            this.tabs.Name = "tabs";
+            this.tabs.SelectedIndex = 0;
+            this.tabs.Size = new System.Drawing.Size( 379, 507 );
+            this.tabs.TabIndex = 54;
+            this.tabs.SelectedIndexChanged += new System.EventHandler( this.tabs_SelectedIndexChanged );
             // 
             // tabExisting
             // 
-            this.tabExisting.Controls.Add( this.radioButton1 );
-            this.tabExisting.Controls.Add( this.rExisting );
-            this.tabExisting.Controls.Add( this.rTerrain );
-            this.tabExisting.Controls.Add( this.rFlatgrass );
-            this.tabExisting.Controls.Add( this.rLoad );
-            this.tabExisting.Controls.Add( this.rEmpty );
-            this.tabExisting.Controls.Add( this.rCopy );
             this.tabExisting.Location = new System.Drawing.Point( 4, 22 );
             this.tabExisting.Name = "tabExisting";
             this.tabExisting.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabExisting.Size = new System.Drawing.Size( 371, 506 );
+            this.tabExisting.Size = new System.Drawing.Size( 371, 481 );
             this.tabExisting.TabIndex = 0;
             this.tabExisting.Text = "Existing Map";
             this.tabExisting.UseVisualStyleBackColor = true;
@@ -969,7 +849,7 @@
             this.tabLoad.Location = new System.Drawing.Point( 4, 22 );
             this.tabLoad.Name = "tabLoad";
             this.tabLoad.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabLoad.Size = new System.Drawing.Size( 371, 506 );
+            this.tabLoad.Size = new System.Drawing.Size( 371, 481 );
             this.tabLoad.TabIndex = 1;
             this.tabLoad.Text = "Load File";
             this.tabLoad.UseVisualStyleBackColor = true;
@@ -981,7 +861,7 @@
             this.tabCopy.Location = new System.Drawing.Point( 4, 22 );
             this.tabCopy.Name = "tabCopy";
             this.tabCopy.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabCopy.Size = new System.Drawing.Size( 371, 506 );
+            this.tabCopy.Size = new System.Drawing.Size( 371, 481 );
             this.tabCopy.TabIndex = 2;
             this.tabCopy.Text = "Copy World";
             this.tabCopy.UseVisualStyleBackColor = true;
@@ -991,7 +871,7 @@
             this.tabFlatgrass.Location = new System.Drawing.Point( 4, 22 );
             this.tabFlatgrass.Name = "tabFlatgrass";
             this.tabFlatgrass.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabFlatgrass.Size = new System.Drawing.Size( 371, 506 );
+            this.tabFlatgrass.Size = new System.Drawing.Size( 371, 481 );
             this.tabFlatgrass.TabIndex = 3;
             this.tabFlatgrass.Text = "Flatgrass";
             this.tabFlatgrass.UseVisualStyleBackColor = true;
@@ -1001,7 +881,7 @@
             this.tabHeightmap.Location = new System.Drawing.Point( 4, 22 );
             this.tabHeightmap.Name = "tabHeightmap";
             this.tabHeightmap.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabHeightmap.Size = new System.Drawing.Size( 371, 506 );
+            this.tabHeightmap.Size = new System.Drawing.Size( 371, 481 );
             this.tabHeightmap.TabIndex = 4;
             this.tabHeightmap.Text = "Heightmap";
             this.tabHeightmap.UseVisualStyleBackColor = true;
@@ -1009,296 +889,296 @@
             // tabTerrain
             // 
             this.tabTerrain.BackColor = System.Drawing.SystemColors.Window;
-            this.tabTerrain.Controls.Add( this.groupBox4 );
-            this.tabTerrain.Controls.Add( this.groupBox3 );
-            this.tabTerrain.Controls.Add( this.groupBox2 );
-            this.tabTerrain.Controls.Add( this.groupBox1 );
-            this.tabTerrain.Controls.Add( this.maskedTextBox1 );
+            this.tabTerrain.Controls.Add( this.xAdvanced );
+            this.tabTerrain.Controls.Add( this.gMapSize );
+            this.tabTerrain.Controls.Add( this.gTerrainFeatures );
+            this.tabTerrain.Controls.Add( this.gHeightmapCreation );
+            this.tabTerrain.Controls.Add( this.gTrees );
+            this.tabTerrain.Controls.Add( this.mtSeed );
             this.tabTerrain.Controls.Add( this.bGenerate );
             this.tabTerrain.Controls.Add( this.lTheme );
-            this.tabTerrain.Controls.Add( this.checkBox4 );
+            this.tabTerrain.Controls.Add( this.xTrees );
             this.tabTerrain.Controls.Add( this.xFloodBarrier );
-            this.tabTerrain.Controls.Add( this.cTerrain );
-            this.tabTerrain.Controls.Add( this.lTerrain );
+            this.tabTerrain.Controls.Add( this.cPreset );
+            this.tabTerrain.Controls.Add( this.lPreset );
             this.tabTerrain.Controls.Add( this.cTheme );
-            this.tabTerrain.Controls.Add( this.label1 );
-            this.tabTerrain.Controls.Add( this.button1 );
+            this.tabTerrain.Controls.Add( this.lSeed );
+            this.tabTerrain.Controls.Add( this.bSeed );
             this.tabTerrain.Location = new System.Drawing.Point( 4, 22 );
             this.tabTerrain.Name = "tabTerrain";
             this.tabTerrain.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabTerrain.Size = new System.Drawing.Size( 371, 506 );
+            this.tabTerrain.Size = new System.Drawing.Size( 371, 481 );
             this.tabTerrain.TabIndex = 5;
             this.tabTerrain.Text = "Generator";
             this.tabTerrain.UseVisualStyleBackColor = true;
             // 
-            // groupBox4
+            // xAdvanced
             // 
-            this.groupBox4.Controls.Add( this.nWidthX );
-            this.groupBox4.Controls.Add( this.textBox1 );
-            this.groupBox4.Controls.Add( this.label8 );
-            this.groupBox4.Controls.Add( this.label9 );
-            this.groupBox4.Controls.Add( this.label10 );
-            this.groupBox4.Controls.Add( this.textBox2 );
-            this.groupBox4.Controls.Add( this.label11 );
-            this.groupBox4.Controls.Add( this.lX1 );
-            this.groupBox4.Controls.Add( this.lDim );
-            this.groupBox4.Controls.Add( this.lX2 );
-            this.groupBox4.Controls.Add( this.nHeight );
-            this.groupBox4.Controls.Add( this.nWidthY );
-            this.groupBox4.Location = new System.Drawing.Point( 6, 87 );
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size( 359, 81 );
-            this.groupBox4.TabIndex = 60;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Map size";
+            this.xAdvanced.AutoSize = true;
+            this.xAdvanced.Location = new System.Drawing.Point( 14, 62 );
+            this.xAdvanced.Name = "xAdvanced";
+            this.xAdvanced.Size = new System.Drawing.Size( 75, 17 );
+            this.xAdvanced.TabIndex = 61;
+            this.xAdvanced.Text = "Advanced";
+            this.xAdvanced.UseVisualStyleBackColor = true;
+            this.xAdvanced.CheckedChanged += new System.EventHandler( this.xAdvanced_CheckedChanged );
             // 
-            // groupBox3
+            // gMapSize
             // 
-            this.groupBox3.Controls.Add( this.label14 );
-            this.groupBox3.Controls.Add( this.checkBox3 );
-            this.groupBox3.Controls.Add( this.trackBar3 );
-            this.groupBox3.Controls.Add( this.trackBar4 );
-            this.groupBox3.Controls.Add( this.trackBar5 );
-            this.groupBox3.Controls.Add( this.label13 );
-            this.groupBox3.Controls.Add( this.label7 );
-            this.groupBox3.Controls.Add( this.label16 );
-            this.groupBox3.Controls.Add( this.label15 );
-            this.groupBox3.Controls.Add( this.trackBar6 );
-            this.groupBox3.Controls.Add( this.label5 );
-            this.groupBox3.Controls.Add( this.label12 );
-            this.groupBox3.Location = new System.Drawing.Point( 6, 174 );
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size( 359, 129 );
-            this.groupBox3.TabIndex = 59;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Terrain Features";
+            this.gMapSize.Controls.Add( this.nWidthX );
+            this.gMapSize.Controls.Add( this.nMaxHeight );
+            this.gMapSize.Controls.Add( this.lMaxHeight );
+            this.gMapSize.Controls.Add( this.lMaxHeightUnits );
+            this.gMapSize.Controls.Add( this.lMaxDepth );
+            this.gMapSize.Controls.Add( this.nMaxDepth );
+            this.gMapSize.Controls.Add( this.lMaxDepthUnits );
+            this.gMapSize.Controls.Add( this.lX1 );
+            this.gMapSize.Controls.Add( this.lDim );
+            this.gMapSize.Controls.Add( this.lX2 );
+            this.gMapSize.Controls.Add( this.nHeight );
+            this.gMapSize.Controls.Add( this.nWidthY );
+            this.gMapSize.Location = new System.Drawing.Point( 6, 87 );
+            this.gMapSize.Name = "gMapSize";
+            this.gMapSize.Size = new System.Drawing.Size( 359, 81 );
+            this.gMapSize.TabIndex = 60;
+            this.gMapSize.TabStop = false;
+            this.gMapSize.Text = "Map size";
             // 
-            // label14
+            // gTerrainFeatures
             // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point( 195, 92 );
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size( 21, 13 );
-            this.label14.TabIndex = 57;
-            this.label14.Text = "0%";
+            this.gTerrainFeatures.Controls.Add( this.lMidpointBiasDisplay );
+            this.gTerrainFeatures.Controls.Add( this.xMatchWaterCoverage );
+            this.gTerrainFeatures.Controls.Add( this.sMatchWaterCoverage );
+            this.gTerrainFeatures.Controls.Add( this.sCornerBias );
+            this.gTerrainFeatures.Controls.Add( this.sCornerBiasVariation );
+            this.gTerrainFeatures.Controls.Add( this.lCornerBias );
+            this.gTerrainFeatures.Controls.Add( this.lCornerBiasDisplay );
+            this.gTerrainFeatures.Controls.Add( this.lMidpointBias );
+            this.gTerrainFeatures.Controls.Add( this.sMidpointBias );
+            this.gTerrainFeatures.Controls.Add( this.lMatchWaterCoverageDisplay );
+            this.gTerrainFeatures.Controls.Add( this.lCornerBiasVariationDisplay );
+            this.gTerrainFeatures.Location = new System.Drawing.Point( 6, 174 );
+            this.gTerrainFeatures.Name = "gTerrainFeatures";
+            this.gTerrainFeatures.Size = new System.Drawing.Size( 359, 129 );
+            this.gTerrainFeatures.TabIndex = 59;
+            this.gTerrainFeatures.TabStop = false;
+            this.gTerrainFeatures.Text = "Terrain Features";
             // 
-            // trackBar5
+            // lMidpointBiasDisplay
             // 
-            this.trackBar5.AutoSize = false;
-            this.trackBar5.Location = new System.Drawing.Point( 239, 59 );
-            this.trackBar5.Maximum = 100;
-            this.trackBar5.Name = "trackBar5";
-            this.trackBar5.Size = new System.Drawing.Size( 74, 27 );
-            this.trackBar5.TabIndex = 56;
-            this.trackBar5.TickFrequency = 10;
-            this.trackBar5.Value = 50;
+            this.lMidpointBiasDisplay.AutoSize = true;
+            this.lMidpointBiasDisplay.Location = new System.Drawing.Point( 195, 92 );
+            this.lMidpointBiasDisplay.Name = "lMidpointBiasDisplay";
+            this.lMidpointBiasDisplay.Size = new System.Drawing.Size( 21, 13 );
+            this.lMidpointBiasDisplay.TabIndex = 57;
+            this.lMidpointBiasDisplay.Text = "0%";
             // 
-            // label7
+            // sCornerBiasVariation
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point( 334, 154 );
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size( 21, 13 );
-            this.label7.TabIndex = 55;
-            this.label7.Text = "0%";
+            this.sCornerBiasVariation.AutoSize = false;
+            this.sCornerBiasVariation.Location = new System.Drawing.Point( 239, 59 );
+            this.sCornerBiasVariation.Maximum = 100;
+            this.sCornerBiasVariation.Name = "sCornerBiasVariation";
+            this.sCornerBiasVariation.Size = new System.Drawing.Size( 74, 27 );
+            this.sCornerBiasVariation.TabIndex = 56;
+            this.sCornerBiasVariation.TickFrequency = 10;
+            this.sCornerBiasVariation.Value = 50;
             // 
-            // groupBox2
+            // gHeightmapCreation
             // 
-            this.groupBox2.Controls.Add( this.label4 );
-            this.groupBox2.Controls.Add( this.comboBox1 );
-            this.groupBox2.Controls.Add( this.trackBar1 );
-            this.groupBox2.Controls.Add( this.label6 );
-            this.groupBox2.Controls.Add( this.lFeatureSizeUnit );
-            this.groupBox2.Controls.Add( this.checkBox2 );
-            this.groupBox2.Controls.Add( this.checkBox1 );
-            this.groupBox2.Controls.Add( this.trackBar2 );
-            this.groupBox2.Controls.Add( this.label3 );
-            this.groupBox2.Controls.Add( this.label2 );
-            this.groupBox2.Location = new System.Drawing.Point( 10, 309 );
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size( 358, 118 );
-            this.groupBox2.TabIndex = 58;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Heightmap Creation";
+            this.gHeightmapCreation.Controls.Add( this.sDetailSize );
+            this.gHeightmapCreation.Controls.Add( this.lRoughnessDisplay );
+            this.gHeightmapCreation.Controls.Add( this.lDetailSizeDisplay );
+            this.gHeightmapCreation.Controls.Add( this.xLayeredHeightmap );
+            this.gHeightmapCreation.Controls.Add( this.xMarbledMode );
+            this.gHeightmapCreation.Controls.Add( this.sRoughness );
+            this.gHeightmapCreation.Controls.Add( this.lRoughness );
+            this.gHeightmapCreation.Controls.Add( this.lDetailSize );
+            this.gHeightmapCreation.Location = new System.Drawing.Point( 3, 309 );
+            this.gHeightmapCreation.Name = "gHeightmapCreation";
+            this.gHeightmapCreation.Size = new System.Drawing.Size( 365, 87 );
+            this.gHeightmapCreation.TabIndex = 58;
+            this.gHeightmapCreation.TabStop = false;
+            this.gHeightmapCreation.Text = "Heightmap Creation";
             // 
-            // groupBox1
+            // gTrees
             // 
-            this.groupBox1.Controls.Add( this.label21 );
-            this.groupBox1.Controls.Add( this.numericUpDown3 );
-            this.groupBox1.Controls.Add( this.label22 );
-            this.groupBox1.Controls.Add( this.numericUpDown4 );
-            this.groupBox1.Controls.Add( this.label23 );
-            this.groupBox1.Controls.Add( this.label20 );
-            this.groupBox1.Controls.Add( this.numericUpDown2 );
-            this.groupBox1.Controls.Add( this.label19 );
-            this.groupBox1.Controls.Add( this.numericUpDown1 );
-            this.groupBox1.Controls.Add( this.label18 );
-            this.groupBox1.Location = new System.Drawing.Point( 6, 433 );
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size( 359, 68 );
-            this.groupBox1.TabIndex = 57;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Trees";
+            this.gTrees.Controls.Add( this.lTreeHeightUnits );
+            this.gTrees.Controls.Add( this.nTreeHeightVariation );
+            this.gTrees.Controls.Add( this.lTreeHeightVariation );
+            this.gTrees.Controls.Add( this.nTreeHeight );
+            this.gTrees.Controls.Add( this.lTreeHeight );
+            this.gTrees.Controls.Add( this.lTreeSpacingUnits );
+            this.gTrees.Controls.Add( this.nTreeSpacingVariation );
+            this.gTrees.Controls.Add( this.lTreeSpacingVariation );
+            this.gTrees.Controls.Add( this.nTreeSpacing );
+            this.gTrees.Controls.Add( this.lTreeSpacing );
+            this.gTrees.Location = new System.Drawing.Point( 3, 402 );
+            this.gTrees.Name = "gTrees";
+            this.gTrees.Size = new System.Drawing.Size( 365, 74 );
+            this.gTrees.TabIndex = 57;
+            this.gTrees.TabStop = false;
+            this.gTrees.Text = "Trees";
             // 
-            // label21
+            // lTreeHeightUnits
             // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point( 228, 42 );
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size( 38, 13 );
-            this.label21.TabIndex = 67;
-            this.label21.Text = "blocks";
+            this.lTreeHeightUnits.AutoSize = true;
+            this.lTreeHeightUnits.Location = new System.Drawing.Point( 230, 47 );
+            this.lTreeHeightUnits.Name = "lTreeHeightUnits";
+            this.lTreeHeightUnits.Size = new System.Drawing.Size( 38, 13 );
+            this.lTreeHeightUnits.TabIndex = 67;
+            this.lTreeHeightUnits.Text = "blocks";
             // 
-            // numericUpDown3
+            // nTreeHeightVariation
             // 
-            this.numericUpDown3.Location = new System.Drawing.Point( 168, 40 );
-            this.numericUpDown3.Maximum = new decimal( new int[] {
+            this.nTreeHeightVariation.Location = new System.Drawing.Point( 170, 45 );
+            this.nTreeHeightVariation.Maximum = new decimal( new int[] {
             32,
             0,
             0,
             0} );
-            this.numericUpDown3.Minimum = new decimal( new int[] {
+            this.nTreeHeightVariation.Minimum = new decimal( new int[] {
             1,
             0,
             0,
             0} );
-            this.numericUpDown3.Name = "numericUpDown3";
-            this.numericUpDown3.Size = new System.Drawing.Size( 54, 20 );
-            this.numericUpDown3.TabIndex = 66;
-            this.numericUpDown3.Value = new decimal( new int[] {
+            this.nTreeHeightVariation.Name = "nTreeHeightVariation";
+            this.nTreeHeightVariation.Size = new System.Drawing.Size( 54, 20 );
+            this.nTreeHeightVariation.TabIndex = 66;
+            this.nTreeHeightVariation.Value = new decimal( new int[] {
             1,
             0,
             0,
             0} );
             // 
-            // label22
+            // lTreeHeightVariation
             // 
-            this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point( 141, 42 );
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size( 21, 13 );
-            this.label22.TabIndex = 65;
-            this.label22.Text = "+/-";
+            this.lTreeHeightVariation.AutoSize = true;
+            this.lTreeHeightVariation.Location = new System.Drawing.Point( 143, 47 );
+            this.lTreeHeightVariation.Name = "lTreeHeightVariation";
+            this.lTreeHeightVariation.Size = new System.Drawing.Size( 21, 13 );
+            this.lTreeHeightVariation.TabIndex = 65;
+            this.lTreeHeightVariation.Text = "+/-";
             // 
-            // numericUpDown4
+            // nTreeHeight
             // 
-            this.numericUpDown4.Location = new System.Drawing.Point( 81, 40 );
-            this.numericUpDown4.Maximum = new decimal( new int[] {
+            this.nTreeHeight.Location = new System.Drawing.Point( 83, 45 );
+            this.nTreeHeight.Maximum = new decimal( new int[] {
             64,
             0,
             0,
             0} );
-            this.numericUpDown4.Minimum = new decimal( new int[] {
+            this.nTreeHeight.Minimum = new decimal( new int[] {
             1,
             0,
             0,
             0} );
-            this.numericUpDown4.Name = "numericUpDown4";
-            this.numericUpDown4.Size = new System.Drawing.Size( 54, 20 );
-            this.numericUpDown4.TabIndex = 63;
-            this.numericUpDown4.Value = new decimal( new int[] {
+            this.nTreeHeight.Name = "nTreeHeight";
+            this.nTreeHeight.Size = new System.Drawing.Size( 54, 20 );
+            this.nTreeHeight.TabIndex = 63;
+            this.nTreeHeight.Value = new decimal( new int[] {
             5,
             0,
             0,
             0} );
             // 
-            // label23
+            // lTreeHeight
             // 
-            this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point( 14, 42 );
-            this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size( 61, 13 );
-            this.label23.TabIndex = 64;
-            this.label23.Text = "Tree height";
+            this.lTreeHeight.AutoSize = true;
+            this.lTreeHeight.Location = new System.Drawing.Point( 14, 47 );
+            this.lTreeHeight.Name = "lTreeHeight";
+            this.lTreeHeight.Size = new System.Drawing.Size( 61, 13 );
+            this.lTreeHeight.TabIndex = 64;
+            this.lTreeHeight.Text = "Tree height";
             // 
-            // label20
+            // lTreeSpacingUnits
             // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point( 228, 16 );
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size( 38, 13 );
-            this.label20.TabIndex = 62;
-            this.label20.Text = "blocks";
+            this.lTreeSpacingUnits.AutoSize = true;
+            this.lTreeSpacingUnits.Location = new System.Drawing.Point( 230, 21 );
+            this.lTreeSpacingUnits.Name = "lTreeSpacingUnits";
+            this.lTreeSpacingUnits.Size = new System.Drawing.Size( 38, 13 );
+            this.lTreeSpacingUnits.TabIndex = 62;
+            this.lTreeSpacingUnits.Text = "blocks";
             // 
-            // numericUpDown2
+            // nTreeSpacingVariation
             // 
-            this.numericUpDown2.Location = new System.Drawing.Point( 168, 14 );
-            this.numericUpDown2.Maximum = new decimal( new int[] {
+            this.nTreeSpacingVariation.Location = new System.Drawing.Point( 170, 19 );
+            this.nTreeSpacingVariation.Maximum = new decimal( new int[] {
             512,
             0,
             0,
             0} );
-            this.numericUpDown2.Minimum = new decimal( new int[] {
+            this.nTreeSpacingVariation.Minimum = new decimal( new int[] {
             1,
             0,
             0,
             0} );
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size( 54, 20 );
-            this.numericUpDown2.TabIndex = 61;
-            this.numericUpDown2.Value = new decimal( new int[] {
+            this.nTreeSpacingVariation.Name = "nTreeSpacingVariation";
+            this.nTreeSpacingVariation.Size = new System.Drawing.Size( 54, 20 );
+            this.nTreeSpacingVariation.TabIndex = 61;
+            this.nTreeSpacingVariation.Value = new decimal( new int[] {
             3,
             0,
             0,
             0} );
             // 
-            // label19
+            // lTreeSpacingVariation
             // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point( 141, 16 );
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size( 21, 13 );
-            this.label19.TabIndex = 60;
-            this.label19.Text = "+/-";
+            this.lTreeSpacingVariation.AutoSize = true;
+            this.lTreeSpacingVariation.Location = new System.Drawing.Point( 143, 21 );
+            this.lTreeSpacingVariation.Name = "lTreeSpacingVariation";
+            this.lTreeSpacingVariation.Size = new System.Drawing.Size( 21, 13 );
+            this.lTreeSpacingVariation.TabIndex = 60;
+            this.lTreeSpacingVariation.Text = "+/-";
             // 
-            // numericUpDown1
+            // nTreeSpacing
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point( 81, 14 );
-            this.numericUpDown1.Maximum = new decimal( new int[] {
+            this.nTreeSpacing.Location = new System.Drawing.Point( 83, 19 );
+            this.nTreeSpacing.Maximum = new decimal( new int[] {
             1024,
             0,
             0,
             0} );
-            this.numericUpDown1.Minimum = new decimal( new int[] {
+            this.nTreeSpacing.Minimum = new decimal( new int[] {
             1,
             0,
             0,
             0} );
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size( 54, 20 );
-            this.numericUpDown1.TabIndex = 58;
-            this.numericUpDown1.Value = new decimal( new int[] {
+            this.nTreeSpacing.Name = "nTreeSpacing";
+            this.nTreeSpacing.Size = new System.Drawing.Size( 54, 20 );
+            this.nTreeSpacing.TabIndex = 58;
+            this.nTreeSpacing.Value = new decimal( new int[] {
             8,
             0,
             0,
             0} );
             // 
-            // label18
+            // lTreeSpacing
             // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point( 6, 16 );
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size( 69, 13 );
-            this.label18.TabIndex = 59;
-            this.label18.Text = "Tree spacing";
+            this.lTreeSpacing.AutoSize = true;
+            this.lTreeSpacing.Location = new System.Drawing.Point( 6, 21 );
+            this.lTreeSpacing.Name = "lTreeSpacing";
+            this.lTreeSpacing.Size = new System.Drawing.Size( 69, 13 );
+            this.lTreeSpacing.TabIndex = 59;
+            this.lTreeSpacing.Text = "Tree spacing";
             // 
-            // label17
+            // lMapFileOptions
             // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point( 9, 92 );
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size( 47, 13 );
-            this.label17.TabIndex = 55;
-            this.label17.Text = "Map file:";
+            this.lMapFileOptions.AutoSize = true;
+            this.lMapFileOptions.Location = new System.Drawing.Point( 9, 92 );
+            this.lMapFileOptions.Name = "lMapFileOptions";
+            this.lMapFileOptions.Size = new System.Drawing.Size( 47, 13 );
+            this.lMapFileOptions.TabIndex = 55;
+            this.lMapFileOptions.Text = "Map file:";
             // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 994, 665 );
-            this.Controls.Add( this.label17 );
-            this.Controls.Add( this.tabControl1 );
-            this.Controls.Add( this.button2 );
+            this.ClientSize = new System.Drawing.Size( 994, 640 );
+            this.Controls.Add( this.lMapFileOptions );
+            this.Controls.Add( this.tabs );
+            this.Controls.Add( this.bSavePreview );
             this.Controls.Add( this.previewLayout );
             this.Controls.Add( this.statusStrip );
             this.Controls.Add( this.xHidden );
@@ -1325,32 +1205,30 @@
             this.previewLayout.ResumeLayout( false );
             this.previewLayout.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar6)).EndInit();
-            this.tabControl1.ResumeLayout( false );
-            this.tabExisting.ResumeLayout( false );
-            this.tabExisting.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.sDetailSize)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sRoughness)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sMatchWaterCoverage)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sCornerBias)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sMidpointBias)).EndInit();
+            this.tabs.ResumeLayout( false );
             this.tabLoad.ResumeLayout( false );
             this.tabLoad.PerformLayout();
             this.tabCopy.ResumeLayout( false );
             this.tabTerrain.ResumeLayout( false );
             this.tabTerrain.PerformLayout();
-            this.groupBox4.ResumeLayout( false );
-            this.groupBox4.PerformLayout();
-            this.groupBox3.ResumeLayout( false );
-            this.groupBox3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar5)).EndInit();
-            this.groupBox2.ResumeLayout( false );
-            this.groupBox2.PerformLayout();
-            this.groupBox1.ResumeLayout( false );
-            this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            this.gMapSize.ResumeLayout( false );
+            this.gMapSize.PerformLayout();
+            this.gTerrainFeatures.ResumeLayout( false );
+            this.gTerrainFeatures.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.sCornerBiasVariation)).EndInit();
+            this.gHeightmapCreation.ResumeLayout( false );
+            this.gHeightmapCreation.PerformLayout();
+            this.gTrees.ResumeLayout( false );
+            this.gTrees.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nTreeHeightVariation)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nTreeHeight)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacingVariation)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacing)).EndInit();
             this.ResumeLayout( false );
             this.PerformLayout();
 
@@ -1361,9 +1239,6 @@
         private System.Windows.Forms.Label lDim;
         private System.Windows.Forms.Label lX2;
         private System.Windows.Forms.Label lX1;
-        private System.Windows.Forms.RadioButton rEmpty;
-        private System.Windows.Forms.RadioButton rFlatgrass;
-        private System.Windows.Forms.RadioButton rTerrain;
         private System.Windows.Forms.NumericUpDown nWidthX;
         private System.Windows.Forms.NumericUpDown nWidthY;
         private System.Windows.Forms.NumericUpDown nHeight;
@@ -1372,8 +1247,6 @@
         private System.Windows.Forms.ComboBox cWorld;
         private System.Windows.Forms.TextBox tFile;
         private System.Windows.Forms.Button bBrowse;
-        private System.Windows.Forms.RadioButton rLoad;
-        private System.Windows.Forms.RadioButton rCopy;
         private System.Windows.Forms.Button bOK;
         private System.Windows.Forms.Button bCancel;
         private System.Windows.Forms.ComboBox cBackup;
@@ -1386,8 +1259,8 @@
         private System.Windows.Forms.TextBox tName;
         private System.Windows.Forms.ComboBox cTheme;
         private System.Windows.Forms.Label lTheme;
-        private System.Windows.Forms.ComboBox cTerrain;
-        private System.Windows.Forms.Label lTerrain;
+        private System.Windows.Forms.ComboBox cPreset;
+        private System.Windows.Forms.Label lPreset;
         private System.Windows.Forms.Button bPreviewPrev;
         private System.Windows.Forms.Button bPreviewNext;
         private System.Windows.Forms.CheckBox xFloodBarrier;
@@ -1398,40 +1271,36 @@
         private System.Windows.Forms.ToolStripStatusLabel tStatus1;
         private System.Windows.Forms.ToolStripStatusLabel tStatus2;
         private System.Windows.Forms.TableLayoutPanel previewLayout;
-        private System.Windows.Forms.RadioButton rExisting;
         private System.Windows.Forms.Button bShow;
-        private System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.TrackBar trackBar2;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TrackBar trackBar1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.MaskedTextBox maskedTextBox1;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TrackBar trackBar3;
-        private System.Windows.Forms.CheckBox checkBox3;
-        private System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TrackBar trackBar4;
-        private System.Windows.Forms.Label lFeatureSizeUnit;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label label16;
-        private System.Windows.Forms.TrackBar trackBar6;
-        private System.Windows.Forms.Label label15;
-        private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.CheckBox checkBox4;
-        private System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.CheckBox xLayeredHeightmap;
+        private System.Windows.Forms.CheckBox xMarbledMode;
+        private System.Windows.Forms.TrackBar sRoughness;
+        private System.Windows.Forms.Label lRoughness;
+        private System.Windows.Forms.TrackBar sDetailSize;
+        private System.Windows.Forms.Label lDetailSize;
+        private System.Windows.Forms.Button bSeed;
+        private System.Windows.Forms.MaskedTextBox mtSeed;
+        private System.Windows.Forms.Label lSeed;
+        private System.Windows.Forms.Label lRoughnessDisplay;
+        private System.Windows.Forms.Label lMatchWaterCoverageDisplay;
+        private System.Windows.Forms.TrackBar sMatchWaterCoverage;
+        private System.Windows.Forms.CheckBox xMatchWaterCoverage;
+        private System.Windows.Forms.Label lMaxHeightUnits;
+        private System.Windows.Forms.Label lMaxHeight;
+        private System.Windows.Forms.TextBox nMaxHeight;
+        private System.Windows.Forms.TrackBar sCornerBias;
+        private System.Windows.Forms.Label lDetailSizeDisplay;
+        private System.Windows.Forms.Label lMaxDepth;
+        private System.Windows.Forms.Label lCornerBiasDisplay;
+        private System.Windows.Forms.TrackBar sMidpointBias;
+        private System.Windows.Forms.Label lMidpointBias;
+        private System.Windows.Forms.Label lCornerBias;
+        private System.Windows.Forms.Label lCornerBiasVariationDisplay;
+        private System.Windows.Forms.Label lMaxDepthUnits;
+        private System.Windows.Forms.TextBox nMaxDepth;
+        private System.Windows.Forms.CheckBox xTrees;
+        private System.Windows.Forms.Button bSavePreview;
+        private System.Windows.Forms.TabControl tabs;
         private System.Windows.Forms.TabPage tabExisting;
         private System.Windows.Forms.TabPage tabLoad;
         private System.Windows.Forms.TabPage tabCopy;
@@ -1439,23 +1308,23 @@
         private System.Windows.Forms.TabPage tabHeightmap;
         private System.Windows.Forms.TabPage tabTerrain;
         private CustomPictureBox preview;
-        private System.Windows.Forms.Label label17;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label label21;
-        private System.Windows.Forms.NumericUpDown numericUpDown3;
-        private System.Windows.Forms.Label label22;
-        private System.Windows.Forms.NumericUpDown numericUpDown4;
-        private System.Windows.Forms.Label label23;
-        private System.Windows.Forms.Label label20;
-        private System.Windows.Forms.NumericUpDown numericUpDown2;
-        private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
-        private System.Windows.Forms.Label label18;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.TrackBar trackBar5;
+        private System.Windows.Forms.Label lMapFileOptions;
+        private System.Windows.Forms.GroupBox gTrees;
+        private System.Windows.Forms.Label lTreeHeightUnits;
+        private System.Windows.Forms.NumericUpDown nTreeHeightVariation;
+        private System.Windows.Forms.Label lTreeHeightVariation;
+        private System.Windows.Forms.NumericUpDown nTreeHeight;
+        private System.Windows.Forms.Label lTreeHeight;
+        private System.Windows.Forms.Label lTreeSpacingUnits;
+        private System.Windows.Forms.NumericUpDown nTreeSpacingVariation;
+        private System.Windows.Forms.Label lTreeSpacingVariation;
+        private System.Windows.Forms.NumericUpDown nTreeSpacing;
+        private System.Windows.Forms.Label lTreeSpacing;
+        private System.Windows.Forms.GroupBox gHeightmapCreation;
+        private System.Windows.Forms.GroupBox gTerrainFeatures;
+        private System.Windows.Forms.GroupBox gMapSize;
+        private System.Windows.Forms.Label lMidpointBiasDisplay;
+        private System.Windows.Forms.TrackBar sCornerBiasVariation;
+        private System.Windows.Forms.CheckBox xAdvanced;
     }
 }
