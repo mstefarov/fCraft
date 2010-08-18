@@ -23,6 +23,7 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( AddWorldPopup ) );
             this.lX2 = new System.Windows.Forms.Label();
             this.lX1 = new System.Windows.Forms.Label();
             this.lDim = new System.Windows.Forms.Label();
@@ -90,9 +91,22 @@
             this.bSavePreview = new System.Windows.Forms.Button();
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabExisting = new System.Windows.Forms.TabPage();
+            this.tExistingMapInfo = new System.Windows.Forms.TextBox();
             this.tabLoad = new System.Windows.Forms.TabPage();
+            this.lFormatList = new System.Windows.Forms.Label();
+            this.lFile = new System.Windows.Forms.Label();
+            this.tLoadFileInfo = new System.Windows.Forms.TextBox();
             this.tabCopy = new System.Windows.Forms.TabPage();
+            this.tCopyInfo = new System.Windows.Forms.TextBox();
+            this.lWorldToCopy = new System.Windows.Forms.Label();
             this.tabFlatgrass = new System.Windows.Forms.TabPage();
+            this.bFlatgrassGenerate = new System.Windows.Forms.Button();
+            this.nFlatgrassDimX = new System.Windows.Forms.NumericUpDown();
+            this.lFlatgrassX1 = new System.Windows.Forms.Label();
+            this.lFlatgrassDimensions = new System.Windows.Forms.Label();
+            this.lFlatgrassX2 = new System.Windows.Forms.Label();
+            this.nFlatgrassDimH = new System.Windows.Forms.NumericUpDown();
+            this.nFlatgrassDimY = new System.Windows.Forms.NumericUpDown();
             this.tabHeightmap = new System.Windows.Forms.TabPage();
             this.tabTerrain = new System.Windows.Forms.TabPage();
             this.xAdvanced = new System.Windows.Forms.CheckBox();
@@ -125,8 +139,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.sCornerBias)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sMidpointBias)).BeginInit();
             this.tabs.SuspendLayout();
+            this.tabExisting.SuspendLayout();
             this.tabLoad.SuspendLayout();
             this.tabCopy.SuspendLayout();
+            this.tabFlatgrass.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimH)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimY)).BeginInit();
             this.tabTerrain.SuspendLayout();
             this.gMapSize.SuspendLayout();
             this.gTerrainFeatures.SuspendLayout();
@@ -249,7 +268,7 @@
             // 
             // bShow
             // 
-            this.bShow.Location = new System.Drawing.Point( 164, 5 );
+            this.bShow.Location = new System.Drawing.Point( 291, 6 );
             this.bShow.Name = "bShow";
             this.bShow.Size = new System.Drawing.Size( 74, 23 );
             this.bShow.TabIndex = 23;
@@ -316,23 +335,23 @@
             // 
             this.cWorld.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cWorld.FormattingEnabled = true;
-            this.cWorld.Location = new System.Drawing.Point( 6, 6 );
+            this.cWorld.Location = new System.Drawing.Point( 85, 7 );
             this.cWorld.Name = "cWorld";
-            this.cWorld.Size = new System.Drawing.Size( 152, 21 );
+            this.cWorld.Size = new System.Drawing.Size( 200, 21 );
             this.cWorld.TabIndex = 7;
             this.cWorld.SelectedIndexChanged += new System.EventHandler( this.cWorld_SelectedIndexChanged );
             // 
             // tFile
             // 
-            this.tFile.Location = new System.Drawing.Point( 6, 6 );
+            this.tFile.Location = new System.Drawing.Point( 70, 8 );
             this.tFile.Name = "tFile";
             this.tFile.ReadOnly = true;
-            this.tFile.Size = new System.Drawing.Size( 179, 20 );
+            this.tFile.Size = new System.Drawing.Size( 215, 20 );
             this.tFile.TabIndex = 4;
             // 
             // bBrowse
             // 
-            this.bBrowse.Location = new System.Drawing.Point( 191, 4 );
+            this.bBrowse.Location = new System.Drawing.Point( 291, 6 );
             this.bBrowse.Name = "bBrowse";
             this.bBrowse.Size = new System.Drawing.Size( 74, 23 );
             this.bBrowse.TabIndex = 5;
@@ -834,6 +853,7 @@
             // 
             // tabExisting
             // 
+            this.tabExisting.Controls.Add( this.tExistingMapInfo );
             this.tabExisting.Location = new System.Drawing.Point( 4, 22 );
             this.tabExisting.Name = "tabExisting";
             this.tabExisting.Padding = new System.Windows.Forms.Padding( 3 );
@@ -842,8 +862,21 @@
             this.tabExisting.Text = "Existing Map";
             this.tabExisting.UseVisualStyleBackColor = true;
             // 
+            // tExistingMapInfo
+            // 
+            this.tExistingMapInfo.Font = new System.Drawing.Font( "Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.tExistingMapInfo.Location = new System.Drawing.Point( 6, 6 );
+            this.tExistingMapInfo.Multiline = true;
+            this.tExistingMapInfo.Name = "tExistingMapInfo";
+            this.tExistingMapInfo.ReadOnly = true;
+            this.tExistingMapInfo.Size = new System.Drawing.Size( 362, 100 );
+            this.tExistingMapInfo.TabIndex = 1;
+            // 
             // tabLoad
             // 
+            this.tabLoad.Controls.Add( this.lFormatList );
+            this.tabLoad.Controls.Add( this.lFile );
+            this.tabLoad.Controls.Add( this.tLoadFileInfo );
             this.tabLoad.Controls.Add( this.tFile );
             this.tabLoad.Controls.Add( this.bBrowse );
             this.tabLoad.Location = new System.Drawing.Point( 4, 22 );
@@ -854,8 +887,38 @@
             this.tabLoad.Text = "Load File";
             this.tabLoad.UseVisualStyleBackColor = true;
             // 
+            // lFormatList
+            // 
+            this.lFormatList.AutoSize = true;
+            this.lFormatList.Location = new System.Drawing.Point( 6, 138 );
+            this.lFormatList.Name = "lFormatList";
+            this.lFormatList.Size = new System.Drawing.Size( 278, 117 );
+            this.lFormatList.TabIndex = 8;
+            this.lFormatList.Text = resources.GetString( "lFormatList.Text" );
+            // 
+            // lFile
+            // 
+            this.lFile.AutoSize = true;
+            this.lFile.Location = new System.Drawing.Point( 6, 11 );
+            this.lFile.Name = "lFile";
+            this.lFile.Size = new System.Drawing.Size( 58, 13 );
+            this.lFile.TabIndex = 7;
+            this.lFile.Text = "File to load";
+            // 
+            // tLoadFileInfo
+            // 
+            this.tLoadFileInfo.Font = new System.Drawing.Font( "Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.tLoadFileInfo.Location = new System.Drawing.Point( 6, 35 );
+            this.tLoadFileInfo.Multiline = true;
+            this.tLoadFileInfo.Name = "tLoadFileInfo";
+            this.tLoadFileInfo.ReadOnly = true;
+            this.tLoadFileInfo.Size = new System.Drawing.Size( 359, 100 );
+            this.tLoadFileInfo.TabIndex = 6;
+            // 
             // tabCopy
             // 
+            this.tabCopy.Controls.Add( this.tCopyInfo );
+            this.tabCopy.Controls.Add( this.lWorldToCopy );
             this.tabCopy.Controls.Add( this.bShow );
             this.tabCopy.Controls.Add( this.cWorld );
             this.tabCopy.Location = new System.Drawing.Point( 4, 22 );
@@ -866,8 +929,34 @@
             this.tabCopy.Text = "Copy World";
             this.tabCopy.UseVisualStyleBackColor = true;
             // 
+            // tCopyInfo
+            // 
+            this.tCopyInfo.Font = new System.Drawing.Font( "Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.tCopyInfo.Location = new System.Drawing.Point( 6, 34 );
+            this.tCopyInfo.Multiline = true;
+            this.tCopyInfo.Name = "tCopyInfo";
+            this.tCopyInfo.ReadOnly = true;
+            this.tCopyInfo.Size = new System.Drawing.Size( 359, 100 );
+            this.tCopyInfo.TabIndex = 25;
+            // 
+            // lWorldToCopy
+            // 
+            this.lWorldToCopy.AutoSize = true;
+            this.lWorldToCopy.Location = new System.Drawing.Point( 6, 11 );
+            this.lWorldToCopy.Name = "lWorldToCopy";
+            this.lWorldToCopy.Size = new System.Drawing.Size( 73, 13 );
+            this.lWorldToCopy.TabIndex = 24;
+            this.lWorldToCopy.Text = "World to copy";
+            // 
             // tabFlatgrass
             // 
+            this.tabFlatgrass.Controls.Add( this.bFlatgrassGenerate );
+            this.tabFlatgrass.Controls.Add( this.nFlatgrassDimX );
+            this.tabFlatgrass.Controls.Add( this.lFlatgrassX1 );
+            this.tabFlatgrass.Controls.Add( this.lFlatgrassDimensions );
+            this.tabFlatgrass.Controls.Add( this.lFlatgrassX2 );
+            this.tabFlatgrass.Controls.Add( this.nFlatgrassDimH );
+            this.tabFlatgrass.Controls.Add( this.nFlatgrassDimY );
             this.tabFlatgrass.Location = new System.Drawing.Point( 4, 22 );
             this.tabFlatgrass.Name = "tabFlatgrass";
             this.tabFlatgrass.Padding = new System.Windows.Forms.Padding( 3 );
@@ -875,6 +964,124 @@
             this.tabFlatgrass.TabIndex = 3;
             this.tabFlatgrass.Text = "Flatgrass";
             this.tabFlatgrass.UseVisualStyleBackColor = true;
+            // 
+            // bFlatgrassGenerate
+            // 
+            this.bFlatgrassGenerate.Location = new System.Drawing.Point( 6, 6 );
+            this.bFlatgrassGenerate.Name = "bFlatgrassGenerate";
+            this.bFlatgrassGenerate.Size = new System.Drawing.Size( 74, 50 );
+            this.bFlatgrassGenerate.TabIndex = 14;
+            this.bFlatgrassGenerate.Text = "Generate";
+            this.bFlatgrassGenerate.UseVisualStyleBackColor = true;
+            this.bFlatgrassGenerate.Click += new System.EventHandler( this.bGenerate_Click );
+            // 
+            // nFlatgrassDimX
+            // 
+            this.nFlatgrassDimX.Increment = new decimal( new int[] {
+            16,
+            0,
+            0,
+            0} );
+            this.nFlatgrassDimX.Location = new System.Drawing.Point( 153, 23 );
+            this.nFlatgrassDimX.Maximum = new decimal( new int[] {
+            2032,
+            0,
+            0,
+            0} );
+            this.nFlatgrassDimX.Minimum = new decimal( new int[] {
+            16,
+            0,
+            0,
+            0} );
+            this.nFlatgrassDimX.Name = "nFlatgrassDimX";
+            this.nFlatgrassDimX.Size = new System.Drawing.Size( 54, 20 );
+            this.nFlatgrassDimX.TabIndex = 7;
+            this.nFlatgrassDimX.Value = new decimal( new int[] {
+            64,
+            0,
+            0,
+            0} );
+            // 
+            // lFlatgrassX1
+            // 
+            this.lFlatgrassX1.AutoSize = true;
+            this.lFlatgrassX1.Location = new System.Drawing.Point( 213, 25 );
+            this.lFlatgrassX1.Name = "lFlatgrassX1";
+            this.lFlatgrassX1.Size = new System.Drawing.Size( 13, 13 );
+            this.lFlatgrassX1.TabIndex = 11;
+            this.lFlatgrassX1.Text = "×";
+            // 
+            // lFlatgrassDimensions
+            // 
+            this.lFlatgrassDimensions.AutoSize = true;
+            this.lFlatgrassDimensions.Location = new System.Drawing.Point( 86, 25 );
+            this.lFlatgrassDimensions.Name = "lFlatgrassDimensions";
+            this.lFlatgrassDimensions.Size = new System.Drawing.Size( 61, 13 );
+            this.lFlatgrassDimensions.TabIndex = 10;
+            this.lFlatgrassDimensions.Text = "Dimensions";
+            // 
+            // lFlatgrassX2
+            // 
+            this.lFlatgrassX2.AutoSize = true;
+            this.lFlatgrassX2.Location = new System.Drawing.Point( 292, 25 );
+            this.lFlatgrassX2.Name = "lFlatgrassX2";
+            this.lFlatgrassX2.Size = new System.Drawing.Size( 13, 13 );
+            this.lFlatgrassX2.TabIndex = 12;
+            this.lFlatgrassX2.Text = "×";
+            // 
+            // nFlatgrassDimH
+            // 
+            this.nFlatgrassDimH.Increment = new decimal( new int[] {
+            16,
+            0,
+            0,
+            0} );
+            this.nFlatgrassDimH.Location = new System.Drawing.Point( 311, 23 );
+            this.nFlatgrassDimH.Maximum = new decimal( new int[] {
+            2032,
+            0,
+            0,
+            0} );
+            this.nFlatgrassDimH.Minimum = new decimal( new int[] {
+            16,
+            0,
+            0,
+            0} );
+            this.nFlatgrassDimH.Name = "nFlatgrassDimH";
+            this.nFlatgrassDimH.Size = new System.Drawing.Size( 54, 20 );
+            this.nFlatgrassDimH.TabIndex = 9;
+            this.nFlatgrassDimH.Value = new decimal( new int[] {
+            64,
+            0,
+            0,
+            0} );
+            // 
+            // nFlatgrassDimY
+            // 
+            this.nFlatgrassDimY.Increment = new decimal( new int[] {
+            16,
+            0,
+            0,
+            0} );
+            this.nFlatgrassDimY.Location = new System.Drawing.Point( 232, 23 );
+            this.nFlatgrassDimY.Maximum = new decimal( new int[] {
+            2032,
+            0,
+            0,
+            0} );
+            this.nFlatgrassDimY.Minimum = new decimal( new int[] {
+            16,
+            0,
+            0,
+            0} );
+            this.nFlatgrassDimY.Name = "nFlatgrassDimY";
+            this.nFlatgrassDimY.Size = new System.Drawing.Size( 54, 20 );
+            this.nFlatgrassDimY.TabIndex = 8;
+            this.nFlatgrassDimY.Value = new decimal( new int[] {
+            64,
+            0,
+            0,
+            0} );
             // 
             // tabHeightmap
             // 
@@ -1211,9 +1418,17 @@
             ((System.ComponentModel.ISupportInitialize)(this.sCornerBias)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sMidpointBias)).EndInit();
             this.tabs.ResumeLayout( false );
+            this.tabExisting.ResumeLayout( false );
+            this.tabExisting.PerformLayout();
             this.tabLoad.ResumeLayout( false );
             this.tabLoad.PerformLayout();
             this.tabCopy.ResumeLayout( false );
+            this.tabCopy.PerformLayout();
+            this.tabFlatgrass.ResumeLayout( false );
+            this.tabFlatgrass.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimH)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimY)).EndInit();
             this.tabTerrain.ResumeLayout( false );
             this.tabTerrain.PerformLayout();
             this.gMapSize.ResumeLayout( false );
@@ -1326,5 +1541,18 @@
         private System.Windows.Forms.Label lMidpointBiasDisplay;
         private System.Windows.Forms.TrackBar sCornerBiasVariation;
         private System.Windows.Forms.CheckBox xAdvanced;
+        private System.Windows.Forms.TextBox tExistingMapInfo;
+        private System.Windows.Forms.TextBox tLoadFileInfo;
+        private System.Windows.Forms.Label lFile;
+        private System.Windows.Forms.Label lFormatList;
+        private System.Windows.Forms.TextBox tCopyInfo;
+        private System.Windows.Forms.Label lWorldToCopy;
+        private System.Windows.Forms.Button bFlatgrassGenerate;
+        private System.Windows.Forms.NumericUpDown nFlatgrassDimX;
+        private System.Windows.Forms.Label lFlatgrassX1;
+        private System.Windows.Forms.Label lFlatgrassDimensions;
+        private System.Windows.Forms.Label lFlatgrassX2;
+        private System.Windows.Forms.NumericUpDown nFlatgrassDimH;
+        private System.Windows.Forms.NumericUpDown nFlatgrassDimY;
     }
 }

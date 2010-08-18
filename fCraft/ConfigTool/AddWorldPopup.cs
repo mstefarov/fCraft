@@ -103,7 +103,10 @@ namespace ConfigTool {
 
             // Disable "existing map" tab if there are no other worlds
             fileToLoad = "maps/" + world.Name + ".fcm";
-            if( !File.Exists( fileToLoad ) ) {
+            if( File.Exists( fileToLoad ) ) {
+                ShowMapDetails( tExistingMapInfo, fileToLoad );
+                StartLoadingMap();
+            }else{
                 tabs.TabPages.Remove( tabExisting );
                 tabs.SelectTab( tabLoad );
             }
@@ -116,9 +119,8 @@ namespace ConfigTool {
 
         #region Loading/Saving
 
-        void StartLoadingMap( string _fileToLoad ) {
+        void StartLoadingMap() {
             bOK.Enabled = false;
-            fileToLoad = _fileToLoad;
             tStatus1.Text = "Loading " + new FileInfo( fileToLoad ).Name;
             progressBar.Visible = true;
             progressBar.Style = ProgressBarStyle.Marquee;
@@ -128,10 +130,13 @@ namespace ConfigTool {
         private void bBrowse_Click( object sender, EventArgs e ) {
             fileBrowser.FileName = tFile.Text;
             fileBrowser.ShowDialog();
+
             tFile.Text = fileBrowser.FileName;
             tFile.SelectAll();
 
-            StartLoadingMap( fileBrowser.FileName );
+            fileToLoad = fileBrowser.FileName;
+            ShowMapDetails( tLoadFileInfo, fileToLoad );
+            StartLoadingMap();
         }
 
         string fileToLoad;
@@ -228,9 +233,10 @@ namespace ConfigTool {
 
         MapGenerator generator;
 
-
         private void bGenerate_Click( object sender, EventArgs e ) {
             bOK.Enabled = false;
+            bGenerate.Enabled = false;
+            bFlatgrassGenerate.Enabled = false;
 
             tStatus1.Text = "Generating...";
             progressBar.Visible = true;
@@ -246,7 +252,11 @@ namespace ConfigTool {
             stopwatch = Stopwatch.StartNew();
             map = null;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-            map = new Map( null, Convert.ToInt32( nWidthX.Value ), Convert.ToInt32( nWidthY.Value ), Convert.ToInt32( nHeight.Value ) );
+            if( tab == Tabs.Generator ) {
+                map = new Map( null, Convert.ToInt32( nWidthX.Value ), Convert.ToInt32( nWidthY.Value ), Convert.ToInt32( nHeight.Value ) );
+            } else if( tab== Tabs.Flatgrass) {
+                map = new Map( null, Convert.ToInt32( nFlatgrassDimX.Value ), Convert.ToInt32( nFlatgrassDimY.Value ), Convert.ToInt32( nFlatgrassDimH.Value ) );
+            }
 
             if( tab == Tabs.Generator ) {
                 generator = new MapGenerator( map, null, null, genType, genTheme );
@@ -266,11 +276,13 @@ namespace ConfigTool {
             if( map == null ) {
                 tStatus1.Text = "Generation failed!";
             } else {
+                bOK.Enabled = true;
                 tStatus1.Text = "Generation succesful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
                 tStatus2.Text = ", drawing...";
                 Redraw( true );
             }
-            bOK.Enabled = true;
+            bGenerate.Enabled = true;
+            bFlatgrassGenerate.Enabled = true;
         }
 
         #endregion
@@ -339,13 +351,17 @@ namespace ConfigTool {
         private void bShow_Click( object sender, EventArgs e ) {
             if( cWorld.SelectedIndex != -1 && File.Exists( "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm" ) ) {
                 bShow.Enabled = false;
-                StartLoadingMap( "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
+                fileToLoad = "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm";
+                ShowMapDetails( tCopyInfo, fileToLoad );
+                StartLoadingMap();
             }
         }
 
         private void cWorld_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cWorld.SelectedIndex != -1 ) {
-                bShow.Enabled = File.Exists( "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
+                string fileName = "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm";
+                bShow.Enabled = File.Exists( fileName );
+                ShowMapDetails( tCopyInfo, fileName );
             }
         }
 
@@ -373,12 +389,16 @@ namespace ConfigTool {
 
             switch( tab ) {
                 case Tabs.ExistingMap:
-                    StartLoadingMap( "maps/" + world.Name + ".fcm" );
+                    fileToLoad = "maps/" + world.Name + ".fcm";
+                    ShowMapDetails( tExistingMapInfo, fileToLoad );
+                    StartLoadingMap();
                     return;
                 case Tabs.LoadFile:
                     if( tFile.Text != "" ) {
                         tFile.SelectAll();
-                        StartLoadingMap( tFile.Text );
+                        fileToLoad = tFile.Text;
+                        ShowMapDetails( tLoadFileInfo, fileToLoad );
+                        StartLoadingMap();
                     }
                     return;
                 case Tabs.CopyWorld:
@@ -404,5 +424,33 @@ namespace ConfigTool {
             Generator
         }
         #endregion
+
+        void ShowMapDetails( TextBox textBox, string fileName ) {
+            if( File.Exists( fileName ) ) {
+                map = Map.LoadHeaderOnly( fileName );
+                if( map != null ) {
+                    FileInfo existingMapFileInfo = new FileInfo( fileName );
+                    textBox.Text = String.Format(
+@"      File: {0}
+  Filesize: {1} KB
+   Created: {2}
+  Modified: {3}
+Dimensions: {4}×{5}×{6}
+    Blocks: {7}",
+                    fileName,
+                    (existingMapFileInfo.Length / 1024),
+                    existingMapFileInfo.CreationTime.ToLongDateString(),
+                    existingMapFileInfo.LastWriteTime.ToLongDateString(),
+                    map.widthX,
+                    map.widthY,
+                    map.height,
+                    map.widthX * map.widthY * map.height );
+                } else {
+                    textBox.Text = "An error occured while trying to load \"" + fileName + "\".";
+                }
+            } else {
+                textBox.Text = "File \"" + fileName + "\" does not exist.";
+            }
+        }
     }
 }
