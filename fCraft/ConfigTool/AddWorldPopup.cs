@@ -232,11 +232,36 @@ namespace ConfigTool {
         #region Generation
 
         MapGenerator generator;
+        MapGeneratorArgs generatorArgs;
 
         private void bGenerate_Click( object sender, EventArgs e ) {
             bOK.Enabled = false;
             bGenerate.Enabled = false;
             bFlatgrassGenerate.Enabled = false;
+
+            if( tab == Tabs.Generator ) {
+                generatorArgs = new MapGeneratorArgs {
+                    cornerBiasMax = sCornerBias.Value + sCornerBiasVariation.Value,
+                    cornerBiasMin = sCornerBias.Value - sCornerBiasVariation.Value,
+                    detailSize = sDetailSize.Value,
+                    layeredHeightmap = xLayeredHeightmap.Checked,
+                    marbled = xMarbledMode.Checked,
+                    matchWaterCoverage = xMatchWaterCoverage.Checked,
+                    maxDepth = (int)nMaxDepth.Value,
+                    maxHeight = (int)nMaxHeight.Value,
+                    midpointBias = sMidpointBias.Value,
+                    placeTrees = xTrees.Checked,
+                    roughness = sRoughness.Value,
+                    seed = (int)nSeed.Value,
+                    theme = (MapGenTheme)cTheme.SelectedIndex,
+                    treeHeightMax = (int)(nTreeHeight.Value + nTreeHeightVariation.Value),
+                    treeHeightMin = (int)(nTreeHeight.Value - nTreeHeightVariation.Value),
+                    treeSpacingMax = (int)(nTreeSpacing.Value + nTreeSpacingVariation.Value),
+                    treeSpacingMin = (int)(nTreeSpacing.Value - nTreeSpacingVariation.Value),
+                    useBias = !xFullRandom.Checked,
+                    waterCoverage = sWaterCoverage.Value
+                };
+            }
 
             tStatus1.Text = "Generating...";
             progressBar.Visible = true;
@@ -451,6 +476,19 @@ Dimensions: {4}×{5}×{6}
             } else {
                 textBox.Text = "File \"" + fileName + "\" does not exist.";
             }
+        }
+
+        private void xFullRandom_CheckedChanged( object sender, EventArgs e ) {
+            sMidpointBias.Enabled = !xFullRandom.Checked;
+            sCornerBias.Enabled = !xFullRandom.Checked;
+            sCornerBiasVariation.Enabled = !xFullRandom.Checked;
+            lMidpointBiasDisplay.Enabled = !xFullRandom.Checked;
+            lCornerBiasDisplay.Enabled = !xFullRandom.Checked;
+            lCornerBiasVariationDisplay.Enabled = !xFullRandom.Checked;
+        }
+
+        private void xMatchWaterCoverage_CheckedChanged( object sender, EventArgs e ) {
+            sWaterCoverage.Enabled = xMatchWaterCoverage.Checked;
         }
     }
 }
