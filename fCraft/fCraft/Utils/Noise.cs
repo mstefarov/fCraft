@@ -6,7 +6,7 @@ using System.Text;
 namespace fCraft {
     public class Noise {
 
-        int c0,c1,c2;
+        int c0, c1, c2;
         double c3;
 
         public Noise( Random rand ) {
@@ -50,11 +50,11 @@ namespace fCraft {
             int yInt = (int)y;
             float yFloat = y - yInt;
 
-            
+
             float[,] points = new float[4, 4];
             for( int xOffset = -1; xOffset < 3; xOffset++ ) {
                 for( int yOffset = -1; yOffset < 3; yOffset++ ) {
-                    points[xOffset+1, yOffset+1] = StaticNoise( xInt + xOffset, yInt + yOffset );
+                    points[xOffset + 1, yOffset + 1] = StaticNoise( xInt + xOffset, yInt + yOffset );
                 }
             }
 
@@ -90,19 +90,23 @@ namespace fCraft {
 
         public float[,] PerlinMap( int width, int height, int octaves, float decay ) {
             float[,] result = new float[width, height];
-            float maxDim = 1f/Math.Max( width, height );
+            float maxDim = 1f / Math.Max( width, height );
             for( int x = 0; x < width; x++ ) {
                 for( int y = 0; y < height; y++ ) {
-                    result[x, y] = PerlinNoise( x * maxDim+10, y * maxDim+10, octaves, decay );
+                    result[x, y] = PerlinNoise( x * maxDim + 10, y * maxDim + 10, octaves, decay );
                 }
             }
             return result;
         }
 
 
+        public static void Normalize( float[,] map ) {
+            Normalize( map, 0, 1 );
+        }
+
         public static void Normalize( float[,] map, float low, float high ) {
             float min = float.MaxValue, max = float.MinValue;
-            for( int x = 0; x < map.GetLength(0); x++ ) {
+            for( int x = 0; x < map.GetLength( 0 ); x++ ) {
                 for( int y = 0; y < map.GetLength( 1 ); y++ ) {
                     min = Math.Min( min, map[x, y] );
                     max = Math.Max( max, map[x, y] );
@@ -115,6 +119,25 @@ namespace fCraft {
             for( int x = 0; x < map.GetLength( 0 ); x++ ) {
                 for( int y = 0; y < map.GetLength( 1 ); y++ ) {
                     map[x, y] = map[x, y] * multiplier + constant;
+                }
+            }
+        }
+
+
+        // assumes normalized input
+        public static void Marble( float[,] map ) {
+            for( int x = 0; x < map.GetLength( 0 ); x++ ) {
+                for( int y = 0; y < map.GetLength( 1 ); y++ ) {
+                    map[x, y] = Math.Abs( map[x, y] * 2 - 1 );
+                }
+            }
+        }
+
+        // assumes normalized input
+        public static void Blend( float[,] map1, float[,] map2, float[,] blendMap ) {
+            for( int x = 0; x < map1.GetLength( 0 ); x++ ) {
+                for( int y = 0; y < map1.GetLength( 1 ); y++ ) {
+                    map1[x, y] = map1[x, y] * blendMap[x, y] + map2[x, y] * (1 - blendMap[x, y]);
                 }
             }
         }
