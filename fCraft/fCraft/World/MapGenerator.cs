@@ -5,7 +5,6 @@ using System.Linq;
 
 namespace fCraft {
 
-    // TODO: themes
     public enum MapGenTheme {
         Arctic,
         Desert,
@@ -25,7 +24,27 @@ namespace fCraft {
         Cliffs
     }
 
+
+    public sealed class MapGeneratorArgs {
+        public MapGenTheme theme;
+        public int seed, maxHeight, maxDepth;
+
+        public bool matchWaterCoverage;
+        public float waterCoverage;
+        public bool useBias;
+        public float cornerBiasMin, cornerBiasMax, midpointBias;
+
+        public int detailSize;
+        public float roughness;
+        public bool layeredHeightmap, marbled;
+
+        public bool placeTrees;
+        public int treeSpacingMin, treeSpacingMax, treeHeightMin, treeHeightMax;
+    }
+
+
     public sealed class MapGenerator {
+        MapGeneratorArgs args;
         double roughness, gBigSize, smoothingOver, smoothingUnder, midpoint, sidesMin, sidesMax;
         Random rand = new Random();
         Map map;
@@ -157,11 +176,11 @@ namespace fCraft {
                         max = Math.Max( max, heightmap[x, y] );
                     }
                 }
-                    for( int x = 0; x < map.widthX; x++ ) {
-                        for( int y = 0; y < map.widthY; y++ ) {
-                            heightmap[x, y] = (float)(Math.Abs( ( heightmap[x, y] - min ) / ( max - min ) * 2 - 1 ) * .3 + .4);
-                        }
+                for( int x = 0; x < map.widthX; x++ ) {
+                    for( int y = 0; y < map.widthY; y++ ) {
+                        heightmap[x, y] = (float)(Math.Abs( (heightmap[x, y] - min) / (max - min) * 2 - 1 ) * .3 + .4);
                     }
+                }
             } else if( type == MapGenType.Cliffs ) {
                 groundThickness = Math.Max( 1, groundThickness / 2 );
                 float[,] heightmap1 = heightmap;
@@ -179,12 +198,12 @@ namespace fCraft {
                 double steepness = Math.Max( map.widthX, map.widthY ) / 5;
                 for( int x = 0; x < map.widthX; x++ ) {
                     for( int y = 0; y < map.widthY; y++ ) {
-                        blendmap[x, y] = (float)Math.Min( 1, Math.Max( 0, ( heightmap[x, y] - min ) / ( max - min ) * steepness * 2 - steepness ) );
+                        blendmap[x, y] = (float)Math.Min( 1, Math.Max( 0, (heightmap[x, y] - min) / (max - min) * steepness * 2 - steepness ) );
                     }
                 }
                 for( int x = 0; x < map.widthX; x++ ) {
                     for( int y = 0; y < map.widthY; y++ ) {
-                        heightmap[x, y] = heightmap1[x, y] * blendmap[x, y] + heightmap2[x, y] * ( 1 - blendmap[x, y] );
+                        heightmap[x, y] = heightmap1[x, y] * blendmap[x, y] + heightmap2[x, y] * (1 - blendmap[x, y]);
                     }
                 }
             }
@@ -204,7 +223,7 @@ namespace fCraft {
                         ilevel = (int)(((level - 0.5) * smoothingOver + 0.5) * map.height);
                         if( blendmap != null && blendmap[x, y] > .25 && blendmap[x, y] < .75 ) {
                             map.SetBlock( x, y, ilevel, bCliff );
-                        }else{
+                        } else {
                             map.SetBlock( x, y, ilevel, bGroundSurface );
                         }
                         for( int i = ilevel - 1; i >= 0; i-- ) {
@@ -263,7 +282,6 @@ namespace fCraft {
         }
 
 
-
         float[,] GenerateHeightmap( int iWidth, int iHeight ) {
             Noise theNoise = new Noise( rand );
             int octaves = (int)Math.Log( Math.Max( iWidth, iHeight ), 2 );
@@ -290,76 +308,7 @@ namespace fCraft {
                     sides[3] = rand.NextDouble() * sideDelta;
                 }
             }
-
-            gBigSize = iWidth + iHeight;
-            DivideGrid( ref points, 0, 0, iWidth, iHeight, sidesMin + sides[0], sidesMin + sides[1], sidesMin + sides[2], sidesMin + sides[3], true );
-            //return points;
         }
-
-
-        void DivideGrid( ref double[,] points, double x, double y, int width, int height, double c1, double c2, double c3, double c4, bool isTop ) {
-            double Edge1, Edge2, Edge3, Edge4, Middle;
-
-            int newWidth = width / 2;
-            int newHeight = height / 2;
-
-            if( width > 1 || height > 1 ) {
-                if( isTop ) {
-                    Middle = ((c1 + c2 + c3 + c4) / 4) + midpoint; // Randomly displace the midpoint!
-                } else {
-                    Middle = ((c1 + c2 + c3 + c4) / 4) + Displace( newWidth + newHeight ); // Randomly displace the midpoint!
-                }
-                Edge1 = ((c1 + c2) / 2); //Calculate the edges by averaging the two corners of each edge.
-                Edge2 = ((c2 + c3) / 2);
-                Edge3 = ((c3 + c4) / 2);
-                Edge4 = ((c4 + c1) / 2);
-                // Make sure that the midpoint doesn't accidentally "randomly displaced" past the boundaries!
-                Middle = Rectify( Middle );
-                Edge1 = Rectify( Edge1 );
-                Edge2 = Rectify( Edge2 );
-                Edge3 = Rectify( Edge3 );
-                Edge4 = Rectify( Edge4 );
-                // Do the operation over again for each of the four new grids.
-                DivideGrid( ref points, x, y, newWidth, newHeight, c1, Edge1, Middle, Edge4, false );
-                DivideGrid( ref points, x + newWidth, y, width - newWidth, newHeight, Edge1, c2, Edge2, Middle, false );
-                if( isTop ) Feedback( "Heightmap: 50%" );
-                DivideGrid( ref points, x + newWidth, y + newHeight, width - newWidth, height - newHeight, Middle, Edge2, c3, Edge3, false );
-                DivideGrid( ref points, x, y + newHeight, newWidth, height - newHeight, Edge4, Middle, Edge3, c4, false );
-                if( isTop ) Feedback( "Heightmap: 100%" );
-            } else {
-                // This is the "base case," where each grid piece is less than the size of a pixel.
-                // The four corners of the grid piece will be averaged and drawn as a single pixel.
-                double c = (c1 + c2 + c3 + c4) / 4;
-
-                points[(int)(x), (int)(y)] = c;
-                if( width == 2 ) {
-                    points[(int)(x + 1), (int)(y)] = c;
-                }
-                if( height == 2 ) {
-                    points[(int)(x), (int)(y + 1)] = c;
-                }
-                if( (width == 2) && (height == 2) ) {
-                    points[(int)(x + 1), (int)(y + 1)] = c;
-                }
-            }
-        }
-
-
-        static double Rectify( double iNum ) {
-            if( iNum < 0 ) {
-                iNum = 0;
-            } else if( iNum > 1.0 ) {
-                iNum = 1.0;
-            }
-            return iNum;
-        }
-
-
-        double Displace( double SmallSize ) {
-            double Max = SmallSize / gBigSize * roughness;
-            return (rand.NextDouble() - 0.5) * Max;
-        }
-
 
         public static void GenerateFlatgrass( Map map ) {
             for( int i = 0; i < map.widthX; i++ ) {
@@ -428,6 +377,77 @@ namespace fCraft {
                     }
                 }
             }
+        }
+
+
+        public static MapGeneratorArgs MakePreset( MapGenType preset ) {
+            switch( preset ) {
+                case MapGenType.Cliffs:
+                    return new MapGeneratorArgs {
+                        cornerBiasMax = 0.2f,
+                        cornerBiasMin = 0.05f,
+                        detailSize = 1,
+                        layeredHeightmap = true,
+                        midpointBias = 0,
+                        roughness = .6f,
+                        useBias = true
+                    };
+                case MapGenType.Coast:
+                    return new MapGeneratorArgs {
+                        cornerBiasMax = -0.1f,
+                        cornerBiasMin = 0.13f,
+                        detailSize = 1,
+                        matchWaterCoverage = true,
+                        midpointBias = 0,
+                        roughness = .5f,
+                        useBias = true,
+                        waterCoverage = .6f
+                    };
+                case MapGenType.Hills:
+                    return new MapGeneratorArgs {
+                        detailSize = 2,
+                        matchWaterCoverage = true,
+                        roughness = .45f,
+                        waterCoverage = .6f
+                    };
+                case MapGenType.Island:
+                    return new MapGeneratorArgs {
+                        cornerBiasMax = -0.05f,
+                        cornerBiasMin = -0.2f,
+                        detailSize = 2,
+                        matchWaterCoverage = true,
+                        midpointBias = .3f,
+                        roughness = .5f,
+                        useBias = true,
+                        waterCoverage = .75f
+                    };
+                case MapGenType.Lake:
+                    return new MapGeneratorArgs {
+                        cornerBiasMax = .03f,
+                        cornerBiasMin = .1f,
+                        detailSize = 2,
+                        matchWaterCoverage = true,
+                        midpointBias = -.3f,
+                        roughness = .5f,
+                        useBias = true,
+                        waterCoverage = .25f
+                    };
+                case MapGenType.Mountains:
+                    return new MapGeneratorArgs {
+                        detailSize = 1,
+                        layeredHeightmap = true,
+                        matchWaterCoverage = true,
+                        roughness = .6f,
+                        waterCoverage = .6f
+                    };
+                case MapGenType.River:
+                    return new MapGeneratorArgs {
+                        detailSize = 1,
+                        marbled = true,
+                        roughness = .5f,
+                    };
+            }
+            return null; // can never happen
         }
     }
 }
