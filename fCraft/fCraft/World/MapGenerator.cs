@@ -27,7 +27,7 @@ namespace fCraft {
 
     public sealed class MapGeneratorArgs {
         public MapGenTheme theme;
-        public int seed, maxHeight, maxDepth;
+        public int seed, dimX, dimY, dimH, maxHeight, maxDepth;
 
         public bool matchWaterCoverage;
         public float waterCoverage;
@@ -43,9 +43,140 @@ namespace fCraft {
     }
 
 
-    public sealed class MapGenerator {
+    public sealed class MapGenerator2 {
         MapGeneratorArgs args;
-        double roughness, gBigSize, smoothingOver, smoothingUnder, midpoint, sidesMin, sidesMax;
+        Random rand;
+        Noise noise;
+
+        // theme-dependent vars
+        Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock, bDeepWaterSurface, bCliff;
+        int groundThickness = 5, seaFloorThickness = 3;
+
+
+        public MapGenerator2( MapGeneratorArgs _args ) {
+            args = _args;
+            rand = new Random( args.seed );
+            noise = new Noise( rand );
+            ApplyTheme( args.theme );
+        }
+
+
+        public float[,] GenerateHeightmap() {
+            // TODO: bias
+            float[,] heightmap = noise.PerlinMap( args.dimX, args.dimY, args.detailSize, args.roughness );
+            Noise.Normalize( heightmap );
+
+            if( args.layeredHeightmap ) {
+                // needs a new Noise object to randomize second map
+                float[,] heightmap2 = new Noise( rand ).PerlinMap( args.dimX, args.dimY, args.detailSize, args.roughness );
+                Noise.Normalize( heightmap2 );
+                float[,] blendmap = new Noise( rand ).PerlinMap( args.dimX, args.dimY, args.detailSize, args.roughness );
+                Noise.Normalize( blendmap );
+                Noise.Blend( heightmap, heightmap2, blendmap );
+            }
+
+            if( args.marbled ) {
+                Noise.Marble( heightmap );
+            }
+
+            return heightmap;
+        }
+
+
+        // assumes normalzied heightmap
+        public static float MatchWaterCoverage( float[,] heightmap, float desiredWaterCoverage ) {
+            if( desiredWaterCoverage == 0 ) return 0;
+            if( desiredWaterCoverage == 1 ) return 1;
+            float waterLevel = 0.5f;
+            for( int i = 0; i < 5; i++ ) {
+                if( CalculateWaterCoverage( heightmap, waterLevel ) > desiredWaterCoverage ) {
+                    waterLevel = waterLevel - 1 / (float)(4 << i);
+                } else {
+                    waterLevel = waterLevel + 1 / (float)(4 << i);
+                }
+            }
+            return waterLevel;
+        }
+
+
+        public static float CalculateWaterCoverage( float[,] heightmap, float waterLevel ) {
+            int aboveWaterBlocks = 0;
+            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    if( heightmap[x, y] > waterLevel ) aboveWaterBlocks++;
+                }
+            }
+            return aboveWaterBlocks / (float)heightmap.Length;
+        }
+
+
+        public Map GenerateMap() {
+            Map map = new Map( null, args.dimX, args.dimY, args.dimH );
+            return map;
+        }
+
+        public void ApplyTheme( MapGenTheme theme ) {
+            args.theme = theme;
+            switch( theme ) {
+                case MapGenTheme.Arctic:
+                    bWaterSurface = Block.Glass;
+                    bDeepWaterSurface = Block.Water;
+                    bGroundSurface = Block.White;
+                    bWater = Block.Water;
+                    bGround = Block.White;
+                    bSeaFloor = Block.White;
+                    bBedrock = Block.Stone;
+                    bCliff = Block.Stone;
+                    groundThickness = 1;
+                    break;
+                case MapGenTheme.Desert:
+                    bWaterSurface = Block.Water;
+                    bDeepWaterSurface = Block.Water;
+                    bGroundSurface = Block.Sand;
+                    bWater = Block.Air;
+                    bGround = Block.Sand;
+                    bSeaFloor = Block.Sand;
+                    bBedrock = Block.Stone;
+                    bCliff = Block.Gravel;
+                    break;
+                case MapGenTheme.Hell:
+                    bWaterSurface = Block.Lava;
+                    bDeepWaterSurface = Block.Lava;
+                    bGroundSurface = Block.Obsidian;
+                    bWater = Block.Lava;
+                    bGround = Block.Stone;
+                    bSeaFloor = Block.Obsidian;
+                    bBedrock = Block.Stone;
+                    bCliff = Block.Rocks;
+                    break;
+                case MapGenTheme.Forest:
+                case MapGenTheme.Normal:
+                    bWaterSurface = Block.Water;
+                    bDeepWaterSurface = Block.Water;
+                    bGroundSurface = Block.Grass;
+                    bWater = Block.Water;
+                    bGround = Block.Dirt;
+                    bSeaFloor = Block.Sand;
+                    bBedrock = Block.Stone;
+                    bCliff = Block.Rocks;
+                    break;
+                case MapGenTheme.Rocky:
+                    bWaterSurface = Block.Water;
+                    bDeepWaterSurface = Block.Water;
+                    bGroundSurface = Block.Rocks;
+                    bWater = Block.Water;
+                    bGround = Block.Stone;
+                    bSeaFloor = Block.Rocks;
+                    bBedrock = Block.Stone;
+                    bCliff = Block.Stone;
+                    break;
+            }
+        }
+    }
+
+
+    public sealed class MapGenerator {
+        double roughness, smoothingOver, smoothingUnder, midpoint, sidesMin, sidesMax;
         Random rand = new Random();
         Map map;
         Player player;
