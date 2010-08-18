@@ -100,7 +100,7 @@ namespace ConfigTool {
                 if( loadingFailed ) {
                     return "(cannot load file)";
                 } else {
-                    return String.Format( "{0} x {1} x {2}", cachedMapHeader.widthX, cachedMapHeader.widthY, cachedMapHeader.height );
+                    return String.Format( "{0} × {1} × {2}", cachedMapHeader.widthX, cachedMapHeader.widthY, cachedMapHeader.height );
                 }
             }
         }
