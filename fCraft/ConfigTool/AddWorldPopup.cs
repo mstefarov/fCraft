@@ -114,6 +114,9 @@ namespace ConfigTool {
             // Set Generator comboboxes to defaults
             cPreset.SelectedIndex = (int)MapGenType.River;
             cTheme.SelectedIndex = (int)MapGenTheme.Forest;
+
+            sDetailSize.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 ) + 1;
+            sDetailSize.Value = sDetailSize.Maximum;
         }
 
 

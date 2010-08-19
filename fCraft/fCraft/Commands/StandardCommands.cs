@@ -274,17 +274,21 @@ namespace fCraft {
 
                 // check permissions
                 if( !player.info.playerClass.CanBan( offender.info.playerClass ) ) {
-                    player.Message( "You can only ban players ranked " + player.info.playerClass.maxBan.color + player.info.playerClass.maxBan.name + Color.Sys + " or lower." );
+                    player.Message( "You can only ban players ranked {0}{1}&S or lower.",
+                                    player.info.playerClass.maxBan.color,
+                                    player.info.playerClass.maxBan.name );
                     player.Message( offender.GetLogName() + " is ranked " + offender.info.playerClass.name + "." );
                 } else {
                     address = offender.info.lastIP;
                     if( banIP ) DoIPBan( player, address, reason, offender.name, banAll, unban );
-                    if( offender.info.ProcessBan( player.name, reason ) ) {
-                        Logger.Log( "{0} was banned by {1}.", LogType.UserActivity, offender.info.name, player.GetLogName() );
-                        Server.SendToAll( Color.Red + offender.name + " was banned by " + player.nick, offender );
-                        offender.session.Kick( "You were just banned by " + player.GetLogName() );
-                    } else {
-                        player.Message( offender.name + " is already banned." );
+                    if( !banAll ) {
+                        if( offender.info.ProcessBan( player.name, reason ) ) {
+                            Logger.Log( "{0} was banned by {1}.", LogType.UserActivity, offender.info.name, player.GetLogName() );
+                            Server.SendToAll( Color.Red + offender.name + " was banned by " + player.nick, offender );
+                            offender.session.Kick( "You were just banned by " + player.GetLogName() );
+                        } else {
+                            player.Message( offender.name + " is already banned." );
+                        }
                     }
                 }
 
@@ -305,6 +309,9 @@ namespace fCraft {
                         if( info.ProcessUnban( player.name, reason ) ) {
                             Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity, info.name, player.GetLogName() );
                             Server.SendToAll( Color.Red + info.name + " (offline) was unbanned by " + player.nick );
+                            if( reason != null && reason.Length > 0 ) {
+                                Server.SendToAll( Color.Red + "Unban reason: " + reason );
+                            }
                         } else {
                             player.Message( info.name + " (offline) is not currenty banned." );
                         }
@@ -312,17 +319,27 @@ namespace fCraft {
                         if( info.ProcessBan( player.name, reason ) ) {
                             Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity, info.name, player.GetLogName() );
                             Server.SendToAll( Color.Red + info.name + " (offline) was banned by " + player.nick );
+                            if( reason != null && reason.Length > 0 ) {
+                                Server.SendToAll( Color.Red + "Ban reason: " + reason );
+                            }
                         } else {
                             player.Message( info.name + " (offline) is already banned." );
                         }
                     }
                 }
             } else if( Player.IsValidName( nameOrIP ) ) {
-                info = PlayerDB.AddFakeEntry( nameOrIP );
-                info.ProcessBan( player.name, reason );
-                player.Message( "Previously-unseen player \"" + nameOrIP + "\" was banned." );
-                Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity, info.name, player.GetLogName() );
-                Server.SendToAll( Color.Red + info.name + " (offline) was banned by " + player.nick );
+                if( unban ) {
+                    player.Message( info.name + " (unrecognized) is not currenty banned." );
+                } else {
+                    info = PlayerDB.AddFakeEntry( nameOrIP );
+                    info.ProcessBan( player.name, reason );
+                    player.Message( "Previously-unseen player \"" + nameOrIP + "\" was banned." );
+                    Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity, info.name, player.GetLogName() );
+                    Server.SendToAll( Color.Red + info.name + " (offline) was banned by " + player.nick );
+                    if( reason != null && reason.Length > 0 ) {
+                        Server.SendToAll( Color.Red + "Ban reason: " + reason );
+                    }
+                }
             } else {
                 player.Message( "Please specify valid player name or IP." );
             }
@@ -333,12 +350,17 @@ namespace fCraft {
             if( unban ) {
                 if( IPBanList.Remove( address ) ) {
                     player.Message( address.ToString() + " has been removed from the IP ban list." );
+                    Server.SendToAll( Color.Red + address.ToString() + " was unbanned by " + player.nick );
+                    if( reason != null && reason.Length > 0 ) {
+                        Server.SendToAll( Color.Red + "Ban reason: " + reason );
+                    }
                 } else {
                     player.Message( address.ToString() + " is not currently banned." );
                 }
                 if( banAll ) {
                     foreach( PlayerInfo otherInfo in PlayerDB.FindPlayersByIP( address ) ) {
                         if( otherInfo.ProcessUnban( player.name, reason + "~UnBanAll" ) ) {
+                            Server.SendToAll( Color.Red + otherInfo.name + " was unbanned by " + player.nick + " (UnbanAll)" );
                             player.Message( otherInfo.name + " matched the IP and was also unbanned." );
                         }
                     }
@@ -347,6 +369,10 @@ namespace fCraft {
             } else {
                 if( IPBanList.Add( new IPBanInfo( address, playerName, player.name, reason ) ) ) {
                     player.Message( address.ToString() + " has been added to the IP ban list." );
+                    Server.SendToAll( Color.Red + address.ToString() + " was banned by " + player.nick );
+                    if( reason != null && reason.Length > 0 ) {
+                        Server.SendToAll( Color.Red + "Ban reason: " + reason );
+                    }
 
                 } else {
                     player.Message( address.ToString() + " is already banned." );
@@ -356,6 +382,7 @@ namespace fCraft {
                         player.Message( otherInfo.name + " matched the IP and was also banned." );
                     }
                     other = player.world.FindPlayerExact( otherInfo.name );
+                    Server.SendToAll( Color.Red + otherInfo.name + " was banned by " + player.nick+" (BanAll)" );
                     if( other != null ) {
                         other.session.Kick( "Your IP was just banned by " + player.GetLogName() );
                     }
