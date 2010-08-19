@@ -271,7 +271,6 @@ namespace ConfigTool {
                     waterCoverage = sWaterCoverage.Value / 100f,
 
                     bias = sBias.Value / 100f,
-                    continuousCorners = xContinuousCorners.Checked,
                     midPoint = cMidpoint.SelectedIndex - 1,
                     raisedCorners = (int)nRaisedCorners.Value
                 };
@@ -320,6 +319,11 @@ namespace ConfigTool {
             bFlatgrassGenerate.Enabled = true;
         }
 
+        Random rand = new Random();
+        int GetRandomSeed() {
+            return rand.Next() - rand.Next();
+        }
+
         #endregion
 
         #region Input Handlers
@@ -354,34 +358,6 @@ namespace ConfigTool {
         private void xHidden_CheckedChanged( object sender, EventArgs e ) {
             world.Hidden = xHidden.Checked;
         }
-        #endregion
-
-        private void AddWorldPopup_FormClosing( object sender, FormClosingEventArgs e ) {
-            Redraw( false );
-            if( DialogResult == DialogResult.OK ) {
-                if( map == null ) {
-                    e.Cancel = true;
-                } else {
-                    bwRenderer.CancelAsync();
-                    Enabled = false;
-                    progressBar.Visible = true;
-                    progressBar.Style = ProgressBarStyle.Marquee;
-                    tStatus1.Text = "Saving map...";
-                    tStatus2.Text = "";
-                    Refresh();
-                    map.Save( "maps/" + world.Name + ".fcm" );
-                    string oldFile = "maps/" + originalWorldName + ".fcm";
-                    if( originalWorldName != null && originalWorldName != world.Name && File.Exists( oldFile ) ) {
-                        try {
-                            File.Delete( oldFile );
-                        } catch( Exception ex ) {
-                            MessageBox.Show( "You can delete the old file (" + oldFile + ") manually. " +
-                                "An error occured while trying to delete it automatically: " + Environment.NewLine + ex, "Error" );
-                        }
-                    }
-                }
-            }
-        }
 
         private void bShow_Click( object sender, EventArgs e ) {
             if( cWorld.SelectedIndex != -1 && File.Exists( "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm" ) ) {
@@ -405,6 +381,55 @@ namespace ConfigTool {
             gHeightmapCreation.Visible = xAdvanced.Checked;
             gTrees.Visible = xAdvanced.Checked;
         }
+
+        private void nWidthX_ValueChanged( object sender, EventArgs e ) {
+            sFeatureSize.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 ) + 1;
+            sDetailSize.Maximum = sFeatureSize.Maximum;
+        }
+
+        private void sFeatureSize_Scroll( object sender, EventArgs e ) {
+            int resolution = 1 << (sFeatureSize.Maximum - sFeatureSize.Value);
+            lFeatureSizeDisplay.Text = resolution + "×" + resolution;
+            sDetailSize.Value = Math.Max( sDetailSize.Value, sFeatureSize.Value );
+        }
+
+        private void sDetailSize_Scroll( object sender, EventArgs e ) {
+            int resolution = 1 << (sDetailSize.Maximum - sDetailSize.Value);
+            lDetailSizeDisplay.Text = resolution + "×" + resolution;
+            sFeatureSize.Value = Math.Min( sDetailSize.Value, sFeatureSize.Value );
+        }
+
+
+
+        private void xMatchWaterCoverage_CheckedChanged( object sender, EventArgs e ) {
+            sWaterCoverage.Enabled = xMatchWaterCoverage.Checked;
+        }
+
+        private void bSeed_Click( object sender, EventArgs e ) {
+            nSeed.Value = GetRandomSeed();
+        }
+
+        private void sWaterCoverage_Scroll( object sender, EventArgs e ) {
+            lMatchWaterCoverageDisplay.Text = sWaterCoverage.Value + "%";
+        }
+
+        private void sBias_Scroll( object sender, EventArgs e ) {
+            lBiasDisplay.Text = sBias.Value + "%";
+            bool useBias = (sBias.Value != 0);
+
+            nRaisedCorners.Enabled = useBias;
+            cMidpoint.Enabled = useBias;
+        }
+
+        private void sRoughness_Scroll( object sender, EventArgs e ) {
+            lRoughnessDisplay.Text = sRoughness.Value + "%";
+        }
+
+        private void xSeed_CheckedChanged( object sender, EventArgs e ) {
+            nSeed.Enabled = xSeed.Checked;
+            bSeed.Enabled = xSeed.Checked;
+        }
+        #endregion
 
         #region Tabs
         private void tabs_SelectedIndexChanged( object sender, EventArgs e ) {
@@ -460,6 +485,8 @@ namespace ConfigTool {
         }
         #endregion
 
+
+
         void ShowMapDetails( TextBox textBox, string fileName ) {
             if( File.Exists( fileName ) ) {
                 map = Map.LoadHeaderOnly( fileName );
@@ -488,56 +515,32 @@ Dimensions: {4}×{5}×{6}
             }
         }
 
-        private void xMatchWaterCoverage_CheckedChanged( object sender, EventArgs e ) {
-            sWaterCoverage.Enabled = xMatchWaterCoverage.Checked;
-        }
 
-        private void bSeed_Click( object sender, EventArgs e ) {
-            nSeed.Value = GetRandomSeed();
-        }
-
-        private void sWaterCoverage_Scroll( object sender, EventArgs e ) {
-            lMatchWaterCoverageDisplay.Text = sWaterCoverage.Value + "%";
-        }
-
-        private void sBias_Scroll( object sender, EventArgs e ) {
-            lBiasDisplay.Text = sBias.Value + "%";
-            bool useBias = (sBias.Value != 0);
-
-            nRaisedCorners.Enabled = useBias;
-            cMidpoint.Enabled = useBias;
-            xContinuousCorners.Enabled = useBias;
-        }
-
-        private void sRoughness_Scroll( object sender, EventArgs e ) {
-            lRoughnessDisplay.Text = sRoughness.Value + "%";
-        }
-
-        private void xSeed_CheckedChanged( object sender, EventArgs e ) {
-            nSeed.Enabled = xSeed.Checked;
-            bSeed.Enabled = xSeed.Checked;
-        }
-
-        Random rand = new Random();
-        int GetRandomSeed() {
-            return rand.Next() - rand.Next();
-        }
-
-        private void nWidthX_ValueChanged( object sender, EventArgs e ) {
-            sFeatureSize.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 ) + 1;
-            sDetailSize.Maximum = sFeatureSize.Maximum;
-        }
-
-        private void sFeatureSize_Scroll( object sender, EventArgs e ) {
-            int resolution = 1 << (sFeatureSize.Maximum - sFeatureSize.Value);
-            lFeatureSizeDisplay.Text = resolution + "×" + resolution;
-            sDetailSize.Value = Math.Max( sDetailSize.Value, sFeatureSize.Value );
-        }
-
-        private void sDetailSize_Scroll( object sender, EventArgs e ) {
-            int resolution = 1 << (sDetailSize.Maximum - sDetailSize.Value);
-            lDetailSizeDisplay.Text = resolution + "×" + resolution;
-            sFeatureSize.Value = Math.Min( sDetailSize.Value, sFeatureSize.Value );
+        private void AddWorldPopup_FormClosing( object sender, FormClosingEventArgs e ) {
+            Redraw( false );
+            if( DialogResult == DialogResult.OK ) {
+                if( map == null ) {
+                    e.Cancel = true;
+                } else {
+                    bwRenderer.CancelAsync();
+                    Enabled = false;
+                    progressBar.Visible = true;
+                    progressBar.Style = ProgressBarStyle.Marquee;
+                    tStatus1.Text = "Saving map...";
+                    tStatus2.Text = "";
+                    Refresh();
+                    map.Save( "maps/" + world.Name + ".fcm" );
+                    string oldFile = "maps/" + originalWorldName + ".fcm";
+                    if( originalWorldName != null && originalWorldName != world.Name && File.Exists( oldFile ) ) {
+                        try {
+                            File.Delete( oldFile );
+                        } catch( Exception ex ) {
+                            MessageBox.Show( "You can delete the old file (" + oldFile + ") manually. " +
+                                "An error occured while trying to delete it automatically: " + Environment.NewLine + ex, "Error" );
+                        }
+                    }
+                }
+            }
         }
     }
 }
