@@ -831,7 +831,7 @@ namespace fCraft {
                     return;
                 }
 
-                Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( map, player, fileName, type, theme ), false );
+                //Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( map, player, fileName, type, theme ), false );
             }
         }
 

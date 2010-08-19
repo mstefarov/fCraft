@@ -264,7 +264,10 @@ namespace fCraft {
                     }
                 }
 
-                cropRectangle = new Rectangle( xMin-2, yMin-2, xMax - xMin+4, yMax - yMin+4 );
+                cropRectangle = new Rectangle( Math.Max( 0, xMin - 2 ),
+                                               Math.Max( 0, yMin - 2 ),
+                                               Math.Min( imageBmp.Width, xMax - xMin + 4 ),
+                                               Math.Min( imageBmp.Height, yMax - yMin + 4 ) );
                 return imageBmp;
             } finally {
                 imageBmp.UnlockBits( imageData );

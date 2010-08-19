@@ -113,8 +113,8 @@ namespace fCraft {
                 }
             }
 
-            float multiplier = (low - high) / (min - max);
-            float constant = min * (low - high) / (min - max) + low;
+            float multiplier = (high - low) / (max - min);
+            float constant = - min * (high - low) / (max - min) + low;
 
             for( int x = 0; x < map.GetLength( 0 ); x++ ) {
                 for( int y = 0; y < map.GetLength( 1 ); y++ ) {
