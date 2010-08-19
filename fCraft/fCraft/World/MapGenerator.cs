@@ -34,7 +34,7 @@ namespace fCraft {
         public float waterCoverage;
         public int raisedCorners, midPoint;
         public float bias;
-        public bool useBias, continuousCorners;
+        public bool useBias;
 
         public int minDetailSize, maxDetailSize;
         public float roughness;
@@ -69,22 +69,14 @@ namespace fCraft {
             heightmap = new float[args.dimX, args.dimY];
             if( args.useBias ) {
                 noise.PerlinNoiseMap( heightmap, Math.Min(1,args.maxDetailSize), args.minDetailSize, args.roughness );
+                Noise.Normalize( heightmap );
                 float[] corners = new float[4];
                 int c =0;
                 for( int i = 0; i < args.raisedCorners; i++ ) {
-                    corners[c++] = (float)rand.NextDouble() * args.bias;
+                    corners[c++] = args.bias;
                 }
                 float midpoint = (args.midPoint * args.bias);
-                if( args.continuousCorners ) {
-                    int shift = rand.Next() % 4;
-                    for( int i = 0; i < 4; i++ ) {
-                        float temp = corners[i];
-                        corners[i] = corners[(i + shift) % 4];
-                        corners[(i + shift) % 4] = temp;
-                    }
-                } else {
-                    corners = corners.OrderBy( r => rand.Next() ).ToArray();
-                }
+                corners = corners.OrderBy( r => rand.Next() ).ToArray();
                 Noise.ApplyBias( heightmap, corners[0], corners[1], corners[2], corners[3], midpoint );
             } else {
                 noise.PerlinNoiseMap( heightmap, args.maxDetailSize, args.minDetailSize, args.roughness );
