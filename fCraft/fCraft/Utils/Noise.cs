@@ -17,18 +17,30 @@ namespace fCraft {
         }
 
 
-        public float InterpolateLinear( float v0, float v1, float x ) {
+        public static float InterpolateLinear( float v0, float v1, float x ) {
             return v0 * (1 - x) + v1 * x;
         }
 
+        public static float InterpolateLinear( float v00, float v01, float v10, float v11, float x, float y ) {
+            return InterpolateLinear( InterpolateLinear( v00, v10, x ),
+                                      InterpolateLinear( v01, v11, x ),
+                                      y );
+        }
 
-        public float InterpolateCosine( float v0, float v1, float x ) {
+
+        public static float InterpolateCosine( float v0, float v1, float x ) {
             double f = (1 - Math.Cos( x * Math.PI )) * .5;
             return (float)(v0 * (1 - f) + v1 * f);
         }
 
+        public static float InterpolateCosine( float v00, float v01, float v10, float v11, float x, float y ) {
+            return InterpolateCosine( InterpolateCosine( v00, v10, x ),
+                                      InterpolateCosine( v01, v11, x ),
+                                      y );
+        }
 
-        public float InterpolateCubic( float v0, float v1, float v2, float v3, float x ) {
+
+        public static float InterpolateCubic( float v0, float v1, float v2, float v3, float x ) {
             float P = (v3 - v2) - (v0 - v1);
             float Q = (v0 - v1) - P;
             float R = v2 - v0;
@@ -63,8 +75,8 @@ namespace fCraft {
             float p2 = InterpolateCubic( points[0, 2], points[1, 2], points[2, 2], points[3, 2], xFloat );
             float p3 = InterpolateCubic( points[0, 3], points[1, 3], points[2, 3], points[3, 3], xFloat );
             return InterpolateCubic( p0, p1, p2, p3, yFloat );
-            /*
-            
+
+            /* for bilinear/cosine
             float p00 = StaticNoise( xInt, yInt );
             float p01 = StaticNoise( xInt, yInt + 1 );
             float p10 = StaticNoise( xInt+1, yInt );
@@ -75,11 +87,15 @@ namespace fCraft {
         }
 
 
-        public float PerlinNoise( float x, float y, int octaves, float decay ) {
+        public float PerlinNoise( float x, float y, int startOctave, int endOctave, float decay ) {
             float total = 0;
             int frequency = 1;
             float amplitude = 1;
-            for( int n = 0; n < octaves; n++ ) {
+            for( int n = 0; n < startOctave; n++ ) {
+                frequency *= 2;
+                amplitude *= decay;
+            }
+            for( int n = startOctave; n < endOctave; n++ ) {
                 total += InterpolatedNoise( x * frequency + frequency, y * frequency + frequency ) * amplitude;
                 frequency *= 2;
                 amplitude *= decay;
@@ -88,15 +104,13 @@ namespace fCraft {
         }
 
 
-        public float[,] PerlinMap( int width, int height, int octaves, float decay ) {
-            float[,] result = new float[width, height];
-            float maxDim = 1f / Math.Max( width, height );
-            for( int x = 0; x < width; x++ ) {
-                for( int y = 0; y < height; y++ ) {
-                    result[x, y] = PerlinNoise( x * maxDim + 10, y * maxDim + 10, octaves, decay );
+        public void PerlinNoiseMap( float[,] heightmap, int startOctave, int endOctave, float decay ) {
+            float maxDim = 1f / Math.Max( heightmap.GetLength( 0 ), heightmap.GetLength( 1 ) );
+            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    heightmap[x, y] += PerlinNoise( x * maxDim + 10, y * maxDim + 10, startOctave, endOctave, decay );
                 }
             }
-            return result;
         }
 
 
@@ -106,18 +120,18 @@ namespace fCraft {
 
         public static void Normalize( float[,] map, float low, float high ) {
             float min = float.MaxValue, max = float.MinValue;
-            for( int x = 0; x < map.GetLength( 0 ); x++ ) {
-                for( int y = 0; y < map.GetLength( 1 ); y++ ) {
+            for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = map.GetLength( 1 ) - 1; y >= 0; y-- ) {
                     min = Math.Min( min, map[x, y] );
                     max = Math.Max( max, map[x, y] );
                 }
             }
 
             float multiplier = (high - low) / (max - min);
-            float constant = - min * (high - low) / (max - min) + low;
+            float constant = -min * (high - low) / (max - min) + low;
 
-            for( int x = 0; x < map.GetLength( 0 ); x++ ) {
-                for( int y = 0; y < map.GetLength( 1 ); y++ ) {
+            for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = map.GetLength( 1 ) - 1; y >= 0; y-- ) {
                     map[x, y] = map[x, y] * multiplier + constant;
                 }
             }
@@ -126,8 +140,8 @@ namespace fCraft {
 
         // assumes normalized input
         public static void Marble( float[,] map ) {
-            for( int x = 0; x < map.GetLength( 0 ); x++ ) {
-                for( int y = 0; y < map.GetLength( 1 ); y++ ) {
+            for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = map.GetLength( 1 ) - 1; y >= 0; y-- ) {
                     map[x, y] = Math.Abs( map[x, y] * 2 - 1 );
                 }
             }
@@ -135,9 +149,33 @@ namespace fCraft {
 
         // assumes normalized input
         public static void Blend( float[,] map1, float[,] map2, float[,] blendMap ) {
-            for( int x = 0; x < map1.GetLength( 0 ); x++ ) {
-                for( int y = 0; y < map1.GetLength( 1 ); y++ ) {
+            for( int x = map1.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = map1.GetLength( 1 ) - 1; y >= 0; y-- ) {
                     map1[x, y] = map1[x, y] * blendMap[x, y] + map2[x, y] * (1 - blendMap[x, y]);
+                }
+            }
+        }
+
+        public static void Add( float[,] map1, float[,] map2 ) {
+            for( int x = map1.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = map1.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    map1[x, y] += map2[x, y];
+                }
+            }
+        }
+
+        public static void ApplyBias( float[,] heightmap, float c00, float c01, float c10, float c11, float midpoint ) {
+            float maxX = 2f / heightmap.GetLength( 0 );
+            float maxY = 2f / heightmap.GetLength( 1 );
+            int offsetX = heightmap.GetLength( 0 ) / 2;
+            int offsetY = heightmap.GetLength( 1 ) / 2;
+
+            for( int x = offsetX - 1; x >= 0; x-- ) {
+                for( int y = offsetY - 1; y >= 0; y-- ) {
+                    heightmap[x, y] += InterpolateCosine( c00, (c00 + c01) / 2, (c00 + c10) / 2, midpoint, x * maxX, y * maxY );
+                    heightmap[x + offsetX, y] += InterpolateCosine( (c00 + c10) / 2, midpoint, c10, (c11 + c10) / 2, x * maxX, y * maxY );
+                    heightmap[x, y + offsetY] += InterpolateCosine( (c00 + c01) / 2, c01, midpoint, (c01 + c11) / 2, x * maxX, y * maxY );
+                    heightmap[x + offsetX, y + offsetY] += InterpolateCosine( midpoint, (c01 + c11) / 2, (c11 + c10) / 2, c11, x * maxX, y * maxY );
                 }
             }
         }

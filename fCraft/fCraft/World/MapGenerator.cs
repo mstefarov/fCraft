@@ -65,14 +65,26 @@ namespace fCraft {
 
         public void GenerateHeightmap() {
             // TODO: bias
-            heightmap = noise.PerlinMap( args.dimX, args.dimY, args.detailSize, args.roughness );
+            heightmap = new float[args.dimX, args.dimY];
+            if( args.useBias ) {
+                noise.PerlinNoiseMap( heightmap, 1, args.detailSize, args.roughness );
+                float c00 = (float)rand.NextDouble() * (args.cornerBiasMax - args.cornerBiasMin) + args.cornerBiasMin;
+                float c01 = (float)rand.NextDouble() * (args.cornerBiasMax - args.cornerBiasMin) + args.cornerBiasMin;
+                float c10 = (float)rand.NextDouble() * (args.cornerBiasMax - args.cornerBiasMin) + args.cornerBiasMin;
+                float c11 = (float)rand.NextDouble() * (args.cornerBiasMax - args.cornerBiasMin) + args.cornerBiasMin;
+                Noise.ApplyBias( heightmap, c00, c01, c10, c11, args.midpointBias );
+            } else {
+                noise.PerlinNoiseMap( heightmap, 0, args.detailSize, args.roughness );
+            }
             Noise.Normalize( heightmap );
 
             if( args.layeredHeightmap ) {
                 // needs a new Noise object to randomize second map
-                float[,] heightmap2 = new Noise( rand ).PerlinMap( args.dimX, args.dimY, args.detailSize, args.roughness );
+                float[,] heightmap2 = new float[args.dimX, args.dimY];
+                new Noise( rand ).PerlinNoiseMap( heightmap2, 0, args.detailSize, args.roughness );
                 Noise.Normalize( heightmap2 );
-                blendmap = new Noise( rand ).PerlinMap( args.dimX, args.dimY, args.detailSize, args.roughness );
+                blendmap = new float[args.dimX, args.dimY];
+                new Noise( rand ).PerlinNoiseMap( blendmap, 0, args.detailSize, args.roughness );
                 Noise.Normalize( blendmap );
                 Noise.Blend( heightmap, heightmap2, blendmap );
             }
@@ -117,7 +129,7 @@ namespace fCraft {
 
         public Map GenerateMap() {
             Map map = new Map( null, args.dimX, args.dimY, args.dimH );
-            args.waterLevel = (map.height-1)/2;
+            args.waterLevel = (map.height - 1) / 2;
 
             float desiredWaterLevel = .5f;
             if( args.matchWaterCoverage ) {
