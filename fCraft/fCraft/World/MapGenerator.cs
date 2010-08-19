@@ -27,7 +27,8 @@ namespace fCraft {
 
     public sealed class MapGeneratorArgs {
         public MapGenTheme theme;
-        public int seed, dimX, dimY, dimH, maxHeight, maxDepth;
+        public int seed, dimX, dimY, dimH, maxHeight, maxDepth, waterLevel;
+        public bool useAbsoluteHeight;
 
         public bool matchWaterCoverage;
         public float waterCoverage;
@@ -43,17 +44,18 @@ namespace fCraft {
     }
 
 
-    public sealed class MapGenerator2 {
+    public sealed class MapGenerator {
         MapGeneratorArgs args;
         Random rand;
         Noise noise;
+        float[,] heightmap, blendmap;
 
         // theme-dependent vars
         Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock, bDeepWaterSurface, bCliff;
         int groundThickness = 5, seaFloorThickness = 3;
 
 
-        public MapGenerator2( MapGeneratorArgs _args ) {
+        public MapGenerator( MapGeneratorArgs _args ) {
             args = _args;
             rand = new Random( args.seed );
             noise = new Noise( rand );
@@ -61,16 +63,16 @@ namespace fCraft {
         }
 
 
-        public float[,] GenerateHeightmap() {
+        public void GenerateHeightmap() {
             // TODO: bias
-            float[,] heightmap = noise.PerlinMap( args.dimX, args.dimY, args.detailSize, args.roughness );
+            heightmap = noise.PerlinMap( args.dimX, args.dimY, args.detailSize, args.roughness );
             Noise.Normalize( heightmap );
 
             if( args.layeredHeightmap ) {
                 // needs a new Noise object to randomize second map
                 float[,] heightmap2 = new Noise( rand ).PerlinMap( args.dimX, args.dimY, args.detailSize, args.roughness );
                 Noise.Normalize( heightmap2 );
-                float[,] blendmap = new Noise( rand ).PerlinMap( args.dimX, args.dimY, args.detailSize, args.roughness );
+                blendmap = new Noise( rand ).PerlinMap( args.dimX, args.dimY, args.detailSize, args.roughness );
                 Noise.Normalize( blendmap );
                 Noise.Blend( heightmap, heightmap2, blendmap );
             }
@@ -78,8 +80,6 @@ namespace fCraft {
             if( args.marbled ) {
                 Noise.Marble( heightmap );
             }
-
-            return heightmap;
         }
 
 
@@ -88,7 +88,7 @@ namespace fCraft {
             if( desiredWaterCoverage == 0 ) return 0;
             if( desiredWaterCoverage == 1 ) return 1;
             float waterLevel = 0.5f;
-            for( int i = 0; i < 5; i++ ) {
+            for( int i = 0; i < 8; i++ ) {
                 if( CalculateWaterCoverage( heightmap, waterLevel ) > desiredWaterCoverage ) {
                     waterLevel = waterLevel - 1 / (float)(4 << i);
                 } else {
@@ -100,18 +100,83 @@ namespace fCraft {
 
 
         public static float CalculateWaterCoverage( float[,] heightmap, float waterLevel ) {
-            int aboveWaterBlocks = 0;
+            int underwaterBlocks = 0;
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( heightmap[x, y] > waterLevel ) aboveWaterBlocks++;
+                    if( heightmap[x, y] < waterLevel ) underwaterBlocks++;
                 }
             }
-            return aboveWaterBlocks / (float)heightmap.Length;
+            return underwaterBlocks / (float)heightmap.Length;
         }
 
 
+        public Map Generate() {
+            GenerateHeightmap();
+            return GenerateMap();
+        }
+
         public Map GenerateMap() {
             Map map = new Map( null, args.dimX, args.dimY, args.dimH );
+            args.waterLevel = (map.height-1)/2;
+
+            float desiredWaterLevel = .5f;
+            if( args.matchWaterCoverage ) {
+                desiredWaterLevel = MatchWaterCoverage( heightmap, args.waterCoverage );
+            }
+
+            float underWaterMultiplier = args.maxDepth / desiredWaterLevel;
+            float aboveWaterMultiplier = args.maxHeight / (1 - desiredWaterLevel);
+
+            int level;
+            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    if( heightmap[x, y] < desiredWaterLevel ) {
+                        level = args.waterLevel - (int)Math.Round( (1 - heightmap[x, y] / desiredWaterLevel) * args.maxDepth );
+
+                        if( args.waterLevel - level > 3 ) {
+                            map.SetBlock( x, y, args.waterLevel, bDeepWaterSurface );
+                        } else {
+                            map.SetBlock( x, y, args.waterLevel, bWaterSurface );
+                        }
+                        for( int i = args.waterLevel; i > level; i-- ) {
+                            map.SetBlock( x, y, i, bWater );
+                        }
+                        for( int i = level; i >= 0; i-- ) {
+                            if( level - i < seaFloorThickness ) {
+                                map.SetBlock( x, y, i, bSeaFloor );
+                            } else {
+                                map.SetBlock( x, y, i, bBedrock );
+                            }
+                        }
+
+                    } else {
+                        level = args.waterLevel + (int)Math.Round( (heightmap[x, y] - desiredWaterLevel) * aboveWaterMultiplier );
+
+                        if( blendmap != null && blendmap[x, y] > .25 && blendmap[x, y] < .75 ) {
+                            map.SetBlock( x, y, level, bCliff );
+                        } else {
+                            map.SetBlock( x, y, level, bGroundSurface );
+                        }
+                        for( int i = level - 1; i >= 0; i-- ) {
+                            if( level - i < groundThickness ) {
+                                if( blendmap != null && blendmap[x, y] > .01 && blendmap[x, y] < .99 ) {
+                                    map.SetBlock( x, y, i, bCliff );
+                                } else {
+                                    map.SetBlock( x, y, i, bGround );
+                                }
+                            } else {
+                                map.SetBlock( x, y, i, bBedrock );
+                            }
+                        }
+                    }
+                }
+            }
+
+            if( args.placeTrees ) {
+                GenerateTrees( map );
+            }
+
+            map.ResetSpawn();
             return map;
         }
 
@@ -172,274 +237,14 @@ namespace fCraft {
                     break;
             }
         }
-    }
-
-
-    public sealed class MapGenerator {
-        double roughness, smoothingOver, smoothingUnder, midpoint, sidesMin, sidesMax;
-        Random rand = new Random();
-        Map map;
-        Player player;
-        string fileName;
-        int groundThickness = 5, seaFloorThickness = 3;
-
-        Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock, bDeepWaterSurface, bCliff;
-        MapGenType type;
-        MapGenTheme theme;
-
-        public MapGenerator( Map _map, Player _player, string _fileName, MapGenType _type, MapGenTheme _theme ) {
-            map = _map;
-            player = _player;
-            fileName = _fileName;
-            type = _type;
-            theme = _theme;
-        }
-
-
-        public void SetParams( double _roughness, double _smoothingOver, double _smoothingUnder, double _midpoint, double _sidesMin, double _sidesMax ) {
-            roughness = _roughness;
-            smoothingOver = _smoothingOver;
-            smoothingUnder = _smoothingUnder;
-            midpoint = _midpoint;
-            sidesMin = _sidesMin;
-            sidesMax = _sidesMax;
-        }
-
-
-        void ApplyType() {
-            switch( type ) {
-                case MapGenType.Hills:
-                    SetParams( 1, 1, 1.5, 0, 0.52, 0.6 );
-                    break;
-                case MapGenType.Mountains:
-                    SetParams( 4, 1, 0.4, 0.1, 0.5, 0.7 );
-                    break;
-                case MapGenType.Cliffs:
-                    SetParams( 3, 1.2, 0.6, 0, 0.55, 0.7 );
-                    break;
-                case MapGenType.Lake:
-                    SetParams( 1, 0.6, 0.9, -0.3, 0.53, 0.6 );
-                    break;
-                case MapGenType.Island:
-                    SetParams( 1, 0.6, 0.9, 0.3, 0.30, 0.45 );
-                    break;
-                case MapGenType.Coast:
-                    SetParams( 1.5, 0.75, 1, 0, 0.4, 0.63 );
-                    break;
-                case MapGenType.River:
-                    SetParams( 3, 1, 1, -.1, 0, 1 );
-                    break;
-            }
-        }
-
-        void ApplyTheme() {
-            switch( theme ) {
-                case MapGenTheme.Arctic:
-                    bWaterSurface = Block.Glass;
-                    bDeepWaterSurface = Block.Water;
-                    bGroundSurface = Block.White;
-                    bWater = Block.Water;
-                    bGround = Block.White;
-                    bSeaFloor = Block.White;
-                    bBedrock = Block.Stone;
-                    bCliff = Block.Stone;
-                    groundThickness = 1;
-                    break;
-                case MapGenTheme.Desert:
-                    bWaterSurface = Block.Water;
-                    bDeepWaterSurface = Block.Water;
-                    bGroundSurface = Block.Sand;
-                    bWater = Block.Air;
-                    bGround = Block.Sand;
-                    bSeaFloor = Block.Sand;
-                    bBedrock = Block.Stone;
-                    bCliff = Block.Gravel;
-                    break;
-                case MapGenTheme.Hell:
-                    bWaterSurface = Block.Lava;
-                    bDeepWaterSurface = Block.Lava;
-                    bGroundSurface = Block.Obsidian;
-                    bWater = Block.Lava;
-                    bGround = Block.Stone;
-                    bSeaFloor = Block.Obsidian;
-                    bBedrock = Block.Stone;
-                    bCliff = Block.Rocks;
-                    break;
-                case MapGenTheme.Forest:
-                case MapGenTheme.Normal:
-                    bWaterSurface = Block.Water;
-                    bDeepWaterSurface = Block.Water;
-                    bGroundSurface = Block.Grass;
-                    bWater = Block.Water;
-                    bGround = Block.Dirt;
-                    bSeaFloor = Block.Sand;
-                    bBedrock = Block.Stone;
-                    bCliff = Block.Rocks;
-                    break;
-                case MapGenTheme.Rocky:
-                    bWaterSurface = Block.Water;
-                    bDeepWaterSurface = Block.Water;
-                    bGroundSurface = Block.Rocks;
-                    bWater = Block.Water;
-                    bGround = Block.Stone;
-                    bSeaFloor = Block.Rocks;
-                    bBedrock = Block.Stone;
-                    bCliff = Block.Stone;
-                    break;
-            }
-        }
-
-
-        public void Generate() {
-            ApplyType();
-            ApplyTheme();
-
-            roughness = 0.5;
-
-            float[,] heightmap = GenerateHeightmap( map.widthX, map.widthY );
-            float[,] blendmap = null;
-
-            if( type == MapGenType.River ) {
-                double min = double.MaxValue, max = double.MinValue;
-                for( int x = 0; x < map.widthX; x++ ) {
-                    for( int y = 0; y < map.widthY; y++ ) {
-                        min = Math.Min( min, heightmap[x, y] );
-                        max = Math.Max( max, heightmap[x, y] );
-                    }
-                }
-                for( int x = 0; x < map.widthX; x++ ) {
-                    for( int y = 0; y < map.widthY; y++ ) {
-                        heightmap[x, y] = (float)(Math.Abs( (heightmap[x, y] - min) / (max - min) * 2 - 1 ) * .3 + .4);
-                    }
-                }
-            } else if( type == MapGenType.Cliffs ) {
-                groundThickness = Math.Max( 1, groundThickness / 2 );
-                float[,] heightmap1 = heightmap;
-                SetParams( 3, 1.2, 0.6, -.05, 0.4, 0.55 );
-                float[,] heightmap2 = GenerateHeightmap( map.widthX, map.widthY );
-                SetParams( 4, 1, 1, 0, 0.5, 0.5 );
-                blendmap = GenerateHeightmap( map.widthX, map.widthY );
-                double min = double.MaxValue, max = double.MinValue;
-                for( int x = 0; x < map.widthX; x++ ) {
-                    for( int y = 0; y < map.widthY; y++ ) {
-                        min = Math.Min( min, blendmap[x, y] );
-                        max = Math.Max( max, blendmap[x, y] );
-                    }
-                }
-                double steepness = Math.Max( map.widthX, map.widthY ) / 5;
-                for( int x = 0; x < map.widthX; x++ ) {
-                    for( int y = 0; y < map.widthY; y++ ) {
-                        blendmap[x, y] = (float)Math.Min( 1, Math.Max( 0, (heightmap[x, y] - min) / (max - min) * steepness * 2 - steepness ) );
-                    }
-                }
-                for( int x = 0; x < map.widthX; x++ ) {
-                    for( int y = 0; y < map.widthY; y++ ) {
-                        heightmap[x, y] = heightmap1[x, y] * blendmap[x, y] + heightmap2[x, y] * (1 - blendmap[x, y]);
-                    }
-                }
-            }
-
-            double level;
-            int ilevel, iwater;
-            Feedback( "Filling..." );
-            iwater = map.height / 2;
-
-            // TODO: slope estimation
-
-            for( int x = 0; x < map.widthX; x++ ) {
-                for( int y = 0; y < map.widthY; y++ ) {
-                    level = heightmap[x, y];
-                    ilevel = (int)(level * map.height);
-                    if( ilevel > iwater ) {
-                        ilevel = (int)(((level - 0.5) * smoothingOver + 0.5) * map.height);
-                        if( blendmap != null && blendmap[x, y] > .25 && blendmap[x, y] < .75 ) {
-                            map.SetBlock( x, y, ilevel, bCliff );
-                        } else {
-                            map.SetBlock( x, y, ilevel, bGroundSurface );
-                        }
-                        for( int i = ilevel - 1; i >= 0; i-- ) {
-                            if( ilevel - i < groundThickness ) {
-                                if( blendmap != null && blendmap[x, y] > .01 && blendmap[x, y] < .99 ) {
-                                    map.SetBlock( x, y, i, bCliff );
-                                } else {
-                                    map.SetBlock( x, y, i, bGround );
-                                }
-                            } else {
-                                map.SetBlock( x, y, i, bBedrock );
-                            }
-                        }
-                    } else {
-                        ilevel = (int)(((level - 0.5) * smoothingUnder + 0.5) * map.height);
-                        if( iwater - ilevel > 3 ) {
-                            map.SetBlock( x, y, iwater, bDeepWaterSurface );
-                        } else {
-                            map.SetBlock( x, y, iwater, bWaterSurface );
-                        }
-                        for( int i = iwater; i > ilevel; i-- ) {
-                            map.SetBlock( x, y, i, bWater );
-                        }
-                        for( int i = ilevel; i >= 0; i-- ) {
-                            if( ilevel - i < seaFloorThickness ) {
-                                map.SetBlock( x, y, i, bSeaFloor );
-                            } else {
-                                map.SetBlock( x, y, i, bBedrock );
-                            }
-                        }
-                    }
-                }
-            }
-            if( theme == MapGenTheme.Forest ) {
-                GenerateTrees( map );
-            }
-
-            map.ResetSpawn();
-
-            Feedback( "Generation done." );
-        }
-
 
         public static void GenerationTask( object task ) {
             MapGenerator gen = (MapGenerator)task;
             gen.Generate();
-            gen.map.Save( gen.fileName );
+            //gen.map.Save( gen.fileName );
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
-
-        void Feedback( string message ) {
-            if( player != null ) {
-                player.Message( "Map generation: {0}", message );
-            }
-        }
-
-
-        float[,] GenerateHeightmap( int iWidth, int iHeight ) {
-            Noise theNoise = new Noise( rand );
-            int octaves = (int)Math.Log( Math.Max( iWidth, iHeight ), 2 );
-            float[,] map = theNoise.PerlinMap( iWidth, iHeight, octaves, (float)roughness );
-            Noise.Normalize( map, (float)sidesMin, (float)sidesMax );
-            return map;
-
-            double[,] points = new double[iWidth + 1, iHeight + 1];
-
-            double sideDelta = (sidesMax - sidesMin);
-            double[] sides = new double[4];
-            if( type == MapGenType.River ) {
-                sides[0] = rand.NextDouble() * .5;
-                sides[1] = rand.NextDouble() * .5;
-                sides[2] = rand.NextDouble() * .5 + .5;
-                sides[3] = rand.NextDouble() * .5 + .5;
-                sides = sides.OrderBy( r => rand.Next() ).ToArray();
-            } else {
-                sides[0] = rand.NextDouble() * sideDelta;
-                sides[1] = rand.NextDouble() * sideDelta;
-                sides[2] = rand.NextDouble() * sideDelta;
-                while( (sides[0] < sideDelta / 2 && sides[1] < sideDelta / 2 && sides[2] < sideDelta / 2 && sides[3] < sideDelta / 2) ||
-                    (sides[0] > sideDelta / 2 && sides[1] > sideDelta / 2 && sides[2] > sideDelta / 2 && sides[3] > sideDelta / 2) ) {
-                    sides[3] = rand.NextDouble() * sideDelta;
-                }
-            }
-        }
 
         public static void GenerateFlatgrass( Map map ) {
             for( int i = 0; i < map.widthX; i++ ) {
@@ -458,12 +263,12 @@ namespace fCraft {
         }
 
 
-        public static void GenerateTrees( Map map ) {
-            int MinHeight = 4;
-            int MaxHeight = 6;
-            int MinTrunkPadding = 6;
-            int MaxTrunkPadding = 11;
-            int BorderPadding = 4;
+        public void GenerateTrees( Map map ) {
+            int MinHeight = args.treeHeightMin;
+            int MaxHeight = args.treeHeightMax;
+            int MinTrunkPadding = args.treeSpacingMin;
+            int MaxTrunkPadding = args.treeSpacingMax;
+            int BorderPadding = MinTrunkPadding;
             int TopLayers = 2;
             double Odds = 0.618;
             bool OnlyAir = true;
@@ -509,6 +314,7 @@ namespace fCraft {
                 }
             }
         }
+
 
 
         public static MapGeneratorArgs MakePreset( MapGenType preset ) {
@@ -582,3 +388,33 @@ namespace fCraft {
         }
     }
 }
+
+    /*
+
+        float[,] GenerateHeightmap( int iWidth, int iHeight ) {
+            Noise theNoise = new Noise( rand );
+            int octaves = (int)Math.Log( Math.Max( iWidth, iHeight ), 2 );
+            float[,] map = theNoise.PerlinMap( iWidth, iHeight, octaves, (float)roughness );
+            Noise.Normalize( map, (float)sidesMin, (float)sidesMax );
+            return map;
+
+            double[,] points = new double[iWidth + 1, iHeight + 1];
+
+            double sideDelta = (sidesMax - sidesMin);
+            double[] sides = new double[4];
+            if( type == MapGenType.River ) {
+                sides[0] = rand.NextDouble() * .5;
+                sides[1] = rand.NextDouble() * .5;
+                sides[2] = rand.NextDouble() * .5 + .5;
+                sides[3] = rand.NextDouble() * .5 + .5;
+                sides = sides.OrderBy( r => rand.Next() ).ToArray();
+            } else {
+                sides[0] = rand.NextDouble() * sideDelta;
+                sides[1] = rand.NextDouble() * sideDelta;
+                sides[2] = rand.NextDouble() * sideDelta;
+                while( (sides[0] < sideDelta / 2 && sides[1] < sideDelta / 2 && sides[2] < sideDelta / 2 && sides[3] < sideDelta / 2) ||
+                    (sides[0] > sideDelta / 2 && sides[1] > sideDelta / 2 && sides[2] > sideDelta / 2 && sides[3] > sideDelta / 2) ) {
+                    sides[3] = rand.NextDouble() * sideDelta;
+                }
+            }
+        }*/

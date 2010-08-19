@@ -240,10 +240,17 @@ namespace ConfigTool {
             bFlatgrassGenerate.Enabled = false;
 
             if( tab == Tabs.Generator ) {
+                if( !xSeed.Checked ) {
+                    nSeed.Value = GetRandomSeed();
+                }
+
                 generatorArgs = new MapGeneratorArgs {
                     cornerBiasMax = sCornerBias.Value + sCornerBiasVariation.Value,
                     cornerBiasMin = sCornerBias.Value - sCornerBiasVariation.Value,
                     detailSize = sDetailSize.Value,
+                    dimH = (int)nHeight.Value,
+                    dimX = (int)nWidthX.Value,
+                    dimY = (int)nWidthY.Value,
                     layeredHeightmap = xLayeredHeightmap.Checked,
                     marbled = xMarbledMode.Checked,
                     matchWaterCoverage = xMatchWaterCoverage.Checked,
@@ -251,7 +258,7 @@ namespace ConfigTool {
                     maxHeight = (int)nMaxHeight.Value,
                     midpointBias = sMidpointBias.Value,
                     placeTrees = xTrees.Checked,
-                    roughness = sRoughness.Value,
+                    roughness = sRoughness.Value/100f,
                     seed = (int)nSeed.Value,
                     theme = (MapGenTheme)cTheme.SelectedIndex,
                     treeHeightMax = (int)(nTreeHeight.Value + nTreeHeightVariation.Value),
@@ -259,7 +266,7 @@ namespace ConfigTool {
                     treeSpacingMax = (int)(nTreeSpacing.Value + nTreeSpacingVariation.Value),
                     treeSpacingMin = (int)(nTreeSpacing.Value - nTreeSpacingVariation.Value),
                     useBias = !xFullRandom.Checked,
-                    waterCoverage = sWaterCoverage.Value
+                    waterCoverage = sWaterCoverage.Value/100f
                 };
             }
 
@@ -277,17 +284,13 @@ namespace ConfigTool {
             stopwatch = Stopwatch.StartNew();
             map = null;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-            if( tab == Tabs.Generator ) {
-                map = new Map( null, Convert.ToInt32( nWidthX.Value ), Convert.ToInt32( nWidthY.Value ), Convert.ToInt32( nHeight.Value ) );
-            } else if( tab== Tabs.Flatgrass) {
-                map = new Map( null, Convert.ToInt32( nFlatgrassDimX.Value ), Convert.ToInt32( nFlatgrassDimY.Value ), Convert.ToInt32( nFlatgrassDimH.Value ) );
-            }
 
             if( tab == Tabs.Generator ) {
-                generator = new MapGenerator( map, null, null, genType, genTheme );
-                generator.Generate();
+                generator = new MapGenerator( generatorArgs );
+                map = generator.Generate();
                 generator = null;
             } else if( tab == Tabs.Flatgrass ) {
+                map = new Map( null, Convert.ToInt32( nFlatgrassDimX.Value ), Convert.ToInt32( nFlatgrassDimY.Value ), Convert.ToInt32( nFlatgrassDimH.Value ) );
                 MapGenerator.GenerateFlatgrass( map );
             }
 
@@ -489,6 +492,49 @@ Dimensions: {4}×{5}×{6}
 
         private void xMatchWaterCoverage_CheckedChanged( object sender, EventArgs e ) {
             sWaterCoverage.Enabled = xMatchWaterCoverage.Checked;
+        }
+
+        private void bSeed_Click( object sender, EventArgs e ) {
+            nSeed.Value = GetRandomSeed();
+        }
+
+        private void sWaterCoverage_Scroll( object sender, EventArgs e ) {
+            lMatchWaterCoverageDisplay.Text = sWaterCoverage.Value + "%";
+        }
+
+        private void sMidpointBias_Scroll( object sender, EventArgs e ) {
+            lMidpointBiasDisplay.Text = sMidpointBias.Value + "%";
+        }
+
+        private void sCornerBias_Scroll( object sender, EventArgs e ) {
+            lCornerBiasDisplay.Text = sCornerBias.Value + "% +/-";
+        }
+
+        private void sCornerBiasVariation_Scroll( object sender, EventArgs e ) {
+            lCornerBiasVariationDisplay.Text = sCornerBiasVariation.Value + "%";
+        }
+
+        private void sRoughness_Scroll( object sender, EventArgs e ) {
+            lRoughnessDisplay.Text = sRoughness.Value + "%";
+        }
+
+        private void xSeed_CheckedChanged( object sender, EventArgs e ) {
+            nSeed.Enabled = xSeed.Checked;
+            bSeed.Enabled = xSeed.Checked;
+        }
+
+        Random rand = new Random();
+        int GetRandomSeed() {
+            return rand.Next() - rand.Next();
+        }
+
+        private void nWidthX_ValueChanged( object sender, EventArgs e ) {
+            sDetailSize.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 ) + 1;
+        }
+
+        private void sDetailSize_Scroll( object sender, EventArgs e ) {
+            int detailSize = 1 << (sDetailSize.Maximum - sDetailSize.Value);
+            lDetailSizeDisplay.Text = detailSize + "×" + detailSize;
         }
     }
 }
