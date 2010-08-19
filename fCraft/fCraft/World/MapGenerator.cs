@@ -32,10 +32,11 @@ namespace fCraft {
 
         public bool matchWaterCoverage;
         public float waterCoverage;
-        public bool useBias;
-        public float cornerBiasMin, cornerBiasMax, midpointBias;
+        public int raisedCorners, midPoint;
+        public float bias;
+        public bool useBias, continuousCorners;
 
-        public int detailSize;
+        public int minDetailSize, maxDetailSize;
         public float roughness;
         public bool layeredHeightmap, marbled;
 
@@ -67,24 +68,36 @@ namespace fCraft {
             // TODO: bias
             heightmap = new float[args.dimX, args.dimY];
             if( args.useBias ) {
-                noise.PerlinNoiseMap( heightmap, 1, args.detailSize, args.roughness );
-                float c00 = (float)rand.NextDouble() * (args.cornerBiasMax - args.cornerBiasMin) + args.cornerBiasMin;
-                float c01 = (float)rand.NextDouble() * (args.cornerBiasMax - args.cornerBiasMin) + args.cornerBiasMin;
-                float c10 = (float)rand.NextDouble() * (args.cornerBiasMax - args.cornerBiasMin) + args.cornerBiasMin;
-                float c11 = (float)rand.NextDouble() * (args.cornerBiasMax - args.cornerBiasMin) + args.cornerBiasMin;
-                Noise.ApplyBias( heightmap, c00, c01, c10, c11, args.midpointBias );
+                noise.PerlinNoiseMap( heightmap, Math.Min(1,args.maxDetailSize), args.minDetailSize, args.roughness );
+                float[] corners = new float[4];
+                int c =0;
+                for( int i = 0; i < args.raisedCorners; i++ ) {
+                    corners[c++] = (float)rand.NextDouble() * args.bias;
+                }
+                float midpoint = (args.midPoint * args.bias);
+                if( args.continuousCorners ) {
+                    int shift = rand.Next() % 4;
+                    for( int i = 0; i < 4; i++ ) {
+                        float temp = corners[i];
+                        corners[i] = corners[(i + shift) % 4];
+                        corners[(i + shift) % 4] = temp;
+                    }
+                } else {
+                    corners = corners.OrderBy( r => rand.Next() ).ToArray();
+                }
+                Noise.ApplyBias( heightmap, corners[0], corners[1], corners[2], corners[3], midpoint );
             } else {
-                noise.PerlinNoiseMap( heightmap, 0, args.detailSize, args.roughness );
+                noise.PerlinNoiseMap( heightmap, args.maxDetailSize, args.minDetailSize, args.roughness );
             }
             Noise.Normalize( heightmap );
 
             if( args.layeredHeightmap ) {
                 // needs a new Noise object to randomize second map
                 float[,] heightmap2 = new float[args.dimX, args.dimY];
-                new Noise( rand ).PerlinNoiseMap( heightmap2, 0, args.detailSize, args.roughness );
+                new Noise( rand ).PerlinNoiseMap( heightmap2, 0, args.minDetailSize, args.roughness );
                 Noise.Normalize( heightmap2 );
                 blendmap = new float[args.dimX, args.dimY];
-                new Noise( rand ).PerlinNoiseMap( blendmap, 0, args.detailSize, args.roughness );
+                new Noise( rand ).PerlinNoiseMap( blendmap, 0, args.minDetailSize, args.roughness );
                 Noise.Normalize( blendmap );
                 Noise.Blend( heightmap, heightmap2, blendmap );
             }
@@ -135,9 +148,14 @@ namespace fCraft {
             if( args.matchWaterCoverage ) {
                 desiredWaterLevel = MatchWaterCoverage( heightmap, args.waterCoverage );
             }
+            float underWaterMultiplier=0, aboveWaterMultiplier=0;
 
-            float underWaterMultiplier = args.maxDepth / desiredWaterLevel;
-            float aboveWaterMultiplier = args.maxHeight / (1 - desiredWaterLevel);
+            if( desiredWaterLevel != 0 ) {
+                underWaterMultiplier = args.maxDepth / desiredWaterLevel;
+            }
+            if( desiredWaterLevel != 1 ) {
+                aboveWaterMultiplier = args.maxHeight / (1 - desiredWaterLevel);
+            }
 
             int level;
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
@@ -328,14 +346,14 @@ namespace fCraft {
         }
 
 
-
+        /*
         public static MapGeneratorArgs MakePreset( MapGenType preset ) {
             switch( preset ) {
                 case MapGenType.Cliffs:
                     return new MapGeneratorArgs {
                         cornerBiasMax = 0.2f,
                         cornerBiasMin = 0.05f,
-                        detailSize = 1,
+                        minDetailSize = 1,
                         layeredHeightmap = true,
                         midpointBias = 0,
                         roughness = .6f,
@@ -345,7 +363,7 @@ namespace fCraft {
                     return new MapGeneratorArgs {
                         cornerBiasMax = -0.1f,
                         cornerBiasMin = 0.13f,
-                        detailSize = 1,
+                        minDetailSize = 1,
                         matchWaterCoverage = true,
                         midpointBias = 0,
                         roughness = .5f,
@@ -354,7 +372,7 @@ namespace fCraft {
                     };
                 case MapGenType.Hills:
                     return new MapGeneratorArgs {
-                        detailSize = 2,
+                        minDetailSize = 2,
                         matchWaterCoverage = true,
                         roughness = .45f,
                         waterCoverage = .6f
@@ -363,7 +381,7 @@ namespace fCraft {
                     return new MapGeneratorArgs {
                         cornerBiasMax = -0.05f,
                         cornerBiasMin = -0.2f,
-                        detailSize = 2,
+                        minDetailSize = 2,
                         matchWaterCoverage = true,
                         midpointBias = .3f,
                         roughness = .5f,
@@ -374,7 +392,7 @@ namespace fCraft {
                     return new MapGeneratorArgs {
                         cornerBiasMax = .03f,
                         cornerBiasMin = .1f,
-                        detailSize = 2,
+                        minDetailSize = 2,
                         matchWaterCoverage = true,
                         midpointBias = -.3f,
                         roughness = .5f,
@@ -383,7 +401,7 @@ namespace fCraft {
                     };
                 case MapGenType.Mountains:
                     return new MapGeneratorArgs {
-                        detailSize = 1,
+                        minDetailSize = 1,
                         layeredHeightmap = true,
                         matchWaterCoverage = true,
                         roughness = .6f,
@@ -391,13 +409,13 @@ namespace fCraft {
                     };
                 case MapGenType.River:
                     return new MapGeneratorArgs {
-                        detailSize = 1,
+                        minDetailSize = 1,
                         marbled = true,
                         roughness = .5f,
                     };
             }
             return null; // can never happen
-        }
+        }*/
     }
 }
 

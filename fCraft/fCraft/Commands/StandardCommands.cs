@@ -415,6 +415,7 @@ namespace fCraft {
                     } else {
                         Server.SendToAll( Color.Red + offender.nick + " was kicked by " + player.nick );
                         if( msg != null && msg.Length > 0 ) {
+                            Server.SendToAll( Color.Red + "Kick reason: " + msg );
                             Logger.Log( "{0} was kicked by {1}. Memo: {2}", LogType.UserActivity, offender.GetLogName(), player.GetLogName(), msg );
                             offender.session.Kick( "Kicked by " + player.GetLogName() + ": " + msg );
                         } else {

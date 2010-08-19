@@ -115,8 +115,12 @@ namespace ConfigTool {
             cPreset.SelectedIndex = (int)MapGenType.River;
             cTheme.SelectedIndex = (int)MapGenTheme.Forest;
 
-            sDetailSize.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 ) + 1;
-            sDetailSize.Value = sDetailSize.Maximum;
+            sFeatureSize.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 ) + 1;
+            sDetailSize.Maximum = sFeatureSize.Maximum;
+            sFeatureSize.Value = 1;
+            sDetailSize.Value = sFeatureSize.Maximum - 1;
+
+            cMidpoint.SelectedIndex = 1;
         }
 
 
@@ -155,9 +159,6 @@ namespace ConfigTool {
                 tStatus1.Text = "Load failed!";
             } else {
                 tStatus1.Text = "Load succesful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
-                nWidthX.Value = map.widthX;
-                nWidthY.Value = map.widthY;
-                nHeight.Value = map.height;
                 tStatus2.Text = ", drawing...";
                 Redraw( true );
             }
@@ -248,9 +249,8 @@ namespace ConfigTool {
                 }
 
                 generatorArgs = new MapGeneratorArgs {
-                    cornerBiasMax = sCornerBias.Value + sCornerBiasVariation.Value,
-                    cornerBiasMin = sCornerBias.Value - sCornerBiasVariation.Value,
-                    detailSize = sDetailSize.Value,
+                    minDetailSize = sDetailSize.Value,
+                    maxDetailSize = sFeatureSize.Value,
                     dimH = (int)nHeight.Value,
                     dimX = (int)nWidthX.Value,
                     dimY = (int)nWidthY.Value,
@@ -259,17 +259,21 @@ namespace ConfigTool {
                     matchWaterCoverage = xMatchWaterCoverage.Checked,
                     maxDepth = (int)nMaxDepth.Value,
                     maxHeight = (int)nMaxHeight.Value,
-                    midpointBias = sMidpointBias.Value,
                     placeTrees = xTrees.Checked,
-                    roughness = sRoughness.Value/100f,
+                    roughness = sRoughness.Value / 100f,
                     seed = (int)nSeed.Value,
                     theme = (MapGenTheme)cTheme.SelectedIndex,
                     treeHeightMax = (int)(nTreeHeight.Value + nTreeHeightVariation.Value),
                     treeHeightMin = (int)(nTreeHeight.Value - nTreeHeightVariation.Value),
                     treeSpacingMax = (int)(nTreeSpacing.Value + nTreeSpacingVariation.Value),
                     treeSpacingMin = (int)(nTreeSpacing.Value - nTreeSpacingVariation.Value),
-                    useBias = !xFullRandom.Checked,
-                    waterCoverage = sWaterCoverage.Value/100f
+                    useBias = (sBias.Value != 0),
+                    waterCoverage = sWaterCoverage.Value / 100f,
+
+                    bias = sBias.Value / 100f,
+                    continuousCorners = xContinuousCorners.Checked,
+                    midPoint = cMidpoint.SelectedIndex - 1,
+                    raisedCorners = (int)nRaisedCorners.Value
                 };
             }
 
@@ -484,15 +488,6 @@ Dimensions: {4}×{5}×{6}
             }
         }
 
-        private void xFullRandom_CheckedChanged( object sender, EventArgs e ) {
-            sMidpointBias.Enabled = !xFullRandom.Checked;
-            sCornerBias.Enabled = !xFullRandom.Checked;
-            sCornerBiasVariation.Enabled = !xFullRandom.Checked;
-            lMidpointBiasDisplay.Enabled = !xFullRandom.Checked;
-            lCornerBiasDisplay.Enabled = !xFullRandom.Checked;
-            lCornerBiasVariationDisplay.Enabled = !xFullRandom.Checked;
-        }
-
         private void xMatchWaterCoverage_CheckedChanged( object sender, EventArgs e ) {
             sWaterCoverage.Enabled = xMatchWaterCoverage.Checked;
         }
@@ -505,16 +500,13 @@ Dimensions: {4}×{5}×{6}
             lMatchWaterCoverageDisplay.Text = sWaterCoverage.Value + "%";
         }
 
-        private void sMidpointBias_Scroll( object sender, EventArgs e ) {
-            lMidpointBiasDisplay.Text = sMidpointBias.Value + "%";
-        }
+        private void sBias_Scroll( object sender, EventArgs e ) {
+            lBiasDisplay.Text = sBias.Value + "%";
+            bool useBias = (sBias.Value != 0);
 
-        private void sCornerBias_Scroll( object sender, EventArgs e ) {
-            lCornerBiasDisplay.Text = sCornerBias.Value + "% +/-";
-        }
-
-        private void sCornerBiasVariation_Scroll( object sender, EventArgs e ) {
-            lCornerBiasVariationDisplay.Text = sCornerBiasVariation.Value + "%";
+            nRaisedCorners.Enabled = useBias;
+            cMidpoint.Enabled = useBias;
+            xContinuousCorners.Enabled = useBias;
         }
 
         private void sRoughness_Scroll( object sender, EventArgs e ) {
@@ -532,12 +524,20 @@ Dimensions: {4}×{5}×{6}
         }
 
         private void nWidthX_ValueChanged( object sender, EventArgs e ) {
-            sDetailSize.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 ) + 1;
+            sFeatureSize.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 ) + 1;
+            sDetailSize.Maximum = sFeatureSize.Maximum;
+        }
+
+        private void sFeatureSize_Scroll( object sender, EventArgs e ) {
+            int resolution = 1 << (sFeatureSize.Maximum - sFeatureSize.Value);
+            lFeatureSizeDisplay.Text = resolution + "×" + resolution;
+            sDetailSize.Value = Math.Max( sDetailSize.Value, sFeatureSize.Value );
         }
 
         private void sDetailSize_Scroll( object sender, EventArgs e ) {
-            int detailSize = 1 << (sDetailSize.Maximum - sDetailSize.Value);
-            lDetailSizeDisplay.Text = detailSize + "×" + detailSize;
+            int resolution = 1 << (sDetailSize.Maximum - sDetailSize.Value);
+            lDetailSizeDisplay.Text = resolution + "×" + resolution;
+            sFeatureSize.Value = Math.Min( sDetailSize.Value, sFeatureSize.Value );
         }
     }
 }
