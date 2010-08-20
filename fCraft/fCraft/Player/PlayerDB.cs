@@ -13,12 +13,14 @@ namespace fCraft {
         static List<PlayerInfo> list = new List<PlayerInfo>();
 
         public const string DBFile = "PlayerDB.txt",
-                            Header = "playerName,lastIP,playerClass,classChangeDate,classChangedBy," +
+                            Header = "2 fCraft PlayerDB | Row format: "+
+                                     "playerName,lastIP,playerClass,classChangeDate,classChangeBy," +
                                      "banStatus,banDate,bannedBy,unbanDate,unbannedBy," +
                                      "firstLoginDate,lastLoginDate,lastFailedLoginDate," +
                                      "lastFailedLoginIP,failedLoginCount,totalTimeOnServer," +
                                      "blocksBuilt,blocksDeleted,timesVisited," +
-                                     "linesWritten,thanksReceived,warningsReceived";
+                                     "linesWritten,UNUSED,UNUSED,previousClass,classChangeReason,"+
+                                     "timesKicked,timesKickedOthers,timesBannedOthers";
 
         public static ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
 
@@ -44,7 +46,7 @@ namespace fCraft {
                         reader.ReadLine(); // header
                         while( !reader.EndOfStream ) {
                             string[] fields = reader.ReadLine().Split( ',' );
-                            if( fields.Length == PlayerInfo.fieldCount ) {
+                            if( fields.Length >= PlayerInfo.MinFieldCount && fields.Length <= PlayerInfo.MaxFieldCount ) {
                                 try {
                                     PlayerInfo info = new PlayerInfo( fields );
                                     PlayerInfo dupe = tree.Get( info.name );
@@ -55,10 +57,15 @@ namespace fCraft {
                                         Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error, info.name );
                                     }
                                 } catch( FormatException ex ) {
-                                    Logger.Log( "PlayerDB.Load: Could not parse a record: {0}.", LogType.Error, ex.Message );
+                                    Logger.Log( "PlayerDB.Load: Could not parse a record: {0}.", LogType.Error, ex );
                                 } catch( IOException ex ) {
-                                    Logger.Log( "PlayerDB.Load: Error while trying to read from file: {0}.", LogType.Error, ex.Message );
+                                    Logger.Log( "PlayerDB.Load: Error while trying to read from file: {0}.", LogType.Error, ex );
                                 }
+                            } else {
+                                Logger.Log( "PlayerDB.Load: Unexpected field count ({0}), expecting between {1} and {2} fields for a PlayerDB entry.", LogType.Error,
+                                            fields.Length,
+                                            PlayerInfo.MinFieldCount,
+                                            PlayerInfo.MaxFieldCount );
                             }
                         }
                     }
@@ -174,6 +181,23 @@ namespace fCraft {
             } finally {
                 locker.ExitWriteLock();
             }
+        }
+
+        public static int CountBannedPlayers() {
+            int banned = 0;
+            locker.EnterReadLock();
+            try {
+                foreach( PlayerInfo info in list ) {
+                    if( info.banned ) banned++;
+                }
+                return banned;
+            } finally {
+                locker.ExitReadLock();
+            }
+        }
+
+        public static int CountTotalPlayers() {
+            return list.Count;
         }
     }
 }

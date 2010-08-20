@@ -147,7 +147,6 @@ namespace ConfigTool {
 
         void ApplyTabSecurity() {
             ApplyEnum( cVerifyNames, ConfigKey.VerifyNames, 1, "Never", "Balanced", "Always" );
-            xAnnounceUnverified.Checked = Config.GetBool( ConfigKey.AnnounceUnverifiedNames );
             xLimitOneConnectionPerIP.Checked = Config.GetBool( ConfigKey.LimitOneConnectionPerIP );
 
             nSpamChatCount.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.AntispamMessageCount ) );
@@ -157,6 +156,11 @@ namespace ConfigTool {
             xSpamChatKick.Checked = Config.GetInt( ConfigKey.AntispamMaxWarnings ) > 0;
             nSpamChatWarnings.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.AntispamMaxWarnings ) );
             if( !xSpamChatKick.Checked ) nSpamChatWarnings.Enabled = false;
+
+            xRequireBanReason.Checked = Config.GetBool( ConfigKey.RequireBanReason );
+            xRequireClassChangeReason.Checked = Config.GetBool( ConfigKey.RequireClassChangeReason );
+            xAnnounceKickAndBanReasons.Checked = Config.GetBool( ConfigKey.AnnounceKickAndBanReasons );
+            xAnnounceClassChanges.Checked = Config.GetBool( ConfigKey.AnnounceClassChanges );
         }
 
 
@@ -273,7 +277,6 @@ namespace ConfigTool {
             else Config.SetValue( ConfigKey.AnnouncementInterval, 0 );
 
             WriteEnum( cVerifyNames, ConfigKey.VerifyNames, "Never", "Balanced", "Always" );
-            Config.SetValue( ConfigKey.AnnounceUnverifiedNames, xAnnounceUnverified.Checked );
             Config.SetValue( ConfigKey.LimitOneConnectionPerIP, xLimitOneConnectionPerIP.Checked );
 
             Config.SetValue( ConfigKey.AntispamMessageCount, nSpamChatCount.Value );
@@ -283,6 +286,10 @@ namespace ConfigTool {
             if( xSpamChatKick.Checked ) Config.SetValue( ConfigKey.AntispamMaxWarnings, nSpamChatWarnings.Value );
             else Config.SetValue( ConfigKey.AntispamMaxWarnings, 0 );
 
+            Config.SetValue( ConfigKey.RequireBanReason, xRequireBanReason.Checked );
+            Config.SetValue( ConfigKey.RequireClassChangeReason, xRequireClassChangeReason.Checked );
+            Config.SetValue( ConfigKey.AnnounceKickAndBanReasons, xAnnounceKickAndBanReasons.Checked );
+            Config.SetValue( ConfigKey.AnnounceClassChanges, xAnnounceClassChanges.Checked );
 
 
             Config.SetValue( ConfigKey.SaveOnShutdown, xSaveOnShutdown.Checked );

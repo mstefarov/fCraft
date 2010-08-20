@@ -15,7 +15,7 @@ namespace fCraft {
         public const int HeartbeatDelay = 50000;
 
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 101;
+        public const int ConfigVersion = 102;
         public const int MaxPlayersSupported = 256;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
@@ -72,13 +72,17 @@ namespace fCraft {
 
         public static void LoadDefaultsSecurity() {
             settings[ConfigKey.VerifyNames] = "Balanced"; // can be "Always," "Balanced," or "Never"
-            settings[ConfigKey.AnnounceUnverifiedNames] = "True";
             settings[ConfigKey.LimitOneConnectionPerIP] = "False";
 
             settings[ConfigKey.AntispamMessageCount] = "4";
             settings[ConfigKey.AntispamInterval] = "5";
             settings[ConfigKey.AntispamMuteDuration] = "5";
             settings[ConfigKey.AntispamMaxWarnings] = "2";
+
+            settings[ConfigKey.RequireBanReason] = "False";
+            settings[ConfigKey.RequireClassChangeReason] = "False";
+            settings[ConfigKey.AnnounceKickAndBanReasons] = "True";
+            settings[ConfigKey.AnnounceClassChanges] = "True";
         }
 
         public static void LoadDefaultsSavingAndBackup() {
@@ -421,6 +425,10 @@ namespace fCraft {
                 case ConfigKey.IRCBot:
                 case ConfigKey.IRCBotForwardFromServer:
                 case ConfigKey.IRCBotForwardFromIRC:
+                case ConfigKey.RequireBanReason:
+                case ConfigKey.RequireClassChangeReason:
+                case ConfigKey.AnnounceKickAndBanReasons:
+                case ConfigKey.AnnounceClassChanges:
                     return ValidateBool( key, value );
 
                 case ConfigKey.SystemMessageColor:
@@ -819,11 +827,11 @@ namespace fCraft {
                 if( Int32.TryParse( attr.Value, out unvalidatedValue ) ) {
                     if( unvalidatedValue >= 0 && unvalidatedValue < 1000 ) {
                         playerClass.antiGriefBlocks = unvalidatedValue;
-                    }else{
+                    } else {
                         Log( "Config.DefineClass: Values for antiGriefBlocks in not within valid range (0-1000) for {0}. Assuming default ({1}).", LogType.Warning,
                              playerClass.name, playerClass.antiGriefBlocks );
                     }
-                }else{
+                } else {
                     Log( "Config.DefineClass: Could not parse the value for antiGriefBlocks for {0}. Assuming default ({1}).", LogType.Warning,
                          playerClass.name, playerClass.antiGriefBlocks );
                 }

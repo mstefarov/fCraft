@@ -22,7 +22,6 @@ namespace fCraft {
         AnnouncementInterval,
 
         VerifyNames,
-        AnnounceUnverifiedNames,
 
         LimitOneConnectionPerIP,
 
@@ -30,6 +29,11 @@ namespace fCraft {
         AntispamInterval,
         AntispamMuteDuration,
         AntispamMaxWarnings,
+
+        RequireBanReason,
+        RequireClassChangeReason,
+        AnnounceKickAndBanReasons,
+        AnnounceClassChanges,
 
         SaveOnShutdown,
         SaveInterval,

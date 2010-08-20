@@ -333,6 +333,7 @@ namespace fCraft {
                                     DateTime.Now.Subtract( info.lastLoginDate ).TotalDays,
                                     info.lastIP );
                 }
+
                 player.Message( "  Logged in {0} time(s) since {1:dd MMM yyyy}.",
                                 info.timesVisited,
                                 info.firstLoginDate );
@@ -342,11 +343,39 @@ namespace fCraft {
                                 info.blocksDeleted,
                                 info.linesWritten );
 
-                if( player.info.classChangedBy != "-" ) {
-                    player.Message( "  Promoted to {0} by {1} on {2:dd MMM yyyy}.",
-                                    info.playerClass.name,
-                                    info.classChangedBy,
-                                    info.classChangeDate );
+                if( info.timesBannedOthers > 0 || info.timesKickedOthers > 0 ) {
+                    player.Message( "  Kicked {0} and banned {1} players.", info.timesKickedOthers, info.timesBannedOthers );
+                }
+
+                if( info.timesKicked > 0 ) {
+                    player.Message( "  Got kicked {0} times (so far).", info.timesKicked );
+                }
+
+                if( info.classChangedBy != "-" ) {
+                    if( info.previousClass == null ) {
+                        player.Message( "  Promoted to {0} by {1} on {2:dd MMM yyyy}.",
+                                        info.playerClass.name,
+                                        info.classChangedBy,
+                                        info.classChangeDate );
+                    } else if( info.previousClass.rank < info.playerClass.rank ) {
+                        player.Message( "  Promoted from {0} to {1} by {2} on {3:dd MMM yyyy}.",
+                                        info.previousClass.name,
+                                        info.playerClass.name,
+                                        info.classChangedBy,
+                                        info.classChangeDate );
+                        if( info.classChangeReason != null && info.classChangeReason.Length > 0 ) {
+                            player.Message( "Promotion reason: " + info.classChangeReason );
+                        }
+                    } else {
+                        player.Message( "  Demoted from {0} to {1} by {2} on {3:dd MMM yyyy}.",
+                                        info.previousClass.name,
+                                        info.playerClass.name,
+                                        info.classChangedBy,
+                                        info.classChangeDate );
+                        if( info.classChangeReason != null && info.classChangeReason.Length > 0 ) {
+                            player.Message( "Demotion reason: " + info.classChangeReason );
+                        }
+                    }
                 } else {
                     player.Message( "  Class is {0} (default).",
                                     info.playerClass.name );
