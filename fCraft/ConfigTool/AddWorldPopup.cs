@@ -273,7 +273,8 @@ namespace ConfigTool {
                     midPoint = cMidpoint.SelectedIndex - 1,
                     raisedCorners = (int)nRaisedCorners.Value,
                     loweredCorners = (int)nLoweredCorners.Value,
-                    invertHeightmap = xInvert.Checked
+                    invertHeightmap = xInvert.Checked,
+                    addWater = xWater.Checked
                 };
             }
 
@@ -406,10 +407,6 @@ namespace ConfigTool {
             sWaterCoverage.Enabled = xMatchWaterCoverage.Checked;
         }
 
-        private void bSeed_Click( object sender, EventArgs e ) {
-            nSeed.Value = GetRandomSeed();
-        }
-
         private void sWaterCoverage_Scroll( object sender, EventArgs e ) {
             lMatchWaterCoverageDisplay.Text = sWaterCoverage.Value + "%";
         }
@@ -429,7 +426,6 @@ namespace ConfigTool {
 
         private void xSeed_CheckedChanged( object sender, EventArgs e ) {
             nSeed.Enabled = xSeed.Checked;
-            bSeed.Enabled = xSeed.Checked;
         }
 
         private void nRaisedCorners_ValueChanged( object sender, EventArgs e ) {

@@ -61,7 +61,6 @@
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
             this.preview = new ConfigTool.CustomPictureBox();
-            this.bSeed = new System.Windows.Forms.Button();
             this.lDetailSize = new System.Windows.Forms.Label();
             this.sFeatureSize = new System.Windows.Forms.TrackBar();
             this.sRoughness = new System.Windows.Forms.TrackBar();
@@ -117,6 +116,7 @@
             this.nRaisedCorners = new System.Windows.Forms.NumericUpDown();
             this.lBiasDisplay = new System.Windows.Forms.Label();
             this.gHeightmapCreation = new System.Windows.Forms.GroupBox();
+            this.xInvert = new System.Windows.Forms.CheckBox();
             this.sDetailSize = new System.Windows.Forms.TrackBar();
             this.lDetailSizeDisplay = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
@@ -132,7 +132,7 @@
             this.nTreeSpacing = new System.Windows.Forms.NumericUpDown();
             this.lTreeSpacing = new System.Windows.Forms.Label();
             this.lMapFileOptions = new System.Windows.Forms.Label();
-            this.xInvert = new System.Windows.Forms.CheckBox();
+            this.xWater = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
@@ -585,17 +585,6 @@
             this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.preview.TabIndex = 17;
             this.preview.TabStop = false;
-            // 
-            // bSeed
-            // 
-            this.bSeed.Enabled = false;
-            this.bSeed.Location = new System.Drawing.Point( 245, 58 );
-            this.bSeed.Name = "bSeed";
-            this.bSeed.Size = new System.Drawing.Size( 74, 23 );
-            this.bSeed.TabIndex = 8;
-            this.bSeed.Text = "Randomize";
-            this.bSeed.UseVisualStyleBackColor = true;
-            this.bSeed.Click += new System.EventHandler( this.bSeed_Click );
             // 
             // lDetailSize
             // 
@@ -1062,6 +1051,7 @@
             // tabTerrain
             // 
             this.tabTerrain.BackColor = System.Drawing.SystemColors.Window;
+            this.tabTerrain.Controls.Add( this.xWater );
             this.tabTerrain.Controls.Add( this.xSeed );
             this.tabTerrain.Controls.Add( this.nSeed );
             this.tabTerrain.Controls.Add( this.xAdvanced );
@@ -1076,7 +1066,6 @@
             this.tabTerrain.Controls.Add( this.cPreset );
             this.tabTerrain.Controls.Add( this.lPreset );
             this.tabTerrain.Controls.Add( this.cTheme );
-            this.tabTerrain.Controls.Add( this.bSeed );
             this.tabTerrain.Location = new System.Drawing.Point( 4, 22 );
             this.tabTerrain.Name = "tabTerrain";
             this.tabTerrain.Padding = new System.Windows.Forms.Padding( 3 );
@@ -1302,6 +1291,16 @@
             this.gHeightmapCreation.Text = "Heightmap Creation";
             this.gHeightmapCreation.Visible = false;
             // 
+            // xInvert
+            // 
+            this.xInvert.AutoSize = true;
+            this.xInvert.Location = new System.Drawing.Point( 292, 86 );
+            this.xInvert.Name = "xInvert";
+            this.xInvert.Size = new System.Drawing.Size( 53, 17 );
+            this.xInvert.TabIndex = 39;
+            this.xInvert.Text = "Invert";
+            this.xInvert.UseVisualStyleBackColor = true;
+            // 
             // sDetailSize
             // 
             this.sDetailSize.AutoSize = false;
@@ -1493,15 +1492,17 @@
             this.lMapFileOptions.TabIndex = 55;
             this.lMapFileOptions.Text = "Map file:";
             // 
-            // xInvert
+            // xWater
             // 
-            this.xInvert.AutoSize = true;
-            this.xInvert.Location = new System.Drawing.Point( 292, 86 );
-            this.xInvert.Name = "xInvert";
-            this.xInvert.Size = new System.Drawing.Size( 53, 17 );
-            this.xInvert.TabIndex = 39;
-            this.xInvert.Text = "Invert";
-            this.xInvert.UseVisualStyleBackColor = true;
+            this.xWater.AutoSize = true;
+            this.xWater.Checked = true;
+            this.xWater.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.xWater.Location = new System.Drawing.Point( 253, 62 );
+            this.xWater.Name = "xWater";
+            this.xWater.Size = new System.Drawing.Size( 74, 17 );
+            this.xWater.TabIndex = 20;
+            this.xWater.Text = "Add water";
+            this.xWater.UseVisualStyleBackColor = true;
             // 
             // AddWorldPopup
             // 
@@ -1624,7 +1625,6 @@
         private System.Windows.Forms.Label lRoughness;
         private System.Windows.Forms.TrackBar sFeatureSize;
         private System.Windows.Forms.Label lDetailSize;
-        private System.Windows.Forms.Button bSeed;
         private System.Windows.Forms.Label lRoughnessDisplay;
         private System.Windows.Forms.Label lMatchWaterCoverageDisplay;
         private System.Windows.Forms.TrackBar sWaterCoverage;
@@ -1691,5 +1691,6 @@
         private System.Windows.Forms.Label lLoweredCorners;
         private System.Windows.Forms.NumericUpDown nLoweredCorners;
         private System.Windows.Forms.CheckBox xInvert;
+        private System.Windows.Forms.CheckBox xWater;
     }
 }

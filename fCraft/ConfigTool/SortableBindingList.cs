@@ -8,6 +8,7 @@ using System.Reflection;
 namespace ConfigTool {
 
     [Serializable()]
+    // SortableBindingList by Tim Van Wassenhove, http://www.timvw.be/presenting-the-sortablebindinglistt/
     public class SortableBindingList<T> : BindingList<T> {
         private bool _isSorted;
         private ListSortDirection _dir = ListSortDirection.Ascending;
