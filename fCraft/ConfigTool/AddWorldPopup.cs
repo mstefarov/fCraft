@@ -384,23 +384,23 @@ namespace ConfigTool {
         }
 
         private void nWidthX_ValueChanged( object sender, EventArgs e ) {
-            sFeatureSize.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 ) + 1;
-            sDetailSize.Maximum = sFeatureSize.Maximum;
+            sFeatureSize.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 );
+            int value = sDetailSize.Maximum - sDetailSize.Value;
+            sDetailSize.Maximum = sFeatureSize.Maximum + 1;
+            sDetailSize.Value = sDetailSize.Maximum - value;
         }
 
-        private void sFeatureSize_Scroll( object sender, EventArgs e ) {
+        private void sFeatureSize_ValueChanged( object sender, EventArgs e ) {
             int resolution = 1 << (sFeatureSize.Maximum - sFeatureSize.Value);
             lFeatureSizeDisplay.Text = resolution + "×" + resolution;
-            sDetailSize.Value = Math.Max( sDetailSize.Value, sFeatureSize.Value );
+            sDetailSize.Value = Math.Max( sDetailSize.Value, sFeatureSize.Value + 1 );
         }
 
-        private void sDetailSize_Scroll( object sender, EventArgs e ) {
+        private void sDetailSize_ValueChanged( object sender, EventArgs e ) {
             int resolution = 1 << (sDetailSize.Maximum - sDetailSize.Value);
             lDetailSizeDisplay.Text = resolution + "×" + resolution;
-            sFeatureSize.Value = Math.Min( sDetailSize.Value, sFeatureSize.Value );
+            sFeatureSize.Value = Math.Min( sDetailSize.Value - 1, sFeatureSize.Value );
         }
-
-
 
         private void xMatchWaterCoverage_CheckedChanged( object sender, EventArgs e ) {
             sWaterCoverage.Enabled = xMatchWaterCoverage.Checked;
@@ -430,6 +430,14 @@ namespace ConfigTool {
         private void xSeed_CheckedChanged( object sender, EventArgs e ) {
             nSeed.Enabled = xSeed.Checked;
             bSeed.Enabled = xSeed.Checked;
+        }
+
+        private void nRaisedCorners_ValueChanged( object sender, EventArgs e ) {
+            nLoweredCorners.Value = Math.Min( 4 - nRaisedCorners.Value, nLoweredCorners.Value );
+        }
+
+        private void nLoweredCorners_ValueChanged( object sender, EventArgs e ) {
+            nRaisedCorners.Value = Math.Min( 4 - nLoweredCorners.Value, nRaisedCorners.Value );
         }
         #endregion
 
@@ -488,7 +496,6 @@ namespace ConfigTool {
         #endregion
 
 
-
         void ShowMapDetails( TextBox textBox, string fileName ) {
             if( File.Exists( fileName ) ) {
                 map = Map.LoadHeaderOnly( fileName );
@@ -545,12 +552,5 @@ Dimensions: {4}×{5}×{6}
             }
         }
 
-        private void nRaisedCorners_ValueChanged( object sender, EventArgs e ) {
-            nLoweredCorners.Value = Math.Min( 4 - nRaisedCorners.Value, nLoweredCorners.Value );
-        }
-
-        private void nLoweredCorners_ValueChanged( object sender, EventArgs e ) {
-            nRaisedCorners.Value = Math.Min( 4 - nLoweredCorners.Value, nRaisedCorners.Value );
-        }
     }
 }

@@ -34,6 +34,7 @@
 
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Text;
 using System.Collections;
@@ -161,7 +162,9 @@ namespace Mcc {
 
         public static NBTCompound ReadFile( string fileName ) {
             using( FileStream fs = File.OpenRead( fileName ) ) {
-                return ReadStream( fs );
+                using( GZipStream gs = new GZipStream( fs, CompressionMode.Decompress) ) {
+                    return ReadStream( fs );
+                }
             }
         }
 
@@ -282,7 +285,9 @@ namespace Mcc {
         #region Saving
         public void WriteTag( string fileName ) {
             using( FileStream fs = File.OpenWrite( fileName ) ) {
-                WriteTag( fs );
+                using( GZipStream gs = new GZipStream( fs, CompressionMode.Compress ) ) {
+                    WriteTag( gs );
+                }
             }
         }
         public void WriteTag( Stream stream ) {
