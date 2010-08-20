@@ -38,7 +38,7 @@ namespace fCraft {
 
         public int minDetailSize, maxDetailSize;
         public float roughness;
-        public bool layeredHeightmap, marbled;
+        public bool layeredHeightmap, marbledHeightmap, invertHeightmap;
 
         public bool placeTrees;
         public int treeSpacingMin, treeSpacingMax, treeHeightMin, treeHeightMax;
@@ -58,6 +58,7 @@ namespace fCraft {
         float[,] heightmap, blendmap;
 
         const int WaterCoveragePasses = 10;
+        const float CliffsideBlockThreshold = 0.01f;
 
         // theme-dependent vars
         Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock, bDeepWaterSurface, bCliff;
@@ -70,6 +71,12 @@ namespace fCraft {
             rand = new Random( args.seed );
             noise = new Noise( rand );
             ApplyTheme( args.theme );
+        }
+
+
+        public Map Generate() {
+            GenerateHeightmap();
+            return GenerateMap();
         }
 
 
@@ -104,55 +111,33 @@ namespace fCraft {
                 noise.PerlinNoiseMap( heightmap, args.maxDetailSize, args.minDetailSize, args.roughness );
             }
             Noise.Normalize( heightmap );
+            if( args.invertHeightmap ) {
+                Noise.Invert( heightmap );
+            }
 
             if( args.layeredHeightmap ) {
                 // needs a new Noise object to randomize second map
                 float[,] heightmap2 = new float[args.dimX, args.dimY];
                 new Noise( rand ).PerlinNoiseMap( heightmap2, 0, args.minDetailSize, args.roughness );
                 Noise.Normalize( heightmap2 );
+
+                // make a blendmap
                 blendmap = new float[args.dimX, args.dimY];
-                new Noise( rand ).PerlinNoiseMap( blendmap, 0, args.minDetailSize, args.roughness );
+                int blendmapDetailSize = (int)Math.Log( (double)Math.Max( args.dimX, args.dimY ), 2 ) - 2;
+                new Noise( rand ).PerlinNoiseMap( blendmap, 2, blendmapDetailSize, 0.5f );
                 Noise.Normalize( blendmap );
+                float cliffSteepness = Math.Max( args.dimX, args.dimY ) / 6f;
+                Noise.ScaleAndClip( blendmap, cliffSteepness );
+
+
                 Noise.Blend( heightmap, heightmap2, blendmap );
             }
 
-            if( args.marbled ) {
+            if( args.marbledHeightmap ) {
                 Noise.Marble( heightmap );
             }
         }
 
-
-        // assumes normalzied heightmap
-        public static float MatchWaterCoverage( float[,] heightmap, float desiredWaterCoverage ) {
-            if( desiredWaterCoverage == 0 ) return 0;
-            if( desiredWaterCoverage == 1 ) return 1;
-            float waterLevel = 0.5f;
-            for( int i = 0; i < WaterCoveragePasses; i++ ) {
-                if( CalculateWaterCoverage( heightmap, waterLevel ) > desiredWaterCoverage ) {
-                    waterLevel = waterLevel - 1 / (float)(4 << i);
-                } else {
-                    waterLevel = waterLevel + 1 / (float)(4 << i);
-                }
-            }
-            return waterLevel;
-        }
-
-
-        public static float CalculateWaterCoverage( float[,] heightmap, float waterLevel ) {
-            int underwaterBlocks = 0;
-            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( heightmap[x, y] < waterLevel ) underwaterBlocks++;
-                }
-            }
-            return underwaterBlocks / (float)heightmap.Length;
-        }
-
-
-        public Map Generate() {
-            GenerateHeightmap();
-            return GenerateMap();
-        }
 
         public Map GenerateMap() {
             Map map = new Map( null, args.dimX, args.dimY, args.dimH );
@@ -162,7 +147,7 @@ namespace fCraft {
             if( args.matchWaterCoverage ) {
                 desiredWaterLevel = MatchWaterCoverage( heightmap, args.waterCoverage );
             }
-            float underWaterMultiplier=0, aboveWaterMultiplier=0;
+            float underWaterMultiplier = 0, aboveWaterMultiplier = 0;
 
             if( desiredWaterLevel != 0 ) {
                 underWaterMultiplier = args.maxDepth / desiredWaterLevel;
@@ -203,7 +188,7 @@ namespace fCraft {
                         }
                         for( int i = level - 1; i >= 0; i-- ) {
                             if( level - i < groundThickness ) {
-                                if( blendmap != null && blendmap[x, y] > .01 && blendmap[x, y] < .99 ) {
+                                if( blendmap != null && blendmap[x, y] > CliffsideBlockThreshold && blendmap[x, y] < (1-CliffsideBlockThreshold) ) {
                                     map.SetBlock( x, y, i, bCliff );
                                 } else {
                                     map.SetBlock( x, y, i, bGround );
@@ -223,6 +208,34 @@ namespace fCraft {
             map.ResetSpawn();
             return map;
         }
+
+
+        // assumes normalzied heightmap
+        public static float MatchWaterCoverage( float[,] heightmap, float desiredWaterCoverage ) {
+            if( desiredWaterCoverage == 0 ) return 0;
+            if( desiredWaterCoverage == 1 ) return 1;
+            float waterLevel = 0.5f;
+            for( int i = 0; i < WaterCoveragePasses; i++ ) {
+                if( CalculateWaterCoverage( heightmap, waterLevel ) > desiredWaterCoverage ) {
+                    waterLevel = waterLevel - 1 / (float)(4 << i);
+                } else {
+                    waterLevel = waterLevel + 1 / (float)(4 << i);
+                }
+            }
+            return waterLevel;
+        }
+
+
+        public static float CalculateWaterCoverage( float[,] heightmap, float waterLevel ) {
+            int underwaterBlocks = 0;
+            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    if( heightmap[x, y] < waterLevel ) underwaterBlocks++;
+                }
+            }
+            return underwaterBlocks / (float)heightmap.Length;
+        }
+
 
         public void ApplyTheme( MapGenTheme theme ) {
             args.theme = theme;
@@ -281,6 +294,7 @@ namespace fCraft {
                     break;
             }
         }
+
 
         public static void GenerationTask( object task ) {
             MapGenerator gen = (MapGenerator)task;
@@ -432,33 +446,3 @@ namespace fCraft {
         }*/
     }
 }
-
-    /*
-
-        float[,] GenerateHeightmap( int iWidth, int iHeight ) {
-            Noise theNoise = new Noise( rand );
-            int octaves = (int)Math.Log( Math.Max( iWidth, iHeight ), 2 );
-            float[,] map = theNoise.PerlinMap( iWidth, iHeight, octaves, (float)roughness );
-            Noise.Normalize( map, (float)sidesMin, (float)sidesMax );
-            return map;
-
-            double[,] points = new double[iWidth + 1, iHeight + 1];
-
-            double sideDelta = (sidesMax - sidesMin);
-            double[] sides = new double[4];
-            if( type == MapGenType.River ) {
-                sides[0] = rand.NextDouble() * .5;
-                sides[1] = rand.NextDouble() * .5;
-                sides[2] = rand.NextDouble() * .5 + .5;
-                sides[3] = rand.NextDouble() * .5 + .5;
-                sides = sides.OrderBy( r => rand.Next() ).ToArray();
-            } else {
-                sides[0] = rand.NextDouble() * sideDelta;
-                sides[1] = rand.NextDouble() * sideDelta;
-                sides[2] = rand.NextDouble() * sideDelta;
-                while( (sides[0] < sideDelta / 2 && sides[1] < sideDelta / 2 && sides[2] < sideDelta / 2 && sides[3] < sideDelta / 2) ||
-                    (sides[0] > sideDelta / 2 && sides[1] > sideDelta / 2 && sides[2] > sideDelta / 2 && sides[3] > sideDelta / 2) ) {
-                    sides[3] = rand.NextDouble() * sideDelta;
-                }
-            }
-        }*/

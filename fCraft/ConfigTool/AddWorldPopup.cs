@@ -106,7 +106,7 @@ namespace ConfigTool {
             if( File.Exists( fileToLoad ) ) {
                 ShowMapDetails( tExistingMapInfo, fileToLoad );
                 StartLoadingMap();
-            }else{
+            } else {
                 tabs.TabPages.Remove( tabExisting );
                 tabs.SelectTab( tabLoad );
             }
@@ -255,7 +255,7 @@ namespace ConfigTool {
                     dimX = (int)nWidthX.Value,
                     dimY = (int)nWidthY.Value,
                     layeredHeightmap = xLayeredHeightmap.Checked,
-                    marbled = xMarbledMode.Checked,
+                    marbledHeightmap = xMarbledMode.Checked,
                     matchWaterCoverage = xMatchWaterCoverage.Checked,
                     maxDepth = (int)nMaxDepth.Value,
                     maxHeight = (int)nMaxHeight.Value,
@@ -269,11 +269,11 @@ namespace ConfigTool {
                     treeSpacingMin = (int)(nTreeSpacing.Value - nTreeSpacingVariation.Value),
                     useBias = (sBias.Value != 0),
                     waterCoverage = sWaterCoverage.Value / 100f,
-
                     bias = sBias.Value / 100f,
                     midPoint = cMidpoint.SelectedIndex - 1,
                     raisedCorners = (int)nRaisedCorners.Value,
-                    loweredCorners = (int)nLoweredCorners.Value
+                    loweredCorners = (int)nLoweredCorners.Value,
+                    invertHeightmap = xInvert.Checked
                 };
             }
 
