@@ -698,11 +698,12 @@ namespace fCraft {
             foreach( Player player in tempPlayerList ) {
                 if( player.info.playerClass.idleKickTimer > 0 ) {
                     if( DateTime.UtcNow.Subtract( player.idleTimer ).TotalMinutes >= player.info.playerClass.idleKickTimer ) {
-                        StandardCommands.Kick( Player.Console, new Command( String.Format(
-                            "kick {0} Idle for {1} minutes.",
-                            player.name,
-                            player.info.playerClass.idleKickTimer ) ) );
-                        player.ResetIdleTimer();
+                        SendToAll( String.Format( "{0}{1} was kicked for being idle for {2} min",
+                                                  Color.Red,
+                                                  player.name,
+                                                  player.info.playerClass.idleKickTimer ) );
+                        StandardCommands.DoKick( Player.Console, player, "Idle for " + player.info.playerClass.idleKickTimer + " minutes", true );
+                        player.ResetIdleTimer(); // to prevent kick from firing more than once
                     }
                 }
             }

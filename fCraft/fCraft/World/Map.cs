@@ -555,7 +555,7 @@ namespace fCraft {
                 SetBlock( update.x, update.y, update.h, update.type );
                 world.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin );
                 if( update.origin != null ) {
-                    update.origin.info.ProcessBlockBuild( update.type );
+                    update.origin.info.ProcessBlockPlaced( update.type );
                 }
                 packetsSent++;
             }

@@ -7,7 +7,8 @@ using System.Net;
 namespace fCraft {
     public sealed class PlayerInfo {
 
-        public const int fieldCount = 24;
+        public const int MinFieldCount=24,
+                         MaxFieldCount = 29;
         public const string DateFormat = "o";
 
         public string name;
@@ -37,6 +38,12 @@ namespace fCraft {
         public int linesWritten;
         public short thanksReceived;
         public short warningsReceived;
+
+        public PlayerClass previousClass;
+        public string classChangeReason;
+        public int timesKicked;
+        public int timesKickedOthers;
+        public int timesBannedOthers;
 
 
         // === Serialization & Defaults =======================================
@@ -72,6 +79,8 @@ namespace fCraft {
             //linesWritten = 0;
             //thanksReceived = 0;
             //warningsReceived = 0;
+
+            previousClass = null;
         }
 
 
@@ -107,6 +116,8 @@ namespace fCraft {
             //linesWritten = 0;
             //thanksReceived = 0;
             //warningsReceived = 0;
+
+            previousClass = null;
         }
 
 
@@ -132,8 +143,8 @@ namespace fCraft {
             if( fields[8] != "-" ) unbanDate = DateTime.Parse( fields[8] );
             else unbanDate = DateTime.MinValue;
             unbannedBy = fields[9];
-            banReason = Unescape(fields[10]);
-            unbanReason = Unescape(fields[11]);
+            banReason = Unescape( fields[10] );
+            unbanReason = Unescape( fields[11] );
 
             if( fields[12] != "-" ) lastFailedLoginDate = DateTime.Parse( fields[12] );
             else lastFailedLoginDate = DateTime.MinValue;
@@ -151,12 +162,20 @@ namespace fCraft {
             linesWritten = Int32.Parse( fields[21] );
             thanksReceived = Int16.Parse( fields[22] );
             warningsReceived = Int16.Parse( fields[23] );
+
+            if( fields.Length > MinFieldCount ) {
+                if( fields[24].Length > 0 ) previousClass = ClassList.ParseClass( fields[24] );
+                if( fields[25].Length > 0 ) classChangeReason = Unescape( fields[25] );
+                timesKicked = Int16.Parse( fields[26] );
+                timesKickedOthers = Int16.Parse( fields[27] );
+                timesBannedOthers = Int16.Parse( fields[28] );
+            }
         }
 
 
         // save to file
         public string Serialize() {
-            string[] fields = new string[fieldCount];
+            string[] fields = new string[MaxFieldCount];
 
             fields[0] = name;
             fields[1] = lastIP.ToString();
@@ -194,6 +213,13 @@ namespace fCraft {
             fields[22] = thanksReceived.ToString();
             fields[23] = warningsReceived.ToString();
 
+            if( previousClass != null ) fields[24] = previousClass.ToString();
+            else fields[24] = "";
+            if( classChangeReason != null ) fields[25] = Escape( classChangeReason );
+            else fields[25] = "";
+            fields[26] = timesKicked.ToString();
+            fields[27] = timesKickedOthers.ToString();
+            fields[28] = timesBannedOthers.ToString();
             return String.Join( ",", fields );
         }
 
@@ -221,18 +247,19 @@ namespace fCraft {
         }
 
 
-        public bool ProcessBan( string _bannedBy, string _banReason ) {
+        public bool ProcessBan( Player _bannedBy, string _banReason ) {
             if( !banned ) {
                 banned = true;
-                bannedBy = _bannedBy;
+                bannedBy = _bannedBy.name;
                 banDate = DateTime.Now;
                 banReason = _banReason;
+                _bannedBy.info.timesBannedOthers++;
                 return true;
             } else {
                 return false;
             }
         }
-        
+
 
         public bool ProcessUnban( string _unbannedBy, string _unbanReason ) {
             if( banned ) {
@@ -247,12 +274,27 @@ namespace fCraft {
         }
 
 
-        public void ProcessBlockBuild( byte type ) {
-            if( type == 0 ) {
+        public void ProcessClassChange( PlayerClass newClass, Player changer, string reason ) {
+            previousClass = playerClass;
+            playerClass = newClass;
+            classChangeDate = DateTime.Now;
+            classChangedBy = changer.name;
+            classChangeReason = reason;
+        }
+
+
+        public void ProcessBlockPlaced( byte type ) {
+            if( type == 0 ) { // air
                 blocksDeleted++;
             } else {
                 blocksBuilt++;
             }
+        }
+
+
+        public void ProcessKick( Player kickedBy ) {
+            timesKicked++;
+            kickedBy.info.timesKickedOthers++;
         }
 
 

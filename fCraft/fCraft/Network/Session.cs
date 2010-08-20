@@ -331,10 +331,6 @@ namespace fCraft {
                         case "Never":
                             Logger.Log( "{0} IP matched previous records for that name. Player was allowed in.", LogType.SuspiciousActivity,
                                         standardMessage );
-                            player.Message( Color.Red + "Your name could not be verified." );
-                            if( Config.GetBool( ConfigKey.AnnounceUnverifiedNames ) ) {
-                                Server.SendToAll( Color.Red + "Name of " + player.name + " could not be verified, but IP matches.", player );
-                            }
                             break;
                     }
                 }

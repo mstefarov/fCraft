@@ -163,7 +163,6 @@
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.gVerify = new System.Windows.Forms.GroupBox();
             this.xLimitOneConnectionPerIP = new System.Windows.Forms.CheckBox();
-            this.xAnnounceUnverified = new System.Windows.Forms.CheckBox();
             this.lVerifyNames = new System.Windows.Forms.Label();
             this.cVerifyNames = new System.Windows.Forms.ComboBox();
             this.tabSavingAndBackup = new System.Windows.Forms.TabPage();
@@ -248,6 +247,11 @@
             this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
+            this.gSecurityMisc = new System.Windows.Forms.GroupBox();
+            this.xRequireBanReason = new System.Windows.Forms.CheckBox();
+            this.xRequireClassChangeReason = new System.Windows.Forms.CheckBox();
+            this.xAnnounceKickAndBanReasons = new System.Windows.Forms.CheckBox();
+            this.xAnnounceClassChanges = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -294,6 +298,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPing)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
+            this.gSecurityMisc.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabs
@@ -1328,6 +1333,7 @@
             // 
             // tabSecurity
             // 
+            this.tabSecurity.Controls.Add( this.gSecurityMisc );
             this.tabSecurity.Controls.Add( this.gSpamChat );
             this.tabSecurity.Controls.Add( this.gHackingDetection );
             this.tabSecurity.Controls.Add( this.gVerify );
@@ -1352,7 +1358,7 @@
             this.gSpamChat.Controls.Add( this.lSpamChatMessages );
             this.gSpamChat.Controls.Add( this.nSpamChatCount );
             this.gSpamChat.Controls.Add( this.lSpamChat );
-            this.gSpamChat.Location = new System.Drawing.Point( 8, 221 );
+            this.gSpamChat.Location = new System.Drawing.Point( 8, 195 );
             this.gSpamChat.Name = "gSpamChat";
             this.gSpamChat.Size = new System.Drawing.Size( 635, 94 );
             this.gSpamChat.TabIndex = 2;
@@ -1362,7 +1368,7 @@
             // lSpamChatWarnings
             // 
             this.lSpamChatWarnings.AutoSize = true;
-            this.lSpamChatWarnings.Location = new System.Drawing.Point( 444, 60 );
+            this.lSpamChatWarnings.Location = new System.Drawing.Point( 454, 62 );
             this.lSpamChatWarnings.Name = "lSpamChatWarnings";
             this.lSpamChatWarnings.Size = new System.Drawing.Size( 57, 15 );
             this.lSpamChatWarnings.TabIndex = 12;
@@ -1370,7 +1376,7 @@
             // 
             // nSpamChatWarnings
             // 
-            this.nSpamChatWarnings.Location = new System.Drawing.Point( 376, 58 );
+            this.nSpamChatWarnings.Location = new System.Drawing.Point( 386, 60 );
             this.nSpamChatWarnings.Name = "nSpamChatWarnings";
             this.nSpamChatWarnings.Size = new System.Drawing.Size( 62, 21 );
             this.nSpamChatWarnings.TabIndex = 4;
@@ -1378,7 +1384,7 @@
             // xSpamChatKick
             // 
             this.xSpamChatKick.AutoSize = true;
-            this.xSpamChatKick.Location = new System.Drawing.Point( 294, 59 );
+            this.xSpamChatKick.Location = new System.Drawing.Point( 304, 61 );
             this.xSpamChatKick.Name = "xSpamChatKick";
             this.xSpamChatKick.Size = new System.Drawing.Size( 76, 19 );
             this.xSpamChatKick.TabIndex = 3;
@@ -1389,7 +1395,7 @@
             // lSpamMuteSeconds
             // 
             this.lSpamMuteSeconds.AutoSize = true;
-            this.lSpamMuteSeconds.Location = new System.Drawing.Point( 211, 60 );
+            this.lSpamMuteSeconds.Location = new System.Drawing.Point( 221, 62 );
             this.lSpamMuteSeconds.Name = "lSpamMuteSeconds";
             this.lSpamMuteSeconds.Size = new System.Drawing.Size( 53, 15 );
             this.lSpamMuteSeconds.TabIndex = 9;
@@ -1398,7 +1404,7 @@
             // lSpamChatSeconds
             // 
             this.lSpamChatSeconds.AutoSize = true;
-            this.lSpamChatSeconds.Location = new System.Drawing.Point( 362, 25 );
+            this.lSpamChatSeconds.Location = new System.Drawing.Point( 372, 27 );
             this.lSpamChatSeconds.Name = "lSpamChatSeconds";
             this.lSpamChatSeconds.Size = new System.Drawing.Size( 53, 15 );
             this.lSpamChatSeconds.TabIndex = 4;
@@ -1406,7 +1412,7 @@
             // 
             // nSpamMute
             // 
-            this.nSpamMute.Location = new System.Drawing.Point( 143, 57 );
+            this.nSpamMute.Location = new System.Drawing.Point( 153, 59 );
             this.nSpamMute.Name = "nSpamMute";
             this.nSpamMute.Size = new System.Drawing.Size( 62, 21 );
             this.nSpamMute.TabIndex = 2;
@@ -1414,7 +1420,7 @@
             // lSpamMute
             // 
             this.lSpamMute.AutoSize = true;
-            this.lSpamMute.Location = new System.Drawing.Point( 29, 60 );
+            this.lSpamMute.Location = new System.Drawing.Point( 39, 62 );
             this.lSpamMute.Name = "lSpamMute";
             this.lSpamMute.Size = new System.Drawing.Size( 108, 15 );
             this.lSpamMute.TabIndex = 7;
@@ -1422,7 +1428,7 @@
             // 
             // nSpamChatTimer
             // 
-            this.nSpamChatTimer.Location = new System.Drawing.Point( 294, 23 );
+            this.nSpamChatTimer.Location = new System.Drawing.Point( 304, 25 );
             this.nSpamChatTimer.Maximum = new decimal( new int[] {
             50,
             0,
@@ -1445,7 +1451,7 @@
             // lSpamChatMessages
             // 
             this.lSpamChatMessages.AutoSize = true;
-            this.lSpamChatMessages.Location = new System.Drawing.Point( 209, 25 );
+            this.lSpamChatMessages.Location = new System.Drawing.Point( 219, 27 );
             this.lSpamChatMessages.Name = "lSpamChatMessages";
             this.lSpamChatMessages.Size = new System.Drawing.Size( 77, 15 );
             this.lSpamChatMessages.TabIndex = 2;
@@ -1453,7 +1459,7 @@
             // 
             // nSpamChatCount
             // 
-            this.nSpamChatCount.Location = new System.Drawing.Point( 143, 23 );
+            this.nSpamChatCount.Location = new System.Drawing.Point( 153, 25 );
             this.nSpamChatCount.Maximum = new decimal( new int[] {
             50,
             0,
@@ -1476,7 +1482,7 @@
             // lSpamChat
             // 
             this.lSpamChat.AutoSize = true;
-            this.lSpamChat.Location = new System.Drawing.Point( 53, 25 );
+            this.lSpamChat.Location = new System.Drawing.Point( 63, 27 );
             this.lSpamChat.Name = "lSpamChat";
             this.lSpamChat.Size = new System.Drawing.Size( 84, 15 );
             this.lSpamChat.TabIndex = 0;
@@ -1492,7 +1498,7 @@
             this.gHackingDetection.Controls.Add( this.checkBox2 );
             this.gHackingDetection.Controls.Add( this.checkBox1 );
             this.gHackingDetection.Enabled = false;
-            this.gHackingDetection.Location = new System.Drawing.Point( 8, 98 );
+            this.gHackingDetection.Location = new System.Drawing.Point( 8, 72 );
             this.gHackingDetection.Name = "gHackingDetection";
             this.gHackingDetection.Size = new System.Drawing.Size( 635, 117 );
             this.gHackingDetection.TabIndex = 1;
@@ -1502,7 +1508,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point( 209, 84 );
+            this.label11.Location = new System.Drawing.Point( 219, 78 );
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size( 57, 15 );
             this.label11.TabIndex = 6;
@@ -1510,7 +1516,7 @@
             // 
             // numericUpDown7
             // 
-            this.numericUpDown7.Location = new System.Drawing.Point( 143, 82 );
+            this.numericUpDown7.Location = new System.Drawing.Point( 153, 76 );
             this.numericUpDown7.Name = "numericUpDown7";
             this.numericUpDown7.Size = new System.Drawing.Size( 62, 21 );
             this.numericUpDown7.TabIndex = 2;
@@ -1518,7 +1524,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point( 80, 84 );
+            this.label10.Location = new System.Drawing.Point( 90, 78 );
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size( 57, 15 );
             this.label10.TabIndex = 4;
@@ -1527,7 +1533,7 @@
             // checkBox4
             // 
             this.checkBox4.AutoSize = true;
-            this.checkBox4.Location = new System.Drawing.Point( 294, 32 );
+            this.checkBox4.Location = new System.Drawing.Point( 304, 26 );
             this.checkBox4.Name = "checkBox4";
             this.checkBox4.Size = new System.Drawing.Size( 229, 19 );
             this.checkBox4.TabIndex = 3;
@@ -1537,7 +1543,7 @@
             // checkBox3
             // 
             this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point( 294, 57 );
+            this.checkBox3.Location = new System.Drawing.Point( 304, 51 );
             this.checkBox3.Name = "checkBox3";
             this.checkBox3.Size = new System.Drawing.Size( 235, 19 );
             this.checkBox3.TabIndex = 4;
@@ -1547,7 +1553,7 @@
             // checkBox2
             // 
             this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point( 143, 57 );
+            this.checkBox2.Location = new System.Drawing.Point( 153, 51 );
             this.checkBox2.Name = "checkBox2";
             this.checkBox2.Size = new System.Drawing.Size( 91, 19 );
             this.checkBox2.TabIndex = 1;
@@ -1557,7 +1563,7 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point( 143, 32 );
+            this.checkBox1.Location = new System.Drawing.Point( 153, 26 );
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size( 109, 19 );
             this.checkBox1.TabIndex = 0;
@@ -1567,12 +1573,11 @@
             // gVerify
             // 
             this.gVerify.Controls.Add( this.xLimitOneConnectionPerIP );
-            this.gVerify.Controls.Add( this.xAnnounceUnverified );
             this.gVerify.Controls.Add( this.lVerifyNames );
             this.gVerify.Controls.Add( this.cVerifyNames );
             this.gVerify.Location = new System.Drawing.Point( 8, 13 );
             this.gVerify.Name = "gVerify";
-            this.gVerify.Size = new System.Drawing.Size( 635, 79 );
+            this.gVerify.Size = new System.Drawing.Size( 635, 53 );
             this.gVerify.TabIndex = 0;
             this.gVerify.TabStop = false;
             this.gVerify.Text = "Name Verification";
@@ -1580,27 +1585,17 @@
             // xLimitOneConnectionPerIP
             // 
             this.xLimitOneConnectionPerIP.AutoSize = true;
-            this.xLimitOneConnectionPerIP.Location = new System.Drawing.Point( 294, 47 );
+            this.xLimitOneConnectionPerIP.Location = new System.Drawing.Point( 304, 22 );
             this.xLimitOneConnectionPerIP.Name = "xLimitOneConnectionPerIP";
             this.xLimitOneConnectionPerIP.Size = new System.Drawing.Size( 161, 19 );
             this.xLimitOneConnectionPerIP.TabIndex = 2;
             this.xLimitOneConnectionPerIP.Text = "Limit 1 connection per IP";
             this.xLimitOneConnectionPerIP.UseVisualStyleBackColor = true;
             // 
-            // xAnnounceUnverified
-            // 
-            this.xAnnounceUnverified.AutoSize = true;
-            this.xAnnounceUnverified.Location = new System.Drawing.Point( 294, 22 );
-            this.xAnnounceUnverified.Name = "xAnnounceUnverified";
-            this.xAnnounceUnverified.Size = new System.Drawing.Size( 264, 19 );
-            this.xAnnounceUnverified.TabIndex = 1;
-            this.xAnnounceUnverified.Text = "Announce unverified name warnings in chat";
-            this.xAnnounceUnverified.UseVisualStyleBackColor = true;
-            // 
             // lVerifyNames
             // 
             this.lVerifyNames.AutoSize = true;
-            this.lVerifyNames.Location = new System.Drawing.Point( 35, 23 );
+            this.lVerifyNames.Location = new System.Drawing.Point( 45, 23 );
             this.lVerifyNames.Name = "lVerifyNames";
             this.lVerifyNames.Size = new System.Drawing.Size( 102, 15 );
             this.lVerifyNames.TabIndex = 16;
@@ -1614,7 +1609,7 @@
             "Never",
             "Balanced",
             "Strict"} );
-            this.cVerifyNames.Location = new System.Drawing.Point( 143, 20 );
+            this.cVerifyNames.Location = new System.Drawing.Point( 153, 20 );
             this.cVerifyNames.Name = "cVerifyNames";
             this.cVerifyNames.Size = new System.Drawing.Size( 100, 23 );
             this.cVerifyNames.TabIndex = 0;
@@ -1730,7 +1725,7 @@
             this.xMaxBackupSize.AutoSize = true;
             this.xMaxBackupSize.Location = new System.Drawing.Point( 16, 126 );
             this.xMaxBackupSize.Name = "xMaxBackupSize";
-            this.xMaxBackupSize.Size = new System.Drawing.Size( 302, 19 );
+            this.xMaxBackupSize.Size = new System.Drawing.Size( 317, 19 );
             this.xMaxBackupSize.TabIndex = 7;
             this.xMaxBackupSize.Text = "Delete old backups if the directory takes up more than";
             this.xMaxBackupSize.UseVisualStyleBackColor = true;
@@ -1769,7 +1764,7 @@
             this.lMaxBackups.AutoSize = true;
             this.lMaxBackups.Location = new System.Drawing.Point( 330, 99 );
             this.lMaxBackups.Name = "lMaxBackups";
-            this.lMaxBackups.Size = new System.Drawing.Size( 142, 15 );
+            this.lMaxBackups.Size = new System.Drawing.Size( 157, 15 );
             this.lMaxBackups.TabIndex = 10;
             this.lMaxBackups.Text = "files in the backup directory.";
             // 
@@ -2616,6 +2611,59 @@
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 
+            // gSecurityMisc
+            // 
+            this.gSecurityMisc.Controls.Add( this.xAnnounceClassChanges );
+            this.gSecurityMisc.Controls.Add( this.xAnnounceKickAndBanReasons );
+            this.gSecurityMisc.Controls.Add( this.xRequireClassChangeReason );
+            this.gSecurityMisc.Controls.Add( this.xRequireBanReason );
+            this.gSecurityMisc.Location = new System.Drawing.Point( 8, 295 );
+            this.gSecurityMisc.Name = "gSecurityMisc";
+            this.gSecurityMisc.Size = new System.Drawing.Size( 635, 73 );
+            this.gSecurityMisc.TabIndex = 3;
+            this.gSecurityMisc.TabStop = false;
+            this.gSecurityMisc.Text = "Misc";
+            // 
+            // xRequireBanReason
+            // 
+            this.xRequireBanReason.AutoSize = true;
+            this.xRequireBanReason.Location = new System.Drawing.Point( 32, 20 );
+            this.xRequireBanReason.Name = "xRequireBanReason";
+            this.xRequireBanReason.Size = new System.Drawing.Size( 197, 19 );
+            this.xRequireBanReason.TabIndex = 2;
+            this.xRequireBanReason.Text = "Require ban and unban reason";
+            this.xRequireBanReason.UseVisualStyleBackColor = true;
+            // 
+            // xRequireClassChangeReason
+            // 
+            this.xRequireClassChangeReason.AutoSize = true;
+            this.xRequireClassChangeReason.Location = new System.Drawing.Point( 32, 45 );
+            this.xRequireClassChangeReason.Name = "xRequireClassChangeReason";
+            this.xRequireClassChangeReason.Size = new System.Drawing.Size( 225, 19 );
+            this.xRequireClassChangeReason.TabIndex = 3;
+            this.xRequireClassChangeReason.Text = "Require promotion/demotion reason";
+            this.xRequireClassChangeReason.UseVisualStyleBackColor = true;
+            // 
+            // xAnnounceKickAndBanReasons
+            // 
+            this.xAnnounceKickAndBanReasons.AutoSize = true;
+            this.xAnnounceKickAndBanReasons.Location = new System.Drawing.Point( 304, 20 );
+            this.xAnnounceKickAndBanReasons.Name = "xAnnounceKickAndBanReasons";
+            this.xAnnounceKickAndBanReasons.Size = new System.Drawing.Size( 244, 19 );
+            this.xAnnounceKickAndBanReasons.TabIndex = 4;
+            this.xAnnounceKickAndBanReasons.Text = "Announce kick, ban, and unban reasons";
+            this.xAnnounceKickAndBanReasons.UseVisualStyleBackColor = true;
+            // 
+            // xAnnounceClassChanges
+            // 
+            this.xAnnounceClassChanges.AutoSize = true;
+            this.xAnnounceClassChanges.Location = new System.Drawing.Point( 304, 45 );
+            this.xAnnounceClassChanges.Name = "xAnnounceClassChanges";
+            this.xAnnounceClassChanges.Size = new System.Drawing.Size( 231, 19 );
+            this.xAnnounceClassChanges.TabIndex = 5;
+            this.xAnnounceClassChanges.Text = "Announce promotions and demotions";
+            this.xAnnounceClassChanges.UseVisualStyleBackColor = true;
+            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2694,6 +2742,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPing)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).EndInit();
+            this.gSecurityMisc.ResumeLayout( false );
+            this.gSecurityMisc.PerformLayout();
             this.ResumeLayout( false );
 
         }
@@ -2826,7 +2876,6 @@
         private System.Windows.Forms.GroupBox gVerify;
         private System.Windows.Forms.Label lVerifyNames;
         private System.Windows.Forms.ComboBox cVerifyNames;
-        private System.Windows.Forms.CheckBox xAnnounceUnverified;
         private System.Windows.Forms.GroupBox gHackingDetection;
         private System.Windows.Forms.CheckBox checkBox3;
         private System.Windows.Forms.CheckBox checkBox2;
@@ -2896,5 +2945,10 @@
         private System.Windows.Forms.DataGridViewComboBoxColumn dgvcAccess;
         private System.Windows.Forms.DataGridViewComboBoxColumn dgvcBuild;
         private System.Windows.Forms.DataGridViewComboBoxColumn dgvcBackup;
+        private System.Windows.Forms.GroupBox gSecurityMisc;
+        private System.Windows.Forms.CheckBox xAnnounceKickAndBanReasons;
+        private System.Windows.Forms.CheckBox xRequireClassChangeReason;
+        private System.Windows.Forms.CheckBox xRequireBanReason;
+        private System.Windows.Forms.CheckBox xAnnounceClassChanges;
     }
 }

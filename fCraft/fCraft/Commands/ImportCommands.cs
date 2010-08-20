@@ -25,7 +25,7 @@ namespace fCraft {
         };
 
         static void ImportBans( Player player, Command cmd ) {
-            string server = cmd.Next();
+            string serverName = cmd.Next();
             string file = cmd.Next();
 
             // Make sure all parameters are specified
@@ -42,7 +42,7 @@ namespace fCraft {
 
             string[] names;
 
-            switch( server.ToLower() ) {
+            switch( serverName.ToLower() ) {
                 case "mcsharp":
                 case "mczall":
                     try {
@@ -55,11 +55,11 @@ namespace fCraft {
                     }
                     break;
                 default:
-                    player.Message( "fCraft does not support importing from {0}", server );
+                    player.Message( "fCraft does not support importing from {0}", serverName );
                     return;
             }
 
-            string reason = "(import from " + server + ")";
+            string reason = "(import from " + serverName + ")";
             IPAddress ip;
             foreach( string name in names ) {
                 if( Player.IsValidName( name ) ) {
@@ -130,12 +130,13 @@ namespace fCraft {
                     return;
             }
 
+            string reason = "(import from " + serverName + ")";
             foreach( string name in names ) {
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name );
                 if( info == null ) {
                     info = PlayerDB.AddFakeEntry( name );
                 }
-                StandardCommands.DoChangeClass( player, info, null, targetClass );
+                StandardCommands.DoChangeClass( player, info, null, targetClass, reason );
             }
 
             PlayerDB.Save();
