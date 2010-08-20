@@ -609,13 +609,13 @@
             // 
             this.sFeatureSize.AutoSize = false;
             this.sFeatureSize.Location = new System.Drawing.Point( 98, 19 );
-            this.sFeatureSize.Maximum = 7;
+            this.sFeatureSize.Maximum = 6;
             this.sFeatureSize.Minimum = 1;
             this.sFeatureSize.Name = "sFeatureSize";
             this.sFeatureSize.Size = new System.Drawing.Size( 116, 27 );
             this.sFeatureSize.TabIndex = 0;
-            this.sFeatureSize.Value = 7;
-            this.sFeatureSize.Scroll += new System.EventHandler( this.sFeatureSize_Scroll );
+            this.sFeatureSize.Value = 6;
+            this.sFeatureSize.ValueChanged += new System.EventHandler( this.sFeatureSize_ValueChanged );
             // 
             // sRoughness
             // 
@@ -1305,12 +1305,12 @@
             this.sDetailSize.AutoSize = false;
             this.sDetailSize.Location = new System.Drawing.Point( 98, 52 );
             this.sDetailSize.Maximum = 7;
-            this.sDetailSize.Minimum = 1;
+            this.sDetailSize.Minimum = 2;
             this.sDetailSize.Name = "sDetailSize";
             this.sDetailSize.Size = new System.Drawing.Size( 116, 27 );
             this.sDetailSize.TabIndex = 1;
             this.sDetailSize.Value = 7;
-            this.sDetailSize.Scroll += new System.EventHandler( this.sDetailSize_Scroll );
+            this.sDetailSize.ValueChanged += new System.EventHandler( this.sDetailSize_ValueChanged );
             // 
             // lDetailSizeDisplay
             // 
