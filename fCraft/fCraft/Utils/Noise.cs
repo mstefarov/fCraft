@@ -147,6 +147,7 @@ namespace fCraft {
             }
         }
 
+
         // assumes normalized input
         public static void Blend( float[,] map1, float[,] map2, float[,] blendMap ) {
             for( int x = map1.GetLength( 0 ) - 1; x >= 0; x-- ) {
@@ -156,6 +157,7 @@ namespace fCraft {
             }
         }
 
+
         public static void Add( float[,] map1, float[,] map2 ) {
             for( int x = map1.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = map1.GetLength( 1 ) - 1; y >= 0; y-- ) {
@@ -163,6 +165,7 @@ namespace fCraft {
                 }
             }
         }
+
 
         public static void ApplyBias( float[,] heightmap, float c00, float c01, float c10, float c11, float midpoint ) {
             float maxX = 2f / heightmap.GetLength( 0 );
@@ -176,6 +179,24 @@ namespace fCraft {
                     heightmap[x + offsetX, y] += InterpolateCosine( (c00 + c10) / 2, midpoint, c10, (c11 + c10) / 2, x * maxX, y * maxY );
                     heightmap[x, y + offsetY] += InterpolateCosine( (c00 + c01) / 2, c01, midpoint, (c01 + c11) / 2, x * maxX, y * maxY );
                     heightmap[x + offsetX, y + offsetY] += InterpolateCosine( midpoint, (c01 + c11) / 2, (c11 + c10) / 2, c11, x * maxX, y * maxY );
+                }
+            }
+        }
+
+
+        // assumes normalized input
+        public static void ScaleAndClip( float[,] heightmap, float steepness ) {
+            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    heightmap[x, y] = Math.Min( 1, Math.Max( 0, heightmap[x, y] * steepness * 2 - steepness ) );
+                }
+            }
+        }
+
+        public static void Invert( float[,] heightmap ) {
+            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    heightmap[x, y] = 1 - heightmap[x, y];
                 }
             }
         }

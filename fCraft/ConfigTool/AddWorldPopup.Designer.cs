@@ -132,6 +132,7 @@
             this.nTreeSpacing = new System.Windows.Forms.NumericUpDown();
             this.lTreeSpacing = new System.Windows.Forms.Label();
             this.lMapFileOptions = new System.Windows.Forms.Label();
+            this.xInvert = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
@@ -642,17 +643,17 @@
             // xMarbledMode
             // 
             this.xMarbledMode.AutoSize = true;
-            this.xMarbledMode.Location = new System.Drawing.Point( 263, 21 );
+            this.xMarbledMode.Location = new System.Drawing.Point( 292, 21 );
             this.xMarbledMode.Name = "xMarbledMode";
-            this.xMarbledMode.Size = new System.Drawing.Size( 93, 17 );
+            this.xMarbledMode.Size = new System.Drawing.Size( 64, 17 );
             this.xMarbledMode.TabIndex = 2;
-            this.xMarbledMode.Text = "Marbled mode";
+            this.xMarbledMode.Text = "Marbled";
             this.xMarbledMode.UseVisualStyleBackColor = true;
             // 
             // xLayeredHeightmap
             // 
             this.xLayeredHeightmap.AutoSize = true;
-            this.xLayeredHeightmap.Location = new System.Drawing.Point( 263, 54 );
+            this.xLayeredHeightmap.Location = new System.Drawing.Point( 292, 54 );
             this.xLayeredHeightmap.Name = "xLayeredHeightmap";
             this.xLayeredHeightmap.Size = new System.Drawing.Size( 48, 17 );
             this.xLayeredHeightmap.TabIndex = 3;
@@ -1278,6 +1279,7 @@
             // 
             // gHeightmapCreation
             // 
+            this.gHeightmapCreation.Controls.Add( this.xInvert );
             this.gHeightmapCreation.Controls.Add( this.sDetailSize );
             this.gHeightmapCreation.Controls.Add( this.lDetailSizeDisplay );
             this.gHeightmapCreation.Controls.Add( this.label5 );
@@ -1491,6 +1493,16 @@
             this.lMapFileOptions.TabIndex = 55;
             this.lMapFileOptions.Text = "Map file:";
             // 
+            // xInvert
+            // 
+            this.xInvert.AutoSize = true;
+            this.xInvert.Location = new System.Drawing.Point( 292, 86 );
+            this.xInvert.Name = "xInvert";
+            this.xInvert.Size = new System.Drawing.Size( 53, 17 );
+            this.xInvert.TabIndex = 39;
+            this.xInvert.Text = "Invert";
+            this.xInvert.UseVisualStyleBackColor = true;
+            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -1678,5 +1690,6 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label lLoweredCorners;
         private System.Windows.Forms.NumericUpDown nLoweredCorners;
+        private System.Windows.Forms.CheckBox xInvert;
     }
 }
