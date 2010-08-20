@@ -123,10 +123,6 @@ namespace fCraft {
 
 
         internal static void Draw( Player player, Command cmd, DrawMode mode ) {
-            if( player.drawingInProgress ) {
-                player.Message( "Another draw command is already in progress. Please wait." );
-                return;
-            }
             string blockName = cmd.Next();
             Block block = Block.Undefined;
 
@@ -259,16 +255,12 @@ namespace fCraft {
                 return;
             }
             if( player.undoBuffer.Count > 0 ) {
-                if( player.drawingInProgress ) {
-                    player.Message( "Cannot undo a drawing-in-progress. Wait for it to finish." );
-                } else {
-                    // no need to set player.drawingInProgress here because this is done on the user thread
-                    Logger.Log( "Player {0} initiated /undo affecting {1} blocks.", LogType.UserActivity,
-                                player.GetLogName(),
-                                player.undoBuffer.Count );
-                    while( player.undoBuffer.Count > 0 ) {
-                        player.world.map.QueueUpdate( player.undoBuffer.Dequeue() );
-                    }
+                // no need to set player.drawingInProgress here because this is done on the user thread
+                Logger.Log( "Player {0} initiated /undo affecting {1} blocks.", LogType.UserActivity,
+                            player.GetLogName(),
+                            player.undoBuffer.Count );
+                while( player.undoBuffer.Count > 0 ) {
+                    player.world.map.QueueUpdate( player.undoBuffer.Dequeue() );
                 }
                 GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
             } else {
@@ -278,8 +270,6 @@ namespace fCraft {
 
 
         internal static void DrawReplace( Player player, Position[] marks, object drawArgs ) {
-            player.drawingInProgress = true;
-
             byte oldBlock = (byte)((ReplaceArgs)drawArgs).oldBlock,
                  replacementBlock = (byte)((ReplaceArgs)drawArgs).replacementBlock;
 
@@ -333,13 +323,10 @@ namespace fCraft {
                                   (Block)oldBlock,
                                   (Block)replacementBlock );
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
-            player.drawingInProgress = false;
         }
 
 
         internal static void DrawCuboid( Player player, Position[] marks, object tag ) {
-            player.drawingInProgress = true;
-
             byte drawBlock = (byte)tag;
             if( drawBlock == (byte)Block.Undefined ) {
                 drawBlock = (byte)player.lastUsedBlockType;
@@ -395,13 +382,10 @@ namespace fCraft {
                                   blocks,
                                   (Block)drawBlock );
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
-            player.drawingInProgress = false;
         }
 
 
         internal static void DrawCuboidHollow( Player player, Position[] marks, object tag ) {
-            player.drawingInProgress = true;
-
             byte drawBlock = (byte)tag;
             if( drawBlock == (byte)Block.Undefined ) {
                 drawBlock = (byte)player.lastUsedBlockType;
@@ -453,13 +437,10 @@ namespace fCraft {
                                   blocks,
                                   (Block)drawBlock );
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
-            player.drawingInProgress = false;
         }
 
 
         internal static void DrawEllipsoid( Player player, Position[] marks, object tag ) {
-            player.drawingInProgress = true;
-
             byte drawBlock = (byte)tag;
             if( drawBlock == (byte)Block.Undefined ) {
                 drawBlock = (byte)player.lastUsedBlockType;
@@ -533,7 +514,6 @@ namespace fCraft {
                     }
                 }
             }
-            player.drawingInProgress = false;
             player.Message( "Drawing {0} blocks... The map is now being updated.", blocks );
             Logger.Log( "{0} initiated drawing an ellipsoid containing {1} blocks of type {2}.", LogType.UserActivity,
                                   player.GetLogName(),
@@ -696,11 +676,6 @@ namespace fCraft {
         }
 
         internal static void DoPaste( Player player, Position[] marks, object tag ) {
-            if( player.drawingInProgress ) {
-                player.Message( "Another draw command is already in progress. Please wait." );
-                return;
-            }
-            player.drawingInProgress = true;
             CopyInformation info = player.copyInformation;
 
             PasteArgs args = (PasteArgs)tag;
@@ -743,7 +718,6 @@ namespace fCraft {
             }
 
             player.Message( "{0} blocks pasted. The map is now being updated...", blocks );
-            player.drawingInProgress = false;
 
             Logger.Log( "{0} pasted {1} blocks.", LogType.UserActivity,
                         player.GetLogName(),

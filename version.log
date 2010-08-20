@@ -7,6 +7,10 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Feature: AddWorldPopup preview image quality improved.
  Feature: Reason/memo is now shown publicly when someone gets banned, unbanned, or kicked.
  Feature: Teleport and Bring work across worlds - world permissions still apply.
+ Feature: Added 4 new Config keys: RequireBanReason, RequireClassChangeReason, AnnounceKickAndBanReasons, AnnounceClassChanges. By default "AnnounceKickAndBanReasons" and "AnnounceClassChanges" are enabled.
+ Feature: Added 5 new fields to PlayerDB: previousClass, classChangeReason, timesKicked, timesKickedOthers, timesBannedOthers.
+ Feature: Added a lot of new information to /info.
+ Fix: Trying to go over class draw limit no longer causes "Another drawing command is in progress" error.
  Fix: Mcc.MapUtility.TryLoading() now releases file handles as soon as possible (instead of waiting for GC).
  Fix: Map spawn should be parsed correctly for MCSharp/MCZall maps
  Fix: If a map doesn't start with a gzip header, it no longer has a chance to abort the whole load process.
@@ -18,10 +22,12 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fix: Fixed "player is already banned" message when doing /BanAll
  Fix: Fixed no public message appearing when doing /BanAll
  Fix: Fixed cuboid/ellipsoid/cuboidh logging blocktype code instead of blocktype name.
+ Fix: Improved the message that's shown when idle players are kicked.
  Fix: Documented ability to /tp to specific coordinates.
  Change: Updated to newest version of NBTag library.
  Change: Frozen players can no longer build/delete.
  Change: Removed public "undo" message, added log message instead.
+ Change: Removed AnnounceUnverifiedNames settings.
 435
  Feature: Added /copy, /paste, and /pasteonly commands. Rotation coming soon.
  Feature: Added CopyAndPaste permission, granted to op and owner by default.

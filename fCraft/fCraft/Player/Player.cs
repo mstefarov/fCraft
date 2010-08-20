@@ -450,7 +450,6 @@ namespace fCraft {
         #region Drawing, Selection, and Undo
 
         internal Queue<BlockUpdate> undoBuffer = new Queue<BlockUpdate>();
-        internal bool drawingInProgress;
 
         internal SelectionCallback selectionCallback;
         internal Queue<Position> selectionMarks = new Queue<Position>();
