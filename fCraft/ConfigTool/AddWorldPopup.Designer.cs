@@ -109,8 +109,10 @@
             this.nMaxDepth = new System.Windows.Forms.NumericUpDown();
             this.nMaxHeight = new System.Windows.Forms.NumericUpDown();
             this.gTerrainFeatures = new System.Windows.Forms.GroupBox();
+            this.lLoweredCorners = new System.Windows.Forms.Label();
+            this.nLoweredCorners = new System.Windows.Forms.NumericUpDown();
             this.cMidpoint = new System.Windows.Forms.ComboBox();
-            this.label3 = new System.Windows.Forms.Label();
+            this.lMidpoint = new System.Windows.Forms.Label();
             this.lRaisedCorners = new System.Windows.Forms.Label();
             this.nRaisedCorners = new System.Windows.Forms.NumericUpDown();
             this.lBiasDisplay = new System.Windows.Forms.Label();
@@ -155,6 +157,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMaxDepth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxHeight)).BeginInit();
             this.gTerrainFeatures.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nLoweredCorners)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRaisedCorners)).BeginInit();
             this.gHeightmapCreation.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.sDetailSize)).BeginInit();
@@ -374,7 +377,7 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.lPreview.AutoSize = true;
-            this.lPreview.Location = new System.Drawing.Point( 265, 568 );
+            this.lPreview.Location = new System.Drawing.Point( 269, 568 );
             this.lPreview.Name = "lPreview";
             this.lPreview.Size = new System.Drawing.Size( 54, 28 );
             this.lPreview.TabIndex = 16;
@@ -386,7 +389,7 @@
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bOK.Location = new System.Drawing.Point( 776, 614 );
+            this.bOK.Location = new System.Drawing.Point( 784, 614 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 25 );
             this.bOK.TabIndex = 7;
@@ -397,7 +400,7 @@
             // 
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.bCancel.Location = new System.Drawing.Point( 882, 614 );
+            this.bCancel.Location = new System.Drawing.Point( 890, 614 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 25 );
             this.bCancel.TabIndex = 8;
@@ -482,7 +485,7 @@
             // bPreviewPrev
             // 
             this.bPreviewPrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bPreviewPrev.Location = new System.Drawing.Point( 237, 571 );
+            this.bPreviewPrev.Location = new System.Drawing.Point( 241, 571 );
             this.bPreviewPrev.Name = "bPreviewPrev";
             this.bPreviewPrev.Size = new System.Drawing.Size( 22, 22 );
             this.bPreviewPrev.TabIndex = 0;
@@ -493,7 +496,7 @@
             // bPreviewNext
             // 
             this.bPreviewNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bPreviewNext.Location = new System.Drawing.Point( 325, 571 );
+            this.bPreviewNext.Location = new System.Drawing.Point( 329, 571 );
             this.bPreviewNext.Name = "bPreviewNext";
             this.bPreviewNext.Size = new System.Drawing.Size( 22, 22 );
             this.bPreviewNext.TabIndex = 1;
@@ -524,7 +527,7 @@
             this.progressBar} );
             this.statusStrip.Location = new System.Drawing.Point( 0, 642 );
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size( 994, 22 );
+            this.statusStrip.Size = new System.Drawing.Size( 1002, 22 );
             this.statusStrip.TabIndex = 29;
             this.statusStrip.Text = "statusStrip1";
             // 
@@ -565,7 +568,7 @@
             this.previewLayout.RowCount = 2;
             this.previewLayout.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Percent, 100F ) );
             this.previewLayout.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Absolute, 28F ) );
-            this.previewLayout.Size = new System.Drawing.Size( 585, 596 );
+            this.previewLayout.Size = new System.Drawing.Size( 593, 596 );
             this.previewLayout.TabIndex = 6;
             // 
             // preview
@@ -577,7 +580,7 @@
             this.previewLayout.SetColumnSpan( this.preview, 3 );
             this.preview.Location = new System.Drawing.Point( 3, 3 );
             this.preview.Name = "preview";
-            this.preview.Size = new System.Drawing.Size( 579, 562 );
+            this.preview.Size = new System.Drawing.Size( 587, 562 );
             this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.preview.TabIndex = 17;
             this.preview.TabStop = false;
@@ -1178,8 +1181,10 @@
             // 
             // gTerrainFeatures
             // 
+            this.gTerrainFeatures.Controls.Add( this.lLoweredCorners );
+            this.gTerrainFeatures.Controls.Add( this.nLoweredCorners );
             this.gTerrainFeatures.Controls.Add( this.cMidpoint );
-            this.gTerrainFeatures.Controls.Add( this.label3 );
+            this.gTerrainFeatures.Controls.Add( this.lMidpoint );
             this.gTerrainFeatures.Controls.Add( this.lRaisedCorners );
             this.gTerrainFeatures.Controls.Add( this.nRaisedCorners );
             this.gTerrainFeatures.Controls.Add( this.lBiasDisplay );
@@ -1192,6 +1197,29 @@
             this.gTerrainFeatures.TabStop = false;
             this.gTerrainFeatures.Text = "Feature Bias";
             this.gTerrainFeatures.Visible = false;
+            // 
+            // lLoweredCorners
+            // 
+            this.lLoweredCorners.AutoSize = true;
+            this.lLoweredCorners.Location = new System.Drawing.Point( 207, 57 );
+            this.lLoweredCorners.Name = "lLoweredCorners";
+            this.lLoweredCorners.Size = new System.Drawing.Size( 86, 13 );
+            this.lLoweredCorners.TabIndex = 66;
+            this.lLoweredCorners.Text = "Lowered corners";
+            // 
+            // nLoweredCorners
+            // 
+            this.nLoweredCorners.Enabled = false;
+            this.nLoweredCorners.Location = new System.Drawing.Point( 299, 55 );
+            this.nLoweredCorners.Maximum = new decimal( new int[] {
+            4,
+            0,
+            0,
+            0} );
+            this.nLoweredCorners.Name = "nLoweredCorners";
+            this.nLoweredCorners.Size = new System.Drawing.Size( 54, 20 );
+            this.nLoweredCorners.TabIndex = 65;
+            this.nLoweredCorners.ValueChanged += new System.EventHandler( this.nLoweredCorners_ValueChanged );
             // 
             // cMidpoint
             // 
@@ -1207,19 +1235,19 @@
             this.cMidpoint.Size = new System.Drawing.Size( 101, 21 );
             this.cMidpoint.TabIndex = 1;
             // 
-            // label3
+            // lMidpoint
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point( 6, 57 );
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size( 47, 13 );
-            this.label3.TabIndex = 64;
-            this.label3.Text = "Midpoint";
+            this.lMidpoint.AutoSize = true;
+            this.lMidpoint.Location = new System.Drawing.Point( 6, 57 );
+            this.lMidpoint.Name = "lMidpoint";
+            this.lMidpoint.Size = new System.Drawing.Size( 47, 13 );
+            this.lMidpoint.TabIndex = 64;
+            this.lMidpoint.Text = "Midpoint";
             // 
             // lRaisedCorners
             // 
             this.lRaisedCorners.AutoSize = true;
-            this.lRaisedCorners.Location = new System.Drawing.Point( 215, 57 );
+            this.lRaisedCorners.Location = new System.Drawing.Point( 215, 21 );
             this.lRaisedCorners.Name = "lRaisedCorners";
             this.lRaisedCorners.Size = new System.Drawing.Size( 78, 13 );
             this.lRaisedCorners.TabIndex = 61;
@@ -1228,7 +1256,7 @@
             // nRaisedCorners
             // 
             this.nRaisedCorners.Enabled = false;
-            this.nRaisedCorners.Location = new System.Drawing.Point( 299, 55 );
+            this.nRaisedCorners.Location = new System.Drawing.Point( 299, 19 );
             this.nRaisedCorners.Maximum = new decimal( new int[] {
             4,
             0,
@@ -1237,6 +1265,7 @@
             this.nRaisedCorners.Name = "nRaisedCorners";
             this.nRaisedCorners.Size = new System.Drawing.Size( 54, 20 );
             this.nRaisedCorners.TabIndex = 2;
+            this.nRaisedCorners.ValueChanged += new System.EventHandler( this.nRaisedCorners_ValueChanged );
             // 
             // lBiasDisplay
             // 
@@ -1466,7 +1495,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 994, 664 );
+            this.ClientSize = new System.Drawing.Size( 1002, 664 );
             this.Controls.Add( this.lMapFileOptions );
             this.Controls.Add( this.tabs );
             this.Controls.Add( this.bSavePreview );
@@ -1523,6 +1552,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMaxHeight)).EndInit();
             this.gTerrainFeatures.ResumeLayout( false );
             this.gTerrainFeatures.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nLoweredCorners)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRaisedCorners)).EndInit();
             this.gHeightmapCreation.ResumeLayout( false );
             this.gHeightmapCreation.PerformLayout();
@@ -1642,9 +1672,11 @@
         private System.Windows.Forms.Label lRaisedCorners;
         private System.Windows.Forms.NumericUpDown nRaisedCorners;
         private System.Windows.Forms.ComboBox cMidpoint;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lMidpoint;
         private System.Windows.Forms.TrackBar sDetailSize;
         private System.Windows.Forms.Label lDetailSizeDisplay;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label lLoweredCorners;
+        private System.Windows.Forms.NumericUpDown nLoweredCorners;
     }
 }

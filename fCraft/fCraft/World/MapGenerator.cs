@@ -32,7 +32,7 @@ namespace fCraft {
 
         public bool matchWaterCoverage;
         public float waterCoverage;
-        public int raisedCorners, midPoint;
+        public int raisedCorners, loweredCorners, midPoint;
         public float bias;
         public bool useBias;
 
@@ -42,6 +42,12 @@ namespace fCraft {
 
         public bool placeTrees;
         public int treeSpacingMin, treeSpacingMax, treeHeightMin, treeHeightMax;
+
+        public void Validate() {
+            if( raisedCorners < 0 || raisedCorners > 4 || loweredCorners < 0 || raisedCorners > 4 || raisedCorners + loweredCorners > 4 ) {
+                throw new ArgumentException( "raisedCorners and loweredCorners must be between 0 and 4." );
+            }
+        }
     }
 
 
@@ -51,6 +57,8 @@ namespace fCraft {
         Noise noise;
         float[,] heightmap, blendmap;
 
+        const int WaterCoveragePasses = 10;
+
         // theme-dependent vars
         Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock, bDeepWaterSurface, bCliff;
         int groundThickness = 5, seaFloorThickness = 3;
@@ -58,6 +66,7 @@ namespace fCraft {
 
         public MapGenerator( MapGeneratorArgs _args ) {
             args = _args;
+            args.Validate();
             rand = new Random( args.seed );
             noise = new Noise( rand );
             ApplyTheme( args.theme );
@@ -65,19 +74,32 @@ namespace fCraft {
 
 
         public void GenerateHeightmap() {
-            // TODO: bias
             heightmap = new float[args.dimX, args.dimY];
+
             if( args.useBias ) {
-                noise.PerlinNoiseMap( heightmap, Math.Min(1,args.maxDetailSize), args.minDetailSize, args.roughness );
-                Noise.Normalize( heightmap );
+                // generate details as a base
+                if( args.minDetailSize > 1 ) {
+                    noise.PerlinNoiseMap( heightmap, Math.Min( 1, args.maxDetailSize ), args.minDetailSize, args.roughness );
+                    Noise.Normalize( heightmap );
+                }
+
+                // set corners and midpoint
                 float[] corners = new float[4];
-                int c =0;
+                int c = 0;
                 for( int i = 0; i < args.raisedCorners; i++ ) {
                     corners[c++] = args.bias;
                 }
+                for( int i = 0; i < args.loweredCorners; i++ ) {
+                    corners[c++] = -args.bias;
+                }
                 float midpoint = (args.midPoint * args.bias);
+
+                // shuffle corners
                 corners = corners.OrderBy( r => rand.Next() ).ToArray();
+
+                // overlay the bias
                 Noise.ApplyBias( heightmap, corners[0], corners[1], corners[2], corners[3], midpoint );
+
             } else {
                 noise.PerlinNoiseMap( heightmap, args.maxDetailSize, args.minDetailSize, args.roughness );
             }
@@ -105,7 +127,7 @@ namespace fCraft {
             if( desiredWaterCoverage == 0 ) return 0;
             if( desiredWaterCoverage == 1 ) return 1;
             float waterLevel = 0.5f;
-            for( int i = 0; i < 8; i++ ) {
+            for( int i = 0; i < WaterCoveragePasses; i++ ) {
                 if( CalculateWaterCoverage( heightmap, waterLevel ) > desiredWaterCoverage ) {
                     waterLevel = waterLevel - 1 / (float)(4 << i);
                 } else {

@@ -57,7 +57,7 @@ namespace fCraft {
 
         public static void ResetWorkingDirectory() {
             // reset working directory to same directory as the executable
-            Directory.SetCurrentDirectory( Path.GetDirectoryName( Process.GetCurrentProcess().MainModule.FileName ) );
+            Directory.SetCurrentDirectory( new FileInfo( Process.GetCurrentProcess().MainModule.FileName ).Directory.FullName );
         }
 
         public static bool Init() {
