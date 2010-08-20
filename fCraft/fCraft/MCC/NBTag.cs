@@ -41,8 +41,7 @@ using System.Collections.Generic;
 
 
 namespace Mcc {
-
-    enum NBTType : byte {
+    public enum NBTType : byte {
         End,
         Byte,
         Short,
@@ -57,13 +56,13 @@ namespace Mcc {
     }
 
 
-    class NBTag : IEnumerable<NBTag> {
+    public class NBTag : IEnumerable<NBTag> {
         public NBTType Type { get; set; }
         public string Name { get; set; }
         public object Payload { get; set; }
         public NBTag Parent { get; set; }
 
-#region Constructors
+        #region Constructors
         public NBTag() { }
 
         public NBTag( NBTType _type, NBTag _parent ) {
@@ -77,9 +76,95 @@ namespace Mcc {
             Payload = _payload;
             Parent = _parent;
         }
-#endregion
 
-#region Loading
+        #endregion
+
+        #region Shorthand Contructors
+        public NBTag Append( NBTag tag ) {
+            if( this is NBTCompound ) {
+                tag.Parent = this;
+                ((NBTCompound)this)[tag.Name] = tag;
+                return tag;
+            } else {
+                return null;
+            }
+        }
+
+        public NBTag Append( string name, byte value ) {
+            return Append( new NBTag( NBTType.Byte, name, value, this ) );
+        }
+        public NBTag Append( string name, short value ) {
+            return Append( new NBTag( NBTType.Short, name, value, this ) );
+        }
+        public NBTag Append( string name, int value ) {
+            return Append( new NBTag( NBTType.Int, name, value, this ) );
+        }
+        public NBTag Append( string name, long value ) {
+            return Append( new NBTag( NBTType.Long, name, value, this ) );
+        }
+        public NBTag Append( string name, float value ) {
+            return Append( new NBTag( NBTType.Float, name, value, this ) );
+        }
+        public NBTag Append( string name, double value ) {
+            return Append( new NBTag( NBTType.Double, name, value, this ) );
+        }
+        public NBTag Append( string name, byte[] value ) {
+            return Append( new NBTag( NBTType.Bytes, name, value, this ) );
+        }
+        public NBTag Append( string name, string value ) {
+            return Append( new NBTag( NBTType.String, name, value, this ) );
+        }
+        public NBTag Append( string name, params NBTag[] tags ) {
+            NBTCompound compound = new NBTCompound();
+            compound.Name = name;
+            foreach( NBTag tag in tags ) {
+                compound.Tags.Add( tag.Name, tag );
+            }
+            return Append( compound );
+        }
+        public NBTag Append( params NBTag[] tags ) {
+            foreach( NBTag tag in tags ) {
+                Append( tag );
+            }
+            return this;
+        }
+        #endregion
+
+        #region Child Tag Manipulation
+        public bool Contains( string name ) {
+            if( this is NBTCompound ) {
+                return ((NBTCompound)this).Tags.ContainsKey( name );
+            } else {
+                return false;
+            }
+        }
+        public NBTag Remove( string name ) {
+            if( this is NBTCompound ) {
+                NBTag tag = ((NBTCompound)this)[name];
+                ((NBTCompound)this).Tags.Remove( name );
+                return tag;
+            } else {
+                throw new NotSupportedException( "Can only Remove() from compound tags." );
+            }
+        }
+        public NBTag Remove() {
+            if( this.Parent != null && this.Parent is NBTCompound ) {
+                ((NBTCompound)this.Parent).Remove( this.Name );
+                return this;
+            } else {
+                throw new NotSupportedException( "Cannot Remove() - no parent tag." );
+            }
+        }
+        #endregion
+
+        #region Loading
+
+        public static NBTCompound ReadFile( string fileName ) {
+            using( FileStream fs = File.OpenRead( fileName ) ) {
+                return ReadStream( fs );
+            }
+        }
+
         public static NBTCompound ReadStream( Stream stream ) {
             BinaryReader reader = new BinaryReader( stream );
             return (NBTCompound)ReadTag( reader, (NBTType)reader.ReadByte(), null, null );
@@ -94,7 +179,7 @@ namespace Mcc {
                     return new NBTag( NBTType.End, _parent );
 
                 case NBTType.Byte:
-                    return new NBTag( NBTType.Byte, name, reader.ReadSByte(), _parent );
+                    return new NBTag( NBTType.Byte, name, reader.ReadByte(), _parent );
 
                 case NBTType.Short:
                     return new NBTag( NBTType.Short, name, IPAddress.NetworkToHostOrder( reader.ReadInt16() ), _parent );
@@ -117,6 +202,7 @@ namespace Mcc {
 
                 case NBTType.String:
                     return new NBTag( NBTType.String, name, (object)ReadString( reader ), _parent );
+
 
                 case NBTType.List:
                     NBTList list = new NBTList();
@@ -191,17 +277,30 @@ namespace Mcc {
             }
             return output;
         }
-#endregion
+        #endregion
 
-#region Saving
+        #region Saving
+        public void WriteTag( string fileName ) {
+            using( FileStream fs = File.OpenWrite( fileName ) ) {
+                WriteTag( fs );
+            }
+        }
+        public void WriteTag( Stream stream ) {
+            using( BinaryWriter writer = new BinaryWriter( stream ) ) {
+                WriteTag( writer, true );
+            }
+        }
         public void WriteTag( BinaryWriter writer ) {
-            writer.Write( (byte)Type );
-            if( Name.Length > 0 ) WriteString( Name, writer );
+            WriteTag( writer, true );
+        }
+        public void WriteTag( BinaryWriter writer, bool writeType ) {
+            if( writeType ) writer.Write( (byte)Type );
+            if( Name != "" ) WriteString( Name, writer );
             switch( Type ) {
                 case NBTType.End: return;
 
                 case NBTType.Byte:
-                    writer.Write( (sbyte)Payload );
+                    writer.Write( (byte)Payload );
                     return;
 
                 case NBTType.Short:
@@ -233,13 +332,14 @@ namespace Mcc {
                     WriteString( (string)Payload, writer );
                     return;
 
+
                 case NBTType.List:
                     NBTList list = (NBTList)this;
                     writer.Write( (byte)list.ListType );
                     writer.Write( IPAddress.HostToNetworkOrder( list.Tags.Length ) );
 
                     for( int i = 0; i < list.Tags.Length; i++ ) {
-                        list.Tags[i].WriteTag( writer );
+                        list.Tags[i].WriteTag( writer, false );
                     }
                     return;
 
@@ -247,6 +347,7 @@ namespace Mcc {
                     foreach( NBTag tag in this ) {
                         tag.WriteTag( writer );
                     }
+                    writer.Write( (byte)NBTType.End );
                     return;
 
                 default:
@@ -259,20 +360,40 @@ namespace Mcc {
             writer.Write( IPAddress.NetworkToHostOrder( (short)stringBytes.Length ) );
             writer.Write( stringBytes );
         }
-#endregion
+        #endregion
 
-#region Accessors
+        #region Accessors
         public byte GetByte() { return (byte)Payload; }
         public short GetShort() { return (short)Payload; }
         public int GetInt() { return (int)Payload; }
         public long GetLong() { return (long)Payload; }
-        public string GetString() { return (string)Payload; }
         public float GetFloat() { return (float)Payload; }
         public double GetDouble() { return (double)Payload; }
         public byte[] GetBytes() { return (byte[])Payload; }
-#endregion
+        public string GetString() { return (string)Payload; }
 
-#region Indexers
+        public void Set( object _payload ) { Payload = _payload; }
+
+        object GetChild( string name, object defaultValue ) {
+            if( Contains( name ) ) {
+                return this[name].Payload;
+            } else {
+                return defaultValue;
+            }
+        }
+
+        public byte Get( string name, byte defaultValue ) { return (byte)GetChild( name, defaultValue ); }
+        public short Get( string name, short defaultValue ) { return (short)GetChild( name, defaultValue ); }
+        public int Get( string name, int defaultValue ) { return (int)GetChild( name, defaultValue ); }
+        public long Get( string name, long defaultValue ) { return (long)GetChild( name, defaultValue ); }
+        public float Get( string name, float defaultValue ) { return (float)GetChild( name, defaultValue ); }
+        public double Get( string name, double defaultValue ) { return (double)GetChild( name, defaultValue ); }
+        public byte[] Get( string name, byte[] defaultValue ) { return (byte[])GetChild( name, defaultValue ); }
+        public string Get( string name, string defaultValue ) { return (string)GetChild( name, defaultValue ); }
+
+        #endregion
+
+        #region Indexers
         public NBTag this[int Index] {
             get {
                 if( this is NBTList ) {
@@ -302,9 +423,9 @@ namespace Mcc {
                 }
             }
         }
-#endregion
+        #endregion
 
-#region Enumerators
+        #region Enumerators
         public IEnumerator<NBTag> GetEnumerator() {
             return new NBTEnumerator( this );
         }
@@ -313,8 +434,7 @@ namespace Mcc {
             return new NBTEnumerator( this );
         }
 
-
-        public sealed class NBTEnumerator : IEnumerator<NBTag> {
+        public class NBTEnumerator : IEnumerator<NBTag> {
             NBTag[] tags;
             int index = -1;
 
@@ -341,9 +461,9 @@ namespace Mcc {
                 }
             }
 
-            public bool MoveNext(){
-                if(index<tags.Length) index++;
-                return index<tags.Length;
+            public bool MoveNext() {
+                if( index < tags.Length ) index++;
+                return index < tags.Length;
             }
 
             public void Reset() {
@@ -352,17 +472,43 @@ namespace Mcc {
 
             public void Dispose() { }
         }
-#endregion
+        #endregion
     }
 
 
-    sealed class NBTList : NBTag {
+    public class NBTList : NBTag {
+        public NBTList() {
+            Type = NBTType.List;
+        }
+        public NBTList( string _name, NBTType _type, int count ) {
+            Name = _name;
+            Type = NBTType.List;
+            ListType = _type;
+            Tags = new NBTag[count];
+        }
+        public NBTList( string _name, NBTType _type, List<object> _payloads ) {
+            Name = _name;
+            Type = NBTType.List;
+            ListType = _type;
+            Tags = new NBTag[_payloads.Count];
+            int i = 0;
+            foreach( object payload in _payloads ) {
+                Tags[i++] = new NBTag( ListType, null, payload, this );
+            }
+        }
         public NBTag[] Tags;
         public NBTType ListType;
     }
 
 
-    sealed class NBTCompound : NBTag {
+    public class NBTCompound : NBTag {
+        public NBTCompound() {
+            Type = NBTType.Compound;
+        }
+        public NBTCompound( string _name ) {
+            Name = _name;
+            Type = NBTType.Compound;
+        }
         public Dictionary<string, NBTag> Tags = new Dictionary<string, NBTag>();
     }
 }

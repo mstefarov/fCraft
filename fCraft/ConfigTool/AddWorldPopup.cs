@@ -272,7 +272,8 @@ namespace ConfigTool {
 
                     bias = sBias.Value / 100f,
                     midPoint = cMidpoint.SelectedIndex - 1,
-                    raisedCorners = (int)nRaisedCorners.Value
+                    raisedCorners = (int)nRaisedCorners.Value,
+                    loweredCorners = (int)nLoweredCorners.Value
                 };
             }
 
@@ -418,6 +419,7 @@ namespace ConfigTool {
             bool useBias = (sBias.Value != 0);
 
             nRaisedCorners.Enabled = useBias;
+            nLoweredCorners.Enabled = useBias;
             cMidpoint.Enabled = useBias;
         }
 
@@ -541,6 +543,14 @@ Dimensions: {4}×{5}×{6}
                     }
                 }
             }
+        }
+
+        private void nRaisedCorners_ValueChanged( object sender, EventArgs e ) {
+            nLoweredCorners.Value = Math.Min( 4 - nRaisedCorners.Value, nLoweredCorners.Value );
+        }
+
+        private void nLoweredCorners_ValueChanged( object sender, EventArgs e ) {
+            nRaisedCorners.Value = Math.Min( 4 - nLoweredCorners.Value, nRaisedCorners.Value );
         }
     }
 }
