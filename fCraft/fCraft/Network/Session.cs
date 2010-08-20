@@ -27,6 +27,7 @@ namespace fCraft {
         PacketWriter writer;
         public ConcurrentQueue<Packet> outputQueue, priorityOutputQueue;
         World forcedWorldToJoin;
+        Position? postJoinPosition;
 
         int fullPositionUpdateCounter;
         const int fullPositionUpdateInterval = 10;
@@ -399,9 +400,10 @@ namespace fCraft {
             while( outputQueue.Dequeue( ref temp ) ) { }
         }
 
-        public void JoinWorld( World newWorld ) {
+        public void JoinWorld( World newWorld, Position? position ) {
             lock( joinWorldLock ) {
                 forcedWorldToJoin = newWorld;
+                postJoinPosition = position;
             }
         }
 
@@ -493,10 +495,16 @@ namespace fCraft {
             isBetweenWorlds = false;
 
             // Send new spawn
-            player.pos = newWorld.map.spawn;
-            Thread.Sleep( 100 );
-            writer.WriteAddEntity( 255, player, player.pos );
-            writer.WriteTeleport( 255, player.pos );
+            Position spawn;
+            if( postJoinPosition != null ) {
+                spawn = (Position)postJoinPosition;
+                postJoinPosition = null;
+            } else {
+                spawn = newWorld.map.spawn;
+            }
+            player.pos = spawn;
+            writer.WriteAddEntity( 255, player, spawn );
+            writer.WriteTeleport( 255, spawn );
 
             // Send player list
             newWorld.SendPlayerList( player );

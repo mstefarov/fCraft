@@ -250,13 +250,18 @@ namespace fCraft {
 
             lastUsedBlockType = type;
 
-            if( CheckBlockSpam() ) return true;
+            if( isFrozen ) {
+                SendBlockNow( x, y, h );
+                return false;
+            }
 
             if( world.isLocked ) {
                 SendBlockNow( x, y, h );
                 Message( "This map is currently locked (read-only)." );
                 return false;
             }
+
+            if( CheckBlockSpam() ) return true;
 
             // check if player is too far away to legitimately place a block
             if( Math.Abs( x * 32 - pos.x ) > maxRange ||

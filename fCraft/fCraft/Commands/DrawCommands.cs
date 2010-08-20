@@ -262,7 +262,10 @@ namespace fCraft {
                 if( player.drawingInProgress ) {
                     player.Message( "Cannot undo a drawing-in-progress. Wait for it to finish." );
                 } else {
-                    player.world.SendToAll( Color.Sys + player.nick + " initiated /undo. " + player.undoBuffer.Count + " blocks to replace...", null );
+                    // no need to set player.drawingInProgress here because this is done on the user thread
+                    Logger.Log( "Player {0} initiated /undo affecting {1} blocks.", LogType.UserActivity,
+                                player.GetLogName(),
+                                player.undoBuffer.Count );
                     while( player.undoBuffer.Count > 0 ) {
                         player.world.map.QueueUpdate( player.undoBuffer.Dequeue() );
                     }
@@ -390,7 +393,7 @@ namespace fCraft {
             Logger.Log( "{0} initiated drawing a cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
                                   player.GetLogName(),
                                   blocks,
-                                  drawBlock.ToString() );
+                                  (Block)drawBlock );
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
             player.drawingInProgress = false;
         }
@@ -448,7 +451,7 @@ namespace fCraft {
             Logger.Log( "{0} initiated drawing a hollow cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
                                   player.GetLogName(),
                                   blocks,
-                                  ((Block)drawBlock).ToString() );
+                                  (Block)drawBlock );
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
             player.drawingInProgress = false;
         }
@@ -535,7 +538,7 @@ namespace fCraft {
             Logger.Log( "{0} initiated drawing an ellipsoid containing {1} blocks of type {2}.", LogType.UserActivity,
                                   player.GetLogName(),
                                   blocks,
-                                  drawBlock.ToString() );
+                                  (Block)drawBlock );
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 

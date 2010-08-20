@@ -445,7 +445,7 @@ namespace fCraft {
                     Player[] worldPlayerList = worldToDelete.playerList;
                     worldToDelete.SendToAll( Color.Sys + "You have been moved to the main world." );
                     foreach( Player player in worldPlayerList ) {
-                        player.session.JoinWorld( mainWorld );
+                        player.session.JoinWorld( mainWorld, null );
                     }
                     lock( taskListLock ) {
                         tasks.Remove( worldToDelete.updateTaskId );
@@ -765,6 +765,7 @@ namespace fCraft {
 
         #region Utilities
 
+        static Queue<string> pastSalts = new Queue<string>();
         static void GenerateSalt() {
             // generate random salt
             Random rand = new Random();

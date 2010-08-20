@@ -66,10 +66,10 @@ namespace fCraft {
         static CommandDescriptor cdNick = new CommandDescriptor {
             name = "nick",
             consoleSafe = true,
-            permissions = new Permission[]{ Permission.ChangeName },
+            permissions = new Permission[] { Permission.ChangeName },
             usage = "/nick [Nickname]",
-            help = "Allows temporarily changing your displayed name. "+
-                   "The new name is shown in chat and player list. "+
+            help = "Allows temporarily changing your displayed name. " +
+                   "The new name is shown in chat and player list. " +
                    "The skin also changes to match the new name. " +
                    "To reset the name back to normal, write &H/nick&S without any parameters.",
             handler = Nick
@@ -101,10 +101,10 @@ namespace fCraft {
         static CommandDescriptor cdRoll = new CommandDescriptor {
             name = "roll",
             consoleSafe = true,
-            help = "Gives random number between 1 and 100.&N"+
-                   "&H/roll MaxNumber&N"+
-                   "Gives number between 1 and max.&N"+
-                   "&H/roll MinNumber MaxNumber&N"+
+            help = "Gives random number between 1 and 100.&N" +
+                   "&H/roll MaxNumber&N" +
+                   "Gives number between 1 and max.&N" +
+                   "&H/roll MinNumber MaxNumber&N" +
                    "Gives number between min and max.",
             handler = Roll
         };
@@ -135,7 +135,7 @@ namespace fCraft {
             consoleSafe = true,
             permissions = new Permission[] { Permission.Say },
             usage = "/say Message",
-            help = "Shows a message in special color, without the player name prefix. "+
+            help = "Shows a message in special color, without the player name prefix. " +
                    "Can be used for making announcements.",
             handler = Say
         };
@@ -160,7 +160,7 @@ namespace fCraft {
             consoleSafe = true,
             permissions = new Permission[] { Permission.Ban },
             usage = "/ban PlayerName [Memo]",
-            help = "Bans a specified player by name. Note: Does NOT ban IP. "+
+            help = "Bans a specified player by name. Note: Does NOT ban IP. " +
                    "Any text after the player name will be saved as a memo. ",
             handler = Ban
         };
@@ -176,7 +176,7 @@ namespace fCraft {
             consoleSafe = true,
             permissions = new Permission[] { Permission.Ban, Permission.BanIP },
             usage = "/banip PlayerName|IPAddress [Memo]",
-            help = "Bans the player's IP. If player is not online, last known IP associated with the name is used. "+
+            help = "Bans the player's IP. If player is not online, last known IP associated with the name is used. " +
                    "You can also type in the IP address directly. Note: does NOT ban the player name, just the IP." +
                    "Any text after PlayerName/IP will be saved as a memo. ",
             handler = BanIP
@@ -193,7 +193,7 @@ namespace fCraft {
             consoleSafe = true,
             permissions = new Permission[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
             usage = "/banall PlayerName|IPAddress [Memo]",
-            help = "Bans the player's name, IP, and all other names associated with the IP. "+
+            help = "Bans the player's name, IP, and all other names associated with the IP. " +
                    "If player is not online, last known IP associated with the name is used. " +
                    "You can also type in the IP address directly. " +
                    "Any text after PlayerName/IP will be saved as a memo. ",
@@ -228,7 +228,7 @@ namespace fCraft {
             permissions = new Permission[] { Permission.Ban, Permission.BanIP },
             usage = "/unbanip PlayerName|IPaddress [Memo]",
             help = "Removes ban for a specified player's last known IP. Does NOT remove the name bans. " +
-                   "You can also type in the IP address directly. "+
+                   "You can also type in the IP address directly. " +
                    "Any text after the player name will be saved as a memo. ",
             handler = UnbanIP
         };
@@ -382,7 +382,7 @@ namespace fCraft {
                         player.Message( otherInfo.name + " matched the IP and was also banned." );
                     }
                     other = player.world.FindPlayerExact( otherInfo.name );
-                    Server.SendToAll( Color.Red + otherInfo.name + " was banned by " + player.nick+" (BanAll)" );
+                    Server.SendToAll( Color.Red + otherInfo.name + " was banned by " + player.nick + " (BanAll)" );
                     if( other != null ) {
                         other.session.Kick( "Your IP was just banned by " + player.GetLogName() );
                     }
@@ -394,7 +394,7 @@ namespace fCraft {
 
         static CommandDescriptor cdKick = new CommandDescriptor {
             name = "kick",
-            aliases = new string[]{"k"},
+            aliases = new string[] { "k" },
             consoleSafe = true,
             permissions = new Permission[] { Permission.Kick },
             usage = "/kick PlayerName [Message]",
@@ -455,7 +455,7 @@ namespace fCraft {
             }
 
             // Parse class name
-             PlayerClass newClass = ClassList.FindClass( newClassName );
+            PlayerClass newClass = ClassList.FindClass( newClassName );
             if( newClass == null ) {
                 player.Message( "Unrecognized player class: " + newClassName );
                 return;
@@ -465,13 +465,13 @@ namespace fCraft {
             PlayerInfo info;
             Player target = Server.FindPlayerExact( name );
             if( target == null ) {
-                info = PlayerDB.FindPlayerInfoExact(name);
-            }else{
+                info = PlayerDB.FindPlayerInfoExact( name );
+            } else {
                 info = target.info;
             }
 
-            if( info==null ){
-                info = PlayerDB.AddFakeEntry(name);
+            if( info == null ) {
+                info = PlayerDB.AddFakeEntry( name );
                 player.Message( "Note: \"" + name + "\" was not found in PlayerDB." );
             }
 
@@ -553,44 +553,59 @@ namespace fCraft {
 
         static CommandDescriptor cdTP = new CommandDescriptor {
             name = "tp",
-            aliases = new string[]{"spawn"},
-            permissions = new Permission[]{Permission.Teleport},
-            usage = "/tp [PlayerName]",
-            help = "Teleports you to a specified player's location. If no name is given, teleports you to map spawn.",
+            aliases = new string[] { "spawn" },
+            permissions = new Permission[] { Permission.Teleport },
+            usage = "/tp [PlayerName]&S or &H/tp X Y Z",
+            help = "Teleports you to a specified player's location. " +
+                   "If no name is given, teleports you to map spawn. " +
+                   "If coordinates are given, teleports to that location.",
             handler = TP
         };
 
         internal static void TP( Player player, Command cmd ) {
-                string name = cmd.Next();
-                if( name == null ) {
-                    player.Send( PacketWriter.MakeTeleport( 255, player.world.map.spawn ) );
-                } else {
-                    Player target = player.world.FindPlayer( name );
-                    if( target != null ) {
-                        Position pos = target.pos;
-                        pos.x += 1;
-                        pos.y += 1;
-                        pos.h += 1;
-                        player.Send( PacketWriter.MakeTeleport( 255, pos ) );
-                    } else if( cmd.Next() == null ) {
+            string name = cmd.Next();
+            if( name == null ) {
+                player.Send( PacketWriter.MakeTeleport( 255, player.world.map.spawn ) );
+            } else {
+                Player target = player.world.FindPlayer( name );
+                if( target != null ) {
+                    Position pos = target.pos; // fix for off-by-1 error in the way teleports are handled by the client
+                    pos.x += 1;
+                    pos.y += 1;
+                    pos.h += 1;
+                    player.Send( PacketWriter.MakeTeleport( 255, pos ) );
+                } else if( cmd.Next() == null ) {
+                    target = Server.FindPlayer( name );
+                    if( target == null ) {
                         player.NoPlayerMessage( name );
                     } else {
-                        cmd.Rewind();
-                        int x, y, h;
-                        if( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out h ) ) {
-                            if( x < 0 || x > player.world.map.widthX ||
-                                 y < 0 || y > player.world.map.widthY ||
-                                 y < 0 || y > player.world.map.height ) {
-                                player.Message( "Specified coordinates are outside the map!" );
-                            } else {
-                                player.pos.Set( x * 32 + 16, y * 32 + 16, h * 32 + 16, player.pos.r, player.pos.l );
-                                player.Send( PacketWriter.MakeTeleport( 255, player.pos ) );
-                            }
+                        if( player.CanJoin( target.world ) ) {
+                            player.session.JoinWorld( target.world, target.pos );
                         } else {
-                            player.Message( "See " + Color.Help + "/help tp" + Color.Sys + " for information on using /tp" );
+                            player.Message( "Cannot teleport to {0} because world \"{1}\"requires {2}{3}+&S to join.",
+                                            target.name,
+                                            target.world.name,
+                                            target.world.classAccess.color,
+                                            target.world.classAccess.name );
                         }
                     }
+                } else {
+                    cmd.Rewind();
+                    int x, y, h;
+                    if( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out h ) ) {
+                        if( x < 0 || x > player.world.map.widthX ||
+                             y < 0 || y > player.world.map.widthY ||
+                             y < 0 || y > player.world.map.height ) {
+                            player.Message( "Specified coordinates are outside the map!" );
+                        } else {
+                            player.pos.Set( x * 32 + 16, y * 32 + 16, h * 32 + 16, player.pos.r, player.pos.l );
+                            player.Send( PacketWriter.MakeTeleport( 255, player.pos ) );
+                        }
+                    } else {
+                        cdTP.PrintUsage( player );
+                    }
                 }
+            }
         }
 
 
@@ -604,17 +619,29 @@ namespace fCraft {
         };
 
         internal static void Bring( Player player, Command cmd ) {
-                string name = cmd.Next();
-                Player target = player.world.FindPlayer( name );
-                if( target != null ) {
-                    Position pos = player.pos;
-                    pos.x += 1;
-                    pos.y += 1;
-                    pos.h += 1;
-                    target.Send( PacketWriter.MakeTeleport( 255, pos ) );
-                } else {
+            string name = cmd.Next();
+            Player target = player.world.FindPlayer( name );
+            if( target != null ) {
+                Position pos = player.pos;
+                pos.x += 1;
+                pos.y += 1;
+                pos.h += 1;
+                target.Send( PacketWriter.MakeTeleport( 255, pos ) );
+            } else {
+                target = Server.FindPlayer( name );
+                if( target == null ) {
                     player.NoPlayerMessage( name );
+                } else {
+                    if( target.CanJoin( player.world ) ) {
+                        target.session.JoinWorld( player.world, player.pos );
+                    } else {
+                        player.Message( "Cannot bring \"{0}\" because this world requires {0}{1}+&S to join.",
+                                        target.name,
+                                        player.world.classAccess.color,
+                                        player.world.classAccess.name );
+                    }
                 }
+            }
         }
 
 
@@ -624,32 +651,32 @@ namespace fCraft {
             consoleSafe = true,
             permissions = new Permission[] { Permission.Freeze },
             usage = "/freeze PlayerName",
-            help = "Freezes the specified player in place. "+
-                   "This is usually effective, but not hacking-proof. "+
+            help = "Freezes the specified player in place. " +
+                   "This is usually effective, but not hacking-proof. " +
                    "To release the player, use &H/unfreeze PlayerName",
             handler = Freeze
         };
 
         internal static void Freeze( Player player, Command cmd ) {
-                string name = cmd.Next();
-                Player target = Server.FindPlayer( name );
-                if( target != null ) {
-                    if( !target.isFrozen ) {
-                        Server.SendToAll( Color.Sys + target.nick + " has been frozen by " + player.nick );
-                        target.isFrozen = true;
-                    } else {
-                        player.Message( target.GetLogName() + " is already frozen." );
-                    }
+            string name = cmd.Next();
+            Player target = Server.FindPlayer( name );
+            if( target != null ) {
+                if( !target.isFrozen ) {
+                    Server.SendToAll( Color.Sys + target.nick + " has been frozen by " + player.nick );
+                    target.isFrozen = true;
                 } else {
-                    player.NoPlayerMessage( name );
+                    player.Message( target.GetLogName() + " is already frozen." );
                 }
+            } else {
+                player.NoPlayerMessage( name );
+            }
         }
 
 
 
         static CommandDescriptor cdUnfreeze = new CommandDescriptor {
             name = "unfreeze",
-            consoleSafe=true,
+            consoleSafe = true,
             permissions = new Permission[] { Permission.Freeze },
             usage = "/unfreeze PlayerName",
             help = "Releases the player from a frozen state. See &H/freeze&S for more information.",
@@ -657,18 +684,18 @@ namespace fCraft {
         };
 
         internal static void Unfreeze( Player player, Command cmd ) {
-                string name = cmd.Next();
-                Player target = Server.FindPlayer( name );
-                if( target != null ) {
-                    if( target.isFrozen ) {
-                        Server.SendToAll( Color.Sys + target.nick + " is no longer frozen." );
-                        target.isFrozen = false;
-                    } else {
-                        player.Message( target.GetLogName() + " is currently not frozen." );
-                    }
+            string name = cmd.Next();
+            Player target = Server.FindPlayer( name );
+            if( target != null ) {
+                if( target.isFrozen ) {
+                    Server.SendToAll( Color.Sys + target.nick + " is no longer frozen." );
+                    target.isFrozen = false;
                 } else {
-                    player.NoPlayerMessage( name );
+                    player.Message( target.GetLogName() + " is currently not frozen." );
                 }
+            } else {
+                player.NoPlayerMessage( name );
+            }
         }
 
 
@@ -676,9 +703,9 @@ namespace fCraft {
         static CommandDescriptor cdHide = new CommandDescriptor {
             name = "hide",
             permissions = new Permission[] { Permission.Hide },
-            help = "Enables invisible mode. It looks to other players like you left the server, "+
-                   "but you can still do anything - chat, build, delete, type commands - as usual. "+
-                   "Great way to spy on griefers and scare newbies. "+
+            help = "Enables invisible mode. It looks to other players like you left the server, " +
+                   "but you can still do anything - chat, build, delete, type commands - as usual. " +
+                   "Great way to spy on griefers and scare newbies. " +
                    "Call &H/unhide&S to reveal yourself.",
             handler = Hide
         };
@@ -701,7 +728,7 @@ namespace fCraft {
             name = "unhide",
             permissions = new Permission[] { Permission.Hide },
             usage = "/unhide PlayerName",
-            help = "Disables the &H/hide&S invisible mode. "+
+            help = "Disables the &H/hide&S invisible mode. " +
                    "It looks to other players like you just joined the server.",
             handler = Unhide
         };
@@ -709,7 +736,7 @@ namespace fCraft {
         internal static void Unhide( Player player, Command cmd ) {
             if( player.Can( Permission.Hide ) ) {
                 if( player.isHidden ) {
-                    player.Message( Color.Gray+ "You are no longer hidden." );
+                    player.Message( Color.Gray + "You are no longer hidden." );
                     if( player.nick != player.name ) {
                         player.nick = player.name;
                         player.Message( "For security reasons, your nick was reset." );
