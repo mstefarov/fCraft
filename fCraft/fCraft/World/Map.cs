@@ -463,24 +463,33 @@ namespace fCraft {
             return output;
         }
 
-        // returns true if ANY zone intersects
-        public bool CheckZones( short x, short y, short h, Player player, ref bool zoneOverride, ref string zoneName ) {
-            bool found = false;
+
+        public ZoneOverride CheckZones( int x, int y, int h, Player player ) {
+            ZoneOverride result = ZoneOverride.None;
             lock( zoneLock ) {
                 foreach( Zone zone in zones.Values ) {
-                    if( zone.Contains( x, y, h ) ) {
-                        found = true;
-                        if( !zone.CanBuild( player ) ) {
-                            zoneOverride = false;
-                            zoneName = zone.name;
-                            return true;
+                    if( zone.bounds.Contains( x, y, h ) ) {
+                        if( zone.CanBuild( player ) ) {
+                            result = ZoneOverride.Allow;
                         } else {
-                            zoneOverride = true;
+                            return ZoneOverride.Deny;
                         }
                     }
                 }
             }
-            return found;
+            return result;
+        }
+
+
+        public Zone FindDeniedZone( int x, int y, int h, Player player ) {
+            lock( zoneLock ) {
+                foreach( Zone zone in zones.Values ) {
+                    if( zone.bounds.Contains( x, y, h ) && !zone.CanBuild( player ) ) {
+                        return zone;
+                    }
+                }
+            }
+            return null;
         }
 
 
@@ -489,7 +498,7 @@ namespace fCraft {
             bool found = false;
             lock( zoneLock ) {
                 foreach( Zone zone in zones.Values ) {
-                    if( zone.Contains( x, y, h ) ) {
+                    if( zone.bounds.Contains( x, y, h ) ) {
                         found = true;
                         if( zone.CanBuild( player ) ) {
                             allowed.Add( zone );

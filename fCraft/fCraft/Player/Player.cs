@@ -250,7 +250,11 @@ namespace fCraft {
 
             lastUsedBlockType = type;
 
-            if( isFrozen ) {
+            // check if player is frozen or too far away to legitimately place a block
+            if( isFrozen ||
+                Math.Abs( x * 32 - pos.x ) > maxRange ||
+                Math.Abs( y * 32 - pos.y ) > maxRange ||
+                Math.Abs( h * 32 - pos.h ) > maxRange ) {
                 SendBlockNow( x, y, h );
                 return false;
             }
@@ -262,27 +266,6 @@ namespace fCraft {
             }
 
             if( CheckBlockSpam() ) return true;
-
-            // check if player is too far away to legitimately place a block
-            if( Math.Abs( x * 32 - pos.x ) > maxRange ||
-                Math.Abs( y * 32 - pos.y ) > maxRange ||
-                Math.Abs( h * 32 - pos.h ) > maxRange ) {
-                SendBlockNow( x, y, h );
-                return false;
-            }
-
-            // check zone permissions
-            bool zoneOverride = false;
-            string zoneName = "";
-            if( selectionMarksExpected != 1 ) {
-                if( world.map.CheckZones( x, y, h, this, ref zoneOverride, ref zoneName ) ) {
-                    if( !zoneOverride ) {
-                        SendBlockNow( x, y, h );
-                        Message( "You are not allowed to build in \"{0}\" zone.", zoneName );
-                        return false;
-                    }
-                }
-            }
 
             // selection handling
             if( selectionMarksExpected > 0 ) {
@@ -300,65 +283,66 @@ namespace fCraft {
             }
 
             // bindings
-            bool requiresUpdate = ( type != bindings[(byte)type] || isPainting );
-            type = bindings[(byte)type];
-
-            // check if buildMode needs to be overriden
-            if( type == Block.Air ) {
-                buildMode = false;
-            } else if( isPainting ) {
-                buildMode = true;
-            }
-
-            // check if the user has the permission to BUILD the block
-            bool can = true;
-            if( buildMode ) {
-                if( type == Block.Lava || type == Block.StillLava ) {
-                    can = Can( Permission.PlaceLava );
-                } else if( type == Block.Water || type == Block.StillWater ) {
-                    can = Can( Permission.PlaceWater );
-                } else if( type == Block.Admincrete ) {
-                    can = Can( Permission.PlaceAdmincrete );
-                } else {
-                    can = zoneOverride || Can( Permission.Build );
-                }
-            } else {
+            bool requiresUpdate = (type != bindings[(byte)type] || isPainting);
+            if( !buildMode && !isPainting ) {
                 type = Block.Air;
             }
-
-            // check that the user has permission to DELETE/REPLACE the block
-            if( world.map.GetBlock( x, y, h ) == (byte)Block.Admincrete ) {
-                can &= Can( Permission.DeleteAdmincrete );
-            } else if( world.map.GetBlock( x, y, h ) != (byte)Block.Air ) {
-                can &= zoneOverride || Can( Permission.Delete );
-            }
+            type = bindings[(byte)type];
 
             // if all is well, try placing it
-            if( can ) {
-                BlockUpdate blockUpdate;
-                if( type == Block.Stair && h > 0 && world.map.GetBlock( x, y, h - 1 ) == (byte)Block.Stair ) {
-                    blockUpdate = new BlockUpdate( this, x, y, h - 1, (byte)Block.DoubleStair );
-                    if( !world.FireChangedBlockEvent( ref blockUpdate ) ) {
-                        SendBlockNow( x, y, h );
-                        return false;
+            switch( CanPlace( x, y, h, (byte)type ) ) {
+                case CanPlaceResult.Allowed:
+                    BlockUpdate blockUpdate;
+                    if( type == Block.Stair && h > 0 && world.map.GetBlock( x, y, h - 1 ) == (byte)Block.Stair ) {
+
+                        // handle stair stacking
+                        blockUpdate = new BlockUpdate( this, x, y, h - 1, (byte)Block.DoubleStair );
+                        if( !world.FireChangedBlockEvent( ref blockUpdate ) ) {
+                            SendBlockNow( x, y, h );
+                            return false;
+                        }
+                        world.map.QueueUpdate( blockUpdate );
+                        session.SendNow( PacketWriter.MakeSetBlock( x, y, h - 1, (byte)Block.DoubleStair ) );
+                        session.SendNow( PacketWriter.MakeSetBlock( x, y, h, (byte)Block.Air ) );
+                    } else {
+
+                        // handle normal blocks
+                        blockUpdate = new BlockUpdate( this, x, y, h, (byte)type );
+                        if( !world.FireChangedBlockEvent( ref blockUpdate ) ) {
+                            SendBlockNow( x, y, h );
+                            return false;
+                        }
+                        world.map.QueueUpdate( blockUpdate );
+                        if( requiresUpdate ) {
+                            session.SendNow( PacketWriter.MakeSetBlock( x, y, h, (byte)type ) );
+                        }
                     }
-                    world.map.QueueUpdate( blockUpdate );
-                    session.SendNow( PacketWriter.MakeSetBlock( x, y, h - 1, (byte)Block.DoubleStair ) );
-                    session.SendNow( PacketWriter.MakeSetBlock( x, y, h, (byte)Block.Air ) );
-                } else {
-                    blockUpdate = new BlockUpdate( this, x, y, h, (byte)type );
-                    if( !world.FireChangedBlockEvent( ref blockUpdate ) ) {
-                        SendBlockNow( x, y, h );
-                        return false;
+                    break;
+
+                case CanPlaceResult.BlocktypeDenied:
+                    Message( "{0}You are not permitted to affect this block type.", Color.Red );
+                    SendBlockNow( x, y, h );
+                    break;
+
+                case CanPlaceResult.ClassDenied:
+                    Message( "{0}Your class is not allowed to build.", Color.Red );
+                    SendBlockNow( x, y, h );
+                    break;
+
+                case CanPlaceResult.WorldDenied:
+                    Message( "{0}Your class is not allowed to build on this world.", Color.Red );
+                    SendBlockNow( x, y, h );
+                    break;
+
+                case CanPlaceResult.ZoneDenied:
+                    Zone deniedZone = world.map.FindDeniedZone( x, y, h, this );
+                    if( deniedZone != null ) {
+                        Message( "{0}You are not allowed to build in zone \"{1}\".", Color.Red, deniedZone.name );
+                    } else {
+                        Message( "{0}You are not allowed to build here.", Color.Red );
                     }
-                    world.map.QueueUpdate( blockUpdate );
-                    if( requiresUpdate ) {
-                        session.SendNow( PacketWriter.MakeSetBlock( x, y, h, (byte)type ) );
-                    }
-                }
-            } else {
-                Message( "{0}You are not permitted to do that.", Color.Red );
-                SendBlockNow( x, y, h );
+                    SendBlockNow( x, y, h );
+                    break;
             }
             return false;
         }
@@ -422,21 +406,77 @@ namespace fCraft {
         public bool Can( params Permission[] permissions ) {
             if( world == null ) return true;
             foreach( Permission permission in permissions ) {
-                if( ( permission == Permission.Build || permission == Permission.Delete || permission == Permission.Draw ) && world.classBuild.rank > info.playerClass.rank ) {
-                    return false;
-                } else if( !info.playerClass.Can( permission ) ) {
-                    return false;
-                }
+                if( !info.playerClass.Can( permission ) ) return false;
             }
             return true;
         }
+
 
         public bool CanDraw( int volume ) {
             return ( info.playerClass.drawLimit > 0 ) && ( volume > info.playerClass.drawLimit );
         }
 
+
         public bool CanJoin( World world ) {
             return info.playerClass.rank >= world.classAccess.rank;
+        }
+
+
+        public CanPlaceResult CanPlace( int x, int y, int h, byte drawBlock ) {
+            // check special blocktypes
+            if( drawBlock == (byte)Block.Admincrete && !Can( Permission.PlaceAdmincrete ) ) return CanPlaceResult.BlocktypeDenied;
+            if( (drawBlock == (byte)Block.Water || drawBlock == (byte)Block.StillWater) && !Can( Permission.PlaceWater ) ) return CanPlaceResult.BlocktypeDenied;
+            if( (drawBlock == (byte)Block.Lava || drawBlock == (byte)Block.StillLava) && !Can( Permission.PlaceLava ) ) return CanPlaceResult.BlocktypeDenied;
+
+            // check deleting admincrete
+            byte block = world.map.GetBlock( x, y, h );
+            if( block == (byte)Block.Admincrete && !Can( Permission.DeleteAdmincrete ) ) return CanPlaceResult.BlocktypeDenied;
+
+            // check zones & world permissions
+            ZoneOverride zoneCheckResult = world.map.CheckZones( x, y, h, this );
+            if( zoneCheckResult == ZoneOverride.Allow ) {
+                return CanPlaceResult.Allowed;
+            } else if( zoneCheckResult == ZoneOverride.Deny ) {
+                return CanPlaceResult.ZoneDenied;
+            } else if( drawBlock == (byte)Block.Air ) {
+
+                // deleting a block
+                if( Can( Permission.Delete ) ) {
+                    if( world.classBuild.rank > info.playerClass.rank ) {
+                        return CanPlaceResult.WorldDenied;
+                    } else {
+                        return CanPlaceResult.Allowed;
+                    }
+                } else {
+                    return CanPlaceResult.ClassDenied;
+                }
+
+            } else if( block == (byte)Block.Air ) {
+
+                // building a block
+                if( Can( Permission.Build ) ) {
+                    if( world.classBuild.rank > info.playerClass.rank ) {
+                        return CanPlaceResult.WorldDenied;
+                    } else {
+                        return CanPlaceResult.Allowed;
+                    }
+                } else {
+                    return CanPlaceResult.ClassDenied;
+                }
+
+            } else {
+
+                // replacing a block
+                if( Can( Permission.Delete, Permission.Build ) ) {
+                    if( world.classBuild.rank > info.playerClass.rank ) {
+                        return CanPlaceResult.WorldDenied;
+                    } else {
+                        return CanPlaceResult.Allowed;
+                    }
+                } else {
+                    return CanPlaceResult.ClassDenied;
+                }
+            }
         }
 
         // Determines what OP-code to send to the player. It only matters for deleting admincrete.
@@ -501,5 +541,13 @@ namespace fCraft {
         internal void ResetIdleTimer() {
             idleTimer = DateTime.UtcNow;
         }
+    }
+
+    public enum CanPlaceResult {
+        Allowed,
+        BlocktypeDenied,
+        WorldDenied,
+        ZoneDenied,
+        ClassDenied
     }
 }
