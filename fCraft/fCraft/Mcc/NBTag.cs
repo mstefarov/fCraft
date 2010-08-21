@@ -162,8 +162,8 @@ namespace Mcc {
 
         public static NBTCompound ReadFile( string fileName ) {
             using( FileStream fs = File.OpenRead( fileName ) ) {
-                using( GZipStream gs = new GZipStream( fs, CompressionMode.Decompress) ) {
-                    return ReadStream( fs );
+                using( GZipStream gs = new GZipStream( fs, CompressionMode.Decompress ) ) {
+                    return ReadStream( gs );
                 }
             }
         }
