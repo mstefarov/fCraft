@@ -819,5 +819,17 @@ namespace fCraft {
                 player.NoAccessMessage( Permission.SetSpawn );
             }
         }
+
+
+
+        static CommandDescriptor cdSpectate = new CommandDescriptor {
+            name = "spectate",
+            permissions = new Permission[]{Permission.Spectate},
+            help = "spectate",
+            handler = Spectate
+        };
+
+        internal static void Spectate( Player player, Command cmd ) {
+        }
     }
 }

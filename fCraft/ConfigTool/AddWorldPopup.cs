@@ -161,7 +161,9 @@ namespace ConfigTool {
         void AsyncLoad( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
             map = Map.Load( null, fileToLoad );
-            map.CalculateShadows();
+            if( map != null ) {
+                map.CalculateShadows();
+            }
         }
 
         void AsyncLoadCompleted( object sender, RunWorkerCompletedEventArgs e ) {

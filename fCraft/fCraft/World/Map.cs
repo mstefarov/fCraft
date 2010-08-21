@@ -143,15 +143,16 @@ namespace fCraft {
                 map.world = _world;
                 return map;
 
-            } catch( EndOfStreamException ) {
-                Logger.Log( "Map.Load: Unexpected end of file \"{0}\". File may be corrupt, or format unsupported.", LogType.Error,
-                            fileName );
+            } catch( EndOfStreamException ex ) {
+                Logger.Log( "Map.Load: Unexpected end of file \"{0}\". File may be corrupt, or format unsupported: {1}", LogType.Error,
+                            fileName,
+                            ex );
                 return null;
 
             } catch( Exception ex ) {
                 Logger.Log( "Map.Load: Error trying to read from \"{0}\": {1}", LogType.Error,
                             fileName,
-                            ex.Message );
+                            ex );
                 return null;
             }
         }
