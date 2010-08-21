@@ -1,6 +1,8 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Linq;
+using System.Xml;
+using System.Xml.Linq;
 
 
 namespace fCraft {
@@ -47,6 +49,86 @@ namespace fCraft {
             if( raisedCorners < 0 || raisedCorners > 4 || loweredCorners < 0 || raisedCorners > 4 || raisedCorners + loweredCorners > 4 ) {
                 throw new ArgumentException( "raisedCorners and loweredCorners must be between 0 and 4." );
             }
+        }
+
+        public MapGeneratorArgs(){}
+
+        public MapGeneratorArgs( string fileName ) {
+            XDocument doc = XDocument.Load( fileName );
+            XElement root = doc.Root;
+
+            theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), root.Element( "theme" ).Value );
+            seed = Int32.Parse( root.Element( "seed" ).Value );
+            dimX = Int32.Parse( root.Element( "dimX" ).Value );
+            dimY = Int32.Parse( root.Element( "dimY" ).Value );
+            dimH = Int32.Parse( root.Element( "dimH" ).Value );
+            maxHeight = Int32.Parse( root.Element( "maxHeight" ).Value );
+            maxDepth = Int32.Parse( root.Element( "maxDepth" ).Value );
+            waterLevel = Int32.Parse( root.Element( "waterLevel" ).Value );
+            addWater = Boolean.Parse( root.Element( "addWater" ).Value );
+
+            matchWaterCoverage = Boolean.Parse( root.Element( "matchWaterCoverage" ).Value );
+            waterCoverage = float.Parse( root.Element( "waterCoverage" ).Value );
+            raisedCorners = Int32.Parse( root.Element( "raisedCorners" ).Value );
+            loweredCorners = Int32.Parse( root.Element( "loweredCorners" ).Value );
+            midPoint = Int32.Parse( root.Element( "midPoint" ).Value );
+            bias = float.Parse( root.Element( "bias" ).Value );
+            useBias = Boolean.Parse( root.Element( "useBias" ).Value );
+
+            minDetailSize = Int32.Parse( root.Element( "minDetailSize" ).Value );
+            maxDetailSize = Int32.Parse( root.Element( "maxDetailSize" ).Value );
+            roughness = float.Parse( root.Element( "roughness" ).Value );
+            layeredHeightmap = Boolean.Parse( root.Element( "layeredHeightmap" ).Value );
+            marbledHeightmap = Boolean.Parse( root.Element( "marbledHeightmap" ).Value );
+            invertHeightmap = Boolean.Parse( root.Element( "invertHeightmap" ).Value );
+
+            placeTrees = Boolean.Parse( root.Element( "placeTrees" ).Value );
+            treeSpacingMin = Int32.Parse( root.Element( "treeSpacingMin" ).Value );
+            treeSpacingMax = Int32.Parse( root.Element( "treeSpacingMax" ).Value );
+            treeHeightMin = Int32.Parse( root.Element( "treeHeightMin" ).Value );
+            treeHeightMax = Int32.Parse( root.Element( "treeHeightMax" ).Value );
+
+            Validate();
+        }
+
+        const string RootTagName = "fCraftMapGeneratorArgs";
+        public void Save( string fileName ) {
+            XDocument document = new XDocument();
+            XElement root = new XElement( RootTagName );
+
+            root.Add( new XElement( "theme", theme ) );
+            root.Add( new XElement( "seed", seed ) );
+            root.Add( new XElement( "dimX", dimX ) );
+            root.Add( new XElement( "dimY", dimY ) );
+            root.Add( new XElement( "dimH", dimH ) );
+            root.Add( new XElement( "maxHeight", maxHeight ) );
+            root.Add( new XElement( "maxDepth", maxDepth ) );
+            root.Add( new XElement( "waterLevel", waterLevel ) );
+            root.Add( new XElement( "addWater", addWater ) );
+
+            root.Add( new XElement( "matchWaterCoverage", matchWaterCoverage ) );
+            root.Add( new XElement( "waterCoverage", waterCoverage ) );
+            root.Add( new XElement( "raisedCorners", raisedCorners ) );
+            root.Add( new XElement( "loweredCorners", loweredCorners ) );
+            root.Add( new XElement( "midPoint", midPoint ) );
+            root.Add( new XElement( "bias", bias ) );
+            root.Add( new XElement( "useBias", useBias ) );
+
+            root.Add( new XElement( "minDetailSize", minDetailSize ) );
+            root.Add( new XElement( "maxDetailSize", maxDetailSize ) );
+            root.Add( new XElement( "roughness", roughness ) );
+            root.Add( new XElement( "layeredHeightmap", layeredHeightmap ) );
+            root.Add( new XElement( "marbledHeightmap", marbledHeightmap ) );
+            root.Add( new XElement( "invertHeightmap", invertHeightmap ) );
+
+            root.Add( new XElement( "placeTrees", placeTrees ) );
+            root.Add( new XElement( "treeSpacingMin", treeSpacingMin ) );
+            root.Add( new XElement( "treeSpacingMax", treeSpacingMax ) );
+            root.Add( new XElement( "treeHeightMin", treeHeightMin ) );
+            root.Add( new XElement( "treeHeightMax", treeHeightMax ) );
+
+            document.Add( root );
+            document.Save( fileName );
         }
     }
 

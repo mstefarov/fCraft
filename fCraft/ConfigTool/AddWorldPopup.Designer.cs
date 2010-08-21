@@ -34,8 +34,6 @@
             this.xFloodBarrier = new System.Windows.Forms.CheckBox();
             this.cTheme = new System.Windows.Forms.ComboBox();
             this.lTheme = new System.Windows.Forms.Label();
-            this.cPreset = new System.Windows.Forms.ComboBox();
-            this.lPreset = new System.Windows.Forms.Label();
             this.bGenerate = new System.Windows.Forms.Button();
             this.cWorld = new System.Windows.Forms.ComboBox();
             this.tFile = new System.Windows.Forms.TextBox();
@@ -101,6 +99,12 @@
             this.tabHeightmap = new System.Windows.Forms.TabPage();
             this.label1 = new System.Windows.Forms.Label();
             this.tabTerrain = new System.Windows.Forms.TabPage();
+            this.gTemplates = new System.Windows.Forms.GroupBox();
+            this.cTemplates = new System.Windows.Forms.ComboBox();
+            this.lUseTemplate = new System.Windows.Forms.Label();
+            this.bBrowseTemplate = new System.Windows.Forms.Button();
+            this.bSaveTemplate = new System.Windows.Forms.Button();
+            this.xWater = new System.Windows.Forms.CheckBox();
             this.xSeed = new System.Windows.Forms.CheckBox();
             this.nSeed = new System.Windows.Forms.NumericUpDown();
             this.xAdvanced = new System.Windows.Forms.CheckBox();
@@ -132,7 +136,6 @@
             this.nTreeSpacing = new System.Windows.Forms.NumericUpDown();
             this.lTreeSpacing = new System.Windows.Forms.Label();
             this.lMapFileOptions = new System.Windows.Forms.Label();
-            this.xWater = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
@@ -153,6 +156,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimY)).BeginInit();
             this.tabHeightmap.SuspendLayout();
             this.tabTerrain.SuspendLayout();
+            this.gTemplates.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).BeginInit();
             this.gMapSize.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxDepth)).BeginInit();
@@ -281,7 +285,7 @@
             // 
             // bShow
             // 
-            this.bShow.Location = new System.Drawing.Point( 291, 6 );
+            this.bShow.Location = new System.Drawing.Point( 305, 6 );
             this.bShow.Name = "bShow";
             this.bShow.Size = new System.Drawing.Size( 74, 23 );
             this.bShow.TabIndex = 1;
@@ -292,53 +296,36 @@
             // xFloodBarrier
             // 
             this.xFloodBarrier.AutoSize = true;
-            this.xFloodBarrier.Location = new System.Drawing.Point( 253, 8 );
+            this.xFloodBarrier.Location = new System.Drawing.Point( 126, 6 );
             this.xFloodBarrier.Name = "xFloodBarrier";
-            this.xFloodBarrier.Size = new System.Drawing.Size( 112, 17 );
+            this.xFloodBarrier.Size = new System.Drawing.Size( 84, 17 );
             this.xFloodBarrier.TabIndex = 4;
-            this.xFloodBarrier.Text = "Add a flood barrier";
+            this.xFloodBarrier.Text = "Flood barrier";
             this.xFloodBarrier.UseVisualStyleBackColor = true;
             this.xFloodBarrier.CheckedChanged += new System.EventHandler( this.xFloodBarrier_CheckedChanged );
             // 
             // cTheme
             // 
             this.cTheme.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cTheme.Location = new System.Drawing.Point( 153, 33 );
+            this.cTheme.Location = new System.Drawing.Point( 281, 17 );
             this.cTheme.Name = "cTheme";
-            this.cTheme.Size = new System.Drawing.Size( 86, 21 );
+            this.cTheme.Size = new System.Drawing.Size( 87, 21 );
             this.cTheme.TabIndex = 3;
             // 
             // lTheme
             // 
             this.lTheme.AutoSize = true;
-            this.lTheme.Location = new System.Drawing.Point( 107, 36 );
+            this.lTheme.Location = new System.Drawing.Point( 235, 20 );
             this.lTheme.Name = "lTheme";
             this.lTheme.Size = new System.Drawing.Size( 40, 13 );
             this.lTheme.TabIndex = 19;
             this.lTheme.Text = "Theme";
             // 
-            // cPreset
-            // 
-            this.cPreset.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cPreset.Location = new System.Drawing.Point( 153, 6 );
-            this.cPreset.Name = "cPreset";
-            this.cPreset.Size = new System.Drawing.Size( 86, 21 );
-            this.cPreset.TabIndex = 2;
-            // 
-            // lPreset
-            // 
-            this.lPreset.AutoSize = true;
-            this.lPreset.Location = new System.Drawing.Point( 110, 9 );
-            this.lPreset.Name = "lPreset";
-            this.lPreset.Size = new System.Drawing.Size( 37, 13 );
-            this.lPreset.TabIndex = 17;
-            this.lPreset.Text = "Preset";
-            // 
             // bGenerate
             // 
             this.bGenerate.Location = new System.Drawing.Point( 6, 6 );
             this.bGenerate.Name = "bGenerate";
-            this.bGenerate.Size = new System.Drawing.Size( 95, 50 );
+            this.bGenerate.Size = new System.Drawing.Size( 95, 40 );
             this.bGenerate.TabIndex = 0;
             this.bGenerate.Text = "Generate";
             this.bGenerate.UseVisualStyleBackColor = true;
@@ -350,7 +337,7 @@
             this.cWorld.FormattingEnabled = true;
             this.cWorld.Location = new System.Drawing.Point( 85, 7 );
             this.cWorld.Name = "cWorld";
-            this.cWorld.Size = new System.Drawing.Size( 200, 21 );
+            this.cWorld.Size = new System.Drawing.Size( 214, 21 );
             this.cWorld.TabIndex = 0;
             this.cWorld.SelectedIndexChanged += new System.EventHandler( this.cWorld_SelectedIndexChanged );
             // 
@@ -359,12 +346,12 @@
             this.tFile.Location = new System.Drawing.Point( 70, 8 );
             this.tFile.Name = "tFile";
             this.tFile.ReadOnly = true;
-            this.tFile.Size = new System.Drawing.Size( 215, 20 );
+            this.tFile.Size = new System.Drawing.Size( 229, 20 );
             this.tFile.TabIndex = 0;
             // 
             // bBrowse
             // 
-            this.bBrowse.Location = new System.Drawing.Point( 291, 6 );
+            this.bBrowse.Location = new System.Drawing.Point( 305, 6 );
             this.bBrowse.Name = "bBrowse";
             this.bBrowse.Size = new System.Drawing.Size( 74, 23 );
             this.bBrowse.TabIndex = 1;
@@ -378,7 +365,7 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.lPreview.AutoSize = true;
-            this.lPreview.Location = new System.Drawing.Point( 269, 568 );
+            this.lPreview.Location = new System.Drawing.Point( 262, 618 );
             this.lPreview.Name = "lPreview";
             this.lPreview.Size = new System.Drawing.Size( 54, 28 );
             this.lPreview.TabIndex = 16;
@@ -390,7 +377,7 @@
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bOK.Location = new System.Drawing.Point( 784, 614 );
+            this.bOK.Location = new System.Drawing.Point( 784, 664 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 25 );
             this.bOK.TabIndex = 7;
@@ -401,7 +388,7 @@
             // 
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.bCancel.Location = new System.Drawing.Point( 890, 614 );
+            this.bCancel.Location = new System.Drawing.Point( 890, 664 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 25 );
             this.bCancel.TabIndex = 8;
@@ -486,7 +473,7 @@
             // bPreviewPrev
             // 
             this.bPreviewPrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bPreviewPrev.Location = new System.Drawing.Point( 241, 571 );
+            this.bPreviewPrev.Location = new System.Drawing.Point( 234, 621 );
             this.bPreviewPrev.Name = "bPreviewPrev";
             this.bPreviewPrev.Size = new System.Drawing.Size( 22, 22 );
             this.bPreviewPrev.TabIndex = 0;
@@ -497,7 +484,7 @@
             // bPreviewNext
             // 
             this.bPreviewNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bPreviewNext.Location = new System.Drawing.Point( 329, 571 );
+            this.bPreviewNext.Location = new System.Drawing.Point( 322, 621 );
             this.bPreviewNext.Name = "bPreviewNext";
             this.bPreviewNext.Size = new System.Drawing.Size( 22, 22 );
             this.bPreviewNext.TabIndex = 1;
@@ -518,7 +505,7 @@
             // 
             // fileBrowser
             // 
-            this.fileBrowser.Filter = "Minecraft Maps|*.fcm;*.lvl;*.dat;*.mclevel";
+            this.fileBrowser.Filter = "Minecraft Maps|*.fcm;*.lvl;*.dat;*.mclevel;*.gz;*.map;*.meta";
             // 
             // statusStrip
             // 
@@ -526,7 +513,7 @@
             this.tStatus1,
             this.tStatus2,
             this.progressBar} );
-            this.statusStrip.Location = new System.Drawing.Point( 0, 642 );
+            this.statusStrip.Location = new System.Drawing.Point( 0, 692 );
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size( 1002, 22 );
             this.statusStrip.TabIndex = 29;
@@ -564,12 +551,12 @@
             this.previewLayout.Controls.Add( this.bPreviewNext, 2, 1 );
             this.previewLayout.Controls.Add( this.lPreview, 1, 1 );
             this.previewLayout.Controls.Add( this.preview, 0, 0 );
-            this.previewLayout.Location = new System.Drawing.Point( 397, 12 );
+            this.previewLayout.Location = new System.Drawing.Point( 411, 12 );
             this.previewLayout.Name = "previewLayout";
             this.previewLayout.RowCount = 2;
             this.previewLayout.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Percent, 100F ) );
             this.previewLayout.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Absolute, 28F ) );
-            this.previewLayout.Size = new System.Drawing.Size( 593, 596 );
+            this.previewLayout.Size = new System.Drawing.Size( 579, 646 );
             this.previewLayout.TabIndex = 6;
             // 
             // preview
@@ -581,7 +568,7 @@
             this.previewLayout.SetColumnSpan( this.preview, 3 );
             this.preview.Location = new System.Drawing.Point( 3, 3 );
             this.preview.Name = "preview";
-            this.preview.Size = new System.Drawing.Size( 587, 562 );
+            this.preview.Size = new System.Drawing.Size( 573, 612 );
             this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.preview.TabIndex = 17;
             this.preview.TabStop = false;
@@ -762,7 +749,7 @@
             this.xTrees.AutoSize = true;
             this.xTrees.Checked = true;
             this.xTrees.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.xTrees.Location = new System.Drawing.Point( 253, 35 );
+            this.xTrees.Location = new System.Drawing.Point( 126, 29 );
             this.xTrees.Name = "xTrees";
             this.xTrees.Size = new System.Drawing.Size( 71, 17 );
             this.xTrees.TabIndex = 5;
@@ -772,12 +759,14 @@
             // bSavePreview
             // 
             this.bSavePreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bSavePreview.Location = new System.Drawing.Point( 397, 614 );
+            this.bSavePreview.Enabled = false;
+            this.bSavePreview.Location = new System.Drawing.Point( 411, 664 );
             this.bSavePreview.Name = "bSavePreview";
             this.bSavePreview.Size = new System.Drawing.Size( 125, 25 );
             this.bSavePreview.TabIndex = 6;
             this.bSavePreview.Text = "Save Preview Image...";
             this.bSavePreview.UseVisualStyleBackColor = true;
+            this.bSavePreview.Click += new System.EventHandler( this.bSavePreview_Click );
             // 
             // tabs
             // 
@@ -792,7 +781,7 @@
             this.tabs.Location = new System.Drawing.Point( 12, 108 );
             this.tabs.Name = "tabs";
             this.tabs.SelectedIndex = 0;
-            this.tabs.Size = new System.Drawing.Size( 379, 531 );
+            this.tabs.Size = new System.Drawing.Size( 393, 581 );
             this.tabs.TabIndex = 5;
             this.tabs.SelectedIndexChanged += new System.EventHandler( this.tabs_SelectedIndexChanged );
             // 
@@ -802,7 +791,7 @@
             this.tabExisting.Location = new System.Drawing.Point( 4, 22 );
             this.tabExisting.Name = "tabExisting";
             this.tabExisting.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabExisting.Size = new System.Drawing.Size( 371, 505 );
+            this.tabExisting.Size = new System.Drawing.Size( 385, 555 );
             this.tabExisting.TabIndex = 0;
             this.tabExisting.Text = "Existing Map";
             this.tabExisting.UseVisualStyleBackColor = true;
@@ -814,7 +803,7 @@
             this.tExistingMapInfo.Multiline = true;
             this.tExistingMapInfo.Name = "tExistingMapInfo";
             this.tExistingMapInfo.ReadOnly = true;
-            this.tExistingMapInfo.Size = new System.Drawing.Size( 359, 100 );
+            this.tExistingMapInfo.Size = new System.Drawing.Size( 373, 100 );
             this.tExistingMapInfo.TabIndex = 0;
             // 
             // tabLoad
@@ -827,7 +816,7 @@
             this.tabLoad.Location = new System.Drawing.Point( 4, 22 );
             this.tabLoad.Name = "tabLoad";
             this.tabLoad.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabLoad.Size = new System.Drawing.Size( 371, 505 );
+            this.tabLoad.Size = new System.Drawing.Size( 385, 555 );
             this.tabLoad.TabIndex = 1;
             this.tabLoad.Text = "Load File";
             this.tabLoad.UseVisualStyleBackColor = true;
@@ -857,7 +846,7 @@
             this.tLoadFileInfo.Multiline = true;
             this.tLoadFileInfo.Name = "tLoadFileInfo";
             this.tLoadFileInfo.ReadOnly = true;
-            this.tLoadFileInfo.Size = new System.Drawing.Size( 359, 100 );
+            this.tLoadFileInfo.Size = new System.Drawing.Size( 373, 100 );
             this.tLoadFileInfo.TabIndex = 2;
             // 
             // tabCopy
@@ -869,7 +858,7 @@
             this.tabCopy.Location = new System.Drawing.Point( 4, 22 );
             this.tabCopy.Name = "tabCopy";
             this.tabCopy.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabCopy.Size = new System.Drawing.Size( 371, 505 );
+            this.tabCopy.Size = new System.Drawing.Size( 385, 555 );
             this.tabCopy.TabIndex = 2;
             this.tabCopy.Text = "Copy World";
             this.tabCopy.UseVisualStyleBackColor = true;
@@ -881,7 +870,7 @@
             this.tCopyInfo.Multiline = true;
             this.tCopyInfo.Name = "tCopyInfo";
             this.tCopyInfo.ReadOnly = true;
-            this.tCopyInfo.Size = new System.Drawing.Size( 359, 100 );
+            this.tCopyInfo.Size = new System.Drawing.Size( 373, 100 );
             this.tCopyInfo.TabIndex = 2;
             // 
             // lWorldToCopy
@@ -905,7 +894,7 @@
             this.tabFlatgrass.Location = new System.Drawing.Point( 4, 22 );
             this.tabFlatgrass.Name = "tabFlatgrass";
             this.tabFlatgrass.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabFlatgrass.Size = new System.Drawing.Size( 371, 505 );
+            this.tabFlatgrass.Size = new System.Drawing.Size( 385, 555 );
             this.tabFlatgrass.TabIndex = 3;
             this.tabFlatgrass.Text = "Flatgrass";
             this.tabFlatgrass.UseVisualStyleBackColor = true;
@@ -1034,7 +1023,7 @@
             this.tabHeightmap.Location = new System.Drawing.Point( 4, 22 );
             this.tabHeightmap.Name = "tabHeightmap";
             this.tabHeightmap.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabHeightmap.Size = new System.Drawing.Size( 371, 505 );
+            this.tabHeightmap.Size = new System.Drawing.Size( 385, 555 );
             this.tabHeightmap.TabIndex = 4;
             this.tabHeightmap.Text = "Heightmap";
             this.tabHeightmap.UseVisualStyleBackColor = true;
@@ -1050,7 +1039,9 @@
             // 
             // tabTerrain
             // 
+            this.tabTerrain.AutoScroll = true;
             this.tabTerrain.BackColor = System.Drawing.SystemColors.Window;
+            this.tabTerrain.Controls.Add( this.gTemplates );
             this.tabTerrain.Controls.Add( this.xWater );
             this.tabTerrain.Controls.Add( this.xSeed );
             this.tabTerrain.Controls.Add( this.nSeed );
@@ -1063,21 +1054,82 @@
             this.tabTerrain.Controls.Add( this.lTheme );
             this.tabTerrain.Controls.Add( this.xTrees );
             this.tabTerrain.Controls.Add( this.xFloodBarrier );
-            this.tabTerrain.Controls.Add( this.cPreset );
-            this.tabTerrain.Controls.Add( this.lPreset );
             this.tabTerrain.Controls.Add( this.cTheme );
             this.tabTerrain.Location = new System.Drawing.Point( 4, 22 );
             this.tabTerrain.Name = "tabTerrain";
             this.tabTerrain.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabTerrain.Size = new System.Drawing.Size( 371, 505 );
+            this.tabTerrain.Size = new System.Drawing.Size( 385, 555 );
             this.tabTerrain.TabIndex = 5;
             this.tabTerrain.Text = "Generator";
             this.tabTerrain.UseVisualStyleBackColor = true;
             // 
+            // gTemplates
+            // 
+            this.gTemplates.Controls.Add( this.cTemplates );
+            this.gTemplates.Controls.Add( this.lUseTemplate );
+            this.gTemplates.Controls.Add( this.bBrowseTemplate );
+            this.gTemplates.Controls.Add( this.bSaveTemplate );
+            this.gTemplates.Location = new System.Drawing.Point( 6, 77 );
+            this.gTemplates.Name = "gTemplates";
+            this.gTemplates.Size = new System.Drawing.Size( 362, 52 );
+            this.gTemplates.TabIndex = 21;
+            this.gTemplates.TabStop = false;
+            this.gTemplates.Text = "Templates";
+            // 
+            // cTemplates
+            // 
+            this.cTemplates.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cTemplates.FormattingEnabled = true;
+            this.cTemplates.Location = new System.Drawing.Point( 98, 21 );
+            this.cTemplates.Name = "cTemplates";
+            this.cTemplates.Size = new System.Drawing.Size( 116, 21 );
+            this.cTemplates.TabIndex = 4;
+            // 
+            // lUseTemplate
+            // 
+            this.lUseTemplate.AutoSize = true;
+            this.lUseTemplate.Location = new System.Drawing.Point( 23, 24 );
+            this.lUseTemplate.Name = "lUseTemplate";
+            this.lUseTemplate.Size = new System.Drawing.Size( 69, 13 );
+            this.lUseTemplate.TabIndex = 3;
+            this.lUseTemplate.Text = "Use template";
+            // 
+            // bBrowseTemplate
+            // 
+            this.bBrowseTemplate.Location = new System.Drawing.Point( 222, 19 );
+            this.bBrowseTemplate.Name = "bBrowseTemplate";
+            this.bBrowseTemplate.Size = new System.Drawing.Size( 64, 23 );
+            this.bBrowseTemplate.TabIndex = 1;
+            this.bBrowseTemplate.Text = "Browse";
+            this.bBrowseTemplate.UseVisualStyleBackColor = true;
+            this.bBrowseTemplate.Click += new System.EventHandler( this.bBrowseTemplate_Click );
+            // 
+            // bSaveTemplate
+            // 
+            this.bSaveTemplate.Location = new System.Drawing.Point( 292, 19 );
+            this.bSaveTemplate.Name = "bSaveTemplate";
+            this.bSaveTemplate.Size = new System.Drawing.Size( 64, 23 );
+            this.bSaveTemplate.TabIndex = 0;
+            this.bSaveTemplate.Text = "Save";
+            this.bSaveTemplate.UseVisualStyleBackColor = true;
+            this.bSaveTemplate.Click += new System.EventHandler( this.bSaveTemplate_Click );
+            // 
+            // xWater
+            // 
+            this.xWater.AutoSize = true;
+            this.xWater.Checked = true;
+            this.xWater.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.xWater.Location = new System.Drawing.Point( 126, 52 );
+            this.xWater.Name = "xWater";
+            this.xWater.Size = new System.Drawing.Size( 74, 17 );
+            this.xWater.TabIndex = 20;
+            this.xWater.Text = "Add water";
+            this.xWater.UseVisualStyleBackColor = true;
+            // 
             // xSeed
             // 
             this.xSeed.AutoSize = true;
-            this.xSeed.Location = new System.Drawing.Point( 96, 62 );
+            this.xSeed.Location = new System.Drawing.Point( 224, 52 );
             this.xSeed.Name = "xSeed";
             this.xSeed.Size = new System.Drawing.Size( 51, 17 );
             this.xSeed.TabIndex = 6;
@@ -1088,7 +1140,7 @@
             // nSeed
             // 
             this.nSeed.Enabled = false;
-            this.nSeed.Location = new System.Drawing.Point( 153, 61 );
+            this.nSeed.Location = new System.Drawing.Point( 281, 51 );
             this.nSeed.Maximum = new decimal( new int[] {
             2147483647,
             0,
@@ -1100,13 +1152,13 @@
             0,
             -2147483648} );
             this.nSeed.Name = "nSeed";
-            this.nSeed.Size = new System.Drawing.Size( 86, 20 );
+            this.nSeed.Size = new System.Drawing.Size( 87, 20 );
             this.nSeed.TabIndex = 7;
             // 
             // xAdvanced
             // 
             this.xAdvanced.AutoSize = true;
-            this.xAdvanced.Location = new System.Drawing.Point( 6, 62 );
+            this.xAdvanced.Location = new System.Drawing.Point( 17, 52 );
             this.xAdvanced.Name = "xAdvanced";
             this.xAdvanced.Size = new System.Drawing.Size( 75, 17 );
             this.xAdvanced.TabIndex = 1;
@@ -1128,9 +1180,9 @@
             this.gMapSize.Controls.Add( this.lX2 );
             this.gMapSize.Controls.Add( this.nHeight );
             this.gMapSize.Controls.Add( this.nWidthY );
-            this.gMapSize.Location = new System.Drawing.Point( 6, 87 );
+            this.gMapSize.Location = new System.Drawing.Point( 6, 135 );
             this.gMapSize.Name = "gMapSize";
-            this.gMapSize.Size = new System.Drawing.Size( 359, 81 );
+            this.gMapSize.Size = new System.Drawing.Size( 362, 81 );
             this.gMapSize.TabIndex = 9;
             this.gMapSize.TabStop = false;
             this.gMapSize.Text = "Map size";
@@ -1180,9 +1232,9 @@
             this.gTerrainFeatures.Controls.Add( this.lBiasDisplay );
             this.gTerrainFeatures.Controls.Add( this.lBias );
             this.gTerrainFeatures.Controls.Add( this.sBias );
-            this.gTerrainFeatures.Location = new System.Drawing.Point( 6, 174 );
+            this.gTerrainFeatures.Location = new System.Drawing.Point( 6, 222 );
             this.gTerrainFeatures.Name = "gTerrainFeatures";
-            this.gTerrainFeatures.Size = new System.Drawing.Size( 359, 84 );
+            this.gTerrainFeatures.Size = new System.Drawing.Size( 362, 84 );
             this.gTerrainFeatures.TabIndex = 10;
             this.gTerrainFeatures.TabStop = false;
             this.gTerrainFeatures.Text = "Feature Bias";
@@ -1283,9 +1335,9 @@
             this.gHeightmapCreation.Controls.Add( this.lMatchWaterCoverageDisplay );
             this.gHeightmapCreation.Controls.Add( this.lRoughness );
             this.gHeightmapCreation.Controls.Add( this.lDetailSize );
-            this.gHeightmapCreation.Location = new System.Drawing.Point( 3, 264 );
+            this.gHeightmapCreation.Location = new System.Drawing.Point( 6, 312 );
             this.gHeightmapCreation.Name = "gHeightmapCreation";
-            this.gHeightmapCreation.Size = new System.Drawing.Size( 365, 158 );
+            this.gHeightmapCreation.Size = new System.Drawing.Size( 362, 158 );
             this.gHeightmapCreation.TabIndex = 11;
             this.gHeightmapCreation.TabStop = false;
             this.gHeightmapCreation.Text = "Heightmap Creation";
@@ -1343,9 +1395,9 @@
             this.gTrees.Controls.Add( this.lTreeSpacingVariation );
             this.gTrees.Controls.Add( this.nTreeSpacing );
             this.gTrees.Controls.Add( this.lTreeSpacing );
-            this.gTrees.Location = new System.Drawing.Point( 3, 428 );
+            this.gTrees.Location = new System.Drawing.Point( 6, 476 );
             this.gTrees.Name = "gTrees";
-            this.gTrees.Size = new System.Drawing.Size( 365, 74 );
+            this.gTrees.Size = new System.Drawing.Size( 362, 74 );
             this.gTrees.TabIndex = 12;
             this.gTrees.TabStop = false;
             this.gTrees.Text = "Trees";
@@ -1492,23 +1544,11 @@
             this.lMapFileOptions.TabIndex = 55;
             this.lMapFileOptions.Text = "Map file:";
             // 
-            // xWater
-            // 
-            this.xWater.AutoSize = true;
-            this.xWater.Checked = true;
-            this.xWater.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.xWater.Location = new System.Drawing.Point( 253, 62 );
-            this.xWater.Name = "xWater";
-            this.xWater.Size = new System.Drawing.Size( 74, 17 );
-            this.xWater.TabIndex = 20;
-            this.xWater.Text = "Add water";
-            this.xWater.UseVisualStyleBackColor = true;
-            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 1002, 664 );
+            this.ClientSize = new System.Drawing.Size( 1002, 714 );
             this.Controls.Add( this.lMapFileOptions );
             this.Controls.Add( this.tabs );
             this.Controls.Add( this.bSavePreview );
@@ -1558,6 +1598,8 @@
             this.tabHeightmap.PerformLayout();
             this.tabTerrain.ResumeLayout( false );
             this.tabTerrain.PerformLayout();
+            this.gTemplates.ResumeLayout( false );
+            this.gTemplates.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).EndInit();
             this.gMapSize.ResumeLayout( false );
             this.gMapSize.PerformLayout();
@@ -1606,8 +1648,6 @@
         private System.Windows.Forms.TextBox tName;
         private System.Windows.Forms.ComboBox cTheme;
         private System.Windows.Forms.Label lTheme;
-        private System.Windows.Forms.ComboBox cPreset;
-        private System.Windows.Forms.Label lPreset;
         private System.Windows.Forms.Button bPreviewPrev;
         private System.Windows.Forms.Button bPreviewNext;
         private System.Windows.Forms.CheckBox xFloodBarrier;
@@ -1692,5 +1732,10 @@
         private System.Windows.Forms.NumericUpDown nLoweredCorners;
         private System.Windows.Forms.CheckBox xInvert;
         private System.Windows.Forms.CheckBox xWater;
+        private System.Windows.Forms.GroupBox gTemplates;
+        private System.Windows.Forms.ComboBox cTemplates;
+        private System.Windows.Forms.Label lUseTemplate;
+        private System.Windows.Forms.Button bBrowseTemplate;
+        private System.Windows.Forms.Button bSaveTemplate;
     }
 }

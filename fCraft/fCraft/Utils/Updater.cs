@@ -28,7 +28,7 @@ namespace fCraft {
 
     public static class Updater {
         static int version = 440;
-        static int revision = 171;
+        static int revision = 174;
         static bool unsable = true;
 
         public static UpdaterResult CheckForUpdates() {
@@ -77,7 +77,7 @@ namespace fCraft {
         }
 
         public static string GetVersionString() {
-            return Decimal.Divide( version, 1000 ).ToString( "0.000" ) + "_r" + revision + (unsable ? "beta" : "");
+            return Decimal.Divide( version, 1000 ).ToString( "0.000" ) + "_r" + revision + (unsable ? "_BETA" : "");
         }
     }
 }

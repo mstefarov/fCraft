@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -36,7 +37,7 @@ namespace ConfigTool {
             InitializeComponent();
 
             cBackup.Items.AddRange( World.BackupEnum );
-            cPreset.Items.AddRange( Enum.GetNames( typeof( MapGenType ) ) );
+            cTemplates.Items.AddRange( Enum.GetNames( typeof( MapGenType ) ) );
             cTheme.Items.AddRange( Enum.GetNames( typeof( MapGenTheme ) ) );
 
             bwLoader.DoWork += AsyncLoad;
@@ -112,7 +113,7 @@ namespace ConfigTool {
             }
 
             // Set Generator comboboxes to defaults
-            cPreset.SelectedIndex = (int)MapGenType.River;
+            cTemplates.SelectedIndex = (int)MapGenType.River;
             cTheme.SelectedIndex = (int)MapGenTheme.Forest;
 
             sFeatureSize.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 ) + 1;
@@ -121,6 +122,16 @@ namespace ConfigTool {
             sDetailSize.Value = sFeatureSize.Maximum - 1;
 
             cMidpoint.SelectedIndex = 1;
+
+            savePreviewDialog.Filter = "PNG Image|*.png|TIFF Image|*.tif;*.tiff|Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg";
+            savePreviewDialog.Title = "Saving preview image...";
+            savePreviewDialog.FileName = world.name;
+
+            browseTemplateDialog.Filter = "MapGenerator Template|*.ftpl";
+            browseTemplateDialog.Title = "Opening a MapGenerator template...";
+
+            saveTemplateDialog.Filter = browseTemplateDialog.Filter;
+            saveTemplateDialog.Title = "Saving a MapGenerator template...";
         }
 
 
@@ -136,14 +147,14 @@ namespace ConfigTool {
 
         private void bBrowse_Click( object sender, EventArgs e ) {
             fileBrowser.FileName = tFile.Text;
-            fileBrowser.ShowDialog();
+            if( fileBrowser.ShowDialog() == DialogResult.OK && fileBrowser.FileName != "" ) {
+                tFile.Text = fileBrowser.FileName;
+                tFile.SelectAll();
 
-            tFile.Text = fileBrowser.FileName;
-            tFile.SelectAll();
-
-            fileToLoad = fileBrowser.FileName;
-            ShowMapDetails( tLoadFileInfo, fileToLoad );
-            StartLoadingMap();
+                fileToLoad = fileBrowser.FileName;
+                ShowMapDetails( tLoadFileInfo, fileToLoad );
+                StartLoadingMap();
+            }
         }
 
         string fileToLoad;
@@ -211,6 +222,7 @@ namespace ConfigTool {
                 Image oldImage = preview.Image;
                 if( oldImage != null ) oldImage.Dispose();
                 preview.Image = previewImage;
+                bSavePreview.Enabled = true;
             }
             progressBar.Visible = false;
         }
@@ -248,34 +260,7 @@ namespace ConfigTool {
                     nSeed.Value = GetRandomSeed();
                 }
 
-                generatorArgs = new MapGeneratorArgs {
-                    minDetailSize = sDetailSize.Value,
-                    maxDetailSize = sFeatureSize.Value,
-                    dimH = (int)nHeight.Value,
-                    dimX = (int)nWidthX.Value,
-                    dimY = (int)nWidthY.Value,
-                    layeredHeightmap = xLayeredHeightmap.Checked,
-                    marbledHeightmap = xMarbledMode.Checked,
-                    matchWaterCoverage = xMatchWaterCoverage.Checked,
-                    maxDepth = (int)nMaxDepth.Value,
-                    maxHeight = (int)nMaxHeight.Value,
-                    placeTrees = xTrees.Checked,
-                    roughness = sRoughness.Value / 100f,
-                    seed = (int)nSeed.Value,
-                    theme = (MapGenTheme)cTheme.SelectedIndex,
-                    treeHeightMax = (int)(nTreeHeight.Value + nTreeHeightVariation.Value),
-                    treeHeightMin = (int)(nTreeHeight.Value - nTreeHeightVariation.Value),
-                    treeSpacingMax = (int)(nTreeSpacing.Value + nTreeSpacingVariation.Value),
-                    treeSpacingMin = (int)(nTreeSpacing.Value - nTreeSpacingVariation.Value),
-                    useBias = (sBias.Value != 0),
-                    waterCoverage = sWaterCoverage.Value / 100f,
-                    bias = sBias.Value / 100f,
-                    midPoint = cMidpoint.SelectedIndex - 1,
-                    raisedCorners = (int)nRaisedCorners.Value,
-                    loweredCorners = (int)nLoweredCorners.Value,
-                    invertHeightmap = xInvert.Checked,
-                    addWater = xWater.Checked
-                };
+                SaveArgs();
             }
 
             tStatus1.Text = "Generating...";
@@ -283,7 +268,7 @@ namespace ConfigTool {
             progressBar.Style = ProgressBarStyle.Marquee;
 
             Refresh();
-            genType = (MapGenType)cPreset.SelectedIndex;
+            genType = (MapGenType)cTemplates.SelectedIndex;
             genTheme = (MapGenTheme)cTheme.SelectedIndex;
             bwGenerator.RunWorkerAsync();
         }
@@ -548,5 +533,117 @@ Dimensions: {4}×{5}×{6}
             }
         }
 
+        SaveFileDialog savePreviewDialog = new SaveFileDialog();
+        private void bSavePreview_Click( object sender, EventArgs e ) {
+            try{
+                using(Image img = (Image)preview.Image.Clone()){
+                    if( savePreviewDialog.ShowDialog() == DialogResult.OK && savePreviewDialog.FileName != ""){
+                        switch( savePreviewDialog.FilterIndex ) {
+                            case 1:
+                                img.Save( savePreviewDialog.FileName, ImageFormat.Png ); break;
+                            case 2:
+                                img.Save( savePreviewDialog.FileName, ImageFormat.Tiff ); break;
+                            case 3:
+                                img.Save( savePreviewDialog.FileName, ImageFormat.Bmp ); break;
+                            case 4:
+                                img.Save( savePreviewDialog.FileName, ImageFormat.Jpeg ); break;
+                        }
+                    }
+                }
+            }catch(Exception ex){
+                MessageBox.Show("Could not prepare image for saving: "+ex);
+            }
+        }
+
+
+        OpenFileDialog browseTemplateDialog = new OpenFileDialog();
+        private void bBrowseTemplate_Click( object sender, EventArgs e ) {
+            if( browseTemplateDialog.ShowDialog() == DialogResult.OK && browseTemplateDialog.FileName != "" ) {
+                try {
+                    generatorArgs = new MapGeneratorArgs( browseTemplateDialog.FileName );
+                    LoadArgs();
+                } catch( Exception ex ) {
+                    MessageBox.Show( "Could not open template file: " + ex );
+                }
+            }
+        }
+
+        void LoadArgs() {
+            sDetailSize.Value = generatorArgs.minDetailSize;
+            sFeatureSize.Value = generatorArgs.maxDetailSize;
+            nHeight.Value = generatorArgs.dimH;
+            nWidthX.Value = generatorArgs.dimX;
+            nWidthY.Value = generatorArgs.dimY;
+
+            xLayeredHeightmap.Checked=generatorArgs.layeredHeightmap;
+            xMarbledMode.Checked = generatorArgs.marbledHeightmap;
+            xMatchWaterCoverage.Checked = generatorArgs.matchWaterCoverage;
+            xInvert.Checked = generatorArgs.invertHeightmap;
+
+            nMaxDepth.Value = generatorArgs.maxDepth;
+            nMaxHeight.Value = generatorArgs.maxHeight;
+            xTrees.Checked = generatorArgs.placeTrees;
+            sRoughness.Value = (int)(generatorArgs.roughness * 100);
+            nSeed.Value = generatorArgs.seed;
+
+            cTheme.SelectedIndex = (int)generatorArgs.theme;
+            nTreeHeight.Value = (generatorArgs.treeHeightMax + generatorArgs.treeHeightMin) / 2;
+            nTreeHeightVariation.Value = (generatorArgs.treeHeightMax - generatorArgs.treeHeightMin) / 2;
+            nTreeSpacing.Value = (generatorArgs.treeSpacingMax + generatorArgs.treeSpacingMin) / 2;
+            nTreeSpacingVariation.Value = (generatorArgs.treeSpacingMax - generatorArgs.treeSpacingMin) / 2;
+
+            if( generatorArgs.useBias ) sBias.Value = (int)(generatorArgs.bias * 100);
+            else sBias.Value = 0;
+
+            sWaterCoverage.Value = (int)(100*generatorArgs.waterCoverage);
+            cMidpoint.SelectedIndex = generatorArgs.midPoint + 1;
+            nRaisedCorners.Value = generatorArgs.raisedCorners;
+            nLoweredCorners.Value = generatorArgs.loweredCorners;
+
+            xWater.Checked = generatorArgs.addWater;
+        }
+
+        void SaveArgs() {
+            generatorArgs = new MapGeneratorArgs {
+                minDetailSize = sDetailSize.Value,
+                maxDetailSize = sFeatureSize.Value,
+                dimH = (int)nHeight.Value,
+                dimX = (int)nWidthX.Value,
+                dimY = (int)nWidthY.Value,
+                layeredHeightmap = xLayeredHeightmap.Checked,
+                marbledHeightmap = xMarbledMode.Checked,
+                matchWaterCoverage = xMatchWaterCoverage.Checked,
+                maxDepth = (int)nMaxDepth.Value,
+                maxHeight = (int)nMaxHeight.Value,
+                placeTrees = xTrees.Checked,
+                roughness = sRoughness.Value / 100f,
+                seed = (int)nSeed.Value,
+                theme = (MapGenTheme)cTheme.SelectedIndex,
+                treeHeightMax = (int)(nTreeHeight.Value + nTreeHeightVariation.Value),
+                treeHeightMin = (int)(nTreeHeight.Value - nTreeHeightVariation.Value),
+                treeSpacingMax = (int)(nTreeSpacing.Value + nTreeSpacingVariation.Value),
+                treeSpacingMin = (int)(nTreeSpacing.Value - nTreeSpacingVariation.Value),
+                useBias = (sBias.Value != 0),
+                waterCoverage = sWaterCoverage.Value / 100f,
+                bias = sBias.Value / 100f,
+                midPoint = cMidpoint.SelectedIndex - 1,
+                raisedCorners = (int)nRaisedCorners.Value,
+                loweredCorners = (int)nLoweredCorners.Value,
+                invertHeightmap = xInvert.Checked,
+                addWater = xWater.Checked
+            };
+        }
+
+        SaveFileDialog saveTemplateDialog = new SaveFileDialog();
+        private void bSaveTemplate_Click( object sender, EventArgs e ) {
+            if( saveTemplateDialog.ShowDialog() == DialogResult.OK && saveTemplateDialog.FileName != "" ) {
+                try {
+                    SaveArgs();
+                    generatorArgs.Save( saveTemplateDialog.FileName );
+                } catch( Exception ex ) {
+                    MessageBox.Show( "Could not open template file: " + ex );
+                }
+            }
+        }
     }
 }
