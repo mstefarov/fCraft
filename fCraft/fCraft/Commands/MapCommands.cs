@@ -625,19 +625,14 @@ namespace fCraft {
 
         internal static void ZoneAddCallback( Player player, Position[] marks, object tag ) {//TODO: better method names
             Zone zone = (Zone)tag;
-            zone.xMin = Math.Min( marks[0].x, marks[1].x );
-            zone.xMax = Math.Max( marks[0].x, marks[1].x );
-            zone.yMin = Math.Min( marks[0].y, marks[1].y );
-            zone.yMax = Math.Max( marks[0].y, marks[1].y );
-            zone.hMin = Math.Min( marks[0].h, marks[1].h );
-            zone.hMax = Math.Max( marks[0].h, marks[1].h );
+            zone.bounds = new BoundingBox( marks[0], marks[1] );
             player.Message( "Zone \"{0}\" created, {1} blocks total.",
                             zone.name,
-                            zone.GetVolume() );
+                            zone.bounds.GetVolume() );
             Logger.Log( "Player {0} created a new zone \"{1}\" containing {2} blocks.", LogType.UserActivity,
                                   player.name,
                                   zone.name,
-                                  zone.GetVolume() );
+                                  zone.bounds.GetVolume() );
             player.world.map.AddZone( zone );
         }
 
@@ -713,9 +708,9 @@ namespace fCraft {
                                                    zone.build.color,
                                                    zone.build.name,
                                                    Color.Sys,
-                                                   zone.GetWidthX(),
-                                                   zone.GetWidthY(),
-                                                   zone.GetHeight() ) );
+                                                   zone.bounds.GetWidthX(),
+                                                   zone.bounds.GetWidthY(),
+                                                   zone.bounds.GetHeight() ) );
                 }
             } else {
                 player.Message( "No zones are defined for this map." );

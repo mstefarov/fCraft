@@ -299,9 +299,11 @@ namespace fCraft {
                     for( int h = sh; h <= eh; h++ ) {
                         for( int y3 = 0; y3 < DrawStride && y + y3 <= ey; y3++ ) {
                             for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
+
                                 block = player.world.map.GetBlock( x + x3, y + y3, h );
                                 if( block != oldBlock ) continue;
                                 if( block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) continue;
+                                if( player.CanPlace( x, y, h, replacementBlock ) != CanPlaceResult.Allowed ) continue;
                                 player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h, replacementBlock ) );
                                 if( blocks < MaxUndoCount ) {
                                     player.undoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, oldBlock ) );
@@ -310,6 +312,7 @@ namespace fCraft {
                                     cannotUndo = true;
                                 }
                                 blocks++;
+
                             }
                         }
                     }
@@ -353,24 +356,12 @@ namespace fCraft {
             int blocks = 0;
             bool cannotUndo = false;
 
-            byte block;
             for( int x = sx; x <= ex; x += DrawStride ) {
                 for( int y = sy; y <= ey; y += DrawStride ) {
                     for( int h = sh; h <= eh; h++ ) {
                         for( int y3 = 0; y3 < DrawStride && y + y3 <= ey; y3++ ) {
                             for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
-                                block = player.world.map.GetBlock( x + x3, y + y3, h );
-                                if( block == (byte)drawBlock ) continue;
-                                if( block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) continue;
-
-                                player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h, (byte)drawBlock ) );
-                                if( blocks < MaxUndoCount ) {
-                                    player.undoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, block ) );
-                                } else if( !cannotUndo ) {
-                                    player.Message( "NOTE: This draw command is too massive to undo." );
-                                    cannotUndo = true;
-                                }
-                                blocks++;
+                                DrawOneBlock( player, drawBlock, x + x3, y + y3, h, ref blocks, ref cannotUndo );
                             }
                         }
                     }
@@ -482,7 +473,6 @@ namespace fCraft {
             int blocks = 0;
             bool cannotUndo = false;
 
-            byte block;
             for( int x = sx; x <= ex; x += DrawStride ) {
                 for( int y = sy; y <= ey; y += DrawStride ) {
                     for( int h = sh; h <= eh; h++ ) {
@@ -496,18 +486,7 @@ namespace fCraft {
 
                                 // test if it's inside ellipse
                                 if( (dx * dx) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 <= 1 ) {
-                                    block = player.world.map.GetBlock( x + x3, y + y3, h );
-                                    if( block == (byte)drawBlock ) continue;
-                                    if( block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) continue;
-
-                                    player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h, (byte)drawBlock ) );
-                                    if( blocks < MaxUndoCount ) {
-                                        player.undoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, block ) );
-                                    } else if( !cannotUndo ) {
-                                        player.Message( "Warning: This draw command is too massive to undo." );
-                                        cannotUndo = true;
-                                    }
-                                    blocks++;
+                                    DrawOneBlock( player, drawBlock, x + x3, y + y3, h, ref blocks, ref cannotUndo );
                                 }
                             }
                         }
@@ -524,8 +503,11 @@ namespace fCraft {
 
 
         static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int h, ref int blocks, ref bool cannotUndo ) {
+            if( player.CanPlace( x, y, h, drawBlock ) != CanPlaceResult.Allowed ) return;
             byte block = player.world.map.GetBlock( x, y, h );
-            if( block == drawBlock || block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) return;
+            if( block == drawBlock ||
+                (block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete )) ||
+                (drawBlock == (byte)Block.Admincrete && !player.Can( Permission.PlaceAdmincrete )) ) return;
 
             player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x, y, h, drawBlock ) );
             if( blocks < MaxUndoCount ) {
@@ -682,20 +664,15 @@ namespace fCraft {
             byte specialType = (byte)args.type;
             Map map = player.world.map;
 
-            int sx = Math.Min( marks[0].x, marks[0].x + info.widthX );
-            int ex = Math.Max( marks[0].x, marks[0].x + info.widthX );
-            int sy = Math.Min( marks[0].y, marks[0].y + info.widthY );
-            int ey = Math.Max( marks[0].y, marks[0].y + info.widthY );
-            int sh = Math.Min( marks[0].h, marks[0].h + info.height );
-            int eh = Math.Max( marks[0].h, marks[0].h + info.height );
+            BoundingBox bounds = new BoundingBox( marks[0], info.widthX, info.widthY, info.height );
 
-            if( sx < 0 || ex > map.widthX - 1 ) {
+            if( bounds.xMin < 0 || bounds.xMax > map.widthX - 1 ) {
                 player.Message( "Warning: Not enough room horizontally (X), paste cut off." );
             }
-            if( sy < 0 || ey > map.widthY - 1 ) {
+            if( bounds.yMin < 0 || bounds.yMax > map.widthY - 1 ) {
                 player.Message( "Warning: Not enough room horizontally (Y), paste cut off." );
             }
-            if( sh < 0 || eh > map.height - 1 ) {
+            if( bounds.hMin < 0 || bounds.hMax > map.height - 1 ) {
                 player.Message( "Warning: Not enough room vertically, paste cut off." );
             }
 
@@ -705,10 +682,10 @@ namespace fCraft {
             bool cannotUndo = false;
             byte block;
 
-            for( int x = sx; x <= ex; x++ ) {
-                for( int y = sy; y <= ey; y++ ) {
-                    for( int h = sh; h <= eh; h++ ) {
-                        block = info.buffer[x - sx, y - sy, h - sh];
+            for( int x = bounds.xMin; x <= bounds.xMax; x++ ) {
+                for( int y = bounds.yMin; y <= bounds.yMax; y++ ) {
+                    for( int h = bounds.hMin; h <= bounds.hMax; h++ ) {
+                        block = info.buffer[x - bounds.xMin, y - bounds.yMin, h - bounds.hMin];
                         if( !(args.doExclude && block == specialType) &&
                             !(args.doInclude && block != specialType) ) {
                             DrawOneBlock( player, block, x, y, h, ref blocks, ref cannotUndo );

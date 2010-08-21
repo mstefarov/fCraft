@@ -7,11 +7,7 @@ using System.Text;
 
 namespace fCraft {
     public sealed class Zone {
-        public int xMin, yMin, hMin, xMax, yMax, hMax;
-        public int GetWidthX() { return xMax - xMin+1; }
-        public int GetWidthY() { return yMax - yMin+1; }
-        public int GetHeight() { return hMax - hMin+1; }
-        public int GetVolume() { return GetWidthX() * GetWidthY() * GetHeight(); }
+        public BoundingBox bounds;
 
         public string name;
 
@@ -26,14 +22,9 @@ namespace fCraft {
 
             string[] header = parts[0].Split( ' ' );
             name = header[0];
-            xMin = Int32.Parse( header[1] );
-            yMin = Int32.Parse( header[2] );
-            hMin = Int32.Parse( header[3] );
-            xMax = Int32.Parse( header[4] );
-            yMax = Int32.Parse( header[5] );
-            hMax = Int32.Parse( header[6] );
+            bounds = new BoundingBox( Int32.Parse( header[1] ), Int32.Parse( header[2] ), Int32.Parse( header[3] ),
+                                      Int32.Parse( header[4] ), Int32.Parse( header[5] ), Int32.Parse( header[6] ) );
 
-            // try VERY HARD to parse the damn class
             int buildRank;
             if( Int32.TryParse( header[7], out buildRank ) ) {
                 build = ClassList.ParseRank( buildRank );
@@ -65,7 +56,7 @@ namespace fCraft {
         public string Serialize() {
             return String.Format( "{0},{1},{2}",
                                   String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
-                                                 name, xMin, yMin, hMin, xMax, yMax, hMax, build ),
+                                                 name, bounds.xMin, bounds.yMin, bounds.hMin, bounds.xMax, bounds.yMax, bounds.hMax, build ),
                                   String.Join( " ", includedPlayers.ToArray() ),
                                   String.Join( " ", excludedPlayers.ToArray() ) );
         }
@@ -76,12 +67,11 @@ namespace fCraft {
             if( excludedPlayers.Contains( player.name ) ) return false;
             return player.info.playerClass.rank >= build.rank;
         }
+    }
 
-
-        public bool Contains( int x, int y, int h ) {
-            return x >= xMin && x <= xMax &&
-                   y >= yMin && y <= yMax &&
-                   h >= hMin && h <= hMax;
-        }
+    public enum ZoneOverride {
+        None,
+        Allow,
+        Deny
     }
 }
