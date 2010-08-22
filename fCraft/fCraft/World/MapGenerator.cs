@@ -505,7 +505,7 @@ namespace fCraft {
         }
 
 
-        public static MapGeneratorArgs MakePreset( MapGenTemplate template ) {
+        public static MapGeneratorArgs MakeTemplate( MapGenTemplate template ) {
             switch( template ) {
                 case MapGenTemplate.Archipelago:
                     return new MapGeneratorArgs {

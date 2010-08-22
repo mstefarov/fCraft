@@ -1,18 +1,21 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-08-20
+2010-08-22
 440
  FEATURE: New MapGenerator with tons of options. You can also save/load custom templates for it.
  FEATURE: AddWorldPopup interface overhaul.
  FEATURE: JTE, D3, and Myne/Mynecraft/Hyvebuild/iCraft map format converters added.
+ Feature: Improved syntax of the /gen command. See "/help gen" for details.
  Feature: Reason/memo is now shown publicly when someone gets banned, unbanned, or kicked.
  Feature: Teleport and Bring work across worlds - world permissions still apply.
  Feature: Added 4 new Config keys: RequireBanReason, RequireClassChangeReason, AnnounceKickAndBanReasons, AnnounceClassChanges. By default "AnnounceKickAndBanReasons" and "AnnounceClassChanges" are enabled.
  Feature: Added 5 new fields to PlayerDB: previousClass, classChangeReason, timesKicked, timesKickedOthers, timesBannedOthers.
  Feature: Added a lot of new information to /info.
  Feature: You can now save map preview images (isometric) from AddWorldPopup.
+ Feature: ConfigTool now shows warnings about any errors logged during Config.Load
+ Fix: Yet another workaround for VerifyNames false negatives (thanks to SpaceManiac).
  Fix: Fixed being able to paste admincrete/water/lava without permission (part of Player.CanPlace overhaul).
  Fix: Trying to go over class draw limit no longer causes "Another drawing command is in progress" error.
- Fix: Mcc.MapUtility.TryLoading() now releases file handles as soon as possible (instead of waiting for GC).
+ Fix: Mcc.MapUtility.TryLoading() and Map.LoadHeaderOnly() now release file handles as soon as possible. This should fix some "file is being used by another process" errors.
  Fix: Map spawn should be parsed correctly for MCSharp/MCZall maps
  Fix: If a map doesn't start with a gzip header, it no longer has a chance to abort the whole load process.
  Fix: Fixed blocktype names being case-sensitive.
@@ -27,6 +30,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fix: Documented ability to /tp to specific coordinates.
  Fix: AddWorldPopup no longer crashes if user closes "Load Map" dialog before selecting any file.
  Fix: When drawing affects (in part or in full) a restricted zone, the zone is left untouched, and the rest of draw command finishes (part of Player.CanPlace overhaul).
+ Fix: Fixed crash in AddWorldPopup.AsyncLoad() if map loading failed.
+ Fix: LegacyRankMapping is now parsed correctly
+ Fix: Renaming a class no longer causes "Worlds" tab dropdown menus to go out-of-sync.
  Change: AddWorldPopup preview image quality improved.
  Change: Updated to newest version of NBTag library.
  Change: Frozen players can no longer build/delete.

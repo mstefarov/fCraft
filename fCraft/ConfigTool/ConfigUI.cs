@@ -31,10 +31,6 @@ namespace ConfigTool {
             };
             Load += LoadConfig;
             Config.logToString = true;
-#if DEBUG
-#else
-            MessageBox.Show("You are using an EXPERIMENTAL VERSION. Use a stable version instead (0.435).");
-#endif
         }
 
         void FillPermissionList() {
@@ -78,6 +74,16 @@ namespace ConfigTool {
 
         private void bMeasure_Click( object sender, EventArgs e ) {
             System.Diagnostics.Process.Start( "http://www.speedtest.net/" );
+        }
+
+        private void bAnnouncements_Click( object sender, EventArgs e ) {
+            TextEditorPopup popup = new TextEditorPopup( Server.AnnouncementsFile, "" );
+            popup.ShowDialog();
+        }
+
+        private void xAnnouncements_CheckedChanged( object sender, EventArgs e ) {
+            nAnnouncements.Enabled = xAnnouncements.Checked;
+            bAnnouncements.Enabled = xAnnouncements.Checked;
         }
 
         #endregion
@@ -805,15 +811,5 @@ namespace ConfigTool {
         }
 
         #endregion
-
-        private void bAnnouncements_Click( object sender, EventArgs e ) {
-            TextEditorPopup popup = new TextEditorPopup( Server.AnnouncementsFile, "" );
-            popup.ShowDialog();
-        }
-
-        private void xAnnouncements_CheckedChanged( object sender, EventArgs e ) {
-            nAnnouncements.Enabled = xAnnouncements.Checked;
-            bAnnouncements.Enabled = xAnnouncements.Checked;
-        }
     }
 }
