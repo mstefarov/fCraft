@@ -16,7 +16,7 @@ namespace ConfigTool {
         Font bold;
         PlayerClass selectedClass, defaultClass;
         internal static SortableBindingList<WorldListEntry> worlds = new SortableBindingList<WorldListEntry>();
-
+        
         #region Initialization
 
         public ConfigUI() {
@@ -218,7 +218,7 @@ namespace ConfigTool {
         #endregion
 
         #region Classes
-
+        List<string> classNameList = new List<string>();
         void SelectClass( PlayerClass pc ) {
             if( pc == null ) {
                 if( vClasses.SelectedIndex != -1 ) {
@@ -378,6 +378,8 @@ namespace ConfigTool {
                 int index = vClasses.SelectedIndex;
                 PlayerClass deletedClass = ClassList.classesByIndex[index];
 
+                string messages = "";
+
                 // Ask for substitute class
                 DeleteClassPopup popup = new DeleteClassPopup( deletedClass );
                 if( popup.ShowDialog() != DialogResult.OK ) return;
@@ -386,12 +388,12 @@ namespace ConfigTool {
                 PlayerClass defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
                 if( defaultClass == deletedClass ) {
                     defaultClass = popup.substituteClass;
-                    MessageBox.Show( "DefaultClass has been changed to \"" + popup.substituteClass.name + "\"", "Warning" );
+                    messages += "DefaultClass has been changed to \"" + popup.substituteClass.name + "\"" + Environment.NewLine;
                 }
 
                 // Delete class
                 if( ClassList.DeleteClass( index, popup.substituteClass ) ) { //TODO: crashes
-                    MessageBox.Show( "Some of the rank limits for kick, ban, promote, and/or demote have been reset.", "Warning" );
+                    messages += "Some of the rank limits for kick, ban, promote, and/or demote have been reset." + Environment.NewLine;
                 }
                 vClasses.Items.RemoveAt( index );
 
@@ -409,7 +411,11 @@ namespace ConfigTool {
                 }
                 ApplyTabWorlds();
                 if( worldUpdates.Length > 0 ) {
-                    MessageBox.Show( "The following worlds were affected:" + Environment.NewLine + worldUpdates, "Warning" );
+                    messages += "The following worlds were affected:" + Environment.NewLine + worldUpdates;
+                }
+
+                if( messages.Length > 0 ) {
+                    MessageBox.Show( messages, "Warning" );
                 }
 
                 RebuildClassList();
@@ -598,7 +604,9 @@ namespace ConfigTool {
             } else {
                 defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
                 ClassList.ChangeName( selectedClass, name );
+                classNameList.Add( selectedClass.ToComboBoxOption() );
                 RebuildClassList();
+                ApplyTabWorlds();
             }
         }
 
