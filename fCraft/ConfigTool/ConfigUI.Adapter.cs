@@ -121,19 +121,19 @@ namespace ConfigTool {
 
 
         void ApplyTabWorlds() {
-            List<string> classes = new List<string>();
-            classes.Add( WorldListEntry.DefaultClassOption );
+            classNameList = new List<string>();
+            classNameList.Add( WorldListEntry.DefaultClassOption );
             foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                classes.Add( pc.ToComboBoxOption());
+                classNameList.Add( pc.ToComboBoxOption() );
             }
 
-            dgvcAccess.DataSource = classes;
-            dgvcBuild.DataSource = classes;
+            dgvcAccess.DataSource = classNameList;
+            dgvcBuild.DataSource = classNameList;
             dgvcBackup.DataSource = World.BackupEnum;
 
             foreach( DataGridViewRow row in dgvWorlds.Rows ) {
-                ((DataGridViewComboBoxCell)row.Cells[3]).DataSource = classes;
-                ((DataGridViewComboBoxCell)row.Cells[4]).DataSource = classes;
+                ((DataGridViewComboBoxCell)row.Cells[3]).DataSource = classNameList;
+                ((DataGridViewComboBoxCell)row.Cells[4]).DataSource = classNameList;
             }
 
             dgvWorlds.DataSource = worlds;
