@@ -433,10 +433,11 @@ namespace fCraft {
 
             map.CalculateShadows();
 
-            for( int x = BorderPadding; x < map.widthX - BorderPadding; x += rn.Next( MinTrunkPadding, MaxTrunkPadding ) ) {
-                for( int y = BorderPadding; y < map.widthY - BorderPadding; y += rn.Next( MinTrunkPadding, MaxTrunkPadding ) ) {
+            for( int x = 0; x < map.widthX; x += rn.Next( MinTrunkPadding, MaxTrunkPadding ) ) {
+                for( int y = 0; y < map.widthY; y += rn.Next( MinTrunkPadding, MaxTrunkPadding ) ) {
                     nx = x + rn.Next( -(MinTrunkPadding / 2), (MaxTrunkPadding / 2) );
                     ny = y + rn.Next( -(MinTrunkPadding / 2), (MaxTrunkPadding / 2) );
+                    if( nx < 0 || nx >= map.widthX || ny < 0 || ny >= map.widthY ) continue;
                     nz = map.shadows[nx, ny];
 
                     if( map.GetBlock( nx, ny, nz ) == (byte)bGroundSurface ) {

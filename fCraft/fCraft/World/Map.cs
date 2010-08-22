@@ -173,17 +173,19 @@ namespace fCraft {
                 }
 
                 Map map = new Map();
-                BinaryReader reader = new BinaryReader( File.OpenRead( fileName ) );
+                using( FileStream fs = File.OpenRead( fileName ) ) {
+                    BinaryReader reader = new BinaryReader( fs );
 
-                // Read in the magic number
-                if( reader.ReadUInt32() != Mcc.MapFCMv2.Identifier ) {
-                    throw new FormatException();
+                    // Read in the magic number
+                    if( reader.ReadUInt32() != Mcc.MapFCMv2.Identifier ) {
+                        throw new FormatException();
+                    }
+
+                    // Read in the map dimesions
+                    map.widthX = reader.ReadInt16();
+                    map.widthY = reader.ReadInt16();
+                    map.height = reader.ReadInt16();
                 }
-
-                // Read in the map dimesions
-                map.widthX = reader.ReadInt16();
-                map.widthY = reader.ReadInt16();
-                map.height = reader.ReadInt16();
                 return map;
             } catch( Exception ex ) {
                 Logger.Log( "Map.LoadHeaderOnly: Error occured while trying to parse header of " + fileName + ": " + ex, LogType.Error );

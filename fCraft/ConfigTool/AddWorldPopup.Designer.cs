@@ -1343,7 +1343,7 @@
             this.sDetailSize.AutoSize = false;
             this.sDetailSize.Location = new System.Drawing.Point( 98, 52 );
             this.sDetailSize.Maximum = 7;
-            this.sDetailSize.Minimum = 2;
+            this.sDetailSize.Minimum = 1;
             this.sDetailSize.Name = "sDetailSize";
             this.sDetailSize.Size = new System.Drawing.Size( 116, 27 );
             this.sDetailSize.TabIndex = 1;
@@ -1409,7 +1409,7 @@
             this.nTreeHeightVariation.Size = new System.Drawing.Size( 54, 20 );
             this.nTreeHeightVariation.TabIndex = 3;
             this.nTreeHeightVariation.Value = new decimal( new int[] {
-            1,
+            2,
             0,
             0,
             0} );
@@ -1440,7 +1440,7 @@
             this.nTreeHeight.Size = new System.Drawing.Size( 54, 20 );
             this.nTreeHeight.TabIndex = 2;
             this.nTreeHeight.Value = new decimal( new int[] {
-            5,
+            6,
             0,
             0,
             0} );
