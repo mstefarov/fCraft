@@ -116,10 +116,10 @@ namespace ConfigTool {
             cTemplates.SelectedIndex = (int)MapGenType.River;
             cTheme.SelectedIndex = (int)MapGenTheme.Forest;
 
-            sFeatureSize.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 ) + 1;
-            sDetailSize.Maximum = sFeatureSize.Maximum;
+            nWidthX.Value = 128;
+            nWidthY.Value = 128;
             sFeatureSize.Value = 1;
-            sDetailSize.Value = sFeatureSize.Maximum - 1;
+            sDetailSize.Value = sDetailSize.Maximum - 1;
 
             cMidpoint.SelectedIndex = 1;
 
@@ -381,24 +381,28 @@ namespace ConfigTool {
         private void sFeatureSize_ValueChanged( object sender, EventArgs e ) {
             int resolution = 1 << (sFeatureSize.Maximum - sFeatureSize.Value);
             lFeatureSizeDisplay.Text = resolution + "×" + resolution;
-            sDetailSize.Value = Math.Max( sDetailSize.Value, sFeatureSize.Value + 1 );
+            if( sDetailSize.Value < sFeatureSize.Value + 1 ) {
+                sDetailSize.Value = sFeatureSize.Value + 1;
+            }
         }
 
         private void sDetailSize_ValueChanged( object sender, EventArgs e ) {
             int resolution = 1 << (sDetailSize.Maximum - sDetailSize.Value);
             lDetailSizeDisplay.Text = resolution + "×" + resolution;
-            sFeatureSize.Value = Math.Min( sDetailSize.Value - 1, sFeatureSize.Value );
+            if( sFeatureSize.Value > sDetailSize.Value - 1 ) {
+                sFeatureSize.Value = sDetailSize.Value - 1;
+            }
         }
 
         private void xMatchWaterCoverage_CheckedChanged( object sender, EventArgs e ) {
             sWaterCoverage.Enabled = xMatchWaterCoverage.Checked;
         }
 
-        private void sWaterCoverage_Scroll( object sender, EventArgs e ) {
+        private void sWaterCoverage_ValueChanged( object sender, EventArgs e ) {
             lMatchWaterCoverageDisplay.Text = sWaterCoverage.Value + "%";
         }
 
-        private void sBias_Scroll( object sender, EventArgs e ) {
+        private void sBias_ValueChanged( object sender, EventArgs e ) {
             lBiasDisplay.Text = sBias.Value + "%";
             bool useBias = (sBias.Value != 0);
 
@@ -407,7 +411,7 @@ namespace ConfigTool {
             cMidpoint.Enabled = useBias;
         }
 
-        private void sRoughness_Scroll( object sender, EventArgs e ) {
+        private void sRoughness_ValueChanged( object sender, EventArgs e ) {
             lRoughnessDisplay.Text = sRoughness.Value + "%";
         }
 
@@ -564,6 +568,7 @@ Dimensions: {4}×{5}×{6}
                 try {
                     generatorArgs = new MapGeneratorArgs( browseTemplateDialog.FileName );
                     LoadArgs();
+                    bGenerate.PerformClick();
                 } catch( Exception ex ) {
                     MessageBox.Show( "Could not open template file: " + ex );
                 }
@@ -648,5 +653,6 @@ Dimensions: {4}×{5}×{6}
                 }
             }
         }
+
     }
 }

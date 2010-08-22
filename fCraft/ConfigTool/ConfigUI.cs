@@ -97,8 +97,8 @@ namespace ConfigTool {
                 }
             } else {
                 mainWorldName = cMainWorld.SelectedItem.ToString();
-                cMainWorld.SelectedItem = mainWorldName;
                 FillWorldList();
+                cMainWorld.SelectedItem = mainWorldName;
             }
         }
 

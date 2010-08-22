@@ -542,6 +542,7 @@ namespace fCraft {
                     player.Message( Color.Red + "Please specify a demotion reason." );
                 }
                 cdChangeClass.PrintUsage( player );
+                return;
             }
 
             // Do the class change

@@ -58,7 +58,6 @@
             this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.preview = new ConfigTool.CustomPictureBox();
             this.lDetailSize = new System.Windows.Forms.Label();
             this.sFeatureSize = new System.Windows.Forms.TrackBar();
             this.sRoughness = new System.Windows.Forms.TrackBar();
@@ -136,12 +135,12 @@
             this.nTreeSpacing = new System.Windows.Forms.NumericUpDown();
             this.lTreeSpacing = new System.Windows.Forms.Label();
             this.lMapFileOptions = new System.Windows.Forms.Label();
+            this.preview = new ConfigTool.CustomPictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sFeatureSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sRoughness)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sWaterCoverage)).BeginInit();
@@ -171,6 +170,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacingVariation)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacing)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.SuspendLayout();
             // 
             // lX2
@@ -559,20 +559,6 @@
             this.previewLayout.Size = new System.Drawing.Size( 579, 646 );
             this.previewLayout.TabIndex = 6;
             // 
-            // preview
-            // 
-            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.preview.BackColor = System.Drawing.Color.Black;
-            this.previewLayout.SetColumnSpan( this.preview, 3 );
-            this.preview.Location = new System.Drawing.Point( 3, 3 );
-            this.preview.Name = "preview";
-            this.preview.Size = new System.Drawing.Size( 573, 612 );
-            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.preview.TabIndex = 17;
-            this.preview.TabStop = false;
-            // 
             // lDetailSize
             // 
             this.lDetailSize.AutoSize = true;
@@ -587,11 +573,10 @@
             this.sFeatureSize.AutoSize = false;
             this.sFeatureSize.Location = new System.Drawing.Point( 98, 19 );
             this.sFeatureSize.Maximum = 6;
-            this.sFeatureSize.Minimum = 1;
             this.sFeatureSize.Name = "sFeatureSize";
             this.sFeatureSize.Size = new System.Drawing.Size( 116, 27 );
             this.sFeatureSize.TabIndex = 0;
-            this.sFeatureSize.Value = 6;
+            this.sFeatureSize.Value = 2;
             this.sFeatureSize.ValueChanged += new System.EventHandler( this.sFeatureSize_ValueChanged );
             // 
             // sRoughness
@@ -605,7 +590,7 @@
             this.sRoughness.TabIndex = 4;
             this.sRoughness.TickFrequency = 10;
             this.sRoughness.Value = 50;
-            this.sRoughness.Scroll += new System.EventHandler( this.sRoughness_Scroll );
+            this.sRoughness.ValueChanged += new System.EventHandler( this.sRoughness_ValueChanged );
             // 
             // lRoughness
             // 
@@ -658,7 +643,7 @@
             this.sWaterCoverage.TabIndex = 6;
             this.sWaterCoverage.TickFrequency = 10;
             this.sWaterCoverage.Value = 50;
-            this.sWaterCoverage.Scroll += new System.EventHandler( this.sWaterCoverage_Scroll );
+            this.sWaterCoverage.ValueChanged += new System.EventHandler( this.sWaterCoverage_ValueChanged );
             // 
             // lMatchWaterCoverageDisplay
             // 
@@ -742,7 +727,7 @@
             this.sBias.Size = new System.Drawing.Size( 116, 27 );
             this.sBias.TabIndex = 0;
             this.sBias.TickFrequency = 20;
-            this.sBias.Scroll += new System.EventHandler( this.sBias_Scroll );
+            this.sBias.ValueChanged += new System.EventHandler( this.sBias_ValueChanged );
             // 
             // xTrees
             // 
@@ -1544,6 +1529,20 @@
             this.lMapFileOptions.TabIndex = 55;
             this.lMapFileOptions.Text = "Map file:";
             // 
+            // preview
+            // 
+            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.preview.BackColor = System.Drawing.Color.Black;
+            this.previewLayout.SetColumnSpan( this.preview, 3 );
+            this.preview.Location = new System.Drawing.Point( 3, 3 );
+            this.preview.Name = "preview";
+            this.preview.Size = new System.Drawing.Size( 573, 612 );
+            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.preview.TabIndex = 17;
+            this.preview.TabStop = false;
+            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -1577,7 +1576,6 @@
             this.statusStrip.PerformLayout();
             this.previewLayout.ResumeLayout( false );
             this.previewLayout.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sFeatureSize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sRoughness)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sWaterCoverage)).EndInit();
@@ -1618,6 +1616,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeight)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacingVariation)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacing)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.ResumeLayout( false );
             this.PerformLayout();
 
