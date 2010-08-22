@@ -12,18 +12,22 @@ namespace fCraft {
         Desert,
         Forest,
         Hell,
-        Normal,
         Rocky
     }
 
-    public enum MapGenType {
-        Mountains,
+    public enum MapGenTemplate {
+        Archipelago,
+        Atoll,
+        Bay,
+        Default,
+        Dunes,
         Hills,
-        Lake,
+        Ice,
         Island,
-        Coast,
+        Lake,
+        Mountains,
         River,
-        Cliffs
+        Streams
     }
 
 
@@ -368,7 +372,6 @@ namespace fCraft {
                     bCliff = Block.Rocks;
                     break;
                 case MapGenTheme.Forest:
-                case MapGenTheme.Normal:
                     bWaterSurface = Block.Water;
                     bDeepWaterSurface = Block.Water;
                     bGroundSurface = Block.Grass;
@@ -471,75 +474,135 @@ namespace fCraft {
         }
 
 
-        /*
-        public static MapGeneratorArgs MakePreset( MapGenType preset ) {
-            switch( preset ) {
-                case MapGenType.Cliffs:
+        public static MapGeneratorArgs MakePreset( MapGenTemplate template ) {
+            switch( template ) {
+                case MapGenTemplate.Archipelago:
                     return new MapGeneratorArgs {
-                        cornerBiasMax = 0.2f,
-                        cornerBiasMin = 0.05f,
-                        minDetailSize = 1,
-                        layeredHeightmap = true,
-                        midpointBias = 0,
-                        roughness = .6f,
-                        useBias = true
-                    };
-                case MapGenType.Coast:
-                    return new MapGeneratorArgs {
-                        cornerBiasMax = -0.1f,
-                        cornerBiasMin = 0.13f,
-                        minDetailSize = 1,
+                        maxHeight = 8,
+                        maxDepth = 20,
+                        maxDetailSize = 3,
+                        roughness = .46f,
                         matchWaterCoverage = true,
-                        midpointBias = 0,
-                        roughness = .5f,
+                        waterCoverage = .85f
+                    };
+                case MapGenTemplate.Atoll:
+                    return new MapGeneratorArgs {
+                        theme = MapGenTheme.Desert,
+                        maxHeight = 2,
+                        maxDepth = 39,
                         useBias = true,
-                        waterCoverage = .6f
-                    };
-                case MapGenType.Hills:
-                    return new MapGeneratorArgs {
-                        minDetailSize = 2,
+                        bias = .9f,
+                        midPoint = 1,
+                        loweredCorners = 4,
+                        maxDetailSize = 2,
+                        minDetailSize = 6,
+                        marbledHeightmap = true,
+                        invertHeightmap = true,
                         matchWaterCoverage = true,
-                        roughness = .45f,
-                        waterCoverage = .6f
+                        waterCoverage = .95f
                     };
-                case MapGenType.Island:
+                case MapGenTemplate.Bay:
                     return new MapGeneratorArgs {
-                        cornerBiasMax = -0.05f,
-                        cornerBiasMin = -0.2f,
-                        minDetailSize = 2,
-                        matchWaterCoverage = true,
-                        midpointBias = .3f,
-                        roughness = .5f,
+                        maxHeight = 22,
+                        maxDetailSize = 12,
                         useBias = true,
-                        waterCoverage = .75f
+                        bias = 1,
+                        midPoint = -1,
+                        raisedCorners = 3,
+                        loweredCorners = 1,
+                        treeSpacingMax=12,
+                        treeSpacingMin=6
                     };
-                case MapGenType.Lake:
+                case MapGenTemplate.Default:
+                    return new MapGeneratorArgs();
+                case MapGenTemplate.Dunes:
                     return new MapGeneratorArgs {
-                        cornerBiasMax = .03f,
-                        cornerBiasMin = .1f,
-                        minDetailSize = 2,
+                        addWater = false,
+                        theme = MapGenTheme.Desert,
+                        maxHeight = 13,
+                        maxDepth = 7,
+                        maxDetailSize = 2,
+                        minDetailSize = 4,
+                        roughness = .44f,
+                        marbledHeightmap = true,
+                        invertHeightmap = true
+                    };
+                case MapGenTemplate.Hills:
+                    return new MapGeneratorArgs {
+                        maxHeight = 8,
+                        maxDepth = 8,
+                        maxDetailSize = 2,
+                        treeSpacingMin = 7,
+                        treeSpacingMax = 13
+                    };
+                case MapGenTemplate.Ice:
+                    return new MapGeneratorArgs {
+                        theme = MapGenTheme.Arctic,
+                        maxHeight = 2,
+                        maxDepth = 2032,
+                        maxDetailSize = 2,
+                        minDetailSize = 8,
+                        roughness = .64f,
+                        marbledHeightmap = true,
                         matchWaterCoverage = true,
-                        midpointBias = -.3f,
-                        roughness = .5f,
+                        waterCoverage = .3f
+                    };
+                case MapGenTemplate.Island:
+                    return new MapGeneratorArgs {
+                        maxHeight = 16,
+                        maxDepth = 39,
                         useBias = true,
+                        bias = .7f,
+                        midPoint = 1,
+                        loweredCorners = 4,
+                        maxDetailSize = 3,
+                        minDetailSize = 8
+                    };
+                case MapGenTemplate.Lake:
+                    return new MapGeneratorArgs {
+                        maxHeight = 14,
+                        maxDepth = 20,
+                        useBias = true,
+                        bias = .65f,
+                        midPoint = -1,
+                        raisedCorners = 4,
+                        maxDetailSize = 2,
+                        roughness = .56f,
+                        matchWaterCoverage = true,
+                        waterCoverage = .3f
+                    };
+                case MapGenTemplate.Mountains:
+                    return new MapGeneratorArgs {
+                        addWater = false,
+                        maxHeight = 40,
+                        maxDepth = 10,
+                        maxDetailSize = 1,
+                        minDetailSize = 8,
+                        marbledHeightmap = true
+                    };
+                case MapGenTemplate.River:
+                    return new MapGeneratorArgs {
+                        maxHeight = 22,
+                        maxDepth = 8,
+                        maxDetailSize = 0,
+                        minDetailSize = 6,
+                        marbledHeightmap = true,
+                        matchWaterCoverage = true,
+                        waterCoverage = .31f
+                    };
+                case MapGenTemplate.Streams:
+                    return new MapGeneratorArgs {
+                        maxHeight = 5,
+                        maxDepth = 4,
+                        maxDetailSize = 2,
+                        minDetailSize = 7,
+                        roughness = .55f,
+                        marbledHeightmap = true,
+                        matchWaterCoverage = true,
                         waterCoverage = .25f
-                    };
-                case MapGenType.Mountains:
-                    return new MapGeneratorArgs {
-                        minDetailSize = 1,
-                        layeredHeightmap = true,
-                        matchWaterCoverage = true,
-                        roughness = .6f,
-                        waterCoverage = .6f
-                    };
-                case MapGenType.River:
-                    return new MapGeneratorArgs {
-                        minDetailSize = 1,
-                        marbled = true,
-                        roughness = .5f,
                     };
             }
             return null; // can never happen
-        }*/
+        }
     }
 }

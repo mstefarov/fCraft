@@ -751,7 +751,7 @@ namespace fCraft {
                 return "Generates a map file. Available themes:&N" +
                        String.Join( ",", Enum.GetNames( typeof( MapGenTheme ) ) ) + "&N" +
                        "Available terrain types:&N" +
-                       "Empty,Flatgrass," + String.Join( ",", Enum.GetNames( typeof( MapGenType ) ) ) + "&N" +
+                       "Empty,Flatgrass," + String.Join( ",", Enum.GetNames( typeof( MapGenTemplate ) ) ) + "&N" +
                        "NOTE: Map is saved TO FILE ONLY, use /wload to load it.";
             },
             handler = Generate
@@ -808,7 +808,7 @@ namespace fCraft {
                     player.Message( Color.Red + "An error occured while generating the map." );
                 }
             } else {
-                MapGenType type;
+                MapGenTemplate type;
                 MapGenTheme theme;
                 try {
                     theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), themeName, true );
@@ -819,10 +819,10 @@ namespace fCraft {
                 }
 
                 try {
-                    type = (MapGenType)Enum.Parse( typeof( MapGenType ), typeName, true );
+                    type = (MapGenTemplate)Enum.Parse( typeof( MapGenTemplate ), typeName, true );
                 } catch( Exception ) {
                     player.Message( "Unrecognized terrain type \"" + themeName + "\". Available types are:" );
-                    player.Message( "Empty,Flatgrass," + String.Join( ", ", Enum.GetNames( typeof( MapGenType ) ) ) );
+                    player.Message( "Empty,Flatgrass," + String.Join( ", ", Enum.GetNames( typeof( MapGenTemplate ) ) ) );
                     return;
                 }
 

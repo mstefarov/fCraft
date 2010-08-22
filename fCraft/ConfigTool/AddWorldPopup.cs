@@ -21,7 +21,7 @@ namespace ConfigTool {
                          bwRenderer = new BackgroundWorker();
         object redrawLock = new object();
         Map map;
-        MapGenType genType;
+        MapGenTemplate genType;
         MapGenTheme genTheme;
         Stopwatch stopwatch;
         int previewRotation;
@@ -37,7 +37,7 @@ namespace ConfigTool {
             InitializeComponent();
 
             cBackup.Items.AddRange( World.BackupEnum );
-            cTemplates.Items.AddRange( Enum.GetNames( typeof( MapGenType ) ) );
+            cTemplates.Items.AddRange( Enum.GetNames( typeof( MapGenTemplate ) ) );
             cTheme.Items.AddRange( Enum.GetNames( typeof( MapGenTheme ) ) );
 
             bwLoader.DoWork += AsyncLoad;
@@ -113,11 +113,12 @@ namespace ConfigTool {
             }
 
             // Set Generator comboboxes to defaults
-            cTemplates.SelectedIndex = (int)MapGenType.River;
+            cTemplates.SelectedIndex = (int)MapGenTemplate.River;
             cTheme.SelectedIndex = (int)MapGenTheme.Forest;
 
-            nWidthX.Value = 128;
-            nWidthY.Value = 128;
+            nWidthX.Value = 160;
+            nWidthY.Value = 160;
+            nHeight.Value = 80;
             sFeatureSize.Value = 1;
             sDetailSize.Value = sDetailSize.Maximum - 1;
 
@@ -270,7 +271,7 @@ namespace ConfigTool {
             progressBar.Style = ProgressBarStyle.Marquee;
 
             Refresh();
-            genType = (MapGenType)cTemplates.SelectedIndex;
+            genType = (MapGenTemplate)cTemplates.SelectedIndex;
             genTheme = (MapGenTheme)cTheme.SelectedIndex;
             bwGenerator.RunWorkerAsync();
         }
