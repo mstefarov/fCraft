@@ -279,7 +279,7 @@ namespace fCraft {
                     player.Message( "World \"{0}\" can be only modified by {1}{2}+",
                                     worldName,
                                     world.classBuild.color,
-                                    world.classBuild.name  );
+                                    world.classBuild.name );
                 }
             } else {
                 PlayerClass playerClass = ClassList.FindClass( className );
@@ -317,9 +317,9 @@ namespace fCraft {
                 bool listAll = (cmd.Next() != null);
                 StringBuilder sb = new StringBuilder();
                 if( listAll ) {
-                    sb.Append("List of all worlds: ");
+                    sb.Append( "List of all worlds: " );
                 } else {
-                    sb.Append("List of available worlds: ");
+                    sb.Append( "List of available worlds: " );
                 }
 
                 bool first = true;
@@ -389,7 +389,7 @@ namespace fCraft {
                 Logger.Log( "{0} loaded new map for {1} from {2}", LogType.UserActivity,
                             player.GetLogName(),
                             player.world.name,
-                            fileName);
+                            fileName );
 
             } else {
                 // Loading to some other (or new) world
@@ -407,8 +407,8 @@ namespace fCraft {
                         player.Message( "New map for the world \"{0}\" has been loaded.", world.name );
                         Logger.Log( "{0} loaded new map for world \"{1}\" from {2}", LogType.UserActivity,
                                     player.GetLogName(),
-                                    world.name ,
-                                    fileName);
+                                    world.name,
+                                    fileName );
 
                     } else {
                         // Adding a new world
@@ -746,18 +746,47 @@ namespace fCraft {
         static CommandDescriptor cdGenerate = new CommandDescriptor {
             name = "gen",
             consoleSafe = true,
-            usage = "/gen widthX widthY height theme terrain filename",
+            usage = "/gen ThemeName TemplateName [Width Height Depth [FileName]]",
             helpHandler = delegate( Player player ) {
-                return "Generates a map file. Available themes:&N" +
+                return "Generates a new map. If no dimensions are given, uses current world's dimensions. " +
+                       "If no filename is given, loads generated world into current world. Available themes:&N" +
                        String.Join( ",", Enum.GetNames( typeof( MapGenTheme ) ) ) + "&N" +
                        "Available terrain types:&N" +
-                       "Empty,Flatgrass," + String.Join( ",", Enum.GetNames( typeof( MapGenTemplate ) ) ) + "&N" +
+                       "Flatgrass, " + String.Join( ", ", Enum.GetNames( typeof( MapGenTemplate ) ) ) + "&N" +
                        "NOTE: Map is saved TO FILE ONLY, use /wload to load it.";
             },
             handler = Generate
         };
 
         internal static void Generate( Player player, Command cmd ) {
+
+            string themeName = cmd.Next();
+            string templateName = cmd.Next();
+
+            if( templateName == null ) {
+                cdGenerate.PrintUsage( player );
+                return;
+            }
+
+            MapGenTemplate template;
+            MapGenTheme theme;
+
+            try {
+                theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), themeName, true );
+            } catch( Exception ) {
+                player.Message( "Unrecognized theme \"" + themeName + "\". Available themes are:" );
+                player.Message( String.Join( ", ", Enum.GetNames( typeof( MapGenTheme ) ) ) );
+                return;
+            }
+
+            try {
+                template = (MapGenTemplate)Enum.Parse( typeof( MapGenTemplate ), templateName, true );
+            } catch( Exception ) {
+                player.Message( "Unrecognized template \"" + templateName + "\". Available templates are:" );
+                player.Message( "Flatgrass, " + String.Join( ", ", Enum.GetNames( typeof( MapGenTemplate ) ) ) );
+                return;
+            }
+
             int wx, wy, height;
             if( !(cmd.NextInt( out wx ) && cmd.NextInt( out wy ) && cmd.NextInt( out height )) ) {
                 if( player.world != null ) {
@@ -765,68 +794,73 @@ namespace fCraft {
                     wy = player.world.map.widthY;
                     height = player.world.map.height;
                 } else {
+                    player.Message( "When used from console, /gen requires map dimensions." );
                     cdGenerate.PrintUsage( player );
                     return;
                 }
                 cmd.Rewind();
+                cmd.Next();
+                cmd.Next();
             }
 
-            string themeName = cmd.Next();
-            string typeName = cmd.Next();
+
             string fileName = cmd.Next();
-            if( fileName == null ) {
+            if( fileName != null ) {
+                if( !fileName.StartsWith( "maps/" ) ) {
+                    fileName = "maps/" + fileName;
+                }
+                if( !fileName.ToLower().EndsWith( ".fcm" ) ) {
+                    fileName += ".fcm";
+                }
+
+            } else if( player.world == null ) {
+                player.Message( "When used from console, /gen requires FileName." );
                 cdGenerate.PrintUsage( player );
                 return;
             }
 
-            if( !fileName.StartsWith( "maps/" ) ) {
-                fileName = "maps/" + fileName;
-            }
-            if( !fileName.ToLower().EndsWith( ".fcm" ) ) {
-                fileName += ".fcm";
-            }
+            Map map = null;
 
-            Map map = new Map( player.world, wx, wy, height );
-            map.ResetSpawn();
-
-            if( typeName == "flatgrass" ) {
+            if( templateName == "flatgrass" ) {
                 player.Message( "Generating flatgrass map..." );
+                map = new Map( player.world, wx, wy, height );
+                map.ResetSpawn();
                 MapGenerator.GenerateFlatgrass( map );
 
-                if( map.Save( fileName ) ) {
-                    player.Message( "Map generation: Done." );
-                } else {
+            } else {
+                MapGeneratorArgs args = MapGenerator.MakeTemplate( template );
+                args.dimX = wx;
+                args.dimY = wy;
+                args.dimH = height;
+                args.maxHeight = (int)(args.maxHeight / 80d * height);
+                args.maxDepth = (int)(args.maxDepth / 80d * height);
+                args.theme = theme;
+                args.addTrees = (theme == MapGenTheme.Forest);
+                try {
+                    MapGenerator generator = new MapGenerator( args );
+                    player.Message( "Generating " + theme.ToString() + " " + template.ToString() + "..." );
+                    map = generator.Generate();
+                    map.ResetSpawn();
+                } catch( Exception ex ) {
+                    Logger.Log( "MapGenerator: Generation failed: " + ex, LogType.Error );
                     player.Message( Color.Red + "An error occured while generating the map." );
+                    return;
                 }
-            } else if( typeName == "empty" ) {
-                player.Message( "Generating empty map..." );
-                map.MakeFloodBarrier();
+            }
 
-                if( map.Save( fileName ) ) {
-                    player.Message( "Map generation: Done." );
+            if( map != null ) {
+                if( fileName != null ) {
+                    if( map.Save( fileName ) ) {
+                        player.Message( "Generation done. Saved to " + fileName );
+                    } else {
+                        player.Message( Color.Red + "An error occured while saving generated map." );
+                    }
                 } else {
-                    player.Message( Color.Red + "An error occured while generating the map." );
+                    player.Message( "Generation done. Changing map..." );
+                    player.world.ChangeMap( map );
                 }
             } else {
-                MapGenTemplate type;
-                MapGenTheme theme;
-                try {
-                    theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), themeName, true );
-                } catch( Exception ) {
-                    player.Message( "Unrecognized theme \"" + themeName + "\". Available themes are:" );
-                    player.Message( String.Join( ", ", Enum.GetNames( typeof( MapGenTheme ) ) ) );
-                    return;
-                }
-
-                try {
-                    type = (MapGenTemplate)Enum.Parse( typeof( MapGenTemplate ), typeName, true );
-                } catch( Exception ) {
-                    player.Message( "Unrecognized terrain type \"" + themeName + "\". Available types are:" );
-                    player.Message( "Empty,Flatgrass," + String.Join( ", ", Enum.GetNames( typeof( MapGenTemplate ) ) ) );
-                    return;
-                }
-
-                //Tasks.Add( MapGenerator.GenerationTask, new MapGenerator( map, player, fileName, type, theme ), false );
+                player.Message( Color.Red + "An error occured while generating the map." );
             }
         }
 

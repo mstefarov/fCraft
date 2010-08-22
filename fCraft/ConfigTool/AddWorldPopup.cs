@@ -647,7 +647,7 @@ Dimensions: {4}×{5}×{6}
         }
 
         private void cTemplates_SelectedIndexChanged( object sender, EventArgs e ) {
-            generatorArgs = MapGenerator.MakePreset( (MapGenTemplate)cTemplates.SelectedIndex );
+            generatorArgs = MapGenerator.MakeTemplate( (MapGenTemplate)cTemplates.SelectedIndex );
             LoadArgs();
             bGenerate.PerformClick();
         }
