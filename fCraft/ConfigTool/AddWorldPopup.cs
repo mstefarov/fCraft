@@ -114,15 +114,6 @@ namespace ConfigTool {
 
             // Set Generator comboboxes to defaults
             cTemplates.SelectedIndex = (int)MapGenTemplate.River;
-            cTheme.SelectedIndex = (int)MapGenTheme.Forest;
-
-            nWidthX.Value = 160;
-            nWidthY.Value = 160;
-            nHeight.Value = 80;
-            sFeatureSize.Value = 1;
-            sDetailSize.Value = sDetailSize.Maximum - 1;
-
-            cMidpoint.SelectedIndex = 1;
 
             savePreviewDialog.Filter = "PNG Image|*.png|TIFF Image|*.tif;*.tiff|Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg";
             savePreviewDialog.Title = "Saving preview image...";
@@ -251,7 +242,7 @@ namespace ConfigTool {
         #region Generation
 
         MapGenerator generator;
-        MapGeneratorArgs generatorArgs;
+        MapGeneratorArgs generatorArgs = new MapGeneratorArgs();
 
         private void bGenerate_Click( object sender, EventArgs e ) {
             bOK.Enabled = false;
@@ -591,7 +582,7 @@ Dimensions: {4}×{5}×{6}
 
             nMaxDepth.Value = generatorArgs.maxDepth;
             nMaxHeight.Value = generatorArgs.maxHeight;
-            xTrees.Checked = generatorArgs.placeTrees;
+            xTrees.Checked = generatorArgs.addTrees;
             sRoughness.Value = (int)(generatorArgs.roughness * 100);
             nSeed.Value = generatorArgs.seed;
 
@@ -624,7 +615,7 @@ Dimensions: {4}×{5}×{6}
                 matchWaterCoverage = xMatchWaterCoverage.Checked,
                 maxDepth = (int)nMaxDepth.Value,
                 maxHeight = (int)nMaxHeight.Value,
-                placeTrees = xTrees.Checked,
+                addTrees = xTrees.Checked,
                 roughness = sRoughness.Value / 100f,
                 seed = (int)nSeed.Value,
                 theme = (MapGenTheme)cTheme.SelectedIndex,
@@ -655,5 +646,10 @@ Dimensions: {4}×{5}×{6}
             }
         }
 
+        private void cTemplates_SelectedIndexChanged( object sender, EventArgs e ) {
+            generatorArgs = MapGenerator.MakePreset( (MapGenTemplate)cTemplates.SelectedIndex );
+            LoadArgs();
+            bGenerate.PerformClick();
+        }
     }
 }
