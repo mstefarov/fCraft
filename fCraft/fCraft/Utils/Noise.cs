@@ -108,7 +108,7 @@ namespace fCraft {
             float maxDim = 1f / Math.Max( heightmap.GetLength( 0 ), heightmap.GetLength( 1 ) );
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    heightmap[x, y] += PerlinNoise( x * maxDim + 10, y * maxDim + 10, startOctave, endOctave, decay );
+                    heightmap[x, y] += PerlinNoise( x * maxDim, y * maxDim, startOctave, endOctave, decay );
                 }
             }
         }

@@ -165,12 +165,10 @@ namespace fCraft {
         public void GenerateHeightmap() {
             heightmap = new float[args.dimX, args.dimY];
 
+            noise.PerlinNoiseMap( heightmap, args.maxDetailSize, args.minDetailSize, args.roughness );
+
             if( args.useBias ) {
-                // generate details as a base
-                if( args.minDetailSize > 1 ) {
-                    noise.PerlinNoiseMap( heightmap, Math.Min( 1, args.maxDetailSize ), args.minDetailSize, args.roughness );
-                    Noise.Normalize( heightmap );
-                }
+                Noise.Normalize( heightmap );
 
                 // set corners and midpoint
                 float[] corners = new float[4];
@@ -189,8 +187,6 @@ namespace fCraft {
                 // overlay the bias
                 Noise.ApplyBias( heightmap, corners[0], corners[1], corners[2], corners[3], midpoint );
 
-            } else {
-                noise.PerlinNoiseMap( heightmap, args.maxDetailSize, args.minDetailSize, args.roughness );
             }
             Noise.Normalize( heightmap );
 
