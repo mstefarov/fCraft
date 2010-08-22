@@ -821,7 +821,7 @@ namespace fCraft {
         }
 
 
-
+        /*
         static CommandDescriptor cdSpectate = new CommandDescriptor {
             name = "spectate",
             permissions = new Permission[]{Permission.Spectate},
@@ -831,5 +831,6 @@ namespace fCraft {
 
         internal static void Spectate( Player player, Command cmd ) {
         }
+        */
     }
 }

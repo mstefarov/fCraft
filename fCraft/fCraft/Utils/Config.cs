@@ -180,7 +180,14 @@ namespace fCraft {
             XElement legacyRankMappingTag = config.Element( "LegacyRankMapping" );
             if( legacyRankMappingTag != null ) {
                 foreach( XElement rankPair in legacyRankMappingTag.Elements( "LegacyRankPair" ) ) {
-                    ClassList.legacyRankMapping.Add( rankPair.Name.ToString(), rankPair.Value );
+                    XAttribute fromClassID = rankPair.Attribute( "from" );
+                    XAttribute toClassID = rankPair.Attribute( "to" );
+                    if( fromClassID == null || fromClassID.Value == null || fromClassID.Value == "" ||
+                        toClassID == null || toClassID.Value == null || toClassID.Value == "" ) {
+                        Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
+                    } else {
+                        ClassList.legacyRankMapping.Add( fromClassID.Value, toClassID.Value );
+                    }
                 }
             }
 

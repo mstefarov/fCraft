@@ -571,11 +571,12 @@ Dimensions: {4}×{5}×{6}
         }
 
         void LoadArgs() {
-            sDetailSize.Value = generatorArgs.minDetailSize;
-            sFeatureSize.Value = generatorArgs.maxDetailSize;
             nHeight.Value = generatorArgs.dimH;
             nWidthX.Value = generatorArgs.dimX;
             nWidthY.Value = generatorArgs.dimY;
+
+            sDetailSize.Value = generatorArgs.minDetailSize;
+            sFeatureSize.Value = generatorArgs.maxDetailSize;
 
             xLayeredHeightmap.Checked=generatorArgs.layeredHeightmap;
             xMarbledMode.Checked = generatorArgs.marbledHeightmap;
