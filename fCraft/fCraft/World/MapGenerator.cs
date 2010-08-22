@@ -46,7 +46,7 @@ namespace fCraft {
         public float roughness;
         public bool layeredHeightmap, marbledHeightmap, invertHeightmap;
 
-        public bool placeTrees;
+        public bool addTrees;
         public int treeSpacingMin, treeSpacingMax, treeHeightMin, treeHeightMax;
 
         public void Validate() {
@@ -55,7 +55,38 @@ namespace fCraft {
             }
         }
 
-        public MapGeneratorArgs(){}
+        public MapGeneratorArgs(){
+            theme = MapGenTheme.Forest;
+            seed = (new Random()).Next();
+            dimX = 160;
+            dimY = 160;
+            dimH = 80;
+            maxHeight = 20;
+            maxDepth = 12;
+            waterLevel = 40;
+            addWater = true;
+
+            matchWaterCoverage = false;
+            waterCoverage = .5f;
+            raisedCorners = 0;
+            loweredCorners = 0;
+            midPoint = 0;
+            bias = 0;
+            useBias = false;
+
+            minDetailSize = 7;
+            maxDetailSize = 1;
+            roughness = .5f;
+            layeredHeightmap = false;
+            marbledHeightmap = false;
+            invertHeightmap = false;
+
+            addTrees = true;
+            treeSpacingMin = 6;
+            treeSpacingMax = 10;
+            treeHeightMin = 5;
+            treeHeightMax = 7;
+        }
 
         public MapGeneratorArgs( string fileName ) {
             XDocument doc = XDocument.Load( fileName );
@@ -86,7 +117,7 @@ namespace fCraft {
             marbledHeightmap = Boolean.Parse( root.Element( "marbledHeightmap" ).Value );
             invertHeightmap = Boolean.Parse( root.Element( "invertHeightmap" ).Value );
 
-            placeTrees = Boolean.Parse( root.Element( "placeTrees" ).Value );
+            addTrees = Boolean.Parse( root.Element( "addTrees" ).Value );
             treeSpacingMin = Int32.Parse( root.Element( "treeSpacingMin" ).Value );
             treeSpacingMax = Int32.Parse( root.Element( "treeSpacingMax" ).Value );
             treeHeightMin = Int32.Parse( root.Element( "treeHeightMin" ).Value );
@@ -125,7 +156,7 @@ namespace fCraft {
             root.Add( new XElement( "marbledHeightmap", marbledHeightmap ) );
             root.Add( new XElement( "invertHeightmap", invertHeightmap ) );
 
-            root.Add( new XElement( "placeTrees", placeTrees ) );
+            root.Add( new XElement( "addTrees", addTrees ) );
             root.Add( new XElement( "treeSpacingMin", treeSpacingMin ) );
             root.Add( new XElement( "treeSpacingMax", treeSpacingMax ) );
             root.Add( new XElement( "treeHeightMin", treeHeightMin ) );
@@ -301,7 +332,7 @@ namespace fCraft {
                 }
             }
 
-            if( args.placeTrees ) {
+            if( args.addTrees ) {
                 GenerateTrees( map );
             }
 
@@ -504,7 +535,7 @@ namespace fCraft {
                 case MapGenTemplate.Bay:
                     return new MapGeneratorArgs {
                         maxHeight = 22,
-                        maxDetailSize = 12,
+                        maxDepth = 12,
                         useBias = true,
                         bias = 1,
                         midPoint = -1,
@@ -517,6 +548,7 @@ namespace fCraft {
                     return new MapGeneratorArgs();
                 case MapGenTemplate.Dunes:
                     return new MapGeneratorArgs {
+                        addTrees=false,
                         addWater = false,
                         theme = MapGenTheme.Desert,
                         maxHeight = 13,
@@ -529,6 +561,7 @@ namespace fCraft {
                     };
                 case MapGenTemplate.Hills:
                     return new MapGeneratorArgs {
+                        addWater=false,
                         maxHeight = 8,
                         maxDepth = 8,
                         maxDetailSize = 2,
@@ -537,6 +570,7 @@ namespace fCraft {
                     };
                 case MapGenTemplate.Ice:
                     return new MapGeneratorArgs {
+                        addTrees=false,
                         theme = MapGenTheme.Arctic,
                         maxHeight = 2,
                         maxDepth = 2032,
@@ -599,7 +633,9 @@ namespace fCraft {
                         roughness = .55f,
                         marbledHeightmap = true,
                         matchWaterCoverage = true,
-                        waterCoverage = .25f
+                        waterCoverage = .25f,
+                        treeSpacingMin=8,
+                        treeSpacingMax=14
                     };
             }
             return null; // can never happen
