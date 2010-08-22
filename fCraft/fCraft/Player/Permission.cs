@@ -23,7 +23,7 @@ namespace fCraft {
         Promote,
         Demote,
         Hide,         // go invisible!
-        Spectate,     // spectate others
+        //Spectate,     // spectate others
         ChangeName,   // change own name
 
         Draw,

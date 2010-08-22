@@ -795,6 +795,9 @@ namespace fCraft {
         }
 
         public static bool VerifyName( string name, string hash ) {
+            while( hash.Length < 32 ) {
+                hash = "0" + hash;
+            }
             MD5 hasher = MD5.Create();
             byte[] data = hasher.ComputeHash( Encoding.ASCII.GetBytes( Server.Salt + name ) );
             for( int i = 0; i < 16; i += 2 ) {

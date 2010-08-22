@@ -22,9 +22,15 @@ namespace ConfigTool {
             Server.ResetWorkingDirectory();
             Server.CheckMapDirectory();
 
-            if( !File.Exists( Config.ConfigFile ) ) {
-                MessageBox.Show( "config.xml was not found. Using defaults." );
+            if( !File.Exists( "worlds.xml" ) && !File.Exists( Config.ConfigFile ) ) {
+                MessageBox.Show( "Configuration (config.xml) and world list (worlds.xml) were not found. Using defaults." );
+            } else if( !File.Exists( Config.ConfigFile ) ) {
+                MessageBox.Show( "Configuration (config.xml) was not found. Using defaults." );
+            } else if( !File.Exists( "worlds.xml" ) ) {
+                MessageBox.Show( "World list (worlds.xml) was not found. Assuming 0 worlds." );
             }
+
+
             if( Config.Load() ) {
                 if( Config.errors.Length > 0 ) {
                     MessageBox.Show( Config.errors, "Config loading warnings" );
@@ -82,8 +88,6 @@ namespace ConfigTool {
                 } catch( Exception ex ) {
                     MessageBox.Show( "Error occured while loading the world list: " + Environment.NewLine + ex, "Warning" );
                 }
-            } else {
-                MessageBox.Show( "World list (worlds.xml) not found. Assuming 0 worlds.", "Warning" );
             }
         }
 

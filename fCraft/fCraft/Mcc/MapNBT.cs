@@ -89,19 +89,16 @@ namespace Mcc {
 
         public bool Claims( Stream mapStream, string fileName ) {
             mapStream.Seek( 0, SeekOrigin.Begin );
-            return true;
             GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
             BinaryReader bs = new BinaryReader( gs );
 
             try {
-                if ( bs.ReadByte() == 10 && NBTag.ReadString( bs ) == "MinecraftLevel" )
-                    return true;
+                return (bs.ReadByte() == 10 && NBTag.ReadString( bs ) == "MinecraftLevel");
             } catch ( IOException ) {
                 return false;
             } catch ( InvalidDataException ) {
                 return false;
             }
-            return false;
         }
 
     }
