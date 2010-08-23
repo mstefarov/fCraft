@@ -235,6 +235,7 @@ namespace fCraft {
         internal static void Cancel( Player player, Command command ) {
             if( player.selectionMarksExpected > 0 ) {
                 player.selectionMarksExpected = 0;
+                player.Message( "Selection cancelled." );
             } else {
                 player.Message( "There is currently nothing to cancel." );
             }
@@ -259,6 +260,7 @@ namespace fCraft {
                 Logger.Log( "Player {0} initiated /undo affecting {1} blocks.", LogType.UserActivity,
                             player.GetLogName(),
                             player.undoBuffer.Count );
+                player.Message( "Restoring {0} blocks...", player.undoBuffer.Count );
                 while( player.undoBuffer.Count > 0 ) {
                     player.world.map.QueueUpdate( player.undoBuffer.Dequeue() );
                 }
