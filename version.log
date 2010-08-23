@@ -1,5 +1,12 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-08-22
+441
+ Feature: Added cuboid limits to /cinfo
+ Fix: Fixed a bug in BoundingBox that made /paste and zones behave incorrectly
+ Fix: Fixed ban/unban commands not kicking the player if entered name capitalization did not match actual capitalization
+ Fix: Fixed "flatgrass" being broken when using "/gen"
+ Fix: Fixed "/ban" rank checks affecting "/unban"
+ Change: Optimized zone permission checks
 440
  FEATURE: New MapGenerator with tons of options. You can also save/load custom templates for it.
  FEATURE: AddWorldPopup interface overhaul.

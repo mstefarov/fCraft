@@ -771,22 +771,6 @@ namespace fCraft {
             MapGenTemplate template;
             MapGenTheme theme;
 
-            try {
-                theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), themeName, true );
-            } catch( Exception ) {
-                player.Message( "Unrecognized theme \"" + themeName + "\". Available themes are:" );
-                player.Message( String.Join( ", ", Enum.GetNames( typeof( MapGenTheme ) ) ) );
-                return;
-            }
-
-            try {
-                template = (MapGenTemplate)Enum.Parse( typeof( MapGenTemplate ), templateName, true );
-            } catch( Exception ) {
-                player.Message( "Unrecognized template \"" + templateName + "\". Available templates are:" );
-                player.Message( "Flatgrass, " + String.Join( ", ", Enum.GetNames( typeof( MapGenTemplate ) ) ) );
-                return;
-            }
-
             int wx, wy, height;
             if( !(cmd.NextInt( out wx ) && cmd.NextInt( out wy ) && cmd.NextInt( out height )) ) {
                 if( player.world != null ) {
@@ -828,6 +812,23 @@ namespace fCraft {
                 MapGenerator.GenerateFlatgrass( map );
 
             } else {
+
+                try {
+                    theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), themeName, true );
+                } catch( Exception ) {
+                    player.Message( "Unrecognized theme \"" + themeName + "\". Available themes are:" );
+                    player.Message( String.Join( ", ", Enum.GetNames( typeof( MapGenTheme ) ) ) );
+                    return;
+                }
+
+                try {
+                    template = (MapGenTemplate)Enum.Parse( typeof( MapGenTemplate ), templateName, true );
+                } catch( Exception ) {
+                    player.Message( "Unrecognized template \"" + templateName + "\". Available templates are:" );
+                    player.Message( "Flatgrass, " + String.Join( ", ", Enum.GetNames( typeof( MapGenTemplate ) ) ) );
+                    return;
+                }
+
                 MapGeneratorArgs args = MapGenerator.MakeTemplate( template );
                 args.dimX = wx;
                 args.dimY = wy;

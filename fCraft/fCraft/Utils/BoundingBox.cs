@@ -21,7 +21,7 @@ namespace fCraft {
             yMin = Math.Min( y1, y2 );
             yMax = Math.Max( y1, y2 );
             hMin = Math.Min( h1, h2 );
-            hMax = Math.Min( h1, h2 );
+            hMax = Math.Max( h1, h2 );
         }
 
         public bool Insersects( BoundingBox other ) {
