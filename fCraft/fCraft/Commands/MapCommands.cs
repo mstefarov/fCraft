@@ -746,6 +746,7 @@ namespace fCraft {
         static CommandDescriptor cdGenerate = new CommandDescriptor {
             name = "gen",
             consoleSafe = true,
+            permissions = new Permission[]{ Permission.ManageWorlds},
             usage = "/gen ThemeName TemplateName [Width Height Depth [FileName]]",
             helpHandler = delegate( Player player ) {
                 return "Generates a new map. If no dimensions are given, uses current world's dimensions. " +
