@@ -1,5 +1,11 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-08-22
+2010-08-23
+442
+ Fix: Addresses a security issue.
+ Fix: "OK" button in AddWorldPopup is now always disabled if no map is set.
+ Fix: "Feature size" label is now updater correctly when map dimensions are changed.
+ Fix: Added missing player notifications for /undo and /cancel commands.
+ Change: MapGenerator's default map size changed to 128x128x80
 441
  Feature: Added cuboid limits to /cinfo
  Fix: Fixed a bug in BoundingBox that made /paste and zones behave incorrectly
