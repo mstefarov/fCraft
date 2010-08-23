@@ -927,7 +927,7 @@ namespace fCraft {
 
 
         // Find player by name using autocompletion
-        public static Player FindPlayer( System.Net.IPAddress ip ) {
+        public static Player FindPlayer( IPAddress ip ) {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i].session.GetIP().ToString() == ip.ToString() ) {
@@ -940,9 +940,10 @@ namespace fCraft {
 
         // Get player by name without autocompletion
         public static Player FindPlayerExact( string name ) {
+            name = name.ToLower();
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i].name == name ) {
+                if( tempList[i] != null && tempList[i].name.ToLower() == name ) {
                     return tempList[i];
                 }
             }

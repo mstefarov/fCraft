@@ -237,6 +237,7 @@ namespace fCraft {
                         meta.Add( key, value );
                     }
                 }
+                UpdateZoneCache();
 
             } catch( FormatException ex ) {
                 Logger.Log( "Map.ReadMetadata: Cannot parse one or more of the metadata entries: {0}", LogType.Error,
@@ -435,12 +436,14 @@ namespace fCraft {
 
         #region Zones
         public Dictionary<string, Zone> zones = new Dictionary<string, Zone>();
+        public Zone[] zoneList;
 
         public bool AddZone( Zone z ) {
             lock( zoneLock ) {
                 if( zones.ContainsKey( z.name.ToLower() ) ) return false;
                 zones.Add( z.name.ToLower(), z );
                 changesSinceSave++;
+                UpdateZoneCache();
             }
             return true;
         }
@@ -450,6 +453,7 @@ namespace fCraft {
                 if( !zones.ContainsKey( z.ToLower() ) ) return false;
                 zones.Remove( z.ToLower() );
                 changesSinceSave++;
+                UpdateZoneCache();
             }
             return true;
         }
@@ -469,14 +473,13 @@ namespace fCraft {
 
         public ZoneOverride CheckZones( int x, int y, int h, Player player ) {
             ZoneOverride result = ZoneOverride.None;
-            lock( zoneLock ) {
-                foreach( Zone zone in zones.Values ) {
-                    if( zone.bounds.Contains( x, y, h ) ) {
-                        if( zone.CanBuild( player ) ) {
-                            result = ZoneOverride.Allow;
-                        } else {
-                            return ZoneOverride.Deny;
-                        }
+            Zone[] zoneListCache = zoneList;
+            for( int i=0; i<zoneListCache.Length;i++){
+                if( zoneListCache[i].bounds.Contains( x, y, h ) ) {
+                    if( zoneListCache[i].CanBuild( player ) ) {
+                        result = ZoneOverride.Allow;
+                    } else {
+                        return ZoneOverride.Deny;
                     }
                 }
             }
@@ -485,11 +488,10 @@ namespace fCraft {
 
 
         public Zone FindDeniedZone( int x, int y, int h, Player player ) {
-            lock( zoneLock ) {
-                foreach( Zone zone in zones.Values ) {
-                    if( zone.bounds.Contains( x, y, h ) && !zone.CanBuild( player ) ) {
-                        return zone;
-                    }
+            Zone[] zoneListCache = zoneList;
+            for( int i = 0; i < zoneListCache.Length; i++ ) {
+                if( zoneListCache[i].bounds.Contains( x, y, h ) && !zoneListCache[i].CanBuild( player ) ) {
+                    return zoneListCache[i];
                 }
             }
             return null;
@@ -499,21 +501,33 @@ namespace fCraft {
         public bool TestZones( short x, short y, short h, Player player, out Zone[] allowedZones, out Zone[] deniedZones ) {
             List<Zone> allowed = new List<Zone>(), denied = new List<Zone>();
             bool found = false;
-            lock( zoneLock ) {
-                foreach( Zone zone in zones.Values ) {
-                    if( zone.bounds.Contains( x, y, h ) ) {
-                        found = true;
-                        if( zone.CanBuild( player ) ) {
-                            allowed.Add( zone );
-                        } else {
-                            denied.Add( zone );
-                        }
+
+            Zone[] zoneListCache = zoneList;
+            for( int i = 0; i < zoneListCache.Length; i++ ) {
+                if( zoneListCache[i].bounds.Contains( x, y, h ) ) {
+                    found = true;
+                    if( zoneListCache[i].CanBuild( player ) ) {
+                        allowed.Add( zoneListCache[i] );
+                    } else {
+                        denied.Add( zoneListCache[i] );
                     }
                 }
             }
             allowedZones = allowed.ToArray();
             deniedZones = denied.ToArray();
             return found;
+        }
+
+
+        void UpdateZoneCache() {
+            lock( zoneLock ) {
+                Zone[] newZoneList = new Zone[zones.Count];
+                int i = 0;
+                foreach( Zone zone in zones.Values ) {
+                    newZoneList[i++] = zone;
+                }
+                zoneList = newZoneList;
+            }
         }
 
         #endregion

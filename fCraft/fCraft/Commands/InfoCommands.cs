@@ -509,6 +509,9 @@ namespace fCraft {
                     }
                 }
                 player.Message( sb.ToString() );
+                if( playerClass.Can( Permission.Draw ) ) {
+                    player.Message( "Draw command limit: " + playerClass.drawLimit + " blocks." );
+                }
             }
         }
 

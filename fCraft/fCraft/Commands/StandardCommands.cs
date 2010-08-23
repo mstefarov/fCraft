@@ -280,16 +280,11 @@ namespace fCraft {
             if( banIP && IPAddress.TryParse( nameOrIP, out address ) ) {
                 DoIPBan( player, address, reason, null, banAll, unban );
 
-                // ban online players
+            // ban online players
             } else if( !unban && offender != null ) {
 
                 // check permissions
-                if( !player.info.playerClass.CanBan( offender.info.playerClass ) ) {
-                    player.Message( "You can only ban players ranked {0}{1}&S or lower.",
-                                    player.info.playerClass.maxBan.color,
-                                    player.info.playerClass.maxBan.name );
-                    player.Message( offender.GetLogName() + " is ranked " + offender.info.playerClass.name + "." );
-                } else {
+                if( player.info.playerClass.CanBan( offender.info.playerClass ) ) {
                     address = offender.info.lastIP;
                     if( banIP ) DoIPBan( player, address, reason, offender.name, banAll, unban );
                     if( !banAll ) {
@@ -301,26 +296,25 @@ namespace fCraft {
                             player.Message( offender.name + " is already banned." );
                         }
                     }
+                } else {
+                    player.Message( "You can only ban players ranked {0}{1}&S or lower.",
+                                    player.info.playerClass.maxBan.color,
+                                    player.info.playerClass.maxBan.name );
+                    player.Message( "{0} is ranked {1}",
+                                    offender.GetLogName(),
+                                    offender.info.playerClass.name );
                 }
 
-                // ban offline players
+            // ban offline players
             } else if( info != null ) {
-                if( !player.info.playerClass.CanBan( info.playerClass ) ) {
-                    PlayerClass maxRank = player.info.playerClass.maxBan;
-                    if( maxRank == null ) {
-                        player.Message( "You can only ban players ranked " + player.info.playerClass.color + player.info.playerClass.name + Color.Sys + " or lower." );
-                    } else {
-                        player.Message( "You can only ban players ranked " + maxRank.color + maxRank.name + Color.Sys + " or lower." );
-                    }
-                    player.Message( info.name + " is ranked " + info.playerClass.name + "." );
-                } else {
+                if( player.info.playerClass.CanBan( info.playerClass ) || unban ) {
                     address = info.lastIP;
                     if( banIP ) DoIPBan( player, address, reason, info.name, banAll, unban );
                     if( unban ) {
                         if( info.ProcessUnban( player.name, reason ) ) {
                             Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity, info.name, player.GetLogName() );
                             Server.SendToAll( Color.Red + info.name + " (offline) was unbanned by " + player.nick );
-                            if( Config.GetBool(ConfigKey.AnnounceKickAndBanReasons) && reason != null && reason.Length > 0 ) {
+                            if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
                                 Server.SendToAll( Color.Red + "Unban reason: " + reason );
                             }
                         } else {
@@ -337,16 +331,35 @@ namespace fCraft {
                             player.Message( info.name + " (offline) is already banned." );
                         }
                     }
+                } else {
+                    PlayerClass maxRank = player.info.playerClass.maxBan;
+                    if( maxRank == null ) {
+                        player.Message( "You can only ban players ranked {0}{1}&S or lower.",
+                                        player.info.playerClass.color,
+                                        player.info.playerClass.name );
+                    } else {
+                        player.Message( "You can only ban players ranked {0}{1}&S or lower.",
+                                        maxRank.color,
+                                        maxRank.name );
+                    }
+                    player.Message( "{0} is ranked {1}",
+                                    info.name,
+                                    info.playerClass.name );
                 }
+
+            // ban players who are not in the database yet
             } else if( Player.IsValidName( nameOrIP ) ) {
                 if( unban ) {
                     player.Message( info.name + " (unrecognized) is not currenty banned." );
                 } else {
                     info = PlayerDB.AddFakeEntry( nameOrIP );
                     info.ProcessBan( player, reason );
-                    player.Message( "Previously-unseen player \"" + nameOrIP + "\" was banned." );
-                    Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity, info.name, player.GetLogName() );
-                    Server.SendToAll( Color.Red + info.name + " (offline) was banned by " + player.nick );
+                    player.Message( "Unrecognized player \"" + nameOrIP + "\" was banned." );
+                    Logger.Log( "{0} (unrecognized) was banned by {1}.", LogType.UserActivity,
+                                info.name,
+                                player.GetLogName() );
+                    Server.SendToAll( Color.Red + info.name + " (unrecognized) was banned by " + player.nick );
+
                     if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
                         Server.SendToAll( Color.Red + "Ban reason: " + reason );
                     }
