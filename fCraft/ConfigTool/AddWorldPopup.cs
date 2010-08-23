@@ -34,8 +34,6 @@ namespace ConfigTool {
             }
         }
 
-        MapGenTemplate genType;
-        MapGenTheme genTheme;
         Stopwatch stopwatch;
         int previewRotation;
         Bitmap previewImage;
@@ -275,8 +273,6 @@ namespace ConfigTool {
             progressBar.Style = ProgressBarStyle.Marquee;
 
             Refresh();
-            genType = (MapGenTemplate)cTemplates.SelectedIndex;
-            genTheme = (MapGenTheme)cTheme.SelectedIndex;
             bwGenerator.RunWorkerAsync();
         }
 

@@ -472,7 +472,6 @@ namespace fCraft {
             int MaxHeight = args.treeHeightMax;
             int MinTrunkPadding = args.treeSpacingMin;
             int MaxTrunkPadding = args.treeSpacingMax;
-            int BorderPadding = MinTrunkPadding;
             int TopLayers = 2;
             double Odds = 0.618;
             bool OnlyAir = true;

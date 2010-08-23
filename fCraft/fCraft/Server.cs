@@ -766,7 +766,6 @@ namespace fCraft {
 
         #region Utilities
 
-        static Queue<string> pastSalts = new Queue<string>();
         static void GenerateSalt() {
             // generate random salt
             Random rand = new Random();
