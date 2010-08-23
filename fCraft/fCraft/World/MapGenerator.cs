@@ -32,6 +32,8 @@ namespace fCraft {
 
 
     public sealed class MapGeneratorArgs {
+        const int FormatVersion = 2;
+
         public MapGenTheme theme;
         public int seed, dimX, dimY, dimH, maxHeight, maxDepth, waterLevel;
         public bool addWater;
@@ -42,7 +44,7 @@ namespace fCraft {
         public float bias;
         public bool useBias;
 
-        public int minDetailSize, maxDetailSize;
+        public int detailScale, featureScale;
         public float roughness;
         public bool layeredHeightmap, marbledHeightmap, invertHeightmap;
 
@@ -53,13 +55,14 @@ namespace fCraft {
             if( raisedCorners < 0 || raisedCorners > 4 || loweredCorners < 0 || raisedCorners > 4 || raisedCorners + loweredCorners > 4 ) {
                 throw new ArgumentException( "raisedCorners and loweredCorners must be between 0 and 4." );
             }
+            // todo: additional validation
         }
 
         public MapGeneratorArgs(){
             theme = MapGenTheme.Forest;
             seed = (new Random()).Next();
-            dimX = 160;
-            dimY = 160;
+            dimX = 128;
+            dimY = 128;
             dimH = 80;
             maxHeight = 20;
             maxDepth = 12;
@@ -74,8 +77,8 @@ namespace fCraft {
             bias = 0;
             useBias = false;
 
-            minDetailSize = 7;
-            maxDetailSize = 1;
+            detailScale = 7;
+            featureScale = 1;
             roughness = .5f;
             layeredHeightmap = false;
             marbledHeightmap = false;
@@ -91,6 +94,12 @@ namespace fCraft {
         public MapGeneratorArgs( string fileName ) {
             XDocument doc = XDocument.Load( fileName );
             XElement root = doc.Root;
+
+            XAttribute versionTag = root.Attribute( "version" );
+            int version = 0;
+            if( versionTag != null && versionTag.Value != null && versionTag.Value.Length > 0 ) {
+                version = Int32.Parse( versionTag.Value );
+            }
 
             theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), root.Element( "theme" ).Value );
             seed = Int32.Parse( root.Element( "seed" ).Value );
@@ -110,8 +119,13 @@ namespace fCraft {
             bias = float.Parse( root.Element( "bias" ).Value );
             useBias = Boolean.Parse( root.Element( "useBias" ).Value );
 
-            minDetailSize = Int32.Parse( root.Element( "minDetailSize" ).Value );
-            maxDetailSize = Int32.Parse( root.Element( "maxDetailSize" ).Value );
+            if( version == 0 ) {
+                detailScale = Int32.Parse( root.Element( "minDetailSize" ).Value );
+                featureScale = Int32.Parse( root.Element( "maxDetailSize" ).Value );
+            } else {
+                detailScale = Int32.Parse( root.Element( "detailScale" ).Value );
+                featureScale = Int32.Parse( root.Element( "featureScale" ).Value );
+            }
             roughness = float.Parse( root.Element( "roughness" ).Value );
             layeredHeightmap = Boolean.Parse( root.Element( "layeredHeightmap" ).Value );
             marbledHeightmap = Boolean.Parse( root.Element( "marbledHeightmap" ).Value );
@@ -131,6 +145,8 @@ namespace fCraft {
             XDocument document = new XDocument();
             XElement root = new XElement( RootTagName );
 
+            root.Add( new XAttribute( "version", FormatVersion ) );
+
             root.Add( new XElement( "theme", theme ) );
             root.Add( new XElement( "seed", seed ) );
             root.Add( new XElement( "dimX", dimX ) );
@@ -149,8 +165,8 @@ namespace fCraft {
             root.Add( new XElement( "bias", bias ) );
             root.Add( new XElement( "useBias", useBias ) );
 
-            root.Add( new XElement( "minDetailSize", minDetailSize ) );
-            root.Add( new XElement( "maxDetailSize", maxDetailSize ) );
+            root.Add( new XElement( "detailScale", detailScale ) );
+            root.Add( new XElement( "featureScale", featureScale ) );
             root.Add( new XElement( "roughness", roughness ) );
             root.Add( new XElement( "layeredHeightmap", layeredHeightmap ) );
             root.Add( new XElement( "marbledHeightmap", marbledHeightmap ) );
@@ -200,7 +216,7 @@ namespace fCraft {
         public void GenerateHeightmap() {
             heightmap = new float[args.dimX, args.dimY];
 
-            noise.PerlinNoiseMap( heightmap, args.maxDetailSize, args.minDetailSize, args.roughness );
+            noise.PerlinNoiseMap( heightmap, args.featureScale, args.detailScale, args.roughness );
 
             if( args.useBias ) {
                 Noise.Normalize( heightmap );
@@ -228,7 +244,7 @@ namespace fCraft {
             if( args.layeredHeightmap ) {
                 // needs a new Noise object to randomize second map
                 float[,] heightmap2 = new float[args.dimX, args.dimY];
-                new Noise( rand ).PerlinNoiseMap( heightmap2, 0, args.minDetailSize, args.roughness );
+                new Noise( rand ).PerlinNoiseMap( heightmap2, 0, args.detailScale, args.roughness );
                 Noise.Normalize( heightmap2 );
 
                 // make a blendmap
@@ -511,7 +527,7 @@ namespace fCraft {
                     return new MapGeneratorArgs {
                         maxHeight = 8,
                         maxDepth = 20,
-                        maxDetailSize = 3,
+                        featureScale = 3,
                         roughness = .46f,
                         matchWaterCoverage = true,
                         waterCoverage = .85f
@@ -525,8 +541,8 @@ namespace fCraft {
                         bias = .9f,
                         midPoint = 1,
                         loweredCorners = 4,
-                        maxDetailSize = 2,
-                        minDetailSize = 6,
+                        featureScale = 2,
+                        detailScale = 5,
                         marbledHeightmap = true,
                         invertHeightmap = true,
                         matchWaterCoverage = true,
@@ -551,10 +567,10 @@ namespace fCraft {
                         addTrees=false,
                         addWater = false,
                         theme = MapGenTheme.Desert,
-                        maxHeight = 13,
+                        maxHeight = 12,
                         maxDepth = 7,
-                        maxDetailSize = 2,
-                        minDetailSize = 4,
+                        featureScale = 2,
+                        detailScale = 3,
                         roughness = .44f,
                         marbledHeightmap = true,
                         invertHeightmap = true
@@ -564,7 +580,7 @@ namespace fCraft {
                         addWater=false,
                         maxHeight = 8,
                         maxDepth = 8,
-                        maxDetailSize = 2,
+                        featureScale = 2,
                         treeSpacingMin = 7,
                         treeSpacingMax = 13
                     };
@@ -574,8 +590,8 @@ namespace fCraft {
                         theme = MapGenTheme.Arctic,
                         maxHeight = 2,
                         maxDepth = 2032,
-                        maxDetailSize = 2,
-                        minDetailSize = 8,
+                        featureScale = 2,
+                        detailScale = 7,
                         roughness = .64f,
                         marbledHeightmap = true,
                         matchWaterCoverage = true,
@@ -589,8 +605,8 @@ namespace fCraft {
                         bias = .7f,
                         midPoint = 1,
                         loweredCorners = 4,
-                        maxDetailSize = 3,
-                        minDetailSize = 8
+                        featureScale = 3,
+                        detailScale = 7
                     };
                 case MapGenTemplate.Lake:
                     return new MapGeneratorArgs {
@@ -600,7 +616,7 @@ namespace fCraft {
                         bias = .65f,
                         midPoint = -1,
                         raisedCorners = 4,
-                        maxDetailSize = 2,
+                        featureScale = 2,
                         roughness = .56f,
                         matchWaterCoverage = true,
                         waterCoverage = .3f
@@ -610,16 +626,16 @@ namespace fCraft {
                         addWater = false,
                         maxHeight = 40,
                         maxDepth = 10,
-                        maxDetailSize = 1,
-                        minDetailSize = 8,
+                        featureScale = 1,
+                        detailScale = 7,
                         marbledHeightmap = true
                     };
                 case MapGenTemplate.River:
                     return new MapGeneratorArgs {
                         maxHeight = 22,
                         maxDepth = 8,
-                        maxDetailSize = 0,
-                        minDetailSize = 6,
+                        featureScale = 0,
+                        detailScale = 6,
                         marbledHeightmap = true,
                         matchWaterCoverage = true,
                         waterCoverage = .31f
@@ -628,8 +644,8 @@ namespace fCraft {
                     return new MapGeneratorArgs {
                         maxHeight = 5,
                         maxDepth = 4,
-                        maxDetailSize = 2,
-                        minDetailSize = 7,
+                        featureScale = 2,
+                        detailScale = 7,
                         roughness = .55f,
                         marbledHeightmap = true,
                         matchWaterCoverage = true,

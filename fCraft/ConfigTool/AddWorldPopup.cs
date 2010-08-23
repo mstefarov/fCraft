@@ -20,7 +20,20 @@ namespace ConfigTool {
                          bwGenerator = new BackgroundWorker(),
                          bwRenderer = new BackgroundWorker();
         object redrawLock = new object();
-        Map map;
+
+        Map _map;
+        Map map {
+            get {
+                return _map;
+            }
+            set {
+                if( value == null ) {
+                    bOK.Enabled = false;
+                }
+                _map = value;
+            }
+        }
+
         MapGenTemplate genType;
         MapGenTheme genTheme;
         Stopwatch stopwatch;
@@ -368,6 +381,11 @@ namespace ConfigTool {
             int value = sDetailSize.Maximum - sDetailSize.Value;
             sDetailSize.Maximum = sFeatureSize.Maximum + 1;
             sDetailSize.Value = sDetailSize.Maximum - value;
+
+            int resolution = 1 << (sDetailSize.Maximum - sDetailSize.Value);
+            lDetailSizeDisplay.Text = resolution + "×" + resolution;
+            resolution = 1 << (sFeatureSize.Maximum - sFeatureSize.Value);
+            lFeatureSizeDisplay.Text = resolution + "×" + resolution;
         }
 
         private void sFeatureSize_ValueChanged( object sender, EventArgs e ) {
@@ -572,8 +590,8 @@ Dimensions: {4}×{5}×{6}
             nWidthX.Value = generatorArgs.dimX;
             nWidthY.Value = generatorArgs.dimY;
 
-            sDetailSize.Value = generatorArgs.minDetailSize;
-            sFeatureSize.Value = generatorArgs.maxDetailSize;
+            sDetailSize.Value = generatorArgs.detailScale;
+            sFeatureSize.Value = generatorArgs.featureScale;
 
             xLayeredHeightmap.Checked=generatorArgs.layeredHeightmap;
             xMarbledMode.Checked = generatorArgs.marbledHeightmap;
@@ -605,8 +623,8 @@ Dimensions: {4}×{5}×{6}
 
         void SaveArgs() {
             generatorArgs = new MapGeneratorArgs {
-                minDetailSize = sDetailSize.Value,
-                maxDetailSize = sFeatureSize.Value,
+                detailScale = sDetailSize.Value,
+                featureScale = sFeatureSize.Value,
                 dimH = (int)nHeight.Value,
                 dimX = (int)nWidthX.Value,
                 dimY = (int)nWidthY.Value,

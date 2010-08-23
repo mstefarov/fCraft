@@ -576,11 +576,11 @@
             // lDetailSize
             // 
             this.lDetailSize.AutoSize = true;
-            this.lDetailSize.Location = new System.Drawing.Point( 8, 22 );
+            this.lDetailSize.Location = new System.Drawing.Point( 21, 22 );
             this.lDetailSize.Name = "lDetailSize";
-            this.lDetailSize.Size = new System.Drawing.Size( 84, 13 );
+            this.lDetailSize.Size = new System.Drawing.Size( 71, 13 );
             this.lDetailSize.TabIndex = 23;
-            this.lDetailSize.Text = "Max feature size";
+            this.lDetailSize.Text = "Feature scale";
             // 
             // sFeatureSize
             // 
@@ -1377,11 +1377,11 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point( 19, 55 );
+            this.label5.Location = new System.Drawing.Point( 30, 55 );
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size( 73, 13 );
+            this.label5.Size = new System.Drawing.Size( 62, 13 );
             this.label5.TabIndex = 37;
-            this.label5.Text = "Min detail size";
+            this.label5.Text = "Detail scale";
             // 
             // gTrees
             // 
