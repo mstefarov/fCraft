@@ -572,6 +572,13 @@ namespace fCraft {
             }
         }
 
+        // Broadcast to a specific class
+        public static void SendToClass( string message, PlayerClass playerClass ) {
+            foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
+                SendToClass( packet, playerClass );
+            }
+        }
+
         // checks for incoming connections and disposes old sessions
         internal static void CheckConnections( object param ) {
             if( listener.Pending() ) {

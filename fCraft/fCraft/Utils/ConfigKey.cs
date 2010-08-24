@@ -17,8 +17,8 @@ namespace fCraft {
         SystemMessageColor,
         HelpColor,
         SayColor,
-
         AnnouncementColor,
+        PrivateMessageColor,
         AnnouncementInterval,
 
         VerifyNames,
@@ -57,6 +57,7 @@ namespace fCraft {
         IRCBotChannels,
         IRCBotForwardFromServer,
         IRCBotForwardFromIRC,
+        IRCMessageColor,
 
         PolicyColorCodesInChat,
         PolicyIllegalCharacters,

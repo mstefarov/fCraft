@@ -1,5 +1,18 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-08-23
+2010-08-24
+443
+ FEATURE: New /wflush command. It allows finishing all in-progress draw commands at maximum speed (over 100k blocks/second) then forces a map rejoin.
+ Feature: Added more customization options for colors: PrivateMessageColor and IRCMessageColor in Config.
+ Feature: /players list is now sorted alphabetically.
+ Feature: Added "Check Port" button to ConfigTool to see if port is open. Uses www.utorrent.com/testport
+ Feature: Added "Play" button to fCraftUI to open server URL in the browser
+ Feature: World names in /worlds list are now colored according to each world's build permission. 
+ Feature: Added speedhack detection & prevention (BETA) and corresponding Permission.UseSpeedHack. All your classes will be granted this permission by default. Edit the config to customize it.
+ Fix: When using /mark outside of map boundaries, draw limits are no longer calculated incorrectly (thanks to Darnest).
+ Fix: Fixed possible crash in Map.CheckZones() on maps created with /gen
+ Fix: Fixed compilation issue with "tileset.png" on case-sensitive filesystems.
+ Fix: Fixed class-wide messages not wrapping correctly.
+ Optimization: antigrief and antispam checking overhead reduced.
 442
  Fix: Addresses a security issue.
  Fix: "OK" button in AddWorldPopup is now always disabled if no map is set.

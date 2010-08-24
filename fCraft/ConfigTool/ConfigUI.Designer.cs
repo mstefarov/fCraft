@@ -141,6 +141,11 @@
             this.lClasses = new System.Windows.Forms.Label();
             this.vClasses = new System.Windows.Forms.ListBox();
             this.tabSecurity = new System.Windows.Forms.TabPage();
+            this.gSecurityMisc = new System.Windows.Forms.GroupBox();
+            this.xAnnounceClassChanges = new System.Windows.Forms.CheckBox();
+            this.xAnnounceKickAndBanReasons = new System.Windows.Forms.CheckBox();
+            this.xRequireClassChangeReason = new System.Windows.Forms.CheckBox();
+            this.xRequireBanReason = new System.Windows.Forms.CheckBox();
             this.gSpamChat = new System.Windows.Forms.GroupBox();
             this.lSpamChatWarnings = new System.Windows.Forms.Label();
             this.nSpamChatWarnings = new System.Windows.Forms.NumericUpDown();
@@ -247,11 +252,11 @@
             this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
-            this.gSecurityMisc = new System.Windows.Forms.GroupBox();
-            this.xRequireBanReason = new System.Windows.Forms.CheckBox();
-            this.xRequireClassChangeReason = new System.Windows.Forms.CheckBox();
-            this.xAnnounceKickAndBanReasons = new System.Windows.Forms.CheckBox();
-            this.xAnnounceClassChanges = new System.Windows.Forms.CheckBox();
+            this.bColorPM = new System.Windows.Forms.Button();
+            this.lColorPM = new System.Windows.Forms.Label();
+            this.bPortCheck = new System.Windows.Forms.Button();
+            this.bColorIRC = new System.Windows.Forms.Button();
+            this.lColorIRC = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -271,6 +276,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefBlocks)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRank)).BeginInit();
             this.tabSecurity.SuspendLayout();
+            this.gSecurityMisc.SuspendLayout();
             this.gSpamChat.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nSpamChatWarnings)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSpamMute)).BeginInit();
@@ -298,7 +304,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPing)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
-            this.gSecurityMisc.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabs
@@ -318,7 +323,7 @@
             this.tabs.Location = new System.Drawing.Point( 12, 12 );
             this.tabs.Name = "tabs";
             this.tabs.SelectedIndex = 0;
-            this.tabs.Size = new System.Drawing.Size( 659, 436 );
+            this.tabs.Size = new System.Drawing.Size( 659, 453 );
             this.tabs.TabIndex = 0;
             this.tabs.SelectedIndexChanged += new System.EventHandler( this.tabs_SelectedIndexChanged );
             // 
@@ -330,7 +335,7 @@
             this.tabGeneral.Location = new System.Drawing.Point( 4, 24 );
             this.tabGeneral.Name = "tabGeneral";
             this.tabGeneral.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabGeneral.Size = new System.Drawing.Size( 651, 408 );
+            this.tabGeneral.Size = new System.Drawing.Size( 651, 425 );
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
@@ -342,7 +347,7 @@
             this.gInformation.Controls.Add( this.xAnnouncements );
             this.gInformation.Controls.Add( this.bRules );
             this.gInformation.Controls.Add( this.bAnnouncements );
-            this.gInformation.Location = new System.Drawing.Point( 8, 336 );
+            this.gInformation.Location = new System.Drawing.Point( 8, 353 );
             this.gInformation.Name = "gInformation";
             this.gInformation.Size = new System.Drawing.Size( 635, 59 );
             this.gInformation.TabIndex = 16;
@@ -419,6 +424,8 @@
             // 
             this.gAppearence.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gAppearence.Controls.Add( this.bColorPM );
+            this.gAppearence.Controls.Add( this.lColorPM );
             this.gAppearence.Controls.Add( this.bColorAnnouncement );
             this.gAppearence.Controls.Add( this.lColorAnnouncement );
             this.gAppearence.Controls.Add( this.bColorSay );
@@ -432,7 +439,7 @@
             this.gAppearence.Controls.Add( this.lMessageColor );
             this.gAppearence.Location = new System.Drawing.Point( 8, 181 );
             this.gAppearence.Name = "gAppearence";
-            this.gAppearence.Size = new System.Drawing.Size( 635, 149 );
+            this.gAppearence.Size = new System.Drawing.Size( 635, 166 );
             this.gAppearence.TabIndex = 1;
             this.gAppearence.TabStop = false;
             this.gAppearence.Text = "Appearence Tweaks";
@@ -440,7 +447,7 @@
             // bColorAnnouncement
             // 
             this.bColorAnnouncement.BackColor = System.Drawing.Color.White;
-            this.bColorAnnouncement.Location = new System.Drawing.Point( 440, 106 );
+            this.bColorAnnouncement.Location = new System.Drawing.Point( 440, 107 );
             this.bColorAnnouncement.Name = "bColorAnnouncement";
             this.bColorAnnouncement.Size = new System.Drawing.Size( 100, 23 );
             this.bColorAnnouncement.TabIndex = 7;
@@ -450,16 +457,16 @@
             // lColorAnnouncement
             // 
             this.lColorAnnouncement.AutoSize = true;
-            this.lColorAnnouncement.Location = new System.Drawing.Point( 283, 110 );
+            this.lColorAnnouncement.Location = new System.Drawing.Point( 278, 111 );
             this.lColorAnnouncement.Name = "lColorAnnouncement";
-            this.lColorAnnouncement.Size = new System.Drawing.Size( 151, 15 );
+            this.lColorAnnouncement.Size = new System.Drawing.Size( 156, 15 );
             this.lColorAnnouncement.TabIndex = 6;
-            this.lColorAnnouncement.Text = "Announcement/Rule Color";
+            this.lColorAnnouncement.Text = "Announcement / rules color";
             // 
             // bColorSay
             // 
             this.bColorSay.BackColor = System.Drawing.Color.White;
-            this.bColorSay.Location = new System.Drawing.Point( 440, 77 );
+            this.bColorSay.Location = new System.Drawing.Point( 440, 78 );
             this.bColorSay.Name = "bColorSay";
             this.bColorSay.Size = new System.Drawing.Size( 100, 23 );
             this.bColorSay.TabIndex = 5;
@@ -469,7 +476,7 @@
             // bColorHelp
             // 
             this.bColorHelp.BackColor = System.Drawing.Color.White;
-            this.bColorHelp.Location = new System.Drawing.Point( 440, 48 );
+            this.bColorHelp.Location = new System.Drawing.Point( 440, 49 );
             this.bColorHelp.Name = "bColorHelp";
             this.bColorHelp.Size = new System.Drawing.Size( 100, 23 );
             this.bColorHelp.TabIndex = 4;
@@ -479,7 +486,7 @@
             // bColorSys
             // 
             this.bColorSys.BackColor = System.Drawing.Color.White;
-            this.bColorSys.Location = new System.Drawing.Point( 440, 19 );
+            this.bColorSys.Location = new System.Drawing.Point( 440, 20 );
             this.bColorSys.Name = "bColorSys";
             this.bColorSys.Size = new System.Drawing.Size( 100, 23 );
             this.bColorSys.TabIndex = 3;
@@ -519,34 +526,35 @@
             // lSayColor
             // 
             this.lSayColor.AutoSize = true;
-            this.lSayColor.Location = new System.Drawing.Point( 375, 81 );
+            this.lSayColor.Location = new System.Drawing.Point( 323, 82 );
             this.lSayColor.Name = "lSayColor";
-            this.lSayColor.Size = new System.Drawing.Size( 59, 15 );
+            this.lSayColor.Size = new System.Drawing.Size( 111, 15 );
             this.lSayColor.TabIndex = 2;
-            this.lSayColor.Text = "Say Color";
+            this.lSayColor.Text = "Say message color";
             // 
             // lHelpColor
             // 
             this.lHelpColor.AutoSize = true;
-            this.lHelpColor.Location = new System.Drawing.Point( 369, 52 );
+            this.lHelpColor.Location = new System.Drawing.Point( 317, 53 );
             this.lHelpColor.Name = "lHelpColor";
-            this.lHelpColor.Size = new System.Drawing.Size( 65, 15 );
+            this.lHelpColor.Size = new System.Drawing.Size( 117, 15 );
             this.lHelpColor.TabIndex = 1;
-            this.lHelpColor.Text = "Help Color";
+            this.lHelpColor.Text = "Help message color";
             // 
             // lMessageColor
             // 
             this.lMessageColor.AutoSize = true;
-            this.lMessageColor.Location = new System.Drawing.Point( 301, 23 );
+            this.lMessageColor.Location = new System.Drawing.Point( 303, 24 );
             this.lMessageColor.Name = "lMessageColor";
-            this.lMessageColor.Size = new System.Drawing.Size( 133, 15 );
+            this.lMessageColor.Size = new System.Drawing.Size( 131, 15 );
             this.lMessageColor.TabIndex = 0;
-            this.lMessageColor.Text = "System Message Color";
+            this.lMessageColor.Text = "System message color";
             // 
             // gBasic
             // 
             this.gBasic.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gBasic.Controls.Add( this.bPortCheck );
             this.gBasic.Controls.Add( this.lPort );
             this.gBasic.Controls.Add( this.nPort );
             this.gBasic.Controls.Add( this.cDefaultClass );
@@ -1345,6 +1353,59 @@
             this.tabSecurity.Text = "Security";
             this.tabSecurity.UseVisualStyleBackColor = true;
             // 
+            // gSecurityMisc
+            // 
+            this.gSecurityMisc.Controls.Add( this.xAnnounceClassChanges );
+            this.gSecurityMisc.Controls.Add( this.xAnnounceKickAndBanReasons );
+            this.gSecurityMisc.Controls.Add( this.xRequireClassChangeReason );
+            this.gSecurityMisc.Controls.Add( this.xRequireBanReason );
+            this.gSecurityMisc.Location = new System.Drawing.Point( 8, 295 );
+            this.gSecurityMisc.Name = "gSecurityMisc";
+            this.gSecurityMisc.Size = new System.Drawing.Size( 635, 73 );
+            this.gSecurityMisc.TabIndex = 3;
+            this.gSecurityMisc.TabStop = false;
+            this.gSecurityMisc.Text = "Misc";
+            // 
+            // xAnnounceClassChanges
+            // 
+            this.xAnnounceClassChanges.AutoSize = true;
+            this.xAnnounceClassChanges.Location = new System.Drawing.Point( 304, 45 );
+            this.xAnnounceClassChanges.Name = "xAnnounceClassChanges";
+            this.xAnnounceClassChanges.Size = new System.Drawing.Size( 231, 19 );
+            this.xAnnounceClassChanges.TabIndex = 5;
+            this.xAnnounceClassChanges.Text = "Announce promotions and demotions";
+            this.xAnnounceClassChanges.UseVisualStyleBackColor = true;
+            // 
+            // xAnnounceKickAndBanReasons
+            // 
+            this.xAnnounceKickAndBanReasons.AutoSize = true;
+            this.xAnnounceKickAndBanReasons.Location = new System.Drawing.Point( 304, 20 );
+            this.xAnnounceKickAndBanReasons.Name = "xAnnounceKickAndBanReasons";
+            this.xAnnounceKickAndBanReasons.Size = new System.Drawing.Size( 244, 19 );
+            this.xAnnounceKickAndBanReasons.TabIndex = 4;
+            this.xAnnounceKickAndBanReasons.Text = "Announce kick, ban, and unban reasons";
+            this.xAnnounceKickAndBanReasons.UseVisualStyleBackColor = true;
+            // 
+            // xRequireClassChangeReason
+            // 
+            this.xRequireClassChangeReason.AutoSize = true;
+            this.xRequireClassChangeReason.Location = new System.Drawing.Point( 32, 45 );
+            this.xRequireClassChangeReason.Name = "xRequireClassChangeReason";
+            this.xRequireClassChangeReason.Size = new System.Drawing.Size( 225, 19 );
+            this.xRequireClassChangeReason.TabIndex = 3;
+            this.xRequireClassChangeReason.Text = "Require promotion/demotion reason";
+            this.xRequireClassChangeReason.UseVisualStyleBackColor = true;
+            // 
+            // xRequireBanReason
+            // 
+            this.xRequireBanReason.AutoSize = true;
+            this.xRequireBanReason.Location = new System.Drawing.Point( 32, 20 );
+            this.xRequireBanReason.Name = "xRequireBanReason";
+            this.xRequireBanReason.Size = new System.Drawing.Size( 197, 19 );
+            this.xRequireBanReason.TabIndex = 2;
+            this.xRequireBanReason.Text = "Require ban and unban reason";
+            this.xRequireBanReason.UseVisualStyleBackColor = true;
+            // 
             // gSpamChat
             // 
             this.gSpamChat.Controls.Add( this.lSpamChatWarnings );
@@ -2031,13 +2092,15 @@
             this.tabIRC.Location = new System.Drawing.Point( 4, 24 );
             this.tabIRC.Name = "tabIRC";
             this.tabIRC.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabIRC.Size = new System.Drawing.Size( 651, 408 );
+            this.tabIRC.Size = new System.Drawing.Size( 651, 425 );
             this.tabIRC.TabIndex = 8;
             this.tabIRC.Text = "IRC";
             this.tabIRC.UseVisualStyleBackColor = true;
             // 
             // gIRCOptions
             // 
+            this.gIRCOptions.Controls.Add( this.bColorIRC );
+            this.gIRCOptions.Controls.Add( this.lColorIRC );
             this.gIRCOptions.Controls.Add( this.xIRCBotForwardFromIRC );
             this.gIRCOptions.Controls.Add( this.xIRCMsgs );
             this.gIRCOptions.Controls.Add( this.xIRCBotForwardFromServer );
@@ -2551,7 +2614,7 @@
             // 
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bOK.Location = new System.Drawing.Point( 355, 454 );
+            this.bOK.Location = new System.Drawing.Point( 355, 471 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 28 );
             this.bOK.TabIndex = 1;
@@ -2563,7 +2626,7 @@
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.bCancel.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bCancel.Location = new System.Drawing.Point( 461, 454 );
+            this.bCancel.Location = new System.Drawing.Point( 461, 471 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 28 );
             this.bCancel.TabIndex = 2;
@@ -2574,7 +2637,7 @@
             // 
             this.bResetTab.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bResetTab.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bResetTab.Location = new System.Drawing.Point( 132, 454 );
+            this.bResetTab.Location = new System.Drawing.Point( 132, 471 );
             this.bResetTab.Name = "bResetTab";
             this.bResetTab.Size = new System.Drawing.Size( 100, 28 );
             this.bResetTab.TabIndex = 5;
@@ -2592,7 +2655,7 @@
             // 
             this.bResetAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bResetAll.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bResetAll.Location = new System.Drawing.Point( 12, 454 );
+            this.bResetAll.Location = new System.Drawing.Point( 12, 471 );
             this.bResetAll.Name = "bResetAll";
             this.bResetAll.Size = new System.Drawing.Size( 114, 28 );
             this.bResetAll.TabIndex = 4;
@@ -2604,71 +2667,66 @@
             // 
             this.bApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bApply.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bApply.Location = new System.Drawing.Point( 567, 454 );
+            this.bApply.Location = new System.Drawing.Point( 567, 471 );
             this.bApply.Name = "bApply";
             this.bApply.Size = new System.Drawing.Size( 100, 28 );
             this.bApply.TabIndex = 3;
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 
-            // gSecurityMisc
+            // bColorPM
             // 
-            this.gSecurityMisc.Controls.Add( this.xAnnounceClassChanges );
-            this.gSecurityMisc.Controls.Add( this.xAnnounceKickAndBanReasons );
-            this.gSecurityMisc.Controls.Add( this.xRequireClassChangeReason );
-            this.gSecurityMisc.Controls.Add( this.xRequireBanReason );
-            this.gSecurityMisc.Location = new System.Drawing.Point( 8, 295 );
-            this.gSecurityMisc.Name = "gSecurityMisc";
-            this.gSecurityMisc.Size = new System.Drawing.Size( 635, 73 );
-            this.gSecurityMisc.TabIndex = 3;
-            this.gSecurityMisc.TabStop = false;
-            this.gSecurityMisc.Text = "Misc";
+            this.bColorPM.BackColor = System.Drawing.Color.White;
+            this.bColorPM.Location = new System.Drawing.Point( 440, 136 );
+            this.bColorPM.Name = "bColorPM";
+            this.bColorPM.Size = new System.Drawing.Size( 100, 23 );
+            this.bColorPM.TabIndex = 9;
+            this.bColorPM.UseVisualStyleBackColor = false;
+            this.bColorPM.Click += new System.EventHandler( this.bColorPM_Click );
             // 
-            // xRequireBanReason
+            // lColorPM
             // 
-            this.xRequireBanReason.AutoSize = true;
-            this.xRequireBanReason.Location = new System.Drawing.Point( 32, 20 );
-            this.xRequireBanReason.Name = "xRequireBanReason";
-            this.xRequireBanReason.Size = new System.Drawing.Size( 197, 19 );
-            this.xRequireBanReason.TabIndex = 2;
-            this.xRequireBanReason.Text = "Require ban and unban reason";
-            this.xRequireBanReason.UseVisualStyleBackColor = true;
+            this.lColorPM.AutoSize = true;
+            this.lColorPM.Location = new System.Drawing.Point( 269, 140 );
+            this.lColorPM.Name = "lColorPM";
+            this.lColorPM.Size = new System.Drawing.Size( 165, 15 );
+            this.lColorPM.TabIndex = 8;
+            this.lColorPM.Text = "Private / class message color";
             // 
-            // xRequireClassChangeReason
+            // bPortCheck
             // 
-            this.xRequireClassChangeReason.AutoSize = true;
-            this.xRequireClassChangeReason.Location = new System.Drawing.Point( 32, 45 );
-            this.xRequireClassChangeReason.Name = "xRequireClassChangeReason";
-            this.xRequireClassChangeReason.Size = new System.Drawing.Size( 225, 19 );
-            this.xRequireClassChangeReason.TabIndex = 3;
-            this.xRequireClassChangeReason.Text = "Require promotion/demotion reason";
-            this.xRequireClassChangeReason.UseVisualStyleBackColor = true;
+            this.bPortCheck.Location = new System.Drawing.Point( 517, 102 );
+            this.bPortCheck.Name = "bPortCheck";
+            this.bPortCheck.Size = new System.Drawing.Size( 55, 23 );
+            this.bPortCheck.TabIndex = 33;
+            this.bPortCheck.Text = "Check";
+            this.bPortCheck.UseVisualStyleBackColor = true;
+            this.bPortCheck.Click += new System.EventHandler( this.bPortCheck_Click );
             // 
-            // xAnnounceKickAndBanReasons
+            // bColorIRC
             // 
-            this.xAnnounceKickAndBanReasons.AutoSize = true;
-            this.xAnnounceKickAndBanReasons.Location = new System.Drawing.Point( 304, 20 );
-            this.xAnnounceKickAndBanReasons.Name = "xAnnounceKickAndBanReasons";
-            this.xAnnounceKickAndBanReasons.Size = new System.Drawing.Size( 244, 19 );
-            this.xAnnounceKickAndBanReasons.TabIndex = 4;
-            this.xAnnounceKickAndBanReasons.Text = "Announce kick, ban, and unban reasons";
-            this.xAnnounceKickAndBanReasons.UseVisualStyleBackColor = true;
+            this.bColorIRC.BackColor = System.Drawing.Color.White;
+            this.bColorIRC.Location = new System.Drawing.Point( 521, 42 );
+            this.bColorIRC.Name = "bColorIRC";
+            this.bColorIRC.Size = new System.Drawing.Size( 100, 23 );
+            this.bColorIRC.TabIndex = 13;
+            this.bColorIRC.UseVisualStyleBackColor = false;
+            this.bColorIRC.Click += new System.EventHandler( this.bColorIRC_Click );
             // 
-            // xAnnounceClassChanges
+            // lColorIRC
             // 
-            this.xAnnounceClassChanges.AutoSize = true;
-            this.xAnnounceClassChanges.Location = new System.Drawing.Point( 304, 45 );
-            this.xAnnounceClassChanges.Name = "xAnnounceClassChanges";
-            this.xAnnounceClassChanges.Size = new System.Drawing.Size( 231, 19 );
-            this.xAnnounceClassChanges.TabIndex = 5;
-            this.xAnnounceClassChanges.Text = "Announce promotions and demotions";
-            this.xAnnounceClassChanges.UseVisualStyleBackColor = true;
+            this.lColorIRC.AutoSize = true;
+            this.lColorIRC.Location = new System.Drawing.Point( 404, 46 );
+            this.lColorIRC.Name = "lColorIRC";
+            this.lColorIRC.Size = new System.Drawing.Size( 111, 15 );
+            this.lColorIRC.TabIndex = 12;
+            this.lColorIRC.Text = "IRC message color";
             // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 684, 494 );
+            this.ClientSize = new System.Drawing.Size( 684, 511 );
             this.Controls.Add( this.bApply );
             this.Controls.Add( this.bResetAll );
             this.Controls.Add( this.bResetTab );
@@ -2704,6 +2762,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefBlocks)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRank)).EndInit();
             this.tabSecurity.ResumeLayout( false );
+            this.gSecurityMisc.ResumeLayout( false );
+            this.gSecurityMisc.PerformLayout();
             this.gSpamChat.ResumeLayout( false );
             this.gSpamChat.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nSpamChatWarnings)).EndInit();
@@ -2742,8 +2802,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPing)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).EndInit();
-            this.gSecurityMisc.ResumeLayout( false );
-            this.gSecurityMisc.PerformLayout();
             this.ResumeLayout( false );
 
         }
@@ -2950,5 +3008,10 @@
         private System.Windows.Forms.CheckBox xRequireClassChangeReason;
         private System.Windows.Forms.CheckBox xRequireBanReason;
         private System.Windows.Forms.CheckBox xAnnounceClassChanges;
+        private System.Windows.Forms.Button bColorPM;
+        private System.Windows.Forms.Label lColorPM;
+        private System.Windows.Forms.Button bPortCheck;
+        private System.Windows.Forms.Button bColorIRC;
+        private System.Windows.Forms.Label lColorIRC;
     }
 }

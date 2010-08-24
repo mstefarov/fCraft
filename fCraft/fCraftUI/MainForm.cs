@@ -116,6 +116,7 @@ namespace fCraftUI {
             urlDisplay.Text = URL;
             urlDisplay.Enabled = true;
             urlDisplay.Select();
+            bPlay.Enabled = true;
         }
 
 
@@ -149,6 +150,10 @@ namespace fCraftUI {
                 }
             }
             console.Text = "";
+        }
+
+        private void bPlay_Click( object sender, EventArgs e ) {
+            Process.Start( urlDisplay.Text );
         }
     }
 }

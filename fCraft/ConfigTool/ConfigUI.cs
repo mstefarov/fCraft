@@ -6,6 +6,9 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Diagnostics;
 using fCraft;
 using Color = System.Drawing.Color;
 
@@ -16,7 +19,7 @@ namespace ConfigTool {
         Font bold;
         PlayerClass selectedClass, defaultClass;
         internal static SortableBindingList<WorldListEntry> worlds = new SortableBindingList<WorldListEntry>();
-        
+
         #region Initialization
 
         public ConfigUI() {
@@ -132,7 +135,7 @@ namespace ConfigTool {
                     try {
                         File.Delete( fileName );
                     } catch( Exception ex ) {
-                        MessageBox.Show( "You have to delete the file ("+fileName+") manually. "+
+                        MessageBox.Show( "You have to delete the file (" + fileName + ") manually. " +
                             "An error occured while trying to delete it automatically:" + Environment.NewLine + ex, "Error" );
                     }
                 }
@@ -468,7 +471,7 @@ namespace ConfigTool {
         private void nDrawLimit_ValueChanged( object sender, EventArgs e ) {
             if( selectedClass == null || !xDrawLimit.Checked ) return;
             selectedClass.drawLimit = Convert.ToInt32( nDrawLimit.Value );
-            double cubed = Math.Pow(Convert.ToDouble( nDrawLimit.Value ),1/3d);
+            double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
             lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed ); ;
         }
 
@@ -749,7 +752,7 @@ namespace ConfigTool {
         #endregion
 
         #region Colors
-        int colorSys, colorSay, colorHelp, colorAnnouncement;
+        int colorSys, colorSay, colorHelp, colorAnnouncement, colorPM, colorIRC;
 
         static void ApplyColor( Button button, int color ) {
             button.Text = fCraft.Color.GetName( color );
@@ -779,7 +782,7 @@ namespace ConfigTool {
         }
 
         private void bColorAnnouncement_Click( object sender, EventArgs e ) {
-            ColorPicker picker = new ColorPicker( "Announcement color", colorSay );
+            ColorPicker picker = new ColorPicker( "Announcement color", colorAnnouncement );
             picker.ShowDialog();
             colorAnnouncement = picker.color;
             ApplyColor( bColorAnnouncement, colorAnnouncement );
@@ -790,6 +793,21 @@ namespace ConfigTool {
             picker.ShowDialog();
             ApplyColor( bColorClass, picker.color );
             selectedClass.color = fCraft.Color.GetName( picker.color );
+        }
+
+        private void bColorPM_Click( object sender, EventArgs e ) {
+            ColorPicker picker = new ColorPicker( "Private / class chat color", colorPM );
+            picker.ShowDialog();
+            colorPM = picker.color;
+            ApplyColor( bColorPM, colorPM );
+        }
+
+
+        private void bColorIRC_Click( object sender, EventArgs e ) {
+            ColorPicker picker = new ColorPicker( "IRC message color", colorIRC );
+            picker.ShowDialog();
+            colorIRC = picker.color;
+            ApplyColor( bColorIRC, colorIRC );
         }
 
         #endregion
@@ -811,5 +829,39 @@ namespace ConfigTool {
         }
 
         #endregion
+
+        private void bPortCheck_Click( object sender, EventArgs e ) {
+            this.Enabled = false;
+            TcpListener listener = null;
+
+            try {
+                listener = new TcpListener( IPAddress.Any, (int)nPort.Value );
+                listener.Start();
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create( "http://www.utorrent.com/testport?plain=1&port=" + nPort.Value );
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+                if( response.StatusCode == HttpStatusCode.OK ) {
+                    using( Stream stream = response.GetResponseStream() ) {
+                        StreamReader reader = new StreamReader( stream );
+                        if( reader.ReadLine().StartsWith( "ok" ) ) {
+                            MessageBox.Show( "Port " + nPort.Value + " is open!", "Port check success" );
+                            return;
+                        }
+                    }
+                }
+                MessageBox.Show( "Port " + nPort.Value + " is closed. You will need to set up forwarding.", "Port check failed" );
+
+            } catch {
+                MessageBox.Show( "Could not start listening on port " + nPort.Value + ". Another program may be using the port.", "Port check failed" );
+            } finally {
+                if( listener != null ) {
+                    listener.Stop();
+                }
+                this.Enabled = true;
+            }
+        }
+
+
     }
 }
