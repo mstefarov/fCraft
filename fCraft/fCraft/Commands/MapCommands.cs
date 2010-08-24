@@ -328,10 +328,8 @@ namespace fCraft {
                     if( !first ) {
                         sb.Append( ", " );
                     }
-                    if( player.CanJoin( world ) ) {
-                        sb.Append( world.name );
-                    } else if( listAll ) {
-                        sb.Append( Color.Red ).Append( world.name ).Append( Color.Sys );
+                    if( player.CanJoin( world ) || listAll ) {
+                        sb.Append( world.classBuild.color + world.name );
                     }
                     first = false;
                 }
