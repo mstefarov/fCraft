@@ -21,6 +21,7 @@ namespace fCraft {
  *              Removed AnnounceUnverifiedNames
  *              
  * 103 - r190 - Added UseSpeedHack permission
+ *              Added PrivateMessageColor and IRCColor
  * 
  */
 
@@ -79,8 +80,8 @@ namespace fCraft {
             settings[ConfigKey.SystemMessageColor] = "yellow";
             settings[ConfigKey.HelpColor] = "Lime";
             settings[ConfigKey.SayColor] = "yellow";
-
             settings[ConfigKey.AnnouncementColor] = "green";
+            settings[ConfigKey.PrivateMessageColor] = "aqua";
             settings[ConfigKey.AnnouncementInterval] = "5";
         }
 
@@ -134,6 +135,7 @@ namespace fCraft {
             settings[ConfigKey.IRCBotChannels] = "#changeme"; // CASE SENSITIVE!!!!!!!!!!!!!!!!!!!!! This can be multiple using csv
             settings[ConfigKey.IRCBotForwardFromServer] = "false"; // Disabled by default
             settings[ConfigKey.IRCBotForwardFromIRC] = "false"; // Disabled by default
+            settings[ConfigKey.IRCMessageColor] = "purple";
         }
 
         public static void LoadDefaultsAdvanced() {
@@ -398,6 +400,8 @@ namespace fCraft {
             Color.Say = Color.Parse( settings[ConfigKey.SayColor] );
             Color.Help = Color.Parse( settings[ConfigKey.HelpColor] );
             Color.Announcement = Color.Parse( settings[ConfigKey.AnnouncementColor] );
+            Color.PM = Color.Parse( settings[ConfigKey.PrivateMessageColor] );
+            Color.IRC = Color.Parse( settings[ConfigKey.IRCMessageColor] );
 
             // default class
             if( ClassList.ParseClass( settings[ConfigKey.DefaultClass] ) != null ) {
@@ -477,6 +481,8 @@ namespace fCraft {
                 case ConfigKey.HelpColor:
                 case ConfigKey.SayColor:
                 case ConfigKey.AnnouncementColor:
+                case ConfigKey.PrivateMessageColor:
+                case ConfigKey.IRCMessageColor:
                     return ValidateColor( key, value );
 
                 case ConfigKey.VerifyNames:

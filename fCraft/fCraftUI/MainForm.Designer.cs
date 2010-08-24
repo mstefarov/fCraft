@@ -30,6 +30,7 @@
             this.playerList = new System.Windows.Forms.ListBox();
             this.playerListLabel = new System.Windows.Forms.Label();
             this.console = new fCraftUI.ConsoleBox();
+            this.bPlay = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // logBox
@@ -54,7 +55,7 @@
             this.urlDisplay.Location = new System.Drawing.Point( 95, 12 );
             this.urlDisplay.Name = "urlDisplay";
             this.urlDisplay.ReadOnly = true;
-            this.urlDisplay.Size = new System.Drawing.Size( 535, 20 );
+            this.urlDisplay.Size = new System.Drawing.Size( 481, 20 );
             this.urlDisplay.TabIndex = 0;
             this.urlDisplay.Text = "Waiting for first heartbeat...";
             this.urlDisplay.WordWrap = false;
@@ -100,11 +101,23 @@
             this.console.Size = new System.Drawing.Size( 767, 20 );
             this.console.TabIndex = 6;
             // 
+            // bPlay
+            // 
+            this.bPlay.Enabled = false;
+            this.bPlay.Location = new System.Drawing.Point( 582, 10 );
+            this.bPlay.Name = "bPlay";
+            this.bPlay.Size = new System.Drawing.Size( 48, 23 );
+            this.bPlay.TabIndex = 7;
+            this.bPlay.Text = "Play";
+            this.bPlay.UseVisualStyleBackColor = true;
+            this.bPlay.Click += new System.EventHandler( this.bPlay_Click );
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size( 792, 479 );
+            this.Controls.Add( this.bPlay );
             this.Controls.Add( this.console );
             this.Controls.Add( this.playerListLabel );
             this.Controls.Add( this.playerList );
@@ -127,6 +140,7 @@
         private System.Windows.Forms.ListBox playerList;
         private System.Windows.Forms.Label playerListLabel;
         private ConsoleBox console;
+        private System.Windows.Forms.Button bPlay;
     }
 }
 

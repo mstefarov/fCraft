@@ -114,6 +114,8 @@ namespace ConfigTool {
             ApplyColor( bColorSay, colorSay );
             colorAnnouncement = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.AnnouncementColor ) );
             ApplyColor( bColorAnnouncement, colorAnnouncement );
+            colorPM = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.PrivateMessageColor ) );
+            ApplyColor( bColorPM, colorPM );
 
             xAnnouncements.Checked = (Config.GetInt( ConfigKey.AnnouncementInterval ) > 0);
             nAnnouncements.Value = Config.GetInt( ConfigKey.AnnouncementInterval );
@@ -220,6 +222,9 @@ namespace ConfigTool {
 
             gIRCNetwork.Enabled = xIRC.Checked;
             gIRCOptions.Enabled = xIRC.Checked;
+
+            colorIRC = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.IRCMessageColor ) );
+            ApplyColor( bColorIRC, colorIRC );
         }
 
 
@@ -275,8 +280,8 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.SystemMessageColor, fCraft.Color.GetName( colorSys ) );
             Config.SetValue( ConfigKey.HelpColor, fCraft.Color.GetName( colorHelp ) );
             Config.SetValue( ConfigKey.SayColor, fCraft.Color.GetName( colorSay ) );
-
             Config.SetValue( ConfigKey.AnnouncementColor, fCraft.Color.GetName( colorAnnouncement ) );
+            Config.SetValue( ConfigKey.PrivateMessageColor, fCraft.Color.GetName( colorPM ) );
             if( xAnnouncements.Checked ) Config.SetValue( ConfigKey.AnnouncementInterval, nAnnouncements.Value );
             else Config.SetValue( ConfigKey.AnnouncementInterval, 0 );
 
@@ -334,6 +339,7 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.IRCMsgs, xIRCMsgs.Checked );
             Config.SetValue( ConfigKey.IRCBotForwardFromServer, xIRCBotForwardFromServer.Checked );
             Config.SetValue( ConfigKey.IRCBotForwardFromIRC, xIRCBotForwardFromIRC.Checked );
+            Config.SetValue( ConfigKey.IRCMessageColor, fCraft.Color.GetName( colorIRC ) );
 
 
             WriteEnum( cPolicyColor, ConfigKey.PolicyColorCodesInChat, "Disallow", "ConsoleOnly", "Allow" );

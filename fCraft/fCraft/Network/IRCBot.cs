@@ -294,7 +294,7 @@ namespace fCraft {
                                     #endregion
                             }
                             if( message.destination == Destination.Server && message.chatMessage != null && message.chatMessage.Length > 0 ) {
-                                string stringToServer = "(IRC)" + message.nickname + ": " + message.chatMessage;
+                                string stringToServer = Color.IRC + "(IRC)" + message.nickname + ": " + message.chatMessage;
                                 Logger.Log( stringToServer, LogType.IRC );
                                 Server.SendToAll( stringToServer );
                             }

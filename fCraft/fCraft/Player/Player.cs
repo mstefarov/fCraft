@@ -147,11 +147,11 @@ namespace fCraft {
                                     otherPlayer.GetLogName(),
                                     message );
                         otherPlayer.Message( "{0}from {1}: {2}",
-                                             Color.Gray,
+                                             Color.PM,
                                              name,
                                              message.Substring( message.IndexOf( ' ' ) + 1 ) );
                         Message( "{0}to {1}: {2}",
-                                 Color.Gray,
+                                 Color.PM,
                                  otherPlayer.name,
                                  message.Substring( message.IndexOf( ' ' ) + 1 ) );
                     } else {
@@ -166,10 +166,15 @@ namespace fCraft {
                     PlayerClass playerClass = ClassList.FindClass( className );
                     if( playerClass != null ) {
                         Logger.Log( "{0} to class {1}: {2}", LogType.ClassChat, GetLogName(), playerClass.name, message );
-                        Packet classMsg = PacketWriter.MakeMessage( Color.Gray + "[" + playerClass.color + playerClass.name + Color.Gray + "]" + nick + ": " + message.Substring( message.IndexOf( ' ' ) + 1 ) );
-                        Server.SendToClass( classMsg, playerClass );
+                        string formattedMessage = String.Format( "{0}({1}){2}{3}: {4}",
+                                                                 playerClass.color,
+                                                                 playerClass.name,
+                                                                 Color.PM,
+                                                                 nick,
+                                                                 message.Substring( message.IndexOf( ' ' ) + 1 ) );
+                        Server.SendToClass( formattedMessage, playerClass );
                         if( info.playerClass != playerClass ) {
-                            Send( classMsg );
+                            Message( formattedMessage );
                         }
                     } else {
                         Message( "No class found matching \"" + className + "\"" );
