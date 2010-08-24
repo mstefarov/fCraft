@@ -91,7 +91,6 @@ namespace fCraft {
         }
 
 
-
         public static void Log( string message, LogType type ) {
             //TODO: check if logging is enabled
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message;

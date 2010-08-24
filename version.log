@@ -1,5 +1,10 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-08-24
+444
+ Feature: New stat command, /sinfo (server info).
+ Fix: Ban reason/memo now shown for normal bans.
+ Fix: /cinfo for unlimited classes no longer shows "draw limit: 0"
+ Fix: Fixed IRC message colors, and removed IRC color codes from log.
 443
  FEATURE: New /wflush command. It allows finishing all in-progress draw commands at maximum speed (over 100k blocks/second) then forces a map rejoin.
  Feature: Added more customization options for colors: PrivateMessageColor and IRCMessageColor in Config.

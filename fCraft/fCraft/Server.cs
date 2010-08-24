@@ -655,7 +655,7 @@ namespace fCraft {
         static Dictionary<int, ScheduledTask> tasks = new Dictionary<int, ScheduledTask>();
         static ScheduledTask[] taskList;
         static Thread mainThread;
-        static DateTime serverStart;
+        public static DateTime serverStart;
         public static bool shuttingDown;
         static object taskListLock = new object();
 

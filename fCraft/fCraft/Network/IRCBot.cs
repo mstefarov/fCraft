@@ -294,8 +294,8 @@ namespace fCraft {
                                     #endregion
                             }
                             if( message.destination == Destination.Server && message.chatMessage != null && message.chatMessage.Length > 0 ) {
-                                string stringToServer = Color.IRC + "(IRC)" + message.nickname + ": " + message.chatMessage;
-                                Logger.Log( stringToServer, LogType.IRC );
+                                Logger.Log( "(IRC)" + message.nickname + ": " + message.chatMessage, LogType.IRC );
+                                string stringToServer = Color.IRC + "(IRC)" + message.nickname + Color.White + ": " + message.chatMessage;
                                 Server.SendToAll( stringToServer );
                             }
                             // Remove parsed messages from the message stack
