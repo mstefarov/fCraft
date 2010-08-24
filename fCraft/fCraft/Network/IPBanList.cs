@@ -96,6 +96,10 @@ namespace fCraft {
                 }
             }
         }
+
+        public static int CountBans() {
+            return bans.Count;
+        }
     }
 
 

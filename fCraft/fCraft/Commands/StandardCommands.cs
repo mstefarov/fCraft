@@ -291,6 +291,9 @@ namespace fCraft {
                         if( offender.info.ProcessBan( player, reason ) ) {
                             Logger.Log( "{0} was banned by {1}.", LogType.UserActivity, offender.info.name, player.GetLogName() );
                             Server.SendToAll( Color.Red + offender.name + " was banned by " + player.nick, offender );
+                            if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
+                                Server.SendToAll( Color.Red + "Ban reason: " + reason );
+                            }
                             offender.session.Kick( "You were just banned by " + player.GetLogName() );
                         } else {
                             player.Message( offender.name + " is already banned." );

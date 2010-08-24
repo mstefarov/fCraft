@@ -25,8 +25,9 @@ namespace fCraft {
 
             CommandList.RegisterCommand( cdPlayers );
             CommandList.RegisterCommand( cdClasses );
-        }
 
+            CommandList.RegisterCommand( cdServerInfo );
+        }
 
 
         static CommandDescriptor cdWorldInfo = new CommandDescriptor {
@@ -510,7 +511,11 @@ namespace fCraft {
                 }
                 player.Message( sb.ToString() );
                 if( playerClass.Can( Permission.Draw ) ) {
-                    player.Message( "Draw command limit: " + playerClass.drawLimit + " blocks." );
+                    if( playerClass.drawLimit > 0 ) {
+                        player.Message( "Draw command limit: " + playerClass.drawLimit + " blocks." );
+                    } else {
+                        player.Message( "Draw command limit: unlimited blocks." );
+                    }
                 }
             }
         }
@@ -561,6 +566,29 @@ namespace fCraft {
                     player.Message( "Rules: Use common sense!" );
                 }
             }
+        }
+
+
+
+        static CommandDescriptor cdServerInfo = new CommandDescriptor {
+            name = "sinfo",
+            permissions = new Permission[]{ Permission.ViewOthersInfo},
+            consoleSafe = true,
+            help = "Shows server stats",
+            handler = ServerInfo
+        };
+
+        internal static void ServerInfo( Player player, Command cmd ) {
+            player.Message( "Servers stats: Up for {0:0.0} hours, using {1:0} MB of memory.",
+                            DateTime.Now.Subtract( Server.serverStart ).TotalHours,
+                            (System.Diagnostics.Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
+            player.Message( "    There are {0} players in the database.", PlayerDB.CountTotalPlayers() );
+            player.Message( "    Of those, {0} are banned, and {1} are IP-banned.",
+                            PlayerDB.CountBannedPlayers(),
+                            IPBanList.CountBans() );
+            player.Message( "    {0} worlds available, {1} players online.",
+                            Server.worlds.Count,
+                            Server.playerList.Length );
         }
     }
 }
