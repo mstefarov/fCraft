@@ -44,6 +44,7 @@ namespace fCraft {
         public bool isLocked,
                     isHidden,
                     isReadyForUnload,
+                    isFlushing,
                     neverUnload;
         public PlayerClass classAccess, classBuild;
 
@@ -158,6 +159,25 @@ namespace fCraft {
                     foreach( Player player in playerList ) {
                         player.session.JoinWorld( newWorld, null );
                     }
+                }
+            }
+        }
+
+
+        public void BeginFlushMapBuffer() {
+            lock( mapLock ) {
+                if( map == null ) return;
+                SendToAll( Color.Red + "Map is being flushed. Stay put, map will reload shortly." );
+                isFlushing = true;
+            }
+        }
+
+        public void EndFlushMapBuffer() {
+            isFlushing = false;
+            lock( playerListLock ) {
+                SendToAll( Color.Red + "Map flushed. Rejoining" );
+                foreach( Player player in playerList ) {
+                    player.session.JoinWorld( this, player.pos );
                 }
             }
         }
