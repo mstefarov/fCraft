@@ -10,12 +10,26 @@ using System.Linq;
 
 namespace fCraft {
 
+/*
+ * Config format-version changelog:
+ * 100 - r1-r133
+ *
+ * 101 - r134 - Per-class draw limits and antigrief detection
+ *              Removed AntigriefBlockCount and AntigriefBlockInterval
+ * 
+ * 102 - r171 - Added RequireBanReason, RequireClassChangeReason, AnnounceKickAndBanReasons, AnnounceClassChanges
+ *              Removed AnnounceUnverifiedNames
+ *              
+ * 103 - r190 - Added UseSpeedHack permission
+ * 
+ */
+
     public static class Config {
         public static string ServerURL;
         public const int HeartbeatDelay = 50000;
 
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 102;
+        public const int ConfigVersion = 103;
         public const int MaxPlayersSupported = 256;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
@@ -169,13 +183,12 @@ namespace fCraft {
             XElement config = file.Root;
 
             XAttribute attr = config.Attribute( "version" );
-            int version;
+            int version = 0;
             if( fromFile && (attr == null || !Int32.TryParse( attr.Value, out version ) || version != ConfigVersion) ) {
                 Log( "Config.Load: Your config.xml was made for a different version of fCraft. " +
                      "Some obsolete settings might be ignored, and some recently-added settings will be set to their default values. " +
                      "It is recommended that you run ConfigTool to make sure everything is in order.", LogType.Warning );
             }
-
 
             XElement legacyRankMappingTag = config.Element( "LegacyRankMapping" );
             if( legacyRankMappingTag != null ) {
@@ -202,7 +215,22 @@ namespace fCraft {
                 if( ClassList.classesByName.Count == 0 ) {
                     Log( "Config.Load: No classes were defined, or none were defined correctly. Using default player classes.", LogType.Warning );
                     config.Add( DefineDefaultClasses() );
-                }
+
+                } else if( version < ConfigVersion ) { // start LEGACY code
+                    bool foundClassWithSpeedHackPermission = false;
+                    foreach( PlayerClass pc in ClassList.classesByID.Values ) {
+                        if( pc.Can( Permission.UseSpeedHack ) ) foundClassWithSpeedHackPermission = true;
+                    }
+                    if( !foundClassWithSpeedHackPermission ) {
+                        foreach( PlayerClass pc in ClassList.classesByID.Values ) {
+                            pc.permissions[(int)Permission.UseSpeedHack] = true;
+                        }
+                        Log( "Config.Load: All classes were granted UseSpeedHack permission (default). " +
+                             "Use ConfigTool to update config. If you are editing config.xml manually, " +
+                             "set version=103 to prevent permissions from resetting in the future.", LogType.Warning );
+                    }
+                } // end LEGACY code
+
             } else {
                 if( fromFile ) Log( "Config.Load: using default player classes.", LogType.Warning );
                 config.Add( DefineDefaultClasses() );
@@ -600,9 +628,10 @@ namespace fCraft {
             guest.Add( new XAttribute( "antiGriefBlocks", 35 ) );
             guest.Add( new XAttribute( "antiGriefSeconds", 5 ) );
             guest.Add( new XAttribute( "idleKickAfter", 20 ) );
-            guest.Add( new XElement( "Chat" ) );
-            guest.Add( new XElement( "Build" ) );
-            guest.Add( new XElement( "Delete" ) );
+            guest.Add( new XElement( Permission.Chat.ToString() ) );
+            guest.Add( new XElement( Permission.Build.ToString() ) );
+            guest.Add( new XElement( Permission.Delete.ToString() ) );
+            guest.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
             permissions.Add( guest );
             DefineClass( guest );
 
@@ -621,6 +650,7 @@ namespace fCraft {
             regular.Add( new XElement( "Chat" ) );
             regular.Add( new XElement( "Build" ) );
             regular.Add( new XElement( "Delete" ) );
+            regular.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
 
             regular.Add( new XElement( "PlaceGrass" ) );
             regular.Add( new XElement( "PlaceWater" ) );
@@ -655,6 +685,7 @@ namespace fCraft {
             op.Add( new XElement( "Chat" ) );
             op.Add( new XElement( "Build" ) );
             op.Add( new XElement( "Delete" ) );
+            op.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
 
             op.Add( new XElement( "PlaceGrass" ) );
             op.Add( new XElement( "PlaceWater" ) );
@@ -709,6 +740,7 @@ namespace fCraft {
             owner.Add( new XElement( "Chat" ) );
             owner.Add( new XElement( "Build" ) );
             owner.Add( new XElement( "Delete" ) );
+            owner.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
 
             owner.Add( new XElement( "PlaceGrass" ) );
             owner.Add( new XElement( "PlaceWater" ) );
