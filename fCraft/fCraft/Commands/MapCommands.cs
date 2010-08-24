@@ -17,6 +17,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdWorldLoad );
             CommandList.RegisterCommand( cdWorldRename );
             CommandList.RegisterCommand( cdWorldRemove );
+            CommandList.RegisterCommand( cdWorldFlush );
 
             CommandList.RegisterCommand( cdZoneEdit );
             CommandList.RegisterCommand( cdZoneAdd );
@@ -129,6 +130,37 @@ namespace fCraft {
 
 
         #region World Commands
+
+        static CommandDescriptor cdWorldFlush = new CommandDescriptor {
+            name = "wflush",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.ManageWorlds },
+            usage = "/wflush [WorldName]",
+            help = "Flushes the update buffer on specified map by causing players to rejoin. "+
+                   "Makes cuboids and other draw commands finish REALLY fast.",
+            handler = WorldFlush
+        };
+
+        internal static void WorldFlush( Player player, Command cmd ) {
+            string worldName = cmd.Next();
+            World world = player.world;
+
+            if( worldName != null ) {
+                world = Server.FindWorld( worldName );
+                if( world == null ) {
+                    player.Message( "No world \"{0}\" found.", worldName );
+                    return;
+                }
+            } else if( player.world == null ) {
+                player.Message( "When using /wflush from console, you must specify a world name." );
+                return;
+            }
+
+            player.Message( "Flushing \"{0}\" ({1} blocks in queue)...", world.name, world.map.UpdateQueueSize() );
+
+            world.BeginFlushMapBuffer();
+        }
+
 
         static CommandDescriptor cdWorldMain = new CommandDescriptor {
             name = "wmain",

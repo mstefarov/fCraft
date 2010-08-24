@@ -38,6 +38,7 @@ namespace fCraft {
         }
         Pointer Head;
         Pointer Tail;
+        public int Length;
 
         public ConcurrentQueue() {
             Node node = new Node();
@@ -106,7 +107,7 @@ namespace fCraft {
                 } // endif
 
             } // endloop
-
+            Interlocked.Decrement( ref Length );
             // dispose of head.ptr
             return true;
         }
@@ -146,6 +147,7 @@ namespace fCraft {
                 } // endif
 
             } // endloop
+            Interlocked.Increment( ref Length );
         }
     }
 }

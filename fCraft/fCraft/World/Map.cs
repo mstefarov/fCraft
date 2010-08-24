@@ -566,6 +566,11 @@ namespace fCraft {
         }
 
 
+        public int UpdateQueueSize() {
+            return updates.Length;
+        }
+
+
         public void ProcessUpdates() {
             if( world.isLocked ) {
                 if( world.isReadyForUnload ) world.UnloadMap();
@@ -576,10 +581,15 @@ namespace fCraft {
             int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate( world );
             BlockUpdate update = new BlockUpdate();
             while( packetsSent < maxPacketsPerUpdate ) {
-                if( !updates.Dequeue( ref update ) ) break;
+                if( !updates.Dequeue( ref update ) ) {
+                    if( world.isFlushing ) {
+                        world.EndFlushMapBuffer();
+                    }
+                    break;
+                }
                 changesSinceSave++;
                 SetBlock( update.x, update.y, update.h, update.type );
-                world.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin );
+                if(!world.isFlushing) world.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin );
                 if( update.origin != null ) {
                     update.origin.info.ProcessBlockPlaced( update.type );
                 }

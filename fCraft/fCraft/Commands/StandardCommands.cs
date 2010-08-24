@@ -655,8 +655,8 @@ namespace fCraft {
                     int x, y, h;
                     if( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out h ) ) {
                         if( x < 0 || x > player.world.map.widthX ||
-                             y < 0 || y > player.world.map.widthY ||
-                             y < 0 || y > player.world.map.height ) {
+                            y < 0 || y > player.world.map.widthY ||
+                            y < 0 || y > player.world.map.height ) {
                             player.Message( "Specified coordinates are outside the map!" );
                         } else {
                             player.pos.Set( x * 32 + 16, y * 32 + 16, h * 32 + 16, player.pos.r, player.pos.l );

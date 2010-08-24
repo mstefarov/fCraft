@@ -413,7 +413,7 @@ namespace fCraft {
 
 
         public bool CanDraw( int volume ) {
-            return ( info.playerClass.drawLimit > 0 ) && ( volume > info.playerClass.drawLimit );
+            return (info.playerClass.drawLimit > 0) && (volume > info.playerClass.drawLimit);
         }
 
 
@@ -481,7 +481,7 @@ namespace fCraft {
 
         // Determines what OP-code to send to the player. It only matters for deleting admincrete.
         public byte GetOPPacketCode() {
-            return (byte)( Can( Permission.DeleteAdmincrete ) ? 100 : 0 );
+            return (byte)(Can( Permission.DeleteAdmincrete ) ? 100 : 0);
         }
 
         #endregion
@@ -507,7 +507,7 @@ namespace fCraft {
             if( name.Length < 2 || name.Length > 16 ) return false;
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];
-                if( ch < '0' || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < '_' ) || ( ch > '_' && ch < 'a' ) || ch > 'z' ) {
+                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
                     return false;
                 }
             }

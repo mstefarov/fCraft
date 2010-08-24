@@ -812,7 +812,7 @@ namespace fCraft {
             int maxPacketsPerUpdate = (int)(maxUploadSpeed / ticksPerSecond * 128);
 
             int playerCount = world.playerList.Length;
-            if( playerCount > 0 ) {
+            if( playerCount > 0 && !world.isFlushing ) {
                 maxPacketsPerUpdate /= playerCount;
                 if( maxPacketsPerUpdate > packetsPerTick ) {
                     maxPacketsPerUpdate = packetsPerTick;

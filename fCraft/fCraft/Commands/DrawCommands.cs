@@ -205,7 +205,11 @@ namespace fCraft {
         };
 
         internal static void Mark( Player player, Command command ) {
-            Position pos = new Position( (short)(player.pos.x / 32), (short)(player.pos.y / 32), (short)(player.pos.h / 32) );
+            Position pos = new Position( (short)((player.pos.x-1) / 32), (short)((player.pos.y-1) / 32), (short)((player.pos.h-1) / 32) );
+            pos.x = (short)Math.Min( player.world.map.widthX-1, Math.Max( 0, (int)pos.x ) );
+            pos.y = (short)Math.Min( player.world.map.widthY-1, Math.Max( 0, (int)pos.y ) );
+            pos.h = (short)Math.Min( player.world.map.height-1, Math.Max( 0, (int)pos.h ) );
+
             if( player.selectionMarksExpected > 0 ) {
                 player.selectionMarks.Enqueue( pos );
                 player.selectionMarkCount++;
