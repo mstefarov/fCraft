@@ -21,7 +21,7 @@ namespace fCraft {
         public int changesSinceSave, changesSinceBackup;
         public short[,] shadows;
 
-        internal Map() { }
+        internal Map() {}
 
         public Map( World _world ) {
             world = _world;
@@ -436,7 +436,7 @@ namespace fCraft {
 
         #region Zones
         public Dictionary<string, Zone> zones = new Dictionary<string, Zone>();
-        public Zone[] zoneList;
+        public Zone[] zoneList = new Zone[0];
 
         public bool AddZone( Zone z ) {
             lock( zoneLock ) {

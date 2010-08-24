@@ -12,7 +12,7 @@ namespace fCraft {
         internal Session session;
         public PlayerInfo info;
         public int id = -1; // should not default to any valid id
-        public Position pos;
+        public Position pos, lastNonHackingPosition;
         public object locker = new object();
         public bool isPainting,
                     isFrozen,
@@ -68,22 +68,22 @@ namespace fCraft {
         public static TimeSpan muteDuration = TimeSpan.FromSeconds( 5 );
         DateTime mutedUntil = DateTime.MinValue;
 
-        bool CheckChatSpam() {
+        bool DetectChatSpam() {
             if( spamChatLog.Count >= spamChatCount ) {
                 DateTime oldestTime = spamChatLog.Dequeue();
-                if( DateTime.Now.Subtract( oldestTime ).TotalSeconds < spamChatTimer ) {
+                if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < spamChatTimer ) {
                     muteWarnings++;
                     if( muteWarnings > Config.GetInt( ConfigKey.AntispamMaxWarnings ) ) {
                         session.KickNow( "You were kicked for repeated spamming." );
                         Server.SendToAll( Color.Red + GetLogName() + " was kicked for repeated spamming." );
                     } else {
-                        mutedUntil = DateTime.Now.Add( muteDuration );
+                        mutedUntil = DateTime.UtcNow.Add( muteDuration );
                         Message( "You have been muted for {0} seconds. Slow down.", muteDuration.TotalSeconds );
                     }
                     return true;
                 }
             }
-            spamChatLog.Enqueue( DateTime.Now );
+            spamChatLog.Enqueue( DateTime.UtcNow );
             return false;
         }
 
@@ -94,7 +94,7 @@ namespace fCraft {
             switch( CommandList.GetMessageType( message ) ) {
                 case MessageType.Chat:
                     if( !Can( Permission.Chat ) ) return;
-                    if( CheckChatSpam() ) return;
+                    if( DetectChatSpam() ) return;
                     info.linesWritten++;
                     string displayedName = nick;
                     if( Config.GetBool( ConfigKey.ClassPrefixesInChat ) ) {
@@ -138,7 +138,7 @@ namespace fCraft {
 
                 case MessageType.PrivateChat:
                     if( !Can( Permission.Chat ) ) return;
-                    if( CheckChatSpam() ) return;
+                    if( DetectChatSpam() ) return;
                     string otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
                     Player otherPlayer = Server.FindPlayer( otherPlayerName );
                     if( otherPlayer != null ) {
@@ -161,7 +161,7 @@ namespace fCraft {
 
                 case MessageType.ClassChat:
                     if( !Can( Permission.Chat ) ) return;
-                    if( CheckChatSpam() ) return;
+                    if( DetectChatSpam() ) return;
                     string className = message.Substring( 2, message.IndexOf( ' ' ) - 2 );
                     PlayerClass playerClass = ClassList.FindClass( className );
                     if( playerClass != null ) {
@@ -357,7 +357,7 @@ namespace fCraft {
             if( info.playerClass.antiGriefBlocks == 0 && info.playerClass.antiGriefSeconds == 0 ) return false;
             if( spamBlockLog.Count >= info.playerClass.antiGriefBlocks ) {
                 DateTime oldestTime = spamBlockLog.Dequeue();
-                double spamTimer = DateTime.Now.Subtract( oldestTime ).TotalSeconds;
+                double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
                 if( spamTimer < info.playerClass.antiGriefSeconds ) {
                     session.KickNow( "You were kicked by antigrief system. Slow down." );
                     Server.SendToAll( Color.Red + GetLogName() + " was kicked for suspected griefing." );
@@ -365,7 +365,7 @@ namespace fCraft {
                     return true;
                 }
             }
-            spamBlockLog.Enqueue( DateTime.Now );
+            spamBlockLog.Enqueue( DateTime.UtcNow );
             return false;
         }
 

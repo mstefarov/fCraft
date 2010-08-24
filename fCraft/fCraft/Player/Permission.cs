@@ -15,6 +15,8 @@ namespace fCraft {
         ViewOthersInfo,
         Say,
 
+        UseSpeedHack,
+
         Kick,
         Ban,
         BanIP,
@@ -41,7 +43,6 @@ namespace fCraft {
         
         ControlPhysics,
 
-        AddLandmarks,
-
+        AddLandmarks
     }
 }
