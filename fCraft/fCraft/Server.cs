@@ -16,7 +16,7 @@ using System.Diagnostics;
 namespace fCraft {
     public static class Server {
         static List<Session> sessions = new List<Session>();
-        static Dictionary<int, Player> players = new Dictionary<int, Player>( 255 );
+        static SortedDictionary<int, Player> players = new SortedDictionary<int, Player>();
         internal static Player[] playerList;
         static object playerListLock = new object();
         public static object worldListLock = new object();

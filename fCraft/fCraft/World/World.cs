@@ -39,7 +39,7 @@ namespace fCraft {
 
         public Map map;
         public string name;
-        public Dictionary<int, Player> players = new Dictionary<int, Player>();
+        public SortedDictionary<int, Player> players = new SortedDictionary<int, Player>();
         public Player[] playerList;
         public bool isLocked,
                     isHidden,
