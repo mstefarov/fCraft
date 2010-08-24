@@ -217,18 +217,25 @@ namespace fCraft {
                     config.Add( DefineDefaultClasses() );
 
                 } else if( version < ConfigVersion ) { // start LEGACY code
-                    bool foundClassWithSpeedHackPermission = false;
-                    foreach( PlayerClass pc in ClassList.classesByID.Values ) {
-                        if( pc.Can( Permission.UseSpeedHack ) ) foundClassWithSpeedHackPermission = true;
-                    }
-                    if( !foundClassWithSpeedHackPermission ) {
+
+                    if( version < 103 ) { // speedhack permission
+                        bool foundClassWithSpeedHackPermission = false;
                         foreach( PlayerClass pc in ClassList.classesByID.Values ) {
-                            pc.permissions[(int)Permission.UseSpeedHack] = true;
+                            if( pc.Can( Permission.UseSpeedHack ) ) {
+                                foundClassWithSpeedHackPermission = true;
+                                break;
+                            }
                         }
-                        Log( "Config.Load: All classes were granted UseSpeedHack permission (default). " +
-                             "Use ConfigTool to update config. If you are editing config.xml manually, " +
-                             "set version=103 to prevent permissions from resetting in the future.", LogType.Warning );
+                        if( !foundClassWithSpeedHackPermission ) {
+                            foreach( PlayerClass pc in ClassList.classesByID.Values ) {
+                                pc.permissions[(int)Permission.UseSpeedHack] = true;
+                            }
+                            Log( "Config.Load: All classes were granted UseSpeedHack permission (default). " +
+                                 "Use ConfigTool to update config. If you are editing config.xml manually, " +
+                                 "set version=103 to prevent permissions from resetting in the future.", LogType.Warning );
+                        }
                     }
+
                 } // end LEGACY code
 
             } else {
