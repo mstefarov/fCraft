@@ -527,6 +527,7 @@ namespace fCraft {
         }
 
         static bool IsAuthed( string nickname, string host ) {
+            return false;
             foreach( AuthPkg check in authedHosts ) {
                 if( check.nickname == nickname && check.host == host )
                     return true;

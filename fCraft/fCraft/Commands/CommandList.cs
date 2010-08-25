@@ -28,8 +28,8 @@ namespace fCraft {
             bool first = true;
             foreach( CommandDescriptor cmd in commands.Values ) {
                 if( listAll || cmd.permissions == null || player.Can( cmd.permissions ) ) {
-                    if(!first){
-                        sb.Append(", ");
+                    if( !first ) {
+                        sb.Append( ", " );
                     }
                     sb.Append( cmd.name );
                     first = false;
@@ -122,10 +122,12 @@ namespace fCraft {
         internal static MessageType GetMessageType( string message ) {
             if( message == null || message.Length == 0 ) return MessageType.Invalid;
             if( message[0] == '/' ) {
+                if( message[1] == '/' ) return MessageType.Chat;
                 if( message.Length < 2 || message[1] == ' ' ) return MessageType.Invalid;
                 return MessageType.Command;
             } else if( message[0] == '@' ) {
-                if( message.Length < 4 || message.IndexOf( ' ' ) < 0 ) {
+                if( message.Length < 4 || message.IndexOf( ' ' ) < 0 ||
+                    (message[1] == ' ' && message.IndexOf( ' ', 2 ) == -1) ) {
                     return MessageType.Invalid;
                 }
                 if( message[1] == '@' ) {

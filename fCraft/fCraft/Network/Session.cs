@@ -149,6 +149,7 @@ namespace fCraft {
                                                 LogType.SuspiciousActivity,
                                                 player.GetLogName() );
                                     KickNow( "Illegal characters in chat." );
+                                    Server.SendToAll( Color.Red + player.GetLogName() + " was kicked for attempted hacking (0x0d)." );
                                     return;
                                 } else {
                                     player.ParseMessage( message, false );
@@ -168,6 +169,7 @@ namespace fCraft {
                                 if( newPos.h < 0 ) {
                                     Logger.Log( player.GetLogName() + " was kicked for moving out of map boundaries.", LogType.SuspiciousActivity );
                                     KickNow( "Hacking detected: out of map boundaries." );
+                                    Server.SendToAll( Color.Red + player.GetLogName() + " was kicked for leaving the map." );
                                     return;
                                 }
 
@@ -251,7 +253,7 @@ namespace fCraft {
                                 if( isBetweenWorlds ) continue;
                                 if( type > 49 || x < 0 || x > player.world.map.widthX || y < 0 || y > player.world.map.widthY || h < 0 || h > player.world.map.height ) {
                                     Logger.Log( player.GetLogName() + " was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity );
-                                    Server.SendToAll( player.GetLogName() + " was kicked for attempted hacking." );
+                                    Server.SendToAll( Color.Red + player.GetLogName() + " was kicked for attempted hacking (0x05)." );
                                     KickNow( "Hacking detected: illegal SetTile packet." );
                                     return;
                                 } else {
