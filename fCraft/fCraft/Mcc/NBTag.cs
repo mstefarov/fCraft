@@ -404,12 +404,14 @@ namespace Mcc {
                 if( this is NBTList ) {
                     return ((NBTList)this).Tags[Index];
                 } else {
-                    return null;
+                    throw new NotSupportedException();
                 }
             }
             set {
                 if( this is NBTList ) {
                     ((NBTList)this).Tags[Index] = value;
+                } else {
+                    throw new NotSupportedException();
                 }
             }
         }
@@ -419,12 +421,14 @@ namespace Mcc {
                 if( this is NBTCompound ) {
                     return ((NBTCompound)this).Tags[Key];
                 } else {
-                    return null;
+                    throw new NotSupportedException();
                 }
             }
             set {
                 if( this is NBTCompound ) {
                     ((NBTCompound)this).Tags[Key] = value;
+                } else {
+                    throw new NotSupportedException();
                 }
             }
         }

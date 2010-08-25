@@ -58,9 +58,8 @@
             this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.preview = new ConfigTool.CustomPictureBox();
             this.lDetailSize = new System.Windows.Forms.Label();
-            this.sFeatureSize = new System.Windows.Forms.TrackBar();
+            this.sFeatureScale = new System.Windows.Forms.TrackBar();
             this.sRoughness = new System.Windows.Forms.TrackBar();
             this.lRoughness = new System.Windows.Forms.Label();
             this.xMarbledMode = new System.Windows.Forms.CheckBox();
@@ -121,7 +120,7 @@
             this.lBiasDisplay = new System.Windows.Forms.Label();
             this.gHeightmapCreation = new System.Windows.Forms.GroupBox();
             this.xInvert = new System.Windows.Forms.CheckBox();
-            this.sDetailSize = new System.Windows.Forms.TrackBar();
+            this.sDetailScale = new System.Windows.Forms.TrackBar();
             this.lDetailSizeDisplay = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.gTrees = new System.Windows.Forms.GroupBox();
@@ -136,13 +135,13 @@
             this.nTreeSpacing = new System.Windows.Forms.NumericUpDown();
             this.lTreeSpacing = new System.Windows.Forms.Label();
             this.lMapFileOptions = new System.Windows.Forms.Label();
+            this.preview = new ConfigTool.CustomPictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sFeatureSize)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sFeatureScale)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sRoughness)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sWaterCoverage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sBias)).BeginInit();
@@ -165,12 +164,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.nLoweredCorners)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRaisedCorners)).BeginInit();
             this.gHeightmapCreation.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sDetailSize)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sDetailScale)).BeginInit();
             this.gTrees.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeightVariation)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacingVariation)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacing)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.SuspendLayout();
             // 
             // lX2
@@ -559,20 +559,6 @@
             this.previewLayout.Size = new System.Drawing.Size( 579, 646 );
             this.previewLayout.TabIndex = 6;
             // 
-            // preview
-            // 
-            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.preview.BackColor = System.Drawing.Color.Black;
-            this.previewLayout.SetColumnSpan( this.preview, 3 );
-            this.preview.Location = new System.Drawing.Point( 3, 3 );
-            this.preview.Name = "preview";
-            this.preview.Size = new System.Drawing.Size( 573, 612 );
-            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.preview.TabIndex = 17;
-            this.preview.TabStop = false;
-            // 
             // lDetailSize
             // 
             this.lDetailSize.AutoSize = true;
@@ -582,16 +568,17 @@
             this.lDetailSize.TabIndex = 23;
             this.lDetailSize.Text = "Feature scale";
             // 
-            // sFeatureSize
+            // sFeatureScale
             // 
-            this.sFeatureSize.AutoSize = false;
-            this.sFeatureSize.Location = new System.Drawing.Point( 98, 19 );
-            this.sFeatureSize.Maximum = 6;
-            this.sFeatureSize.Name = "sFeatureSize";
-            this.sFeatureSize.Size = new System.Drawing.Size( 116, 27 );
-            this.sFeatureSize.TabIndex = 0;
-            this.sFeatureSize.Value = 2;
-            this.sFeatureSize.ValueChanged += new System.EventHandler( this.sFeatureSize_ValueChanged );
+            this.sFeatureScale.AutoSize = false;
+            this.sFeatureScale.Location = new System.Drawing.Point( 98, 19 );
+            this.sFeatureScale.Maximum = 7;
+            this.sFeatureScale.Minimum = -1;
+            this.sFeatureScale.Name = "sFeatureScale";
+            this.sFeatureScale.Size = new System.Drawing.Size( 116, 27 );
+            this.sFeatureScale.TabIndex = 0;
+            this.sFeatureScale.Value = 2;
+            this.sFeatureScale.ValueChanged += new System.EventHandler( this.sFeatureSize_ValueChanged );
             // 
             // sRoughness
             // 
@@ -1321,10 +1308,10 @@
             // gHeightmapCreation
             // 
             this.gHeightmapCreation.Controls.Add( this.xInvert );
-            this.gHeightmapCreation.Controls.Add( this.sDetailSize );
+            this.gHeightmapCreation.Controls.Add( this.sDetailScale );
             this.gHeightmapCreation.Controls.Add( this.lDetailSizeDisplay );
             this.gHeightmapCreation.Controls.Add( this.label5 );
-            this.gHeightmapCreation.Controls.Add( this.sFeatureSize );
+            this.gHeightmapCreation.Controls.Add( this.sFeatureScale );
             this.gHeightmapCreation.Controls.Add( this.lRoughnessDisplay );
             this.gHeightmapCreation.Controls.Add( this.lFeatureSizeDisplay );
             this.gHeightmapCreation.Controls.Add( this.xMatchWaterCoverage );
@@ -1353,17 +1340,17 @@
             this.xInvert.Text = "Invert";
             this.xInvert.UseVisualStyleBackColor = true;
             // 
-            // sDetailSize
+            // sDetailScale
             // 
-            this.sDetailSize.AutoSize = false;
-            this.sDetailSize.Location = new System.Drawing.Point( 98, 52 );
-            this.sDetailSize.Maximum = 7;
-            this.sDetailSize.Minimum = 1;
-            this.sDetailSize.Name = "sDetailSize";
-            this.sDetailSize.Size = new System.Drawing.Size( 116, 27 );
-            this.sDetailSize.TabIndex = 1;
-            this.sDetailSize.Value = 7;
-            this.sDetailSize.ValueChanged += new System.EventHandler( this.sDetailSize_ValueChanged );
+            this.sDetailScale.AutoSize = false;
+            this.sDetailScale.Location = new System.Drawing.Point( 98, 52 );
+            this.sDetailScale.Maximum = 7;
+            this.sDetailScale.Minimum = -1;
+            this.sDetailScale.Name = "sDetailScale";
+            this.sDetailScale.Size = new System.Drawing.Size( 116, 27 );
+            this.sDetailScale.TabIndex = 1;
+            this.sDetailScale.Value = 7;
+            this.sDetailScale.ValueChanged += new System.EventHandler( this.sDetailSize_ValueChanged );
             // 
             // lDetailSizeDisplay
             // 
@@ -1544,6 +1531,20 @@
             this.lMapFileOptions.TabIndex = 55;
             this.lMapFileOptions.Text = "Map file:";
             // 
+            // preview
+            // 
+            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.preview.BackColor = System.Drawing.Color.Black;
+            this.previewLayout.SetColumnSpan( this.preview, 3 );
+            this.preview.Location = new System.Drawing.Point( 3, 3 );
+            this.preview.Name = "preview";
+            this.preview.Size = new System.Drawing.Size( 573, 612 );
+            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.preview.TabIndex = 17;
+            this.preview.TabStop = false;
+            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -1577,8 +1578,7 @@
             this.statusStrip.PerformLayout();
             this.previewLayout.ResumeLayout( false );
             this.previewLayout.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sFeatureSize)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sFeatureScale)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sRoughness)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sWaterCoverage)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sBias)).EndInit();
@@ -1611,13 +1611,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.nRaisedCorners)).EndInit();
             this.gHeightmapCreation.ResumeLayout( false );
             this.gHeightmapCreation.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sDetailSize)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sDetailScale)).EndInit();
             this.gTrees.ResumeLayout( false );
             this.gTrees.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeightVariation)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeight)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacingVariation)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacing)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.ResumeLayout( false );
             this.PerformLayout();
 
@@ -1663,7 +1664,7 @@
         private System.Windows.Forms.CheckBox xMarbledMode;
         private System.Windows.Forms.TrackBar sRoughness;
         private System.Windows.Forms.Label lRoughness;
-        private System.Windows.Forms.TrackBar sFeatureSize;
+        private System.Windows.Forms.TrackBar sFeatureScale;
         private System.Windows.Forms.Label lDetailSize;
         private System.Windows.Forms.Label lRoughnessDisplay;
         private System.Windows.Forms.Label lMatchWaterCoverageDisplay;
@@ -1725,7 +1726,7 @@
         private System.Windows.Forms.NumericUpDown nRaisedCorners;
         private System.Windows.Forms.ComboBox cMidpoint;
         private System.Windows.Forms.Label lMidpoint;
-        private System.Windows.Forms.TrackBar sDetailSize;
+        private System.Windows.Forms.TrackBar sDetailScale;
         private System.Windows.Forms.Label lDetailSizeDisplay;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label lLoweredCorners;

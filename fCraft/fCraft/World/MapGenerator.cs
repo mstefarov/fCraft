@@ -202,7 +202,7 @@ namespace fCraft {
             args = _args;
             args.Validate();
             rand = new Random( args.seed );
-            noise = new Noise( rand );
+            noise = new Noise( args.seed , NoiseInterpolationMode.Bicubic);
             ApplyTheme( args.theme );
         }
 
@@ -216,7 +216,7 @@ namespace fCraft {
         public void GenerateHeightmap() {
             heightmap = new float[args.dimX, args.dimY];
 
-            noise.PerlinNoiseMap( heightmap, args.featureScale, args.detailScale, args.roughness );
+            noise.PerlinNoiseMap( heightmap, args.featureScale, args.detailScale, args.roughness,0,0 );
 
             if( args.useBias ) {
                 Noise.Normalize( heightmap );
@@ -244,13 +244,13 @@ namespace fCraft {
             if( args.layeredHeightmap ) {
                 // needs a new Noise object to randomize second map
                 float[,] heightmap2 = new float[args.dimX, args.dimY];
-                new Noise( rand ).PerlinNoiseMap( heightmap2, 0, args.detailScale, args.roughness );
+                new Noise( rand.Next(), NoiseInterpolationMode.Bicubic ).PerlinNoiseMap( heightmap2, 0, args.detailScale, args.roughness,0,0 );
                 Noise.Normalize( heightmap2 );
 
                 // make a blendmap
                 blendmap = new float[args.dimX, args.dimY];
                 int blendmapDetailSize = (int)Math.Log( (double)Math.Max( args.dimX, args.dimY ), 2 ) - 2;
-                new Noise( rand ).PerlinNoiseMap( blendmap, 3, blendmapDetailSize, 0.5f );
+                new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoiseMap( blendmap, 3, blendmapDetailSize, 0.5f,0,0 );
                 Noise.Normalize( blendmap );
                 float cliffSteepness = Math.Max( args.dimX, args.dimY ) / 6f;
                 Noise.ScaleAndClip( blendmap, cliffSteepness );

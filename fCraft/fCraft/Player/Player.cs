@@ -139,7 +139,12 @@ namespace fCraft {
                 case MessageType.PrivateChat:
                     if( !Can( Permission.Chat ) ) return;
                     if( DetectChatSpam() ) return;
-                    string otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
+                    string otherPlayerName;
+                    if( message[1] == ' ' ) {
+                        otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
+                    }else{
+                        otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
+                    }
                     Player otherPlayer = Server.FindPlayer( otherPlayerName );
                     if( otherPlayer != null ) {
                         Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
