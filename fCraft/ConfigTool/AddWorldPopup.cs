@@ -373,30 +373,30 @@ namespace ConfigTool {
         }
 
         private void nWidthX_ValueChanged( object sender, EventArgs e ) {
-            sFeatureSize.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 );
-            int value = sDetailSize.Maximum - sDetailSize.Value;
-            sDetailSize.Maximum = sFeatureSize.Maximum + 1;
-            sDetailSize.Value = sDetailSize.Maximum - value;
+            sFeatureScale.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 );
+            int value = sDetailScale.Maximum - sDetailScale.Value;
+            sDetailScale.Maximum = sFeatureScale.Maximum;
+            sDetailScale.Value = sDetailScale.Maximum - value;
 
-            int resolution = 1 << (sDetailSize.Maximum - sDetailSize.Value);
+            int resolution = 1 << (sDetailScale.Maximum - sDetailScale.Value);
             lDetailSizeDisplay.Text = resolution + "×" + resolution;
-            resolution = 1 << (sFeatureSize.Maximum - sFeatureSize.Value);
+            resolution = 1 << (sFeatureScale.Maximum - sFeatureScale.Value);
             lFeatureSizeDisplay.Text = resolution + "×" + resolution;
         }
 
         private void sFeatureSize_ValueChanged( object sender, EventArgs e ) {
-            int resolution = 1 << (sFeatureSize.Maximum - sFeatureSize.Value);
+            int resolution = 1 << (sFeatureScale.Maximum - sFeatureScale.Value);
             lFeatureSizeDisplay.Text = resolution + "×" + resolution;
-            if( sDetailSize.Value < sFeatureSize.Value + 1 ) {
-                sDetailSize.Value = sFeatureSize.Value + 1;
+            if( sDetailScale.Value < sFeatureScale.Value ) {
+                sDetailScale.Value = sFeatureScale.Value;
             }
         }
 
         private void sDetailSize_ValueChanged( object sender, EventArgs e ) {
-            int resolution = 1 << (sDetailSize.Maximum - sDetailSize.Value);
+            int resolution = 1 << (sDetailScale.Maximum - sDetailScale.Value);
             lDetailSizeDisplay.Text = resolution + "×" + resolution;
-            if( sFeatureSize.Value > sDetailSize.Value - 1 ) {
-                sFeatureSize.Value = sDetailSize.Value - 1;
+            if( sFeatureScale.Value > sDetailScale.Value ) {
+                sFeatureScale.Value = sDetailScale.Value;
             }
         }
 
@@ -586,8 +586,8 @@ Dimensions: {4}×{5}×{6}
             nWidthX.Value = generatorArgs.dimX;
             nWidthY.Value = generatorArgs.dimY;
 
-            sDetailSize.Value = generatorArgs.detailScale;
-            sFeatureSize.Value = generatorArgs.featureScale;
+            sDetailScale.Value = generatorArgs.detailScale;
+            sFeatureScale.Value = generatorArgs.featureScale;
 
             xLayeredHeightmap.Checked=generatorArgs.layeredHeightmap;
             xMarbledMode.Checked = generatorArgs.marbledHeightmap;
@@ -619,8 +619,8 @@ Dimensions: {4}×{5}×{6}
 
         void SaveArgs() {
             generatorArgs = new MapGeneratorArgs {
-                detailScale = sDetailSize.Value,
-                featureScale = sFeatureSize.Value,
+                detailScale = sDetailScale.Value,
+                featureScale = sFeatureScale.Value,
                 dimH = (int)nHeight.Value,
                 dimX = (int)nWidthX.Value,
                 dimY = (int)nWidthY.Value,

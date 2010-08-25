@@ -26,9 +26,13 @@ using fCraft;
 using System.IO;
 using System.Diagnostics;
 
+using System.Collections.Generic;
+
 
 namespace fCraftConsole {
+
     static class Program {
+
         static void Main( string[] args ) {
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;

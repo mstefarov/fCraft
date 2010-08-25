@@ -221,7 +221,7 @@ namespace fCraft {
             } else if( commandName != null ) {
                 CommandDescriptor descriptor = CommandList.GetDescriptor( commandName );
                 if( descriptor == null ) {
-                    player.Message( "Unknown command: \"{0}\"", cmd.name );
+                    player.Message( "Unknown command: \"{0}\"", commandName );
                     return;
                 }
                 StringBuilder sb = new StringBuilder( Color.Help );

@@ -125,7 +125,7 @@ namespace fCraft {
                 if( message.Length < 2 || message[1] == ' ' ) return MessageType.Invalid;
                 return MessageType.Command;
             } else if( message[0] == '@' ) {
-                if( message.Length < 4 || message[1] == ' ' || message.IndexOf( ' ' ) < 0 ) {
+                if( message.Length < 4 || message.IndexOf( ' ' ) < 0 ) {
                     return MessageType.Invalid;
                 }
                 if( message[1] == '@' ) {
