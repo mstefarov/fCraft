@@ -105,6 +105,14 @@ namespace fCraft {
                     }
 
                     if( name == "fragmer" ) displayedName = "&4f&cr&ea&ag&bm&9e&5r&f";
+
+                    Logger.Log( "{0}: {1}", LogType.GlobalChat, GetLogName(), message );
+
+                    // Escaped slash removed AFTER logging, to avoid confusion with real commands
+                    if( message.StartsWith( "//" ) ) {
+                        message = message.Substring( 1 );
+                    }
+                    
                     Server.SendToAll( displayedName + ": " + message );
 
                     // IRC Bot code for sending messages
@@ -128,7 +136,6 @@ namespace fCraft {
                             }
                         }
                     }
-                    Logger.Log( "{0}: {1}", LogType.WorldChat, GetLogName(), message );
                     break;
 
                 case MessageType.Command:
@@ -139,26 +146,28 @@ namespace fCraft {
                 case MessageType.PrivateChat:
                     if( !Can( Permission.Chat ) ) return;
                     if( DetectChatSpam() ) return;
-                    string otherPlayerName;
+                    string otherPlayerName, messageText;
                     if( message[1] == ' ' ) {
-                        otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
+                        otherPlayerName = message.Substring( 2, message.IndexOf( ' ', 2 ) - 2 );
+                        messageText = message.Substring( message.IndexOf( ' ', 2 ) + 1 );
                     }else{
                         otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
+                        messageText = message.Substring( message.IndexOf( ' ' ) + 1 );
                     }
                     Player otherPlayer = Server.FindPlayer( otherPlayerName );
                     if( otherPlayer != null ) {
                         Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
                                     GetLogName(),
                                     otherPlayer.GetLogName(),
-                                    message );
+                                    messageText );
                         otherPlayer.Message( "{0}from {1}: {2}",
                                              Color.PM,
                                              name,
-                                             message.Substring( message.IndexOf( ' ' ) + 1 ) );
+                                             messageText );
                         Message( "{0}to {1}: {2}",
                                  Color.PM,
                                  otherPlayer.name,
-                                 message.Substring( message.IndexOf( ' ' ) + 1 ) );
+                                 messageText );
                     } else {
                         NoPlayerMessage( otherPlayerName );
                     }
