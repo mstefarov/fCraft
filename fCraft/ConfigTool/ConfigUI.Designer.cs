@@ -208,6 +208,7 @@
             this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
             this.tabIRC = new System.Windows.Forms.TabPage();
             this.gIRCOptions = new System.Windows.Forms.GroupBox();
+            this.xIRCBotAnnounceIRCJoins = new System.Windows.Forms.CheckBox();
             this.bColorIRC = new System.Windows.Forms.Button();
             this.lColorIRC = new System.Windows.Forms.Label();
             this.xIRCBotForwardFromIRC = new System.Windows.Forms.CheckBox();
@@ -257,7 +258,6 @@
             this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
-            this.xIRCBotAnnounceIRCJoins = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -1805,7 +1805,7 @@
             // lMaxBackupSize
             // 
             this.lMaxBackupSize.AutoSize = true;
-            this.lMaxBackupSize.Location = new System.Drawing.Point( 381, 127 );
+            this.lMaxBackupSize.Location = new System.Drawing.Point( 396, 128 );
             this.lMaxBackupSize.Name = "lMaxBackupSize";
             this.lMaxBackupSize.Size = new System.Drawing.Size( 103, 15 );
             this.lMaxBackupSize.TabIndex = 13;
@@ -1824,7 +1824,7 @@
             // 
             // nMaxBackupSize
             // 
-            this.nMaxBackupSize.Location = new System.Drawing.Point( 324, 125 );
+            this.nMaxBackupSize.Location = new System.Drawing.Point( 339, 126 );
             this.nMaxBackupSize.Name = "nMaxBackupSize";
             this.nMaxBackupSize.Size = new System.Drawing.Size( 51, 21 );
             this.nMaxBackupSize.TabIndex = 8;
@@ -2142,6 +2142,16 @@
             this.gIRCOptions.TabStop = false;
             this.gIRCOptions.Text = "Options";
             // 
+            // xIRCBotAnnounceIRCJoins
+            // 
+            this.xIRCBotAnnounceIRCJoins.AutoSize = true;
+            this.xIRCBotAnnounceIRCJoins.Location = new System.Drawing.Point( 326, 79 );
+            this.xIRCBotAnnounceIRCJoins.Name = "xIRCBotAnnounceIRCJoins";
+            this.xIRCBotAnnounceIRCJoins.Size = new System.Drawing.Size( 303, 19 );
+            this.xIRCBotAnnounceIRCJoins.TabIndex = 14;
+            this.xIRCBotAnnounceIRCJoins.Text = "Announce people joining/leaving the IRC channels.";
+            this.xIRCBotAnnounceIRCJoins.UseVisualStyleBackColor = true;
+            // 
             // bColorIRC
             // 
             this.bColorIRC.BackColor = System.Drawing.Color.White;
@@ -2171,11 +2181,11 @@
             this.xIRCBotForwardFromIRC.Text = "Forward ALL chat from IRC to SERVER.";
             this.xIRCBotForwardFromIRC.UseVisualStyleBackColor = true;
             // 
-            // xIRCAnnounceServerJoins
+            // xIRCBotAnnounceServerJoins
             // 
             this.xIRCBotAnnounceServerJoins.AutoSize = true;
             this.xIRCBotAnnounceServerJoins.Location = new System.Drawing.Point( 326, 54 );
-            this.xIRCBotAnnounceServerJoins.Name = "xIRCAnnounceServerJoins";
+            this.xIRCBotAnnounceServerJoins.Name = "xIRCBotAnnounceServerJoins";
             this.xIRCBotAnnounceServerJoins.Size = new System.Drawing.Size( 279, 19 );
             this.xIRCBotAnnounceServerJoins.TabIndex = 0;
             this.xIRCBotAnnounceServerJoins.Text = "Announce people joining/leaving the SERVER.";
@@ -2723,16 +2733,6 @@
             this.bApply.TabIndex = 3;
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
-            // 
-            // xIRCAnnounceIRCJoins
-            // 
-            this.xIRCBotAnnounceIRCJoins.AutoSize = true;
-            this.xIRCBotAnnounceIRCJoins.Location = new System.Drawing.Point( 326, 79 );
-            this.xIRCBotAnnounceIRCJoins.Name = "xIRCAnnounceIRCJoins";
-            this.xIRCBotAnnounceIRCJoins.Size = new System.Drawing.Size( 303, 19 );
-            this.xIRCBotAnnounceIRCJoins.TabIndex = 14;
-            this.xIRCBotAnnounceIRCJoins.Text = "Announce people joining/leaving the IRC channels.";
-            this.xIRCBotAnnounceIRCJoins.UseVisualStyleBackColor = true;
             // 
             // ConfigUI
             // 
