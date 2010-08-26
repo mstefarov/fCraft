@@ -92,9 +92,10 @@
     <Compile Include="Mcc\MapNBT.cs" />
     <Compile Include="Mcc\MapUtility.cs" />
     <Compile Include="Mcc\NBTag.cs" />
-    <Compile Include="Network\IRCComm.cs" />
+    <Compile Include="Network\IRC.cs" />
     <Compile Include="Network\IPBanList.cs" />
-    <Compile Include="Network\IRCBot.cs" />
+    <Compile Include="Network\IRCCommands.cs" />
+    <Compile Include="Network\IRCMessage.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

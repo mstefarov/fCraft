@@ -122,7 +122,7 @@ namespace fCraft {
         internal static MessageType GetMessageType( string message ) {
             if( message == null || message.Length == 0 ) return MessageType.Invalid;
             if( message[0] == '/' ) {
-                if( message[1] == '/' ) return MessageType.Chat;
+                if( message.Length > 1 && message[1] == '/' ) return MessageType.Chat;
                 if( message.Length < 2 || message[1] == ' ' ) return MessageType.Invalid;
                 return MessageType.Command;
             } else if( message[0] == '@' ) {

@@ -10,20 +10,23 @@ using System.Linq;
 
 namespace fCraft {
 
-/*
- * Config format-version changelog:
- * 100 - r1-r133
- *
- * 101 - r134 - Per-class draw limits and antigrief detection
- *              Removed AntigriefBlockCount and AntigriefBlockInterval
- * 
- * 102 - r171 - Added RequireBanReason, RequireClassChangeReason, AnnounceKickAndBanReasons, AnnounceClassChanges
- *              Removed AnnounceUnverifiedNames
- *              
- * 103 - r190 - Added UseSpeedHack permission
- *              Added PrivateMessageColor and IRCColor
- * 
- */
+    /*
+     * Config format-version changelog:
+     * 100 - r1-r133
+     *
+     * 101 - r134 - Per-class draw limits and antigrief detection
+     *              Removed AntigriefBlockCount and AntigriefBlockInterval keys
+     * 
+     * 102 - r171 - Added RequireBanReason, RequireClassChangeReason, AnnounceKickAndBanReasons, AnnounceClassChanges keys
+     *              Removed AnnounceUnverifiedNames key
+     *              
+     * 103 - r190 - Added UseSpeedHack permission
+     *              Added PrivateMessageColor and IRCColor keys
+     * 
+     * 104 - r198 - Added IRCBotAnnounceServerJoins and IRCBotAnnounceIRCJoins keys
+     *              Removed IRCBotMsg key
+     * 
+     */
 
     public static class Config {
         public static string ServerURL;
@@ -66,55 +69,54 @@ namespace fCraft {
 
 
         public static void LoadDefaultsGeneral() {
-            settings[ConfigKey.ServerName] = "Minecraft custom server (fCraft)";
-            settings[ConfigKey.MOTD] = "Welcome to the server!";
-            settings[ConfigKey.MaxPlayers] = "16";
-            settings[ConfigKey.DefaultClass] = ""; // empty = lowest rank
-            settings[ConfigKey.IsPublic] = "false";
-            settings[ConfigKey.Port] = "25565";
-            settings[ConfigKey.UploadBandwidth] = "100";
+            SetValue( ConfigKey.ServerName, "Minecraft custom server (fCraft)" );
+            SetValue( ConfigKey.MOTD, "Welcome to the server!" );
+            SetValue( ConfigKey.MaxPlayers, 20 );
+            SetValue( ConfigKey.DefaultClass, "" ); // empty = lowest rank
+            SetValue( ConfigKey.IsPublic, false );
+            SetValue( ConfigKey.Port, 25565 );
+            SetValue( ConfigKey.UploadBandwidth, 100 );
 
-            settings[ConfigKey.ClassColorsInChat] = "true";
-            settings[ConfigKey.ClassPrefixesInChat] = "false";
-            settings[ConfigKey.ClassPrefixesInList] = "false";
-            settings[ConfigKey.SystemMessageColor] = "yellow";
-            settings[ConfigKey.HelpColor] = "Lime";
-            settings[ConfigKey.SayColor] = "yellow";
-            settings[ConfigKey.AnnouncementColor] = "green";
-            settings[ConfigKey.PrivateMessageColor] = "aqua";
-            settings[ConfigKey.AnnouncementInterval] = "5";
+            SetValue( ConfigKey.ClassColorsInChat, true );
+            SetValue( ConfigKey.ClassPrefixesInChat, false );
+            SetValue( ConfigKey.ClassPrefixesInList, false );
+            SetValue( ConfigKey.SystemMessageColor, Color.GetName( Color.Yellow ) );
+            SetValue( ConfigKey.HelpColor, Color.GetName( Color.Lime ) );
+            SetValue( ConfigKey.SayColor, Color.GetName( Color.Green ) );
+            SetValue( ConfigKey.AnnouncementColor, Color.GetName( Color.Green ) );
+            SetValue( ConfigKey.PrivateMessageColor, Color.GetName( Color.Aqua ) );
+            SetValue( ConfigKey.AnnouncementInterval, 5 );
         }
 
         public static void LoadDefaultsSecurity() {
-            settings[ConfigKey.VerifyNames] = "Balanced"; // can be "Always," "Balanced," or "Never"
-            settings[ConfigKey.LimitOneConnectionPerIP] = "False";
+            SetValue( ConfigKey.VerifyNames, "Balanced" ); // can be "Always," "Balanced," or "Never"
+            SetValue( ConfigKey.LimitOneConnectionPerIP, false );
 
-            settings[ConfigKey.AntispamMessageCount] = "4";
-            settings[ConfigKey.AntispamInterval] = "5";
-            settings[ConfigKey.AntispamMuteDuration] = "5";
-            settings[ConfigKey.AntispamMaxWarnings] = "2";
+            SetValue( ConfigKey.AntispamMessageCount, 4 );
+            SetValue( ConfigKey.AntispamInterval, 5 );
+            SetValue( ConfigKey.AntispamMuteDuration, 5 );
+            SetValue( ConfigKey.AntispamMaxWarnings, 2 );
 
-            settings[ConfigKey.RequireBanReason] = "False";
-            settings[ConfigKey.RequireClassChangeReason] = "False";
-            settings[ConfigKey.AnnounceKickAndBanReasons] = "True";
-            settings[ConfigKey.AnnounceClassChanges] = "True";
+            SetValue( ConfigKey.RequireBanReason, false );
+            SetValue( ConfigKey.RequireClassChangeReason, false );
+            SetValue( ConfigKey.AnnounceKickAndBanReasons, true );
+            SetValue( ConfigKey.AnnounceClassChanges, true );
         }
 
         public static void LoadDefaultsSavingAndBackup() {
-            settings[ConfigKey.SaveOnShutdown] = "true";
-            settings[ConfigKey.SaveInterval] = "60"; // 0 = no auto save
-
-            settings[ConfigKey.BackupOnStartup] = "false";
-            settings[ConfigKey.BackupOnJoin] = "false";
-            settings[ConfigKey.BackupOnlyWhenChanged] = "true";
-            settings[ConfigKey.BackupInterval] = "20"; // 0 = no auto backup
-            settings[ConfigKey.MaxBackups] = "100"; // 0 = no backup file count limit
-            settings[ConfigKey.MaxBackupSize] = "0"; // 0 = no backup file size count limit
+            SetValue( ConfigKey.SaveOnShutdown, true );
+            SetValue( ConfigKey.SaveInterval, 60 );   // 0 = no auto save
+            SetValue( ConfigKey.BackupOnStartup, false );
+            SetValue( ConfigKey.BackupOnJoin, false );
+            SetValue( ConfigKey.BackupOnlyWhenChanged, true );
+            SetValue( ConfigKey.BackupInterval, 20 );   // 0 = no auto backup
+            SetValue( ConfigKey.MaxBackups, 100 );  // 0 = no backup file count limit
+            SetValue( ConfigKey.MaxBackupSize, 0 );    // 0 = no backup file size count limit
         }
 
         public static void LoadDefaultsLogging() {
-            settings[ConfigKey.LogMode] = LogSplittingType.OneFile.ToString(); // can be: "OneFile", "SplitBySession", "SplitByDay"
-            settings[ConfigKey.MaxLogs] = "0";
+            SetValue( ConfigKey.LogMode, LogSplittingType.OneFile ); // can be: "OneFile", "SplitBySession", "SplitByDay"
+            SetValue( ConfigKey.MaxLogs, 0 );
             for( int i = 0; i < Logger.consoleOptions.Length; i++ ) {
                 Logger.consoleOptions[i] = true;
             }
@@ -126,30 +128,31 @@ namespace fCraft {
         }
 
         public static void LoadDefaultsIRC() {
-            settings[ConfigKey.IRCBot] = "false"; // Bot is disabled by default
-            settings[ConfigKey.IRCMsgs] = "false"; // Join/quit messages disabled by default
-            settings[ConfigKey.IRCBotNick] = "fBot";
-            settings[ConfigKey.IRCBotQuitMsg] = "I've been told to go offline now.";
-            settings[ConfigKey.IRCBotNetwork] = "irc.esper.net";
-            settings[ConfigKey.IRCBotPort] = "6667";
-            settings[ConfigKey.IRCBotChannels] = "#changeme"; // CASE SENSITIVE!!!!!!!!!!!!!!!!!!!!! This can be multiple using csv
-            settings[ConfigKey.IRCBotForwardFromServer] = "false"; // Disabled by default
-            settings[ConfigKey.IRCBotForwardFromIRC] = "false"; // Disabled by default
-            settings[ConfigKey.IRCMessageColor] = "purple";
+            SetValue( ConfigKey.IRCBot, false ); // Bot is disabled by default
+            SetValue( ConfigKey.IRCBotNick, "fBot" );
+            SetValue( ConfigKey.IRCBotQuitMsg, "I've been told to go offline now." );
+            SetValue( ConfigKey.IRCBotNetwork, "irc.esper.net" );
+            SetValue( ConfigKey.IRCBotPort, 6667 );
+            SetValue( ConfigKey.IRCBotChannels, "#changeme" ); // CASE SENSITIVE!!!!!!!!!!!!!!!!!!!!! This can be multiple using csv
+            SetValue( ConfigKey.IRCBotAnnounceIRCJoins, false );
+            SetValue( ConfigKey.IRCBotAnnounceServerJoins, false );
+            SetValue( ConfigKey.IRCBotForwardFromIRC, false ); // Disabled by default
+            SetValue( ConfigKey.IRCBotForwardFromServer, false ); // Disabled by default
+            SetValue( ConfigKey.IRCMessageColor, Color.Purple );
         }
 
         public static void LoadDefaultsAdvanced() {
-            settings[ConfigKey.PolicyColorCodesInChat] = "ConsoleOnly"; // can be: "Allow", "ConsoleOnly", "Disallow"
-            settings[ConfigKey.PolicyIllegalCharacters] = "Disallow"; // can be: "Allow", "ConsoleOnly", "Disallow"
-            settings[ConfigKey.SendRedundantBlockUpdates] = "false";
-            settings[ConfigKey.PingInterval] = "0"; // 0 = ping disabled
-            settings[ConfigKey.AutomaticUpdates] = "Prompt"; // can be "Disabled", "Notify", "Prompt", and "Auto"
-            settings[ConfigKey.NoPartialPositionUpdates] = "false";
-            settings[ConfigKey.ProcessPriority] = "";
-            settings[ConfigKey.RunOnStartup] = "Never"; // can be "Always", "OnUnexpectedShutdown", or "Never"
-            settings[ConfigKey.BlockUpdateThrottling] = "2048";
-            settings[ConfigKey.TickInterval] = "100";
-            settings[ConfigKey.LowLatencyMode] = "false";
+            SetValue( ConfigKey.PolicyColorCodesInChat, "ConsoleOnly" ); // can be: "Allow", "ConsoleOnly", "Disallow"
+            SetValue( ConfigKey.PolicyIllegalCharacters, "Disallow" ); // can be: "Allow", "ConsoleOnly", "Disallow"
+            SetValue( ConfigKey.SendRedundantBlockUpdates, false );
+            SetValue( ConfigKey.PingInterval, 0 ); // 0 = ping disabled
+            SetValue( ConfigKey.AutomaticUpdates, "Prompt" ); // can be "Disabled", "Notify", "Prompt", and "Auto"
+            SetValue( ConfigKey.NoPartialPositionUpdates, false );
+            SetValue( ConfigKey.ProcessPriority, "" );
+            SetValue( ConfigKey.RunOnStartup, "Never" ); // can be "Always", "OnUnexpectedShutdown", or "Never"
+            SetValue( ConfigKey.BlockUpdateThrottling, 2048 );
+            SetValue( ConfigKey.TickInterval, 100 );
+            SetValue( ConfigKey.LowLatencyMode, false );
         }
 
 
@@ -469,8 +472,10 @@ namespace fCraft {
                 case ConfigKey.SendRedundantBlockUpdates:
                 case ConfigKey.NoPartialPositionUpdates:
                 case ConfigKey.IRCBot:
-                case ConfigKey.IRCBotForwardFromServer:
                 case ConfigKey.IRCBotForwardFromIRC:
+                case ConfigKey.IRCBotForwardFromServer:
+                case ConfigKey.IRCBotAnnounceIRCJoins:
+                case ConfigKey.IRCBotAnnounceServerJoins:
                 case ConfigKey.RequireBanReason:
                 case ConfigKey.RequireClassChangeReason:
                 case ConfigKey.AnnounceKickAndBanReasons:
