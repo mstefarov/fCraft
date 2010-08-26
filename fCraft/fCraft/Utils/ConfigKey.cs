@@ -49,7 +49,6 @@ namespace fCraft {
         MaxLogs,
 
         IRCBot,
-        IRCMsgs,
         IRCBotNick,
         IRCBotQuitMsg,
         IRCBotNetwork,
@@ -57,6 +56,8 @@ namespace fCraft {
         IRCBotChannels,
         IRCBotForwardFromServer,
         IRCBotForwardFromIRC,
+        IRCBotAnnounceServerJoins,
+        IRCBotAnnounceIRCJoins,
         IRCMessageColor,
 
         PolicyColorCodesInChat,

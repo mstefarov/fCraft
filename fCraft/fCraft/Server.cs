@@ -82,10 +82,8 @@ namespace fCraft {
             // prepare the list of commands
             CommandList.Init();
 
-            // hook up IRC
-            if( Config.GetBool( ConfigKey.IRCBot ) && IRCComm.CommStatus() && Config.GetBool( ConfigKey.IRCMsgs ) )
-                Server.OnPlayerConnected += IRCBot.SendPlayerJoinMsg;
-
+            // Init IRC
+            IRC.Init();
 
             if( OnInit != null ) OnInit();
 
@@ -166,7 +164,7 @@ namespace fCraft {
 
             Heartbeat.Start();
 
-            if( Config.GetBool( ConfigKey.IRCBot ) ) IRCBot.Start();
+            if( Config.GetBool( ConfigKey.IRCBot ) ) IRC.Start();
 
             // fire OnStart event
             if( OnStart != null ) OnStart();
@@ -196,7 +194,7 @@ namespace fCraft {
             Heartbeat.Shutdown();
 
             // kill IRC bot
-            if( IRCBot.IsOnline() == true ) IRCBot.Shutdown();
+            if( IRC.connected ) IRC.Disconnect();
 
             // kill background tasks
             Tasks.Shutdown();
@@ -591,8 +589,8 @@ namespace fCraft {
             // this loop does not need to be thread-safe since only mainthread can alter session list
             for( int i = 0; i < sessions.Count; i++ ) {
                 if( sessions[i].canDispose ) {
-                    sessions[i].Disconnect();
                     if( OnPlayerDisconnected != null ) OnPlayerDisconnected( sessions[i] );
+                    sessions[i].Disconnect();
                     Server.FirePlayerListChangedEvent();
                     sessions.RemoveAt( i );
                     i--;
@@ -616,6 +614,7 @@ namespace fCraft {
         public static event PlayerChangedWorldEventHandler OnPlayerChangedWorld;
         public static event LogEventHandler OnLog;
         public static event PlayerListChangedHandler OnPlayerListChanged;
+        public static event PlayerSentMessageEventHandler OnPlayerSentMessage;
 
         internal static void FireURLChangeEvent( string URL ) {
             if( OnURLChanged != null ) OnURLChanged( URL );
@@ -647,6 +646,14 @@ namespace fCraft {
                 OnPlayerListChanged( list );
             }
         }
+        internal static bool FireSentMessageEvent( Player player, ref string message ) {
+            bool cancel = false;
+            if( OnPlayerSentMessage != null ) {
+                OnPlayerSentMessage( player, player.world, ref message, ref cancel );
+            }
+            return !cancel;
+        }
+
         #endregion
 
         #region Scheduler

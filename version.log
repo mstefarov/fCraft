@@ -1,5 +1,13 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-08-24
+2010-08-25
+445
+ IMPORTANT! Please update ASAP, a security was identified in previous version.
+ Fix: If you need to start message with a slash, you can now escape the slash (type "//")
+ Fix: Fixed endless update loop (if automatic updates were enabled)
+ Fix: Private messages with a space between '@' and the player name now work.
+ Fix: Hacking-related kicks are not announced globally.
+ Fix: Fixed "/help" giving wrong message if help entry was not found.
+ Change: Minor changes in MapGenerator/Noise
 444
  Feature: New stat command, /sinfo (server info).
  Fix: Ban reason/memo now shown for normal bans.

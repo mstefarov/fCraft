@@ -61,6 +61,8 @@
             this.bRules = new System.Windows.Forms.Button();
             this.bAnnouncements = new System.Windows.Forms.Button();
             this.gAppearence = new System.Windows.Forms.GroupBox();
+            this.bColorPM = new System.Windows.Forms.Button();
+            this.lColorPM = new System.Windows.Forms.Label();
             this.bColorAnnouncement = new System.Windows.Forms.Button();
             this.lColorAnnouncement = new System.Windows.Forms.Label();
             this.bColorSay = new System.Windows.Forms.Button();
@@ -73,6 +75,7 @@
             this.lHelpColor = new System.Windows.Forms.Label();
             this.lMessageColor = new System.Windows.Forms.Label();
             this.gBasic = new System.Windows.Forms.GroupBox();
+            this.bPortCheck = new System.Windows.Forms.Button();
             this.lPort = new System.Windows.Forms.Label();
             this.nPort = new System.Windows.Forms.NumericUpDown();
             this.cDefaultClass = new System.Windows.Forms.ComboBox();
@@ -205,8 +208,10 @@
             this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
             this.tabIRC = new System.Windows.Forms.TabPage();
             this.gIRCOptions = new System.Windows.Forms.GroupBox();
+            this.bColorIRC = new System.Windows.Forms.Button();
+            this.lColorIRC = new System.Windows.Forms.Label();
             this.xIRCBotForwardFromIRC = new System.Windows.Forms.CheckBox();
-            this.xIRCMsgs = new System.Windows.Forms.CheckBox();
+            this.xIRCBotAnnounceServerJoins = new System.Windows.Forms.CheckBox();
             this.xIRCBotForwardFromServer = new System.Windows.Forms.CheckBox();
             this.gIRCNetwork = new System.Windows.Forms.GroupBox();
             this.lIRCBotQuitMsg = new System.Windows.Forms.Label();
@@ -252,11 +257,7 @@
             this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
-            this.bColorPM = new System.Windows.Forms.Button();
-            this.lColorPM = new System.Windows.Forms.Label();
-            this.bPortCheck = new System.Windows.Forms.Button();
-            this.bColorIRC = new System.Windows.Forms.Button();
-            this.lColorIRC = new System.Windows.Forms.Label();
+            this.xIRCBotAnnounceIRCJoins = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -444,6 +445,25 @@
             this.gAppearence.TabStop = false;
             this.gAppearence.Text = "Appearence Tweaks";
             // 
+            // bColorPM
+            // 
+            this.bColorPM.BackColor = System.Drawing.Color.White;
+            this.bColorPM.Location = new System.Drawing.Point( 440, 136 );
+            this.bColorPM.Name = "bColorPM";
+            this.bColorPM.Size = new System.Drawing.Size( 100, 23 );
+            this.bColorPM.TabIndex = 9;
+            this.bColorPM.UseVisualStyleBackColor = false;
+            this.bColorPM.Click += new System.EventHandler( this.bColorPM_Click );
+            // 
+            // lColorPM
+            // 
+            this.lColorPM.AutoSize = true;
+            this.lColorPM.Location = new System.Drawing.Point( 269, 140 );
+            this.lColorPM.Name = "lColorPM";
+            this.lColorPM.Size = new System.Drawing.Size( 165, 15 );
+            this.lColorPM.TabIndex = 8;
+            this.lColorPM.Text = "Private / class message color";
+            // 
             // bColorAnnouncement
             // 
             this.bColorAnnouncement.BackColor = System.Drawing.Color.White;
@@ -577,6 +597,16 @@
             this.gBasic.TabIndex = 0;
             this.gBasic.TabStop = false;
             this.gBasic.Text = "Basic Settings";
+            // 
+            // bPortCheck
+            // 
+            this.bPortCheck.Location = new System.Drawing.Point( 517, 102 );
+            this.bPortCheck.Name = "bPortCheck";
+            this.bPortCheck.Size = new System.Drawing.Size( 55, 23 );
+            this.bPortCheck.TabIndex = 33;
+            this.bPortCheck.Text = "Check";
+            this.bPortCheck.UseVisualStyleBackColor = true;
+            this.bPortCheck.Click += new System.EventHandler( this.bPortCheck_Click );
             // 
             // lPort
             // 
@@ -783,7 +813,7 @@
             this.tabWorlds.Location = new System.Drawing.Point( 4, 24 );
             this.tabWorlds.Name = "tabWorlds";
             this.tabWorlds.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabWorlds.Size = new System.Drawing.Size( 651, 408 );
+            this.tabWorlds.Size = new System.Drawing.Size( 651, 425 );
             this.tabWorlds.TabIndex = 9;
             this.tabWorlds.Text = "Worlds";
             this.tabWorlds.UseVisualStyleBackColor = true;
@@ -923,7 +953,7 @@
             this.tabClasses.Location = new System.Drawing.Point( 4, 24 );
             this.tabClasses.Name = "tabClasses";
             this.tabClasses.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabClasses.Size = new System.Drawing.Size( 651, 408 );
+            this.tabClasses.Size = new System.Drawing.Size( 651, 425 );
             this.tabClasses.TabIndex = 2;
             this.tabClasses.Text = "Classes";
             this.tabClasses.UseVisualStyleBackColor = true;
@@ -1348,7 +1378,7 @@
             this.tabSecurity.Location = new System.Drawing.Point( 4, 24 );
             this.tabSecurity.Name = "tabSecurity";
             this.tabSecurity.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabSecurity.Size = new System.Drawing.Size( 651, 408 );
+            this.tabSecurity.Size = new System.Drawing.Size( 651, 425 );
             this.tabSecurity.TabIndex = 7;
             this.tabSecurity.Text = "Security";
             this.tabSecurity.UseVisualStyleBackColor = true;
@@ -1682,7 +1712,7 @@
             this.tabSavingAndBackup.Location = new System.Drawing.Point( 4, 24 );
             this.tabSavingAndBackup.Name = "tabSavingAndBackup";
             this.tabSavingAndBackup.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabSavingAndBackup.Size = new System.Drawing.Size( 651, 408 );
+            this.tabSavingAndBackup.Size = new System.Drawing.Size( 651, 425 );
             this.tabSavingAndBackup.TabIndex = 4;
             this.tabSavingAndBackup.Text = "Saving and Backup";
             this.tabSavingAndBackup.UseVisualStyleBackColor = true;
@@ -1885,7 +1915,7 @@
             this.tabLogging.Location = new System.Drawing.Point( 4, 24 );
             this.tabLogging.Name = "tabLogging";
             this.tabLogging.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabLogging.Size = new System.Drawing.Size( 651, 408 );
+            this.tabLogging.Size = new System.Drawing.Size( 651, 425 );
             this.tabLogging.TabIndex = 5;
             this.tabLogging.Text = "Logging";
             this.tabLogging.UseVisualStyleBackColor = true;
@@ -2099,42 +2129,62 @@
             // 
             // gIRCOptions
             // 
+            this.gIRCOptions.Controls.Add( this.xIRCBotAnnounceIRCJoins );
             this.gIRCOptions.Controls.Add( this.bColorIRC );
             this.gIRCOptions.Controls.Add( this.lColorIRC );
             this.gIRCOptions.Controls.Add( this.xIRCBotForwardFromIRC );
-            this.gIRCOptions.Controls.Add( this.xIRCMsgs );
+            this.gIRCOptions.Controls.Add( this.xIRCBotAnnounceServerJoins );
             this.gIRCOptions.Controls.Add( this.xIRCBotForwardFromServer );
             this.gIRCOptions.Location = new System.Drawing.Point( 8, 179 );
             this.gIRCOptions.Name = "gIRCOptions";
-            this.gIRCOptions.Size = new System.Drawing.Size( 635, 96 );
+            this.gIRCOptions.Size = new System.Drawing.Size( 635, 108 );
             this.gIRCOptions.TabIndex = 2;
             this.gIRCOptions.TabStop = false;
             this.gIRCOptions.Text = "Options";
             // 
+            // bColorIRC
+            // 
+            this.bColorIRC.BackColor = System.Drawing.Color.White;
+            this.bColorIRC.Location = new System.Drawing.Point( 130, 20 );
+            this.bColorIRC.Name = "bColorIRC";
+            this.bColorIRC.Size = new System.Drawing.Size( 100, 23 );
+            this.bColorIRC.TabIndex = 13;
+            this.bColorIRC.UseVisualStyleBackColor = false;
+            this.bColorIRC.Click += new System.EventHandler( this.bColorIRC_Click );
+            // 
+            // lColorIRC
+            // 
+            this.lColorIRC.AutoSize = true;
+            this.lColorIRC.Location = new System.Drawing.Point( 13, 24 );
+            this.lColorIRC.Name = "lColorIRC";
+            this.lColorIRC.Size = new System.Drawing.Size( 111, 15 );
+            this.lColorIRC.TabIndex = 12;
+            this.lColorIRC.Text = "IRC message color";
+            // 
             // xIRCBotForwardFromIRC
             // 
             this.xIRCBotForwardFromIRC.AutoSize = true;
-            this.xIRCBotForwardFromIRC.Location = new System.Drawing.Point( 21, 70 );
+            this.xIRCBotForwardFromIRC.Location = new System.Drawing.Point( 38, 79 );
             this.xIRCBotForwardFromIRC.Name = "xIRCBotForwardFromIRC";
             this.xIRCBotForwardFromIRC.Size = new System.Drawing.Size( 240, 19 );
             this.xIRCBotForwardFromIRC.TabIndex = 2;
             this.xIRCBotForwardFromIRC.Text = "Forward ALL chat from IRC to SERVER.";
             this.xIRCBotForwardFromIRC.UseVisualStyleBackColor = true;
             // 
-            // xIRCMsgs
+            // xIRCAnnounceServerJoins
             // 
-            this.xIRCMsgs.AutoSize = true;
-            this.xIRCMsgs.Location = new System.Drawing.Point( 21, 20 );
-            this.xIRCMsgs.Name = "xIRCMsgs";
-            this.xIRCMsgs.Size = new System.Drawing.Size( 350, 19 );
-            this.xIRCMsgs.TabIndex = 0;
-            this.xIRCMsgs.Text = "Announce in-game when people join/part the IRC channels.";
-            this.xIRCMsgs.UseVisualStyleBackColor = true;
+            this.xIRCBotAnnounceServerJoins.AutoSize = true;
+            this.xIRCBotAnnounceServerJoins.Location = new System.Drawing.Point( 326, 54 );
+            this.xIRCBotAnnounceServerJoins.Name = "xIRCAnnounceServerJoins";
+            this.xIRCBotAnnounceServerJoins.Size = new System.Drawing.Size( 279, 19 );
+            this.xIRCBotAnnounceServerJoins.TabIndex = 0;
+            this.xIRCBotAnnounceServerJoins.Text = "Announce people joining/leaving the SERVER.";
+            this.xIRCBotAnnounceServerJoins.UseVisualStyleBackColor = true;
             // 
             // xIRCBotForwardFromServer
             // 
             this.xIRCBotForwardFromServer.AutoSize = true;
-            this.xIRCBotForwardFromServer.Location = new System.Drawing.Point( 21, 45 );
+            this.xIRCBotForwardFromServer.Location = new System.Drawing.Point( 38, 54 );
             this.xIRCBotForwardFromServer.Name = "xIRCBotForwardFromServer";
             this.xIRCBotForwardFromServer.Size = new System.Drawing.Size( 240, 19 );
             this.xIRCBotForwardFromServer.TabIndex = 1;
@@ -2321,7 +2371,7 @@
             this.tabAdvanced.Location = new System.Drawing.Point( 4, 24 );
             this.tabAdvanced.Name = "tabAdvanced";
             this.tabAdvanced.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabAdvanced.Size = new System.Drawing.Size( 651, 408 );
+            this.tabAdvanced.Size = new System.Drawing.Size( 651, 425 );
             this.tabAdvanced.TabIndex = 6;
             this.tabAdvanced.Text = "Advanced";
             this.tabAdvanced.UseVisualStyleBackColor = true;
@@ -2674,53 +2724,15 @@
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 
-            // bColorPM
+            // xIRCAnnounceIRCJoins
             // 
-            this.bColorPM.BackColor = System.Drawing.Color.White;
-            this.bColorPM.Location = new System.Drawing.Point( 440, 136 );
-            this.bColorPM.Name = "bColorPM";
-            this.bColorPM.Size = new System.Drawing.Size( 100, 23 );
-            this.bColorPM.TabIndex = 9;
-            this.bColorPM.UseVisualStyleBackColor = false;
-            this.bColorPM.Click += new System.EventHandler( this.bColorPM_Click );
-            // 
-            // lColorPM
-            // 
-            this.lColorPM.AutoSize = true;
-            this.lColorPM.Location = new System.Drawing.Point( 269, 140 );
-            this.lColorPM.Name = "lColorPM";
-            this.lColorPM.Size = new System.Drawing.Size( 165, 15 );
-            this.lColorPM.TabIndex = 8;
-            this.lColorPM.Text = "Private / class message color";
-            // 
-            // bPortCheck
-            // 
-            this.bPortCheck.Location = new System.Drawing.Point( 517, 102 );
-            this.bPortCheck.Name = "bPortCheck";
-            this.bPortCheck.Size = new System.Drawing.Size( 55, 23 );
-            this.bPortCheck.TabIndex = 33;
-            this.bPortCheck.Text = "Check";
-            this.bPortCheck.UseVisualStyleBackColor = true;
-            this.bPortCheck.Click += new System.EventHandler( this.bPortCheck_Click );
-            // 
-            // bColorIRC
-            // 
-            this.bColorIRC.BackColor = System.Drawing.Color.White;
-            this.bColorIRC.Location = new System.Drawing.Point( 521, 42 );
-            this.bColorIRC.Name = "bColorIRC";
-            this.bColorIRC.Size = new System.Drawing.Size( 100, 23 );
-            this.bColorIRC.TabIndex = 13;
-            this.bColorIRC.UseVisualStyleBackColor = false;
-            this.bColorIRC.Click += new System.EventHandler( this.bColorIRC_Click );
-            // 
-            // lColorIRC
-            // 
-            this.lColorIRC.AutoSize = true;
-            this.lColorIRC.Location = new System.Drawing.Point( 404, 46 );
-            this.lColorIRC.Name = "lColorIRC";
-            this.lColorIRC.Size = new System.Drawing.Size( 111, 15 );
-            this.lColorIRC.TabIndex = 12;
-            this.lColorIRC.Text = "IRC message color";
+            this.xIRCBotAnnounceIRCJoins.AutoSize = true;
+            this.xIRCBotAnnounceIRCJoins.Location = new System.Drawing.Point( 326, 79 );
+            this.xIRCBotAnnounceIRCJoins.Name = "xIRCAnnounceIRCJoins";
+            this.xIRCBotAnnounceIRCJoins.Size = new System.Drawing.Size( 303, 19 );
+            this.xIRCBotAnnounceIRCJoins.TabIndex = 14;
+            this.xIRCBotAnnounceIRCJoins.Text = "Announce people joining/leaving the IRC channels.";
+            this.xIRCBotAnnounceIRCJoins.UseVisualStyleBackColor = true;
             // 
             // ConfigUI
             // 
@@ -2962,7 +2974,7 @@
         private System.Windows.Forms.TabPage tabIRC;
         private System.Windows.Forms.GroupBox gIRCNetwork;
         private System.Windows.Forms.CheckBox xIRC;
-        private System.Windows.Forms.CheckBox xIRCMsgs;
+        private System.Windows.Forms.CheckBox xIRCBotAnnounceServerJoins;
         private System.Windows.Forms.Label lIRCBotChannels;
         private System.Windows.Forms.NumericUpDown nIRCBotPort;
         private System.Windows.Forms.Label lIRCBotPort;
@@ -3013,5 +3025,6 @@
         private System.Windows.Forms.Button bPortCheck;
         private System.Windows.Forms.Button bColorIRC;
         private System.Windows.Forms.Label lColorIRC;
+        private System.Windows.Forms.CheckBox xIRCBotAnnounceIRCJoins;
     }
 }

@@ -90,11 +90,15 @@ namespace fCraft {
         // Parses message incoming from the player
         public void ParseMessage( string message, bool fromConsole ) {
             if( DateTime.Now < mutedUntil ) return;
-            if( world != null && !world.FireSentMessageEvent( this, ref message ) ) return;
+
             switch( CommandList.GetMessageType( message ) ) {
                 case MessageType.Chat:
                     if( !Can( Permission.Chat ) ) return;
                     if( DetectChatSpam() ) return;
+
+                    if( world != null && !world.FireSentMessageEvent( this, ref message ) ||
+                        !Server.FireSentMessageEvent( this, ref message ) ) return;
+
                     info.linesWritten++;
                     string displayedName = nick;
                     if( Config.GetBool( ConfigKey.ClassPrefixesInChat ) ) {
@@ -114,28 +118,6 @@ namespace fCraft {
                     }
                     
                     Server.SendToAll( displayedName + ": " + message );
-
-                    // IRC Bot code for sending messages
-                    if( IRCBot.IsOnline() ) {
-                        if( IRCComm.FORWARD_SERVER ) {
-                            IRCMessage newMsg = new IRCMessage();
-                            newMsg.chatMessage = nick + ": " + message.Substring( message.IndexOf( "#" ) + 1 );
-                            newMsg.destination = Destination.Channels;
-                            IRCBot.AddOutgoingMessage( newMsg );
-                            IRCComm.Process();
-                        } else {
-                            if( message.Contains( "#" ) ) {
-                                IRCMessage newMsg = new IRCMessage();
-                                string tmpChat = message.Substring( message.IndexOf( "#" ) + 1 );
-                                if( tmpChat.Length > 0 ) {
-                                    newMsg.chatMessage = nick + ": " + tmpChat;
-                                    newMsg.destination = Destination.Channels;
-                                    IRCBot.AddOutgoingMessage( newMsg );
-                                    IRCComm.Process();
-                                }
-                            }
-                        }
-                    }
                     break;
 
                 case MessageType.Command:

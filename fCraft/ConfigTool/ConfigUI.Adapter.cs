@@ -216,9 +216,10 @@ namespace ConfigTool {
             tIRCBotNick.Text = Config.GetString( ConfigKey.IRCBotNick );
             tIRCBotQuitMsg.Text = Config.GetString( ConfigKey.IRCBotQuitMsg );
 
-            xIRCMsgs.Checked = Config.GetBool( ConfigKey.IRCMsgs );
-            xIRCBotForwardFromServer.Checked = Config.GetBool( ConfigKey.IRCBotForwardFromServer );
+            xIRCBotAnnounceIRCJoins.Checked = Config.GetBool( ConfigKey.IRCBotAnnounceIRCJoins );
+            xIRCBotAnnounceServerJoins.Checked = Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins );
             xIRCBotForwardFromIRC.Checked = Config.GetBool( ConfigKey.IRCBotForwardFromIRC );
+            xIRCBotForwardFromServer.Checked = Config.GetBool( ConfigKey.IRCBotForwardFromServer );
 
             gIRCNetwork.Enabled = xIRC.Checked;
             gIRCOptions.Enabled = xIRC.Checked;
@@ -336,9 +337,10 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.IRCBotNick, tIRCBotNick.Text );
             Config.SetValue( ConfigKey.IRCBotQuitMsg, tIRCBotQuitMsg.Text );
 
-            Config.SetValue( ConfigKey.IRCMsgs, xIRCMsgs.Checked );
-            Config.SetValue( ConfigKey.IRCBotForwardFromServer, xIRCBotForwardFromServer.Checked );
+            Config.SetValue( ConfigKey.IRCBotAnnounceIRCJoins, xIRCBotAnnounceIRCJoins.Checked );
+            Config.SetValue( ConfigKey.IRCBotAnnounceServerJoins, xIRCBotAnnounceServerJoins.Checked );
             Config.SetValue( ConfigKey.IRCBotForwardFromIRC, xIRCBotForwardFromIRC.Checked );
+            Config.SetValue( ConfigKey.IRCBotForwardFromServer, xIRCBotForwardFromServer.Checked );
             Config.SetValue( ConfigKey.IRCMessageColor, fCraft.Color.GetName( colorIRC ) );
 
 

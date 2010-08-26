@@ -148,8 +148,8 @@ namespace fCraft {
                                     Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.",
                                                 LogType.SuspiciousActivity,
                                                 player.GetLogName() );
-                                    KickNow( "Illegal characters in chat." );
                                     Server.SendToAll( Color.Red + player.GetLogName() + " was kicked for attempted hacking (0x0d)." );
+                                    KickNow( "Illegal characters in chat." );
                                     return;
                                 } else {
                                     player.ParseMessage( message, false );
@@ -173,13 +173,16 @@ namespace fCraft {
                                     return;
                                 }
 
-                                Position delta = new Position(), oldPos = player.pos;
+                                Position delta = new Position();
+                                Position oldPos = player.pos;
                                 bool posChanged, rotChanged;
 
                                 delta.Set( newPos.x - oldPos.x, newPos.y - oldPos.y, newPos.h - oldPos.h, newPos.r, newPos.l );
                                 posChanged = delta.x != 0 || delta.y != 0 || delta.h != 0;
                                 rotChanged = newPos.r != oldPos.r || newPos.l != oldPos.l;
 
+                                // only reset the timer if player rotated
+                                // if player is pushed around, or /bring is used, rotation does not change (and timer should not reset)
                                 if( rotChanged ) player.ResetIdleTimer();
 
                                 if( player.isFrozen ) {
@@ -193,7 +196,7 @@ namespace fCraft {
                                     }
 
                                 } else {
-
+                                    // speedhack detection
                                     if( !player.Can( Permission.UseSpeedHack ) ) {
                                         if( DetectMovementPacketSpam() ) return;
                                         int distSquared = delta.x * delta.x + delta.y * delta.y;
@@ -208,7 +211,7 @@ namespace fCraft {
                                                                  player.lastNonHackingPosition.r,
                                                                  player.lastNonHackingPosition.l );
 
-                                                player.session.SendNow( PacketWriter.MakeTeleport( 255, avgPosition ) );
+                                                SendNow( PacketWriter.MakeTeleport( 255, avgPosition ) );
                                                 if( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {
                                                     player.Message( Color.Red + "You are not allowed to speedhack." );
                                                     antiSpeedLastNotification = DateTime.UtcNow;
@@ -250,7 +253,10 @@ namespace fCraft {
                                 y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
                                 mode = reader.ReadByte();
                                 type = reader.ReadByte();
+
+                                // ignore settile packets while player is changing world
                                 if( isBetweenWorlds ) continue;
+
                                 if( type > 49 || x < 0 || x > player.world.map.widthX || y < 0 || y > player.world.map.widthY || h < 0 || h > player.world.map.height ) {
                                     Logger.Log( player.GetLogName() + " was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity );
                                     Server.SendToAll( Color.Red + player.GetLogName() + " was kicked for attempted hacking (0x05)." );
