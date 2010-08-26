@@ -73,8 +73,10 @@ namespace fCraft {
 
 
         public static void PlayerMessageHandler( Player player, World world, ref string message, ref bool cancel ) {
-            if( Config.GetBool( ConfigKey.IRCBotForwardFromServer ) || message.StartsWith( "#" ) ) {
+            if( Config.GetBool( ConfigKey.IRCBotForwardFromServer ) ) {
                 SendToAllChannels( player.nick + ": " + message );
+            } else if( message.StartsWith( "#" ) ) {
+                SendToAllChannels( player.nick + ": " + message.Substring(1) );
             }
         }
 
@@ -179,6 +181,13 @@ namespace fCraft {
             IRCMessage msg = MessageParser( message );
 
             switch( msg.Type ) {
+                case IRCMessageType.Login:
+                    foreach( string channel in channelNames ) {
+                        Send( IRCCommands.Join( channel ) );
+                    }
+                    registered = true;
+                    return;
+
 
                 case IRCMessageType.Ping:
                     // ping-pong
@@ -188,34 +197,32 @@ namespace fCraft {
 
                 case IRCMessageType.ChannelMessage:
                     // channel chat
-                    Console.WriteLine( "<" + msg.Nick + "> " + msg.Message );
-                    // reply to messages that start with #
-                    if( Config.GetBool( ConfigKey.IRCBotForwardFromIRC ) ||
-                        msg.Message.StartsWith( "#" ) && msg.Nick != botNick ) {
-                        Server.SendToAll( Color.IRC + "(IRC)" + Color.White + msg.Nick + ": " + msg.Message );
+                    if( msg.Nick != botNick ) {
+                        if( Config.GetBool( ConfigKey.IRCBotForwardFromIRC ) ) {
+                            Server.SendToAll( Color.IRC + "(IRC)" + Color.White + msg.Nick + ": " + msg.Message );
+                        } else if( msg.Message.StartsWith( "#" ) ) {
+                            Server.SendToAll( Color.IRC + "(IRC)" + Color.White + msg.Nick + ": " + msg.Message.Substring( 1 ) );
+                        }
                     }
                     return;
 
 
-                case IRCMessageType.Kick:
-                    // TODO: special handler for getting kicked
-                    Logger.Log( "IRC Bot was kicked from {0} by {1} ({2}), rejoining.", LogType.IRC,
-                                msg.Channel, msg.Nick, msg.Message );
-                    Send( IRCCommands.Join( msg.Channel ) );
-                    return;
-
-
                 case IRCMessageType.Join:
-                    // TODO: Users joining the channel
                     if( Config.GetBool( ConfigKey.IRCBotAnnounceIRCJoins ) ) {
                         Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + " joined " + msg.Channel );
                     }
                     return;
 
 
+                case IRCMessageType.Kick:
+                    Logger.Log( "IRC Bot was kicked from {0} by {1} ({2}), rejoining.", LogType.IRC,
+                                msg.Channel, msg.Nick, msg.Message );
+                    Send( IRCCommands.Join( msg.Channel ) );
+                    return;
+
+
                 case IRCMessageType.Part:
                 case IRCMessageType.Quit:
-                    // TODO: Users parting or quitting the channel
                     if( Config.GetBool( ConfigKey.IRCBotAnnounceIRCJoins ) ) {
                         Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + " left " + msg.Channel );
                     }
@@ -224,8 +231,12 @@ namespace fCraft {
 
                 case IRCMessageType.ErrorMessage:
                 case IRCMessageType.Error:
-                    // TODO: error handling
-                    Logger.Log( "IRC Error (" + msg.ReplyCode + "): " + msg.RawMessage, LogType.IRC );
+                    if( !registered && msg.ReplyCode == IRCReplyCode.ErrorNicknameInUse ) {
+                        botNick += "_";
+                        Send( IRCCommands.Nick( botNick ) );
+                    } else {
+                        Logger.Log( "IRC Error (" + msg.ReplyCode + "): " + msg.RawMessage, LogType.IRC );
+                    }
                     return;
 
 
@@ -235,15 +246,6 @@ namespace fCraft {
                     break;
 
 
-                case IRCMessageType.Motd:
-                    if( !registered ) {
-                        foreach( string channel in channelNames ) {
-                            Send( IRCCommands.Join( channel ) );
-                        }
-                        registered = true;
-                    }
-                    break;
-
                 case IRCMessageType.Kill:
                     Logger.Log( "IRC Bot was killed from {0} by {1} ({2}), reconnecting.", LogType.IRC,
                                 hostName, msg.Nick, msg.Message );
@@ -251,13 +253,14 @@ namespace fCraft {
                     connected = false;
                     return;
 
+
                 case IRCMessageType.Unknown:
-                    Console.WriteLine( msg.RawMessage );
+                    //Logger.Log( msg.RawMessage, LogType.IRC );
                     break;
 
+
                 default:
-                    // TODO: everything else that i dont care about
-                    Console.WriteLine( "[" + msg.Type + "]" );
+                    //Logger.Log( "[" + msg.Type + "]: " + msg.RawMessage, LogType.IRC );
                     return;
             }
         }

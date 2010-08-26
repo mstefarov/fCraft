@@ -1,5 +1,12 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-08-25
+2010-08-26
+450
+ Feature: IRC bot rewritten for better performance, flexibility, and safety.
+ Feature: New IRC options: IRCBotAnnounceIRCJoins and IRCBotAnnounceServerJoins.
+ Fix: Fixed messages containing only a single slash ('/') crashing client thread.
+ Change: Removed obsolete IRCBotMsgs config key.
+ Change: Added OnPlayerSentMessage event to Server.
+ Change: IRC bot's commands (e.g. !status) are temporarily unavailable. 
 445
  IMPORTANT! Please update ASAP, a security was identified in previous version.
  Fix: If you need to start message with a slash, you can now escape the slash (type "//")
