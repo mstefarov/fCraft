@@ -173,8 +173,8 @@ namespace fCraft {
         }
 
         public void EndFlushMapBuffer() {
-            isFlushing = false;
             lock( playerListLock ) {
+                isFlushing = false;
                 SendToAll( Color.Red + "Map flushed. Rejoining" );
                 foreach( Player player in playerList ) {
                     player.session.JoinWorld( this, player.pos );
@@ -252,10 +252,11 @@ namespace fCraft {
                 SendToAll( PacketWriter.MakeRemoveEntity( player.id ), player );
 
                 // unload map (if needed)
-                if( players.Count == 0 && !neverUnload ) {
-                    isReadyForUnload = true;
+                lock( mapLock ) {
+                    if( players.Count == 0 && !neverUnload ) {
+                        isReadyForUnload = true;
+                    }
                 }
-
                 return true;
             }
         }
