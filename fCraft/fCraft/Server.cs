@@ -41,15 +41,17 @@ namespace fCraft {
 
         public static void CheckMapDirectory() {
             // move files, if necessary
-            if( !Directory.Exists( "maps" ) ) {
+            if( !Directory.Exists( "maps" ) ) { // LEGACY
                 Directory.CreateDirectory( "maps" );
                 string[] files = Directory.GetFiles( Directory.GetCurrentDirectory(), "*.fcm" );
                 if( files.Length > 0 ) {
-                    Logger.Log( "Server.Init: fCraft now uses a dedicated /maps/ directory for storing map files. Your maps have been moved automatically.", LogType.SystemActivity );
+                    Logger.Log( "Server.CheckMapDirectory: fCraft now uses a dedicated /maps/ directory for storing map files. " +
+                                "Your maps have been moved automatically.", LogType.SystemActivity );
 
                     foreach( string file in files ) {
                         string newFile = "maps/" + new FileInfo( file ).Name;
                         File.Move( file, newFile );
+                        Logger.Log( "Server.CheckMapDirectory: Moved " + newFile, LogType.SystemActivity );
                     }
                 }
             }
@@ -63,14 +65,16 @@ namespace fCraft {
         public static bool Init() {
             ResetWorkingDirectory();
 
-            GenerateSalt();
-
             // try to load the config
             if( !Config.Load() ) return false;
             Config.ApplyConfig();
             if( !Config.Save() ) return false;
 
+            GenerateSalt();
+
             CheckMapDirectory();
+
+            if( !PlayerDBv2.Init() ) return false;
 
             // start the task thread
             Tasks.Start();
