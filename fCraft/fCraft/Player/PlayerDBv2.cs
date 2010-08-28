@@ -33,6 +33,8 @@ namespace fCraft {
                                 } else if( fileSchemaVersion > SchemaVersion ) {
                                     Logger.Log( "PlayerDB: Database schema was made for a newer version of fCraft. Please update.", LogType.FatalError );
                                     return false;
+                                } else {
+                                    Logger.Log( "PlayerDB: Database file loaded normally.", LogType.SystemActivity );
                                 }
                             } else {
                                 Logger.Log( "PlayerDB: Database schema version not found. Database may be corrupt.", LogType.FatalError );
@@ -47,6 +49,7 @@ namespace fCraft {
             } else {
                 SQLiteConnection.CreateFile( DatabaseFile );
                 db.Open();
+                Logger.Log( "PlayerDB: Database file not found, creating new one.", LogType.Warning );
                 DefineSchema();
                 // TODO: import old data
             }
