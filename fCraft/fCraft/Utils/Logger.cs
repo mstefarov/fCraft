@@ -105,7 +105,10 @@ namespace fCraft {
         public static bool[] consoleOptions;
         public static bool[] logFileOptions;
 
-        const string LogFileName = "fCraft.log", LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss", ShortDateFormat = "yyyy'-'MM'-'dd";
+        const string LogFileName = "fCraft.log",
+                     CrashFileName = "fCraftCRASH.log",
+                     LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss",
+                     ShortDateFormat = "yyyy'-'MM'-'dd";
         public static LogSplittingType split = LogSplittingType.OneFile;
 
         static string sessionStart = DateTime.Now.ToString( LongDateFormat );
@@ -159,6 +162,9 @@ namespace fCraft {
 
         public static void Log( string message, LogType type ) {
             //TODO: check if logging is enabled
+            if( type == LogType.FatalError ) {
+                LogCrash( message );
+            }
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message;
             if( logFileOptions[(int)type] ) {
                 try {
@@ -182,6 +188,10 @@ namespace fCraft {
             if( consoleOptions[(int)type] ) Server.FireLogEvent( line, type );
         }
 
+
+        public static void LogCrash( string message ) {
+            File.AppendAllText( CrashFileName, DateTime.Now.ToString() + Environment.NewLine + message + Environment.NewLine + Environment.NewLine );
+        }
 
         public static string GetPrefix( LogType level ) {
             switch( level ) {

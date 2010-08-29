@@ -59,8 +59,12 @@ namespace fCraft {
 
 
         public static void QueuePlayerInfoUpdate( PlayerInfo2 info, string field, object value ) {
+            ExecuteNonQuery( "UPDATE players SET " + field + "=\"" + value.ToString() + "\" WHERE id=" + info.ID );
+        }
+
+        internal static void ExecuteNonQuery( string command ) {
             using( SQLiteCommand cmd = db.CreateCommand() ) {
-                cmd.CommandText = "UPDATE players SET " + field + "=\"" + value.ToString() + "\" WHERE id=" + info.ID;
+                cmd.CommandText = command;
                 cmd.ExecuteNonQuery();
             }
         }

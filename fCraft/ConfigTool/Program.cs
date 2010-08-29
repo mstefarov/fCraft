@@ -22,6 +22,7 @@
  */
 using System;
 using System.Windows.Forms;
+using fCraft;
 
 
 namespace ConfigTool {
@@ -30,7 +31,14 @@ namespace ConfigTool {
         static void Main() {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault( false );
-            Application.Run( new ConfigUI() );
+            try {
+                Application.Run( new ConfigUI() );
+            } catch( Exception ex ) {
+                Logger.Log( "Unhandled exception in ConfigTool: " + ex, LogType.FatalError );
+#if DEBUG
+                throw;
+#endif
+            }
         }
     }
 }

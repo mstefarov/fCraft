@@ -62,7 +62,7 @@ namespace fCraft {
                     request.Abort();
 
                 } catch( Exception ex ) {
-                    Logger.Log( "Heartbeat: {0}", LogType.Error, ex.Message );
+                    Logger.Log( "Heartbeat: {0}", LogType.Warning, ex.Message );
                 }
 
                 Thread.Sleep( Config.HeartbeatDelay );
