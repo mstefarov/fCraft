@@ -22,7 +22,7 @@
  */
 using System;
 using System.Windows.Forms;
-
+using fCraft;
 
 namespace fCraftUI {
     static class Program {
@@ -34,8 +34,10 @@ namespace fCraftUI {
             try {
                 Application.Run( new MainForm() );
             } catch( Exception ex ) {
-                MessageBox.Show( ex.ToString(), "fCraft crashed! Crash message saved to crash.log" + Environment.NewLine + ex );
-                System.IO.File.WriteAllText( "crash.log", ex.ToString() + Environment.NewLine + ex.StackTrace );
+                Logger.Log( "Unhandled exception in fCraftUI: " + ex, LogType.FatalError );
+#if DEBUG
+                throw;
+#endif
             }
         }
     }

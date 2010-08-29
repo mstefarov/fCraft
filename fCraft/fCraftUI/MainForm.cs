@@ -52,11 +52,13 @@ namespace fCraftUI {
                         StartServer();
                     }
                 } else {
-                    Logger.Log( "---- Could Not Initialize Server ----", LogType.FatalError );
+                    Logger.Log( "---- Could Not Initialize Server ----", LogType.Error );
                 }
             } catch( Exception ex ) {
-                MessageBox.Show( ex.ToString(), "fCraft crashed!" );
-                System.IO.File.WriteAllText( "crash.log", ex.ToString() + Environment.NewLine + ex.StackTrace );
+                Logger.Log( "Fatal error at startup: " + ex, LogType.FatalError );
+#if DEBUG
+                throw;
+#endif
             }
         }
 
@@ -66,7 +68,7 @@ namespace fCraftUI {
             if( Server.Start() ) {
                 console.Enabled = true;
             } else {
-                Logger.Log( "---- Could Not Start The Server ----", LogType.FatalError );
+                Logger.Log( "---- Could Not Start The Server ----", LogType.Error );
             }
         }
 

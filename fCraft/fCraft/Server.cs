@@ -671,22 +671,32 @@ namespace fCraft {
         static object taskListLock = new object();
 
         internal static void MainLoop() {
-            ScheduledTask[] taskCache;
-            ScheduledTask task;
-            while( !shuttingDown ) {
-                taskCache = taskList;
-                for( int i = 0; i < taskCache.Length; i++ ) {
-                    task = taskCache[i];
-                    if( task.enabled && task.nextTime < DateTime.UtcNow ) {
-                        try {
-                            task.callback( task.param );
-                        } catch( Exception ex ) {
-                            Logger.Log( "Server.MainLoop: Exception was thrown by a scheduled task. Normally this would crash the server. Exception details follow: " + ex, LogType.Error );
+            try {
+                ScheduledTask[] taskCache;
+                ScheduledTask task;
+                while( !shuttingDown ) {
+                    taskCache = taskList;
+                    for( int i = 0; i < taskCache.Length; i++ ) {
+                        task = taskCache[i];
+                        if( task.enabled && task.nextTime < DateTime.UtcNow ) {
+                            try {
+                                task.callback( task.param );
+                            } catch( Exception ex ) {
+                                Logger.Log( "Server.MainLoop: Exception was thrown by a scheduled task: " + ex, LogType.Error );
+#if DEBUG
+                                throw;
+#endif
+                            }
+                            task.nextTime += TimeSpan.FromMilliseconds( task.interval );
                         }
-                        task.nextTime += TimeSpan.FromMilliseconds( task.interval );
                     }
+                    Thread.Sleep( 1 );
                 }
-                Thread.Sleep( 1 );
+            } catch( Exception ex ) {
+                Logger.Log( "Fatal error in fCraft.Server main loop: " + ex, LogType.FatalError );
+#if DEBUG
+                                throw;
+#endif
             }
         }
 

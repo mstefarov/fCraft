@@ -19,11 +19,9 @@ namespace fCraft {
 
 
     public static class Tasks {
-        static object queueLock = new object(),
-                      priorityQueueLock = new object();
+        static object queueLock = new object();
         static Thread taskThread;
-        static Queue<KeyValuePair<TaskCallback, object>> tasks = new Queue<KeyValuePair<TaskCallback, object>>(),
-                                                 priorityTasks = new Queue<KeyValuePair<TaskCallback, object>>();
+        static Queue<KeyValuePair<TaskCallback, object>> tasks = new Queue<KeyValuePair<TaskCallback, object>>();
         static bool keepGoing;
 
 
@@ -46,7 +44,6 @@ namespace fCraft {
         public static void Restart() {
             Shutdown();
             tasks.Clear();
-            priorityTasks.Clear();
             Start();
         }
 
@@ -54,14 +51,8 @@ namespace fCraft {
         public static void Add( TaskCallback callback, object param, bool isPriority ) {
             if( keepGoing ) {
                 KeyValuePair<TaskCallback, object> newTask = new KeyValuePair<TaskCallback, object>( callback, param );
-                if( isPriority ) {
-                    lock( priorityQueueLock ) {
-                        priorityTasks.Enqueue( newTask );
-                    }
-                } else {
-                    lock( queueLock ) {
-                        tasks.Enqueue( newTask );
-                    }
+                lock( queueLock ) {
+                    tasks.Enqueue( newTask );
                 }
             }
         }
@@ -70,19 +61,20 @@ namespace fCraft {
         static void TaskLoop() {
             KeyValuePair<TaskCallback, object> task;
             while( keepGoing ) {
-                while( priorityTasks.Count > 0 ) {
-                    lock( priorityQueueLock ) {
-                        task = priorityTasks.Dequeue();
-                    }
-                    task.Key( task.Value );
-                }
                 if( tasks.Count > 0 ) {
                     lock( queueLock ) {
                         task = tasks.Dequeue();
                     }
-                    task.Key( task.Value );
+                    try {
+                        task.Key( task.Value );
+                    } catch( Exception ex ) {
+                        Logger.Log( "Error was thrown by Tasks thread: " + ex, LogType.Error );
+#if DEBUG
+                throw;
+#endif
+                    }
                 }
-                Thread.Sleep( 1 );
+                Thread.Sleep( 10 );
             }
         }
     }
