@@ -5,10 +5,11 @@ using System.Text;
 using System.IO;
 using System.Data;
 using System.Data.SQLite;
+using System.Net;
 
 
 namespace fCraft {
-    static class PlayerDBv2 {
+    static class DB {
         static SQLiteConnection db;
         const string DatabaseFile = "fCraft.db";
         const int SchemaVersion = 1;
@@ -56,6 +57,13 @@ namespace fCraft {
             return true;
         }
 
+
+        public static void QueuePlayerInfoUpdate( PlayerInfo2 info, string field, object value ) {
+            using( SQLiteCommand cmd = db.CreateCommand() ) {
+                cmd.CommandText = "UPDATE players SET " + field + "=\"" + value.ToString() + "\" WHERE id=" + info.ID;
+                cmd.ExecuteNonQuery();
+            }
+        }
 
         static void DefineSchema() {
             using( SQLiteCommand cmd = db.CreateCommand() ) {
@@ -156,6 +164,11 @@ CREATE TABLE [sessions] (
 [geoip] VARCHAR(2)  NULL
 );
 
+CREATE TABLE [classmapping] (
+[id] INTEGER  NOT NULL PRIMARY KEY,
+[classID] VARCHAR(33)  NULL
+);
+
 CREATE INDEX idx_bans ON bans ( banPlayer );
 
 CREATE INDEX idx_ipbans ON ipbans ( banPlayer );
@@ -194,5 +207,28 @@ INSERT INTO serverdata VALUES ('PlayerDB','SchemaVersion'," + SchemaVersion + @"
                 }
             }
         }
+
+
+        #region Utilities
+        static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1);
+
+        public static int ToUnixTimestamp( DateTime timestamp ) {
+            return (int)(timestamp - UnixEpoch).TotalSeconds;
+        }
+
+        public static DateTime FromUnixTimestamp( int timestamp ) {
+            return UnixEpoch.AddSeconds( timestamp );
+        }
+
+
+        public static int IPAddressToInt32( IPAddress ipAddress ) {
+            return BitConverter.ToInt32( ipAddress.GetAddressBytes().Reverse().ToArray(), 0 );
+        }
+
+        public static IPAddress Int32ToIPAddress( int ipAddress ) {
+            return new IPAddress( BitConverter.GetBytes( ipAddress ).Reverse().ToArray() );
+        }
+
+        #endregion
     }
 }

@@ -100,7 +100,8 @@
     <Compile Include="Network\IPBanList.cs" />
     <Compile Include="Network\IRCCommands.cs" />
     <Compile Include="Network\IRCMessage.cs" />
-    <Compile Include="Player\PlayerDBv2.cs" />
+    <Compile Include="Player\DB.cs" />
+    <Compile Include="Player\PlayerInfo2.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
