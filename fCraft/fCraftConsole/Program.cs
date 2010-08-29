@@ -70,11 +70,14 @@ namespace fCraftConsole {
                     Console.ReadLine();
                 }
             } catch( Exception ex ) {
-                Logger.LogCrash( "Unhandled exception in fCraftConsole input loop: " + ex );
+                Logger.Log( "Unhandled exception in fCraftConsole input loop: " + ex, LogType.FatalError );
+
                 Console.WriteLine( "fCraft crashed! Crash message saved to crash.log." );
                 Console.Write( ex );
 #if DEBUG
                 throw;
+#else
+                Logger.UploadCrashReport( "Unhandled exception in fCraftConsole", "fCraftConsole", ex );
 #endif
             }
         }

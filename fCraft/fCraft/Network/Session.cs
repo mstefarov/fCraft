@@ -278,11 +278,12 @@ namespace fCraft {
 
             } catch( SocketException ex ) {
                 Logger.Log( "Session.IoLoop: {0}", LogType.Debug, ex.Message );
-#if DEBUG
-                // CRASH on errors
-#else
             } catch( Exception ex ) {
                 Logger.Log( "Session.IoLoop: {0}", LogType.Error, ex );
+#if DEBUG
+                throw;
+#else
+                Logger.UploadCrashReport( "Unhandled exception in Session.IoLoop", "fCraft", ex );
 #endif
             } finally {
                 canQueue = false;

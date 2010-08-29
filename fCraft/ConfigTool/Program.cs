@@ -37,6 +37,8 @@ namespace ConfigTool {
                 Logger.Log( "Unhandled exception in ConfigTool: " + ex, LogType.FatalError );
 #if DEBUG
                 throw;
+#else
+                Logger.UploadCrashReport( "Unhandled exception in ConfigTool", "ConfigTool", ex );
 #endif
             }
         }

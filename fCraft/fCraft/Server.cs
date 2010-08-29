@@ -695,7 +695,9 @@ namespace fCraft {
             } catch( Exception ex ) {
                 Logger.Log( "Fatal error in fCraft.Server main loop: " + ex, LogType.FatalError );
 #if DEBUG
-                                throw;
+                throw;
+#else
+                Logger.UploadCrashReport( "Unhandled exception in fCraft.Server.MainLoop", "fCraft", ex );
 #endif
             }
         }
@@ -814,7 +816,7 @@ namespace fCraft {
                     (input[i] >= 'A' && input[i] <= 'Z') ||
                     input[i] == '-' || input[i] == '_' || input[i] == '.' || input[i] == '~' ) {
                     output.Append( input[i] );
-                } else if( Array.IndexOf<char>( reservedChars, input[i] ) != -1 ) {
+                } else {
                     output.Append( '%' ).Append( ((int)input[i]).ToString( "X" ) );
                 }
             }
