@@ -74,7 +74,7 @@ namespace fCraft {
 
             CheckMapDirectory();
 
-            if( !PlayerDBv2.Init() ) return false;
+            if( !DB.Init() ) return false;
 
             // start the task thread
             Tasks.Start();

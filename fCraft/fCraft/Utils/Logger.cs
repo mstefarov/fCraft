@@ -27,6 +27,72 @@ namespace fCraft {
         Debug
     }
 
+
+    public enum WarningLogSubtype {
+        CommandWarning,
+        MissingFileWarning,
+        PlayerDBWarning,
+        WorldListError,
+        ConfigWarning,
+        ClassListWarning,
+        MapLoadWarning
+    }
+
+    public enum ErrorLogSubtype {
+        MapSaveFailed,
+        MapLoadingFailed,
+        WorldError,
+        GenerationFailed,
+        HeartbeatError,
+        UpdateError,
+        IPBanListError,
+        SessionError,
+        LoginSequenceError,
+        JoinWorldError,
+        ClassListError,
+        PlayerDBError,
+        NetworkError,
+        WorldListError,
+        ConfigError,
+        BackupError,
+        ImportError
+    }
+
+    public enum FatalErrorLogSubtype {
+        PlayerDBSchemaTooNew,
+        PlayerDBVersionNotFound,
+        PlayerDBVersionError,
+        CouldNotStartListening,
+        CouldNotParseWorldList,
+        WorldCreationFailed,
+        CouldNotLoadConfig,
+        CouldNotSaveConfig
+    }
+
+    public enum IRCLogSubtype {
+        IRCLoggingIn,
+        IRCBotNickTaken,
+        IRCBotKicked,
+        IRCBotKilled,
+        IRCBotDisconnected,
+        IRCError
+    }
+
+    public enum SuspicousActivityLogSubtype {
+        InvalidSetTilePacket,
+        LeavingMapBoundaries,
+        InvalidPlayerName,
+        NameNotVerified,
+        BannedPlayerTriedToLog,
+        PlayerLoggingInFromBannedIP,
+        LoginFromSameName,
+        LoginFromSameIP,
+        BlockSpam,
+        ChatSpam,
+        PacketSpam
+    }
+
+
     public enum LogSplittingType {
         OneFile,
         SplitBySession,
