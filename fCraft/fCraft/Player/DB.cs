@@ -30,27 +30,27 @@ namespace fCraft {
                             if( reader.Read() ) {
                                 int fileSchemaVersion = Int32.Parse( reader.GetString( 0 ) );
                                 if( fileSchemaVersion < SchemaVersion ) {
-                                    Logger.Log( "PlayerDB: Database schema is out of date.", LogType.Warning );
+                                    Logger.Log( "DB: Database schema is out of date.", LogType.Warning );
                                 } else if( fileSchemaVersion > SchemaVersion ) {
-                                    Logger.Log( "PlayerDB: Database schema was made for a newer version of fCraft. Please update.", LogType.FatalError );
+                                    Logger.Log( "DB: Database schema was made for a newer version of fCraft. Please update.", LogType.FatalError );
                                     return false;
                                 } else {
-                                    Logger.Log( "PlayerDB: Database file loaded normally.", LogType.SystemActivity );
+                                    Logger.Log( "DB: Database file loaded normally.", LogType.SystemActivity );
                                 }
                             } else {
-                                Logger.Log( "PlayerDB: Database schema version not found. Database may be corrupt.", LogType.FatalError );
+                                Logger.Log( "DB: Database schema version not found. Database may be corrupt.", LogType.FatalError );
                                 return false;
                             }
                         }
                     } catch( SQLiteException ex ) {
-                        Logger.Log( "PlayerDB: Could not read database version. Database may be corrupt. Error message: " + ex, LogType.FatalError );
+                        Logger.Log( "DB: Could not read database version. Database may be corrupt. Error message: " + ex, LogType.FatalError );
                         return false;
                     }
                 }
             } else {
                 SQLiteConnection.CreateFile( DatabaseFile );
                 db.Open();
-                Logger.Log( "PlayerDB: Database file not found, creating new one.", LogType.Warning );
+                Logger.Log( "DB: Database file not found, creating new one.", LogType.Warning );
                 DefineSchema();
                 // TODO: import old data
             }

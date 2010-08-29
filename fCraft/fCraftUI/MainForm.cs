@@ -58,6 +58,8 @@ namespace fCraftUI {
                 Logger.Log( "Fatal error at startup: " + ex, LogType.FatalError );
 #if DEBUG
                 throw;
+#else
+                Logger.UploadCrashReport( "Unhandled exception in fCraftUI.StartUp", "fCraftUI", ex );
 #endif
             }
         }
