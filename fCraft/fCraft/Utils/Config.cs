@@ -26,6 +26,8 @@ namespace fCraft {
      * 104 - r198 - Added IRCBotAnnounceServerJoins and IRCBotAnnounceIRCJoins keys
      *              Removed IRCBotMsg key
      * 
+     * 105 - r205 - Added SubmitCrashReports key
+     *              Removed PolicyColorCodesInChat, PolicyIllegalCharacters, and RunOnStartup
      */
 
     public static class Config {
@@ -33,7 +35,7 @@ namespace fCraft {
         public const int HeartbeatDelay = 50000;
 
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 103;
+        public const int ConfigVersion = 105;
         public const int MaxPlayersSupported = 256;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
@@ -56,7 +58,6 @@ namespace fCraft {
 
 
         public static void LoadDefaults() {
-            //locker.EnterWriteLock();
             settings.Clear();
             LoadDefaultsGeneral();
             LoadDefaultsSecurity();
@@ -64,7 +65,6 @@ namespace fCraft {
             LoadDefaultsLogging();
             LoadDefaultsIRC();
             LoadDefaultsAdvanced();
-            //locker.ExitWriteLock();
         }
 
 
@@ -142,17 +142,15 @@ namespace fCraft {
         }
 
         public static void LoadDefaultsAdvanced() {
-            SetValue( ConfigKey.PolicyColorCodesInChat, "ConsoleOnly" ); // can be: "Allow", "ConsoleOnly", "Disallow"
-            SetValue( ConfigKey.PolicyIllegalCharacters, "Disallow" ); // can be: "Allow", "ConsoleOnly", "Disallow"
             SetValue( ConfigKey.SendRedundantBlockUpdates, false );
             SetValue( ConfigKey.PingInterval, 0 ); // 0 = ping disabled
             SetValue( ConfigKey.AutomaticUpdates, "Prompt" ); // can be "Disabled", "Notify", "Prompt", and "Auto"
             SetValue( ConfigKey.NoPartialPositionUpdates, false );
             SetValue( ConfigKey.ProcessPriority, "" );
-            SetValue( ConfigKey.RunOnStartup, "Never" ); // can be "Always", "OnUnexpectedShutdown", or "Never"
             SetValue( ConfigKey.BlockUpdateThrottling, 2048 );
             SetValue( ConfigKey.TickInterval, 100 );
             SetValue( ConfigKey.LowLatencyMode, false );
+            SetValue( ConfigKey.SubmitCrashReports, true );
         }
 
 
@@ -480,6 +478,7 @@ namespace fCraft {
                 case ConfigKey.RequireClassChangeReason:
                 case ConfigKey.AnnounceKickAndBanReasons:
                 case ConfigKey.AnnounceClassChanges:
+                case ConfigKey.SubmitCrashReports:
                     return ValidateBool( key, value );
 
                 case ConfigKey.SystemMessageColor:
@@ -516,13 +515,8 @@ namespace fCraft {
                 case ConfigKey.MaxLogs:
                     return ValidateInt( key, value, 0, 100000 );
 
-                case ConfigKey.PolicyColorCodesInChat:
-                case ConfigKey.PolicyIllegalCharacters:
-                    return ValidateEnum( key, value, "Allow", "ConsoleOnly", "Disallow" );
                 case ConfigKey.ProcessPriority:
                     return ValidateEnum( key, value, "", "High", "AboveNormal", "Normal", "BelowNormal", "Low" );
-                case ConfigKey.RunOnStartup:
-                    return ValidateEnum( key, value, "Always", "OnUnexpectedShutdown", "Never" );
                 case ConfigKey.AutomaticUpdates:
                     return ValidateEnum( key, value, "Disabled", "Notify", "Prompt", "Auto" );
                 case ConfigKey.BlockUpdateThrottling:

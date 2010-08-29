@@ -806,8 +806,6 @@ namespace fCraft {
             }
         }
 
-        public static char[] reservedChars = { ' ', '!', '*', '\'', '(', ')', ';', ':', '@', '&',
-                                                 '=', '+', '$', ',', '/', '?', '%', '#', '[', ']' };
         public static string UrlEncode( string input ) {
             StringBuilder output = new StringBuilder();
             for( int i = 0; i < input.Length; i++ ) {

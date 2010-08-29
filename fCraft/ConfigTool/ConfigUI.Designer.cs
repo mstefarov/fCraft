@@ -239,15 +239,9 @@
             this.nPing = new System.Windows.Forms.NumericUpDown();
             this.xAbsoluteUpdates = new System.Windows.Forms.CheckBox();
             this.xPing = new System.Windows.Forms.CheckBox();
-            this.cStartup = new System.Windows.Forms.ComboBox();
-            this.lStartup = new System.Windows.Forms.Label();
             this.cProcessPriority = new System.Windows.Forms.ComboBox();
             this.lProcessPriority = new System.Windows.Forms.Label();
-            this.cPolicyIllegal = new System.Windows.Forms.ComboBox();
             this.xRedundantPacket = new System.Windows.Forms.CheckBox();
-            this.lPolicyColor = new System.Windows.Forms.Label();
-            this.lPolicyIllegal = new System.Windows.Forms.Label();
-            this.cPolicyColor = new System.Windows.Forms.ComboBox();
             this.lTickIntervalUnits = new System.Windows.Forms.Label();
             this.nTickInterval = new System.Windows.Forms.NumericUpDown();
             this.lTickInterval = new System.Windows.Forms.Label();
@@ -258,6 +252,10 @@
             this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
+            this.xSubmitCrashReports = new System.Windows.Forms.CheckBox();
+            this.gCrashReport = new System.Windows.Forms.GroupBox();
+            this.lCrashReportDisclaimer = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -305,6 +303,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPing)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
+            this.gCrashReport.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabs
@@ -2355,29 +2355,8 @@
             // 
             // tabAdvanced
             // 
-            this.tabAdvanced.Controls.Add( this.xLowLatencyMode );
-            this.tabAdvanced.Controls.Add( this.cUpdater );
-            this.tabAdvanced.Controls.Add( this.bUpdater );
-            this.tabAdvanced.Controls.Add( this.lThrottlingUnits );
-            this.tabAdvanced.Controls.Add( this.nThrottling );
-            this.tabAdvanced.Controls.Add( this.lThrottling );
-            this.tabAdvanced.Controls.Add( this.lPing );
-            this.tabAdvanced.Controls.Add( this.nPing );
-            this.tabAdvanced.Controls.Add( this.xAbsoluteUpdates );
-            this.tabAdvanced.Controls.Add( this.xPing );
-            this.tabAdvanced.Controls.Add( this.cStartup );
-            this.tabAdvanced.Controls.Add( this.lStartup );
-            this.tabAdvanced.Controls.Add( this.cProcessPriority );
-            this.tabAdvanced.Controls.Add( this.lProcessPriority );
-            this.tabAdvanced.Controls.Add( this.cPolicyIllegal );
-            this.tabAdvanced.Controls.Add( this.xRedundantPacket );
-            this.tabAdvanced.Controls.Add( this.lPolicyColor );
-            this.tabAdvanced.Controls.Add( this.lPolicyIllegal );
-            this.tabAdvanced.Controls.Add( this.cPolicyColor );
-            this.tabAdvanced.Controls.Add( this.lTickIntervalUnits );
-            this.tabAdvanced.Controls.Add( this.nTickInterval );
-            this.tabAdvanced.Controls.Add( this.lTickInterval );
-            this.tabAdvanced.Controls.Add( this.lAdvancedWarning );
+            this.tabAdvanced.Controls.Add( this.groupBox1 );
+            this.tabAdvanced.Controls.Add( this.gCrashReport );
             this.tabAdvanced.Location = new System.Drawing.Point( 4, 24 );
             this.tabAdvanced.Name = "tabAdvanced";
             this.tabAdvanced.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
@@ -2389,7 +2368,7 @@
             // xLowLatencyMode
             // 
             this.xLowLatencyMode.AutoSize = true;
-            this.xLowLatencyMode.Location = new System.Drawing.Point( 11, 376 );
+            this.xLowLatencyMode.Location = new System.Drawing.Point( 9, 142 );
             this.xLowLatencyMode.Name = "xLowLatencyMode";
             this.xLowLatencyMode.Size = new System.Drawing.Size( 613, 19 );
             this.xLowLatencyMode.TabIndex = 11;
@@ -2406,7 +2385,7 @@
             "Notify of update availability",
             "Download and prompt to install",
             "Fully automatic"} );
-            this.cUpdater.Location = new System.Drawing.Point( 197, 276 );
+            this.cUpdater.Location = new System.Drawing.Point( 218, 207 );
             this.cUpdater.Name = "cUpdater";
             this.cUpdater.Size = new System.Drawing.Size( 200, 23 );
             this.cUpdater.TabIndex = 8;
@@ -2414,7 +2393,7 @@
             // bUpdater
             // 
             this.bUpdater.AutoSize = true;
-            this.bUpdater.Location = new System.Drawing.Point( 55, 279 );
+            this.bUpdater.Location = new System.Drawing.Point( 76, 210 );
             this.bUpdater.Name = "bUpdater";
             this.bUpdater.Size = new System.Drawing.Size( 136, 15 );
             this.bUpdater.TabIndex = 38;
@@ -2423,7 +2402,7 @@
             // lThrottlingUnits
             // 
             this.lThrottlingUnits.AutoSize = true;
-            this.lThrottlingUnits.Location = new System.Drawing.Point( 262, 311 );
+            this.lThrottlingUnits.Location = new System.Drawing.Point( 283, 242 );
             this.lThrottlingUnits.Name = "lThrottlingUnits";
             this.lThrottlingUnits.Size = new System.Drawing.Size( 129, 15 );
             this.lThrottlingUnits.TabIndex = 37;
@@ -2436,7 +2415,7 @@
             0,
             0,
             0} );
-            this.nThrottling.Location = new System.Drawing.Point( 197, 309 );
+            this.nThrottling.Location = new System.Drawing.Point( 218, 240 );
             this.nThrottling.Maximum = new decimal( new int[] {
             10000,
             0,
@@ -2459,7 +2438,7 @@
             // lThrottling
             // 
             this.lThrottling.AutoSize = true;
-            this.lThrottling.Location = new System.Drawing.Point( 63, 311 );
+            this.lThrottling.Location = new System.Drawing.Point( 84, 242 );
             this.lThrottling.Name = "lThrottling";
             this.lThrottling.Size = new System.Drawing.Size( 128, 15 );
             this.lThrottling.TabIndex = 35;
@@ -2469,7 +2448,7 @@
             // 
             this.lPing.AutoSize = true;
             this.lPing.Enabled = false;
-            this.lPing.Location = new System.Drawing.Point( 273, 159 );
+            this.lPing.Location = new System.Drawing.Point( 271, 92 );
             this.lPing.Name = "lPing";
             this.lPing.Size = new System.Drawing.Size( 123, 15 );
             this.lPing.TabIndex = 34;
@@ -2478,7 +2457,7 @@
             // nPing
             // 
             this.nPing.Enabled = false;
-            this.nPing.Location = new System.Drawing.Point( 220, 157 );
+            this.nPing.Location = new System.Drawing.Point( 218, 90 );
             this.nPing.Name = "nPing";
             this.nPing.Size = new System.Drawing.Size( 47, 21 );
             this.nPing.TabIndex = 4;
@@ -2487,7 +2466,7 @@
             // 
             this.xAbsoluteUpdates.AutoSize = true;
             this.xAbsoluteUpdates.Enabled = false;
-            this.xAbsoluteUpdates.Location = new System.Drawing.Point( 11, 184 );
+            this.xAbsoluteUpdates.Location = new System.Drawing.Point( 9, 117 );
             this.xAbsoluteUpdates.Name = "xAbsoluteUpdates";
             this.xAbsoluteUpdates.Size = new System.Drawing.Size( 326, 19 );
             this.xAbsoluteUpdates.TabIndex = 5;
@@ -2498,36 +2477,13 @@
             // 
             this.xPing.AutoSize = true;
             this.xPing.Enabled = false;
-            this.xPing.Location = new System.Drawing.Point( 11, 158 );
+            this.xPing.Location = new System.Drawing.Point( 9, 91 );
             this.xPing.Name = "xPing";
             this.xPing.Size = new System.Drawing.Size( 203, 19 );
             this.xPing.TabIndex = 3;
             this.xPing.Text = "Send useless ping packets every";
             this.xPing.UseVisualStyleBackColor = true;
             this.xPing.CheckedChanged += new System.EventHandler( this.xPing_CheckedChanged );
-            // 
-            // cStartup
-            // 
-            this.cStartup.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cStartup.Enabled = false;
-            this.cStartup.Items.AddRange( new object[] {
-            "Always",
-            "Only if computer didn\'t shut down properly",
-            "Never"} );
-            this.cStartup.Location = new System.Drawing.Point( 197, 247 );
-            this.cStartup.Name = "cStartup";
-            this.cStartup.Size = new System.Drawing.Size( 252, 23 );
-            this.cStartup.TabIndex = 7;
-            // 
-            // lStartup
-            // 
-            this.lStartup.AutoSize = true;
-            this.lStartup.Enabled = false;
-            this.lStartup.Location = new System.Drawing.Point( 32, 250 );
-            this.lStartup.Name = "lStartup";
-            this.lStartup.Size = new System.Drawing.Size( 159, 15 );
-            this.lStartup.TabIndex = 29;
-            this.lStartup.Text = "Run fCraft on system startup";
             // 
             // cProcessPriority
             // 
@@ -2539,7 +2495,7 @@
             "Normal",
             "Below Normal",
             "Low"} );
-            this.cProcessPriority.Location = new System.Drawing.Point( 197, 218 );
+            this.cProcessPriority.Location = new System.Drawing.Point( 218, 178 );
             this.cProcessPriority.Name = "cProcessPriority";
             this.cProcessPriority.Size = new System.Drawing.Size( 109, 23 );
             this.cProcessPriority.TabIndex = 6;
@@ -2547,31 +2503,17 @@
             // lProcessPriority
             // 
             this.lProcessPriority.AutoSize = true;
-            this.lProcessPriority.Location = new System.Drawing.Point( 101, 221 );
+            this.lProcessPriority.Location = new System.Drawing.Point( 122, 181 );
             this.lProcessPriority.Name = "lProcessPriority";
             this.lProcessPriority.Size = new System.Drawing.Size( 90, 15 );
             this.lProcessPriority.TabIndex = 6;
             this.lProcessPriority.Text = "Process priority";
             // 
-            // cPolicyIllegal
-            // 
-            this.cPolicyIllegal.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cPolicyIllegal.Enabled = false;
-            this.cPolicyIllegal.FormattingEnabled = true;
-            this.cPolicyIllegal.Items.AddRange( new object[] {
-            "Disallow",
-            "Allow from console only",
-            "Allow"} );
-            this.cPolicyIllegal.Location = new System.Drawing.Point( 197, 87 );
-            this.cPolicyIllegal.Name = "cPolicyIllegal";
-            this.cPolicyIllegal.Size = new System.Drawing.Size( 160, 23 );
-            this.cPolicyIllegal.TabIndex = 1;
-            // 
             // xRedundantPacket
             // 
             this.xRedundantPacket.AutoSize = true;
             this.xRedundantPacket.Enabled = false;
-            this.xRedundantPacket.Location = new System.Drawing.Point( 11, 132 );
+            this.xRedundantPacket.Location = new System.Drawing.Point( 9, 65 );
             this.xRedundantPacket.Name = "xRedundantPacket";
             this.xRedundantPacket.Size = new System.Drawing.Size( 554, 19 );
             this.xRedundantPacket.TabIndex = 2;
@@ -2579,44 +2521,10 @@
                 "la behavior).";
             this.xRedundantPacket.UseVisualStyleBackColor = true;
             // 
-            // lPolicyColor
-            // 
-            this.lPolicyColor.AutoSize = true;
-            this.lPolicyColor.Enabled = false;
-            this.lPolicyColor.Location = new System.Drawing.Point( 30, 61 );
-            this.lPolicyColor.Name = "lPolicyColor";
-            this.lPolicyColor.Size = new System.Drawing.Size( 161, 15 );
-            this.lPolicyColor.TabIndex = 18;
-            this.lPolicyColor.Text = "Policy on color codes in chat";
-            // 
-            // lPolicyIllegal
-            // 
-            this.lPolicyIllegal.AutoSize = true;
-            this.lPolicyIllegal.Enabled = false;
-            this.lPolicyIllegal.Location = new System.Drawing.Point( 8, 90 );
-            this.lPolicyIllegal.Name = "lPolicyIllegal";
-            this.lPolicyIllegal.Size = new System.Drawing.Size( 183, 15 );
-            this.lPolicyIllegal.TabIndex = 20;
-            this.lPolicyIllegal.Text = "Policy on other illegal characters";
-            // 
-            // cPolicyColor
-            // 
-            this.cPolicyColor.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cPolicyColor.Enabled = false;
-            this.cPolicyColor.FormattingEnabled = true;
-            this.cPolicyColor.Items.AddRange( new object[] {
-            "Disallow",
-            "Allow from console only",
-            "Allow"} );
-            this.cPolicyColor.Location = new System.Drawing.Point( 197, 58 );
-            this.cPolicyColor.Name = "cPolicyColor";
-            this.cPolicyColor.Size = new System.Drawing.Size( 160, 23 );
-            this.cPolicyColor.TabIndex = 0;
-            // 
             // lTickIntervalUnits
             // 
             this.lTickIntervalUnits.AutoSize = true;
-            this.lTickIntervalUnits.Location = new System.Drawing.Point( 262, 338 );
+            this.lTickIntervalUnits.Location = new System.Drawing.Point( 283, 269 );
             this.lTickIntervalUnits.Name = "lTickIntervalUnits";
             this.lTickIntervalUnits.Size = new System.Drawing.Size( 24, 15 );
             this.lTickIntervalUnits.TabIndex = 17;
@@ -2629,7 +2537,7 @@
             0,
             0,
             0} );
-            this.nTickInterval.Location = new System.Drawing.Point( 197, 336 );
+            this.nTickInterval.Location = new System.Drawing.Point( 218, 267 );
             this.nTickInterval.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -2652,7 +2560,7 @@
             // lTickInterval
             // 
             this.lTickInterval.AutoSize = true;
-            this.lTickInterval.Location = new System.Drawing.Point( 120, 338 );
+            this.lTickInterval.Location = new System.Drawing.Point( 141, 269 );
             this.lTickInterval.Name = "lTickInterval";
             this.lTickInterval.Size = new System.Drawing.Size( 71, 15 );
             this.lTickInterval.TabIndex = 15;
@@ -2662,7 +2570,7 @@
             // 
             this.lAdvancedWarning.AutoSize = true;
             this.lAdvancedWarning.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.lAdvancedWarning.Location = new System.Drawing.Point( 8, 10 );
+            this.lAdvancedWarning.Location = new System.Drawing.Point( 6, 17 );
             this.lAdvancedWarning.Name = "lAdvancedWarning";
             this.lAdvancedWarning.Size = new System.Drawing.Size( 555, 30 );
             this.lAdvancedWarning.TabIndex = 0;
@@ -2733,6 +2641,63 @@
             this.bApply.TabIndex = 3;
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
+            // 
+            // xSubmitCrashReports
+            // 
+            this.xSubmitCrashReports.AutoSize = true;
+            this.xSubmitCrashReports.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.xSubmitCrashReports.Location = new System.Drawing.Point( 6, 20 );
+            this.xSubmitCrashReports.Name = "xSubmitCrashReports";
+            this.xSubmitCrashReports.Size = new System.Drawing.Size( 253, 19 );
+            this.xSubmitCrashReports.TabIndex = 40;
+            this.xSubmitCrashReports.Text = "Submit crash reports to fragmer.net";
+            this.xSubmitCrashReports.UseVisualStyleBackColor = true;
+            // 
+            // gCrashReport
+            // 
+            this.gCrashReport.Controls.Add( this.lCrashReportDisclaimer );
+            this.gCrashReport.Controls.Add( this.xSubmitCrashReports );
+            this.gCrashReport.Location = new System.Drawing.Point( 8, 13 );
+            this.gCrashReport.Name = "gCrashReport";
+            this.gCrashReport.Size = new System.Drawing.Size( 635, 99 );
+            this.gCrashReport.TabIndex = 41;
+            this.gCrashReport.TabStop = false;
+            this.gCrashReport.Text = "Crash Reporting";
+            // 
+            // lCrashReportDisclaimer
+            // 
+            this.lCrashReportDisclaimer.AutoSize = true;
+            this.lCrashReportDisclaimer.Location = new System.Drawing.Point( 27, 42 );
+            this.lCrashReportDisclaimer.Name = "lCrashReportDisclaimer";
+            this.lCrashReportDisclaimer.Size = new System.Drawing.Size( 550, 45 );
+            this.lCrashReportDisclaimer.TabIndex = 41;
+            this.lCrashReportDisclaimer.Text = resources.GetString( "lCrashReportDisclaimer.Text" );
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add( this.lAdvancedWarning );
+            this.groupBox1.Controls.Add( this.lTickInterval );
+            this.groupBox1.Controls.Add( this.xLowLatencyMode );
+            this.groupBox1.Controls.Add( this.nTickInterval );
+            this.groupBox1.Controls.Add( this.cUpdater );
+            this.groupBox1.Controls.Add( this.lTickIntervalUnits );
+            this.groupBox1.Controls.Add( this.bUpdater );
+            this.groupBox1.Controls.Add( this.xRedundantPacket );
+            this.groupBox1.Controls.Add( this.lThrottlingUnits );
+            this.groupBox1.Controls.Add( this.lProcessPriority );
+            this.groupBox1.Controls.Add( this.nThrottling );
+            this.groupBox1.Controls.Add( this.cProcessPriority );
+            this.groupBox1.Controls.Add( this.lThrottling );
+            this.groupBox1.Controls.Add( this.xPing );
+            this.groupBox1.Controls.Add( this.lPing );
+            this.groupBox1.Controls.Add( this.xAbsoluteUpdates );
+            this.groupBox1.Controls.Add( this.nPing );
+            this.groupBox1.Location = new System.Drawing.Point( 8, 118 );
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size( 635, 294 );
+            this.groupBox1.TabIndex = 42;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Miscallaneous";
             // 
             // ConfigUI
             // 
@@ -2810,10 +2775,13 @@
             this.gIRCNetwork.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nIRCBotPort)).EndInit();
             this.tabAdvanced.ResumeLayout( false );
-            this.tabAdvanced.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPing)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).EndInit();
+            this.gCrashReport.ResumeLayout( false );
+            this.gCrashReport.PerformLayout();
+            this.groupBox1.ResumeLayout( false );
+            this.groupBox1.PerformLayout();
             this.ResumeLayout( false );
 
         }
@@ -2894,11 +2862,7 @@
         private System.Windows.Forms.Label lBackupIntervalUnits;
         private System.Windows.Forms.CheckBox xBackupAtInterval;
         private System.Windows.Forms.CheckBox xBackupOnJoin;
-        private System.Windows.Forms.ComboBox cPolicyColor;
-        private System.Windows.Forms.Label lPolicyColor;
         private System.Windows.Forms.CheckBox xRedundantPacket;
-        private System.Windows.Forms.ComboBox cPolicyIllegal;
-        private System.Windows.Forms.Label lPolicyIllegal;
         private System.Windows.Forms.ComboBox cProcessPriority;
         private System.Windows.Forms.Label lProcessPriority;
         private System.Windows.Forms.Button bResetAll;
@@ -2916,8 +2880,6 @@
         private System.Windows.Forms.ColumnHeader columnHeader3;
         private System.Windows.Forms.CheckBox xLogLimit;
         private System.Windows.Forms.CheckBox xReserveSlot;
-        private System.Windows.Forms.ComboBox cStartup;
-        private System.Windows.Forms.Label lStartup;
         private System.Windows.Forms.NumericUpDown nDrawLimit;
         private System.Windows.Forms.Label lKickIdleUnits;
         private System.Windows.Forms.NumericUpDown nKickIdle;
@@ -3026,5 +2988,9 @@
         private System.Windows.Forms.Button bColorIRC;
         private System.Windows.Forms.Label lColorIRC;
         private System.Windows.Forms.CheckBox xIRCBotAnnounceIRCJoins;
+        private System.Windows.Forms.CheckBox xSubmitCrashReports;
+        private System.Windows.Forms.GroupBox gCrashReport;
+        private System.Windows.Forms.Label lCrashReportDisclaimer;
+        private System.Windows.Forms.GroupBox groupBox1;
     }
 }
