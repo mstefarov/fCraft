@@ -25,6 +25,23 @@ namespace fCraft {
         ServerShutdown = 15
     }
 
+    enum ReservedPlayerID {
+        Console = 0
+    }
+
+    enum BanMethod {
+        Ban = 0,
+        IPBan = 1,
+        BanAll = 2,
+        Import = 3
+    }
+
+    enum UnbanMethod {
+        Unban = 0,
+        UnbanIP = 1,
+        UnbanAll = 2
+    }
+
     class PlayerInfo2 {
 
         public Player PlayerObject { get; private set; }
@@ -107,6 +124,11 @@ namespace fCraft {
             set { DB.QueuePlayerInfoUpdate( this, "BanReason", _banReason = value ); }
         }
 
+        BanMethod _banMethod;
+        public BanMethod BanMethod {
+            get { return _banMethod; }
+            set { DB.QueuePlayerInfoUpdate( this, "BanMethod", _banMethod = value ); }
+        }
 
 
         DateTime _unbanDate;
@@ -125,6 +147,12 @@ namespace fCraft {
         public string UnbanReason {
             get { return _unbanReason; }
             set { DB.QueuePlayerInfoUpdate( this, "UnbanReason", _unbanReason = value ); }
+        }
+
+        UnbanMethod _unbanMethod;
+        public UnbanMethod UnbanMethod {
+            get { return _unbanMethod; }
+            set { DB.QueuePlayerInfoUpdate( this, "UnbanMethod", _unbanMethod = value ); }
         }
 
         #endregion
@@ -152,7 +180,7 @@ namespace fCraft {
 
         TimeSpan _previousTimeOnServer;
         public TimeSpan TotalTimeOnServer {
-            get{
+            get {
                 if( Online ) {
                     return _previousTimeOnServer + DateTime.Now.Subtract( LastLoginDate );
                 } else {
@@ -232,7 +260,7 @@ namespace fCraft {
 
 
         bool _needsFlushing;
-        public bool NeedsFlushing{
+        public bool NeedsFlushing {
             get { return _needsFlushing; }
         }
 
@@ -251,25 +279,64 @@ namespace fCraft {
             _needsFlushing = true;
         }
 
+
         #region Processors
 
-        public void ProcessLogin( Player player ) {
-            PlayerObject = player;
-            Name = player.name;
-            _lastIP = player.session.GetIP();
-            _lastLoginDate = DateTime.Now;
-            _lastSeen = DateTime.Now;
-            _timesVisited++;
-            DB.ProcessLogin( this );
+        object modificationLog = new object();
+
+        internal void ProcessLogin( Player player ) {
+            lock( modificationLog ) {
+                PlayerObject = player;
+                Name = player.name;
+                _lastIP = player.session.GetIP();
+                _lastLoginDate = DateTime.Now;
+                _lastSeen = DateTime.Now;
+                _timesVisited++;
+                DB.ProcessLogin( this );
+            }
         }
 
-        public void ProcessLogout( LeaveReason leaveReason ) {
-            LastLeaveReason = leaveReason;
-            LastSessionDuration = DateTime.Now.Subtract( _lastLoginDate );
-            PlayerObject = null;
-            _previousTimeOnServer += LastSessionDuration;
-            _lastSeen = DateTime.Now;
-            DB.ProcessLogout( this );
+        internal void ProcessLogout( LeaveReason leaveReason ) {
+            lock( modificationLog ) {
+                LastLeaveReason = leaveReason;
+                LastSessionDuration = DateTime.Now.Subtract( _lastLoginDate );
+                PlayerObject = null;
+                _previousTimeOnServer += LastSessionDuration;
+                _lastSeen = DateTime.Now;
+                DB.ProcessLogout( this );
+            }
+        }
+
+        internal bool ProcessBan( Player banner, string reason, BanMethod method ) {
+            lock( modificationLog ) {
+                if( !Banned ) {
+                    _banned = true;
+                    _bannedBy = banner.name;
+                    _banDate = DateTime.Now;
+                    _banReason = reason;
+                    _banMethod = method;
+                    DB.ProcessBan( this );
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        internal bool ProcessUnban( Player unbanner, string reason, UnbanMethod method ) {
+            lock( modificationLog ) {
+                if( Banned ) {
+                    _banned = false;
+                    _unbannedBy = unbanner.name;
+                    _unbanDate = DateTime.Now;
+                    _unbanReason = reason;
+                    _unbanMethod = method;
+                    DB.ProcessUnban( this );
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         }
 
         #endregion
