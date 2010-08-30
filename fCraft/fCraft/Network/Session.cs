@@ -462,7 +462,7 @@ namespace fCraft {
             }
 
             if( !newWorld.FirePlayerTriedToJoinEvent( player ) ) {
-                Logger.Log( "Session.JoinWorld: FirePlayerTriedToJoinEvent prevented {0} from joining {1}", LogType.Warning,
+                Logger.LogWarning( "Session.JoinWorld: FirePlayerTriedToJoinEvent prevented {0} from joining {1}", WarningLogSubtype.EventWarning,
                             player.name, newWorld.name );
                 return false;
             }

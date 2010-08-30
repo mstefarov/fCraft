@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 namespace fCraft {
 
+
+
     delegate void SelectionCallback( Player player, Position[] marks, object tag );
 
     public sealed class Player {

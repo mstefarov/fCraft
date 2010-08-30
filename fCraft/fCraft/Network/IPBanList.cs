@@ -33,7 +33,7 @@ namespace fCraft {
                 }
                 Logger.Log( "IPBanList.Load: Done loading IP ban list ({0} records).", LogType.Debug, bans.Count );
             } else {
-                Logger.Log( "IPBanList.Load: No IP ban file found.", LogType.Warning );
+                Logger.LogWarning( "IPBanList.Load: No IP ban file found.", WarningLogSubtype.IPBanListWarning );
             }
         }
 

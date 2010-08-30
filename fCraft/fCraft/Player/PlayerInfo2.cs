@@ -6,43 +6,16 @@ using System.Threading;
 
 namespace fCraft {
 
-    enum LeaveReason {
-        Normal = 0,
-        Error = 1,
-        Kick = 2,
-        AFKKick = 3,
-        AntiGriefKick = 4,
-        InvalidMessageKick = 5,
-        InvalidSetTileKick = 6,
-        InvalidOpcodeKick = 7,
-        AntiBlockSpamKick = 8,
-        AntiMessageSpamKick = 9,
-        AntiMovementSpamKick = 10,
-        LeavingMapKick = 11,
-        Ban = 12,
-        BanIP = 13,
-        BanAll = 14,
-        ServerShutdown = 15
-    }
-
-    enum ReservedPlayerID {
-        Console = 0
-    }
-
-    enum BanMethod {
-        Ban = 0,
-        IPBan = 1,
-        BanAll = 2,
-        Import = 3
-    }
-
-    enum UnbanMethod {
-        Unban = 0,
-        UnbanIP = 1,
-        UnbanAll = 2
-    }
-
     class PlayerInfo2 {
+
+        public PlayerInfo2() { }
+        public PlayerInfo2( string _Name, int _ID, PlayerClass _PlayerClass ) {
+            Name = _Name;
+            ID = _ID;
+            _playerClass = _PlayerClass;
+        }
+
+
 
         public Player PlayerObject { get; private set; }
 

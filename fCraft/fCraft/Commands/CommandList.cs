@@ -53,7 +53,7 @@ namespace fCraft {
             }
 
             if( aliases.ContainsKey( command.name ) ) {
-                Logger.Log( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden.", LogType.Warning,
+                Logger.LogWarning( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden.", WarningLogSubtype.CommandWarning,
                             command.name, aliases[command.name] );
                 aliases.Remove( command.name );
             }
@@ -63,7 +63,7 @@ namespace fCraft {
             if( command.aliases != null ) {
                 foreach( string alias in command.aliases ) {
                     if( commands.ContainsKey( alias ) ) {
-                        Logger.Log( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden.", LogType.Warning,
+                        Logger.LogWarning( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden.", WarningLogSubtype.CommandWarning,
                                     alias, command.name );
                     } else {
                         aliases.Add( alias, command.name );
