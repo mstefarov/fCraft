@@ -251,7 +251,9 @@ namespace fCraft {
                 return false;
             } else {
                 if( mainWorld.classAccess != ClassList.lowestClass ) {
-                    Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. Access permission for \"" + mainWorld.name + "\" has been reset.", LogType.Warning );
+                    Logger.LogWarning( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
+                                       "Access permission for \"{0}\" has been reset.", WarningLogSubtype.WorldListWarning,
+                                       mainWorld.name );
                     mainWorld.classAccess = ClassList.lowestClass;
                 }
                 if( !mainWorld.neverUnload ) {
@@ -289,8 +291,9 @@ namespace fCraft {
                 } else {
                     if( (temp = el.Attribute( "hidden" )) != null ) {
                         if( !Boolean.TryParse( temp.Value, out world.isHidden ) ) {
-                            Logger.Log( "Server.ParseWorldListXML: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.", LogType.Warning,
-                                        worldName );
+                            Logger.LogWarning( "Server.ParseWorldListXML: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
+                                               WarningLogSubtype.WorldListWarning,
+                                               worldName );
                             world.isHidden = false;
                         }
                     }
@@ -306,8 +309,9 @@ namespace fCraft {
                 mainWorld = FindWorld( temp.Value );
                 // if specified main world does not exist, use first-defined world
                 if( mainWorld == null && firstWorld != null ) {
-                    Logger.Log( "The specified main world \"{0}\" does not exist. \"{1}\" was designated main instead. You can use /wmain to change it.", LogType.Warning,
-                                temp.Value, firstWorld.name );
+                    Logger.LogWarning( "The specified main world \"{0}\" does not exist. \"{1}\" was designated main instead. You can use /wmain to change it.",
+                                       WarningLogSubtype.WorldListWarning,
+                                       temp.Value, firstWorld.name );
                     mainWorld = firstWorld;
                 }
                 // if firstWorld was also null, LoadWorldList() should try creating a new mainWorld
@@ -918,7 +922,8 @@ namespace fCraft {
                     PlayerDB.ProcessLogout( player );
                     PlayerDB.Save();
                 } else {
-                    Logger.Log( "World.UnregisterPlayer: Trying to unregister a non-existent (unknown id) player.", LogType.Warning );
+                    Logger.LogWarning( "World.UnregisterPlayer: Trying to unregister a non-existent (unknown id) player.",
+                                       WarningLogSubtype.OtherWarning );
                 }
             }
         }

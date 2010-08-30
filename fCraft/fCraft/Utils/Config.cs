@@ -50,7 +50,11 @@ namespace fCraft {
 
         static void Log( string message, LogType type ) {
             if( !logToString ) {
-                Logger.Log( message, type );
+                if( type == LogType.Warning ) {
+                    Logger.LogWarning( message, WarningLogSubtype.ConfigWarning );
+                } else {
+                    Logger.Log( message, type );
+                }
             } else if( type != LogType.Debug ) {
                 errors += message + Environment.NewLine;
             }

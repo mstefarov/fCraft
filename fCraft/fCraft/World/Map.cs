@@ -212,7 +212,8 @@ namespace fCraft {
             }
 
             if( spawn.x > widthX * 32 || spawn.y > widthY * 32 || spawn.h > height * 32 || spawn.x < 0 || spawn.y < 0 || spawn.h < 0 ) {
-                Logger.Log( "Map.ReadHeader: Spawn coordinates are outside the valid range! Using center of the map instead.", LogType.Warning );
+                Logger.LogWarning( "Map.ReadHeader: Spawn coordinates are outside the valid range! Using center of the map instead.",
+                                   WarningLogSubtype.MapLoadWarning );
                 ResetSpawn();
             }
 

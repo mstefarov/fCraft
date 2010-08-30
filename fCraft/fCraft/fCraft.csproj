@@ -101,6 +101,7 @@
     <Compile Include="Network\IRCCommands.cs" />
     <Compile Include="Network\IRCMessage.cs" />
     <Compile Include="Player\DB.cs" />
+    <Compile Include="Player\PlayerConstants.cs" />
     <Compile Include="Player\PlayerInfo2.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

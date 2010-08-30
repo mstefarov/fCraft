@@ -33,12 +33,16 @@ namespace fCraft {
 
     public enum WarningLogSubtype {
         CommandWarning,
+        HeartbeatWarning,
         MissingFileWarning,
+        IPBanListWarning,
         PlayerDBWarning,
-        WorldListError,
+        WorldListWarning,
         ConfigWarning,
         ClassListWarning,
-        MapLoadWarning
+        MapLoadWarning,
+        EventWarning,
+        OtherWarning
     }
 
     public enum ErrorLogSubtype {
@@ -146,6 +150,9 @@ namespace fCraft {
             Log( String.Format( message, values ), type );
         }
 
+        public static void LogWarning( string message, WarningLogSubtype subtype, params object[] values ) {
+            Log( String.Format( message, values ), LogType.Warning );
+        }
 
         public static void LogConsole( string message ) {
             // TODO: move to log
