@@ -14,7 +14,9 @@ namespace fCraft {
         const string DatabaseFile = "fCraft.db";
         const int SchemaVersion = 1;
         static SQLiteCommand cmd_PlayerInfo_ProcessLogin,
-                             cmd_PlayerInfo_ProcessLogout;
+                             cmd_PlayerInfo_ProcessLogout,
+                             cmd_PlayerInfo_ProcessBan,
+                             cmd_PlayerInfo_ProcessUnban;
 
         internal static bool Init() {
 
@@ -58,39 +60,7 @@ namespace fCraft {
             }
 
             try {
-                cmd_PlayerInfo_ProcessLogin = db.CreateCommand();
-                cmd_PlayerInfo_ProcessLogin.CommandText = @"
-UPDATE [Players]
-SET [LastIP] = @LastIP,
-    [LastLoginDate] = @LastLoginDate,
-    [LastSeen] = @LastSeen,
-    [TimesVisited] = [TimesVisited]+1
-WHERE [ID] = @ID;
-";
-                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@LastIP", DbType.Int32 ) );
-                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@LastLoginDate", DbType.Int32 ) );
-                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@LastSeen", DbType.Int32 ) );
-                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@ID", DbType.Int32 ) );
-                cmd_PlayerInfo_ProcessLogin.Prepare();
-
-                cmd_PlayerInfo_ProcessLogout = db.CreateCommand();
-                cmd_PlayerInfo_ProcessLogout.CommandText = @"
-BEGIN;
-UPDATE [Players] SET [LastSeen]=@LastSeen, [TotalTimeOnServer]=[TotalTimeOnServer]+@SessionDuration WHERE ID=@ID;
-INSERT INTO [Sessions] VALUES( @ID, @Login, @LastSeen, @IP, @BlocksPlaced, @BlocksDeleted, @BlocksDrawn, @MessagesWritten, @LeaveReason, @GeoIP );
-";
-                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@LastSeen", DbType.Int32 ) );
-                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@SessionDuration", DbType.Int32 ) );
-                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@ID", DbType.Int32 ) );
-                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@IP", DbType.Int32 ) );
-                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@BlocksPlaced", DbType.Int32 ) );
-                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@BlocksDeleted", DbType.Int32 ) );
-                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@BlocksDrawn", DbType.Int32 ) );
-                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@MessagesWritten", DbType.Int32 ) );
-                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@LeaveReason", DbType.Int32 ) );
-                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@GeoIP", DbType.String ) );
-                cmd_PlayerInfo_ProcessLogout.Prepare();
-
+                PrepareQueries();
                 return true;
 
             } catch( SQLiteException ex ) {
@@ -111,6 +81,73 @@ INSERT INTO [Sessions] VALUES( @ID, @Login, @LastSeen, @IP, @BlocksPlaced, @Bloc
             }
         }
 
+        static void PrepareQueries() {
+            cmd_PlayerInfo_ProcessLogin = db.CreateCommand();
+            cmd_PlayerInfo_ProcessLogin.CommandText = @"
+UPDATE [Players]
+SET [LastIP] = @LastIP,
+    [LastLoginDate] = @LastLoginDate,
+    [LastSeen] = @LastSeen,
+    [TimesVisited] = [TimesVisited]+1
+WHERE [ID] = @ID;
+";
+            cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@LastIP", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@LastLoginDate", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@LastSeen", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@ID", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessLogin.Prepare();
+
+
+            cmd_PlayerInfo_ProcessLogout = db.CreateCommand();
+            cmd_PlayerInfo_ProcessLogout.CommandText = @"
+BEGIN;
+UPDATE [Players] SET [LastSeen]=@LastSeen, [TotalTimeOnServer]=[TotalTimeOnServer]+@SessionDuration WHERE ID=@ID;
+INSERT INTO [Sessions] VALUES( @ID, @Login, @LastSeen, @IP, @BlocksPlaced, @BlocksDeleted, @BlocksDrawn, @MessagesWritten, @LeaveReason, @GeoIP );
+END;
+";
+            cmd_PlayerInfo_ProcessLogout.Parameters.Add( new SQLiteParameter( "@LastSeen", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessLogout.Parameters.Add( new SQLiteParameter( "@SessionDuration", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessLogout.Parameters.Add( new SQLiteParameter( "@ID", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessLogout.Parameters.Add( new SQLiteParameter( "@IP", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessLogout.Parameters.Add( new SQLiteParameter( "@BlocksPlaced", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessLogout.Parameters.Add( new SQLiteParameter( "@BlocksDeleted", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessLogout.Parameters.Add( new SQLiteParameter( "@BlocksDrawn", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessLogout.Parameters.Add( new SQLiteParameter( "@MessagesWritten", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessLogout.Parameters.Add( new SQLiteParameter( "@LeaveReason", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessLogout.Parameters.Add( new SQLiteParameter( "@GeoIP", DbType.String ) );
+            cmd_PlayerInfo_ProcessLogout.Prepare();
+
+
+            cmd_PlayerInfo_ProcessBan = db.CreateCommand();
+            cmd_PlayerInfo_ProcessBan.CommandText = @"
+INSERT INTO [Bans]
+VALUES( TRUE, @Target, @BanPlayer, @BanDate, @BanReason, @BanMethod, 0, 0, '', 0 );
+";
+            cmd_PlayerInfo_ProcessBan.Parameters.Add( new SQLiteParameter( "@Target", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessBan.Parameters.Add( new SQLiteParameter( "@BanPlayer", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessBan.Parameters.Add( new SQLiteParameter( "@BanDate", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessBan.Parameters.Add( new SQLiteParameter( "@BanReason", DbType.String ) );
+            cmd_PlayerInfo_ProcessBan.Parameters.Add( new SQLiteParameter( "@BanMethod", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessBan.Prepare();
+
+
+            cmd_PlayerInfo_ProcessUnban = db.CreateCommand();
+            cmd_PlayerInfo_ProcessUnban.CommandText = @"
+UPDATE [Bans] SET [Active]=FALSE,
+                  [UnbanPlayer]=@UnbanPlayer,
+                  [UnbanDate]=@UnbanDate,
+                  [UnbanReason]=@UnbanReason,
+                  [UnbanMethod]=@UnbanMethod
+WHERE [Player]=@ID AND [Active]=TRUE
+";
+            cmd_PlayerInfo_ProcessUnban.Parameters.Add( new SQLiteParameter( "@UnbanPlayer", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessUnban.Parameters.Add( new SQLiteParameter( "@UnbanDate", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessUnban.Parameters.Add( new SQLiteParameter( "@UnbanReason", DbType.String ) );
+            cmd_PlayerInfo_ProcessUnban.Parameters.Add( new SQLiteParameter( "@UnbanMethod", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessUnban.Parameters.Add( new SQLiteParameter( "@ID", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessUnban.Prepare();
+        }
+
         static void DefineSchema() {
             using( SQLiteCommand cmd = db.CreateCommand() ) {
                 cmd.CommandText = @"
@@ -120,11 +157,11 @@ CREATE TABLE [Bans] (
 [Active] BOOLEAN  NULL,
 [Target] INTEGER  NULL,
 [BanPlayer] INTEGER  NULL,
-[BanTimestamp] TIMESTAMP  NULL,
+[BanTimestamp] INTEGER  NULL,
 [BanReason] VARCHAR(64)  NULL,
 [BanMethod] INTEGER  NULL,
 [UnbanPlayer] INTEGER  NULL,
-[UnbanTimestamp] TIMESTAMP  NULL,
+[UnbanDate] INTEGER  NULL,
 [UnbanReason] VARCHAR(64)  NULL,
 [UnbanMethod] INTEGER  NULL
 );
@@ -134,11 +171,11 @@ CREATE TABLE [IPBans] (
 [RangeStart] INTEGER  NULL,
 [RangeEnd] INTEGER  NULL,
 [BanPlayer] INTEGER  NULL,
-[BanTimestamp] TIMESTAMP  NULL,
+[BanDate] INTEGER  NULL,
 [BanReason] VARCHAR(64)  NULL,
 [BanMethod] INTEGER  NULL,
 [UnbanPlayer] INTEGER  NULL,
-[UnbanTimestamp] TIMESTAMP  NULL,
+[UnbanDate] INTEGER  NULL,
 [UnbanComment] VARCHAR(64)  NULL,
 [UnbanMethod] INTEGER  NULL
 );
@@ -146,7 +183,7 @@ CREATE TABLE [IPBans] (
 CREATE TABLE [Kicks] (
 [Player] INTEGER  NULL,
 [Target] INTEGER  NULL,
-[Timestamp] TIMESTAMP  NULL,
+[Timestamp] INTEGER  NULL,
 [Reason] VARCHAR(64)  NULL
 );
 
@@ -155,7 +192,7 @@ CREATE TABLE [Log] (
 [Type] INTEGER  NULL,
 [Subtype] INTEGER  NULL,
 [Source] INTEGER  NULL,
-[Timestamp] TIMESTAMP  NULL,
+[Timestamp] INTEGER  NULL,
 [Message] TEXT  NULL
 );
 
@@ -174,9 +211,9 @@ CREATE TABLE [Players] (
 [BlocksPlaced] INTEGER  NULL,
 [BlocksDeleted] INTEGER  NULL,
 [BlocksDrawn] INTEGER  NULL,
-[FirstLogin] TIMESTAMP  NULL,
-[LastLogin] TIMESTAMP  NULL,
-[LastSeen] TIMESTAMP  NULL,
+[FirstLogin] INTEGER  NULL,
+[LastLogin] INTEGER  NULL,
+[LastSeen] INTEGER  NULL,
 [TimeTotal] INTEGER  NULL,
 [MessagesWritten] INTEGER  NULL
 );
@@ -187,7 +224,7 @@ CREATE TABLE [RankChanges] (
 [OldRank] INTEGER  NULL,
 [NewRank] INTEGER  NULL,
 [Type] INTEGER  NULL,
-[Timestamp] TIMESTAMP  NULL,
+[Date] INTEGER  NULL,
 [Comment] VARCHAR(64)  NULL
 );
 
@@ -199,8 +236,8 @@ CREATE TABLE [ServerData] (
 
 CREATE TABLE [Sessions] (
 [Player] INTEGER  NULL,
-[Start] TIMESTAMP  NULL,
-[End] TIMESTAMP  NULL,
+[Start] INTEGER  NULL,
+[End] INTEGER  NULL,
 [IP] INTEGER  NULL,
 [BlocksPlaced] INTEGER  NULL,
 [BlocksDeleted] INTEGER  NULL,
@@ -292,17 +329,39 @@ COMMIT;
 
         public static void ProcessLogout( PlayerInfo2 info ) {
             lock( cmd_PlayerInfo_ProcessLogout ) {
-                cmd_PlayerInfo_ProcessLogin.Parameters["@LastSeen"].Value = DB.DateTimeToTimestamp( info.LastSeen );
-                cmd_PlayerInfo_ProcessLogin.Parameters["@SessionDuration"].Value = (int)info.LastSessionDuration.TotalSeconds;
-                cmd_PlayerInfo_ProcessLogin.Parameters["@ID"].Value = info.ID;
-                cmd_PlayerInfo_ProcessLogin.Parameters["@IP"].Value = DB.IPAddressToInt32( info.LastIP );
-                cmd_PlayerInfo_ProcessLogin.Parameters["@BlocksPlaced"].Value = info.BlocksPlacedLastSession;
-                cmd_PlayerInfo_ProcessLogin.Parameters["@BlocksDeleted"].Value = info.BlocksDeletedLastSession;
-                cmd_PlayerInfo_ProcessLogin.Parameters["@BlocksDrawn"].Value = info.BlocksDrawnLastSession;
-                cmd_PlayerInfo_ProcessLogin.Parameters["@MessagesWritten"].Value = info.MessagesWrittenLastSession;
-                cmd_PlayerInfo_ProcessLogin.Parameters["@LeaveReason"].Value = info.LastLeaveReason.ToString();
-                cmd_PlayerInfo_ProcessLogin.Parameters["@GeoIP"].Value = ""; // todo: geoip
-                cmd_PlayerInfo_ProcessLogin.ExecuteNonQuery();
+                cmd_PlayerInfo_ProcessLogout.Parameters["@LastSeen"].Value = DB.DateTimeToTimestamp( info.LastSeen );
+                cmd_PlayerInfo_ProcessLogout.Parameters["@SessionDuration"].Value = (int)info.LastSessionDuration.TotalSeconds;
+                cmd_PlayerInfo_ProcessLogout.Parameters["@ID"].Value = info.ID;
+                cmd_PlayerInfo_ProcessLogout.Parameters["@IP"].Value = DB.IPAddressToInt32( info.LastIP );
+                cmd_PlayerInfo_ProcessLogout.Parameters["@BlocksPlaced"].Value = info.BlocksPlacedLastSession;
+                cmd_PlayerInfo_ProcessLogout.Parameters["@BlocksDeleted"].Value = info.BlocksDeletedLastSession;
+                cmd_PlayerInfo_ProcessLogout.Parameters["@BlocksDrawn"].Value = info.BlocksDrawnLastSession;
+                cmd_PlayerInfo_ProcessLogout.Parameters["@MessagesWritten"].Value = info.MessagesWrittenLastSession;
+                cmd_PlayerInfo_ProcessLogout.Parameters["@LeaveReason"].Value = info.LastLeaveReason.ToString();
+                cmd_PlayerInfo_ProcessLogout.Parameters["@GeoIP"].Value = ""; // todo: geoip
+                cmd_PlayerInfo_ProcessLogout.ExecuteNonQuery();
+            }
+        }
+
+        public static void ProcessBan( PlayerInfo2 info ) {
+            lock( cmd_PlayerInfo_ProcessBan ) {
+                cmd_PlayerInfo_ProcessBan.Parameters["@Target"].Value = info.ID;
+                cmd_PlayerInfo_ProcessBan.Parameters["@BanPlayer"].Value = info.BannedBy;
+                cmd_PlayerInfo_ProcessBan.Parameters["@BanDate"].Value = info.BanDate;
+                cmd_PlayerInfo_ProcessBan.Parameters["@BanReason"].Value = info.BanReason;
+                cmd_PlayerInfo_ProcessBan.Parameters["@BanMethod"].Value = info.BanMethod;
+                cmd_PlayerInfo_ProcessBan.ExecuteNonQuery();
+            }
+        }
+
+        public static void ProcessUnban( PlayerInfo2 info ) {
+            lock( cmd_PlayerInfo_ProcessUnban ) {
+                cmd_PlayerInfo_ProcessUnban.Parameters["@UnbanPlayer"].Value = info.BannedBy;
+                cmd_PlayerInfo_ProcessUnban.Parameters["@UnbanDate"].Value = info.BanDate;
+                cmd_PlayerInfo_ProcessUnban.Parameters["@UnbanReason"].Value = info.BanReason;
+                cmd_PlayerInfo_ProcessUnban.Parameters["@UnbanMethod"].Value = info.BanMethod;
+                cmd_PlayerInfo_ProcessUnban.Parameters["@ID"].Value = info.ID;
+                cmd_PlayerInfo_ProcessUnban.ExecuteNonQuery();
             }
         }
 
