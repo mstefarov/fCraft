@@ -13,6 +13,8 @@ namespace fCraft {
         static SQLiteConnection db;
         const string DatabaseFile = "fCraft.db";
         const int SchemaVersion = 1;
+        static SQLiteCommand cmd_PlayerInfo_ProcessLogin,
+                             cmd_PlayerInfo_ProcessLogout;
 
         internal static bool Init() {
 
@@ -24,7 +26,7 @@ namespace fCraft {
             if( File.Exists( DatabaseFile ) ) {
                 db.Open();
                 using( SQLiteCommand cmd = db.CreateCommand() ) {
-                    cmd.CommandText = "SELECT value FROM serverdata WHERE keygroup='PlayerDB' AND key='SchemaVersion'";
+                    cmd.CommandText = "SELECT [Value] FROM [ServerData] WHERE [KeyGroup]='PlayerDB' AND [Key]='SchemaVersion'";
                     try {
                         using( SQLiteDataReader reader = cmd.ExecuteReader() ) {
                             if( reader.Read() ) {
@@ -54,12 +56,52 @@ namespace fCraft {
                 DefineSchema();
                 // TODO: import old data
             }
-            return true;
+
+            try {
+                cmd_PlayerInfo_ProcessLogin = db.CreateCommand();
+                cmd_PlayerInfo_ProcessLogin.CommandText = @"
+UPDATE [Players]
+SET [LastIP] = @LastIP,
+    [LastLoginDate] = @LastLoginDate,
+    [LastSeen] = @LastSeen,
+    [TimesVisited] = [TimesVisited]+1
+WHERE [ID] = @ID;
+";
+                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@LastIP", DbType.Int32 ) );
+                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@LastLoginDate", DbType.Int32 ) );
+                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@LastSeen", DbType.Int32 ) );
+                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@ID", DbType.Int32 ) );
+                cmd_PlayerInfo_ProcessLogin.Prepare();
+
+                cmd_PlayerInfo_ProcessLogout = db.CreateCommand();
+                cmd_PlayerInfo_ProcessLogout.CommandText = @"
+BEGIN;
+UPDATE [Players] SET [LastSeen]=@LastSeen, [TotalTimeOnServer]=[TotalTimeOnServer]+@SessionDuration WHERE ID=@ID;
+INSERT INTO [Sessions] VALUES( @ID, @Login, @LastSeen, @IP, @BlocksPlaced, @BlocksDeleted, @BlocksDrawn, @MessagesWritten, @LeaveReason, @GeoIP );
+";
+                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@LastSeen", DbType.Int32 ) );
+                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@SessionDuration", DbType.Int32 ) );
+                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@ID", DbType.Int32 ) );
+                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@IP", DbType.Int32 ) );
+                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@BlocksPlaced", DbType.Int32 ) );
+                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@BlocksDeleted", DbType.Int32 ) );
+                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@BlocksDrawn", DbType.Int32 ) );
+                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@MessagesWritten", DbType.Int32 ) );
+                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@LeaveReason", DbType.Int32 ) );
+                cmd_PlayerInfo_ProcessLogin.Parameters.Add( new SQLiteParameter( "@GeoIP", DbType.String ) );
+                cmd_PlayerInfo_ProcessLogout.Prepare();
+
+                return true;
+
+            } catch( SQLiteException ex ) {
+                Logger.Log( "DB: Could not prepare database queries: " + ex, LogType.FatalError );
+                return false;
+            }
         }
 
-
+        // TODO: clean up, this is unsafe
         public static void QueuePlayerInfoUpdate( PlayerInfo2 info, string field, object value ) {
-            ExecuteNonQuery( "UPDATE players SET " + field + "=\"" + value.ToString() + "\" WHERE id=" + info.ID );
+            ExecuteNonQuery( "UPDATE [Players] SET [" + field + "]=\"" + value.ToString() + "\" WHERE [ID]=" + info.ID );
         }
 
         internal static void ExecuteNonQuery( string command ) {
@@ -71,156 +113,156 @@ namespace fCraft {
 
         static void DefineSchema() {
             using( SQLiteCommand cmd = db.CreateCommand() ) {
-                using( SQLiteTransaction transaction = db.BeginTransaction() ) {
-                    cmd.Transaction = transaction;
-                    cmd.CommandText =
-@"CREATE TABLE [bans] (
-[active] BOOLEAN  NULL,
-[target] INTEGER  NULL,
-[banPlayer] INTEGER  NULL,
-[banTimestamp] TIMESTAMP  NULL,
-[banComment] VARCHAR(64)  NULL,
-[banMethod] INTEGER  NULL,
-[unbanPlayer] INTEGER  NULL,
-[unbanTimestamp] TIMESTAMP  NULL,
-[unbanComment] VARCHAR(64)  NULL,
-[unbanMethod] INTEGER  NULL
+                cmd.CommandText = @"
+BEGIN;
+
+CREATE TABLE [Bans] (
+[Active] BOOLEAN  NULL,
+[Target] INTEGER  NULL,
+[BanPlayer] INTEGER  NULL,
+[BanTimestamp] TIMESTAMP  NULL,
+[BanReason] VARCHAR(64)  NULL,
+[BanMethod] INTEGER  NULL,
+[UnbanPlayer] INTEGER  NULL,
+[UnbanTimestamp] TIMESTAMP  NULL,
+[UnbanReason] VARCHAR(64)  NULL,
+[UnbanMethod] INTEGER  NULL
 );
 
-CREATE TABLE [ipbans] (
-[active] BOOLEAN  NULL,
-[rangeStart] INTEGER  NULL,
-[rangeEnd] INTEGER  NULL,
-[banPlayer] INTEGER  NULL,
-[banTimestamp] TIMESTAMP  NULL,
-[banComment] VARCHAR(64)  NULL,
-[banMethod] INTEGER  NULL,
-[unbanPlayer] INTEGER  NULL,
-[unbanTimestamp] TIMESTAMP  NULL,
-[unbanComment] VARCHAR(64)  NULL,
-[unbanMethod] INTEGER  NULL
+CREATE TABLE [IPBans] (
+[Active] BOOLEAN  NULL,
+[RangeStart] INTEGER  NULL,
+[RangeEnd] INTEGER  NULL,
+[BanPlayer] INTEGER  NULL,
+[BanTimestamp] TIMESTAMP  NULL,
+[BanReason] VARCHAR(64)  NULL,
+[BanMethod] INTEGER  NULL,
+[UnbanPlayer] INTEGER  NULL,
+[UnbanTimestamp] TIMESTAMP  NULL,
+[UnbanComment] VARCHAR(64)  NULL,
+[UnbanMethod] INTEGER  NULL
 );
 
-CREATE TABLE [kicks] (
-[player] INTEGER  NULL,
-[target] INTEGER  NULL,
-[timestamp] TIMESTAMP  NULL,
-[comment] VARCHAR(64)  NULL
+CREATE TABLE [Kicks] (
+[Player] INTEGER  NULL,
+[Target] INTEGER  NULL,
+[Timestamp] TIMESTAMP  NULL,
+[Reason] VARCHAR(64)  NULL
 );
 
-CREATE TABLE [log] (
-[id] INTEGER  NOT NULL PRIMARY KEY AUTOINCREMENT,
-[type] INTEGER  NULL,
-[subtype] INTEGER  NULL,
-[source] INTEGER  NULL,
-[timestamp] TIMESTAMP  NULL,
-[message] TEXT  NULL
+CREATE TABLE [Log] (
+[ID] INTEGER  NOT NULL PRIMARY KEY AUTOINCREMENT,
+[Type] INTEGER  NULL,
+[Subtype] INTEGER  NULL,
+[Source] INTEGER  NULL,
+[Timestamp] TIMESTAMP  NULL,
+[Message] TEXT  NULL
 );
 
-CREATE TABLE [playerdata] (
-[player] INTEGER  NULL,
-[keygroup] VARCHAR(32)  NULL,
-[key] VARCHAR(32)  NULL,
-[value] TEXT  NULL
+CREATE TABLE [PlayerData] (
+[Player] INTEGER  NULL,
+[KeyGroup] VARCHAR(32)  NULL,
+[Key] VARCHAR(32)  NULL,
+[Value] TEXT  NULL
 );
 
-CREATE TABLE [players] (
-[id] INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL,
-[name] VARCHAR(16)  UNIQUE NULL,
-[state] INTEGER  NULL,
-[rank] INTEGER  NULL,
-[blocksPlaced] INTEGER  NULL,
-[blocksDeleted] INTEGER  NULL,
-[blocksDrawn] INTEGER  NULL,
-[firstLogin] TIMESTAMP  NULL,
-[lastLogin] TIMESTAMP  NULL,
-[lastLogoff] TIMESTAMP  NULL,
-[timeTotal] INTEGER  NULL,
-[messagesWritten] INTEGER  NULL
+CREATE TABLE [Players] (
+[ID] INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL,
+[Name] VARCHAR(16)  UNIQUE NULL,
+[State] INTEGER  NULL,
+[Rank] INTEGER  NULL,
+[BlocksPlaced] INTEGER  NULL,
+[BlocksDeleted] INTEGER  NULL,
+[BlocksDrawn] INTEGER  NULL,
+[FirstLogin] TIMESTAMP  NULL,
+[LastLogin] TIMESTAMP  NULL,
+[LastSeen] TIMESTAMP  NULL,
+[TimeTotal] INTEGER  NULL,
+[MessagesWritten] INTEGER  NULL
 );
 
-CREATE TABLE [rankchanges] (
-[target] INTEGER  NULL,
-[player] INTEGER  NULL,
-[oldRank] INTEGER  NULL,
-[newRank] INTEGER  NULL,
-[type] INTEGER  NULL,
-[timestamp] TIMESTAMP  NULL,
-[comment] VARCHAR(64)  NULL
+CREATE TABLE [RankChanges] (
+[Target] INTEGER  NULL,
+[Player] INTEGER  NULL,
+[OldRank] INTEGER  NULL,
+[NewRank] INTEGER  NULL,
+[Type] INTEGER  NULL,
+[Timestamp] TIMESTAMP  NULL,
+[Comment] VARCHAR(64)  NULL
 );
 
-CREATE TABLE [serverdata] (
-[keygroup] VARCHAR(32)  NULL,
-[key] VARCHAR(32)  NULL,
-[value] TEXT  NULL
+CREATE TABLE [ServerData] (
+[KeyGroup] VARCHAR(32)  NULL,
+[Key] VARCHAR(32)  NULL,
+[Value] TEXT  NULL
 );
 
-CREATE TABLE [sessions] (
-[player] INTEGER  NULL,
-[login] TIMESTAMP  NULL,
-[logoff] TIMESTAMP  NULL,
-[ip] INTEGER  NULL,
-[blocksPlaced] INTEGER  NULL,
-[blocksErased] INTEGER  NULL,
-[messagesWritten] INTEGER  NULL,
-[leaveReason] INTEGER  NULL,
-[leaveEventId] INTEGER  NULL,
-[geoip] VARCHAR(2)  NULL
+CREATE TABLE [Sessions] (
+[Player] INTEGER  NULL,
+[Start] TIMESTAMP  NULL,
+[End] TIMESTAMP  NULL,
+[IP] INTEGER  NULL,
+[BlocksPlaced] INTEGER  NULL,
+[BlocksDeleted] INTEGER  NULL,
+[BlocksDrawn] INTEGER  NULL,
+[MessagesWritten] INTEGER  NULL,
+[LeaveReason] INTEGER  NULL,
+[GeoIP] VARCHAR(2)  NULL
 );
 
-CREATE TABLE [classmapping] (
-[id] INTEGER  NOT NULL PRIMARY KEY,
-[classID] VARCHAR(33)  NULL
+CREATE TABLE [ClassMapping] (
+[Index] INTEGER  NOT NULL PRIMARY KEY,
+[ClassID] VARCHAR(33)  NULL
 );
 
-CREATE INDEX idx_bans ON bans ( banPlayer );
+CREATE INDEX [iBans] ON [Bans] ( [BanPlayer] );
 
-CREATE INDEX idx_ipbans ON ipbans ( banPlayer );
+CREATE INDEX [iIPBans] ON [IPBans] ( [BanPlayer] );
 
-CREATE INDEX idx_kicks ON kicks ( player );
+CREATE INDEX [iKicks] ON [Kicks] ( [Player] );
 
-CREATE INDEX [idx_log] ON [log](
-[id]  ASC
+CREATE INDEX [iLog] ON [Log](
+[ID]  ASC
 );
 
-CREATE INDEX [idx_playerdata] ON [playerdata](
-[player]  ASC,
-[key]  ASC
+CREATE INDEX [iPlayerData] ON [PlayerData](
+[Player]  ASC,
+[Key]  ASC
 );
 
-CREATE INDEX [idx_players_id] ON [players](
-[id]  ASC
+CREATE INDEX [iPlayers_ID] ON [Players](
+[ID]  ASC
 );
 
-CREATE INDEX [idx_players_name] ON [players](
-[name]  ASC
+CREATE INDEX [iPlayers_Name] ON [Players](
+[Name]  ASC
 );
 
-CREATE INDEX idx_rankchanges ON rankchanges ( target );
+CREATE INDEX [iRankChanges] ON [RankChanges] ( [Target] );
 
-CREATE UNIQUE INDEX [idx_serverdata] ON [serverdata](
-[key]  ASC
+CREATE UNIQUE INDEX [iServerData] ON [ServerData](
+[Key]  ASC
 );
 
-CREATE INDEX idx_sessions ON sessions ( player );
+CREATE INDEX [iSessions] ON [Sessions] ( [Player] );
 
-INSERT INTO serverdata VALUES ('PlayerDB','SchemaVersion'," + SchemaVersion + @");
+INSERT INTO [ServerData] VALUES ('PlayerDB','SchemaVersion'," + SchemaVersion + @");
+
+COMMIT;
 ";
-                    cmd.ExecuteNonQuery();
-                    transaction.Commit();
-                }
+                cmd.ExecuteNonQuery();
             }
         }
 
 
         #region Utilities
-        static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1);
+        static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1 );
 
-        public static int ToUnixTimestamp( DateTime timestamp ) {
+        public static int DateTimeToTimestamp( DateTime timestamp ) {
             return (int)(timestamp - UnixEpoch).TotalSeconds;
         }
 
-        public static DateTime FromUnixTimestamp( int timestamp ) {
+        public static DateTime TimestampToDateTime( int timestamp ) {
             return UnixEpoch.AddSeconds( timestamp );
         }
 
@@ -231,6 +273,37 @@ INSERT INTO serverdata VALUES ('PlayerDB','SchemaVersion'," + SchemaVersion + @"
 
         public static IPAddress Int32ToIPAddress( int ipAddress ) {
             return new IPAddress( BitConverter.GetBytes( ipAddress ).Reverse().ToArray() );
+        }
+
+        #endregion
+
+
+        #region Parametrized Queries
+
+        public static void ProcessLogin( PlayerInfo2 info ) {
+            lock( cmd_PlayerInfo_ProcessLogin ) {
+                cmd_PlayerInfo_ProcessLogin.Parameters["@LastIP"].Value = DB.IPAddressToInt32( info.LastIP );
+                cmd_PlayerInfo_ProcessLogin.Parameters["@LastLoginDate"].Value = DB.DateTimeToTimestamp( info.LastLoginDate );
+                cmd_PlayerInfo_ProcessLogin.Parameters["@LastSeen"].Value = DB.DateTimeToTimestamp( info.LastSeen );
+                cmd_PlayerInfo_ProcessLogin.Parameters["@ID"].Value = info.ID;
+                cmd_PlayerInfo_ProcessLogin.ExecuteNonQuery();
+            }
+        }
+
+        public static void ProcessLogout( PlayerInfo2 info ) {
+            lock( cmd_PlayerInfo_ProcessLogout ) {
+                cmd_PlayerInfo_ProcessLogin.Parameters["@LastSeen"].Value = DB.DateTimeToTimestamp( info.LastSeen );
+                cmd_PlayerInfo_ProcessLogin.Parameters["@SessionDuration"].Value = (int)info.LastSessionDuration.TotalSeconds;
+                cmd_PlayerInfo_ProcessLogin.Parameters["@ID"].Value = info.ID;
+                cmd_PlayerInfo_ProcessLogin.Parameters["@IP"].Value = DB.IPAddressToInt32( info.LastIP );
+                cmd_PlayerInfo_ProcessLogin.Parameters["@BlocksPlaced"].Value = info.BlocksPlacedLastSession;
+                cmd_PlayerInfo_ProcessLogin.Parameters["@BlocksDeleted"].Value = info.BlocksDeletedLastSession;
+                cmd_PlayerInfo_ProcessLogin.Parameters["@BlocksDrawn"].Value = info.BlocksDrawnLastSession;
+                cmd_PlayerInfo_ProcessLogin.Parameters["@MessagesWritten"].Value = info.MessagesWrittenLastSession;
+                cmd_PlayerInfo_ProcessLogin.Parameters["@LeaveReason"].Value = info.LastLeaveReason.ToString();
+                cmd_PlayerInfo_ProcessLogin.Parameters["@GeoIP"].Value = ""; // todo: geoip
+                cmd_PlayerInfo_ProcessLogin.ExecuteNonQuery();
+            }
         }
 
         #endregion
