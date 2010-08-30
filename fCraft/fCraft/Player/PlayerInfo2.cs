@@ -59,7 +59,6 @@ namespace fCraft {
             set { DB.QueuePlayerInfoUpdate( this, "LastIP", DB.IPAddressToInt32( _lastIP = value ) ); }
         }
 
-
         #region Class
 
         PlayerClass _playerClass;
@@ -259,63 +258,57 @@ namespace fCraft {
         #endregion
 
 
-        bool _needsFlushing;
-        public bool NeedsFlushing {
-            get { return _needsFlushing; }
-        }
+        public bool NeedsFlushing { get; private set; }
 
         public void IncrementBlocksPlaced() {
-            Interlocked.Increment( ref _blocksPlaced );
-            _needsFlushing = true;
+            _blocksPlaced++;
+            NeedsFlushing = true;
         }
 
         public void IncrementBlocksDeleted() {
-            Interlocked.Increment( ref _blocksDeleted );
-            _needsFlushing = true;
+            _blocksDeleted++;
+            NeedsFlushing = true;
         }
 
         public void AddBlocksDrawn( int amount ) {
-            Interlocked.Add( ref _blocksDrawn, amount );
-            _needsFlushing = true;
+            _blocksDrawn += amount;
+            NeedsFlushing = true;
         }
 
 
         #region Processors
 
-        object modificationLog = new object();
+        object modificationLock = new object();
 
         internal void ProcessLogin( Player player ) {
-            lock( modificationLog ) {
+            lock( modificationLock ) {
                 PlayerObject = player;
                 Name = player.name;
                 _lastIP = player.session.GetIP();
                 _lastLoginDate = DateTime.Now;
                 _lastSeen = DateTime.Now;
                 _timesVisited++;
-                DB.ProcessLogin( this );
             }
         }
 
         internal void ProcessLogout( LeaveReason leaveReason ) {
-            lock( modificationLog ) {
+            lock( modificationLock ) {
                 LastLeaveReason = leaveReason;
                 LastSessionDuration = DateTime.Now.Subtract( _lastLoginDate );
                 PlayerObject = null;
                 _previousTimeOnServer += LastSessionDuration;
                 _lastSeen = DateTime.Now;
-                DB.ProcessLogout( this );
             }
         }
 
         internal bool ProcessBan( Player banner, string reason, BanMethod method ) {
-            lock( modificationLog ) {
+            lock( modificationLock ) {
                 if( !Banned ) {
                     _banned = true;
                     _bannedBy = banner.name;
                     _banDate = DateTime.Now;
                     _banReason = reason;
                     _banMethod = method;
-                    DB.ProcessBan( this );
                     return true;
                 } else {
                     return false;
@@ -323,19 +316,44 @@ namespace fCraft {
             }
         }
 
+
+        public void ProcessBanOther() {
+            _timesBannedOthers++;
+        }
+
+        public void ProcessKickOther() {
+            _timesKickedOthers++;
+        }
+
+
         internal bool ProcessUnban( Player unbanner, string reason, UnbanMethod method ) {
-            lock( modificationLog ) {
+            lock( modificationLock ) {
                 if( Banned ) {
                     _banned = false;
                     _unbannedBy = unbanner.name;
                     _unbanDate = DateTime.Now;
                     _unbanReason = reason;
                     _unbanMethod = method;
-                    DB.ProcessUnban( this );
                     return true;
                 } else {
                     return false;
                 }
+            }
+        }
+
+        internal void ProcessClassChange( PlayerClass newClass, Player changer, string reason ) {
+            lock( modificationLock ) {
+                _previousClass = PlayerClass;
+                _playerClass = newClass;
+                _classChangeDate = DateTime.Now;
+                _classChangedBy = changer.name;
+                _classChangeReason = reason;
+            }
+        }
+
+        internal void ProcessKick( Player kicker, string reason ) {
+            lock( modificationLock ) {
+                _timesKicked++;
             }
         }
 
