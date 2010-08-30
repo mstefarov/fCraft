@@ -36,7 +36,7 @@ namespace fCraft {
 
         public const int ProtocolVersion = 7;
         public const int ConfigVersion = 105;
-        public const int MaxPlayersSupported = 256;
+        public const int MaxPlayersSupported = 255;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
         static Dictionary<ConfigKey, string> settings = new Dictionary<ConfigKey, string>();
