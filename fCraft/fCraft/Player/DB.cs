@@ -68,6 +68,7 @@ namespace fCraft {
 
             try {
                 PrepareQueries();
+                PopulateInfo();
                 return true;
 
             } catch( SQLiteException ex ) {
@@ -76,17 +77,33 @@ namespace fCraft {
             }
         }
 
-        // TODO: clean up, this is unsafe
-        public static void QueuePlayerInfoUpdate( PlayerInfo2 info, string field, object value ) {
-            ExecuteNonQuery( "UPDATE [Players] SET [" + field + "]=\"" + value.ToString() + "\" WHERE [ID]=" + info.ID );
-        }
 
-        internal static void ExecuteNonQuery( string command ) {
-            using( SQLiteCommand cmd = db.CreateCommand() ) {
-                cmd.CommandText = command;
-                cmd.ExecuteNonQuery();
+        static void PopulateInfo() {
+            using( SQLiteTransaction transaction = db.BeginTransaction() ) {
+                using( SQLiteCommand cmd = db.CreateCommand() ) {
+                    cmd.Transaction = transaction;
+                    cmd.CommandText = "SELECT * FROM [Players];";
+                    using( SQLiteDataReader reader = cmd.ExecuteReader() ) {
+                        while( reader.Read() ) {
+                            PlayerInfo2 info = new PlayerInfo2();
+                            info.ID = reader.GetInt32( 0 );
+                            info.Name = reader.GetString( 1 );
+                            info.State = (PlayerState)reader.GetInt32( 2 );
+                            info.PlayerClass = ClassList.classesByIndex[reader.GetInt32( 3 )];
+                            info.BlocksPlaced = reader.GetInt32( 4 );
+                            info.BlocksDeleted = reader.GetInt32( 5 );
+                            info.BlocksDrawn = reader.GetInt32( 6 );
+                            info.FirstLoginDate = TimestampToDateTime( reader.GetInt32( 7 ) );
+                            info.LastLoginDate = TimestampToDateTime( reader.GetInt32( 8 ) );
+                            info.LastSeen = TimestampToDateTime( reader.GetInt32( 9 ) );
+                            info.TimeOnServer = TimeSpan.FromSeconds( reader.GetInt32( 10 ) );
+                            info.MessagesWritten = reader.GetInt32( 11 );
+                        }
+                    }
+                }
             }
         }
+
 
         static void PrepareQueries() {
             cmd_PlayerInfo_ProcessLogin = db.CreateCommand();
@@ -389,109 +406,6 @@ COMMIT;
 
         #region PlayerInfo Lookup
 
-        public static PlayerInfo2[] FindPlayers( string name ) {
-            using( SQLiteTransaction transaction = db.BeginTransaction() ) {
-
-            }
-            return null;
-        }
-
-        public static PlayerInfo2 FindPlayerExact( string name ) {
-            return null;
-        }
-
-        public static PlayerInfo2 FindPlayerExact( int ID ) {
-            return null;
-        }
-
-        public static PlayerInfo2 FindOrCreatePlayerInfo( Player player ) {
-            return null;
-        }
-
-        #endregion
-
-
-        #region Parametrized Queries
-
-        public static void ProcessLogin( PlayerInfo2 info, Player player ) {
-            info.ProcessLogin( player );
-            lock( cmd_PlayerInfo_ProcessLogin ) {
-                cmd_PlayerInfo_ProcessLogin.Parameters["@LastIP"].Value = DB.IPAddressToInt32( info.LastIP );
-                cmd_PlayerInfo_ProcessLogin.Parameters["@LastLoginDate"].Value = DB.DateTimeToTimestamp( info.LastLoginDate );
-                cmd_PlayerInfo_ProcessLogin.Parameters["@LastSeen"].Value = DB.DateTimeToTimestamp( info.LastSeen );
-                cmd_PlayerInfo_ProcessLogin.Parameters["@ID"].Value = info.ID;
-                cmd_PlayerInfo_ProcessLogin.ExecuteNonQuery();
-            }
-        }
-
-        public static void ProcessLogout( PlayerInfo2 info, LeaveReason reason ) {
-            info.ProcessLogout( reason );
-            lock( cmd_PlayerInfo_ProcessLogout ) {
-                cmd_PlayerInfo_ProcessLogout.Parameters["@LastSeen"].Value = DB.DateTimeToTimestamp( info.LastSeen );
-                cmd_PlayerInfo_ProcessLogout.Parameters["@SessionDuration"].Value = (int)info.LastSessionDuration.TotalSeconds;
-                cmd_PlayerInfo_ProcessLogout.Parameters["@ID"].Value = info.ID;
-                cmd_PlayerInfo_ProcessLogout.Parameters["@IP"].Value = DB.IPAddressToInt32( info.LastIP );
-                cmd_PlayerInfo_ProcessLogout.Parameters["@BlocksPlaced"].Value = info.BlocksPlacedLastSession;
-                cmd_PlayerInfo_ProcessLogout.Parameters["@BlocksDeleted"].Value = info.BlocksDeletedLastSession;
-                cmd_PlayerInfo_ProcessLogout.Parameters["@BlocksDrawn"].Value = info.BlocksDrawnLastSession;
-                cmd_PlayerInfo_ProcessLogout.Parameters["@MessagesWritten"].Value = info.MessagesWrittenLastSession;
-                cmd_PlayerInfo_ProcessLogout.Parameters["@LeaveReason"].Value = info.LastLeaveReason.ToString();
-                cmd_PlayerInfo_ProcessLogout.Parameters["@GeoIP"].Value = ""; //TODO GEOIP
-                cmd_PlayerInfo_ProcessLogout.ExecuteNonQuery();
-            }
-        }
-
-        public static void ProcessBan( PlayerInfo2 info, Player banner, string reason, BanMethod method ) {
-            info.ProcessBan( banner, reason, method );
-            //TODO: banner.info.ProcessBanOther();
-            lock( cmd_PlayerInfo_ProcessBan ) {
-                cmd_PlayerInfo_ProcessBan.Parameters["@Target"].Value = info.ID;
-                cmd_PlayerInfo_ProcessBan.Parameters["@BanPlayer"].Value = 0;//TODO ID
-                cmd_PlayerInfo_ProcessBan.Parameters["@BanDate"].Value = info.BanDate;
-                cmd_PlayerInfo_ProcessBan.Parameters["@BanReason"].Value = reason;
-                cmd_PlayerInfo_ProcessBan.Parameters["@BanMethod"].Value = (int)method;
-                cmd_PlayerInfo_ProcessBan.ExecuteNonQuery();
-            }
-        }
-
-        public static void ProcessUnban( PlayerInfo2 info, Player unbanner, string reason, UnbanMethod method ) {
-            info.ProcessUnban( unbanner, reason, method );
-            lock( cmd_PlayerInfo_ProcessUnban ) {
-                cmd_PlayerInfo_ProcessUnban.Parameters["@UnbanPlayer"].Value = 0;//TODO ID
-                cmd_PlayerInfo_ProcessUnban.Parameters["@UnbanDate"].Value = info.BanDate;
-                cmd_PlayerInfo_ProcessUnban.Parameters["@UnbanReason"].Value = reason;
-                cmd_PlayerInfo_ProcessUnban.Parameters["@UnbanMethod"].Value = (int)method;
-                cmd_PlayerInfo_ProcessUnban.Parameters["@ID"].Value = info.ID;
-                cmd_PlayerInfo_ProcessUnban.ExecuteNonQuery();
-            }
-        }
-
-        public static void ProcessClassChange( PlayerInfo2 info, PlayerClass newClass, Player changer, string reason ) {
-            info.ProcessClassChange( newClass, changer, reason );
-            lock( cmd_PlayerInfo_ProcessClassChange ) {
-                cmd_PlayerInfo_ProcessClassChange.Parameters["@ID"].Value = info.ID;
-                cmd_PlayerInfo_ProcessClassChange.Parameters["@Changer"].Value = 0;//TODO ID
-                cmd_PlayerInfo_ProcessClassChange.Parameters["@OldRank"].Value = info.PreviousClass;
-                cmd_PlayerInfo_ProcessClassChange.Parameters["@NewRank"].Value = info.PlayerClass;
-                cmd_PlayerInfo_ProcessClassChange.Parameters["@Type"].Value = (info.PlayerClass.rank - info.PreviousClass.rank);
-                cmd_PlayerInfo_ProcessClassChange.Parameters["@Date"].Value = info.ClassChangeDate;
-                cmd_PlayerInfo_ProcessClassChange.Parameters["@Reason"].Value = reason;
-                cmd_PlayerInfo_ProcessClassChange.ExecuteNonQuery();
-            }
-        }
-
-        public static void ProcessKick( PlayerInfo2 info, Player kicker, string reason ) {
-            info.ProcessKick( kicker, reason );
-            //TODO: kicker.info.ProcessKickOther();
-            lock( cmd_PlayerInfo_ProcessKick ) {
-                cmd_PlayerInfo_ProcessKick.Parameters["@ID"].Value = info.ID;
-                cmd_PlayerInfo_ProcessKick.Parameters["@Kicker"].Value = 0;//TODO ID
-                cmd_PlayerInfo_ProcessKick.Parameters["@KickDate"].Value = DateTimeToTimestamp( DateTime.Now );
-                cmd_PlayerInfo_ProcessKick.Parameters["@Reason"].Value = reason;
-                cmd_PlayerInfo_ProcessKick.ExecuteNonQuery();
-            }
-        }
-
 
         static Dictionary<int, PlayerInfo2> infoByID = new Dictionary<int, PlayerInfo2>();
         static Dictionary<string, PlayerInfo2> infoByName = new Dictionary<string, PlayerInfo2>();
@@ -519,7 +433,7 @@ COMMIT;
 
                     if( playerID != -1 ) {
                         return infoByID[playerID];
-                    }else{
+                    } else {
                         locker.EnterWriteLock();
                         try {
                             // create player
@@ -528,7 +442,7 @@ COMMIT;
                                 cmd_PlayerInfo_CreatePlayer.Parameters["@Name"].Value = player.name;
                                 cmd_PlayerInfo_CreatePlayer.Parameters["@State"].Value = (int)state;
                                 cmd_PlayerInfo_CreatePlayer.Parameters["@Class"].Value = ClassList.defaultClass.index;
-                                cmd_PlayerInfo_CreatePlayer.Parameters["@State"].Value = DateTimeToTimestamp( DateTime.Now );
+                                cmd_PlayerInfo_CreatePlayer.Parameters["@Now"].Value = DateTimeToTimestamp( DateTime.Now );
                                 using( SQLiteDataReader reader = cmd_PlayerInfo_CreatePlayer.ExecuteReader() ) {
                                     reader.Read();
                                     playerID = reader.GetInt32( 0 );
@@ -582,11 +496,94 @@ COMMIT;
                     if( !reader.HasRows ) return null;
                     List<PlayerInfo2> infoList = new List<PlayerInfo2>();
                     while( reader.Read() ) {
-                        int ID = reader.GetInt32(0);
+                        int ID = reader.GetInt32( 0 );
                         infoList.Add( infoByID[ID] );
                     }
                     return infoList.ToArray();
                 }
+            }
+        }
+
+        #endregion
+
+
+        #region Parametrized Queries
+
+        public static void ProcessLogin( PlayerInfo2 info, Player player ) {
+            info.ProcessLogin( player );
+            lock( cmd_PlayerInfo_ProcessLogin ) {
+                cmd_PlayerInfo_ProcessLogin.Parameters["@LastIP"].Value = DB.IPAddressToInt32( info.LastIP );
+                cmd_PlayerInfo_ProcessLogin.Parameters["@LastLoginDate"].Value = DB.DateTimeToTimestamp( info.LastLoginDate );
+                cmd_PlayerInfo_ProcessLogin.Parameters["@LastSeen"].Value = DB.DateTimeToTimestamp( info.LastSeen );
+                cmd_PlayerInfo_ProcessLogin.Parameters["@ID"].Value = info.ID;
+                cmd_PlayerInfo_ProcessLogin.ExecuteNonQuery();
+            }
+        }
+
+        public static void ProcessLogout( PlayerInfo2 info, LeaveReason reason ) {
+            info.ProcessLogout( reason );
+            lock( cmd_PlayerInfo_ProcessLogout ) {
+                cmd_PlayerInfo_ProcessLogout.Parameters["@LastSeen"].Value = DB.DateTimeToTimestamp( info.LastSeen );
+                cmd_PlayerInfo_ProcessLogout.Parameters["@SessionDuration"].Value = (int)info.LastSeen.Subtract(info.LastLoginDate).TotalSeconds;
+                cmd_PlayerInfo_ProcessLogout.Parameters["@ID"].Value = info.ID;
+                cmd_PlayerInfo_ProcessLogout.Parameters["@IP"].Value = DB.IPAddressToInt32( info.LastIP );
+                cmd_PlayerInfo_ProcessLogout.Parameters["@BlocksPlaced"].Value = info.BlocksPlacedLastSession;
+                cmd_PlayerInfo_ProcessLogout.Parameters["@BlocksDeleted"].Value = info.BlocksDeletedLastSession;
+                cmd_PlayerInfo_ProcessLogout.Parameters["@BlocksDrawn"].Value = info.BlocksDrawnLastSession;
+                cmd_PlayerInfo_ProcessLogout.Parameters["@MessagesWritten"].Value = info.MessagesWrittenLastSession;
+                cmd_PlayerInfo_ProcessLogout.Parameters["@LeaveReason"].Value = (int)reason;
+                cmd_PlayerInfo_ProcessLogout.Parameters["@GeoIP"].Value = ""; //TODO GEOIP
+                cmd_PlayerInfo_ProcessLogout.ExecuteNonQuery();
+            }
+        }
+
+        public static void ProcessBan( PlayerInfo2 info, Player banner, string reason, BanMethod method ) {
+            info.ProcessBan( banner, reason, method );
+            //TODO: banner.info.ProcessBanOther();
+            lock( cmd_PlayerInfo_ProcessBan ) {
+                cmd_PlayerInfo_ProcessBan.Parameters["@Target"].Value = info.ID;
+                cmd_PlayerInfo_ProcessBan.Parameters["@BanPlayer"].Value = 0;//TODO ID
+                cmd_PlayerInfo_ProcessBan.Parameters["@BanDate"].Value = DateTimeToTimestamp( DateTime.Now );
+                cmd_PlayerInfo_ProcessBan.Parameters["@BanReason"].Value = reason;
+                cmd_PlayerInfo_ProcessBan.Parameters["@BanMethod"].Value = (int)method;
+                cmd_PlayerInfo_ProcessBan.ExecuteNonQuery();
+            }
+        }
+
+        public static void ProcessUnban( PlayerInfo2 info, Player unbanner, string reason, UnbanMethod method ) {
+            info.ProcessUnban( unbanner, reason, method );
+            lock( cmd_PlayerInfo_ProcessUnban ) {
+                cmd_PlayerInfo_ProcessUnban.Parameters["@UnbanPlayer"].Value = 0;//TODO ID
+                cmd_PlayerInfo_ProcessUnban.Parameters["@UnbanDate"].Value = DateTimeToTimestamp( DateTime.Now );
+                cmd_PlayerInfo_ProcessUnban.Parameters["@UnbanReason"].Value = reason;
+                cmd_PlayerInfo_ProcessUnban.Parameters["@UnbanMethod"].Value = (int)method;
+                cmd_PlayerInfo_ProcessUnban.Parameters["@ID"].Value = info.ID;
+                cmd_PlayerInfo_ProcessUnban.ExecuteNonQuery();
+            }
+        }
+
+        public static void ProcessClassChange( PlayerInfo2 info, PlayerClass newClass, Player changer, string reason ) {
+            PlayerClass oldClass = info.ProcessClassChange( newClass );
+            lock( cmd_PlayerInfo_ProcessClassChange ) {
+                cmd_PlayerInfo_ProcessClassChange.Parameters["@ID"].Value = info.ID;
+                cmd_PlayerInfo_ProcessClassChange.Parameters["@Changer"].Value = 0;//TODO ID
+                cmd_PlayerInfo_ProcessClassChange.Parameters["@OldRank"].Value = oldClass.index;
+                cmd_PlayerInfo_ProcessClassChange.Parameters["@NewRank"].Value = newClass.index;
+                cmd_PlayerInfo_ProcessClassChange.Parameters["@Type"].Value = (newClass.rank - oldClass.rank);
+                cmd_PlayerInfo_ProcessClassChange.Parameters["@Date"].Value = DateTimeToTimestamp( DateTime.Now );
+                cmd_PlayerInfo_ProcessClassChange.Parameters["@Reason"].Value = reason;
+                cmd_PlayerInfo_ProcessClassChange.ExecuteNonQuery();
+            }
+        }
+
+        public static void ProcessKick( PlayerInfo2 info, Player kicker, string reason ) {
+            info.ProcessKick( kicker, reason );
+            lock( cmd_PlayerInfo_ProcessKick ) {
+                cmd_PlayerInfo_ProcessKick.Parameters["@ID"].Value = info.ID;
+                cmd_PlayerInfo_ProcessKick.Parameters["@Kicker"].Value = 0;//TODO ID
+                cmd_PlayerInfo_ProcessKick.Parameters["@KickDate"].Value = DateTimeToTimestamp( DateTime.Now );
+                cmd_PlayerInfo_ProcessKick.Parameters["@Reason"].Value = reason;
+                cmd_PlayerInfo_ProcessKick.ExecuteNonQuery();
             }
         }
 
