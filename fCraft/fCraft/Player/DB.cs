@@ -23,7 +23,8 @@ namespace fCraft {
                              cmd_PlayerInfo_Find,
                              cmd_PlayerInfo_FindExactByName,
                              cmd_PlayerInfo_FindExactByID,
-                             cmd_PlayerInfo_CreatePlayer;
+                             cmd_PlayerInfo_CreatePlayer,
+                             cmd_ClassMap_Insert;
 
         internal static bool Init() {
 
@@ -68,6 +69,7 @@ namespace fCraft {
 
             try {
                 PrepareQueries();
+                ParseClassIndices();
                 PopulateInfo();
                 return true;
 
@@ -77,28 +79,67 @@ namespace fCraft {
             }
         }
 
+        static Dictionary<int, PlayerClass> classMap = new Dictionary<int, PlayerClass>();
 
-        static void PopulateInfo() {
+        static void ParseClassIndices() {
             using( SQLiteTransaction transaction = db.BeginTransaction() ) {
                 using( SQLiteCommand cmd = db.CreateCommand() ) {
                     cmd.Transaction = transaction;
-                    cmd.CommandText = "SELECT * FROM [Players];";
+                    cmd.CommandText = "SELECT * FROM [ClassMap];";
                     using( SQLiteDataReader reader = cmd.ExecuteReader() ) {
                         while( reader.Read() ) {
-                            PlayerInfo2 info = new PlayerInfo2();
-                            info.ID = reader.GetInt32( 0 );
-                            info.Name = reader.GetString( 1 );
-                            info.State = (PlayerState)reader.GetInt32( 2 );
-                            info.PlayerClass = ClassList.classesByIndex[reader.GetInt32( 3 )];
-                            info.BlocksPlaced = reader.GetInt32( 4 );
-                            info.BlocksDeleted = reader.GetInt32( 5 );
-                            info.BlocksDrawn = reader.GetInt32( 6 );
-                            info.FirstLoginDate = TimestampToDateTime( reader.GetInt32( 7 ) );
-                            info.LastLoginDate = TimestampToDateTime( reader.GetInt32( 8 ) );
-                            info.LastSeen = TimestampToDateTime( reader.GetInt32( 9 ) );
-                            info.TimeOnServer = TimeSpan.FromSeconds( reader.GetInt32( 10 ) );
-                            info.MessagesWritten = reader.GetInt32( 11 );
+                            int classID = reader.GetInt32( 0 );
+                            string className = reader.GetString( 1 );
+                            PlayerClass pc = ClassList.ParseClass( className );
+
+                            if( pc == null ) {
+                                Logger.Log( "DB: Could not parse PlayerClass entry \"{0}\". All references have been replaced with default class (\"{1}\").",
+                                            LogType.Error,
+                                            className,
+                                            ClassList.defaultClass.name );
+                                classMap.Add( classID, ClassList.defaultClass );
+
+                            } else {
+                                classMap.Add( classID, pc );
+                            }
                         }
+                    }
+
+                    // insert new classes to the classMap
+                    foreach( PlayerClass pc in ClassList.classesByIndex ) {
+                        if( !classMap.ContainsValue( pc ) ) {
+                            cmd_ClassMap_Insert.Transaction = transaction;
+                            cmd_ClassMap_Insert.Parameters["@ClassString"].Value = pc.ToString();
+                            using( SQLiteDataReader reader = cmd_ClassMap_Insert.ExecuteReader() ) {
+                                reader.Read();
+                                classMap.Add( reader.GetInt32( 0 ), pc );
+                            }
+                        }
+                    }
+                }
+                transaction.Commit();
+            }
+        }
+
+
+        static void PopulateInfo() {
+            using( SQLiteCommand cmd = db.CreateCommand() ) {
+                cmd.CommandText = "SELECT * FROM [Players];";
+                using( SQLiteDataReader reader = cmd.ExecuteReader() ) {
+                    while( reader.Read() ) {
+                        PlayerInfo2 info = new PlayerInfo2( reader.GetString( 1 ),
+                                                            reader.GetInt32( 0 ),
+                                                            ClassList.classesByIndex[reader.GetInt32( 3 )],
+                                                            (PlayerState)reader.GetInt32( 2 ) );
+                        info.BlocksPlaced = reader.GetInt32( 4 );
+                        info.BlocksDeleted = reader.GetInt32( 5 );
+                        info.BlocksDrawn = reader.GetInt32( 6 );
+                        info.FirstLoginDate = TimestampToDateTime( reader.GetInt32( 7 ) );
+                        info.LastLoginDate = TimestampToDateTime( reader.GetInt32( 8 ) );
+                        info.LastSeen = TimestampToDateTime( reader.GetInt32( 9 ) );
+                        info.TimeOnServer = TimeSpan.FromSeconds( reader.GetInt32( 10 ) );
+                        info.MessagesWritten = reader.GetInt32( 11 );
+                        // TODO: update with finalized schema
                     }
                 }
             }
@@ -175,14 +216,14 @@ WHERE [Player]=@ID AND [Active]=TRUE
             cmd_PlayerInfo_ProcessClassChange = db.CreateCommand();
             cmd_PlayerInfo_ProcessClassChange.CommandText = @"
 BEGIN;
-INSERT INTO [ClassChanges] VALUES( @ID, @Changer, @OldRank, @NewRank, @Type, @Date, @Reason );
-UPDATE [Players] SET [Class]=@NewRank WHERE [ID]=@ID;
+INSERT INTO [ClassChanges] VALUES( @ID, @Changer, @OldClass, @NewClass, @Type, @Date, @Reason );
+UPDATE [Players] SET [Class]=@NewClass WHERE [ID]=@ID;
 END;
 ";
             cmd_PlayerInfo_ProcessClassChange.Parameters.Add( new SQLiteParameter( "@ID", DbType.Int32 ) );
             cmd_PlayerInfo_ProcessClassChange.Parameters.Add( new SQLiteParameter( "@Changer", DbType.Int32 ) );
-            cmd_PlayerInfo_ProcessClassChange.Parameters.Add( new SQLiteParameter( "@OldRank", DbType.Int32 ) );
-            cmd_PlayerInfo_ProcessClassChange.Parameters.Add( new SQLiteParameter( "@NewRank", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessClassChange.Parameters.Add( new SQLiteParameter( "@OldClass", DbType.Int32 ) );
+            cmd_PlayerInfo_ProcessClassChange.Parameters.Add( new SQLiteParameter( "@NewClass", DbType.Int32 ) );
             cmd_PlayerInfo_ProcessClassChange.Parameters.Add( new SQLiteParameter( "@Type", DbType.Int32 ) );
             cmd_PlayerInfo_ProcessClassChange.Parameters.Add( new SQLiteParameter( "@Date", DbType.Int32 ) );
             cmd_PlayerInfo_ProcessClassChange.Parameters.Add( new SQLiteParameter( "@Reason", DbType.String ) );
@@ -234,6 +275,14 @@ SELECT last_insert_rowid() AS RowId;
             cmd_PlayerInfo_CreatePlayer.Parameters.Add( new SQLiteParameter( "@Class", DbType.Int32 ) );
             cmd_PlayerInfo_CreatePlayer.Parameters.Add( new SQLiteParameter( "@Now", DbType.Int32 ) );
             cmd_PlayerInfo_CreatePlayer.Prepare();
+
+            cmd_ClassMap_Insert = db.CreateCommand();
+            cmd_ClassMap_Insert.CommandText = @"
+INSERT INTO [ClassMap] VALUES (NULL, @ClassString);
+SELECT last_insert_rowid() AS RowId;
+";
+            cmd_ClassMap_Insert.Parameters.Add( new SQLiteParameter( "@ClassString", DbType.String ) );
+            cmd_ClassMap_Insert.Prepare();
         }
 
 
@@ -242,103 +291,106 @@ SELECT last_insert_rowid() AS RowId;
                 cmd.CommandText = @"
 BEGIN;
 
+CREATE TABLE [Players] (
+[ID] INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL,
+[Name] VARCHAR(16) UNIQUE NULL,
+[State] INTEGER NULL,
+[Class] INTEGER NULL,
+[BlocksPlaced] INTEGER NULL,
+[BlocksDeleted] INTEGER NULL,
+[BlocksDrawn] INTEGER NULL,
+[FirstLogin] INTEGER NULL,
+[LastLogin] INTEGER NULL,
+[LastSeen] INTEGER NULL,
+[TimeTotal] INTEGER NULL,
+[MessagesWritten] INTEGER NULL,
+[TimesKicked] INTEGER NULL,
+[PlayersKicked] INTEGER NULL,
+[PlayersBanned] INTEGER NULL
+);
+
 CREATE TABLE [Bans] (
-[Active] BOOLEAN  NULL,
-[Target] INTEGER  NULL,
-[BanPlayer] INTEGER  NULL,
-[BanTimestamp] INTEGER  NULL,
-[BanReason] VARCHAR(64)  NULL,
-[BanMethod] INTEGER  NULL,
-[UnbanPlayer] INTEGER  NULL,
-[UnbanDate] INTEGER  NULL,
-[UnbanReason] VARCHAR(64)  NULL,
-[UnbanMethod] INTEGER  NULL
+[Active] BOOLEAN NULL,
+[Target] INTEGER NULL,
+[BanPlayer] INTEGER NULL,
+[BanTimestamp] INTEGER NULL,
+[BanReason] VARCHAR(64) NULL,
+[BanMethod] INTEGER NULL,
+[UnbanPlayer] INTEGER NULL,
+[UnbanDate] INTEGER NULL,
+[UnbanReason] VARCHAR(64) NULL,
+[UnbanMethod] INTEGER NULL
 );
 
 CREATE TABLE [IPBans] (
-[Active] BOOLEAN  NULL,
-[RangeStart] INTEGER  NULL,
-[RangeEnd] INTEGER  NULL,
-[BanPlayer] INTEGER  NULL,
-[BanDate] INTEGER  NULL,
-[BanReason] VARCHAR(64)  NULL,
-[BanMethod] INTEGER  NULL,
-[UnbanPlayer] INTEGER  NULL,
-[UnbanDate] INTEGER  NULL,
-[UnbanComment] VARCHAR(64)  NULL,
-[UnbanMethod] INTEGER  NULL
+[Active] BOOLEAN NULL,
+[RangeStart] INTEGER NULL,
+[RangeEnd] INTEGER NULL,
+[BanPlayer] INTEGER NULL,
+[BanDate] INTEGER NULL,
+[BanReason] VARCHAR(64) NULL,
+[BanMethod] INTEGER NULL,
+[UnbanPlayer] INTEGER NULL,
+[UnbanDate] INTEGER NULL,
+[UnbanComment] VARCHAR(64) NULL,
+[UnbanMethod] INTEGER NULL
 );
 
 CREATE TABLE [Kicks] (
-[Player] INTEGER  NULL,
-[Target] INTEGER  NULL,
-[Timestamp] INTEGER  NULL,
-[Reason] VARCHAR(64)  NULL
+[Player] INTEGER NULL,
+[Target] INTEGER NULL,
+[Timestamp] INTEGER NULL,
+[Reason] VARCHAR(64) NULL
 );
 
 CREATE TABLE [Log] (
-[ID] INTEGER  NOT NULL PRIMARY KEY AUTOINCREMENT,
-[Type] INTEGER  NULL,
-[Subtype] INTEGER  NULL,
-[Source] INTEGER  NULL,
-[Timestamp] INTEGER  NULL,
-[Message] TEXT  NULL
+[ID] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+[Type] INTEGER NULL,
+[Subtype] INTEGER NULL,
+[Source] INTEGER NULL,
+[Timestamp] INTEGER NULL,
+[Message] TEXT NULL
 );
 
 CREATE TABLE [PlayerData] (
-[Player] INTEGER  NULL,
-[KeyGroup] VARCHAR(32)  NULL,
-[Key] VARCHAR(32)  NULL,
-[Value] TEXT  NULL
-);
-
-CREATE TABLE [Players] (
-[ID] INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL,
-[Name] VARCHAR(16)  UNIQUE NULL,
-[State] INTEGER  NULL,
-[Rank] INTEGER  NULL,
-[BlocksPlaced] INTEGER  NULL,
-[BlocksDeleted] INTEGER  NULL,
-[BlocksDrawn] INTEGER  NULL,
-[FirstLogin] INTEGER  NULL,
-[LastLogin] INTEGER  NULL,
-[LastSeen] INTEGER  NULL,
-[TimeTotal] INTEGER  NULL,
-[MessagesWritten] INTEGER  NULL
+[Player] INTEGER NULL,
+[KeyGroup] VARCHAR(32) NULL,
+[Key] VARCHAR(32) NULL,
+[Value] TEXT NULL
 );
 
 CREATE TABLE [ClassChanges] (
-[Target] INTEGER  NULL,
-[Player] INTEGER  NULL,
-[OldRank] INTEGER  NULL,
-[NewRank] INTEGER  NULL,
-[Type] INTEGER  NULL,
-[Date] INTEGER  NULL,
-[Reason] VARCHAR(64)  NULL
+[Target] INTEGER NULL,
+[Player] INTEGER NULL,
+[OldClass] INTEGER NULL,
+[NewClass] INTEGER NULL,
+[Type] INTEGER NULL,
+[Date] INTEGER NULL,
+[Reason] VARCHAR(64) NULL
 );
 
 CREATE TABLE [ServerData] (
-[KeyGroup] VARCHAR(32)  NULL,
-[Key] VARCHAR(32)  NULL,
-[Value] TEXT  NULL
+[KeyGroup] VARCHAR(32) NULL,
+[Key] VARCHAR(32) NULL,
+[Value] TEXT NULL
 );
 
 CREATE TABLE [Sessions] (
-[Player] INTEGER  NULL,
-[Start] INTEGER  NULL,
-[End] INTEGER  NULL,
-[IP] INTEGER  NULL,
-[BlocksPlaced] INTEGER  NULL,
-[BlocksDeleted] INTEGER  NULL,
-[BlocksDrawn] INTEGER  NULL,
-[MessagesWritten] INTEGER  NULL,
-[LeaveReason] INTEGER  NULL,
-[GeoIP] VARCHAR(2)  NULL
+[Player] INTEGER NULL,
+[Start] INTEGER NULL,
+[End] INTEGER NULL,
+[IP] INTEGER NULL,
+[BlocksPlaced] INTEGER NULL,
+[BlocksDeleted] INTEGER NULL,
+[BlocksDrawn] INTEGER NULL,
+[MessagesWritten] INTEGER NULL,
+[LeaveReason] INTEGER NULL,
+[GeoIP] VARCHAR(2) NULL
 );
 
-CREATE TABLE [ClassMapping] (
-[Index] INTEGER  NOT NULL PRIMARY KEY,
-[ClassID] VARCHAR(33)  NULL
+CREATE TABLE [ClassMap] (
+[Index] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+[ClassID] VARCHAR(33) NULL
 );
 
 CREATE INDEX [iBans] ON [Bans] ( [BanPlayer] );
@@ -347,28 +399,15 @@ CREATE INDEX [iIPBans] ON [IPBans] ( [BanPlayer] );
 
 CREATE INDEX [iKicks] ON [Kicks] ( [Player] );
 
-CREATE INDEX [iLog] ON [Log](
-[ID]  ASC
-);
+CREATE INDEX [iLog] ON [Log]( [ID] );
 
-CREATE INDEX [iPlayerData] ON [PlayerData](
-[Player]  ASC,
-[Key]  ASC
-);
+CREATE INDEX [iPlayerData] ON [PlayerData]( [Player], [Key] );
 
-CREATE INDEX [iPlayers_ID] ON [Players](
-[ID]  ASC
-);
+CREATE INDEX [iPlayers_ID] ON [Players]( [ID] );
 
-CREATE INDEX [iPlayers_Name] ON [Players](
-[Name]  ASC
-);
+CREATE INDEX [iPlayers_Name] ON [Players]( [Name] );
 
-CREATE INDEX [iRankChanges] ON [RankChanges] ( [Target] );
-
-CREATE UNIQUE INDEX [iServerData] ON [ServerData](
-[Key]  ASC
-);
+CREATE INDEX [iClassChanges] ON [ClassChanges] ( [Target] );
 
 CREATE INDEX [iSessions] ON [Sessions] ( [Player] );
 
@@ -449,13 +488,12 @@ COMMIT;
                                 }
                                 cmd_PlayerInfo_CreatePlayer.Transaction = null;
                             }
-                            return new PlayerInfo2( player.name, playerID, ClassList.defaultClass );
+                            return new PlayerInfo2( player.name, playerID, ClassList.defaultClass, state );
 
                         } finally {
                             locker.ExitWriteLock();
                         }
                     }
-
                 }
             } finally {
                 locker.ExitUpgradeableReadLock();
@@ -567,8 +605,8 @@ COMMIT;
             lock( cmd_PlayerInfo_ProcessClassChange ) {
                 cmd_PlayerInfo_ProcessClassChange.Parameters["@ID"].Value = info.ID;
                 cmd_PlayerInfo_ProcessClassChange.Parameters["@Changer"].Value = 0;//TODO ID
-                cmd_PlayerInfo_ProcessClassChange.Parameters["@OldRank"].Value = oldClass.index;
-                cmd_PlayerInfo_ProcessClassChange.Parameters["@NewRank"].Value = newClass.index;
+                cmd_PlayerInfo_ProcessClassChange.Parameters["@OldClass"].Value = oldClass.index;
+                cmd_PlayerInfo_ProcessClassChange.Parameters["@NewClass"].Value = newClass.index;
                 cmd_PlayerInfo_ProcessClassChange.Parameters["@Type"].Value = (newClass.rank - oldClass.rank);
                 cmd_PlayerInfo_ProcessClassChange.Parameters["@Date"].Value = DateTimeToTimestamp( DateTime.Now );
                 cmd_PlayerInfo_ProcessClassChange.Parameters["@Reason"].Value = reason;

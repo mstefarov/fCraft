@@ -9,10 +9,11 @@ namespace fCraft {
     class PlayerInfo2 {
 
         public PlayerInfo2() { }
-        public PlayerInfo2( string _Name, int _ID, PlayerClass _PlayerClass ) {
+        public PlayerInfo2( string _Name, int _ID, PlayerClass _PlayerClass, PlayerState _state ) {
             Name = _Name;
             ID = _ID;
             _playerClass = _PlayerClass;
+            State = _state;
         }
 
 
@@ -21,7 +22,7 @@ namespace fCraft {
         public Player PlayerObject { get; private set; }
         public int ID { get; set; }
         public string Name { get; set; }
-        public PlayerState State { get; set; }
+        public PlayerState State { get; private set; } // changed 
 
         IPAddress _lastIP;
         public IPAddress LastIP {
@@ -64,7 +65,6 @@ namespace fCraft {
             get { return _timeOnServer; }
             set { _timeOnServer = value; NeedsFlushing = true; }
         }
-
 
 
 
@@ -115,6 +115,7 @@ namespace fCraft {
             get { return _timesBannedOthers; }
             set { _timesBannedOthers = value; NeedsFlushing = true; }
         }
+
 
 
         int _messagesWrittenLastSession;
