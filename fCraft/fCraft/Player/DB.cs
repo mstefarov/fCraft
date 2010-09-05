@@ -79,69 +79,136 @@ namespace fCraft {
             }
         }
 
-        static Dictionary<int, PlayerClass> classMap = new Dictionary<int, PlayerClass>();
-
-        static void ParseClassIndices() {
-            using( SQLiteTransaction transaction = db.BeginTransaction() ) {
-                using( SQLiteCommand cmd = db.CreateCommand() ) {
-                    cmd.Transaction = transaction;
-                    cmd.CommandText = "SELECT * FROM [ClassMap];";
-                    using( SQLiteDataReader reader = cmd.ExecuteReader() ) {
-                        while( reader.Read() ) {
-                            int classID = reader.GetInt32( 0 );
-                            string className = reader.GetString( 1 );
-                            PlayerClass pc = ClassList.ParseClass( className );
-
-                            if( pc == null ) {
-                                Logger.Log( "DB: Could not parse PlayerClass entry \"{0}\". All references have been replaced with default class (\"{1}\").",
-                                            LogType.Error,
-                                            className,
-                                            ClassList.defaultClass.name );
-                                classMap.Add( classID, ClassList.defaultClass );
-
-                            } else {
-                                classMap.Add( classID, pc );
-                            }
-                        }
-                    }
-
-                    // insert new classes to the classMap
-                    foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                        if( !classMap.ContainsValue( pc ) ) {
-                            cmd_ClassMap_Insert.Transaction = transaction;
-                            cmd_ClassMap_Insert.Parameters["@ClassString"].Value = pc.ToString();
-                            using( SQLiteDataReader reader = cmd_ClassMap_Insert.ExecuteReader() ) {
-                                reader.Read();
-                                classMap.Add( reader.GetInt32( 0 ), pc );
-                            }
-                        }
-                    }
-                }
-                transaction.Commit();
-            }
-        }
-
-
-        static void PopulateInfo() {
+        static void DefineSchema() {
             using( SQLiteCommand cmd = db.CreateCommand() ) {
-                cmd.CommandText = "SELECT * FROM [Players];";
-                using( SQLiteDataReader reader = cmd.ExecuteReader() ) {
-                    while( reader.Read() ) {
-                        PlayerInfo2 info = new PlayerInfo2( reader.GetString( 1 ),
-                                                            reader.GetInt32( 0 ),
-                                                            ClassList.classesByIndex[reader.GetInt32( 3 )],
-                                                            (PlayerState)reader.GetInt32( 2 ) );
-                        info.BlocksPlaced = reader.GetInt32( 4 );
-                        info.BlocksDeleted = reader.GetInt32( 5 );
-                        info.BlocksDrawn = reader.GetInt32( 6 );
-                        info.FirstLoginDate = TimestampToDateTime( reader.GetInt32( 7 ) );
-                        info.LastLoginDate = TimestampToDateTime( reader.GetInt32( 8 ) );
-                        info.LastSeen = TimestampToDateTime( reader.GetInt32( 9 ) );
-                        info.TimeOnServer = TimeSpan.FromSeconds( reader.GetInt32( 10 ) );
-                        info.MessagesWritten = reader.GetInt32( 11 );
-                        // TODO: update with finalized schema
-                    }
-                }
+                cmd.CommandText = @"
+BEGIN;
+
+CREATE TABLE [Players] (
+[ID] INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL,
+[Name] VARCHAR(16) UNIQUE NULL,
+[State] INTEGER NULL,
+[Class] INTEGER NULL,
+[BlocksPlaced] INTEGER NULL,
+[BlocksDeleted] INTEGER NULL,
+[BlocksDrawn] INTEGER NULL,
+[FirstLogin] INTEGER NULL,
+[LastLogin] INTEGER NULL,
+[LastSeen] INTEGER NULL,
+[TimeTotal] INTEGER NULL,
+[MessagesWritten] INTEGER NULL,
+[TimesKicked] INTEGER NULL,
+[PlayersKicked] INTEGER NULL,
+[PlayersBanned] INTEGER NULL
+);
+
+CREATE TABLE [Bans] (
+[Active] BOOLEAN NULL,
+[Target] INTEGER NULL,
+[BanPlayer] INTEGER NULL,
+[BanTimestamp] INTEGER NULL,
+[BanReason] VARCHAR(64) NULL,
+[BanMethod] INTEGER NULL,
+[UnbanPlayer] INTEGER NULL,
+[UnbanDate] INTEGER NULL,
+[UnbanReason] VARCHAR(64) NULL,
+[UnbanMethod] INTEGER NULL
+);
+
+CREATE TABLE [IPBans] (
+[Active] BOOLEAN NULL,
+[RangeStart] INTEGER NULL,
+[RangeEnd] INTEGER NULL,
+[BanPlayer] INTEGER NULL,
+[BanDate] INTEGER NULL,
+[BanReason] VARCHAR(64) NULL,
+[BanMethod] INTEGER NULL,
+[UnbanPlayer] INTEGER NULL,
+[UnbanDate] INTEGER NULL,
+[UnbanComment] VARCHAR(64) NULL,
+[UnbanMethod] INTEGER NULL
+);
+
+CREATE TABLE [Kicks] (
+[Player] INTEGER NULL,
+[Target] INTEGER NULL,
+[Timestamp] INTEGER NULL,
+[Reason] VARCHAR(64) NULL
+);
+
+CREATE TABLE [Log] (
+[ID] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+[Type] INTEGER NULL,
+[Subtype] INTEGER NULL,
+[Source] INTEGER NULL,
+[Timestamp] INTEGER NULL,
+[Message] TEXT NULL
+);
+
+CREATE TABLE [PlayerData] (
+[Player] INTEGER NULL,
+[KeyGroup] VARCHAR(32) NULL,
+[Key] VARCHAR(32) NULL,
+[Value] TEXT NULL
+);
+
+CREATE TABLE [ClassChanges] (
+[Target] INTEGER NULL,
+[Player] INTEGER NULL,
+[OldClass] INTEGER NULL,
+[NewClass] INTEGER NULL,
+[Type] INTEGER NULL,
+[Date] INTEGER NULL,
+[Reason] VARCHAR(64) NULL
+);
+
+CREATE TABLE [ServerData] (
+[KeyGroup] VARCHAR(32) NULL,
+[Key] VARCHAR(32) NULL,
+[Value] TEXT NULL
+);
+
+CREATE TABLE [Sessions] (
+[Player] INTEGER NULL,
+[Start] INTEGER NULL,
+[End] INTEGER NULL,
+[IP] INTEGER NULL,
+[BlocksPlaced] INTEGER NULL,
+[BlocksDeleted] INTEGER NULL,
+[BlocksDrawn] INTEGER NULL,
+[MessagesWritten] INTEGER NULL,
+[LeaveReason] INTEGER NULL,
+[GeoIP] VARCHAR(2) NULL
+);
+
+CREATE TABLE [ClassMap] (
+[Index] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+[ClassID] VARCHAR(33) NULL
+);
+
+CREATE INDEX [iBans] ON [Bans] ( [BanPlayer] );
+
+CREATE INDEX [iIPBans] ON [IPBans] ( [BanPlayer] );
+
+CREATE INDEX [iKicks] ON [Kicks] ( [Player] );
+
+CREATE INDEX [iLog] ON [Log]( [ID] );
+
+CREATE INDEX [iPlayerData] ON [PlayerData]( [Player], [Key] );
+
+CREATE INDEX [iPlayers_ID] ON [Players]( [ID] );
+
+CREATE INDEX [iPlayers_Name] ON [Players]( [Name] );
+
+CREATE INDEX [iClassChanges] ON [ClassChanges] ( [Target] );
+
+CREATE INDEX [iSessions] ON [Sessions] ( [Player] );
+
+INSERT INTO [ServerData] VALUES ('PlayerDB','SchemaVersion'," + SchemaVersion + @");
+
+COMMIT;
+";
+                cmd.ExecuteNonQuery();
             }
         }
 
@@ -286,136 +353,69 @@ SELECT last_insert_rowid() AS RowId;
         }
 
 
-        static void DefineSchema() {
+        static Dictionary<int, PlayerClass> classMap = new Dictionary<int, PlayerClass>();
+
+        static void ParseClassIndices() {
+            using( SQLiteTransaction transaction = db.BeginTransaction() ) {
+                using( SQLiteCommand cmd = db.CreateCommand() ) {
+                    cmd.Transaction = transaction;
+                    cmd.CommandText = "SELECT * FROM [ClassMap];";
+                    using( SQLiteDataReader reader = cmd.ExecuteReader() ) {
+                        while( reader.Read() ) {
+                            int classID = reader.GetInt32( 0 );
+                            string className = reader.GetString( 1 );
+                            PlayerClass pc = ClassList.ParseClass( className );
+
+                            if( pc == null ) {
+                                Logger.Log( "DB: Could not parse PlayerClass entry \"{0}\". All references have been replaced with default class (\"{1}\").",
+                                            LogType.Error,
+                                            className,
+                                            ClassList.defaultClass.name );
+                                classMap.Add( classID, ClassList.defaultClass );
+
+                            } else {
+                                classMap.Add( classID, pc );
+                            }
+                        }
+                    }
+
+                    // insert new classes to the classMap
+                    foreach( PlayerClass pc in ClassList.classesByIndex ) {
+                        if( !classMap.ContainsValue( pc ) ) {
+                            cmd_ClassMap_Insert.Transaction = transaction;
+                            cmd_ClassMap_Insert.Parameters["@ClassString"].Value = pc.ToString();
+                            using( SQLiteDataReader reader = cmd_ClassMap_Insert.ExecuteReader() ) {
+                                reader.Read();
+                                classMap.Add( reader.GetInt32( 0 ), pc );
+                            }
+                        }
+                    }
+                }
+                transaction.Commit();
+            }
+        }
+
+
+        static void PopulateInfo() {
             using( SQLiteCommand cmd = db.CreateCommand() ) {
-                cmd.CommandText = @"
-BEGIN;
-
-CREATE TABLE [Players] (
-[ID] INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL,
-[Name] VARCHAR(16) UNIQUE NULL,
-[State] INTEGER NULL,
-[Class] INTEGER NULL,
-[BlocksPlaced] INTEGER NULL,
-[BlocksDeleted] INTEGER NULL,
-[BlocksDrawn] INTEGER NULL,
-[FirstLogin] INTEGER NULL,
-[LastLogin] INTEGER NULL,
-[LastSeen] INTEGER NULL,
-[TimeTotal] INTEGER NULL,
-[MessagesWritten] INTEGER NULL,
-[TimesKicked] INTEGER NULL,
-[PlayersKicked] INTEGER NULL,
-[PlayersBanned] INTEGER NULL
-);
-
-CREATE TABLE [Bans] (
-[Active] BOOLEAN NULL,
-[Target] INTEGER NULL,
-[BanPlayer] INTEGER NULL,
-[BanTimestamp] INTEGER NULL,
-[BanReason] VARCHAR(64) NULL,
-[BanMethod] INTEGER NULL,
-[UnbanPlayer] INTEGER NULL,
-[UnbanDate] INTEGER NULL,
-[UnbanReason] VARCHAR(64) NULL,
-[UnbanMethod] INTEGER NULL
-);
-
-CREATE TABLE [IPBans] (
-[Active] BOOLEAN NULL,
-[RangeStart] INTEGER NULL,
-[RangeEnd] INTEGER NULL,
-[BanPlayer] INTEGER NULL,
-[BanDate] INTEGER NULL,
-[BanReason] VARCHAR(64) NULL,
-[BanMethod] INTEGER NULL,
-[UnbanPlayer] INTEGER NULL,
-[UnbanDate] INTEGER NULL,
-[UnbanComment] VARCHAR(64) NULL,
-[UnbanMethod] INTEGER NULL
-);
-
-CREATE TABLE [Kicks] (
-[Player] INTEGER NULL,
-[Target] INTEGER NULL,
-[Timestamp] INTEGER NULL,
-[Reason] VARCHAR(64) NULL
-);
-
-CREATE TABLE [Log] (
-[ID] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-[Type] INTEGER NULL,
-[Subtype] INTEGER NULL,
-[Source] INTEGER NULL,
-[Timestamp] INTEGER NULL,
-[Message] TEXT NULL
-);
-
-CREATE TABLE [PlayerData] (
-[Player] INTEGER NULL,
-[KeyGroup] VARCHAR(32) NULL,
-[Key] VARCHAR(32) NULL,
-[Value] TEXT NULL
-);
-
-CREATE TABLE [ClassChanges] (
-[Target] INTEGER NULL,
-[Player] INTEGER NULL,
-[OldClass] INTEGER NULL,
-[NewClass] INTEGER NULL,
-[Type] INTEGER NULL,
-[Date] INTEGER NULL,
-[Reason] VARCHAR(64) NULL
-);
-
-CREATE TABLE [ServerData] (
-[KeyGroup] VARCHAR(32) NULL,
-[Key] VARCHAR(32) NULL,
-[Value] TEXT NULL
-);
-
-CREATE TABLE [Sessions] (
-[Player] INTEGER NULL,
-[Start] INTEGER NULL,
-[End] INTEGER NULL,
-[IP] INTEGER NULL,
-[BlocksPlaced] INTEGER NULL,
-[BlocksDeleted] INTEGER NULL,
-[BlocksDrawn] INTEGER NULL,
-[MessagesWritten] INTEGER NULL,
-[LeaveReason] INTEGER NULL,
-[GeoIP] VARCHAR(2) NULL
-);
-
-CREATE TABLE [ClassMap] (
-[Index] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-[ClassID] VARCHAR(33) NULL
-);
-
-CREATE INDEX [iBans] ON [Bans] ( [BanPlayer] );
-
-CREATE INDEX [iIPBans] ON [IPBans] ( [BanPlayer] );
-
-CREATE INDEX [iKicks] ON [Kicks] ( [Player] );
-
-CREATE INDEX [iLog] ON [Log]( [ID] );
-
-CREATE INDEX [iPlayerData] ON [PlayerData]( [Player], [Key] );
-
-CREATE INDEX [iPlayers_ID] ON [Players]( [ID] );
-
-CREATE INDEX [iPlayers_Name] ON [Players]( [Name] );
-
-CREATE INDEX [iClassChanges] ON [ClassChanges] ( [Target] );
-
-CREATE INDEX [iSessions] ON [Sessions] ( [Player] );
-
-INSERT INTO [ServerData] VALUES ('PlayerDB','SchemaVersion'," + SchemaVersion + @");
-
-COMMIT;
-";
-                cmd.ExecuteNonQuery();
+                cmd.CommandText = "SELECT * FROM [Players];";
+                using( SQLiteDataReader reader = cmd.ExecuteReader() ) {
+                    while( reader.Read() ) {
+                        PlayerInfo2 info = new PlayerInfo2( reader.GetString( 1 ),
+                                                            reader.GetInt32( 0 ),
+                                                            ClassList.classesByIndex[reader.GetInt32( 3 )],
+                                                            (PlayerState)reader.GetInt32( 2 ) );
+                        info.BlocksPlaced = reader.GetInt32( 4 );
+                        info.BlocksDeleted = reader.GetInt32( 5 );
+                        info.BlocksDrawn = reader.GetInt32( 6 );
+                        info.FirstLoginDate = TimestampToDateTime( reader.GetInt32( 7 ) );
+                        info.LastLoginDate = TimestampToDateTime( reader.GetInt32( 8 ) );
+                        info.LastSeen = TimestampToDateTime( reader.GetInt32( 9 ) );
+                        info.TimeOnServer = TimeSpan.FromSeconds( reader.GetInt32( 10 ) );
+                        info.MessagesWritten = reader.GetInt32( 11 );
+                        // TODO: update with finalized schema
+                    }
+                }
             }
         }
 
@@ -423,9 +423,11 @@ COMMIT;
         #region Utilities
         static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1 );
 
+
         public static int DateTimeToTimestamp( DateTime timestamp ) {
             return (int)(timestamp - UnixEpoch).TotalSeconds;
         }
+
 
         public static DateTime TimestampToDateTime( int timestamp ) {
             return UnixEpoch.AddSeconds( timestamp );
@@ -436,6 +438,7 @@ COMMIT;
             return BitConverter.ToInt32( ipAddress.GetAddressBytes().Reverse().ToArray(), 0 );
         }
 
+
         public static IPAddress Int32ToIPAddress( int ipAddress ) {
             return new IPAddress( BitConverter.GetBytes( ipAddress ).Reverse().ToArray() );
         }
@@ -445,10 +448,10 @@ COMMIT;
 
         #region PlayerInfo Lookup
 
-
         static Dictionary<int, PlayerInfo2> infoByID = new Dictionary<int, PlayerInfo2>();
         static Dictionary<string, PlayerInfo2> infoByName = new Dictionary<string, PlayerInfo2>();
         static ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
+
 
         public static PlayerInfo2 FindPlayerInfo( Player player, PlayerState state ) {
             if( player == null ) return null;
@@ -500,6 +503,7 @@ COMMIT;
             }
         }
 
+
         public static PlayerInfo2 FindPlayerInfo( string playerName ) {
             locker.EnterReadLock();
             try {
@@ -512,6 +516,7 @@ COMMIT;
                 locker.ExitReadLock();
             }
         }
+
 
         public static PlayerInfo2 FindPlayerInfo( int ID ) {
             locker.EnterReadLock();
@@ -558,6 +563,7 @@ COMMIT;
             }
         }
 
+
         public static void ProcessLogout( PlayerInfo2 info, LeaveReason reason ) {
             info.ProcessLogout( reason );
             lock( cmd_PlayerInfo_ProcessLogout ) {
@@ -575,6 +581,7 @@ COMMIT;
             }
         }
 
+
         public static void ProcessBan( PlayerInfo2 info, Player banner, string reason, BanMethod method ) {
             info.ProcessBan( banner, reason, method );
             //TODO: banner.info.ProcessBanOther();
@@ -588,6 +595,7 @@ COMMIT;
             }
         }
 
+
         public static void ProcessUnban( PlayerInfo2 info, Player unbanner, string reason, UnbanMethod method ) {
             info.ProcessUnban( unbanner, reason, method );
             lock( cmd_PlayerInfo_ProcessUnban ) {
@@ -599,6 +607,7 @@ COMMIT;
                 cmd_PlayerInfo_ProcessUnban.ExecuteNonQuery();
             }
         }
+
 
         public static void ProcessClassChange( PlayerInfo2 info, PlayerClass newClass, Player changer, string reason ) {
             PlayerClass oldClass = info.ProcessClassChange( newClass );
@@ -613,6 +622,7 @@ COMMIT;
                 cmd_PlayerInfo_ProcessClassChange.ExecuteNonQuery();
             }
         }
+
 
         public static void ProcessKick( PlayerInfo2 info, Player kicker, string reason ) {
             info.ProcessKick( kicker, reason );
