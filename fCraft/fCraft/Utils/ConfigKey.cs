@@ -59,17 +59,16 @@ namespace fCraft {
         IRCBotAnnounceServerJoins,
         IRCBotAnnounceIRCJoins,
         IRCMessageColor,
+        IRCDelay,
 
-        PolicyColorCodesInChat,
-        PolicyIllegalCharacters,
         SendRedundantBlockUpdates,
         PingInterval,
         AutomaticUpdates,
         NoPartialPositionUpdates,
         ProcessPriority,
-        RunOnStartup,
         BlockUpdateThrottling,
         TickInterval,
-        LowLatencyMode
+        LowLatencyMode,
+        SubmitCrashReports
     }
 }

@@ -63,7 +63,7 @@ namespace fCraft {
                 File.Delete( fileName );
                 File.Move( tempFileName, fileName );
                 changesSinceBackup++;
-                Logger.Log( "Saved map succesfully to {0}", LogType.SystemActivity,
+                Logger.Log( "Saved map successfully to {0}", LogType.SystemActivity,
                             fileName );
             } catch( Exception ex ) {
                 Logger.Log( "Error trying to replace file \"{0}\": {1}", LogType.Error,
@@ -212,7 +212,8 @@ namespace fCraft {
             }
 
             if( spawn.x > widthX * 32 || spawn.y > widthY * 32 || spawn.h > height * 32 || spawn.x < 0 || spawn.y < 0 || spawn.h < 0 ) {
-                Logger.Log( "Map.ReadHeader: Spawn coordinates are outside the valid range! Using center of the map instead.", LogType.Warning );
+                Logger.LogWarning( "Map.ReadHeader: Spawn coordinates are outside the valid range! Using center of the map instead.",
+                                   WarningLogSubtype.MapLoadWarning );
                 ResetSpawn();
             }
 

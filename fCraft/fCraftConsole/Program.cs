@@ -36,8 +36,10 @@ namespace fCraftConsole {
         static void Main( string[] args ) {
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;
-
+#if DEBUG
+#else
             try {
+#endif
                 if( Server.Init() ) {
 
                     UpdaterResult update = Updater.CheckForUpdates();
@@ -69,12 +71,18 @@ namespace fCraftConsole {
                     Server.Shutdown();
                     Console.ReadLine();
                 }
+#if DEBUG
+#else
             } catch( Exception ex ) {
-                System.IO.File.WriteAllText( "crash.log", ex + Environment.NewLine + ex.StackTrace );
+                Logger.Log( "Unhandled exception in fCraftConsole input loop: " + ex, LogType.FatalError );
+
                 Console.WriteLine( "fCraft crashed! Crash message saved to crash.log." );
                 Console.Write( ex );
-                Console.Title = "fCraft crashed!";
+                Logger.UploadCrashReport( "Unhandled exception in fCraftConsole", "fCraftConsole", ex );
+
+                Server.CheckForCommonErrors( ex );
             }
+#endif
         }
 
         static void Log( string message, LogType type ) {

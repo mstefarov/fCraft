@@ -39,6 +39,7 @@ namespace fCraft {
 
         static CommandDescriptor cdPaint = new CommandDescriptor {
             name = "paint",
+            aliases = new string[] { "p" },
             help = "Replaces a block instead of deleting it.",
             handler = Paint
         };
@@ -56,6 +57,7 @@ namespace fCraft {
 
         static CommandDescriptor cdGrass = new CommandDescriptor {
             name = "grass",
+            aliases = new string[] { "g" },
             permissions = new Permission[] { Permission.PlaceGrass },
             help = "Toggles the grass placement mode. When enabled, any dirt block you place is replaced with a grass block.",
             handler = Grass
@@ -75,6 +77,7 @@ namespace fCraft {
 
         static CommandDescriptor cdWater = new CommandDescriptor {
             name = "water",
+            aliases = new string[] { "w" },
             permissions = new Permission[] { Permission.PlaceWater },
             help = "Toggles the water placement mode. When enabled, any blue or cyan block you place is replaced with water.",
             handler = Water

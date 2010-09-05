@@ -37,7 +37,7 @@ using System.Threading;
 namespace fCraft {
     class IRC {
         const int Timeout = 10000; // socket timeout (ms)
-        const int SendDelay = 850; // delay between sending output lines (ms)
+        internal static int SendDelay; // set by ApplyConfig
         const int ReconnectDelay = 1000;
 
         static TcpClient client;
@@ -52,6 +52,7 @@ namespace fCraft {
         static string[] channelNames;
         static string botNick;
 
+        static Regex nonPrintableChars = new Regex( "[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled );
 
         public static void Init() {
             if( !Config.GetBool( ConfigKey.IRCBot ) ) return;
@@ -101,7 +102,7 @@ namespace fCraft {
                 thread.Start();
                 return true;
             } catch( Exception ex ) {
-                Console.WriteLine( ex );
+                Logger.Log( "IRC: Could not start the bot: " + ex, LogType.Error );
                 return false;
             }
         }
@@ -155,7 +156,6 @@ namespace fCraft {
                         if( outputQueue.Length > 0 && DateTime.UtcNow.Subtract( lastMessageSend ).TotalMilliseconds >= SendDelay ) {
                             if( outputQueue.Dequeue( ref outputLine ) ) {
                                 writer.Write( outputLine + "\r\n" );
-                                Console.WriteLine( "-> " + outputLine );
                                 lastMessageSend = DateTime.UtcNow;
                                 writer.Flush();
                             }
@@ -167,7 +167,7 @@ namespace fCraft {
                     }
 
                 } catch( Exception ex ) {
-                    Console.WriteLine( ex );
+                    Logger.Log( "IRC: "+ex, LogType.Error );
                     reconnect = true;
                 }
 
@@ -198,10 +198,13 @@ namespace fCraft {
                 case IRCMessageType.ChannelMessage:
                     // channel chat
                     if( msg.Nick != botNick ) {
-                        if( Config.GetBool( ConfigKey.IRCBotForwardFromIRC ) ) {
-                            Server.SendToAll( Color.IRC + "(IRC)" + Color.White + msg.Nick + ": " + msg.Message );
-                        } else if( msg.Message.StartsWith( "#" ) ) {
-                            Server.SendToAll( Color.IRC + "(IRC)" + Color.White + msg.Nick + ": " + msg.Message.Substring( 1 ) );
+                        string processedMessage = nonPrintableChars.Replace( msg.Message, "" ).Trim();
+                        if( processedMessage.Length > 0 ) {
+                            if( Config.GetBool( ConfigKey.IRCBotForwardFromIRC ) ) {
+                                Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + Color.White + ": " + processedMessage );
+                            } else if( msg.Message.StartsWith( "#" ) ) {
+                                Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + Color.White + ": " + processedMessage.Substring( 1 ) );
+                            }
                         }
                     }
                     return;

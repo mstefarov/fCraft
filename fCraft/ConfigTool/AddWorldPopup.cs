@@ -174,7 +174,7 @@ namespace ConfigTool {
             if( map == null ) {
                 tStatus1.Text = "Load failed!";
             } else {
-                tStatus1.Text = "Load succesful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
+                tStatus1.Text = "Load successful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
                 tStatus2.Text = ", drawing...";
                 Redraw( true );
             }
@@ -301,7 +301,7 @@ namespace ConfigTool {
                 tStatus1.Text = "Generation failed!";
             } else {
                 bOK.Enabled = true;
-                tStatus1.Text = "Generation succesful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
+                tStatus1.Text = "Generation successful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
                 tStatus2.Text = ", drawing...";
                 Redraw( true );
             }

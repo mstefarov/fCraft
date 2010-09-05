@@ -29,8 +29,10 @@ namespace fCraftUI {
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;
             Server.OnPlayerListChanged += UpdatePlayerList;
-
+#if DEBUG
+#else
             try {
+#endif
                 if( Server.Init() ) {
                     Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
 
@@ -52,12 +54,16 @@ namespace fCraftUI {
                         StartServer();
                     }
                 } else {
-                    Logger.Log( "---- Could Not Initialize Server ----", LogType.FatalError );
+                    Logger.Log( "---- Could Not Initialize Server ----", LogType.Error );
                 }
+#if DEBUG
+#else
             } catch( Exception ex ) {
-                MessageBox.Show( ex.ToString(), "fCraft crashed!" );
-                System.IO.File.WriteAllText( "crash.log", ex.ToString() + Environment.NewLine + ex.StackTrace );
+                Logger.Log( "Fatal error at startup: " + ex, LogType.FatalError );
+                Logger.UploadCrashReport( "Unhandled exception in fCraftUI.StartUp", "fCraftUI", ex );
+                Server.CheckForCommonErrors( ex );
             }
+#endif
         }
 
 
@@ -66,7 +72,7 @@ namespace fCraftUI {
             if( Server.Start() ) {
                 console.Enabled = true;
             } else {
-                Logger.Log( "---- Could Not Start The Server ----", LogType.FatalError );
+                Logger.Log( "---- Could Not Start The Server ----", LogType.Error );
             }
         }
 
@@ -92,14 +98,16 @@ namespace fCraftUI {
         }
 
         void LogInternal( string message ) {
-            logBox.AppendText( message + Environment.NewLine );
-            if( logBox.Lines.Length > MaxLinesInLog ) {
-                logBox.Text = "----- cut off, see fCraft.log for complete log -----" +
-                    Environment.NewLine +
-                    logBox.Text.Substring( logBox.GetFirstCharIndexFromLine( 50 ) );
-            }
-            logBox.SelectionStart = logBox.Text.Length;
-            logBox.ScrollToCaret();
+            try {
+                logBox.AppendText( message + Environment.NewLine );
+                if( logBox.Lines.Length > MaxLinesInLog ) {
+                    logBox.Text = "----- cut off, see fCraft.log for complete log -----" +
+                        Environment.NewLine +
+                        logBox.Text.Substring( logBox.GetFirstCharIndexFromLine( 50 ) );
+                }
+                logBox.SelectionStart = logBox.Text.Length;
+                logBox.ScrollToCaret();
+            } catch( ObjectDisposedException ) { }
         }
 
 
@@ -113,10 +121,12 @@ namespace fCraftUI {
         }
 
         void SetURLInternal( string URL ) {
-            urlDisplay.Text = URL;
-            urlDisplay.Enabled = true;
-            urlDisplay.Select();
-            bPlay.Enabled = true;
+            try {
+                urlDisplay.Text = URL;
+                urlDisplay.Enabled = true;
+                urlDisplay.Select();
+                bPlay.Enabled = true;
+            } catch( ObjectDisposedException ) { }
         }
 
 

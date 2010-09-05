@@ -1,19 +1,19 @@
-http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-09-04
-454
+0.454
  Feature: /replace, /replacenot, /paste, and /pastenot can now work with multiple blocks. See /help for details.
  Fix: Replace no longer behaves same as replacenot.
  Fix: Spaces in IRC messages are now preserved.
  Fix: Help entries for paste/pastenot corrected.
  Fix: /cinfo (without parameters) now shows player's own class info.
-453
+
+0.453
  Feature: It is now possible to reverse last /undo (by typing /undo again).
  Change: IRC message colors are applied slightly differently now.
  Change: Added more automated crash reporting hooks - to MainLoop and Tasks.
  Change: More help messages improved.
  Change: Added a more informative message for people running outdated versions of Mono and .Net runtime.
  Optimization: Slightly reduced memory usage of /undo, /paste, and PlayerDB.Load()
-452
+
+0.452
  Feature: New /replacenot command allows replacing all blocks EXCEPT the specified one.
  Feature: New /flip and /rotate commands to manipulate copied blocks.
  Feature: /players list is now in alphabetical order.
@@ -29,7 +29,8 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Change: Added world name back to "Almost there..." join screen.
  Change: /pasteonly is now called /paste, and /paste is now called /pastenot (for consistency with other custom servers)
  Optimization: Slightly reduced memory usage of massive drawing commands (over undo limit).
-451
+
+0.451
  Feature: Improved the way fCraft handles fatal errors (crashes). Crash logs are now created more reliably.
  Feature: Added automated crash reporting to fragmer.net (opt-out).
  Feature: Added an announcement for players logging in from IPs associated with other previously-banned players.
@@ -41,14 +42,16 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Change: Cleaned up "Advanced" tab in ConfigTool.
    - Removed obsolete config keys: PolicyColorCodesInChat, PolicyIllegalCharacters, and RunOnStartup
    - Added SubmitCrashReports and IRCDelay config keys.
-450
+
+0.450
  Feature: IRC bot rewritten for better performance, flexibility, and safety.
  Feature: New IRC options: IRCBotAnnounceIRCJoins and IRCBotAnnounceServerJoins.
  Fix: Fixed messages containing only a single slash ('/') crashing client thread.
  Change: Removed obsolete IRCBotMsgs config key.
  Change: Added OnPlayerSentMessage event to Server.
- Change: IRC bot's commands (e.g. !status) are temporarily unavailable. 
-445
+ Change: IRC bot's commands (e.g. !status) are temporarily unavailable.
+
+0.445
  IMPORTANT! Please update ASAP, a security was identified in previous version.
  Fix: If you need to start message with a slash, you can now escape the slash (type "//")
  Fix: Fixed endless update loop (if automatic updates were enabled)
@@ -56,12 +59,14 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fix: Hacking-related kicks are not announced globally.
  Fix: Fixed "/help" giving wrong message if help entry was not found.
  Change: Minor changes in MapGenerator/Noise
-444
+
+0.444
  Feature: New stat command, /sinfo (server info).
  Fix: Ban reason/memo now shown for normal bans.
  Fix: /cinfo for unlimited classes no longer shows "draw limit: 0"
  Fix: Fixed IRC message colors, and removed IRC color codes from log.
-443
+
+0.443
  FEATURE: New /wflush command. It allows finishing all in-progress draw commands at maximum speed (over 100k blocks/second) then forces a map rejoin.
  Feature: Added more customization options for colors: PrivateMessageColor and IRCMessageColor in Config.
  Feature: /players list is now sorted alphabetically.
@@ -74,20 +79,23 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fix: Fixed compilation issue with "tileset.png" on case-sensitive filesystems.
  Fix: Fixed class-wide messages not wrapping correctly.
  Optimization: antigrief and antispam checking overhead reduced.
-442
+
+0.442
  Fix: Addresses a security issue.
  Fix: "OK" button in AddWorldPopup is now always disabled if no map is set.
  Fix: "Feature size" label is now updater correctly when map dimensions are changed.
  Fix: Added missing player notifications for /undo and /cancel commands.
  Change: MapGenerator's default map size changed to 128x128x80
-441
+
+0.441
  Feature: Added cuboid limits to /cinfo
  Fix: Fixed a bug in BoundingBox that made /paste and zones behave incorrectly
  Fix: Fixed ban/unban commands not kicking the player if entered name capitalization did not match actual capitalization
  Fix: Fixed "flatgrass" being broken when using "/gen"
  Fix: Fixed "/ban" rank checks affecting "/unban"
  Change: Optimized zone permission checks
-440
+
+0.440
  FEATURE: New MapGenerator with tons of options. You can also save/load custom templates for it.
  FEATURE: AddWorldPopup interface overhaul.
  FEATURE: JTE, D3, and Myne/Mynecraft/Hyvebuild/iCraft map format converters added.
@@ -126,32 +134,39 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Change: Removed public "undo" message, added log message instead.
  Change: Removed AnnounceUnverifiedNames settings.
  Change: When building/deleting permission is denied, the exact reason is given (instead of a vague "you cannot do that" message) (part of Player.CanPlace overhaul).
-435
+
+0.435
  Feature: Added /copy, /paste, and /pasteonly commands. Rotation coming soon.
  Feature: Added CopyAndPaste permission, granted to op and owner by default.
  Feature: Added MapGenType.Cliffs - similar to Mountains type, but with cliffs!
  Fix: Fixed /paint command
  Fix: Fixed /baninfo now showing any information if used without parameters.
  Change: Replaced surface rocks in MapGenTheme.Hell with Obsidian.
-434
+
+0.434
  Feature: new /bind command allows mapping any block to any other. Now you can place those unbuildable blocks (water, lava, grass, double-step) in any way you wish. For compatibility, old commands (/water, /solid, /lava, /grass) have been preserved.
  Change: "step" added as an alias for Stair block. "doublestep" added as an alias for DoubleStair.
-433
+
+0.433
  Feature: /winfo now shows who locked/unlocked the map, and how long ago.
  Fix: Fixed a error message that showed up when announcements.txt was blank.
  Fix: Permission check added back to lock/unlock commands.
  Fix: "mapinfo" added back as alias for /winfo
  Fix: Fixed locked maps not getting unloaded when all players left
-432
+
+0.432
  Fix: List of worlds printed by /worlds is now sorted alphabetically.
  Fix: Fixed an obscure half-disconnect bug that left players with id=0 who happened to be on the main world in a semi-disconnected state IF someone else was kicked halfway through the login process before it was assigned an id.
-431
+
+0.431
  Fix: Fixed still messed-up /worlds command.
  Change: Downgraded standard Session.IoLoop messages that occur on player disconnect from Warning to Debug.
-430
+
+0.430
  Fix: Fixed messed-up /worlds command. Sorry about that.
  Change: Downgraded standard Session.IoLoop messages that occur on player disconnect from Warning to Debug.
-429
+
+0.429
  Feature: Command-handler infrastructure has been redesigned. This will allow much more flexibility for devs and plugin makers later.
  Feature: "/help commands" now only shows available commands by default. Type "/help commands all" to see all commands.
  Feature: /worlds command now only available worlds by default. Type "/worlds all" to include worlds inaccessible to you.
@@ -168,7 +183,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Change: Many /help entries have been improved.
  Change: Split /class command into two: /classes (aka /ranks) shows a list of classes, and /class (aka /cinfo or /classinfo) shows permission list (missed from last release notes).
  Change: Added /spawn as an alias for /tp (missed from last release notes).
-428
+
+
+0.428
  Feature: Line wrapping. Yes, finally.
  Feature: Per-class draw limits. Defaults are: owner unlimited, op unlimited, regular 4096 (16x16x16), guest 512 (8*8*8)
  Feature: Per-class antigrief detection. Defaults are: owner unmetered, op umetered, regular 45/6 (7.5 blocks/second), guest 35/5 (7 blocks/second)
@@ -181,7 +198,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
          - op can now lock/unlock
  Change: Improved arrangement of Permission list items.
  Change: Removed obsolete ConfigKey variables AntigriefBlockCount and AntigriefBlockInterval
-427
+
+
+0.427
  Feature: Added /zedit command for changing zone permissions after creation
  Feature: New aliases for drawing commands: /c /e /h /r /m
  Fix: Fix for cuboid command kicking players with "Block.Undefined" if called with no optional BlockType parameter
@@ -193,7 +212,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fix: Fixed incorrect description of draw log messages, and backup error messages
  Fix: Fixed false triggering of "Player asked to be released from its world, but the world did not contain the player" error
  Change: Fruitified fragmer's name 
-426
+
+
+0.426
  Feature: Announcements! You can define a list of announcements to show periodically. A random line from announcements.txt will be shown to all players at specified interval (in minutes).
  Feature: /replace command.
  Feature: /undo command has been improved for more flexibility and better performance.
@@ -201,7 +222,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fix: Fixed a bug that caused duplicate entries to be added to PlayerDB when doing /importranks or /importbans.
  Change: New ConfigKeys: AnnouncementColor (default: green) and AnnouncementInterval (default: 5 minutes).
  Change: Draw command stride increased to 16x16x16, for better theoretical performance.
-425
+
+
+0.425
  Feature: Added hollow draw command (/cubh) and aliases (/cuboidh and /bhb)
  Feature: /players now shows class colors and a total number of players. Breakdown of /players by world is coming soon
  Feature: Added "Joined world WorldName" message that shows when changing worlds
@@ -214,7 +237,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Change: Added exception handlers for EVERY single piece of code that requires file access
  Change: Added more thread safety in MapCommands.WorldRename that resolves a potential race condition with Map.Save
  Change: Modified IPBanList to use the standard temp folder (instead of fCraft working path) for its temp files
-424
+
+
+0.424
  Fix: Fixed /unhide and normal connection getting different messages
  Fix: Fixed client crash when viewing /rules if the rule file has blank lines
  Fix: Worlds with capital letters in the name are joinable again
@@ -222,7 +247,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Change: Moved the command list to /help commands
  Change: Performance and thread-safety improvements to PlayerDB
  Change: Disabled some more debugging code to avoid taking up unnecessary resources
-423
+
+
+0.423
  Feature: /importbans now also supports "banned-ip.txt"
  Feature: Logs are now stored in /logs/ folder. Your fCraft.log file will be moved there automatically and renamed to "_OldLog.log"
  Feature: Log splitting now works by day or by session. Set "LogMode" key in config.xml or see Logging tab in ConfigTool.
@@ -240,7 +267,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Change: fCraft now forcibly resets its working directory to the same path where the executable is
  Change: Removed "delete old file?" prompt when renaming worlds in AddWorldPopup. Now it just does it, to match tabWorlds' DataGridView behavior
  Change: Added additional error checks to Map.Backup() 
-422
+
+
+0.422
  Feature: Further improved network performance by introducing nonblocking (lock-free) data structure to packet output buffer
  Fix: Fixed "world creation failed" error if worlds.xml defined a non-existing world to be main
  Fix: Added back missing messages when doing /user on offline users
@@ -248,7 +277,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fix: Added missing /help entries for /importbans and /importranks
  Change: Improved help messages for /lock, /unban, /unbanip, /undo, /wload, /wmain, and /wremove
  Change: Tweaked default values of BlockUpdateThrottling and maxBlockUpdatesPerTick for maximum lag-free performance
-421
+
+
+0.421
  Feature: Added the ability to promote/demote offline and unseen (not in PlayerDB) players
  Feature: Added the ability to ban unseen players
  Feature: Added ability to import bans and ranks from MCSharp/MCZall formats. An associated "Import" permission was added. See "/help importbans" and "/help importranks" for more information. Importer for ip-bans and iCraft/Hyvebuild/Myne format are coming soon.
@@ -259,7 +290,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Change: Updated PlayerDB and IPBanList to use standard temporary folder (instead of dumping temp files into fCraft directory)
  Change: Added "logging starts" marker that's written to console and log on-startup
  Change: fCraftUI log now displays the last 2000 lines (up from 1000 lines)
-420
+
+
+0.420
  Feature: New "Worlds" tab in ConfigTool for managing your world list
  Feature: Isometric map previews and map generation in ConfigTool
  Feature: Implemented a class-ID system that allows adding/renaming/deleting classes without breaking compatibility. DeleteClassPopup was added for this
@@ -302,7 +335,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Change: World permissions are now updated automatically when a class is deleted
  Refactor: Improved consistency in code naming conventions, especially in IRC code
  Refactor: Improved code organization in many areas
-410
+
+
+0.410
  Implemented per-world access and build permissions.
  Changed worlds.txt format to worlds.xml. Your old worlds.txt file will be converted automatically.
  New world-related commands:
@@ -321,7 +356,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Improved the way server reacts to fatal errors on startup. Now there is a clear indication that server cannot start.
  "default map" is now referred to as "main world" for consistency. 
  Improved garbage collection.
-405
+
+
+0.405
  Added back support for vanilla (server_level.dat) maps.
  Fixed MCSharp importer leaving nonstandard blocks in the map, causing client crashes. Now all MCSharp-specific blocks are converted to normal types.
  Fixed visual player list not updating in fCraftUI.
@@ -341,7 +378,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fixed OnPlayerDisconnected and OnPlayerListChanged sometimes firing at the wrong time.
  Added better error handling to Map.Save() in case the target file is not writable.
  Updated /help entries for /lock, /unlock, and /load commands.
-404
+
+
+0.404
  Fixed zone borders being off by 1 block.
  Fixed a rare crash on shutdown.
  Fixed heartbeat reporting incorrect port number to heartbeat if the port specified in config was not available.
@@ -353,7 +392,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  ConfigTool: Fixed many bugs in permission checkbox list.
  ConfigTool: Added visual editor for rules.txt
  ConfigTool: Added stub tab for IRC settings (coming soon).
-403
+
+
+0.403
  Fixed spawnpoint being read incorrectly when using /load.
  Added a note to ban*/unban* commands that's shown when player name is not found: "Use the FULL player name for ban/unban commands."
  Fixed a thread crash (not server-wide crash) in Session.IoLoop that can be caused by corrupted or malicious handshake packets.
@@ -361,7 +402,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fixed a potential crash when using /gen from console.
  Added more fail-safe checks that ensure that map spawn point is always within the map boundaries.
  Started logging IPs of connections that try sending corrupted or malicious handshake packets.
-402
+
+
+0.402
  Added back /load command, and hooked up MCC. Currenly supported: fCraft/fcm, MCSharp/lvl, indev/mclevel, MinerCPP and LuaCraft (dat). Vanilla support coming soon.
  Fixed worlds being unloaded before all block updates are processed (thus aborting draw commands).
  Fixed several potential multiworld-related crashes and freezes.
@@ -373,7 +416,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Drawing-related state is now reset when changing worlds.
  Added a limiter to the number of block updates that can be processed per tick (even if there are no players in a world). Fixes server becoming unresponsive when doing enormous drawing commands (millions of blocks).
  Allowed players to /join the world that they are already on.
-401
+
+
+0.401
  *IDLE/AFK CHECKING* This is configurable per-class.
  Added /version command, and added revision to the version string.
  Added an option parameter to /lock and /unlock to target a specific world, and added global /lockall and /unlockall commands. 
@@ -385,7 +430,9 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fixed a bug with getting the server url from the externalurl.txt file crashing the IRC MessageHandler() when the file didn't exist. FORWARD_ALL is now enabled for both SERVER and IRC for 100% transparent chatting.
  Fixed a bug in the server-to-irc code that forwarded a blank message if there was nothing after '#' in server chat.
  Handshake packet is now written when doing /join, to replace MOTD with a more informative "Now loading [worldname]".
-400
+
+
+0.400
  *MULTIWORLD*. It's finally here. See /help for information on new commands: /worlds, /wload, /join
  Added a persistent world list, saved in worlds.txt - this is subject to change. The file contains a list of world names, each corresponding to an .fcm file. The first world listed at the top of worlds.txt is the default/main one.
  *IRC BOT*. Thanks to the efforts by Destroyer661, fCraft now has an optional IRC bot for relaying chat and commands.
@@ -400,47 +447,66 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fixed air blocks appearing underwater when using /gen
  Tweaked /gen parameters to make "island" a bit less ugly.
  Updated text in fCraftConsole.
-330
+
+
+0.330
  Added /cuboid and /ellipsoid drawing commands.
  Improved memory usage.
  Added "Draw" permission, and made /draw check "DeleteAdmincrete" permission when replacing blocks, and removed unused "PlaceGlitchedSand" permission.
  Added "Port" and "BackupOnlyWhenChanged" config lines, and corresponding ConfigTool fields.
  Fixed bug that deleted ALL backups when you check "don't delete old backups." That was embarrassing.
-325
+
+
+0.325
  Added an experimental low-latency mode (faster server response, but more bandwidth required).
  Improved hacking detection: added anti-chat-spam and anti-grief (block spam) checks.
  New more aggressive anti-hacking checks for incoming movement and SetTile packets.
  Fixed an issue with fCraftUI console log getting truncated in the wrong places.
  Improved Mono compatibility (fixes HttpWebRequest failures).
-324
+
+
+0.324
  Added /me command.
  Added step stacking.
  Fixed a case where disconnected players would leave a ghost behind.
  Improved shutdown speed.
  Implemented ProcessPriority setting.
-323
+
+0.323
  Fixed players not being able to delete admincrete after promotion.
  Fixed a bug that allowed players to noclip into walls when using /tp or /bring.
  Fixed a security issue with "VerifyNames: Balanced"
  Added prototype of the security tab in ConfigTool (work in progress).
-322
+
+
+0.322
  Added a range check to Player.SetTile, to prevent certain types of grief bots.
  Fixed a bug where map spawnpoint did not change after doing /load.
  Fixed some typos.
-321
+
+
+0.321
  Fixed welcome messages not showing.
  Renamed /alias to /nick, and added a permission check.
-320
+
+
+0.320
  Finally last fix for the disconnect problem. Sorry about that.
-319
+
+
+0.319
  Quick fix for disconnect problem.
-318
+
+
+0.318
  Fixed VerifyNames not saving properly when using ConfigTool.
  Fixed several potential crashers in Session and World.
  Fixed a bug that sometimes wrongly showed "class name not recognized".
  Added class name autocompletion for class chat (@@classname blah)
  Started working on the new /load mode that allows loading different sized maps, and loading much faster (not done yet).
-317
+
+
+0.317
  Optimized handling of player movement and some block/tile updates, making servers more responsive and less laggy.
  Fixed a possible crash that sometimes happened when server has 1 slot left and 2 people tried to join at once.
  Fixed a case where a Session object was not properly disposed.
@@ -449,47 +515,75 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Added Player.Send, a safe wrapper for Player.session.Send
  Fixed /tp, /bring, and /setspawn commands that were broken in the last revision.
  Fixed ConfigTool not saving "IsPublic" setting correctly.
-316
+
+
+0.316
  Added partial class-name matching for /class and /user commands.
  Fixed /banip and /banall not kicking the banned players immediately.
  Added /rules command. Create "rules.txt" in the server folder to specify.
  Fixed a bug where player movement sometimes got a little out of sync.
  Optimized /load speed a bit.
  Added nicer application icons.
-315
+
+
+0.315
  Added visual color picker to ConfigTool
  Added lightweight console interface for fCraft
  Refactored the main update loop
-314
+
+
+0.314
  Added AutomaticUpdates option.
  Integrated the color picker to ConfigTool.
  Improved hacking detection.
-313
+
+
+0.313
  Fixed a few glitches left after switching file formats.
  Improved memory usage when saving maps.
  Fixed an updater-related crash.
-312
+
+
+0.312
  New map format (FCM v2) should provide faster loading times.
  server_level.dat loader is now functional.
  Fixed possible crash if the default port was not available.
  Automatic updater should now work properly. More update options to come.
-311
+
+
+0.311
  Preview version of automatic updater.
-310
+
+
+0.310
  Cleaned up some VC# crapfiles.
  Added class prefixes and colors.
  Added PlaceWater and PlaceLava back to permissions.
  Fixed rank-limited permissions.
  Other assorted glitches fixed.
-305
+
+
+0.305
  removed config.xml from svn.
-304
+
+
+0.304
  More potential crashes fixed.
-303
+
+
+0.303
  Fixed a couple potential crashes in ConfigTool and Config.DefineClass
-302
+
+
+0.302
  Fixed a few minor ConfigTool bugs.
-301
+
+
+0.301
  Forgot to save config from World.cs after parsing. Minor update.
-300
+
+
+0.300
  ConfigTool finished. Note that some of the options do not have an effect yet.
+
+*version log was not kept before this point*

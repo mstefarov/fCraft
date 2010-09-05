@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 namespace fCraft {
 
+
+
     delegate void SelectionCallback( Player player, Position[] marks, object tag );
 
     public sealed class Player {
@@ -173,7 +175,7 @@ namespace fCraft {
                             Message( formattedMessage );
                         }
                     } else {
-                        Message( "No class found matching \"" + className + "\"" );
+                        Message( "No class found matching \"{0}\"", className );
                     }
                     break;
             }
@@ -201,6 +203,17 @@ namespace fCraft {
             MessagePrefixed( prefix, string.Format( message, args ) );
         }
 
+        public void MessageNow( string message, params object[] args ) {
+            message = String.Format( message, args );
+            if( session == null ) {
+                Logger.LogConsole( message );
+            } else {
+                foreach( Packet p in PacketWriter.MakeWrappedMessage( ">", Color.Sys + message, false ) ) {
+                    session.Send(  p );
+                }
+            }
+        }
+
 
         // Validates player name
         public static bool CheckForIllegalChars( string message ) {
@@ -215,12 +228,12 @@ namespace fCraft {
 
 
         internal void NoPlayerMessage( string name ) {
-            Message( "No players found matching \"" + name + "\"" );
+            Message( "No players found matching \"{0}\"", name );
         }
 
 
         internal void ManyPlayersMessage( string name ) {
-            Message( "More than one player found matching \"" + name + "\"" );
+            Message( "More than one player found matching \"{0}\"", name );
         }
 
 

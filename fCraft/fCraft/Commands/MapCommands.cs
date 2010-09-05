@@ -103,7 +103,7 @@ namespace fCraft {
 
             string mapFileName = "maps/" + fileName + ".fcm";
 
-            player.Message( "Saving map to {0}", mapFileName );
+            player.MessageNow( "Saving map to {0}", mapFileName );
 
             string mapSavingError = "Map saving failed. See server logs for details.";
             Map map = world.map;
@@ -402,11 +402,11 @@ namespace fCraft {
             Logger.Log( "Player {0} is attempting to load map \"{1}\"...", LogType.UserActivity,
                         player.GetLogName(),
                         fileName );
-            player.Message( "Loading {0}...", fileName );
+            player.MessageNow( "Loading {0}...", fileName );
 
             Map map = Map.Load( player.world, fileName );
             if( map == null ) {
-                player.Message( "Could not load specified file." );
+                player.MessageNow( "Could not load specified file." );
                 return;
             }
 
@@ -414,7 +414,7 @@ namespace fCraft {
                 // Loading to current world
                 player.world.ChangeMap( map );
                 player.world.SendToAll( Color.Sys + player.nick + " loaded a new map for the world \"" + player.world.name + "\".", player );
-                player.Message( "New map for the world \"{0}\" has been loaded.", player.world.name );
+                player.MessageNow( "New map for the world \"{0}\" has been loaded.", player.world.name );
 
                 Logger.Log( "{0} loaded new map for {1} from {2}", LogType.UserActivity,
                             player.GetLogName(),
@@ -424,7 +424,7 @@ namespace fCraft {
             } else {
                 // Loading to some other (or new) world
                 if( !Player.IsValidName( worldName ) ) {
-                    player.Message( "Invalid world name: \"{0}\".", worldName );
+                    player.MessageNow( "Invalid world name: \"{0}\".", worldName );
                     return;
                 }
 
@@ -434,7 +434,7 @@ namespace fCraft {
                         // Replacing existing world's map
                         world.ChangeMap( map );
                         world.SendToAll( Color.Sys + player.nick + " loaded a new map for the world \"" + world.name + "\".", player );
-                        player.Message( "New map for the world \"{0}\" has been loaded.", world.name );
+                        player.MessageNow( "New map for the world \"{0}\" has been loaded.", world.name );
                         Logger.Log( "{0} loaded new map for world \"{1}\" from {2}", LogType.UserActivity,
                                     player.GetLogName(),
                                     world.name,
@@ -449,8 +449,10 @@ namespace fCraft {
                                         worldName,
                                         fileName );
                             Server.SaveWorldList();
+                            player.MessageNow( "Reminder: New worlds don't have any access or build restrictions. " +
+                                               "You may protect the world using &H/wbuild&S and &H/waccess&S now." );
                         } else {
-                            player.Message( "Error occured while trying to create a new world." );
+                            player.MessageNow( "Error occured while trying to create a new world." );
                         }
                     }
                 }
@@ -837,7 +839,7 @@ namespace fCraft {
             Map map = null;
 
             if( templateName == "flatgrass" ) {
-                player.Message( "Generating flatgrass map..." );
+                player.MessageNow( "Generating flatgrass map..." );
                 map = new Map( player.world, wx, wy, height );
                 map.ResetSpawn();
                 MapGenerator.GenerateFlatgrass( map );
@@ -860,6 +862,12 @@ namespace fCraft {
                     return;
                 }
 
+                // check user typed in dimensions first
+                if( !Enum.IsDefined( typeof( MapGenTheme ), theme ) || !Enum.IsDefined( typeof( MapGenTemplate ), template ) ) {
+                    cdGenerate.PrintUsage( player );
+                    return;
+                }
+
                 MapGeneratorArgs args = MapGenerator.MakeTemplate( template );
                 args.dimX = wx;
                 args.dimY = wy;
@@ -870,12 +878,12 @@ namespace fCraft {
                 args.addTrees = (theme == MapGenTheme.Forest);
                 try {
                     MapGenerator generator = new MapGenerator( args );
-                    player.Message( "Generating " + theme.ToString() + " " + template.ToString() + "..." );
+                    player.MessageNow( "Generating " + theme.ToString() + " " + template.ToString() + "..." );
                     map = generator.Generate();
                     map.ResetSpawn();
                 } catch( Exception ex ) {
                     Logger.Log( "MapGenerator: Generation failed: " + ex, LogType.Error );
-                    player.Message( Color.Red + "An error occured while generating the map." );
+                    player.MessageNow( Color.Red + "An error occured while generating the map." );
                     return;
                 }
             }
@@ -883,12 +891,12 @@ namespace fCraft {
             if( map != null ) {
                 if( fileName != null ) {
                     if( map.Save( fileName ) ) {
-                        player.Message( "Generation done. Saved to " + fileName );
+                        player.MessageNow( "Generation done. Saved to " + fileName );
                     } else {
                         player.Message( Color.Red + "An error occured while saving generated map." );
                     }
                 } else {
-                    player.Message( "Generation done. Changing map..." );
+                    player.MessageNow( "Generation done. Changing map..." );
                     player.world.ChangeMap( map );
                 }
             } else {

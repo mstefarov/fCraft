@@ -8,7 +8,8 @@ namespace fCraft {
         Cuboid,
         CuboidHollow,
         Ellipsoid,
-        Replace
+        Replace,
+        ReplaceNot
     }
 
 
@@ -19,12 +20,15 @@ namespace fCraft {
 
 
     struct ReplaceArgs {
-        public Block oldBlock, replacementBlock;
+        public bool doExclude;
+        public Block[] types;
+        public Block replacementBlock;
     }
+
 
     struct PasteArgs {
         public bool doInclude, doExclude;
-        public Block type;
+        public Block[] types;
     }
 
 
@@ -35,27 +39,33 @@ namespace fCraft {
 
 
         internal static void Init() {
-            string generalDrawingHelp = "Type " + Color.Help + "/cancel" + Color.Sys + " to exit draw mode. " +
-                                 "Type " + Color.Help + "/undo" + Color.Sys + " to undo the last draw operation." +
-                                 "Use " + Color.Help + "/lock" + Color.Sys + " to cancel drawing after it started.";
+            string generalDrawingHelp = " Use &H/cancel&S to exit draw mode. " +
+                                 "Use &H/undo&S to undo the last draw operation. " +
+                                 "Use &H/lock&S to cancel drawing after it started.";
 
             cdCuboid.help += generalDrawingHelp;
             cdCuboidHollow.help += generalDrawingHelp;
             cdEllipsoid.help += generalDrawingHelp;
             cdReplace.help += generalDrawingHelp;
+            cdReplaceNot.help += generalDrawingHelp;
+            cdPasteNot.help += generalDrawingHelp;
+            cdPaste.help += generalDrawingHelp;
 
             CommandList.RegisterCommand( cdCuboid );
             CommandList.RegisterCommand( cdCuboidHollow );
             CommandList.RegisterCommand( cdEllipsoid );
             CommandList.RegisterCommand( cdReplace );
+            CommandList.RegisterCommand( cdReplaceNot );
 
             CommandList.RegisterCommand( cdMark );
             CommandList.RegisterCommand( cdCancel );
             CommandList.RegisterCommand( cdUndo );
 
             CommandList.RegisterCommand( cdCopy );
+            CommandList.RegisterCommand( cdPasteNot );
             CommandList.RegisterCommand( cdPaste );
-            CommandList.RegisterCommand( cdPasteOnly );
+            CommandList.RegisterCommand( cdFlip );
+            CommandList.RegisterCommand( cdRotate );
         }
 
 
@@ -111,13 +121,27 @@ namespace fCraft {
             name = "replace",
             aliases = new string[] { "r" },
             permissions = new Permission[] { Permission.Draw },
-            usage = "/replace BlockName ReplacementName",
-            help = "Replaces all blocks of specified type in an area.",
+            usage = "/replace (BlockToReplace [AnotherOne]) ReplacementBlock",
+            help = "Replaces all blocks of specified type(s) in an area.",
             handler = Replace
         };
 
         internal static void Replace( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Replace );
+        }
+
+
+        static CommandDescriptor cdReplaceNot = new CommandDescriptor {
+            name = "replacenot",
+            aliases = new string[] { "rn" },
+            permissions = new Permission[] { Permission.Draw },
+            usage = "/replacenot (ExcludedBlock [AnotherOne]) ReplacementBlock",
+            help = "Replaces all blocks EXCEPT specified type(s) in an area.",
+            handler = ReplaceNot
+        };
+
+        internal static void ReplaceNot( Player player, Command cmd ) {
+            Draw( player, cmd, DrawMode.ReplaceNot );
         }
 
 
@@ -130,12 +154,7 @@ namespace fCraft {
 
             // if a type is specified in chat, try to parse it
             if( blockName != null ) {
-                try {
-                    block = Map.GetBlockByName( blockName );
-                } catch( Exception ) {
-                    player.Message( "Draw: Unrecognized block name: {0}", blockName );
-                    return;
-                }
+                block = Map.GetBlockByName( blockName );
 
                 switch( block ) {
                     case Block.Admincrete:
@@ -148,12 +167,15 @@ namespace fCraft {
                     case Block.Lava:
                     case Block.StillLava:
                         permission = Permission.PlaceLava; break;
+                    case Block.Undefined:
+                        player.MessageNow( "Draw: Unrecognized block name: {0}", blockName );
+                        return;
                 }
-            }
-            // otherwise, use the last-used-block
+            } // else { use the last-used-block }
 
-            if( !player.Can( permission ) ) {
-                player.Message( "You are not allowed to draw with this block." );
+            // ReplaceNot does not need permission (since the block is EXCLUDED)
+            if( !player.Can( permission ) && mode != DrawMode.ReplaceNot ) {
+                player.MessageNow( "You are not allowed to draw with this block." );
                 return;
             }
 
@@ -161,37 +183,63 @@ namespace fCraft {
             switch( mode ) {
                 case DrawMode.Cuboid:
                     player.selectionCallback = DrawCuboid;
-                    player.selectionMarksExpected = 2;
                     break;
+
                 case DrawMode.CuboidHollow:
                     player.selectionCallback = DrawCuboidHollow;
-                    player.selectionMarksExpected = 2;
                     break;
+
                 case DrawMode.Ellipsoid:
                     player.selectionCallback = DrawEllipsoid;
-                    player.selectionMarksExpected = 2;
                     break;
+
                 case DrawMode.Replace:
-                    Block replacementBlock;
-                    if( !cmd.NextBlockType( out replacementBlock ) ) {
-                        cdReplace.PrintUsage( player );
-                        return;
-                    } else if( replacementBlock == Block.Undefined ) {
-                        player.Message( "Replace: Unrecognized block name" );
+                case DrawMode.ReplaceNot:
+
+                    List<Block> affectedTypes = new List<Block>();
+                    affectedTypes.Add( block );
+                    Block affectedType;
+                    while( cmd.NextBlockType( out affectedType ) ) {
+                        if( affectedType != Block.Undefined ) {
+                            affectedTypes.Add( affectedType );
+                        } else {
+                            player.MessageNow( "{0}: Unrecognized block type.", mode );
+                            return;
+                        }
+                    }
+
+                    if( affectedTypes.Count > 1 ) {
+                        Block replacementType = affectedTypes[affectedTypes.Count - 1];
+                        affectedTypes.RemoveAt( affectedTypes.Count - 1 );
+                        player.selectionArgs = new ReplaceArgs {
+                            doExclude = (mode == DrawMode.ReplaceNot),
+                            types = affectedTypes.ToArray(),
+                            replacementBlock = replacementType
+                        };
+                        string affectedString = "";
+                        foreach( Block affectedBlock in affectedTypes ) {
+                            affectedString += ", " + affectedBlock.ToString();
+                        }
+                        if( mode == DrawMode.ReplaceNot ) {
+                            player.MessageNow( "ReplaceNot: Ready to replace everything EXCEPT ({0}) with {1}", affectedString.Substring( 2 ), replacementType );
+                        } else {
+                            player.MessageNow( "Replace: Ready to replace ({0}) with {1}", affectedString.Substring( 2 ), replacementType );
+                        }
+                        player.selectionCallback = DrawReplace;
+                    } else {
+                        if( mode == DrawMode.ReplaceNot ) {
+                            cdReplaceNot.PrintUsage( player );
+                        } else {
+                            cdReplace.PrintUsage( player );
+                        }
                         return;
                     }
-                    player.selectionCallback = DrawReplace;
-                    player.selectionMarksExpected = 2;
-                    player.selectionArgs = new ReplaceArgs() {
-                        oldBlock = block,
-                        replacementBlock = replacementBlock
-                    };
-                    player.Message( "Replacing {0} with {1}", block, replacementBlock );
                     break;
             }
+            player.selectionMarksExpected = 2;
             player.selectionMarkCount = 0;
             player.selectionMarks.Clear();
-            player.Message( "{0}: Place a block or type /mark to use your location.", mode );
+            player.MessageNow( "{0}: Place a block or type /mark to use your location.", mode );
         }
 
 
@@ -205,10 +253,10 @@ namespace fCraft {
         };
 
         internal static void Mark( Player player, Command command ) {
-            Position pos = new Position( (short)((player.pos.x-1) / 32), (short)((player.pos.y-1) / 32), (short)((player.pos.h-1) / 32) );
-            pos.x = (short)Math.Min( player.world.map.widthX-1, Math.Max( 0, (int)pos.x ) );
-            pos.y = (short)Math.Min( player.world.map.widthY-1, Math.Max( 0, (int)pos.y ) );
-            pos.h = (short)Math.Min( player.world.map.height-1, Math.Max( 0, (int)pos.h ) );
+            Position pos = new Position( (short)((player.pos.x - 1) / 32), (short)((player.pos.y - 1) / 32), (short)((player.pos.h - 1) / 32) );
+            pos.x = (short)Math.Min( player.world.map.widthX - 1, Math.Max( 0, (int)pos.x ) );
+            pos.y = (short)Math.Min( player.world.map.widthY - 1, Math.Max( 0, (int)pos.y ) );
+            pos.h = (short)Math.Min( player.world.map.height - 1, Math.Max( 0, (int)pos.h ) );
 
             if( player.selectionMarksExpected > 0 ) {
                 player.selectionMarks.Enqueue( pos );
@@ -217,13 +265,13 @@ namespace fCraft {
                     player.selectionCallback( player, player.selectionMarks.ToArray(), player.selectionArgs );
                     player.selectionMarksExpected = 0;
                 } else {
-                    player.Message( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
-                                    player.selectionMarkCount,
-                                    pos.x, pos.y, pos.h,
-                                    player.selectionMarkCount + 1 );
+                    player.MessageNow( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
+                                       player.selectionMarkCount,
+                                       pos.x, pos.y, pos.h,
+                                       player.selectionMarkCount + 1 );
                 }
             } else {
-                player.Message( "Cannot mark - no draw or zone commands initiated." );
+                player.MessageNow( "Cannot mark - no draw or zone commands initiated." );
             }
         }
 
@@ -239,16 +287,17 @@ namespace fCraft {
         internal static void Cancel( Player player, Command command ) {
             if( player.selectionMarksExpected > 0 ) {
                 player.selectionMarksExpected = 0;
-                player.Message( "Selection cancelled." );
+                player.MessageNow( "Selection cancelled." );
             } else {
-                player.Message( "There is currently nothing to cancel." );
+                player.MessageNow( "There is currently nothing to cancel." );
             }
         }
 
 
-
+        #region Undo / Redo
         static CommandDescriptor cdUndo = new CommandDescriptor {
             name = "undo",
+            aliases = new string[]{"redo"},
             help = "Selectively removes changes from your last drawing command. " +
                    "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
             handler = Undo
@@ -264,20 +313,35 @@ namespace fCraft {
                 Logger.Log( "Player {0} initiated /undo affecting {1} blocks.", LogType.UserActivity,
                             player.GetLogName(),
                             player.undoBuffer.Count );
-                player.Message( "Restoring {0} blocks...", player.undoBuffer.Count );
+                player.MessageNow( "Restoring {0} blocks...", player.undoBuffer.Count );
+                Queue<BlockUpdate> redoBuffer = new Queue<BlockUpdate>();
                 while( player.undoBuffer.Count > 0 ) {
-                    player.world.map.QueueUpdate( player.undoBuffer.Dequeue() );
+                    BlockUpdate newBlock = player.undoBuffer.Dequeue();
+                    BlockUpdate oldBlock = new BlockUpdate( null, newBlock.x, newBlock.y, newBlock.h,
+                                                            player.world.map.GetBlock( newBlock.x, newBlock.y, newBlock.h ) );
+                    player.world.map.QueueUpdate( newBlock );
+                    redoBuffer.Enqueue( oldBlock );
                 }
+                player.undoBuffer = redoBuffer;
+                redoBuffer.TrimExcess();
+                player.MessageNow( "Type /undo again to reverse this command." );
                 GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
             } else {
-                player.Message( "There is currently nothing to undo." );
+                player.MessageNow( "There is currently nothing to undo." );
             }
         }
+        #endregion
 
 
         internal static void DrawReplace( Player player, Position[] marks, object drawArgs ) {
-            byte oldBlock = (byte)((ReplaceArgs)drawArgs).oldBlock,
-                 replacementBlock = (byte)((ReplaceArgs)drawArgs).replacementBlock;
+            ReplaceArgs args = (ReplaceArgs)drawArgs;
+
+            byte[] specialTypes = new byte[args.types.Length];
+            for( int i = 0; i < args.types.Length; i++ ) {
+                specialTypes[i] = (byte)args.types[i];
+            }
+            byte replacementBlock = (byte)args.replacementBlock;
+            bool doExclude = args.doExclude;
 
             // find start/end coordinates
             int sx = Math.Min( marks[0].x, marks[1].x );
@@ -289,7 +353,7 @@ namespace fCraft {
 
             int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
             if( player.CanDraw( volume ) ) {
-                player.Message( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                 player.info.playerClass.drawLimit,
                                 volume );
                 return;
@@ -307,15 +371,40 @@ namespace fCraft {
                             for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
 
                                 block = player.world.map.GetBlock( x + x3, y + y3, h );
-                                if( block != oldBlock ) continue;
+
+                                if( args.doExclude ) {
+                                    bool skip = false;
+                                    for( int i = 0; i < specialTypes.Length; i++ ) {
+                                        if( block == specialTypes[i] ) {
+                                            skip = true;
+                                            break;
+                                        }
+                                    }
+                                    if( skip ) continue;
+                                } else {
+                                    bool skip = true;
+                                    for( int i = 0; i < specialTypes.Length; i++ ) {
+                                        if( block == specialTypes[i] ) {
+                                            skip = false;
+                                            break;
+                                        }
+                                    }
+                                    if( skip ) continue;
+                                }
+
                                 if( block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) continue;
                                 if( player.CanPlace( x, y, h, replacementBlock ) != CanPlaceResult.Allowed ) continue;
                                 player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h, replacementBlock ) );
                                 if( blocks < MaxUndoCount ) {
-                                    player.undoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, oldBlock ) );
+                                    player.undoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, block ) );
                                 } else if( !cannotUndo ) {
-                                    player.Message( "NOTE: This draw command is too massive to undo." );
+                                    player.undoBuffer.Clear();
+                                    player.undoBuffer.TrimExcess();
+                                    player.MessageNow( "NOTE: This draw command is too massive to undo." );
                                     cannotUndo = true;
+                                    if( player.Can( Permission.ManageWorlds ) ) {
+                                        player.MessageNow( "Reminder: You can use &H/wflush&S to accelerate draw commands." );
+                                    }
                                 }
                                 blocks++;
 
@@ -325,12 +414,8 @@ namespace fCraft {
                 }
             }
 
-            player.Message( "Replacing {0} blocks... The map is now being updated.", blocks );
-            Logger.Log( "{0} initiated replacing {1} {2} blocks with {3}.", LogType.UserActivity,
-                                  player.GetLogName(),
-                                  blocks,
-                                  (Block)oldBlock,
-                                  (Block)replacementBlock );
+            player.MessageNow( "Replacing {0} blocks... The map is now being updated.", blocks );
+            player.undoBuffer.TrimExcess();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
@@ -351,9 +436,9 @@ namespace fCraft {
 
             int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
             if( player.CanDraw( volume ) ) {
-                player.Message( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                player.info.playerClass.drawLimit,
-                                volume );
+                player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                   player.info.playerClass.drawLimit,
+                                   volume );
                 return;
             }
 
@@ -373,11 +458,12 @@ namespace fCraft {
                     }
                 }
             }
-            player.Message( "Drawing {0} blocks... The map is now being updated.", blocks );
+            player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
             Logger.Log( "{0} initiated drawing a cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
                                   player.GetLogName(),
                                   blocks,
                                   (Block)drawBlock );
+            player.undoBuffer.TrimExcess();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
@@ -398,7 +484,7 @@ namespace fCraft {
 
             int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1) - (ex - sx - 1) * (ey - sy - 1) * (eh - sh - 1);
             if( player.CanDraw( volume ) ) {
-                player.Message( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                 player.info.playerClass.drawLimit,
                                 volume );
                 return;
@@ -428,11 +514,12 @@ namespace fCraft {
                 }
             }
 
-            player.Message( "Drawing {0} blocks... The map is now being updated.", blocks );
+            player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
             Logger.Log( "{0} initiated drawing a hollow cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
                                   player.GetLogName(),
                                   blocks,
                                   (Block)drawBlock );
+            player.undoBuffer.TrimExcess();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
@@ -452,25 +539,29 @@ namespace fCraft {
             int eh = Math.Max( marks[0].h, marks[1].h );
 
             // find axis lengths
-            double rx = (ex - sx + 1) / 2 + .25;
-            double ry = (ey - sy + 1) / 2 + .25;
-            double rh = (eh - sh + 1) / 2 + .25;
+            double rx = (ex - sx + 1) / 2d;
+            double ry = (ey - sy + 1) / 2d;
+            double rh = (eh - sh + 1) / 2d;
 
             double rx2 = 1 / (rx * rx);
             double ry2 = 1 / (ry * ry);
             double rh2 = 1 / (rh * rh);
 
+            double rx3 = 1 / ((rx - 1) * (rx - 1));
+            double ry3 = 1 / ((ry - 1) * (ry - 1));
+            double rh3 = 1 / ((ry - 1) * (rh - 1));
+
             // find center points
-            double cx = (ex + sx) / 2;
-            double cy = (ey + sy) / 2;
-            double ch = (eh + sh) / 2;
+            double cx = (ex + sx) / 2d;
+            double cy = (ey + sy) / 2d;
+            double ch = (eh + sh) / 2d;
 
 
-            int volume = (int)((3 / 4d) * Math.PI * rx * ry * rh);
+            int volume = (int)(.75d * Math.PI * rx * ry * rh);
             if( player.CanDraw( volume ) ) {
-                player.Message( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                 player.info.playerClass.drawLimit,
-                                 volume );
+                player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                   player.info.playerClass.drawLimit,
+                                   volume );
                 return;
             }
 
@@ -499,7 +590,7 @@ namespace fCraft {
                     }
                 }
             }
-            player.Message( "Drawing {0} blocks... The map is now being updated.", blocks );
+            player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
             Logger.Log( "{0} initiated drawing an ellipsoid containing {1} blocks of type {2}.", LogType.UserActivity,
                                   player.GetLogName(),
                                   blocks,
@@ -519,7 +610,12 @@ namespace fCraft {
             if( blocks < MaxUndoCount ) {
                 player.undoBuffer.Enqueue( new BlockUpdate( Player.Console, x, y, h, block ) );
             } else if( !cannotUndo ) {
-                player.Message( "NOTE: This draw command is too massive to undo." );
+                player.undoBuffer.Clear();
+                player.undoBuffer.TrimExcess();
+                player.MessageNow( "NOTE: This draw command is too massive to undo." );
+                if( player.Can( Permission.ManageWorlds ) ) {
+                    player.MessageNow( "Reminder: You can use &H/wflush&S to accelerate draw commands." );
+                }
                 cannotUndo = true;
             }
             blocks++;
@@ -540,7 +636,7 @@ namespace fCraft {
             player.selectionMarksExpected = 2;
             player.selectionMarkCount = 0;
             player.selectionMarks.Clear();
-            player.Message( "Copy: Place a block or type /mark to use your location." );
+            player.MessageNow( "Copy: Place a block or type /mark to use your location." );
         }
 
         internal static void DoCopy( Player player, Position[] marks, object tag ) {
@@ -553,7 +649,7 @@ namespace fCraft {
 
             int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
             if( player.CanDraw( volume ) ) {
-                player.Message( String.Format( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                player.MessageNow( String.Format( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                                player.info.playerClass.drawLimit, volume ) );
                 return;
             }
@@ -576,11 +672,11 @@ namespace fCraft {
             }
 
             player.copyInformation = copyInfo;
-            player.Message( "{0} blocks were copied. You can now &H/paste", volume );
-            player.Message( "Origin at {0} {1}{2} corner.",
-                            (copyInfo.height > 0 ? "bottom " : "top "),
-                            (copyInfo.widthY > 0 ? "south" : "north"),
-                            (copyInfo.widthX > 0 ? "west" : "east") );
+            player.MessageNow( "{0} blocks were copied. You can now &H/paste", volume );
+            player.MessageNow( "Origin at {0} {1}{2} corner.",
+                               (copyInfo.height > 0 ? "bottom" : "top"),
+                               (copyInfo.widthY > 0 ? "south" : "north"),
+                               (copyInfo.widthX > 0 ? "west" : "east") );
 
             Logger.Log( "{0} copied {1} blocks.", LogType.UserActivity,
                         player.GetLogName(),
@@ -588,65 +684,100 @@ namespace fCraft {
         }
 
 
+        static CommandDescriptor cdPasteNot = new CommandDescriptor {
+            name = "pastenot",
+            permissions = new Permission[] { Permission.CopyAndPaste },
+            help = "Paste previously copied blocks, excluding specified block type(s). "+
+                   "Used together with &H/copy&S command. " +
+                   "Note that pasting starts at the same corner that you started &H/copy&S from. ",
+            usage = "/pastenot ExcludedBlock [AnotherOne [AndAnother]]",
+            handler = PasteNot
+        };
+
+        internal static void PasteNot( Player player, Command cmd ) {
+            if( player.copyInformation == null ) {
+                player.MessageNow( "Nothing to paste! Copy something first." );
+                return;
+            }
+
+
+            List<Block> excludedTypes = new List<Block>();
+            Block excludedType;
+            while( cmd.NextBlockType( out excludedType ) ) {
+                if( excludedType != Block.Undefined ) {
+                    excludedTypes.Add( excludedType );
+                } else {
+                    player.MessageNow( "Paste: Unrecognized block type." );
+                    return;
+                }
+            }
+
+            if( excludedTypes.Count > 0 ) {
+                player.selectionArgs = new PasteArgs {
+                    doExclude = true,
+                    types = excludedTypes.ToArray()
+                };
+                string includedString = "";
+                foreach( Block block in excludedTypes ) {
+                    includedString += ", " + block.ToString();
+                }
+                player.MessageNow( "Ready to paste all EXCEPT {0}", includedString.Substring( 2 ) );
+            } else {
+                player.MessageNow( "PasteNot: Please specify block(s) to exclude." );
+                return;
+            }
+
+            player.selectionCallback = DoPaste;
+            player.selectionMarksExpected = 1;
+            player.selectionMarkCount = 0;
+            player.selectionMarks.Clear();
+
+            player.MessageNow( "PasteNot: Place a block or type /mark to use your location. " );
+        }
+
+
         static CommandDescriptor cdPaste = new CommandDescriptor {
             name = "paste",
             permissions = new Permission[] { Permission.CopyAndPaste },
-            help = "Paste previously copied blocks. Used together with &H/copy&S command. " +
-                   "Note that pasting starts at the same corner that you started &H/copy&S from. " +
-                   "If the optional parameter is given, blocks of specified type are excluded while pasting.",
-            usage = "/paste [ExcludedBlockType]",
+            help = "Pastes previously copied blocks. Used together with &H/copy&S command. " +
+                   "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
+                   "Note that pasting starts at the same corner that you started &H/copy&S from.",
+            usage = "/paste [IncludedBlock [AnotherOne [AndAnother]]]",
             handler = Paste
         };
 
         internal static void Paste( Player player, Command cmd ) {
             if( player.copyInformation == null ) {
-                player.Message( "Nothing to paste! Copy something first." );
+                player.MessageNow( "Nothing to paste! Copy something first." );
                 return;
             }
 
-            Block excludedType;
-            if( !cmd.NextBlockType( out excludedType ) ) {
-                player.selectionArgs = new PasteArgs();
-            } else if( excludedType == Block.Undefined ) {
-                player.Message( "Paste: Unrecognized block type." );
-            } else {
-                player.selectionArgs = new PasteArgs {
-                    doExclude = true,
-                    type = excludedType
-                };
-                player.Message( "Ready to paste all EXCEPT {0}", excludedType );
-            }
-
-            player.selectionCallback = DoPaste;
-            player.selectionMarksExpected = 1;
-            player.selectionMarkCount = 0;
-            player.selectionMarks.Clear();
-
-            player.Message( "Paste: Place a block or type /mark to use your location. " );
-        }
-
-        static CommandDescriptor cdPasteOnly = new CommandDescriptor {
-            name = "pasteonly",
-            permissions = new Permission[] { Permission.CopyAndPaste },
-            help = "Paste previously copied blocks ONLY of specified blocktype. Used together with &H/copy&S command. " +
-                   "Note that pasting starts at the same corner that you started &H/copy&S from.",
-            usage = "/pasteonly IncludedBlockType",
-            handler = PasteOnly
-        };
-
-        internal static void PasteOnly( Player player, Command cmd ) {
-            if( player.copyInformation == null ) {
-                player.Message( "Nothing to paste! Copy something first." );
-                return;
-            }
-
+            List<Block> includedTypes = new List<Block>();
             Block includedType;
-            if( !cmd.NextBlockType( out includedType ) ) {
-                cdPasteOnly.PrintUsage( player );
-                return;
-            } else if( includedType == Block.Undefined ) {
-                player.Message( "PasteOnly: Unrecognized block type." );
-                return;
+            while( cmd.NextBlockType( out includedType ) ) {
+                if( includedType != Block.Undefined ) {
+                    includedTypes.Add( includedType );
+                } else {
+                    player.MessageNow( "Paste: Unrecognized block type." );
+                    return;
+                }
+            }
+
+            if( includedTypes.Count > 0 ) {
+                player.selectionArgs = new PasteArgs {
+                    doInclude = true,
+                    types = includedTypes.ToArray()
+                };
+                string includedString = "";
+                foreach( Block block in includedTypes ) {
+                    includedString += ", " + block.ToString();
+                }
+                player.MessageNow( "Ready to paste ONLY {0}", includedString.Substring( 2 ) );
+            } else {
+                player.selectionArgs = new PasteArgs() {
+                    types = new Block[0]
+                };
+                player.MessageNow( "Ready to paste all blocks." );
             }
 
             player.selectionCallback = DoPaste;
@@ -654,32 +785,30 @@ namespace fCraft {
             player.selectionMarkCount = 0;
             player.selectionMarks.Clear();
 
-            player.selectionArgs = new PasteArgs {
-                doInclude = true,
-                type = includedType
-            };
-
-            player.Message( "Ready to paste ONLY {0}", includedType );
-            player.Message( "Paste: Place a block or type /mark to use your location. " );
+            player.MessageNow( "Paste: Place a block or type /mark to use your location. " );
         }
+
 
         internal static void DoPaste( Player player, Position[] marks, object tag ) {
             CopyInformation info = player.copyInformation;
 
             PasteArgs args = (PasteArgs)tag;
-            byte specialType = (byte)args.type;
+            byte[] specialTypes = new byte[args.types.Length];
+            for( int i = 0; i < args.types.Length; i++ ) {
+                specialTypes[i] = (byte)args.types[i];
+            }
             Map map = player.world.map;
 
             BoundingBox bounds = new BoundingBox( marks[0], info.widthX, info.widthY, info.height );
 
             if( bounds.xMin < 0 || bounds.xMax > map.widthX - 1 ) {
-                player.Message( "Warning: Not enough room horizontally (X), paste cut off." );
+                player.MessageNow( "Warning: Not enough room horizontally (X), paste cut off." );
             }
             if( bounds.yMin < 0 || bounds.yMax > map.widthY - 1 ) {
-                player.Message( "Warning: Not enough room horizontally (Y), paste cut off." );
+                player.MessageNow( "Warning: Not enough room horizontally (Y), paste cut off." );
             }
             if( bounds.hMin < 0 || bounds.hMax > map.height - 1 ) {
-                player.Message( "Warning: Not enough room vertically, paste cut off." );
+                player.MessageNow( "Warning: Not enough room vertically, paste cut off." );
             }
 
             player.undoBuffer.Clear();
@@ -688,23 +817,295 @@ namespace fCraft {
             bool cannotUndo = false;
             byte block;
 
-            for( int x = bounds.xMin; x <= bounds.xMax; x++ ) {
-                for( int y = bounds.yMin; y <= bounds.yMax; y++ ) {
+            for( int x = bounds.xMin; x <= bounds.xMax; x += DrawStride ) {
+                for( int y = bounds.yMin; y <= bounds.yMax; y += DrawStride ) {
                     for( int h = bounds.hMin; h <= bounds.hMax; h++ ) {
-                        block = info.buffer[x - bounds.xMin, y - bounds.yMin, h - bounds.hMin];
-                        if( !(args.doExclude && block == specialType) &&
-                            !(args.doInclude && block != specialType) ) {
-                            DrawOneBlock( player, block, x, y, h, ref blocks, ref cannotUndo );
+                        for( int y3 = 0; y3 < DrawStride && y + y3 <= bounds.yMax; y3++ ) {
+                            for( int x3 = 0; x3 < DrawStride && x + x3 <= bounds.xMax; x3++ ) {
+                                block = info.buffer[x + x3 - bounds.xMin, y + y3 - bounds.yMin, h - bounds.hMin];
+                                
+                                if( args.doInclude ) {
+                                    bool skip = true;
+                                    for( int i = 0; i < specialTypes.Length; i++ ) {
+                                        if( block == specialTypes[i] ) {
+                                            skip = false;
+                                            break;
+                                        }
+                                    }
+                                    if( skip ) continue;
+                                } else if( args.doExclude ) {
+                                    bool skip = false;
+                                    for( int i = 0; i < specialTypes.Length; i++ ) {
+                                        if( block == specialTypes[i] ) {
+                                            skip = true;
+                                            break;
+                                        }
+                                    }
+                                    if( skip ) continue;
+                                }
+                                DrawOneBlock( player, block, x + x3, y + y3, h, ref blocks, ref cannotUndo );
+                            }
                         }
                     }
                 }
             }
 
-            player.Message( "{0} blocks pasted. The map is now being updated...", blocks );
+            player.MessageNow( "{0} blocks pasted. The map is now being updated...", blocks );
 
             Logger.Log( "{0} pasted {1} blocks.", LogType.UserActivity,
                         player.GetLogName(),
                         blocks );
+            player.undoBuffer.TrimExcess();
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+        }
+
+
+        static CommandDescriptor cdFlip = new CommandDescriptor {
+            name = "flip",
+            aliases = new string[] { "mirror" },
+            permissions = new Permission[] { Permission.CopyAndPaste },
+            help = "Flips copied blocks along specified axis/axes. " +
+                   "The axes are: X = horizontal (east-west), Y = horizontal (north-south), H or Z = vertical. " +
+                   "You can mirror more than one axis at a time, e.g. &H/copymirror X Y&S.",
+            usage = "/mirror [X] [Y] [Z]",
+            handler = Flip
+        };
+
+        internal static void Flip( Player player, Command cmd ) {
+            if( player.copyInformation == null ) {
+                player.MessageNow( "Nothing to flip! Copy something first." );
+                return;
+            }
+
+            bool flipX = false, flipY = false, flipH = false;
+            string axis;
+            while( (axis = cmd.Next()) != null ) {
+                foreach( char c in axis.ToLower() ) {
+                    if( c == 'x' ) flipX = true;
+                    if( c == 'y' ) flipY = true;
+                    if( c == 'z' || c == 'h' ) flipH = true;
+                }
+            }
+
+            if( !flipX && !flipY && !flipH ) {
+                cdFlip.PrintUsage( player );
+                return;
+            }
+
+            byte block;
+            byte[, ,] buffer = player.copyInformation.buffer;
+
+            if( flipX ) {
+                int left = 0;
+                int right = buffer.GetLength( 0 ) - 1;
+                while( left < right ) {
+                    for( int y = player.copyInformation.buffer.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                        for( int h = player.copyInformation.buffer.GetLength( 2 ) - 1; h >= 0; h-- ) {
+                            block = buffer[left, y, h];
+                            buffer[left, y, h] = buffer[right, y, h];
+                            buffer[right, y, h] = block;
+                        }
+                    }
+                    left++;
+                    right--;
+                }
+            }
+
+            if( flipY ) {
+                int left = 0;
+                int right = buffer.GetLength( 1 ) - 1;
+                while( left < right ) {
+                    for( int x = player.copyInformation.buffer.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                        for( int h = player.copyInformation.buffer.GetLength( 2 ) - 1; h >= 0; h-- ) {
+                            block = buffer[x, left, h];
+                            buffer[x, left, h] = buffer[x, right, h];
+                            buffer[x, right, h] = block;
+                        }
+                    }
+                    left++;
+                    right--;
+                }
+            }
+
+            if( flipH ) {
+                int left = 0;
+                int right = buffer.GetLength( 2 ) - 1;
+                while( left < right ) {
+                    for( int x = player.copyInformation.buffer.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                        for( int y = player.copyInformation.buffer.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                            block = buffer[x, y, left];
+                            buffer[x, y, left] = buffer[x, y, right];
+                            buffer[x, y, right] = block;
+                        }
+                    }
+                    left++;
+                    right--;
+                }
+            }
+
+            if( flipX ) {
+                if( flipY ) {
+                    if( flipH ) {
+                        player.Message( "Flipped copy along all axes." );
+                    } else {
+                        player.Message( "Flipped copy along X (east/west) and Y (north/south) axes." );
+                    }
+                } else {
+                    if( flipH ) {
+                        player.Message( "Flipped copy along X (east/west) and Z (vertical) axes." );
+                    } else {
+                        player.Message( "Flipped copy along X (east/west) axis." );
+                    }
+                }
+            } else {
+                if( flipY ) {
+                    if( flipH ) {
+                        player.Message( "Flipped copy along Y (north/south) and Z (vertical) axes." );
+                    } else {
+                        player.Message( "Flipped copy along Y (north/south) axis." );
+                    }
+                } else {
+                    player.Message( "Flipped copy along Z (vertical) axis." );
+                }
+            }
+        }
+
+
+        static CommandDescriptor cdRotate = new CommandDescriptor {
+            name = "rotate",
+            permissions = new Permission[] { Permission.CopyAndPaste },
+            help = "Rotates copied blocks around specifies axis/axes. If no axis is given, rotates around Z (vertical).",
+            usage = "/rotate (-90|90|180|270) (X|Y|Z)",
+            handler = Rotate
+        };
+
+        enum RotationAxis {
+            X, Y, Z
+        }
+        internal static void Rotate( Player player, Command cmd ) {
+            if( player.copyInformation == null ) {
+                player.MessageNow( "Nothing to rotate! Copy something first." );
+                return;
+            }
+
+            int degrees;
+            if( !cmd.NextInt( out degrees ) || (degrees != 90 && degrees != -90 && degrees != 180 && degrees != 270) ) {
+                cdRotate.PrintUsage( player );
+                return;
+            }
+
+            string axisName = cmd.Next();
+            RotationAxis axis = RotationAxis.Z;
+            if( axisName != null ) {
+                switch( axisName.ToLower() ) {
+                    case "x":
+                        axis = RotationAxis.X;
+                        break;
+                    case "y":
+                        axis = RotationAxis.Y;
+                        break;
+                    case "z":
+                    case "h":
+                        axis = RotationAxis.Z;
+                        break;
+                    default:
+                        cdRotate.PrintUsage( player );
+                        return;
+                }
+            }
+
+
+            // allocate the new buffer
+            byte[, ,] oldBuffer = player.copyInformation.buffer;
+            byte[, ,] newBuffer;
+
+            if( degrees == 180 ) {
+                newBuffer = new byte[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 2 )];
+
+            } else if( axis == RotationAxis.X ) {
+                newBuffer = new byte[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 )];
+                int dimY = player.copyInformation.widthY;
+                player.copyInformation.widthY = player.copyInformation.height;
+                player.copyInformation.height = dimY;
+
+            } else if( axis == RotationAxis.Y ) {
+                newBuffer = new byte[oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 )];
+                int dimX = player.copyInformation.widthX;
+                player.copyInformation.widthX = player.copyInformation.height;
+                player.copyInformation.height = dimX;
+
+            } else {
+                newBuffer = new byte[oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 )];
+                int dimY = player.copyInformation.widthY;
+                player.copyInformation.widthY = player.copyInformation.widthX;
+                player.copyInformation.widthX = dimY;
+            }
+
+
+            // construct the rotation matrix
+            int[,] matrix = new int[,]{
+                {1,0,0},
+                {0,1,0},
+                {0,0,1}
+            };
+
+            int a, b;
+            switch( axis ) {
+                case RotationAxis.X:
+                    a = 1;
+                    b = 2;
+                    break;
+                case RotationAxis.Y:
+                    a = 0;
+                    b = 2;
+                    break;
+                default:
+                    a = 0;
+                    b = 1;
+                    break;
+            }
+
+            switch( degrees ) {
+                case 90:
+                    matrix[a, a] = 0;
+                    matrix[b, b] = 0;
+                    matrix[a, b] = -1;
+                    matrix[b, a] = 1;
+                    break;
+                case 180:
+                    matrix[a, a] = -1;
+                    matrix[b, b] = -1;
+                    break;
+                case -90:
+                case 270:
+                    matrix[a, a] = 0;
+                    matrix[b, b] = 0;
+                    matrix[a, b] = 1;
+                    matrix[b, a] = -1;
+                    break;
+            }
+
+            // apply the rotation matrix
+            int nx, ny, nz;
+            for( int x = oldBuffer.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = oldBuffer.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    for( int z = oldBuffer.GetLength( 2 ) - 1; z >= 0; z-- ) {
+                        nx = (matrix[0, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : (matrix[0, 0] > 0 ? x : 0)) +
+                             (matrix[0, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : (matrix[0, 1] > 0 ? y : 0)) +
+                             (matrix[0, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : (matrix[0, 2] > 0 ? z : 0));
+                        ny = (matrix[1, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : (matrix[1, 0] > 0 ? x : 0)) +
+                             (matrix[1, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : (matrix[1, 1] > 0 ? y : 0)) +
+                             (matrix[1, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : (matrix[1, 2] > 0 ? z : 0));
+                        nz = (matrix[2, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : (matrix[2, 0] > 0 ? x : 0)) +
+                             (matrix[2, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : (matrix[2, 1] > 0 ? y : 0)) +
+                             (matrix[2, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : (matrix[2, 2] > 0 ? z : 0));
+                        newBuffer[nx, ny, nz] = oldBuffer[x, y, z];
+                    }
+                }
+            }
+
+            player.Message( "Rotated copy by {0} degrees around {1} axis.", degrees, axis );
+            player.copyInformation.buffer = newBuffer;
         }
 
         #endregion

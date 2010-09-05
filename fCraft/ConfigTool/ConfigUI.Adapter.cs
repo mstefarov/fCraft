@@ -224,15 +224,14 @@ namespace ConfigTool {
             gIRCNetwork.Enabled = xIRC.Checked;
             gIRCOptions.Enabled = xIRC.Checked;
 
+            nIRCDelay.Value = Config.GetInt( ConfigKey.IRCDelay );
+
             colorIRC = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.IRCMessageColor ) );
             ApplyColor( bColorIRC, colorIRC );
         }
 
 
         void ApplyTabAdvanced() {
-            ApplyEnum( cPolicyColor, ConfigKey.PolicyColorCodesInChat, 1, "Disallow", "ConsoleOnly", "Allow" );
-            ApplyEnum( cPolicyIllegal, ConfigKey.PolicyIllegalCharacters, 0, "Disallow", "ConsoleOnly", "Allow" );
-
             xRedundantPacket.Checked = Config.GetBool( ConfigKey.SendRedundantBlockUpdates );
             xPing.Checked = Config.GetInt( ConfigKey.PingInterval ) > 0;
             nPing.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.PingInterval ) );
@@ -241,11 +240,11 @@ namespace ConfigTool {
             nTickInterval.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.TickInterval ) );
 
             ApplyEnum( cProcessPriority, ConfigKey.ProcessPriority, 0, "", "High", "AboveNormal", "Normal", "BelowNormal", "Low" );
-            ApplyEnum( cStartup, ConfigKey.RunOnStartup, 1, "Always", "OnUnexpectedShutdown", "Never" );
             ApplyEnum( cUpdater, ConfigKey.AutomaticUpdates, 2, "Disabled", "Notify", "Prompt", "Auto" );
 
             nThrottling.Value = Config.GetInt( ConfigKey.BlockUpdateThrottling );
             xLowLatencyMode.Checked = Config.GetBool( ConfigKey.LowLatencyMode );
+            xSubmitCrashReports.Checked = Config.GetBool( ConfigKey.SubmitCrashReports );
         }
 
 
@@ -342,10 +341,7 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.IRCBotForwardFromIRC, xIRCBotForwardFromIRC.Checked );
             Config.SetValue( ConfigKey.IRCBotForwardFromServer, xIRCBotForwardFromServer.Checked );
             Config.SetValue( ConfigKey.IRCMessageColor, fCraft.Color.GetName( colorIRC ) );
-
-
-            WriteEnum( cPolicyColor, ConfigKey.PolicyColorCodesInChat, "Disallow", "ConsoleOnly", "Allow" );
-            WriteEnum( cPolicyIllegal, ConfigKey.PolicyIllegalCharacters, "Disallow", "ConsoleOnly", "Allow" );
+            Config.SetValue( ConfigKey.IRCDelay, nIRCDelay.Value );
 
             Config.SetValue( ConfigKey.SendRedundantBlockUpdates, xRedundantPacket.Checked );
             if( xPing.Checked ) Config.SetValue( ConfigKey.PingInterval, nPing.Value );
@@ -354,12 +350,12 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.TickInterval, Convert.ToInt32( nTickInterval.Value ) );
 
             WriteEnum( cProcessPriority, ConfigKey.ProcessPriority, "", "High", "AboveNormal", "Normal", "BelowNormal", "Low" );
-            WriteEnum( cStartup, ConfigKey.RunOnStartup, "Always", "OnUnexpectedShutdown", "Never" );
             WriteEnum( cUpdater, ConfigKey.AutomaticUpdates, "Disabled", "Notify", "Prompt", "Auto" );
 
             Config.SetValue( ConfigKey.BlockUpdateThrottling, Convert.ToInt32( nThrottling.Value ) );
 
             Config.SetValue( ConfigKey.LowLatencyMode, xLowLatencyMode.Checked );
+            Config.SetValue( ConfigKey.SubmitCrashReports, xSubmitCrashReports.Checked );
 
             SaveWorldList();
         }

@@ -126,7 +126,6 @@ namespace Mcc {
             // Setup a GZipStream to decompress and read the map file
             GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
             BinaryReader bs = new BinaryReader( gs );
-
             Map map = new Map();
 
             if( bs.ReadByte() != HeaderConstant1 ) {

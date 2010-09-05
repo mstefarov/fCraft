@@ -354,31 +354,37 @@ namespace fCraft {
 
                 if( info.classChangedBy != "-" ) {
                     if( info.previousClass == null ) {
-                        player.Message( "  Promoted to {0} by {1} on {2:dd MMM yyyy}.",
+                        player.Message( "  Promoted to {0}{1}&S by {2} on {3:dd MMM yyyy}.",
+                                        info.playerClass.color,
                                         info.playerClass.name,
                                         info.classChangedBy,
                                         info.classChangeDate );
                     } else if( info.previousClass.rank < info.playerClass.rank ) {
-                        player.Message( "  Promoted from {0} to {1} by {2} on {3:dd MMM yyyy}.",
+                        player.Message( "  Promoted from {0}{1}&S to {2}{3}&S by {4} on {5:dd MMM yyyy}.",
+                                        info.previousClass.color,
                                         info.previousClass.name,
+                                        info.playerClass.color,
                                         info.playerClass.name,
                                         info.classChangedBy,
                                         info.classChangeDate );
                         if( info.classChangeReason != null && info.classChangeReason.Length > 0 ) {
-                            player.Message( "Promotion reason: " + info.classChangeReason );
+                            player.Message( "  Promotion reason: " + info.classChangeReason );
                         }
                     } else {
-                        player.Message( "  Demoted from {0} to {1} by {2} on {3:dd MMM yyyy}.",
+                        player.Message( "  Demoted from {0}{1}&S to {2}{3}&S by {4} on {5:dd MMM yyyy}.",
+                                        info.previousClass.color,
                                         info.previousClass.name,
+                                        info.playerClass.color,
                                         info.playerClass.name,
                                         info.classChangedBy,
                                         info.classChangeDate );
                         if( info.classChangeReason != null && info.classChangeReason.Length > 0 ) {
-                            player.Message( "Demotion reason: " + info.classChangeReason );
+                            player.Message( "  Demotion reason: " + info.classChangeReason );
                         }
                     }
                 } else {
-                    player.Message( "  Class is {0} (default).",
+                    player.Message( "  Class is {0}{1}&S (default).",
+                                    info.playerClass.color,
                                     info.playerClass.name );
                 }
 
@@ -493,10 +499,21 @@ namespace fCraft {
 
         // Shows general information about a particular class.
         internal static void ClassInfo( Player player, Command cmd ) {
-            PlayerClass playerClass = ClassList.FindClass( cmd.Next() );
+            PlayerClass playerClass;
+
+            string className = cmd.Next();
+            if( className == null ) {
+                playerClass = player.info.playerClass;
+            } else{
+                playerClass = ClassList.FindClass( className );
+                if( playerClass == null ) {
+                    player.Message( "No such class: \"{0}\". See &H/classes", className );
+                    return;
+                }
+            }
             if( playerClass != null ) {
                 bool first = true;
-                StringBuilder sb = new StringBuilder( "Players of class " );
+                StringBuilder sb = new StringBuilder();
                 sb.AppendFormat( "Players of class {0}{1}&S can do the following: ",
                                  playerClass.color,
                                  playerClass.name );
@@ -514,7 +531,7 @@ namespace fCraft {
                     if( playerClass.drawLimit > 0 ) {
                         player.Message( "Draw command limit: " + playerClass.drawLimit + " blocks." );
                     } else {
-                        player.Message( "Draw command limit: unlimited blocks." );
+                        player.Message( "Draw command limit: None (unlimited blocks)" );
                     }
                 }
             }

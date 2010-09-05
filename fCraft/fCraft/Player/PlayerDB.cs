@@ -73,6 +73,7 @@ namespace fCraft {
                     locker.ExitWriteLock();
                 }
                 Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records).", LogType.Debug, tree.Count() );
+                list.TrimExcess();
             } else {
                 Logger.Log( "PlayerDB.Load: No player DB file found.", LogType.Warning );
             }

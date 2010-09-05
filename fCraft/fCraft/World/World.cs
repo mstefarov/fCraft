@@ -154,6 +154,8 @@ namespace fCraft {
                     World newWorld = new World( name );
                     newWorld.map = newMap;
                     newWorld.neverUnload = neverUnload;
+                    newWorld.classAccess = classAccess;
+                    newWorld.classBuild = classBuild;
                     newMap.world = newWorld;
                     Server.ReplaceWorld( name, newWorld );
                     foreach( Player player in playerList ) {
@@ -173,8 +175,8 @@ namespace fCraft {
         }
 
         public void EndFlushMapBuffer() {
-            isFlushing = false;
             lock( playerListLock ) {
+                isFlushing = false;
                 SendToAll( Color.Red + "Map flushed. Rejoining" );
                 foreach( Player player in playerList ) {
                     player.session.JoinWorld( this, player.pos );
@@ -242,6 +244,7 @@ namespace fCraft {
 
                 // clear drawing status
                 player.undoBuffer.Clear();
+                player.undoBuffer.TrimExcess();
                 player.selectionMarksExpected = 0;
                 player.selectionMarks.Clear();
                 player.selectionMarkCount = 0;
@@ -252,10 +255,11 @@ namespace fCraft {
                 SendToAll( PacketWriter.MakeRemoveEntity( player.id ), player );
 
                 // unload map (if needed)
-                if( players.Count == 0 && !neverUnload ) {
-                    isReadyForUnload = true;
+                lock( mapLock ) {
+                    if( players.Count == 0 && !neverUnload ) {
+                        isReadyForUnload = true;
+                    }
                 }
-
                 return true;
             }
         }
