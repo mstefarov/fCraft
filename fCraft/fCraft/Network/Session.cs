@@ -39,7 +39,7 @@ namespace fCraft {
         const int antiSpeedMaxDistanceSquared = 144; // 12 * 12
         const int antiSpeedMaxPacketCount = 150;
         const int antiSpeedMaxPacketInterval = 5;
-        const int socketTimeout = 15000;
+        const int socketTimeout = 12000;
         Queue<DateTime> antiSpeedPacketLog = new Queue<DateTime>();
         DateTime antiSpeedLastNotification = DateTime.UtcNow;
 
@@ -81,9 +81,9 @@ namespace fCraft {
 
             try {
                 LoginSequence();
-                canSend = true;
-
                 if( player == null ) return;
+
+                canSend = true;
 
                 while( !canDispose ) {
                     Thread.Sleep( 1 );
@@ -405,7 +405,7 @@ namespace fCraft {
             }
 
             // check if another player with the same name is on
-            Player potentialClone = Server.FindPlayer( player.name );
+            Player potentialClone = Server.FindPlayerExact(player.name);
             if( potentialClone != null ) {
                 player.info.ProcessFailedLogin( player );
                 Logger.Log( "Session.LoginSequence: Player {0} tried to log in from two computers at once.", LogType.SuspiciousActivity,
@@ -416,12 +416,14 @@ namespace fCraft {
             }
 
             if( Config.GetBool( ConfigKey.LimitOneConnectionPerIP ) ) {
-                potentialClone = Server.FindPlayer( GetIP() );
-                if( potentialClone != null ) {
+                List<Player> potentialClones = Server.FindPlayers( GetIP() );
+                if( potentialClones.Count > 0 ) {
                     player.info.ProcessFailedLogin( player );
                     Logger.Log( "Session.LoginSequence: Player {0} tried to log in from same IP ({1}) as {2}.", LogType.SuspiciousActivity,
                                 player.name, GetIP(), potentialClone.name );
-                    potentialClone.Message( "Warning: someone just attempted to log in using your IP." );
+                    foreach( Player clone in potentialClones ) {
+                        clone.Message( "Warning: someone just attempted to log in using your IP." );
+                    }
                     KickNow( "Only one connection per IP allowed!" );
                     return;
                 }
@@ -525,7 +527,7 @@ namespace fCraft {
             // Fetch compressed map copy
             byte[] blockData;
             using( MemoryStream stream = new MemoryStream() ) {
-                player.world.map.GetCompressedCopy( stream, true );
+                newWorld.map.GetCompressedCopy( stream, true );
                 blockData = stream.ToArray();
             }
             Logger.Log( "Session.JoinWorld: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
@@ -552,7 +554,9 @@ namespace fCraft {
                 bytesSent += chunkSize;
             }
 
-            writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), "Loading world \"" + newWorld.name + "\" (almost there...)" ) );
+            writer.Write( PacketWriter.MakeHandshake( player,
+                                                      Config.GetString( ConfigKey.ServerName ), 
+                                                      "Loading world \"" + newWorld.name + "\" (almost there...)" ) );
 
             // Done sending over level copy
             writer.Write( PacketWriter.MakeLevelEnd( newWorld.map ) );

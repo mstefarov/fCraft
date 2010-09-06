@@ -169,12 +169,16 @@ namespace fCraft {
             Player target = player;
 
             if( name != null ) {
-                target = Server.FindPlayer( name );
-                if( target != null ) {
+                List<Player> matches = Server.FindPlayers( name );
+                if(matches.Count==1){
+                    target = matches[0];
                     player.Message( "Coordinates of player \"{0}\" (on \"{1}\"):",
                                     target.nick,
                                     target.world.name );
-                } else {
+                } else if( matches.Count> 1 ){
+                    player.ManyPlayersMessage( matches );
+                    return;
+                }else{
                     player.NoPlayerMessage( name );
                     return;
                 }
@@ -320,7 +324,7 @@ namespace fCraft {
 
             PlayerInfo info;
             if( !PlayerDB.FindPlayerInfo( name, out info ) ) {
-                player.ManyPlayersMessage( name );
+                player.Message( "More than one player found matching \"{0}\"", name );
             } else if( info != null ) {
 
                 if( DateTime.Now.Subtract( info.lastLoginDate ).TotalDays < 1 ) {
@@ -446,7 +450,7 @@ namespace fCraft {
             } else {
                 PlayerInfo info;
                 if( !PlayerDB.FindPlayerInfo( name, out info ) ) {
-                    player.ManyPlayersMessage( name );
+                    player.Message( "More than one player found matching \"{0}\"", name );
                 } else if( info != null ) {
                     if( info.banned ) {
                         player.Message( "Player {0} is currently {1}banned.", info.name, Color.Red );

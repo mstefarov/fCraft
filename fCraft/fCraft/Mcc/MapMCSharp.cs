@@ -88,8 +88,8 @@ namespace Mcc {
 
             // Read in the map dimesions
             map.widthX = bs.ReadInt16();
-            map.height = bs.ReadInt16();
             map.widthY = bs.ReadInt16();
+            map.height = bs.ReadInt16();
 
             // Read in the spawn location
             map.spawn.x = (short)(bs.ReadInt16() * 32);

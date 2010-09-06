@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Net;
+using System.Collections.Generic;
 
 
 namespace fCraft {
@@ -316,7 +317,8 @@ namespace fCraft {
                     if( !banAll ) {
                         if( unban ) {
                             if( info.ProcessUnban( player.name, reason ) ) {
-                                Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity, info.name, player.GetLogName() );
+                                Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity,
+                                            info.name, player.GetLogName() );
                                 Server.SendToAll( Color.Red + info.name + " (offline) was unbanned by " + player.nick );
                                 if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
                                     Server.SendToAll( Color.Red + "Unban reason: " + reason );
@@ -326,7 +328,8 @@ namespace fCraft {
                             }
                         } else {
                             if( info.ProcessBan( player, reason ) ) {
-                                Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity, info.name, player.GetLogName() );
+                                Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity,
+                                            info.name, player.GetLogName() );
                                 Server.SendToAll( Color.Red + info.name + " (offline) was banned by " + player.nick );
                                 if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
                                     Server.SendToAll( Color.Red + "Ban reason: " + reason );
@@ -375,7 +378,6 @@ namespace fCraft {
         }
 
         internal static void DoIPBan( Player player, IPAddress address, string reason, string playerName, bool banAll, bool unban ) {
-            Player other;
             if( unban ) {
                 if( IPBanList.Remove( address ) ) {
                     player.Message( address.ToString() + " has been removed from the IP ban list." );
@@ -411,10 +413,13 @@ namespace fCraft {
                         if( banAll && otherInfo.ProcessBan( player, reason + "~BanAll" ) ) {
                             player.Message( otherInfo.name + " matched the IP and was also banned." );
                         }
-                        other = player.world.FindPlayerExact( otherInfo.name );
                         Server.SendToAll( Color.Red + otherInfo.name + " was banned by " + player.nick + " (BanAll)" );
-                        if( other != null ) {
-                            other.session.Kick( "Your IP was just banned by " + player.GetLogName() );
+                        foreach( Player other in Server.FindPlayers( address ) ) {
+                            if( reason != null && reason.Length > 0 ) {
+                                other.session.Kick( "IP-banned by " + player.GetLogName() + ": " + reason );
+                            }else{
+                                other.session.Kick( "IP-banned by " + player.GetLogName() );
+                            }
                         }
                     }
                 }
@@ -438,10 +443,12 @@ namespace fCraft {
             string name = cmd.Next();
             if( name != null ) {
                 string msg = cmd.NextAll();
-                Player target = Server.FindPlayer( name );
-                if( target != null ) {
-                    DoKick( player, target, msg, false );
-                } else {
+                List<Player> targets = Server.FindPlayers( name );
+                if( targets.Count==1 ) {
+                    DoKick( player, targets[0], msg, false );
+                } else if(targets.Count>1) {
+                    player.ManyPlayersMessage( targets );
+                }else{
                     player.NoPlayerMessage( name );
                 }
             } else {
@@ -643,16 +650,16 @@ namespace fCraft {
             } else {
                 Player target = player.world.FindPlayer( name );
                 if( target != null ) {
-                    Position pos = target.pos; // fix for off-by-1 error in the way teleports are handled by the client
+                    Position pos = target.pos; // fix for offset errors in the way teleports are handled by the client
                     pos.x += 1;
                     pos.y += 1;
-                    pos.h += 1;
+                    pos.h -= 16;
                     player.Send( PacketWriter.MakeTeleport( 255, pos ) );
                 } else if( cmd.Next() == null ) {
-                    target = Server.FindPlayer( name );
-                    if( target == null ) {
-                        player.NoPlayerMessage( name );
-                    } else {
+
+                    List<Player> targets = Server.FindPlayers( name );
+                    if( targets.Count == 1 ) {
+                        target = targets[0];
                         if( player.CanJoin( target.world ) ) {
                             player.session.JoinWorld( target.world, target.pos );
                         } else {
@@ -662,7 +669,12 @@ namespace fCraft {
                                             target.world.classAccess.color,
                                             target.world.classAccess.name );
                         }
+                    } else if( targets.Count > 1 ) {
+                        player.ManyPlayersMessage( targets );
+                    } else {
+                        player.NoPlayerMessage( name );
                     }
+
                 } else {
                     cmd.Rewind();
                     int x, y, h;
@@ -701,11 +713,11 @@ namespace fCraft {
                 pos.y += 1;
                 pos.h += 1;
                 target.Send( PacketWriter.MakeTeleport( 255, pos ) );
+
             } else {
-                target = Server.FindPlayer( name );
-                if( target == null ) {
-                    player.NoPlayerMessage( name );
-                } else {
+                List<Player> targets = Server.FindPlayers( name );
+                if( targets.Count == 1 ) {
+                    target = targets[0];
                     if( target.CanJoin( player.world ) ) {
                         target.session.JoinWorld( player.world, player.pos );
                     } else {
@@ -714,6 +726,10 @@ namespace fCraft {
                                         player.world.classAccess.color,
                                         player.world.classAccess.name );
                     }
+                } else if( targets.Count > 1 ) {
+                    player.ManyPlayersMessage( targets );
+                } else {
+                    player.NoPlayerMessage( name );
                 }
             }
         }
@@ -733,14 +749,17 @@ namespace fCraft {
 
         internal static void Freeze( Player player, Command cmd ) {
             string name = cmd.Next();
-            Player target = Server.FindPlayer( name );
-            if( target != null ) {
-                if( !target.isFrozen ) {
-                    Server.SendToAll( Color.Sys + target.nick + " has been frozen by " + player.nick );
-                    target.isFrozen = true;
+
+            List<Player> targets = Server.FindPlayers( name );
+            if( targets.Count == 1 ) {
+                if( !targets[0].isFrozen ) {
+                    Server.SendToAll( Color.Sys + targets[0].nick + " has been frozen by " + player.nick );
+                    targets[0].isFrozen = true;
                 } else {
-                    player.Message( target.GetLogName() + " is already frozen." );
+                    player.Message( targets[0].GetLogName() + " is already frozen." );
                 }
+            } else if( targets.Count > 1 ) {
+                player.ManyPlayersMessage( targets );
             } else {
                 player.NoPlayerMessage( name );
             }
@@ -759,14 +778,16 @@ namespace fCraft {
 
         internal static void Unfreeze( Player player, Command cmd ) {
             string name = cmd.Next();
-            Player target = Server.FindPlayer( name );
-            if( target != null ) {
-                if( target.isFrozen ) {
-                    Server.SendToAll( Color.Sys + target.nick + " is no longer frozen." );
-                    target.isFrozen = false;
+            List<Player> targets = Server.FindPlayers( name );
+            if( targets.Count == 1 ) {
+                if( targets[0].isFrozen ) {
+                    Server.SendToAll( Color.Sys + targets[0].nick + " is no longer frozen." );
+                    targets[0].isFrozen = false;
                 } else {
-                    player.Message( target.GetLogName() + " is currently not frozen." );
+                    player.Message( targets[0].GetLogName() + " is currently not frozen." );
                 }
+            } else if( targets.Count > 1 ) {
+                player.ManyPlayersMessage( targets );
             } else {
                 player.NoPlayerMessage( name );
             }
