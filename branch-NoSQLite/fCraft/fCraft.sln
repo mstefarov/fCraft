@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fCraftUpdater", "fCraftUpda
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fCraftConsole", "fCraftConsole\fCraftConsole.csproj", "{315FB33C-6C57-4A89-ABFB-C083F2015880}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoLauncher", "AutoLauncher\AutoLauncher.csproj", "{044F6335-6341-4BCA-9F1D-A2618CC657C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{315FB33C-6C57-4A89-ABFB-C083F2015880}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{315FB33C-6C57-4A89-ABFB-C083F2015880}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{315FB33C-6C57-4A89-ABFB-C083F2015880}.Release|Any CPU.Build.0 = Release|Any CPU
+		{044F6335-6341-4BCA-9F1D-A2618CC657C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{044F6335-6341-4BCA-9F1D-A2618CC657C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{044F6335-6341-4BCA-9F1D-A2618CC657C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{044F6335-6341-4BCA-9F1D-A2618CC657C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

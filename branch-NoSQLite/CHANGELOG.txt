@@ -1,3 +1,12 @@
+0.455
+ Feature: AutoLauncher (BETA) allows restarting the fCraftConsole server if it crashed. Although it honestly shouldn't crash at all!
+ Fix: Allowed renaming worlds in cases where only capitalization is different.
+ Fix: If an ip-banned player has more than one connection, all connections are now terminated.
+ Fix: Fixed nonrectangular MCSharp maps getting messed up by the loader.
+ Fix: Increased the default timeout from 10 to 12 seconds, to help people with extremely laggy connections.
+ Fix: When autocompletion finds more than one player name matching a pattern, server now prints the list of names (instead of "no player found" message) Affects PMs, tp, bring, freeze, unfreeze, kick.
+ Change: Improved OS detection in crash reporter.
+
 0.454
  Feature: /replace, /replacenot, /paste, and /pastenot can now work with multiple blocks. See /help for details.
  Fix: Replace no longer behaves same as replacenot.

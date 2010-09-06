@@ -486,7 +486,7 @@ namespace fCraft {
 
                 if( oldWorld == null ) {
                     player.Message( "No world found with the specified name: {0}", oldName );
-                } else if( newWorld != null ) {
+                } else if( newWorld != null && oldWorld != newWorld ) {
                     player.Message( "A world with the specified name already exists: {0}", newName );
                 } else {
                     oldName = oldWorld.name;

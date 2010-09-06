@@ -138,8 +138,9 @@ namespace fCraft {
                         otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
                         messageText = message.Substring( message.IndexOf( ' ' ) + 1 );
                     }
-                    Player otherPlayer = Server.FindPlayer( otherPlayerName );
-                    if( otherPlayer != null ) {
+                    List<Player> otherPlayers = Server.FindPlayers( otherPlayerName );
+                    if( otherPlayers.Count==1 ) {
+                        Player otherPlayer = otherPlayers[0];
                         Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
                                     GetLogName(),
                                     otherPlayer.GetLogName(),
@@ -152,8 +153,10 @@ namespace fCraft {
                                  Color.PM,
                                  otherPlayer.name,
                                  messageText );
-                    } else {
+                    } else if( otherPlayers.Count == 0 ) {
                         NoPlayerMessage( otherPlayerName );
+                    } else {
+                        ManyPlayersMessage( otherPlayers );
                     }
                     break;
 
@@ -232,8 +235,12 @@ namespace fCraft {
         }
 
 
-        internal void ManyPlayersMessage( string name ) {
-            Message( "More than one player found matching \"{0}\"", name );
+        internal void ManyPlayersMessage( List<Player> names ) {
+            string playerString = "";
+            foreach( Player player in names ) {
+                playerString += ", " + player.name;
+            }
+            Message( "More than one player matched: \"{0}\"", playerString.Substring( 2 ) );
         }
 
 

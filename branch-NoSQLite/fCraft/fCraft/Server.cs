@@ -61,7 +61,7 @@ namespace fCraft {
         public static void CheckForCommonErrors( Exception ex ) {
             if( ex.Message.StartsWith( "Could not load file or assembly 'System.Xml.Linq" ) ) {
                 Logger.Log( "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
-                            "Please update to Microsoft .NET Framework 3.5+ OR Mono 2.6.4+", LogType.Warning );
+                            "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).", LogType.Warning );
             }
         }
 
@@ -950,32 +950,28 @@ namespace fCraft {
         }
 
         // Find player by name using autocompletion
-        public static Player FindPlayer( string name ) {
-            if( name == null ) return null;
+        public static List<Player> FindPlayers( string name ) {
             Player[] tempList = playerList;
-            Player result = null;
+            List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
-                    if( result == null ) {
-                        result = tempList[i];
-                    } else {
-                        return null;
-                    }
+                    results.Add( tempList[i] );
                 }
             }
-            return result;
+            return results;
         }
 
 
-        // Find player by name using autocompletion
-        public static Player FindPlayer( IPAddress ip ) {
+        // Find player by IP
+        public static List<Player> FindPlayers( IPAddress ip ) {
             Player[] tempList = playerList;
+            List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i].session.GetIP().ToString() == ip.ToString() ) {
-                    return tempList[i];
+                    results.Add( tempList[i] );
                 }
             }
-            return null;
+            return results;
         }
 
 

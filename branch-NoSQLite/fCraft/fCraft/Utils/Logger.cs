@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Cache;
 using System.Text;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 
 namespace fCraft {
@@ -231,8 +232,8 @@ namespace fCraft {
                     sb.Append( "version=" ).Append( Server.UrlEncode( Updater.GetVersionString() ) );
                     sb.Append( "&message=" ).Append( Server.UrlEncode( message ) );
                     sb.Append( "&assembly=" ).Append( Server.UrlEncode( assembly ) );
-                    sb.Append( "&runtime=" ).Append( Server.UrlEncode( System.Runtime.InteropServices.RuntimeEnvironment.GetSystemVersion() ) );
-                    sb.Append( "&os=" ).Append( Environment.OSVersion.VersionString );
+                    sb.Append( "&runtime=" ).Append( Server.UrlEncode( Environment.Version + " / " + RuntimeEnvironment.GetSystemVersion() ) );
+                    sb.Append( "&os=" ).Append( Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString );
                     if( exception != null ) {
                         sb.Append( "&exceptiontype=" ).Append( Server.UrlEncode( exception.GetType().ToString() ) );
                         sb.Append( "&exceptionmessage=" ).Append( Server.UrlEncode( exception.Message ) );
