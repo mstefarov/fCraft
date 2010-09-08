@@ -1,5 +1,11 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-09-08
+462
+ Fix: The "OK" button in AddWorldPopup no longer stays grayed out.
+ Fix: Fixed "Error occured while loading" in the file information dialog for non-FCM files.
+ Fix: Fixed a crash in /bring when used without any parameters.
+ Fix: Fixed Server.UrlEncode not escaping 0x00-0x0F characters properly.
+ Change: Slightly reduced default tree density in MapGenerator.
 461
  Feature: New EXPERIMENTAL "/reloadconfig" command, and associated ReloadConfig permission. Use with caution!
  Fix: Fixed a case where AddWorldPopup would allow clicking "OK" with a null map.

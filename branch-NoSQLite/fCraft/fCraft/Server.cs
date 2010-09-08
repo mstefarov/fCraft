@@ -832,7 +832,7 @@ namespace fCraft {
                     input[i] == '-' || input[i] == '_' || input[i] == '.' || input[i] == '~' ) {
                     output.Append( input[i] );
                 } else {
-                    output.Append( '%' ).Append( ((int)input[i]).ToString( "X" ) );
+                    output.Append( '%' ).Append( ((int)input[i]).ToString( "X2" ) );
                 }
             }
             return output.ToString();

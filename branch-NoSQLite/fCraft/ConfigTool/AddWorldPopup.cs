@@ -27,7 +27,9 @@ namespace ConfigTool {
                 return _map;
             }
             set {
-                bOK.Enabled = (value == null);
+                bOK.Invoke( (MethodInvoker)delegate() {
+                    bOK.Enabled = (value != null);
+                } );
                 _map = value;
             }
         }
@@ -139,7 +141,7 @@ namespace ConfigTool {
         #region Loading/Saving
 
         void StartLoadingMap() {
-            bOK.Enabled = false;
+            map = null;
             tStatus1.Text = "Loading " + new FileInfo( fileToLoad ).Name;
             progressBar.Visible = true;
             progressBar.Style = ProgressBarStyle.Marquee;
@@ -161,10 +163,11 @@ namespace ConfigTool {
         string fileToLoad;
         void AsyncLoad( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
-            map = Map.Load( null, fileToLoad );
-            if( map != null ) {
-                map.CalculateShadows();
+            Map loadedMap = Map.Load( null, fileToLoad );
+            if( loadedMap != null ) {
+                loadedMap.CalculateShadows();
             }
+            map = loadedMap;
         }
 
         void AsyncLoadCompleted( object sender, RunWorkerCompletedEventArgs e ) {
@@ -179,7 +182,6 @@ namespace ConfigTool {
             if( tab == Tabs.CopyWorld ) {
                 bShow.Enabled = true;
             }
-            bOK.Enabled = true;
         }
         #endregion Loading
 
@@ -250,11 +252,10 @@ namespace ConfigTool {
 
         #region Generation
 
-        MapGenerator generator;
         MapGeneratorArgs generatorArgs = new MapGeneratorArgs();
 
         private void bGenerate_Click( object sender, EventArgs e ) {
-            bOK.Enabled = false;
+            map = null;
             bGenerate.Enabled = false;
             bFlatgrassGenerate.Enabled = false;
 
@@ -276,20 +277,18 @@ namespace ConfigTool {
 
         void AsyncGen( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
-            map = null;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-
+            Map generatedMap;
             if( tab == Tabs.Generator ) {
-                generator = new MapGenerator( generatorArgs );
-                map = generator.Generate();
-                generator = null;
-            } else if( tab == Tabs.Flatgrass ) {
-                map = new Map( null, Convert.ToInt32( nFlatgrassDimX.Value ), Convert.ToInt32( nFlatgrassDimY.Value ), Convert.ToInt32( nFlatgrassDimH.Value ) );
-                MapGenerator.GenerateFlatgrass( map );
+                generatedMap = new MapGenerator( generatorArgs ).Generate();
+            } else {
+                generatedMap = new Map( null, Convert.ToInt32( nFlatgrassDimX.Value ), Convert.ToInt32( nFlatgrassDimY.Value ), Convert.ToInt32( nFlatgrassDimH.Value ) );
+                MapGenerator.GenerateFlatgrass( generatedMap );
             }
 
-            if( floodBarrier ) map.MakeFloodBarrier();
-            map.CalculateShadows();
+            if( floodBarrier ) generatedMap.MakeFloodBarrier();
+            generatedMap.CalculateShadows();
+            map = generatedMap;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
         }
 
@@ -298,7 +297,6 @@ namespace ConfigTool {
             if( map == null ) {
                 tStatus1.Text = "Generation failed!";
             } else {
-                bOK.Enabled = true;
                 tStatus1.Text = "Generation successful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
                 tStatus2.Text = ", drawing...";
                 Redraw( true );
@@ -489,9 +487,9 @@ namespace ConfigTool {
 
         void ShowMapDetails( TextBox textBox, string fileName ) {
             if( File.Exists( fileName ) ) {
-                map = Map.LoadHeaderOnly( fileName );
-                if( map != null ) {
-                    FileInfo existingMapFileInfo = new FileInfo( fileName );
+                Map loadedMap = Map.LoadHeaderOnly( fileName );
+                FileInfo existingMapFileInfo = new FileInfo( fileName );
+                if( loadedMap != null ) {
                     textBox.Text = String.Format(
 @"      File: {0}
   Filesize: {1} KB
@@ -503,12 +501,20 @@ Dimensions: {4}×{5}×{6}
                     (existingMapFileInfo.Length / 1024),
                     existingMapFileInfo.CreationTime.ToLongDateString(),
                     existingMapFileInfo.LastWriteTime.ToLongDateString(),
-                    map.widthX,
-                    map.widthY,
-                    map.height,
-                    map.widthX * map.widthY * map.height );
+                    loadedMap.widthX,
+                    loadedMap.widthY,
+                    loadedMap.height,
+                    loadedMap.widthX * loadedMap.widthY * loadedMap.height );
                 } else {
-                    textBox.Text = "An error occured while trying to load \"" + fileName + "\".";
+                    textBox.Text = String.Format(
+@"      File: {0}
+  Filesize: {1} KB
+   Created: {2}
+  Modified: {3}",
+                    fileName,
+                    (existingMapFileInfo.Length / 1024),
+                    existingMapFileInfo.CreationTime.ToLongDateString(),
+                    existingMapFileInfo.LastWriteTime.ToLongDateString() );
                 }
             } else {
                 textBox.Text = "File \"" + fileName + "\" does not exist.";

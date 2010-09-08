@@ -85,8 +85,8 @@ namespace fCraft {
             invertHeightmap = false;
 
             addTrees = true;
-            treeSpacingMin = 6;
-            treeSpacingMax = 10;
+            treeSpacingMin = 7;
+            treeSpacingMax = 11;
             treeHeightMin = 5;
             treeHeightMax = 7;
         }

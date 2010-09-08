@@ -692,6 +692,10 @@ namespace fCraft {
 
         internal static void Bring( Player player, Command cmd ) {
             string name = cmd.Next();
+            if( name == null ) {
+                cdBring.PrintUsage( player );
+                return;
+            }
             Player target = player.world.FindPlayer( name );
             if( target != null ) {
                 Position pos = player.pos;
