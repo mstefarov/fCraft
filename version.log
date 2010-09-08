@@ -1,5 +1,11 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-09-08
+461
+ Feature: New EXPERIMENTAL "/reloadconfig" command, and associated ReloadConfig permission. Use with caution!
+ Fix: Fixed a case where AddWorldPopup would allow clicking "OK" with a null map.
+ Fix: Fixed player crash if /freeze or /unfreeze is used without arguments.
+ Fix: Fixed player crash on FormatException in /zones and Server.ShowPlayerConnectedMessage.
+ Fix: Fixed potential player crash if LimitOneConnectionPerIP is enabled.
 460
  Feature: Added ShowPlayerConnectedMessage and ClassColorsInWorldNames settings to config.
  Feature: Added /measure command.

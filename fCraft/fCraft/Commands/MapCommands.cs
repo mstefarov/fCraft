@@ -733,7 +733,7 @@ namespace fCraft {
             Zone[] zones = player.world.map.ListZones();
             if( zones.Length > 0 ) {
                 foreach( Zone zone in zones ) {
-                    player.Message( String.Format( "  {0} ({2}&S) - {4} x {5} x {6}",
+                    player.Message( String.Format( "  {0} ({1}&S) - {2} x {3} x {4}",
                                                    zone.name,
                                                    zone.build.GetClassyName(),
                                                    zone.bounds.GetWidthX(),
