@@ -6,6 +6,7 @@
  Feature: A special error message is shown to players trying to connect with Alpha/SMP client.
  Feature: IsoCat (ConfigTool isometric preview) rendering quality improved: better shadows and slight altitude-based gradient.
  Feature: Added new blocktype name aliases: "solid", "golden", "halfstep", "halfblock", "steps".
+ Feature: Added player count for each class in /classes
  Fix: Fixed wrong "MaxBackupsSize" range in ConfigTool.
  Fix: MaxBackupsSize setting is now applied correctly.
  Fix: IRC color codes are now stripped from forwarded messages.

@@ -676,26 +676,26 @@ namespace fCraft {
             regular.Add( new XAttribute( "antiGriefSeconds", 6 ) );
             regular.Add( new XAttribute( "idleKickAfter", 20 ) );
 
-            regular.Add( new XElement( "Chat" ) );
-            regular.Add( new XElement( "Build" ) );
-            regular.Add( new XElement( "Delete" ) );
+            regular.Add( new XElement( Permission.Chat.ToString() ) );
+            regular.Add( new XElement( Permission.Build.ToString() ) );
+            regular.Add( new XElement( Permission.Delete.ToString() ) );
             regular.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
 
-            regular.Add( new XElement( "PlaceGrass" ) );
-            regular.Add( new XElement( "PlaceWater" ) );
-            regular.Add( new XElement( "PlaceLava" ) );
-            regular.Add( new XElement( "PlaceAdmincrete" ) );
-            regular.Add( new XElement( "DeleteAdmincrete" ) );
+            regular.Add( new XElement( Permission.PlaceGrass.ToString() ) );
+            regular.Add( new XElement( Permission.PlaceWater.ToString() ) );
+            regular.Add( new XElement( Permission.PlaceLava.ToString() ) );
+            regular.Add( new XElement( Permission.PlaceAdmincrete.ToString() ) );
+            regular.Add( new XElement( Permission.DeleteAdmincrete.ToString() ) );
 
-            temp = new XElement( "Kick" );
+            temp = new XElement( Permission.Kick.ToString() );
             temp.Add( new XAttribute( "max", "regular" ) );
             regular.Add( temp );
 
-            regular.Add( new XElement( "ViewOthersInfo" ) );
+            regular.Add( new XElement( Permission.ViewOthersInfo.ToString() ) );
 
-            regular.Add( new XElement( "Teleport" ) );
+            regular.Add( new XElement( Permission.Teleport.ToString() ) );
 
-            regular.Add( new XElement( "Draw" ) );
+            regular.Add( new XElement( Permission.Draw.ToString() ) );
             permissions.Add( regular );
             DefineClass( regular );
 
@@ -711,46 +711,44 @@ namespace fCraft {
             op.Add( new XAttribute( "antiGriefSeconds", 0 ) );
             op.Add( new XAttribute( "idleKickAfter", 0 ) );
 
-            op.Add( new XElement( "Chat" ) );
-            op.Add( new XElement( "Build" ) );
-            op.Add( new XElement( "Delete" ) );
+            op.Add( new XElement( Permission.Chat.ToString() ) );
+            op.Add( new XElement( Permission.Build.ToString() ) );
+            op.Add( new XElement( Permission.Delete.ToString() ) );
             op.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
 
-            op.Add( new XElement( "PlaceGrass" ) );
-            op.Add( new XElement( "PlaceWater" ) );
-            op.Add( new XElement( "PlaceLava" ) );
-            op.Add( new XElement( "PlaceAdmincrete" ) );
-            op.Add( new XElement( "DeleteAdmincrete" ) );
-            op.Add( new XElement( "PlaceHardenedBlocks" ) );
+            op.Add( new XElement( Permission.PlaceGrass.ToString() ) );
+            op.Add( new XElement( Permission.PlaceWater.ToString() ) );
+            op.Add( new XElement( Permission.PlaceLava.ToString() ) );
+            op.Add( new XElement( Permission.PlaceAdmincrete.ToString() ) );
+            op.Add( new XElement( Permission.DeleteAdmincrete.ToString() ) );
 
-            op.Add( new XElement( "Say" ) );
-            temp = new XElement( "Kick" );
+            op.Add( new XElement( Permission.Say.ToString() ) );
+            temp = new XElement( Permission.Kick.ToString() );
             temp.Add( new XAttribute( "max", "op" ) );
             op.Add( temp );
-            temp = new XElement( "Ban" );
+            temp = new XElement( Permission.Ban.ToString() );
             temp.Add( new XAttribute( "max", "regular" ) );
             op.Add( temp );
-            op.Add( new XElement( "BanIP" ) );
+            op.Add( new XElement( Permission.BanIP.ToString() ) );
 
-            temp = new XElement( "Promote" );
+            temp = new XElement( Permission.Promote.ToString() );
             temp.Add( new XAttribute( "max", "regular" ) );
             op.Add( temp );
-            temp = new XElement( "Demote" );
+            temp = new XElement( Permission.Demote.ToString() );
             temp.Add( new XAttribute( "max", "regular" ) );
             op.Add( temp );
-            op.Add( new XElement( "Hide" ) );
-            op.Add( new XElement( "ChangeName" ) );
+            op.Add( new XElement( Permission.Hide.ToString() ) );
 
-            op.Add( new XElement( "ViewOthersInfo" ) );
+            op.Add( new XElement( Permission.ViewOthersInfo.ToString() ) );
 
-            op.Add( new XElement( "Teleport" ) );
-            op.Add( new XElement( "Bring" ) );
-            op.Add( new XElement( "Freeze" ) );
-            op.Add( new XElement( "SetSpawn" ) );
+            op.Add( new XElement( Permission.Teleport.ToString() ) );
+            op.Add( new XElement( Permission.Bring.ToString() ) );
+            op.Add( new XElement( Permission.Freeze.ToString() ) );
+            op.Add( new XElement( Permission.SetSpawn.ToString() ) );
 
-            op.Add( new XElement( "Lock" ) );
-            op.Add( new XElement( "Draw" ) );
-            op.Add( new XElement( "CopyAndPaste" ) );
+            op.Add( new XElement( Permission.Lock.ToString() ) );
+            op.Add( new XElement( Permission.Draw.ToString() ) );
+            op.Add( new XElement( Permission.CopyAndPaste.ToString() ) );
             permissions.Add( op );
             DefineClass( op );
 
@@ -766,53 +764,51 @@ namespace fCraft {
             owner.Add( new XAttribute( "antiGriefSeconds", 0 ) );
             owner.Add( new XAttribute( "idleKickAfter", 0 ) );
 
-            owner.Add( new XElement( "Chat" ) );
-            owner.Add( new XElement( "Build" ) );
-            owner.Add( new XElement( "Delete" ) );
+            owner.Add( new XElement( Permission.Chat.ToString() ) );
+            owner.Add( new XElement( Permission.Build.ToString() ) );
+            owner.Add( new XElement( Permission.Delete.ToString() ) );
             owner.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
 
-            owner.Add( new XElement( "PlaceGrass" ) );
-            owner.Add( new XElement( "PlaceWater" ) );
-            owner.Add( new XElement( "PlaceLava" ) );
-            owner.Add( new XElement( "PlaceAdmincrete" ) );
-            owner.Add( new XElement( "DeleteAdmincrete" ) );
-            owner.Add( new XElement( "PlaceHardenedBlocks" ) );
+            owner.Add( new XElement( Permission.PlaceGrass.ToString() ) );
+            owner.Add( new XElement( Permission.PlaceWater.ToString() ) );
+            owner.Add( new XElement( Permission.PlaceLava.ToString() ) );
+            owner.Add( new XElement( Permission.PlaceAdmincrete.ToString() ) );
+            owner.Add( new XElement( Permission.DeleteAdmincrete.ToString() ) );
 
-            owner.Add( new XElement( "Say" ) );
-            temp = new XElement( "Kick" );
+            owner.Add( new XElement( Permission.Say.ToString() ) );
+            temp = new XElement( Permission.Kick.ToString() );
             temp.Add( new XAttribute( "max", "owner" ) );
             owner.Add( temp );
-            temp = new XElement( "Ban" );
+            temp = new XElement( Permission.Ban.ToString() );
             temp.Add( new XAttribute( "max", "owner" ) );
             owner.Add( temp );
-            owner.Add( new XElement( "BanIP" ) );
-            owner.Add( new XElement( "BanAll" ) );
+            owner.Add( new XElement( Permission.BanIP.ToString() ) );
+            owner.Add( new XElement( Permission.BanAll.ToString() ) );
 
-            temp = new XElement( "Promote" );
+            temp = new XElement( Permission.Promote.ToString() );
             temp.Add( new XAttribute( "max", "owner" ) );
             owner.Add( temp );
-            temp = new XElement( "Demote" );
+            temp = new XElement( Permission.Demote.ToString() );
             temp.Add( new XAttribute( "max", "owner" ) );
             owner.Add( temp );
-            owner.Add( new XElement( "Hide" ) );
-            owner.Add( new XElement( "ChangeName" ) );
+            owner.Add( new XElement( Permission.Hide.ToString() ) );
 
-            owner.Add( new XElement( "ViewOthersInfo" ) );
+            owner.Add( new XElement( Permission.ViewOthersInfo.ToString() ) );
 
-            owner.Add( new XElement( "Teleport" ) );
-            owner.Add( new XElement( "Bring" ) );
-            owner.Add( new XElement( "Freeze" ) );
-            owner.Add( new XElement( "SetSpawn" ) );
+            owner.Add( new XElement( Permission.Teleport.ToString() ) );
+            owner.Add( new XElement( Permission.Bring.ToString() ) );
+            owner.Add( new XElement( Permission.Freeze.ToString() ) );
+            owner.Add( new XElement( Permission.SetSpawn.ToString() ) );
 
-            owner.Add( new XElement( "Lock" ) );
-            owner.Add( new XElement( "ControlPhysics" ) );
-            owner.Add( new XElement( "AddLandmarks" ) );
+            owner.Add( new XElement( Permission.Lock.ToString() ) );
+            owner.Add( new XElement( Permission.ControlPhysics.ToString() ) );
+            owner.Add( new XElement( Permission.AddLandmarks.ToString() ) );
 
-            owner.Add( new XElement( "ManageZones" ) );
-            owner.Add( new XElement( "ManageWorlds" ) );
-            owner.Add( new XElement( "Import" ) );
-            owner.Add( new XElement( "Draw" ) );
-            owner.Add( new XElement( "CopyAndPaste" ) );
+            owner.Add( new XElement( Permission.ManageZones.ToString() ) );
+            owner.Add( new XElement( Permission.ManageWorlds.ToString() ) );
+            owner.Add( new XElement( Permission.Import.ToString() ) );
+            owner.Add( new XElement( Permission.Draw.ToString() ) );
+            owner.Add( new XElement( Permission.CopyAndPaste.ToString() ) );
             permissions.Add( owner );
             DefineClass( owner );
 
