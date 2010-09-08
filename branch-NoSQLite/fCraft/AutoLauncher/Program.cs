@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
-
+using System.Threading;
 
 namespace AutoLauncher {
     class Program {
         const int Tick = 600000;
+        const int Delay = 5000;
 
         static void Main( string[] args ) {
             Console.Title = "fCraftConsole AutoLauncher";
@@ -19,6 +20,7 @@ namespace AutoLauncher {
             TimeSpan oldCPUTime = new TimeSpan( 0 );
             Console.WriteLine( "{0} ==== STARTING ====", DateTime.Now );
             while( true ) {
+                Thread.Sleep( Delay );
                 p.Start();
                 oldCPUTime = new TimeSpan( 0 );
                 while( !p.HasExited ) {

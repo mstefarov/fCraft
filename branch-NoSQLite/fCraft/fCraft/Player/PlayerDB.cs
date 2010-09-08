@@ -12,15 +12,17 @@ namespace fCraft {
         static StringTree tree = new StringTree();
         static List<PlayerInfo> list = new List<PlayerInfo>();
 
+        static int MaxID = 0;
+
         public const string DBFile = "PlayerDB.txt",
-                            Header = "2 fCraft PlayerDB | Row format: "+
+                            Header = "3 fCraft PlayerDB | Row format: " +
                                      "playerName,lastIP,playerClass,classChangeDate,classChangeBy," +
                                      "banStatus,banDate,bannedBy,unbanDate,unbannedBy," +
                                      "firstLoginDate,lastLoginDate,lastFailedLoginDate," +
                                      "lastFailedLoginIP,failedLoginCount,totalTimeOnServer," +
                                      "blocksBuilt,blocksDeleted,timesVisited," +
-                                     "linesWritten,UNUSED,UNUSED,previousClass,classChangeReason,"+
-                                     "timesKicked,timesKickedOthers,timesBannedOthers";
+                                     "linesWritten,UNUSED,UNUSED,previousClass,classChangeReason," +
+                                     "timesKicked,timesKickedOthers,timesBannedOthers,UID";
 
         public static ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
 
@@ -199,6 +201,26 @@ namespace fCraft {
 
         public static int CountTotalPlayers() {
             return list.Count;
+        }
+
+        public static int GetNextID() {
+            return Interlocked.Increment( ref MaxID );
+        }
+
+
+
+
+        public static int CountPlayersByClass( PlayerClass pc ) {
+            int count = 0;
+            locker.EnterReadLock();
+            try {
+                foreach( PlayerInfo info in list ) {
+                    if( info.playerClass == pc ) count++;
+                }
+                return count;
+            } finally {
+                locker.ExitReadLock();
+            }
         }
     }
 }

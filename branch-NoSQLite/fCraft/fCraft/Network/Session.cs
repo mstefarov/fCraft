@@ -42,7 +42,9 @@ namespace fCraft {
         const int socketTimeout = 12000;
         Queue<DateTime> antiSpeedPacketLog = new Queue<DateTime>();
         DateTime antiSpeedLastNotification = DateTime.UtcNow;
+        bool skippedLastMovementPacket = false;
 
+        public int PacketsReceived, PacketsSent, PacketsSkippedZero, PacketsSkippedOptimized;
 
         public Session( TcpClient _client ) {
             loginTime = DateTime.Now;
@@ -90,7 +92,7 @@ namespace fCraft {
 
                     lock( joinWorldLock ) {
                         if( forcedWorldToJoin != null ) {
-                            JoinWorldNow( forcedWorldToJoin, true );
+                            JoinWorldNow( forcedWorldToJoin, false );
                             forcedWorldToJoin = null;
                         }
                     }
@@ -102,9 +104,9 @@ namespace fCraft {
                         if( !client.Connected ||
                             (client.Client.Poll( 1000, SelectMode.SelectRead ) && client.Client.Available == 0) ) {
                             if( player != null ) {
-                                Logger.Log( "Session.IoLoop: Lost connection to player {0} ({1}).", LogType.Debug, player.GetLogName(), GetIP() );
+                                Logger.Log( "Session.IoLoop: Lost connection to player {0} ({1}).", LogType.Debug, player.name, GetIP() );
                             } else {
-                                Logger.Log( "Session.IoLoop: Lost connection to unidentified player {0}.", LogType.Debug, GetIP() );
+                                Logger.Log( "Session.IoLoop: Lost connection to unidentified player at {0}.", LogType.Debug, GetIP() );
                             }
                             return;
                         }
@@ -113,24 +115,26 @@ namespace fCraft {
                     pollCounter++;
 
                     // send priority output to player
-                    while( canSend && packetsSent < Server.maxSessionPacketsPerTick ) {
+                    while( canSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
                         if( !priorityOutputQueue.Dequeue( ref packet ) ) break;
                         writer.Write( packet.data );
                         packetsSent++;
                         if( packet.data[0] == (byte)OutputCode.Disconnect ) {
-                            Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug, player.GetLogName() );
+                            Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
+                                        player.name );
                             return;
                         }
                     }
 
                     // send output to player
-                    while( canSend && packetsSent < Server.maxSessionPacketsPerTick ) {
+                    while( canSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
                         if( !outputQueue.Dequeue( ref packet ) ) break;
                         writer.Write( packet.data );
                         packetsSent++;
                         if( packet.data[0] == (byte)OutputCode.Disconnect ) {
                             writer.Flush();
-                            Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug, player.GetLogName() );
+                            Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
+                                        player.name );
                             return;
                         }
                     }
@@ -146,10 +150,9 @@ namespace fCraft {
                                 reader.ReadByte();
                                 string message = ReadString();
                                 if( Player.CheckForIllegalChars( message ) ) {
-                                    Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.",
-                                                LogType.SuspiciousActivity,
-                                                player.GetLogName() );
-                                    Server.SendToAll( Color.Red + player.GetLogName() + " was kicked for attempted hacking (0x0d)." );
+                                    Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.", LogType.SuspiciousActivity,
+                                                player.name );
+                                    Server.SendToAll( player.GetClassyName() + Color.Red + " was kicked for attempted hacking (0x0d)." );
                                     KickNow( "Illegal characters in chat." );
                                     return;
                                 } else {
@@ -159,6 +162,7 @@ namespace fCraft {
 
                             // Player movement
                             case InputCode.MoveRotate:
+                                PacketsReceived++;
                                 reader.ReadByte();
                                 Position newPos = new Position();
                                 newPos.x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
@@ -182,17 +186,20 @@ namespace fCraft {
                                 posChanged = delta.x != 0 || delta.y != 0 || delta.h != 0;
                                 rotChanged = newPos.r != oldPos.r || newPos.l != oldPos.l;
 
+                                int distSquared = delta.x * delta.x + delta.y * delta.y + delta.h * delta.h;
+
                                 // only reset the timer if player rotated
                                 // if player is pushed around, or /bring is used, rotation does not change (and timer should not reset)
                                 if( rotChanged ) player.ResetIdleTimer();
 
                                 if( player.isFrozen ) {
+
                                     if( rotChanged ) {
                                         player.world.SendToAll( PacketWriter.MakeRotate( player.id, newPos ), player );
                                         player.pos.r = newPos.r;
                                         player.pos.l = newPos.l;
                                     }
-                                    if( posChanged ) {
+                                    if( distSquared > antiSpeedMaxDistanceSquared ) {
                                         SendNow( PacketWriter.MakeTeleport( 255, player.pos ) );
                                     }
 
@@ -200,8 +207,7 @@ namespace fCraft {
                                     // speedhack detection
                                     if( !player.Can( Permission.UseSpeedHack ) ) {
                                         if( DetectMovementPacketSpam() ) return;
-                                        int distSquared = delta.x * delta.x + delta.y * delta.y;
-                                        if( (distSquared > antiSpeedMaxDistanceSquared || delta.h > antiSpeedMaxJumpDelta) && speedHackDetectionCounter >= 0 ) {
+                                        if( (distSquared - delta.h * delta.h > antiSpeedMaxDistanceSquared || delta.h > antiSpeedMaxJumpDelta) && speedHackDetectionCounter >= 0 ) {
                                             if( speedHackDetectionCounter == 0 ) {
                                                 player.lastNonHackingPosition = player.pos;
                                             } else if( speedHackDetectionCounter > 1 ) {
@@ -227,16 +233,30 @@ namespace fCraft {
                                     }
 
                                     if( !player.isHidden ) {
+                                        if( distSquared < 64 && delta.r * delta.r + delta.l + delta.l < 4096 && !skippedLastMovementPacket ) {
+                                            skippedLastMovementPacket = true;
+                                            PacketsSkippedOptimized++;
+                                            continue;
+                                        }
+                                        skippedLastMovementPacket = false;
                                         if( delta.FitsIntoByte() && fullPositionUpdateCounter < fullPositionUpdateInterval ) {
                                             if( posChanged && rotChanged ) {
                                                 player.world.SendToAll( PacketWriter.MakeMoveRotate( player.id, delta ), player );
+                                                PacketsSent++;
                                             } else if( posChanged ) {
                                                 player.world.SendToAll( PacketWriter.MakeMove( player.id, delta ), player );
+                                                PacketsSent++;
                                             } else if( rotChanged ) {
                                                 player.world.SendToAll( PacketWriter.MakeRotate( player.id, newPos ), player );
+                                                PacketsSent++;
+                                            } else {
+                                                PacketsSkippedZero++;
                                             }
                                         } else if( !delta.IsZero() && !player.isFrozen ) {
                                             player.world.SendToAll( PacketWriter.MakeTeleport( player.id, newPos ), player );
+                                            PacketsSent++;
+                                        } else if( delta.IsZero() ) {
+                                            PacketsSkippedZero++;
                                         }
                                     }
                                     player.pos = newPos;
@@ -259,8 +279,9 @@ namespace fCraft {
                                 if( isBetweenWorlds ) continue;
 
                                 if( type > 49 || x < 0 || x > player.world.map.widthX || y < 0 || y > player.world.map.widthY || h < 0 || h > player.world.map.height ) {
-                                    Logger.Log( player.GetLogName() + " was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity );
-                                    Server.SendToAll( Color.Red + player.GetLogName() + " was kicked for attempted hacking (0x05)." );
+                                    Logger.Log( "{0} was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity,
+                                                player.name );
+                                    Server.SendToAll( player.GetClassyName() + Color.Red + " was kicked for attempted hacking (0x05)." );
                                     KickNow( "Hacking detected: illegal SetTile packet." );
                                     return;
                                 } else {
@@ -296,10 +317,17 @@ namespace fCraft {
         void LoginSequence() {
             byte opcode = reader.ReadByte();
             if( opcode != (byte)InputCode.Handshake ) {
-                Logger.Log( "Session.LoginSequence: Unexpected opcode in the first packet: {0}.", LogType.Error,
-                            opcode );
-                KickNow( "Unexpected handshake message - possible protocol mismatch!" );
-                return;
+                if( opcode == 2 ) {
+                    Logger.Log( "Session.LoginSequence: Someone tried connecting with SMP/Alpha client from {0}", LogType.Warning,
+                                GetIP() );
+                    KickNow( "This server is for Minecraft Classic only." );
+                    return;
+                } else {
+                    Logger.Log( "Session.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.", LogType.Error,
+                                GetIP(), opcode );
+                    KickNow( "Unexpected handshake message - possible protocol mismatch!" );
+                    return;
+                }
             }
 
             // check protocol version
@@ -314,7 +342,7 @@ namespace fCraft {
             // check name for nonstandard characters
             string playerName = ReadString();
             string verificationCode = ReadString();
-            reader.ReadByte(); // unused
+            reader.ReadByte(); // unused    
 
             if( !Player.IsValidName( playerName ) ) {
                 Logger.Log( "Session.LoginSequence: Unacceptible player name: {0} ({1})", LogType.SuspiciousActivity,
@@ -330,7 +358,7 @@ namespace fCraft {
                 player.info.ProcessFailedLogin( player );
                 Logger.Log( "Banned player {0} tried to log in.", LogType.SuspiciousActivity,
                             player.name );
-                Server.SendToAll( Color.Sys + "Banned player " + player.name + " tried to log in." );
+                Server.SendToAll( "&SBanned player " + player.GetClassyName() + "&S tried to log in." );
                 KickNow( "You were banned by " + player.info.bannedBy + " " + DateTime.Now.Subtract( player.info.banDate ).Days + " days ago." );
                 return;
             }
@@ -342,7 +370,7 @@ namespace fCraft {
                 IPBanInfo.ProcessAttempt( player );
                 Logger.Log( "{0} tried to log in from a banned IP.", LogType.SuspiciousActivity,
                             player.name );
-                Server.SendToAll( Color.Sys + player.name + " tried to log in from a banned IP." );
+                Server.SendToAll( player.GetClassyName() + "&S tried to log in from a banned IP." );
                 KickNow( "Your IP was banned by " + IPBanInfo.bannedBy + " " + DateTime.Now.Subtract( IPBanInfo.banDate ).Days + " days ago." );
                 return;
             }
@@ -384,7 +412,7 @@ namespace fCraft {
                             Logger.Log( "{0} IP did not match. Player was allowed in anyway because VerifyNames is set to Never.", LogType.SuspiciousActivity,
                                         standardMessage );
                             player.Message( Color.Red + "Your name could not be verified." );
-                            Server.SendToAll( Color.Red + "Name and IP of " + player.name + " could not be verified!", player );
+                            Server.SendToAll( Color.Red + "Name and IP of " + player.GetClassyName() + Color.Red + " are unverified!", player );
                             break;
                     }
                 } else {
@@ -405,7 +433,7 @@ namespace fCraft {
             }
 
             // check if another player with the same name is on
-            Player potentialClone = Server.FindPlayerExact(player.name);
+            Player potentialClone = Server.FindPlayerExact( player.name );
             if( potentialClone != null ) {
                 player.info.ProcessFailedLogin( player );
                 Logger.Log( "Session.LoginSequence: Player {0} tried to log in from two computers at once.", LogType.SuspiciousActivity,
@@ -445,8 +473,8 @@ namespace fCraft {
 
             showMessageOnDisconnect = true;
             bool firstTime = (player.info.timesVisited == 1);
-            Server.ShowPlayerConnectedMessage( player, firstTime );
-            JoinWorldNow( Server.mainWorld, false );
+            Server.ShowPlayerConnectedMessage( player, firstTime, Server.mainWorld );
+            JoinWorldNow( Server.mainWorld, true );
 
             // Welcome message
             if( firstTime ) {
@@ -455,11 +483,8 @@ namespace fCraft {
                 player.Message( "Welcome to {0}", Config.GetString( ConfigKey.ServerName ) );
             }
 
-            player.Message( String.Format( "Your player class is {0}{1}{2}. Type {3}/help{2} for details.",
-                                           player.info.playerClass.color,
-                                           player.info.playerClass.name,
-                                           Color.Sys,
-                                           Color.Help ) );
+            player.Message( String.Format( "Your player class is {0}&S. Type &H/help&S for help.",
+                                           player.info.playerClass.GetClassyName() ) );
         }
 
 
@@ -475,7 +500,7 @@ namespace fCraft {
             }
         }
 
-        internal bool JoinWorldNow( World newWorld, bool useHandshakePacket ) {
+        internal bool JoinWorldNow( World newWorld, bool firstTime ) {
             if( newWorld == null ) {
                 Logger.Log( "Session.JoinWorld: Requested to join a non-existing (null) world.", LogType.Error );
                 return false;
@@ -489,7 +514,7 @@ namespace fCraft {
 
             if( !newWorld.FirePlayerTriedToJoinEvent( player ) ) {
                 Logger.LogWarning( "Session.JoinWorld: FirePlayerTriedToJoinEvent prevented {0} from joining {1}", WarningLogSubtype.EventWarning,
-                            player.name, newWorld.name );
+                                   player.name, newWorld.name );
                 return false;
             }
 
@@ -512,12 +537,12 @@ namespace fCraft {
             ClearBlockUpdateQueue();
 
             // try to join the new world
-            if( !newWorld.AcceptPlayer( player ) ) return false;
+            if( !newWorld.AcceptPlayer( player, !firstTime ) ) return false;
             player.world = newWorld;
 
             // Start sending over the level copy
-            if( useHandshakePacket ) {
-                writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), "Loading world \"" + newWorld.name + "\"" ) );
+            if( !firstTime ) {
+                writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), "Loading world " + newWorld.GetClassyName() ) );
             }
 
             writer.WriteLevelBegin();
@@ -555,8 +580,8 @@ namespace fCraft {
             }
 
             writer.Write( PacketWriter.MakeHandshake( player,
-                                                      Config.GetString( ConfigKey.ServerName ), 
-                                                      "Loading world \"" + newWorld.name + "\" (almost there...)" ) );
+                                                      Config.GetString( ConfigKey.ServerName ),
+                                                      "Loading world " + newWorld.GetClassyName() + Color.White + " (almost there...)" ) );
 
             // Done sending over level copy
             writer.Write( PacketWriter.MakeLevelEnd( newWorld.map ) );
@@ -579,7 +604,7 @@ namespace fCraft {
             // Send player list
             newWorld.SendPlayerList( player );
 
-            player.Message( "Joined world \"{0}\"", newWorld.name );
+            player.Message( "Joined world {0}", newWorld.GetClassyName() );
 
             if( Config.GetBool( ConfigKey.LowLatencyMode ) ) {
                 client.NoDelay = true;
@@ -647,10 +672,10 @@ namespace fCraft {
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
                 if( spamTimer < antiSpeedMaxPacketInterval ) {
                     Logger.Log( "{0} was kicked for spamming movement packets ({1} packets in {2} seconds)", LogType.SuspiciousActivity,
-                                player.GetLogName(),
+                                player.name,
                                 antiSpeedPacketLog.Count,
                                 spamTimer );
-                    Server.SendToAll( player.GetLogName() + " was kicked for hacking (packet spam)." );
+                    Server.SendToAll( player.GetClassyName() + Color.Red + " was kicked for hacking (packet spam)." );
                     KickNow( "Packet spamming detected." );
                     return true;
                     /*Server.SendToAll( "DEBUG: " + player.name + " moved " + antiSpeedPacketLog.Count + " times in " + spamTimer.ToString("0.000") );

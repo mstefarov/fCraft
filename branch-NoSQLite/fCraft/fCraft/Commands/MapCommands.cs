@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -52,14 +53,20 @@ namespace fCraft {
             World world = Server.FindWorld( worldName );
             if( world != null ) {
                 if( player.CanJoin( world ) ) {
-                    if( !player.session.JoinWorldNow( world, true ) ) {
+                    if( !player.session.JoinWorldNow( world, false ) ) {
                         player.Message( "Failed to join world." );
                     }
                 } else {
-                    player.Message( "Cannot join world \"" + world.name + "\": must be " + world.classAccess.color + world.classAccess.name + Color.Sys + " or higher." );
+                    player.Message( "Cannot join world {0}&S: must be {1}+",
+                                    world.GetClassyName(), world.classAccess.GetClassyName() );
                 }
             } else {
-                player.Message( "No world found with the name \"" + worldName + "\"." );
+                List<Player> players = Server.FindPlayers( worldName );
+                if( players.Count == 1 ) {
+                    player.ParseMessage( "/tp " + players[0], false );
+                } else {
+                    player.Message( "No world found with the name \"" + worldName + "\"." );
+                }
             }
         }
 
@@ -156,7 +163,9 @@ namespace fCraft {
                 return;
             }
 
-            player.Message( "Flushing \"{0}\" ({1} blocks in queue)...", world.name, world.map.UpdateQueueSize() );
+            player.Message( "Flushing {0}&S ({1} blocks in queue)...",
+                            world.GetClassyName(),
+                            world.map.UpdateQueueSize() );
 
             world.BeginFlushMapBuffer();
         }
@@ -182,12 +191,13 @@ namespace fCraft {
             if( world == null ) {
                 player.Message( "No world \"{0}\" found.", worldName );
             } else if( world == Server.mainWorld ) {
-                player.Message( "World \"{0}\" is already set as main.", world.name );
+                player.Message( "World {0}&S is already set as main.", world.GetClassyName() );
             } else {
                 if( world.classAccess != ClassList.lowestClass ) {
                     world.classAccess = ClassList.lowestClass;
                     player.Message( "The main world cannot have access restrictions." );
-                    player.Message( "Access restrictions were removed from world \"{0}\"", world.name );
+                    player.Message( "Access restrictions were removed from world {0}",
+                                    world.GetClassyName() );
                 }
                 world.neverUnload = true;
                 world.LoadMap();
@@ -195,9 +205,9 @@ namespace fCraft {
                 Server.mainWorld = world;
                 Server.SaveWorldList();
 
-                Server.SendToAll( Color.Sys + player.nick + " set \"" + world.name + "\" to be the main world." );
-                Logger.Log( "{0} set \"{1}\" to be the main world.", LogType.UserActivity,
-                            player.GetLogName(), world.name );
+                Server.SendToAll( player.GetClassyName() + "&S set " + world.GetClassyName() + "&S to be the main world." );
+                Logger.Log( "{0} set {1} to be the main world.", LogType.UserActivity,
+                            player.name, world.name );
             }
         }
 
@@ -221,12 +231,12 @@ namespace fCraft {
             if( worldName == null ) {
                 if( player.world != null ) {
                     if( player.world.classAccess == ClassList.lowestClass ) {
-                        player.Message( "This world ({0}) can be visited by anyone.", player.world.name );
+                        player.Message( "This world ({0}&S) can be visited by anyone.",
+                                        player.world.GetClassyName() );
                     } else {
-                        player.Message( "This world ({0}) can only be visited by {1}{2}+",
-                                        player.world.name,
-                                        player.world.classAccess.color,
-                                        player.world.classAccess.name );
+                        player.Message( "This world ({0}&S) can only be visited by {1}+",
+                                        player.world.GetClassyName(),
+                                        player.world.classAccess.GetClassyName() );
                     }
                 } else {
                     player.Message( "When calling /waccess from console, you must specify the world name." );
@@ -239,12 +249,12 @@ namespace fCraft {
                 player.Message( "No world \"{0}\" found.", worldName );
             } else if( className == null ) {
                 if( world.classAccess == ClassList.lowestClass ) {
-                    player.Message( "World \"{0}\" can be visited by anyone.", world.name );
+                    player.Message( "World {0}&S can be visited by anyone.",
+                                    world.GetClassyName() );
                 } else {
-                    player.Message( "World \"{0}\" can only be visited by {1}{2}+",
-                        world.name,
-                        world.classAccess.color,
-                        world.classAccess.name );
+                    player.Message( "World {0}&S can only be visited by {1}+",
+                                    world.GetClassyName(),
+                                    world.classAccess.GetClassyName() );
                 }
             } else {
                 PlayerClass playerClass = ClassList.FindClass( className );
@@ -256,14 +266,14 @@ namespace fCraft {
                     world.classAccess = playerClass;
                     Server.SaveWorldList();
                     if( world.classAccess == ClassList.lowestClass ) {
-                        Server.SendToAll( Color.Sys + player.nick + " made the world \"" + world.name + "\" accessible to anyone." );
+                        Server.SendToAll( String.Format( "{0}&S made the world {1}&S accessible to anyone.",
+                                                        player.GetClassyName(), world.GetClassyName() ) );
                     } else {
-                        Server.SendToAll( Color.Sys + player.nick + " made the world \"" + world.name + "\" accessible only to " + world.classAccess.color + world.classAccess.name + "+" );
+                        Server.SendToAll( String.Format( "{0}&S made the world {1}&S accessible only to {2}+",
+                                                         player.GetClassyName(), world.GetClassyName(), world.classAccess.GetClassyName() ) );
                     }
                     Logger.Log( "{0} made the world \"{1}\" accessible to {2}+", LogType.UserActivity,
-                                player.GetLogName(),
-                                world.name,
-                                world.classAccess.name );
+                                player.name, world.name, world.classAccess.name );
                 }
             }
         }
@@ -288,12 +298,12 @@ namespace fCraft {
             if( worldName == null ) {
                 if( player.world != null ) {
                     if( player.world.classBuild == ClassList.lowestClass ) {
-                        player.Message( "This world ({0}) can be modified by anyone.", player.world.name );
+                        player.Message( "This world ({0}&S) can be modified by anyone.",
+                                        player.world.GetClassyName() );
                     } else {
-                        player.Message( "This world ({0}) can only be modified by {1}{2}+",
-                                        player.world.name,
-                                        player.world.classBuild.color,
-                                        player.world.classBuild.name );
+                        player.Message( "This world ({0}&S) can only be modified by {1}+",
+                                        player.world.GetClassyName(),
+                                        player.world.classBuild.GetClassyName() );
                     }
                 } else {
                     player.Message( "When calling /waccess from console, you must specify the world name." );
@@ -306,12 +316,12 @@ namespace fCraft {
                 player.Message( "No world \"{0}\" found.", worldName );
             } else if( className == null ) {
                 if( world.classBuild == ClassList.lowestClass ) {
-                    player.Message( "World \"{0}\" can be modified by anyone.", worldName );
+                    player.Message( "World {0}&S can be modified by anyone.",
+                                    world.GetClassyName() );
                 } else {
-                    player.Message( "World \"{0}\" can be only modified by {1}{2}+",
-                                    worldName,
-                                    world.classBuild.color,
-                                    world.classBuild.name );
+                    player.Message( "World {0}&S can be only modified by {1}+",
+                                    world.GetClassyName(),
+                                    world.classBuild.GetClassyName() );
                 }
             } else {
                 PlayerClass playerClass = ClassList.FindClass( className );
@@ -321,14 +331,14 @@ namespace fCraft {
                     world.classBuild = playerClass;
                     Server.SaveWorldList();
                     if( world.classBuild == ClassList.lowestClass ) {
-                        Server.SendToAll( Color.Sys + player.nick + " made the world \"" + world.name + "\" modifiable by anyone." );
+                        Server.SendToAll( String.Format( "{0}&S made the world {1}&S modifiable by anyone.",
+                                                         player.GetClassyName(), world.GetClassyName() ) );
                     } else {
-                        Server.SendToAll( Color.Sys + player.nick + " made the world \"" + world.name + "\" modifiable only by " + world.classBuild.color + world.classBuild.name + "+" );
+                        Server.SendToAll( String.Format( "{0}&S made the world {1}&S modifiable only by {2}+",
+                                                         player.GetClassyName(), world.GetClassyName(), world.classBuild.GetClassyName() ) );
                     }
                     Logger.Log( "{0} made the world \"{1}\" modifiable by {2}+", LogType.UserActivity,
-                                player.GetLogName(),
-                                world.name,
-                                world.classBuild.name );
+                                player.name, world.name, world.classBuild.name );
                 }
             }
         }
@@ -357,11 +367,11 @@ namespace fCraft {
                 bool first = true;
                 foreach( World world in Server.worlds.Values ) {
                     if( world.isHidden ) continue;
-                    if( !first ) {
-                        sb.Append( ", " );
-                    }
                     if( player.CanJoin( world ) || listAll ) {
-                        sb.Append( world.classBuild.color + world.name );
+                        if( !first ) {
+                            sb.Append( ", " );
+                        }
+                        sb.Append( world.GetClassyName() );
                     }
                     first = false;
                 }
@@ -400,8 +410,7 @@ namespace fCraft {
             }
 
             Logger.Log( "Player {0} is attempting to load map \"{1}\"...", LogType.UserActivity,
-                        player.GetLogName(),
-                        fileName );
+                        player.name, fileName );
             player.MessageNow( "Loading {0}...", fileName );
 
             Map map = Map.Load( player.world, fileName );
@@ -413,13 +422,11 @@ namespace fCraft {
             if( worldName == null ) {
                 // Loading to current world
                 player.world.ChangeMap( map );
-                player.world.SendToAll( Color.Sys + player.nick + " loaded a new map for the world \"" + player.world.name + "\".", player );
+                player.world.SendToAll( Color.Sys + player.GetClassyName() + " loaded a new map for the world " + player.world.GetClassyName(), player );
                 player.MessageNow( "New map for the world \"{0}\" has been loaded.", player.world.name );
 
                 Logger.Log( "{0} loaded new map for {1} from {2}", LogType.UserActivity,
-                            player.GetLogName(),
-                            player.world.name,
-                            fileName );
+                            player.name, player.world.name, fileName );
 
             } else {
                 // Loading to some other (or new) world
@@ -433,21 +440,17 @@ namespace fCraft {
                     if( world != null ) {
                         // Replacing existing world's map
                         world.ChangeMap( map );
-                        world.SendToAll( Color.Sys + player.nick + " loaded a new map for the world \"" + world.name + "\".", player );
-                        player.MessageNow( "New map for the world \"{0}\" has been loaded.", world.name );
+                        world.SendToAll( player.GetClassyName() + "&S loaded a new map for the world " + world.GetClassyName(), player );
+                        player.MessageNow( "New map for the world {0}&S has been loaded.", world.GetClassyName() );
                         Logger.Log( "{0} loaded new map for world \"{1}\" from {2}", LogType.UserActivity,
-                                    player.GetLogName(),
-                                    world.name,
-                                    fileName );
+                                    player.name, world.name, fileName );
 
                     } else {
                         // Adding a new world
                         if( Server.AddWorld( worldName, map, false ) != null ) {
-                            Server.SendToAll( Color.Sys + player.nick + " created a new world named \"" + worldName + "\"." );
-                            Logger.Log( "{0} created a new world named \"{1}\". from {2}", LogType.UserActivity,
-                                        player.GetLogName(),
-                                        worldName,
-                                        fileName );
+                            Server.SendToAll( player.GetClassyName() + "&S created a new world named \"" + worldName + "\"." );
+                            Logger.Log( "{0} created a new world named \"{1}\" (loaded from \"{2}\")", LogType.UserActivity,
+                                        player.name, worldName, fileName );
                             Server.SaveWorldList();
                             player.MessageNow( "Reminder: New worlds don't have any access or build restrictions. " +
                                                "You may protect the world using &H/wbuild&S and &H/waccess&S now." );
@@ -507,11 +510,10 @@ namespace fCraft {
                     }
 
                     Server.SaveWorldList();
-                    Server.SendToAll( Color.Sys + player.nick + " renamed the world \"" + oldName + "\" to \"" + newName + "\"." );
+                    Server.SendToAll( String.Format( "{0}&S renamed the world \"{1}\" to \"{2}\"",
+                                                     player.GetClassyName(), oldName, newName ) );
                     Logger.Log( "{0} renamed the world \"{1}\" to \"{2}\".", LogType.UserActivity,
-                                player.GetLogName(),
-                                oldName,
-                                newName );
+                                player.name, oldName, newName );
                 }
             }
         }
@@ -544,10 +546,11 @@ namespace fCraft {
                     player.Message( "Deleting the main world is not allowed. Assign a new main first." );
                 } else {
                     Server.RemoveWorld( worldName );
-                    Server.SendToAll( Color.Sys + player.nick + " deleted the world \"" + world.name + "\"", player );
-                    player.Message( "Removed \"{0}\" from the world list.", world.name );
+                    Server.SendToAll( player.GetClassyName() + "&S removed " + world.GetClassyName() + "&S from the world list.", player );
+                    player.Message( "Removed {0}&S from the world list.", world.GetClassyName() );
                     player.Message( "You can now delete the map file ({0}.fcm) manually.", world.name );
-                    Logger.Log( "{0} removed the world \"{1}\"", LogType.UserActivity, player.GetLogName(), worldName );
+                    Logger.Log( "{0} removed \"{1}\" from the world list.", LogType.UserActivity,
+                                player.name, worldName );
                 }
             }
 
@@ -595,10 +598,9 @@ namespace fCraft {
                 zone.build = minRank;
                 player.world.map.changesSinceSave++;
                 player.world.SaveMap( null );
-                player.Message( "Permission for zone \"{0}\" changed to {1}{2}+",
+                player.Message( "Permission for zone \"{0}\" changed to {1}+",
                                 name,
-                                minRank.color,
-                                minRank.name );
+                                minRank.GetClassyName() );
             }
         }
 
@@ -644,18 +646,14 @@ namespace fCraft {
 
             if( minRank != null ) {
                 zone.build = minRank;
-                player.selectionArgs = zone;
-                player.selectionMarksExpected = 2;
-                player.selectionMarks.Clear();
-                player.selectionMarkCount = 0;
-                player.selectionCallback = ZoneAddCallback;
+                player.SetCallback( 2, ZoneAddCallback, zone );
                 player.Message( "Zone: Place a block or type /mark to use your location." );
             } else {
                 player.Message( "Unrecognized player class: \"{0}\"", property );
             }
         }
 
-        internal static void ZoneAddCallback( Player player, Position[] marks, object tag ) {//TODO: better method names
+        internal static void ZoneAddCallback( Player player, Position[] marks, object tag ) {
             Zone zone = (Zone)tag;
             zone.bounds = new BoundingBox( marks[0], marks[1] );
             player.Message( "Zone \"{0}\" created, {1} blocks total.",
@@ -735,11 +733,9 @@ namespace fCraft {
             Zone[] zones = player.world.map.ListZones();
             if( zones.Length > 0 ) {
                 foreach( Zone zone in zones ) {
-                    player.Message( String.Format( "  {0} ({1}{2}{3}) - {4}x{5}x{6}",
+                    player.Message( String.Format( "  {0} ({2}&S) - {4} x {5} x {6}",
                                                    zone.name,
-                                                   zone.build.color,
-                                                   zone.build.name,
-                                                   Color.Sys,
+                                                   zone.build.GetClassyName(),
                                                    zone.bounds.GetWidthX(),
                                                    zone.bounds.GetWidthY(),
                                                    zone.bounds.GetHeight() ) );

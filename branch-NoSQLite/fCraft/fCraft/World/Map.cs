@@ -21,7 +21,7 @@ namespace fCraft {
         public int changesSinceSave, changesSinceBackup;
         public short[,] shadows;
 
-        internal Map() {}
+        internal Map() { }
 
         public Map( World _world ) {
             world = _world;
@@ -92,7 +92,7 @@ namespace fCraft {
 
         internal void WriteMetadata( BinaryWriter writer ) {
             lock( metaLock ) {
-                writer.Write( (ushort)( meta.Count + zones.Count ) );
+                writer.Write( (ushort)(meta.Count + zones.Count) );
                 foreach( KeyValuePair<string, string> pair in meta ) {
                     WriteLengthPrefixedString( writer, pair.Key );
                     WriteLengthPrefixedString( writer, pair.Value );
@@ -123,7 +123,7 @@ namespace fCraft {
                 // try to append ".fcm" and/or prepend "maps/"
                 if( File.Exists( fileName + ".fcm" ) ) {
                     fileName += ".fcm";
-                } else if( File.Exists( "maps/" + fileName ) || Directory.Exists("maps/" + fileName) ) {
+                } else if( File.Exists( "maps/" + fileName ) || Directory.Exists( "maps/" + fileName ) ) {
                     fileName = "maps/" + fileName;
                 } else if( File.Exists( "maps/" + fileName + ".fcm" ) ) {
                     fileName = "maps/" + fileName + ".fcm";
@@ -284,6 +284,7 @@ namespace fCraft {
             blockNames["sappling"] = Block.Plant;
             blockNames["adminium"] = Block.Admincrete;
             blockNames["opcrete"] = Block.Admincrete;
+            blockNames["solid"] = Block.Admincrete;
             blockNames["gold_ore"] = Block.GoldOre;
             blockNames["iron_ore"] = Block.IronOre;
             blockNames["ore"] = Block.IronOre;
@@ -291,7 +292,6 @@ namespace fCraft {
             blockNames["coalore"] = Block.Coal;
             blockNames["blackore"] = Block.Coal;
 
-            blockNames["tree"] = Block.Log;
             blockNames["trunk"] = Block.Log;
             blockNames["stump"] = Block.Log;
             blockNames["treestump"] = Block.Log;
@@ -313,17 +313,23 @@ namespace fCraft {
             blockNames["mushroom"] = Block.BrownMushroom;
             blockNames["shroom"] = Block.BrownMushroom;
             blockNames["brown_shroom"] = Block.BrownMushroom;
-            blockNames["red_shroom"] = Block.BrownMushroom;
+            blockNames["red_shroom"] = Block.RedMushroom;
+
+            blockNames["golden"] = Block.Gold;
+            blockNames["copper"] = Block.Gold;
 
             blockNames["iron"] = Block.Steel;
             blockNames["metal"] = Block.Steel;
             blockNames["silver"] = Block.Steel;
 
+            blockNames["halfstep"] = Block.Stair;
+            blockNames["halfblock"] = Block.Stair;
             blockNames["step"] = Block.Stair;
             blockNames["doublestep"] = Block.DoubleStair;
             blockNames["slab"] = Block.Stair;
             blockNames["slabs"] = Block.DoubleStair;
             blockNames["stairs"] = Block.DoubleStair;
+            blockNames["steps"] = Block.DoubleStair;
             blockNames["double_stair"] = Block.DoubleStair;
 
             blockNames["bricks"] = Block.Brick;
@@ -353,14 +359,25 @@ namespace fCraft {
 
         public void CalculateShadows() {
             if( shadows != null ) return;
-            else shadows = new short[widthX, widthY];
+
+            shadows = new short[widthX, widthY];
             for( int x = 0; x < widthX; x++ ) {
                 for( int y = 0; y < widthY; y++ ) {
-                    for( int h = height; h >= 0; h-- ) {
-                        if( GetBlock( x, y, h ) > 0 ) {
-                            shadows[x, y] = (short)h;
-                            break;
+                    for( short h = (short)(height - 1); h >= 0; h-- ) {
+                        switch( GetBlock( x, y, h ) ) {
+                            case (byte)Block.Air:
+                            case (byte)Block.Leaves:
+                            case (byte)Block.Glass:
+                            case (byte)Block.RedFlower:
+                            case (byte)Block.RedMushroom:
+                            case (byte)Block.YellowFlower:
+                            case (byte)Block.BrownMushroom:
+                                continue;
+                            default:
+                                shadows[x, y] = h;
+                                break;
                         }
+                        break;
                     }
                 }
             }
@@ -385,7 +402,7 @@ namespace fCraft {
 
         internal bool ValidateBlockTypes( bool returnOnErrors ) {
             for( int i = 0; i < blocks.Length; i++ ) {
-                if( ( blocks[i] ) > 49 ) {
+                if( (blocks[i]) > 49 ) {
                     if( returnOnErrors ) return false;
                     else blocks[i] = 0;
                 }
@@ -475,7 +492,7 @@ namespace fCraft {
         public ZoneOverride CheckZones( int x, int y, int h, Player player ) {
             ZoneOverride result = ZoneOverride.None;
             Zone[] zoneListCache = zoneList;
-            for( int i=0; i<zoneListCache.Length;i++){
+            for( int i = 0; i < zoneListCache.Length; i++ ) {
                 if( zoneListCache[i].bounds.Contains( x, y, h ) ) {
                     if( zoneListCache[i].CanBuild( player ) ) {
                         result = ZoneOverride.Allow;
@@ -536,7 +553,7 @@ namespace fCraft {
         #region Block Updates & Simulation
 
         public int Index( int x, int y, int h ) {
-            return ( h * widthY + y ) * widthX + x;
+            return (h * widthY + y) * widthX + x;
         }
 
         public void SetBlock( int x, int y, int h, Block type ) {
@@ -590,7 +607,7 @@ namespace fCraft {
                 }
                 changesSinceSave++;
                 SetBlock( update.x, update.y, update.h, update.type );
-                if(!world.isFlushing) world.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin );
+                if( !world.isFlushing ) world.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin );
                 if( update.origin != null ) {
                     update.origin.info.ProcessBlockPlaced( update.type );
                 }
@@ -601,42 +618,72 @@ namespace fCraft {
                 world.UnloadMap();
             }
         }
+
         #endregion
 
         #region Backup
-        public void SaveBackup( string sourceName, string targetName ) {
-            if( changesSinceBackup == 0 && Config.GetBool( ConfigKey.BackupOnlyWhenChanged ) ) return;
+        public void SaveBackup( string sourceName, string targetName, bool onlyIfChanged ) {
+            if( onlyIfChanged && changesSinceBackup == 0 && Config.GetBool( ConfigKey.BackupOnlyWhenChanged ) ) return;
 
             if( !Directory.Exists( "backups" ) ) {
                 try {
                     Directory.CreateDirectory( "backups" );
                 } catch( Exception ex ) {
-                    Logger.Log( "Map.SaveBackup: Error occured while trying to create backup directory: "+ex, LogType.Error );
+                    Logger.Log( "Map.SaveBackup: Error occured while trying to create backup directory: " + ex, LogType.Error );
                     return;
                 }
             }
-            
+
             changesSinceBackup = 0;
 
             try {
                 File.Copy( sourceName, targetName, true );
-            }catch(Exception ex){
-                Logger.Log( "Map.SaveBackup: Error occured while trying to save backup to \""+targetName+"\": " + ex, LogType.Error );
+            } catch( Exception ex ) {
+                Logger.Log( "Map.SaveBackup: Error occured while trying to save backup to \"" + targetName + "\": " + ex, LogType.Error );
                 return;
             }
 
-            FileInfo[] backupList = new DirectoryInfo( "backups" ).GetFiles( "*.fcm" );
-            Array.Sort<FileInfo>( backupList, FileInfoComparer.instance );
+            DirectoryInfo d = new DirectoryInfo( "backups" );
+            List<FileInfo> backupList = new List<FileInfo>( d.GetFiles( "*.fcm" ) );
+            backupList.Sort( FileInfoComparer.instance );
 
             if( Config.GetInt( ConfigKey.MaxBackups ) > 0 ) {
-                for( int i = backupList.Length - 1; i > Config.GetInt( ConfigKey.MaxBackups ); i-- ) {
+                while( backupList.Count > Config.GetInt( ConfigKey.MaxBackups ) ) {
+                    FileInfo info = backupList[backupList.Count - 1];
+                    backupList.RemoveAt( backupList.Count - 1 );
                     try {
-                        File.Delete( backupList[i].FullName );
+                        File.Delete( info.FullName );
                         Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
-                                    backupList[i].Name );
+                                    info.Name );
                     } catch( Exception ex ) {
                         Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": " + ex, LogType.Error,
-                                    backupList[i].Name );
+                                    info.Name );
+                    }
+                }
+            }
+
+
+            if( Config.GetInt( ConfigKey.MaxBackupSize ) > 0 ) {
+                while( true ) {
+                    long Size = 0;
+                    FileInfo[] fis = d.GetFiles();
+                    foreach( FileInfo fi in fis ) {
+                        Size += fi.Length;
+                    }
+
+                    if( Size / 1024 / 1024 > Config.GetInt( ConfigKey.MaxBackupSize ) ) {
+                        FileInfo info = backupList[backupList.Count - 1];
+                        backupList.RemoveAt( backupList.Count - 1 );
+                        try {
+                            File.Delete( info.FullName );
+                            Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
+                                        info.Name );
+                        } catch( Exception ex ) {
+                            Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": " + ex, LogType.Error,
+                                        info.Name );
+                        }
+                    } else {
+                        break;
                     }
                 }
             }

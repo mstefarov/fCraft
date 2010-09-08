@@ -26,7 +26,6 @@ namespace fCraft {
         Demote,
         Hide,         // go invisible!
         //Spectate,     // spectate others
-        ChangeName,   // change own name
 
         Draw,
         CopyAndPaste,

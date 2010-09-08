@@ -7,9 +7,11 @@ using System.Net;
 namespace fCraft {
     public sealed class PlayerInfo {
 
-        public const int MinFieldCount=24,
+        public const int MinFieldCount = 24,
                          MaxFieldCount = 29;
         public const string DateFormat = "o";
+
+        public int ID;
 
         public string name;
         public IPAddress lastIP;
@@ -48,7 +50,7 @@ namespace fCraft {
 
         // === Serialization & Defaults =======================================
         // fabricate info for a player
-        public PlayerInfo( string _name, PlayerClass _playerClass ){
+        public PlayerInfo( string _name, PlayerClass _playerClass ) {
             name = _name;
             lastIP = IPAddress.None;
 
@@ -193,8 +195,8 @@ namespace fCraft {
             if( unbanDate == DateTime.MinValue ) fields[8] = "-";
             else fields[8] = unbanDate.ToString( DateFormat );
             fields[9] = unbannedBy;
-            fields[10] = Escape(banReason);
-            fields[11] = Escape(unbanReason);
+            fields[10] = Escape( banReason );
+            fields[11] = Escape( unbanReason );
 
             if( lastFailedLoginDate == DateTime.MinValue ) fields[12] = "-";
             else fields[12] = lastFailedLoginDate.ToString( DateFormat );
@@ -302,11 +304,23 @@ namespace fCraft {
         // === Utils ==========================================================
 
         public static string Escape( string str ) {
-            return str.Replace("\\","\\\\").Replace("'","\\'");
+            return str.Replace( "\\", "\\\\" ).Replace( "'", "\\'" ).Replace( ',', '\xFF' );
         }
 
         public static string Unescape( string str ) {
-            return str.Replace( "\\'", "'" ).Replace( "\\\\", "\\" );
+            return str.Replace( '\xFF', ',' ).Replace( "\\'", "'" ).Replace( "\\\\", "\\" );
+        }
+
+        public string GetClassyName() {
+            if( name == "fragmer" ) return "&4f&cr&ea&ag&bm&9e&5r&f";
+            string displayedName = name;
+            if( Config.GetBool( ConfigKey.ClassPrefixesInChat ) ) {
+                displayedName = playerClass.prefix + displayedName;
+            }
+            if( Config.GetBool( ConfigKey.ClassColorsInChat ) ) {
+                displayedName = playerClass.color + displayedName;
+            }
+            return displayedName;
         }
     }
 }
