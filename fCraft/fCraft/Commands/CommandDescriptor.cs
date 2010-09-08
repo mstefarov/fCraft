@@ -12,7 +12,7 @@ namespace fCraft {
     public sealed class CommandDescriptor {
         public string name;                 // main name
         public string[] aliases;            // list of aliases
-        public bool consoleSafe;            // if true, command can be called from console
+        public bool consoleSafe;            // if true, command can be called from console (defaults to false)
         public Permission[] permissions;    // list of required permissions
         public string usage;                // short help
         public string help;                 // full help

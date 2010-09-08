@@ -30,7 +30,6 @@ namespace ConfigTool {
                 MessageBox.Show( "World list (worlds.xml) was not found. Assuming 0 worlds." );
             }
 
-
             if( Config.Load() ) {
                 if( Config.errors.Length > 0 ) {
                     MessageBox.Show( Config.errors, "Config loading warnings" );
@@ -105,6 +104,8 @@ namespace ConfigTool {
             xClassColors.Checked = Config.GetBool( ConfigKey.ClassColorsInChat );
             xChatPrefixes.Checked = Config.GetBool( ConfigKey.ClassPrefixesInChat );
             xListPrefixes.Checked = Config.GetBool( ConfigKey.ClassPrefixesInList );
+            xClassColorsInWorldNames.Checked = Config.GetBool( ConfigKey.ClassColorsInWorldNames );
+            xShowJoinedWorldMessages.Checked = Config.GetBool( ConfigKey.ShowJoinedWorldMessages );
 
             colorSys = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.SystemMessageColor ) );
             ApplyColor( bColorSys, colorSys );
@@ -274,6 +275,8 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.IsPublic, cPublic.SelectedIndex == 0 );
             Config.SetValue( ConfigKey.Port, nPort.Value );
             Config.SetValue( ConfigKey.UploadBandwidth, nUploadBandwidth.Value );
+            Config.SetValue( ConfigKey.ShowJoinedWorldMessages, xShowJoinedWorldMessages.Checked );
+            Config.SetValue( ConfigKey.ClassColorsInWorldNames, xClassColorsInWorldNames.Checked );
             Config.SetValue( ConfigKey.ClassColorsInChat, xClassColors.Checked );
             Config.SetValue( ConfigKey.ClassPrefixesInChat, xChatPrefixes.Checked );
             Config.SetValue( ConfigKey.ClassPrefixesInList, xListPrefixes.Checked );

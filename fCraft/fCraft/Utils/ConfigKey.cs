@@ -12,8 +12,10 @@ namespace fCraft {
         UploadBandwidth,
 
         ClassColorsInChat,
+        ClassColorsInWorldNames,
         ClassPrefixesInChat,
         ClassPrefixesInList,
+        ShowJoinedWorldMessages,
         SystemMessageColor,
         HelpColor,
         SayColor,
@@ -43,7 +45,7 @@ namespace fCraft {
         BackupOnlyWhenChanged,
         BackupInterval,
         MaxBackups,
-        MaxBackupSize,
+        MaxBackupSize, // in megabytes
 
         LogMode,
         MaxLogs,

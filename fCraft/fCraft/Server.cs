@@ -30,11 +30,11 @@ namespace fCraft {
 
         public static int maxUploadSpeed,   // set by Config.ApplyConfig
                           packetsPerSecond, // set by Config.ApplyConfig
-                          maxSessionPacketsPerTick = 128,
-                          maxBlockUpdatesPerTick = 60000; // used when there are no players in a world
-        internal static float ticksPerSecond; //TODO: move to server
+                          MaxSessionPacketsPerTick = 128,
+                          MaxBlockUpdatesPerTick = 60000; // used when there are no players in a world
+        internal static float ticksPerSecond; // TODO: move to server
 
-        const int maxPortAttempts = 20;
+        const int MaxPortAttempts = 20;
         public static int port;
 
         internal static string Salt = "";
@@ -128,12 +128,12 @@ namespace fCraft {
                     port++;
                     attempts++;
                 }
-            } while( !portFound && attempts < maxPortAttempts );
+            } while( !portFound && attempts < MaxPortAttempts );
 
             // if the port still cannot be opened after [maxPortAttempts] attemps, die.
             if( !portFound ) {
                 Logger.Log( "Could not start listening after {0} tries. Giving up!", LogType.FatalError,
-                               maxPortAttempts );
+                               MaxPortAttempts );
                 return false;
             }
 
@@ -533,6 +533,7 @@ namespace fCraft {
 
         #endregion
 
+
         #region Networking
         public static void SendToAllDelayed( Packet packet, Player except ) {
             Player[] tempList = playerList;
@@ -569,7 +570,7 @@ namespace fCraft {
         }
 
         public static void SendToAll( string prefix, string message, Player except ) {
-            foreach( Packet p in PacketWriter.MakeWrappedMessage( prefix,message,false ) ) {
+            foreach( Packet p in PacketWriter.MakeWrappedMessage( prefix, message, false ) ) {
                 SendToAll( p, except );
             }
         }
@@ -615,6 +616,7 @@ namespace fCraft {
         }
         #endregion
 
+
         #region Events
         // events
         public static event SimpleEventHandler OnInit;
@@ -654,7 +656,7 @@ namespace fCraft {
                 Player[] playerListCache = playerList;
                 string[] list = new string[playerListCache.Length];
                 for( int i = 0; i < list.Length; i++ ) {
-                    list[i] = playerListCache[i].info.playerClass.name + " - " + playerListCache[i].GetLogName();
+                    list[i] = playerListCache[i].info.playerClass.name + " - " + playerListCache[i].name;
                 }
                 Array.Sort<string>( list );
                 OnPlayerListChanged( list );
@@ -669,6 +671,7 @@ namespace fCraft {
         }
 
         #endregion
+
 
         #region Scheduler
 
@@ -685,15 +688,15 @@ namespace fCraft {
 #else
             try {
 #endif
-                ScheduledTask[] taskCache;
-                ScheduledTask task;
-                while( !shuttingDown ) {
-                    taskCache = taskList;
-                    for( int i = 0; i < taskCache.Length; i++ ) {
-                        task = taskCache[i];
-                        if( task.enabled && task.nextTime < DateTime.UtcNow ) {
+            ScheduledTask[] taskCache;
+            ScheduledTask task;
+            while( !shuttingDown ) {
+                taskCache = taskList;
+                for( int i = 0; i < taskCache.Length; i++ ) {
+                    task = taskCache[i];
+                    if( task.enabled && task.nextTime < DateTime.UtcNow ) {
 #if DEBUG
-                                task.callback( task.param );
+                        task.callback( task.param );
 #else
                             try {
                                 task.callback( task.param );
@@ -702,11 +705,11 @@ namespace fCraft {
                                 Logger.UploadCrashReport( "Exception was thrown by a scheduled task", "fCraft", ex );
                             }
 #endif
-                            task.nextTime += TimeSpan.FromMilliseconds( task.interval );
-                        }
+                        task.nextTime += TimeSpan.FromMilliseconds( task.interval );
                     }
-                    Thread.Sleep( 1 );
                 }
+                Thread.Sleep( 1 );
+            }
 #if DEBUG
 #else
             } catch( Exception ex ) {
@@ -720,7 +723,7 @@ namespace fCraft {
         static void AutoBackup( object param ) {
             World world = (World)param;
             if( world.map == null ) return;
-            world.map.SaveBackup( world.GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-ddTHH-mm}.fcm", world.name, DateTime.Now ) );
+            world.map.SaveBackup( world.GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-ddTHH-mm}.fcm", world.name, DateTime.Now ), true );
         }
 
         static void SaveMap( object param ) {
@@ -742,9 +745,8 @@ namespace fCraft {
             foreach( Player player in tempPlayerList ) {
                 if( player.info.playerClass.idleKickTimer > 0 ) {
                     if( DateTime.UtcNow.Subtract( player.idleTimer ).TotalMinutes >= player.info.playerClass.idleKickTimer ) {
-                        SendToAll( String.Format( "{0}{1} was kicked for being idle for {2} min",
-                                                  Color.Red,
-                                                  player.name,
+                        SendToAll( String.Format( "{0}&S was kicked for being idle for {1} min",
+                                                  player.GetClassyName(),
                                                   player.info.playerClass.idleKickTimer ) );
                         StandardCommands.DoKick( Player.Console, player, "Idle for " + player.info.playerClass.idleKickTimer + " minutes", true );
                         player.ResetIdleTimer(); // to prevent kick from firing more than once
@@ -808,6 +810,7 @@ namespace fCraft {
 
         #endregion
 
+
         #region Utilities
 
         static void GenerateSalt() {
@@ -860,7 +863,7 @@ namespace fCraft {
                     maxPacketsPerUpdate = packetsPerTick;
                 }
             } else {
-                maxPacketsPerUpdate = maxBlockUpdatesPerTick;
+                maxPacketsPerUpdate = MaxBlockUpdatesPerTick;
             }
 
             return maxPacketsPerUpdate;
@@ -868,19 +871,21 @@ namespace fCraft {
 
         #endregion
 
+
         #region PlayerList
-        public static void ShowPlayerConnectedMessage( Player player, bool firstTime ) {
+
+        public static void ShowPlayerConnectedMessage( Player player, bool firstTime, World world ) {
             if( firstTime ) {
-                SendToAll( String.Format( "&S{0} ({1}{2}&S) has joined for the first time.",
+                SendToAll( String.Format( "&S{0} ({1}&S) connected for the first time, joined {3}",
                                           player.name,
-                                          player.info.playerClass.color,
-                                          player.info.playerClass.name ),
+                                          player.info.playerClass.GetClassyName(),
+                                          world.GetClassyName() ),
                                           player );
             } else {
-                SendToAll( String.Format( "&S{0} ({1}{2}&S) has joined the server.",
+                SendToAll( String.Format( "&S{0} ({1}&S) connected, joined {2}",
                                           player.name,
-                                          player.info.playerClass.color,
-                                          player.info.playerClass.name ),
+                                          player.info.playerClass.GetClassyName(),
+                                          world.GetClassyName() ),
                                           player );
             }
         }
@@ -914,8 +919,11 @@ namespace fCraft {
             lock( playerListLock ) {
                 if( players.ContainsKey( player.id ) ) {
                     SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
-                    if( player.session.showMessageOnDisconnect ) SendToAll( Color.Sys + player.GetLogName() + " left the server." );
-                    Logger.Log( "{0} left the server.", LogType.UserActivity, player.GetLogName() );
+                    if( player.session.showMessageOnDisconnect ) {
+                        SendToAll( player.GetClassyName() + "&S left the server." );
+                    }
+                    Logger.Log( "{0} left the server.", LogType.UserActivity,
+                                player.name );
 
                     if( player.session.hasRegistered ) {
                         // better safe than sorry: go through ALL worlds looking for leftover players
@@ -945,7 +953,7 @@ namespace fCraft {
                 foreach( Player player in players.Values ) {
                     newPlayerList[i++] = player;
                 }
-                playerList = newPlayerList.OrderBy( player => player.nick ).ToArray<Player>();
+                playerList = newPlayerList.OrderBy( player => player.name ).ToArray<Player>();
             }
         }
 
@@ -987,17 +995,6 @@ namespace fCraft {
             return null;
         }
 
-
-        // Get player by name without autocompletion
-        public static Player FindPlayerByNick( string nick ) {
-            Player[] tempList = playerList;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i].nick == nick ) {
-                    return tempList[i];
-                }
-            }
-            return null;
-        }
         #endregion
     }
 }

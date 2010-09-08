@@ -52,7 +52,7 @@ namespace fCraft {
         static string[] channelNames;
         static string botNick;
 
-        static Regex nonPrintableChars = new Regex( "[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled );
+        static Regex nonPrintableChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled );
 
         public static void Init() {
             if( !Config.GetBool( ConfigKey.IRCBot ) ) return;
@@ -75,21 +75,21 @@ namespace fCraft {
 
         public static void PlayerMessageHandler( Player player, World world, ref string message, ref bool cancel ) {
             if( Config.GetBool( ConfigKey.IRCBotForwardFromServer ) ) {
-                SendToAllChannels( player.nick + ": " + message );
+                SendToAllChannels( player.name + ": " + message );
             } else if( message.StartsWith( "#" ) ) {
-                SendToAllChannels( player.nick + ": " + message.Substring(1) );
+                SendToAllChannels( player.name + ": " + message.Substring( 1 ) );
             }
         }
 
         public static void PlayerConnectedHandler( Session session, ref bool cancel ) {
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
-                SendToAllChannels( "* " + session.player.nick + " connected." );
+                SendToAllChannels( "* " + session.player.name + " connected." );
             }
         }
 
         public static void PlayerDisconnectedHandler( Session session ) {
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) && session.player != null ) {
-                SendToAllChannels( "* " + session.player.nick + " left the server." );
+                SendToAllChannels( "* " + session.player.name + " left the server." );
             }
         }
 
@@ -146,7 +146,7 @@ namespace fCraft {
                     Connect();
 
                     // register
-                    Send( IRCCommands.User( botNick, 8, "Totally not a bot" ) );
+                    Send( IRCCommands.User( botNick, 8, Config.GetString( ConfigKey.ServerName ) ) );
                     Send( IRCCommands.Nick( botNick ) );
                     registered = false;
 

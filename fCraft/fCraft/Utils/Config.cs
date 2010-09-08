@@ -29,8 +29,10 @@ namespace fCraft {
      * 105 - r205 - Added SubmitCrashReports key
      *              Removed PolicyColorCodesInChat, PolicyIllegalCharacters, and RunOnStartup
      *              
-     * 106 - r999 - Added IRCDelay key
+     * 106 - r212 - Added IRCDelay key
      * 
+     * 107 - r214 - Added ShowJoinedWorldMessages and ClassColorsInWorldNames keys
+     *              Removed ChangeName permission
      */
 
     public static class Config {
@@ -38,7 +40,7 @@ namespace fCraft {
         public const int HeartbeatDelay = 50000;
 
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 106;
+        public const int ConfigVersion = 107;
         public const int MaxPlayersSupported = 255;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
@@ -84,6 +86,8 @@ namespace fCraft {
             SetValue( ConfigKey.Port, 25565 );
             SetValue( ConfigKey.UploadBandwidth, 100 );
 
+            SetValue( ConfigKey.ShowJoinedWorldMessages, true );
+            SetValue( ConfigKey.ClassColorsInWorldNames, true );
             SetValue( ConfigKey.ClassColorsInChat, true );
             SetValue( ConfigKey.ClassPrefixesInChat, false );
             SetValue( ConfigKey.ClassPrefixesInList, false );
@@ -474,6 +478,8 @@ namespace fCraft {
                 case ConfigKey.ClassColorsInChat:
                 case ConfigKey.ClassPrefixesInChat:
                 case ConfigKey.ClassPrefixesInList:
+                case ConfigKey.ClassColorsInWorldNames:
+                case ConfigKey.ShowJoinedWorldMessages:
                 case ConfigKey.SaveOnShutdown:
                 case ConfigKey.BackupOnStartup:
                 case ConfigKey.BackupOnJoin:

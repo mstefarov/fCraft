@@ -1,5 +1,26 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-09-05
+2010-09-08
+460
+ Feature: Added ShowPlayerConnectedMessage and ClassColorsInWorldNames settings to config.
+ Feature: Added /measure command.
+ Feature: Class colors and prefixes are now applied consistently EVERYWHERE.
+ Feature: Banned players now see their ban reason/memo when they get kicked.
+ Feature: A special error message is shown to players trying to connect with Alpha/SMP client.
+ Feature: IsoCat (ConfigTool isometric preview) rendering quality improved: better shadows and slight altitude-based gradient.
+ Feature: Added new blocktype name aliases: "solid", "golden", "halfstep", "halfblock", "steps".
+ Fix: Fixed wrong "MaxBackupsSize" range in ConfigTool.
+ Fix: MaxBackupsSize setting is now applied correctly.
+ Fix: IRC color codes are now stripped from forwarded messages.
+ Fix: IRC bot now uses ServerName for "real name".
+ Fix: Formatting improved in many error messages.
+ Fix: Commas in ban/unban/promote/demote reasons no longer cause problems with PlayerDB.
+ Fix: Removed extra comma from /worlds list that showed in place of hidden/inaccessible worlds.
+ Change: Added 5-second delay between retries in AutoLauncher
+ Change: "Player connected" message condensed to a single line by absorbing "joined world" message.
+ Change: Removed ChangeName permission (and the ability to change names) due to possibility of abuse and confusion. Related /nick and /whois commands were also removed.
+ Change: /tp can now fall back to behave like /join if player name is not found (for all those times when you mistype /tp instead of /join). Conversely, /join falls back to /tp if player was not found.
+ Optimization: Reduced bandwidth use with an adaptive movement packet skipping algorithm. Should reduced outbound traffic by at least 15%.
+ Optimization: BlockUpdate memory usage slightly reduced.
 455
  Feature: AutoLauncher (BETA) allows restarting the fCraftConsole server if it crashed. Although it honestly shouldn't crash at all!
  Fix: Allowed renaming worlds in cases where only capitalization is different.

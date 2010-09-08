@@ -311,7 +311,7 @@ namespace fCraft {
             if( player.undoBuffer.Count > 0 ) {
                 // no need to set player.drawingInProgress here because this is done on the user thread
                 Logger.Log( "Player {0} initiated /undo affecting {1} blocks.", LogType.UserActivity,
-                            player.GetLogName(),
+                            player.name,
                             player.undoBuffer.Count );
                 player.MessageNow( "Restoring {0} blocks...", player.undoBuffer.Count );
                 Queue<BlockUpdate> redoBuffer = new Queue<BlockUpdate>();
@@ -460,9 +460,9 @@ namespace fCraft {
             }
             player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
             Logger.Log( "{0} initiated drawing a cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
-                                  player.GetLogName(),
-                                  blocks,
-                                  (Block)drawBlock );
+                        player.name,
+                        blocks,
+                        (Block)drawBlock );
             player.undoBuffer.TrimExcess();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
@@ -516,9 +516,9 @@ namespace fCraft {
 
             player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
             Logger.Log( "{0} initiated drawing a hollow cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
-                                  player.GetLogName(),
-                                  blocks,
-                                  (Block)drawBlock );
+                        player.name,
+                        blocks,
+                        (Block)drawBlock );
             player.undoBuffer.TrimExcess();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
@@ -592,9 +592,9 @@ namespace fCraft {
             }
             player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
             Logger.Log( "{0} initiated drawing an ellipsoid containing {1} blocks of type {2}.", LogType.UserActivity,
-                                  player.GetLogName(),
-                                  blocks,
-                                  (Block)drawBlock );
+                        player.name,
+                        blocks,
+                        (Block)drawBlock );
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
@@ -632,10 +632,7 @@ namespace fCraft {
         };
 
         internal static void Copy( Player player, Command cmd ) {
-            player.selectionCallback = DoCopy;
-            player.selectionMarksExpected = 2;
-            player.selectionMarkCount = 0;
-            player.selectionMarks.Clear();
+            player.SetCallback( 2, DoCopy, null );
             player.MessageNow( "Copy: Place a block or type /mark to use your location." );
         }
 
@@ -678,9 +675,8 @@ namespace fCraft {
                                (copyInfo.widthY > 0 ? "south" : "north"),
                                (copyInfo.widthX > 0 ? "west" : "east") );
 
-            Logger.Log( "{0} copied {1} blocks.", LogType.UserActivity,
-                        player.GetLogName(),
-                        volume );
+            Logger.Log( "{0} copied {1} blocks from {2}.", LogType.UserActivity,
+                        player.name, volume, player.world.name );
         }
 
 
@@ -700,7 +696,7 @@ namespace fCraft {
                 return;
             }
 
-
+            PasteArgs args;
             List<Block> excludedTypes = new List<Block>();
             Block excludedType;
             while( cmd.NextBlockType( out excludedType ) ) {
@@ -713,7 +709,7 @@ namespace fCraft {
             }
 
             if( excludedTypes.Count > 0 ) {
-                player.selectionArgs = new PasteArgs {
+                args = new PasteArgs {
                     doExclude = true,
                     types = excludedTypes.ToArray()
                 };
@@ -727,10 +723,7 @@ namespace fCraft {
                 return;
             }
 
-            player.selectionCallback = DoPaste;
-            player.selectionMarksExpected = 1;
-            player.selectionMarkCount = 0;
-            player.selectionMarks.Clear();
+            player.SetCallback( 1, DoPaste, args );
 
             player.MessageNow( "PasteNot: Place a block or type /mark to use your location. " );
         }
@@ -763,8 +756,9 @@ namespace fCraft {
                 }
             }
 
+            PasteArgs args;
             if( includedTypes.Count > 0 ) {
-                player.selectionArgs = new PasteArgs {
+                args = new PasteArgs {
                     doInclude = true,
                     types = includedTypes.ToArray()
                 };
@@ -774,16 +768,13 @@ namespace fCraft {
                 }
                 player.MessageNow( "Ready to paste ONLY {0}", includedString.Substring( 2 ) );
             } else {
-                player.selectionArgs = new PasteArgs() {
+                args = new PasteArgs() {
                     types = new Block[0]
                 };
                 player.MessageNow( "Ready to paste all blocks." );
             }
 
-            player.selectionCallback = DoPaste;
-            player.selectionMarksExpected = 1;
-            player.selectionMarkCount = 0;
-            player.selectionMarks.Clear();
+            player.SetCallback( 1, DoPaste, args );
 
             player.MessageNow( "Paste: Place a block or type /mark to use your location. " );
         }
@@ -852,9 +843,8 @@ namespace fCraft {
 
             player.MessageNow( "{0} blocks pasted. The map is now being updated...", blocks );
 
-            Logger.Log( "{0} pasted {1} blocks.", LogType.UserActivity,
-                        player.GetLogName(),
-                        blocks );
+            Logger.Log( "{0} pasted {1} blocks to {2}.", LogType.UserActivity,
+                        player.name, blocks, player.world.name );
             player.undoBuffer.TrimExcess();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }

@@ -114,5 +114,16 @@ namespace fCraft {
         public override string ToString() {
             return name + "#" + ID;
         }
+
+        public string GetClassyName() {
+            string displayedName = name;
+            if( Config.GetBool( ConfigKey.ClassPrefixesInChat ) ) {
+                displayedName = prefix + displayedName;
+            }
+            if( Config.GetBool( ConfigKey.ClassColorsInChat ) ) {
+                displayedName = color + displayedName;
+            }
+            return displayedName;
+        }
     }
 }

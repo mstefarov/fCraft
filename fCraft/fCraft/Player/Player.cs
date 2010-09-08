@@ -5,9 +5,7 @@ using System.Collections.Generic;
 
 namespace fCraft {
 
-
-
-    delegate void SelectionCallback( Player player, Position[] marks, object tag );
+    public delegate void SelectionCallback( Player player, Position[] marks, object tag );
 
     public sealed class Player {
         public string name;
@@ -21,7 +19,6 @@ namespace fCraft {
                     isHidden;
         public static Player Console;
         internal World world;
-        public string nick;
         internal DateTime idleTimer = DateTime.UtcNow;
 
 
@@ -30,7 +27,6 @@ namespace fCraft {
         internal Player( World _world, string _name ) {
             world = _world;
             name = _name;
-            nick = name;
             info = new PlayerInfo( _name, ClassList.highestClass );
             spamBlockLog = new Queue<DateTime>( info.playerClass.antiGriefBlocks );
             ResetAllBinds();
@@ -41,7 +37,6 @@ namespace fCraft {
         internal Player( World _world, string _name, Session _session, Position _pos ) {
             world = _world;
             name = _name;
-            nick = name;
             session = _session;
             pos = _pos;
             info = PlayerDB.FindPlayerInfo( this );
@@ -77,7 +72,7 @@ namespace fCraft {
                     muteWarnings++;
                     if( muteWarnings > Config.GetInt( ConfigKey.AntispamMaxWarnings ) ) {
                         session.KickNow( "You were kicked for repeated spamming." );
-                        Server.SendToAll( Color.Red + GetLogName() + " was kicked for repeated spamming." );
+                        Server.SendToAll( GetClassyName() + Color.Red + " was kicked for repeated spamming." );
                     } else {
                         mutedUntil = DateTime.UtcNow.Add( muteDuration );
                         Message( "You have been muted for {0} seconds. Slow down.", muteDuration.TotalSeconds );
@@ -102,28 +97,21 @@ namespace fCraft {
                         !Server.FireSentMessageEvent( this, ref message ) ) return;
 
                     info.linesWritten++;
-                    string displayedName = nick;
-                    if( Config.GetBool( ConfigKey.ClassPrefixesInChat ) ) {
-                        displayedName = info.playerClass.prefix + displayedName;
-                    }
-                    if( Config.GetBool( ConfigKey.ClassColorsInChat ) && info.playerClass.color.Length > 0 && info.playerClass.color != Color.White ) {
-                        displayedName = info.playerClass.color + displayedName + Color.White;
-                    }
 
-                    if( name == "fragmer" ) displayedName = "&4f&cr&ea&ag&bm&9e&5r&f";
 
-                    Logger.Log( "{0}: {1}", LogType.GlobalChat, GetLogName(), message );
+                    Logger.Log( "{0}: {1}", LogType.GlobalChat, name, message );
 
                     // Escaped slash removed AFTER logging, to avoid confusion with real commands
                     if( message.StartsWith( "//" ) ) {
                         message = message.Substring( 1 );
                     }
                     
-                    Server.SendToAll( displayedName + ": " + message );
+                    Server.SendToAll( GetClassyName() + Color.White + ": " + message );
                     break;
 
                 case MessageType.Command:
-                    Logger.Log( "{0}: {1}", LogType.UserCommand, GetLogName(), message );
+                    Logger.Log( "{0}: {1}", LogType.UserCommand,
+                                name, message );
                     CommandList.ParseCommand( this, message, fromConsole );
                     break;
 
@@ -142,9 +130,7 @@ namespace fCraft {
                     if( otherPlayers.Count==1 ) {
                         Player otherPlayer = otherPlayers[0];
                         Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
-                                    GetLogName(),
-                                    otherPlayer.GetLogName(),
-                                    messageText );
+                                    name, otherPlayer, messageText );
                         otherPlayer.Message( "{0}from {1}: {2}",
                                              Color.PM,
                                              name,
@@ -166,12 +152,14 @@ namespace fCraft {
                     string className = message.Substring( 2, message.IndexOf( ' ' ) - 2 );
                     PlayerClass playerClass = ClassList.FindClass( className );
                     if( playerClass != null ) {
-                        Logger.Log( "{0} to class {1}: {2}", LogType.ClassChat, GetLogName(), playerClass.name, message );
-                        string formattedMessage = String.Format( "{0}({1}){2}{3}: {4}",
+                        Logger.Log( "{0} to class {1}: {2}", LogType.ClassChat,
+                                    name, playerClass.name, message );
+                        string formattedMessage = String.Format( "{0}({1}{2}){3}{4}: {5}",
                                                                  playerClass.color,
+                                                                 (Config.GetBool(ConfigKey.ClassPrefixesInChat)?playerClass.prefix:""),
                                                                  playerClass.name,
                                                                  Color.PM,
-                                                                 nick,
+                                                                 name,
                                                                  message.Substring( message.IndexOf( ' ' ) + 1 ) );
                         Server.SendToClass( formattedMessage, playerClass );
                         if( info.playerClass != playerClass ) {
@@ -238,7 +226,7 @@ namespace fCraft {
         internal void ManyPlayersMessage( List<Player> names ) {
             string playerString = "";
             foreach( Player player in names ) {
-                playerString += ", " + player.name;
+                playerString += ", " + player.GetClassyName();
             }
             Message( "More than one player matched: \"{0}\"", playerString.Substring( 2 ) );
         }
@@ -381,8 +369,9 @@ namespace fCraft {
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
                 if( spamTimer < info.playerClass.antiGriefSeconds ) {
                     session.KickNow( "You were kicked by antigrief system. Slow down." );
-                    Server.SendToAll( Color.Red + GetLogName() + " was kicked for suspected griefing." );
-                    Logger.Log( GetLogName() + " was kicked for block spam (" + info.playerClass.antiGriefBlocks + " blocks in " + spamTimer + " seconds)", LogType.SuspiciousActivity );
+                    Server.SendToAll( GetClassyName() + Color.Red + " was kicked for suspected griefing." );
+                    Logger.Log( "{0} was kicked for block spam ({1} blocks in {2} seconds)", LogType.SuspiciousActivity,
+                                name, info.playerClass.antiGriefBlocks, spamTimer );
                     return true;
                 }
             }
@@ -520,6 +509,14 @@ namespace fCraft {
 
         internal CopyInformation copyInformation;
 
+        public void SetCallback( int marksExpected, SelectionCallback callback, object args ) {
+            selectionArgs = args;
+            selectionMarksExpected = marksExpected;
+            selectionMarks.Clear();
+            selectionMarkCount = 0;
+            selectionCallback = callback;
+        }
+
         #endregion
 
 
@@ -538,24 +535,19 @@ namespace fCraft {
 
         // gets name with all the optional fluff (color/prefix) for player list
         public string GetListName() {
-            string displayedName = nick;
+            string displayedName = name;
             if( Config.GetBool( ConfigKey.ClassPrefixesInList ) ) {
                 displayedName = info.playerClass.prefix + displayedName;
             }
-            if( Config.GetBool( ConfigKey.ClassColorsInChat ) && info.playerClass.color.Length > 0 && info.playerClass.color != Color.White ) {
+            if( Config.GetBool( ConfigKey.ClassColorsInChat ) && info.playerClass.color != Color.White ) {
                 displayedName = info.playerClass.color + displayedName;
             }
             return displayedName;
         }
 
 
-        // gets name + nickname (if any) for logging
-        public string GetLogName() {
-            if( nick != name ) {
-                return name + " (aka " + nick + ")";
-            } else {
-                return name;
-            }
+        public string GetClassyName() {
+            return info.GetClassyName();
         }
 
 

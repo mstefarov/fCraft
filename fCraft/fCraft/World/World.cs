@@ -188,7 +188,7 @@ namespace fCraft {
 
         #region PlayerList
 
-        public bool AcceptPlayer( Player player ) {
+        public bool AcceptPlayer( Player player, bool announce ) {
             lock( playerListLock ) {
                 // load the map, if it's not yet loaded
                 lock( mapLock ) {
@@ -198,7 +198,8 @@ namespace fCraft {
                     }
 
                     if( Config.GetBool( ConfigKey.BackupOnJoin ) ) {
-                        map.SaveBackup( GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-dd HH-mm}_{2}.fcm", name, DateTime.Now, player.name ) );
+                        map.SaveBackup( GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-dd HH-mm}_{2}.fcm",
+                                                                     name, DateTime.Now, player.name ), true );
                     }
                 }
 
@@ -213,14 +214,15 @@ namespace fCraft {
                 // Reveal newcommer to existing players
                 if( !player.isHidden ) {
                     SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
-                    Server.SendToAll( String.Format( "&SPlayer {0} joined \"{1}\".",
-                                                     player.GetLogName(), name ), player );
+                    if( announce && Config.GetBool( ConfigKey.ShowJoinedWorldMessages ) ) {
+                        Server.SendToAll( String.Format( "&SPlayer {0}&S joined {1}",
+                                                         player.GetClassyName(), GetClassyName() ), player );
+                    }
                 }
             }
 
-            Logger.Log( "Player {0} joined \"{1}\".", LogType.UserActivity,
-                        player.GetLogName(),
-                        name );
+            Logger.Log( "Player {0} joined world {1}.", LogType.UserActivity,
+                        player.name, name );
 
             if( OnPlayerJoined != null ) OnPlayerJoined( player, this );
 
@@ -284,22 +286,6 @@ namespace fCraft {
                     tempList[i].Send( PacketWriter.MakeRemoveEntity( updatedPlayer.id ) );
                     tempList[i].Send( PacketWriter.MakeAddEntity( updatedPlayer, updatedPlayer.pos ) );
                 }
-            }
-        }
-
-
-        public string GetPlayerListString() {
-            Player[] tempList = playerList;
-            string list = "";
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && !tempList[i].isHidden ) {
-                    list += tempList[i].name + ",";
-                }
-            }
-            if( list.Length > 0 ) {
-                return list.Substring( 0, list.Length - 1 );
-            } else {
-                return list;
             }
         }
 
@@ -429,8 +415,9 @@ namespace fCraft {
                     lockedDate = DateTime.UtcNow;
                     isLocked = true;
                     if( map != null ) map.ClearUpdateQueue();
-                    SendToAll( Color.Red + "Map was locked by " + player.GetLogName() );
-                    Logger.Log( "World \"{0}\" was locked by {1}", LogType.UserActivity, name, player.name );
+                    SendToAll( Color.Red + "Map was locked by " + player.GetClassyName() );
+                    Logger.Log( "World {0} was locked by {1}", LogType.UserActivity,
+                                name, player.name );
                     return true;
                 }
             }
@@ -442,13 +429,27 @@ namespace fCraft {
                     unlockedBy = player.name;
                     unlockedDate = DateTime.UtcNow;
                     isLocked = false;
-                    SendToAll( Color.Red + "Map was unlocked by "+player.GetLogName() );
-                    Logger.Log( "World \"{0}\" was unlocked by {1}", LogType.UserActivity, name, player.name );
+                    SendToAll( Color.Red + "Map was unlocked by " + player.GetClassyName() );
+                    Logger.Log( "World \"{0}\" was unlocked by {1}", LogType.UserActivity,
+                                name, player.name );
                     return true;
                 } else {
                     return false;
                 }
             }
+        }
+
+        public string GetClassyName() {
+            string displayedName = name;
+            if( Config.GetBool( ConfigKey.ClassColorsInWorldNames ) ) {
+                if( Config.GetBool( ConfigKey.ClassPrefixesInChat ) ) {
+                    displayedName = classBuild.prefix + displayedName;
+                }
+                if( Config.GetBool( ConfigKey.ClassColorsInChat ) ) {
+                    displayedName = classBuild.color + displayedName;
+                }
+            }
+            return displayedName;
         }
     }
 }

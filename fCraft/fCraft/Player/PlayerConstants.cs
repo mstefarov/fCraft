@@ -23,8 +23,11 @@ namespace fCraft {
         ServerShutdown = 15
     }
 
-    enum ReservedPlayerID {
-        Console = 0
+    public enum ReservedPlayerID {
+        Unknown = 0,
+        None = 1,
+        Console = 2,
+        Bot = 3
     }
 
     enum BanMethod {
