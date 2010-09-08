@@ -166,7 +166,7 @@ namespace fCraft {
         }
 
 
-        public static bool Load() {
+        public static bool Load( bool skipClassList ) {
             // generate random salt
             LoadDefaults();
             bool fromFile = false;
@@ -205,64 +205,67 @@ namespace fCraft {
                      "It is recommended that you run ConfigTool to make sure everything is in order.", LogType.Warning );
             }
 
-            XElement legacyRankMappingTag = config.Element( "LegacyRankMapping" );
-            if( legacyRankMappingTag != null ) {
-                foreach( XElement rankPair in legacyRankMappingTag.Elements( "LegacyRankPair" ) ) {
-                    XAttribute fromClassID = rankPair.Attribute( "from" );
-                    XAttribute toClassID = rankPair.Attribute( "to" );
-                    if( fromClassID == null || fromClassID.Value == null || fromClassID.Value == "" ||
-                        toClassID == null || toClassID.Value == null || toClassID.Value == "" ) {
-                        Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
-                    } else {
-                        ClassList.legacyRankMapping.Add( fromClassID.Value, toClassID.Value );
-                    }
-                }
-            }
+            if( !skipClassList ) {
 
-
-            XElement classList = config.Element( "Classes" );
-            if( classList != null ) {
-                foreach( XElement playerClass in classList.Elements( "PlayerClass" ) ) {
-                    if( !DefineClass( playerClass ) ) {
-                        Log( "Config.Load: Could not parse one of the class definitions.", LogType.Warning );
-                    }
-                }
-                if( ClassList.classesByName.Count == 0 ) {
-                    Log( "Config.Load: No classes were defined, or none were defined correctly. Using default player classes.", LogType.Warning );
-                    config.Add( DefineDefaultClasses() );
-
-                } else if( version < ConfigVersion ) { // start LEGACY code
-
-                    if( version < 103 ) { // speedhack permission
-                        bool foundClassWithSpeedHackPermission = false;
-                        foreach( PlayerClass pc in ClassList.classesByID.Values ) {
-                            if( pc.Can( Permission.UseSpeedHack ) ) {
-                                foundClassWithSpeedHackPermission = true;
-                                break;
-                            }
+                XElement legacyRankMappingTag = config.Element( "LegacyRankMapping" );
+                if( legacyRankMappingTag != null && !skipClassList ) {
+                    foreach( XElement rankPair in legacyRankMappingTag.Elements( "LegacyRankPair" ) ) {
+                        XAttribute fromClassID = rankPair.Attribute( "from" );
+                        XAttribute toClassID = rankPair.Attribute( "to" );
+                        if( fromClassID == null || fromClassID.Value == null || fromClassID.Value == "" ||
+                            toClassID == null || toClassID.Value == null || toClassID.Value == "" ) {
+                            Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
+                        } else {
+                            ClassList.legacyRankMapping.Add( fromClassID.Value, toClassID.Value );
                         }
-                        if( !foundClassWithSpeedHackPermission ) {
+                    }
+                }
+
+
+                XElement classList = config.Element( "Classes" );
+                if( classList != null ) {
+                    foreach( XElement playerClass in classList.Elements( "PlayerClass" ) ) {
+                        if( !DefineClass( playerClass ) ) {
+                            Log( "Config.Load: Could not parse one of the class definitions.", LogType.Warning );
+                        }
+                    }
+                    if( ClassList.classesByName.Count == 0 ) {
+                        Log( "Config.Load: No classes were defined, or none were defined correctly. Using default player classes.", LogType.Warning );
+                        config.Add( DefineDefaultClasses() );
+
+                    } else if( version < ConfigVersion ) { // start LEGACY code
+
+                        if( version < 103 ) { // speedhack permission
+                            bool foundClassWithSpeedHackPermission = false;
                             foreach( PlayerClass pc in ClassList.classesByID.Values ) {
-                                pc.permissions[(int)Permission.UseSpeedHack] = true;
+                                if( pc.Can( Permission.UseSpeedHack ) ) {
+                                    foundClassWithSpeedHackPermission = true;
+                                    break;
+                                }
                             }
-                            Log( "Config.Load: All classes were granted UseSpeedHack permission (default). " +
-                                 "Use ConfigTool to update config. If you are editing config.xml manually, " +
-                                 "set version=103 to prevent permissions from resetting in the future.", LogType.Warning );
+                            if( !foundClassWithSpeedHackPermission ) {
+                                foreach( PlayerClass pc in ClassList.classesByID.Values ) {
+                                    pc.permissions[(int)Permission.UseSpeedHack] = true;
+                                }
+                                Log( "Config.Load: All classes were granted UseSpeedHack permission (default). " +
+                                     "Use ConfigTool to update config. If you are editing config.xml manually, " +
+                                     "set version=103 to prevent permissions from resetting in the future.", LogType.Warning );
+                            }
                         }
+
+                    } // end LEGACY code
+
+                } else {
+                    if( fromFile ) Log( "Config.Load: using default player classes.", LogType.Warning );
+                    config.Add( DefineDefaultClasses() );
+                }
+
+                // parse rank-limit permissions
+                foreach( PlayerClass pc in ClassList.classesByIndex ) {
+                    if( !ClassList.ParseClassLimits( pc ) ) {
+                        Log( "Could not parse one of the rank-limits for kick, ban, promote, and/or demote permissions for {0}. " +
+                             "Any unrecognized limits were reset to default (own class).", LogType.Warning, pc.name );
                     }
-
-                } // end LEGACY code
-
-            } else {
-                if( fromFile ) Log( "Config.Load: using default player classes.", LogType.Warning );
-                config.Add( DefineDefaultClasses() );
-            }
-
-            // parse rank-limit permissions
-            foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                if( !ClassList.ParseClassLimits( pc ) ) {
-                    Log( "Could not parse one of the rank-limits for kick, ban, promote, and/or demote permissions for {0}. " +
-                         "Any unrecognized limits were reset to default (own class).", LogType.Warning, pc.name );
                 }
             }
 
@@ -809,6 +812,7 @@ namespace fCraft {
             owner.Add( new XElement( Permission.Import.ToString() ) );
             owner.Add( new XElement( Permission.Draw.ToString() ) );
             owner.Add( new XElement( Permission.CopyAndPaste.ToString() ) );
+            owner.Add( new XElement( Permission.ReloadConfig.ToString() ) );
             permissions.Add( owner );
             DefineClass( owner );
 

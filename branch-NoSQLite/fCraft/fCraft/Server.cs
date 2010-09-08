@@ -32,7 +32,7 @@ namespace fCraft {
                           packetsPerSecond, // set by Config.ApplyConfig
                           MaxSessionPacketsPerTick = 128,
                           MaxBlockUpdatesPerTick = 60000; // used when there are no players in a world
-        internal static float ticksPerSecond; // TODO: move to server
+        internal static float ticksPerSecond;
 
         const int MaxPortAttempts = 20;
         public static int port;
@@ -74,7 +74,7 @@ namespace fCraft {
             ResetWorkingDirectory();
 
             // try to load the config
-            if( !Config.Load() ) return false;
+            if( !Config.Load(false) ) return false;
             Config.ApplyConfig();
             if( !Config.Save() ) return false;
 
@@ -876,7 +876,7 @@ namespace fCraft {
 
         public static void ShowPlayerConnectedMessage( Player player, bool firstTime, World world ) {
             if( firstTime ) {
-                SendToAll( String.Format( "&S{0} ({1}&S) connected for the first time, joined {3}",
+                SendToAll( String.Format( "&S{0} ({1}&S) connected for the first time, joined {2}",
                                           player.name,
                                           player.info.playerClass.GetClassyName(),
                                           world.GetClassyName() ),
@@ -919,8 +919,8 @@ namespace fCraft {
             lock( playerListLock ) {
                 if( players.ContainsKey( player.id ) ) {
                     SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
-                    if( player.session.showMessageOnDisconnect ) {
-                        SendToAll( player.GetClassyName() + "&S left the server." );
+                    if( player.session.hasRegistered ) {
+                        SendToAll( "&SPlayer " + player.GetClassyName() + "&S left the server." );
                     }
                     Logger.Log( "{0} left the server.", LogType.UserActivity,
                                 player.name );

@@ -42,6 +42,28 @@ namespace fCraft {
             CommandList.RegisterCommand( cdHide );
             CommandList.RegisterCommand( cdUnhide );
             CommandList.RegisterCommand( cdSetSpawn );
+
+            CommandList.RegisterCommand( cdReloadConfig );
+        }
+
+
+        static CommandDescriptor cdReloadConfig = new CommandDescriptor {
+            name = "reloadconfig",
+            permissions = new Permission[] { Permission.ReloadConfig },
+            consoleSafe = true,
+            help = "Reloads most of server's configuration file. " +
+                   "NOTE: THIS COMMAND IS EXPERIMENTAL! Excludes class changes and IRC bot settings. " +
+                   "Server has to be restarted to change those.",
+            handler = ReloadConfig
+        };
+
+        static void ReloadConfig( Player player, Command cmd ) {
+            player.Message( "Attempting to reload config..." );
+            if( Config.Load( true ) ) {
+                player.Message( "Config reloaded." );
+            } else {
+                player.Message( "An error occured while trying to reload the config. See server log for details." );
+            }
         }
 
 
@@ -712,7 +734,10 @@ namespace fCraft {
 
         internal static void Freeze( Player player, Command cmd ) {
             string name = cmd.Next();
-
+            if( name == null ) {
+                cdFreeze.PrintUsage( player );
+                return;
+            }
             List<Player> targets = Server.FindPlayers( name );
             if( targets.Count == 1 ) {
                 if( !targets[0].isFrozen ) {
@@ -741,6 +766,10 @@ namespace fCraft {
 
         internal static void Unfreeze( Player player, Command cmd ) {
             string name = cmd.Next();
+            if( name == null ) {
+                cdFreeze.PrintUsage( player );
+                return;
+            }
             List<Player> targets = Server.FindPlayers( name );
             if( targets.Count == 1 ) {
                 if( targets[0].isFrozen ) {

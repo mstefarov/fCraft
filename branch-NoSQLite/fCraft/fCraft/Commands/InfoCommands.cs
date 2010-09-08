@@ -29,11 +29,11 @@ namespace fCraft {
 
             CommandList.RegisterCommand( cdMeasure );
 
-            //CommandList.RegisterCommand( cdMD ); // DEBUG
+            CommandList.RegisterCommand( cdMD ); // DEBUG
         }
 
-        /*
         
+       
         static CommandDescriptor cdMD = new CommandDescriptor { // DEBUG
             name = "md",
             help = "",
@@ -69,12 +69,11 @@ namespace fCraft {
                 cdMD.PrintUsage( player );
             }
         }
-        */
+        
 
 
         static CommandDescriptor cdMeasure = new CommandDescriptor {
             name = "measure",
-            consoleSafe = false,
             help = "Shows information about a selection: width/length/height and volume.",
             handler = Measure
         };

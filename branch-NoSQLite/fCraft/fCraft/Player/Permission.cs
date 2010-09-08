@@ -42,6 +42,8 @@ namespace fCraft {
         
         ControlPhysics,
 
-        AddLandmarks
+        AddLandmarks,
+
+        ReloadConfig
     }
 }

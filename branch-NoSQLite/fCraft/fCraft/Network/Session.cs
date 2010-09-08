@@ -17,8 +17,7 @@ namespace fCraft {
                     canSend,
                     canQueue,
                     canDispose;
-        public bool isBetweenWorlds = true,
-                    showMessageOnDisconnect;
+        public bool isBetweenWorlds = true;
         object joinWorldLock = new object();
 
         Thread ioThread;
@@ -382,9 +381,9 @@ namespace fCraft {
                     bannedPlayerNames.Add( playerFromSameIP.name );
                 }
             }
-            if(bannedPlayerNames.Count>0){
-                string logString = String.Format( "{0} logged in from an IP previously used by banned players: {1}",
-                                                  player.name,
+            if( bannedPlayerNames.Count > 0 ) {
+                string logString = String.Format( Color.Red + "Player {0} logged in from an IP previously used by banned players: {1}",
+                                                  player.GetClassyName(),
                                                   String.Join( ", ", bannedPlayerNames.ToArray() ) );
                 Server.SendToAll( logString );
                 Logger.Log( logString, LogType.SuspiciousActivity );
@@ -448,7 +447,7 @@ namespace fCraft {
                 if( potentialClones.Count > 0 ) {
                     player.info.ProcessFailedLogin( player );
                     Logger.Log( "Session.LoginSequence: Player {0} tried to log in from same IP ({1}) as {2}.", LogType.SuspiciousActivity,
-                                player.name, GetIP(), potentialClone.name );
+                                player.name, GetIP(), potentialClones[0].name );
                     foreach( Player clone in potentialClones ) {
                         clone.Message( "Warning: someone just attempted to log in using your IP." );
                     }
@@ -471,7 +470,6 @@ namespace fCraft {
             // Player is now authenticated. Send server info.
             writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), Config.GetString( ConfigKey.MOTD ) ) );
 
-            showMessageOnDisconnect = true;
             bool firstTime = (player.info.timesVisited == 1);
             Server.ShowPlayerConnectedMessage( player, firstTime, Server.mainWorld );
             JoinWorldNow( Server.mainWorld, true );

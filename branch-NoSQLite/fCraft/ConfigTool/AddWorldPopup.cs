@@ -27,9 +27,7 @@ namespace ConfigTool {
                 return _map;
             }
             set {
-                if( value == null ) {
-                    bOK.Enabled = false;
-                }
+                bOK.Enabled = (value == null);
                 _map = value;
             }
         }
