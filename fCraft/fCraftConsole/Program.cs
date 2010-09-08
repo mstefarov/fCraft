@@ -36,6 +36,7 @@ namespace fCraftConsole {
         static void Main( string[] args ) {
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;
+
 #if DEBUG
 #else
             try {
