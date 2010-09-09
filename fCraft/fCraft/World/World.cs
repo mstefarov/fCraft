@@ -360,14 +360,22 @@ namespace fCraft {
             }
         }
 
-
         public void SendToAll( string message ) {
-            SendToAll( PacketWriter.MakeMessage( message ), null );
+            SendToAll( ">", message, null );
         }
 
+        public void SendToAll( string prefix, string message ) {
+            SendToAll( prefix, message, null );
+        }
 
         public void SendToAll( string message, Player except ) {
-            SendToAll( PacketWriter.MakeMessage( message ), except );
+            SendToAll( ">", message, except );
+        }
+
+        public void SendToAll( string prefix, string message, Player except ) {
+            foreach( Packet p in PacketWriter.MakeWrappedMessage( prefix, message, false ) ) {
+                SendToAll( p, except );
+            }
         }
 
         #endregion
