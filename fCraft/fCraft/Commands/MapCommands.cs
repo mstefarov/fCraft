@@ -358,13 +358,9 @@ namespace fCraft {
             lock( Server.worldListLock ) {
                 bool listAll = (cmd.Next() != null);
                 StringBuilder sb = new StringBuilder();
-                if( listAll ) {
-                    sb.Append( "List of all worlds: " );
-                } else {
-                    sb.Append( "List of available worlds: " );
-                }
 
                 bool first = true;
+                int count = 0;
                 foreach( World world in Server.worlds.Values ) {
                     if( world.isHidden ) continue;
                     if( player.CanJoin( world ) || listAll ) {
@@ -372,10 +368,16 @@ namespace fCraft {
                             sb.Append( ", " );
                         }
                         sb.Append( world.GetClassyName() );
+                        count++;
                     }
                     first = false;
                 }
-                player.MessagePrefixed( "&S    ", sb.ToString() );
+
+                if( listAll ) {
+                    player.MessagePrefixed( "&S    ", "There are " + count + " worlds: " + sb.ToString() );
+                } else {
+                    player.MessagePrefixed( "&S    ", "There are " + count + " available worlds: " + sb.ToString() );
+                }
             }
         }
 

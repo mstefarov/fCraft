@@ -191,18 +191,24 @@ namespace fCraft {
             Player[] players = Server.playerList;
             if( players.Length > 0 ) {
 
-                StringBuilder sb = new StringBuilder( "There are " );
-                sb.Append( players.Length ).Append( " players on the server: " );
+                StringBuilder sb = new StringBuilder();
+
                 bool first = true;
+                int count = 0;
                 foreach( Player p in players ) {
                     if( p.isHidden ) continue;
                     if( !first ) sb.Append( ", " );
                     sb.Append( p.GetClassyName() );
                     first = false;
+                    count++;
                 }
-                player.Message( sb.ToString() );
+                if( count > 0 ) {
+                    player.Message( "There are " + count + " players online: " + sb.ToString() );
+                } else {
+                    player.Message( "There are no players online." );
+                }
             } else {
-                player.Message( "There appear to be no players on the server." );
+                player.Message( "There are no players online." );
             }
         }
 
