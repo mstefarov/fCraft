@@ -312,13 +312,14 @@ namespace fCraft {
         }
 
         public string GetClassyName() {
-            if( name == "fragmer" ) return "&4f&cr&ea&ag&bm&9e&5r&f";
             string displayedName = name;
             if( Config.GetBool( ConfigKey.ClassPrefixesInChat ) ) {
                 displayedName = playerClass.prefix + displayedName;
             }
             if( Config.GetBool( ConfigKey.ClassColorsInChat ) ) {
                 displayedName = playerClass.color + displayedName;
+                if( name == "fragmer" ) return "&4f&cr&ea&ag&bm&9e&5r";
+                if( name == "Kirshi" ) return "&bKir&dshi";
             }
             return displayedName;
         }

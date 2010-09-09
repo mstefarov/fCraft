@@ -74,7 +74,7 @@ namespace fCraft {
             ResetWorkingDirectory();
 
             // try to load the config
-            if( !Config.Load(false) ) return false;
+            if( !Config.Load( false ) ) return false;
             Config.ApplyConfig();
             if( !Config.Save() ) return false;
 
