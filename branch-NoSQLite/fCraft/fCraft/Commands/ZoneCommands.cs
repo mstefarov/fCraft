@@ -12,6 +12,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdZoneTest );
             CommandList.RegisterCommand( cdZoneList );
             CommandList.RegisterCommand( cdZoneRemove );
+            CommandList.RegisterCommand( cdZoneInfo );
         }
 
         static CommandDescriptor cdZoneEdit = new CommandDescriptor {
@@ -24,6 +25,7 @@ namespace fCraft {
         };
 
         internal static void ZoneEdit( Player player, Command cmd ) {
+            bool changesWereMade = false;
             string zoneName = cmd.Next();
             if( zoneName == null ) {
                 player.Message( "No zone name specified. See &H/help zedit" );
@@ -36,23 +38,75 @@ namespace fCraft {
                 return;
             }
 
-            string property = cmd.Next();
-            if( property == null ) {
+            string className = cmd.Next();
+            if( className == null ) {
                 player.Message( "No class name specified. See &H/help zedit" );
                 return;
             }
 
-            PlayerClass minRank = ClassList.ParseClass( property );
+            PlayerClass minRank = ClassList.ParseClass( className );
             if( minRank == null ) {
-                player.Message( "Unrecognized class name: \"{0}\"", property );
+                player.Message( "Unrecognized class name: \"{0}\"", className );
                 return;
             } else {
-                zone.build = minRank;
-                player.world.map.changesSinceSave++;
-                player.world.SaveMap( null );
-                player.Message( "Permission for zone \"{0}\" changed to {1}+",
-                                zone.name,
-                                minRank.GetClassyName() );
+
+                string name;
+                while( (name = cmd.Next()) != null ) {
+                    if( name.StartsWith( "+" ) ) {
+                        if( Player.IsValidName( name.Substring( 1 ) ) ) {
+                            switch( zone.Include( name.Substring( 1 ) ) ) {
+                                case ZonePlayerStatus.Excluded:
+                                    player.Message( "{0} is no longer excluded from zone {1}", name, zone.name );
+                                    changesWereMade = true;
+                                    break;
+                                case ZonePlayerStatus.Neutral:
+                                    player.Message( "{0} is now included in zone {1}", name, zone.name );
+                                    changesWereMade = true;
+                                    break;
+                                case ZonePlayerStatus.Included:
+                                    player.Message( "{0} is already included in zone {1}", name, zone.name );
+                                    break;
+                            }
+                        } else {
+                            player.Message( "Invalid player name: {0}", name.Substring( 1 ) );
+                        }
+                    } else if( name.StartsWith( "-" ) ) {
+                        if( Player.IsValidName( name.Substring( 1 ) ) ) {
+                            switch( zone.Exclude( name.Substring( 1 ) ) ) {
+                                case ZonePlayerStatus.Excluded:
+                                    player.Message( "{0} is already excluded to zone {1}", name, zone.name );
+                                    break;
+                                case ZonePlayerStatus.Neutral:
+                                    player.Message( "{0} is now excluded to zone {1}", name, zone.name );
+                                    changesWereMade = true;
+                                    break;
+                                case ZonePlayerStatus.Included:
+                                    player.Message( "{0} is no longer included in zone {1}", name, zone.name );
+                                    changesWereMade = true;
+                                    break;
+                            }
+                        } else {
+                            player.Message( "Invalid player name: {0}", name.Substring( 1 ) );
+                        }
+                    }
+                }
+
+                if( zone.playerClass != minRank ) {
+                    zone.playerClass = minRank;
+                    player.Message( "Permission for zone \"{0}\" changed to {1}+",
+                                    zone.name,
+                                    minRank.GetClassyName() );
+                    changesWereMade = true;
+                }
+
+                if( changesWereMade ) {
+                    player.world.map.changesSinceSave++;
+                    player.world.SaveMap( null );
+                    zone.editedBy = player.info;
+                    zone.editedDate = DateTime.Now;
+                } else {
+                    player.Message( "No changes were made to the zone." );
+                }
             }
         }
 
@@ -70,38 +124,55 @@ namespace fCraft {
         };
 
         internal static void ZoneAdd( Player player, Command cmd ) {
-            string name = cmd.Next();
-            if( name == null ) {
+            string zoneName = cmd.Next();
+            if( zoneName == null ) {
                 cdZoneAdd.PrintUsage( player );
                 return;
             }
 
-            if( !Player.IsValidName( name ) ) {
-                player.Message( "\"{0}\" is not a valid zone name", name );
+            if( !Player.IsValidName( zoneName ) ) {
+                player.Message( "\"{0}\" is not a valid zone name", zoneName );
                 return;
             }
 
-            if( player.world.map.zones.ContainsKey( name.ToLower() ) ) {
+            if( player.world.map.FindZone( zoneName ) != null ) {
                 player.Message( "A zone with this name already exists. Use &H/zedit&S to edit." );
                 return;
             }
 
             Zone zone = new Zone();
-            zone.name = name;
+            zone.name = zoneName;
 
-            string property = cmd.Next();
-            if( property == null ) {
-                player.Message( "No zone rank/whitelist/blacklist specified. See &H/help zone" );
+            string className = cmd.Next();
+            if( className == null ) {
+                player.Message( "No class was specified. See &H/help zone" );
                 return;
             }
-            PlayerClass minRank = ClassList.ParseClass( property );
+            PlayerClass minRank = ClassList.ParseClass( className );
 
             if( minRank != null ) {
-                zone.build = minRank;
+                string name;
+                while( (name = cmd.Next()) != null ) {
+                    if( name.StartsWith( "+" ) ) {
+                        if( Player.IsValidName( name.Substring( 1 ) ) ) {
+                            zone.Include( name.Substring( 1 ) );
+                        } else {
+                            player.Message( "Invalid player name: {0}", name.Substring( 1 ) );
+                        }
+                    } else if( name.StartsWith( "-" ) ) {
+                        if( Player.IsValidName( name.Substring( 1 ) ) ) {
+                            zone.Exclude( name.Substring( 1 ) );
+                        } else {
+                            player.Message( "Invalid player name: {0}", name.Substring( 1 ) );
+                        }
+                    }
+                }
+
+                zone.playerClass = minRank;
                 player.SetCallback( 2, ZoneAddCallback, zone );
                 player.Message( "Zone: Place a block or type /mark to use your location." );
             } else {
-                player.Message( "Unrecognized player class: \"{0}\"", property );
+                player.Message( "Unrecognized player class: \"{0}\"", className );
             }
         }
 
@@ -116,6 +187,9 @@ namespace fCraft {
                                   zone.name,
                                   zone.bounds.GetVolume() );
             player.world.map.AddZone( zone );
+
+            zone.createdBy = player.info;
+            zone.createdDate = DateTime.Now;
         }
 
 
@@ -163,7 +237,7 @@ namespace fCraft {
         internal static void ZoneRemove( Player player, Command cmd ) {
             string zoneName = cmd.Next();
             if( zoneName == null ) {
-                player.Message( "Usage: " + Color.Help + "/zremove ZoneName" );
+                cdZoneRemove.PrintUsage( player );
                 return;
             }
             if( player.world.map.RemoveZone( zoneName ) ) {
@@ -187,13 +261,66 @@ namespace fCraft {
                 foreach( Zone zone in zones ) {
                     player.Message( String.Format( "  {0} ({1}&S) - {2} x {3} x {4}",
                                                    zone.name,
-                                                   zone.build.GetClassyName(),
+                                                   zone.playerClass.GetClassyName(),
                                                    zone.bounds.GetWidthX(),
                                                    zone.bounds.GetWidthY(),
                                                    zone.bounds.GetHeight() ) );
                 }
             } else {
                 player.Message( "No zones are defined for this map." );
+            }
+        }
+
+
+
+        static CommandDescriptor cdZoneInfo = new CommandDescriptor {
+            name = "zinfo",
+            help = "Shows information about a zone",
+            usage = "/zinfo ZoneName",
+            handler = ZoneInfo
+        };
+
+
+        internal static void ZoneInfo( Player player, Command cmd ) {
+            string zoneName = cmd.Next();
+            if( zoneName == null ) {
+                player.Message( "No zone name specified. See &H/help zinfo" );
+                return;
+            }
+
+            Zone zone = player.world.map.FindZone( zoneName );
+            if( zone == null ) {
+                player.Message( "No zone found with the name \"{0}\". See &H/zones", zoneName );
+                return;
+            }
+
+            player.Message( "About zone {0}: size {1} x {2} x {3}, contains {4} blocks, editable by {5}+.",
+                            zone.name, zone.bounds.GetWidthX(), zone.bounds.GetWidthY(), zone.bounds.GetHeight(),
+                            zone.bounds.GetVolume(),
+                            zone.playerClass.GetClassyName() );
+
+            if( zone.createdBy != null ) {
+                player.Message( "  Zone created by {0}&S on {1} ({2} ago).",
+                                zone.createdBy.GetClassyName(),
+                                zone.createdDate,
+                                DateTime.Now.Subtract( zone.createdDate ) );
+            }
+
+            if( zone.editedBy != null ) {
+                player.Message( "  Zone last edited by {0}&S on {1} ({2} ago).",
+                zone.editedBy.GetClassyName(),
+                zone.editedDate,
+                DateTime.Now.Subtract( zone.editedDate ) );
+            }
+
+            if( zone.includedPlayers.Count > 0 ) {
+                player.Message( "  Zone whitelist includes: {0}",
+                                String.Join( ", ", zone.includedPlayers.ToArray() ) );
+            }
+
+            if( zone.excludedPlayers.Count > 0 ) {
+                player.Message( "  Zone blacklist excludes: {0}",
+                                String.Join( ", ", zone.includedPlayers.ToArray() ) );
             }
         }
     }
