@@ -109,6 +109,8 @@
             this.dgvcBackup = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.tabClasses = new System.Windows.Forms.TabPage();
             this.gClassOptions = new System.Windows.Forms.GroupBox();
+            this.cMaxHideFrom = new System.Windows.Forms.ComboBox();
+            this.lMaxSeeHidden = new System.Windows.Forms.Label();
             this.lAntiGrief1 = new System.Windows.Forms.Label();
             this.lAntiGrief3 = new System.Windows.Forms.Label();
             this.nAntiGriefSeconds = new System.Windows.Forms.NumericUpDown();
@@ -989,6 +991,8 @@
             // 
             this.gClassOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gClassOptions.Controls.Add( this.cMaxHideFrom );
+            this.gClassOptions.Controls.Add( this.lMaxSeeHidden );
             this.gClassOptions.Controls.Add( this.lAntiGrief1 );
             this.gClassOptions.Controls.Add( this.lAntiGrief3 );
             this.gClassOptions.Controls.Add( this.nAntiGriefSeconds );
@@ -1025,10 +1029,29 @@
             this.gClassOptions.TabStop = false;
             this.gClassOptions.Text = "Class Options";
             // 
+            // cMaxHideFrom
+            // 
+            this.cMaxHideFrom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cMaxHideFrom.FormattingEnabled = true;
+            this.cMaxHideFrom.Location = new System.Drawing.Point( 96, 219 );
+            this.cMaxHideFrom.Name = "cMaxHideFrom";
+            this.cMaxHideFrom.Size = new System.Drawing.Size( 180, 23 );
+            this.cMaxHideFrom.TabIndex = 23;
+            this.cMaxHideFrom.SelectedIndexChanged += new System.EventHandler( this.cMaxHideFrom_SelectedIndexChanged );
+            // 
+            // lMaxSeeHidden
+            // 
+            this.lMaxSeeHidden.AutoSize = true;
+            this.lMaxSeeHidden.Location = new System.Drawing.Point( 6, 222 );
+            this.lMaxSeeHidden.Name = "lMaxSeeHidden";
+            this.lMaxSeeHidden.Size = new System.Drawing.Size( 84, 15 );
+            this.lMaxSeeHidden.TabIndex = 24;
+            this.lMaxSeeHidden.Text = "Can hide from";
+            // 
             // lAntiGrief1
             // 
             this.lAntiGrief1.AutoSize = true;
-            this.lAntiGrief1.Location = new System.Drawing.Point( 22, 319 );
+            this.lAntiGrief1.Location = new System.Drawing.Point( 19, 340 );
             this.lAntiGrief1.Name = "lAntiGrief1";
             this.lAntiGrief1.Size = new System.Drawing.Size( 47, 15 );
             this.lAntiGrief1.TabIndex = 22;
@@ -1037,7 +1060,7 @@
             // lAntiGrief3
             // 
             this.lAntiGrief3.AutoSize = true;
-            this.lAntiGrief3.Location = new System.Drawing.Point( 244, 319 );
+            this.lAntiGrief3.Location = new System.Drawing.Point( 241, 340 );
             this.lAntiGrief3.Name = "lAntiGrief3";
             this.lAntiGrief3.Size = new System.Drawing.Size( 53, 15 );
             this.lAntiGrief3.TabIndex = 21;
@@ -1045,7 +1068,7 @@
             // 
             // nAntiGriefSeconds
             // 
-            this.nAntiGriefSeconds.Location = new System.Drawing.Point( 193, 317 );
+            this.nAntiGriefSeconds.Location = new System.Drawing.Point( 190, 338 );
             this.nAntiGriefSeconds.Name = "nAntiGriefSeconds";
             this.nAntiGriefSeconds.Size = new System.Drawing.Size( 45, 21 );
             this.nAntiGriefSeconds.TabIndex = 20;
@@ -1064,7 +1087,7 @@
             // xDrawLimit
             // 
             this.xDrawLimit.AutoSize = true;
-            this.xDrawLimit.Location = new System.Drawing.Point( 12, 357 );
+            this.xDrawLimit.Location = new System.Drawing.Point( 9, 373 );
             this.xDrawLimit.Name = "xDrawLimit";
             this.xDrawLimit.Size = new System.Drawing.Size( 81, 19 );
             this.xDrawLimit.TabIndex = 13;
@@ -1075,7 +1098,7 @@
             // lDrawLimitUnits
             // 
             this.lDrawLimitUnits.AutoSize = true;
-            this.lDrawLimitUnits.Location = new System.Drawing.Point( 172, 358 );
+            this.lDrawLimitUnits.Location = new System.Drawing.Point( 169, 374 );
             this.lDrawLimitUnits.Name = "lDrawLimitUnits";
             this.lDrawLimitUnits.Size = new System.Drawing.Size( 42, 15 );
             this.lDrawLimitUnits.TabIndex = 8;
@@ -1084,7 +1107,7 @@
             // lKickIdleUnits
             // 
             this.lKickIdleUnits.AutoSize = true;
-            this.lKickIdleUnits.Location = new System.Drawing.Point( 181, 256 );
+            this.lKickIdleUnits.Location = new System.Drawing.Point( 178, 279 );
             this.lKickIdleUnits.Name = "lKickIdleUnits";
             this.lKickIdleUnits.Size = new System.Drawing.Size( 51, 15 );
             this.lKickIdleUnits.TabIndex = 19;
@@ -1097,7 +1120,7 @@
             0,
             0,
             0} );
-            this.nDrawLimit.Location = new System.Drawing.Point( 99, 356 );
+            this.nDrawLimit.Location = new System.Drawing.Point( 96, 372 );
             this.nDrawLimit.Maximum = new decimal( new int[] {
             100000000,
             0,
@@ -1110,7 +1133,7 @@
             // 
             // nKickIdle
             // 
-            this.nKickIdle.Location = new System.Drawing.Point( 116, 254 );
+            this.nKickIdle.Location = new System.Drawing.Point( 113, 277 );
             this.nKickIdle.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -1124,18 +1147,18 @@
             // xAntiGrief
             // 
             this.xAntiGrief.AutoSize = true;
-            this.xAntiGrief.Location = new System.Drawing.Point( 12, 292 );
+            this.xAntiGrief.Location = new System.Drawing.Point( 9, 313 );
             this.xAntiGrief.Name = "xAntiGrief";
-            this.xAntiGrief.Size = new System.Drawing.Size( 207, 19 );
+            this.xAntiGrief.Size = new System.Drawing.Size( 213, 19 );
             this.xAntiGrief.TabIndex = 11;
-            this.xAntiGrief.Text = "Enable grief/autoclicker detection";
+            this.xAntiGrief.Text = "Enable grief / autoclicker detection";
             this.xAntiGrief.UseVisualStyleBackColor = true;
             this.xAntiGrief.CheckedChanged += new System.EventHandler( this.xAntiGrief_CheckedChanged );
             // 
             // lAntiGrief2
             // 
             this.lAntiGrief2.AutoSize = true;
-            this.lAntiGrief2.Location = new System.Drawing.Point( 132, 319 );
+            this.lAntiGrief2.Location = new System.Drawing.Point( 129, 340 );
             this.lAntiGrief2.Name = "lAntiGrief2";
             this.lAntiGrief2.Size = new System.Drawing.Size( 55, 15 );
             this.lAntiGrief2.TabIndex = 5;
@@ -1144,7 +1167,7 @@
             // xKickIdle
             // 
             this.xKickIdle.AutoSize = true;
-            this.xKickIdle.Location = new System.Drawing.Point( 12, 255 );
+            this.xKickIdle.Location = new System.Drawing.Point( 9, 278 );
             this.xKickIdle.Name = "xKickIdle";
             this.xKickIdle.Size = new System.Drawing.Size( 98, 19 );
             this.xKickIdle.TabIndex = 9;
@@ -1154,7 +1177,7 @@
             // 
             // nAntiGriefBlocks
             // 
-            this.nAntiGriefBlocks.Location = new System.Drawing.Point( 75, 317 );
+            this.nAntiGriefBlocks.Location = new System.Drawing.Point( 72, 338 );
             this.nAntiGriefBlocks.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -1168,7 +1191,7 @@
             // xReserveSlot
             // 
             this.xReserveSlot.AutoSize = true;
-            this.xReserveSlot.Location = new System.Drawing.Point( 12, 230 );
+            this.xReserveSlot.Location = new System.Drawing.Point( 9, 253 );
             this.xReserveSlot.Name = "xReserveSlot";
             this.xReserveSlot.Size = new System.Drawing.Size( 129, 19 );
             this.xReserveSlot.TabIndex = 8;
@@ -3067,5 +3090,7 @@
         private System.Windows.Forms.NumericUpDown nIRCDelay;
         private System.Windows.Forms.CheckBox xClassColorsInWorldNames;
         private System.Windows.Forms.CheckBox xShowJoinedWorldMessages;
+        private System.Windows.Forms.ComboBox cMaxHideFrom;
+        private System.Windows.Forms.Label lMaxSeeHidden;
     }
 }

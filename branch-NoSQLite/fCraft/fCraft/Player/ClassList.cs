@@ -244,6 +244,12 @@ namespace fCraft {
                 pc.maxDemote = ParseClass( pc.maxDemoteVal );
                 ok &= (pc.maxDemote != null);
             }
+            if( pc.maxHideFromVal.Length == 0 ) {
+                pc.maxHideFrom = pc;
+            } else {
+                pc.maxHideFrom = ParseClass( pc.maxHideFromVal );
+                ok &= (pc.maxHideFrom != null);
+            }
             return ok;
         }
 

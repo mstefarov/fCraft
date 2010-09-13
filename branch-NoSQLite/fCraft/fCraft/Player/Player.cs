@@ -8,7 +8,7 @@ namespace fCraft {
     public delegate void SelectionCallback( Player player, Position[] marks, object tag );
 
     public sealed class Player {
-        public string name;
+        public string name, lowercaseName;
         internal Session session;
         public PlayerInfo info;
         public int id = -1; // should not default to any valid id
@@ -27,6 +27,7 @@ namespace fCraft {
         internal Player( World _world, string _name ) {
             world = _world;
             name = _name;
+            lowercaseName = name.ToLower();
             info = new PlayerInfo( _name, ClassList.highestClass );
             spamBlockLog = new Queue<DateTime>( info.playerClass.antiGriefBlocks );
             ResetAllBinds();
@@ -37,6 +38,7 @@ namespace fCraft {
         internal Player( World _world, string _name, Session _session, Position _pos ) {
             world = _world;
             name = _name;
+            lowercaseName = name.ToLower();
             session = _session;
             pos = _pos;
             info = PlayerDB.FindPlayerInfo( this );
@@ -105,7 +107,7 @@ namespace fCraft {
                     if( message.StartsWith( "//" ) ) {
                         message = message.Substring( 1 );
                     }
-                    
+
                     Server.SendToAll( GetClassyName() + Color.White + ": " + message );
                     break;
 
@@ -122,12 +124,12 @@ namespace fCraft {
                     if( message[1] == ' ' ) {
                         otherPlayerName = message.Substring( 2, message.IndexOf( ' ', 2 ) - 2 );
                         messageText = message.Substring( message.IndexOf( ' ', 2 ) + 1 );
-                    }else{
+                    } else {
                         otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
                         messageText = message.Substring( message.IndexOf( ' ' ) + 1 );
                     }
-                    List<Player> otherPlayers = Server.FindPlayers( otherPlayerName );
-                    if( otherPlayers.Count==1 ) {
+                    List<Player> otherPlayers = Server.FindPlayers( this, otherPlayerName );
+                    if( otherPlayers.Count == 1 ) {
                         Player otherPlayer = otherPlayers[0];
                         Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
                                     name, otherPlayer, messageText );
@@ -156,7 +158,7 @@ namespace fCraft {
                                     name, playerClass.name, message );
                         string formattedMessage = String.Format( "{0}({1}{2}){3}{4}: {5}",
                                                                  playerClass.color,
-                                                                 (Config.GetBool(ConfigKey.ClassPrefixesInChat)?playerClass.prefix:""),
+                                                                 (Config.GetBool( ConfigKey.ClassPrefixesInChat ) ? playerClass.prefix : ""),
                                                                  playerClass.name,
                                                                  Color.PM,
                                                                  name,
@@ -200,7 +202,7 @@ namespace fCraft {
                 Logger.LogConsole( message );
             } else {
                 foreach( Packet p in PacketWriter.MakeWrappedMessage( ">", Color.Sys + message, false ) ) {
-                    session.Send(  p );
+                    session.Send( p );
                 }
             }
         }
@@ -492,6 +494,10 @@ namespace fCraft {
         // Determines what OP-code to send to the player. It only matters for deleting admincrete.
         public byte GetOPPacketCode() {
             return (byte)(Can( Permission.DeleteAdmincrete ) ? 100 : 0);
+        }
+
+        public bool CanSee( Player other ) {
+            return !other.isHidden || info.playerClass.CanSee( other.info.playerClass );
         }
 
         #endregion

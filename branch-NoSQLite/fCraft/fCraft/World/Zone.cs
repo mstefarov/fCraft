@@ -28,9 +28,9 @@ namespace fCraft {
 
         // returns the PREVIOUS state of the player
         public ZonePlayerStatus Include( string playerName ) {
-            if( includedPlayers.Contains( playerName ) ) {
+            if( includedPlayers.Contains( playerName.ToLower() ) ) {
                 return ZonePlayerStatus.Included;
-            } else if( excludedPlayers.Contains( playerName ) ) {
+            } else if( excludedPlayers.Contains( playerName.ToLower() ) ) {
                 excludedPlayers.Remove( playerName );
                 return ZonePlayerStatus.Excluded;
             } else {
@@ -41,9 +41,9 @@ namespace fCraft {
 
         // returns the PREVIOUS state of the player
         public ZonePlayerStatus Exclude( string playerName ) {
-            if( excludedPlayers.Contains( playerName ) ) {
+            if( excludedPlayers.Contains( playerName.ToLower() ) ) {
                 return ZonePlayerStatus.Excluded;
-            } else if( includedPlayers.Contains( playerName ) ) {
+            } else if( includedPlayers.Contains( playerName.ToLower() ) ) {
                 includedPlayers.Remove( playerName );
                 return ZonePlayerStatus.Included;
             } else {
@@ -119,8 +119,8 @@ namespace fCraft {
 
 
         public bool CanBuild( Player player ) {
-            if( includedPlayers.Contains( player.name ) ) return true;
-            if( excludedPlayers.Contains( player.name ) ) return false;
+            if( includedPlayers.Contains( player.lowercaseName ) ) return true;
+            if( excludedPlayers.Contains( player.lowercaseName ) ) return false;
             return player.info.playerClass.rank >= playerClass.rank;
         }
     }

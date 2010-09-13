@@ -212,12 +212,10 @@ namespace fCraft {
                 UpdatePlayerList();
 
                 // Reveal newcommer to existing players
-                if( !player.isHidden ) {
-                    SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
-                    if( announce && Config.GetBool( ConfigKey.ShowJoinedWorldMessages ) ) {
-                        Server.SendToAll( String.Format( "&SPlayer {0}&S joined {1}",
-                                                         player.GetClassyName(), GetClassyName() ), player );
-                    }
+                Server.SendFromHiddenToObservers( PacketWriter.MakeAddEntity( player, player.pos ), player );
+                if( announce && Config.GetBool( ConfigKey.ShowJoinedWorldMessages ) ) {
+                    Server.SendFromHiddenToObservers( PacketWriter.MakeMessage( String.Format( "&SPlayer {0}&S joined {1}",
+                                                     player.GetClassyName(), GetClassyName() ) ), player );
                 }
             }
 
@@ -310,9 +308,10 @@ namespace fCraft {
 
         // Get player by name without autocompletion
         public Player FindPlayerExact( string name ) {
+            name = name.ToLower();
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i].name == name ) {
+                if( tempList[i] != null && tempList[i].lowercaseName == name ) {
                     return tempList[i];
                 }
             }
@@ -375,6 +374,24 @@ namespace fCraft {
         public void SendToAll( string prefix, string message, Player except ) {
             foreach( Packet p in PacketWriter.MakeWrappedMessage( prefix, message, false ) ) {
                 SendToAll( p, except );
+            }
+        }
+
+        public void SendFromHidden( Packet packet, Player source ) {
+            Player[] playerListCopy = playerList;
+            for( int i = 0; i < playerListCopy.Length; i++ ) {
+                if( playerListCopy[i] != source && playerListCopy[i].CanSee( source ) ) {
+                    playerListCopy[i].Send( packet );
+                }
+            }
+        }
+
+        public void SendFromHiddenInverse( Packet packet, Player source ) {
+            Player[] playerListCopy = playerList;
+            for( int i = 0; i < playerListCopy.Length; i++ ) {
+                if( playerListCopy[i] != source && !playerListCopy[i].CanSee( source ) ) {
+                    playerListCopy[i].Send( packet );
+                }
             }
         }
 
