@@ -22,7 +22,11 @@ namespace fCraft {
                         if( fields.Length == IPBanInfo.fieldCount ) {
                             try {
                                 IPBanInfo ban = new IPBanInfo( fields );
-                                bans.Add( ban.address.ToString(), ban );
+                                if( ban.address == IPAddress.Any || ban.address == IPAddress.None ) {
+                                    Logger.Log( "IPBanList.Load: Invalid IP address skipped.", LogType.Warning );
+                                } else {
+                                    bans.Add( ban.address.ToString(), ban );
+                                }
                             } catch( FormatException ex ) {
                                 Logger.Log( "IPBanList.Load: Could not parse a record: {0}", LogType.Error, ex.Message );
                             } catch( IOException ex ) {

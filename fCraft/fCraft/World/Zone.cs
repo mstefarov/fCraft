@@ -21,7 +21,10 @@ namespace fCraft {
         public HashSet<string> includedPlayers = new HashSet<string>();
         public HashSet<string> excludedPlayers = new HashSet<string>();
 
-        public PlayerClass build;
+        public PlayerClass playerClass;
+
+        public DateTime createdDate, editedDate;
+        public PlayerInfo createdBy, editedBy;
 
         // returns the PREVIOUS state of the player
         public ZonePlayerStatus Include( string playerName ) {
@@ -59,15 +62,15 @@ namespace fCraft {
 
             int buildRank;
             if( Int32.TryParse( header[7], out buildRank ) ) {
-                build = ClassList.ParseRank( buildRank );
+                playerClass = ClassList.ParseRank( buildRank );
             } else {
-                build = ClassList.ParseClass( header[7] );
+                playerClass = ClassList.ParseClass( header[7] );
             }
 
             // if all else fails, fall back to lowest class
-            if( build == null ) {
+            if( playerClass == null ) {
                 Logger.Log( "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to \"{1}\"", LogType.Error, header[7], ClassList.lowestClass.name );
-                build = ClassList.lowestClass;
+                playerClass = ClassList.lowestClass;
             }
 
             foreach( string player in parts[1].Split( ' ' ) ) {
@@ -79,6 +82,14 @@ namespace fCraft {
                 if( !Player.IsValidName( player ) ) continue;
                 excludedPlayers.Add( player );
             }
+
+            if( parts.Length > 3 ) {
+                string[] xheader = parts[3].Split( ' ' );
+                createdBy = PlayerDB.FindPlayerInfoExact( xheader[0] );
+                if( createdBy != null ) createdDate = DateTime.Parse( xheader[1] );
+                editedBy = PlayerDB.FindPlayerInfoExact( xheader[2] );
+                if( editedBy != null ) editedDate = DateTime.Parse( xheader[3] );
+            }
         }
 
 
@@ -86,18 +97,31 @@ namespace fCraft {
 
 
         public string Serialize() {
-            return String.Format( "{0},{1},{2}",
+            string xheader;
+            if( createdBy != null ) {
+                xheader = createdBy.name + " " + createdDate.ToString(PlayerInfo.DateFormat) + " ";
+            }else{
+                xheader = "- - ";
+            }
+            if( editedBy != null ) {
+                xheader = editedBy.name + " " + editedDate.ToString( PlayerInfo.DateFormat );
+            }else{
+                xheader += "- -";
+            }
+
+            return String.Format( "{0},{1},{2},{3}",
                                   String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
-                                                 name, bounds.xMin, bounds.yMin, bounds.hMin, bounds.xMax, bounds.yMax, bounds.hMax, build ),
+                                                 name, bounds.xMin, bounds.yMin, bounds.hMin, bounds.xMax, bounds.yMax, bounds.hMax, playerClass ),
                                   String.Join( " ", includedPlayers.ToArray() ),
-                                  String.Join( " ", excludedPlayers.ToArray() ) );
+                                  String.Join( " ", excludedPlayers.ToArray() ),
+                                  xheader );
         }
 
 
         public bool CanBuild( Player player ) {
             if( includedPlayers.Contains( player.name ) ) return true;
             if( excludedPlayers.Contains( player.name ) ) return false;
-            return player.info.playerClass.rank >= build.rank;
+            return player.info.playerClass.rank >= playerClass.rank;
         }
     }
 

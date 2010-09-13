@@ -158,11 +158,16 @@ namespace fCraft {
                 return;
             }
 
-            player.Message( "Flushing {0}&S ({1} blocks in queue)...",
-                            world.GetClassyName(),
-                            world.map.UpdateQueueSize() );
+            if( world.map == null ) {
+                player.Message( "WFlush: {0}&S has no updates to process.",
+                                world.GetClassyName() );
+            } else {
+                player.Message( "WFlush: Flushing {0}&S ({1} blocks in queue)...",
+                                world.GetClassyName(),
+                                world.map.UpdateQueueSize() );
 
-            world.BeginFlushMapBuffer();
+                world.BeginFlushMapBuffer();
+            }
         }
 
 

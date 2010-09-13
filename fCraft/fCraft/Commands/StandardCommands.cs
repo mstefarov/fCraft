@@ -267,7 +267,7 @@ namespace fCraft {
             if( banIP && IPAddress.TryParse( nameOrIP, out address ) ) {
                 DoIPBan( player, address, reason, null, banAll, unban );
 
-                // ban online players
+            // ban online players
             } else if( !unban && offender != null ) {
 
                 // check permissions
@@ -366,6 +366,12 @@ namespace fCraft {
         }
 
         internal static void DoIPBan( Player player, IPAddress address, string reason, string playerName, bool banAll, bool unban ) {
+
+            if( address == IPAddress.None || address == IPAddress.Any ) {
+                player.Message( "Invalid IP: " + address );
+                return;
+            }
+
             if( unban ) {
                 if( IPBanList.Remove( address ) ) {
                     player.Message( address.ToString() + " has been removed from the IP ban list." );
@@ -401,7 +407,10 @@ namespace fCraft {
                         if( banAll && otherInfo.ProcessBan( player, reason + "~BanAll" ) ) {
                             player.Message( otherInfo.name + " matched the IP and was also banned." );
                         }
-                        Server.SendToAll( otherInfo.GetClassyName() + Color.Red + " was banned (BanAll) by " + player.GetClassyName() );
+                        Server.SendToAll( String.Format( "{0}{1} was banned (BanAll) by {2}",
+                                                         otherInfo.GetClassyName(),
+                                                         Color.Red,
+                                                         player.GetClassyName() ) );
                         foreach( Player other in Server.FindPlayers( address ) ) {
                             if( reason != null && reason.Length > 0 ) {
                                 other.session.Kick( "IP-banned by " + player.GetClassyName() + Color.White + ": " + reason );
