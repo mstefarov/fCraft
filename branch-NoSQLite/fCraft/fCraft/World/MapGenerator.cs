@@ -1,8 +1,6 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Linq;
-using System.Xml;
-using System.Xml.Linq;
 
 
 namespace fCraft {
@@ -31,159 +29,6 @@ namespace fCraft {
     }
 
 
-    public sealed class MapGeneratorArgs {
-        const int FormatVersion = 2;
-
-        public MapGenTheme theme;
-        public int seed, dimX, dimY, dimH, maxHeight, maxDepth, waterLevel;
-        public bool addWater;
-
-        public bool matchWaterCoverage;
-        public float waterCoverage;
-        public int raisedCorners, loweredCorners, midPoint;
-        public float bias;
-        public bool useBias;
-
-        public int detailScale, featureScale;
-        public float roughness;
-        public bool layeredHeightmap, marbledHeightmap, invertHeightmap;
-
-        public bool addTrees;
-        public int treeSpacingMin, treeSpacingMax, treeHeightMin, treeHeightMax;
-
-        public void Validate() {
-            if( raisedCorners < 0 || raisedCorners > 4 || loweredCorners < 0 || raisedCorners > 4 || raisedCorners + loweredCorners > 4 ) {
-                throw new ArgumentException( "raisedCorners and loweredCorners must be between 0 and 4." );
-            }
-            // todo: additional validation
-        }
-
-        public MapGeneratorArgs(){
-            theme = MapGenTheme.Forest;
-            seed = (new Random()).Next();
-            dimX = 128;
-            dimY = 128;
-            dimH = 80;
-            maxHeight = 20;
-            maxDepth = 12;
-            waterLevel = 40;
-            addWater = true;
-
-            matchWaterCoverage = false;
-            waterCoverage = .5f;
-            raisedCorners = 0;
-            loweredCorners = 0;
-            midPoint = 0;
-            bias = 0;
-            useBias = false;
-
-            detailScale = 7;
-            featureScale = 1;
-            roughness = .5f;
-            layeredHeightmap = false;
-            marbledHeightmap = false;
-            invertHeightmap = false;
-
-            addTrees = true;
-            treeSpacingMin = 7;
-            treeSpacingMax = 11;
-            treeHeightMin = 5;
-            treeHeightMax = 7;
-        }
-
-        public MapGeneratorArgs( string fileName ) {
-            XDocument doc = XDocument.Load( fileName );
-            XElement root = doc.Root;
-
-            XAttribute versionTag = root.Attribute( "version" );
-            int version = 0;
-            if( versionTag != null && versionTag.Value != null && versionTag.Value.Length > 0 ) {
-                version = Int32.Parse( versionTag.Value );
-            }
-
-            theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), root.Element( "theme" ).Value );
-            seed = Int32.Parse( root.Element( "seed" ).Value );
-            dimX = Int32.Parse( root.Element( "dimX" ).Value );
-            dimY = Int32.Parse( root.Element( "dimY" ).Value );
-            dimH = Int32.Parse( root.Element( "dimH" ).Value );
-            maxHeight = Int32.Parse( root.Element( "maxHeight" ).Value );
-            maxDepth = Int32.Parse( root.Element( "maxDepth" ).Value );
-            waterLevel = Int32.Parse( root.Element( "waterLevel" ).Value );
-            addWater = Boolean.Parse( root.Element( "addWater" ).Value );
-
-            matchWaterCoverage = Boolean.Parse( root.Element( "matchWaterCoverage" ).Value );
-            waterCoverage = float.Parse( root.Element( "waterCoverage" ).Value );
-            raisedCorners = Int32.Parse( root.Element( "raisedCorners" ).Value );
-            loweredCorners = Int32.Parse( root.Element( "loweredCorners" ).Value );
-            midPoint = Int32.Parse( root.Element( "midPoint" ).Value );
-            bias = float.Parse( root.Element( "bias" ).Value );
-            useBias = Boolean.Parse( root.Element( "useBias" ).Value );
-
-            if( version == 0 ) {
-                detailScale = Int32.Parse( root.Element( "minDetailSize" ).Value );
-                featureScale = Int32.Parse( root.Element( "maxDetailSize" ).Value );
-            } else {
-                detailScale = Int32.Parse( root.Element( "detailScale" ).Value );
-                featureScale = Int32.Parse( root.Element( "featureScale" ).Value );
-            }
-            roughness = float.Parse( root.Element( "roughness" ).Value );
-            layeredHeightmap = Boolean.Parse( root.Element( "layeredHeightmap" ).Value );
-            marbledHeightmap = Boolean.Parse( root.Element( "marbledHeightmap" ).Value );
-            invertHeightmap = Boolean.Parse( root.Element( "invertHeightmap" ).Value );
-
-            addTrees = Boolean.Parse( root.Element( "addTrees" ).Value );
-            treeSpacingMin = Int32.Parse( root.Element( "treeSpacingMin" ).Value );
-            treeSpacingMax = Int32.Parse( root.Element( "treeSpacingMax" ).Value );
-            treeHeightMin = Int32.Parse( root.Element( "treeHeightMin" ).Value );
-            treeHeightMax = Int32.Parse( root.Element( "treeHeightMax" ).Value );
-
-            Validate();
-        }
-
-        const string RootTagName = "fCraftMapGeneratorArgs";
-        public void Save( string fileName ) {
-            XDocument document = new XDocument();
-            XElement root = new XElement( RootTagName );
-
-            root.Add( new XAttribute( "version", FormatVersion ) );
-
-            root.Add( new XElement( "theme", theme ) );
-            root.Add( new XElement( "seed", seed ) );
-            root.Add( new XElement( "dimX", dimX ) );
-            root.Add( new XElement( "dimY", dimY ) );
-            root.Add( new XElement( "dimH", dimH ) );
-            root.Add( new XElement( "maxHeight", maxHeight ) );
-            root.Add( new XElement( "maxDepth", maxDepth ) );
-            root.Add( new XElement( "waterLevel", waterLevel ) );
-            root.Add( new XElement( "addWater", addWater ) );
-
-            root.Add( new XElement( "matchWaterCoverage", matchWaterCoverage ) );
-            root.Add( new XElement( "waterCoverage", waterCoverage ) );
-            root.Add( new XElement( "raisedCorners", raisedCorners ) );
-            root.Add( new XElement( "loweredCorners", loweredCorners ) );
-            root.Add( new XElement( "midPoint", midPoint ) );
-            root.Add( new XElement( "bias", bias ) );
-            root.Add( new XElement( "useBias", useBias ) );
-
-            root.Add( new XElement( "detailScale", detailScale ) );
-            root.Add( new XElement( "featureScale", featureScale ) );
-            root.Add( new XElement( "roughness", roughness ) );
-            root.Add( new XElement( "layeredHeightmap", layeredHeightmap ) );
-            root.Add( new XElement( "marbledHeightmap", marbledHeightmap ) );
-            root.Add( new XElement( "invertHeightmap", invertHeightmap ) );
-
-            root.Add( new XElement( "addTrees", addTrees ) );
-            root.Add( new XElement( "treeSpacingMin", treeSpacingMin ) );
-            root.Add( new XElement( "treeSpacingMax", treeSpacingMax ) );
-            root.Add( new XElement( "treeHeightMin", treeHeightMin ) );
-            root.Add( new XElement( "treeHeightMax", treeHeightMax ) );
-
-            document.Add( root );
-            document.Save( fileName );
-        }
-    }
-
-
     public sealed class MapGenerator {
         MapGeneratorArgs args;
         Random rand;
@@ -202,7 +47,7 @@ namespace fCraft {
             args = _args;
             args.Validate();
             rand = new Random( args.seed );
-            noise = new Noise( args.seed , NoiseInterpolationMode.Bicubic);
+            noise = new Noise( args.seed, NoiseInterpolationMode.Bicubic );
             ApplyTheme( args.theme );
         }
 
@@ -216,7 +61,7 @@ namespace fCraft {
         public void GenerateHeightmap() {
             heightmap = new float[args.dimX, args.dimY];
 
-            noise.PerlinNoiseMap( heightmap, args.featureScale, args.detailScale, args.roughness,0,0 );
+            noise.PerlinNoiseMap( heightmap, args.featureScale, args.detailScale, args.roughness, 0, 0 );
 
             if( args.useBias ) {
                 Noise.Normalize( heightmap );
@@ -244,13 +89,13 @@ namespace fCraft {
             if( args.layeredHeightmap ) {
                 // needs a new Noise object to randomize second map
                 float[,] heightmap2 = new float[args.dimX, args.dimY];
-                new Noise( rand.Next(), NoiseInterpolationMode.Bicubic ).PerlinNoiseMap( heightmap2, 0, args.detailScale, args.roughness,0,0 );
+                new Noise( rand.Next(), NoiseInterpolationMode.Bicubic ).PerlinNoiseMap( heightmap2, 0, args.detailScale, args.roughness, 0, 0 );
                 Noise.Normalize( heightmap2 );
 
                 // make a blendmap
                 blendmap = new float[args.dimX, args.dimY];
                 int blendmapDetailSize = (int)Math.Log( (double)Math.Max( args.dimX, args.dimY ), 2 ) - 2;
-                new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoiseMap( blendmap, 3, blendmapDetailSize, 0.5f,0,0 );
+                new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoiseMap( blendmap, 3, blendmapDetailSize, 0.5f, 0, 0 );
                 Noise.Normalize( blendmap );
                 float cliffSteepness = Math.Max( args.dimX, args.dimY ) / 6f;
                 Noise.ScaleAndClip( blendmap, cliffSteepness );
@@ -346,6 +191,10 @@ namespace fCraft {
                         }
                     }
                 }
+            }
+
+            if( args.addCaves ) {
+                AddCaves( map );
             }
 
             if( args.addTrees ) {
@@ -556,14 +405,14 @@ namespace fCraft {
                         midPoint = -1,
                         raisedCorners = 3,
                         loweredCorners = 1,
-                        treeSpacingMax=12,
-                        treeSpacingMin=6
+                        treeSpacingMax = 12,
+                        treeSpacingMin = 6
                     };
                 case MapGenTemplate.Default:
                     return new MapGeneratorArgs();
                 case MapGenTemplate.Dunes:
                     return new MapGeneratorArgs {
-                        addTrees=false,
+                        addTrees = false,
                         addWater = false,
                         theme = MapGenTheme.Desert,
                         maxHeight = 12,
@@ -576,7 +425,7 @@ namespace fCraft {
                     };
                 case MapGenTemplate.Hills:
                     return new MapGeneratorArgs {
-                        addWater=false,
+                        addWater = false,
                         maxHeight = 8,
                         maxDepth = 8,
                         featureScale = 2,
@@ -585,7 +434,7 @@ namespace fCraft {
                     };
                 case MapGenTemplate.Ice:
                     return new MapGeneratorArgs {
-                        addTrees=false,
+                        addTrees = false,
                         theme = MapGenTheme.Arctic,
                         maxHeight = 2,
                         maxDepth = 2032,
@@ -649,11 +498,192 @@ namespace fCraft {
                         marbledHeightmap = true,
                         matchWaterCoverage = true,
                         waterCoverage = .25f,
-                        treeSpacingMin=8,
-                        treeSpacingMax=14
+                        treeSpacingMin = 8,
+                        treeSpacingMax = 14
                     };
             }
             return null; // can never happen
         }
+
+
+        // Cave generation method from Omen 0.70, used with osici's permission
+        static void AddSingleCave( Random rand, Map map, byte bedrockType, byte fillingType, int length, double maxDiameter ) {
+
+            int startX = rand.Next( 0, map.widthX - 1 );
+            int startY = rand.Next( 0, map.widthY - 1 );
+            int startH = rand.Next( 0, map.height - 1 );
+
+            int k1;
+            for( k1 = 0; map.blocks[startX + map.widthX * map.widthY * (map.height - 1 - startH) + map.widthX * startY] != bedrockType && k1 < 10000; k1++ ) {
+                startX = rand.Next( 0, map.widthX - 1 );
+                startY = rand.Next( 0, map.widthY - 1 );
+                startH = rand.Next( 0, map.height - 1 );
+            }
+
+            if( k1 >= 10000 )
+                return;
+
+            int x = startX;
+            int y = startY;
+            int h = startH;
+
+            for( int k2 = 0; k2 < length; k2++ ) {
+                int diameter = (int)(maxDiameter * rand.NextDouble() * map.widthX);
+                if( diameter < 1 ) diameter = 2;
+                int radius = diameter / 2;
+                if( radius == 0 ) radius = 1;
+                x += (int)(0.7 * (rand.NextDouble() - 0.5D) * diameter);
+                y += (int)(0.7 * (rand.NextDouble() - 0.5D) * diameter);
+                h += (int)(0.7 * (rand.NextDouble() - 0.5D) * diameter);
+
+                for( int j3 = 0; j3 < diameter; j3++ ) {
+                    for( int k3 = 0; k3 < diameter; k3++ ) {
+                        for( int l3 = 0; l3 < diameter; l3++ ) {
+                            if( (j3 - radius) * (j3 - radius) + (k3 - radius) * (k3 - radius) + (l3 - radius) * (l3 - radius) >= radius * radius ||
+                                x + j3 >= map.widthX || h + k3 >= map.height || y + l3 >= map.widthY ||
+                                x + j3 < 0 || h + k3 < 0 || y + l3 < 0 ) {
+                                continue;
+                            }
+
+                            int index = x + j3 + map.widthX * map.widthY * (map.height - 1 - (h + k3)) + map.widthX * (y + l3);
+
+                            if( map.blocks[index] == bedrockType ) {
+                                map.blocks[index] = (byte)fillingType;
+                            }
+                            if( (fillingType == 10 || fillingType == 11 || fillingType == 8 || fillingType == 9) &&
+                                h + k3 < startH ) {
+                                map.blocks[index] = 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        static void AddSingleVein( Random rand, Map map, byte bedrockType, byte fillingType, int k, double maxDiameter, int l ) {
+            AddSingleVein( rand, map, bedrockType, fillingType, k, maxDiameter, l, 10 );
+        }
+
+        static void AddSingleVein( Random rand, Map map, byte bedrockType, byte fillingType, int k, double maxDiameter, int l, int i1 ) {
+
+            int j1 = rand.Next( 0, map.widthX - 1 );
+            int k1 = rand.Next( 0, map.height - 1 );
+            int l1 = rand.Next( 0, map.widthY - 1 );
+
+            double thirteenOverK = 1 / (double)k;
+
+            for( int i2 = 0; i2 < i1; i2++ ) {
+                int j2 = j1 + (int)(.5 * (rand.NextDouble() - .5) * (double)map.widthX);
+                int k2 = k1 + (int)(.5 * (rand.NextDouble() - .5) * (double)map.height);
+                int l2 = l1 + (int)(.5 * (rand.NextDouble() - .5) * (double)map.widthY);
+                for( int l3 = 0; l3 < k; l3++ ) {
+                    int diameter = (int)(maxDiameter * rand.NextDouble() * map.widthX);
+                    if( diameter < 1 ) diameter = 2;
+                    int radius = diameter / 2;
+                    if( radius == 0 ) radius = 1;
+                    int i3 = (int)((1 - thirteenOverK) * (double)j1 + thirteenOverK * (double)j2 + (double)(l * radius) * (rand.NextDouble() - .5));
+                    int j3 = (int)((1 - thirteenOverK) * (double)k1 + thirteenOverK * (double)k2 + (double)(l * radius) * (rand.NextDouble() - .5));
+                    int k3 = (int)((1 - thirteenOverK) * (double)l1 + thirteenOverK * (double)l2 + (double)(l * radius) * (rand.NextDouble() - .5));
+                    for( int k4 = 0; k4 < diameter; k4++ ) {
+                        for( int l4 = 0; l4 < diameter; l4++ ) {
+                            for( int i5 = 0; i5 < diameter; i5++ ) {
+                                if( (k4 - radius) * (k4 - radius) + (l4 - radius) * (l4 - radius) + (i5 - radius) * (i5 - radius) < radius * radius &&
+                                    i3 + k4 < map.widthX && j3 + l4 < map.height && k3 + i5 < map.widthY &&
+                                    i3 + k4 >= 0 && j3 + l4 >= 0 && k3 + i5 >= 0 ) {
+
+                                    int index = i3 + k4 + map.widthX * map.widthY * (map.height - 1 - (j3 + l4)) + map.widthX * (k3 + i5);
+
+                                    if( map.blocks[index] == bedrockType ) {
+                                        map.blocks[index] = fillingType;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                j1 = j2;
+                k1 = k2;
+                l1 = l2;
+            }
+        }
+
+        static void SealLiquids( Map map, byte sealantType ) {
+            for( int x = 1; x < map.widthX - 1; x++ ) {
+                for( int h = 0; h < map.height; h++ ) {
+                    for( int y = 1; y < map.widthY - 1; y++ ) {
+                        int index = x + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * y;
+                        if( (map.blocks[index] == 10 || map.blocks[index] == 11 || map.blocks[index] == 8 || map.blocks[index] == 9) &&
+                            (map.blocks[(x - 1) + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * y] == 0 ||
+                            map.blocks[(x - 1) + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * (y - 1)] == 0 ||
+                            map.blocks[(x - 1) + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * (y + 1)] == 0 |
+                            map.blocks[x + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * (y + 1)] == 0 ||
+                            map.blocks[x + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * (y - 1)] == 0 ||
+                            map.blocks[x + 1 + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * (y - 1)] == 0 ||
+                            map.blocks[x + 1 + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * y] == 0 ||
+                            map.blocks[x + 1 + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * (y + 1)] == 0) ) {
+                            map.blocks[index] = sealantType;
+                        }
+                    }
+                }
+            }
+        }
+
+        public void AddCaves( Map map ) {
+            Random rand = new Random();
+
+
+            for( int i1 = 0; i1 < 36 * args.caveDensity; i1++ )
+                AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Air, 30, 0.05 * args.caveSize );
+
+            for( int j1 = 0; j1 < 9 * args.caveDensity; j1++ )
+                AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Air, 500, 0.015 * args.caveSize, 1 );
+
+            for( int k1 = 0; k1 < 30 * args.caveDensity; k1++ )
+                AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Air, 300, 0.03 * args.caveSize, 1, 20 );
+
+
+            if( args.addCaveLava ) {
+                for( int i = 0; i < 8 * args.caveDensity; i++ ) {
+                    AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Lava, 30, 0.05 * args.caveSize );
+                }
+                for( int j = 0; j < 3 * args.caveDensity; j++ ) {
+                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Lava, 1000, 0.015 * args.caveSize, 1 );
+                }
+            }
+
+
+            if( args.addCaveWater ) {
+                for( int k = 0; k < 8 * args.caveDensity; k++ ) {
+                    AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Water, 30, 0.05 * args.caveSize );
+                }
+                for( int l = 0; l < 3 * args.caveDensity; l++ ) {
+                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Water, 1000, 0.015 * args.caveSize, 1 );
+                }
+            }
+
+
+            if( args.addOre ) {
+                for( int l1 = 0; l1 < 12 * args.caveDensity; l1++ ) {
+                    AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Coal, 500, 0.03 * args.caveSize );
+                }
+
+                for( int i2 = 0; i2 < 32 * args.caveDensity; i2++ ) {
+                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Coal, 200, 0.015 * args.caveSize, 1 );
+                    AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.IronOre, 500, 0.02 * args.caveSize );
+                }
+
+                for( int k2 = 0; k2 < 8 * args.caveDensity; k2++ ) {
+                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.IronOre, 200, 0.015 * args.caveSize, 1 );
+                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.GoldOre, 200, 0.0145 * args.caveSize, 1 );
+                }
+
+                for( int l2 = 0; l2 < 20 * args.caveDensity; l2++ ) {
+                    AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.GoldOre, 400, 0.0175 * args.caveSize );
+                }
+            }
+
+            SealLiquids( map, (byte)bBedrock );
+        }
+
     }
 }

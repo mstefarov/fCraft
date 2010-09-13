@@ -72,6 +72,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\ZoneCommands.cs" />
     <Compile Include="World\BlockDB.cs" />
     <Compile Include="Commands\CommandDescriptor.cs" />
     <Compile Include="Commands\DrawCommands.cs" />
@@ -134,6 +135,7 @@
     <Compile Include="World\EventHandlers.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\MapGenerator.cs" />
+    <Compile Include="World\MapGeneratorArgs.cs" />
     <Compile Include="World\World.cs" />
     <Compile Include="World\Zone.cs" />
   </ItemGroup>

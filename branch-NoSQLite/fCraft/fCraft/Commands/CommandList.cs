@@ -20,6 +20,7 @@ namespace fCraft {
             StandardCommands.Init();
             DrawCommands.Init();
             ImportCommands.Init();
+            ZoneCommands.Init();
             commands.TrimExcess();
             aliases.TrimExcess();
         }
