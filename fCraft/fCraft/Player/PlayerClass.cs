@@ -14,7 +14,8 @@ namespace fCraft {
         public PlayerClass maxPromote,
                            maxDemote,
                            maxKick,
-                           maxBan;
+                           maxBan,
+                           maxHideFrom;
         public string prefix = "";
         public int idleKickTimer,
                    drawLimit,
@@ -27,7 +28,8 @@ namespace fCraft {
         internal string maxPromoteVal = "",
                         maxDemoteVal = "",
                         maxKickVal = "",
-                        maxBanVal = "";
+                        maxBanVal = "",
+                        maxHideFromVal = "";
 
         public PlayerClass() {
             permissions = new bool[Enum.GetValues( typeof( Permission ) ).Length];
@@ -55,6 +57,9 @@ namespace fCraft {
             return maxDemote.rank >= other.rank;
         }
 
+        public bool CanSee( PlayerClass other ) {
+            return rank > other.maxHideFrom.rank;
+        }
 
 
         public int GetMaxKickIndex() {
@@ -75,6 +80,11 @@ namespace fCraft {
         public int GetMaxDemoteIndex() {
             if( maxDemote == null ) return 0;
             else return maxDemote.index + 1;
+        }
+
+        public int GetMaxHideFromIndex() {
+            if( maxHideFrom == null ) return 0;
+            else return maxHideFrom.index + 1;
         }
 
 

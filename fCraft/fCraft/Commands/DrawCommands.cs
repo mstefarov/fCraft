@@ -168,14 +168,16 @@ namespace fCraft {
                     case Block.StillLava:
                         permission = Permission.PlaceLava; break;
                     case Block.Undefined:
-                        player.MessageNow( "Draw: Unrecognized block name: {0}", blockName );
+                        player.MessageNow( "{0}: Unrecognized block name: {1}",
+                                           mode, blockName );
                         return;
                 }
             } // else { use the last-used-block }
 
             // ReplaceNot does not need permission (since the block is EXCLUDED)
             if( !player.Can( permission ) && mode != DrawMode.ReplaceNot ) {
-                player.MessageNow( "You are not allowed to draw with this block." );
+                player.MessageNow( "{0}: You are not allowed to draw with this block ({1})",
+                                   mode, blockName );
                 return;
             }
 
@@ -239,7 +241,13 @@ namespace fCraft {
             player.selectionMarksExpected = 2;
             player.selectionMarkCount = 0;
             player.selectionMarks.Clear();
-            player.MessageNow( "{0}: Place a block or type /mark to use your location.", mode );
+            if( block != Block.Undefined ) {
+                player.MessageNow( "{0} ({1}): Click a block or use &H/mark",
+                                   mode, block );
+            } else {
+                player.MessageNow( "{0}: Click a block or use &H/mark",
+                   mode, block );
+            }
         }
 
 
@@ -297,7 +305,7 @@ namespace fCraft {
         #region Undo / Redo
         static CommandDescriptor cdUndo = new CommandDescriptor {
             name = "undo",
-            aliases = new string[]{"redo"},
+            aliases = new string[] { "redo" },
             help = "Selectively removes changes from your last drawing command. " +
                    "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
             handler = Undo
@@ -310,9 +318,10 @@ namespace fCraft {
             }
             if( player.undoBuffer.Count > 0 ) {
                 // no need to set player.drawingInProgress here because this is done on the user thread
-                Logger.Log( "Player {0} initiated /undo affecting {1} blocks.", LogType.UserActivity,
+                Logger.Log( "Player {0} initiated /undo affecting {1} blocks (on world {2})", LogType.UserActivity,
                             player.name,
-                            player.undoBuffer.Count );
+                            player.undoBuffer.Count,
+                            player.world.name );
                 player.MessageNow( "Restoring {0} blocks...", player.undoBuffer.Count );
                 Queue<BlockUpdate> redoBuffer = new Queue<BlockUpdate>();
                 while( player.undoBuffer.Count > 0 ) {
@@ -415,6 +424,17 @@ namespace fCraft {
             }
 
             player.MessageNow( "Replacing {0} blocks... The map is now being updated.", blocks );
+
+            string affectedString = "";
+            foreach( Block affectedBlock in specialTypes ) {
+                affectedString += ", " + affectedBlock.ToString();
+            }
+            Logger.Log( "{0} replaced {1} blocks {2} ({3}) with {4} (on world {5})", LogType.UserActivity,
+                        player.name, blocks,
+                        (doExclude ? "except" : "of"),
+                        affectedString, (Block)replacementBlock,
+                        player.world.name );
+
             player.undoBuffer.TrimExcess();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
@@ -459,10 +479,11 @@ namespace fCraft {
                 }
             }
             player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
-            Logger.Log( "{0} initiated drawing a cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
+            Logger.Log( "{0} drew a cuboid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
                         player.name,
                         blocks,
-                        (Block)drawBlock );
+                        (Block)drawBlock,
+                        player.world.name );
             player.undoBuffer.TrimExcess();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
@@ -515,10 +536,11 @@ namespace fCraft {
             }
 
             player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
-            Logger.Log( "{0} initiated drawing a hollow cuboid containing {1} blocks of type {2}.", LogType.UserActivity,
+            Logger.Log( "{0} drew a hollow cuboid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
                         player.name,
                         blocks,
-                        (Block)drawBlock );
+                        (Block)drawBlock,
+                        player.world.name );
             player.undoBuffer.TrimExcess();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
@@ -591,10 +613,11 @@ namespace fCraft {
                 }
             }
             player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
-            Logger.Log( "{0} initiated drawing an ellipsoid containing {1} blocks of type {2}.", LogType.UserActivity,
+            Logger.Log( "{0} drew an ellipsoid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
                         player.name,
                         blocks,
-                        (Block)drawBlock );
+                        (Block)drawBlock,
+                        player.world.name );
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
@@ -683,7 +706,7 @@ namespace fCraft {
         static CommandDescriptor cdPasteNot = new CommandDescriptor {
             name = "pastenot",
             permissions = new Permission[] { Permission.CopyAndPaste },
-            help = "Paste previously copied blocks, excluding specified block type(s). "+
+            help = "Paste previously copied blocks, excluding specified block type(s). " +
                    "Used together with &H/copy&S command. " +
                    "Note that pasting starts at the same corner that you started &H/copy&S from. ",
             usage = "/pastenot ExcludedBlock [AnotherOne [AndAnother]]",
@@ -814,7 +837,7 @@ namespace fCraft {
                         for( int y3 = 0; y3 < DrawStride && y + y3 <= bounds.yMax; y3++ ) {
                             for( int x3 = 0; x3 < DrawStride && x + x3 <= bounds.xMax; x3++ ) {
                                 block = info.buffer[x + x3 - bounds.xMin, y + y3 - bounds.yMin, h - bounds.hMin];
-                                
+
                                 if( args.doInclude ) {
                                     bool skip = true;
                                     for( int i = 0; i < specialTypes.Length; i++ ) {

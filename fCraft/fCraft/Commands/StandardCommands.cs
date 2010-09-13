@@ -440,7 +440,7 @@ namespace fCraft {
             string name = cmd.Next();
             if( name != null ) {
                 string msg = cmd.NextAll();
-                List<Player> targets = Server.FindPlayers( name );
+                List<Player> targets = Server.FindPlayers( player, name );
                 if( targets.Count == 1 ) {
                     DoKick( player, targets[0], msg, false );
                 } else if( targets.Count > 1 ) {
@@ -658,7 +658,7 @@ namespace fCraft {
                     player.Send( PacketWriter.MakeTeleport( 255, pos ) );
                 } else if( cmd.Next() == null ) {
 
-                    List<Player> targets = Server.FindPlayers( name );
+                    List<Player> targets = Server.FindPlayers( player, name );
                     if( targets.Count == 1 ) {
                         target = targets[0];
                         if( player.CanJoin( target.world ) ) {
@@ -716,7 +716,7 @@ namespace fCraft {
                 return;
             }
             Player target = player.world.FindPlayer( name );
-            if( target != null ) {
+            if( target != null && player.CanSee( target ) ) {
                 Position pos = player.pos;
                 pos.x += 1;
                 pos.y += 1;
@@ -724,7 +724,7 @@ namespace fCraft {
                 target.Send( PacketWriter.MakeTeleport( 255, pos ) );
 
             } else {
-                List<Player> targets = Server.FindPlayers( name );
+                List<Player> targets = Server.FindPlayers( player, name );
                 if( targets.Count == 1 ) {
                     target = targets[0];
                     if( target.CanJoin( player.world ) ) {
@@ -761,7 +761,7 @@ namespace fCraft {
                 cdFreeze.PrintUsage( player );
                 return;
             }
-            List<Player> targets = Server.FindPlayers( name );
+            List<Player> targets = Server.FindPlayers( player, name );
             if( targets.Count == 1 ) {
                 if( !targets[0].isFrozen ) {
                     Server.SendToAll( targets[0].GetClassyName() + "&S has been frozen by " + player.GetClassyName() );
@@ -793,7 +793,7 @@ namespace fCraft {
                 cdFreeze.PrintUsage( player );
                 return;
             }
-            List<Player> targets = Server.FindPlayers( name );
+            List<Player> targets = Server.FindPlayers( player, name );
             if( targets.Count == 1 ) {
                 if( targets[0].isFrozen ) {
                     Server.SendToAll( targets[0].GetClassyName() + "&S is no longer frozen." );
@@ -822,8 +822,9 @@ namespace fCraft {
 
         internal static void Hide( Player player, Command cmd ) {
             if( !player.isHidden ) {
-                Server.SendToAll( PacketWriter.MakeRemoveEntity( player.id ), null );
-                Server.SendToAll( player.GetClassyName() + "&S left the server." );
+                player.world.SendFromHiddenInverse( PacketWriter.MakeRemoveEntity( player.id ), player );
+                Server.SendFromHidden( PacketWriter.MakeMessage( player.GetClassyName() + "&S left the server." ), player );
+                Server.SendFromHiddenToObservers( PacketWriter.MakeMessage( player.GetClassyName() + "&S is now hidden." ), player );
                 player.isHidden = true;
                 player.Message( Color.Gray + "You are now hidden." );
             } else {
@@ -846,7 +847,8 @@ namespace fCraft {
             if( player.Can( Permission.Hide ) ) {
                 if( player.isHidden ) {
                     player.Message( Color.Gray + "You are no longer hidden." );
-                    player.world.SendToAll( PacketWriter.MakeAddEntity( player, player.pos ), player );
+                    player.world.SendFromHiddenInverse( PacketWriter.MakeAddEntity( player, player.pos ), player );
+                    Server.SendFromHiddenToObservers( PacketWriter.MakeMessage( player.GetClassyName() + "&S is no longer hidden." ), player );
                     Server.ShowPlayerConnectedMessage( player, false, player.world );
                     player.isHidden = false;
                 } else {

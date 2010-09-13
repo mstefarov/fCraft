@@ -29,11 +29,11 @@ namespace fCraft {
 
             CommandList.RegisterCommand( cdMeasure );
 
-            CommandList.RegisterCommand( cdMD ); // DEBUG
+            //CommandList.RegisterCommand( cdMD ); // DEBUG
         }
 
         
-       
+       /*
         static CommandDescriptor cdMD = new CommandDescriptor { // DEBUG
             name = "md",
             help = "",
@@ -44,7 +44,7 @@ namespace fCraft {
             string playerName = cmd.Next();
             Session sess =player.session;
             if( playerName != null ) {
-                List<Player> players = Server.FindPlayers( playerName );
+                List<Player> players = Server.FindPlayers( player, playerName );
                 if( players.Count == 1 ) {
                     sess = players[0].session;
                 } else if( players.Count > 1 ) {
@@ -70,7 +70,7 @@ namespace fCraft {
             }
         }
         
-
+        */
 
         static CommandDescriptor cdMeasure = new CommandDescriptor {
             name = "measure",
@@ -196,7 +196,7 @@ namespace fCraft {
                 bool first = true;
                 int count = 0;
                 foreach( Player p in players ) {
-                    if( p.isHidden ) continue;
+                    if( !player.CanSee(p) ) continue;
                     if( !first ) sb.Append( ", " );
                     sb.Append( p.GetClassyName() );
                     first = false;
@@ -247,7 +247,7 @@ namespace fCraft {
             Player target = player;
 
             if( name != null ) {
-                List<Player> matches = Server.FindPlayers( name );
+                List<Player> matches = Server.FindPlayers( player, name );
                 if( matches.Count == 1 ) {
                     target = matches[0];
                     player.Message( "Coordinates of player {0}&S (on world {1}&S):",

@@ -1,5 +1,30 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-09-08
+470
+ Feature: Personal zones - per-zone whitelist and blacklist of individual players. The lists can now be defined with /zadd and edited with /zedit.
+ Feature: Added cave/ore generator from Omen (BETA).
+ Feature: Added "/maps" and "/levels" as aliases for "/worlds".
+ Feature: Added a way to limit the "Hide" permission per-class. Now you can specify whom can a class hide from.
+ Feature: Zones now remember date/time of creation and last edit, and names of original creator and last editor.
+ Fix: Unauthorized players can no longer PM or use bring/freeze/unfreeze/kick/tp/where on hidden players. They get the standard "player not found" message.
+ Fix: Fixed hidden players being counter towards /players total.
+ Fix: Fixed a potential crash in /wflush when using on unloaded maps.
+ Fix: Doing /banip or /banall on unrecognized players no longer ip-bans 255.255.255.255. Old IPBanList entries relating to 255.255.255.255 will be automatically discarded.
+ Fix: Fixed /replace command uses not being logged.
+ Fix: Fixed /worlds command not showing world count.
+ Fix: Fixed a client-disconnect when trying to unban a player who is not in the database.
+ Fix: Fixed "/join PlayerName" not translating to "/tp PlayerName" correctly.
+ Fix: Fixed a very unlikely client-disconnect in ChangeClass if the entered class name contains curved braces.
+ Change: Changed default name for "/flip" command to "/mirror", and fixed command's help. Either term still works.
+ Change: Added more block name aliases:
+  - Air: delete, erase
+  - Stone: cement, concrete
+  - Grass: gras (common typo)
+  - Obsidian: onyx
+ Change: Improved formatting of /players, /worlds, and draw command messages.
+463
+ Fix: Fixed special colors showing up even if ClassColorsInChat is disabled.
+ Fix: Fixed potential client-crash in World.SendToAll(), and related client-crash in lock/unlock.
 462
  Fix: The "OK" button in AddWorldPopup no longer stays grayed out.
  Fix: Fixed "Error occured while loading" in the file information dialog for non-FCM files.

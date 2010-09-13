@@ -56,7 +56,7 @@ namespace fCraft {
                                     world.GetClassyName(), world.classAccess.GetClassyName() );
                 }
             } else {
-                List<Player> players = Server.FindPlayers( worldName );
+                List<Player> players = Server.FindPlayers( player, worldName );
                 if( players.Count == 1 ) {
                     player.ParseMessage( "/tp " + players[0].name, false );
                 } else {

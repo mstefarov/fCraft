@@ -38,65 +38,58 @@ namespace fCraft {
                 return;
             }
 
-            string className = cmd.Next();
-            if( className == null ) {
-                player.Message( "No class name specified. See &H/help zedit" );
-                return;
-            }
-
-            PlayerClass minRank = ClassList.ParseClass( className );
-            if( minRank == null ) {
-                player.Message( "Unrecognized class name: \"{0}\"", className );
-                return;
-            } else {
-
-                string name;
-                while( (name = cmd.Next()) != null ) {
-                    if( name.StartsWith( "+" ) ) {
-                        if( Player.IsValidName( name.Substring( 1 ) ) ) {
-                            switch( zone.Include( name.Substring( 1 ) ) ) {
-                                case ZonePlayerStatus.Excluded:
-                                    player.Message( "{0} is no longer excluded from zone {1}", name, zone.name );
-                                    changesWereMade = true;
-                                    break;
-                                case ZonePlayerStatus.Neutral:
-                                    player.Message( "{0} is now included in zone {1}", name, zone.name );
-                                    changesWereMade = true;
-                                    break;
-                                case ZonePlayerStatus.Included:
-                                    player.Message( "{0} is already included in zone {1}", name, zone.name );
-                                    break;
-                            }
-                        } else {
-                            player.Message( "Invalid player name: {0}", name.Substring( 1 ) );
+            string name;
+            while( (name = cmd.Next()) != null ) {
+                string subName = name.Substring( 1 );
+                if( name.StartsWith( "+" ) ) {
+                    if( Player.IsValidName( subName ) ) {
+                        switch( zone.Include( subName ) ) {
+                            case ZonePlayerStatus.Excluded:
+                                player.Message( "{0} is no longer excluded from zone {1}", subName, zone.name );
+                                changesWereMade = true;
+                                break;
+                            case ZonePlayerStatus.Neutral:
+                                player.Message( "{0} is now included in zone {1}", subName, zone.name );
+                                changesWereMade = true;
+                                break;
+                            case ZonePlayerStatus.Included:
+                                player.Message( "{0} is already included in zone {1}", subName, zone.name );
+                                break;
                         }
-                    } else if( name.StartsWith( "-" ) ) {
-                        if( Player.IsValidName( name.Substring( 1 ) ) ) {
-                            switch( zone.Exclude( name.Substring( 1 ) ) ) {
-                                case ZonePlayerStatus.Excluded:
-                                    player.Message( "{0} is already excluded to zone {1}", name, zone.name );
-                                    break;
-                                case ZonePlayerStatus.Neutral:
-                                    player.Message( "{0} is now excluded to zone {1}", name, zone.name );
-                                    changesWereMade = true;
-                                    break;
-                                case ZonePlayerStatus.Included:
-                                    player.Message( "{0} is no longer included in zone {1}", name, zone.name );
-                                    changesWereMade = true;
-                                    break;
-                            }
-                        } else {
-                            player.Message( "Invalid player name: {0}", name.Substring( 1 ) );
+                    } else {
+                        player.Message( "Invalid player name: {0}", subName );
+                    }
+                } else if( name.StartsWith( "-" ) ) {
+                    if( Player.IsValidName( subName ) ) {
+                        switch( zone.Exclude( subName ) ) {
+                            case ZonePlayerStatus.Excluded:
+                                player.Message( "{0} is already excluded to zone {1}", subName, zone.name );
+                                break;
+                            case ZonePlayerStatus.Neutral:
+                                player.Message( "{0} is now excluded to zone {1}", subName, zone.name );
+                                changesWereMade = true;
+                                break;
+                            case ZonePlayerStatus.Included:
+                                player.Message( "{0} is no longer included in zone {1}", subName, zone.name );
+                                changesWereMade = true;
+                                break;
+                        }
+                    } else {
+                        player.Message( "Invalid player name: \"{0}\"", subName );
+                    }
+                } else {
+                    PlayerClass minRank = ClassList.ParseClass( name );
+                    if( minRank != null ) {
+                        player.Message( "Unrecognized class name: \"{0}\"", name );
+                    } else {
+                        if( zone.playerClass != minRank ) {
+                            zone.playerClass = minRank;
+                            player.Message( "Permission for zone \"{0}\" changed to {1}+",
+                                            zone.name,
+                                            minRank.GetClassyName() );
+                            changesWereMade = true;
                         }
                     }
-                }
-
-                if( zone.playerClass != minRank ) {
-                    zone.playerClass = minRank;
-                    player.Message( "Permission for zone \"{0}\" changed to {1}+",
-                                    zone.name,
-                                    minRank.GetClassyName() );
-                    changesWereMade = true;
                 }
 
                 if( changesWereMade ) {
@@ -294,7 +287,7 @@ namespace fCraft {
                 return;
             }
 
-            player.Message( "About zone {0}: size {1} x {2} x {3}, contains {4} blocks, editable by {5}+.",
+            player.Message( "About zone \"{0}\": size {1} x {2} x {3}, contains {4} blocks, editable by {5}+.",
                             zone.name, zone.bounds.GetWidthX(), zone.bounds.GetWidthY(), zone.bounds.GetHeight(),
                             zone.bounds.GetVolume(),
                             zone.playerClass.GetClassyName() );
@@ -320,7 +313,7 @@ namespace fCraft {
 
             if( zone.excludedPlayers.Count > 0 ) {
                 player.Message( "  Zone blacklist excludes: {0}",
-                                String.Join( ", ", zone.includedPlayers.ToArray() ) );
+                                String.Join( ", ", zone.excludedPlayers.ToArray() ) );
             }
         }
     }

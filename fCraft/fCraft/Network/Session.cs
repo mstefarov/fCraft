@@ -194,10 +194,12 @@ namespace fCraft {
                                 if( player.isFrozen ) {
 
                                     if( rotChanged ) {
-                                        player.world.SendToAll( PacketWriter.MakeRotate( player.id, newPos ), player );
+                                        player.world.SendFromHidden( PacketWriter.MakeRotate( player.id, newPos ), player );
+                                        PacketsSent++;
                                         player.pos.r = newPos.r;
                                         player.pos.l = newPos.l;
                                     }
+
                                     if( distSquared > antiSpeedMaxDistanceSquared ) {
                                         SendNow( PacketWriter.MakeTeleport( 255, player.pos ) );
                                     }
@@ -231,38 +233,36 @@ namespace fCraft {
                                         }
                                     }
 
-                                    if( !player.isHidden ) {
-                                        if( distSquared < 64 && delta.r * delta.r + delta.l + delta.l < 4096 && !skippedLastMovementPacket ) {
-                                            skippedLastMovementPacket = true;
-                                            PacketsSkippedOptimized++;
+                                    if( distSquared < 64 && delta.r * delta.r + delta.l + delta.l < 4096 && !skippedLastMovementPacket ) {
+                                        skippedLastMovementPacket = true;
+                                        PacketsSkippedOptimized++;
+                                        continue;
+                                    }
+                                    skippedLastMovementPacket = false;
+                                    if( delta.FitsIntoByte() && fullPositionUpdateCounter < fullPositionUpdateInterval ) {
+                                        if( posChanged && rotChanged ) {
+                                            packet = PacketWriter.MakeMoveRotate( player.id, delta );
+                                        } else if( posChanged ) {
+                                            packet = PacketWriter.MakeMove( player.id, delta );
+                                        } else if( rotChanged ) {
+                                            packet = PacketWriter.MakeRotate( player.id, newPos );
+                                        } else {
+                                            PacketsSkippedZero++;
                                             continue;
                                         }
-                                        skippedLastMovementPacket = false;
-                                        if( delta.FitsIntoByte() && fullPositionUpdateCounter < fullPositionUpdateInterval ) {
-                                            if( posChanged && rotChanged ) {
-                                                player.world.SendToAll( PacketWriter.MakeMoveRotate( player.id, delta ), player );
-                                                PacketsSent++;
-                                            } else if( posChanged ) {
-                                                player.world.SendToAll( PacketWriter.MakeMove( player.id, delta ), player );
-                                                PacketsSent++;
-                                            } else if( rotChanged ) {
-                                                player.world.SendToAll( PacketWriter.MakeRotate( player.id, newPos ), player );
-                                                PacketsSent++;
-                                            } else {
-                                                PacketsSkippedZero++;
-                                            }
-                                        } else if( !delta.IsZero() && !player.isFrozen ) {
-                                            player.world.SendToAll( PacketWriter.MakeTeleport( player.id, newPos ), player );
-                                            PacketsSent++;
-                                        } else if( delta.IsZero() ) {
-                                            PacketsSkippedZero++;
-                                        }
+                                    } else if( !delta.IsZero() && !player.isFrozen ) {
+                                        // full position update
+                                        packet = PacketWriter.MakeTeleport( player.id, newPos );
                                     }
-                                    player.pos = newPos;
-                                }
 
-                                fullPositionUpdateCounter++;
-                                if( fullPositionUpdateCounter >= fullPositionUpdateInterval ) fullPositionUpdateCounter = 0;
+                                    player.pos = newPos;
+
+                                    fullPositionUpdateCounter++;
+                                    if( fullPositionUpdateCounter >= fullPositionUpdateInterval ) fullPositionUpdateCounter = 0;
+
+                                    PacketsSent++;
+                                    player.world.SendFromHidden( packet, player );
+                                }
                                 break;
 
                             // Set tile

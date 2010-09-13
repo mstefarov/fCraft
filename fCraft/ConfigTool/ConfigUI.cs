@@ -252,6 +252,7 @@ namespace ConfigTool {
             cBanLimit.SelectedIndex = pc.GetMaxBanIndex();
             cPromoteLimit.SelectedIndex = pc.GetMaxPromoteIndex();
             cDemoteLimit.SelectedIndex = pc.GetMaxDemoteIndex();
+            cMaxHideFrom.SelectedIndex = pc.GetMaxHideFromIndex();
             xReserveSlot.Checked = pc.reservedSlot;
             xKickIdle.Checked = pc.idleKickTimer > 0;
             nKickIdle.Value = pc.idleKickTimer;
@@ -278,6 +279,7 @@ namespace ConfigTool {
             cBanLimit.Enabled = pc.Can( Permission.Ban );
             cPromoteLimit.Enabled = pc.Can( Permission.Promote );
             cDemoteLimit.Enabled = pc.Can( Permission.Demote );
+            cMaxHideFrom.Enabled = pc.Can( Permission.Hide );
 
             xDrawLimit.Enabled = pc.Can( Permission.Draw );
             nDrawLimit.Enabled &= pc.Can( Permission.Draw );
@@ -304,11 +306,13 @@ namespace ConfigTool {
             FillClassList( cBanLimit, "(own class)" );
             FillClassList( cPromoteLimit, "(own class)" );
             FillClassList( cDemoteLimit, "(own class)" );
+            FillClassList( cMaxHideFrom, "(own class)" );
             if( selectedClass != null ) {
                 cKickLimit.SelectedIndex = selectedClass.GetMaxKickIndex();
                 cBanLimit.SelectedIndex = selectedClass.GetMaxBanIndex();
                 cPromoteLimit.SelectedIndex = selectedClass.GetMaxPromoteIndex();
                 cDemoteLimit.SelectedIndex = selectedClass.GetMaxDemoteIndex();
+                cMaxHideFrom.SelectedIndex = selectedClass.GetMaxHideFromIndex();
             }
         }
 
@@ -323,6 +327,7 @@ namespace ConfigTool {
             FillClassList( cDemoteLimit, "(own class)" );
             FillClassList( cKickLimit, "(own class)" );
             FillClassList( cBanLimit, "(own class)" );
+            FillClassList( cMaxHideFrom, "(own class)" );
             cPromoteLimit.SelectedIndex = 0;
             cDemoteLimit.SelectedIndex = 0;
             cKickLimit.SelectedIndex = 0;
@@ -500,6 +505,13 @@ namespace ConfigTool {
             }
         }
 
+        private void cMaxHideFrom_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( selectedClass != null ) {
+                selectedClass.maxHideFrom = ClassList.ParseIndex( cMaxHideFrom.SelectedIndex - 1 );
+            }
+        }
+
+
 
         private void xSpamChatKick_CheckedChanged( object sender, EventArgs e ) {
             nSpamChatWarnings.Enabled = xSpamChatKick.Checked;
@@ -590,6 +602,8 @@ namespace ConfigTool {
                     cDemoteLimit.Enabled = check; break;
                 case Permission.Draw:
                     xDrawLimit.Enabled = check; break;
+                case Permission.Hide:
+                    cMaxHideFrom.Enabled = check; break;
             }
 
             selectedClass.permissions[(int)e.Item.Tag] = e.Item.Checked;
@@ -861,7 +875,6 @@ namespace ConfigTool {
                 this.Enabled = true;
             }
         }
-
 
     }
 }

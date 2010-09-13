@@ -366,6 +366,8 @@ namespace fCraft {
                             temp.Add( new XAttribute( "max", playerClass.maxPromote ) );
                         } else if( i == (int)Permission.Demote && playerClass.maxDemote != null ) {
                             temp.Add( new XAttribute( "max", playerClass.maxDemote ) );
+                        } else if( i == (int)Permission.Hide && playerClass.maxHideFrom != null ) {
+                            temp.Add( new XAttribute( "max", playerClass.maxHideFrom ) );
                         }
                         classTag.Add( temp );
                     }
@@ -962,30 +964,42 @@ namespace fCraft {
                 string permission = ((Permission)i).ToString();
                 if( (temp = el.Element( permission )) != null ) {
                     playerClass.permissions[i] = true;
-                    if( i == (int)Permission.Promote ) {
-                        if( (attr = temp.Attribute( "max" )) != null ) {
-                            playerClass.maxPromoteVal = attr.Value;
-                        } else {
-                            playerClass.maxPromoteVal = "";
-                        }
-                    } else if( i == (int)Permission.Demote ) {
-                        if( (attr = temp.Attribute( "max" )) != null ) {
-                            playerClass.maxDemoteVal = attr.Value;
-                        } else {
-                            playerClass.maxDemoteVal = "";
-                        }
-                    } else if( i == (int)Permission.Kick ) {
-                        if( (attr = temp.Attribute( "max" )) != null ) {
-                            playerClass.maxKickVal = attr.Value;
-                        } else {
-                            playerClass.maxKickVal = "";
-                        }
-                    } else if( i == (int)Permission.Ban ) {
-                        if( (attr = temp.Attribute( "max" )) != null ) {
-                            playerClass.maxBanVal = attr.Value;
-                        } else {
-                            playerClass.maxBanVal = "";
-                        }
+                    switch( i ) {
+                        case (int)Permission.Promote:
+                            if( (attr = temp.Attribute( "max" )) != null ) {
+                                playerClass.maxPromoteVal = attr.Value;
+                            } else {
+                                playerClass.maxPromoteVal = "";
+                            }
+                            break;
+                        case (int)Permission.Demote:
+                            if( (attr = temp.Attribute( "max" )) != null ) {
+                                playerClass.maxDemoteVal = attr.Value;
+                            } else {
+                                playerClass.maxDemoteVal = "";
+                            }
+                            break;
+                        case (int)Permission.Kick:
+                            if( (attr = temp.Attribute( "max" )) != null ) {
+                                playerClass.maxKickVal = attr.Value;
+                            } else {
+                                playerClass.maxKickVal = "";
+                            }
+                            break;
+                        case (int)Permission.Ban:
+                            if( (attr = temp.Attribute( "max" )) != null ) {
+                                playerClass.maxBanVal = attr.Value;
+                            } else {
+                                playerClass.maxBanVal = "";
+                            }
+                            break;
+                        case (int)Permission.Hide:
+                            if( (attr = temp.Attribute( "max" )) != null ) {
+                                playerClass.maxHideFromVal = attr.Value;
+                            } else {
+                                playerClass.maxHideFromVal = "";
+                            }
+                            break;
                     }
                 }
             }

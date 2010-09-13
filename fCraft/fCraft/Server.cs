@@ -575,6 +575,24 @@ namespace fCraft {
             }
         }
 
+        public static void SendFromHiddenToObservers( Packet packet, Player source ) {
+            Player[] playerListCopy = playerList;
+            for( int i = 0; i < playerListCopy.Length; i++ ) {
+                if( playerListCopy[i] != source && playerListCopy[i].CanSee( source ) ) {
+                    playerListCopy[i].Send( packet );
+                }
+            }
+        }
+
+        public static void SendFromHidden( Packet packet, Player source ) {
+            Player[] playerListCopy = playerList;
+            for( int i = 0; i < playerListCopy.Length; i++ ) {
+                if( playerListCopy[i] != source && !playerListCopy[i].CanSee( source ) ) {
+                    playerListCopy[i].Send( packet );
+                }
+            }
+        }
+
         // Broadcast to a specific class
         public static void SendToClass( Packet packet, PlayerClass playerClass ) {
             Player[] tempList = playerList;
@@ -957,12 +975,27 @@ namespace fCraft {
             }
         }
 
-        // Find player by name using autocompletion
+        // Find player by name using autocompletion (IGNORES HIDDEN PERMISSIONS)
         public static List<Player> FindPlayers( string name ) {
             Player[] tempList = playerList;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                    results.Add( tempList[i] );
+                }
+            }
+            return results;
+        }
+
+        // Find player by name using autocompletion
+        public static List<Player> FindPlayers( Player player, string name ) {
+            Player[] tempList = playerList;
+            List<Player> results = new List<Player>();
+            for( int i = 0; i < tempList.Length; i++ ) {
+                if( tempList[i] != null &&
+                    tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) &&
+                    player.CanSee(tempList[i]) ) {
+
                     results.Add( tempList[i] );
                 }
             }
@@ -988,7 +1021,7 @@ namespace fCraft {
             name = name.ToLower();
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i].name.ToLower() == name ) {
+                if( tempList[i] != null && tempList[i].lowercaseName == name ) {
                     return tempList[i];
                 }
             }
