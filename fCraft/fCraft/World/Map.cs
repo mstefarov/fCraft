@@ -272,6 +272,13 @@ namespace fCraft {
             blockNames["none"] = Block.Air;
             blockNames["nothing"] = Block.Air;
             blockNames["empty"] = Block.Air;
+            blockNames["delete"] = Block.Air;
+            blockNames["erase"] = Block.Air;
+
+            blockNames["cement"] = Block.Stone;
+            blockNames["concrete"] = Block.Stone;
+
+            blockNames["gras"] = Block.Grass; // common typo
 
             blockNames["soil"] = Block.Dirt;
             blockNames["stones"] = Block.Rocks;
@@ -350,6 +357,8 @@ namespace fCraft {
             blockNames["mossystones"] = Block.MossyRocks;
             blockNames["mossycobblestone"] = Block.MossyRocks;
             blockNames["mossy_cobblestone"] = Block.MossyRocks;
+
+            blockNames["onyx"] = Block.Obsidian;
         }
 
 
@@ -536,6 +545,15 @@ namespace fCraft {
             return found;
         }
 
+
+        public Zone FindZone( string name ) {
+            lock( zoneLock ) {
+                if( zones.ContainsKey( name.ToLower() ) ) {
+                    return zones[name.ToLower()];
+                }
+            }
+            return null;
+        }
 
         void UpdateZoneCache() {
             lock( zoneLock ) {

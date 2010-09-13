@@ -264,7 +264,7 @@ namespace ConfigTool {
                     nSeed.Value = GetRandomSeed();
                 }
 
-                SaveArgs();
+                SaveGeneratorArgs();
             }
 
             tStatus1.Text = "Generating...";
@@ -366,6 +366,7 @@ namespace ConfigTool {
             gTerrainFeatures.Visible = xAdvanced.Checked;
             gHeightmapCreation.Visible = xAdvanced.Checked;
             gTrees.Visible = xAdvanced.Checked;
+            gCaves.Visible = xCaves.Checked && xAdvanced.Checked;
         }
 
         private void nWidthX_ValueChanged( object sender, EventArgs e ) {
@@ -577,7 +578,7 @@ Dimensions: {4}×{5}×{6}
             if( browseTemplateDialog.ShowDialog() == DialogResult.OK && browseTemplateDialog.FileName != "" ) {
                 try {
                     generatorArgs = new MapGeneratorArgs( browseTemplateDialog.FileName );
-                    LoadArgs();
+                    LoadGeneratorArgs();
                     bGenerate.PerformClick();
                 } catch( Exception ex ) {
                     MessageBox.Show( "Could not open template file: " + ex );
@@ -585,7 +586,7 @@ Dimensions: {4}×{5}×{6}
             }
         }
 
-        void LoadArgs() {
+        void LoadGeneratorArgs() {
             nHeight.Value = generatorArgs.dimH;
             nWidthX.Value = generatorArgs.dimX;
             nWidthY.Value = generatorArgs.dimY;
@@ -603,12 +604,7 @@ Dimensions: {4}×{5}×{6}
             xTrees.Checked = generatorArgs.addTrees;
             sRoughness.Value = (int)(generatorArgs.roughness * 100);
             nSeed.Value = generatorArgs.seed;
-
-            cTheme.SelectedIndex = (int)generatorArgs.theme;
-            nTreeHeight.Value = (generatorArgs.treeHeightMax + generatorArgs.treeHeightMin) / 2;
-            nTreeHeightVariation.Value = (generatorArgs.treeHeightMax - generatorArgs.treeHeightMin) / 2;
-            nTreeSpacing.Value = (generatorArgs.treeSpacingMax + generatorArgs.treeSpacingMin) / 2;
-            nTreeSpacingVariation.Value = (generatorArgs.treeSpacingMax - generatorArgs.treeSpacingMin) / 2;
+            xWater.Checked = generatorArgs.addWater;
 
             if( generatorArgs.useBias ) sBias.Value = (int)(generatorArgs.bias * 100);
             else sBias.Value = 0;
@@ -618,10 +614,21 @@ Dimensions: {4}×{5}×{6}
             nRaisedCorners.Value = generatorArgs.raisedCorners;
             nLoweredCorners.Value = generatorArgs.loweredCorners;
 
-            xWater.Checked = generatorArgs.addWater;
+            cTheme.SelectedIndex = (int)generatorArgs.theme;
+            nTreeHeight.Value = (generatorArgs.treeHeightMax + generatorArgs.treeHeightMin) / 2;
+            nTreeHeightVariation.Value = (generatorArgs.treeHeightMax - generatorArgs.treeHeightMin) / 2;
+            nTreeSpacing.Value = (generatorArgs.treeSpacingMax + generatorArgs.treeSpacingMin) / 2;
+            nTreeSpacingVariation.Value = (generatorArgs.treeSpacingMax - generatorArgs.treeSpacingMin) / 2;
+
+            xCaves.Checked = generatorArgs.addCaves;
+            xCaveLava.Checked = generatorArgs.addCaveLava;
+            xCaveWater.Checked = generatorArgs.addCaveWater;
+            xOre.Checked = generatorArgs.addOre;
+            sCaveDensity.Value = (int)(generatorArgs.caveDensity * 100);
+            sCaveSize.Value = (int)(generatorArgs.caveSize * 100);
         }
 
-        void SaveArgs() {
+        void SaveGeneratorArgs() {
             generatorArgs = new MapGeneratorArgs {
                 detailScale = sDetailScale.Value,
                 featureScale = sFeatureScale.Value,
@@ -648,7 +655,13 @@ Dimensions: {4}×{5}×{6}
                 raisedCorners = (int)nRaisedCorners.Value,
                 loweredCorners = (int)nLoweredCorners.Value,
                 invertHeightmap = xInvert.Checked,
-                addWater = xWater.Checked
+                addWater = xWater.Checked,
+                addCaves = xCaves.Checked,
+                addOre = xOre.Checked,
+                addCaveLava = xCaveLava.Checked,
+                addCaveWater = xCaveWater.Checked,
+                caveDensity = sCaveDensity.Value / 100f,
+                caveSize = sCaveSize.Value / 100f
             };
         }
 
@@ -656,7 +669,7 @@ Dimensions: {4}×{5}×{6}
         private void bSaveTemplate_Click( object sender, EventArgs e ) {
             if( saveTemplateDialog.ShowDialog() == DialogResult.OK && saveTemplateDialog.FileName != "" ) {
                 try {
-                    SaveArgs();
+                    SaveGeneratorArgs();
                     generatorArgs.Save( saveTemplateDialog.FileName );
                 } catch( Exception ex ) {
                     MessageBox.Show( "Could not open template file: " + ex );
@@ -666,8 +679,20 @@ Dimensions: {4}×{5}×{6}
 
         private void cTemplates_SelectedIndexChanged( object sender, EventArgs e ) {
             generatorArgs = MapGenerator.MakeTemplate( (MapGenTemplate)cTemplates.SelectedIndex );
-            LoadArgs();
+            LoadGeneratorArgs();
             bGenerate.PerformClick();
+        }
+
+        private void xCaves_CheckedChanged( object sender, EventArgs e ) {
+            gCaves.Visible = xCaves.Checked && xAdvanced.Checked;
+        }
+
+        private void sCaveDensity_ValueChanged( object sender, EventArgs e ) {
+            lCaveDensityDisplay.Text = sCaveDensity.Value + "%";
+        }
+
+        private void sCaveSize_ValueChanged( object sender, EventArgs e ) {
+            lCaveSizeDisplay.Text = sCaveSize.Value + "%";
         }
     }
 }

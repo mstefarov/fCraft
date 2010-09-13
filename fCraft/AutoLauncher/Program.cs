@@ -9,6 +9,7 @@ namespace AutoLauncher {
         const int Tick = 600000;
         const int Delay = 5000;
 
+
         static void Main( string[] args ) {
             Console.Title = "fCraftConsole AutoLauncher";
             Process p = new Process();

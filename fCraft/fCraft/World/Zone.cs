@@ -6,6 +6,13 @@ using System.Text;
 
 
 namespace fCraft {
+
+    public enum ZonePlayerStatus {
+        Included,
+        Neutral,
+        Excluded
+    }
+
     public sealed class Zone {
         public BoundingBox bounds;
 
@@ -16,6 +23,31 @@ namespace fCraft {
 
         public PlayerClass build;
 
+        // returns the PREVIOUS state of the player
+        public ZonePlayerStatus Include( string playerName ) {
+            if( includedPlayers.Contains( playerName ) ) {
+                return ZonePlayerStatus.Included;
+            } else if( excludedPlayers.Contains( playerName ) ) {
+                excludedPlayers.Remove( playerName );
+                return ZonePlayerStatus.Excluded;
+            } else {
+                includedPlayers.Add( playerName );
+                return ZonePlayerStatus.Neutral;
+            }
+        }
+
+        // returns the PREVIOUS state of the player
+        public ZonePlayerStatus Exclude( string playerName ) {
+            if( excludedPlayers.Contains( playerName ) ) {
+                return ZonePlayerStatus.Excluded;
+            } else if( includedPlayers.Contains( playerName ) ) {
+                includedPlayers.Remove( playerName );
+                return ZonePlayerStatus.Included;
+            } else {
+                excludedPlayers.Add( playerName );
+                return ZonePlayerStatus.Neutral;
+            }
+        }
 
         public Zone( string raw ) {
             string[] parts = raw.Split( ',' );

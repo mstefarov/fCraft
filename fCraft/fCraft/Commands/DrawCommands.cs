@@ -64,7 +64,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdCopy );
             CommandList.RegisterCommand( cdPasteNot );
             CommandList.RegisterCommand( cdPaste );
-            CommandList.RegisterCommand( cdFlip );
+            CommandList.RegisterCommand( cdMirror );
             CommandList.RegisterCommand( cdRotate );
         }
 
@@ -850,18 +850,18 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdFlip = new CommandDescriptor {
-            name = "flip",
-            aliases = new string[] { "mirror" },
+        static CommandDescriptor cdMirror = new CommandDescriptor {
+            name = "mirror",
+            aliases = new string[] { "flip" },
             permissions = new Permission[] { Permission.CopyAndPaste },
             help = "Flips copied blocks along specified axis/axes. " +
-                   "The axes are: X = horizontal (east-west), Y = horizontal (north-south), H or Z = vertical. " +
+                   "The axes are: X = horizontal (east-west), Y = horizontal (north-south), Z = vertical. " +
                    "You can mirror more than one axis at a time, e.g. &H/copymirror X Y&S.",
             usage = "/mirror [X] [Y] [Z]",
-            handler = Flip
+            handler = Mirror
         };
 
-        internal static void Flip( Player player, Command cmd ) {
+        internal static void Mirror( Player player, Command cmd ) {
             if( player.copyInformation == null ) {
                 player.MessageNow( "Nothing to flip! Copy something first." );
                 return;
@@ -873,12 +873,12 @@ namespace fCraft {
                 foreach( char c in axis.ToLower() ) {
                     if( c == 'x' ) flipX = true;
                     if( c == 'y' ) flipY = true;
-                    if( c == 'z' || c == 'h' ) flipH = true;
+                    if( c == 'z' ) flipH = true;
                 }
             }
 
             if( !flipX && !flipY && !flipH ) {
-                cdFlip.PrintUsage( player );
+                cdMirror.PrintUsage( player );
                 return;
             }
 

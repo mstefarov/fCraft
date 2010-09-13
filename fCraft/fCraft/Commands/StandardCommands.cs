@@ -346,7 +346,7 @@ namespace fCraft {
                 // ban players who are not in the database yet
             } else if( Player.IsValidName( nameOrIP ) ) {
                 if( unban ) {
-                    player.Message( info.name + " (unrecognized) is not currenty banned." );
+                    player.Message( nameOrIP + " (unrecognized) is not banned." );
                 } else {
                     info = PlayerDB.AddFakeEntry( nameOrIP );
                     info.ProcessBan( player, reason );
@@ -421,9 +421,9 @@ namespace fCraft {
             aliases = new string[] { "k" },
             consoleSafe = true,
             permissions = new Permission[] { Permission.Kick },
-            usage = "/kick PlayerName [Message]",
+            usage = "/kick PlayerName [Reason]",
             help = "Kicks the specified player from the server. " +
-                   "Kicked player gets to see the specified message on their disconnect screen.",
+                   "Optional kick reason/message is shown to the kicked player and logged.",
             handler = Kick
         };
 
@@ -490,15 +490,16 @@ namespace fCraft {
 
             // Check arguments
             if( newClassName == null ) {
-                player.Message( "Usage: " + Color.Help + "/user PlayerName ClassName" );
-                player.Message( "To see a list of classes and permissions, use " + Color.Help + "/class" );
+                cdChangeClass.PrintUsage( player );
+                player.Message( "See &H/classes&S for list of player classes." );
                 return;
             }
 
             // Parse class name
             PlayerClass newClass = ClassList.FindClass( newClassName );
             if( newClass == null ) {
-                player.Message( "Unrecognized player class: " + newClassName );
+                player.Message( "Unrecognized player class: {0}",
+                                newClassName );
                 return;
             }
 
@@ -513,7 +514,8 @@ namespace fCraft {
 
             if( info == null ) {
                 info = PlayerDB.AddFakeEntry( name );
-                player.Message( "Note: \"" + name + "\" was not found in PlayerDB." );
+                player.Message( "Warning: player \"{0}\" is in the database (possible typo)",
+                                name );
             }
 
 
@@ -527,7 +529,9 @@ namespace fCraft {
 
             // Make sure it's not same rank
             if( targetInfo.playerClass == newClass ) {
-                player.Message( targetInfo.GetClassyName() + "&S is already " + newClass.GetClassyName() );
+                player.Message( "{0} is already ranked {1}",
+                                targetInfo.name,
+                                newClass.GetClassyName() );
                 return;
             }
 
@@ -542,12 +546,18 @@ namespace fCraft {
 
             // Make sure player has the specific permissions (including limits)
             if( promote && !player.info.playerClass.CanPromote( newClass ) ) {
-                player.Message( "You can only promote players up to " + player.info.playerClass.maxPromote.GetClassyName() );
-                player.Message( targetInfo.GetClassyName() + " is ranked " + targetInfo.playerClass.name + "." );
+                player.Message( "You can only promote players up to {0}",
+                                player.info.playerClass.maxPromote.GetClassyName() );
+                player.Message( "{0} is ranked {1}",
+                                targetInfo.name,
+                                targetInfo.playerClass.GetClassyName() );
                 return;
             } else if( !promote && !player.info.playerClass.CanDemote( targetInfo.playerClass ) ) {
-                player.Message( "You can only demote players that are " + player.info.playerClass.maxDemote.GetClassyName() + "&S or lower." );
-                player.Message( targetInfo.GetClassyName() + " is ranked " + targetInfo.playerClass.name + "." );
+                player.Message( "You can only demote players that are {0}&S or lower",
+                                player.info.playerClass.maxDemote.GetClassyName() );
+                player.Message( "{0} is ranked {1}",
+                                targetInfo.name,
+                                targetInfo.playerClass.GetClassyName() );
                 return;
             }
 
