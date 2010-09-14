@@ -212,10 +212,13 @@ namespace fCraft {
                 UpdatePlayerList();
 
                 // Reveal newcommer to existing players
-                Server.SendFromHiddenToObservers( PacketWriter.MakeAddEntity( player, player.pos ), player );
+                SendToSeeing( PacketWriter.MakeAddEntity( player, player.pos ), player );
+
                 if( announce && Config.GetBool( ConfigKey.ShowJoinedWorldMessages ) ) {
-                    Server.SendFromHiddenToObservers( PacketWriter.MakeMessage( String.Format( "&SPlayer {0}&S joined {1}",
-                                                     player.GetClassyName(), GetClassyName() ) ), player );
+                    string message = String.Format( "&SPlayer {0}&S joined {1}", player.GetClassyName(), GetClassyName() );
+                    foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
+                        Server.SendToSeeing( packet, player );
+                    }
                 }
             }
 
@@ -377,7 +380,7 @@ namespace fCraft {
             }
         }
 
-        public void SendFromHidden( Packet packet, Player source ) {
+        public void SendToSeeing( Packet packet, Player source ) {
             Player[] playerListCopy = playerList;
             for( int i = 0; i < playerListCopy.Length; i++ ) {
                 if( playerListCopy[i] != source && playerListCopy[i].CanSee( source ) ) {
@@ -386,7 +389,7 @@ namespace fCraft {
             }
         }
 
-        public void SendFromHiddenInverse( Packet packet, Player source ) {
+        public void SendToBlind( Packet packet, Player source ) {
             Player[] playerListCopy = playerList;
             for( int i = 0; i < playerListCopy.Length; i++ ) {
                 if( playerListCopy[i] != source && !playerListCopy[i].CanSee( source ) ) {

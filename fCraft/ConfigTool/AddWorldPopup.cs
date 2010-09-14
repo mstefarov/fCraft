@@ -29,6 +29,7 @@ namespace ConfigTool {
             set {
                 bOK.Invoke( (MethodInvoker)delegate() {
                     bOK.Enabled = (value != null);
+                    lCreateMap.Visible = !bOK.Enabled;
                 } );
                 _map = value;
             }
@@ -77,7 +78,22 @@ namespace ConfigTool {
             tStatus1.Text = "";
             tStatus2.Text = "";
 
-            if( _world == null ) {
+            world = _world;
+
+            savePreviewDialog.Filter = "PNG Image|*.png|TIFF Image|*.tif;*.tiff|Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg";
+            savePreviewDialog.Title = "Saving preview image...";
+
+            browseTemplateDialog.Filter = "MapGenerator Template|*.ftpl";
+            browseTemplateDialog.Title = "Opening a MapGenerator template...";
+
+            saveTemplateDialog.Filter = browseTemplateDialog.Filter;
+            saveTemplateDialog.Title = "Saving a MapGenerator template...";
+
+            Load += LoadMap;
+        }
+
+        void LoadMap( object sender, EventArgs args ) {
+            if( world == null ) {
                 Text = "Adding a New World";
                 world = new WorldListEntry();
                 int worldNameCounter = 1;
@@ -87,9 +103,10 @@ namespace ConfigTool {
                 cAccess.SelectedIndex = 0;
                 cBuild.SelectedIndex = 0;
                 cBackup.SelectedIndex = 5;
+                map = null;
             } else {
-                Text = "Editing World \"" + _world.Name + "\"";
-                world = new WorldListEntry( _world );
+                Text = "Editing World \"" + world.Name + "\"";
+                world = new WorldListEntry( world );
                 originalWorldName = world.Name;
                 tName.Text = world.Name;
                 cAccess.SelectedItem = world.AccessPermission;
@@ -100,7 +117,7 @@ namespace ConfigTool {
 
             // Fill in the "Copy existing world" combobox
             foreach( WorldListEntry otherWorld in ConfigUI.worlds ) {
-                if( otherWorld != _world ) {
+                if( otherWorld != world ) {
                     cWorld.Items.Add( otherWorld.name + " (" + otherWorld.Description + ")" );
                     copyOptionsList.Add( otherWorld );
                 }
@@ -126,15 +143,7 @@ namespace ConfigTool {
             // Set Generator comboboxes to defaults
             cTemplates.SelectedIndex = (int)MapGenTemplate.River;
 
-            savePreviewDialog.Filter = "PNG Image|*.png|TIFF Image|*.tif;*.tiff|Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg";
-            savePreviewDialog.Title = "Saving preview image...";
             savePreviewDialog.FileName = world.name;
-
-            browseTemplateDialog.Filter = "MapGenerator Template|*.ftpl";
-            browseTemplateDialog.Title = "Opening a MapGenerator template...";
-
-            saveTemplateDialog.Filter = browseTemplateDialog.Filter;
-            saveTemplateDialog.Title = "Saving a MapGenerator template...";
         }
 
 
@@ -322,7 +331,14 @@ namespace ConfigTool {
         }
 
         private void tName_Validating( object sender, CancelEventArgs e ) {
-            e.Cancel = !Player.IsValidName( tName.Text );
+            if( Player.IsValidName( tName.Text ) &&
+                (!ConfigUI.IsWorldNameTaken( tName.Text ) ||
+                (originalWorldName != null && tName.Text.ToLower() == originalWorldName.ToLower())) ) {
+                tName.ForeColor = SystemColors.ControlText;
+            } else {
+                tName.ForeColor = System.Drawing.Color.Red;
+                e.Cancel = true;
+            }
         }
 
         private void tName_Validated( object sender, EventArgs e ) {
