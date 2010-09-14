@@ -101,6 +101,13 @@ namespace ConfigTool {
             nPort.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.Port ) );
             nUploadBandwidth.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.UploadBandwidth ) );
 
+            if( Config.GetString( ConfigKey.IP ) == System.Net.IPAddress.Any.ToString() ) {
+                tIP.Enabled = false;
+            } else {
+                xIP.Checked = true;
+            }
+            tIP.Text = Config.GetString( ConfigKey.IP );
+
             xClassColors.Checked = Config.GetBool( ConfigKey.ClassColorsInChat );
             xChatPrefixes.Checked = Config.GetBool( ConfigKey.ClassPrefixesInChat );
             xListPrefixes.Checked = Config.GetBool( ConfigKey.ClassPrefixesInList );
@@ -274,6 +281,9 @@ namespace ConfigTool {
             }
             Config.SetValue( ConfigKey.IsPublic, cPublic.SelectedIndex == 0 );
             Config.SetValue( ConfigKey.Port, nPort.Value );
+
+            Config.SetValue( ConfigKey.IP, tIP.Text );
+
             Config.SetValue( ConfigKey.UploadBandwidth, nUploadBandwidth.Value );
             Config.SetValue( ConfigKey.ShowJoinedWorldMessages, xShowJoinedWorldMessages.Checked );
             Config.SetValue( ConfigKey.ClassColorsInWorldNames, xClassColorsInWorldNames.Checked );

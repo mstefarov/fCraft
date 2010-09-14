@@ -27,6 +27,7 @@ namespace fCraft {
         public static World mainWorld;
 
         static TcpListener listener;
+        public static IPAddress IP;
 
         public static int maxUploadSpeed,   // set by Config.ApplyConfig
                           packetsPerSecond, // set by Config.ApplyConfig
@@ -124,7 +125,7 @@ namespace fCraft {
                 } catch( Exception ex ) {
                     // if the port is unavailable, try next one
                     Logger.Log( "Could not start listening on port {0}, trying next port. ({1})", LogType.Error,
-                                   port, ex.Message );
+                                port, ex.Message );
                     port++;
                     attempts++;
                 }
@@ -133,13 +134,20 @@ namespace fCraft {
             // if the port still cannot be opened after [maxPortAttempts] attemps, die.
             if( !portFound ) {
                 Logger.Log( "Could not start listening after {0} tries. Giving up!", LogType.FatalError,
-                               MaxPortAttempts );
+                            MaxPortAttempts );
                 return false;
             }
 
+            IP = ((IPEndPoint)listener.LocalEndpoint).Address;
+
             serverStart = DateTime.Now;
-            Logger.Log( "Server.Run: now accepting connections at port {0}.", LogType.Debug,
-                        port );
+            if( IP.ToString() != IPAddress.Any.ToString() ) {
+                Logger.Log( "Server.Run: now accepting connections at {0}:{1}.", LogType.SystemActivity,
+                            IP, port );
+            } else {
+                Logger.Log( "Server.Run: now accepting connections at port {0}.", LogType.SystemActivity,
+                            port );
+            }
 
             // list loaded worlds
             string line = "All available worlds: ";
@@ -575,7 +583,7 @@ namespace fCraft {
             }
         }
 
-        public static void SendFromHiddenToObservers( Packet packet, Player source ) {
+        public static void SendToSeeing( Packet packet, Player source ) {
             Player[] playerListCopy = playerList;
             for( int i = 0; i < playerListCopy.Length; i++ ) {
                 if( playerListCopy[i] != source && playerListCopy[i].CanSee( source ) ) {
@@ -584,7 +592,7 @@ namespace fCraft {
             }
         }
 
-        public static void SendFromHidden( Packet packet, Player source ) {
+        public static void SendToBlind( Packet packet, Player source ) {
             Player[] playerListCopy = playerList;
             for( int i = 0; i < playerListCopy.Length; i++ ) {
                 if( playerListCopy[i] != source && !playerListCopy[i].CanSee( source ) ) {
@@ -706,13 +714,13 @@ namespace fCraft {
 #else
             try {
 #endif
-            ScheduledTask[] taskCache;
-            ScheduledTask task;
-            while( !shuttingDown ) {
-                taskCache = taskList;
-                for( int i = 0; i < taskCache.Length; i++ ) {
-                    task = taskCache[i];
-                    if( task.enabled && task.nextTime < DateTime.UtcNow ) {
+                ScheduledTask[] taskCache;
+                ScheduledTask task;
+                while( !shuttingDown ) {
+                    taskCache = taskList;
+                    for( int i = 0; i < taskCache.Length; i++ ) {
+                        task = taskCache[i];
+                        if( task.enabled && task.nextTime < DateTime.UtcNow ) {
 #if DEBUG
                         task.callback( task.param );
 #else
@@ -723,11 +731,11 @@ namespace fCraft {
                                 Logger.UploadCrashReport( "Exception was thrown by a scheduled task", "fCraft", ex );
                             }
 #endif
-                        task.nextTime += TimeSpan.FromMilliseconds( task.interval );
+                            task.nextTime += TimeSpan.FromMilliseconds( task.interval );
+                        }
                     }
+                    Thread.Sleep( 1 );
                 }
-                Thread.Sleep( 1 );
-            }
 #if DEBUG
 #else
             } catch( Exception ex ) {
@@ -916,7 +924,8 @@ namespace fCraft {
         // Add a newly-logged-in player to the list, and notify existing players.
         public static bool RegisterPlayer( Player player ) {
             lock( playerListLock ) {
-                if( players.Count >= Config.GetInt( ConfigKey.MaxPlayers ) && !player.info.playerClass.reservedSlot ) {
+                if( players.Count >= Config.GetInt( ConfigKey.MaxPlayers ) && !player.info.playerClass.reservedSlot ||
+                    players.Count == Config.MaxPlayersSupported ) {
                     return false;
                 }
                 for( int i = 0; i < 255; i++ ) {
@@ -994,7 +1003,7 @@ namespace fCraft {
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null &&
                     tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) &&
-                    player.CanSee(tempList[i]) ) {
+                    player.CanSee( tempList[i] ) ) {
 
                     results.Add( tempList[i] );
                 }

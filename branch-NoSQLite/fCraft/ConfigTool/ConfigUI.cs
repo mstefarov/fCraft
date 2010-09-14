@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.IO;
 using System.Net;
@@ -32,6 +33,9 @@ namespace ConfigTool {
             dgvWorlds.DataError += delegate( object sender, DataGridViewDataErrorEventArgs e ) {
                 MessageBox.Show( e.Exception.Message, "Data Error" );
             };
+
+            nMaxPlayers.Maximum = Config.MaxPlayersSupported;
+
             Load += LoadConfig;
             Config.logToString = true;
         }
@@ -446,7 +450,10 @@ namespace ConfigTool {
             if( tPrefix.Text.Length > 0 && !PlayerClass.IsValidPrefix( tPrefix.Text ) ) {
                 MessageBox.Show( "Invalid prefix character!\n" +
                     "Prefixes may only contain characters that are allowed in chat (except space).", "Warning" );
+                tPrefix.ForeColor = Color.Red;
                 e.Cancel = true;
+            } else {
+                tPrefix.ForeColor = SystemColors.ControlText;
             }
             defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
             selectedClass.prefix = tPrefix.Text;
@@ -616,15 +623,19 @@ namespace ConfigTool {
             if( name == selectedClass.name ) return;
             if( name.Length == 0 ) {
                 MessageBox.Show( "Class name cannot be blank." );
+                tClassName.ForeColor = Color.Red;
                 e.Cancel = true;
             } else if( !PlayerClass.IsValidClassName( name ) ) {
                 MessageBox.Show( "Class name can only contain letters, digits, and underscores." );
+                tClassName.ForeColor = Color.Red;
                 e.Cancel = true;
             } else if( !ClassList.CanChangeName( selectedClass, name ) ) {
                 MessageBox.Show( "There is already another class named \"" + name + "\".\n" +
                                 "Duplicate class names are now allowed." );
+                tClassName.ForeColor = Color.Red;
                 e.Cancel = true;
             } else {
+                tClassName.ForeColor = SystemColors.ControlText;
                 defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
                 ClassList.ChangeName( selectedClass, name );
                 classNameList.Add( selectedClass.ToComboBoxOption() );
@@ -633,14 +644,17 @@ namespace ConfigTool {
             }
         }
 
+
         private void nRank_Validating( object sender, CancelEventArgs e ) {
             byte rank = Convert.ToByte( nRank.Value );
             if( rank == selectedClass.rank ) return;
             if( !ClassList.CanChangeRank( selectedClass, rank ) ) {
                 MessageBox.Show( "There is already another class with the same rank (" + nRank.Value + ").\n" +
                 "Duplicate class ranks are now allowed." );
+                nRank.ForeColor = Color.Red;
                 e.Cancel = true;
             } else {
+                nRank.ForeColor = SystemColors.ControlText;
                 defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
                 ClassList.ChangeRank( selectedClass, rank );
                 RebuildClassList();
@@ -876,5 +890,21 @@ namespace ConfigTool {
             }
         }
 
+        private void tIP_Validating( object sender, CancelEventArgs e ) {
+            IPAddress IP;
+            if(IPAddress.TryParse( tIP.Text, out IP )){
+                tIP.ForeColor = SystemColors.ControlText;
+            }else{
+                tIP.ForeColor = Color.Red;
+                e.Cancel = true;
+            }
+        }
+
+        private void xIP_CheckedChanged( object sender, EventArgs e ) {
+            tIP.Enabled = xIP.Checked;
+            if( !xIP.Checked ) {
+                tIP.Text = IPAddress.Any.ToString();
+            }
+        }
     }
 }

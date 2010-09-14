@@ -9,11 +9,15 @@ using System.IO;
 
 namespace fCraft {
     public static class Heartbeat {
-
+        const int HeartbeatDelay = 30000;
         static Thread thread;
         static string staticData;
         const string URL = "http://www.minecraft.net/heartbeat.jsp";
 
+        public static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
+            IPAddress IP = IPAddress.Parse( Config.GetString( ConfigKey.IP ) );
+            return new IPEndPoint( IP, 0 );
+        }
 
         public static void Start() {
             thread = new Thread( HeartbeatHandler );
@@ -38,6 +42,7 @@ namespace fCraft {
             while( true ) {
                 try {
                     request = (HttpWebRequest)WebRequest.Create( URL );
+                    request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
                     request.Method = "POST";
                     request.Timeout = 15000; // 15s timeout
                     request.ContentType = "application/x-www-form-urlencoded";
@@ -65,7 +70,7 @@ namespace fCraft {
                     Logger.LogWarning( "Heartbeat: {0}", WarningLogSubtype.HeartbeatWarning, ex.Message );
                 }
 
-                Thread.Sleep( Config.HeartbeatDelay );
+                Thread.Sleep( HeartbeatDelay );
             }
         }
 

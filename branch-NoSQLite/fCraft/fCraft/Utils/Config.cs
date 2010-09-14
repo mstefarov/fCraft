@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 
 namespace fCraft {
 
@@ -33,15 +34,16 @@ namespace fCraft {
      * 
      * 107 - r214 - Added ShowJoinedWorldMessages and ClassColorsInWorldNames keys
      *              Removed ChangeName permission
+     *              
+     * 108 - r224 - Added IP config key
+     *              Capped MaxPlayers at 128
      */
 
     public static class Config {
         public static string ServerURL;
-        public const int HeartbeatDelay = 50000;
-
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 107;
-        public const int MaxPlayersSupported = 255;
+        public const int ConfigVersion = 109;
+        public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
         static Dictionary<ConfigKey, string> settings = new Dictionary<ConfigKey, string>();
@@ -84,6 +86,7 @@ namespace fCraft {
             SetValue( ConfigKey.DefaultClass, "" ); // empty = lowest rank
             SetValue( ConfigKey.IsPublic, false );
             SetValue( ConfigKey.Port, 25565 );
+            SetValue( ConfigKey.IP, IPAddress.Any );
             SetValue( ConfigKey.UploadBandwidth, 100 );
 
             SetValue( ConfigKey.ShowJoinedWorldMessages, true );
@@ -469,6 +472,14 @@ namespace fCraft {
                     return ValidateInt( key, value, 1, 65535 );
                 case ConfigKey.UploadBandwidth:
                     return ValidateInt( key, value, 1, 10000 );
+                case ConfigKey.IP:
+                    IPAddress tempIP;
+                    if( IPAddress.TryParse( value, out tempIP ) && tempIP.ToString() != IPAddress.Broadcast.ToString() ){
+                        settings[key] = value;
+                        return true;
+                    } else {
+                        return false;
+                    }
 
                 case ConfigKey.IRCBotNick:
                     return ValidateString( key, value, 1, 32 );

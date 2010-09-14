@@ -590,7 +590,40 @@ namespace fCraft {
                 Logger.Log( "{0} changed the class of {1} from {2} to {3}.", LogType.UserActivity,
                             player.name, targetInfo.name, targetInfo.playerClass.name, newClass.name );
 
-                targetInfo.ProcessClassChange( newClass, player, reason );
+                // if player is online, toggle visible/invisible players
+                if( target != null && target.world != null ) {
+
+                    HashSet<Player> invisiblePlayers = new HashSet<Player>();
+                    HashSet<Player> blindPlayers = new HashSet<Player>();
+
+                    Player[] plist = target.world.playerList;
+                    for( int i = 0; i < plist.Length; i++ ) {
+                        if( !target.CanSee( plist[i] ) ) {
+                            invisiblePlayers.Add( plist[i] );
+                        }
+                        if( !plist[i].CanSee( target ) ) {
+                            blindPlayers.Add( plist[i] );
+                        }
+                    }
+
+                    targetInfo.ProcessClassChange( newClass, player, reason );
+
+                    for( int i = 0; i < plist.Length; i++ ) {
+                        if( target.CanSee( plist[i] ) && invisiblePlayers.Contains( plist[i] ) ) {
+                            target.Send( PacketWriter.MakeAddEntity( plist[i], plist[i].pos ) );
+                        } else if( !target.CanSee( plist[i] ) && !invisiblePlayers.Contains( plist[i] ) ) {
+                            target.Send( PacketWriter.MakeRemoveEntity( plist[i].id ) );
+                        }
+                        if( plist[i].CanSee( target ) && blindPlayers.Contains( plist[i] )){
+                            plist[i].Send( PacketWriter.MakeAddEntity( target, target.pos ) );
+                        } else if( !plist[i].CanSee( target ) && !blindPlayers.Contains( plist[i] ) ) {
+                            plist[i].Send( PacketWriter.MakeRemoveEntity( target.id ) );
+                        }
+                    }
+
+                } else {
+                    targetInfo.ProcessClassChange( newClass, player, reason );
+                }
 
                 Server.FirePlayerListChangedEvent();
 
@@ -822,10 +855,20 @@ namespace fCraft {
 
         internal static void Hide( Player player, Command cmd ) {
             if( !player.isHidden ) {
-                player.world.SendFromHiddenInverse( PacketWriter.MakeRemoveEntity( player.id ), player );
-                Server.SendFromHidden( PacketWriter.MakeMessage( player.GetClassyName() + "&S left the server." ), player );
-                Server.SendFromHiddenToObservers( PacketWriter.MakeMessage( player.GetClassyName() + "&S is now hidden." ), player );
                 player.isHidden = true;
+
+                Server.SendToBlind( PacketWriter.MakeRemoveEntity( player.id ), player );
+
+                string message = String.Format( "{0}&S left the server.", player.GetClassyName() );
+                foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
+                    Server.SendToBlind( packet, player );
+                }
+
+                message = String.Format( "{0}&S is now hidden.", player.GetClassyName() );
+                foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
+                    Server.SendToSeeing( packet, player );
+                }
+
                 player.Message( Color.Gray + "You are now hidden." );
             } else {
                 player.Message( "You are already hidden." );
@@ -846,11 +889,17 @@ namespace fCraft {
         internal static void Unhide( Player player, Command cmd ) {
             if( player.Can( Permission.Hide ) ) {
                 if( player.isHidden ) {
-                    player.Message( Color.Gray + "You are no longer hidden." );
-                    player.world.SendFromHiddenInverse( PacketWriter.MakeAddEntity( player, player.pos ), player );
-                    Server.SendFromHiddenToObservers( PacketWriter.MakeMessage( player.GetClassyName() + "&S is no longer hidden." ), player );
-                    Server.ShowPlayerConnectedMessage( player, false, player.world );
                     player.isHidden = false;
+
+                    player.Message( Color.Gray + "You are no longer hidden." );
+                    player.world.SendToBlind( PacketWriter.MakeAddEntity( player, player.pos ), player );
+
+                    string message = String.Format( "{0}&S is no longer hidden.", player.GetClassyName() );
+                    foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
+                        Server.SendToSeeing( packet, player );
+                    }
+
+                    Server.ShowPlayerConnectedMessage( player, false, player.world );
                 } else {
                     player.Message( "You are not currently hidden." );
                 }

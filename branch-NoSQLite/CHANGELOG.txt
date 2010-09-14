@@ -1,3 +1,16 @@
+0.471
+ Feature: Added ability to specify the server's IP (to bind to) manually, for machines with multiple NICs. A new config key "IP" (default: 0.0.0.0/automatic) is added. This will also fix problems with heartbeats being sent from a different IP.
+ Fix: Fixed a bug with player ghosts being left behind when switching worlds.
+ Fix: Fixed a case with kicked players' connections not being terminated at once (thanks to wootalyzer).
+ Fix: Fixed several bugs in hide/unhide functionality.
+ Fix: Fixed a rare crash in AddWorldPopup related to missing maps for existing worlds.
+ Fix: AddWorldPopup will no longer allow adding a world with a duplicate name.
+ Fix: Capped maximum players at the newly-discovered protocol limit of 128 (thanks to wootalyzer).
+ Change: ConfigTool fields now provide better feedback if validation fails.
+ Change: Changed heartbeat interval to 40 seconds (down from 50).
+ Change: Added a special error handler for rare/impossible case of mainWorld not being joinable.
+ Change: Made fatal error messages in fCraftConsole print in red. Better color support coming soon.
+
 0.470
  Feature: Personal zones - per-zone whitelist and blacklist of individual players. The lists can now be defined with /zadd and edited with /zedit.
  Feature: Added cave/ore generator from Omen (BETA).

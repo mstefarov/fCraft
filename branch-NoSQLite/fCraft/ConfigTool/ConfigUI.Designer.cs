@@ -23,34 +23,33 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem( "System Activity" );
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem( "Warnings" );
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem( "Errors" );
-            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
-            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem( "User Activity" );
-            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem( "User Commands" );
-            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
-            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem( "Chat" );
-            System.Windows.Forms.ListViewItem listViewItem9 = new System.Windows.Forms.ListViewItem( "Private Chat" );
-            System.Windows.Forms.ListViewItem listViewItem10 = new System.Windows.Forms.ListViewItem( "Class Chat" );
-            System.Windows.Forms.ListViewItem listViewItem11 = new System.Windows.Forms.ListViewItem( "Console Input" );
-            System.Windows.Forms.ListViewItem listViewItem12 = new System.Windows.Forms.ListViewItem( "Console Output" );
-            System.Windows.Forms.ListViewItem listViewItem13 = new System.Windows.Forms.ListViewItem( "Debug Information" );
-            System.Windows.Forms.ListViewItem listViewItem14 = new System.Windows.Forms.ListViewItem( "System Activity" );
-            System.Windows.Forms.ListViewItem listViewItem15 = new System.Windows.Forms.ListViewItem( "Warnings" );
-            System.Windows.Forms.ListViewItem listViewItem16 = new System.Windows.Forms.ListViewItem( "Errors" );
-            System.Windows.Forms.ListViewItem listViewItem17 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
-            System.Windows.Forms.ListViewItem listViewItem18 = new System.Windows.Forms.ListViewItem( "User Activity" );
-            System.Windows.Forms.ListViewItem listViewItem19 = new System.Windows.Forms.ListViewItem( "User Commands" );
-            System.Windows.Forms.ListViewItem listViewItem20 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
-            System.Windows.Forms.ListViewItem listViewItem21 = new System.Windows.Forms.ListViewItem( "Chat" );
-            System.Windows.Forms.ListViewItem listViewItem22 = new System.Windows.Forms.ListViewItem( "Private Chat" );
-            System.Windows.Forms.ListViewItem listViewItem23 = new System.Windows.Forms.ListViewItem( "Class Chat" );
-            System.Windows.Forms.ListViewItem listViewItem24 = new System.Windows.Forms.ListViewItem( "Console Input" );
-            System.Windows.Forms.ListViewItem listViewItem25 = new System.Windows.Forms.ListViewItem( "Console Output" );
-            System.Windows.Forms.ListViewItem listViewItem26 = new System.Windows.Forms.ListViewItem( "Debug Information" );
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.ListViewItem listViewItem53 = new System.Windows.Forms.ListViewItem( "System Activity" );
+            System.Windows.Forms.ListViewItem listViewItem54 = new System.Windows.Forms.ListViewItem( "Warnings" );
+            System.Windows.Forms.ListViewItem listViewItem55 = new System.Windows.Forms.ListViewItem( "Errors" );
+            System.Windows.Forms.ListViewItem listViewItem56 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
+            System.Windows.Forms.ListViewItem listViewItem57 = new System.Windows.Forms.ListViewItem( "User Activity" );
+            System.Windows.Forms.ListViewItem listViewItem58 = new System.Windows.Forms.ListViewItem( "User Commands" );
+            System.Windows.Forms.ListViewItem listViewItem59 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
+            System.Windows.Forms.ListViewItem listViewItem60 = new System.Windows.Forms.ListViewItem( "Chat" );
+            System.Windows.Forms.ListViewItem listViewItem61 = new System.Windows.Forms.ListViewItem( "Private Chat" );
+            System.Windows.Forms.ListViewItem listViewItem62 = new System.Windows.Forms.ListViewItem( "Class Chat" );
+            System.Windows.Forms.ListViewItem listViewItem63 = new System.Windows.Forms.ListViewItem( "Console Input" );
+            System.Windows.Forms.ListViewItem listViewItem64 = new System.Windows.Forms.ListViewItem( "Console Output" );
+            System.Windows.Forms.ListViewItem listViewItem65 = new System.Windows.Forms.ListViewItem( "Debug Information" );
+            System.Windows.Forms.ListViewItem listViewItem66 = new System.Windows.Forms.ListViewItem( "System Activity" );
+            System.Windows.Forms.ListViewItem listViewItem67 = new System.Windows.Forms.ListViewItem( "Warnings" );
+            System.Windows.Forms.ListViewItem listViewItem68 = new System.Windows.Forms.ListViewItem( "Errors" );
+            System.Windows.Forms.ListViewItem listViewItem69 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
+            System.Windows.Forms.ListViewItem listViewItem70 = new System.Windows.Forms.ListViewItem( "User Activity" );
+            System.Windows.Forms.ListViewItem listViewItem71 = new System.Windows.Forms.ListViewItem( "User Commands" );
+            System.Windows.Forms.ListViewItem listViewItem72 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
+            System.Windows.Forms.ListViewItem listViewItem73 = new System.Windows.Forms.ListViewItem( "Chat" );
+            System.Windows.Forms.ListViewItem listViewItem74 = new System.Windows.Forms.ListViewItem( "Private Chat" );
+            System.Windows.Forms.ListViewItem listViewItem75 = new System.Windows.Forms.ListViewItem( "Class Chat" );
+            System.Windows.Forms.ListViewItem listViewItem76 = new System.Windows.Forms.ListViewItem( "Console Input" );
+            System.Windows.Forms.ListViewItem listViewItem77 = new System.Windows.Forms.ListViewItem( "Console Output" );
+            System.Windows.Forms.ListViewItem listViewItem78 = new System.Windows.Forms.ListViewItem( "Debug Information" );
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -77,6 +76,8 @@
             this.lHelpColor = new System.Windows.Forms.Label();
             this.lMessageColor = new System.Windows.Forms.Label();
             this.gBasic = new System.Windows.Forms.GroupBox();
+            this.tIP = new System.Windows.Forms.TextBox();
+            this.xIP = new System.Windows.Forms.CheckBox();
             this.bPortCheck = new System.Windows.Forms.Button();
             this.lPort = new System.Windows.Forms.Label();
             this.nPort = new System.Windows.Forms.NumericUpDown();
@@ -259,7 +260,6 @@
             this.bOK = new System.Windows.Forms.Button();
             this.bCancel = new System.Windows.Forms.Button();
             this.bResetTab = new System.Windows.Forms.Button();
-            this.tip = new System.Windows.Forms.ToolTip( this.components );
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.tabs.SuspendLayout();
@@ -603,6 +603,8 @@
             // 
             this.gBasic.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gBasic.Controls.Add( this.tIP );
+            this.gBasic.Controls.Add( this.xIP );
             this.gBasic.Controls.Add( this.bPortCheck );
             this.gBasic.Controls.Add( this.lPort );
             this.gBasic.Controls.Add( this.nPort );
@@ -626,6 +628,26 @@
             this.gBasic.TabIndex = 0;
             this.gBasic.TabStop = false;
             this.gBasic.Text = "Basic Settings";
+            // 
+            // tIP
+            // 
+            this.tIP.Location = new System.Drawing.Point( 440, 131 );
+            this.tIP.MaxLength = 15;
+            this.tIP.Name = "tIP";
+            this.tIP.Size = new System.Drawing.Size( 97, 21 );
+            this.tIP.TabIndex = 35;
+            this.tIP.Validating += new System.ComponentModel.CancelEventHandler( this.tIP_Validating );
+            // 
+            // xIP
+            // 
+            this.xIP.AutoSize = true;
+            this.xIP.Location = new System.Drawing.Point( 331, 133 );
+            this.xIP.Name = "xIP";
+            this.xIP.Size = new System.Drawing.Size( 103, 19 );
+            this.xIP.TabIndex = 34;
+            this.xIP.Text = "Designated IP";
+            this.xIP.UseVisualStyleBackColor = true;
+            this.xIP.CheckedChanged += new System.EventHandler( this.xIP_CheckedChanged );
             // 
             // bPortCheck
             // 
@@ -689,7 +711,7 @@
             // lUploadBandwidth
             // 
             this.lUploadBandwidth.AutoSize = true;
-            this.lUploadBandwidth.Location = new System.Drawing.Point( 7, 134 );
+            this.lUploadBandwidth.Location = new System.Drawing.Point( 7, 104 );
             this.lUploadBandwidth.Name = "lUploadBandwidth";
             this.lUploadBandwidth.Size = new System.Drawing.Size( 107, 15 );
             this.lUploadBandwidth.TabIndex = 8;
@@ -697,7 +719,7 @@
             // 
             // bMeasure
             // 
-            this.bMeasure.Location = new System.Drawing.Point( 231, 130 );
+            this.bMeasure.Location = new System.Drawing.Point( 231, 100 );
             this.bMeasure.Name = "bMeasure";
             this.bMeasure.Size = new System.Drawing.Size( 75, 23 );
             this.bMeasure.TabIndex = 5;
@@ -718,7 +740,7 @@
             // lUploadBandwidthUnits
             // 
             this.lUploadBandwidthUnits.AutoSize = true;
-            this.lUploadBandwidthUnits.Location = new System.Drawing.Point( 193, 134 );
+            this.lUploadBandwidthUnits.Location = new System.Drawing.Point( 193, 104 );
             this.lUploadBandwidthUnits.Name = "lUploadBandwidthUnits";
             this.lUploadBandwidthUnits.Size = new System.Drawing.Size( 32, 15 );
             this.lUploadBandwidthUnits.TabIndex = 10;
@@ -740,7 +762,7 @@
             0,
             0,
             0} );
-            this.nUploadBandwidth.Location = new System.Drawing.Point( 120, 132 );
+            this.nUploadBandwidth.Location = new System.Drawing.Point( 120, 102 );
             this.nUploadBandwidth.Maximum = new decimal( new int[] {
             10000,
             0,
@@ -782,11 +804,12 @@
             // cPublic
             // 
             this.cPublic.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cPublic.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.cPublic.FormattingEnabled = true;
             this.cPublic.Items.AddRange( new object[] {
             "Public",
             "Private"} );
-            this.cPublic.Location = new System.Drawing.Point( 120, 103 );
+            this.cPublic.Location = new System.Drawing.Point( 120, 131 );
             this.cPublic.Name = "cPublic";
             this.cPublic.Size = new System.Drawing.Size( 67, 23 );
             this.cPublic.TabIndex = 3;
@@ -816,9 +839,10 @@
             // lPublic
             // 
             this.lPublic.AutoSize = true;
-            this.lPublic.Location = new System.Drawing.Point( 64, 106 );
+            this.lPublic.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.lPublic.Location = new System.Drawing.Point( 54, 134 );
             this.lPublic.Name = "lPublic";
-            this.lPublic.Size = new System.Drawing.Size( 50, 15 );
+            this.lPublic.Size = new System.Drawing.Size( 60, 15 );
             this.lPublic.TabIndex = 6;
             this.lPublic.Text = "Visibility";
             // 
@@ -919,8 +943,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle3;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 634, 348 );
             this.dgvWorlds.TabIndex = 0;
@@ -2020,33 +2044,33 @@
             this.columnHeader2} );
             this.vLogFileOptions.GridLines = true;
             this.vLogFileOptions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            listViewItem1.StateImageIndex = 0;
-            listViewItem2.StateImageIndex = 0;
-            listViewItem3.StateImageIndex = 0;
-            listViewItem4.StateImageIndex = 0;
-            listViewItem5.StateImageIndex = 0;
-            listViewItem6.StateImageIndex = 0;
-            listViewItem7.StateImageIndex = 0;
-            listViewItem8.StateImageIndex = 0;
-            listViewItem9.StateImageIndex = 0;
-            listViewItem10.StateImageIndex = 0;
-            listViewItem11.StateImageIndex = 0;
-            listViewItem12.StateImageIndex = 0;
-            listViewItem13.StateImageIndex = 0;
+            listViewItem53.StateImageIndex = 0;
+            listViewItem54.StateImageIndex = 0;
+            listViewItem55.StateImageIndex = 0;
+            listViewItem56.StateImageIndex = 0;
+            listViewItem57.StateImageIndex = 0;
+            listViewItem58.StateImageIndex = 0;
+            listViewItem59.StateImageIndex = 0;
+            listViewItem60.StateImageIndex = 0;
+            listViewItem61.StateImageIndex = 0;
+            listViewItem62.StateImageIndex = 0;
+            listViewItem63.StateImageIndex = 0;
+            listViewItem64.StateImageIndex = 0;
+            listViewItem65.StateImageIndex = 0;
             this.vLogFileOptions.Items.AddRange( new System.Windows.Forms.ListViewItem[] {
-            listViewItem1,
-            listViewItem2,
-            listViewItem3,
-            listViewItem4,
-            listViewItem5,
-            listViewItem6,
-            listViewItem7,
-            listViewItem8,
-            listViewItem9,
-            listViewItem10,
-            listViewItem11,
-            listViewItem12,
-            listViewItem13} );
+            listViewItem53,
+            listViewItem54,
+            listViewItem55,
+            listViewItem56,
+            listViewItem57,
+            listViewItem58,
+            listViewItem59,
+            listViewItem60,
+            listViewItem61,
+            listViewItem62,
+            listViewItem63,
+            listViewItem64,
+            listViewItem65} );
             this.vLogFileOptions.Location = new System.Drawing.Point( 100, 20 );
             this.vLogFileOptions.Name = "vLogFileOptions";
             this.vLogFileOptions.Size = new System.Drawing.Size( 161, 251 );
@@ -2130,33 +2154,33 @@
             this.columnHeader3} );
             this.vConsoleOptions.GridLines = true;
             this.vConsoleOptions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            listViewItem14.StateImageIndex = 0;
-            listViewItem15.StateImageIndex = 0;
-            listViewItem16.StateImageIndex = 0;
-            listViewItem17.StateImageIndex = 0;
-            listViewItem18.StateImageIndex = 0;
-            listViewItem19.StateImageIndex = 0;
-            listViewItem20.StateImageIndex = 0;
-            listViewItem21.StateImageIndex = 0;
-            listViewItem22.StateImageIndex = 0;
-            listViewItem23.StateImageIndex = 0;
-            listViewItem24.StateImageIndex = 0;
-            listViewItem25.StateImageIndex = 0;
-            listViewItem26.StateImageIndex = 0;
+            listViewItem66.StateImageIndex = 0;
+            listViewItem67.StateImageIndex = 0;
+            listViewItem68.StateImageIndex = 0;
+            listViewItem69.StateImageIndex = 0;
+            listViewItem70.StateImageIndex = 0;
+            listViewItem71.StateImageIndex = 0;
+            listViewItem72.StateImageIndex = 0;
+            listViewItem73.StateImageIndex = 0;
+            listViewItem74.StateImageIndex = 0;
+            listViewItem75.StateImageIndex = 0;
+            listViewItem76.StateImageIndex = 0;
+            listViewItem77.StateImageIndex = 0;
+            listViewItem78.StateImageIndex = 0;
             this.vConsoleOptions.Items.AddRange( new System.Windows.Forms.ListViewItem[] {
-            listViewItem14,
-            listViewItem15,
-            listViewItem16,
-            listViewItem17,
-            listViewItem18,
-            listViewItem19,
-            listViewItem20,
-            listViewItem21,
-            listViewItem22,
-            listViewItem23,
-            listViewItem24,
-            listViewItem25,
-            listViewItem26} );
+            listViewItem66,
+            listViewItem67,
+            listViewItem68,
+            listViewItem69,
+            listViewItem70,
+            listViewItem71,
+            listViewItem72,
+            listViewItem73,
+            listViewItem74,
+            listViewItem75,
+            listViewItem76,
+            listViewItem77,
+            listViewItem78} );
             this.vConsoleOptions.Location = new System.Drawing.Point( 88, 20 );
             this.vConsoleOptions.Name = "vConsoleOptions";
             this.vConsoleOptions.Size = new System.Drawing.Size( 161, 251 );
@@ -2763,12 +2787,6 @@
             this.bResetTab.UseVisualStyleBackColor = true;
             this.bResetTab.Click += new System.EventHandler( this.bResetTab_Click );
             // 
-            // tip
-            // 
-            this.tip.AutoPopDelay = 10000;
-            this.tip.InitialDelay = 500;
-            this.tip.ReshowDelay = 100;
-            // 
             // bResetAll
             // 
             this.bResetAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -2907,7 +2925,6 @@
         private System.Windows.Forms.NumericUpDown nTickInterval;
         private System.Windows.Forms.Label lTickInterval;
         private System.Windows.Forms.Label lAdvancedWarning;
-        private System.Windows.Forms.ToolTip tip;
         private System.Windows.Forms.ListBox vClasses;
         private System.Windows.Forms.Label lClasses;
         private System.Windows.Forms.Button bAddClass;
@@ -3092,5 +3109,7 @@
         private System.Windows.Forms.CheckBox xShowJoinedWorldMessages;
         private System.Windows.Forms.ComboBox cMaxHideFrom;
         private System.Windows.Forms.Label lMaxSeeHidden;
+        private System.Windows.Forms.CheckBox xIP;
+        private System.Windows.Forms.TextBox tIP;
     }
 }

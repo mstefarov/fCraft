@@ -63,11 +63,13 @@ namespace fCraftConsole {
                         }
                         Server.Shutdown();
                     } else {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine( "** Failed to start the server **" );
                         Server.Shutdown();
                         Console.ReadLine();
                     }
                 } else {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine( "** Failed to initialize the server **" );
                     Server.Shutdown();
                     Console.ReadLine();
@@ -75,6 +77,8 @@ namespace fCraftConsole {
 #if DEBUG
 #else
             } catch( Exception ex ) {
+                Console.Title = "fCraft " + Updater.GetVersionString() + " CRASHED";
+                Console.ForegroundColor = ConsoleColor.Red;
                 Logger.Log( "Unhandled exception in fCraftConsole input loop: " + ex, LogType.FatalError );
 
                 Console.WriteLine( "fCraft crashed! Crash message saved to crash.log." );
@@ -83,6 +87,7 @@ namespace fCraftConsole {
 
                 Server.CheckForCommonErrors( ex );
             }
+            Console.ReadLine();
 #endif
         }
 
@@ -93,6 +98,8 @@ namespace fCraftConsole {
         static void SetURL( string URL ) {
             File.WriteAllText( "externalurl.txt", URL, ASCIIEncoding.ASCII );
             Console.WriteLine( "** " + URL + " **" );
+        }
+        static void Test() {
         }
     }
 }

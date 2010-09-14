@@ -81,12 +81,11 @@ namespace fCraft {
             int packetsSent = 0;
 
             try {
-                LoginSequence();
-                if( player == null ) return;
+                if( !LoginSequence() ) return;
 
                 canSend = true;
 
-                while( !canDispose ) {
+                while( canSend ) {
                     Thread.Sleep( 1 );
 
                     lock( joinWorldLock ) {
@@ -194,7 +193,7 @@ namespace fCraft {
                                 if( player.isFrozen ) {
 
                                     if( rotChanged ) {
-                                        player.world.SendFromHidden( PacketWriter.MakeRotate( player.id, newPos ), player );
+                                        player.world.SendToSeeing( PacketWriter.MakeRotate( player.id, newPos ), player );
                                         PacketsSent++;
                                         player.pos.r = newPos.r;
                                         player.pos.l = newPos.l;
@@ -250,7 +249,7 @@ namespace fCraft {
                                             PacketsSkippedZero++;
                                             continue;
                                         }
-                                    } else if( !delta.IsZero() && !player.isFrozen ) {
+                                    } else if( !delta.IsZero() ) {
                                         // full position update
                                         packet = PacketWriter.MakeTeleport( player.id, newPos );
                                     }
@@ -261,7 +260,7 @@ namespace fCraft {
                                     if( fullPositionUpdateCounter >= fullPositionUpdateInterval ) fullPositionUpdateCounter = 0;
 
                                     PacketsSent++;
-                                    player.world.SendFromHidden( packet, player );
+                                    player.world.SendToSeeing( packet, player );
                                 }
                                 break;
 
@@ -313,19 +312,19 @@ namespace fCraft {
         }
 
 
-        void LoginSequence() {
+        bool LoginSequence() {
             byte opcode = reader.ReadByte();
             if( opcode != (byte)InputCode.Handshake ) {
                 if( opcode == 2 ) {
                     Logger.Log( "Session.LoginSequence: Someone tried connecting with SMP/Alpha client from {0}", LogType.Warning,
                                 GetIP() );
                     KickNow( "This server is for Minecraft Classic only." );
-                    return;
+                    return false;
                 } else {
                     Logger.Log( "Session.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.", LogType.Error,
                                 GetIP(), opcode );
                     KickNow( "Unexpected handshake message - possible protocol mismatch!" );
-                    return;
+                    return false;
                 }
             }
 
@@ -335,7 +334,7 @@ namespace fCraft {
                 Logger.Log( "Session.LoginSequence: Wrong protocol version: {0}.", LogType.Error,
                             clientProtocolVersion );
                 KickNow( "Incompatible protocol version!" );
-                return;
+                return false;
             }
 
             // check name for nonstandard characters
@@ -348,7 +347,7 @@ namespace fCraft {
                             playerName,
                             GetIP() );
                 KickNow( "Invalid characters in player name!" );
-                return;
+                return false;
             }
 
             // check if player is banned
@@ -359,7 +358,7 @@ namespace fCraft {
                             player.name );
                 Server.SendToAll( "&SBanned player " + player.GetClassyName() + "&S tried to log in." );
                 KickNow( "You were banned by " + player.info.bannedBy + " " + DateTime.Now.Subtract( player.info.banDate ).Days + " days ago." );
-                return;
+                return false;
             }
 
             // check if player's IP is banned
@@ -371,7 +370,7 @@ namespace fCraft {
                             player.name );
                 Server.SendToAll( player.GetClassyName() + "&S tried to log in from a banned IP." );
                 KickNow( "Your IP was banned by " + IPBanInfo.bannedBy + " " + DateTime.Now.Subtract( IPBanInfo.banDate ).Days + " days ago." );
-                return;
+                return false;
             }
 
             // check if other banned players logged in from this IP
@@ -406,7 +405,7 @@ namespace fCraft {
                             Logger.Log( "{0} IP did not match. Player was kicked.", LogType.SuspiciousActivity,
                                         standardMessage );
                             KickNow( "Could not verify player name!" );
-                            return;
+                            return false;
                         case "Never":
                             Logger.Log( "{0} IP did not match. Player was allowed in anyway because VerifyNames is set to Never.", LogType.SuspiciousActivity,
                                         standardMessage );
@@ -421,7 +420,7 @@ namespace fCraft {
                             Logger.Log( "{0} IP matched previous records for that name. Player was kicked anyway because VerifyNames is set to Always.", LogType.SuspiciousActivity,
                                                 standardMessage );
                             KickNow( "Could not verify player name!" );
-                            return;
+                            return false;
                         case "Balanced":
                         case "Never":
                             Logger.Log( "{0} IP matched previous records for that name. Player was allowed in.", LogType.SuspiciousActivity,
@@ -439,7 +438,7 @@ namespace fCraft {
                             player.name );
                 potentialClone.Message( "Warning: someone just attempted to log in using your name." );
                 KickNow( "Already connected from elsewhere!" );
-                return;
+                return false;
             }
 
             if( Config.GetBool( ConfigKey.LimitOneConnectionPerIP ) ) {
@@ -452,14 +451,14 @@ namespace fCraft {
                         clone.Message( "Warning: someone just attempted to log in using your IP." );
                     }
                     KickNow( "Only one connection per IP allowed!" );
-                    return;
+                    return false;
                 }
             }
 
             // Register player for future block updates
             if( !Server.RegisterPlayer( player ) ) {
                 KickNow( "Sorry, server is full (" + Server.playerList.Length + "/" + Config.GetInt( ConfigKey.MaxPlayers ) + ")" );
-                return;
+                return false;
             }
             hasRegistered = true;
 
@@ -472,7 +471,11 @@ namespace fCraft {
 
             bool firstTime = (player.info.timesVisited == 1);
             Server.ShowPlayerConnectedMessage( player, firstTime, Server.mainWorld );
-            JoinWorldNow( Server.mainWorld, true );
+            if( !JoinWorldNow( Server.mainWorld, true ) ) {
+                Logger.Log( "Failed to load main world ({0}) for connecting player {1} (from {2})", LogType.Error,
+                            Server.mainWorld.name, player.name, GetIP() );
+                return false;
+            }
 
             // Welcome message
             if( firstTime ) {
@@ -483,6 +486,7 @@ namespace fCraft {
 
             player.Message( String.Format( "Your player class is {0}&S. Type &H/help&S for help.",
                                            player.info.playerClass.GetClassyName() ) );
+            return true;
         }
 
 

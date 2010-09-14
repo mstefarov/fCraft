@@ -9,6 +9,7 @@ namespace fCraft {
         DefaultClass,
         IsPublic,
         Port,
+        IP,
         UploadBandwidth,
 
         ClassColorsInChat,
