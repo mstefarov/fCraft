@@ -325,22 +325,30 @@ namespace fCraft {
             }
 
             player.Message( "About zone \"{0}\": size {1} x {2} x {3}, contains {4} blocks, editable by {5}+.",
-                            zone.name, zone.bounds.GetWidthX(), zone.bounds.GetWidthY(), zone.bounds.GetHeight(),
+                            zone.name,
+                            zone.bounds.GetWidthX(), zone.bounds.GetWidthY(), zone.bounds.GetHeight(),
                             zone.bounds.GetVolume(),
                             zone.playerClass.GetClassyName() );
 
+            player.Message( "  Zone centre is at ({0},{1},{2}).",
+                            (zone.bounds.xMin + zone.bounds.xMax) / 2,
+                            (zone.bounds.yMin + zone.bounds.yMax) / 2,
+                            (zone.bounds.hMin + zone.bounds.hMax) / 2 );
+
             if( zone.createdBy != null ) {
-                player.Message( "  Zone created by {0}&S on {1} ({2} ago).",
+                player.Message( "  Zone created by {0}&S on {1:MMM d} at {1:h:mm} ({2}d {3}h ago).",
                                 zone.createdBy.GetClassyName(),
                                 zone.createdDate,
-                                DateTime.Now.Subtract( zone.createdDate ) );
+                                DateTime.Now.Subtract( zone.createdDate ).Days,
+                                DateTime.Now.Subtract( zone.createdDate ).Hours );
             }
 
             if( zone.editedBy != null ) {
-                player.Message( "  Zone last edited by {0}&S on {1} ({2} ago).",
+                player.Message( "  Zone last edited by {0}&S on {1:MMM d} at {1:h:mm} ({2}d {3}h ago).",
                 zone.editedBy.GetClassyName(),
                 zone.editedDate,
-                DateTime.Now.Subtract( zone.editedDate ) );
+                DateTime.Now.Subtract( zone.editedDate ).Days,
+                DateTime.Now.Subtract( zone.editedDate ).Hours );
             }
 
             Zone.ZonePlayerList playerList = zone.GetPlayerList();

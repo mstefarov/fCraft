@@ -1,8 +1,12 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-09-15
+473
+ Feature: Added zone coordinates to /zinfo
+ Fix: Fixed cross-world /tp teleporting the wrong player.
+ Fix: Fixed odd date formatting in /zinfo
 472
  Feature: Added /cut command
- Feature: Added a new /patrol command. It allows cycling through low-ranked players on a map (with teleportation). The order is determined by how long it's been since someone checked on a player.
+ Feature: Added a new /patrol command. It allows cycling through low-ranked players on a map (with teleportation). The order is determined by how long it's been since someone checked on a player. A "Patrol" permission and "PatrolledClass" config key were added.
  Feature: Added a shorthand notation to /zone for making personal zones: "/zone +PlayerName" creates a zone named after the player, with rank limit just above player's, and with player whitelisted.
  Feature: Zone whitelist/blacklist now support player name autocompletion, and show rank colors.
  Fix: Fixed server always binding to IPAddress.Any regardless of config settings.
@@ -11,7 +15,7 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fix: Fixed client-crash in /zedit when changing class.
  Fix: Fixed possible corruption of edited zones upon map saving.
  Fix: Fixed a range of improbable synchronization issues in the way Zone whitelist/blacklist is updated. As a fortunate side-effect, significantly reduced Zone.CanBuild() overhead.
- Fix: Temporarily added mainThread.Abort() to Server.Shutdown() that's kicked in if mainThread does not stop within 5s of being notified of shutdown. I am investigating the real cause of the hang. A "Patrol" permission and "PatrolledClass" config key were added.
+ Fix: Temporarily added mainThread.Abort() to Server.Shutdown() that's kicked in if mainThread does not stop within 5s of being notified of shutdown. I am investigating the real cause of the hang.
  Fix: Fixed hidden players being revealed by promotion/demotion.
  Change: Added less threatening error messages to IRC bot on network errors (SocketException and IOException).
  Change: Disabled movement handling code while changing maps.

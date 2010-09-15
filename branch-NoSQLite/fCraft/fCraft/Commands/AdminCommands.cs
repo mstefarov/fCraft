@@ -970,7 +970,7 @@ namespace fCraft {
                         player.Send( PacketWriter.MakeTeleport( 255, pos ) );
 
                     } else if( player.CanJoin( target.world ) ) {
-                        target.session.JoinWorld( target.world, target.pos );
+                        player.session.JoinWorld( target.world, target.pos );
 
                     } else {
                         player.Message( "Cannot teleport to {0}&S because this world requires {0}+&S to join.",
@@ -1031,14 +1031,15 @@ namespace fCraft {
                 Player target = matches[0];
 
                 if( target.world == player.world ) {
-
                     Position pos = player.pos;
                     pos.x += 1;
                     pos.y += 1;
                     pos.h += 1;
                     target.Send( PacketWriter.MakeTeleport( 255, pos ) );
+
                 } else if( target.CanJoin( player.world ) ) {
                     target.session.JoinWorld( player.world, player.pos );
+
                 } else {
                     player.Message( "Cannot bring {0}&S because this world requires {0}+&S to join.",
                                     target.GetClassyName(),
