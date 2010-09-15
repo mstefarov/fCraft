@@ -24,6 +24,8 @@ namespace fCraft {
         public bool reservedSlot;
         public int index;
 
+        public PlayerClass nextClassUp, nextClassDown;
+
         // these need to be parsed after all classes are added
         internal string maxPromoteVal = "",
                         maxDemoteVal = "",

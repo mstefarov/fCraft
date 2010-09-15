@@ -323,5 +323,16 @@ namespace fCraft {
             }
             return displayedName;
         }
+
+
+        public static string PlayerArrayToString( PlayerInfo[] list ) {
+            bool first = true;
+            StringBuilder sb = new StringBuilder();
+            for( int i = 0; i < list.Length; i++ ) {
+                if( !first ) sb.Append( ", " );
+                sb.Append( list[i].GetClassyName() );
+            }
+            return sb.ToString();
+        }
     }
 }

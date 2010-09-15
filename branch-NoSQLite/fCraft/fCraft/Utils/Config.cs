@@ -265,7 +265,7 @@ namespace fCraft {
 
                 // parse rank-limit permissions
                 foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                    if( !ClassList.ParseClassLimits( pc ) ) {
+                    if( !ClassList.ParseClassRelations( pc ) ) {
                         Log( "Could not parse one of the rank-limits for kick, ban, promote, and/or demote permissions for {0}. " +
                              "Any unrecognized limits were reset to default (own class).", LogType.Warning, pc.name );
                     }
@@ -654,7 +654,7 @@ namespace fCraft {
             }
             // parse rank-limit permissions
             foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                ClassList.ParseClassLimits( pc );
+                ClassList.ParseClassRelations( pc );
             }
         }
 

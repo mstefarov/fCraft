@@ -118,7 +118,7 @@ namespace fCraft {
 
             do {
                 try {
-                    listener = new TcpListener( IPAddress.Any, port );
+                    listener = new TcpListener( IPAddress.Parse( Config.GetString( ConfigKey.IP ) ), port );
                     listener.Start();
                     portFound = true;
 
@@ -989,8 +989,14 @@ namespace fCraft {
             Player[] tempList = playerList;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
-                    results.Add( tempList[i] );
+                if( tempList[i] != null ) {
+                    if( tempList[i].name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
+                        results.Clear();
+                        results.Add( tempList[i] );
+                        break;
+                    } else if( tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                        results.Add( tempList[i] );
+                    }
                 }
             }
             return results;
@@ -1001,11 +1007,14 @@ namespace fCraft {
             Player[] tempList = playerList;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null &&
-                    tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) &&
-                    player.CanSee( tempList[i] ) ) {
-
-                    results.Add( tempList[i] );
+                if( tempList[i] != null && player.CanSee( tempList[i] ) ) {
+                    if( tempList[i].name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
+                        results.Clear();
+                        results.Add( tempList[i] );
+                        break;
+                    } else if( tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                        results.Add( tempList[i] );
+                    }
                 }
             }
             return results;

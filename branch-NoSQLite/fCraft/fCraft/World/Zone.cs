@@ -13,13 +13,39 @@ namespace fCraft {
         Excluded
     }
 
+
+
     public sealed class Zone {
+
+        public class ZonePlayerList {
+            // keeping both lists on one object allows lock-free synchronization
+            public PlayerInfo[] included;
+            public PlayerInfo[] excluded;
+        }
+
         public BoundingBox bounds;
 
         public string name;
 
-        public HashSet<string> includedPlayers = new HashSet<string>();
-        public HashSet<string> excludedPlayers = new HashSet<string>();
+        SortedDictionary<string, PlayerInfo> includedPlayers = new SortedDictionary<string, PlayerInfo>();
+        SortedDictionary<string, PlayerInfo> excludedPlayers = new SortedDictionary<string, PlayerInfo>();
+
+        ZonePlayerList playerList;
+
+        public ZonePlayerList GetPlayerList() {
+            return playerList;
+        }
+
+        void UpdatePlayerLists() {
+            lock( locker ) {
+                ZonePlayerList newLists = new ZonePlayerList();
+                newLists.included = includedPlayers.Values.ToArray();
+                newLists.excluded = excludedPlayers.Values.ToArray();
+                playerList = newLists;
+            }
+        }
+
+        object locker = new object();
 
         public PlayerClass playerClass;
 
@@ -27,28 +53,35 @@ namespace fCraft {
         public PlayerInfo createdBy, editedBy;
 
         // returns the PREVIOUS state of the player
-        public ZonePlayerStatus Include( string playerName ) {
-            if( includedPlayers.Contains( playerName.ToLower() ) ) {
-                return ZonePlayerStatus.Included;
-            } else if( excludedPlayers.Contains( playerName.ToLower() ) ) {
-                excludedPlayers.Remove( playerName );
-                return ZonePlayerStatus.Excluded;
-            } else {
-                includedPlayers.Add( playerName );
-                return ZonePlayerStatus.Neutral;
+        public ZonePlayerStatus Include( PlayerInfo info ) {
+            lock( locker ) {
+                if( includedPlayers.ContainsValue( info ) ) {
+                    return ZonePlayerStatus.Included;
+                } else if( excludedPlayers.ContainsValue( info ) ) {
+                    excludedPlayers.Remove( info.name.ToLower() );
+                    return ZonePlayerStatus.Excluded;
+                } else {
+                    includedPlayers.Add( info.name.ToLower(), info );
+                    return ZonePlayerStatus.Neutral;
+                }
             }
         }
 
         // returns the PREVIOUS state of the player
-        public ZonePlayerStatus Exclude( string playerName ) {
-            if( excludedPlayers.Contains( playerName.ToLower() ) ) {
-                return ZonePlayerStatus.Excluded;
-            } else if( includedPlayers.Contains( playerName.ToLower() ) ) {
-                includedPlayers.Remove( playerName );
-                return ZonePlayerStatus.Included;
-            } else {
-                excludedPlayers.Add( playerName );
-                return ZonePlayerStatus.Neutral;
+        public ZonePlayerStatus Exclude( PlayerInfo info ) {
+            lock( locker ) {
+                if( excludedPlayers.ContainsValue( info ) ) {
+                    UpdatePlayerLists();
+                    return ZonePlayerStatus.Excluded;
+                } else if( includedPlayers.ContainsValue( info ) ) {
+                    UpdatePlayerLists();
+                    includedPlayers.Remove( info.name.ToLower() );
+                    return ZonePlayerStatus.Included;
+                } else {
+                    UpdatePlayerLists();
+                    excludedPlayers.Add( info.name.ToLower(), info );
+                    return ZonePlayerStatus.Neutral;
+                }
             }
         }
 
@@ -75,13 +108,19 @@ namespace fCraft {
 
             foreach( string player in parts[1].Split( ' ' ) ) {
                 if( !Player.IsValidName( player ) ) continue;
-                includedPlayers.Add( player );
+                PlayerInfo info = PlayerDB.FindPlayerInfoExact( player );
+                if( info == null ) continue;
+                includedPlayers.Add( info.name.ToLower(), info );
             }
 
             foreach( string player in parts[2].Split( ' ' ) ) {
                 if( !Player.IsValidName( player ) ) continue;
-                excludedPlayers.Add( player );
+                PlayerInfo info = PlayerDB.FindPlayerInfoExact( player );
+                if( info == null ) continue;
+                excludedPlayers.Add( info.name.ToLower(), info );
             }
+
+            UpdatePlayerLists();
 
             if( parts.Length > 3 ) {
                 string[] xheader = parts[3].Split( ' ' );
@@ -93,36 +132,74 @@ namespace fCraft {
         }
 
 
-        public Zone() { }
+        public Zone() {
+            UpdatePlayerLists();
+        }
 
 
         public string Serialize() {
-            string xheader;
-            if( createdBy != null ) {
-                xheader = createdBy.name + " " + createdDate.ToString(PlayerInfo.DateFormat) + " ";
-            }else{
-                xheader = "- - ";
-            }
-            if( editedBy != null ) {
-                xheader = editedBy.name + " " + editedDate.ToString( PlayerInfo.DateFormat );
-            }else{
-                xheader += "- -";
-            }
+            lock( locker ) {
+                string xheader;
+                if( createdBy != null ) {
+                    xheader = createdBy.name + " " + createdDate.ToString( PlayerInfo.DateFormat ) + " ";
+                } else {
+                    xheader = "- - ";
+                }
 
-            return String.Format( "{0},{1},{2},{3}",
-                                  String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
-                                                 name, bounds.xMin, bounds.yMin, bounds.hMin, bounds.xMax, bounds.yMax, bounds.hMax, playerClass ),
-                                  String.Join( " ", includedPlayers.ToArray() ),
-                                  String.Join( " ", excludedPlayers.ToArray() ),
-                                  xheader );
+                if( editedBy != null ) {
+                    xheader += editedBy.name + " " + editedDate.ToString( PlayerInfo.DateFormat );
+                } else {
+                    xheader += "- -";
+                }
+
+                return String.Format( "{0},{1},{2},{3}",
+                                      String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
+                                                     name, bounds.xMin, bounds.yMin, bounds.hMin, bounds.xMax, bounds.yMax, bounds.hMax, playerClass ),
+                                      String.Join( " ", includedPlayers.Keys.ToArray() ),
+                                      String.Join( " ", excludedPlayers.Keys.ToArray() ),
+                                      xheader );
+            }
         }
 
 
         public bool CanBuild( Player player ) {
-            if( includedPlayers.Contains( player.lowercaseName ) ) return true;
-            if( excludedPlayers.Contains( player.lowercaseName ) ) return false;
-            return player.info.playerClass.rank >= playerClass.rank;
+            ZonePlayerList list = playerList;
+            for( int i = 0; i < list.excluded.Length; i++ ) {
+                if( player.info == list.excluded[i] ) return false;
+            }
+
+            if( player.info.playerClass.rank >= playerClass.rank ) return true;
+
+            for( int i = 0; i < list.included.Length; i++ ) {
+                if( player.info == list.included[i] ) return true;
+            }
+
+            return false;
         }
+
+        /*
+        public ZonePermissionType CanBuildDetailed( Player player ) {
+            ZonePlayerList list = playerList;
+            for( int i = 0; i < list.excluded.Length; i++ ) {
+                if( player.info == list.excluded[i] ) return ZonePermissionType.ListDenied;
+            }
+
+            if( player.info.playerClass.rank >= playerClass.rank ) return ZonePermissionType.RankAllowed;
+
+            for( int i = 0; i < list.included.Length; i++ ) {
+                if( player.info == list.included[i] ) return ZonePermissionType.ListAllowed;
+            }
+
+            return ZonePermissionType.RankDenied;
+        }
+
+        public enum ZonePermissionType {
+            RankAllowed,
+            RankDenied,
+            ListAllowed,
+            ListDenied
+        }
+        */
     }
 
     public enum ZoneOverride {
