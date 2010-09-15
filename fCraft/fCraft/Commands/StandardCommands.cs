@@ -679,41 +679,35 @@ namespace fCraft {
 
         internal static void TP( Player player, Command cmd ) {
             string name = cmd.Next();
+
             if( name == null ) {
                 player.Send( PacketWriter.MakeTeleport( 255, player.world.map.spawn ) );
-            } else {
-                Player target = player.world.FindPlayer( name );
-                if( target != null ) {
-                    Position pos = target.pos; // fix for offset errors in the way teleports are handled by the client
-                    pos.x += 1;
-                    pos.y += 1;
-                    pos.h -= 16;
-                    player.Send( PacketWriter.MakeTeleport( 255, pos ) );
-                } else if( cmd.Next() == null ) {
 
-                    List<Player> targets = Server.FindPlayers( player, name );
-                    if( targets.Count == 1 ) {
-                        target = targets[0];
-                        if( player.CanJoin( target.world ) ) {
-                            player.session.JoinWorld( target.world, target.pos );
-                        } else {
-                            player.Message( "Cannot teleport to {0}&S because world {1}&S requires you to be {2}+&S to join.",
-                                            target.GetClassyName(),
-                                            target.world.GetClassyName(),
-                                            target.world.classAccess.GetClassyName() );
-                        }
-                    } else if( targets.Count > 1 ) {
-                        player.ManyPlayersMessage( targets );
+            } else {
+                List<Player> matches = Server.FindPlayers( player, name );
+                if( matches.Count == 1 ) {
+                    Player target = matches[0];
+
+                    if( target.world == player.world ) {
+                        Position pos = target.pos;
+                        pos.x += 1;
+                        pos.y += 1;
+                        pos.h += 1;
+                        player.Send( PacketWriter.MakeTeleport( 255, pos ) );
+
+                    } else if( player.CanJoin( target.world ) ) {
+                        target.session.JoinWorld( target.world, target.pos );
+
                     } else {
-                        World w = Server.FindWorld( name );
-                        if( w != null ) {
-                            player.ParseMessage( "/join " + name, false );
-                        } else {
-                            player.NoPlayerMessage( name );
-                        }
+                        player.Message( "Cannot teleport to {0}&S because this world requires {0}+&S to join.",
+                                        target.GetClassyName(),
+                                        player.world.classAccess.GetClassyName() );
                     }
 
-                } else {
+                } else if( matches.Count > 1 ) {
+                    player.ManyPlayersMessage( matches );
+
+                } else if( cmd.Next() != null ) {
                     cmd.Rewind();
                     int x, y, h;
                     if( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out h ) ) {
@@ -727,6 +721,14 @@ namespace fCraft {
                         }
                     } else {
                         cdTP.PrintUsage( player );
+                    }
+
+                } else {
+                    World w = Server.FindWorld( name );
+                    if( w != null ) {
+                        player.ParseMessage( "/join " + name, false );
+                    } else {
+                        player.NoPlayerMessage( name );
                     }
                 }
             }
@@ -748,30 +750,29 @@ namespace fCraft {
                 cdBring.PrintUsage( player );
                 return;
             }
-            Player target = player.world.FindPlayer( name );
-            if( target != null && player.CanSee( target ) ) {
-                Position pos = player.pos;
-                pos.x += 1;
-                pos.y += 1;
-                pos.h += 1;
-                target.Send( PacketWriter.MakeTeleport( 255, pos ) );
 
-            } else {
-                List<Player> targets = Server.FindPlayers( player, name );
-                if( targets.Count == 1 ) {
-                    target = targets[0];
-                    if( target.CanJoin( player.world ) ) {
-                        target.session.JoinWorld( player.world, player.pos );
-                    } else {
-                        player.Message( "Cannot bring {0}&S because this world requires {0}+&S to join.",
-                                        target.GetClassyName(),
-                                        player.world.classAccess.GetClassyName() );
-                    }
-                } else if( targets.Count > 1 ) {
-                    player.ManyPlayersMessage( targets );
+            List<Player> matches = Server.FindPlayers( player, name );
+            if( matches.Count == 1 ) {
+                Player target = matches[0];
+
+                if( target.world == player.world ) {
+
+                    Position pos = player.pos;
+                    pos.x += 1;
+                    pos.y += 1;
+                    pos.h += 1;
+                    target.Send( PacketWriter.MakeTeleport( 255, pos ) );
+                } else if( target.CanJoin( player.world ) ) {
+                    target.session.JoinWorld( player.world, player.pos );
                 } else {
-                    player.NoPlayerMessage( name );
+                    player.Message( "Cannot bring {0}&S because this world requires {0}+&S to join.",
+                                    target.GetClassyName(),
+                                    player.world.classAccess.GetClassyName() );
                 }
+            } else if( matches.Count > 1 ) {
+                player.ManyPlayersMessage( matches );
+            } else {
+                player.NoPlayerMessage( name );
             }
         }
 

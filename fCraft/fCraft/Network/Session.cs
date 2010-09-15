@@ -169,6 +169,8 @@ namespace fCraft {
                                 newPos.r = reader.ReadByte();
                                 newPos.l = reader.ReadByte();
 
+                                if( isBetweenWorlds ) continue;
+
                                 /*if( newPos.h < 0 ) {
                                     Logger.Log( player.GetLogName() + " was kicked for moving out of map boundaries.", LogType.SuspiciousActivity );
                                     KickNow( "Hacking detected: out of map boundaries." );

@@ -218,7 +218,7 @@ namespace fCraft {
         }
 
 
-        public static bool ParseClassLimits( PlayerClass pc ) {
+        public static bool ParseClassRelations( PlayerClass pc ) {
             bool ok = true;
             if( pc.maxKickVal.Length == 0 ) {
                 pc.maxKick = pc;
@@ -250,9 +250,17 @@ namespace fCraft {
                 pc.maxHideFrom = ParseClass( pc.maxHideFromVal );
                 ok &= (pc.maxHideFrom != null);
             }
+
+            // assign nextClassUp/nextClassDown
+            if( classesByIndex.Count > 1 ) {
+                for( int i = 0; i < classesByIndex.Count - 1; i++ ) {
+                    classesByIndex[i + 1].nextClassUp = classesByIndex[i];
+                    classesByIndex[i].nextClassDown = classesByIndex[i + 1];
+                }
+            }
+
             return ok;
         }
-
 
         static Random rand = new Random();
         public static string GenerateID() {
