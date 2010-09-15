@@ -72,16 +72,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\AdminCommands.cs" />
     <Compile Include="Commands\ZoneCommands.cs" />
     <Compile Include="World\BlockDB.cs" />
     <Compile Include="Commands\CommandDescriptor.cs" />
     <Compile Include="Commands\DrawCommands.cs" />
-    <Compile Include="Commands\ImportCommands.cs" />
     <Compile Include="Commands\MapCommands.cs" />
     <Compile Include="Commands\BlockCommands.cs" />
     <Compile Include="Commands\CommandList.cs" />
     <Compile Include="Commands\InfoCommands.cs" />
-    <Compile Include="Commands\StandardCommands.cs" />
     <Compile Include="Mcc\MapD3.cs" />
     <Compile Include="Mcc\MapMyne.cs" />
     <Compile Include="Mcc\MapJTE.cs" />

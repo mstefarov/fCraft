@@ -62,6 +62,9 @@ namespace fCraft {
             return "";
         }
 
+
+        // returns FALSE if nothing was given (no input)
+        // returns TRUE if something was given, and Block.Undefined if it couldnt be parsed
         public bool NextBlockType( out Block block ) {
             block = Block.Undefined;
             string blockName = Next();

@@ -40,8 +40,8 @@ namespace fCraft {
 
         internal static void Init() {
             string generalDrawingHelp = " Use &H/cancel&S to exit draw mode. " +
-                                 "Use &H/undo&S to undo the last draw operation. " +
-                                 "Use &H/lock&S to cancel drawing after it started.";
+                                        "Use &H/undo&S to undo the last draw operation. " +
+                                        "Use &H/lock&S to cancel drawing after it started.";
 
             cdCuboid.help += generalDrawingHelp;
             cdCuboidHollow.help += generalDrawingHelp;
@@ -62,6 +62,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdUndo );
 
             CommandList.RegisterCommand( cdCopy );
+            CommandList.RegisterCommand( cdCut );
             CommandList.RegisterCommand( cdPasteNot );
             CommandList.RegisterCommand( cdPaste );
             CommandList.RegisterCommand( cdMirror );
@@ -184,15 +185,15 @@ namespace fCraft {
             player.selectionArgs = (byte)block;
             switch( mode ) {
                 case DrawMode.Cuboid:
-                    player.selectionCallback = DrawCuboid;
+                    player.selectionCallback = CuboidCallback;
                     break;
 
                 case DrawMode.CuboidHollow:
-                    player.selectionCallback = DrawCuboidHollow;
+                    player.selectionCallback = CuboidHollowCallback;
                     break;
 
                 case DrawMode.Ellipsoid:
-                    player.selectionCallback = DrawEllipsoid;
+                    player.selectionCallback = EllipsoidCallback;
                     break;
 
                 case DrawMode.Replace:
@@ -227,7 +228,7 @@ namespace fCraft {
                         } else {
                             player.MessageNow( "Replace: Ready to replace ({0}) with {1}", affectedString.Substring( 2 ), replacementType );
                         }
-                        player.selectionCallback = DrawReplace;
+                        player.selectionCallback = ReplaceCallback;
                     } else {
                         if( mode == DrawMode.ReplaceNot ) {
                             cdReplaceNot.PrintUsage( player );
@@ -342,7 +343,7 @@ namespace fCraft {
         #endregion
 
 
-        internal static void DrawReplace( Player player, Position[] marks, object drawArgs ) {
+        internal static void ReplaceCallback( Player player, Position[] marks, object drawArgs ) {
             ReplaceArgs args = (ReplaceArgs)drawArgs;
 
             byte[] specialTypes = new byte[args.types.Length];
@@ -440,7 +441,7 @@ namespace fCraft {
         }
 
 
-        internal static void DrawCuboid( Player player, Position[] marks, object tag ) {
+        internal static void CuboidCallback( Player player, Position[] marks, object tag ) {
             byte drawBlock = (byte)tag;
             if( drawBlock == (byte)Block.Undefined ) {
                 drawBlock = (byte)player.lastUsedBlockType;
@@ -489,7 +490,7 @@ namespace fCraft {
         }
 
 
-        internal static void DrawCuboidHollow( Player player, Position[] marks, object tag ) {
+        internal static void CuboidHollowCallback( Player player, Position[] marks, object tag ) {
             byte drawBlock = (byte)tag;
             if( drawBlock == (byte)Block.Undefined ) {
                 drawBlock = (byte)player.lastUsedBlockType;
@@ -546,7 +547,7 @@ namespace fCraft {
         }
 
 
-        internal static void DrawEllipsoid( Player player, Position[] marks, object tag ) {
+        internal static void EllipsoidCallback( Player player, Position[] marks, object tag ) {
             byte drawBlock = (byte)tag;
             if( drawBlock == (byte)Block.Undefined ) {
                 drawBlock = (byte)player.lastUsedBlockType;
@@ -650,16 +651,18 @@ namespace fCraft {
         static CommandDescriptor cdCopy = new CommandDescriptor {
             name = "copy",
             permissions = new Permission[] { Permission.CopyAndPaste },
-            help = "Copy blocks for pasting. Used together with &H/paste&S command. Note that pasting starts at the same corner that you started &H/copy&S from.",
+            help = "Copy blocks for pasting. " +
+                   "Used together with &H/paste&S and &H/pastenot&S commands. " +
+                   "Note that pasting starts at the same corner that you started &H/copy&S from.",
             handler = Copy
         };
 
         internal static void Copy( Player player, Command cmd ) {
-            player.SetCallback( 2, DoCopy, null );
+            player.SetCallback( 2, CopyCallback, null );
             player.MessageNow( "Copy: Place a block or type /mark to use your location." );
         }
 
-        internal static void DoCopy( Player player, Position[] marks, object tag ) {
+        internal static void CopyCallback( Player player, Position[] marks, object tag ) {
             int sx = Math.Min( marks[0].x, marks[1].x );
             int ex = Math.Max( marks[0].x, marks[1].x );
             int sy = Math.Min( marks[0].y, marks[1].y );
@@ -701,6 +704,87 @@ namespace fCraft {
             Logger.Log( "{0} copied {1} blocks from {2}.", LogType.UserActivity,
                         player.name, volume, player.world.name );
         }
+
+
+
+        static CommandDescriptor cdCut = new CommandDescriptor {
+            name = "cut",
+            permissions = new Permission[] { Permission.CopyAndPaste },
+            help = "Copies and removes blocks for pasting. Unless a different block type is specified, the area is filled with air. "+
+                   "Used together with &H/paste&S and &H/pastenot&S commands. "+
+                   "Note that pasting starts at the same corner that you started &H/cut&S from.",
+            usage = "/cut [FillBlock]",
+            handler = Cut
+        };
+
+        internal static void Cut( Player player, Command cmd ) {
+            Block fillBlock = Block.Air;
+            if( cmd.NextBlockType( out fillBlock ) ) {
+                if( fillBlock == Block.Undefined ) {
+                    cmd.Rewind();
+                    player.Message( "Cut: Unknown block type \"{0}\"", cmd.Next() );
+                    return;
+                }
+            } else {
+                fillBlock = Block.Air;
+            }
+            player.SetCallback( 2, CutCallback, fillBlock );
+            player.MessageNow( "Cut: Place a block or type /mark to use your location." );
+        }
+
+        internal static void CutCallback( Player player, Position[] marks, object tag ) {
+            int sx = Math.Min( marks[0].x, marks[1].x );
+            int ex = Math.Max( marks[0].x, marks[1].x );
+            int sy = Math.Min( marks[0].y, marks[1].y );
+            int ey = Math.Max( marks[0].y, marks[1].y );
+            int sh = Math.Min( marks[0].h, marks[1].h );
+            int eh = Math.Max( marks[0].h, marks[1].h );
+
+            byte fillType = (byte)tag;
+
+            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
+            if( player.CanDraw( volume ) ) {
+                player.MessageNow( String.Format( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                               player.info.playerClass.drawLimit, volume ) );
+                return;
+            }
+
+            CopyInformation copyInfo = new CopyInformation();
+
+            // remember dimensions and orientation
+            copyInfo.widthX = marks[1].x - marks[0].x;
+            copyInfo.widthY = marks[1].y - marks[0].y;
+            copyInfo.height = marks[1].h - marks[0].h;
+
+            copyInfo.buffer = new byte[ex - sx + 1, ey - sy + 1, eh - sh + 1];
+
+            player.undoBuffer.Clear();
+            int blocks = 0;
+            bool cannotUndo = false;
+
+            for( int x = sx; x <= ex; x++ ) {
+                for( int y = sy; y <= ey; y++ ) {
+                    for( int h = sh; h <= eh; h++ ) {
+                        copyInfo.buffer[x - sx, y - sy, h - sh] = player.world.map.GetBlock( x, y, h );
+                        DrawOneBlock( player, fillType, x, y, h, ref blocks, ref cannotUndo );
+                    }
+                }
+            }
+
+            player.copyInformation = copyInfo;
+            player.MessageNow( "{0} blocks were cut. You can now &H/paste", volume );
+            player.MessageNow( "Origin at {0} {1}{2} corner.",
+                               (copyInfo.height > 0 ? "bottom" : "top"),
+                               (copyInfo.widthY > 0 ? "south" : "north"),
+                               (copyInfo.widthX > 0 ? "west" : "east") );
+
+            Logger.Log( "{0} cut {1} blocks from {2}, replacing {3} blocks with {4}.", LogType.UserActivity,
+                        player.name, volume, player.world.name, blocks, (Block)fillType );
+
+            player.undoBuffer.TrimExcess();
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+        }
+
 
 
         static CommandDescriptor cdPasteNot = new CommandDescriptor {
@@ -746,7 +830,7 @@ namespace fCraft {
                 return;
             }
 
-            player.SetCallback( 1, DoPaste, args );
+            player.SetCallback( 1, PasteCallback, args );
 
             player.MessageNow( "PasteNot: Place a block or type /mark to use your location. " );
         }
@@ -797,13 +881,13 @@ namespace fCraft {
                 player.MessageNow( "Ready to paste all blocks." );
             }
 
-            player.SetCallback( 1, DoPaste, args );
+            player.SetCallback( 1, PasteCallback, args );
 
             player.MessageNow( "Paste: Place a block or type /mark to use your location. " );
         }
 
 
-        internal static void DoPaste( Player player, Position[] marks, object tag ) {
+        internal static void PasteCallback( Player player, Position[] marks, object tag ) {
             CopyInformation info = player.copyInformation;
 
             PasteArgs args = (PasteArgs)tag;

@@ -166,9 +166,21 @@ namespace fCraft {
                         }
                     }
 
-                } catch( Exception ex ) {
-                    Logger.Log( "IRC: "+ex, LogType.Error );
+                } catch( SocketException ) {
+                    Logger.Log( "IRC: Disconnected. Will retry in {0} seconds.", LogType.Warning,
+                                ReconnectDelay / 1000 );
                     reconnect = true;
+
+                } catch( IOException ) {
+                    Logger.Log( "IRC: Disconnected. Will retry in {0} seconds.", LogType.Warning,
+                                ReconnectDelay / 1000 );
+                    reconnect = true;
+#if DEBUG
+#else
+                } catch( Exception ex ) {
+                    Logger.Log( "IRC: " + ex, LogType.Error );
+                    reconnect = true;
+#endif
                 }
 
                 if( reconnect ) Thread.Sleep( ReconnectDelay );

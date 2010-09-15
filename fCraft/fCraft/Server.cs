@@ -38,38 +38,8 @@ namespace fCraft {
         const int MaxPortAttempts = 20;
         public static int port;
 
-        internal static string Salt = "";
 
 
-        public static void CheckMapDirectory() {
-            // move files, if necessary
-            if( !Directory.Exists( "maps" ) ) { // LEGACY
-                Directory.CreateDirectory( "maps" );
-                string[] files = Directory.GetFiles( Directory.GetCurrentDirectory(), "*.fcm" );
-                if( files.Length > 0 ) {
-                    Logger.Log( "Server.CheckMapDirectory: fCraft now uses a dedicated /maps/ directory for storing map files. " +
-                                "Your maps have been moved automatically.", LogType.SystemActivity );
-
-                    foreach( string file in files ) {
-                        string newFile = "maps/" + new FileInfo( file ).Name;
-                        File.Move( file, newFile );
-                        Logger.Log( "Server.CheckMapDirectory: Moved " + newFile, LogType.SystemActivity );
-                    }
-                }
-            }
-        }
-
-        public static void CheckForCommonErrors( Exception ex ) {
-            if( ex.Message.StartsWith( "Could not load file or assembly 'System.Xml.Linq" ) ) {
-                Logger.Log( "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
-                            "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).", LogType.Warning );
-            }
-        }
-
-        public static void ResetWorkingDirectory() {
-            // reset working directory to same directory as the executable
-            Directory.SetCurrentDirectory( new FileInfo( Process.GetCurrentProcess().MainModule.FileName ).Directory.FullName );
-        }
 
         public static bool Init() {
             ResetWorkingDirectory();
@@ -199,7 +169,10 @@ namespace fCraft {
             Logger.Log( "Server shutting down.", LogType.SystemActivity );
             shuttingDown = true;
             if( mainThread != null && mainThread.IsAlive ) {
-                mainThread.Join();
+                mainThread.Join( 5000 ); 
+                if( mainThread.IsAlive ) {
+                    mainThread.Abort(); // temporary kludge until i find a real cause
+                }
             }
 
             // stop accepting new players
@@ -774,7 +747,7 @@ namespace fCraft {
                         SendToAll( String.Format( "{0}&S was kicked for being idle for {1} min",
                                                   player.GetClassyName(),
                                                   player.info.playerClass.idleKickTimer ) );
-                        StandardCommands.DoKick( Player.Console, player, "Idle for " + player.info.playerClass.idleKickTimer + " minutes", true );
+                        AdminCommands.DoKick( Player.Console, player, "Idle for " + player.info.playerClass.idleKickTimer + " minutes", true );
                         player.ResetIdleTimer(); // to prevent kick from firing more than once
                     }
                 }
@@ -839,6 +812,37 @@ namespace fCraft {
 
         #region Utilities
 
+        public static void CheckMapDirectory() {
+            // move files, if necessary
+            if( !Directory.Exists( "maps" ) ) { // LEGACY
+                Directory.CreateDirectory( "maps" );
+                string[] files = Directory.GetFiles( Directory.GetCurrentDirectory(), "*.fcm" );
+                if( files.Length > 0 ) {
+                    Logger.Log( "Server.CheckMapDirectory: fCraft now uses a dedicated /maps/ directory for storing map files. " +
+                                "Your maps have been moved automatically.", LogType.SystemActivity );
+
+                    foreach( string file in files ) {
+                        string newFile = "maps/" + new FileInfo( file ).Name;
+                        File.Move( file, newFile );
+                        Logger.Log( "Server.CheckMapDirectory: Moved " + newFile, LogType.SystemActivity );
+                    }
+                }
+            }
+        }
+
+        public static void CheckForCommonErrors( Exception ex ) {
+            if( ex.Message.StartsWith( "Could not load file or assembly 'System.Xml.Linq" ) ) {
+                Logger.Log( "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
+                            "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).", LogType.Warning );
+            }
+        }
+
+        public static void ResetWorkingDirectory() {
+            // reset working directory to same directory as the executable
+            Directory.SetCurrentDirectory( new FileInfo( Process.GetCurrentProcess().MainModule.FileName ).Directory.FullName );
+        }
+
+        internal static string Salt = "";
         static void GenerateSalt() {
             // generate random salt
             Random rand = new Random();

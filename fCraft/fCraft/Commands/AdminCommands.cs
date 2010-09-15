@@ -1,21 +1,13 @@
-﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
-using System;
+﻿using System;
 using System.Net;
 using System.Collections.Generic;
-
+using System.IO;
 
 namespace fCraft {
-    static class StandardCommands {
+    class AdminCommands {
 
-        // Register standard commands.
         internal static void Init() {
-
             string banCommonHelp = "Ban information can be viewed with &H/baninfo";
-
-            CommandList.RegisterCommand( cdMe );
-
-            CommandList.RegisterCommand( cdRoll );
-            CommandList.RegisterCommand( cdSay );
 
             cdBan.help += banCommonHelp;
             cdBanIP.help += banCommonHelp;
@@ -32,115 +24,31 @@ namespace fCraft {
             CommandList.RegisterCommand( cdUnbanAll );
 
             CommandList.RegisterCommand( cdKick );
+
             CommandList.RegisterCommand( cdChangeClass );
-            CommandList.RegisterCommand( cdTP );
-            CommandList.RegisterCommand( cdBring );
+
+            CommandList.RegisterCommand( cdImportBans );
+            CommandList.RegisterCommand( cdImportRanks );
+
+            CommandList.RegisterCommand( cdHide );
+            CommandList.RegisterCommand( cdUnhide );
+
+            CommandList.RegisterCommand( cdSetSpawn );
+
+            CommandList.RegisterCommand( cdReloadConfig );
 
             CommandList.RegisterCommand( cdFreeze );
             CommandList.RegisterCommand( cdUnfreeze );
 
-            CommandList.RegisterCommand( cdHide );
-            CommandList.RegisterCommand( cdUnhide );
-            CommandList.RegisterCommand( cdSetSpawn );
+            CommandList.RegisterCommand( cdSay );
 
-            CommandList.RegisterCommand( cdReloadConfig );
+            CommandList.RegisterCommand( cdTP );
+            CommandList.RegisterCommand( cdBring );
+            CommandList.RegisterCommand( cdPatrol );
         }
 
 
-        static CommandDescriptor cdReloadConfig = new CommandDescriptor {
-            name = "reloadconfig",
-            permissions = new Permission[] { Permission.ReloadConfig },
-            consoleSafe = true,
-            help = "Reloads most of server's configuration file. " +
-                   "NOTE: THIS COMMAND IS EXPERIMENTAL! Excludes class changes and IRC bot settings. " +
-                   "Server has to be restarted to change those.",
-            handler = ReloadConfig
-        };
-
-        static void ReloadConfig( Player player, Command cmd ) {
-            player.Message( "Attempting to reload config..." );
-            if( Config.Load( true ) ) {
-                player.Message( "Config reloaded." );
-            } else {
-                player.Message( "An error occured while trying to reload the config. See server log for details." );
-            }
-        }
-
-
-
-        static CommandDescriptor cdMe = new CommandDescriptor {
-            name = "me",
-            consoleSafe = true,
-            usage = "/me Message",
-            help = "Sends IRC-style action message prefixed with your name.",
-            handler = Me
-        };
-
-        internal static void Me( Player player, Command cmd ) {
-            string msg = cmd.NextAll().Trim();
-            if( msg != null ) {
-                Server.SendToAll( "*" + Color.Purple + player.name + " " + msg );
-            }
-        }
-
-
-
-        static CommandDescriptor cdRoll = new CommandDescriptor {
-            name = "roll",
-            consoleSafe = true,
-            help = "Gives random number between 1 and 100.&N" +
-                   "&H/roll MaxNumber&N" +
-                   "Gives number between 1 and max.&N" +
-                   "&H/roll MinNumber MaxNumber&N" +
-                   "Gives number between min and max.",
-            handler = Roll
-        };
-
-        internal static void Roll( Player player, Command cmd ) {
-            Random rand = new Random();
-            int min = 1, max = 100, num, t1, t2;
-            if( cmd.NextInt( out t1 ) ) {
-                if( cmd.NextInt( out t2 ) ) {
-                    if( t2 >= t1 ) {
-                        min = t1;
-                        max = t2;
-                    }
-                } else if( t1 >= 1 ) {
-                    max = t1;
-                }
-            }
-            num = rand.Next( min, max + 1 );
-            string msg = player.GetClassyName() + Color.Silver + " rolled " + num + " (" + min + "..." + max + ")";
-            Logger.LogConsole( msg );
-            Server.SendToAll( msg );
-        }
-
-
-
-        static CommandDescriptor cdSay = new CommandDescriptor {
-            name = "say",
-            consoleSafe = true,
-            permissions = new Permission[] { Permission.Say },
-            usage = "/say Message",
-            help = "Shows a message in special color, without the player name prefix. " +
-                   "Can be used for making announcements.",
-            handler = Say
-        };
-
-        internal static void Say( Player player, Command cmd ) {
-            if( player.Can( Permission.Say ) ) {
-                string msg = cmd.NextAll();
-                if( msg != null && msg.Trim().Length > 0 ) {
-                    Server.SendToAll( Color.Say + msg.Trim() );
-                } else {
-                    cdSay.PrintUsage( player );
-                }
-            } else {
-                player.NoAccessMessage( Permission.Say );
-            }
-        }
-
-
+        #region Ban
 
         static CommandDescriptor cdBan = new CommandDescriptor {
             name = "ban",
@@ -267,7 +175,7 @@ namespace fCraft {
             if( banIP && IPAddress.TryParse( nameOrIP, out address ) ) {
                 DoIPBan( player, address, reason, null, banAll, unban );
 
-            // ban online players
+                // ban online players
             } else if( !unban && offender != null ) {
 
                 // check permissions
@@ -365,6 +273,7 @@ namespace fCraft {
             }
         }
 
+
         internal static void DoIPBan( Player player, IPAddress address, string reason, string playerName, bool banAll, bool unban ) {
 
             if( address == IPAddress.None || address == IPAddress.Any ) {
@@ -423,7 +332,10 @@ namespace fCraft {
             }
         }
 
+        #endregion
 
+
+        #region Kick
 
         static CommandDescriptor cdKick = new CommandDescriptor {
             name = "kick",
@@ -481,7 +393,10 @@ namespace fCraft {
             }
         }
 
+        #endregion
 
+
+        #region Changing Class (Promotion / Demotion)
 
         static CommandDescriptor cdChangeClass = new CommandDescriptor {
             name = "user",
@@ -580,6 +495,9 @@ namespace fCraft {
                 return;
             }
 
+
+            string verb = (promote ? "promoted" : "demoted");
+
             // Do the class change
             if( (promote && targetInfo.playerClass.rank < newClass.rank) ||
                 (!promote && targetInfo.playerClass.rank > newClass.rank) ) {
@@ -587,47 +505,60 @@ namespace fCraft {
 
                 if( !Server.FirePlayerClassChange( targetInfo, player, oldClass, newClass ) ) return;
 
-                Logger.Log( "{0} changed the class of {1} from {2} to {3}.", LogType.UserActivity,
-                            player.name, targetInfo.name, targetInfo.playerClass.name, newClass.name );
+                Logger.Log( "{0} {1} {2} from {3} to {4}.", LogType.UserActivity,
+                            player.name, verb, targetInfo.name, targetInfo.playerClass.name, newClass.name );
 
                 // if player is online, toggle visible/invisible players
                 if( target != null && target.world != null ) {
 
                     HashSet<Player> invisiblePlayers = new HashSet<Player>();
-                    HashSet<Player> blindPlayers = new HashSet<Player>();
 
-                    Player[] plist = target.world.playerList;
-                    for( int i = 0; i < plist.Length; i++ ) {
-                        if( !target.CanSee( plist[i] ) ) {
-                            invisiblePlayers.Add( plist[i] );
-                        }
-                        if( !plist[i].CanSee( target ) ) {
-                            blindPlayers.Add( plist[i] );
+                    Player[] worldPlayerList = target.world.playerList;
+                    for( int i = 0; i < worldPlayerList.Length; i++ ) {
+                        if( !target.CanSee( worldPlayerList[i] ) ) {
+                            invisiblePlayers.Add( worldPlayerList[i] );
                         }
                     }
 
+
+                    // ==== Actual class change happens here ====
                     targetInfo.ProcessClassChange( newClass, player, reason );
+                    // ==== Actual class change happens here ====
 
-                    for( int i = 0; i < plist.Length; i++ ) {
-                        if( target.CanSee( plist[i] ) && invisiblePlayers.Contains( plist[i] ) ) {
-                            target.Send( PacketWriter.MakeAddEntity( plist[i], plist[i].pos ) );
-                        } else if( !target.CanSee( plist[i] ) && !invisiblePlayers.Contains( plist[i] ) ) {
-                            target.Send( PacketWriter.MakeRemoveEntity( plist[i].id ) );
-                        }
-                        if( plist[i].CanSee( target ) && blindPlayers.Contains( plist[i] )){
-                            plist[i].Send( PacketWriter.MakeAddEntity( target, target.pos ) );
-                        } else if( !plist[i].CanSee( target ) && !blindPlayers.Contains( plist[i] ) ) {
-                            plist[i].Send( PacketWriter.MakeRemoveEntity( target.id ) );
+
+                    // change admincrete deletion permission
+                    target.Send( PacketWriter.MakeSetPermission( target ) );
+
+                    // inform the player of the class change
+                    target.Message( "You have been {0} to {1}&S by {2}",
+                                    verb,
+                                    newClass.GetClassyName(),
+                                    player.GetClassyName() );
+
+                    // Handle hiding/revealing hidden players (in case relative permissions change)
+                    for( int i = 0; i < worldPlayerList.Length; i++ ) {
+                        if( target.CanSee( worldPlayerList[i] ) && invisiblePlayers.Contains( worldPlayerList[i] ) ) {
+                            target.Send( PacketWriter.MakeAddEntity( worldPlayerList[i], worldPlayerList[i].pos ) );
+                        } else if( !target.CanSee( worldPlayerList[i] ) && !invisiblePlayers.Contains( worldPlayerList[i] ) ) {
+                            target.Send( PacketWriter.MakeRemoveEntity( worldPlayerList[i].id ) );
                         }
                     }
+
+                    // remove/readd player to change the name color
+                    target.world.SendToAll( PacketWriter.MakeRemoveEntity( target.id ), target );
+                    target.world.SendToSeeing( PacketWriter.MakeAddEntity( target, target.pos ), target );
+
+                    // check if player is still patrollable by others
+                    target.world.CheckIfPlayerIsStillPatrollable( target );
 
                 } else {
+                    // ==== Actual class change happens here (offline) ====
                     targetInfo.ProcessClassChange( newClass, player, reason );
+                    // ==== Actual class change happens here (offline) ====
                 }
 
                 Server.FirePlayerListChangedEvent();
 
-                string verb = (promote ? "promoted" : "demoted");
 
                 if( Config.GetBool( ConfigKey.AnnounceClassChanges ) ) {
                     Server.SendToAll( String.Format( "&S{0} was {1} from {2}&S to {3}",
@@ -643,14 +574,6 @@ namespace fCraft {
                                     newClass.GetClassyName() );
                 }
 
-                if( target != null ) {
-                    target.Send( PacketWriter.MakeSetPermission( target ) );
-                    target.Message( "You have been {0} to {1}&S by {2}",
-                                    verb,
-                                    newClass.GetClassyName(),
-                                    player.GetClassyName() );
-                    target.world.UpdatePlayer( target );
-                }
             } else {
                 if( promote ) {
                     player.Message( "{0}&S is already same or lower rank than {1}",
@@ -664,7 +587,358 @@ namespace fCraft {
             }
         }
 
+        #endregion
 
+
+        #region Importing
+
+        static CommandDescriptor cdImportBans = new CommandDescriptor {
+            name = "importbans",
+            permissions = new Permission[] { Permission.Import, Permission.Ban },
+            usage = "/importbans SoftwareName File",
+            help = "Imports ban list from formats used by other servers. " +
+                   "Currently only MCSharp/MCZall files are supported.",
+            handler = ImportBans
+        };
+
+        static void ImportBans( Player player, Command cmd ) {
+            string serverName = cmd.Next();
+            string file = cmd.Next();
+
+            // Make sure all parameters are specified
+            if( file == null ) {
+                cdImportBans.PrintUsage( player );
+                return;
+            }
+
+            // Check if file exists
+            if( !File.Exists( file ) ) {
+                player.Message( "File not found: {0}", file );
+                return;
+            }
+
+            string[] names;
+
+            switch( serverName.ToLower() ) {
+                case "mcsharp":
+                case "mczall":
+                    try {
+                        names = File.ReadAllLines( file );
+                    } catch( Exception ex ) {
+                        Logger.Log( "Could not open \"{0}\" to import bans: {1}", LogType.Error,
+                                    file,
+                                    ex );
+                        return;
+                    }
+                    break;
+                default:
+                    player.Message( "fCraft does not support importing from {0}", serverName );
+                    return;
+            }
+
+            string reason = "(import from " + serverName + ")";
+            IPAddress ip;
+            foreach( string name in names ) {
+                if( Player.IsValidName( name ) ) {
+                    DoBan( player, name, reason, false, false, false );
+                } else if( IPAddress.TryParse( name, out ip ) ) {
+                    DoIPBan( player, ip, reason, "", false, false );
+                } else {
+                    player.Message( "Could not parse \"{0}\" as either name or IP. Skipping.", name );
+                }
+            }
+
+            PlayerDB.Save();
+            IPBanList.Save();
+        }
+
+
+
+        static CommandDescriptor cdImportRanks = new CommandDescriptor {
+            name = "importranks",
+            permissions = new Permission[] { Permission.Import, Permission.Promote, Permission.Demote },
+            usage = "/importranks SoftwareName File ClassToAssign",
+            help = "Imports player list from formats used by other servers. " +
+                   "All players listed in the specified file are added to PlayerDB with the specified rank. " +
+                   "Currently only MCSharp/MCZall files are supported.",
+            handler = ImportRanks
+        };
+
+        static void ImportRanks( Player player, Command cmd ) {
+            string serverName = cmd.Next();
+            string fileName = cmd.Next();
+            string targetName = cmd.Next();
+
+
+            // Make sure all parameters are specified
+            if( targetName == null ) {
+                cdImportRanks.PrintUsage( player );
+                return;
+            }
+
+            // Check if file exists
+            if( !File.Exists( fileName ) ) {
+                player.Message( "File not found: {0}", fileName );
+                return;
+            }
+
+            PlayerClass targetClass = ClassList.ParseClass( targetName );
+            if( targetClass == null ) {
+                player.Message( "Unrecognized player class: \"{0}\"", targetName );
+                return;
+            }
+
+            string[] names;
+
+            switch( serverName.ToLower() ) {
+                case "mcsharp":
+                case "mczall":
+                    try {
+                        names = File.ReadAllLines( fileName );
+                    } catch( Exception ex ) {
+                        Logger.Log( "Could not open \"{0}\" to import ranks: {1}", LogType.Error,
+                                    fileName,
+                                    ex );
+                        return;
+                    }
+                    break;
+                default:
+                    player.Message( "fCraft does not support importing from {0}", serverName );
+                    return;
+            }
+
+            string reason = "(import from " + serverName + ")";
+            foreach( string name in names ) {
+                PlayerInfo info = PlayerDB.FindPlayerInfoExact( name );
+                if( info == null ) {
+                    info = PlayerDB.AddFakeEntry( name );
+                }
+                DoChangeClass( player, info, null, targetClass, reason );
+            }
+
+            PlayerDB.Save();
+        }
+
+        #endregion
+
+
+        #region Hide
+
+        static CommandDescriptor cdHide = new CommandDescriptor {
+            name = "hide",
+            permissions = new Permission[] { Permission.Hide },
+            help = "Enables invisible mode. It looks to other players like you left the server, " +
+                   "but you can still do anything - chat, build, delete, type commands - as usual. " +
+                   "Great way to spy on griefers and scare newbies. " +
+                   "Call &H/unhide&S to reveal yourself.",
+            handler = Hide
+        };
+
+        internal static void Hide( Player player, Command cmd ) {
+            if( !player.isHidden ) {
+                player.isHidden = true;
+
+                Server.SendToBlind( PacketWriter.MakeRemoveEntity( player.id ), player );
+
+                string message = String.Format( "{0}&S left the server.", player.GetClassyName() );
+                foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
+                    Server.SendToBlind( packet, player );
+                }
+
+                message = String.Format( "{0}&S is now hidden.", player.GetClassyName() );
+                foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
+                    Server.SendToSeeing( packet, player );
+                }
+
+                player.Message( Color.Gray + "You are now hidden." );
+            } else {
+                player.Message( "You are already hidden." );
+            }
+        }
+
+
+
+        static CommandDescriptor cdUnhide = new CommandDescriptor {
+            name = "unhide",
+            permissions = new Permission[] { Permission.Hide },
+            usage = "/unhide PlayerName",
+            help = "Disables the &H/hide&S invisible mode. " +
+                   "It looks to other players like you just joined the server.",
+            handler = Unhide
+        };
+
+        internal static void Unhide( Player player, Command cmd ) {
+            if( player.Can( Permission.Hide ) ) {
+                if( player.isHidden ) {
+                    player.isHidden = false;
+
+                    player.Message( Color.Gray + "You are no longer hidden." );
+                    player.world.SendToBlind( PacketWriter.MakeAddEntity( player, player.pos ), player );
+
+                    string message = String.Format( "{0}&S is no longer hidden.", player.GetClassyName() );
+                    foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
+                        Server.SendToSeeing( packet, player );
+                    }
+
+                    Server.ShowPlayerConnectedMessage( player, false, player.world );
+                } else {
+                    player.Message( "You are not currently hidden." );
+                }
+            } else {
+                player.NoAccessMessage( Permission.Hide );
+            }
+        }
+
+        #endregion
+
+
+        #region Set Spawn
+
+        static CommandDescriptor cdSetSpawn = new CommandDescriptor {
+            name = "setspawn",
+            permissions = new Permission[] { Permission.SetSpawn },
+            help = "Assigns your current location to be the spawn point of the map/world.",
+            handler = SetSpawn
+        };
+
+        internal static void SetSpawn( Player player, Command cmd ) {
+            if( player.Can( Permission.SetSpawn ) ) {
+                player.world.map.spawn = player.pos;
+                player.world.map.changesSinceSave++;
+                player.Send( PacketWriter.MakeTeleport( 255, player.world.map.spawn ), true );
+                player.Message( "New spawn point saved." );
+                Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,
+                            player.name );
+            } else {
+                player.NoAccessMessage( Permission.SetSpawn );
+            }
+        }
+
+        #endregion
+
+
+        #region Reload Config
+
+        static CommandDescriptor cdReloadConfig = new CommandDescriptor {
+            name = "reloadconfig",
+            permissions = new Permission[] { Permission.ReloadConfig },
+            consoleSafe = true,
+            help = "Reloads most of server's configuration file. " +
+                   "NOTE: THIS COMMAND IS EXPERIMENTAL! Excludes class changes and IRC bot settings. " +
+                   "Server has to be restarted to change those.",
+            handler = ReloadConfig
+        };
+
+        static void ReloadConfig( Player player, Command cmd ) {
+            player.Message( "Attempting to reload config..." );
+            if( Config.Load( true ) ) {
+                player.Message( "Config reloaded." );
+            } else {
+                player.Message( "An error occured while trying to reload the config. See server log for details." );
+            }
+        }
+
+        #endregion
+
+
+        #region Freeze
+
+        static CommandDescriptor cdFreeze = new CommandDescriptor {
+            name = "freeze",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.Freeze },
+            usage = "/freeze PlayerName",
+            help = "Freezes the specified player in place. " +
+                   "This is usually effective, but not hacking-proof. " +
+                   "To release the player, use &H/unfreeze PlayerName",
+            handler = Freeze
+        };
+
+        internal static void Freeze( Player player, Command cmd ) {
+            string name = cmd.Next();
+            if( name == null ) {
+                cdFreeze.PrintUsage( player );
+                return;
+            }
+            List<Player> targets = Server.FindPlayers( player, name );
+            if( targets.Count == 1 ) {
+                if( !targets[0].isFrozen ) {
+                    Server.SendToAll( targets[0].GetClassyName() + "&S has been frozen by " + player.GetClassyName() );
+                    targets[0].isFrozen = true;
+                } else {
+                    player.Message( targets[0].GetClassyName() + "&S is already frozen." );
+                }
+            } else if( targets.Count > 1 ) {
+                player.ManyPlayersMessage( targets );
+            } else {
+                player.NoPlayerMessage( name );
+            }
+        }
+
+
+
+        static CommandDescriptor cdUnfreeze = new CommandDescriptor {
+            name = "unfreeze",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.Freeze },
+            usage = "/unfreeze PlayerName",
+            help = "Releases the player from a frozen state. See &H/freeze&S for more information.",
+            handler = Unfreeze
+        };
+
+        internal static void Unfreeze( Player player, Command cmd ) {
+            string name = cmd.Next();
+            if( name == null ) {
+                cdFreeze.PrintUsage( player );
+                return;
+            }
+            List<Player> targets = Server.FindPlayers( player, name );
+            if( targets.Count == 1 ) {
+                if( targets[0].isFrozen ) {
+                    Server.SendToAll( targets[0].GetClassyName() + "&S is no longer frozen." );
+                    targets[0].isFrozen = false;
+                } else {
+                    player.Message( targets[0].GetClassyName() + "&S is currently not frozen." );
+                }
+            } else if( targets.Count > 1 ) {
+                player.ManyPlayersMessage( targets );
+            } else {
+                player.NoPlayerMessage( name );
+            }
+        }
+
+        #endregion
+
+
+        #region Say
+
+        static CommandDescriptor cdSay = new CommandDescriptor {
+            name = "say",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.Say },
+            usage = "/say Message",
+            help = "Shows a message in special color, without the player name prefix. " +
+                   "Can be used for making announcements.",
+            handler = Say
+        };
+
+        internal static void Say( Player player, Command cmd ) {
+            if( player.Can( Permission.Say ) ) {
+                string msg = cmd.NextAll();
+                if( msg != null && msg.Trim().Length > 0 ) {
+                    Server.SendToAll( Color.Say + msg.Trim() );
+                } else {
+                    cdSay.PrintUsage( player );
+                }
+            } else {
+                player.NoAccessMessage( Permission.Say );
+            }
+        }
+
+        #endregion
+
+
+        #region Teleport / Bring / Patrol
 
         static CommandDescriptor cdTP = new CommandDescriptor {
             name = "tp",
@@ -736,6 +1010,7 @@ namespace fCraft {
 
 
 
+
         static CommandDescriptor cdBring = new CommandDescriptor {
             name = "bring",
             permissions = new Permission[] { Permission.Bring },
@@ -778,170 +1053,36 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdFreeze = new CommandDescriptor {
-            name = "freeze",
-            consoleSafe = true,
-            permissions = new Permission[] { Permission.Freeze },
-            usage = "/freeze PlayerName",
-            help = "Freezes the specified player in place. " +
-                   "This is usually effective, but not hacking-proof. " +
-                   "To release the player, use &H/unfreeze PlayerName",
-            handler = Freeze
+        static CommandDescriptor cdPatrol = new CommandDescriptor {
+            name = "patrol",
+            permissions = new Permission[] { Permission.Patrol },
+            help = "Teleports you to the next player in need of checking.",
+            handler = Patrol
         };
 
-        internal static void Freeze( Player player, Command cmd ) {
-            string name = cmd.Next();
-            if( name == null ) {
-                cdFreeze.PrintUsage( player );
+        internal static void Patrol( Player player, Command cmd ) {
+            Player target = player.world.GetNextPatrolTarget();
+            if( target == null ) {
+                player.Message( "Patrol: No one to patrol in this world." );
                 return;
             }
-            List<Player> targets = Server.FindPlayers( player, name );
-            if( targets.Count == 1 ) {
-                if( !targets[0].isFrozen ) {
-                    Server.SendToAll( targets[0].GetClassyName() + "&S has been frozen by " + player.GetClassyName() );
-                    targets[0].isFrozen = true;
-                } else {
-                    player.Message( targets[0].GetClassyName() + "&S is already frozen." );
-                }
-            } else if( targets.Count > 1 ) {
-                player.ManyPlayersMessage( targets );
-            } else {
-                player.NoPlayerMessage( name );
+
+            if( target == player ) {
+                target = player.world.GetNextPatrolTarget();
             }
-        }
-
-
-
-        static CommandDescriptor cdUnfreeze = new CommandDescriptor {
-            name = "unfreeze",
-            consoleSafe = true,
-            permissions = new Permission[] { Permission.Freeze },
-            usage = "/unfreeze PlayerName",
-            help = "Releases the player from a frozen state. See &H/freeze&S for more information.",
-            handler = Unfreeze
-        };
-
-        internal static void Unfreeze( Player player, Command cmd ) {
-            string name = cmd.Next();
-            if( name == null ) {
-                cdFreeze.PrintUsage( player );
+            if( target == player ) {
+                player.Message( "Patrol: No one to patrol in this world (except yourself)." );
                 return;
             }
-            List<Player> targets = Server.FindPlayers( player, name );
-            if( targets.Count == 1 ) {
-                if( targets[0].isFrozen ) {
-                    Server.SendToAll( targets[0].GetClassyName() + "&S is no longer frozen." );
-                    targets[0].isFrozen = false;
-                } else {
-                    player.Message( targets[0].GetClassyName() + "&S is currently not frozen." );
-                }
-            } else if( targets.Count > 1 ) {
-                player.ManyPlayersMessage( targets );
-            } else {
-                player.NoPlayerMessage( name );
-            }
+
+            player.Message( "Patrol: Teleporting to {0}", target.GetClassyName() );
+            Position pos = target.pos;
+            pos.x += 1;
+            pos.y += 1;
+            pos.h += 1;
+            player.Send( PacketWriter.MakeTeleport( 255, pos ) );
         }
 
-
-
-        static CommandDescriptor cdHide = new CommandDescriptor {
-            name = "hide",
-            permissions = new Permission[] { Permission.Hide },
-            help = "Enables invisible mode. It looks to other players like you left the server, " +
-                   "but you can still do anything - chat, build, delete, type commands - as usual. " +
-                   "Great way to spy on griefers and scare newbies. " +
-                   "Call &H/unhide&S to reveal yourself.",
-            handler = Hide
-        };
-
-        internal static void Hide( Player player, Command cmd ) {
-            if( !player.isHidden ) {
-                player.isHidden = true;
-
-                Server.SendToBlind( PacketWriter.MakeRemoveEntity( player.id ), player );
-
-                string message = String.Format( "{0}&S left the server.", player.GetClassyName() );
-                foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
-                    Server.SendToBlind( packet, player );
-                }
-
-                message = String.Format( "{0}&S is now hidden.", player.GetClassyName() );
-                foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
-                    Server.SendToSeeing( packet, player );
-                }
-
-                player.Message( Color.Gray + "You are now hidden." );
-            } else {
-                player.Message( "You are already hidden." );
-            }
-        }
-
-
-
-        static CommandDescriptor cdUnhide = new CommandDescriptor {
-            name = "unhide",
-            permissions = new Permission[] { Permission.Hide },
-            usage = "/unhide PlayerName",
-            help = "Disables the &H/hide&S invisible mode. " +
-                   "It looks to other players like you just joined the server.",
-            handler = Unhide
-        };
-
-        internal static void Unhide( Player player, Command cmd ) {
-            if( player.Can( Permission.Hide ) ) {
-                if( player.isHidden ) {
-                    player.isHidden = false;
-
-                    player.Message( Color.Gray + "You are no longer hidden." );
-                    player.world.SendToBlind( PacketWriter.MakeAddEntity( player, player.pos ), player );
-
-                    string message = String.Format( "{0}&S is no longer hidden.", player.GetClassyName() );
-                    foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
-                        Server.SendToSeeing( packet, player );
-                    }
-
-                    Server.ShowPlayerConnectedMessage( player, false, player.world );
-                } else {
-                    player.Message( "You are not currently hidden." );
-                }
-            } else {
-                player.NoAccessMessage( Permission.Hide );
-            }
-        }
-
-
-
-        static CommandDescriptor cdSetSpawn = new CommandDescriptor {
-            name = "setspawn",
-            permissions = new Permission[] { Permission.SetSpawn },
-            help = "Assigns your current location to be the spawn point of the map/world.",
-            handler = SetSpawn
-        };
-
-        internal static void SetSpawn( Player player, Command cmd ) {
-            if( player.Can( Permission.SetSpawn ) ) {
-                player.world.map.spawn = player.pos;
-                player.world.map.changesSinceSave++;
-                player.Send( PacketWriter.MakeTeleport( 255, player.world.map.spawn ), true );
-                player.Message( "New spawn point saved." );
-                Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,
-                            player.name );
-            } else {
-                player.NoAccessMessage( Permission.SetSpawn );
-            }
-        }
-
-
-        /*
-        static CommandDescriptor cdSpectate = new CommandDescriptor {
-            name = "spectate",
-            permissions = new Permission[]{Permission.Spectate},
-            help = "spectate",
-            handler = Spectate
-        };
-
-        internal static void Spectate( Player player, Command cmd ) {
-        }
-        */
+        #endregion
     }
 }

@@ -28,6 +28,8 @@ namespace fCraft {
 
         LimitOneConnectionPerIP,
 
+        PatrolledClass,
+
         AntispamMessageCount,
         AntispamInterval,
         AntispamMuteDuration,
