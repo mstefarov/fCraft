@@ -37,6 +37,9 @@ namespace fCraft {
      *              
      * 108 - r224 - Added IP config key
      *              Capped MaxPlayers at 128
+     *              
+     * 109 - r226 - Added PatrolledClass config key
+     *              Added Patrol permission
      */
 
     public static class Config {
@@ -105,6 +108,8 @@ namespace fCraft {
         public static void LoadDefaultsSecurity() {
             SetValue( ConfigKey.VerifyNames, "Balanced" ); // can be "Always," "Balanced," or "Never"
             SetValue( ConfigKey.LimitOneConnectionPerIP, false );
+
+            SetValue( ConfigKey.PatrolledClass, "" ); // empty = lowest rank
 
             SetValue( ConfigKey.AntispamMessageCount, 4 );
             SetValue( ConfigKey.AntispamInterval, 5 );
@@ -441,6 +446,12 @@ namespace fCraft {
             Server.packetsPerSecond = GetInt( ConfigKey.BlockUpdateThrottling );
             Server.ticksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
 
+            if( ClassList.ParseClass( settings[ConfigKey.PatrolledClass] ) != null ) {
+                World.classToPatrol = ClassList.ParseClass( settings[ConfigKey.PatrolledClass] );
+            } else {
+                World.classToPatrol = ClassList.lowestClass;
+            }
+
             IRC.SendDelay = GetInt( ConfigKey.IRCDelay );
         }
 
@@ -759,9 +770,11 @@ namespace fCraft {
 
             op.Add( new XElement( Permission.Teleport.ToString() ) );
             op.Add( new XElement( Permission.Bring.ToString() ) );
+            op.Add( new XElement( Permission.Patrol.ToString() ) );
             op.Add( new XElement( Permission.Freeze.ToString() ) );
             op.Add( new XElement( Permission.SetSpawn.ToString() ) );
 
+            op.Add( new XElement( Permission.ManageZones.ToString() ) );
             op.Add( new XElement( Permission.Lock.ToString() ) );
             op.Add( new XElement( Permission.Draw.ToString() ) );
             op.Add( new XElement( Permission.CopyAndPaste.ToString() ) );
@@ -813,6 +826,7 @@ namespace fCraft {
 
             owner.Add( new XElement( Permission.Teleport.ToString() ) );
             owner.Add( new XElement( Permission.Bring.ToString() ) );
+            owner.Add( new XElement( Permission.Patrol.ToString() ) );
             owner.Add( new XElement( Permission.Freeze.ToString() ) );
             owner.Add( new XElement( Permission.SetSpawn.ToString() ) );
 

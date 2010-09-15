@@ -32,6 +32,7 @@ namespace fCraft {
 
         Teleport,
         Bring,
+        Patrol,
         Freeze,
         SetSpawn,
         Lock,

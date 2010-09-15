@@ -9,7 +9,8 @@ using System.IO;
 
 namespace fCraft {
     public static class Heartbeat {
-        const int HeartbeatDelay = 30000;
+        const int HeartbeatDelay = 30000,
+                  HeartbeatTimeout = 15000;
         static Thread thread;
         static string staticData;
         const string URL = "http://www.minecraft.net/heartbeat.jsp";
@@ -44,7 +45,7 @@ namespace fCraft {
                     request = (HttpWebRequest)WebRequest.Create( URL );
                     request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
                     request.Method = "POST";
-                    request.Timeout = 15000; // 15s timeout
+                    request.Timeout = HeartbeatTimeout;
                     request.ContentType = "application/x-www-form-urlencoded";
                     request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
                     byte[] formData = Encoding.ASCII.GetBytes( staticData + "&users=" + Server.GetPlayerCount() );

@@ -211,6 +211,8 @@ namespace fCraft {
                 players.Add( player.id, player );
                 UpdatePlayerList();
 
+                AddPlayerForPatrol( player );
+
                 // Reveal newcommer to existing players
                 SendToSeeing( PacketWriter.MakeAddEntity( player, player.pos ), player );
 
@@ -245,6 +247,8 @@ namespace fCraft {
                     return false;
                 }
 
+                RemovePlayerFromPatrol( player );
+
                 // clear drawing status
                 player.undoBuffer.Clear();
                 player.undoBuffer.TrimExcess();
@@ -274,18 +278,6 @@ namespace fCraft {
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i] != player && !tempList[i].isHidden ) {
                     player.session.Send( PacketWriter.MakeAddEntity( tempList[i], tempList[i].pos ) );
-                }
-            }
-        }
-
-
-        // re-adds player entity, in case of name or color change
-        internal void UpdatePlayer( Player updatedPlayer ) {
-            Player[] tempList = playerList;
-            for( int i = 1; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i] != updatedPlayer ) {
-                    tempList[i].Send( PacketWriter.MakeRemoveEntity( updatedPlayer.id ) );
-                    tempList[i].Send( PacketWriter.MakeAddEntity( updatedPlayer, updatedPlayer.pos ) );
                 }
             }
         }
@@ -479,5 +471,54 @@ namespace fCraft {
             }
             return displayedName;
         }
+
+        #region Patrol
+
+        object patrolLock = new object();
+        LinkedList<Player> patrolList = new LinkedList<Player>();
+        internal static PlayerClass classToPatrol;
+
+        public Player GetNextPatrolTarget() {
+            lock( patrolLock ) {
+                if( patrolList.Count == 0 ) {
+                    return null;
+                } else {
+                    Player player = patrolList.First.Value;
+                    patrolList.RemoveFirst();
+                    patrolList.AddLast( player );
+                    return player;
+                }
+            }
+        }
+
+        void RemovePlayerFromPatrol( Player player ) {
+            lock( patrolLock ) {
+                if( patrolList.Contains( player ) ) {
+                    patrolList.Remove( player );
+                }
+            }
+        }
+
+        void AddPlayerForPatrol( Player player ) {
+            if( player.info.playerClass.rank <= classToPatrol.rank ) {
+                lock( patrolLock ) {
+                    patrolList.AddLast( player );
+                }
+            }
+        }
+
+        internal void CheckIfPlayerIsStillPatrollable( Player player ) {
+            lock( patrolLock ) {
+                if( patrolList.Contains( player ) ){
+                    if( player.info.playerClass.rank > classToPatrol.rank ) {
+                        RemovePlayerFromPatrol( player );
+                    }
+                } else if( player.info.playerClass.rank <= classToPatrol.rank ) {
+                    AddPlayerForPatrol( player );
+                }
+            }
+        }
+
+        #endregion
     }
 }

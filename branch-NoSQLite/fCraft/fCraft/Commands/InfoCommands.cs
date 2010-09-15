@@ -9,8 +9,12 @@ using System.Text;
 namespace fCraft {
     static class InfoCommands {
         public const string RuleFile = "rules.txt";
+
         // Register help commands
         internal static void Init() {
+            CommandList.RegisterCommand( cdMe );
+            CommandList.RegisterCommand( cdRoll );
+
             CommandList.RegisterCommand( cdWorldInfo );
             CommandList.RegisterCommand( cdInfo );
             CommandList.RegisterCommand( cdBanInfo );
@@ -32,7 +36,56 @@ namespace fCraft {
             //CommandList.RegisterCommand( cdMD ); // DEBUG
         }
 
-        
+
+
+
+        static CommandDescriptor cdMe = new CommandDescriptor {
+            name = "me",
+            consoleSafe = true,
+            usage = "/me Message",
+            help = "Sends IRC-style action message prefixed with your name.",
+            handler = Me
+        };
+
+        internal static void Me( Player player, Command cmd ) {
+            string msg = cmd.NextAll().Trim();
+            if( msg != null ) {
+                Server.SendToAll( "*" + Color.Purple + player.name + " " + msg );
+            }
+        }
+
+
+
+        static CommandDescriptor cdRoll = new CommandDescriptor {
+            name = "roll",
+            consoleSafe = true,
+            help = "Gives random number between 1 and 100.&N" +
+                   "&H/roll MaxNumber&N" +
+                   "Gives number between 1 and max.&N" +
+                   "&H/roll MinNumber MaxNumber&N" +
+                   "Gives number between min and max.",
+            handler = Roll
+        };
+
+        internal static void Roll( Player player, Command cmd ) {
+            Random rand = new Random();
+            int min = 1, max = 100, num, t1, t2;
+            if( cmd.NextInt( out t1 ) ) {
+                if( cmd.NextInt( out t2 ) ) {
+                    if( t2 >= t1 ) {
+                        min = t1;
+                        max = t2;
+                    }
+                } else if( t1 >= 1 ) {
+                    max = t1;
+                }
+            }
+            num = rand.Next( min, max + 1 );
+            string msg = player.GetClassyName() + Color.Silver + " rolled " + num + " (" + min + "..." + max + ")";
+            Logger.LogConsole( msg );
+            Server.SendToAll( msg );
+        }
+
        /*
         static CommandDescriptor cdMD = new CommandDescriptor { // DEBUG
             name = "md",

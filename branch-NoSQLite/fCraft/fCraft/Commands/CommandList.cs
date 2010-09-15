@@ -14,12 +14,11 @@ namespace fCraft {
 
         // Sets up all the command hooks
         internal static void Init() {
-            MapCommands.Init();
+            AdminCommands.Init();
             BlockCommands.Init();
-            InfoCommands.Init();
-            StandardCommands.Init();
             DrawCommands.Init();
-            ImportCommands.Init();
+            InfoCommands.Init();
+            MapCommands.Init();
             ZoneCommands.Init();
             commands.TrimExcess();
             aliases.TrimExcess();
