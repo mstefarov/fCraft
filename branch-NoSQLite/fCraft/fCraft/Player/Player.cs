@@ -67,6 +67,10 @@ namespace fCraft {
         public static TimeSpan muteDuration = TimeSpan.FromSeconds( 5 );
         DateTime mutedUntil = DateTime.MinValue;
 
+        public void Mute( int seconds ) {
+            mutedUntil = DateTime.UtcNow.AddSeconds( seconds );
+        }
+
         bool DetectChatSpam() {
             if( spamChatLog.Count >= spamChatCount ) {
                 DateTime oldestTime = spamChatLog.Dequeue();
@@ -88,11 +92,16 @@ namespace fCraft {
 
         // Parses message incoming from the player
         public void ParseMessage( string message, bool fromConsole ) {
-            if( DateTime.Now < mutedUntil ) return;
-
             switch( CommandList.GetMessageType( message ) ) {
                 case MessageType.Chat:
                     if( !Can( Permission.Chat ) ) return;
+
+                    if( DateTime.UtcNow < mutedUntil ) {
+                        Message( "You are muted for another {0:0} seconds.",
+                                 mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+                        return;
+                    }
+
                     if( DetectChatSpam() ) return;
 
                     if( world != null && !world.FireSentMessageEvent( this, ref message ) ||
@@ -119,7 +128,15 @@ namespace fCraft {
 
                 case MessageType.PrivateChat:
                     if( !Can( Permission.Chat ) ) return;
+
+                    if( DateTime.UtcNow < mutedUntil ) {
+                        Message( "You are muted for another {0:0} seconds.",
+                                 mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+                        return;
+                    }
+
                     if( DetectChatSpam() ) return;
+
                     string otherPlayerName, messageText;
                     if( message[1] == ' ' ) {
                         otherPlayerName = message.Substring( 2, message.IndexOf( ' ', 2 ) - 2 );
@@ -150,7 +167,15 @@ namespace fCraft {
 
                 case MessageType.ClassChat:
                     if( !Can( Permission.Chat ) ) return;
+
+                    if( DateTime.UtcNow < mutedUntil ) {
+                        Message( "You are muted for another {0:0} seconds.",
+                            mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+                        return;
+                    }
+
                     if( DetectChatSpam() ) return;
+
                     string className = message.Substring( 2, message.IndexOf( ' ' ) - 2 );
                     PlayerClass playerClass = ClassList.FindClass( className );
                     if( playerClass != null ) {
@@ -497,6 +522,7 @@ namespace fCraft {
         }
 
         public bool CanSee( Player other ) {
+            if( world == null ) return true; // Console
             return !other.isHidden || info.playerClass.CanSee( other.info.playerClass );
         }
 

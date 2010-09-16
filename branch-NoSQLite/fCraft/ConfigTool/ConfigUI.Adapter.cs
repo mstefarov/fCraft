@@ -175,6 +175,9 @@ namespace ConfigTool {
             xRequireClassChangeReason.Checked = Config.GetBool( ConfigKey.RequireClassChangeReason );
             xAnnounceKickAndBanReasons.Checked = Config.GetBool( ConfigKey.AnnounceKickAndBanReasons );
             xAnnounceClassChanges.Checked = Config.GetBool( ConfigKey.AnnounceClassChanges );
+
+            cDefaultClass.SelectedIndex = ClassList.GetIndex( ClassList.ParseClass( Config.GetString( ConfigKey.PatrolledClass ) ) );
+            FillClassList( cPatrolledClass, "(lowest class)" );
         }
 
 
@@ -312,6 +315,12 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.RequireClassChangeReason, xRequireClassChangeReason.Checked );
             Config.SetValue( ConfigKey.AnnounceKickAndBanReasons, xAnnounceKickAndBanReasons.Checked );
             Config.SetValue( ConfigKey.AnnounceClassChanges, xAnnounceClassChanges.Checked );
+
+            if( cPatrolledClass.SelectedIndex == 0 ) {
+                Config.SetValue( ConfigKey.PatrolledClass, "" );
+            } else {
+                Config.SetValue( ConfigKey.PatrolledClass, ClassList.ParseIndex( cPatrolledClass.SelectedIndex - 1 ) );
+            }
 
 
             Config.SetValue( ConfigKey.SaveOnShutdown, xSaveOnShutdown.Checked );

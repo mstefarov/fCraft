@@ -42,5 +42,16 @@ namespace fCraft {
         public bool IsZero() {
             return x == 0 && y == 0 && h == 0 && r == 0 && l == 0;
         }
+
+        // adjust for bugs in position-reporting in Minecraft client
+        public Position GetFixed() {
+            return new Position {
+                x = (short)(x + 1),
+                y = (short)(y + 1),
+                h = (short)(h - 22),
+                r = r,
+                l = l
+            };
+        }
     }
 }

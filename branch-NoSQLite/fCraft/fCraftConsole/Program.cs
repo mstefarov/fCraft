@@ -61,17 +61,17 @@ namespace fCraftConsole {
                         while( (input = Console.ReadLine()) != "/exit" ) {
                             Player.Console.ParseMessage( input, true );
                         }
-                        Server.Shutdown();
+                        Server.Shutdown( "quit from console" );
                     } else {
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine( "** Failed to start the server **" );
-                        Server.Shutdown();
+                        Server.Shutdown( "failed to start" );
                         Console.ReadLine();
                     }
                 } else {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine( "** Failed to initialize the server **" );
-                    Server.Shutdown();
+                    Server.Shutdown( "failed to initialize" );
                     Console.ReadLine();
                 }
 #if DEBUG
@@ -98,8 +98,6 @@ namespace fCraftConsole {
         static void SetURL( string URL ) {
             File.WriteAllText( "externalurl.txt", URL, ASCIIEncoding.ASCII );
             Console.WriteLine( "** " + URL + " **" );
-        }
-        static void Test() {
         }
     }
 }

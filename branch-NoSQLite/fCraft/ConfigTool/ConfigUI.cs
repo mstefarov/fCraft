@@ -304,6 +304,7 @@ namespace ConfigTool {
             SelectClass( selectedClass );
 
             FillClassList( cDefaultClass, "(lowest class)" );
+            FillClassList( cPatrolledClass, "(lowest class)" );
             cDefaultClass.SelectedIndex = ClassList.GetIndex( defaultClass );
 
             FillClassList( cKickLimit, "(own class)" );

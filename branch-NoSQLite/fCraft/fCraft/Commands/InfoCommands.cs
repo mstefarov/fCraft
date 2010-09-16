@@ -86,44 +86,44 @@ namespace fCraft {
             Server.SendToAll( msg );
         }
 
-       /*
-        static CommandDescriptor cdMD = new CommandDescriptor { // DEBUG
-            name = "md",
-            help = "",
-            usage = "/md [PlayerName]",
-            handler = MD
-        };
-        static void MD( Player player, Command cmd ) {
-            string playerName = cmd.Next();
-            Session sess =player.session;
-            if( playerName != null ) {
-                List<Player> players = Server.FindPlayers( player, playerName );
-                if( players.Count == 1 ) {
-                    sess = players[0].session;
-                } else if( players.Count > 1 ) {
-                    player.ManyPlayersMessage( players );
-                } else {
-                    player.NoPlayerMessage( playerName );
-                }
-            }
-            if( sess != null ) {
-                player.Message( "MovDebug: {0} received, {1} sent ({2:0.0}%), {3} zero ({4:0.0}%), {5} skip ({6:0.0}%), {7} other ({8:0.0}%)",
-                                sess.PacketsReceived,
-                                sess.PacketsSent,
-                                sess.PacketsSent / (float)sess.PacketsReceived * 100f,
-                                sess.PacketsSkippedZero,
-                                sess.PacketsSkippedZero / (float)sess.PacketsReceived * 100f,
-                                sess.PacketsSkippedOptimized,
-                                sess.PacketsSkippedOptimized / (float)sess.PacketsReceived * 100f,
-                                (sess.PacketsReceived - sess.PacketsSent - sess.PacketsSkippedZero - sess.PacketsSkippedOptimized),
-                                (sess.PacketsReceived - sess.PacketsSent - sess.PacketsSkippedZero - sess.PacketsSkippedOptimized) / (float)sess.PacketsReceived * 100f );
-            } else {
-                player.Message( "When using from console, player name is required." );
-                cdMD.PrintUsage( player );
-            }
-        }
+        /*
+         static CommandDescriptor cdMD = new CommandDescriptor { // DEBUG
+             name = "md",
+             help = "",
+             usage = "/md [PlayerName]",
+             handler = MD
+         };
+         static void MD( Player player, Command cmd ) {
+             string playerName = cmd.Next();
+             Session sess =player.session;
+             if( playerName != null ) {
+                 List<Player> players = Server.FindPlayers( player, playerName );
+                 if( players.Count == 1 ) {
+                     sess = players[0].session;
+                 } else if( players.Count > 1 ) {
+                     player.ManyPlayersMessage( players );
+                 } else {
+                     player.NoPlayerMessage( playerName );
+                 }
+             }
+             if( sess != null ) {
+                 player.Message( "MovDebug: {0} received, {1} sent ({2:0.0}%), {3} zero ({4:0.0}%), {5} skip ({6:0.0}%), {7} other ({8:0.0}%)",
+                                 sess.PacketsReceived,
+                                 sess.PacketsSent,
+                                 sess.PacketsSent / (float)sess.PacketsReceived * 100f,
+                                 sess.PacketsSkippedZero,
+                                 sess.PacketsSkippedZero / (float)sess.PacketsReceived * 100f,
+                                 sess.PacketsSkippedOptimized,
+                                 sess.PacketsSkippedOptimized / (float)sess.PacketsReceived * 100f,
+                                 (sess.PacketsReceived - sess.PacketsSent - sess.PacketsSkippedZero - sess.PacketsSkippedOptimized),
+                                 (sess.PacketsReceived - sess.PacketsSent - sess.PacketsSkippedZero - sess.PacketsSkippedOptimized) / (float)sess.PacketsReceived * 100f );
+             } else {
+                 player.Message( "When using from console, player name is required." );
+                 cdMD.PrintUsage( player );
+             }
+         }
         
-        */
+         */
 
         static CommandDescriptor cdMeasure = new CommandDescriptor {
             name = "measure",
@@ -249,7 +249,7 @@ namespace fCraft {
                 bool first = true;
                 int count = 0;
                 foreach( Player p in players ) {
-                    if( !player.CanSee(p) ) continue;
+                    if( !player.CanSee( p ) ) continue;
                     if( !first ) sb.Append( ", " );
                     sb.Append( p.GetClassyName() );
                     first = false;
@@ -687,15 +687,22 @@ namespace fCraft {
         };
 
         internal static void ServerInfo( Player player, Command cmd ) {
-            player.Message( "Servers stats: Up for {0:0.0} hours, using {1:0} MB of memory.",
+            player.Message( "Servers stats: Up for {0:0.0} hours, using {1:0} MB of memory",
                             DateTime.Now.Subtract( Server.serverStart ).TotalHours,
                             (System.Diagnostics.Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
-            player.Message( "    There are {0} players in the database.", PlayerDB.CountTotalPlayers() );
+
+            player.Message( "Averaging {0:0.0}% CPU in last minute, {1:0.0}% CPU overall.",
+                            Server.CPUUsageLastMinute * 100,
+                            Server.CPUUsageTotal * 100 );
+
+            player.Message( "    There are {0} players in the database.",
+                            PlayerDB.CountTotalPlayers() );
             player.Message( "    Of those, {0} are banned, and {1} are IP-banned.",
                             PlayerDB.CountBannedPlayers(),
                             IPBanList.CountBans() );
-            player.Message( "    {0} worlds available, {1} players online.",
+            player.Message( "    {0} worlds available ({1} loaded), {2} players online.",
                             Server.worlds.Count,
+                            Server.CountLoadedWorlds(),
                             Server.playerList.Length );
         }
     }

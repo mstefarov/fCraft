@@ -36,6 +36,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdSetSpawn );
 
             CommandList.RegisterCommand( cdReloadConfig );
+            CommandList.RegisterCommand( cdShutdown );
 
             CommandList.RegisterCommand( cdFreeze );
             CommandList.RegisterCommand( cdUnfreeze );
@@ -45,6 +46,8 @@ namespace fCraft {
             CommandList.RegisterCommand( cdTP );
             CommandList.RegisterCommand( cdBring );
             CommandList.RegisterCommand( cdPatrol );
+
+            CommandList.RegisterCommand( cdMute );
         }
 
 
@@ -805,7 +808,7 @@ namespace fCraft {
             if( player.Can( Permission.SetSpawn ) ) {
                 player.world.map.spawn = player.pos;
                 player.world.map.changesSinceSave++;
-                player.Send( PacketWriter.MakeTeleport( 255, player.world.map.spawn ), true );
+                player.Send( PacketWriter.MakeSelfTeleport( player.world.map.spawn ), true );
                 player.Message( "New spawn point saved." );
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,
                             player.name );
@@ -817,7 +820,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Reload Config
+        #region ReloadConfig / Shutdown
 
         static CommandDescriptor cdReloadConfig = new CommandDescriptor {
             name = "reloadconfig",
@@ -837,6 +840,29 @@ namespace fCraft {
                 player.Message( "An error occured while trying to reload the config. See server log for details." );
             }
         }
+
+        static CommandDescriptor cdShutdown = new CommandDescriptor {
+            name = "shutdown",
+            permissions = new Permission[] { Permission.ShutdownServer },
+            consoleSafe = true,
+            help = "Shuts down the server immediately.",
+            handler = Shutdown
+        };
+
+        static void Shutdown( Player player, Command cmd ) {
+            string reason = cmd.Next();
+
+            Server.SendToAll( Color.Red + "Server shutting down in 5 seconds." );
+
+            if( reason == null ) {
+                Logger.Log( "{0} shut down the server.", LogType.UserActivity, player.name );
+                Server.InitiateShutdown( player.GetClassyName() );
+            } else {
+                Logger.Log( "{0} shut down the server. Reason: {1}", LogType.UserActivity, player.name, reason );
+                Server.InitiateShutdown( reason );
+            }
+        }
+
 
         #endregion
 
@@ -943,7 +969,6 @@ namespace fCraft {
         static CommandDescriptor cdTP = new CommandDescriptor {
             name = "tp",
             aliases = new string[] { "spawn" },
-            permissions = new Permission[] { Permission.Teleport },
             usage = "/tp [PlayerName]&S or &H/tp X Y Z",
             help = "Teleports you to a specified player's location. " +
                    "If no name is given, teleports you to map spawn. " +
@@ -955,55 +980,62 @@ namespace fCraft {
             string name = cmd.Next();
 
             if( name == null ) {
-                player.Send( PacketWriter.MakeTeleport( 255, player.world.map.spawn ) );
+                player.Send( PacketWriter.MakeSelfTeleport( player.world.map.spawn ) );
+                return;
+            }
 
-            } else {
-                List<Player> matches = Server.FindPlayers( player, name );
-                if( matches.Count == 1 ) {
-                    Player target = matches[0];
+            if( !player.Can( Permission.Teleport ) ) {
+                player.NoAccessMessage( Permission.Teleport );
+                return;
+            }
 
-                    if( target.world == player.world ) {
-                        Position pos = target.pos;
-                        pos.x += 1;
-                        pos.y += 1;
-                        pos.h += 1;
-                        player.Send( PacketWriter.MakeTeleport( 255, pos ) );
+            List<Player> matches = Server.FindPlayers( player, name );
+            if( matches.Count == 1 ) {
+                Player target = matches[0];
 
-                    } else if( player.CanJoin( target.world ) ) {
-                        player.session.JoinWorld( target.world, target.pos );
+                if( target.world == player.world ) {
+                    player.Send( PacketWriter.MakeSelfTeleport( target.pos ) );
+
+                } else if( player.CanJoin( target.world ) ) {
+                    player.session.JoinWorld( target.world, target.pos );
+
+                } else {
+                    player.Message( "Cannot teleport to {0}&S because this world requires {0}+&S to join.",
+                                    target.GetClassyName(),
+                                    player.world.classAccess.GetClassyName() );
+                }
+
+            } else if( matches.Count > 1 ) {
+                player.ManyPlayersMessage( matches );
+
+            } else if( cmd.Next() != null ) {
+                cmd.Rewind();
+                int x, y, h;
+                if( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out h ) ) {
+
+                    if( x <= -1024 || x >= 1024 || y <= -1024 || y >= 1024 || h <= -1024 || h >= 1024 ) {
+                        player.Message( "Coordinates are outside the valid range!" );
 
                     } else {
-                        player.Message( "Cannot teleport to {0}&S because this world requires {0}+&S to join.",
-                                        target.GetClassyName(),
-                                        player.world.classAccess.GetClassyName() );
-                    }
-
-                } else if( matches.Count > 1 ) {
-                    player.ManyPlayersMessage( matches );
-
-                } else if( cmd.Next() != null ) {
-                    cmd.Rewind();
-                    int x, y, h;
-                    if( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out h ) ) {
-                        if( x < 0 || x > player.world.map.widthX ||
-                            y < 0 || y > player.world.map.widthY ||
-                            y < 0 || y > player.world.map.height ) {
-                            player.Message( "Specified coordinates are outside the map!" );
-                        } else {
-                            player.pos.Set( x * 32 + 16, y * 32 + 16, h * 32 + 16, player.pos.r, player.pos.l );
-                            player.Send( PacketWriter.MakeTeleport( 255, player.pos ) );
-                        }
-                    } else {
-                        cdTP.PrintUsage( player );
+                        player.Send( PacketWriter.MakeTeleport( 255, new Position {
+                            x = (short)(x * 32 + 16),
+                            y = (short)(y * 32 + 16),
+                            h = (short)(h * 32 + 16),
+                            r = player.pos.r,
+                            l = player.pos.l
+                        } ) );
                     }
 
                 } else {
-                    World w = Server.FindWorld( name );
-                    if( w != null ) {
-                        player.ParseMessage( "/join " + name, false );
-                    } else {
-                        player.NoPlayerMessage( name );
-                    }
+                    cdTP.PrintUsage( player );
+                }
+
+            } else {
+                World w = Server.FindWorld( name );
+                if( w != null ) {
+                    player.ParseMessage( "/join " + name, false );
+                } else {
+                    player.NoPlayerMessage( name );
                 }
             }
         }
@@ -1031,11 +1063,7 @@ namespace fCraft {
                 Player target = matches[0];
 
                 if( target.world == player.world ) {
-                    Position pos = player.pos;
-                    pos.x += 1;
-                    pos.y += 1;
-                    pos.h += 1;
-                    target.Send( PacketWriter.MakeTeleport( 255, pos ) );
+                    target.Send( PacketWriter.MakeSelfTeleport(player.pos) );
 
                 } else if( target.CanJoin( player.world ) ) {
                     target.session.JoinWorld( player.world, player.pos );
@@ -1077,13 +1105,46 @@ namespace fCraft {
             }
 
             player.Message( "Patrol: Teleporting to {0}", target.GetClassyName() );
-            Position pos = target.pos;
-            pos.x += 1;
-            pos.y += 1;
-            pos.h += 1;
-            player.Send( PacketWriter.MakeTeleport( 255, pos ) );
+            player.Send( PacketWriter.MakeSelfTeleport( target.pos ) );
         }
 
+        #endregion
+
+
+        #region Mute
+        static CommandDescriptor cdMute = new CommandDescriptor {
+            name = "mute",
+            permissions = new Permission[] { Permission.Mute },
+            help = "Mutes a player for a specified number of seconds.",
+            usage = "/mute PlayerName Seconds",
+            handler = Mute
+        };
+
+        internal static void Mute( Player player, Command cmd ) {
+            string playerName = cmd.Next();
+            int seconds;
+            if( playerName != null && Player.IsValidName(playerName) && cmd.NextInt( out seconds ) && seconds > 0 ) {
+                List<Player> matches = Server.FindPlayers( playerName );
+                if( matches.Count == 1 ) {
+                    Player target = matches[0];
+                    target.Mute( seconds );
+                    target.Message( "You were muted by {0} seconds by {1}", seconds, player.GetClassyName() );
+                    Server.SendToAll( String.Format( "Player {0}&S was muted by {1}&S for {2} sec",
+                                                     target.GetClassyName(), player.GetClassyName(), seconds),
+                                      target );
+                    Logger.Log( "Player {0} was muted by {1} for {2} seconds.", LogType.UserActivity,
+                                target.name, player.name, seconds );
+
+                } else if( matches.Count > 1 ) {
+                    player.ManyPlayersMessage( matches );
+
+                } else {
+                    player.NoPlayerMessage( playerName );
+                }
+            } else {
+                cdMute.PrintUsage( player );
+            }
+        }
         #endregion
     }
 }

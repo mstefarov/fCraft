@@ -34,6 +34,7 @@ namespace fCraft {
         Bring,
         Patrol,
         Freeze,
+        Mute,
         SetSpawn,
         Lock,
 
@@ -45,6 +46,7 @@ namespace fCraft {
 
         AddLandmarks,
 
-        ReloadConfig
+        ReloadConfig,
+        ShutdownServer
     }
 }

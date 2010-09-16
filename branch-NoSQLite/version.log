@@ -1,5 +1,20 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-09-15
+2010-09-16
+474
+ Feature: "/mute" command to temporarily stop players from chatting. A new class permission (Mute) is added, granted to op+ by default.
+ Feature: "/shutdown" command to gracefully shutdown the server remotely. A new class permission (ShutdownServer) is added, granted to owner by default.
+ Feature: Added CPU usage information and loaded world count to /sinfo.
+ Fix: Added a way to edit "PatrolledClass" from ConfigTool.
+ Fix: Fixed zone whitelist/blacklist not updated correctly when edited.
+ Fix: Made teleporting to spawn (with /spawn or /tp, no parameters) accessible to all classes.
+ Fix: Adjusted for Notch's errors in handling player positions in teleport packets. Slightly improves accuracy of /tp, /bring, initial spawning, /patrol, frozen players, and speedhack detection.
+ Fix: Removed "/tp" bounds check when used with typed-in coordinates numbers.
+ Fix: Fixed an extremely unlikely case of PlayerDB/IPBanList overwriting on shutdown if server initialization failed.
+ Fix: Made "server shutting down" packets deliver more reliably (but still not guaranteed).
+ Fix: Fixed Console possibly not seeing hidden players.
+ Change: Added a basic file check to AutoLauncher
+ Change: Added error logging and crash reporting to Server.Shutdown
+ API: Renamed Server.ShutdownStart to Server.ShutdownBegin (for consistency).
 473
  Feature: Added zone coordinates to /zinfo
  Fix: Fixed cross-world /tp teleporting the wrong player.

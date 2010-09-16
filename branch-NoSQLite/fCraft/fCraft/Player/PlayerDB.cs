@@ -25,7 +25,7 @@ namespace fCraft {
                                      "timesKicked,timesKickedOthers,timesBannedOthers,UID";
 
         public static ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
-
+        public static bool isLoaded;
 
         public static PlayerInfo AddFakeEntry( string name ) {
             PlayerInfo info = new PlayerInfo( name, ClassList.defaultClass );
@@ -79,6 +79,7 @@ namespace fCraft {
             } else {
                 Logger.Log( "PlayerDB.Load: No player DB file found.", LogType.Warning );
             }
+            isLoaded = true;
         }
 
 
