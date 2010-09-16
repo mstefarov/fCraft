@@ -3,23 +3,32 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.Threading;
+using System.IO;
+
 
 namespace AutoLauncher {
     class Program {
         const int Tick = 600000;
         const int Delay = 5000;
-
+        const string BinaryName = "fCraftConsole.exe";
 
         static void Main( string[] args ) {
             Console.Title = "fCraftConsole AutoLauncher";
+
+            if( !File.Exists( BinaryName ) ) {
+                Console.WriteLine( "ERROR: {0} not found.", BinaryName );
+                Console.ReadLine();
+            }
+
             Process p = new Process();
             p.StartInfo.UseShellExecute = true;
             p.StartInfo.CreateNoWindow = false;
-            p.StartInfo.FileName = "fCraftConsole.exe";
+            p.StartInfo.FileName = BinaryName;
 
             DateTime startTimer = DateTime.Now;
             TimeSpan oldCPUTime = new TimeSpan( 0 );
             Console.WriteLine( "{0} ==== STARTING ====", DateTime.Now );
+
             while( true ) {
                 Thread.Sleep( Delay );
                 p.Start();

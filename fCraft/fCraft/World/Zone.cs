@@ -56,12 +56,15 @@ namespace fCraft {
         public ZonePlayerStatus Include( PlayerInfo info ) {
             lock( locker ) {
                 if( includedPlayers.ContainsValue( info ) ) {
+                    UpdatePlayerLists();
                     return ZonePlayerStatus.Included;
                 } else if( excludedPlayers.ContainsValue( info ) ) {
                     excludedPlayers.Remove( info.name.ToLower() );
+                    UpdatePlayerLists();
                     return ZonePlayerStatus.Excluded;
                 } else {
                     includedPlayers.Add( info.name.ToLower(), info );
+                    UpdatePlayerLists();
                     return ZonePlayerStatus.Neutral;
                 }
             }
@@ -74,12 +77,12 @@ namespace fCraft {
                     UpdatePlayerLists();
                     return ZonePlayerStatus.Excluded;
                 } else if( includedPlayers.ContainsValue( info ) ) {
-                    UpdatePlayerLists();
                     includedPlayers.Remove( info.name.ToLower() );
+                    UpdatePlayerLists();
                     return ZonePlayerStatus.Included;
                 } else {
-                    UpdatePlayerLists();
                     excludedPlayers.Add( info.name.ToLower(), info );
+                    UpdatePlayerLists();
                     return ZonePlayerStatus.Neutral;
                 }
             }

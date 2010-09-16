@@ -11,7 +11,7 @@ namespace fCraft {
         const string BanFile = "ipbans.txt",
                      Header = "IP,bannedBy,banDate,banReason,playerName,attempts,lastAttemptName,lastAttemptDate";
         static object locker = new object();
-
+        public static bool isLoaded;
 
         internal static void Load() {
             if( File.Exists( BanFile ) ) {
@@ -39,6 +39,7 @@ namespace fCraft {
             } else {
                 Logger.LogWarning( "IPBanList.Load: No IP ban file found.", WarningLogSubtype.IPBanListWarning );
             }
+            isLoaded = true;
         }
 
 

@@ -146,6 +146,10 @@ namespace fCraft {
             return packet;
         }
 
+        internal static Packet MakeSelfTeleport( Position pos ) {
+            return MakeTeleport( 255, pos.GetFixed() );
+        }
+
         internal static Packet MakeMoveRotate( int id, Position pos ) {
             Packet packet = new Packet( 7 );
             packet.data[0] = (byte)OutputCode.MoveRotate;

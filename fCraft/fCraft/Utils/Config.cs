@@ -40,12 +40,14 @@ namespace fCraft {
      *              
      * 109 - r226 - Added PatrolledClass config key
      *              Added Patrol permission
+     *              
+     * 110 - r227 - Added ShutdownServer and Mute permissions
      */
 
     public static class Config {
         public static string ServerURL;
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 109;
+        public const int ConfigVersion = 110;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
@@ -438,20 +440,24 @@ namespace fCraft {
                             LogType.Warning, ClassList.defaultClass.name );
             }
 
+            // antispam
             Player.spamChatCount = GetInt( ConfigKey.AntispamMessageCount );
             Player.spamChatTimer = GetInt( ConfigKey.AntispamInterval );
             Player.muteDuration = TimeSpan.FromSeconds( GetInt( ConfigKey.AntispamMuteDuration ) );
 
+            // scheduler settings
             Server.maxUploadSpeed = GetInt( ConfigKey.UploadBandwidth );
             Server.packetsPerSecond = GetInt( ConfigKey.BlockUpdateThrottling );
             Server.ticksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
 
+            // class to patrol
             if( ClassList.ParseClass( settings[ConfigKey.PatrolledClass] ) != null ) {
                 World.classToPatrol = ClassList.ParseClass( settings[ConfigKey.PatrolledClass] );
             } else {
                 World.classToPatrol = ClassList.lowestClass;
             }
 
+            // IRC delay
             IRC.SendDelay = GetInt( ConfigKey.IRCDelay );
         }
 
@@ -580,13 +586,14 @@ namespace fCraft {
                 if( temp >= minRange && temp <= maxRange ) {
                     settings[key] = temp.ToString();
                 } else {
-                    Log( "Config.SetValue: Specified value for {0} is not within valid range ({1}...{2}). Using default ({3}).", LogType.Warning,
-                                        key, minRange, maxRange, settings[key] );
+                    Log( "Config.ValidateInt: Specified value for {0} is not within valid range ({1}...{2}). Using default ({3}).", LogType.Warning,
+                         key, minRange, maxRange, settings[key] );
                 }
                 return true;
+
             } else {
-                Log( "Config.SetValue: Specified value for {0} could not be parsed. Using default ({1}).", LogType.Warning,
-                                    key, settings[key] );
+                Log( "Config.ValidateInt: Specified value for {0} could not be parsed. Using default ({1}).", LogType.Warning,
+                     key, settings[key] );
                 return false;
             }
         }
@@ -596,9 +603,10 @@ namespace fCraft {
             if( Boolean.TryParse( value, out temp ) ) {
                 settings[key] = temp.ToString();
                 return true;
+
             } else {
-                Log( "Config.SetValue: Specified value for {0} could not be parsed. Expected 'true' or 'false'. Using default ({1}).", LogType.Warning,
-                                    key, settings[key] );
+                Log( "Config.ValidateBool: Specified value for {0} could not be parsed. Expected 'true' or 'false'. Using default ({1}).", LogType.Warning,
+                     key, settings[key] );
                 return false;
             }
         }
@@ -607,23 +615,26 @@ namespace fCraft {
             if( Color.Parse( value ) != null ) {
                 settings[key] = value;
                 return true;
+
             } else {
-                Log( "Config.SetValue: Specified value for {0} could not be parsed. Using default ({1}).", LogType.Warning,
-                                    key, settings[key] );
+                Log( "Config.ValidateColor: Specified value for {0} could not be parsed. Using default ({1}).", LogType.Warning,
+                     key, settings[key] );
                 return false;
             }
         }
 
         static bool ValidateString( ConfigKey key, string value, int minLength, int maxLength ) {
             if( value.Length < minLength ) {
-                Log( "Config.SetValue: Specified value for {0} is too short (expected length: {1}...{2}). Using default ({3}).", LogType.Warning,
-                    key, minLength, maxLength, settings[key] );
+                Log( "Config.ValidateString: Specified value for {0} is too short (expected length: {1}...{2}). Using default ({3}).", LogType.Warning,
+                     key, minLength, maxLength, settings[key] );
                 return false;
+
             } else if( value.Length > maxLength ) {
                 settings[key] = value.Substring( 0, maxLength );
-                Log( "Config.SetValue: Specified value for {0} is too long (expected length: {1}...{2}). The value has been truncated to \"{3}\".", LogType.Warning,
-                    key, minLength, maxLength, settings[key] );
+                Log( "Config.ValidateString: Specified value for {0} is too long (expected length: {1}...{2}). The value has been truncated to \"{3}\".", LogType.Warning,
+                     key, minLength, maxLength, settings[key] );
                 return true;
+
             } else {
                 settings[key] = value;
                 return true;
@@ -772,6 +783,7 @@ namespace fCraft {
             op.Add( new XElement( Permission.Bring.ToString() ) );
             op.Add( new XElement( Permission.Patrol.ToString() ) );
             op.Add( new XElement( Permission.Freeze.ToString() ) );
+            op.Add( new XElement( Permission.Mute.ToString() ) );
             op.Add( new XElement( Permission.SetSpawn.ToString() ) );
 
             op.Add( new XElement( Permission.ManageZones.ToString() ) );
@@ -828,6 +840,7 @@ namespace fCraft {
             owner.Add( new XElement( Permission.Bring.ToString() ) );
             owner.Add( new XElement( Permission.Patrol.ToString() ) );
             owner.Add( new XElement( Permission.Freeze.ToString() ) );
+            owner.Add( new XElement( Permission.Mute.ToString() ) );
             owner.Add( new XElement( Permission.SetSpawn.ToString() ) );
 
             owner.Add( new XElement( Permission.Lock.ToString() ) );
@@ -839,7 +852,9 @@ namespace fCraft {
             owner.Add( new XElement( Permission.Import.ToString() ) );
             owner.Add( new XElement( Permission.Draw.ToString() ) );
             owner.Add( new XElement( Permission.CopyAndPaste.ToString() ) );
+
             owner.Add( new XElement( Permission.ReloadConfig.ToString() ) );
+            owner.Add( new XElement( Permission.ShutdownServer.ToString() ) );
             permissions.Add( owner );
             DefineClass( owner );
 

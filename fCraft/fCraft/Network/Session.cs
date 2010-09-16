@@ -202,7 +202,7 @@ namespace fCraft {
                                     }
 
                                     if( distSquared > antiSpeedMaxDistanceSquared ) {
-                                        SendNow( PacketWriter.MakeTeleport( 255, player.pos ) );
+                                        SendNow( PacketWriter.MakeSelfTeleport( player.pos ) );
                                     }
 
                                 } else {
@@ -220,7 +220,7 @@ namespace fCraft {
                                                                  player.lastNonHackingPosition.r,
                                                                  player.lastNonHackingPosition.l );
 
-                                                SendNow( PacketWriter.MakeTeleport( 255, avgPosition ) );
+                                                SendNow( PacketWriter.MakeSelfTeleport( avgPosition ) );
                                                 if( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {
                                                     player.Message( Color.Red + "You are not allowed to speedhack." );
                                                     antiSpeedLastNotification = DateTime.UtcNow;

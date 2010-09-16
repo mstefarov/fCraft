@@ -42,6 +42,8 @@ namespace fCraft {
 
 
         public static bool Init() {
+            serverStart = DateTime.Now;
+
             ResetWorkingDirectory();
 
             // try to load the config
@@ -110,7 +112,6 @@ namespace fCraft {
 
             IP = ((IPEndPoint)listener.LocalEndpoint).Address;
 
-            serverStart = DateTime.Now;
             if( IP.ToString() != IPAddress.Any.ToString() ) {
                 Logger.Log( "Server.Run: now accepting connections at {0}:{1}.", LogType.SystemActivity,
                             IP, port );
@@ -138,6 +139,9 @@ namespace fCraft {
             // Check for idle people every 30 seconds
             AddTask( CheckIdles, 30000 );
 
+            // Monitor CPU usage every 60 seconds
+            AddTask( MonitorProcessorUsage, CPUMonitorInterval );
+
             // Write out initial (empty) playerlist cache
             UpdatePlayerList();
 
@@ -162,51 +166,76 @@ namespace fCraft {
         // shuts down the server and aborts threads
         // NOTE: Do not call from any of the usual threads (main, heartbeat, tasks).
         // Call from UI thread or a new separate thread only.
-        public static void Shutdown() {
-            if( OnShutdownStart != null ) OnShutdownStart();
+        public static void Shutdown( string reason ) {
+#if DEBUG
+#else
+            try {
+#endif
+                if( OnShutdownBegin != null ) OnShutdownBegin();
 
-            // kill the main thread
-            Logger.Log( "Server shutting down.", LogType.SystemActivity );
-            shuttingDown = true;
-            if( mainThread != null && mainThread.IsAlive ) {
-                mainThread.Join( 5000 ); 
-                if( mainThread.IsAlive ) {
-                    mainThread.Abort(); // temporary kludge until i find a real cause
+                Logger.Log( "Server shutting down ({0})", LogType.SystemActivity, reason );
+
+
+                // kick all players
+                lock( playerListLock ) {
+                    foreach( Session session in sessions ) {
+                        // NOTE: kick packet delivery here is not currently guaranteed
+                        session.Kick( "Server shutting down (" + reason + ")" );
+                    }
                 }
-            }
 
-            // stop accepting new players
-            if( listener != null ) {
-                listener.Stop();
-                listener = null;
-            }
-
-            // kill the heartbeat
-            Heartbeat.Shutdown();
-
-            // kill IRC bot
-            if( IRC.connected ) IRC.Disconnect();
-
-            // kill background tasks
-            Tasks.Shutdown();
-
-            // kick all players
-            lock( playerListLock ) {
-                foreach( Session session in sessions ) {
-                    session.Kick( "Server shutting down." );
+                // kill the main thread
+                shuttingDown = true;
+                if( mainThread != null && mainThread.IsAlive ) {
+                    mainThread.Join( 5000 );
+                    if( mainThread.IsAlive ) {
+                        mainThread.Abort(); // temporary kludge until i find a real cause
+                    }
                 }
-            }
 
-            // unload all worlds (includes saving 
-            foreach( World world in worlds.Values ) {
-                world.Shutdown();
-            }
+                // stop accepting new players
+                if( listener != null ) {
+                    listener.Stop();
+                    listener = null;
+                }
 
-            PlayerDB.Save();
-            IPBanList.Save();
-            if( OnShutdownEnd != null ) OnShutdownEnd();
+                // kill the heartbeat
+                Heartbeat.Shutdown();
+
+                // kill IRC bot
+                if( IRC.connected ) IRC.Disconnect();
+
+                // kill background tasks
+                Tasks.Shutdown();
+
+                lock( worldListLock ) {
+                    // unload all worlds (includes saving)
+                    foreach( World world in worlds.Values ) {
+                        world.Shutdown();
+                    }
+                }
+
+                if( PlayerDB.isLoaded ) PlayerDB.Save();
+                if( IPBanList.isLoaded ) IPBanList.Save();
+
+                if( OnShutdownEnd != null ) OnShutdownEnd();
+#if DEBUG
+#else
+            } catch( Exception ex ) {
+                Logger.Log( "Server.Shutdown: Unexpected error: {0}", LogType.Error, ex );
+                Logger.UploadCrashReport( "Unexpected error on shutdown", "fCraft", ex );
+            }
+#endif
         }
 
+
+        public static void InitiateShutdown( string reason ) {
+            new Thread( delegate( object obj ) {
+                Thread.Sleep( 5000 );
+                Server.Shutdown( (string)obj );
+                Process.GetCurrentProcess().Kill();
+            } ).Start( reason );
+        }
 
         #region Worlds
 
@@ -512,6 +541,17 @@ namespace fCraft {
             }
         }
 
+
+        public static int CountLoadedWorlds() {
+            int counter = 0;
+            lock( worldListLock ) {
+                foreach( World world in worlds.Values ) {
+                    if( world.map != null ) counter++;
+                }
+            }
+            return counter;
+        }
+
         #endregion
 
 
@@ -624,7 +664,7 @@ namespace fCraft {
         public static event PlayerDisconnectedEventHandler OnPlayerDisconnected;
         public static event PlayerChangedClassEventHandler OnPlayerClassChanged;
         public static event URLChangeEventHandler OnURLChanged;
-        public static event SimpleEventHandler OnShutdownStart;
+        public static event SimpleEventHandler OnShutdownBegin;
         public static event SimpleEventHandler OnShutdownEnd;
         public static event PlayerChangedWorldEventHandler OnPlayerChangedWorld;
         public static event LogEventHandler OnLog;
@@ -805,6 +845,17 @@ namespace fCraft {
                     }
                 }
             }
+        }
+
+
+        static TimeSpan oldCPUTime = new TimeSpan( 0 );
+        public static float CPUUsageTotal, CPUUsageLastMinute;
+        const int CPUMonitorInterval = 60000; // 1 minute
+        public static void MonitorProcessorUsage( object param ) {
+            TimeSpan newCPUTime = Process.GetCurrentProcess().TotalProcessorTime;
+            CPUUsageLastMinute = (float)((newCPUTime - oldCPUTime).TotalMilliseconds / (Environment.ProcessorCount * CPUMonitorInterval));
+            CPUUsageTotal = (float)(newCPUTime.TotalMilliseconds / (Environment.ProcessorCount * DateTime.UtcNow.Subtract( serverStart ).TotalMilliseconds));
+            oldCPUTime = newCPUTime;
         }
 
         #endregion
