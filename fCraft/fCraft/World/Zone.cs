@@ -7,14 +7,6 @@ using System.Text;
 
 namespace fCraft {
 
-    public enum ZonePlayerStatus {
-        Included,
-        Neutral,
-        Excluded
-    }
-
-
-
     public sealed class Zone {
 
         public class ZonePlayerList {
@@ -53,37 +45,37 @@ namespace fCraft {
         public PlayerInfo createdBy, editedBy;
 
         // returns the PREVIOUS state of the player
-        public ZonePlayerStatus Include( PlayerInfo info ) {
+        public ZoneOverride Include( PlayerInfo info ) {
             lock( locker ) {
                 if( includedPlayers.ContainsValue( info ) ) {
                     UpdatePlayerLists();
-                    return ZonePlayerStatus.Included;
+                    return ZoneOverride.Allow;
                 } else if( excludedPlayers.ContainsValue( info ) ) {
                     excludedPlayers.Remove( info.name.ToLower() );
                     UpdatePlayerLists();
-                    return ZonePlayerStatus.Excluded;
+                    return ZoneOverride.Deny;
                 } else {
                     includedPlayers.Add( info.name.ToLower(), info );
                     UpdatePlayerLists();
-                    return ZonePlayerStatus.Neutral;
+                    return ZoneOverride.None;
                 }
             }
         }
 
         // returns the PREVIOUS state of the player
-        public ZonePlayerStatus Exclude( PlayerInfo info ) {
+        public ZoneOverride Exclude( PlayerInfo info ) {
             lock( locker ) {
                 if( excludedPlayers.ContainsValue( info ) ) {
                     UpdatePlayerLists();
-                    return ZonePlayerStatus.Excluded;
+                    return ZoneOverride.Deny;
                 } else if( includedPlayers.ContainsValue( info ) ) {
                     includedPlayers.Remove( info.name.ToLower() );
                     UpdatePlayerLists();
-                    return ZonePlayerStatus.Included;
+                    return ZoneOverride.Allow;
                 } else {
                     excludedPlayers.Add( info.name.ToLower(), info );
                     UpdatePlayerLists();
-                    return ZonePlayerStatus.Neutral;
+                    return ZoneOverride.None;
                 }
             }
         }
@@ -180,34 +172,35 @@ namespace fCraft {
             return false;
         }
 
-        /*
+        
         public ZonePermissionType CanBuildDetailed( Player player ) {
             ZonePlayerList list = playerList;
             for( int i = 0; i < list.excluded.Length; i++ ) {
-                if( player.info == list.excluded[i] ) return ZonePermissionType.ListDenied;
+                if( player.info == list.excluded[i] ) return ZonePermissionType.BlackListed;
             }
 
-            if( player.info.playerClass.rank >= playerClass.rank ) return ZonePermissionType.RankAllowed;
+            if( player.info.playerClass.rank >= playerClass.rank ) return ZonePermissionType.Allowed;
 
             for( int i = 0; i < list.included.Length; i++ ) {
-                if( player.info == list.included[i] ) return ZonePermissionType.ListAllowed;
+                if( player.info == list.included[i] ) return ZonePermissionType.WhiteListed;
             }
 
-            return ZonePermissionType.RankDenied;
+            return ZonePermissionType.Denied;
         }
 
-        public enum ZonePermissionType {
-            RankAllowed,
-            RankDenied,
-            ListAllowed,
-            ListDenied
-        }
-        */
+        
     }
 
     public enum ZoneOverride {
         None,
         Allow,
         Deny
+    }
+
+    public enum ZonePermissionType {
+        Allowed,
+        Denied,
+        WhiteListed,
+        BlackListed
     }
 }
