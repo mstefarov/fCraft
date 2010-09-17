@@ -42,41 +42,50 @@ namespace fCraft {
             while( (name = cmd.Next()) != null ) {
                 if( name.Length == 0 ) continue;
 
-                PlayerInfo info;
-                if( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
-                    player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
-                    return;
-                }
-                if( info == null ) {
-                    player.NoPlayerMessage( name.Substring( 1 ) );
-                    return;
-                }
 
                 if( name.StartsWith( "+" ) ) {
+                    PlayerInfo info;
+                    if( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
+                        player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
+                        return;
+                    }
+                    if( info == null ) {
+                        player.NoPlayerMessage( name.Substring( 1 ) );
+                        return;
+                    }
                     switch( zone.Include( info ) ) {
-                        case ZonePlayerStatus.Excluded:
+                        case ZoneOverride.Deny:
                             player.Message( "{0}&S is no longer excluded from zone {1}", info.GetClassyName(), zone.name );
                             changesWereMade = true;
                             break;
-                        case ZonePlayerStatus.Neutral:
+                        case ZoneOverride.None:
                             player.Message( "{0}&S is now included in zone {1}", info.GetClassyName(), zone.name );
                             changesWereMade = true;
                             break;
-                        case ZonePlayerStatus.Included:
+                        case ZoneOverride.Allow:
                             player.Message( "{0}&S is already included in zone {1}", info.GetClassyName(), zone.name );
                             break;
                     }
 
                 } else if( name.StartsWith( "-" ) ) {
+                    PlayerInfo info;
+                    if( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
+                        player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
+                        return;
+                    }
+                    if( info == null ) {
+                        player.NoPlayerMessage( name.Substring( 1 ) );
+                        return;
+                    }
                     switch( zone.Exclude( info ) ) {
-                        case ZonePlayerStatus.Excluded:
+                        case ZoneOverride.Deny:
                             player.Message( "{0}&S is already excluded from zone {1}", info.GetClassyName(), zone.name );
                             break;
-                        case ZonePlayerStatus.Neutral:
+                        case ZoneOverride.None:
                             player.Message( "{0}&S is now excluded from zone {1}", info.GetClassyName(), zone.name );
                             changesWereMade = true;
                             break;
-                        case ZonePlayerStatus.Included:
+                        case ZoneOverride.Allow:
                             player.Message( "{0}&S is no longer included in zone {1}", info.GetClassyName(), zone.name );
                             changesWereMade = true;
                             break;
@@ -242,10 +251,12 @@ namespace fCraft {
             Zone[] allowed, denied;
             if( player.world.map.TestZones( marks[0].x, marks[0].y, marks[0].h, player, out allowed, out denied ) ) {
                 foreach( Zone zone in allowed ) {
-                    player.Message( "> {0}: {1}allowed", zone.name, Color.Lime );
+                    ZonePermissionType status = zone.CanBuildDetailed( player );
+                    player.Message( "> {0}: {1}{2}", zone.name, Color.Lime, status );
                 }
                 foreach( Zone zone in denied ) {
-                    player.Message( "> {0}: {1}denied", zone.name, Color.Red );
+                    ZonePermissionType status = zone.CanBuildDetailed( player );
+                    player.Message( "> {0}: {1}{2}", zone.name, Color.Red, status );
                 }
             } else {
                 player.Message( "No zones affect this block." );
