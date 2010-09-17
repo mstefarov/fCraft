@@ -56,9 +56,11 @@ namespace fCraft {
                         lockLock = new object();
 
         internal int updateTaskId = -1, saveTaskId = -1, backupTaskId = -1;
-        AutoResetEvent waiter = new AutoResetEvent( false );
+
+        //internal bool canDispose;
+        //AutoResetEvent waiter = new AutoResetEvent( false );
         //Thread thread;
-        internal bool canDispose;
+
 
         public World( string _name ) {
             name = _name;
@@ -69,21 +71,17 @@ namespace fCraft {
         }
 
 
-        void WorldLoop() {
+        /*void WorldLoop() {
+
+            LoadMap();
+            waiter.Set();
+
             while( !Server.shuttingDown ) {
-                waiter.WaitOne(); // wait for players to connect
-                LoadMap();
-                while( true ) {
-                    // update logic
-                    lock( playerListLock ) {
-                        if( players.Count == 0 ) break;
-                    }
-                }
-                UnloadMap();
+                // update logic
             }
-            Shutdown();
-            canDispose = true;
-        }
+
+            UnloadMap();
+        }*/
 
 
         // Prepare for shutdown
@@ -190,6 +188,13 @@ namespace fCraft {
 
         public bool AcceptPlayer( Player player, bool announce ) {
             lock( playerListLock ) {
+                /*if( thread == null ) {
+                    waiter.Reset();
+                    thread = new Thread( WorldLoop );
+                    waiter.WaitOne(); // wait for map to load
+                }*/
+
+
                 // load the map, if it's not yet loaded
                 lock( mapLock ) {
                     isReadyForUnload = false;
