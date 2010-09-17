@@ -854,7 +854,7 @@ namespace fCraft {
         public static void MonitorProcessorUsage( object param ) {
             TimeSpan newCPUTime = Process.GetCurrentProcess().TotalProcessorTime;
             CPUUsageLastMinute = (float)((newCPUTime - oldCPUTime).TotalMilliseconds / (Environment.ProcessorCount * CPUMonitorInterval));
-            CPUUsageTotal = (float)(newCPUTime.TotalMilliseconds / (Environment.ProcessorCount * DateTime.UtcNow.Subtract( serverStart ).TotalMilliseconds));
+            CPUUsageTotal = (float)(newCPUTime.TotalMilliseconds / (Environment.ProcessorCount * DateTime.Now.Subtract( serverStart ).TotalMilliseconds));
             oldCPUTime = newCPUTime;
         }
 

@@ -176,8 +176,8 @@ namespace ConfigTool {
             xAnnounceKickAndBanReasons.Checked = Config.GetBool( ConfigKey.AnnounceKickAndBanReasons );
             xAnnounceClassChanges.Checked = Config.GetBool( ConfigKey.AnnounceClassChanges );
 
-            cDefaultClass.SelectedIndex = ClassList.GetIndex( ClassList.ParseClass( Config.GetString( ConfigKey.PatrolledClass ) ) );
             FillClassList( cPatrolledClass, "(lowest class)" );
+            cPatrolledClass.SelectedIndex = ClassList.GetIndex( ClassList.ParseClass( Config.GetString( ConfigKey.PatrolledClass ) ) );
         }
 
 
