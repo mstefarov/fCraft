@@ -53,7 +53,7 @@ namespace fCraft {
                     }
                 } else {
                     player.Message( "Cannot join world {0}&S: must be {1}+",
-                                    world.GetClassyName(), world.classAccess.GetClassyName() );
+                                    world.GetClassyName(), world.accessRank.GetClassyName() );
                 }
             } else {
                 List<Player> players = Server.FindPlayers( player, worldName );
@@ -193,8 +193,8 @@ namespace fCraft {
             } else if( world == Server.mainWorld ) {
                 player.Message( "World {0}&S is already set as main.", world.GetClassyName() );
             } else {
-                if( world.classAccess != ClassList.lowestClass ) {
-                    world.classAccess = ClassList.lowestClass;
+                if( world.accessRank != RankList.lowestRank ) {
+                    world.accessRank = RankList.lowestRank;
                     player.Message( "The main world cannot have access restrictions." );
                     player.Message( "Access restrictions were removed from world {0}",
                                     world.GetClassyName() );
@@ -217,26 +217,26 @@ namespace fCraft {
             name = "waccess",
             consoleSafe = true,
             permissions = new Permission[] { Permission.ManageWorlds },
-            usage = "/waccess [WorldName [ClassName]]",
+            usage = "/waccess [WorldName [RankName]]",
             help = "Shows access permission for player's current world. " +
                    "If optional WorldName parameter is given, shows access permission for another world. " +
-                   "If ClassName parameter is also given, sets access permission for specified world.",
+                   "If RankName parameter is also given, sets access permission for specified world.",
             handler = WorldAccess
         };
 
         internal static void WorldAccess( Player player, Command cmd ) {
             string worldName = cmd.Next();
-            string className = cmd.Next();
+            string rankName = cmd.Next();
 
             if( worldName == null ) {
                 if( player.world != null ) {
-                    if( player.world.classAccess == ClassList.lowestClass ) {
+                    if( player.world.accessRank == RankList.lowestRank ) {
                         player.Message( "This world ({0}&S) can be visited by anyone.",
                                         player.world.GetClassyName() );
                     } else {
                         player.Message( "This world ({0}&S) can only be visited by {1}+",
                                         player.world.GetClassyName(),
-                                        player.world.classAccess.GetClassyName() );
+                                        player.world.accessRank.GetClassyName() );
                     }
                 } else {
                     player.Message( "When calling /waccess from console, you must specify the world name." );
@@ -247,33 +247,33 @@ namespace fCraft {
             World world = Server.FindWorld( worldName );
             if( world == null ) {
                 player.Message( "No world \"{0}\" found.", worldName );
-            } else if( className == null ) {
-                if( world.classAccess == ClassList.lowestClass ) {
+            } else if( rankName == null ) {
+                if( world.accessRank == RankList.lowestRank ) {
                     player.Message( "World {0}&S can be visited by anyone.",
                                     world.GetClassyName() );
                 } else {
                     player.Message( "World {0}&S can only be visited by {1}+",
                                     world.GetClassyName(),
-                                    world.classAccess.GetClassyName() );
+                                    world.accessRank.GetClassyName() );
                 }
             } else {
-                PlayerClass playerClass = ClassList.FindClass( className );
-                if( playerClass == null ) {
-                    player.Message( "No class \"{0}\" found.", className );
+                Rank rank = RankList.FindRank( rankName );
+                if( rank == null ) {
+                    player.Message( "No class \"{0}\" found.", rankName );
                 } else if( world == Server.mainWorld ) {
                     player.Message( "The main world cannot have access restrictions." );
                 } else {
-                    world.classAccess = playerClass;
+                    world.accessRank = rank;
                     Server.SaveWorldList();
-                    if( world.classAccess == ClassList.lowestClass ) {
+                    if( world.accessRank == RankList.lowestRank ) {
                         Server.SendToAll( String.Format( "{0}&S made the world {1}&S accessible to anyone.",
                                                         player.GetClassyName(), world.GetClassyName() ) );
                     } else {
                         Server.SendToAll( String.Format( "{0}&S made the world {1}&S accessible only to {2}+",
-                                                         player.GetClassyName(), world.GetClassyName(), world.classAccess.GetClassyName() ) );
+                                                         player.GetClassyName(), world.GetClassyName(), world.accessRank.GetClassyName() ) );
                     }
                     Logger.Log( "{0} made the world \"{1}\" accessible to {2}+", LogType.UserActivity,
-                                player.name, world.name, world.classAccess.name );
+                                player.name, world.name, world.accessRank.Name );
                 }
             }
         }
@@ -284,26 +284,26 @@ namespace fCraft {
             name = "wbuild",
             consoleSafe = true,
             permissions = new Permission[] { Permission.ManageWorlds },
-            usage = "/wbuild [WorldName [ClassName]]",
+            usage = "/wbuild [WorldName [RankName]]",
             help = "Shows build permission for player's current world. " +
                    "If optional WorldName parameter is given, shows build permission for another world. " +
-                   "If ClassName parameter is also given, sets build permission for specified world.",
+                   "If RankName parameter is also given, sets build permission for specified world.",
             handler = WorldBuild
         };
 
         internal static void WorldBuild( Player player, Command cmd ) {
             string worldName = cmd.Next();
-            string className = cmd.Next();
+            string rankName = cmd.Next();
 
             if( worldName == null ) {
                 if( player.world != null ) {
-                    if( player.world.classBuild == ClassList.lowestClass ) {
+                    if( player.world.buildRank == RankList.lowestRank ) {
                         player.Message( "This world ({0}&S) can be modified by anyone.",
                                         player.world.GetClassyName() );
                     } else {
                         player.Message( "This world ({0}&S) can only be modified by {1}+",
                                         player.world.GetClassyName(),
-                                        player.world.classBuild.GetClassyName() );
+                                        player.world.buildRank.GetClassyName() );
                     }
                 } else {
                     player.Message( "When calling /waccess from console, you must specify the world name." );
@@ -314,31 +314,31 @@ namespace fCraft {
             World world = Server.FindWorld( worldName );
             if( world == null ) {
                 player.Message( "No world \"{0}\" found.", worldName );
-            } else if( className == null ) {
-                if( world.classBuild == ClassList.lowestClass ) {
+            } else if( rankName == null ) {
+                if( world.buildRank == RankList.lowestRank ) {
                     player.Message( "World {0}&S can be modified by anyone.",
                                     world.GetClassyName() );
                 } else {
                     player.Message( "World {0}&S can be only modified by {1}+",
                                     world.GetClassyName(),
-                                    world.classBuild.GetClassyName() );
+                                    world.buildRank.GetClassyName() );
                 }
             } else {
-                PlayerClass playerClass = ClassList.FindClass( className );
-                if( playerClass == null ) {
-                    player.Message( "No class \"{0}\" found.", className );
+                Rank rank = RankList.FindRank( rankName );
+                if( rank == null ) {
+                    player.Message( "No class \"{0}\" found.", rankName );
                 } else {
-                    world.classBuild = playerClass;
+                    world.buildRank = rank;
                     Server.SaveWorldList();
-                    if( world.classBuild == ClassList.lowestClass ) {
+                    if( world.buildRank == RankList.lowestRank ) {
                         Server.SendToAll( String.Format( "{0}&S made the world {1}&S modifiable by anyone.",
                                                          player.GetClassyName(), world.GetClassyName() ) );
                     } else {
                         Server.SendToAll( String.Format( "{0}&S made the world {1}&S modifiable only by {2}+",
-                                                         player.GetClassyName(), world.GetClassyName(), world.classBuild.GetClassyName() ) );
+                                                         player.GetClassyName(), world.GetClassyName(), world.buildRank.GetClassyName() ) );
                     }
                     Logger.Log( "{0} made the world \"{1}\" modifiable by {2}+", LogType.UserActivity,
-                                player.name, world.name, world.classBuild.name );
+                                player.name, world.name, world.buildRank.Name );
                 }
             }
         }

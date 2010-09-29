@@ -300,10 +300,9 @@ namespace Mcc {
         }
         public void WriteTag( BinaryWriter writer, bool writeType ) {
             if( writeType ) writer.Write( (byte)Type );
-            if( Name != "" ) WriteString( Name, writer );
+            if( Type == NBTType.End ) return;
+            if( writeType ) WriteString( Name, writer );
             switch( Type ) {
-                case NBTType.End: return;
-
                 case NBTType.Byte:
                     writer.Write( (byte)Payload );
                     return;

@@ -25,7 +25,7 @@ namespace fCraft {
 
             CommandList.RegisterCommand( cdKick );
 
-            CommandList.RegisterCommand( cdChangeClass );
+            CommandList.RegisterCommand( cdChangeRank );
 
             CommandList.RegisterCommand( cdImportBans );
             CommandList.RegisterCommand( cdImportRanks );
@@ -166,7 +166,7 @@ namespace fCraft {
             if( Config.GetBool( ConfigKey.RequireBanReason ) && (reason == null || reason.Length == 0) ) {
                 player.Message( Color.Red + "Please specify a ban/unban reason." );
                 // freeze the target player to prevent further damage
-                if( !unban && offender != null && player.Can( Permission.Freeze ) && player.info.playerClass.CanBan( offender.info.playerClass ) ) {
+                if( !unban && offender != null && player.Can( Permission.Freeze ) && player.info.rank.CanBan( offender.info.rank ) ) {
                     player.Message( offender.GetClassyName() + Color.Red + " has been frozen while you retry." );
                     Freeze( player, new Command( "/freeze " + offender.name ) );
                 }
@@ -182,7 +182,7 @@ namespace fCraft {
             } else if( !unban && offender != null ) {
 
                 // check permissions
-                if( player.info.playerClass.CanBan( offender.info.playerClass ) ) {
+                if( player.info.rank.CanBan( offender.info.rank ) ) {
                     address = offender.info.lastIP;
                     if( banIP ) DoIPBan( player, address, reason, offender.name, banAll, unban );
                     if( !banAll ) {
@@ -204,15 +204,15 @@ namespace fCraft {
                     }
                 } else {
                     player.Message( "You can only ban players ranked {0}&S or lower.",
-                                    player.info.playerClass.maxBan.GetClassyName() );
+                                    player.info.rank.maxBan.GetClassyName() );
                     player.Message( "{0}&S is ranked {1}",
                                     offender.GetClassyName(),
-                                    offender.info.playerClass.GetClassyName() );
+                                    offender.info.rank.GetClassyName() );
                 }
 
                 // ban or unban offline players
             } else if( info != null ) {
-                if( player.info.playerClass.CanBan( info.playerClass ) || unban ) {
+                if( player.info.rank.CanBan( info.rank ) || unban ) {
                     address = info.lastIP;
                     if( banIP ) DoIPBan( player, address, reason, info.name, banAll, unban );
                     if( !banAll ) {
@@ -241,17 +241,17 @@ namespace fCraft {
                         }
                     }
                 } else {
-                    PlayerClass maxRank = player.info.playerClass.maxBan;
+                    Rank maxRank = player.info.rank.maxBan;
                     if( maxRank == null ) {
                         player.Message( "You can only ban players ranked {0}&S or lower.",
-                                        player.info.playerClass.GetClassyName() );
+                                        player.info.rank.GetClassyName() );
                     } else {
                         player.Message( "You can only ban players ranked {0}&S or lower.",
                                         maxRank.GetClassyName() );
                     }
                     player.Message( "{0} is ranked {1}",
                                     info.name,
-                                    info.playerClass.name );
+                                    info.rank.Name );
                 }
 
                 // ban players who are not in the database yet
@@ -370,10 +370,10 @@ namespace fCraft {
         }
 
         internal static bool DoKick( Player player, Player target, string reason, bool silent ) {
-            if( !player.info.playerClass.CanKick( target.info.playerClass ) ) {
+            if( !player.info.rank.CanKick( target.info.rank ) ) {
                 player.Message( "You can only kick players ranked {0}&S or lower.",
-                                player.info.playerClass.maxKick.GetClassyName() );
-                player.Message( target.GetClassyName() + "&S is ranked " + target.info.playerClass.GetClassyName() );
+                                player.info.rank.maxKick.GetClassyName() );
+                player.Message( target.GetClassyName() + "&S is ranked " + target.info.rank.GetClassyName() );
                 return false;
             } else {
                 if( !silent ) {
@@ -401,32 +401,32 @@ namespace fCraft {
 
         #region Changing Class (Promotion / Demotion)
 
-        static CommandDescriptor cdChangeClass = new CommandDescriptor {
+        static CommandDescriptor cdChangeRank = new CommandDescriptor {
             name = "user",
             aliases = new string[] { "rank", "promote", "demote" },
             consoleSafe = true,
-            usage = "/user PlayerName ClassName [Reason]",
+            usage = "/user PlayerName RankName [Reason]",
             help = "Changes the class/rank of a player to a specified class. " +
-                   "Any text specified after the ClassName will be saved as a memo.",
-            handler = ChangeClass
+                   "Any text specified after the RankName will be saved as a memo.",
+            handler = ChangeRank
         };
 
-        internal static void ChangeClass( Player player, Command cmd ) {
+        internal static void ChangeRank( Player player, Command cmd ) {
             string name = cmd.Next();
-            string newClassName = cmd.Next();
+            string newRankName = cmd.Next();
 
             // Check arguments
-            if( newClassName == null ) {
-                cdChangeClass.PrintUsage( player );
-                player.Message( "See &H/classes&S for list of player classes." );
+            if( newRankName == null ) {
+                cdChangeRank.PrintUsage( player );
+                player.Message( "See &H/ranks&S for list of ranks." );
                 return;
             }
 
             // Parse class name
-            PlayerClass newClass = ClassList.FindClass( newClassName );
+            Rank newClass = RankList.FindRank( newRankName );
             if( newClass == null ) {
                 player.Message( "Unrecognized player class: {0}",
-                                newClassName );
+                                newRankName );
                 return;
             }
 
@@ -447,18 +447,18 @@ namespace fCraft {
 
 
 
-            DoChangeClass( player, info, target, newClass, cmd.NextAll() );
+            DoChangeRank( player, info, target, newClass, cmd.NextAll() );
         }
 
-        internal static void DoChangeClass( Player player, PlayerInfo targetInfo, Player target, PlayerClass newClass, string reason ) {
+        internal static void DoChangeRank( Player player, PlayerInfo targetInfo, Player target, Rank newRank, string reason ) {
 
-            bool promote = (targetInfo.playerClass.rank < newClass.rank);
+            bool promote = (targetInfo.rank.rank < newRank.rank);
 
             // Make sure it's not same rank
-            if( targetInfo.playerClass == newClass ) {
+            if( targetInfo.rank == newRank ) {
                 player.Message( "{0} is already ranked {1}",
                                 targetInfo.name,
-                                newClass.GetClassyName() );
+                                newRank.GetClassyName() );
                 return;
             }
 
@@ -472,29 +472,29 @@ namespace fCraft {
             }
 
             // Make sure player has the specific permissions (including limits)
-            if( promote && !player.info.playerClass.CanPromote( newClass ) ) {
+            if( promote && !player.info.rank.CanPromote( newRank ) ) {
                 player.Message( "You can only promote players up to {0}",
-                                player.info.playerClass.maxPromote.GetClassyName() );
+                                player.info.rank.maxPromote.GetClassyName() );
                 player.Message( "{0} is ranked {1}",
                                 targetInfo.name,
-                                targetInfo.playerClass.GetClassyName() );
+                                targetInfo.rank.GetClassyName() );
                 return;
-            } else if( !promote && !player.info.playerClass.CanDemote( targetInfo.playerClass ) ) {
+            } else if( !promote && !player.info.rank.CanDemote( targetInfo.rank ) ) {
                 player.Message( "You can only demote players that are {0}&S or lower",
-                                player.info.playerClass.maxDemote.GetClassyName() );
+                                player.info.rank.maxDemote.GetClassyName() );
                 player.Message( "{0} is ranked {1}",
                                 targetInfo.name,
-                                targetInfo.playerClass.GetClassyName() );
+                                targetInfo.rank.GetClassyName() );
                 return;
             }
 
-            if( Config.GetBool( ConfigKey.RequireClassChangeReason ) && (reason == null || reason.Length == 0) ) {
+            if( Config.GetBool( ConfigKey.RequireRankChangeReason ) && (reason == null || reason.Length == 0) ) {
                 if( promote ) {
                     player.Message( Color.Red + "Please specify a promotion reason." );
                 } else {
                     player.Message( Color.Red + "Please specify a demotion reason." );
                 }
-                cdChangeClass.PrintUsage( player );
+                cdChangeRank.PrintUsage( player );
                 return;
             }
 
@@ -502,14 +502,14 @@ namespace fCraft {
             string verb = (promote ? "promoted" : "demoted");
 
             // Do the class change
-            if( (promote && targetInfo.playerClass.rank < newClass.rank) ||
-                (!promote && targetInfo.playerClass.rank > newClass.rank) ) {
-                PlayerClass oldClass = targetInfo.playerClass;
+            if( (promote && targetInfo.rank.rank < newRank.rank) ||
+                (!promote && targetInfo.rank.rank > newRank.rank) ) {
+                Rank oldRank = targetInfo.rank;
 
-                if( !Server.FirePlayerClassChange( targetInfo, player, oldClass, newClass ) ) return;
+                if( !Server.FirePlayerRankChange( targetInfo, player, oldRank, newRank ) ) return;
 
                 Logger.Log( "{0} {1} {2} from {3} to {4}.", LogType.UserActivity,
-                            player.name, verb, targetInfo.name, targetInfo.playerClass.name, newClass.name );
+                            player.name, verb, targetInfo.name, targetInfo.rank.Name, newRank.Name );
 
                 // if player is online, toggle visible/invisible players
                 if( target != null && target.world != null ) {
@@ -525,7 +525,7 @@ namespace fCraft {
 
 
                     // ==== Actual class change happens here ====
-                    targetInfo.ProcessClassChange( newClass, player, reason );
+                    targetInfo.ProcessClassChange( newRank, player, reason );
                     // ==== Actual class change happens here ====
 
 
@@ -535,7 +535,7 @@ namespace fCraft {
                     // inform the player of the class change
                     target.Message( "You have been {0} to {1}&S by {2}",
                                     verb,
-                                    newClass.GetClassyName(),
+                                    newRank.GetClassyName(),
                                     player.GetClassyName() );
 
                     // Handle hiding/revealing hidden players (in case relative permissions change)
@@ -556,36 +556,36 @@ namespace fCraft {
 
                 } else {
                     // ==== Actual class change happens here (offline) ====
-                    targetInfo.ProcessClassChange( newClass, player, reason );
+                    targetInfo.ProcessClassChange( newRank, player, reason );
                     // ==== Actual class change happens here (offline) ====
                 }
 
                 Server.FirePlayerListChangedEvent();
 
 
-                if( Config.GetBool( ConfigKey.AnnounceClassChanges ) ) {
+                if( Config.GetBool( ConfigKey.AnnounceRankChanges ) ) {
                     Server.SendToAll( String.Format( "&S{0} was {1} from {2}&S to {3}",
                                                     targetInfo.name,
                                                     verb,
-                                                    oldClass.GetClassyName(),
-                                                    newClass.GetClassyName() ) );
+                                                    oldRank.GetClassyName(),
+                                                    newRank.GetClassyName() ) );
                 } else {
                     player.Message( "You {0} {1} from {2}&S to {3}",
                                     verb,
                                     targetInfo.name,
-                                    oldClass.GetClassyName(),
-                                    newClass.GetClassyName() );
+                                    oldRank.GetClassyName(),
+                                    newRank.GetClassyName() );
                 }
 
             } else {
                 if( promote ) {
                     player.Message( "{0}&S is already same or lower rank than {1}",
                                     targetInfo.GetClassyName(),
-                                    newClass.GetClassyName() );
+                                    newRank.GetClassyName() );
                 } else {
                     player.Message( "{0}&S is already same or higher rank than {1}",
                                     targetInfo.GetClassyName(),
-                                    newClass.GetClassyName() );
+                                    newRank.GetClassyName() );
                 }
             }
         }
@@ -685,7 +685,7 @@ namespace fCraft {
                 return;
             }
 
-            PlayerClass targetClass = ClassList.ParseClass( targetName );
+            Rank targetClass = RankList.ParseRank( targetName );
             if( targetClass == null ) {
                 player.Message( "Unrecognized player class: \"{0}\"", targetName );
                 return;
@@ -716,7 +716,7 @@ namespace fCraft {
                 if( info == null ) {
                     info = PlayerDB.AddFakeEntry( name );
                 }
-                DoChangeClass( player, info, null, targetClass, reason );
+                DoChangeRank( player, info, null, targetClass, reason );
             }
 
             PlayerDB.Save();
@@ -1000,9 +1000,9 @@ namespace fCraft {
                     player.session.JoinWorld( target.world, target.pos );
 
                 } else {
-                    player.Message( "Cannot teleport to {0}&S because this world requires {0}+&S to join.",
+                    player.Message( "Cannot teleport to {0}&S because this world requires {1}+&S to join.",
                                     target.GetClassyName(),
-                                    player.world.classAccess.GetClassyName() );
+                                    player.world.accessRank.GetClassyName() );
                 }
 
             } else if( matches.Count > 1 ) {
@@ -1045,6 +1045,7 @@ namespace fCraft {
 
         static CommandDescriptor cdBring = new CommandDescriptor {
             name = "bring",
+            aliases = new string[] { "summon" },
             permissions = new Permission[] { Permission.Bring },
             usage = "/bring PlayerName",
             help = "Teleports you to a specified player's location. If no name is given, teleports you to map spawn.",
@@ -1063,15 +1064,15 @@ namespace fCraft {
                 Player target = matches[0];
 
                 if( target.world == player.world ) {
-                    target.Send( PacketWriter.MakeSelfTeleport(player.pos) );
+                    target.Send( PacketWriter.MakeSelfTeleport( player.pos ) );
 
                 } else if( target.CanJoin( player.world ) ) {
                     target.session.JoinWorld( player.world, player.pos );
 
                 } else {
-                    player.Message( "Cannot bring {0}&S because this world requires {0}+&S to join.",
+                    player.Message( "Cannot bring {0}&S because this world requires {1}+&S to join.",
                                     target.GetClassyName(),
-                                    player.world.classAccess.GetClassyName() );
+                                    player.world.accessRank.GetClassyName() );
                 }
             } else if( matches.Count > 1 ) {
                 player.ManyPlayersMessage( matches );
@@ -1123,14 +1124,14 @@ namespace fCraft {
         internal static void Mute( Player player, Command cmd ) {
             string playerName = cmd.Next();
             int seconds;
-            if( playerName != null && Player.IsValidName(playerName) && cmd.NextInt( out seconds ) && seconds > 0 ) {
+            if( playerName != null && Player.IsValidName( playerName ) && cmd.NextInt( out seconds ) && seconds > 0 ) {
                 List<Player> matches = Server.FindPlayers( playerName );
                 if( matches.Count == 1 ) {
                     Player target = matches[0];
                     target.Mute( seconds );
                     target.Message( "You were muted by {0} seconds by {1}", seconds, player.GetClassyName() );
                     Server.SendToAll( String.Format( "Player {0}&S was muted by {1}&S for {2} sec",
-                                                     target.GetClassyName(), player.GetClassyName(), seconds),
+                                                     target.GetClassyName(), player.GetClassyName(), seconds ),
                                       target );
                     Logger.Log( "Player {0} was muted by {1} for {2} seconds.", LogType.UserActivity,
                                 target.name, player.name, seconds );

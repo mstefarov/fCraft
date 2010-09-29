@@ -36,7 +36,7 @@ namespace fCraft {
         internal static float ticksPerSecond;
 
         const int MaxPortAttempts = 20;
-        public static int port;
+        public static int Port;
 
 
 
@@ -86,19 +86,19 @@ namespace fCraft {
             // open the port
             bool portFound = false;
             int attempts = 0;
-            port = Config.GetInt( ConfigKey.Port );
+            Port = Config.GetInt( ConfigKey.Port );
 
             do {
                 try {
-                    listener = new TcpListener( IPAddress.Parse( Config.GetString( ConfigKey.IP ) ), port );
+                    listener = new TcpListener( IPAddress.Parse( Config.GetString( ConfigKey.IP ) ), Port );
                     listener.Start();
                     portFound = true;
 
                 } catch( Exception ex ) {
                     // if the port is unavailable, try next one
                     Logger.Log( "Could not start listening on port {0}, trying next port. ({1})", LogType.Error,
-                                port, ex.Message );
-                    port++;
+                                Port, ex.Message );
+                    Port++;
                     attempts++;
                 }
             } while( !portFound && attempts < MaxPortAttempts );
@@ -114,10 +114,10 @@ namespace fCraft {
 
             if( IP.ToString() != IPAddress.Any.ToString() ) {
                 Logger.Log( "Server.Run: now accepting connections at {0}:{1}.", LogType.SystemActivity,
-                            IP, port );
+                            IP, Port );
             } else {
                 Logger.Log( "Server.Run: now accepting connections at port {0}.", LogType.SystemActivity,
-                            port );
+                            Port );
             }
 
             // list loaded worlds
@@ -266,11 +266,11 @@ namespace fCraft {
                 Logger.Log( "World creation failed. Shutting down.", LogType.FatalError );
                 return false;
             } else {
-                if( mainWorld.classAccess != ClassList.lowestClass ) {
+                if( mainWorld.accessRank != RankList.lowestRank ) {
                     Logger.LogWarning( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
                                        "Access permission for \"{0}\" has been reset.", WarningLogSubtype.WorldListWarning,
                                        mainWorld.name );
-                    mainWorld.classAccess = ClassList.lowestClass;
+                    mainWorld.accessRank = RankList.lowestRank;
                 }
                 if( !mainWorld.neverUnload ) {
                     mainWorld.neverUnload = true;
@@ -316,8 +316,8 @@ namespace fCraft {
                     if( firstWorld == null ) firstWorld = world;
                     Logger.Log( "Server.ParseWorldListXML: Loaded world \"" + worldName + "\"", LogType.Debug );
 
-                    LoadWorldClassRestriction( world, ref world.classAccess, "access", el );
-                    LoadWorldClassRestriction( world, ref world.classBuild, "build", el );
+                    LoadWorldClassRestriction( world, ref world.accessRank, "access", el );
+                    LoadWorldClassRestriction( world, ref world.buildRank, "build", el );
                 }
             }
 
@@ -338,21 +338,21 @@ namespace fCraft {
         }
 
 
-        static void LoadWorldClassRestriction( World world, ref PlayerClass field, string fieldType, XElement element ) {
+        static void LoadWorldClassRestriction( World world, ref Rank field, string fieldType, XElement element ) {
             XAttribute temp;
-            PlayerClass playerClass;
+            Rank rank;
             if( (temp = element.Attribute( fieldType )) != null ) {
-                if( (playerClass = ClassList.ParseClass( temp.Value )) != null ) {
-                    field = playerClass;
+                if( (rank = RankList.ParseRank( temp.Value )) != null ) {
+                    field = rank;
                 } else {
                     Logger.Log( "Server.ParseWorldListXML: Could not parse the specified {0} class for world \"{1}\": \"{2}\". No access limit was set.", LogType.Error,
                                 fieldType,
                                 world.name,
                                 temp.Value );
-                    field = ClassList.lowestClass;
+                    field = RankList.lowestRank;
                 }
             } else {
-                field = ClassList.lowestClass;
+                field = RankList.lowestRank;
             }
         }
 
@@ -387,8 +387,8 @@ namespace fCraft {
                 foreach( World world in worlds.Values ) {
                     temp = new XElement( "World" );
                     temp.Add( new XAttribute( "name", world.name ) );
-                    temp.Add( new XAttribute( "access", world.classAccess ) );
-                    temp.Add( new XAttribute( "build", world.classBuild ) );
+                    temp.Add( new XAttribute( "access", world.accessRank ) );
+                    temp.Add( new XAttribute( "build", world.buildRank ) );
                     if( world.neverUnload ) {
                         temp.Add( new XAttribute( "noUnload", true ) );
                     }
@@ -615,19 +615,19 @@ namespace fCraft {
         }
 
         // Broadcast to a specific class
-        public static void SendToClass( Packet packet, PlayerClass playerClass ) {
+        public static void SendToRank( Packet packet, Rank rank ) {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i].info.playerClass == playerClass ) {
+                if( tempList[i].info.rank == rank ) {
                     tempList[i].Send( packet );
                 }
             }
         }
 
         // Broadcast to a specific class
-        public static void SendToClass( string message, PlayerClass playerClass ) {
+        public static void SendToRank( string message, Rank rank ) {
             foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
-                SendToClass( packet, playerClass );
+                SendToRank( packet, rank );
             }
         }
 
@@ -662,7 +662,7 @@ namespace fCraft {
         public static event SimpleEventHandler OnStart;
         public static event PlayerConnectedEventHandler OnPlayerConnected;
         public static event PlayerDisconnectedEventHandler OnPlayerDisconnected;
-        public static event PlayerChangedClassEventHandler OnPlayerClassChanged;
+        public static event RankChangedEventHandler OnRankChanged;
         public static event URLChangeEventHandler OnURLChanged;
         public static event SimpleEventHandler OnShutdownBegin;
         public static event SimpleEventHandler OnShutdownEnd;
@@ -682,9 +682,9 @@ namespace fCraft {
             if( OnPlayerConnected != null ) OnPlayerConnected( session, ref cancel );
             return !cancel;
         }
-        internal static bool FirePlayerClassChange( PlayerInfo target, Player player, PlayerClass oldClass, PlayerClass newClass ) {
+        internal static bool FirePlayerRankChange( PlayerInfo target, Player player, Rank oldClass, Rank newClass ) {
             bool cancel = false;
-            if( OnPlayerClassChanged != null ) OnPlayerClassChanged( target, player, oldClass, newClass, ref cancel );
+            if( OnRankChanged != null ) OnRankChanged( target, player, oldClass, newClass, ref cancel );
             return !cancel;
         }
         internal static void FireWorldChangedEvent( Player player, World oldWorld, World newWorld ) {
@@ -695,7 +695,7 @@ namespace fCraft {
                 Player[] playerListCache = playerList;
                 string[] list = new string[playerListCache.Length];
                 for( int i = 0; i < list.Length; i++ ) {
-                    list[i] = playerListCache[i].info.playerClass.name + " - " + playerListCache[i].name;
+                    list[i] = playerListCache[i].info.rank.Name + " - " + playerListCache[i].name;
                 }
                 Array.Sort<string>( list );
                 OnPlayerListChanged( list );
@@ -782,12 +782,12 @@ namespace fCraft {
         static void CheckIdles( object param ) {
             Player[] tempPlayerList = playerList;
             foreach( Player player in tempPlayerList ) {
-                if( player.info.playerClass.idleKickTimer > 0 ) {
-                    if( DateTime.UtcNow.Subtract( player.idleTimer ).TotalMinutes >= player.info.playerClass.idleKickTimer ) {
+                if( player.info.rank.idleKickTimer > 0 ) {
+                    if( DateTime.UtcNow.Subtract( player.idleTimer ).TotalMinutes >= player.info.rank.idleKickTimer ) {
                         SendToAll( String.Format( "{0}&S was kicked for being idle for {1} min",
                                                   player.GetClassyName(),
-                                                  player.info.playerClass.idleKickTimer ) );
-                        AdminCommands.DoKick( Player.Console, player, "Idle for " + player.info.playerClass.idleKickTimer + " minutes", true );
+                                                  player.info.rank.idleKickTimer ) );
+                        AdminCommands.DoKick( Player.Console, player, "Idle for " + player.info.rank.idleKickTimer + " minutes", true );
                         player.ResetIdleTimer(); // to prevent kick from firing more than once
                     }
                 }
@@ -959,13 +959,13 @@ namespace fCraft {
             if( firstTime ) {
                 SendToAll( String.Format( "&S{0} ({1}&S) connected for the first time, joined {2}",
                                           player.name,
-                                          player.info.playerClass.GetClassyName(),
+                                          player.info.rank.GetClassyName(),
                                           world.GetClassyName() ),
                                           player );
             } else {
                 SendToAll( String.Format( "&S{0} ({1}&S) connected, joined {2}",
                                           player.name,
-                                          player.info.playerClass.GetClassyName(),
+                                          player.info.rank.GetClassyName(),
                                           world.GetClassyName() ),
                                           player );
             }
@@ -979,7 +979,7 @@ namespace fCraft {
         // Add a newly-logged-in player to the list, and notify existing players.
         public static bool RegisterPlayer( Player player ) {
             lock( playerListLock ) {
-                if( players.Count >= Config.GetInt( ConfigKey.MaxPlayers ) && !player.info.playerClass.reservedSlot ||
+                if( players.Count >= Config.GetInt( ConfigKey.MaxPlayers ) && !player.info.rank.reservedSlot ||
                     players.Count == Config.MaxPlayersSupported ) {
                     return false;
                 }

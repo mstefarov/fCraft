@@ -12,8 +12,7 @@ namespace fCraft {
         const int HeartbeatDelay = 30000,
                   HeartbeatTimeout = 15000;
         static Thread thread;
-        static string staticData;
-        const string URL = "http://www.minecraft.net/heartbeat.jsp";
+        const string URL = "http://minecraft.net/heartbeat.jsp";
 
         public static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
             IPAddress IP = IPAddress.Parse( Config.GetString( ConfigKey.IP ) );
@@ -23,14 +22,6 @@ namespace fCraft {
         public static void Start() {
             thread = new Thread( HeartbeatHandler );
             thread.IsBackground = true;
-
-            staticData = String.Format( "name={0}&max={1}&public={2}&port={3}&salt={4}&version={5}",
-                                        Server.UrlEncode( Config.GetString( ConfigKey.ServerName ) ),
-                                        Config.GetInt( ConfigKey.MaxPlayers ),
-                                        Config.GetBool( ConfigKey.IsPublic ),
-                                        Server.port,
-                                        Server.Salt,
-                                        Config.ProtocolVersion );
 
             thread.Start();
         }
@@ -48,7 +39,18 @@ namespace fCraft {
                     request.Timeout = HeartbeatTimeout;
                     request.ContentType = "application/x-www-form-urlencoded";
                     request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
-                    byte[] formData = Encoding.ASCII.GetBytes( staticData + "&users=" + Server.GetPlayerCount() );
+
+                    string dataString = String.Format( "name={0}&motd={1}&max={2}&public={3}&port={4}&salt={5}&version={6}&users={7}",
+                                                       Server.UrlEncode( Config.GetString( ConfigKey.ServerName ) ),
+                                                       Server.UrlEncode( Config.GetString( ConfigKey.MOTD ) ),
+                                                       Config.GetInt( ConfigKey.MaxPlayers ),
+                                                       Config.GetBool( ConfigKey.IsPublic ),
+                                                       Server.Port,
+                                                       Server.Salt,
+                                                       Config.ProtocolVersion,
+                                                       Server.GetPlayerCount() );
+
+                    byte[] formData = Encoding.ASCII.GetBytes( dataString );
                     request.ContentLength = formData.Length;
 
                     using( Stream requestStream = request.GetRequestStream() ) {

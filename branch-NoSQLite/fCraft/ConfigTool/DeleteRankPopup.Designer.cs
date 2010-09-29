@@ -1,5 +1,5 @@
 ﻿namespace ConfigTool {
-    partial class DeleteClassPopup {
+    partial class DeleteRankPopup {
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -23,7 +23,7 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( DeleteClassPopup ) );
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( DeleteRankPopup ) );
             this.lWarning = new System.Windows.Forms.Label();
             this.lSubstitute = new System.Windows.Forms.Label();
             this.cSubstitute = new System.Windows.Forms.ComboBox();

@@ -46,7 +46,7 @@ namespace fCraft {
                     isReadyForUnload,
                     isFlushing,
                     neverUnload;
-        public PlayerClass classAccess, classBuild;
+        public Rank accessRank, buildRank;
 
         public string lockedBy, unlockedBy;
         public DateTime lockedDate, unlockedDate;
@@ -64,8 +64,8 @@ namespace fCraft {
 
         public World( string _name ) {
             name = _name;
-            classAccess = ClassList.lowestClass;
-            classBuild = ClassList.lowestClass;
+            accessRank = RankList.lowestRank;
+            buildRank = RankList.lowestRank;
             //thread = new Thread( WorldLoop );
             //thread.IsBackground = true;
         }
@@ -152,8 +152,8 @@ namespace fCraft {
                     World newWorld = new World( name );
                     newWorld.map = newMap;
                     newWorld.neverUnload = neverUnload;
-                    newWorld.classAccess = classAccess;
-                    newWorld.classBuild = classBuild;
+                    newWorld.accessRank = accessRank;
+                    newWorld.buildRank = buildRank;
                     newMap.world = newWorld;
                     Server.ReplaceWorld( name, newWorld );
                     foreach( Player player in playerList ) {
@@ -466,12 +466,16 @@ namespace fCraft {
 
         public string GetClassyName() {
             string displayedName = name;
-            if( Config.GetBool( ConfigKey.ClassColorsInWorldNames ) ) {
-                if( Config.GetBool( ConfigKey.ClassPrefixesInChat ) ) {
-                    displayedName = classBuild.prefix + displayedName;
+            if( Config.GetBool( ConfigKey.RankColorsInWorldNames ) ) {
+                if( Config.GetBool( ConfigKey.RankPrefixesInChat ) ) {
+                    displayedName = buildRank.prefix + displayedName;
                 }
-                if( Config.GetBool( ConfigKey.ClassColorsInChat ) ) {
-                    displayedName = classBuild.color + displayedName;
+                if( Config.GetBool( ConfigKey.RankColorsInChat ) ) {
+                    if( buildRank.rank >= accessRank.rank ) {
+                        displayedName = buildRank.Color + displayedName;
+                    } else {
+                        displayedName = accessRank.Color + displayedName;
+                    }
                 }
             }
             return displayedName;
@@ -481,7 +485,7 @@ namespace fCraft {
 
         object patrolLock = new object();
         LinkedList<Player> patrolList = new LinkedList<Player>();
-        internal static PlayerClass classToPatrol;
+        internal static Rank classToPatrol;
 
         public Player GetNextPatrolTarget() {
             lock( patrolLock ) {
@@ -505,7 +509,7 @@ namespace fCraft {
         }
 
         void AddPlayerForPatrol( Player player ) {
-            if( player.info.playerClass.rank <= classToPatrol.rank ) {
+            if( player.info.rank.rank <= classToPatrol.rank ) {
                 lock( patrolLock ) {
                     patrolList.AddLast( player );
                 }
@@ -515,10 +519,10 @@ namespace fCraft {
         internal void CheckIfPlayerIsStillPatrollable( Player player ) {
             lock( patrolLock ) {
                 if( patrolList.Contains( player ) ){
-                    if( player.info.playerClass.rank > classToPatrol.rank ) {
+                    if( player.info.rank.rank > classToPatrol.rank ) {
                         RemovePlayerFromPatrol( player );
                     }
-                } else if( player.info.playerClass.rank <= classToPatrol.rank ) {
+                } else if( player.info.rank.rank <= classToPatrol.rank ) {
                     AddPlayerForPatrol( player );
                 }
             }

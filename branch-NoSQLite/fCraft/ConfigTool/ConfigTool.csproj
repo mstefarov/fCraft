@@ -16,24 +16,23 @@
     <TargetFrameworkSubset>Client</TargetFrameworkSubset>
     <StartupObject>ConfigTool.Program</StartupObject>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\x86\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -78,8 +77,8 @@
     <EmbeddedResource Include="AddWorldPopup.resx">
       <DependentUpon>AddWorldPopup.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DeleteClassPopup.resx">
-      <DependentUpon>DeleteClassPopup.cs</DependentUpon>
+    <EmbeddedResource Include="DeleteRankPopup.resx">
+      <DependentUpon>DeleteRankPopup.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TextEditorPopup.resx">
       <DependentUpon>TextEditorPopup.cs</DependentUpon>
@@ -108,11 +107,11 @@
     <Compile Include="CustomPictureBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="DeleteClassPopup.cs">
+    <Compile Include="DeleteRankPopup.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DeleteClassPopup.Designer.cs">
-      <DependentUpon>DeleteClassPopup.cs</DependentUpon>
+    <Compile Include="DeleteRankPopup.Designer.cs">
+      <DependentUpon>DeleteRankPopup.cs</DependentUpon>
     </Compile>
     <Compile Include="SortableBindingList.cs" />
     <Compile Include="WorldListEntry.cs" />

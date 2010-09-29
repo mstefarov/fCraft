@@ -15,9 +15,9 @@ namespace fCraft {
 
         public string name;
         public IPAddress lastIP;
-        public PlayerClass playerClass;
-        public DateTime classChangeDate;
-        public string classChangedBy;
+        public Rank rank;
+        public DateTime rankChangeDate;
+        public string rankChangedBy;
 
         public bool banned;
         public DateTime banDate;
@@ -41,8 +41,8 @@ namespace fCraft {
         public short thanksReceived;
         public short warningsReceived;
 
-        public PlayerClass previousClass;
-        public string classChangeReason;
+        public Rank previousRank;
+        public string rankChangeReason;
         public int timesKicked;
         public int timesKickedOthers;
         public int timesBannedOthers;
@@ -50,13 +50,13 @@ namespace fCraft {
 
         // === Serialization & Defaults =======================================
         // fabricate info for a player
-        public PlayerInfo( string _name, PlayerClass _playerClass ) {
+        public PlayerInfo( string _name, Rank _rank ) {
             name = _name;
             lastIP = IPAddress.None;
 
-            playerClass = _playerClass;
-            classChangeDate = DateTime.MinValue;
-            classChangedBy = "-";
+            rank = _rank;
+            rankChangeDate = DateTime.MinValue;
+            rankChangedBy = "-";
 
             //banned = false;
             banDate = DateTime.MinValue;
@@ -82,7 +82,7 @@ namespace fCraft {
             //thanksReceived = 0;
             //warningsReceived = 0;
 
-            previousClass = null;
+            previousRank = null;
         }
 
 
@@ -91,9 +91,9 @@ namespace fCraft {
             name = player.name;
             lastIP = player.session.GetIP();
 
-            playerClass = ClassList.defaultClass;
-            classChangeDate = DateTime.MinValue;
-            classChangedBy = "-";
+            rank = RankList.defaultRank;
+            rankChangeDate = DateTime.MinValue;
+            rankChangedBy = "-";
 
             //banned = false;
             banDate = DateTime.MinValue;
@@ -119,7 +119,7 @@ namespace fCraft {
             //thanksReceived = 0;
             //warningsReceived = 0;
 
-            previousClass = null;
+            previousRank = null;
         }
 
 
@@ -128,14 +128,14 @@ namespace fCraft {
             name = fields[0];
             lastIP = IPAddress.Parse( fields[1] );
 
-            playerClass = ClassList.ParseClass( fields[2] );
-            if( playerClass == null ) {
-                playerClass = ClassList.defaultClass;
-                Logger.Log( "PlayerInfo: Could not parse class for player {0}. Setting to default ({1}).", LogType.Error, name, playerClass.name );
+            rank = RankList.ParseRank( fields[2] );
+            if( rank == null ) {
+                rank = RankList.defaultRank;
+                Logger.Log( "PlayerInfo: Could not parse class for player {0}. Setting to default ({1}).", LogType.Error, name, rank.Name );
             }
-            if( fields[3] != "-" ) classChangeDate = DateTime.Parse( fields[3] );
-            else classChangeDate = DateTime.MinValue;
-            classChangedBy = fields[4];
+            if( fields[3] != "-" ) rankChangeDate = DateTime.Parse( fields[3] );
+            else rankChangeDate = DateTime.MinValue;
+            rankChangedBy = fields[4];
 
             banned = (fields[5] == "b");
 
@@ -166,8 +166,8 @@ namespace fCraft {
             warningsReceived = Int16.Parse( fields[23] );
 
             if( fields.Length > MinFieldCount ) {
-                if( fields[24].Length > 0 ) previousClass = ClassList.ParseClass( fields[24] );
-                if( fields[25].Length > 0 ) classChangeReason = Unescape( fields[25] );
+                if( fields[24].Length > 0 ) previousRank = RankList.ParseRank( fields[24] );
+                if( fields[25].Length > 0 ) rankChangeReason = Unescape( fields[25] );
                 timesKicked = Int16.Parse( fields[26] );
                 timesKickedOthers = Int16.Parse( fields[27] );
                 timesBannedOthers = Int16.Parse( fields[28] );
@@ -182,10 +182,10 @@ namespace fCraft {
             fields[0] = name;
             fields[1] = lastIP.ToString();
 
-            fields[2] = playerClass.ToString();
-            if( classChangeDate == DateTime.MinValue ) fields[3] = "-";
-            else fields[3] = classChangeDate.ToString( DateFormat );
-            fields[4] = classChangedBy;
+            fields[2] = rank.ToString();
+            if( rankChangeDate == DateTime.MinValue ) fields[3] = "-";
+            else fields[3] = rankChangeDate.ToString( DateFormat );
+            fields[4] = rankChangedBy;
 
             if( banned ) fields[5] = "b";
             else fields[5] = "-";
@@ -215,9 +215,9 @@ namespace fCraft {
             fields[22] = thanksReceived.ToString();
             fields[23] = warningsReceived.ToString();
 
-            if( previousClass != null ) fields[24] = previousClass.ToString();
+            if( previousRank != null ) fields[24] = previousRank.ToString();
             else fields[24] = "";
-            if( classChangeReason != null ) fields[25] = Escape( classChangeReason );
+            if( rankChangeReason != null ) fields[25] = Escape( rankChangeReason );
             else fields[25] = "";
             fields[26] = timesKicked.ToString();
             fields[27] = timesKickedOthers.ToString();
@@ -277,12 +277,12 @@ namespace fCraft {
         }
 
 
-        public void ProcessClassChange( PlayerClass newClass, Player changer, string reason ) {
-            previousClass = playerClass;
-            playerClass = newClass;
-            classChangeDate = DateTime.Now;
-            classChangedBy = changer.name;
-            classChangeReason = reason;
+        public void ProcessClassChange( Rank newClass, Player changer, string reason ) {
+            previousRank = rank;
+            rank = newClass;
+            rankChangeDate = DateTime.Now;
+            rankChangedBy = changer.name;
+            rankChangeReason = reason;
         }
 
 
@@ -313,11 +313,11 @@ namespace fCraft {
 
         public string GetClassyName() {
             string displayedName = name;
-            if( Config.GetBool( ConfigKey.ClassPrefixesInChat ) ) {
-                displayedName = playerClass.prefix + displayedName;
+            if( Config.GetBool( ConfigKey.RankPrefixesInChat ) ) {
+                displayedName = rank.prefix + displayedName;
             }
-            if( Config.GetBool( ConfigKey.ClassColorsInChat ) ) {
-                displayedName = playerClass.color + displayedName;
+            if( Config.GetBool( ConfigKey.RankColorsInChat ) ) {
+                displayedName = rank.Color + displayedName;
                 if( name == "fragmer" ) return "&4f&cr&ea&ag&bm&9e&5r";
                 if( name == "Kirshi" ) return "&bKir&dshi";
             }

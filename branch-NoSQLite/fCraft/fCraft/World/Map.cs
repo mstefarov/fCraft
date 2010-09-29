@@ -230,7 +230,7 @@ namespace fCraft {
                     string value = ReadLengthPrefixedString( reader );
                     if( key.StartsWith( "@zone" ) ) {
                         try {
-                            AddZone( new Zone( value ) );
+                            AddZone( new Zone( value, world ) );
                         } catch( Exception ex ) {
                             Logger.Log( "Map.ReadMetadata: cannot parse a zone: {0}", LogType.Error, ex.Message );
                         }

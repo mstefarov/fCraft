@@ -10,6 +10,8 @@ namespace fCraft {
 
         public sealed class CommandRegistrationException : Exception {
             public CommandRegistrationException( string message ) : base( message ) { }
+            public CommandRegistrationException( string message, params string[] args ) :
+                base( String.Format( message, args ) ) { }
         }
 
         // Sets up all the command hooks
@@ -42,36 +44,40 @@ namespace fCraft {
 
 
         public static void RegisterCommand( CommandDescriptor command ) {
-            if( command.name == null || command.name.Length < 1 ) {
+            if( command.name == null || command.name.Length < 1 || command.name.Length > 16 ) {
                 throw new CommandRegistrationException( "All commands need a name, between 1 and 16 alphanumeric characters long." );
             }
 
             if( commands.ContainsKey( command.name ) ) {
-                throw new CommandRegistrationException( "A command with this name is already registered." );
+                throw new CommandRegistrationException( "A command with the name \"{0}\" is already registered.", command.name );
             }
 
             if( command.handler == null ) {
-                throw new CommandRegistrationException( "Command descriptors are required to provide a handler delegate." );
+                throw new CommandRegistrationException( "All command descriptors are required to provide a handler delegate." );
             }
 
             if( aliases.ContainsKey( command.name ) ) {
                 Logger.LogWarning( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden.", WarningLogSubtype.CommandWarning,
-                            command.name, aliases[command.name] );
+                                   command.name, aliases[command.name] );
                 aliases.Remove( command.name );
             }
 
-            commands.Add( command.name, command );
 
             if( command.aliases != null ) {
                 foreach( string alias in command.aliases ) {
                     if( commands.ContainsKey( alias ) ) {
-                        Logger.LogWarning( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden.", WarningLogSubtype.CommandWarning,
-                                    alias, command.name );
+                        throw new CommandRegistrationException( "One of the aliases for \"{0}\" is using the name of an already-defined command." );
+                    }else if( aliases.ContainsKey( alias ) ) {
+                        Logger.LogWarning( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden to resolve to \"{2}\" instead.",
+                                           WarningLogSubtype.CommandWarning,
+                                           alias, aliases[alias], command.name );
                     } else {
                         aliases.Add( alias, command.name );
                     }
                 }
             }
+
+            commands.Add( command.name, command );
 
             if( command.usage == null ) {
                 command.usage = "/" + command.name;

@@ -28,8 +28,8 @@ namespace fCraft {
             world = _world;
             name = _name;
             lowercaseName = name.ToLower();
-            info = new PlayerInfo( _name, ClassList.highestClass );
-            spamBlockLog = new Queue<DateTime>( info.playerClass.antiGriefBlocks );
+            info = new PlayerInfo( _name, RankList.highestRank );
+            spamBlockLog = new Queue<DateTime>( info.rank.antiGriefBlocks );
             ResetAllBinds();
         }
 
@@ -42,7 +42,7 @@ namespace fCraft {
             session = _session;
             pos = _pos;
             info = PlayerDB.FindPlayerInfo( this );
-            spamBlockLog = new Queue<DateTime>( info.playerClass.antiGriefBlocks );
+            spamBlockLog = new Queue<DateTime>( info.rank.antiGriefBlocks );
             ResetAllBinds();
         }
 
@@ -176,24 +176,24 @@ namespace fCraft {
 
                     if( DetectChatSpam() ) return;
 
-                    string className = message.Substring( 2, message.IndexOf( ' ' ) - 2 );
-                    PlayerClass playerClass = ClassList.FindClass( className );
-                    if( playerClass != null ) {
+                    string rankName = message.Substring( 2, message.IndexOf( ' ' ) - 2 );
+                    Rank rank = RankList.FindRank( rankName );
+                    if( rank != null ) {
                         Logger.Log( "{0} to class {1}: {2}", LogType.ClassChat,
-                                    name, playerClass.name, message );
+                                    name, rank.Name, message );
                         string formattedMessage = String.Format( "{0}({1}{2}){3}{4}: {5}",
-                                                                 playerClass.color,
-                                                                 (Config.GetBool( ConfigKey.ClassPrefixesInChat ) ? playerClass.prefix : ""),
-                                                                 playerClass.name,
+                                                                 rank.Color,
+                                                                 (Config.GetBool( ConfigKey.RankPrefixesInChat ) ? rank.prefix : ""),
+                                                                 rank.Name,
                                                                  Color.PM,
                                                                  name,
                                                                  message.Substring( message.IndexOf( ' ' ) + 1 ) );
-                        Server.SendToClass( formattedMessage, playerClass );
-                        if( info.playerClass != playerClass ) {
+                        Server.SendToRank( formattedMessage, rank );
+                        if( info.rank != rank ) {
                             Message( formattedMessage );
                         }
                     } else {
-                        Message( "No class found matching \"{0}\"", className );
+                        Message( "No class found matching \"{0}\"", rankName );
                     }
                     break;
             }
@@ -390,15 +390,15 @@ namespace fCraft {
 
 
         bool CheckBlockSpam() {
-            if( info.playerClass.antiGriefBlocks == 0 && info.playerClass.antiGriefSeconds == 0 ) return false;
-            if( spamBlockLog.Count >= info.playerClass.antiGriefBlocks ) {
+            if( info.rank.antiGriefBlocks == 0 && info.rank.antiGriefSeconds == 0 ) return false;
+            if( spamBlockLog.Count >= info.rank.antiGriefBlocks ) {
                 DateTime oldestTime = spamBlockLog.Dequeue();
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
-                if( spamTimer < info.playerClass.antiGriefSeconds ) {
+                if( spamTimer < info.rank.antiGriefSeconds ) {
                     session.KickNow( "You were kicked by antigrief system. Slow down." );
                     Server.SendToAll( GetClassyName() + Color.Red + " was kicked for suspected griefing." );
                     Logger.Log( "{0} was kicked for block spam ({1} blocks in {2} seconds)", LogType.SuspiciousActivity,
-                                name, info.playerClass.antiGriefBlocks, spamTimer );
+                                name, info.rank.antiGriefBlocks, spamTimer );
                     return true;
                 }
             }
@@ -443,19 +443,19 @@ namespace fCraft {
         public bool Can( params Permission[] permissions ) {
             if( world == null ) return true;
             foreach( Permission permission in permissions ) {
-                if( !info.playerClass.Can( permission ) ) return false;
+                if( !info.rank.Can( permission ) ) return false;
             }
             return true;
         }
 
 
         public bool CanDraw( int volume ) {
-            return (info.playerClass.drawLimit > 0) && (volume > info.playerClass.drawLimit);
+            return (info.rank.drawLimit > 0) && (volume > info.rank.drawLimit);
         }
 
 
         public bool CanJoin( World world ) {
-            return info.playerClass.rank >= world.classAccess.rank;
+            return info.rank.rank >= world.accessRank.rank;
         }
 
 
@@ -479,7 +479,7 @@ namespace fCraft {
 
                 // deleting a block
                 if( Can( Permission.Delete ) ) {
-                    if( world.classBuild.rank > info.playerClass.rank ) {
+                    if( world.buildRank.rank > info.rank.rank ) {
                         return CanPlaceResult.WorldDenied;
                     } else {
                         return CanPlaceResult.Allowed;
@@ -492,7 +492,7 @@ namespace fCraft {
 
                 // building a block
                 if( Can( Permission.Build ) ) {
-                    if( world.classBuild.rank > info.playerClass.rank ) {
+                    if( world.buildRank.rank > info.rank.rank ) {
                         return CanPlaceResult.WorldDenied;
                     } else {
                         return CanPlaceResult.Allowed;
@@ -505,7 +505,7 @@ namespace fCraft {
 
                 // replacing a block
                 if( Can( Permission.Delete, Permission.Build ) ) {
-                    if( world.classBuild.rank > info.playerClass.rank ) {
+                    if( world.buildRank.rank > info.rank.rank ) {
                         return CanPlaceResult.WorldDenied;
                     } else {
                         return CanPlaceResult.Allowed;
@@ -523,7 +523,7 @@ namespace fCraft {
 
         public bool CanSee( Player other ) {
             if( world == null ) return true; // Console
-            return !other.isHidden || info.playerClass.CanSee( other.info.playerClass );
+            return !other.isHidden || info.rank.CanSee( other.info.rank );
         }
 
         #endregion
@@ -568,11 +568,11 @@ namespace fCraft {
         // gets name with all the optional fluff (color/prefix) for player list
         public string GetListName() {
             string displayedName = name;
-            if( Config.GetBool( ConfigKey.ClassPrefixesInList ) ) {
-                displayedName = info.playerClass.prefix + displayedName;
+            if( Config.GetBool( ConfigKey.RankPrefixesInList ) ) {
+                displayedName = info.rank.prefix + displayedName;
             }
-            if( Config.GetBool( ConfigKey.ClassColorsInChat ) && info.playerClass.color != Color.White ) {
-                displayedName = info.playerClass.color + displayedName;
+            if( Config.GetBool( ConfigKey.RankColorsInChat ) && info.rank.Color != Color.White ) {
+                displayedName = info.rank.Color + displayedName;
             }
             return displayedName;
         }

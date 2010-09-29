@@ -23,33 +23,20 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.ListViewItem listViewItem27 = new System.Windows.Forms.ListViewItem( "System Activity" );
-            System.Windows.Forms.ListViewItem listViewItem28 = new System.Windows.Forms.ListViewItem( "Warnings" );
-            System.Windows.Forms.ListViewItem listViewItem29 = new System.Windows.Forms.ListViewItem( "Errors" );
-            System.Windows.Forms.ListViewItem listViewItem30 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
-            System.Windows.Forms.ListViewItem listViewItem31 = new System.Windows.Forms.ListViewItem( "User Activity" );
-            System.Windows.Forms.ListViewItem listViewItem32 = new System.Windows.Forms.ListViewItem( "User Commands" );
-            System.Windows.Forms.ListViewItem listViewItem33 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
-            System.Windows.Forms.ListViewItem listViewItem34 = new System.Windows.Forms.ListViewItem( "Chat" );
-            System.Windows.Forms.ListViewItem listViewItem35 = new System.Windows.Forms.ListViewItem( "Private Chat" );
-            System.Windows.Forms.ListViewItem listViewItem36 = new System.Windows.Forms.ListViewItem( "Class Chat" );
-            System.Windows.Forms.ListViewItem listViewItem37 = new System.Windows.Forms.ListViewItem( "Console Input" );
-            System.Windows.Forms.ListViewItem listViewItem38 = new System.Windows.Forms.ListViewItem( "Console Output" );
-            System.Windows.Forms.ListViewItem listViewItem39 = new System.Windows.Forms.ListViewItem( "Debug Information" );
-            System.Windows.Forms.ListViewItem listViewItem40 = new System.Windows.Forms.ListViewItem( "System Activity" );
-            System.Windows.Forms.ListViewItem listViewItem41 = new System.Windows.Forms.ListViewItem( "Warnings" );
-            System.Windows.Forms.ListViewItem listViewItem42 = new System.Windows.Forms.ListViewItem( "Errors" );
-            System.Windows.Forms.ListViewItem listViewItem43 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
-            System.Windows.Forms.ListViewItem listViewItem44 = new System.Windows.Forms.ListViewItem( "User Activity" );
-            System.Windows.Forms.ListViewItem listViewItem45 = new System.Windows.Forms.ListViewItem( "User Commands" );
-            System.Windows.Forms.ListViewItem listViewItem46 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
-            System.Windows.Forms.ListViewItem listViewItem47 = new System.Windows.Forms.ListViewItem( "Chat" );
-            System.Windows.Forms.ListViewItem listViewItem48 = new System.Windows.Forms.ListViewItem( "Private Chat" );
-            System.Windows.Forms.ListViewItem listViewItem49 = new System.Windows.Forms.ListViewItem( "Class Chat" );
-            System.Windows.Forms.ListViewItem listViewItem50 = new System.Windows.Forms.ListViewItem( "Console Input" );
-            System.Windows.Forms.ListViewItem listViewItem51 = new System.Windows.Forms.ListViewItem( "Console Output" );
-            System.Windows.Forms.ListViewItem listViewItem52 = new System.Windows.Forms.ListViewItem( "Debug Information" );
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem( "System Activity" );
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem( "Warnings" );
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem( "Errors" );
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
+            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem( "User Activity" );
+            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem( "User Commands" );
+            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
+            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem( "Chat" );
+            System.Windows.Forms.ListViewItem listViewItem9 = new System.Windows.Forms.ListViewItem( "Private Chat" );
+            System.Windows.Forms.ListViewItem listViewItem10 = new System.Windows.Forms.ListViewItem( "Rank Chat" );
+            System.Windows.Forms.ListViewItem listViewItem11 = new System.Windows.Forms.ListViewItem( "Console Input" );
+            System.Windows.Forms.ListViewItem listViewItem12 = new System.Windows.Forms.ListViewItem( "Console Output" );
+            System.Windows.Forms.ListViewItem listViewItem13 = new System.Windows.Forms.ListViewItem( "Debug Information" );
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -61,7 +48,7 @@
             this.bAnnouncements = new System.Windows.Forms.Button();
             this.gAppearence = new System.Windows.Forms.GroupBox();
             this.xShowJoinedWorldMessages = new System.Windows.Forms.CheckBox();
-            this.xClassColorsInWorldNames = new System.Windows.Forms.CheckBox();
+            this.xRankColorsInWorldNames = new System.Windows.Forms.CheckBox();
             this.bColorPM = new System.Windows.Forms.Button();
             this.lColorPM = new System.Windows.Forms.Label();
             this.bColorAnnouncement = new System.Windows.Forms.Button();
@@ -71,7 +58,7 @@
             this.bColorSys = new System.Windows.Forms.Button();
             this.xListPrefixes = new System.Windows.Forms.CheckBox();
             this.xChatPrefixes = new System.Windows.Forms.CheckBox();
-            this.xClassColors = new System.Windows.Forms.CheckBox();
+            this.xRankColors = new System.Windows.Forms.CheckBox();
             this.lSayColor = new System.Windows.Forms.Label();
             this.lHelpColor = new System.Windows.Forms.Label();
             this.lMessageColor = new System.Windows.Forms.Label();
@@ -81,8 +68,8 @@
             this.bPortCheck = new System.Windows.Forms.Button();
             this.lPort = new System.Windows.Forms.Label();
             this.nPort = new System.Windows.Forms.NumericUpDown();
-            this.cDefaultClass = new System.Windows.Forms.ComboBox();
-            this.lDefaultClass = new System.Windows.Forms.Label();
+            this.cDefaultRank = new System.Windows.Forms.ComboBox();
+            this.lDefaultRank = new System.Windows.Forms.Label();
             this.lUploadBandwidth = new System.Windows.Forms.Label();
             this.bMeasure = new System.Windows.Forms.Button();
             this.tServerName = new System.Windows.Forms.TextBox();
@@ -108,14 +95,14 @@
             this.dgvcAccess = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.dgvcBuild = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.dgvcBackup = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.tabClasses = new System.Windows.Forms.TabPage();
-            this.gClassOptions = new System.Windows.Forms.GroupBox();
+            this.tabRanks = new System.Windows.Forms.TabPage();
+            this.gRankOptions = new System.Windows.Forms.GroupBox();
             this.cMaxHideFrom = new System.Windows.Forms.ComboBox();
             this.lMaxSeeHidden = new System.Windows.Forms.Label();
             this.lAntiGrief1 = new System.Windows.Forms.Label();
             this.lAntiGrief3 = new System.Windows.Forms.Label();
             this.nAntiGriefSeconds = new System.Windows.Forms.NumericUpDown();
-            this.bColorClass = new System.Windows.Forms.Button();
+            this.bColorRank = new System.Windows.Forms.Button();
             this.xDrawLimit = new System.Windows.Forms.CheckBox();
             this.lDrawLimitUnits = new System.Windows.Forms.Label();
             this.lKickIdleUnits = new System.Windows.Forms.Label();
@@ -138,21 +125,24 @@
             this.lPrefix = new System.Windows.Forms.Label();
             this.nRank = new System.Windows.Forms.NumericUpDown();
             this.lRank = new System.Windows.Forms.Label();
-            this.lClassColor = new System.Windows.Forms.Label();
-            this.tClassName = new System.Windows.Forms.TextBox();
-            this.lClassName = new System.Windows.Forms.Label();
-            this.bRemoveClass = new System.Windows.Forms.Button();
+            this.lRankColor = new System.Windows.Forms.Label();
+            this.tRankName = new System.Windows.Forms.TextBox();
+            this.lRankName = new System.Windows.Forms.Label();
+            this.bRemoveRank = new System.Windows.Forms.Button();
             this.vPermissions = new System.Windows.Forms.ListView();
             this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-            this.bAddClass = new System.Windows.Forms.Button();
+            this.bAddRank = new System.Windows.Forms.Button();
             this.lPermissions = new System.Windows.Forms.Label();
-            this.lClasses = new System.Windows.Forms.Label();
-            this.vClasses = new System.Windows.Forms.ListBox();
+            this.lRanks = new System.Windows.Forms.Label();
+            this.vRanks = new System.Windows.Forms.ListBox();
             this.tabSecurity = new System.Windows.Forms.TabPage();
             this.gSecurityMisc = new System.Windows.Forms.GroupBox();
-            this.xAnnounceClassChanges = new System.Windows.Forms.CheckBox();
+            this.lPatrolledClassAndBelow = new System.Windows.Forms.Label();
+            this.cPatrolledClass = new System.Windows.Forms.ComboBox();
+            this.lPatrolledClass = new System.Windows.Forms.Label();
+            this.xAnnounceRankChanges = new System.Windows.Forms.CheckBox();
             this.xAnnounceKickAndBanReasons = new System.Windows.Forms.CheckBox();
-            this.xRequireClassChangeReason = new System.Windows.Forms.CheckBox();
+            this.xRequireRankChangeReason = new System.Windows.Forms.CheckBox();
             this.xRequireBanReason = new System.Windows.Forms.CheckBox();
             this.gSpamChat = new System.Windows.Forms.GroupBox();
             this.lSpamChatWarnings = new System.Windows.Forms.Label();
@@ -262,9 +252,6 @@
             this.bResetTab = new System.Windows.Forms.Button();
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
-            this.lPatrolledClass = new System.Windows.Forms.Label();
-            this.cPatrolledClass = new System.Windows.Forms.ComboBox();
-            this.lPatrolledClassAndBelow = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -276,8 +263,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayers)).BeginInit();
             this.tabWorlds.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvWorlds)).BeginInit();
-            this.tabClasses.SuspendLayout();
-            this.gClassOptions.SuspendLayout();
+            this.tabRanks.SuspendLayout();
+            this.gRankOptions.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefSeconds)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nDrawLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nKickIdle)).BeginInit();
@@ -324,7 +311,7 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.tabs.Controls.Add( this.tabGeneral );
             this.tabs.Controls.Add( this.tabWorlds );
-            this.tabs.Controls.Add( this.tabClasses );
+            this.tabs.Controls.Add( this.tabRanks );
             this.tabs.Controls.Add( this.tabSecurity );
             this.tabs.Controls.Add( this.tabSavingAndBackup );
             this.tabs.Controls.Add( this.tabLogging );
@@ -436,7 +423,7 @@
             this.gAppearence.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.gAppearence.Controls.Add( this.xShowJoinedWorldMessages );
-            this.gAppearence.Controls.Add( this.xClassColorsInWorldNames );
+            this.gAppearence.Controls.Add( this.xRankColorsInWorldNames );
             this.gAppearence.Controls.Add( this.bColorPM );
             this.gAppearence.Controls.Add( this.lColorPM );
             this.gAppearence.Controls.Add( this.bColorAnnouncement );
@@ -446,7 +433,7 @@
             this.gAppearence.Controls.Add( this.bColorSys );
             this.gAppearence.Controls.Add( this.xListPrefixes );
             this.gAppearence.Controls.Add( this.xChatPrefixes );
-            this.gAppearence.Controls.Add( this.xClassColors );
+            this.gAppearence.Controls.Add( this.xRankColors );
             this.gAppearence.Controls.Add( this.lSayColor );
             this.gAppearence.Controls.Add( this.lHelpColor );
             this.gAppearence.Controls.Add( this.lMessageColor );
@@ -467,15 +454,15 @@
             this.xShowJoinedWorldMessages.Text = "Show \"X joined world Y\" messages.";
             this.xShowJoinedWorldMessages.UseVisualStyleBackColor = true;
             // 
-            // xClassColorsInWorldNames
+            // xRankColorsInWorldNames
             // 
-            this.xClassColorsInWorldNames.AutoSize = true;
-            this.xClassColorsInWorldNames.Location = new System.Drawing.Point( 24, 81 );
-            this.xClassColorsInWorldNames.Name = "xClassColorsInWorldNames";
-            this.xClassColorsInWorldNames.Size = new System.Drawing.Size( 247, 19 );
-            this.xClassColorsInWorldNames.TabIndex = 10;
-            this.xClassColorsInWorldNames.Text = "Color world names based on build class.";
-            this.xClassColorsInWorldNames.UseVisualStyleBackColor = true;
+            this.xRankColorsInWorldNames.AutoSize = true;
+            this.xRankColorsInWorldNames.Location = new System.Drawing.Point( 24, 81 );
+            this.xRankColorsInWorldNames.Name = "xRankColorsInWorldNames";
+            this.xRankColorsInWorldNames.Size = new System.Drawing.Size( 243, 19 );
+            this.xRankColorsInWorldNames.TabIndex = 10;
+            this.xRankColorsInWorldNames.Text = "Color world names based on build rank.";
+            this.xRankColorsInWorldNames.UseVisualStyleBackColor = true;
             // 
             // bColorPM
             // 
@@ -490,11 +477,11 @@
             // lColorPM
             // 
             this.lColorPM.AutoSize = true;
-            this.lColorPM.Location = new System.Drawing.Point( 346, 140 );
+            this.lColorPM.Location = new System.Drawing.Point( 350, 140 );
             this.lColorPM.Name = "lColorPM";
-            this.lColorPM.Size = new System.Drawing.Size( 165, 15 );
+            this.lColorPM.Size = new System.Drawing.Size( 161, 15 );
             this.lColorPM.TabIndex = 8;
-            this.lColorPM.Text = "Private / class message color";
+            this.lColorPM.Text = "Private / rank message color";
             // 
             // bColorAnnouncement
             // 
@@ -560,20 +547,20 @@
             this.xChatPrefixes.AutoSize = true;
             this.xChatPrefixes.Location = new System.Drawing.Point( 24, 110 );
             this.xChatPrefixes.Name = "xChatPrefixes";
-            this.xChatPrefixes.Size = new System.Drawing.Size( 137, 19 );
+            this.xChatPrefixes.Size = new System.Drawing.Size( 133, 19 );
             this.xChatPrefixes.TabIndex = 1;
-            this.xChatPrefixes.Text = "Show class prefixes.";
+            this.xChatPrefixes.Text = "Show rank prefixes.";
             this.xChatPrefixes.UseVisualStyleBackColor = true;
             // 
-            // xClassColors
+            // xRankColors
             // 
-            this.xClassColors.AutoSize = true;
-            this.xClassColors.Location = new System.Drawing.Point( 24, 52 );
-            this.xClassColors.Name = "xClassColors";
-            this.xClassColors.Size = new System.Drawing.Size( 127, 19 );
-            this.xClassColors.TabIndex = 0;
-            this.xClassColors.Text = "Show class colors.";
-            this.xClassColors.UseVisualStyleBackColor = true;
+            this.xRankColors.AutoSize = true;
+            this.xRankColors.Location = new System.Drawing.Point( 24, 52 );
+            this.xRankColors.Name = "xRankColors";
+            this.xRankColors.Size = new System.Drawing.Size( 123, 19 );
+            this.xRankColors.TabIndex = 0;
+            this.xRankColors.Text = "Show rank colors.";
+            this.xRankColors.UseVisualStyleBackColor = true;
             // 
             // lSayColor
             // 
@@ -611,8 +598,8 @@
             this.gBasic.Controls.Add( this.bPortCheck );
             this.gBasic.Controls.Add( this.lPort );
             this.gBasic.Controls.Add( this.nPort );
-            this.gBasic.Controls.Add( this.cDefaultClass );
-            this.gBasic.Controls.Add( this.lDefaultClass );
+            this.gBasic.Controls.Add( this.cDefaultRank );
+            this.gBasic.Controls.Add( this.lDefaultRank );
             this.gBasic.Controls.Add( this.lUploadBandwidth );
             this.gBasic.Controls.Add( this.bMeasure );
             this.gBasic.Controls.Add( this.tServerName );
@@ -693,23 +680,23 @@
             0,
             0} );
             // 
-            // cDefaultClass
+            // cDefaultRank
             // 
-            this.cDefaultClass.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cDefaultClass.FormattingEnabled = true;
-            this.cDefaultClass.Location = new System.Drawing.Point( 441, 74 );
-            this.cDefaultClass.Name = "cDefaultClass";
-            this.cDefaultClass.Size = new System.Drawing.Size( 189, 23 );
-            this.cDefaultClass.TabIndex = 6;
+            this.cDefaultRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cDefaultRank.FormattingEnabled = true;
+            this.cDefaultRank.Location = new System.Drawing.Point( 440, 74 );
+            this.cDefaultRank.Name = "cDefaultRank";
+            this.cDefaultRank.Size = new System.Drawing.Size( 189, 23 );
+            this.cDefaultRank.TabIndex = 6;
             // 
-            // lDefaultClass
+            // lDefaultRank
             // 
-            this.lDefaultClass.AutoSize = true;
-            this.lDefaultClass.Location = new System.Drawing.Point( 357, 77 );
-            this.lDefaultClass.Name = "lDefaultClass";
-            this.lDefaultClass.Size = new System.Drawing.Size( 77, 15 );
-            this.lDefaultClass.TabIndex = 12;
-            this.lDefaultClass.Text = "Default class";
+            this.lDefaultRank.AutoSize = true;
+            this.lDefaultRank.Location = new System.Drawing.Point( 361, 77 );
+            this.lDefaultRank.Name = "lDefaultRank";
+            this.lDefaultRank.Size = new System.Drawing.Size( 73, 15 );
+            this.lDefaultRank.TabIndex = 12;
+            this.lDefaultRank.Text = "Default rank";
             // 
             // lUploadBandwidth
             // 
@@ -946,8 +933,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 634, 348 );
             this.dgvWorlds.TabIndex = 0;
@@ -997,64 +984,64 @@
             this.dgvcBackup.Name = "dgvcBackup";
             this.dgvcBackup.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             // 
-            // tabClasses
+            // tabRanks
             // 
-            this.tabClasses.Controls.Add( this.gClassOptions );
-            this.tabClasses.Controls.Add( this.bRemoveClass );
-            this.tabClasses.Controls.Add( this.vPermissions );
-            this.tabClasses.Controls.Add( this.bAddClass );
-            this.tabClasses.Controls.Add( this.lPermissions );
-            this.tabClasses.Controls.Add( this.lClasses );
-            this.tabClasses.Controls.Add( this.vClasses );
-            this.tabClasses.Location = new System.Drawing.Point( 4, 24 );
-            this.tabClasses.Name = "tabClasses";
-            this.tabClasses.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabClasses.Size = new System.Drawing.Size( 651, 425 );
-            this.tabClasses.TabIndex = 2;
-            this.tabClasses.Text = "Classes";
-            this.tabClasses.UseVisualStyleBackColor = true;
+            this.tabRanks.Controls.Add( this.gRankOptions );
+            this.tabRanks.Controls.Add( this.bRemoveRank );
+            this.tabRanks.Controls.Add( this.vPermissions );
+            this.tabRanks.Controls.Add( this.bAddRank );
+            this.tabRanks.Controls.Add( this.lPermissions );
+            this.tabRanks.Controls.Add( this.lRanks );
+            this.tabRanks.Controls.Add( this.vRanks );
+            this.tabRanks.Location = new System.Drawing.Point( 4, 24 );
+            this.tabRanks.Name = "tabRanks";
+            this.tabRanks.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
+            this.tabRanks.Size = new System.Drawing.Size( 651, 425 );
+            this.tabRanks.TabIndex = 2;
+            this.tabRanks.Text = "Ranks";
+            this.tabRanks.UseVisualStyleBackColor = true;
             // 
             // gClassOptions
             // 
-            this.gClassOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.gRankOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.gClassOptions.Controls.Add( this.cMaxHideFrom );
-            this.gClassOptions.Controls.Add( this.lMaxSeeHidden );
-            this.gClassOptions.Controls.Add( this.lAntiGrief1 );
-            this.gClassOptions.Controls.Add( this.lAntiGrief3 );
-            this.gClassOptions.Controls.Add( this.nAntiGriefSeconds );
-            this.gClassOptions.Controls.Add( this.bColorClass );
-            this.gClassOptions.Controls.Add( this.xDrawLimit );
-            this.gClassOptions.Controls.Add( this.lDrawLimitUnits );
-            this.gClassOptions.Controls.Add( this.lKickIdleUnits );
-            this.gClassOptions.Controls.Add( this.nDrawLimit );
-            this.gClassOptions.Controls.Add( this.nKickIdle );
-            this.gClassOptions.Controls.Add( this.xAntiGrief );
-            this.gClassOptions.Controls.Add( this.lAntiGrief2 );
-            this.gClassOptions.Controls.Add( this.xKickIdle );
-            this.gClassOptions.Controls.Add( this.nAntiGriefBlocks );
-            this.gClassOptions.Controls.Add( this.xReserveSlot );
-            this.gClassOptions.Controls.Add( this.cBanLimit );
-            this.gClassOptions.Controls.Add( this.cKickLimit );
-            this.gClassOptions.Controls.Add( this.cDemoteLimit );
-            this.gClassOptions.Controls.Add( this.cPromoteLimit );
-            this.gClassOptions.Controls.Add( this.lBanLimit );
-            this.gClassOptions.Controls.Add( this.lKickLimit );
-            this.gClassOptions.Controls.Add( this.lDemoteLimit );
-            this.gClassOptions.Controls.Add( this.lPromoteLimit );
-            this.gClassOptions.Controls.Add( this.tPrefix );
-            this.gClassOptions.Controls.Add( this.lPrefix );
-            this.gClassOptions.Controls.Add( this.nRank );
-            this.gClassOptions.Controls.Add( this.lRank );
-            this.gClassOptions.Controls.Add( this.lClassColor );
-            this.gClassOptions.Controls.Add( this.tClassName );
-            this.gClassOptions.Controls.Add( this.lClassName );
-            this.gClassOptions.Location = new System.Drawing.Point( 155, 13 );
-            this.gClassOptions.Name = "gClassOptions";
-            this.gClassOptions.Size = new System.Drawing.Size( 303, 399 );
-            this.gClassOptions.TabIndex = 1;
-            this.gClassOptions.TabStop = false;
-            this.gClassOptions.Text = "Class Options";
+            this.gRankOptions.Controls.Add( this.cMaxHideFrom );
+            this.gRankOptions.Controls.Add( this.lMaxSeeHidden );
+            this.gRankOptions.Controls.Add( this.lAntiGrief1 );
+            this.gRankOptions.Controls.Add( this.lAntiGrief3 );
+            this.gRankOptions.Controls.Add( this.nAntiGriefSeconds );
+            this.gRankOptions.Controls.Add( this.bColorRank );
+            this.gRankOptions.Controls.Add( this.xDrawLimit );
+            this.gRankOptions.Controls.Add( this.lDrawLimitUnits );
+            this.gRankOptions.Controls.Add( this.lKickIdleUnits );
+            this.gRankOptions.Controls.Add( this.nDrawLimit );
+            this.gRankOptions.Controls.Add( this.nKickIdle );
+            this.gRankOptions.Controls.Add( this.xAntiGrief );
+            this.gRankOptions.Controls.Add( this.lAntiGrief2 );
+            this.gRankOptions.Controls.Add( this.xKickIdle );
+            this.gRankOptions.Controls.Add( this.nAntiGriefBlocks );
+            this.gRankOptions.Controls.Add( this.xReserveSlot );
+            this.gRankOptions.Controls.Add( this.cBanLimit );
+            this.gRankOptions.Controls.Add( this.cKickLimit );
+            this.gRankOptions.Controls.Add( this.cDemoteLimit );
+            this.gRankOptions.Controls.Add( this.cPromoteLimit );
+            this.gRankOptions.Controls.Add( this.lBanLimit );
+            this.gRankOptions.Controls.Add( this.lKickLimit );
+            this.gRankOptions.Controls.Add( this.lDemoteLimit );
+            this.gRankOptions.Controls.Add( this.lPromoteLimit );
+            this.gRankOptions.Controls.Add( this.tPrefix );
+            this.gRankOptions.Controls.Add( this.lPrefix );
+            this.gRankOptions.Controls.Add( this.nRank );
+            this.gRankOptions.Controls.Add( this.lRank );
+            this.gRankOptions.Controls.Add( this.lRankColor );
+            this.gRankOptions.Controls.Add( this.tRankName );
+            this.gRankOptions.Controls.Add( this.lRankName );
+            this.gRankOptions.Location = new System.Drawing.Point( 155, 13 );
+            this.gRankOptions.Name = "gClassOptions";
+            this.gRankOptions.Size = new System.Drawing.Size( 303, 399 );
+            this.gRankOptions.TabIndex = 1;
+            this.gRankOptions.TabStop = false;
+            this.gRankOptions.Text = "Rank Options";
             // 
             // cMaxHideFrom
             // 
@@ -1103,13 +1090,13 @@
             // 
             // bColorClass
             // 
-            this.bColorClass.BackColor = System.Drawing.Color.White;
-            this.bColorClass.Location = new System.Drawing.Point( 96, 73 );
-            this.bColorClass.Name = "bColorClass";
-            this.bColorClass.Size = new System.Drawing.Size( 100, 24 );
-            this.bColorClass.TabIndex = 2;
-            this.bColorClass.UseVisualStyleBackColor = false;
-            this.bColorClass.Click += new System.EventHandler( this.bColorClass_Click );
+            this.bColorRank.BackColor = System.Drawing.Color.White;
+            this.bColorRank.Location = new System.Drawing.Point( 96, 73 );
+            this.bColorRank.Name = "bColorClass";
+            this.bColorRank.Size = new System.Drawing.Size( 100, 24 );
+            this.bColorRank.TabIndex = 2;
+            this.bColorRank.UseVisualStyleBackColor = false;
+            this.bColorRank.Click += new System.EventHandler( this.bColorClass_Click );
             // 
             // xDrawLimit
             // 
@@ -1134,7 +1121,7 @@
             // lKickIdleUnits
             // 
             this.lKickIdleUnits.AutoSize = true;
-            this.lKickIdleUnits.Location = new System.Drawing.Point( 178, 279 );
+            this.lKickIdleUnits.Location = new System.Drawing.Point( 178, 284 );
             this.lKickIdleUnits.Name = "lKickIdleUnits";
             this.lKickIdleUnits.Size = new System.Drawing.Size( 51, 15 );
             this.lKickIdleUnits.TabIndex = 19;
@@ -1160,7 +1147,7 @@
             // 
             // nKickIdle
             // 
-            this.nKickIdle.Location = new System.Drawing.Point( 113, 277 );
+            this.nKickIdle.Location = new System.Drawing.Point( 113, 282 );
             this.nKickIdle.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -1194,7 +1181,7 @@
             // xKickIdle
             // 
             this.xKickIdle.AutoSize = true;
-            this.xKickIdle.Location = new System.Drawing.Point( 9, 278 );
+            this.xKickIdle.Location = new System.Drawing.Point( 9, 283 );
             this.xKickIdle.Name = "xKickIdle";
             this.xKickIdle.Size = new System.Drawing.Size( 98, 19 );
             this.xKickIdle.TabIndex = 9;
@@ -1342,43 +1329,43 @@
             this.lRank.TabIndex = 4;
             this.lRank.Text = "Rank";
             // 
-            // lClassColor
+            // lRankColor
             // 
-            this.lClassColor.AutoSize = true;
-            this.lClassColor.Location = new System.Drawing.Point( 54, 77 );
-            this.lClassColor.Name = "lClassColor";
-            this.lClassColor.Size = new System.Drawing.Size( 36, 15 );
-            this.lClassColor.TabIndex = 2;
-            this.lClassColor.Text = "Color";
+            this.lRankColor.AutoSize = true;
+            this.lRankColor.Location = new System.Drawing.Point( 54, 77 );
+            this.lRankColor.Name = "lRankColor";
+            this.lRankColor.Size = new System.Drawing.Size( 36, 15 );
+            this.lRankColor.TabIndex = 2;
+            this.lRankColor.Text = "Color";
             // 
-            // tClassName
+            // tRankName
             // 
-            this.tClassName.Location = new System.Drawing.Point( 96, 20 );
-            this.tClassName.MaxLength = 16;
-            this.tClassName.Name = "tClassName";
-            this.tClassName.Size = new System.Drawing.Size( 143, 21 );
-            this.tClassName.TabIndex = 0;
-            this.tClassName.Validating += new System.ComponentModel.CancelEventHandler( this.tClassName_Validating );
+            this.tRankName.Location = new System.Drawing.Point( 96, 20 );
+            this.tRankName.MaxLength = 16;
+            this.tRankName.Name = "tRankName";
+            this.tRankName.Size = new System.Drawing.Size( 143, 21 );
+            this.tRankName.TabIndex = 0;
+            this.tRankName.Validating += new System.ComponentModel.CancelEventHandler( this.tRankName_Validating );
             // 
-            // lClassName
+            // lRankName
             // 
-            this.lClassName.AutoSize = true;
-            this.lClassName.Location = new System.Drawing.Point( 49, 23 );
-            this.lClassName.Name = "lClassName";
-            this.lClassName.Size = new System.Drawing.Size( 41, 15 );
-            this.lClassName.TabIndex = 0;
-            this.lClassName.Text = "Name";
+            this.lRankName.AutoSize = true;
+            this.lRankName.Location = new System.Drawing.Point( 49, 23 );
+            this.lRankName.Name = "lRankName";
+            this.lRankName.Size = new System.Drawing.Size( 41, 15 );
+            this.lRankName.TabIndex = 0;
+            this.lRankName.Text = "Name";
             // 
-            // bRemoveClass
+            // bRemoveRank
             // 
-            this.bRemoveClass.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bRemoveClass.Location = new System.Drawing.Point( 85, 389 );
-            this.bRemoveClass.Name = "bRemoveClass";
-            this.bRemoveClass.Size = new System.Drawing.Size( 64, 23 );
-            this.bRemoveClass.TabIndex = 4;
-            this.bRemoveClass.Text = "Remove";
-            this.bRemoveClass.UseVisualStyleBackColor = true;
-            this.bRemoveClass.Click += new System.EventHandler( this.bRemoveClass_Click );
+            this.bRemoveRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.bRemoveRank.Location = new System.Drawing.Point( 85, 389 );
+            this.bRemoveRank.Name = "bRemoveRank";
+            this.bRemoveRank.Size = new System.Drawing.Size( 64, 23 );
+            this.bRemoveRank.TabIndex = 4;
+            this.bRemoveRank.Text = "Remove";
+            this.bRemoveRank.UseVisualStyleBackColor = true;
+            this.bRemoveRank.Click += new System.EventHandler( this.bRemoveRank_Click );
             // 
             // vPermissions
             // 
@@ -1403,16 +1390,16 @@
             // 
             this.columnHeader1.Width = 155;
             // 
-            // bAddClass
+            // bAddRank
             // 
-            this.bAddClass.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bAddClass.Location = new System.Drawing.Point( 8, 389 );
-            this.bAddClass.Name = "bAddClass";
-            this.bAddClass.Size = new System.Drawing.Size( 57, 23 );
-            this.bAddClass.TabIndex = 3;
-            this.bAddClass.Text = "Add";
-            this.bAddClass.UseVisualStyleBackColor = true;
-            this.bAddClass.Click += new System.EventHandler( this.bAddClass_Click );
+            this.bAddRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.bAddRank.Location = new System.Drawing.Point( 8, 389 );
+            this.bAddRank.Name = "bAddRank";
+            this.bAddRank.Size = new System.Drawing.Size( 57, 23 );
+            this.bAddRank.TabIndex = 3;
+            this.bAddRank.Text = "Add";
+            this.bAddRank.UseVisualStyleBackColor = true;
+            this.bAddRank.Click += new System.EventHandler( this.bAddRank_Click );
             // 
             // lPermissions
             // 
@@ -1420,31 +1407,31 @@
             this.lPermissions.AutoSize = true;
             this.lPermissions.Location = new System.Drawing.Point( 464, 10 );
             this.lPermissions.Name = "lPermissions";
-            this.lPermissions.Size = new System.Drawing.Size( 108, 15 );
+            this.lPermissions.Size = new System.Drawing.Size( 107, 15 );
             this.lPermissions.TabIndex = 3;
-            this.lPermissions.Text = "Class Permissions";
+            this.lPermissions.Text = "Rank Permissions";
             // 
-            // lClasses
+            // lRanks
             // 
-            this.lClasses.AutoSize = true;
-            this.lClasses.Location = new System.Drawing.Point( 8, 10 );
-            this.lClasses.Name = "lClasses";
-            this.lClasses.Size = new System.Drawing.Size( 50, 15 );
-            this.lClasses.TabIndex = 1;
-            this.lClasses.Text = "Classes";
+            this.lRanks.AutoSize = true;
+            this.lRanks.Location = new System.Drawing.Point( 8, 10 );
+            this.lRanks.Name = "lRanks";
+            this.lRanks.Size = new System.Drawing.Size( 42, 15 );
+            this.lRanks.TabIndex = 1;
+            this.lRanks.Text = "Ranks";
             // 
-            // vClasses
+            // vRanks
             // 
-            this.vClasses.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            this.vRanks.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)));
-            this.vClasses.Font = new System.Drawing.Font( "Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.vClasses.FormattingEnabled = true;
-            this.vClasses.IntegralHeight = false;
-            this.vClasses.Location = new System.Drawing.Point( 8, 28 );
-            this.vClasses.Name = "vClasses";
-            this.vClasses.Size = new System.Drawing.Size( 141, 355 );
-            this.vClasses.TabIndex = 0;
-            this.vClasses.SelectedIndexChanged += new System.EventHandler( this.vClasses_SelectedIndexChanged );
+            this.vRanks.Font = new System.Drawing.Font( "Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.vRanks.FormattingEnabled = true;
+            this.vRanks.IntegralHeight = false;
+            this.vRanks.Location = new System.Drawing.Point( 8, 28 );
+            this.vRanks.Name = "vRanks";
+            this.vRanks.Size = new System.Drawing.Size( 141, 355 );
+            this.vRanks.TabIndex = 0;
+            this.vRanks.SelectedIndexChanged += new System.EventHandler( this.vRanks_SelectedIndexChanged );
             // 
             // tabSecurity
             // 
@@ -1465,9 +1452,9 @@
             this.gSecurityMisc.Controls.Add( this.lPatrolledClassAndBelow );
             this.gSecurityMisc.Controls.Add( this.cPatrolledClass );
             this.gSecurityMisc.Controls.Add( this.lPatrolledClass );
-            this.gSecurityMisc.Controls.Add( this.xAnnounceClassChanges );
+            this.gSecurityMisc.Controls.Add( this.xAnnounceRankChanges );
             this.gSecurityMisc.Controls.Add( this.xAnnounceKickAndBanReasons );
-            this.gSecurityMisc.Controls.Add( this.xRequireClassChangeReason );
+            this.gSecurityMisc.Controls.Add( this.xRequireRankChangeReason );
             this.gSecurityMisc.Controls.Add( this.xRequireBanReason );
             this.gSecurityMisc.Location = new System.Drawing.Point( 8, 295 );
             this.gSecurityMisc.Name = "gSecurityMisc";
@@ -1476,15 +1463,42 @@
             this.gSecurityMisc.TabStop = false;
             this.gSecurityMisc.Text = "Misc";
             // 
-            // xAnnounceClassChanges
+            // lPatrolledClassAndBelow
             // 
-            this.xAnnounceClassChanges.AutoSize = true;
-            this.xAnnounceClassChanges.Location = new System.Drawing.Point( 304, 45 );
-            this.xAnnounceClassChanges.Name = "xAnnounceClassChanges";
-            this.xAnnounceClassChanges.Size = new System.Drawing.Size( 231, 19 );
-            this.xAnnounceClassChanges.TabIndex = 5;
-            this.xAnnounceClassChanges.Text = "Announce promotions and demotions";
-            this.xAnnounceClassChanges.UseVisualStyleBackColor = true;
+            this.lPatrolledClassAndBelow.AutoSize = true;
+            this.lPatrolledClassAndBelow.Location = new System.Drawing.Point( 242, 81 );
+            this.lPatrolledClassAndBelow.Name = "lPatrolledClassAndBelow";
+            this.lPatrolledClassAndBelow.Size = new System.Drawing.Size( 72, 15 );
+            this.lPatrolledClassAndBelow.TabIndex = 8;
+            this.lPatrolledClassAndBelow.Text = "(and below)";
+            // 
+            // cPatrolledClass
+            // 
+            this.cPatrolledClass.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cPatrolledClass.FormattingEnabled = true;
+            this.cPatrolledClass.Location = new System.Drawing.Point( 113, 78 );
+            this.cPatrolledClass.Name = "cPatrolledClass";
+            this.cPatrolledClass.Size = new System.Drawing.Size( 123, 23 );
+            this.cPatrolledClass.TabIndex = 7;
+            // 
+            // lPatrolledClass
+            // 
+            this.lPatrolledClass.AutoSize = true;
+            this.lPatrolledClass.Location = new System.Drawing.Point( 24, 81 );
+            this.lPatrolledClass.Name = "lPatrolledClass";
+            this.lPatrolledClass.Size = new System.Drawing.Size( 83, 15 );
+            this.lPatrolledClass.TabIndex = 6;
+            this.lPatrolledClass.Text = "Patrolled rank";
+            // 
+            // xAnnounceRankChanges
+            // 
+            this.xAnnounceRankChanges.AutoSize = true;
+            this.xAnnounceRankChanges.Location = new System.Drawing.Point( 304, 45 );
+            this.xAnnounceRankChanges.Name = "xAnnounceRankChanges";
+            this.xAnnounceRankChanges.Size = new System.Drawing.Size( 231, 19 );
+            this.xAnnounceRankChanges.TabIndex = 5;
+            this.xAnnounceRankChanges.Text = "Announce promotions and demotions";
+            this.xAnnounceRankChanges.UseVisualStyleBackColor = true;
             // 
             // xAnnounceKickAndBanReasons
             // 
@@ -1496,15 +1510,15 @@
             this.xAnnounceKickAndBanReasons.Text = "Announce kick, ban, and unban reasons";
             this.xAnnounceKickAndBanReasons.UseVisualStyleBackColor = true;
             // 
-            // xRequireClassChangeReason
+            // xRequireRankChangeReason
             // 
-            this.xRequireClassChangeReason.AutoSize = true;
-            this.xRequireClassChangeReason.Location = new System.Drawing.Point( 42, 45 );
-            this.xRequireClassChangeReason.Name = "xRequireClassChangeReason";
-            this.xRequireClassChangeReason.Size = new System.Drawing.Size( 225, 19 );
-            this.xRequireClassChangeReason.TabIndex = 3;
-            this.xRequireClassChangeReason.Text = "Require promotion/demotion reason";
-            this.xRequireClassChangeReason.UseVisualStyleBackColor = true;
+            this.xRequireRankChangeReason.AutoSize = true;
+            this.xRequireRankChangeReason.Location = new System.Drawing.Point( 42, 45 );
+            this.xRequireRankChangeReason.Name = "xRequireRankChangeReason";
+            this.xRequireRankChangeReason.Size = new System.Drawing.Size( 225, 19 );
+            this.xRequireRankChangeReason.TabIndex = 3;
+            this.xRequireRankChangeReason.Text = "Require promotion/demotion reason";
+            this.xRequireRankChangeReason.UseVisualStyleBackColor = true;
             // 
             // xRequireBanReason
             // 
@@ -2050,33 +2064,6 @@
             this.columnHeader2} );
             this.vLogFileOptions.GridLines = true;
             this.vLogFileOptions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            listViewItem27.StateImageIndex = 0;
-            listViewItem28.StateImageIndex = 0;
-            listViewItem29.StateImageIndex = 0;
-            listViewItem30.StateImageIndex = 0;
-            listViewItem31.StateImageIndex = 0;
-            listViewItem32.StateImageIndex = 0;
-            listViewItem33.StateImageIndex = 0;
-            listViewItem34.StateImageIndex = 0;
-            listViewItem35.StateImageIndex = 0;
-            listViewItem36.StateImageIndex = 0;
-            listViewItem37.StateImageIndex = 0;
-            listViewItem38.StateImageIndex = 0;
-            listViewItem39.StateImageIndex = 0;
-            this.vLogFileOptions.Items.AddRange( new System.Windows.Forms.ListViewItem[] {
-            listViewItem27,
-            listViewItem28,
-            listViewItem29,
-            listViewItem30,
-            listViewItem31,
-            listViewItem32,
-            listViewItem33,
-            listViewItem34,
-            listViewItem35,
-            listViewItem36,
-            listViewItem37,
-            listViewItem38,
-            listViewItem39} );
             this.vLogFileOptions.Location = new System.Drawing.Point( 100, 20 );
             this.vLogFileOptions.Name = "vLogFileOptions";
             this.vLogFileOptions.Size = new System.Drawing.Size( 161, 251 );
@@ -2160,33 +2147,33 @@
             this.columnHeader3} );
             this.vConsoleOptions.GridLines = true;
             this.vConsoleOptions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            listViewItem40.StateImageIndex = 0;
-            listViewItem41.StateImageIndex = 0;
-            listViewItem42.StateImageIndex = 0;
-            listViewItem43.StateImageIndex = 0;
-            listViewItem44.StateImageIndex = 0;
-            listViewItem45.StateImageIndex = 0;
-            listViewItem46.StateImageIndex = 0;
-            listViewItem47.StateImageIndex = 0;
-            listViewItem48.StateImageIndex = 0;
-            listViewItem49.StateImageIndex = 0;
-            listViewItem50.StateImageIndex = 0;
-            listViewItem51.StateImageIndex = 0;
-            listViewItem52.StateImageIndex = 0;
+            listViewItem1.StateImageIndex = 0;
+            listViewItem2.StateImageIndex = 0;
+            listViewItem3.StateImageIndex = 0;
+            listViewItem4.StateImageIndex = 0;
+            listViewItem5.StateImageIndex = 0;
+            listViewItem6.StateImageIndex = 0;
+            listViewItem7.StateImageIndex = 0;
+            listViewItem8.StateImageIndex = 0;
+            listViewItem9.StateImageIndex = 0;
+            listViewItem10.StateImageIndex = 0;
+            listViewItem11.StateImageIndex = 0;
+            listViewItem12.StateImageIndex = 0;
+            listViewItem13.StateImageIndex = 0;
             this.vConsoleOptions.Items.AddRange( new System.Windows.Forms.ListViewItem[] {
-            listViewItem40,
-            listViewItem41,
-            listViewItem42,
-            listViewItem43,
-            listViewItem44,
-            listViewItem45,
-            listViewItem46,
-            listViewItem47,
-            listViewItem48,
-            listViewItem49,
-            listViewItem50,
-            listViewItem51,
-            listViewItem52} );
+            listViewItem1,
+            listViewItem2,
+            listViewItem3,
+            listViewItem4,
+            listViewItem5,
+            listViewItem6,
+            listViewItem7,
+            listViewItem8,
+            listViewItem9,
+            listViewItem10,
+            listViewItem11,
+            listViewItem12,
+            listViewItem13} );
             this.vConsoleOptions.Location = new System.Drawing.Point( 88, 20 );
             this.vConsoleOptions.Name = "vConsoleOptions";
             this.vConsoleOptions.Size = new System.Drawing.Size( 161, 251 );
@@ -2816,33 +2803,6 @@
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 
-            // lPatrolledClass
-            // 
-            this.lPatrolledClass.AutoSize = true;
-            this.lPatrolledClass.Location = new System.Drawing.Point( 24, 81 );
-            this.lPatrolledClass.Name = "lPatrolledClass";
-            this.lPatrolledClass.Size = new System.Drawing.Size( 123, 15 );
-            this.lPatrolledClass.TabIndex = 6;
-            this.lPatrolledClass.Text = "Patrolled player class";
-            // 
-            // cPatrolledClass
-            // 
-            this.cPatrolledClass.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cPatrolledClass.FormattingEnabled = true;
-            this.cPatrolledClass.Location = new System.Drawing.Point( 153, 78 );
-            this.cPatrolledClass.Name = "cPatrolledClass";
-            this.cPatrolledClass.Size = new System.Drawing.Size( 123, 23 );
-            this.cPatrolledClass.TabIndex = 7;
-            // 
-            // lPatrolledClassAndBelow
-            // 
-            this.lPatrolledClassAndBelow.AutoSize = true;
-            this.lPatrolledClassAndBelow.Location = new System.Drawing.Point( 282, 81 );
-            this.lPatrolledClassAndBelow.Name = "lPatrolledClassAndBelow";
-            this.lPatrolledClassAndBelow.Size = new System.Drawing.Size( 72, 15 );
-            this.lPatrolledClassAndBelow.TabIndex = 8;
-            this.lPatrolledClassAndBelow.Text = "(and below)";
-            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2873,10 +2833,10 @@
             this.tabWorlds.ResumeLayout( false );
             this.tabWorlds.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvWorlds)).EndInit();
-            this.tabClasses.ResumeLayout( false );
-            this.tabClasses.PerformLayout();
-            this.gClassOptions.ResumeLayout( false );
-            this.gClassOptions.PerformLayout();
+            this.tabRanks.ResumeLayout( false );
+            this.tabRanks.PerformLayout();
+            this.gRankOptions.ResumeLayout( false );
+            this.gRankOptions.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefSeconds)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nDrawLimit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nKickIdle)).EndInit();
@@ -2938,7 +2898,7 @@
         private System.Windows.Forms.Button bCancel;
         private System.Windows.Forms.Button bResetTab;
         private System.Windows.Forms.TabPage tabGeneral;
-        private System.Windows.Forms.TabPage tabClasses;
+        private System.Windows.Forms.TabPage tabRanks;
         private System.Windows.Forms.Label lServerName;
         private System.Windows.Forms.TextBox tServerName;
         private System.Windows.Forms.Label lMOTD;
@@ -2958,17 +2918,17 @@
         private System.Windows.Forms.NumericUpDown nTickInterval;
         private System.Windows.Forms.Label lTickInterval;
         private System.Windows.Forms.Label lAdvancedWarning;
-        private System.Windows.Forms.ListBox vClasses;
-        private System.Windows.Forms.Label lClasses;
-        private System.Windows.Forms.Button bAddClass;
+        private System.Windows.Forms.ListBox vRanks;
+        private System.Windows.Forms.Label lRanks;
+        private System.Windows.Forms.Button bAddRank;
         private System.Windows.Forms.Label lPermissions;
         private System.Windows.Forms.ListView vPermissions;
         private System.Windows.Forms.ColumnHeader columnHeader1;
-        private System.Windows.Forms.GroupBox gClassOptions;
-        private System.Windows.Forms.Button bRemoveClass;
-        private System.Windows.Forms.Label lClassColor;
-        private System.Windows.Forms.TextBox tClassName;
-        private System.Windows.Forms.Label lClassName;
+        private System.Windows.Forms.GroupBox gRankOptions;
+        private System.Windows.Forms.Button bRemoveRank;
+        private System.Windows.Forms.Label lRankColor;
+        private System.Windows.Forms.TextBox tRankName;
+        private System.Windows.Forms.Label lRankName;
         private System.Windows.Forms.TextBox tPrefix;
         private System.Windows.Forms.Label lPrefix;
         private System.Windows.Forms.NumericUpDown nRank;
@@ -2991,10 +2951,10 @@
         private System.Windows.Forms.GroupBox gBasic;
         private System.Windows.Forms.CheckBox xListPrefixes;
         private System.Windows.Forms.CheckBox xChatPrefixes;
-        private System.Windows.Forms.CheckBox xClassColors;
+        private System.Windows.Forms.CheckBox xRankColors;
         private System.Windows.Forms.Label lSayColor;
-        private System.Windows.Forms.ComboBox cDefaultClass;
-        private System.Windows.Forms.Label lDefaultClass;
+        private System.Windows.Forms.ComboBox cDefaultRank;
+        private System.Windows.Forms.Label lDefaultRank;
         private System.Windows.Forms.GroupBox gSaving;
         private System.Windows.Forms.CheckBox xSaveOnShutdown;
         private System.Windows.Forms.NumericUpDown nSaveInterval;
@@ -3045,7 +3005,7 @@
         private System.Windows.Forms.Button bColorSys;
         private System.Windows.Forms.Button bColorSay;
         private System.Windows.Forms.Button bColorHelp;
-        private System.Windows.Forms.Button bColorClass;
+        private System.Windows.Forms.Button bColorRank;
         private System.Windows.Forms.ComboBox cUpdater;
         private System.Windows.Forms.Label bUpdater;
         private System.Windows.Forms.TabPage tabSecurity;
@@ -3123,9 +3083,9 @@
         private System.Windows.Forms.DataGridViewComboBoxColumn dgvcBackup;
         private System.Windows.Forms.GroupBox gSecurityMisc;
         private System.Windows.Forms.CheckBox xAnnounceKickAndBanReasons;
-        private System.Windows.Forms.CheckBox xRequireClassChangeReason;
+        private System.Windows.Forms.CheckBox xRequireRankChangeReason;
         private System.Windows.Forms.CheckBox xRequireBanReason;
-        private System.Windows.Forms.CheckBox xAnnounceClassChanges;
+        private System.Windows.Forms.CheckBox xAnnounceRankChanges;
         private System.Windows.Forms.Button bColorPM;
         private System.Windows.Forms.Label lColorPM;
         private System.Windows.Forms.Button bPortCheck;
@@ -3138,7 +3098,7 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label lIRCDelay;
         private System.Windows.Forms.NumericUpDown nIRCDelay;
-        private System.Windows.Forms.CheckBox xClassColorsInWorldNames;
+        private System.Windows.Forms.CheckBox xRankColorsInWorldNames;
         private System.Windows.Forms.CheckBox xShowJoinedWorldMessages;
         private System.Windows.Forms.ComboBox cMaxHideFrom;
         private System.Windows.Forms.Label lMaxSeeHidden;

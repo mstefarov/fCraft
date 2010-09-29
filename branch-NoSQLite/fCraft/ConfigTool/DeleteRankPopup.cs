@@ -10,26 +10,26 @@ using fCraft;
 
 
 namespace ConfigTool {
-    public sealed partial class DeleteClassPopup : Form {
-        internal PlayerClass substituteClass;
+    public sealed partial class DeleteRankPopup : Form {
+        internal Rank substituteRank;
 
-        public DeleteClassPopup( PlayerClass _pc ) {
+        public DeleteRankPopup( Rank rank ) {
             InitializeComponent();
-            foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                if( pc != _pc ) {
+            foreach( Rank pc in RankList.ranksByIndex ) {
+                if( pc != rank ) {
                     cSubstitute.Items.Add( pc.ToComboBoxOption() );
                 }
             }
-            lWarning.Text = String.Format( lWarning.Text, _pc.name );
+            lWarning.Text = String.Format( lWarning.Text, rank.Name );
             cSubstitute.SelectedIndex = cSubstitute.Items.Count - 1;
         }
 
 
         private void cSubstitute_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cSubstitute.SelectedIndex >= 0 ) {
-                foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                    if( cSubstitute.SelectedItem.ToString() == pc.ToComboBoxOption() ) {
-                        substituteClass = pc;
+                foreach( Rank rank in RankList.ranksByIndex ) {
+                    if( cSubstitute.SelectedItem.ToString() == rank.ToComboBoxOption() ) {
+                        substituteRank = rank;
                         bDelete.Enabled = true;
                         break;
                     }

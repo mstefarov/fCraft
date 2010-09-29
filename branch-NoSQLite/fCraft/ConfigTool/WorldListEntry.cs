@@ -54,15 +54,15 @@ namespace ConfigTool {
             }
 
             if( (temp = el.Attribute( "access" )) != null ) {
-                accessClass = ClassList.ParseClass( temp.Value );
+                accessClass = RankList.ParseRank( temp.Value );
                 if( accessClass == null ) {
                     throw new Exception( "WorldListEntity: Cannot parse XML: Unrecognized class specified for \"access\" permission." );
                 }
             }
 
             if( (temp = el.Attribute( "build" )) != null ) {
-                buildClass = ClassList.ParseClass( temp.Value );
-                if( buildClass == null ) {
+                buildRank = RankList.ParseRank( temp.Value );
+                if( buildRank == null ) {
                     throw new Exception( "WorldListEntity: Cannot parse XML: Unrecognized class specified for \"build\" permission." );
                 }
             }
@@ -107,7 +107,7 @@ namespace ConfigTool {
 
         public bool Hidden { get; set; }
 
-        internal PlayerClass accessClass;
+        internal Rank accessClass;
         public string AccessPermission {
             get {
                 if( accessClass != null ) {
@@ -117,7 +117,7 @@ namespace ConfigTool {
                 }
             }
             set {
-                foreach( PlayerClass pc in ClassList.classesByIndex ) {
+                foreach( Rank pc in RankList.ranksByIndex ) {
                     if( pc.ToComboBoxOption() == value ) {
                         accessClass = pc;
                         return;
@@ -127,23 +127,23 @@ namespace ConfigTool {
             }
         }
 
-        internal PlayerClass buildClass;
+        internal Rank buildRank;
         public string BuildPermission {
             get {
-                if( buildClass != null ) {
-                    return buildClass.ToComboBoxOption();
+                if( buildRank != null ) {
+                    return buildRank.ToComboBoxOption();
                 } else {
                     return DefaultClassOption;
                 }
             }
             set {
-                foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                    if( pc.ToComboBoxOption() == value ) {
-                        buildClass = pc;
+                foreach( Rank rank in RankList.ranksByIndex ) {
+                    if( rank.ToComboBoxOption() == value ) {
+                        buildRank = rank;
                         return;
                     }
                 }
-                buildClass = null;
+                buildRank = null;
             }
         }
 
@@ -155,7 +155,7 @@ namespace ConfigTool {
             element.Add( new XAttribute( "hidden", Hidden ) );
             element.Add( new XAttribute( "backup", Backup ) );
             if( accessClass != null ) element.Add( new XAttribute( "access", accessClass ) );
-            if( buildClass != null ) element.Add( new XAttribute( "build", buildClass ) );
+            if( buildRank != null ) element.Add( new XAttribute( "build", buildRank ) );
             return element;
         }
     }

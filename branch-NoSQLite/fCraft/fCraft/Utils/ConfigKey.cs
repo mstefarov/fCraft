@@ -6,16 +6,16 @@ namespace fCraft {
         ServerName,
         MOTD,
         MaxPlayers,
-        DefaultClass,
+        DefaultRank,
         IsPublic,
         Port,
         IP,
         UploadBandwidth,
 
-        ClassColorsInChat,
-        ClassColorsInWorldNames,
-        ClassPrefixesInChat,
-        ClassPrefixesInList,
+        RankColorsInChat,
+        RankColorsInWorldNames,
+        RankPrefixesInChat,
+        RankPrefixesInList,
         ShowJoinedWorldMessages,
         SystemMessageColor,
         HelpColor,
@@ -28,7 +28,7 @@ namespace fCraft {
 
         LimitOneConnectionPerIP,
 
-        PatrolledClass,
+        PatrolledRank,
 
         AntispamMessageCount,
         AntispamInterval,
@@ -36,9 +36,9 @@ namespace fCraft {
         AntispamMaxWarnings,
 
         RequireBanReason,
-        RequireClassChangeReason,
+        RequireRankChangeReason,
         AnnounceKickAndBanReasons,
-        AnnounceClassChanges,
+        AnnounceRankChanges,
 
         SaveOnShutdown,
         SaveInterval,

@@ -46,8 +46,8 @@ namespace fCraft {
         // adjust for bugs in position-reporting in Minecraft client
         public Position GetFixed() {
             return new Position {
-                x = (short)(x + 1),
-                y = (short)(y + 1),
+                x = (short)(x),
+                y = (short)(y),
                 h = (short)(h - 22),
                 r = r,
                 l = l

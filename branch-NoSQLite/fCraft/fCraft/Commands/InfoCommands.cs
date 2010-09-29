@@ -18,7 +18,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdWorldInfo );
             CommandList.RegisterCommand( cdInfo );
             CommandList.RegisterCommand( cdBanInfo );
-            CommandList.RegisterCommand( cdClassInfo );
+            CommandList.RegisterCommand( cdRankInfo );
 
             CommandList.RegisterCommand( cdGetVersion );
             CommandList.RegisterCommand( cdRules );
@@ -27,7 +27,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdWhere );
 
             CommandList.RegisterCommand( cdPlayers );
-            CommandList.RegisterCommand( cdClasses );
+            CommandList.RegisterCommand( cdRanks );
 
             CommandList.RegisterCommand( cdServerInfo );
 
@@ -198,18 +198,18 @@ namespace fCraft {
             }
 
             // Print access/build limits
-            if( world.classAccess == ClassList.lowestClass && world.classBuild == ClassList.lowestClass ) {
+            if( world.accessRank == RankList.lowestRank && world.buildRank == RankList.lowestRank ) {
                 player.Message( "Anyone can join or build on {0}", world.GetClassyName() );
             } else {
-                if( world.classAccess != ClassList.lowestClass ) {
+                if( world.accessRank != RankList.lowestRank ) {
                     player.Message( "Requires players to be ranked {0}+&S to join.",
-                                    world.classAccess.GetClassyName() );
+                                    world.accessRank.GetClassyName() );
                 } else {
                     player.Message( "Anyone can join {0}", world.GetClassyName() );
                 }
-                if( world.classBuild != ClassList.lowestClass ) {
+                if( world.buildRank != RankList.lowestRank ) {
                     player.Message( "Requires players to be ranked {0}+&S to build.",
-                                    world.classBuild.GetClassyName() );
+                                    world.buildRank.GetClassyName() );
                 } else {
                     player.Message( "Anyone can build on {0}", world.GetClassyName() );
                 }
@@ -386,7 +386,7 @@ namespace fCraft {
                 player.Message( "To see a list of all commands, write &H/help commands" );
                 player.Message( "To see detailed help for a command, write &H/help CommandName" );
                 if( player.world != null ) {
-                    player.Message( "To find out about your permissions, write &H/class {0}", player.info.playerClass.name );
+                    player.Message( "To find out about your permissions, write &H/class {0}", player.info.rank.Name );
                 }
                 player.Message( "To list available worlds, write &H/worlds" );
                 player.Message( "To send private messages, write &H@PlayerName Message" );
@@ -448,34 +448,34 @@ namespace fCraft {
                     player.Message( "  Got kicked {0} times (so far).", info.timesKicked );
                 }
 
-                if( info.classChangedBy != "-" ) {
-                    if( info.previousClass == null ) {
+                if( info.rankChangedBy != "-" ) {
+                    if( info.previousRank == null ) {
                         player.Message( "  Promoted to {0}&S by {1} on {2:dd MMM yyyy}.",
-                                        info.playerClass.GetClassyName(),
-                                        info.classChangedBy,
-                                        info.classChangeDate );
-                    } else if( info.previousClass.rank < info.playerClass.rank ) {
+                                        info.rank.GetClassyName(),
+                                        info.rankChangedBy,
+                                        info.rankChangeDate );
+                    } else if( info.previousRank.rank < info.rank.rank ) {
                         player.Message( "  Promoted from {0}&S to {1}&S by {2} on {3:dd MMM yyyy}.",
-                                        info.previousClass.GetClassyName(),
-                                        info.playerClass.GetClassyName(),
-                                        info.classChangedBy,
-                                        info.classChangeDate );
-                        if( info.classChangeReason != null && info.classChangeReason.Length > 0 ) {
-                            player.Message( "  Promotion reason: " + info.classChangeReason );
+                                        info.previousRank.GetClassyName(),
+                                        info.rank.GetClassyName(),
+                                        info.rankChangedBy,
+                                        info.rankChangeDate );
+                        if( info.rankChangeReason != null && info.rankChangeReason.Length > 0 ) {
+                            player.Message( "  Promotion reason: " + info.rankChangeReason );
                         }
                     } else {
                         player.Message( "  Demoted from {0}&S to {1}&S by {2} on {3:dd MMM yyyy}.",
-                                        info.previousClass.GetClassyName(),
-                                        info.playerClass.GetClassyName(),
-                                        info.classChangedBy,
-                                        info.classChangeDate );
-                        if( info.classChangeReason != null && info.classChangeReason.Length > 0 ) {
-                            player.Message( "  Demotion reason: " + info.classChangeReason );
+                                        info.previousRank.GetClassyName(),
+                                        info.rank.GetClassyName(),
+                                        info.rankChangedBy,
+                                        info.rankChangeDate );
+                        if( info.rankChangeReason != null && info.rankChangeReason.Length > 0 ) {
+                            player.Message( "  Demotion reason: " + info.rankChangeReason );
                         }
                     }
                 } else {
                     player.Message( "  Class is {0}&S (default).",
-                                    info.playerClass.GetClassyName() );
+                                    info.rank.GetClassyName() );
                 }
 
                 TimeSpan totalTime = info.totalTimeOnServer;
@@ -578,36 +578,36 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdClassInfo = new CommandDescriptor {
-            name = "cinfo",
-            aliases = new string[] { "class", "classinfo" },
+        static CommandDescriptor cdRankInfo = new CommandDescriptor {
+            name = "rinfo",
+            aliases = new string[] { "class", "classinfo", "cinfo" },
             consoleSafe = true,
-            usage = "/cinfo ClassName",
-            help = "Shows a list of permissions granted to a class. To see a list of all classes, use &H/classes",
-            handler = ClassInfo
+            usage = "/rinfo RankName",
+            help = "Shows a list of permissions granted to a rank. To see a list of all ranks, use &H/ranks",
+            handler = RankInfo
         };
 
-        // Shows general information about a particular class.
-        internal static void ClassInfo( Player player, Command cmd ) {
-            PlayerClass playerClass;
+        // Shows general information about a particular rank.
+        internal static void RankInfo( Player player, Command cmd ) {
+            Rank rank;
 
-            string className = cmd.Next();
-            if( className == null ) {
-                playerClass = player.info.playerClass;
+            string rankName = cmd.Next();
+            if( rankName == null ) {
+                rank = player.info.rank;
             } else {
-                playerClass = ClassList.FindClass( className );
-                if( playerClass == null ) {
-                    player.Message( "No such class: \"{0}\". See &H/classes", className );
+                rank = RankList.FindRank( rankName );
+                if( rank == null ) {
+                    player.Message( "No such rank: \"{0}\". See &H/ranks", rankName );
                     return;
                 }
             }
-            if( playerClass != null ) {
+            if( rank != null ) {
                 bool first = true;
                 StringBuilder sb = new StringBuilder();
                 sb.AppendFormat( "Players of class {0}&S can do the following: ",
-                                 playerClass.GetClassyName() );
-                for( int i = 0; i < playerClass.permissions.Length; i++ ) {
-                    if( playerClass.permissions[i] ) {
+                                 rank.GetClassyName() );
+                for( int i = 0; i < rank.Permissions.Length; i++ ) {
+                    if( rank.Permissions[i] ) {
                         if( !first ) {
                             sb.Append( ", " );
                         }
@@ -616,9 +616,9 @@ namespace fCraft {
                     }
                 }
                 player.Message( sb.ToString() );
-                if( playerClass.Can( Permission.Draw ) ) {
-                    if( playerClass.drawLimit > 0 ) {
-                        player.Message( "Draw command limit: " + playerClass.drawLimit + " blocks." );
+                if( rank.Can( Permission.Draw ) ) {
+                    if( rank.drawLimit > 0 ) {
+                        player.Message( "Draw command limit: " + rank.drawLimit + " blocks." );
                     } else {
                         player.Message( "Draw command limit: None (unlimited blocks)" );
                     }
@@ -628,20 +628,21 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdClasses = new CommandDescriptor {
-            name = "classes",
+        static CommandDescriptor cdRanks = new CommandDescriptor {
+            name = "ranks",
+            aliases = new string[] { "classes" },
             consoleSafe = true,
-            help = "Shows a list of all defined classes/ranks.",
-            handler = Classes
+            help = "Shows a list of all defined ranks.",
+            handler = Ranks
         };
 
-        internal static void Classes( Player player, Command cmd ) {
-            player.Message( "Below is a list of classes. For detail see &H{0}", cdClassInfo.usage );
-            foreach( PlayerClass classListEntry in ClassList.classesByIndex ) {
+        internal static void Ranks( Player player, Command cmd ) {
+            player.Message( "Below is a list of ranks. For detail see &H{0}", cdRankInfo.usage );
+            foreach( Rank classListEntry in RankList.ranksByIndex ) {
                 player.Message( "{0}    {1}{2}  (rank {3}, {4} players)",
-                                classListEntry.color,
-                                (Config.GetBool( ConfigKey.ClassPrefixesInChat ) ? classListEntry.prefix : ""),
-                                classListEntry.name,
+                                classListEntry.Color,
+                                (Config.GetBool( ConfigKey.RankPrefixesInChat ) ? classListEntry.prefix : ""),
+                                classListEntry.Name,
                                 classListEntry.rank,
                                 PlayerDB.CountPlayersByClass( classListEntry ) );
             }
