@@ -36,7 +36,9 @@ namespace fCraftUI {
             if( Server.Init() ) {
                 Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
 
+                Application.DoEvents();
                 UpdaterResult update = Updater.CheckForUpdates();
+                Application.DoEvents();
                 if( update.UpdateAvailable ) {
                     if( Config.GetString( ConfigKey.AutomaticUpdates ) == "Notify" ) {
                         Log( String.Format( Environment.NewLine +

@@ -18,7 +18,7 @@ namespace ConfigTool {
     public sealed partial class ConfigUI : Form {
         static ConfigUI instance;
         Font bold;
-        PlayerClass selectedClass, defaultClass;
+        Rank selectedRank, defaultRank;
         internal static SortableBindingList<WorldListEntry> worlds = new SortableBindingList<WorldListEntry>();
 
         #region Initialization
@@ -26,6 +26,9 @@ namespace ConfigTool {
         public ConfigUI() {
             instance = this;
             InitializeComponent();
+            foreach( ListViewItem item in vConsoleOptions.Items ) {
+                vLogFileOptions.Items.Add( (ListViewItem)item.Clone() );
+            }
 
             bold = new Font( Font, FontStyle.Bold );
 
@@ -230,26 +233,26 @@ namespace ConfigTool {
 
         #endregion
 
-        #region Classes
-        List<string> classNameList = new List<string>();
-        void SelectClass( PlayerClass pc ) {
+        #region Ranks
+        List<string> rankNameList = new List<string>();
+        void SelectRank( Rank pc ) {
             if( pc == null ) {
-                if( vClasses.SelectedIndex != -1 ) {
-                    vClasses.ClearSelected();
+                if( vRanks.SelectedIndex != -1 ) {
+                    vRanks.ClearSelected();
                     return;
                 }
-                DisableClassOptions();
+                DisableRankOptions();
                 return;
             }
-            if( vClasses.SelectedIndex != pc.index ) {
-                vClasses.SelectedIndex = pc.index;
+            if( vRanks.SelectedIndex != pc.index ) {
+                vRanks.SelectedIndex = pc.index;
                 return;
             }
-            selectedClass = pc;
-            tClassName.Text = pc.name;
+            selectedRank = pc;
+            tRankName.Text = pc.Name;
             nRank.Value = pc.rank;
 
-            ApplyColor( bColorClass, fCraft.Color.ParseToIndex( pc.color ) );
+            ApplyColor( bColorRank, fCraft.Color.ParseToIndex( pc.Color ) );
 
             tPrefix.Text = pc.prefix;
             cKickLimit.SelectedIndex = pc.GetMaxKickIndex();
@@ -271,7 +274,7 @@ namespace ConfigTool {
             nDrawLimit.Enabled = xDrawLimit.Checked;
 
             foreach( ListViewItem item in vPermissions.Items ) {
-                item.Checked = pc.permissions[item.Index];
+                item.Checked = pc.Permissions[item.Index];
                 if( item.Checked ) {
                     item.Font = bold;
                 } else {
@@ -288,45 +291,45 @@ namespace ConfigTool {
             xDrawLimit.Enabled = pc.Can( Permission.Draw );
             nDrawLimit.Enabled &= pc.Can( Permission.Draw );
 
-            gClassOptions.Enabled = true;
+            gRankOptions.Enabled = true;
             lPermissions.Enabled = true;
             vPermissions.Enabled = true;
         }
 
-        void RebuildClassList() {
-            vClasses.Items.Clear();
-            foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                vClasses.Items.Add( String.Format( "{0,3} {1,1}{2}", pc.rank, pc.prefix, pc.name ) );
+        void RebuildRankList() {
+            vRanks.Items.Clear();
+            foreach( Rank pc in RankList.ranksByIndex ) {
+                vRanks.Items.Add( String.Format( "{0,3} {1,1}{2}", pc.rank, pc.prefix, pc.Name ) );
             }
-            if( selectedClass != null ) {
-                vClasses.SelectedIndex = selectedClass.index;
+            if( selectedRank != null ) {
+                vRanks.SelectedIndex = selectedRank.index;
             }
-            SelectClass( selectedClass );
+            SelectRank( selectedRank );
 
-            FillClassList( cDefaultClass, "(lowest class)" );
+            FillClassList( cDefaultRank, "(lowest class)" );
             FillClassList( cPatrolledClass, "(lowest class)" );
-            cDefaultClass.SelectedIndex = ClassList.GetIndex( defaultClass );
+            cDefaultRank.SelectedIndex = RankList.GetIndex( defaultRank );
 
             FillClassList( cKickLimit, "(own class)" );
             FillClassList( cBanLimit, "(own class)" );
             FillClassList( cPromoteLimit, "(own class)" );
             FillClassList( cDemoteLimit, "(own class)" );
             FillClassList( cMaxHideFrom, "(own class)" );
-            if( selectedClass != null ) {
-                cKickLimit.SelectedIndex = selectedClass.GetMaxKickIndex();
-                cBanLimit.SelectedIndex = selectedClass.GetMaxBanIndex();
-                cPromoteLimit.SelectedIndex = selectedClass.GetMaxPromoteIndex();
-                cDemoteLimit.SelectedIndex = selectedClass.GetMaxDemoteIndex();
-                cMaxHideFrom.SelectedIndex = selectedClass.GetMaxHideFromIndex();
+            if( selectedRank != null ) {
+                cKickLimit.SelectedIndex = selectedRank.GetMaxKickIndex();
+                cBanLimit.SelectedIndex = selectedRank.GetMaxBanIndex();
+                cPromoteLimit.SelectedIndex = selectedRank.GetMaxPromoteIndex();
+                cDemoteLimit.SelectedIndex = selectedRank.GetMaxDemoteIndex();
+                cMaxHideFrom.SelectedIndex = selectedRank.GetMaxHideFromIndex();
             }
         }
 
-        void DisableClassOptions() {
-            selectedClass = null;
-            bRemoveClass.Enabled = false;
-            tClassName.Text = "";
+        void DisableRankOptions() {
+            selectedRank = null;
+            bRemoveRank.Enabled = false;
+            tRankName.Text = "";
             nRank.Value = 0;
-            bColorClass.Text = "";
+            bColorRank.Text = "";
             tPrefix.Text = "";
             FillClassList( cPromoteLimit, "(own class)" );
             FillClassList( cDemoteLimit, "(own class)" );
@@ -348,7 +351,7 @@ namespace ConfigTool {
                 item.Checked = false;
                 item.Font = vPermissions.Font;
             }
-            gClassOptions.Enabled = false;
+            gRankOptions.Enabled = false;
             lPermissions.Enabled = false;
             vPermissions.Enabled = false;
         }
@@ -356,75 +359,75 @@ namespace ConfigTool {
         static void FillClassList( ComboBox box, string firstItem ) {
             box.Items.Clear();
             box.Items.Add( firstItem );
-            foreach( PlayerClass pc in ClassList.classesByIndex ) {
+            foreach( Rank pc in RankList.ranksByIndex ) {
                 box.Items.Add( pc.ToComboBoxOption() );
             }
         }
 
-        #region Classes Input Handlers
+        #region Ranks Input Handlers
 
-        private void bAddClass_Click( object sender, EventArgs e ) {
-            if( vClasses.Items.Count == 255 ) {
-                MessageBox.Show( "Maximum number of classes (255) reached!", "Warning" );
+        private void bAddRank_Click( object sender, EventArgs e ) {
+            if( vRanks.Items.Count == 255 ) {
+                MessageBox.Show( "Maximum number of ranks (255) reached!", "Warning" );
                 return;
             }
             int number = 1;
             byte rank = 0;
-            while( ClassList.classesByName.ContainsKey( "class" + number ) ) number++;
-            while( ClassList.ContainsRank( rank ) ) rank++;
-            PlayerClass pc = new PlayerClass();
-            pc.ID = ClassList.GenerateID();
-            pc.name = "class" + number;
+            while( RankList.ranksByName.ContainsKey( "rank" + number ) ) number++;
+            while( RankList.ContainsRank( rank ) ) rank++;
+            Rank pc = new Rank();
+            pc.ID = RankList.GenerateID();
+            pc.Name = "rank" + number;
             pc.rank = rank;
-            for( int i = 0; i < pc.permissions.Length; i++ ) pc.permissions[i] = false;
+            for( int i = 0; i < pc.Permissions.Length; i++ ) pc.Permissions[i] = false;
             pc.prefix = "";
             pc.reservedSlot = false;
-            pc.color = "";
+            pc.Color = "";
 
-            defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
+            defaultRank = RankList.ParseIndex( cDefaultRank.SelectedIndex - 1 );
 
-            ClassList.AddClass( pc );
-            selectedClass = null;
-            RebuildClassList();
-            SelectClass( pc );
+            RankList.AddRank( pc );
+            selectedRank = null;
+            RebuildRankList();
+            SelectRank( pc );
 
             ApplyTabWorlds();
         }
 
-        private void bRemoveClass_Click( object sender, EventArgs e ) {
-            if( vClasses.SelectedItem != null ) {
-                selectedClass = null;
-                int index = vClasses.SelectedIndex;
-                PlayerClass deletedClass = ClassList.classesByIndex[index];
+        private void bRemoveRank_Click( object sender, EventArgs e ) {
+            if( vRanks.SelectedItem != null ) {
+                selectedRank = null;
+                int index = vRanks.SelectedIndex;
+                Rank deletedClass = RankList.ranksByIndex[index];
 
                 string messages = "";
 
                 // Ask for substitute class
-                DeleteClassPopup popup = new DeleteClassPopup( deletedClass );
+                DeleteRankPopup popup = new DeleteRankPopup( deletedClass );
                 if( popup.ShowDialog() != DialogResult.OK ) return;
 
                 // Update default class
-                PlayerClass defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
+                Rank defaultClass = RankList.ParseIndex( cDefaultRank.SelectedIndex - 1 );
                 if( defaultClass == deletedClass ) {
-                    defaultClass = popup.substituteClass;
-                    messages += "DefaultClass has been changed to \"" + popup.substituteClass.name + "\"" + Environment.NewLine;
+                    defaultClass = popup.substituteRank;
+                    messages += "DefaultClass has been changed to \"" + popup.substituteRank.Name + "\"" + Environment.NewLine;
                 }
 
                 // Delete class
-                if( ClassList.DeleteClass( index, popup.substituteClass ) ) { //TODO: crashes
+                if( RankList.DeleteRank( index, popup.substituteRank ) ) { //TODO: crashes
                     messages += "Some of the rank limits for kick, ban, promote, and/or demote have been reset." + Environment.NewLine;
                 }
-                vClasses.Items.RemoveAt( index );
+                vRanks.Items.RemoveAt( index );
 
                 // Update world permissions
                 string worldUpdates = "";
                 foreach( WorldListEntry world in worlds ) {
                     if( world.accessClass == deletedClass ) {
-                        world.AccessPermission = popup.substituteClass.ToComboBoxOption();
+                        world.AccessPermission = popup.substituteRank.ToComboBoxOption();
                         worldUpdates += " - " + world.name + ": access permission changed" + Environment.NewLine;
                     }
-                    if( world.buildClass == deletedClass ) {
-                        world.BuildPermission = popup.substituteClass.ToComboBoxOption();
+                    if( world.buildRank == deletedClass ) {
+                        world.BuildPermission = popup.substituteRank.ToComboBoxOption();
                         worldUpdates += " - " + world.name + ": build permission changed" + Environment.NewLine;
                     }
                 }
@@ -437,18 +440,18 @@ namespace ConfigTool {
                     MessageBox.Show( messages, "Warning" );
                 }
 
-                RebuildClassList();
+                RebuildRankList();
 
-                if( index < vClasses.Items.Count ) {
-                    vClasses.SelectedIndex = index;
+                if( index < vRanks.Items.Count ) {
+                    vRanks.SelectedIndex = index;
                 }
             }
         }
 
 
         private void tPrefix_Validating( object sender, CancelEventArgs e ) {
-            if( selectedClass == null ) return;
-            if( tPrefix.Text.Length > 0 && !PlayerClass.IsValidPrefix( tPrefix.Text ) ) {
+            if( selectedRank == null ) return;
+            if( tPrefix.Text.Length > 0 && !Rank.IsValidPrefix( tPrefix.Text ) ) {
                 MessageBox.Show( "Invalid prefix character!\n" +
                     "Prefixes may only contain characters that are allowed in chat (except space).", "Warning" );
                 tPrefix.ForeColor = Color.Red;
@@ -456,66 +459,66 @@ namespace ConfigTool {
             } else {
                 tPrefix.ForeColor = SystemColors.ControlText;
             }
-            defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
-            selectedClass.prefix = tPrefix.Text;
-            RebuildClassList();
+            defaultRank = RankList.ParseIndex( cDefaultRank.SelectedIndex - 1 );
+            selectedRank.prefix = tPrefix.Text;
+            RebuildRankList();
         }
 
         private void xReserveSlot_CheckedChanged( object sender, EventArgs e ) {
-            if( selectedClass == null ) return;
-            selectedClass.reservedSlot = xReserveSlot.Checked;
+            if( selectedRank == null ) return;
+            selectedRank.reservedSlot = xReserveSlot.Checked;
         }
 
         private void nKickIdle_ValueChanged( object sender, EventArgs e ) {
-            if( selectedClass == null || !xKickIdle.Checked ) return;
-            selectedClass.idleKickTimer = Convert.ToInt32( nKickIdle.Value );
+            if( selectedRank == null || !xKickIdle.Checked ) return;
+            selectedRank.idleKickTimer = Convert.ToInt32( nKickIdle.Value );
         }
 
         private void nAntiGriefBlocks_ValueChanged( object sender, EventArgs e ) {
-            if( selectedClass == null || !xAntiGrief.Checked ) return;
-            selectedClass.antiGriefBlocks = Convert.ToInt32( nAntiGriefBlocks.Value );
+            if( selectedRank == null || !xAntiGrief.Checked ) return;
+            selectedRank.antiGriefBlocks = Convert.ToInt32( nAntiGriefBlocks.Value );
         }
 
         private void nAntiGriefSeconds_ValueChanged( object sender, EventArgs e ) {
-            if( selectedClass == null || !xAntiGrief.Checked ) return;
-            selectedClass.antiGriefSeconds = Convert.ToInt32( nAntiGriefSeconds.Value );
+            if( selectedRank == null || !xAntiGrief.Checked ) return;
+            selectedRank.antiGriefSeconds = Convert.ToInt32( nAntiGriefSeconds.Value );
         }
 
         private void nDrawLimit_ValueChanged( object sender, EventArgs e ) {
-            if( selectedClass == null || !xDrawLimit.Checked ) return;
-            selectedClass.drawLimit = Convert.ToInt32( nDrawLimit.Value );
+            if( selectedRank == null || !xDrawLimit.Checked ) return;
+            selectedRank.drawLimit = Convert.ToInt32( nDrawLimit.Value );
             double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
             lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed ); ;
         }
 
 
         private void cPromoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( selectedClass != null ) {
-                selectedClass.maxPromote = ClassList.ParseIndex( cPromoteLimit.SelectedIndex - 1 );
+            if( selectedRank != null ) {
+                selectedRank.maxPromote = RankList.ParseIndex( cPromoteLimit.SelectedIndex - 1 );
             }
         }
 
         private void cDemoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( selectedClass != null ) {
-                selectedClass.maxDemote = ClassList.ParseIndex( cDemoteLimit.SelectedIndex - 1 );
+            if( selectedRank != null ) {
+                selectedRank.maxDemote = RankList.ParseIndex( cDemoteLimit.SelectedIndex - 1 );
             }
         }
 
         private void cKickLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( selectedClass != null ) {
-                selectedClass.maxKick = ClassList.ParseIndex( cKickLimit.SelectedIndex - 1 );
+            if( selectedRank != null ) {
+                selectedRank.maxKick = RankList.ParseIndex( cKickLimit.SelectedIndex - 1 );
             }
         }
 
         private void cBanLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( selectedClass != null ) {
-                selectedClass.maxBan = ClassList.ParseIndex( cBanLimit.SelectedIndex - 1 );
+            if( selectedRank != null ) {
+                selectedRank.maxBan = RankList.ParseIndex( cBanLimit.SelectedIndex - 1 );
             }
         }
 
         private void cMaxHideFrom_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( selectedClass != null ) {
-                selectedClass.maxHideFrom = ClassList.ParseIndex( cMaxHideFrom.SelectedIndex - 1 );
+            if( selectedRank != null ) {
+                selectedRank.maxHideFrom = RankList.ParseIndex( cMaxHideFrom.SelectedIndex - 1 );
             }
         }
 
@@ -525,39 +528,39 @@ namespace ConfigTool {
             nSpamChatWarnings.Enabled = xSpamChatKick.Checked;
         }
 
-        private void vClasses_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( vClasses.SelectedIndex != -1 ) {
-                SelectClass( ClassList.ParseIndex( vClasses.SelectedIndex ) );
-                bRemoveClass.Enabled = true;
+        private void vRanks_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( vRanks.SelectedIndex != -1 ) {
+                SelectRank( RankList.ParseIndex( vRanks.SelectedIndex ) );
+                bRemoveRank.Enabled = true;
             } else {
-                DisableClassOptions();
-                bRemoveClass.Enabled = false;
+                DisableRankOptions();
+                bRemoveRank.Enabled = false;
             }
         }
 
         private void xKickIdle_CheckedChanged( object sender, EventArgs e ) {
             nKickIdle.Enabled = xKickIdle.Checked;
-            if( selectedClass != null ) {
+            if( selectedRank != null ) {
                 if( xKickIdle.Checked ) {
-                    nKickIdle.Value = selectedClass.idleKickTimer;
+                    nKickIdle.Value = selectedRank.idleKickTimer;
                 } else {
                     nKickIdle.Value = 0;
-                    selectedClass.idleKickTimer = 0;
+                    selectedRank.idleKickTimer = 0;
                 }
             }
         }
 
         private void xAntiGrief_CheckedChanged( object sender, EventArgs e ) {
             nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
-            if( selectedClass != null ) {
+            if( selectedRank != null ) {
                 if( xAntiGrief.Checked ) {
-                    nAntiGriefBlocks.Value = selectedClass.antiGriefBlocks;
-                    nAntiGriefSeconds.Value = selectedClass.antiGriefSeconds;
+                    nAntiGriefBlocks.Value = selectedRank.antiGriefBlocks;
+                    nAntiGriefSeconds.Value = selectedRank.antiGriefSeconds;
                 } else {
                     nAntiGriefBlocks.Value = 0;
-                    selectedClass.antiGriefBlocks = 0;
+                    selectedRank.antiGriefBlocks = 0;
                     nAntiGriefSeconds.Value = 0;
-                    selectedClass.antiGriefSeconds = 0;
+                    selectedRank.antiGriefSeconds = 0;
                 }
                 nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
                 nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
@@ -566,14 +569,14 @@ namespace ConfigTool {
 
         private void xDrawLimit_CheckedChanged( object sender, EventArgs e ) {
             nDrawLimit.Enabled = xDrawLimit.Checked;
-            if( selectedClass != null ) {
+            if( selectedRank != null ) {
                 if( xDrawLimit.Checked ) {
-                    nDrawLimit.Value = selectedClass.drawLimit;
+                    nDrawLimit.Value = selectedRank.drawLimit;
                     double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
                     lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed ); ;
                 } else {
                     nDrawLimit.Value = 0;
-                    selectedClass.drawLimit = 0;
+                    selectedRank.drawLimit = 0;
                     lDrawLimitUnits.Text = "blocks";
                 }
                 nDrawLimit.Enabled = xDrawLimit.Checked;
@@ -587,7 +590,7 @@ namespace ConfigTool {
             } else {
                 e.Item.Font = vPermissions.Font;
             }
-            if( selectedClass == null ) return;
+            if( selectedRank == null ) return;
             switch( (Permission)e.Item.Tag ) {
                 case Permission.Ban:
                     cBanLimit.Enabled = check;
@@ -614,33 +617,33 @@ namespace ConfigTool {
                     cMaxHideFrom.Enabled = check; break;
             }
 
-            selectedClass.permissions[(int)e.Item.Tag] = e.Item.Checked;
+            selectedRank.Permissions[(int)e.Item.Tag] = e.Item.Checked;
         }
 
 
-        private void tClassName_Validating( object sender, CancelEventArgs e ) {
-            if( selectedClass == null ) return;
-            string name = tClassName.Text.Trim();
-            if( name == selectedClass.name ) return;
+        private void tRankName_Validating( object sender, CancelEventArgs e ) {
+            if( selectedRank == null ) return;
+            string name = tRankName.Text.Trim();
+            if( name == selectedRank.Name ) return;
             if( name.Length == 0 ) {
                 MessageBox.Show( "Class name cannot be blank." );
-                tClassName.ForeColor = Color.Red;
+                tRankName.ForeColor = Color.Red;
                 e.Cancel = true;
-            } else if( !PlayerClass.IsValidClassName( name ) ) {
+            } else if( !Rank.IsValidRankName( name ) ) {
                 MessageBox.Show( "Class name can only contain letters, digits, and underscores." );
-                tClassName.ForeColor = Color.Red;
+                tRankName.ForeColor = Color.Red;
                 e.Cancel = true;
-            } else if( !ClassList.CanChangeName( selectedClass, name ) ) {
+            } else if( !RankList.CanRenameRank( selectedRank, name ) ) {
                 MessageBox.Show( "There is already another class named \"" + name + "\".\n" +
                                 "Duplicate class names are now allowed." );
-                tClassName.ForeColor = Color.Red;
+                tRankName.ForeColor = Color.Red;
                 e.Cancel = true;
             } else {
-                tClassName.ForeColor = SystemColors.ControlText;
-                defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
-                ClassList.ChangeName( selectedClass, name );
-                classNameList.Add( selectedClass.ToComboBoxOption() );
-                RebuildClassList();
+                tRankName.ForeColor = SystemColors.ControlText;
+                defaultRank = RankList.ParseIndex( cDefaultRank.SelectedIndex - 1 );
+                RankList.RenameRank( selectedRank, name );
+                rankNameList.Add( selectedRank.ToComboBoxOption() );
+                RebuildRankList();
                 ApplyTabWorlds();
             }
         }
@@ -648,17 +651,17 @@ namespace ConfigTool {
 
         private void nRank_Validating( object sender, CancelEventArgs e ) {
             byte rank = Convert.ToByte( nRank.Value );
-            if( rank == selectedClass.rank ) return;
-            if( !ClassList.CanChangeRank( selectedClass, rank ) ) {
+            if( rank == selectedRank.rank ) return;
+            if( !RankList.CanChangeClassRank( selectedRank, rank ) ) {
                 MessageBox.Show( "There is already another class with the same rank (" + nRank.Value + ").\n" +
                 "Duplicate class ranks are now allowed." );
                 nRank.ForeColor = Color.Red;
                 e.Cancel = true;
             } else {
                 nRank.ForeColor = SystemColors.ControlText;
-                defaultClass = ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 );
-                ClassList.ChangeRank( selectedClass, rank );
-                RebuildClassList();
+                defaultRank = RankList.ParseIndex( cDefaultRank.SelectedIndex - 1 );
+                RankList.ChangeClassRank( selectedRank, rank );
+                RebuildRankList();
             }
         }
 
@@ -701,9 +704,9 @@ namespace ConfigTool {
         private void bResetAll_Click( object sender, EventArgs e ) {
             if( MessageBox.Show( "Are you sure you want to reset everything to defaults?", "Warning", MessageBoxButtons.OKCancel ) == DialogResult.OK ) {
                 Config.LoadDefaults();
-                Config.ResetClasses();
+                Config.ResetRanks();
                 ApplyTabGeneral();
-                ApplyTabClasses();
+                ApplyTabRanks();
                 ApplyTabSavingAndBackup();
                 ApplyTabLogging();
                 ApplyTabAdvanced();
@@ -719,11 +722,11 @@ namespace ConfigTool {
                         break;
                     case 1:// Worlds
                         break;
-                    case 2:// Classes
-                        Config.ResetClasses();
-                        ApplyTabClasses();
-                        defaultClass = null;
-                        RebuildClassList();
+                    case 2:// Ranks
+                        Config.ResetRanks();
+                        ApplyTabRanks();
+                        defaultRank = null;
+                        RebuildRankList();
                         break;
                     case 3:// Security
                         Config.LoadDefaultsSecurity();
@@ -818,10 +821,10 @@ namespace ConfigTool {
         }
 
         private void bColorClass_Click( object sender, EventArgs e ) {
-            ColorPicker picker = new ColorPicker( "Class color for \"" + selectedClass.name + "\"", fCraft.Color.ParseToIndex( selectedClass.color ) );
+            ColorPicker picker = new ColorPicker( "Class color for \"" + selectedRank.Name + "\"", fCraft.Color.ParseToIndex( selectedRank.Color ) );
             picker.ShowDialog();
-            ApplyColor( bColorClass, picker.color );
-            selectedClass.color = fCraft.Color.GetName( picker.color );
+            ApplyColor( bColorRank, picker.color );
+            selectedRank.Color = fCraft.Color.GetName( picker.color );
         }
 
         private void bColorPM_Click( object sender, EventArgs e ) {
@@ -893,9 +896,9 @@ namespace ConfigTool {
 
         private void tIP_Validating( object sender, CancelEventArgs e ) {
             IPAddress IP;
-            if(IPAddress.TryParse( tIP.Text, out IP )){
+            if( IPAddress.TryParse( tIP.Text, out IP ) ) {
                 tIP.ForeColor = SystemColors.ControlText;
-            }else{
+            } else {
                 tIP.ForeColor = Color.Red;
                 e.Cancel = true;
             }

@@ -42,6 +42,22 @@ namespace fCraft {
      *              Added Patrol permission
      *              
      * 110 - r227 - Added ShutdownServer and Mute permissions
+     * 
+     * 111 - r231 - Renamed config keys:
+     *                  DefaultClass             -> DefaultRank
+     *                  ClassColorsInChat        -> RankColorsInChat
+     *                  ClassColorsInWorldNames  -> RankColorsInWorldNames
+     *                  ClassPrefixesInChat      -> RankPrefixesInChat
+     *                  ClassPrefixesInList      -> RankPrefixesInList
+     *                  PatrolledClass           -> PatrolledRank
+     *                  RequireClassChangeReason -> RequireRankChangeReason
+     *                  AnnounceClassChanges     -> AnnounceRankChanges
+     *              Renamed XML elements:
+     *                  Classes     -> Ranks
+     *                  PlayerClass -> Rank
+     *              Removed "rank" from PlayerClass/Rank object
+     *              Made the order of Rank elements determine the relative index
+     * 
      */
 
     public static class Config {
@@ -52,9 +68,23 @@ namespace fCraft {
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
         static Dictionary<ConfigKey, string> settings = new Dictionary<ConfigKey, string>();
+        static Dictionary<string, ConfigKey> legacyConfigKeys = new Dictionary<string, ConfigKey>(); // LEGACY
 
         public static string errors = ""; // for ConfigTool
         public static bool logToString;
+
+
+        static Config() { // LEGACY
+            legacyConfigKeys.Add( "DefaultClass".ToLower(), ConfigKey.DefaultRank );
+            legacyConfigKeys.Add( "ClassColorsInChat".ToLower(), ConfigKey.RankColorsInChat );
+            legacyConfigKeys.Add( "ClassColorsInWorldNames".ToLower(), ConfigKey.RankColorsInWorldNames );
+            legacyConfigKeys.Add( "ClassPrefixesInChat".ToLower(), ConfigKey.RankPrefixesInChat );
+            legacyConfigKeys.Add( "ClassPrefixesInList".ToLower(), ConfigKey.RankPrefixesInList );
+            legacyConfigKeys.Add( "PatrolledClass".ToLower(), ConfigKey.PatrolledRank );
+            legacyConfigKeys.Add( "RequireClassChangeReason".ToLower(), ConfigKey.RequireRankChangeReason );
+            legacyConfigKeys.Add( "AnnounceClassChanges".ToLower(), ConfigKey.AnnounceRankChanges );
+        }
+
 
         static void Log( string format, LogType type, params object[] args ) {
             Log( String.Format( format, args ), type );
@@ -88,17 +118,17 @@ namespace fCraft {
             SetValue( ConfigKey.ServerName, "Minecraft custom server (fCraft)" );
             SetValue( ConfigKey.MOTD, "Welcome to the server!" );
             SetValue( ConfigKey.MaxPlayers, 20 );
-            SetValue( ConfigKey.DefaultClass, "" ); // empty = lowest rank
-            SetValue( ConfigKey.IsPublic, false );
+            SetValue( ConfigKey.DefaultRank, "" ); // empty = lowest rank
+            SetValue( ConfigKey.IsPublic, true );
             SetValue( ConfigKey.Port, 25565 );
             SetValue( ConfigKey.IP, IPAddress.Any );
             SetValue( ConfigKey.UploadBandwidth, 100 );
 
             SetValue( ConfigKey.ShowJoinedWorldMessages, true );
-            SetValue( ConfigKey.ClassColorsInWorldNames, true );
-            SetValue( ConfigKey.ClassColorsInChat, true );
-            SetValue( ConfigKey.ClassPrefixesInChat, false );
-            SetValue( ConfigKey.ClassPrefixesInList, false );
+            SetValue( ConfigKey.RankColorsInWorldNames, true );
+            SetValue( ConfigKey.RankColorsInChat, true );
+            SetValue( ConfigKey.RankPrefixesInChat, false );
+            SetValue( ConfigKey.RankPrefixesInList, false );
             SetValue( ConfigKey.SystemMessageColor, Color.GetName( Color.Yellow ) );
             SetValue( ConfigKey.HelpColor, Color.GetName( Color.Lime ) );
             SetValue( ConfigKey.SayColor, Color.GetName( Color.Green ) );
@@ -111,7 +141,7 @@ namespace fCraft {
             SetValue( ConfigKey.VerifyNames, "Balanced" ); // can be "Always," "Balanced," or "Never"
             SetValue( ConfigKey.LimitOneConnectionPerIP, false );
 
-            SetValue( ConfigKey.PatrolledClass, "" ); // empty = lowest rank
+            SetValue( ConfigKey.PatrolledRank, "" ); // empty = lowest rank
 
             SetValue( ConfigKey.AntispamMessageCount, 4 );
             SetValue( ConfigKey.AntispamInterval, 5 );
@@ -119,9 +149,9 @@ namespace fCraft {
             SetValue( ConfigKey.AntispamMaxWarnings, 2 );
 
             SetValue( ConfigKey.RequireBanReason, false );
-            SetValue( ConfigKey.RequireClassChangeReason, false );
+            SetValue( ConfigKey.RequireRankChangeReason, false );
             SetValue( ConfigKey.AnnounceKickAndBanReasons, true );
-            SetValue( ConfigKey.AnnounceClassChanges, true );
+            SetValue( ConfigKey.AnnounceRankChanges, true );
         }
 
         public static void LoadDefaultsSavingAndBackup() {
@@ -142,7 +172,7 @@ namespace fCraft {
                 Logger.consoleOptions[i] = true;
             }
             Logger.consoleOptions[(int)LogType.ConsoleInput] = false;
-            Logger.consoleOptions[(int)LogType.Debug] = false;
+            //Logger.consoleOptions[(int)LogType.Debug] = false;
             for( int i = 0; i < Logger.logFileOptions.Length; i++ ) {
                 Logger.logFileOptions[i] = true;
             }
@@ -226,38 +256,47 @@ namespace fCraft {
                             toClassID == null || toClassID.Value == null || toClassID.Value == "" ) {
                             Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
                         } else {
-                            ClassList.legacyRankMapping.Add( fromClassID.Value, toClassID.Value );
+                            RankList.legacyRankMapping.Add( fromClassID.Value, toClassID.Value );
                         }
                     }
                 }
 
 
-                XElement classList = config.Element( "Classes" );
-                if( classList != null ) {
-                    foreach( XElement playerClass in classList.Elements( "PlayerClass" ) ) {
-                        if( !DefineClass( playerClass ) ) {
-                            Log( "Config.Load: Could not parse one of the class definitions.", LogType.Warning );
+                XElement rankList = config.Element( "Ranks" );
+                if( rankList == null ) rankList = config.Element( "Classes" ); // LEGACY
+
+                if( rankList != null ) {
+                    List<XElement> list = rankList.Elements( "Rank" ).ToList();
+                    if( list.Count == 0 ) list = rankList.Elements( "PlayerClass" ).ToList(); // LEGACY
+
+                    foreach( XElement rank in list ) {
+                        try {
+                            RankList.AddRank( new Rank( rank ) );
+                        } catch( Rank.RankDefinitionException ex ) {
+                            Log( ex.Message, LogType.Error );
                         }
                     }
-                    if( ClassList.classesByName.Count == 0 ) {
-                        Log( "Config.Load: No classes were defined, or none were defined correctly. Using default player classes.", LogType.Warning );
-                        config.Add( DefineDefaultClasses() );
+
+                    if( RankList.ranksByName.Count == 0 ) {
+                        Log( "Config.Load: No ranks were defined, or none were defined correctly. Using default ranks (guest, regular, op, and owner).", LogType.Warning );
+                        rankList.Remove();
+                        config.Add( DefineDefaultRanks() );
 
                     } else if( version < ConfigVersion ) { // start LEGACY code
 
                         if( version < 103 ) { // speedhack permission
                             bool foundClassWithSpeedHackPermission = false;
-                            foreach( PlayerClass pc in ClassList.classesByID.Values ) {
+                            foreach( Rank pc in RankList.ranksByID.Values ) {
                                 if( pc.Can( Permission.UseSpeedHack ) ) {
                                     foundClassWithSpeedHackPermission = true;
                                     break;
                                 }
                             }
                             if( !foundClassWithSpeedHackPermission ) {
-                                foreach( PlayerClass pc in ClassList.classesByID.Values ) {
-                                    pc.permissions[(int)Permission.UseSpeedHack] = true;
+                                foreach( Rank pc in RankList.ranksByID.Values ) {
+                                    pc.Permissions[(int)Permission.UseSpeedHack] = true;
                                 }
-                                Log( "Config.Load: All classes were granted UseSpeedHack permission (default). " +
+                                Log( "Config.Load: All ranks were granted UseSpeedHack permission (default). " +
                                      "Use ConfigTool to update config. If you are editing config.xml manually, " +
                                      "set version=103 to prevent permissions from resetting in the future.", LogType.Warning );
                             }
@@ -266,17 +305,12 @@ namespace fCraft {
                     } // end LEGACY code
 
                 } else {
-                    if( fromFile ) Log( "Config.Load: using default player classes.", LogType.Warning );
-                    config.Add( DefineDefaultClasses() );
+                    if( fromFile ) Log( "Config.Load: using default player ranks.", LogType.Warning );
+                    config.Add( DefineDefaultRanks() );
                 }
 
                 // parse rank-limit permissions
-                foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                    if( !ClassList.ParseClassRelations( pc ) ) {
-                        Log( "Could not parse one of the rank-limits for kick, ban, promote, and/or demote permissions for {0}. " +
-                             "Any unrecognized limits were reset to default (own class).", LogType.Warning, pc.name );
-                    }
-                }
+                RankList.ParseRankRelations();
             }
 
             XElement consoleOptions = config.Element( "ConsoleOptions" );
@@ -308,11 +342,14 @@ namespace fCraft {
                     // known key
                     SetValue( (ConfigKey)Enum.Parse( typeof( ConfigKey ), element.Name.ToString(), true ), element.Value );
 
-                } else if( element.Name.ToString() != "ConsoleOptions" &&
-                    element.Name.ToString() != "LogFileOptions" &&
-                    element.Name.ToString() != "Classes" &&
-                    element.Name.ToString() != "LegacyRankMapping" ) {
+                } else if( legacyConfigKeys.ContainsKey( element.Name.ToString().ToLower() ) ) { // LEGACY
+                    SetValue( legacyConfigKeys[element.Name.ToString().ToLower()], element.Value );
 
+                } else if( element.Name.ToString() != "ConsoleOptions" &&
+                           element.Name.ToString() != "LogFileOptions" &&
+                           element.Name.ToString() != "Classes" && // LEGACY
+                           element.Name.ToString() != "Ranks" &&
+                           element.Name.ToString() != "LegacyRankMapping" ) {
                     // unknown key
                     Log( "Unrecognized entry ignored: {0} = {1}", LogType.Debug, element.Name, element.Value );
                 }
@@ -351,44 +388,15 @@ namespace fCraft {
             config.Add( logFileOptions );
 
 
-            XElement classesTag = new XElement( "Classes" );
-            foreach( PlayerClass playerClass in ClassList.classesByName.Values ) {
-                XElement classTag = new XElement( "PlayerClass" );
-                classTag.Add( new XAttribute( "name", playerClass.name ) );
-                classTag.Add( new XAttribute( "id", playerClass.ID ) );
-                classTag.Add( new XAttribute( "rank", playerClass.rank ) );
-                classTag.Add( new XAttribute( "color", Color.GetName( playerClass.color ) ) );
-                if( playerClass.prefix.Length > 0 ) classTag.Add( new XAttribute( "prefix", playerClass.prefix ) );
-                classTag.Add( new XAttribute( "antiGriefBlocks", playerClass.antiGriefBlocks ) );
-                classTag.Add( new XAttribute( "antiGriefSeconds", playerClass.antiGriefSeconds ) );
-                if( playerClass.drawLimit > 0 ) classTag.Add( new XAttribute( "drawLimit", playerClass.drawLimit ) );
-                if( playerClass.idleKickTimer > 0 ) classTag.Add( new XAttribute( "idleKickAfter", playerClass.idleKickTimer ) );
-                if( playerClass.reservedSlot ) classTag.Add( new XAttribute( "reserveSlot", playerClass.reservedSlot ) );
-                XElement temp;
-                for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
-                    if( playerClass.permissions[i] ) {
-                        temp = new XElement( ((Permission)i).ToString() );
-                        if( i == (int)Permission.Ban && playerClass.maxBan != null ) {
-                            temp.Add( new XAttribute( "max", playerClass.maxBan ) );
-                        } else if( i == (int)Permission.Kick && playerClass.maxKick != null ) {
-                            temp.Add( new XAttribute( "max", playerClass.maxKick ) );
-                        } else if( i == (int)Permission.Promote && playerClass.maxPromote != null ) {
-                            temp.Add( new XAttribute( "max", playerClass.maxPromote ) );
-                        } else if( i == (int)Permission.Demote && playerClass.maxDemote != null ) {
-                            temp.Add( new XAttribute( "max", playerClass.maxDemote ) );
-                        } else if( i == (int)Permission.Hide && playerClass.maxHideFrom != null ) {
-                            temp.Add( new XAttribute( "max", playerClass.maxHideFrom ) );
-                        }
-                        classTag.Add( temp );
-                    }
-                }
-                classesTag.Add( classTag );
+            XElement ranksTag = new XElement( "Ranks" );
+            foreach( Rank rank in RankList.ranksByName.Values ) {
+                ranksTag.Add( rank.Serialize() );
             }
-            config.Add( classesTag );
+            config.Add( ranksTag );
 
 
             XElement legacyRankMappingTag = new XElement( "LegacyRankMapping" );
-            foreach( KeyValuePair<string, string> pair in ClassList.legacyRankMapping ) {
+            foreach( KeyValuePair<string, string> pair in RankList.legacyRankMapping ) {
                 XElement rankPair = new XElement( "LegacyRankPair" );
                 rankPair.Add( new XAttribute( "from", pair.Key ), new XAttribute( "to", pair.Value ) );
                 legacyRankMappingTag.Add( rankPair );
@@ -432,12 +440,12 @@ namespace fCraft {
             Color.IRC = Color.Parse( settings[ConfigKey.IRCMessageColor] );
 
             // default class
-            if( ClassList.ParseClass( settings[ConfigKey.DefaultClass] ) != null ) {
-                ClassList.defaultClass = ClassList.ParseClass( settings[ConfigKey.DefaultClass] );
+            if( RankList.ParseRank( settings[ConfigKey.DefaultRank] ) != null ) {
+                RankList.defaultRank = RankList.ParseRank( settings[ConfigKey.DefaultRank] );
             } else {
-                ClassList.defaultClass = ClassList.lowestClass;
-                Log( "Config.ParseConfig: No default player class defined; assuming that the lowest rank ({0}) is the default.",
-                            LogType.Warning, ClassList.defaultClass.name );
+                RankList.defaultRank = RankList.lowestRank;
+                Log( "Config.ApplyConfig: No default rank defined; assuming that the lowest rank ({0}) is the default.",
+                     LogType.Warning, RankList.defaultRank.Name );
             }
 
             // antispam
@@ -451,10 +459,10 @@ namespace fCraft {
             Server.ticksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
 
             // class to patrol
-            if( ClassList.ParseClass( settings[ConfigKey.PatrolledClass] ) != null ) {
-                World.classToPatrol = ClassList.ParseClass( settings[ConfigKey.PatrolledClass] );
+            if( RankList.ParseRank( settings[ConfigKey.PatrolledRank] ) != null ) {
+                World.classToPatrol = RankList.ParseRank( settings[ConfigKey.PatrolledRank] );
             } else {
-                World.classToPatrol = ClassList.lowestClass;
+                World.classToPatrol = RankList.lowestRank;
             }
 
             // IRC delay
@@ -471,13 +479,15 @@ namespace fCraft {
                     return ValidateString( key, value, 0, 64 );
                 case ConfigKey.MaxPlayers:
                     return ValidateInt( key, value, 1, MaxPlayersSupported );
-                case ConfigKey.DefaultClass:
+                case ConfigKey.DefaultRank:
                     if( value.Length > 0 ) {
-                        if( ClassList.ParseClass( value ) != null ) {
-                            settings[key] = ClassList.ParseClass( value ).name;
+                        if( RankList.ParseRank( value ) != null ) {
+                            settings[key] = RankList.ParseRank( value ).Name;
                             return true;
                         } else {
-                            Log( "DefaultClass could not be parsed. It should be either blank (indicating \"use lowest class\") or a valid class name", LogType.Warning );
+                            Log( "Config.SetValue: DefaultRank could not be parsed. " +
+                                 "It should be either blank (indicating \"use lowest rank\") or set to a valid class name. " +
+                                 "DefaultRank was reset to default (lowest rank).", LogType.Warning );
                             return false;
                         }
                     } else {
@@ -491,7 +501,7 @@ namespace fCraft {
                     return ValidateInt( key, value, 1, 10000 );
                 case ConfigKey.IP:
                     IPAddress tempIP;
-                    if( IPAddress.TryParse( value, out tempIP ) && tempIP.ToString() != IPAddress.Broadcast.ToString() ){
+                    if( IPAddress.TryParse( value, out tempIP ) && tempIP.ToString() != IPAddress.Broadcast.ToString() ) {
                         settings[key] = value;
                         return true;
                     } else {
@@ -508,10 +518,10 @@ namespace fCraft {
                     return ValidateInt( key, value, 1, 60 );
 
                 case ConfigKey.IsPublic:
-                case ConfigKey.ClassColorsInChat:
-                case ConfigKey.ClassPrefixesInChat:
-                case ConfigKey.ClassPrefixesInList:
-                case ConfigKey.ClassColorsInWorldNames:
+                case ConfigKey.RankColorsInChat:
+                case ConfigKey.RankPrefixesInChat:
+                case ConfigKey.RankPrefixesInList:
+                case ConfigKey.RankColorsInWorldNames:
                 case ConfigKey.ShowJoinedWorldMessages:
                 case ConfigKey.SaveOnShutdown:
                 case ConfigKey.BackupOnStartup:
@@ -525,9 +535,9 @@ namespace fCraft {
                 case ConfigKey.IRCBotAnnounceIRCJoins:
                 case ConfigKey.IRCBotAnnounceServerJoins:
                 case ConfigKey.RequireBanReason:
-                case ConfigKey.RequireClassChangeReason:
+                case ConfigKey.RequireRankChangeReason:
                 case ConfigKey.AnnounceKickAndBanReasons:
-                case ConfigKey.AnnounceClassChanges:
+                case ConfigKey.AnnounceRankChanges:
                 case ConfigKey.SubmitCrashReports:
                     return ValidateBool( key, value );
 
@@ -667,26 +677,21 @@ namespace fCraft {
             return Boolean.Parse( settings[key] );
         }
 
-        public static void ResetClasses() {
-            ClassList.classesByName = new Dictionary<string, PlayerClass>();
-            ClassList.classesByIndex = new List<PlayerClass>();
-            XElement classList = DefineDefaultClasses();
-            foreach( XElement pc in classList.Elements() ) {
-                DefineClass( pc );
-            }
+        public static void ResetRanks() {
+            RankList.ranksByName = new Dictionary<string, Rank>();
+            RankList.ranksByIndex = new List<Rank>();
+            DefineDefaultRanks();
             // parse rank-limit permissions
-            foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                ClassList.ParseClassRelations( pc );
-            }
+            RankList.ParseRankRelations();
         }
 
 
-        static XElement DefineDefaultClasses() {
+        static XElement DefineDefaultRanks() {
             XElement temp;
-            XElement permissions = new XElement( "Classes" );
+            XElement permissions = new XElement( "Ranks" );
 
-            XElement guest = new XElement( "PlayerClass" );
-            guest.Add( new XAttribute( "id", ClassList.GenerateID() ) );
+            XElement guest = new XElement( "Rank" );
+            guest.Add( new XAttribute( "id", RankList.GenerateID() ) );
             guest.Add( new XAttribute( "name", "guest" ) );
             guest.Add( new XAttribute( "rank", 0 ) );
             guest.Add( new XAttribute( "color", "silver" ) );
@@ -700,11 +705,15 @@ namespace fCraft {
             guest.Add( new XElement( Permission.Delete.ToString() ) );
             guest.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
             permissions.Add( guest );
-            DefineClass( guest );
+            try {
+                RankList.AddRank( new Rank( guest ) );
+            } catch( Rank.RankDefinitionException ex ) {
+                Log( ex.Message, LogType.Error );
+            }
 
 
-            XElement regular = new XElement( "PlayerClass" );
-            regular.Add( new XAttribute( "id", ClassList.GenerateID() ) );
+            XElement regular = new XElement( "Rank" );
+            regular.Add( new XAttribute( "id", RankList.GenerateID() ) );
             regular.Add( new XAttribute( "name", "regular" ) );
             regular.Add( new XAttribute( "rank", 30 ) );
             regular.Add( new XAttribute( "color", "white" ) );
@@ -735,11 +744,15 @@ namespace fCraft {
 
             regular.Add( new XElement( Permission.Draw.ToString() ) );
             permissions.Add( regular );
-            DefineClass( regular );
+            try {
+                RankList.AddRank( new Rank( regular ) );
+            } catch( Rank.RankDefinitionException ex ) {
+                Log( ex.Message, LogType.Error );
+            }
 
 
-            XElement op = new XElement( "PlayerClass" );
-            op.Add( new XAttribute( "id", ClassList.GenerateID() ) );
+            XElement op = new XElement( "Rank" );
+            op.Add( new XAttribute( "id", RankList.GenerateID() ) );
             op.Add( new XAttribute( "name", "op" ) );
             op.Add( new XAttribute( "rank", 80 ) );
             op.Add( new XAttribute( "color", "aqua" ) );
@@ -791,11 +804,15 @@ namespace fCraft {
             op.Add( new XElement( Permission.Draw.ToString() ) );
             op.Add( new XElement( Permission.CopyAndPaste.ToString() ) );
             permissions.Add( op );
-            DefineClass( op );
+            try {
+                RankList.AddRank( new Rank( op ) );
+            } catch( Rank.RankDefinitionException ex ) {
+                Log( ex.Message, LogType.Error );
+            }
 
 
-            XElement owner = new XElement( "PlayerClass" );
-            owner.Add( new XAttribute( "id", ClassList.GenerateID() ) );
+            XElement owner = new XElement( "Rank" );
+            owner.Add( new XAttribute( "id", RankList.GenerateID() ) );
             owner.Add( new XAttribute( "name", "owner" ) );
             owner.Add( new XAttribute( "rank", 100 ) );
             owner.Add( new XAttribute( "color", "red" ) );
@@ -856,205 +873,14 @@ namespace fCraft {
             owner.Add( new XElement( Permission.ReloadConfig.ToString() ) );
             owner.Add( new XElement( Permission.ShutdownServer.ToString() ) );
             permissions.Add( owner );
-            DefineClass( owner );
+            try {
+                RankList.AddRank( new Rank( owner ) );
+            } catch( Rank.RankDefinitionException ex ) {
+                Log( ex.Message, LogType.Error );
+            }
 
 
             return permissions;
-        }
-
-
-        static bool DefineClass( XElement el ) {
-            PlayerClass playerClass = new PlayerClass();
-
-            // name
-            XAttribute attr = el.Attribute( "name" );
-            if( attr == null ) {
-                Log( "Config.DefineClass: Class definition with no name was ignored.", LogType.Error );
-                return false;
-            }
-            if( !PlayerClass.IsValidClassName( attr.Value.Trim() ) ) {
-                Log( "Config.DefineClass: Invalid name specified for class \"{0}\". Class name can only contain letters, digits, and underscores.",
-                     LogType.Warning, playerClass.name );
-                return false;
-            }
-            playerClass.name = attr.Value.Trim();
-
-            if( ClassList.classesByName.ContainsKey( playerClass.name ) ) {
-                Log( "Config.DefineClass: Duplicate (by name) class definition for \"{0}\" was ignored.", LogType.Error, playerClass.name );
-                return true;
-            }
-
-
-            // ID
-            attr = el.Attribute( "id" );
-            if( attr == null ) {
-                Log( "Config.DefineClass: Class \"" + playerClass.name + "\" was issued a new unique ID.", LogType.Warning );
-                playerClass.ID = ClassList.GenerateID();
-            } else if( !PlayerClass.IsValidID( attr.Value.Trim() ) ) {
-                Log( "Config.DefineClass: Invalid ID specified for class \"{0}\". ID must be alphanumeric, and exactly 16 characters long.", LogType.Error, playerClass.name );
-                return false;
-            } else {
-                playerClass.ID = attr.Value.Trim();
-                if( ClassList.classesByID.ContainsKey( playerClass.name ) ) {
-                    Log( "Config.DefineClass: Duplicate (by ID) class definition for \"{0}\" was ignored.", LogType.Error, playerClass.name );
-                    return true;
-                }
-            }
-
-
-            // rank
-            if( (attr = el.Attribute( "rank" )) == null ) {
-                Log( "Config.DefineClass: No rank specified for {0}. Class definition was ignored.", LogType.Error, playerClass.name );
-                return false;
-            }
-            if( !Byte.TryParse( attr.Value, out playerClass.rank ) ) {
-                Log( "Config.DefineClass: Cannot parse rank for {0}. Class definition was ignored.", LogType.Error, playerClass.name );
-                return false;
-            }
-
-            // color
-            attr = el.Attribute( "color" );
-            if( attr == null || Color.Parse( attr.Value ) == null ) {
-                playerClass.color = "";
-            } else {
-                playerClass.color = Color.Parse( attr.Value );
-            }
-
-
-            // read optional attributes
-            if( (attr = el.Attribute( "prefix" )) != null ) {
-                if( PlayerClass.IsValidPrefix( attr.Value ) ) {
-                    playerClass.prefix = attr.Value;
-                } else {
-                    Log( "Config.DefineClass: Invalid prefix specified for {0}.", LogType.Warning, playerClass.name );
-                }
-            }
-
-
-
-            int unvalidatedValue = 0;
-            if( (attr = el.Attribute( "antiGriefBlocks" )) != null ) {
-                if( Int32.TryParse( attr.Value, out unvalidatedValue ) ) {
-                    if( unvalidatedValue >= 0 && unvalidatedValue < 1000 ) {
-                        playerClass.antiGriefBlocks = unvalidatedValue;
-                    } else {
-                        Log( "Config.DefineClass: Values for antiGriefBlocks in not within valid range (0-1000) for {0}. Assuming default ({1}).", LogType.Warning,
-                             playerClass.name, playerClass.antiGriefBlocks );
-                    }
-                } else {
-                    Log( "Config.DefineClass: Could not parse the value for antiGriefBlocks for {0}. Assuming default ({1}).", LogType.Warning,
-                         playerClass.name, playerClass.antiGriefBlocks );
-                }
-            }
-
-
-            if( (attr = el.Attribute( "antiGriefSeconds" )) != null ) {
-                if( Int32.TryParse( attr.Value, out unvalidatedValue ) ) {
-                    if( unvalidatedValue >= 0 && unvalidatedValue < 100 ) {
-                        playerClass.antiGriefSeconds = unvalidatedValue;
-                    } else {
-                        Log( "Config.DefineClass: Values for antiGriefSeconds in not within valid range (0-1000) for {0}. Assuming default ({1}).", LogType.Warning,
-                             playerClass.name, playerClass.antiGriefSeconds );
-                    }
-                } else {
-                    Log( "Config.DefineClass: Could not parse the value for antiGriefSeconds for {0}. Assuming default ({1}).", LogType.Warning,
-                         playerClass.name, playerClass.antiGriefSeconds );
-                }
-            }
-
-
-            if( (attr = el.Attribute( "drawLimit" )) != null ) {
-                if( Int32.TryParse( attr.Value, out unvalidatedValue ) ) {
-                    if( unvalidatedValue >= 0 && unvalidatedValue < 100000000 ) {
-                        playerClass.drawLimit = unvalidatedValue;
-                    } else {
-                        Log( "Config.DefineClass: Values for drawLimit in not within valid range (0-1000) for {0}. Assuming default ({1}).", LogType.Warning,
-                             playerClass.name, playerClass.drawLimit );
-                    }
-                } else {
-                    Log( "Config.DefineClass: Could not parse the value for drawLimit for {0}. Assuming default ({1}).", LogType.Warning,
-                         playerClass.name, playerClass.drawLimit );
-                }
-            }
-
-
-
-            if( (attr = el.Attribute( "idleKickAfter" )) != null ) {
-                if( !Int32.TryParse( attr.Value, out playerClass.idleKickTimer ) ) {
-                    Log( "Config.DefineClass: Could not parse the value for idleKickAfter for {0}. Assuming 0 (never).", LogType.Warning, playerClass.name );
-                    playerClass.idleKickTimer = 0;
-                }
-            } else {
-                playerClass.idleKickTimer = 0;
-            }
-
-            if( (attr = el.Attribute( "reserveSlot" )) != null ) {
-                if( !Boolean.TryParse( attr.Value, out playerClass.reservedSlot ) ) {
-                    Log( "Config.DefineClass: Could not parse the value for reserveSlot for {0}. Assuming \"false\".", LogType.Warning, playerClass.name );
-                    playerClass.reservedSlot = false;
-                }
-            } else {
-                playerClass.reservedSlot = false;
-            }
-
-
-            // read permissions
-            XElement temp;
-            for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
-                string permission = ((Permission)i).ToString();
-                if( (temp = el.Element( permission )) != null ) {
-                    playerClass.permissions[i] = true;
-                    switch( i ) {
-                        case (int)Permission.Promote:
-                            if( (attr = temp.Attribute( "max" )) != null ) {
-                                playerClass.maxPromoteVal = attr.Value;
-                            } else {
-                                playerClass.maxPromoteVal = "";
-                            }
-                            break;
-                        case (int)Permission.Demote:
-                            if( (attr = temp.Attribute( "max" )) != null ) {
-                                playerClass.maxDemoteVal = attr.Value;
-                            } else {
-                                playerClass.maxDemoteVal = "";
-                            }
-                            break;
-                        case (int)Permission.Kick:
-                            if( (attr = temp.Attribute( "max" )) != null ) {
-                                playerClass.maxKickVal = attr.Value;
-                            } else {
-                                playerClass.maxKickVal = "";
-                            }
-                            break;
-                        case (int)Permission.Ban:
-                            if( (attr = temp.Attribute( "max" )) != null ) {
-                                playerClass.maxBanVal = attr.Value;
-                            } else {
-                                playerClass.maxBanVal = "";
-                            }
-                            break;
-                        case (int)Permission.Hide:
-                            if( (attr = temp.Attribute( "max" )) != null ) {
-                                playerClass.maxHideFromVal = attr.Value;
-                            } else {
-                                playerClass.maxHideFromVal = "";
-                            }
-                            break;
-                    }
-                }
-            }
-
-            // check for consistency in ban permissions
-            if( !playerClass.Can( Permission.Ban ) &&
-                (playerClass.Can( Permission.BanAll ) || playerClass.Can( Permission.BanIP )) ) {
-                Log( "Class \"{0}\" is allowed to BanIP and/or BanAll but not allowed to Ban.\n" +
-                    "Assuming that all ban permissions were ment to be off.", LogType.Warning, playerClass.name );
-                playerClass.permissions[(int)Permission.BanIP] = false;
-                playerClass.permissions[(int)Permission.BanAll] = false;
-            }
-
-            ClassList.AddClass( playerClass );
-            return true;
         }
 
 

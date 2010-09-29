@@ -1,3 +1,9 @@
+0.475
+ Feature: /ztest now distinguishes between being allowed/denied by rank/class vs by whitelist/blacklist.
+ Fix: Fixed being unable to change rank/class restrictions with /zedit
+ Fix: Fixed a bug that reported wrong average CPU usage
+ Fix: Fixed a crash on saving in ConfigTool, related to new PatrolledClass config key.
+
 0.474
  Feature: "/mute" command to temporarily stop players from chatting. A new class permission (Mute) is added, granted to op+ by default.
  Feature: "/shutdown" command to gracefully shutdown the server remotely. A new class permission (ShutdownServer) is added, granted to owner by default.

@@ -18,7 +18,7 @@ namespace fCraft {
         static CommandDescriptor cdZoneEdit = new CommandDescriptor {
             name = "zedit",
             permissions = new Permission[] { Permission.ManageZones },
-            usage = "/zedit ZoneName [ClassName] [+IncludedName] [-ExcludedName]",
+            usage = "/zedit ZoneName [RankName] [+IncludedName] [-ExcludedName]",
             help = "Allows editing the zone permissions after creation. " +
                    "You can change the class restrictions, and include or exclude individual players.",
             handler = ZoneEdit
@@ -92,10 +92,10 @@ namespace fCraft {
                     }
 
                 } else {
-                    PlayerClass minRank = ClassList.ParseClass( name );
+                    Rank minRank = RankList.ParseRank( name );
                     if( minRank != null ) {
-                        if( zone.playerClass != minRank ) {
-                            zone.playerClass = minRank;
+                        if( zone.rank != minRank ) {
+                            zone.rank = minRank;
                             player.Message( "Permission for zone \"{0}\" changed to {1}+",
                                             zone.name,
                                             minRank.GetClassyName() );
@@ -123,10 +123,10 @@ namespace fCraft {
             name = "zadd",
             aliases = new string[] { "zone" },
             permissions = new Permission[] { Permission.ManageZones },
-            usage = "/zadd ZoneName ClassName",
+            usage = "/zadd ZoneName RankName",
             help = "Create a zone that overrides build permissions. " +
-                   "This can be used to restrict access to an area (by setting ClassName to a high rank) " +
-                   "or to designate a guest area (by setting ClassName to a class that normally can't build).",
+                   "This can be used to restrict access to an area (by setting RankName to a high rank) " +
+                   "or to designate a guest area (by setting RankName to a class that normally can't build).",
             handler = ZoneAdd
         };
 
@@ -151,14 +151,14 @@ namespace fCraft {
                 }
 
                 zone.name = info.name;
-                if( info.playerClass.nextClassUp != null ) {
-                    zone.playerClass = info.playerClass.nextClassUp;
+                if( info.rank.nextRankUp != null ) {
+                    zone.rank = info.rank.nextRankUp;
                 } else {
-                    zone.playerClass = info.playerClass;
+                    zone.rank = info.rank;
                 }
                 zone.Include( info );
                 player.Message( "Zone: Creating a {0}+&S zone for player {1}&S. Place a block or type /mark to use your location.",
-                                zone.playerClass.GetClassyName(), info.GetClassyName() );
+                                zone.rank.GetClassyName(), info.GetClassyName() );
                 player.SetCallback( 2, ZoneAddCallback, zone );
 
             } else {
@@ -174,12 +174,12 @@ namespace fCraft {
 
                 zone.name = zoneName;
 
-                string className = cmd.Next();
-                if( className == null ) {
+                string rankName = cmd.Next();
+                if( rankName == null ) {
                     player.Message( "No class was specified. See &H/help zone" );
                     return;
                 }
-                PlayerClass minRank = ClassList.ParseClass( className );
+                Rank minRank = RankList.ParseRank( rankName );
 
                 if( minRank != null ) {
                     string name;
@@ -204,12 +204,12 @@ namespace fCraft {
                         }
                     }
 
-                    zone.playerClass = minRank;
+                    zone.rank = minRank;
                     player.SetCallback( 2, ZoneAddCallback, zone );
                     player.Message( "Zone: Place a block or type /mark to use your location." );
 
                 } else {
-                    player.Message( "Unrecognized player class: \"{0}\"", className );
+                    player.Message( "Unrecognized player class: \"{0}\"", rankName );
                 }
             }
         }
@@ -302,7 +302,7 @@ namespace fCraft {
                 foreach( Zone zone in zones ) {
                     player.Message( String.Format( "  {0} ({1}&S) - {2} x {3} x {4}",
                                                    zone.name,
-                                                   zone.playerClass.GetClassyName(),
+                                                   zone.rank.GetClassyName(),
                                                    zone.bounds.GetWidthX(),
                                                    zone.bounds.GetWidthY(),
                                                    zone.bounds.GetHeight() ) );
@@ -339,7 +339,7 @@ namespace fCraft {
                             zone.name,
                             zone.bounds.GetWidthX(), zone.bounds.GetWidthY(), zone.bounds.GetHeight(),
                             zone.bounds.GetVolume(),
-                            zone.playerClass.GetClassyName() );
+                            zone.rank.GetClassyName() );
 
             player.Message( "  Zone centre is at ({0},{1},{2}).",
                             (zone.bounds.xMin + zone.bounds.xMax) / 2,

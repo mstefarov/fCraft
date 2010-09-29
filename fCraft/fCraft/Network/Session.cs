@@ -313,14 +313,20 @@ namespace fCraft {
             }
         }
 
-
+        const string noAlphaMessage = "This server is for Minecraft Classic only.";
         bool LoginSequence() {
             byte opcode = reader.ReadByte();
             if( opcode != (byte)InputCode.Handshake ) {
                 if( opcode == 2 ) {
                     Logger.Log( "Session.LoginSequence: Someone tried connecting with SMP/Alpha client from {0}", LogType.Warning,
                                 GetIP() );
-                    KickNow( "This server is for Minecraft Classic only." );
+                    writer.Write( (byte)255 );
+                    writer.Write( IPAddress.HostToNetworkOrder( (short)noAlphaMessage.Length ) );
+                    writer.Write( Encoding.ASCII.GetBytes( noAlphaMessage ) );
+                    writer.Flush();
+                    canReceive = false;
+                    canSend = false;
+                    canQueue = false;
                     return false;
                 } else {
                     Logger.Log( "Session.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.", LogType.Error,
@@ -487,7 +493,7 @@ namespace fCraft {
             }
 
             player.Message( String.Format( "Your player class is {0}&S. Type &H/help&S for help.",
-                                           player.info.playerClass.GetClassyName() ) );
+                                           player.info.rank.GetClassyName() ) );
             return true;
         }
 
@@ -510,7 +516,7 @@ namespace fCraft {
                 return false;
             }
 
-            if( newWorld.classAccess.rank > player.info.playerClass.rank ) {
+            if( newWorld.accessRank.rank > player.info.rank.rank ) {
                 Logger.Log( "Session.JoinWorld: Access limits prevented {0} from joining {1}.", LogType.Error,
                             player.name, newWorld.name );
                 return false;

@@ -28,7 +28,7 @@ namespace fCraft {
         public static bool isLoaded;
 
         public static PlayerInfo AddFakeEntry( string name ) {
-            PlayerInfo info = new PlayerInfo( name, ClassList.defaultClass );
+            PlayerInfo info = new PlayerInfo( name, RankList.defaultRank );
             locker.EnterWriteLock();
             try {
                 list.Add( info );
@@ -211,12 +211,12 @@ namespace fCraft {
 
 
 
-        public static int CountPlayersByClass( PlayerClass pc ) {
+        public static int CountPlayersByClass( Rank pc ) {
             int count = 0;
             locker.EnterReadLock();
             try {
                 foreach( PlayerInfo info in list ) {
-                    if( info.playerClass == pc ) count++;
+                    if( info.rank == pc ) count++;
                 }
                 return count;
             } finally {

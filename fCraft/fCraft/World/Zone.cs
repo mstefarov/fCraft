@@ -39,7 +39,7 @@ namespace fCraft {
 
         object locker = new object();
 
-        public PlayerClass playerClass;
+        public Rank rank;
 
         public DateTime createdDate, editedDate;
         public PlayerInfo createdBy, editedBy;
@@ -80,7 +80,7 @@ namespace fCraft {
             }
         }
 
-        public Zone( string raw ) {
+        public Zone( string raw, World world ) {
             string[] parts = raw.Split( ',' );
 
             string[] header = parts[0].Split( ' ' );
@@ -88,17 +88,13 @@ namespace fCraft {
             bounds = new BoundingBox( Int32.Parse( header[1] ), Int32.Parse( header[2] ), Int32.Parse( header[3] ),
                                       Int32.Parse( header[4] ), Int32.Parse( header[5] ), Int32.Parse( header[6] ) );
 
-            int buildRank;
-            if( Int32.TryParse( header[7], out buildRank ) ) {
-                playerClass = ClassList.ParseRank( buildRank );
-            } else {
-                playerClass = ClassList.ParseClass( header[7] );
-            }
+            rank = RankList.ParseRank( header[7] );
 
             // if all else fails, fall back to lowest class
-            if( playerClass == null ) {
-                Logger.Log( "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to \"{1}\"", LogType.Error, header[7], ClassList.lowestClass.name );
-                playerClass = ClassList.lowestClass;
+            if( rank == null ) {
+                rank = world.buildRank;
+                Logger.Log( "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to default ({1}).", LogType.Error,
+                            header[7], rank.Name );
             }
 
             foreach( string player in parts[1].Split( ' ' ) ) {
@@ -149,7 +145,7 @@ namespace fCraft {
 
                 return String.Format( "{0},{1},{2},{3}",
                                       String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
-                                                     name, bounds.xMin, bounds.yMin, bounds.hMin, bounds.xMax, bounds.yMax, bounds.hMax, playerClass ),
+                                                     name, bounds.xMin, bounds.yMin, bounds.hMin, bounds.xMax, bounds.yMax, bounds.hMax, rank ),
                                       String.Join( " ", includedPlayers.Keys.ToArray() ),
                                       String.Join( " ", excludedPlayers.Keys.ToArray() ),
                                       xheader );
@@ -163,7 +159,7 @@ namespace fCraft {
                 if( player.info == list.excluded[i] ) return false;
             }
 
-            if( player.info.playerClass.rank >= playerClass.rank ) return true;
+            if( player.info.rank.rank >= rank.rank ) return true;
 
             for( int i = 0; i < list.included.Length; i++ ) {
                 if( player.info == list.included[i] ) return true;
@@ -179,7 +175,7 @@ namespace fCraft {
                 if( player.info == list.excluded[i] ) return ZonePermissionType.BlackListed;
             }
 
-            if( player.info.playerClass.rank >= playerClass.rank ) return ZonePermissionType.Allowed;
+            if( player.info.rank.rank >= rank.rank ) return ZonePermissionType.Allowed;
 
             for( int i = 0; i < list.included.Length; i++ ) {
                 if( player.info == list.included[i] ) return ZonePermissionType.WhiteListed;

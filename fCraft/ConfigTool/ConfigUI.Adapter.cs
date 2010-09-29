@@ -42,7 +42,7 @@ namespace ConfigTool {
 
             ApplyTabGeneral();
             ApplyTabWorlds();
-            ApplyTabClasses();
+            ApplyTabRanks();
             ApplyTabSecurity();
             ApplyTabSavingAndBackup();
             ApplyTabLogging();
@@ -95,8 +95,8 @@ namespace ConfigTool {
             tServerName.Text = Config.GetString( ConfigKey.ServerName );
             tMOTD.Text = Config.GetString( ConfigKey.MOTD );
             nMaxPlayers.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.MaxPlayers ) );
-            FillClassList( cDefaultClass, "(lowest class)" );
-            cDefaultClass.SelectedIndex = ClassList.GetIndex( ClassList.ParseClass( Config.GetString( ConfigKey.DefaultClass ) ) );
+            FillClassList( cDefaultRank, "(lowest class)" );
+            cDefaultRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.DefaultRank ) ) );
             cPublic.SelectedIndex = Config.GetBool( ConfigKey.IsPublic ) ? 0 : 1;
             nPort.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.Port ) );
             nUploadBandwidth.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.UploadBandwidth ) );
@@ -108,10 +108,10 @@ namespace ConfigTool {
             }
             tIP.Text = Config.GetString( ConfigKey.IP );
 
-            xClassColors.Checked = Config.GetBool( ConfigKey.ClassColorsInChat );
-            xChatPrefixes.Checked = Config.GetBool( ConfigKey.ClassPrefixesInChat );
-            xListPrefixes.Checked = Config.GetBool( ConfigKey.ClassPrefixesInList );
-            xClassColorsInWorldNames.Checked = Config.GetBool( ConfigKey.ClassColorsInWorldNames );
+            xRankColors.Checked = Config.GetBool( ConfigKey.RankColorsInChat );
+            xChatPrefixes.Checked = Config.GetBool( ConfigKey.RankPrefixesInChat );
+            xListPrefixes.Checked = Config.GetBool( ConfigKey.RankPrefixesInList );
+            xRankColorsInWorldNames.Checked = Config.GetBool( ConfigKey.RankColorsInWorldNames );
             xShowJoinedWorldMessages.Checked = Config.GetBool( ConfigKey.ShowJoinedWorldMessages );
 
             colorSys = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.SystemMessageColor ) );
@@ -131,31 +131,31 @@ namespace ConfigTool {
 
 
         void ApplyTabWorlds() {
-            classNameList = new List<string>();
-            classNameList.Add( WorldListEntry.DefaultClassOption );
-            foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                classNameList.Add( pc.ToComboBoxOption() );
+            rankNameList = new List<string>();
+            rankNameList.Add( WorldListEntry.DefaultClassOption );
+            foreach( Rank pc in RankList.ranksByIndex ) {
+                rankNameList.Add( pc.ToComboBoxOption() );
             }
 
-            dgvcAccess.DataSource = classNameList;
-            dgvcBuild.DataSource = classNameList;
+            dgvcAccess.DataSource = rankNameList;
+            dgvcBuild.DataSource = rankNameList;
             dgvcBackup.DataSource = World.BackupEnum;
 
             foreach( DataGridViewRow row in dgvWorlds.Rows ) {
-                ((DataGridViewComboBoxCell)row.Cells[3]).DataSource = classNameList;
-                ((DataGridViewComboBoxCell)row.Cells[4]).DataSource = classNameList;
+                ((DataGridViewComboBoxCell)row.Cells[3]).DataSource = rankNameList;
+                ((DataGridViewComboBoxCell)row.Cells[4]).DataSource = rankNameList;
             }
 
             dgvWorlds.DataSource = worlds;
         }
 
 
-        void ApplyTabClasses() {
-            vClasses.Items.Clear();
-            foreach( PlayerClass pc in ClassList.classesByIndex ) {
-                vClasses.Items.Add( pc.ToComboBoxOption() );
+        void ApplyTabRanks() {
+            vRanks.Items.Clear();
+            foreach( Rank pc in RankList.ranksByIndex ) {
+                vRanks.Items.Add( pc.ToComboBoxOption() );
             }
-            DisableClassOptions();
+            DisableRankOptions();
         }
 
 
@@ -172,12 +172,12 @@ namespace ConfigTool {
             if( !xSpamChatKick.Checked ) nSpamChatWarnings.Enabled = false;
 
             xRequireBanReason.Checked = Config.GetBool( ConfigKey.RequireBanReason );
-            xRequireClassChangeReason.Checked = Config.GetBool( ConfigKey.RequireClassChangeReason );
+            xRequireRankChangeReason.Checked = Config.GetBool( ConfigKey.RequireRankChangeReason );
             xAnnounceKickAndBanReasons.Checked = Config.GetBool( ConfigKey.AnnounceKickAndBanReasons );
-            xAnnounceClassChanges.Checked = Config.GetBool( ConfigKey.AnnounceClassChanges );
+            xAnnounceRankChanges.Checked = Config.GetBool( ConfigKey.AnnounceRankChanges );
 
             FillClassList( cPatrolledClass, "(lowest class)" );
-            cPatrolledClass.SelectedIndex = ClassList.GetIndex( ClassList.ParseClass( Config.GetString( ConfigKey.PatrolledClass ) ) );
+            cPatrolledClass.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.PatrolledRank ) ) );
         }
 
 
@@ -277,10 +277,10 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.ServerName, tServerName.Text );
             Config.SetValue( ConfigKey.MOTD, tMOTD.Text );
             Config.SetValue( ConfigKey.MaxPlayers, nMaxPlayers.Value );
-            if( cDefaultClass.SelectedIndex == 0 ) {
-                Config.SetValue( ConfigKey.DefaultClass, "" );
+            if( cDefaultRank.SelectedIndex == 0 ) {
+                Config.SetValue( ConfigKey.DefaultRank, "" );
             } else {
-                Config.SetValue( ConfigKey.DefaultClass, ClassList.ParseIndex( cDefaultClass.SelectedIndex - 1 ) );
+                Config.SetValue( ConfigKey.DefaultRank, RankList.ParseIndex( cDefaultRank.SelectedIndex - 1 ) );
             }
             Config.SetValue( ConfigKey.IsPublic, cPublic.SelectedIndex == 0 );
             Config.SetValue( ConfigKey.Port, nPort.Value );
@@ -289,10 +289,10 @@ namespace ConfigTool {
 
             Config.SetValue( ConfigKey.UploadBandwidth, nUploadBandwidth.Value );
             Config.SetValue( ConfigKey.ShowJoinedWorldMessages, xShowJoinedWorldMessages.Checked );
-            Config.SetValue( ConfigKey.ClassColorsInWorldNames, xClassColorsInWorldNames.Checked );
-            Config.SetValue( ConfigKey.ClassColorsInChat, xClassColors.Checked );
-            Config.SetValue( ConfigKey.ClassPrefixesInChat, xChatPrefixes.Checked );
-            Config.SetValue( ConfigKey.ClassPrefixesInList, xListPrefixes.Checked );
+            Config.SetValue( ConfigKey.RankColorsInWorldNames, xRankColorsInWorldNames.Checked );
+            Config.SetValue( ConfigKey.RankColorsInChat, xRankColors.Checked );
+            Config.SetValue( ConfigKey.RankPrefixesInChat, xChatPrefixes.Checked );
+            Config.SetValue( ConfigKey.RankPrefixesInList, xListPrefixes.Checked );
             Config.SetValue( ConfigKey.SystemMessageColor, fCraft.Color.GetName( colorSys ) );
             Config.SetValue( ConfigKey.HelpColor, fCraft.Color.GetName( colorHelp ) );
             Config.SetValue( ConfigKey.SayColor, fCraft.Color.GetName( colorSay ) );
@@ -312,14 +312,14 @@ namespace ConfigTool {
             else Config.SetValue( ConfigKey.AntispamMaxWarnings, 0 );
 
             Config.SetValue( ConfigKey.RequireBanReason, xRequireBanReason.Checked );
-            Config.SetValue( ConfigKey.RequireClassChangeReason, xRequireClassChangeReason.Checked );
+            Config.SetValue( ConfigKey.RequireRankChangeReason, xRequireRankChangeReason.Checked );
             Config.SetValue( ConfigKey.AnnounceKickAndBanReasons, xAnnounceKickAndBanReasons.Checked );
-            Config.SetValue( ConfigKey.AnnounceClassChanges, xAnnounceClassChanges.Checked );
+            Config.SetValue( ConfigKey.AnnounceRankChanges, xAnnounceRankChanges.Checked );
 
             if( cPatrolledClass.SelectedIndex == 0 ) {
-                Config.SetValue( ConfigKey.PatrolledClass, "" );
+                Config.SetValue( ConfigKey.PatrolledRank, "" );
             } else {
-                Config.SetValue( ConfigKey.PatrolledClass, ClassList.ParseIndex( cPatrolledClass.SelectedIndex - 1 ) );
+                Config.SetValue( ConfigKey.PatrolledRank, RankList.ParseIndex( cPatrolledClass.SelectedIndex - 1 ) );
             }
 
 
