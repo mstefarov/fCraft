@@ -1318,7 +1318,6 @@
             this.nRank.Name = "nRank";
             this.nRank.Size = new System.Drawing.Size( 54, 21 );
             this.nRank.TabIndex = 1;
-            this.nRank.Validating += new System.ComponentModel.CancelEventHandler( this.nRank_Validating );
             // 
             // lRank
             // 

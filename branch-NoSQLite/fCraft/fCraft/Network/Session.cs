@@ -516,7 +516,7 @@ namespace fCraft {
                 return false;
             }
 
-            if( newWorld.accessRank.rank > player.info.rank.rank ) {
+            if( newWorld.accessRank > player.info.rank ) {
                 Logger.Log( "Session.JoinWorld: Access limits prevented {0} from joining {1}.", LogType.Error,
                             player.name, newWorld.name );
                 return false;

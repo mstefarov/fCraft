@@ -15,7 +15,7 @@ namespace ConfigTool {
 
         public DeleteRankPopup( Rank rank ) {
             InitializeComponent();
-            foreach( Rank pc in RankList.ranksByIndex ) {
+            foreach( Rank pc in RankList.Ranks ) {
                 if( pc != rank ) {
                     cSubstitute.Items.Add( pc.ToComboBoxOption() );
                 }
@@ -27,7 +27,7 @@ namespace ConfigTool {
 
         private void cSubstitute_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cSubstitute.SelectedIndex >= 0 ) {
-                foreach( Rank rank in RankList.ranksByIndex ) {
+                foreach( Rank rank in RankList.Ranks ) {
                     if( cSubstitute.SelectedItem.ToString() == rank.ToComboBoxOption() ) {
                         substituteRank = rank;
                         bDelete.Enabled = true;

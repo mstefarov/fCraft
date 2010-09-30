@@ -61,10 +61,10 @@ namespace fCraft {
                     if( !hasReportedServerURL ) {
                         using( WebResponse response = request.GetResponse() ) {
                             using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                                Config.ServerURL = responseReader.ReadLine();
+                                Server.URL = responseReader.ReadLine();
                             }
                         }
-                        Server.FireURLChangeEvent( Config.ServerURL );
+                        Server.FireURLChangeEvent( Server.URL );
                         hasReportedServerURL = true;
                     }
                     request.Abort();

@@ -64,8 +64,8 @@ namespace fCraft {
 
         public World( string _name ) {
             name = _name;
-            accessRank = RankList.lowestRank;
-            buildRank = RankList.lowestRank;
+            accessRank = RankList.LowestRank;
+            buildRank = RankList.LowestRank;
             //thread = new Thread( WorldLoop );
             //thread.IsBackground = true;
         }
@@ -468,10 +468,10 @@ namespace fCraft {
             string displayedName = name;
             if( Config.GetBool( ConfigKey.RankColorsInWorldNames ) ) {
                 if( Config.GetBool( ConfigKey.RankPrefixesInChat ) ) {
-                    displayedName = buildRank.prefix + displayedName;
+                    displayedName = buildRank.Prefix + displayedName;
                 }
                 if( Config.GetBool( ConfigKey.RankColorsInChat ) ) {
-                    if( buildRank.rank >= accessRank.rank ) {
+                    if( buildRank >= accessRank ) {
                         displayedName = buildRank.Color + displayedName;
                     } else {
                         displayedName = accessRank.Color + displayedName;
@@ -509,7 +509,7 @@ namespace fCraft {
         }
 
         void AddPlayerForPatrol( Player player ) {
-            if( player.info.rank.rank <= classToPatrol.rank ) {
+            if( player.info.rank <= classToPatrol ) {
                 lock( patrolLock ) {
                     patrolList.AddLast( player );
                 }
@@ -518,11 +518,11 @@ namespace fCraft {
 
         internal void CheckIfPlayerIsStillPatrollable( Player player ) {
             lock( patrolLock ) {
-                if( patrolList.Contains( player ) ){
-                    if( player.info.rank.rank > classToPatrol.rank ) {
+                if( patrolList.Contains( player ) ) {
+                    if( player.info.rank > classToPatrol ) {
                         RemovePlayerFromPatrol( player );
                     }
-                } else if( player.info.rank.rank <= classToPatrol.rank ) {
+                } else if( player.info.rank <= classToPatrol ) {
                     AddPlayerForPatrol( player );
                 }
             }

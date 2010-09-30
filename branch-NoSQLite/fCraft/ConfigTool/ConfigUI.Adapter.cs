@@ -133,7 +133,7 @@ namespace ConfigTool {
         void ApplyTabWorlds() {
             rankNameList = new List<string>();
             rankNameList.Add( WorldListEntry.DefaultClassOption );
-            foreach( Rank pc in RankList.ranksByIndex ) {
+            foreach( Rank pc in RankList.Ranks ) {
                 rankNameList.Add( pc.ToComboBoxOption() );
             }
 
@@ -152,7 +152,7 @@ namespace ConfigTool {
 
         void ApplyTabRanks() {
             vRanks.Items.Clear();
-            foreach( Rank pc in RankList.ranksByIndex ) {
+            foreach( Rank pc in RankList.Ranks ) {
                 vRanks.Items.Add( pc.ToComboBoxOption() );
             }
             DisableRankOptions();

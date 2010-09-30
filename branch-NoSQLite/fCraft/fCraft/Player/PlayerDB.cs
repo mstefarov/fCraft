@@ -28,7 +28,7 @@ namespace fCraft {
         public static bool isLoaded;
 
         public static PlayerInfo AddFakeEntry( string name ) {
-            PlayerInfo info = new PlayerInfo( name, RankList.defaultRank );
+            PlayerInfo info = new PlayerInfo( name, RankList.DefaultRank );
             locker.EnterWriteLock();
             try {
                 list.Add( info );

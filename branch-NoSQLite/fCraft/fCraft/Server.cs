@@ -36,8 +36,9 @@ namespace fCraft {
         internal static float ticksPerSecond;
 
         const int MaxPortAttempts = 20;
-        public static int Port;
 
+        public static int Port;
+        public static string URL;
 
 
 
@@ -76,6 +77,11 @@ namespace fCraft {
 
         // Opens a socket for listening for incoming connections
         public static bool Start() {
+
+            if( CheckForFCraftProcesses() ) {
+                Logger.Log( "Please close all other fCraft processes (fCraftUI, fCraftConsole, or ConfigTool) "+
+                            "that are started form the same directory.", LogType.Warning );
+            }
 
             Player.Console = new Player( null, "(console)" );
 
@@ -131,7 +137,8 @@ namespace fCraft {
                 firstPrintedWorld = false;
             }
             Logger.Log( line, LogType.SystemActivity );
-            Logger.Log( "Main world: \"" + mainWorld.name + "\".", LogType.SystemActivity );
+            Logger.Log( "Main world: {0}; default rank: {1}", LogType.SystemActivity,
+                        mainWorld.name, RankList.DefaultRank.Name );
 
             // Check for incoming connections 4 times per second
             AddTask( CheckConnections, 250 );
@@ -266,11 +273,11 @@ namespace fCraft {
                 Logger.Log( "World creation failed. Shutting down.", LogType.FatalError );
                 return false;
             } else {
-                if( mainWorld.accessRank != RankList.lowestRank ) {
+                if( mainWorld.accessRank != RankList.LowestRank ) {
                     Logger.LogWarning( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
                                        "Access permission for \"{0}\" has been reset.", WarningLogSubtype.WorldListWarning,
                                        mainWorld.name );
-                    mainWorld.accessRank = RankList.lowestRank;
+                    mainWorld.accessRank = RankList.LowestRank;
                 }
                 if( !mainWorld.neverUnload ) {
                     mainWorld.neverUnload = true;
@@ -349,10 +356,10 @@ namespace fCraft {
                                 fieldType,
                                 world.name,
                                 temp.Value );
-                    field = RankList.lowestRank;
+                    field = RankList.LowestRank;
                 }
             } else {
-                field = RankList.lowestRank;
+                field = RankList.LowestRank;
             }
         }
 
@@ -782,12 +789,12 @@ namespace fCraft {
         static void CheckIdles( object param ) {
             Player[] tempPlayerList = playerList;
             foreach( Player player in tempPlayerList ) {
-                if( player.info.rank.idleKickTimer > 0 ) {
-                    if( DateTime.UtcNow.Subtract( player.idleTimer ).TotalMinutes >= player.info.rank.idleKickTimer ) {
+                if( player.info.rank.IdleKickTimer > 0 ) {
+                    if( DateTime.UtcNow.Subtract( player.idleTimer ).TotalMinutes >= player.info.rank.IdleKickTimer ) {
                         SendToAll( String.Format( "{0}&S was kicked for being idle for {1} min",
                                                   player.GetClassyName(),
-                                                  player.info.rank.idleKickTimer ) );
-                        AdminCommands.DoKick( Player.Console, player, "Idle for " + player.info.rank.idleKickTimer + " minutes", true );
+                                                  player.info.rank.IdleKickTimer ) );
+                        AdminCommands.DoKick( Player.Console, player, "Idle for " + player.info.rank.IdleKickTimer + " minutes", true );
                         player.ResetIdleTimer(); // to prevent kick from firing more than once
                     }
                 }
@@ -950,6 +957,28 @@ namespace fCraft {
             return maxPacketsPerUpdate;
         }
 
+        public static bool CheckForFCraftProcesses(){
+            try {
+                Process[] processList = Process.GetProcesses();
+
+                foreach( Process process in processList ) {
+                    if( process.ProcessName.ToLower() == "fcraftui" ||
+                        process.ProcessName.ToLower() == "configtool" ||
+                        process.ProcessName.ToLower() == "fcraftconsole" ) {
+                        if( process.Id != Process.GetCurrentProcess().Id ) {
+                            Logger.Log( "Another fCraft process detected running: {0}", LogType.Warning, process.ProcessName );
+                            return true;
+                        }
+                    }
+                }
+                return false;
+
+            } catch( Exception ex ) {
+                Logger.Log( "Server.CheckForFCraftProcesses: {0}", LogType.Debug, ex );
+                return false;
+            }
+        }
+
         #endregion
 
 
@@ -979,7 +1008,7 @@ namespace fCraft {
         // Add a newly-logged-in player to the list, and notify existing players.
         public static bool RegisterPlayer( Player player ) {
             lock( playerListLock ) {
-                if( players.Count >= Config.GetInt( ConfigKey.MaxPlayers ) && !player.info.rank.reservedSlot ||
+                if( players.Count >= Config.GetInt( ConfigKey.MaxPlayers ) && !player.info.rank.ReservedSlot ||
                     players.Count == Config.MaxPlayersSupported ) {
                     return false;
                 }
