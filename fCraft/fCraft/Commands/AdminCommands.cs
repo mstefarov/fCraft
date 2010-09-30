@@ -452,7 +452,7 @@ namespace fCraft {
 
         internal static void DoChangeRank( Player player, PlayerInfo targetInfo, Player target, Rank newRank, string reason ) {
 
-            bool promote = (targetInfo.rank.rank < newRank.rank);
+            bool promote = (targetInfo.rank < newRank);
 
             // Make sure it's not same rank
             if( targetInfo.rank == newRank ) {
@@ -502,8 +502,8 @@ namespace fCraft {
             string verb = (promote ? "promoted" : "demoted");
 
             // Do the class change
-            if( (promote && targetInfo.rank.rank < newRank.rank) ||
-                (!promote && targetInfo.rank.rank > newRank.rank) ) {
+            if( (promote && targetInfo.rank < newRank) ||
+                (!promote && targetInfo.rank > newRank) ) {
                 Rank oldRank = targetInfo.rank;
 
                 if( !Server.FirePlayerRankChange( targetInfo, player, oldRank, newRank ) ) return;
@@ -1045,7 +1045,7 @@ namespace fCraft {
 
         static CommandDescriptor cdBring = new CommandDescriptor {
             name = "bring",
-            aliases = new string[] { "summon" },
+            aliases = new string[] { "summon", "fetch" },
             permissions = new Permission[] { Permission.Bring },
             usage = "/bring PlayerName",
             help = "Teleports you to a specified player's location. If no name is given, teleports you to map spawn.",

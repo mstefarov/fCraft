@@ -9,15 +9,33 @@ using System.Xml.Linq;
 namespace fCraft {
     public sealed class Rank {
 
+        public static bool operator >( Rank a, Rank b ) {
+            return a.Index > b.Index;
+        }
+
+        public static bool operator <( Rank a, Rank b ) {
+            return a.Index < b.Index;
+        }
+
+        public static bool operator >=( Rank a, Rank b ) {
+            return a.Index >= b.Index;
+        }
+
+        public static bool operator <=( Rank a, Rank b ) {
+            return a.Index <= b.Index;
+        }
+
+
         public sealed class RankDefinitionException : Exception {
             public RankDefinitionException( string message ) : base( message ) { }
             public RankDefinitionException( string message, params string[] args ) :
                 base( String.Format( message, args ) ) { }
         }
 
+
         public string Name { get; set; }
 
-        public byte rank;
+        public byte legacyNumericRank;
 
         public string Color { get; set; }
 
@@ -28,28 +46,83 @@ namespace fCraft {
             private set;
         }
 
-        public Rank maxPromote,
-                           maxDemote,
-                           maxKick,
-                           maxBan,
-                           maxHideFrom;
 
-        public string prefix = "";
-        public int idleKickTimer,
-                   drawLimit,
-                   antiGriefBlocks = 35,
-                   antiGriefSeconds = 5;
-        public bool reservedSlot;
-        public int index;
+        #region Permission Limits
 
-        public Rank nextRankUp, nextRankDown;
+        Rank _maxPromote;
+        public Rank maxPromote {
+            get {
+                if( _maxPromote == null ) return this;
+                else return _maxPromote;
+            }
+            set {
+                _maxPromote = value;
+            }
+        }
+
+        Rank _maxDemote;
+        public Rank maxDemote {
+            get {
+                if( _maxDemote == null ) return this;
+                else return _maxDemote;
+            }
+            set {
+                _maxDemote = value;
+            }
+        }
+
+        Rank _maxKick;
+        public Rank maxKick {
+            get {
+                if( _maxKick == null ) return this;
+                else return _maxKick;
+            }
+            set {
+                _maxKick = value;
+            }
+        }
+
+        Rank _maxBan;
+        public Rank maxBan {
+            get {
+                if( _maxBan == null ) return this;
+                else return _maxBan;
+            }
+            set {
+                _maxBan = value;
+            }
+        }
+
+        Rank _maxHideFrom;
+        public Rank maxHideFrom {
+            get {
+                if( _maxHideFrom == null ) return this;
+                else return _maxHideFrom;
+            }
+            set {
+                _maxHideFrom = value;
+            }
+        }
+
+        #endregion
+
+
+        public string Prefix = "";
+        public int IdleKickTimer,
+                   DrawLimit,
+                   AntiGriefBlocks = 35,
+                   AntiGriefSeconds = 5;
+        public bool ReservedSlot;
+        public int Index;
+
+        public Rank NextRankUp, NextRankDown;
 
         // these need to be parsed after all ranks are added
-        internal string maxPromoteVal = "",
-                        maxDemoteVal = "",
-                        maxKickVal = "",
-                        maxBanVal = "",
-                        maxHideFromVal = "";
+        string maxPromoteVal = "",
+               maxDemoteVal = "",
+               maxKickVal = "",
+               maxBanVal = "",
+               maxHideFromVal = "";
 
 
         public Rank() {
@@ -57,7 +130,8 @@ namespace fCraft {
         }
 
 
-        public Rank( XElement el ) : this() {
+        public Rank( XElement el )
+            : this() {
 
             // Name
             XAttribute attr = el.Attribute( "name" );
@@ -69,7 +143,7 @@ namespace fCraft {
             }
             Name = attr.Value.Trim();
 
-            if( RankList.ranksByName.ContainsKey( Name.ToLower() ) ) {
+            if( RankList.RanksByName.ContainsKey( Name.ToLower() ) ) {
                 throw new RankDefinitionException( "Duplicate name for class \"{0}\". Class definition was ignored.", Name );
             }
 
@@ -85,7 +159,7 @@ namespace fCraft {
 
             } else {
                 ID = attr.Value.Trim();
-                if( RankList.ranksByID.ContainsKey( Name ) ) {
+                if( RankList.RanksByID.ContainsKey( Name ) ) {
                     throw new RankDefinitionException( "Duplicate ID for {0}. Class definition was ignored.", Name );
                 }
             }
@@ -95,13 +169,13 @@ namespace fCraft {
             if( (attr = el.Attribute( "rank" )) == null ) {
                 throw new RankDefinitionException( "No rank specified for {0}. Class definition was ignored.", Name );
             }
-            if( !Byte.TryParse( attr.Value, out rank ) ) {
+            if( !Byte.TryParse( attr.Value, out legacyNumericRank ) ) {
                 throw new RankDefinitionException( "Cannot parse rank for {0}. Class definition was ignored.", Name );
             }
 
 
             // Color (optional)
-            if( (attr = el.Attribute( "color" )) != null ){
+            if( (attr = el.Attribute( "color" )) != null ) {
                 if( (Color = fCraft.Color.Parse( attr.Value )) == null ) {
                     Logger.Log( "PlayerClass({0}): Could not parse class color. Assuming default (none).", LogType.Warning, Name );
                 }
@@ -113,7 +187,7 @@ namespace fCraft {
             // Prefix (optional)
             if( (attr = el.Attribute( "prefix" )) != null ) {
                 if( Rank.IsValidPrefix( attr.Value ) ) {
-                    prefix = attr.Value;
+                    Prefix = attr.Value;
                 } else {
                     Logger.Log( "PlayerClass({0}): Invalid prefix format. Expecting 1 character.", LogType.Warning, Name );
                 }
@@ -130,24 +204,24 @@ namespace fCraft {
                         attr = el.Attribute( "antiGriefSeconds" );
                         if( Int32.TryParse( attr.Value, out value ) ) {
                             if( value >= 0 && value < 100 ) {
-                                antiGriefSeconds = value;
-                                antiGriefBlocks = value;
+                                AntiGriefSeconds = value;
+                                AntiGriefBlocks = value;
                             } else {
                                 Logger.Log( "PlayerClass({0}): Values for antiGriefSeconds in not within valid range (0-1000). Assuming default ({1}).", LogType.Warning,
-                                            Name, antiGriefSeconds );
+                                            Name, AntiGriefSeconds );
                             }
                         } else {
                             Logger.Log( "PlayerClass({0}): Could not parse the value for antiGriefSeconds. Assuming default ({1}).", LogType.Warning,
-                                        Name, antiGriefSeconds );
+                                        Name, AntiGriefSeconds );
                         }
 
                     } else {
                         Logger.Log( "PlayerClass({0}): Values for antiGriefBlocks in not within valid range (0-1000). Assuming default ({1}).", LogType.Warning,
-                                    Name, antiGriefBlocks );
+                                    Name, AntiGriefBlocks );
                     }
                 } else {
                     Logger.Log( "PlayerClass({0}): Could not parse the value for antiGriefBlocks. Assuming default ({1}).", LogType.Warning,
-                                Name, antiGriefBlocks );
+                                Name, AntiGriefBlocks );
                 }
             }
 
@@ -155,35 +229,35 @@ namespace fCraft {
             if( (attr = el.Attribute( "drawLimit" )) != null ) {
                 if( Int32.TryParse( attr.Value, out value ) ) {
                     if( value >= 0 && value < 100000000 ) {
-                        drawLimit = value;
+                        DrawLimit = value;
                     } else {
                         Logger.Log( "PlayerClass({0}): Values for drawLimit in not within valid range (0-1000). Assuming default ({1}).", LogType.Warning,
-                                    Name, drawLimit );
+                                    Name, DrawLimit );
                     }
                 } else {
                     Logger.Log( "PlayerClass({0}): Could not parse the value for drawLimit. Assuming default ({1}).", LogType.Warning,
-                                Name, drawLimit );
+                                Name, DrawLimit );
                 }
             }
 
 
 
             if( (attr = el.Attribute( "idleKickAfter" )) != null ) {
-                if( !Int32.TryParse( attr.Value, out idleKickTimer ) ) {
+                if( !Int32.TryParse( attr.Value, out IdleKickTimer ) ) {
                     Logger.Log( "PlayerClass({0}): Could not parse the value for idleKickAfter. Assuming 0 (never).", LogType.Warning, Name );
-                    idleKickTimer = 0;
+                    IdleKickTimer = 0;
                 }
             } else {
-                idleKickTimer = 0;
+                IdleKickTimer = 0;
             }
 
             if( (attr = el.Attribute( "reserveSlot" )) != null ) {
-                if( !Boolean.TryParse( attr.Value, out reservedSlot ) ) {
+                if( !Boolean.TryParse( attr.Value, out ReservedSlot ) ) {
                     Logger.Log( "PlayerClass({0}): Could not parse the value for reserveSlot. Assuming \"false\".", LogType.Warning, Name );
-                    reservedSlot = false;
+                    ReservedSlot = false;
                 }
             } else {
-                reservedSlot = false;
+                ReservedSlot = false;
             }
 
 
@@ -197,40 +271,30 @@ namespace fCraft {
                         case (int)Permission.Promote:
                             if( (attr = temp.Attribute( "max" )) != null ) {
                                 maxPromoteVal = attr.Value;
-                            } else {
-                                maxPromoteVal = "";
                             }
                             break;
 
                         case (int)Permission.Demote:
                             if( (attr = temp.Attribute( "max" )) != null ) {
                                 maxDemoteVal = attr.Value;
-                            } else {
-                                maxDemoteVal = "";
                             }
                             break;
 
                         case (int)Permission.Kick:
                             if( (attr = temp.Attribute( "max" )) != null ) {
                                 maxKickVal = attr.Value;
-                            } else {
-                                maxKickVal = "";
                             }
                             break;
 
                         case (int)Permission.Ban:
                             if( (attr = temp.Attribute( "max" )) != null ) {
                                 maxBanVal = attr.Value;
-                            } else {
-                                maxBanVal = "";
                             }
                             break;
 
                         case (int)Permission.Hide:
                             if( (attr = temp.Attribute( "max" )) != null ) {
                                 maxHideFromVal = attr.Value;
-                            } else {
-                                maxHideFromVal = "";
                             }
                             break;
                     }
@@ -258,28 +322,40 @@ namespace fCraft {
             XElement classTag = new XElement( "Rank" );
             classTag.Add( new XAttribute( "name", Name ) );
             classTag.Add( new XAttribute( "id", ID ) );
-            classTag.Add( new XAttribute( "rank", rank ) );
+            classTag.Add( new XAttribute( "rank", legacyNumericRank ) );
             classTag.Add( new XAttribute( "color", fCraft.Color.GetName( Color ) ) );
-            if( prefix.Length > 0 ) classTag.Add( new XAttribute( "prefix", prefix ) );
-            classTag.Add( new XAttribute( "antiGriefBlocks", antiGriefBlocks ) );
-            classTag.Add( new XAttribute( "antiGriefSeconds", antiGriefSeconds ) );
-            if( drawLimit > 0 ) classTag.Add( new XAttribute( "drawLimit", drawLimit ) );
-            if( idleKickTimer > 0 ) classTag.Add( new XAttribute( "idleKickAfter", idleKickTimer ) );
-            if( reservedSlot ) classTag.Add( new XAttribute( "reserveSlot", reservedSlot ) );
+            if( Prefix.Length > 0 ) classTag.Add( new XAttribute( "prefix", Prefix ) );
+            classTag.Add( new XAttribute( "antiGriefBlocks", AntiGriefBlocks ) );
+            classTag.Add( new XAttribute( "antiGriefSeconds", AntiGriefSeconds ) );
+            if( DrawLimit > 0 ) classTag.Add( new XAttribute( "drawLimit", DrawLimit ) );
+            if( IdleKickTimer > 0 ) classTag.Add( new XAttribute( "idleKickAfter", IdleKickTimer ) );
+            if( ReservedSlot ) classTag.Add( new XAttribute( "reserveSlot", ReservedSlot ) );
+
             XElement temp;
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
                 if( Permissions[i] ) {
                     temp = new XElement( ((Permission)i).ToString() );
-                    if( i == (int)Permission.Ban && maxBan != null ) {
-                        temp.Add( new XAttribute( "max", maxBan ) );
-                    } else if( i == (int)Permission.Kick && maxKick != null ) {
-                        temp.Add( new XAttribute( "max", maxKick ) );
-                    } else if( i == (int)Permission.Promote && maxPromote != null ) {
-                        temp.Add( new XAttribute( "max", maxPromote ) );
-                    } else if( i == (int)Permission.Demote && maxDemote != null ) {
-                        temp.Add( new XAttribute( "max", maxDemote ) );
-                    } else if( i == (int)Permission.Hide && maxHideFrom != null ) {
-                        temp.Add( new XAttribute( "max", maxHideFrom ) );
+
+                    switch( i ) {
+                        case (int)Permission.Kick:
+                            if( _maxKick != null ) temp.Add( new XAttribute( "max", maxKick ) );
+                            break;
+
+                        case (int)Permission.Ban:
+                            if( _maxBan != null ) temp.Add( new XAttribute( "max", maxBan ) );
+                            break;
+
+                        case (int)Permission.Promote:
+                            if( _maxPromote != null ) temp.Add( new XAttribute( "max", maxPromote ) );
+                            break;
+
+                        case (int)Permission.Demote:
+                            if( _maxDemote != null ) temp.Add( new XAttribute( "max", maxDemote ) );
+                            break;
+
+                        case (int)Permission.Hide:
+                            if( _maxHideFrom != null ) temp.Add( new XAttribute( "max", maxHideFrom ) );
+                            break;
                     }
                     classTag.Add( temp );
                 }
@@ -295,49 +371,49 @@ namespace fCraft {
 
 
         public bool CanKick( Rank other ) {
-            return maxKick.rank >= other.rank;
+            return maxKick >= other;
         }
 
         public bool CanBan( Rank other ) {
-            return maxBan.rank >= other.rank;
+            return maxBan >= other;
         }
 
         public bool CanPromote( Rank other ) {
-            return maxPromote.rank >= other.rank;
+            return maxPromote >= other;
         }
 
         public bool CanDemote( Rank other ) {
-            return maxDemote.rank >= other.rank;
+            return maxDemote >= other;
         }
 
         public bool CanSee( Rank other ) {
-            return rank > other.maxHideFrom.rank;
+            return this > other.maxHideFrom;
         }
 
 
         public int GetMaxKickIndex() {
             if( maxKick == null ) return 0;
-            else return maxKick.index + 1;
+            else return maxKick.Index + 1;
         }
 
         public int GetMaxBanIndex() {
             if( maxBan == null ) return 0;
-            else return maxBan.index + 1;
+            else return maxBan.Index + 1;
         }
 
         public int GetMaxPromoteIndex() {
             if( maxPromote == null ) return 0;
-            else return maxPromote.index + 1;
+            else return maxPromote.Index + 1;
         }
 
         public int GetMaxDemoteIndex() {
             if( maxDemote == null ) return 0;
-            else return maxDemote.index + 1;
+            else return maxDemote.Index + 1;
         }
 
         public int GetMaxHideFromIndex() {
             if( maxHideFrom == null ) return 0;
-            else return maxHideFrom.index + 1;
+            else return maxHideFrom.Index + 1;
         }
 
         #endregion
@@ -377,7 +453,7 @@ namespace fCraft {
 
 
         public string ToComboBoxOption() {
-            return String.Format( "{0,3} {1,1}{2}", rank, prefix, Name );
+            return String.Format( "{0,3} {1,1}{2}", legacyNumericRank, Prefix, Name );
         }
 
         public override string ToString() {
@@ -387,12 +463,41 @@ namespace fCraft {
         public string GetClassyName() {
             string displayedName = Name;
             if( Config.GetBool( ConfigKey.RankPrefixesInChat ) ) {
-                displayedName = prefix + displayedName;
+                displayedName = Prefix + displayedName;
             }
             if( Config.GetBool( ConfigKey.RankColorsInChat ) ) {
                 displayedName = Color + displayedName;
             }
             return displayedName;
+        }
+
+        internal bool ParsePermissionLimits() {
+            bool ok = true;
+            if( maxKickVal.Length > 0 ) {
+                maxKick = RankList.ParseRank( maxKickVal );
+                ok &= (maxKick != null);
+            }
+
+            if( maxBanVal.Length > 0 ) {
+                maxBan = RankList.ParseRank( maxBanVal );
+                ok &= (maxBan != null);
+            }
+
+            if( maxPromoteVal.Length > 0 ) {
+                maxPromote = RankList.ParseRank( maxPromoteVal );
+                ok &= (maxPromote != null);
+            }
+
+            if( maxDemoteVal.Length > 0 ) {
+                maxDemote = RankList.ParseRank( maxDemoteVal );
+                ok &= (maxDemote != null);
+            }
+
+            if( maxHideFromVal.Length > 0 ) {
+                maxHideFrom = RankList.ParseRank( maxHideFromVal );
+                ok &= (maxHideFrom != null);
+            }
+            return ok;
         }
     }
 }

@@ -28,8 +28,8 @@ namespace fCraft {
             world = _world;
             name = _name;
             lowercaseName = name.ToLower();
-            info = new PlayerInfo( _name, RankList.highestRank );
-            spamBlockLog = new Queue<DateTime>( info.rank.antiGriefBlocks );
+            info = new PlayerInfo( _name, RankList.HighestRank );
+            spamBlockLog = new Queue<DateTime>( info.rank.AntiGriefBlocks );
             ResetAllBinds();
         }
 
@@ -42,7 +42,7 @@ namespace fCraft {
             session = _session;
             pos = _pos;
             info = PlayerDB.FindPlayerInfo( this );
-            spamBlockLog = new Queue<DateTime>( info.rank.antiGriefBlocks );
+            spamBlockLog = new Queue<DateTime>( info.rank.AntiGriefBlocks );
             ResetAllBinds();
         }
 
@@ -183,7 +183,7 @@ namespace fCraft {
                                     name, rank.Name, message );
                         string formattedMessage = String.Format( "{0}({1}{2}){3}{4}: {5}",
                                                                  rank.Color,
-                                                                 (Config.GetBool( ConfigKey.RankPrefixesInChat ) ? rank.prefix : ""),
+                                                                 (Config.GetBool( ConfigKey.RankPrefixesInChat ) ? rank.Prefix : ""),
                                                                  rank.Name,
                                                                  Color.PM,
                                                                  name,
@@ -390,15 +390,15 @@ namespace fCraft {
 
 
         bool CheckBlockSpam() {
-            if( info.rank.antiGriefBlocks == 0 && info.rank.antiGriefSeconds == 0 ) return false;
-            if( spamBlockLog.Count >= info.rank.antiGriefBlocks ) {
+            if( info.rank.AntiGriefBlocks == 0 && info.rank.AntiGriefSeconds == 0 ) return false;
+            if( spamBlockLog.Count >= info.rank.AntiGriefBlocks ) {
                 DateTime oldestTime = spamBlockLog.Dequeue();
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
-                if( spamTimer < info.rank.antiGriefSeconds ) {
+                if( spamTimer < info.rank.AntiGriefSeconds ) {
                     session.KickNow( "You were kicked by antigrief system. Slow down." );
                     Server.SendToAll( GetClassyName() + Color.Red + " was kicked for suspected griefing." );
                     Logger.Log( "{0} was kicked for block spam ({1} blocks in {2} seconds)", LogType.SuspiciousActivity,
-                                name, info.rank.antiGriefBlocks, spamTimer );
+                                name, info.rank.AntiGriefBlocks, spamTimer );
                     return true;
                 }
             }
@@ -450,12 +450,12 @@ namespace fCraft {
 
 
         public bool CanDraw( int volume ) {
-            return (info.rank.drawLimit > 0) && (volume > info.rank.drawLimit);
+            return (info.rank.DrawLimit > 0) && (volume > info.rank.DrawLimit);
         }
 
 
         public bool CanJoin( World world ) {
-            return info.rank.rank >= world.accessRank.rank;
+            return info.rank >= world.accessRank;
         }
 
 
@@ -479,7 +479,7 @@ namespace fCraft {
 
                 // deleting a block
                 if( Can( Permission.Delete ) ) {
-                    if( world.buildRank.rank > info.rank.rank ) {
+                    if( world.buildRank > info.rank ) {
                         return CanPlaceResult.WorldDenied;
                     } else {
                         return CanPlaceResult.Allowed;
@@ -492,7 +492,7 @@ namespace fCraft {
 
                 // building a block
                 if( Can( Permission.Build ) ) {
-                    if( world.buildRank.rank > info.rank.rank ) {
+                    if( world.buildRank > info.rank ) {
                         return CanPlaceResult.WorldDenied;
                     } else {
                         return CanPlaceResult.Allowed;
@@ -505,7 +505,7 @@ namespace fCraft {
 
                 // replacing a block
                 if( Can( Permission.Delete, Permission.Build ) ) {
-                    if( world.buildRank.rank > info.rank.rank ) {
+                    if( world.buildRank > info.rank ) {
                         return CanPlaceResult.WorldDenied;
                     } else {
                         return CanPlaceResult.Allowed;
@@ -569,7 +569,7 @@ namespace fCraft {
         public string GetListName() {
             string displayedName = name;
             if( Config.GetBool( ConfigKey.RankPrefixesInList ) ) {
-                displayedName = info.rank.prefix + displayedName;
+                displayedName = info.rank.Prefix + displayedName;
             }
             if( Config.GetBool( ConfigKey.RankColorsInChat ) && info.rank.Color != Color.White ) {
                 displayedName = info.rank.Color + displayedName;

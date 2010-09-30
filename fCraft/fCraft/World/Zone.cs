@@ -159,7 +159,7 @@ namespace fCraft {
                 if( player.info == list.excluded[i] ) return false;
             }
 
-            if( player.info.rank.rank >= rank.rank ) return true;
+            if( player.info.rank >= rank ) return true;
 
             for( int i = 0; i < list.included.Length; i++ ) {
                 if( player.info == list.included[i] ) return true;
@@ -175,7 +175,7 @@ namespace fCraft {
                 if( player.info == list.excluded[i] ) return ZonePermissionType.BlackListed;
             }
 
-            if( player.info.rank.rank >= rank.rank ) return ZonePermissionType.Allowed;
+            if( player.info.rank >= rank ) return ZonePermissionType.Allowed;
 
             for( int i = 0; i < list.included.Length; i++ ) {
                 if( player.info == list.included[i] ) return ZonePermissionType.WhiteListed;
@@ -183,15 +183,15 @@ namespace fCraft {
 
             return ZonePermissionType.Denied;
         }
-
-        
     }
+
 
     public enum ZoneOverride {
         None,
         Allow,
         Deny
     }
+
 
     public enum ZonePermissionType {
         Allowed,

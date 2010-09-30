@@ -244,33 +244,33 @@ namespace ConfigTool {
                 DisableRankOptions();
                 return;
             }
-            if( vRanks.SelectedIndex != pc.index ) {
-                vRanks.SelectedIndex = pc.index;
+            if( vRanks.SelectedIndex != pc.Index ) {
+                vRanks.SelectedIndex = pc.Index;
                 return;
             }
             selectedRank = pc;
             tRankName.Text = pc.Name;
-            nRank.Value = pc.rank;
+            nRank.Value = pc.legacyNumericRank;
 
             ApplyColor( bColorRank, fCraft.Color.ParseToIndex( pc.Color ) );
 
-            tPrefix.Text = pc.prefix;
+            tPrefix.Text = pc.Prefix;
             cKickLimit.SelectedIndex = pc.GetMaxKickIndex();
             cBanLimit.SelectedIndex = pc.GetMaxBanIndex();
             cPromoteLimit.SelectedIndex = pc.GetMaxPromoteIndex();
             cDemoteLimit.SelectedIndex = pc.GetMaxDemoteIndex();
             cMaxHideFrom.SelectedIndex = pc.GetMaxHideFromIndex();
-            xReserveSlot.Checked = pc.reservedSlot;
-            xKickIdle.Checked = pc.idleKickTimer > 0;
-            nKickIdle.Value = pc.idleKickTimer;
+            xReserveSlot.Checked = pc.ReservedSlot;
+            xKickIdle.Checked = pc.IdleKickTimer > 0;
+            nKickIdle.Value = pc.IdleKickTimer;
             nKickIdle.Enabled = xKickIdle.Checked;
-            xAntiGrief.Checked = (pc.antiGriefBlocks > 0 && pc.antiGriefSeconds > 0);
-            nAntiGriefBlocks.Value = pc.antiGriefBlocks;
+            xAntiGrief.Checked = (pc.AntiGriefBlocks > 0 && pc.AntiGriefSeconds > 0);
+            nAntiGriefBlocks.Value = pc.AntiGriefBlocks;
             nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
-            nAntiGriefSeconds.Value = pc.antiGriefSeconds;
+            nAntiGriefSeconds.Value = pc.AntiGriefSeconds;
             nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
-            xDrawLimit.Checked = (pc.drawLimit > 0);
-            nDrawLimit.Value = pc.drawLimit;
+            xDrawLimit.Checked = (pc.DrawLimit > 0);
+            nDrawLimit.Value = pc.DrawLimit;
             nDrawLimit.Enabled = xDrawLimit.Checked;
 
             foreach( ListViewItem item in vPermissions.Items ) {
@@ -298,11 +298,11 @@ namespace ConfigTool {
 
         void RebuildRankList() {
             vRanks.Items.Clear();
-            foreach( Rank pc in RankList.ranksByIndex ) {
-                vRanks.Items.Add( String.Format( "{0,3} {1,1}{2}", pc.rank, pc.prefix, pc.Name ) );
+            foreach( Rank pc in RankList.Ranks ) {
+                vRanks.Items.Add( String.Format( "{0,3} {1,1}{2}", pc.legacyNumericRank, pc.Prefix, pc.Name ) );
             }
             if( selectedRank != null ) {
-                vRanks.SelectedIndex = selectedRank.index;
+                vRanks.SelectedIndex = selectedRank.Index;
             }
             SelectRank( selectedRank );
 
@@ -359,7 +359,7 @@ namespace ConfigTool {
         static void FillClassList( ComboBox box, string firstItem ) {
             box.Items.Clear();
             box.Items.Add( firstItem );
-            foreach( Rank pc in RankList.ranksByIndex ) {
+            foreach( Rank pc in RankList.Ranks ) {
                 box.Items.Add( pc.ToComboBoxOption() );
             }
         }
@@ -373,15 +373,14 @@ namespace ConfigTool {
             }
             int number = 1;
             byte rank = 0;
-            while( RankList.ranksByName.ContainsKey( "rank" + number ) ) number++;
-            while( RankList.ContainsRank( rank ) ) rank++;
+            while( RankList.RanksByName.ContainsKey( "rank" + number ) ) number++;
             Rank pc = new Rank();
             pc.ID = RankList.GenerateID();
             pc.Name = "rank" + number;
-            pc.rank = rank;
+            pc.legacyNumericRank = rank;
             for( int i = 0; i < pc.Permissions.Length; i++ ) pc.Permissions[i] = false;
-            pc.prefix = "";
-            pc.reservedSlot = false;
+            pc.Prefix = "";
+            pc.ReservedSlot = false;
             pc.Color = "";
 
             defaultRank = RankList.ParseIndex( cDefaultRank.SelectedIndex - 1 );
@@ -398,7 +397,7 @@ namespace ConfigTool {
             if( vRanks.SelectedItem != null ) {
                 selectedRank = null;
                 int index = vRanks.SelectedIndex;
-                Rank deletedClass = RankList.ranksByIndex[index];
+                Rank deletedClass = RankList.Ranks[index];
 
                 string messages = "";
 
@@ -460,33 +459,33 @@ namespace ConfigTool {
                 tPrefix.ForeColor = SystemColors.ControlText;
             }
             defaultRank = RankList.ParseIndex( cDefaultRank.SelectedIndex - 1 );
-            selectedRank.prefix = tPrefix.Text;
+            selectedRank.Prefix = tPrefix.Text;
             RebuildRankList();
         }
 
         private void xReserveSlot_CheckedChanged( object sender, EventArgs e ) {
             if( selectedRank == null ) return;
-            selectedRank.reservedSlot = xReserveSlot.Checked;
+            selectedRank.ReservedSlot = xReserveSlot.Checked;
         }
 
         private void nKickIdle_ValueChanged( object sender, EventArgs e ) {
             if( selectedRank == null || !xKickIdle.Checked ) return;
-            selectedRank.idleKickTimer = Convert.ToInt32( nKickIdle.Value );
+            selectedRank.IdleKickTimer = Convert.ToInt32( nKickIdle.Value );
         }
 
         private void nAntiGriefBlocks_ValueChanged( object sender, EventArgs e ) {
             if( selectedRank == null || !xAntiGrief.Checked ) return;
-            selectedRank.antiGriefBlocks = Convert.ToInt32( nAntiGriefBlocks.Value );
+            selectedRank.AntiGriefBlocks = Convert.ToInt32( nAntiGriefBlocks.Value );
         }
 
         private void nAntiGriefSeconds_ValueChanged( object sender, EventArgs e ) {
             if( selectedRank == null || !xAntiGrief.Checked ) return;
-            selectedRank.antiGriefSeconds = Convert.ToInt32( nAntiGriefSeconds.Value );
+            selectedRank.AntiGriefSeconds = Convert.ToInt32( nAntiGriefSeconds.Value );
         }
 
         private void nDrawLimit_ValueChanged( object sender, EventArgs e ) {
             if( selectedRank == null || !xDrawLimit.Checked ) return;
-            selectedRank.drawLimit = Convert.ToInt32( nDrawLimit.Value );
+            selectedRank.DrawLimit = Convert.ToInt32( nDrawLimit.Value );
             double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
             lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed ); ;
         }
@@ -542,10 +541,10 @@ namespace ConfigTool {
             nKickIdle.Enabled = xKickIdle.Checked;
             if( selectedRank != null ) {
                 if( xKickIdle.Checked ) {
-                    nKickIdle.Value = selectedRank.idleKickTimer;
+                    nKickIdle.Value = selectedRank.IdleKickTimer;
                 } else {
                     nKickIdle.Value = 0;
-                    selectedRank.idleKickTimer = 0;
+                    selectedRank.IdleKickTimer = 0;
                 }
             }
         }
@@ -554,13 +553,13 @@ namespace ConfigTool {
             nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
             if( selectedRank != null ) {
                 if( xAntiGrief.Checked ) {
-                    nAntiGriefBlocks.Value = selectedRank.antiGriefBlocks;
-                    nAntiGriefSeconds.Value = selectedRank.antiGriefSeconds;
+                    nAntiGriefBlocks.Value = selectedRank.AntiGriefBlocks;
+                    nAntiGriefSeconds.Value = selectedRank.AntiGriefSeconds;
                 } else {
                     nAntiGriefBlocks.Value = 0;
-                    selectedRank.antiGriefBlocks = 0;
+                    selectedRank.AntiGriefBlocks = 0;
                     nAntiGriefSeconds.Value = 0;
-                    selectedRank.antiGriefSeconds = 0;
+                    selectedRank.AntiGriefSeconds = 0;
                 }
                 nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
                 nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
@@ -571,12 +570,12 @@ namespace ConfigTool {
             nDrawLimit.Enabled = xDrawLimit.Checked;
             if( selectedRank != null ) {
                 if( xDrawLimit.Checked ) {
-                    nDrawLimit.Value = selectedRank.drawLimit;
+                    nDrawLimit.Value = selectedRank.DrawLimit;
                     double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
                     lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed ); ;
                 } else {
                     nDrawLimit.Value = 0;
-                    selectedRank.drawLimit = 0;
+                    selectedRank.DrawLimit = 0;
                     lDrawLimitUnits.Text = "blocks";
                 }
                 nDrawLimit.Enabled = xDrawLimit.Checked;
@@ -648,22 +647,6 @@ namespace ConfigTool {
             }
         }
 
-
-        private void nRank_Validating( object sender, CancelEventArgs e ) {
-            byte rank = Convert.ToByte( nRank.Value );
-            if( rank == selectedRank.rank ) return;
-            if( !RankList.CanChangeClassRank( selectedRank, rank ) ) {
-                MessageBox.Show( "There is already another class with the same rank (" + nRank.Value + ").\n" +
-                "Duplicate class ranks are now allowed." );
-                nRank.ForeColor = Color.Red;
-                e.Cancel = true;
-            } else {
-                nRank.ForeColor = SystemColors.ControlText;
-                defaultRank = RankList.ParseIndex( cDefaultRank.SelectedIndex - 1 );
-                RankList.ChangeClassRank( selectedRank, rank );
-                RebuildRankList();
-            }
-        }
 
         #endregion
 

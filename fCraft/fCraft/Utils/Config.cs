@@ -61,7 +61,6 @@ namespace fCraft {
      */
 
     public static class Config {
-        public static string ServerURL;
         public const int ProtocolVersion = 7;
         public const int ConfigVersion = 110;
         public const int MaxPlayersSupported = 128;
@@ -69,9 +68,6 @@ namespace fCraft {
                             ConfigFile = "config.xml";
         static Dictionary<ConfigKey, string> settings = new Dictionary<ConfigKey, string>();
         static Dictionary<string, ConfigKey> legacyConfigKeys = new Dictionary<string, ConfigKey>(); // LEGACY
-
-        public static string errors = ""; // for ConfigTool
-        public static bool logToString;
 
 
         static Config() { // LEGACY
@@ -85,23 +81,8 @@ namespace fCraft {
             legacyConfigKeys.Add( "AnnounceClassChanges".ToLower(), ConfigKey.AnnounceRankChanges );
         }
 
-
-        static void Log( string format, LogType type, params object[] args ) {
-            Log( String.Format( format, args ), type );
-        }
-
-        static void Log( string message, LogType type ) {
-            if( !logToString ) {
-                if( type == LogType.Warning ) {
-                    Logger.LogWarning( message, WarningLogSubtype.ConfigWarning );
-                } else {
-                    Logger.Log( message, type );
-                }
-            } else if( type != LogType.Debug ) {
-                errors += message + Environment.NewLine;
-            }
-        }
-
+        
+        #region Defaults
 
         public static void LoadDefaults() {
             settings.Clear();
@@ -112,7 +93,6 @@ namespace fCraft {
             LoadDefaultsIRC();
             LoadDefaultsAdvanced();
         }
-
 
         public static void LoadDefaultsGeneral() {
             SetValue( ConfigKey.ServerName, "Minecraft custom server (fCraft)" );
@@ -205,6 +185,10 @@ namespace fCraft {
             SetValue( ConfigKey.SubmitCrashReports, true );
         }
 
+        #endregion
+
+
+        #region Loading
 
         public static bool Load( bool skipClassList ) {
             // generate random salt
@@ -246,76 +230,12 @@ namespace fCraft {
             }
 
             if( !skipClassList ) {
-
-                XElement legacyRankMappingTag = config.Element( "LegacyRankMapping" );
-                if( legacyRankMappingTag != null && !skipClassList ) {
-                    foreach( XElement rankPair in legacyRankMappingTag.Elements( "LegacyRankPair" ) ) {
-                        XAttribute fromClassID = rankPair.Attribute( "from" );
-                        XAttribute toClassID = rankPair.Attribute( "to" );
-                        if( fromClassID == null || fromClassID.Value == null || fromClassID.Value == "" ||
-                            toClassID == null || toClassID.Value == null || toClassID.Value == "" ) {
-                            Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
-                        } else {
-                            RankList.legacyRankMapping.Add( fromClassID.Value, toClassID.Value );
-                        }
-                    }
-                }
-
-
-                XElement rankList = config.Element( "Ranks" );
-                if( rankList == null ) rankList = config.Element( "Classes" ); // LEGACY
-
-                if( rankList != null ) {
-                    List<XElement> list = rankList.Elements( "Rank" ).ToList();
-                    if( list.Count == 0 ) list = rankList.Elements( "PlayerClass" ).ToList(); // LEGACY
-
-                    foreach( XElement rank in list ) {
-                        try {
-                            RankList.AddRank( new Rank( rank ) );
-                        } catch( Rank.RankDefinitionException ex ) {
-                            Log( ex.Message, LogType.Error );
-                        }
-                    }
-
-                    if( RankList.ranksByName.Count == 0 ) {
-                        Log( "Config.Load: No ranks were defined, or none were defined correctly. Using default ranks (guest, regular, op, and owner).", LogType.Warning );
-                        rankList.Remove();
-                        config.Add( DefineDefaultRanks() );
-
-                    } else if( version < ConfigVersion ) { // start LEGACY code
-
-                        if( version < 103 ) { // speedhack permission
-                            bool foundClassWithSpeedHackPermission = false;
-                            foreach( Rank pc in RankList.ranksByID.Values ) {
-                                if( pc.Can( Permission.UseSpeedHack ) ) {
-                                    foundClassWithSpeedHackPermission = true;
-                                    break;
-                                }
-                            }
-                            if( !foundClassWithSpeedHackPermission ) {
-                                foreach( Rank pc in RankList.ranksByID.Values ) {
-                                    pc.Permissions[(int)Permission.UseSpeedHack] = true;
-                                }
-                                Log( "Config.Load: All ranks were granted UseSpeedHack permission (default). " +
-                                     "Use ConfigTool to update config. If you are editing config.xml manually, " +
-                                     "set version=103 to prevent permissions from resetting in the future.", LogType.Warning );
-                            }
-                        }
-
-                    } // end LEGACY code
-
-                } else {
-                    if( fromFile ) Log( "Config.Load: using default player ranks.", LogType.Warning );
-                    config.Add( DefineDefaultRanks() );
-                }
-
-                // parse rank-limit permissions
-                RankList.ParseRankRelations();
+                LoadClassList( config, version, fromFile );
             }
 
             XElement consoleOptions = config.Element( "ConsoleOptions" );
             if( consoleOptions != null ) {
-                ParseLogOptions( consoleOptions, ref Logger.consoleOptions );
+                LoadLogOptions( consoleOptions, Logger.consoleOptions );
             } else {
                 if( fromFile ) Log( "Config.Load: using default console options.", LogType.Warning );
                 for( int i = 0; i < Logger.consoleOptions.Length; i++ ) {
@@ -327,7 +247,7 @@ namespace fCraft {
 
             XElement logFileOptions = config.Element( "LogFileOptions" );
             if( logFileOptions != null ) {
-                ParseLogOptions( logFileOptions, ref Logger.logFileOptions );
+                LoadLogOptions( logFileOptions, Logger.logFileOptions );
             } else {
                 if( fromFile ) Log( "Config.Load: using default log file options.", LogType.Warning );
                 for( int i = 0; i < Logger.logFileOptions.Length; i++ ) {
@@ -357,7 +277,93 @@ namespace fCraft {
             return true;
         }
 
+        static void LoadLogOptions( XElement el, bool[] list ) {
+            for( int i = 0; i < 13; i++ ) {
+                if( el.Element( ((LogType)i).ToString() ) != null ) {
+                    list[i] = true;
+                } else {
+                    list[i] = false;
+                }
+            }
+        }
 
+        static void LoadClassList( XElement config, int version, bool fromFile ) {
+
+            XElement legacyRankMappingTag = config.Element( "LegacyRankMapping" );
+            if( legacyRankMappingTag != null ) {
+                foreach( XElement rankPair in legacyRankMappingTag.Elements( "LegacyRankPair" ) ) {
+                    XAttribute fromClassID = rankPair.Attribute( "from" );
+                    XAttribute toClassID = rankPair.Attribute( "to" );
+                    if( fromClassID == null || fromClassID.Value == null || fromClassID.Value == "" ||
+                        toClassID == null || toClassID.Value == null || toClassID.Value == "" ) {
+                        Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
+                    } else {
+                        RankList.LegacyRankMapping.Add( fromClassID.Value, toClassID.Value );
+                    }
+                }
+            }
+
+
+            XElement rankList = config.Element( "Ranks" );
+            if( rankList == null ) rankList = config.Element( "Classes" ); // LEGACY
+
+            if( rankList != null ) {
+                XElement[] rankDefinitionList = rankList.Elements( "Rank" ).ToArray();
+                if( rankDefinitionList.Length == 0 ) rankDefinitionList = rankList.Elements( "PlayerClass" ).ToArray(); // LEGACY
+
+                foreach( XElement rankDefinition in rankDefinitionList ) {
+                    try {
+                        RankList.AddRank( new Rank( rankDefinition ) );
+                    } catch( Rank.RankDefinitionException ex ) {
+                        Log( ex.Message, LogType.Error );
+                    }
+                }
+
+                if( RankList.RanksByName.Count == 0 ) {
+                    Log( "Config.Load: No ranks were defined, or none were defined correctly. Using default ranks (guest, regular, op, and owner).", LogType.Warning );
+                    rankList.Remove();
+                    config.Add( DefineDefaultRanks() );
+
+                } else if( version < ConfigVersion ) { // start LEGACY code
+
+                    if( version < 103 ) { // speedhack permission
+                        bool foundClassWithSpeedHackPermission = false;
+                        foreach( Rank pc in RankList.RanksByID.Values ) {
+                            if( pc.Can( Permission.UseSpeedHack ) ) {
+                                foundClassWithSpeedHackPermission = true;
+                                break;
+                            }
+                        }
+                        if( !foundClassWithSpeedHackPermission ) {
+                            foreach( Rank pc in RankList.RanksByID.Values ) {
+                                pc.Permissions[(int)Permission.UseSpeedHack] = true;
+                            }
+                            Log( "Config.Load: All ranks were granted UseSpeedHack permission (default). " +
+                                 "Use ConfigTool to update config. If you are editing config.xml manually, " +
+                                 "set version=\"{0}\" to prevent permissions from resetting in the future.", LogType.Warning, ConfigVersion );
+                        }
+                    }
+
+                    if( version < 111 ) {
+                        RankList.Ranks.OrderBy( rank => rank.legacyNumericRank );
+                        RankList.RebuildIndex();
+                    }
+
+                } // end LEGACY code
+
+            } else {
+                if( fromFile ) Log( "Config.Load: using default player ranks.", LogType.Warning );
+                config.Add( DefineDefaultRanks() );
+            }
+
+            // parse rank-limit permissions
+            RankList.ParsePermissionLimits();
+        }
+
+        #endregion
+
+
+        #region Saving
         public static bool Save() {
             XDocument file = new XDocument();
 
@@ -389,14 +395,14 @@ namespace fCraft {
 
 
             XElement ranksTag = new XElement( "Ranks" );
-            foreach( Rank rank in RankList.ranksByName.Values ) {
+            foreach( Rank rank in RankList.RanksByName.Values ) {
                 ranksTag.Add( rank.Serialize() );
             }
             config.Add( ranksTag );
 
 
             XElement legacyRankMappingTag = new XElement( "LegacyRankMapping" );
-            foreach( KeyValuePair<string, string> pair in RankList.legacyRankMapping ) {
+            foreach( KeyValuePair<string, string> pair in RankList.LegacyRankMapping ) {
                 XElement rankPair = new XElement( "LegacyRankPair" );
                 rankPair.Add( new XAttribute( "from", pair.Key ), new XAttribute( "to", pair.Value ) );
                 legacyRankMappingTag.Add( rankPair );
@@ -414,61 +420,27 @@ namespace fCraft {
                 return false;
             }
         }
+        #endregion
 
 
-        static void ParseLogOptions( XElement el, ref bool[] list ) {
-            for( int i = 0; i < 13; i++ ) {
-                if( el.Element( ((LogType)i).ToString() ) != null ) {
-                    list[i] = true;
-                } else {
-                    list[i] = false;
-                }
-            }
+        #region Getters
+
+        public static string GetString( ConfigKey key ) {
+            return settings[key];
         }
 
-
-        internal static void ApplyConfig() {
-            Logger.split = (LogSplittingType)Enum.Parse( typeof( LogSplittingType ), settings[ConfigKey.LogMode] );
-            Logger.MarkLogStart();
-
-            // chat colors
-            Color.Sys = Color.Parse( settings[ConfigKey.SystemMessageColor] );
-            Color.Say = Color.Parse( settings[ConfigKey.SayColor] );
-            Color.Help = Color.Parse( settings[ConfigKey.HelpColor] );
-            Color.Announcement = Color.Parse( settings[ConfigKey.AnnouncementColor] );
-            Color.PM = Color.Parse( settings[ConfigKey.PrivateMessageColor] );
-            Color.IRC = Color.Parse( settings[ConfigKey.IRCMessageColor] );
-
-            // default class
-            if( RankList.ParseRank( settings[ConfigKey.DefaultRank] ) != null ) {
-                RankList.defaultRank = RankList.ParseRank( settings[ConfigKey.DefaultRank] );
-            } else {
-                RankList.defaultRank = RankList.lowestRank;
-                Log( "Config.ApplyConfig: No default rank defined; assuming that the lowest rank ({0}) is the default.",
-                     LogType.Warning, RankList.defaultRank.Name );
-            }
-
-            // antispam
-            Player.spamChatCount = GetInt( ConfigKey.AntispamMessageCount );
-            Player.spamChatTimer = GetInt( ConfigKey.AntispamInterval );
-            Player.muteDuration = TimeSpan.FromSeconds( GetInt( ConfigKey.AntispamMuteDuration ) );
-
-            // scheduler settings
-            Server.maxUploadSpeed = GetInt( ConfigKey.UploadBandwidth );
-            Server.packetsPerSecond = GetInt( ConfigKey.BlockUpdateThrottling );
-            Server.ticksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
-
-            // class to patrol
-            if( RankList.ParseRank( settings[ConfigKey.PatrolledRank] ) != null ) {
-                World.classToPatrol = RankList.ParseRank( settings[ConfigKey.PatrolledRank] );
-            } else {
-                World.classToPatrol = RankList.lowestRank;
-            }
-
-            // IRC delay
-            IRC.SendDelay = GetInt( ConfigKey.IRCDelay );
+        public static int GetInt( ConfigKey key ) {
+            return Int32.Parse( settings[key] );
         }
 
+        public static bool GetBool( ConfigKey key ) {
+            return Boolean.Parse( settings[key] );
+        }
+
+        #endregion
+
+
+        #region Setters
 
         public static bool SetValue( ConfigKey key, object _value ) {
             string value = _value.ToString();
@@ -589,7 +561,6 @@ namespace fCraft {
             }
         }
 
-
         static bool ValidateInt( ConfigKey key, string value, int minRange, int maxRange ) {
             int temp;
             if( Int32.TryParse( value, out temp ) ) {
@@ -664,25 +635,62 @@ namespace fCraft {
             return false;
         }
 
+        #endregion
 
-        public static string GetString( ConfigKey key ) {
-            return settings[key];
+
+        internal static void ApplyConfig() {
+            Logger.split = (LogSplittingType)Enum.Parse( typeof( LogSplittingType ), settings[ConfigKey.LogMode] );
+            Logger.MarkLogStart();
+
+            // chat colors
+            Color.Sys = Color.Parse( settings[ConfigKey.SystemMessageColor] );
+            Color.Say = Color.Parse( settings[ConfigKey.SayColor] );
+            Color.Help = Color.Parse( settings[ConfigKey.HelpColor] );
+            Color.Announcement = Color.Parse( settings[ConfigKey.AnnouncementColor] );
+            Color.PM = Color.Parse( settings[ConfigKey.PrivateMessageColor] );
+            Color.IRC = Color.Parse( settings[ConfigKey.IRCMessageColor] );
+
+            // default class
+            if( settings[ConfigKey.DefaultRank] != "" ) {
+                if( RankList.ParseRank( settings[ConfigKey.DefaultRank] ) != null ) {
+                    RankList.DefaultRank = RankList.ParseRank( settings[ConfigKey.DefaultRank] );
+                } else {
+                    RankList.DefaultRank = RankList.LowestRank;
+                    Log( "Config.ApplyConfig: Could not parse DefaultRank; assuming that the lowest rank ({0}) is the default.",
+                         LogType.Warning, RankList.DefaultRank.Name );
+                }
+            } else {
+                RankList.DefaultRank = RankList.LowestRank;
+            }
+
+            // antispam
+            Player.spamChatCount = GetInt( ConfigKey.AntispamMessageCount );
+            Player.spamChatTimer = GetInt( ConfigKey.AntispamInterval );
+            Player.muteDuration = TimeSpan.FromSeconds( GetInt( ConfigKey.AntispamMuteDuration ) );
+
+            // scheduler settings
+            Server.maxUploadSpeed = GetInt( ConfigKey.UploadBandwidth );
+            Server.packetsPerSecond = GetInt( ConfigKey.BlockUpdateThrottling );
+            Server.ticksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
+
+            // class to patrol
+            if( RankList.ParseRank( settings[ConfigKey.PatrolledRank] ) != null ) {
+                World.classToPatrol = RankList.ParseRank( settings[ConfigKey.PatrolledRank] );
+            } else {
+                World.classToPatrol = RankList.LowestRank;
+            }
+
+            // IRC delay
+            IRC.SendDelay = GetInt( ConfigKey.IRCDelay );
         }
 
-        public static int GetInt( ConfigKey key ) {
-            return Int32.Parse( settings[key] );
-        }
-
-        public static bool GetBool( ConfigKey key ) {
-            return Boolean.Parse( settings[key] );
-        }
 
         public static void ResetRanks() {
-            RankList.ranksByName = new Dictionary<string, Rank>();
-            RankList.ranksByIndex = new List<Rank>();
+            RankList.RanksByName = new Dictionary<string, Rank>();
+            RankList.Ranks = new List<Rank>();
             DefineDefaultRanks();
             // parse rank-limit permissions
-            RankList.ParseRankRelations();
+            RankList.ParsePermissionLimits();
         }
 
 
@@ -893,5 +901,29 @@ namespace fCraft {
                 default: return ProcessPriorityClass.Normal;
             }
         }
+
+
+        #region Logging
+
+        public static string errors = ""; // for ConfigTool
+        public static bool logToString;
+
+        static void Log( string format, LogType type, params object[] args ) {
+            Log( String.Format( format, args ), type );
+        }
+
+        static void Log( string message, LogType type ) {
+            if( !logToString ) {
+                if( type == LogType.Warning ) {
+                    Logger.LogWarning( message, WarningLogSubtype.ConfigWarning );
+                } else {
+                    Logger.Log( message, type );
+                }
+            } else if( type != LogType.Debug ) {
+                errors += message + Environment.NewLine;
+            }
+        }
+
+        #endregion
     }
 }

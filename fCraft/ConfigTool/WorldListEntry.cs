@@ -117,7 +117,7 @@ namespace ConfigTool {
                 }
             }
             set {
-                foreach( Rank pc in RankList.ranksByIndex ) {
+                foreach( Rank pc in RankList.Ranks ) {
                     if( pc.ToComboBoxOption() == value ) {
                         accessClass = pc;
                         return;
@@ -137,7 +137,7 @@ namespace ConfigTool {
                 }
             }
             set {
-                foreach( Rank rank in RankList.ranksByIndex ) {
+                foreach( Rank rank in RankList.Ranks ) {
                     if( rank.ToComboBoxOption() == value ) {
                         buildRank = rank;
                         return;

@@ -70,7 +70,7 @@ namespace ConfigTool {
 
             cAccess.Items.Add( "(everyone)" );
             cBuild.Items.Add( "(everyone)" );
-            foreach( Rank pc in RankList.ranksByIndex ) {
+            foreach( Rank pc in RankList.Ranks ) {
                 cAccess.Items.Add( pc.ToComboBoxOption() );
                 cBuild.Items.Add( pc.ToComboBoxOption() );
             }

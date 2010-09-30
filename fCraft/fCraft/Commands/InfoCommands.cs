@@ -198,16 +198,16 @@ namespace fCraft {
             }
 
             // Print access/build limits
-            if( world.accessRank == RankList.lowestRank && world.buildRank == RankList.lowestRank ) {
+            if( world.accessRank == RankList.LowestRank && world.buildRank == RankList.LowestRank ) {
                 player.Message( "Anyone can join or build on {0}", world.GetClassyName() );
             } else {
-                if( world.accessRank != RankList.lowestRank ) {
+                if( world.accessRank != RankList.LowestRank ) {
                     player.Message( "Requires players to be ranked {0}+&S to join.",
                                     world.accessRank.GetClassyName() );
                 } else {
                     player.Message( "Anyone can join {0}", world.GetClassyName() );
                 }
-                if( world.buildRank != RankList.lowestRank ) {
+                if( world.buildRank != RankList.LowestRank ) {
                     player.Message( "Requires players to be ranked {0}+&S to build.",
                                     world.buildRank.GetClassyName() );
                 } else {
@@ -454,7 +454,7 @@ namespace fCraft {
                                         info.rank.GetClassyName(),
                                         info.rankChangedBy,
                                         info.rankChangeDate );
-                    } else if( info.previousRank.rank < info.rank.rank ) {
+                    } else if( info.previousRank < info.rank ) {
                         player.Message( "  Promoted from {0}&S to {1}&S by {2} on {3:dd MMM yyyy}.",
                                         info.previousRank.GetClassyName(),
                                         info.rank.GetClassyName(),
@@ -617,8 +617,8 @@ namespace fCraft {
                 }
                 player.Message( sb.ToString() );
                 if( rank.Can( Permission.Draw ) ) {
-                    if( rank.drawLimit > 0 ) {
-                        player.Message( "Draw command limit: " + rank.drawLimit + " blocks." );
+                    if( rank.DrawLimit > 0 ) {
+                        player.Message( "Draw command limit: " + rank.DrawLimit + " blocks." );
                     } else {
                         player.Message( "Draw command limit: None (unlimited blocks)" );
                     }
@@ -638,12 +638,12 @@ namespace fCraft {
 
         internal static void Ranks( Player player, Command cmd ) {
             player.Message( "Below is a list of ranks. For detail see &H{0}", cdRankInfo.usage );
-            foreach( Rank classListEntry in RankList.ranksByIndex ) {
+            foreach( Rank classListEntry in RankList.Ranks ) {
                 player.Message( "{0}    {1}{2}  (rank {3}, {4} players)",
                                 classListEntry.Color,
-                                (Config.GetBool( ConfigKey.RankPrefixesInChat ) ? classListEntry.prefix : ""),
+                                (Config.GetBool( ConfigKey.RankPrefixesInChat ) ? classListEntry.Prefix : ""),
                                 classListEntry.Name,
-                                classListEntry.rank,
+                                classListEntry.legacyNumericRank,
                                 PlayerDB.CountPlayersByClass( classListEntry ) );
             }
         }

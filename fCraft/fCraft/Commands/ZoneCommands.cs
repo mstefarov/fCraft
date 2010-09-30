@@ -151,8 +151,8 @@ namespace fCraft {
                 }
 
                 zone.name = info.name;
-                if( info.rank.nextRankUp != null ) {
-                    zone.rank = info.rank.nextRankUp;
+                if( info.rank.NextRankUp != null ) {
+                    zone.rank = info.rank.NextRankUp;
                 } else {
                     zone.rank = info.rank;
                 }

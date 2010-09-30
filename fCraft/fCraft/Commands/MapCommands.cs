@@ -193,8 +193,8 @@ namespace fCraft {
             } else if( world == Server.mainWorld ) {
                 player.Message( "World {0}&S is already set as main.", world.GetClassyName() );
             } else {
-                if( world.accessRank != RankList.lowestRank ) {
-                    world.accessRank = RankList.lowestRank;
+                if( world.accessRank != RankList.LowestRank ) {
+                    world.accessRank = RankList.LowestRank;
                     player.Message( "The main world cannot have access restrictions." );
                     player.Message( "Access restrictions were removed from world {0}",
                                     world.GetClassyName() );
@@ -230,7 +230,7 @@ namespace fCraft {
 
             if( worldName == null ) {
                 if( player.world != null ) {
-                    if( player.world.accessRank == RankList.lowestRank ) {
+                    if( player.world.accessRank == RankList.LowestRank ) {
                         player.Message( "This world ({0}&S) can be visited by anyone.",
                                         player.world.GetClassyName() );
                     } else {
@@ -248,7 +248,7 @@ namespace fCraft {
             if( world == null ) {
                 player.Message( "No world \"{0}\" found.", worldName );
             } else if( rankName == null ) {
-                if( world.accessRank == RankList.lowestRank ) {
+                if( world.accessRank == RankList.LowestRank ) {
                     player.Message( "World {0}&S can be visited by anyone.",
                                     world.GetClassyName() );
                 } else {
@@ -265,7 +265,7 @@ namespace fCraft {
                 } else {
                     world.accessRank = rank;
                     Server.SaveWorldList();
-                    if( world.accessRank == RankList.lowestRank ) {
+                    if( world.accessRank == RankList.LowestRank ) {
                         Server.SendToAll( String.Format( "{0}&S made the world {1}&S accessible to anyone.",
                                                         player.GetClassyName(), world.GetClassyName() ) );
                     } else {
@@ -297,7 +297,7 @@ namespace fCraft {
 
             if( worldName == null ) {
                 if( player.world != null ) {
-                    if( player.world.buildRank == RankList.lowestRank ) {
+                    if( player.world.buildRank == RankList.LowestRank ) {
                         player.Message( "This world ({0}&S) can be modified by anyone.",
                                         player.world.GetClassyName() );
                     } else {
@@ -315,7 +315,7 @@ namespace fCraft {
             if( world == null ) {
                 player.Message( "No world \"{0}\" found.", worldName );
             } else if( rankName == null ) {
-                if( world.buildRank == RankList.lowestRank ) {
+                if( world.buildRank == RankList.LowestRank ) {
                     player.Message( "World {0}&S can be modified by anyone.",
                                     world.GetClassyName() );
                 } else {
@@ -330,7 +330,7 @@ namespace fCraft {
                 } else {
                     world.buildRank = rank;
                     Server.SaveWorldList();
-                    if( world.buildRank == RankList.lowestRank ) {
+                    if( world.buildRank == RankList.LowestRank ) {
                         Server.SendToAll( String.Format( "{0}&S made the world {1}&S modifiable by anyone.",
                                                          player.GetClassyName(), world.GetClassyName() ) );
                     } else {

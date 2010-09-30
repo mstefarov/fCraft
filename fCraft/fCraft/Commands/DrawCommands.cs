@@ -364,7 +364,7 @@ namespace fCraft {
             int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
             if( player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                player.info.rank.drawLimit,
+                                player.info.rank.DrawLimit,
                                 volume );
                 return;
             }
@@ -458,7 +458,7 @@ namespace fCraft {
             int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
             if( player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                   player.info.rank.drawLimit,
+                                   player.info.rank.DrawLimit,
                                    volume );
                 return;
             }
@@ -507,7 +507,7 @@ namespace fCraft {
             int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1) - (ex - sx - 1) * (ey - sy - 1) * (eh - sh - 1);
             if( player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                player.info.rank.drawLimit,
+                                player.info.rank.DrawLimit,
                                 volume );
                 return;
             }
@@ -583,7 +583,7 @@ namespace fCraft {
             int volume = (int)(.75d * Math.PI * rx * ry * rh);
             if( player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                   player.info.rank.drawLimit,
+                                   player.info.rank.DrawLimit,
                                    volume );
                 return;
             }
@@ -673,7 +673,7 @@ namespace fCraft {
             int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
             if( player.CanDraw( volume ) ) {
                 player.MessageNow( String.Format( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                               player.info.rank.drawLimit, volume ) );
+                                               player.info.rank.DrawLimit, volume ) );
                 return;
             }
 
@@ -745,7 +745,7 @@ namespace fCraft {
             int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
             if( player.CanDraw( volume ) ) {
                 player.MessageNow( String.Format( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                               player.info.rank.drawLimit, volume ) );
+                                               player.info.rank.DrawLimit, volume ) );
                 return;
             }
 

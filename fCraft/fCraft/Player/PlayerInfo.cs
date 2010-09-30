@@ -91,7 +91,7 @@ namespace fCraft {
             name = player.name;
             lastIP = player.session.GetIP();
 
-            rank = RankList.defaultRank;
+            rank = RankList.DefaultRank;
             rankChangeDate = DateTime.MinValue;
             rankChangedBy = "-";
 
@@ -130,7 +130,7 @@ namespace fCraft {
 
             rank = RankList.ParseRank( fields[2] );
             if( rank == null ) {
-                rank = RankList.defaultRank;
+                rank = RankList.DefaultRank;
                 Logger.Log( "PlayerInfo: Could not parse class for player {0}. Setting to default ({1}).", LogType.Error, name, rank.Name );
             }
             if( fields[3] != "-" ) rankChangeDate = DateTime.Parse( fields[3] );
@@ -314,7 +314,7 @@ namespace fCraft {
         public string GetClassyName() {
             string displayedName = name;
             if( Config.GetBool( ConfigKey.RankPrefixesInChat ) ) {
-                displayedName = rank.prefix + displayedName;
+                displayedName = rank.Prefix + displayedName;
             }
             if( Config.GetBool( ConfigKey.RankColorsInChat ) ) {
                 displayedName = rank.Color + displayedName;
