@@ -17,8 +17,8 @@ namespace fCraft {
             // check for duplicate class names
             if( RanksByName.ContainsKey( rank.Name.ToLower() ) ) {
                 if( !Config.logToString ) {
-                    Logger.Log( "PlayerClass.AddClass: Duplicate definition for \"{0}\" (rank {1}) class ignored.", LogType.Error,
-                                    rank.Name, rank.legacyNumericRank );
+                    Logger.Log( "RankList.AddRank: Duplicate definition for rank \"{0}\" was ignored.", LogType.Error,
+                                rank.Name );
                 }
                 return false;
             }
@@ -29,8 +29,8 @@ namespace fCraft {
             RebuildIndex();
 
             if( !Config.logToString ) {
-                Logger.Log( "PlayerClass.AddClass: Added \"{0}\" (rank {1}) to the class list.", LogType.Debug,
-                               rank.Name, rank.legacyNumericRank );
+                Logger.Log( "RankList.AddRank: Added \"{0}\" to the rank list.", LogType.Debug,
+                            rank.Name );
             }
             return true;
         }
@@ -102,8 +102,8 @@ namespace fCraft {
         }
 
 
-        public static Rank ParseIndex( int index ) {
-            if( index == -1 || index > Ranks.Count - 1 ) {
+        public static Rank FindRank( int index ) {
+            if( index < 0 || index >= Ranks.Count ) {
                 return null;
             }
             return Ranks[index];
@@ -114,28 +114,18 @@ namespace fCraft {
             else return pc.Index + 1;
         }
 
-        public static bool DeleteRank( int index, Rank replacement ) {
+        public static bool DeleteRank( Rank deletedRank, Rank replacementRank ) {
             bool rankLimitsChanged = false;
-            Rank deletedClass = Ranks[index];
-            Ranks.Remove( deletedClass );
-            RanksByName.Remove( deletedClass.Name.ToLower() );
-            LegacyRankMapping.Add( deletedClass.ID, replacement.ID );
+            Ranks.Remove( deletedRank );
+            RanksByName.Remove( deletedRank.Name.ToLower() );
+            RanksByID.Remove(deletedRank.ID);
+            LegacyRankMapping.Add( deletedRank.ID, replacementRank.ID );
             foreach( Rank pc in Ranks ) {
-                if( pc.maxKick == deletedClass ) {
-                    pc.maxKick = null;
-                    rankLimitsChanged = true;
-                }
-                if( pc.maxBan == deletedClass ) {
-                    pc.maxBan = null;
-                    rankLimitsChanged = true;
-                }
-                if( pc.maxPromote == deletedClass ) {
-                    pc.maxPromote = null;
-                    rankLimitsChanged = true;
-                }
-                if( pc.maxDemote == deletedClass ) {
-                    pc.maxDemote = null;
-                    rankLimitsChanged = true;
+                for( int i=0; i<pc.PermissionLimits.Length; i++){
+                    if( pc.GetLimit( (Permission)i ) == deletedRank ) {
+                        pc.ResetLimit( (Permission)i );
+                        rankLimitsChanged = true;
+                    }
                 }
             }
             RebuildIndex();

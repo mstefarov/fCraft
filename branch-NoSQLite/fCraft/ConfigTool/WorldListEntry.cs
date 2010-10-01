@@ -32,9 +32,9 @@ namespace ConfigTool {
             }
             name = temp.Value;
 
-            if( (temp = el.Attribute( "hidden" )) != null ) {
+            if( (temp = el.Attribute( "hidden" )) != null && temp.Value != "" ) {
                 bool hidden;
-                if( bool.TryParse( temp.Value, out hidden ) ) {
+                if( Boolean.TryParse( temp.Value, out hidden ) ) {
                     Hidden = hidden;
                 } else {
                     throw new Exception( "WorldListEntity: Cannot parse XML: Invalid value for \"hidden\" attribute." );
@@ -43,7 +43,7 @@ namespace ConfigTool {
                 Hidden = false;
             }
 
-            if( (temp = el.Attribute( "backup" )) != null ) {
+            if( (temp = el.Attribute( "backup" )) != null && temp.Value != "" ) { // TODO: Make per-world backup settings actually work
                 if( Array.IndexOf<string>( World.BackupEnum, temp.Value ) != -1 ) {
                     Backup = temp.Value;
                 } else {
@@ -53,14 +53,14 @@ namespace ConfigTool {
                 Backup = World.BackupEnum[5];
             }
 
-            if( (temp = el.Attribute( "access" )) != null ) {
-                accessClass = RankList.ParseRank( temp.Value );
-                if( accessClass == null ) {
+            if( (temp = el.Attribute( "access" )) != null && temp.Value!="") {
+                accessRank = RankList.ParseRank( temp.Value );
+                if( accessRank == null ) {
                     throw new Exception( "WorldListEntity: Cannot parse XML: Unrecognized class specified for \"access\" permission." );
                 }
             }
 
-            if( (temp = el.Attribute( "build" )) != null ) {
+            if( (temp = el.Attribute( "build" )) != null && temp.Value != "" ) {
                 buildRank = RankList.ParseRank( temp.Value );
                 if( buildRank == null ) {
                     throw new Exception( "WorldListEntity: Cannot parse XML: Unrecognized class specified for \"build\" permission." );
@@ -107,11 +107,11 @@ namespace ConfigTool {
 
         public bool Hidden { get; set; }
 
-        internal Rank accessClass;
+        internal Rank accessRank;
         public string AccessPermission {
             get {
-                if( accessClass != null ) {
-                    return accessClass.ToComboBoxOption();
+                if( accessRank != null ) {
+                    return accessRank.ToComboBoxOption();
                 } else {
                     return DefaultClassOption;
                 }
@@ -119,11 +119,11 @@ namespace ConfigTool {
             set {
                 foreach( Rank pc in RankList.Ranks ) {
                     if( pc.ToComboBoxOption() == value ) {
-                        accessClass = pc;
+                        accessRank = pc;
                         return;
                     }
                 }
-                accessClass = null;
+                accessRank = null;
             }
         }
 
@@ -154,7 +154,7 @@ namespace ConfigTool {
             element.Add( new XAttribute( "name", Name ) );
             element.Add( new XAttribute( "hidden", Hidden ) );
             element.Add( new XAttribute( "backup", Backup ) );
-            if( accessClass != null ) element.Add( new XAttribute( "access", accessClass ) );
+            if( accessRank != null ) element.Add( new XAttribute( "access", accessRank ) );
             if( buildRank != null ) element.Add( new XAttribute( "build", buildRank ) );
             return element;
         }

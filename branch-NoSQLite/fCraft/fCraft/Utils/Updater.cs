@@ -27,12 +27,12 @@ namespace fCraft {
 
 
     public static class Updater {
-        static int version = 480;
-        static int revision = 232;
-        static bool unstable = true;
+        public static int Version = 480;
+        public static int Revision = 233;
+        public static bool IsUnstable = true;
 
         public static UpdaterResult CheckForUpdates() {
-            UpdaterResult result = new UpdaterResult( version );
+            UpdaterResult result = new UpdaterResult( Version );
             if( Config.GetString( ConfigKey.AutomaticUpdates ) == "Disabled" ) return result;
             Logger.Log( "Checking for fCraft updates...", LogType.SystemActivity );
             try {
@@ -52,7 +52,7 @@ namespace fCraft {
                         string line = reader.ReadLine();
                         while( !reader.EndOfStream ) {
                             int logVersion = Int32.Parse( line );
-                            if( logVersion <= version ) break;
+                            if( logVersion <= Version ) break;
                             else if( result.NewVersionNumber < logVersion ) result.NewVersionNumber = logVersion;
                             result.ChangeLog += logVersion.ToString() + ":" + Environment.NewLine;
                             line = reader.ReadLine();
@@ -64,7 +64,7 @@ namespace fCraft {
                             result.ChangeLog += Environment.NewLine;
                         }
 
-                        if( result.NewVersionNumber > version ) {
+                        if( result.NewVersionNumber > Version ) {
                             result.UpdateAvailable = true;
                         }
                     }
@@ -78,7 +78,7 @@ namespace fCraft {
         }
 
         public static string GetVersionString() {
-            return Decimal.Divide( version, 1000 ).ToString( "0.000" ) + "_r" + revision + (unstable ? "_BETA" : "");
+            return Decimal.Divide( Version, 1000 ).ToString( "0.000" ) + "_r" + Revision + (IsUnstable ? "_BETA" : "");
         }
     }
 }

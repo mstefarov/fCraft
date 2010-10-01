@@ -81,7 +81,7 @@ namespace fCraft {
             legacyConfigKeys.Add( "AnnounceClassChanges".ToLower(), ConfigKey.AnnounceRankChanges );
         }
 
-        
+
         #region Defaults
 
         public static void LoadDefaults() {
@@ -99,7 +99,7 @@ namespace fCraft {
             SetValue( ConfigKey.MOTD, "Welcome to the server!" );
             SetValue( ConfigKey.MaxPlayers, 20 );
             SetValue( ConfigKey.DefaultRank, "" ); // empty = lowest rank
-            SetValue( ConfigKey.IsPublic, true );
+            SetValue( ConfigKey.IsPublic, false );
             SetValue( ConfigKey.Port, 25565 );
             SetValue( ConfigKey.IP, IPAddress.Any );
             SetValue( ConfigKey.UploadBandwidth, 100 );
@@ -698,126 +698,6 @@ namespace fCraft {
             XElement temp;
             XElement permissions = new XElement( "Ranks" );
 
-            XElement guest = new XElement( "Rank" );
-            guest.Add( new XAttribute( "id", RankList.GenerateID() ) );
-            guest.Add( new XAttribute( "name", "guest" ) );
-            guest.Add( new XAttribute( "rank", 0 ) );
-            guest.Add( new XAttribute( "color", "silver" ) );
-            guest.Add( new XAttribute( "prefix", "" ) );
-            guest.Add( new XAttribute( "drawLimit", 512 ) );
-            guest.Add( new XAttribute( "antiGriefBlocks", 37 ) );
-            guest.Add( new XAttribute( "antiGriefSeconds", 5 ) );
-            guest.Add( new XAttribute( "idleKickAfter", 20 ) );
-            guest.Add( new XElement( Permission.Chat.ToString() ) );
-            guest.Add( new XElement( Permission.Build.ToString() ) );
-            guest.Add( new XElement( Permission.Delete.ToString() ) );
-            guest.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
-            permissions.Add( guest );
-            try {
-                RankList.AddRank( new Rank( guest ) );
-            } catch( Rank.RankDefinitionException ex ) {
-                Log( ex.Message, LogType.Error );
-            }
-
-
-            XElement regular = new XElement( "Rank" );
-            regular.Add( new XAttribute( "id", RankList.GenerateID() ) );
-            regular.Add( new XAttribute( "name", "regular" ) );
-            regular.Add( new XAttribute( "rank", 30 ) );
-            regular.Add( new XAttribute( "color", "white" ) );
-            regular.Add( new XAttribute( "prefix", "" ) );
-            regular.Add( new XAttribute( "drawLimit", 4096 ) );
-            regular.Add( new XAttribute( "antiGriefBlocks", 47 ) );
-            regular.Add( new XAttribute( "antiGriefSeconds", 6 ) );
-            regular.Add( new XAttribute( "idleKickAfter", 20 ) );
-
-            regular.Add( new XElement( Permission.Chat.ToString() ) );
-            regular.Add( new XElement( Permission.Build.ToString() ) );
-            regular.Add( new XElement( Permission.Delete.ToString() ) );
-            regular.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
-
-            regular.Add( new XElement( Permission.PlaceGrass.ToString() ) );
-            regular.Add( new XElement( Permission.PlaceWater.ToString() ) );
-            regular.Add( new XElement( Permission.PlaceLava.ToString() ) );
-            regular.Add( new XElement( Permission.PlaceAdmincrete.ToString() ) );
-            regular.Add( new XElement( Permission.DeleteAdmincrete.ToString() ) );
-
-            temp = new XElement( Permission.Kick.ToString() );
-            temp.Add( new XAttribute( "max", "regular" ) );
-            regular.Add( temp );
-
-            regular.Add( new XElement( Permission.ViewOthersInfo.ToString() ) );
-
-            regular.Add( new XElement( Permission.Teleport.ToString() ) );
-
-            regular.Add( new XElement( Permission.Draw.ToString() ) );
-            permissions.Add( regular );
-            try {
-                RankList.AddRank( new Rank( regular ) );
-            } catch( Rank.RankDefinitionException ex ) {
-                Log( ex.Message, LogType.Error );
-            }
-
-
-            XElement op = new XElement( "Rank" );
-            op.Add( new XAttribute( "id", RankList.GenerateID() ) );
-            op.Add( new XAttribute( "name", "op" ) );
-            op.Add( new XAttribute( "rank", 80 ) );
-            op.Add( new XAttribute( "color", "aqua" ) );
-            op.Add( new XAttribute( "prefix", "-" ) );
-            op.Add( new XAttribute( "drawLimit", 0 ) );
-            op.Add( new XAttribute( "antiGriefBlocks", 0 ) );
-            op.Add( new XAttribute( "antiGriefSeconds", 0 ) );
-            op.Add( new XAttribute( "idleKickAfter", 0 ) );
-
-            op.Add( new XElement( Permission.Chat.ToString() ) );
-            op.Add( new XElement( Permission.Build.ToString() ) );
-            op.Add( new XElement( Permission.Delete.ToString() ) );
-            op.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
-
-            op.Add( new XElement( Permission.PlaceGrass.ToString() ) );
-            op.Add( new XElement( Permission.PlaceWater.ToString() ) );
-            op.Add( new XElement( Permission.PlaceLava.ToString() ) );
-            op.Add( new XElement( Permission.PlaceAdmincrete.ToString() ) );
-            op.Add( new XElement( Permission.DeleteAdmincrete.ToString() ) );
-
-            op.Add( new XElement( Permission.Say.ToString() ) );
-            temp = new XElement( Permission.Kick.ToString() );
-            temp.Add( new XAttribute( "max", "op" ) );
-            op.Add( temp );
-            temp = new XElement( Permission.Ban.ToString() );
-            temp.Add( new XAttribute( "max", "regular" ) );
-            op.Add( temp );
-            op.Add( new XElement( Permission.BanIP.ToString() ) );
-
-            temp = new XElement( Permission.Promote.ToString() );
-            temp.Add( new XAttribute( "max", "regular" ) );
-            op.Add( temp );
-            temp = new XElement( Permission.Demote.ToString() );
-            temp.Add( new XAttribute( "max", "regular" ) );
-            op.Add( temp );
-            op.Add( new XElement( Permission.Hide.ToString() ) );
-
-            op.Add( new XElement( Permission.ViewOthersInfo.ToString() ) );
-
-            op.Add( new XElement( Permission.Teleport.ToString() ) );
-            op.Add( new XElement( Permission.Bring.ToString() ) );
-            op.Add( new XElement( Permission.Patrol.ToString() ) );
-            op.Add( new XElement( Permission.Freeze.ToString() ) );
-            op.Add( new XElement( Permission.Mute.ToString() ) );
-            op.Add( new XElement( Permission.SetSpawn.ToString() ) );
-
-            op.Add( new XElement( Permission.ManageZones.ToString() ) );
-            op.Add( new XElement( Permission.Lock.ToString() ) );
-            op.Add( new XElement( Permission.Draw.ToString() ) );
-            op.Add( new XElement( Permission.CopyAndPaste.ToString() ) );
-            permissions.Add( op );
-            try {
-                RankList.AddRank( new Rank( op ) );
-            } catch( Rank.RankDefinitionException ex ) {
-                Log( ex.Message, LogType.Error );
-            }
-
 
             XElement owner = new XElement( "Rank" );
             owner.Add( new XAttribute( "id", RankList.GenerateID() ) );
@@ -887,6 +767,126 @@ namespace fCraft {
                 Log( ex.Message, LogType.Error );
             }
 
+
+            XElement op = new XElement( "Rank" );
+            op.Add( new XAttribute( "id", RankList.GenerateID() ) );
+            op.Add( new XAttribute( "name", "op" ) );
+            op.Add( new XAttribute( "rank", 80 ) );
+            op.Add( new XAttribute( "color", "aqua" ) );
+            op.Add( new XAttribute( "prefix", "-" ) );
+            op.Add( new XAttribute( "drawLimit", 0 ) );
+            op.Add( new XAttribute( "antiGriefBlocks", 0 ) );
+            op.Add( new XAttribute( "antiGriefSeconds", 0 ) );
+            op.Add( new XAttribute( "idleKickAfter", 0 ) );
+
+            op.Add( new XElement( Permission.Chat.ToString() ) );
+            op.Add( new XElement( Permission.Build.ToString() ) );
+            op.Add( new XElement( Permission.Delete.ToString() ) );
+            op.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
+
+            op.Add( new XElement( Permission.PlaceGrass.ToString() ) );
+            op.Add( new XElement( Permission.PlaceWater.ToString() ) );
+            op.Add( new XElement( Permission.PlaceLava.ToString() ) );
+            op.Add( new XElement( Permission.PlaceAdmincrete.ToString() ) );
+            op.Add( new XElement( Permission.DeleteAdmincrete.ToString() ) );
+
+            op.Add( new XElement( Permission.Say.ToString() ) );
+            temp = new XElement( Permission.Kick.ToString() );
+            temp.Add( new XAttribute( "max", "op" ) );
+            op.Add( temp );
+            temp = new XElement( Permission.Ban.ToString() );
+            temp.Add( new XAttribute( "max", "regular" ) );
+            op.Add( temp );
+            op.Add( new XElement( Permission.BanIP.ToString() ) );
+
+            temp = new XElement( Permission.Promote.ToString() );
+            temp.Add( new XAttribute( "max", "regular" ) );
+            op.Add( temp );
+            temp = new XElement( Permission.Demote.ToString() );
+            temp.Add( new XAttribute( "max", "regular" ) );
+            op.Add( temp );
+            op.Add( new XElement( Permission.Hide.ToString() ) );
+
+            op.Add( new XElement( Permission.ViewOthersInfo.ToString() ) );
+
+            op.Add( new XElement( Permission.Teleport.ToString() ) );
+            op.Add( new XElement( Permission.Bring.ToString() ) );
+            op.Add( new XElement( Permission.Patrol.ToString() ) );
+            op.Add( new XElement( Permission.Freeze.ToString() ) );
+            op.Add( new XElement( Permission.Mute.ToString() ) );
+            op.Add( new XElement( Permission.SetSpawn.ToString() ) );
+
+            op.Add( new XElement( Permission.ManageZones.ToString() ) );
+            op.Add( new XElement( Permission.Lock.ToString() ) );
+            op.Add( new XElement( Permission.Draw.ToString() ) );
+            op.Add( new XElement( Permission.CopyAndPaste.ToString() ) );
+            permissions.Add( op );
+            try {
+                RankList.AddRank( new Rank( op ) );
+            } catch( Rank.RankDefinitionException ex ) {
+                Log( ex.Message, LogType.Error );
+            }
+
+
+            XElement regular = new XElement( "Rank" );
+            regular.Add( new XAttribute( "id", RankList.GenerateID() ) );
+            regular.Add( new XAttribute( "name", "regular" ) );
+            regular.Add( new XAttribute( "rank", 30 ) );
+            regular.Add( new XAttribute( "color", "white" ) );
+            regular.Add( new XAttribute( "prefix", "" ) );
+            regular.Add( new XAttribute( "drawLimit", 4096 ) );
+            regular.Add( new XAttribute( "antiGriefBlocks", 47 ) );
+            regular.Add( new XAttribute( "antiGriefSeconds", 6 ) );
+            regular.Add( new XAttribute( "idleKickAfter", 20 ) );
+
+            regular.Add( new XElement( Permission.Chat.ToString() ) );
+            regular.Add( new XElement( Permission.Build.ToString() ) );
+            regular.Add( new XElement( Permission.Delete.ToString() ) );
+            regular.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
+
+            regular.Add( new XElement( Permission.PlaceGrass.ToString() ) );
+            regular.Add( new XElement( Permission.PlaceWater.ToString() ) );
+            regular.Add( new XElement( Permission.PlaceLava.ToString() ) );
+            regular.Add( new XElement( Permission.PlaceAdmincrete.ToString() ) );
+            regular.Add( new XElement( Permission.DeleteAdmincrete.ToString() ) );
+
+            temp = new XElement( Permission.Kick.ToString() );
+            temp.Add( new XAttribute( "max", "regular" ) );
+            regular.Add( temp );
+
+            regular.Add( new XElement( Permission.ViewOthersInfo.ToString() ) );
+
+            regular.Add( new XElement( Permission.Teleport.ToString() ) );
+
+            regular.Add( new XElement( Permission.Draw.ToString() ) );
+            permissions.Add( regular );
+            try {
+                RankList.AddRank( new Rank( regular ) );
+            } catch( Rank.RankDefinitionException ex ) {
+                Log( ex.Message, LogType.Error );
+            }
+
+
+            XElement guest = new XElement( "Rank" );
+            guest.Add( new XAttribute( "id", RankList.GenerateID() ) );
+            guest.Add( new XAttribute( "name", "guest" ) );
+            guest.Add( new XAttribute( "rank", 0 ) );
+            guest.Add( new XAttribute( "color", "silver" ) );
+            guest.Add( new XAttribute( "prefix", "" ) );
+            guest.Add( new XAttribute( "drawLimit", 512 ) );
+            guest.Add( new XAttribute( "antiGriefBlocks", 37 ) );
+            guest.Add( new XAttribute( "antiGriefSeconds", 5 ) );
+            guest.Add( new XAttribute( "idleKickAfter", 20 ) );
+            guest.Add( new XElement( Permission.Chat.ToString() ) );
+            guest.Add( new XElement( Permission.Build.ToString() ) );
+            guest.Add( new XElement( Permission.Delete.ToString() ) );
+            guest.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
+            permissions.Add( guest );
+            try {
+                RankList.AddRank( new Rank( guest ) );
+            } catch( Rank.RankDefinitionException ex ) {
+                Log( ex.Message, LogType.Error );
+            }
 
             return permissions;
         }

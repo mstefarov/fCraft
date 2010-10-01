@@ -476,6 +476,7 @@ namespace fCraft {
                     foreach( Player player in worldPlayerList ) {
                         player.session.JoinWorld( mainWorld, null );
                     }
+                    worldToDelete.SaveMap( null );
                     lock( taskListLock ) {
                         tasks.Remove( worldToDelete.updateTaskId );
                         tasks.Remove( worldToDelete.saveTaskId );

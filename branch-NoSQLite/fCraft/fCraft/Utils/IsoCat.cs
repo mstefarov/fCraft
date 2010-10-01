@@ -135,8 +135,9 @@ namespace fCraft {
             isoX = (tileX / 4 * imageStride + tileX * 2);
             isoY = (tileY / 4 * imageStride - tileY * 2);
             isoH = (-tileY / 2 * imageStride);
-        }
 
+            mh34 = map.height * 3 / 4;
+        }
 
 
         byte* bp, ctp;
@@ -310,7 +311,7 @@ namespace fCraft {
 
         byte tA;
         int FA, SA, DA;
-        int blendDivisor;
+        int blendDivisor, mh34;
         // inspired by http://www.devmaster.net/wiki/Alpha_blending
         unsafe void BlendPixel( int imageOffset, int tileOffset ) {
             if( ctp[tileOffset + 3] == 0 ) return;
@@ -327,15 +328,16 @@ namespace fCraft {
             // Destination percentage is just the additive inverse.
             DA = 255 - SA;
 
-            int shadow = h / 2 + map.height * 3 / 4;
-            if( h < map.height / 2 ) {
+            if( h < (map.height >> 1) ) {
+                int shadow = (h>>1) + mh34;
                 image[imageOffset] = (byte)((ctp[tileOffset] * SA * shadow + image[imageOffset] * DA * map.height) / blendDivisor);
                 image[imageOffset + 1] = (byte)((ctp[tileOffset + 1] * SA * shadow + image[imageOffset + 1] * DA * map.height) / blendDivisor);
                 image[imageOffset + 2] = (byte)((ctp[tileOffset + 2] * SA * shadow + image[imageOffset + 2] * DA * map.height) / blendDivisor);
             } else {
-                image[imageOffset] = (byte)Math.Min( 255, (ctp[tileOffset] * SA + (h - map.height / 2) * 64 + image[imageOffset] * DA) / 255 );
-                image[imageOffset + 1] = (byte)Math.Min( 255, (ctp[tileOffset + 1] * SA + (h - map.height / 2) * 64 + image[imageOffset + 1] * DA) / 255 );
-                image[imageOffset + 2] = (byte)Math.Min( 255, (ctp[tileOffset + 2] * SA + (h - map.height / 2) * 64 + image[imageOffset + 2] * DA) / 255 );
+                int shadow = (h - (map.height >> 1)) * 64;
+                image[imageOffset] = (byte)Math.Min( 255, (ctp[tileOffset] * SA + shadow + image[imageOffset] * DA) / 255 );
+                image[imageOffset + 1] = (byte)Math.Min( 255, (ctp[tileOffset + 1] * SA + shadow + image[imageOffset + 1] * DA) / 255 );
+                image[imageOffset + 2] = (byte)Math.Min( 255, (ctp[tileOffset + 2] * SA + shadow + image[imageOffset + 2] * DA) / 255 );
             }
 
             image[imageOffset + 3] = (byte)FA;

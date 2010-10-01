@@ -18,7 +18,7 @@ namespace ConfigTool {
     public sealed partial class ConfigUI : Form {
         static ConfigUI instance;
         Font bold;
-        Rank selectedRank, defaultRank;
+        Rank selectedRank, defaultRank, patrolledRank;
         internal static SortableBindingList<WorldListEntry> worlds = new SortableBindingList<WorldListEntry>();
 
         #region Initialization
@@ -234,7 +234,9 @@ namespace ConfigTool {
         #endregion
 
         #region Ranks
+
         List<string> rankNameList = new List<string>();
+
         void SelectRank( Rank pc ) {
             if( pc == null ) {
                 if( vRanks.SelectedIndex != -1 ) {
@@ -250,16 +252,15 @@ namespace ConfigTool {
             }
             selectedRank = pc;
             tRankName.Text = pc.Name;
-            nRank.Value = pc.legacyNumericRank;
 
             ApplyColor( bColorRank, fCraft.Color.ParseToIndex( pc.Color ) );
 
             tPrefix.Text = pc.Prefix;
-            cKickLimit.SelectedIndex = pc.GetMaxKickIndex();
-            cBanLimit.SelectedIndex = pc.GetMaxBanIndex();
-            cPromoteLimit.SelectedIndex = pc.GetMaxPromoteIndex();
-            cDemoteLimit.SelectedIndex = pc.GetMaxDemoteIndex();
-            cMaxHideFrom.SelectedIndex = pc.GetMaxHideFromIndex();
+            cKickLimit.SelectedIndex = pc.GetLimitIndex( Permission.Kick );
+            cBanLimit.SelectedIndex = pc.GetLimitIndex( Permission.Ban );
+            cPromoteLimit.SelectedIndex = pc.GetLimitIndex( Permission.Promote );
+            cDemoteLimit.SelectedIndex = pc.GetLimitIndex( Permission.Demote );
+            cMaxHideFrom.SelectedIndex = pc.GetLimitIndex( Permission.Hide );
             xReserveSlot.Checked = pc.ReservedSlot;
             xKickIdle.Checked = pc.IdleKickTimer > 0;
             nKickIdle.Value = pc.IdleKickTimer;
@@ -307,8 +308,9 @@ namespace ConfigTool {
             SelectRank( selectedRank );
 
             FillClassList( cDefaultRank, "(lowest class)" );
-            FillClassList( cPatrolledClass, "(lowest class)" );
             cDefaultRank.SelectedIndex = RankList.GetIndex( defaultRank );
+            FillClassList( cPatrolledRank, "(lowest class)" );
+            cPatrolledRank.SelectedIndex = RankList.GetIndex( patrolledRank );
 
             FillClassList( cKickLimit, "(own class)" );
             FillClassList( cBanLimit, "(own class)" );
@@ -316,11 +318,11 @@ namespace ConfigTool {
             FillClassList( cDemoteLimit, "(own class)" );
             FillClassList( cMaxHideFrom, "(own class)" );
             if( selectedRank != null ) {
-                cKickLimit.SelectedIndex = selectedRank.GetMaxKickIndex();
-                cBanLimit.SelectedIndex = selectedRank.GetMaxBanIndex();
-                cPromoteLimit.SelectedIndex = selectedRank.GetMaxPromoteIndex();
-                cDemoteLimit.SelectedIndex = selectedRank.GetMaxDemoteIndex();
-                cMaxHideFrom.SelectedIndex = selectedRank.GetMaxHideFromIndex();
+                cKickLimit.SelectedIndex = selectedRank.GetLimitIndex(Permission.Kick);
+                cBanLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Ban );
+                cPromoteLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Promote );
+                cDemoteLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Demote );
+                cMaxHideFrom.SelectedIndex = selectedRank.GetLimitIndex( Permission.Hide );
             }
         }
 
@@ -328,7 +330,6 @@ namespace ConfigTool {
             selectedRank = null;
             bRemoveRank.Enabled = false;
             tRankName.Text = "";
-            nRank.Value = 0;
             bColorRank.Text = "";
             tPrefix.Text = "";
             FillClassList( cPromoteLimit, "(own class)" );
@@ -364,29 +365,29 @@ namespace ConfigTool {
             }
         }
 
+
         #region Ranks Input Handlers
 
         private void bAddRank_Click( object sender, EventArgs e ) {
-            if( vRanks.Items.Count == 255 ) {
-                MessageBox.Show( "Maximum number of ranks (255) reached!", "Warning" );
-                return;
-            }
             int number = 1;
             byte rank = 0;
             while( RankList.RanksByName.ContainsKey( "rank" + number ) ) number++;
+
             Rank pc = new Rank();
             pc.ID = RankList.GenerateID();
             pc.Name = "rank" + number;
             pc.legacyNumericRank = rank;
-            for( int i = 0; i < pc.Permissions.Length; i++ ) pc.Permissions[i] = false;
+            //for( int i = 0; i < pc.Permissions.Length; i++ ) pc.Permissions[i] = false;
             pc.Prefix = "";
             pc.ReservedSlot = false;
             pc.Color = "";
 
-            defaultRank = RankList.ParseIndex( cDefaultRank.SelectedIndex - 1 );
+            defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+            patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
 
             RankList.AddRank( pc );
             selectedRank = null;
+
             RebuildRankList();
             SelectRank( pc );
 
@@ -397,23 +398,25 @@ namespace ConfigTool {
             if( vRanks.SelectedItem != null ) {
                 selectedRank = null;
                 int index = vRanks.SelectedIndex;
-                Rank deletedClass = RankList.Ranks[index];
+                Rank deletedRank = RankList.Ranks[index];
 
                 string messages = "";
 
                 // Ask for substitute class
-                DeleteRankPopup popup = new DeleteRankPopup( deletedClass );
+                DeleteRankPopup popup = new DeleteRankPopup( deletedRank );
                 if( popup.ShowDialog() != DialogResult.OK ) return;
 
+                Rank replacementRank = popup.substituteRank;
+
                 // Update default class
-                Rank defaultClass = RankList.ParseIndex( cDefaultRank.SelectedIndex - 1 );
-                if( defaultClass == deletedClass ) {
-                    defaultClass = popup.substituteRank;
-                    messages += "DefaultClass has been changed to \"" + popup.substituteRank.Name + "\"" + Environment.NewLine;
+                Rank defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+                if( defaultRank == deletedRank ) {
+                    defaultRank = replacementRank;
+                    messages += "DefaultRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
                 }
 
                 // Delete class
-                if( RankList.DeleteRank( index, popup.substituteRank ) ) { //TODO: crashes
+                if( RankList.DeleteRank( deletedRank, replacementRank ) ) {
                     messages += "Some of the rank limits for kick, ban, promote, and/or demote have been reset." + Environment.NewLine;
                 }
                 vRanks.Items.RemoveAt( index );
@@ -421,13 +424,13 @@ namespace ConfigTool {
                 // Update world permissions
                 string worldUpdates = "";
                 foreach( WorldListEntry world in worlds ) {
-                    if( world.accessClass == deletedClass ) {
-                        world.AccessPermission = popup.substituteRank.ToComboBoxOption();
-                        worldUpdates += " - " + world.name + ": access permission changed" + Environment.NewLine;
+                    if( world.accessRank == deletedRank ) {
+                        world.AccessPermission = replacementRank.ToComboBoxOption();
+                        worldUpdates += " - " + world.name + ": access permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
-                    if( world.buildRank == deletedClass ) {
-                        world.BuildPermission = popup.substituteRank.ToComboBoxOption();
-                        worldUpdates += " - " + world.name + ": build permission changed" + Environment.NewLine;
+                    if( world.buildRank == deletedRank ) {
+                        world.BuildPermission = replacementRank.ToComboBoxOption();
+                        worldUpdates += " - " + world.name + ": build permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
                 }
                 ApplyTabWorlds();
@@ -458,7 +461,8 @@ namespace ConfigTool {
             } else {
                 tPrefix.ForeColor = SystemColors.ControlText;
             }
-            defaultRank = RankList.ParseIndex( cDefaultRank.SelectedIndex - 1 );
+            defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+            patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
             selectedRank.Prefix = tPrefix.Text;
             RebuildRankList();
         }
@@ -493,31 +497,51 @@ namespace ConfigTool {
 
         private void cPromoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
             if( selectedRank != null ) {
-                selectedRank.maxPromote = RankList.ParseIndex( cPromoteLimit.SelectedIndex - 1 );
+                if( cPromoteLimit.SelectedIndex == 0 ) {
+                    selectedRank.ResetLimit( Permission.Promote );
+                } else {
+                    selectedRank.SetLimit( Permission.Promote, RankList.Ranks[cPromoteLimit.SelectedIndex] );
+                }
             }
         }
 
         private void cDemoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
             if( selectedRank != null ) {
-                selectedRank.maxDemote = RankList.ParseIndex( cDemoteLimit.SelectedIndex - 1 );
+                if( cDemoteLimit.SelectedIndex == 0 ) {
+                    selectedRank.ResetLimit( Permission.Demote );
+                } else {
+                    selectedRank.SetLimit( Permission.Demote, RankList.Ranks[cDemoteLimit.SelectedIndex] );
+                }
             }
         }
 
         private void cKickLimit_SelectedIndexChanged( object sender, EventArgs e ) {
             if( selectedRank != null ) {
-                selectedRank.maxKick = RankList.ParseIndex( cKickLimit.SelectedIndex - 1 );
+                if( cKickLimit.SelectedIndex == 0 ) {
+                    selectedRank.ResetLimit( Permission.Kick );
+                } else {
+                    selectedRank.SetLimit( Permission.Kick, RankList.Ranks[cKickLimit.SelectedIndex] );
+                }
             }
         }
 
         private void cBanLimit_SelectedIndexChanged( object sender, EventArgs e ) {
             if( selectedRank != null ) {
-                selectedRank.maxBan = RankList.ParseIndex( cBanLimit.SelectedIndex - 1 );
+                if( cBanLimit.SelectedIndex == 0 ) {
+                    selectedRank.ResetLimit( Permission.Ban );
+                } else {
+                    selectedRank.SetLimit( Permission.Ban, RankList.Ranks[cBanLimit.SelectedIndex] );
+                }
             }
         }
 
         private void cMaxHideFrom_SelectedIndexChanged( object sender, EventArgs e ) {
             if( selectedRank != null ) {
-                selectedRank.maxHideFrom = RankList.ParseIndex( cMaxHideFrom.SelectedIndex - 1 );
+                if( cMaxHideFrom.SelectedIndex == 0 ) {
+                    selectedRank.ResetLimit( Permission.Hide );
+                } else {
+                    selectedRank.SetLimit( Permission.Hide, RankList.Ranks[cMaxHideFrom.SelectedIndex] );
+                }
             }
         }
 
@@ -529,7 +553,7 @@ namespace ConfigTool {
 
         private void vRanks_SelectedIndexChanged( object sender, EventArgs e ) {
             if( vRanks.SelectedIndex != -1 ) {
-                SelectRank( RankList.ParseIndex( vRanks.SelectedIndex ) );
+                SelectRank( RankList.FindRank( vRanks.SelectedIndex ) );
                 bRemoveRank.Enabled = true;
             } else {
                 DisableRankOptions();
@@ -639,7 +663,8 @@ namespace ConfigTool {
                 e.Cancel = true;
             } else {
                 tRankName.ForeColor = SystemColors.ControlText;
-                defaultRank = RankList.ParseIndex( cDefaultRank.SelectedIndex - 1 );
+                defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+                patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
                 RankList.RenameRank( selectedRank, name );
                 rankNameList.Add( selectedRank.ToComboBoxOption() );
                 RebuildRankList();
@@ -709,6 +734,7 @@ namespace ConfigTool {
                         Config.ResetRanks();
                         ApplyTabRanks();
                         defaultRank = null;
+                        patrolledRank = null;
                         RebuildRankList();
                         break;
                     case 3:// Security
