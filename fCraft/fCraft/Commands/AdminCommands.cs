@@ -204,7 +204,7 @@ namespace fCraft {
                     }
                 } else {
                     player.Message( "You can only ban players ranked {0}&S or lower.",
-                                    player.info.rank.maxBan.GetClassyName() );
+                                    player.info.rank.GetLimit(Permission.Ban).GetClassyName() );
                     player.Message( "{0}&S is ranked {1}",
                                     offender.GetClassyName(),
                                     offender.info.rank.GetClassyName() );
@@ -241,14 +241,8 @@ namespace fCraft {
                         }
                     }
                 } else {
-                    Rank maxRank = player.info.rank.maxBan;
-                    if( maxRank == null ) {
-                        player.Message( "You can only ban players ranked {0}&S or lower.",
-                                        player.info.rank.GetClassyName() );
-                    } else {
-                        player.Message( "You can only ban players ranked {0}&S or lower.",
-                                        maxRank.GetClassyName() );
-                    }
+                    player.Message( "You can only ban players ranked {0}&S or lower.",
+                                    player.info.rank.GetLimit(Permission.Ban).GetClassyName() );
                     player.Message( "{0} is ranked {1}",
                                     info.name,
                                     info.rank.Name );
@@ -372,7 +366,7 @@ namespace fCraft {
         internal static bool DoKick( Player player, Player target, string reason, bool silent ) {
             if( !player.info.rank.CanKick( target.info.rank ) ) {
                 player.Message( "You can only kick players ranked {0}&S or lower.",
-                                player.info.rank.maxKick.GetClassyName() );
+                                player.info.rank.GetLimit(Permission.Kick).GetClassyName() );
                 player.Message( target.GetClassyName() + "&S is ranked " + target.info.rank.GetClassyName() );
                 return false;
             } else {
@@ -474,14 +468,14 @@ namespace fCraft {
             // Make sure player has the specific permissions (including limits)
             if( promote && !player.info.rank.CanPromote( newRank ) ) {
                 player.Message( "You can only promote players up to {0}",
-                                player.info.rank.maxPromote.GetClassyName() );
+                                player.info.rank.GetLimit(Permission.Promote).GetClassyName() );
                 player.Message( "{0} is ranked {1}",
                                 targetInfo.name,
                                 targetInfo.rank.GetClassyName() );
                 return;
             } else if( !promote && !player.info.rank.CanDemote( targetInfo.rank ) ) {
-                player.Message( "You can only demote players that are {0}&S or lower",
-                                player.info.rank.maxDemote.GetClassyName() );
+                player.Message( "You can only demote players ranked {0}&S or lower",
+                                player.info.rank.GetLimit(Permission.Demote).GetClassyName() );
                 player.Message( "{0} is ranked {1}",
                                 targetInfo.name,
                                 targetInfo.rank.GetClassyName() );

@@ -11,7 +11,7 @@ namespace fCraft {
         internal static void Init() {
             CommandList.RegisterCommand( cdJoin );
 
-            CommandList.RegisterCommand( cdSave );
+            CommandList.RegisterCommand( cdWorldSave );
             CommandList.RegisterCommand( cdWorldMain );
             CommandList.RegisterCommand( cdWorldAccess );
             CommandList.RegisterCommand( cdWorldBuild );
@@ -66,22 +66,26 @@ namespace fCraft {
         }
 
 
+        #region World Commands
 
-        static CommandDescriptor cdSave = new CommandDescriptor {
-            name = "save",
+
+
+        static CommandDescriptor cdWorldSave = new CommandDescriptor {
+            name = "wsave",
             consoleSafe = true,
+            aliases = new string[] { "save" },
             permissions = new Permission[] { Permission.ManageWorlds },
-            usage = "/save FileName &Sor&H /save WorldName FileName",
+            usage = "/wsave FileName &Sor&H /save WorldName FileName",
             help = "Saves a map copy to a file with the specified name. " +
                    "The \".fcm\" file extension can be omitted. " +
                    "If a file with the same name already exists, it will be overwritten.",
-            handler = Save
+            handler = WorldSave
         };
 
-        internal static void Save( Player player, Command cmd ) {
+        internal static void WorldSave( Player player, Command cmd ) {
             string p1 = cmd.Next(), p2 = cmd.Next();
             if( p1 == null ) {
-                cdSave.PrintUsage( player );
+                cdWorldSave.PrintUsage( player );
                 return;
             }
 
@@ -128,10 +132,6 @@ namespace fCraft {
                 player.Message( mapSavingError );
             }
         }
-
-
-
-        #region World Commands
 
         static CommandDescriptor cdWorldFlush = new CommandDescriptor {
             name = "wflush",

@@ -176,8 +176,8 @@ namespace ConfigTool {
             xAnnounceKickAndBanReasons.Checked = Config.GetBool( ConfigKey.AnnounceKickAndBanReasons );
             xAnnounceRankChanges.Checked = Config.GetBool( ConfigKey.AnnounceRankChanges );
 
-            FillClassList( cPatrolledClass, "(lowest class)" );
-            cPatrolledClass.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.PatrolledRank ) ) );
+            FillClassList( cPatrolledRank, "(lowest class)" );
+            cPatrolledRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.PatrolledRank ) ) );
         }
 
 
@@ -280,7 +280,7 @@ namespace ConfigTool {
             if( cDefaultRank.SelectedIndex == 0 ) {
                 Config.SetValue( ConfigKey.DefaultRank, "" );
             } else {
-                Config.SetValue( ConfigKey.DefaultRank, RankList.ParseIndex( cDefaultRank.SelectedIndex - 1 ) );
+                Config.SetValue( ConfigKey.DefaultRank, RankList.FindRank( cDefaultRank.SelectedIndex - 1 ) );
             }
             Config.SetValue( ConfigKey.IsPublic, cPublic.SelectedIndex == 0 );
             Config.SetValue( ConfigKey.Port, nPort.Value );
@@ -316,10 +316,10 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.AnnounceKickAndBanReasons, xAnnounceKickAndBanReasons.Checked );
             Config.SetValue( ConfigKey.AnnounceRankChanges, xAnnounceRankChanges.Checked );
 
-            if( cPatrolledClass.SelectedIndex == 0 ) {
+            if( cPatrolledRank.SelectedIndex == 0 ) {
                 Config.SetValue( ConfigKey.PatrolledRank, "" );
             } else {
-                Config.SetValue( ConfigKey.PatrolledRank, RankList.ParseIndex( cPatrolledClass.SelectedIndex - 1 ) );
+                Config.SetValue( ConfigKey.PatrolledRank, RankList.FindRank( cPatrolledRank.SelectedIndex - 1 ) );
             }
 
 

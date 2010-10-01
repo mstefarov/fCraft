@@ -214,6 +214,7 @@ namespace ConfigTool {
         }
 
         void AsyncDraw( object sender, DoWorkEventArgs e ) {
+            stopwatch = Stopwatch.StartNew();
             renderer = new IsoCat( map, IsoCatMode.Normal, previewRotation );
             Rectangle cropRectangle = new Rectangle();
             if( bwRenderer.CancellationPending ) return;
@@ -231,7 +232,8 @@ namespace ConfigTool {
         }
 
         void AsyncDrawCompleted( object sender, RunWorkerCompletedEventArgs e ) {
-            tStatus2.Text = "";
+            stopwatch.Stop();
+            tStatus2.Text = String.Format("drawn ({0:0.000}s)",stopwatch.Elapsed.TotalSeconds);
             if( previewImage != null && previewImage != preview.Image ) {
                 Image oldImage = preview.Image;
                 if( oldImage != null ) oldImage.Dispose();

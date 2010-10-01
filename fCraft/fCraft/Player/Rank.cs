@@ -47,65 +47,6 @@ namespace fCraft {
         }
 
 
-        #region Permission Limits
-
-        Rank _maxPromote;
-        public Rank maxPromote {
-            get {
-                if( _maxPromote == null ) return this;
-                else return _maxPromote;
-            }
-            set {
-                _maxPromote = value;
-            }
-        }
-
-        Rank _maxDemote;
-        public Rank maxDemote {
-            get {
-                if( _maxDemote == null ) return this;
-                else return _maxDemote;
-            }
-            set {
-                _maxDemote = value;
-            }
-        }
-
-        Rank _maxKick;
-        public Rank maxKick {
-            get {
-                if( _maxKick == null ) return this;
-                else return _maxKick;
-            }
-            set {
-                _maxKick = value;
-            }
-        }
-
-        Rank _maxBan;
-        public Rank maxBan {
-            get {
-                if( _maxBan == null ) return this;
-                else return _maxBan;
-            }
-            set {
-                _maxBan = value;
-            }
-        }
-
-        Rank _maxHideFrom;
-        public Rank maxHideFrom {
-            get {
-                if( _maxHideFrom == null ) return this;
-                else return _maxHideFrom;
-            }
-            set {
-                _maxHideFrom = value;
-            }
-        }
-
-        #endregion
-
 
         public string Prefix = "";
         public int IdleKickTimer,
@@ -117,18 +58,12 @@ namespace fCraft {
 
         public Rank NextRankUp, NextRankDown;
 
-        // these need to be parsed after all ranks are added
-        string maxPromoteVal = "",
-               maxDemoteVal = "",
-               maxKickVal = "",
-               maxBanVal = "",
-               maxHideFromVal = "";
-
 
         public Rank() {
             Permissions = new bool[Enum.GetValues( typeof( Permission ) ).Length];
+            PermissionLimits = new Rank[Permissions.Length];
+            PermissionLimitStrings = new string[Permissions.Length];
         }
-
 
         public Rank( XElement el )
             : this() {
@@ -267,36 +202,8 @@ namespace fCraft {
                 string permission = ((Permission)i).ToString();
                 if( (temp = el.Element( permission )) != null ) {
                     Permissions[i] = true;
-                    switch( i ) {
-                        case (int)Permission.Promote:
-                            if( (attr = temp.Attribute( "max" )) != null ) {
-                                maxPromoteVal = attr.Value;
-                            }
-                            break;
-
-                        case (int)Permission.Demote:
-                            if( (attr = temp.Attribute( "max" )) != null ) {
-                                maxDemoteVal = attr.Value;
-                            }
-                            break;
-
-                        case (int)Permission.Kick:
-                            if( (attr = temp.Attribute( "max" )) != null ) {
-                                maxKickVal = attr.Value;
-                            }
-                            break;
-
-                        case (int)Permission.Ban:
-                            if( (attr = temp.Attribute( "max" )) != null ) {
-                                maxBanVal = attr.Value;
-                            }
-                            break;
-
-                        case (int)Permission.Hide:
-                            if( (attr = temp.Attribute( "max" )) != null ) {
-                                maxHideFromVal = attr.Value;
-                            }
-                            break;
+                    if ((attr = temp.Attribute( "max" )) != null){
+                        PermissionLimitStrings[i] = attr.Value;
                     }
                 }
             }
@@ -336,26 +243,8 @@ namespace fCraft {
                 if( Permissions[i] ) {
                     temp = new XElement( ((Permission)i).ToString() );
 
-                    switch( i ) {
-                        case (int)Permission.Kick:
-                            if( _maxKick != null ) temp.Add( new XAttribute( "max", maxKick ) );
-                            break;
-
-                        case (int)Permission.Ban:
-                            if( _maxBan != null ) temp.Add( new XAttribute( "max", maxBan ) );
-                            break;
-
-                        case (int)Permission.Promote:
-                            if( _maxPromote != null ) temp.Add( new XAttribute( "max", maxPromote ) );
-                            break;
-
-                        case (int)Permission.Demote:
-                            if( _maxDemote != null ) temp.Add( new XAttribute( "max", maxDemote ) );
-                            break;
-
-                        case (int)Permission.Hide:
-                            if( _maxHideFrom != null ) temp.Add( new XAttribute( "max", maxHideFrom ) );
-                            break;
+                    if( PermissionLimits[i] != null ) {
+                        temp.Add( new XAttribute( "max", GetLimit((Permission)i) ) );
                     }
                     classTag.Add( temp );
                 }
@@ -363,7 +252,7 @@ namespace fCraft {
             return classTag;
         }
 
-
+        
         #region Permissions
         public bool Can( Permission permission ) {
             return Permissions[(int)permission];
@@ -371,53 +260,64 @@ namespace fCraft {
 
 
         public bool CanKick( Rank other ) {
-            return maxKick >= other;
+            return GetLimit(Permission.Kick) >= other;
         }
 
         public bool CanBan( Rank other ) {
-            return maxBan >= other;
+            return GetLimit( Permission.Ban ) >= other;
         }
 
         public bool CanPromote( Rank other ) {
-            return maxPromote >= other;
+            return GetLimit( Permission.Promote ) >= other;
         }
 
         public bool CanDemote( Rank other ) {
-            return maxDemote >= other;
+            return GetLimit( Permission.Demote ) >= other;
         }
 
         public bool CanSee( Rank other ) {
-            return this > other.maxHideFrom;
-        }
-
-
-        public int GetMaxKickIndex() {
-            if( maxKick == null ) return 0;
-            else return maxKick.Index + 1;
-        }
-
-        public int GetMaxBanIndex() {
-            if( maxBan == null ) return 0;
-            else return maxBan.Index + 1;
-        }
-
-        public int GetMaxPromoteIndex() {
-            if( maxPromote == null ) return 0;
-            else return maxPromote.Index + 1;
-        }
-
-        public int GetMaxDemoteIndex() {
-            if( maxDemote == null ) return 0;
-            else return maxDemote.Index + 1;
-        }
-
-        public int GetMaxHideFromIndex() {
-            if( maxHideFrom == null ) return 0;
-            else return maxHideFrom.Index + 1;
+            return this > other.GetLimit( Permission.Hide );
         }
 
         #endregion
 
+        #region Permission Limits
+
+        public Rank[] PermissionLimits {
+            get;
+            private set;
+        }
+        public string[] PermissionLimitStrings;
+
+        public Rank GetLimit( Permission permission ) {
+            if( PermissionLimits[(int)permission] == null ) {
+                return this;
+            } else {
+                return PermissionLimits[(int)permission];
+            }
+        }
+
+        public void SetLimit( Permission permission, Rank limit ) {
+            PermissionLimits[(int)permission] = limit;
+        }
+
+        public void ResetLimit( Permission permission ) {
+            SetLimit( permission, null );
+        }
+
+        public bool IsLimitDefault( Permission permission ) {
+            return (PermissionLimits[(int)permission] == null);
+        }
+
+        public int GetLimitIndex( Permission permission ) {
+            if( PermissionLimits[(int)permission] == null ) {
+                return 0;
+            } else {
+                return PermissionLimits[(int)permission].Index + 1;
+            }
+        }
+
+        #endregion
 
         #region Validation
 
@@ -473,29 +373,11 @@ namespace fCraft {
 
         internal bool ParsePermissionLimits() {
             bool ok = true;
-            if( maxKickVal.Length > 0 ) {
-                maxKick = RankList.ParseRank( maxKickVal );
-                ok &= (maxKick != null);
-            }
-
-            if( maxBanVal.Length > 0 ) {
-                maxBan = RankList.ParseRank( maxBanVal );
-                ok &= (maxBan != null);
-            }
-
-            if( maxPromoteVal.Length > 0 ) {
-                maxPromote = RankList.ParseRank( maxPromoteVal );
-                ok &= (maxPromote != null);
-            }
-
-            if( maxDemoteVal.Length > 0 ) {
-                maxDemote = RankList.ParseRank( maxDemoteVal );
-                ok &= (maxDemote != null);
-            }
-
-            if( maxHideFromVal.Length > 0 ) {
-                maxHideFrom = RankList.ParseRank( maxHideFromVal );
-                ok &= (maxHideFrom != null);
+            for( int i = 0; i < PermissionLimits.Length; i++ ) {
+                if( PermissionLimitStrings[i] != null ) {
+                    SetLimit( (Permission)i, RankList.ParseRank( PermissionLimitStrings[i] ) );
+                    ok &= (GetLimit((Permission)i) != null);
+                }
             }
             return ok;
         }
