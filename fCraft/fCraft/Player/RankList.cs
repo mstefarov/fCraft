@@ -6,12 +6,24 @@ using System.Linq;
 
 namespace fCraft {
     public static class RankList {
-        public static Dictionary<string, Rank> RanksByName = new Dictionary<string, Rank>();
-        public static Dictionary<string, Rank> RanksByID = new Dictionary<string, Rank>();
-        public static Dictionary<string, string> LegacyRankMapping = new Dictionary<string, string>();
-        public static List<Rank> Ranks = new List<Rank>();
+        public static Dictionary<string, Rank> RanksByName { get; private set; }
+        public static Dictionary<string, Rank> RanksByID { get; private set; }
+        public static Dictionary<string, string> LegacyRankMapping { get; private set; }
+        public static List<Rank> Ranks { get; private set; }
         public static Rank DefaultRank, LowestRank, HighestRank;
 
+        static RankList() {
+            RanksByName = new Dictionary<string, Rank>();
+            RanksByID = new Dictionary<string, Rank>();
+            Ranks = new List<Rank>();
+            LegacyRankMapping = new Dictionary<string, string>();
+        }
+
+        public static void Reset() {
+            RanksByName = new Dictionary<string, Rank>();
+            RanksByID = new Dictionary<string, Rank>();
+            Ranks = new List<Rank>();
+        }
 
         public static void AddRank( Rank rank ) {
             // check for duplicate class names

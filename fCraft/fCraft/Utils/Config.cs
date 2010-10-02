@@ -686,10 +686,8 @@ namespace fCraft {
 
 
         public static void ResetRanks() {
-            RankList.RanksByName = new Dictionary<string, Rank>();
-            RankList.Ranks = new List<Rank>();
+            RankList.Reset();
             DefineDefaultRanks();
-            // parse rank-limit permissions
             RankList.ParsePermissionLimits();
         }
 

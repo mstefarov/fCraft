@@ -53,17 +53,17 @@ namespace ConfigTool {
                 Backup = World.BackupEnum[5];
             }
 
-            if( (temp = el.Attribute( "access" )) != null && temp.Value!="") {
+            if( (temp = el.Attribute( "access" )) != null && temp.Value != "" ) {
                 accessRank = RankList.ParseRank( temp.Value );
                 if( accessRank == null ) {
-                    throw new Exception( "WorldListEntity: Cannot parse XML: Unrecognized class specified for \"access\" permission." );
+                    Logger.Log( "WorldListEntity: Unrecognized class specified for \"access\" permission. Permission reset to default (everyone).", LogType.Warning );
                 }
             }
 
             if( (temp = el.Attribute( "build" )) != null && temp.Value != "" ) {
                 buildRank = RankList.ParseRank( temp.Value );
                 if( buildRank == null ) {
-                    throw new Exception( "WorldListEntity: Cannot parse XML: Unrecognized class specified for \"build\" permission." );
+                    Logger.Log( "WorldListEntity: Unrecognized class specified for \"build\" permission. Permission reset to default (everyone).", LogType.Warning );
                 }
             }
         }

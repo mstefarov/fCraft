@@ -232,7 +232,7 @@ namespace ConfigTool {
 
         #region Ranks
 
-        BindingList<string> rankNameList = new BindingList<string>();
+        BindingList<string> rankNameList;
 
         void SelectRank( Rank pc ) {
             if( pc == null ) {
@@ -467,9 +467,23 @@ namespace ConfigTool {
             } else {
                 tPrefix.ForeColor = SystemColors.ControlText;
             }
+            if( selectedRank.Prefix == tPrefix.Text ) return;
+
             defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
             patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
+
+            string oldName = selectedRank.ToComboBoxOption();
+
+            // To avoid DataErrors in World tab's DataGridView while renaming a class,
+            // the new name is first added to the list of options (without removing the old name)
+            rankNameList.Insert( selectedRank.Index+1, String.Format( "{0,1}{1}", tPrefix.Text, selectedRank.Name ) );
+
             selectedRank.Prefix = tPrefix.Text;
+
+            // Remove the old name from the list of options
+            rankNameList.Remove( oldName );
+
+            worlds.ResetBindings();
             RebuildRankList();
         }
 
@@ -650,21 +664,28 @@ namespace ConfigTool {
 
         private void tRankName_Validating( object sender, CancelEventArgs e ) {
             if( selectedRank == null ) return;
-            string name = tRankName.Text.Trim();
-            if( name == selectedRank.Name ) return;
-            if( name.Length == 0 ) {
+
+            string newName = tRankName.Text.Trim();
+
+            if( newName == selectedRank.Name ) {
+                return;
+
+            } else if( newName.Length == 0 ) {
                 MessageBox.Show( "Class name cannot be blank." );
                 tRankName.ForeColor = Color.Red;
                 e.Cancel = true;
-            } else if( !Rank.IsValidRankName( name ) ) {
+
+            } else if( !Rank.IsValidRankName( newName ) ) {
                 MessageBox.Show( "Class name can only contain letters, digits, and underscores." );
                 tRankName.ForeColor = Color.Red;
                 e.Cancel = true;
-            } else if( !RankList.CanRenameRank( selectedRank, name ) ) {
-                MessageBox.Show( "There is already another class named \"" + name + "\".\n" +
+
+            } else if( !RankList.CanRenameRank( selectedRank, newName ) ) {
+                MessageBox.Show( "There is already another class named \"" + newName + "\".\n" +
                                 "Duplicate class names are now allowed." );
                 tRankName.ForeColor = Color.Red;
                 e.Cancel = true;
+
             } else {
                 string oldName = selectedRank.ToComboBoxOption();
 
@@ -674,17 +695,40 @@ namespace ConfigTool {
 
                 // To avoid DataErrors in World tab's DataGridView while renaming a class,
                 // the new name is first added to the list of options (without removing the old name)
-                rankNameList.Add( selectedRank.ToComboBoxOption() );
+                rankNameList.Insert( selectedRank.Index+1, String.Format( "{0,1}{1}", selectedRank.Prefix, newName ) );
 
-                RankList.RenameRank( selectedRank, name );
+                RankList.RenameRank( selectedRank, newName );
 
                 // Remove the old name from the list of options
                 rankNameList.Remove( oldName );
 
+                worlds.ResetBindings();
                 RebuildRankList();
             }
         }
 
+
+        private void bRaiseRank_Click( object sender, EventArgs e ) {
+            if( selectedRank != null ) {
+                defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+                patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
+                RankList.RaiseRank( selectedRank );
+                RebuildRankList();
+                rankNameList.Insert( selectedRank.Index + 1, selectedRank.ToComboBoxOption() );
+                rankNameList.RemoveAt( selectedRank.Index + 3 );
+            }
+        }
+
+        private void bLowerRank_Click( object sender, EventArgs e ) {
+            if( selectedRank != null ) {
+                defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+                patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
+                RankList.LowerRank( selectedRank );
+                RebuildRankList();
+                rankNameList.Insert( selectedRank.Index + 2, selectedRank.ToComboBoxOption() );
+                rankNameList.RemoveAt( selectedRank.Index );
+            }
+        }
 
         #endregion
 
@@ -726,10 +770,14 @@ namespace ConfigTool {
             if( MessageBox.Show( "Are you sure you want to reset everything to defaults?", "Warning", MessageBoxButtons.OKCancel ) == DialogResult.OK ) {
                 Config.LoadDefaults();
                 Config.ResetRanks();
+
                 ApplyTabGeneral();
+                ApplyTabWorlds(); // also reloads world list
                 ApplyTabRanks();
+                ApplyTabSecurity();
                 ApplyTabSavingAndBackup();
                 ApplyTabLogging();
+                ApplyTabIRC();
                 ApplyTabAdvanced();
             }
         }
@@ -742,6 +790,7 @@ namespace ConfigTool {
                         ApplyTabGeneral();
                         break;
                     case 1:// Worlds
+                        ApplyTabWorlds(); // also reloads world list
                         break;
                     case 2:// Ranks
                         Config.ResetRanks();
@@ -878,10 +927,6 @@ namespace ConfigTool {
             return false;
         }
 
-        private void tabs_SelectedIndexChanged( object sender, EventArgs e ) {
-            bResetTab.Enabled = !(tabs.SelectedTab == tabWorlds);
-        }
-
         #endregion
 
         private void bPortCheck_Click( object sender, EventArgs e ) {
@@ -932,28 +977,6 @@ namespace ConfigTool {
             tIP.Enabled = xIP.Checked;
             if( !xIP.Checked ) {
                 tIP.Text = IPAddress.Any.ToString();
-            }
-        }
-
-        private void bRaiseRank_Click( object sender, EventArgs e ) {
-            if( selectedRank != null ) {
-                defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
-                patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
-                RankList.RaiseRank( selectedRank );
-                RebuildRankList();
-                rankNameList.Insert( selectedRank.Index + 1, selectedRank.ToComboBoxOption() );
-                rankNameList.RemoveAt( selectedRank.Index + 3 );
-            }
-        }
-
-        private void bLowerRank_Click( object sender, EventArgs e ) {
-            if( selectedRank != null ) {
-                defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
-                patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
-                RankList.LowerRank( selectedRank );
-                RebuildRankList();
-                rankNameList.Insert( selectedRank.Index + 2, selectedRank.ToComboBoxOption() );
-                rankNameList.RemoveAt( selectedRank.Index );
             }
         }
     }

@@ -36,9 +36,9 @@ namespace fCraft {
         int speedHackDetectionCounter;
         const int antiSpeedMaxJumpDelta = 25; // 16 for normal client, 25 for WoM
         const int antiSpeedMaxDistanceSquared = 144; // 12 * 12
-        const int antiSpeedMaxPacketCount = 150;
+        const int antiSpeedMaxPacketCount = 200;
         const int antiSpeedMaxPacketInterval = 5;
-        const int socketTimeout = 12000;
+        const int socketTimeout = 10000;
         Queue<DateTime> antiSpeedPacketLog = new Queue<DateTime>();
         DateTime antiSpeedLastNotification = DateTime.UtcNow;
         bool skippedLastMovementPacket = false;
@@ -76,8 +76,12 @@ namespace fCraft {
             byte mode, type, opcode;
             Packet packet = new Packet();
 
-            int pollInterval = 200;
+            int pollInterval = 250;
             int pollCounter = 0;
+
+            int pingInterval = 5;
+            int pingCounter = 0;
+
             int packetsSent = 0;
 
             try {
@@ -107,6 +111,9 @@ namespace fCraft {
                                 Logger.Log( "Session.IoLoop: Lost connection to unidentified player at {0}.", LogType.Debug, GetIP() );
                             }
                             return;
+                        }
+                        if( pingCounter > pingInterval ) {
+                            writer.WritePing();
                         }
                         pollCounter = 0;
                     }
@@ -441,12 +448,10 @@ namespace fCraft {
             // check if another player with the same name is on
             Player potentialClone = Server.FindPlayerExact( player.name );
             if( potentialClone != null ) {
-                player.info.ProcessFailedLogin( player );
-                Logger.Log( "Session.LoginSequence: Player {0} tried to log in from two computers at once.", LogType.SuspiciousActivity,
+                potentialClone.session.Kick( "Connected from elsewhere!" );
+                potentialClone.session.WaitForKick();
+                Logger.Log( "Session.LoginSequence: Player {0} logged in. Ghost was kicked.", LogType.SuspiciousActivity,
                             player.name );
-                potentialClone.Message( "Warning: someone just attempted to log in using your name." );
-                KickNow( "Already connected from elsewhere!" );
-                return false;
             }
 
             if( Config.GetBool( ConfigKey.LimitOneConnectionPerIP ) ) {
@@ -724,6 +729,10 @@ namespace fCraft {
                 client.Close();
                 client = null;
             }
+        }
+
+        public void WaitForKick() {
+            ioThread.Join();
         }
     }
 }
