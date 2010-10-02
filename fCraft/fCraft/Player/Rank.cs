@@ -120,20 +120,7 @@ namespace fCraft {
                 attr = el.Attribute( "antiGriefBlocks" );
                 if( Int32.TryParse( attr.Value, out value ) ) {
                     if( value >= 0 && value < 1000 ) {
-
-                        attr = el.Attribute( "antiGriefSeconds" );
-                        if( Int32.TryParse( attr.Value, out value ) ) {
-                            if( value >= 0 && value < 100 ) {
-                                AntiGriefSeconds = value;
-                                AntiGriefBlocks = value;
-                            } else {
-                                Logger.Log( "PlayerClass({0}): Values for antiGriefSeconds in not within valid range (0-1000). Assuming default ({1}).", LogType.Warning,
-                                            Name, AntiGriefSeconds );
-                            }
-                        } else {
-                            Logger.Log( "PlayerClass({0}): Could not parse the value for antiGriefSeconds. Assuming default ({1}).", LogType.Warning,
-                                        Name, AntiGriefSeconds );
-                        }
+                        AntiGriefBlocks = value;
 
                     } else {
                         Logger.Log( "PlayerClass({0}): Values for antiGriefBlocks in not within valid range (0-1000). Assuming default ({1}).", LogType.Warning,
@@ -142,6 +129,19 @@ namespace fCraft {
                 } else {
                     Logger.Log( "PlayerClass({0}): Could not parse the value for antiGriefBlocks. Assuming default ({1}).", LogType.Warning,
                                 Name, AntiGriefBlocks );
+                }
+
+                attr = el.Attribute( "antiGriefSeconds" );
+                if( Int32.TryParse( attr.Value, out value ) ) {
+                    if( value >= 0 && value < 100 ) {
+                        AntiGriefSeconds = value;
+                    } else {
+                        Logger.Log( "PlayerClass({0}): Values for antiGriefSeconds in not within valid range (0-1000). Assuming default ({1}).", LogType.Warning,
+                                    Name, AntiGriefSeconds );
+                    }
+                } else {
+                    Logger.Log( "PlayerClass({0}): Could not parse the value for antiGriefSeconds. Assuming default ({1}).", LogType.Warning,
+                                Name, AntiGriefSeconds );
                 }
             }
 

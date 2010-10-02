@@ -13,14 +13,14 @@ namespace ConfigTool {
     public sealed partial class DeleteRankPopup : Form {
         internal Rank substituteRank;
 
-        public DeleteRankPopup( Rank rank ) {
+        public DeleteRankPopup( Rank deletedRank ) {
             InitializeComponent();
-            foreach( Rank pc in RankList.Ranks ) {
-                if( pc != rank ) {
-                    cSubstitute.Items.Add( pc.ToComboBoxOption() );
+            foreach( Rank rank in RankList.Ranks ) {
+                if( rank != deletedRank ) {
+                    cSubstitute.Items.Add( rank.ToComboBoxOption() );
                 }
             }
-            lWarning.Text = String.Format( lWarning.Text, rank.Name );
+            lWarning.Text = String.Format( lWarning.Text, deletedRank.Name );
             cSubstitute.SelectedIndex = cSubstitute.Items.Count - 1;
         }
 

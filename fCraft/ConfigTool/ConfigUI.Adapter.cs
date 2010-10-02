@@ -132,8 +132,8 @@ namespace ConfigTool {
             if( rankNameList == null ) {
                 rankNameList = new BindingList<string>();
                 rankNameList.Add( WorldListEntry.DefaultClassOption );
-                foreach( Rank pc in RankList.Ranks ) {
-                    rankNameList.Add( pc.ToComboBoxOption() );
+                foreach( Rank rank in RankList.Ranks ) {
+                    rankNameList.Add( rank.ToComboBoxOption() );
                 }
                 dgvcAccess.DataSource = rankNameList;
                 dgvcBuild.DataSource = rankNameList;
@@ -146,8 +146,8 @@ namespace ConfigTool {
                 //dgvWorlds.DataSource = null;
                 rankNameList.Clear();
                 rankNameList.Add( WorldListEntry.DefaultClassOption );
-                foreach( Rank pc in RankList.Ranks ) {
-                    rankNameList.Add( pc.ToComboBoxOption() );
+                foreach( Rank rank in RankList.Ranks ) {
+                    rankNameList.Add( rank.ToComboBoxOption() );
                 }
                 foreach( WorldListEntry world in worlds ) {
                     world.ReparseRanks();
@@ -160,8 +160,8 @@ namespace ConfigTool {
 
         void ApplyTabRanks() {
             vRanks.Items.Clear();
-            foreach( Rank pc in RankList.Ranks ) {
-                vRanks.Items.Add( pc.ToComboBoxOption() );
+            foreach( Rank rank in RankList.Ranks ) {
+                vRanks.Items.Add( rank.ToComboBoxOption() );
             }
             DisableRankOptions();
         }

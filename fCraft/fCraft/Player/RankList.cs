@@ -120,9 +120,9 @@ namespace fCraft {
             return Ranks[index];
         }
 
-        public static int GetIndex( Rank pc ) {
-            if( pc == null ) return 0;
-            else return pc.Index + 1;
+        public static int GetIndex( Rank rank ) {
+            if( rank == null ) return 0;
+            else return rank.Index + 1;
         }
 
         public static bool DeleteRank( Rank deletedRank, Rank replacementRank ) {
@@ -131,10 +131,10 @@ namespace fCraft {
             RanksByName.Remove( deletedRank.Name.ToLower() );
             RanksByID.Remove(deletedRank.ID);
             LegacyRankMapping.Add( deletedRank.ID, replacementRank.ID );
-            foreach( Rank pc in Ranks ) {
-                for( int i=0; i<pc.PermissionLimits.Length; i++){
-                    if( pc.GetLimit( (Permission)i ) == deletedRank ) {
-                        pc.ResetLimit( (Permission)i );
+            foreach( Rank rank in Ranks ) {
+                for( int i=0; i<rank.PermissionLimits.Length; i++){
+                    if( rank.GetLimit( (Permission)i ) == deletedRank ) {
+                        rank.ResetLimit( (Permission)i );
                         rankLimitsChanged = true;
                     }
                 }
@@ -215,10 +215,10 @@ namespace fCraft {
 
 
         public static void ParsePermissionLimits() {
-            foreach( Rank pc in Ranks ) {
-                if( !pc.ParsePermissionLimits() ) {
+            foreach( Rank rank in Ranks ) {
+                if( !rank.ParsePermissionLimits() ) {
                     Logger.Log( "Could not parse one of the rank-limits for kick, ban, promote, and/or demote permissions for {0}. " +
-                         "Any unrecognized limits were reset to defaults.", LogType.Warning, pc.Name );
+                         "Any unrecognized limits were reset to defaults.", LogType.Warning, rank.Name );
                 }
             }
         }

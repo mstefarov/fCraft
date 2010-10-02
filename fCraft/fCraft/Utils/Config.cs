@@ -330,15 +330,15 @@ namespace fCraft {
 
                     if( version < 103 ) { // speedhack permission
                         bool foundClassWithSpeedHackPermission = false;
-                        foreach( Rank pc in RankList.RanksByID.Values ) {
-                            if( pc.Can( Permission.UseSpeedHack ) ) {
+                        foreach( Rank rank in RankList.RanksByID.Values ) {
+                            if( rank.Can( Permission.UseSpeedHack ) ) {
                                 foundClassWithSpeedHackPermission = true;
                                 break;
                             }
                         }
                         if( !foundClassWithSpeedHackPermission ) {
-                            foreach( Rank pc in RankList.RanksByID.Values ) {
-                                pc.Permissions[(int)Permission.UseSpeedHack] = true;
+                            foreach( Rank rank in RankList.RanksByID.Values ) {
+                                rank.Permissions[(int)Permission.UseSpeedHack] = true;
                             }
                             Log( "Config.Load: All ranks were granted UseSpeedHack permission (default). " +
                                  "Use ConfigTool to update config. If you are editing config.xml manually, " +
