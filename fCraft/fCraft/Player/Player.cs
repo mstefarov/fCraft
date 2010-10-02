@@ -180,7 +180,7 @@ namespace fCraft {
                     string rankName = message.Substring( 2, message.IndexOf( ' ' ) - 2 );
                     Rank rank = RankList.FindRank( rankName );
                     if( rank != null ) {
-                        Logger.Log( "{0} to class {1}: {2}", LogType.ClassChat,
+                        Logger.Log( "{0} to class {1}: {2}", LogType.RankChat,
                                     name, rank.Name, message );
                         string formattedMessage = String.Format( "{0}({1}{2}){3}{4}: {5}",
                                                                  rank.Color,
@@ -270,6 +270,11 @@ namespace fCraft {
                     Message( Color.Red + permission.ToString() );
                 }
             }
+        }
+
+
+        internal void NoRankMessage( string rankName ) {
+            Message( "Unrecognized rank \"{0}\"", rankName );
         }
 
         #endregion

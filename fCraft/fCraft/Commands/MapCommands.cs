@@ -259,7 +259,7 @@ namespace fCraft {
             } else {
                 Rank rank = RankList.FindRank( rankName );
                 if( rank == null ) {
-                    player.Message( "No class \"{0}\" found.", rankName );
+                    player.NoRankMessage( rankName );
                 } else if( world == Server.mainWorld ) {
                     player.Message( "The main world cannot have access restrictions." );
                 } else {
@@ -326,7 +326,7 @@ namespace fCraft {
             } else {
                 Rank rank = RankList.FindRank( rankName );
                 if( rank == null ) {
-                    player.Message( "No class \"{0}\" found.", rankName );
+                    player.NoRankMessage( rankName );
                 } else {
                     world.buildRank = rank;
                     Server.SaveWorldList();

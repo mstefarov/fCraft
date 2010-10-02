@@ -1,5 +1,31 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-09-17
+2010-10-02
+480
+ Feature: Changed all "player classes" terminology to "ranks" for consistency with other servers. Several commands have been renamed to reflect that: /classes to /ranks, /user to /rank, /class to /rankinfo. All rank-related messages have also been updated.
+ Feature: Added "Raise"/"Lower" buttons to Ranks tab in ConfigTool, and made some other adjustments to the tab. You no longer need to assign a "rank" number to reorder ranks.
+ Fix: Fixed a crash in ConfigTool that happened if classes were added/renamed/deleted while PatrolledClass was not set.
+ Fix: Improved fCraftUI responsiveness on-startup.
+ Fix: Fixed several cases of Worlds tab going out-of-sync with the ranks tab.
+ Fix: /wremove now always saves the map before unloading.
+ Fix: Fixed Console being affected by chat spam/flood checks.
+ Fix: Fixed /zinfo not showing any separators between player names.
+ Fix: Fixed an extra comma appearing in the log entries for /replace and /replacenot calls.
+ Fix: Fixed Security and IRC tabs not being reset by "Reset All Defaults"
+ Fix: Fixed bugged error messages in /tp and /bring when world access permission check fails.
+ Fix: If any class limits were set to default/"(own class)", the setting is now preserved.
+ Fix: Fixed a bug that didn't reset Hide limit if it was set to a deleted rank.
+ Change: Removed legacy zone loading code for pre-0.420 maps (due to changes in rank definition format).
+ Change: Added a more informative disconnect message for players trying to connect with Minecraft Alpha clients.
+ Change: Improved rank-based coloring in world list to check both access and build permissions.
+ Change: Added "/fetch" as alias for /bring, and renamed "/save" to "/wsave".
+ Change: Deleted some obsolete/disabled controls from ConfigTool, removed PingInterval config key, and removed placeholder ControlPhysics and AddLandmarks permissions.
+ Change: Made several changes to improve disconnect detection:
+  - Added occasional pings (every 5 seconds or so, depending on activity/inactivity).
+  - Reduced socket send/receive timeout from 12 to 10 seconds.
+  - Increased socket polling interval to improve performance.
+ Change: If a player tries to connect to a server twice, the FIRST connection is dropped instead of the LAST connection.
+ Refactor: Major changes were made to the way ranks are stored, and to RankList (formerly ClassList) API.
+ Optimization: Made IsoCat rendering faster, and made draw commands use less CPU.
 475
  Feature: /ztest now distinguishes between being allowed/denied by rank/class vs by whitelist/blacklist.
  Fix: Fixed being unable to change rank/class restrictions with /zedit

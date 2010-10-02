@@ -22,7 +22,7 @@ namespace fCraft {
         WorldChat,
         GlobalChat,
         PrivateChat,
-        ClassChat,
+        RankChat,
 
         ConsoleInput,
         ConsoleOutput,

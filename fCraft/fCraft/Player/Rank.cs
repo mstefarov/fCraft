@@ -48,6 +48,7 @@ namespace fCraft {
             Permissions = new bool[Enum.GetValues( typeof( Permission ) ).Length];
             PermissionLimits = new Rank[Permissions.Length];
             PermissionLimitStrings = new string[Permissions.Length];
+            Color = "";
         }
 
         public Rank( XElement el )
@@ -87,11 +88,8 @@ namespace fCraft {
 
 
             // Rank
-            if( (attr = el.Attribute( "rank" )) == null ) {
-                throw new RankDefinitionException( "No rank specified for {0}. Class definition was ignored.", Name );
-            }
-            if( !Byte.TryParse( attr.Value, out legacyNumericRank ) ) {
-                throw new RankDefinitionException( "Cannot parse rank for {0}. Class definition was ignored.", Name );
+            if( (attr = el.Attribute( "rank" )) != null  ) {
+                Byte.TryParse( attr.Value, out legacyNumericRank );
             }
 
 
@@ -99,9 +97,10 @@ namespace fCraft {
             if( (attr = el.Attribute( "color" )) != null ) {
                 if( (Color = fCraft.Color.Parse( attr.Value )) == null ) {
                     Logger.Log( "PlayerClass({0}): Could not parse class color. Assuming default (none).", LogType.Warning, Name );
+                    Color = "";
                 }
             } else {
-                Color = fCraft.Color.Parse( attr.Value );
+                Color = "";
             }
 
 
@@ -215,7 +214,6 @@ namespace fCraft {
             XElement classTag = new XElement( "Rank" );
             classTag.Add( new XAttribute( "name", Name ) );
             classTag.Add( new XAttribute( "id", ID ) );
-            classTag.Add( new XAttribute( "rank", legacyNumericRank ) );
             classTag.Add( new XAttribute( "color", fCraft.Color.GetName( Color ) ) );
             if( Prefix.Length > 0 ) classTag.Add( new XAttribute( "prefix", Prefix ) );
             classTag.Add( new XAttribute( "antiGriefBlocks", AntiGriefBlocks ) );

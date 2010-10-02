@@ -220,14 +220,6 @@ namespace ConfigTool {
         }
         #endregion
 
-        #region Advanced
-
-        private void xPing_CheckedChanged( object sender, EventArgs e ) {
-            nPing.Enabled = xPing.Checked;
-        }
-
-        #endregion
-
         #endregion
 
         #region Ranks
@@ -308,16 +300,16 @@ namespace ConfigTool {
             }
             SelectRank( selectedRank );
 
-            FillClassList( cDefaultRank, "(lowest class)" );
+            FillClassList( cDefaultRank, "(lowest rank)" );
             cDefaultRank.SelectedIndex = RankList.GetIndex( defaultRank );
-            FillClassList( cPatrolledRank, "(lowest class)" );
+            FillClassList( cPatrolledRank, "(lowest rank)" );
             cPatrolledRank.SelectedIndex = RankList.GetIndex( patrolledRank );
 
-            FillClassList( cKickLimit, "(own class)" );
-            FillClassList( cBanLimit, "(own class)" );
-            FillClassList( cPromoteLimit, "(own class)" );
-            FillClassList( cDemoteLimit, "(own class)" );
-            FillClassList( cMaxHideFrom, "(own class)" );
+            FillClassList( cKickLimit, "(own rank)" );
+            FillClassList( cBanLimit, "(own rank)" );
+            FillClassList( cPromoteLimit, "(own rank)" );
+            FillClassList( cDemoteLimit, "(own rank)" );
+            FillClassList( cMaxHideFrom, "(own rank)" );
             if( selectedRank != null ) {
                 cKickLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Kick );
                 cBanLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Ban );
@@ -335,11 +327,11 @@ namespace ConfigTool {
             tRankName.Text = "";
             bColorRank.Text = "";
             tPrefix.Text = "";
-            FillClassList( cPromoteLimit, "(own class)" );
-            FillClassList( cDemoteLimit, "(own class)" );
-            FillClassList( cKickLimit, "(own class)" );
-            FillClassList( cBanLimit, "(own class)" );
-            FillClassList( cMaxHideFrom, "(own class)" );
+            FillClassList( cPromoteLimit, "(own rank)" );
+            FillClassList( cDemoteLimit, "(own rank)" );
+            FillClassList( cKickLimit, "(own rank)" );
+            FillClassList( cBanLimit, "(own rank)" );
+            FillClassList( cMaxHideFrom, "(own rank)" );
             cPromoteLimit.SelectedIndex = 0;
             cDemoteLimit.SelectedIndex = 0;
             cKickLimit.SelectedIndex = 0;
@@ -794,6 +786,7 @@ namespace ConfigTool {
                         break;
                     case 2:// Ranks
                         Config.ResetRanks();
+                        ApplyTabWorlds();
                         ApplyTabRanks();
                         defaultRank = null;
                         patrolledRank = null;
