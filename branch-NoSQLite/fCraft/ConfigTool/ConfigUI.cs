@@ -226,8 +226,8 @@ namespace ConfigTool {
 
         BindingList<string> rankNameList;
 
-        void SelectRank( Rank pc ) {
-            if( pc == null ) {
+        void SelectRank( Rank rank ) {
+            if( rank == null ) {
                 if( vRanks.SelectedIndex != -1 ) {
                     vRanks.ClearSelected();
                     return;
@@ -235,36 +235,36 @@ namespace ConfigTool {
                 DisableRankOptions();
                 return;
             }
-            if( vRanks.SelectedIndex != pc.Index ) {
-                vRanks.SelectedIndex = pc.Index;
+            if( vRanks.SelectedIndex != rank.Index ) {
+                vRanks.SelectedIndex = rank.Index;
                 return;
             }
-            selectedRank = pc;
-            tRankName.Text = pc.Name;
+            selectedRank = rank;
+            tRankName.Text = rank.Name;
 
-            ApplyColor( bColorRank, fCraft.Color.ParseToIndex( pc.Color ) );
+            ApplyColor( bColorRank, fCraft.Color.ParseToIndex( rank.Color ) );
 
-            tPrefix.Text = pc.Prefix;
-            cKickLimit.SelectedIndex = pc.GetLimitIndex( Permission.Kick );
-            cBanLimit.SelectedIndex = pc.GetLimitIndex( Permission.Ban );
-            cPromoteLimit.SelectedIndex = pc.GetLimitIndex( Permission.Promote );
-            cDemoteLimit.SelectedIndex = pc.GetLimitIndex( Permission.Demote );
-            cMaxHideFrom.SelectedIndex = pc.GetLimitIndex( Permission.Hide );
-            xReserveSlot.Checked = pc.ReservedSlot;
-            xKickIdle.Checked = pc.IdleKickTimer > 0;
-            nKickIdle.Value = pc.IdleKickTimer;
+            tPrefix.Text = rank.Prefix;
+            cKickLimit.SelectedIndex = rank.GetLimitIndex( Permission.Kick );
+            cBanLimit.SelectedIndex = rank.GetLimitIndex( Permission.Ban );
+            cPromoteLimit.SelectedIndex = rank.GetLimitIndex( Permission.Promote );
+            cDemoteLimit.SelectedIndex = rank.GetLimitIndex( Permission.Demote );
+            cMaxHideFrom.SelectedIndex = rank.GetLimitIndex( Permission.Hide );
+            xReserveSlot.Checked = rank.ReservedSlot;
+            xKickIdle.Checked = rank.IdleKickTimer > 0;
+            nKickIdle.Value = rank.IdleKickTimer;
             nKickIdle.Enabled = xKickIdle.Checked;
-            xAntiGrief.Checked = (pc.AntiGriefBlocks > 0 && pc.AntiGriefSeconds > 0);
-            nAntiGriefBlocks.Value = pc.AntiGriefBlocks;
+            xAntiGrief.Checked = (rank.AntiGriefBlocks > 0 && rank.AntiGriefSeconds > 0);
+            nAntiGriefBlocks.Value = rank.AntiGriefBlocks;
             nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
-            nAntiGriefSeconds.Value = pc.AntiGriefSeconds;
+            nAntiGriefSeconds.Value = rank.AntiGriefSeconds;
             nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
-            xDrawLimit.Checked = (pc.DrawLimit > 0);
-            nDrawLimit.Value = pc.DrawLimit;
+            xDrawLimit.Checked = (rank.DrawLimit > 0);
+            nDrawLimit.Value = rank.DrawLimit;
             nDrawLimit.Enabled = xDrawLimit.Checked;
 
             foreach( ListViewItem item in vPermissions.Items ) {
-                item.Checked = pc.Permissions[item.Index];
+                item.Checked = rank.Permissions[item.Index];
                 if( item.Checked ) {
                     item.Font = bold;
                 } else {
@@ -272,14 +272,14 @@ namespace ConfigTool {
                 }
             }
 
-            cKickLimit.Enabled = pc.Can( Permission.Kick );
-            cBanLimit.Enabled = pc.Can( Permission.Ban );
-            cPromoteLimit.Enabled = pc.Can( Permission.Promote );
-            cDemoteLimit.Enabled = pc.Can( Permission.Demote );
-            cMaxHideFrom.Enabled = pc.Can( Permission.Hide );
+            cKickLimit.Enabled = rank.Can( Permission.Kick );
+            cBanLimit.Enabled = rank.Can( Permission.Ban );
+            cPromoteLimit.Enabled = rank.Can( Permission.Promote );
+            cDemoteLimit.Enabled = rank.Can( Permission.Demote );
+            cMaxHideFrom.Enabled = rank.Can( Permission.Hide );
 
-            xDrawLimit.Enabled = pc.Can( Permission.Draw );
-            nDrawLimit.Enabled &= pc.Can( Permission.Draw );
+            xDrawLimit.Enabled = rank.Can( Permission.Draw );
+            nDrawLimit.Enabled &= rank.Can( Permission.Draw );
 
             gRankOptions.Enabled = true;
             lPermissions.Enabled = true;
@@ -292,8 +292,8 @@ namespace ConfigTool {
 
         void RebuildRankList() {
             vRanks.Items.Clear();
-            foreach( Rank pc in RankList.Ranks ) {
-                vRanks.Items.Add( pc.ToComboBoxOption() );
+            foreach( Rank rank in RankList.Ranks ) {
+                vRanks.Items.Add( rank.ToComboBoxOption() );
             }
             if( selectedRank != null ) {
                 vRanks.SelectedIndex = selectedRank.Index;
@@ -356,8 +356,8 @@ namespace ConfigTool {
         static void FillClassList( ComboBox box, string firstItem ) {
             box.Items.Clear();
             box.Items.Add( firstItem );
-            foreach( Rank pc in RankList.Ranks ) {
-                box.Items.Add( pc.ToComboBoxOption() );
+            foreach( Rank rank in RankList.Ranks ) {
+                box.Items.Add( rank.ToComboBoxOption() );
             }
         }
 
@@ -366,28 +366,26 @@ namespace ConfigTool {
 
         private void bAddRank_Click( object sender, EventArgs e ) {
             int number = 1;
-            byte rank = 0;
             while( RankList.RanksByName.ContainsKey( "rank" + number ) ) number++;
 
-            Rank pc = new Rank();
-            pc.ID = RankList.GenerateID();
-            pc.Name = "rank" + number;
-            pc.legacyNumericRank = rank;
-            //for( int i = 0; i < pc.Permissions.Length; i++ ) pc.Permissions[i] = false;
-            pc.Prefix = "";
-            pc.ReservedSlot = false;
-            pc.Color = "";
+            Rank rank = new Rank();
+            rank.ID = RankList.GenerateID();
+            rank.Name = "rank" + number;
+            rank.legacyNumericRank = 0;
+            rank.Prefix = "";
+            rank.ReservedSlot = false;
+            rank.Color = "";
 
             defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
             patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
 
-            RankList.AddRank( pc );
+            RankList.AddRank( rank );
             selectedRank = null;
 
             RebuildRankList();
-            SelectRank( pc );
+            SelectRank( rank );
 
-            rankNameList.Insert( pc.Index + 1, pc.ToComboBoxOption() );
+            rankNameList.Insert( rank.Index + 1, rank.ToComboBoxOption() );
         }
 
         private void bDeleteRank_Click( object sender, EventArgs e ) {
