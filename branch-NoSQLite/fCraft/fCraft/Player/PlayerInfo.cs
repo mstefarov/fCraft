@@ -326,11 +326,12 @@ namespace fCraft {
 
 
         public static string PlayerArrayToString( PlayerInfo[] list ) {
-            bool first = true;
             StringBuilder sb = new StringBuilder();
+            bool first = true;
             for( int i = 0; i < list.Length; i++ ) {
-                if( !first ) sb.Append( ", " );
+                if( !first ) sb.Append( "&S, " );
                 sb.Append( list[i].GetClassyName() );
+                first = false;
             }
             return sb.ToString();
         }

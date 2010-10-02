@@ -30,7 +30,7 @@ namespace ConfigTool {
                 MessageBox.Show( "World list (worlds.xml) was not found. Assuming 0 worlds." );
             }
 
-            if( Config.Load(false) ) {
+            if( Config.Load( false ) ) {
                 if( Config.errors.Length > 0 ) {
                     MessageBox.Show( Config.errors, "Config loading warnings" );
                 }
@@ -38,10 +38,8 @@ namespace ConfigTool {
                 MessageBox.Show( Config.errors, "Error occured while trying to load config" );
             }
 
-            LoadWorldList();
-
             ApplyTabGeneral();
-            ApplyTabWorlds();
+            ApplyTabWorlds(); // also reloads world list
             ApplyTabRanks();
             ApplyTabSecurity();
             ApplyTabSavingAndBackup();
@@ -131,15 +129,28 @@ namespace ConfigTool {
 
 
         void ApplyTabWorlds() {
-            rankNameList.Add( WorldListEntry.DefaultClassOption );
-            foreach( Rank pc in RankList.Ranks ) {
-                rankNameList.Add( pc.ToComboBoxOption() );
-            }
-            dgvcAccess.DataSource = rankNameList;
-            dgvcBuild.DataSource = rankNameList;
-            dgvcBackup.DataSource = World.BackupEnum;
+            if( rankNameList == null ) {
+                rankNameList = new BindingList<string>();
+                rankNameList.Add( WorldListEntry.DefaultClassOption );
+                foreach( Rank pc in RankList.Ranks ) {
+                    rankNameList.Add( pc.ToComboBoxOption() );
+                }
+                dgvcAccess.DataSource = rankNameList;
+                dgvcBuild.DataSource = rankNameList;
+                dgvcBackup.DataSource = World.BackupEnum;
 
-            dgvWorlds.DataSource = worlds;
+                LoadWorldList();
+                dgvWorlds.DataSource = worlds;
+
+            } else {
+                worlds.Clear();
+                rankNameList.Clear();
+                rankNameList.Add( WorldListEntry.DefaultClassOption );
+                foreach( Rank pc in RankList.Ranks ) {
+                    rankNameList.Add( pc.ToComboBoxOption() );
+                }
+                LoadWorldList();
+            }
         }
 
 

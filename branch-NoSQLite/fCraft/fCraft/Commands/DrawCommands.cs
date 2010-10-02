@@ -404,9 +404,9 @@ namespace fCraft {
 
                                 if( block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) continue;
                                 if( player.CanPlace( x, y, h, replacementBlock ) != CanPlaceResult.Allowed ) continue;
-                                player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x + x3, y + y3, h, replacementBlock ) );
+                                player.world.map.QueueUpdate( new BlockUpdate( null, x + x3, y + y3, h, replacementBlock ) );
                                 if( blocks < MaxUndoCount ) {
-                                    player.undoBuffer.Enqueue( new BlockUpdate( Player.Console, x + x3, y + y3, h, block ) );
+                                    player.undoBuffer.Enqueue( new BlockUpdate( null, x + x3, y + y3, h, block ) );
                                 } else if( !cannotUndo ) {
                                     player.undoBuffer.Clear();
                                     player.undoBuffer.TrimExcess();
@@ -433,7 +433,7 @@ namespace fCraft {
             Logger.Log( "{0} replaced {1} blocks {2} ({3}) with {4} (on world {5})", LogType.UserActivity,
                         player.name, blocks,
                         (doExclude ? "except" : "of"),
-                        affectedString, (Block)replacementBlock,
+                        affectedString.Substring( 2 ), (Block)replacementBlock,
                         player.world.name );
 
             player.undoBuffer.TrimExcess();
@@ -630,9 +630,9 @@ namespace fCraft {
                 (block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete )) ||
                 (drawBlock == (byte)Block.Admincrete && !player.Can( Permission.PlaceAdmincrete )) ) return;
 
-            player.world.map.QueueUpdate( new BlockUpdate( Player.Console, x, y, h, drawBlock ) );
+            player.world.map.QueueUpdate( new BlockUpdate( null, x, y, h, drawBlock ) );
             if( blocks < MaxUndoCount ) {
-                player.undoBuffer.Enqueue( new BlockUpdate( Player.Console, x, y, h, block ) );
+                player.undoBuffer.Enqueue( new BlockUpdate( null, x, y, h, block ) );
             } else if( !cannotUndo ) {
                 player.undoBuffer.Clear();
                 player.undoBuffer.TrimExcess();
@@ -710,8 +710,8 @@ namespace fCraft {
         static CommandDescriptor cdCut = new CommandDescriptor {
             name = "cut",
             permissions = new Permission[] { Permission.CopyAndPaste },
-            help = "Copies and removes blocks for pasting. Unless a different block type is specified, the area is filled with air. "+
-                   "Used together with &H/paste&S and &H/pastenot&S commands. "+
+            help = "Copies and removes blocks for pasting. Unless a different block type is specified, the area is filled with air. " +
+                   "Used together with &H/paste&S and &H/pastenot&S commands. " +
                    "Note that pasting starts at the same corner that you started &H/cut&S from.",
             usage = "/cut [FillBlock]",
             handler = Cut

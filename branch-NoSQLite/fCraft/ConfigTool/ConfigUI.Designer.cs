@@ -312,7 +312,6 @@
             this.tabs.SelectedIndex = 0;
             this.tabs.Size = new System.Drawing.Size( 659, 453 );
             this.tabs.TabIndex = 0;
-            this.tabs.SelectedIndexChanged += new System.EventHandler( this.tabs_SelectedIndexChanged );
             // 
             // tabGeneral
             // 

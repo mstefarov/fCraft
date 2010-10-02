@@ -72,6 +72,7 @@ namespace fCraft {
         }
 
         bool DetectChatSpam() {
+            if( this == Console ) return false;
             if( spamChatLog.Count >= spamChatCount ) {
                 DateTime oldestTime = spamChatLog.Dequeue();
                 if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < spamChatTimer ) {
@@ -441,7 +442,7 @@ namespace fCraft {
         #region Permission Checks
 
         public bool Can( params Permission[] permissions ) {
-            if( world == null ) return true;
+            if( this == Console ) return true;
             foreach( Permission permission in permissions ) {
                 if( !info.rank.Can( permission ) ) return false;
             }
@@ -450,11 +451,13 @@ namespace fCraft {
 
 
         public bool CanDraw( int volume ) {
+            if( this == Console ) return true;
             return (info.rank.DrawLimit > 0) && (volume > info.rank.DrawLimit);
         }
 
 
         public bool CanJoin( World world ) {
+            if( this == Console ) return true;
             return info.rank >= world.accessRank;
         }
 
@@ -522,7 +525,7 @@ namespace fCraft {
         }
 
         public bool CanSee( Player other ) {
-            if( world == null ) return true; // Console
+            if( this == Console ) return true;
             return !other.isHidden || info.rank.CanSee( other.info.rank );
         }
 
