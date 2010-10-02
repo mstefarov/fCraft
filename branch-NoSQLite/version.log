@@ -1,5 +1,8 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-10-02
+481
+ Fixed a bug in Rank deserializer that set antiGriefBlock=antiGriefSeconds (messing up antigrief permissions).
+ Fixed a few more references to "player class" terminology instead of "rank".
 480
  Feature: Changed all "player classes" terminology to "ranks" for consistency with other servers. Several commands have been renamed to reflect that: /classes to /ranks, /user to /rank, /class to /rankinfo. All rank-related messages have also been updated.
  Feature: Added "Raise"/"Lower" buttons to Ranks tab in ConfigTool, and made some other adjustments to the tab. You no longer need to assign a "rank" number to reorder ranks.
