@@ -13,14 +13,14 @@ namespace fCraft {
         public static Rank DefaultRank, LowestRank, HighestRank;
 
 
-        public static bool AddRank( Rank rank ) {
+        public static void AddRank( Rank rank ) {
             // check for duplicate class names
             if( RanksByName.ContainsKey( rank.Name.ToLower() ) ) {
-                if( !Config.logToString ) {
-                    Logger.Log( "RankList.AddRank: Duplicate definition for rank \"{0}\" was ignored.", LogType.Error,
-                                rank.Name );
-                }
-                return false;
+                throw new Rank.RankDefinitionException( "Duplicate definition for rank \"{0}\" (by Name) was ignored.", rank.Name );
+            }
+
+            if( RanksByID.ContainsKey( rank.ID ) ) {
+                throw new Rank.RankDefinitionException( "Duplicate definition for rank \"{0}\" (by ID) was ignored.", rank.Name );
             }
 
             Ranks.Add( rank );
@@ -32,7 +32,6 @@ namespace fCraft {
                 Logger.Log( "RankList.AddRank: Added \"{0}\" to the rank list.", LogType.Debug,
                             rank.Name );
             }
-            return true;
         }
 
         // parse rank from serialized string (with ID) - for loading from files

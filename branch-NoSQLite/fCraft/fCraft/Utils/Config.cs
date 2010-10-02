@@ -749,8 +749,6 @@ namespace fCraft {
             owner.Add( new XElement( Permission.SetSpawn.ToString() ) );
 
             owner.Add( new XElement( Permission.Lock.ToString() ) );
-            owner.Add( new XElement( Permission.ControlPhysics.ToString() ) );
-            owner.Add( new XElement( Permission.AddLandmarks.ToString() ) );
 
             owner.Add( new XElement( Permission.ManageZones.ToString() ) );
             owner.Add( new XElement( Permission.ManageWorlds.ToString() ) );

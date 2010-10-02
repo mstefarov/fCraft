@@ -131,20 +131,13 @@ namespace ConfigTool {
 
 
         void ApplyTabWorlds() {
-            rankNameList = new List<string>();
             rankNameList.Add( WorldListEntry.DefaultClassOption );
             foreach( Rank pc in RankList.Ranks ) {
                 rankNameList.Add( pc.ToComboBoxOption() );
             }
-
             dgvcAccess.DataSource = rankNameList;
             dgvcBuild.DataSource = rankNameList;
             dgvcBackup.DataSource = World.BackupEnum;
-
-            foreach( DataGridViewRow row in dgvWorlds.Rows ) {
-                ((DataGridViewComboBoxCell)row.Cells[3]).DataSource = rankNameList;
-                ((DataGridViewComboBoxCell)row.Cells[4]).DataSource = rankNameList;
-            }
 
             dgvWorlds.DataSource = worlds;
         }

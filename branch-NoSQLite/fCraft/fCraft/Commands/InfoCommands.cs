@@ -639,11 +639,8 @@ namespace fCraft {
         internal static void Ranks( Player player, Command cmd ) {
             player.Message( "Below is a list of ranks. For detail see &H{0}", cdRankInfo.usage );
             foreach( Rank classListEntry in RankList.Ranks ) {
-                player.Message( "{0}    {1}{2}  (rank {3}, {4} players)",
-                                classListEntry.Color,
-                                (Config.GetBool( ConfigKey.RankPrefixesInChat ) ? classListEntry.Prefix : ""),
-                                classListEntry.Name,
-                                classListEntry.legacyNumericRank,
+                player.Message( "&S{0,16}  ({1} players)",
+                                classListEntry.GetClassyName(),
                                 PlayerDB.CountPlayersByClass( classListEntry ) );
             }
         }

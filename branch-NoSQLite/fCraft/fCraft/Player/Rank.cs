@@ -9,22 +9,7 @@ using System.Xml.Linq;
 namespace fCraft {
     public sealed class Rank {
 
-        public static bool operator >( Rank a, Rank b ) {
-            return a.Index > b.Index;
-        }
-
-        public static bool operator <( Rank a, Rank b ) {
-            return a.Index < b.Index;
-        }
-
-        public static bool operator >=( Rank a, Rank b ) {
-            return a.Index >= b.Index;
-        }
-
-        public static bool operator <=( Rank a, Rank b ) {
-            return a.Index <= b.Index;
-        }
-
+        
 
         public sealed class RankDefinitionException : Exception {
             public RankDefinitionException( string message ) : base( message ) { }
@@ -72,14 +57,15 @@ namespace fCraft {
             XAttribute attr = el.Attribute( "name" );
             if( attr == null ) {
                 throw new RankDefinitionException( "Class definition with no name was ignored." );
-            }
-            if( !Rank.IsValidRankName( attr.Value.Trim() ) ) {
-                throw new RankDefinitionException( "Invalid name specified for class \"{0}\". Class names can only contain letters, digits, and underscores. Class definition was ignored.", Name );
-            }
-            Name = attr.Value.Trim();
 
-            if( RankList.RanksByName.ContainsKey( Name.ToLower() ) ) {
-                throw new RankDefinitionException( "Duplicate name for class \"{0}\". Class definition was ignored.", Name );
+            } else if( !Rank.IsValidRankName( attr.Value.Trim() ) ) {
+                throw new RankDefinitionException( "Invalid name specified for class \"{0}\". "+
+                                                   "Class names can only contain letters, digits, and underscores. "+
+                                                   "Class definition was ignored.", Name );
+
+            } else {
+                // duplicate Name check is done in RankList.AddRank()
+                Name = attr.Value.Trim();
             }
 
 
@@ -90,13 +76,13 @@ namespace fCraft {
                 ID = RankList.GenerateID();
 
             } else if( !Rank.IsValidID( attr.Value.Trim() ) ) {
-                throw new RankDefinitionException( "Invalid ID specified for class \"{0}\". ID must be alphanumeric, and exactly 16 characters long. Class definition was ignored.", Name );
+                throw new RankDefinitionException( "Invalid ID specified for class \"{0}\". "+
+                                                   "ID must be alphanumeric, and exactly 16 characters long. "+
+                                                   "Class definition was ignored.", Name );
 
             } else {
                 ID = attr.Value.Trim();
-                if( RankList.RanksByID.ContainsKey( Name ) ) {
-                    throw new RankDefinitionException( "Duplicate ID for {0}. Class definition was ignored.", Name );
-                }
+                // duplicate ID check is done in RankList.AddRank()
             }
 
 
@@ -252,7 +238,28 @@ namespace fCraft {
             return classTag;
         }
 
-        
+
+        #region Rank Comparison Operators
+
+        // Somewhat counterintuitive, but lower index number = higher up on the list = higher rank
+
+        public static bool operator >( Rank a, Rank b ) {
+            return a.Index < b.Index;
+        }
+
+        public static bool operator <( Rank a, Rank b ) {
+            return a.Index > b.Index;
+        }
+
+        public static bool operator >=( Rank a, Rank b ) {
+            return a.Index <= b.Index;
+        }
+
+        public static bool operator <=( Rank a, Rank b ) {
+            return a.Index >= b.Index;
+        }
+        #endregion
+
         #region Permissions
         public bool Can( Permission permission ) {
             return Permissions[(int)permission];
@@ -353,7 +360,7 @@ namespace fCraft {
 
 
         public string ToComboBoxOption() {
-            return String.Format( "{0,3} {1,1}{2}", legacyNumericRank, Prefix, Name );
+            return String.Format( "{0,1}{1}", Prefix, Name );
         }
 
         public override string ToString() {

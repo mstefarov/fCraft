@@ -41,10 +41,6 @@ namespace fCraft {
         ManageZones,
         ManageWorlds,
         Import,
-        
-        ControlPhysics,
-
-        AddLandmarks,
 
         ReloadConfig,
         ShutdownServer
