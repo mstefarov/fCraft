@@ -48,9 +48,6 @@ namespace ConfigTool {
             foreach( Permission permission in Enum.GetValues( typeof( Permission ) ) ) {
                 item = new ListViewItem( permission.ToString() );
                 item.Tag = permission;
-                if( permission == Permission.AddLandmarks || permission == Permission.ControlPhysics ) {
-                    item.ForeColor = Color.LightGray;
-                }
                 vPermissions.Items.Add( item );
             }
         }
@@ -235,7 +232,7 @@ namespace ConfigTool {
 
         #region Ranks
 
-        List<string> rankNameList = new List<string>();
+        BindingList<string> rankNameList = new BindingList<string>();
 
         void SelectRank( Rank pc ) {
             if( pc == null ) {
@@ -295,12 +292,16 @@ namespace ConfigTool {
             gRankOptions.Enabled = true;
             lPermissions.Enabled = true;
             vPermissions.Enabled = true;
+
+            bDeleteRank.Enabled = true;
+            bRaiseRank.Enabled = (selectedRank != RankList.HighestRank);
+            bLowerRank.Enabled = (selectedRank != RankList.LowestRank);
         }
 
         void RebuildRankList() {
             vRanks.Items.Clear();
             foreach( Rank pc in RankList.Ranks ) {
-                vRanks.Items.Add( String.Format( "{0,3} {1,1}{2}", pc.legacyNumericRank, pc.Prefix, pc.Name ) );
+                vRanks.Items.Add( pc.ToComboBoxOption() );
             }
             if( selectedRank != null ) {
                 vRanks.SelectedIndex = selectedRank.Index;
@@ -318,7 +319,7 @@ namespace ConfigTool {
             FillClassList( cDemoteLimit, "(own class)" );
             FillClassList( cMaxHideFrom, "(own class)" );
             if( selectedRank != null ) {
-                cKickLimit.SelectedIndex = selectedRank.GetLimitIndex(Permission.Kick);
+                cKickLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Kick );
                 cBanLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Ban );
                 cPromoteLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Promote );
                 cDemoteLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Demote );
@@ -328,7 +329,9 @@ namespace ConfigTool {
 
         void DisableRankOptions() {
             selectedRank = null;
-            bRemoveRank.Enabled = false;
+            bDeleteRank.Enabled = false;
+            bRaiseRank.Enabled = false;
+            bLowerRank.Enabled = false;
             tRankName.Text = "";
             bColorRank.Text = "";
             tPrefix.Text = "";
@@ -341,6 +344,7 @@ namespace ConfigTool {
             cDemoteLimit.SelectedIndex = 0;
             cKickLimit.SelectedIndex = 0;
             cBanLimit.SelectedIndex = 0;
+            cMaxHideFrom.SelectedIndex = 0;
             xReserveSlot.Checked = false;
             xKickIdle.Checked = false;
             nKickIdle.Value = 0;
@@ -391,14 +395,14 @@ namespace ConfigTool {
             RebuildRankList();
             SelectRank( pc );
 
-            ApplyTabWorlds();
+            rankNameList.Insert( pc.Index + 1, pc.ToComboBoxOption() );
         }
 
-        private void bRemoveRank_Click( object sender, EventArgs e ) {
+        private void bDeleteRank_Click( object sender, EventArgs e ) {
             if( vRanks.SelectedItem != null ) {
                 selectedRank = null;
                 int index = vRanks.SelectedIndex;
-                Rank deletedRank = RankList.Ranks[index];
+                Rank deletedRank = RankList.FindRank( index );
 
                 string messages = "";
 
@@ -433,7 +437,9 @@ namespace ConfigTool {
                         worldUpdates += " - " + world.name + ": build permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
                 }
-                ApplyTabWorlds();
+
+                rankNameList.RemoveAt( index + 1 );
+
                 if( worldUpdates.Length > 0 ) {
                     messages += "The following worlds were affected:" + Environment.NewLine + worldUpdates;
                 }
@@ -500,7 +506,7 @@ namespace ConfigTool {
                 if( cPromoteLimit.SelectedIndex == 0 ) {
                     selectedRank.ResetLimit( Permission.Promote );
                 } else {
-                    selectedRank.SetLimit( Permission.Promote, RankList.Ranks[cPromoteLimit.SelectedIndex] );
+                    selectedRank.SetLimit( Permission.Promote, RankList.FindRank( cPromoteLimit.SelectedIndex - 1 ) );
                 }
             }
         }
@@ -510,7 +516,7 @@ namespace ConfigTool {
                 if( cDemoteLimit.SelectedIndex == 0 ) {
                     selectedRank.ResetLimit( Permission.Demote );
                 } else {
-                    selectedRank.SetLimit( Permission.Demote, RankList.Ranks[cDemoteLimit.SelectedIndex] );
+                    selectedRank.SetLimit( Permission.Demote, RankList.FindRank( cDemoteLimit.SelectedIndex - 1 ) );
                 }
             }
         }
@@ -520,7 +526,7 @@ namespace ConfigTool {
                 if( cKickLimit.SelectedIndex == 0 ) {
                     selectedRank.ResetLimit( Permission.Kick );
                 } else {
-                    selectedRank.SetLimit( Permission.Kick, RankList.Ranks[cKickLimit.SelectedIndex] );
+                    selectedRank.SetLimit( Permission.Kick, RankList.FindRank( cKickLimit.SelectedIndex - 1 ) );
                 }
             }
         }
@@ -530,7 +536,7 @@ namespace ConfigTool {
                 if( cBanLimit.SelectedIndex == 0 ) {
                     selectedRank.ResetLimit( Permission.Ban );
                 } else {
-                    selectedRank.SetLimit( Permission.Ban, RankList.Ranks[cBanLimit.SelectedIndex] );
+                    selectedRank.SetLimit( Permission.Ban, RankList.FindRank( cBanLimit.SelectedIndex - 1 ) );
                 }
             }
         }
@@ -540,7 +546,7 @@ namespace ConfigTool {
                 if( cMaxHideFrom.SelectedIndex == 0 ) {
                     selectedRank.ResetLimit( Permission.Hide );
                 } else {
-                    selectedRank.SetLimit( Permission.Hide, RankList.Ranks[cMaxHideFrom.SelectedIndex] );
+                    selectedRank.SetLimit( Permission.Hide, RankList.FindRank( cMaxHideFrom.SelectedIndex - 1 ) );
                 }
             }
         }
@@ -554,10 +560,8 @@ namespace ConfigTool {
         private void vRanks_SelectedIndexChanged( object sender, EventArgs e ) {
             if( vRanks.SelectedIndex != -1 ) {
                 SelectRank( RankList.FindRank( vRanks.SelectedIndex ) );
-                bRemoveRank.Enabled = true;
             } else {
                 DisableRankOptions();
-                bRemoveRank.Enabled = false;
             }
         }
 
@@ -662,13 +666,22 @@ namespace ConfigTool {
                 tRankName.ForeColor = Color.Red;
                 e.Cancel = true;
             } else {
+                string oldName = selectedRank.ToComboBoxOption();
+
                 tRankName.ForeColor = SystemColors.ControlText;
                 defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
                 patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
-                RankList.RenameRank( selectedRank, name );
+
+                // To avoid DataErrors in World tab's DataGridView while renaming a class,
+                // the new name is first added to the list of options (without removing the old name)
                 rankNameList.Add( selectedRank.ToComboBoxOption() );
+
+                RankList.RenameRank( selectedRank, name );
+
+                // Remove the old name from the list of options
+                rankNameList.Remove( oldName );
+
                 RebuildRankList();
-                ApplyTabWorlds();
             }
         }
 
@@ -872,6 +885,7 @@ namespace ConfigTool {
         #endregion
 
         private void bPortCheck_Click( object sender, EventArgs e ) {
+            bPortCheck.Text = "Checking";
             this.Enabled = false;
             TcpListener listener = null;
 
@@ -892,7 +906,7 @@ namespace ConfigTool {
                     }
                 }
                 MessageBox.Show( "Port " + nPort.Value + " is closed. You will need to set up forwarding.", "Port check failed" );
-
+                
             } catch {
                 MessageBox.Show( "Could not start listening on port " + nPort.Value + ". Another program may be using the port.", "Port check failed" );
             } finally {
@@ -900,6 +914,7 @@ namespace ConfigTool {
                     listener.Stop();
                 }
                 this.Enabled = true;
+                bPortCheck.Text = "Check";
             }
         }
 
@@ -917,6 +932,28 @@ namespace ConfigTool {
             tIP.Enabled = xIP.Checked;
             if( !xIP.Checked ) {
                 tIP.Text = IPAddress.Any.ToString();
+            }
+        }
+
+        private void bRaiseRank_Click( object sender, EventArgs e ) {
+            if( selectedRank != null ) {
+                defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+                patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
+                RankList.RaiseRank( selectedRank );
+                RebuildRankList();
+                rankNameList.Insert( selectedRank.Index + 1, selectedRank.ToComboBoxOption() );
+                rankNameList.RemoveAt( selectedRank.Index + 3 );
+            }
+        }
+
+        private void bLowerRank_Click( object sender, EventArgs e ) {
+            if( selectedRank != null ) {
+                defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+                patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
+                RankList.LowerRank( selectedRank );
+                RebuildRankList();
+                rankNameList.Insert( selectedRank.Index + 2, selectedRank.ToComboBoxOption() );
+                rankNameList.RemoveAt( selectedRank.Index );
             }
         }
     }

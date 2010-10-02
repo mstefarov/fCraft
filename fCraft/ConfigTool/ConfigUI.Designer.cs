@@ -96,6 +96,9 @@
             this.dgvcBuild = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.dgvcBackup = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.tabRanks = new System.Windows.Forms.TabPage();
+            this.lRankList = new System.Windows.Forms.Label();
+            this.bLowerRank = new System.Windows.Forms.Button();
+            this.bRaiseRank = new System.Windows.Forms.Button();
             this.gRankOptions = new System.Windows.Forms.GroupBox();
             this.cMaxHideFrom = new System.Windows.Forms.ComboBox();
             this.lMaxSeeHidden = new System.Windows.Forms.Label();
@@ -126,12 +129,11 @@
             this.lRankColor = new System.Windows.Forms.Label();
             this.tRankName = new System.Windows.Forms.TextBox();
             this.lRankName = new System.Windows.Forms.Label();
-            this.bRemoveRank = new System.Windows.Forms.Button();
+            this.bDeleteRank = new System.Windows.Forms.Button();
             this.vPermissions = new System.Windows.Forms.ListView();
-            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
+            this.chPermissions = new System.Windows.Forms.ColumnHeader();
             this.bAddRank = new System.Windows.Forms.Button();
             this.lPermissions = new System.Windows.Forms.Label();
-            this.lRanks = new System.Windows.Forms.Label();
             this.vRanks = new System.Windows.Forms.ListBox();
             this.tabSecurity = new System.Windows.Forms.TabPage();
             this.gSecurityMisc = new System.Windows.Forms.GroupBox();
@@ -630,7 +632,7 @@
             // 
             this.bPortCheck.Location = new System.Drawing.Point( 517, 103 );
             this.bPortCheck.Name = "bPortCheck";
-            this.bPortCheck.Size = new System.Drawing.Size( 55, 23 );
+            this.bPortCheck.Size = new System.Drawing.Size( 68, 23 );
             this.bPortCheck.TabIndex = 33;
             this.bPortCheck.Text = "Check";
             this.bPortCheck.UseVisualStyleBackColor = true;
@@ -973,12 +975,14 @@
             // 
             // tabRanks
             // 
+            this.tabRanks.Controls.Add( this.lRankList );
+            this.tabRanks.Controls.Add( this.bLowerRank );
+            this.tabRanks.Controls.Add( this.bRaiseRank );
             this.tabRanks.Controls.Add( this.gRankOptions );
-            this.tabRanks.Controls.Add( this.bRemoveRank );
+            this.tabRanks.Controls.Add( this.bDeleteRank );
             this.tabRanks.Controls.Add( this.vPermissions );
             this.tabRanks.Controls.Add( this.bAddRank );
             this.tabRanks.Controls.Add( this.lPermissions );
-            this.tabRanks.Controls.Add( this.lRanks );
             this.tabRanks.Controls.Add( this.vRanks );
             this.tabRanks.Location = new System.Drawing.Point( 4, 24 );
             this.tabRanks.Name = "tabRanks";
@@ -987,6 +991,38 @@
             this.tabRanks.TabIndex = 2;
             this.tabRanks.Text = "Ranks";
             this.tabRanks.UseVisualStyleBackColor = true;
+            // 
+            // lRankList
+            // 
+            this.lRankList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lRankList.AutoSize = true;
+            this.lRankList.Location = new System.Drawing.Point( 8, 10 );
+            this.lRankList.Name = "lRankList";
+            this.lRankList.Size = new System.Drawing.Size( 58, 15 );
+            this.lRankList.TabIndex = 8;
+            this.lRankList.Text = "Rank List";
+            // 
+            // bLowerRank
+            // 
+            this.bLowerRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.bLowerRank.Location = new System.Drawing.Point( 84, 389 );
+            this.bLowerRank.Name = "bLowerRank";
+            this.bLowerRank.Size = new System.Drawing.Size( 70, 23 );
+            this.bLowerRank.TabIndex = 7;
+            this.bLowerRank.Text = "▼ Lower";
+            this.bLowerRank.UseVisualStyleBackColor = true;
+            this.bLowerRank.Click += new System.EventHandler( this.bLowerRank_Click );
+            // 
+            // bRaiseRank
+            // 
+            this.bRaiseRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.bRaiseRank.Location = new System.Drawing.Point( 8, 389 );
+            this.bRaiseRank.Name = "bRaiseRank";
+            this.bRaiseRank.Size = new System.Drawing.Size( 70, 23 );
+            this.bRaiseRank.TabIndex = 6;
+            this.bRaiseRank.Text = "▲ Raise";
+            this.bRaiseRank.UseVisualStyleBackColor = true;
+            this.bRaiseRank.Click += new System.EventHandler( this.bRaiseRank_Click );
             // 
             // gRankOptions
             // 
@@ -1021,9 +1057,9 @@
             this.gRankOptions.Controls.Add( this.lRankColor );
             this.gRankOptions.Controls.Add( this.tRankName );
             this.gRankOptions.Controls.Add( this.lRankName );
-            this.gRankOptions.Location = new System.Drawing.Point( 155, 13 );
+            this.gRankOptions.Location = new System.Drawing.Point( 160, 13 );
             this.gRankOptions.Name = "gRankOptions";
-            this.gRankOptions.Size = new System.Drawing.Size( 303, 399 );
+            this.gRankOptions.Size = new System.Drawing.Size( 306, 399 );
             this.gRankOptions.TabIndex = 1;
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
@@ -1202,7 +1238,7 @@
             // 
             this.cBanLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cBanLimit.FormattingEnabled = true;
-            this.cBanLimit.Location = new System.Drawing.Point( 96, 164 );
+            this.cBanLimit.Location = new System.Drawing.Point( 96, 106 );
             this.cBanLimit.Name = "cBanLimit";
             this.cBanLimit.Size = new System.Drawing.Size( 180, 23 );
             this.cBanLimit.TabIndex = 7;
@@ -1212,7 +1248,7 @@
             // 
             this.cKickLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cKickLimit.FormattingEnabled = true;
-            this.cKickLimit.Location = new System.Drawing.Point( 96, 135 );
+            this.cKickLimit.Location = new System.Drawing.Point( 96, 77 );
             this.cKickLimit.Name = "cKickLimit";
             this.cKickLimit.Size = new System.Drawing.Size( 180, 23 );
             this.cKickLimit.TabIndex = 6;
@@ -1222,7 +1258,7 @@
             // 
             this.cDemoteLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cDemoteLimit.FormattingEnabled = true;
-            this.cDemoteLimit.Location = new System.Drawing.Point( 96, 106 );
+            this.cDemoteLimit.Location = new System.Drawing.Point( 96, 164 );
             this.cDemoteLimit.Name = "cDemoteLimit";
             this.cDemoteLimit.Size = new System.Drawing.Size( 180, 23 );
             this.cDemoteLimit.TabIndex = 5;
@@ -1232,7 +1268,7 @@
             // 
             this.cPromoteLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cPromoteLimit.FormattingEnabled = true;
-            this.cPromoteLimit.Location = new System.Drawing.Point( 96, 77 );
+            this.cPromoteLimit.Location = new System.Drawing.Point( 96, 135 );
             this.cPromoteLimit.Name = "cPromoteLimit";
             this.cPromoteLimit.Size = new System.Drawing.Size( 180, 23 );
             this.cPromoteLimit.TabIndex = 4;
@@ -1241,7 +1277,7 @@
             // lBanLimit
             // 
             this.lBanLimit.AutoSize = true;
-            this.lBanLimit.Location = new System.Drawing.Point( 31, 167 );
+            this.lBanLimit.Location = new System.Drawing.Point( 31, 109 );
             this.lBanLimit.Name = "lBanLimit";
             this.lBanLimit.Size = new System.Drawing.Size( 59, 15 );
             this.lBanLimit.TabIndex = 11;
@@ -1250,7 +1286,7 @@
             // lKickLimit
             // 
             this.lKickLimit.AutoSize = true;
-            this.lKickLimit.Location = new System.Drawing.Point( 30, 138 );
+            this.lKickLimit.Location = new System.Drawing.Point( 30, 80 );
             this.lKickLimit.Name = "lKickLimit";
             this.lKickLimit.Size = new System.Drawing.Size( 60, 15 );
             this.lKickLimit.TabIndex = 10;
@@ -1259,7 +1295,7 @@
             // lDemoteLimit
             // 
             this.lDemoteLimit.AutoSize = true;
-            this.lDemoteLimit.Location = new System.Drawing.Point( 9, 109 );
+            this.lDemoteLimit.Location = new System.Drawing.Point( 9, 167 );
             this.lDemoteLimit.Name = "lDemoteLimit";
             this.lDemoteLimit.Size = new System.Drawing.Size( 81, 15 );
             this.lDemoteLimit.TabIndex = 9;
@@ -1268,7 +1304,7 @@
             // lPromoteLimit
             // 
             this.lPromoteLimit.AutoSize = true;
-            this.lPromoteLimit.Location = new System.Drawing.Point( 6, 80 );
+            this.lPromoteLimit.Location = new System.Drawing.Point( 6, 138 );
             this.lPromoteLimit.Name = "lPromoteLimit";
             this.lPromoteLimit.Size = new System.Drawing.Size( 84, 15 );
             this.lPromoteLimit.TabIndex = 8;
@@ -1319,16 +1355,16 @@
             this.lRankName.TabIndex = 0;
             this.lRankName.Text = "Name";
             // 
-            // bRemoveRank
+            // bDeleteRank
             // 
-            this.bRemoveRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bRemoveRank.Location = new System.Drawing.Point( 85, 389 );
-            this.bRemoveRank.Name = "bRemoveRank";
-            this.bRemoveRank.Size = new System.Drawing.Size( 64, 23 );
-            this.bRemoveRank.TabIndex = 4;
-            this.bRemoveRank.Text = "Remove";
-            this.bRemoveRank.UseVisualStyleBackColor = true;
-            this.bRemoveRank.Click += new System.EventHandler( this.bRemoveRank_Click );
+            this.bDeleteRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.bDeleteRank.Location = new System.Drawing.Point( 84, 28 );
+            this.bDeleteRank.Name = "bDeleteRank";
+            this.bDeleteRank.Size = new System.Drawing.Size( 70, 23 );
+            this.bDeleteRank.TabIndex = 4;
+            this.bDeleteRank.Text = "Delete";
+            this.bDeleteRank.UseVisualStyleBackColor = true;
+            this.bDeleteRank.Click += new System.EventHandler( this.bDeleteRank_Click );
             // 
             // vPermissions
             // 
@@ -1336,31 +1372,31 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.vPermissions.CheckBoxes = true;
             this.vPermissions.Columns.AddRange( new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1} );
+            this.chPermissions} );
             this.vPermissions.GridLines = true;
             this.vPermissions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            this.vPermissions.Location = new System.Drawing.Point( 467, 28 );
+            this.vPermissions.Location = new System.Drawing.Point( 472, 28 );
             this.vPermissions.MultiSelect = false;
             this.vPermissions.Name = "vPermissions";
             this.vPermissions.ShowGroups = false;
-            this.vPermissions.Size = new System.Drawing.Size( 176, 384 );
+            this.vPermissions.Size = new System.Drawing.Size( 171, 384 );
             this.vPermissions.TabIndex = 2;
             this.vPermissions.UseCompatibleStateImageBehavior = false;
             this.vPermissions.View = System.Windows.Forms.View.Details;
             this.vPermissions.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler( this.vPermissions_ItemChecked );
             // 
-            // columnHeader1
+            // chPermissions
             // 
-            this.columnHeader1.Width = 155;
+            this.chPermissions.Width = 150;
             // 
             // bAddRank
             // 
             this.bAddRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bAddRank.Location = new System.Drawing.Point( 8, 389 );
+            this.bAddRank.Location = new System.Drawing.Point( 8, 28 );
             this.bAddRank.Name = "bAddRank";
-            this.bAddRank.Size = new System.Drawing.Size( 57, 23 );
+            this.bAddRank.Size = new System.Drawing.Size( 70, 23 );
             this.bAddRank.TabIndex = 3;
-            this.bAddRank.Text = "Add";
+            this.bAddRank.Text = "Add Rank";
             this.bAddRank.UseVisualStyleBackColor = true;
             this.bAddRank.Click += new System.EventHandler( this.bAddRank_Click );
             // 
@@ -1368,31 +1404,23 @@
             // 
             this.lPermissions.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lPermissions.AutoSize = true;
-            this.lPermissions.Location = new System.Drawing.Point( 464, 10 );
+            this.lPermissions.Location = new System.Drawing.Point( 472, 10 );
             this.lPermissions.Name = "lPermissions";
             this.lPermissions.Size = new System.Drawing.Size( 107, 15 );
             this.lPermissions.TabIndex = 3;
             this.lPermissions.Text = "Rank Permissions";
             // 
-            // lRanks
-            // 
-            this.lRanks.AutoSize = true;
-            this.lRanks.Location = new System.Drawing.Point( 8, 10 );
-            this.lRanks.Name = "lRanks";
-            this.lRanks.Size = new System.Drawing.Size( 42, 15 );
-            this.lRanks.TabIndex = 1;
-            this.lRanks.Text = "Ranks";
-            // 
             // vRanks
             // 
             this.vRanks.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)));
-            this.vRanks.Font = new System.Drawing.Font( "Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.vRanks.Font = new System.Drawing.Font( "Lucida Console", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.vRanks.FormattingEnabled = true;
             this.vRanks.IntegralHeight = false;
-            this.vRanks.Location = new System.Drawing.Point( 8, 28 );
+            this.vRanks.ItemHeight = 15;
+            this.vRanks.Location = new System.Drawing.Point( 8, 57 );
             this.vRanks.Name = "vRanks";
-            this.vRanks.Size = new System.Drawing.Size( 141, 355 );
+            this.vRanks.Size = new System.Drawing.Size( 146, 326 );
             this.vRanks.TabIndex = 0;
             this.vRanks.SelectedIndexChanged += new System.EventHandler( this.vRanks_SelectedIndexChanged );
             // 
@@ -2246,9 +2274,9 @@
             this.lIRCBotChannels3.AutoSize = true;
             this.lIRCBotChannels3.Location = new System.Drawing.Point( 130, 71 );
             this.lIRCBotChannels3.Name = "lIRCBotChannels3";
-            this.lIRCBotChannels3.Size = new System.Drawing.Size( 237, 15 );
+            this.lIRCBotChannels3.Size = new System.Drawing.Size( 340, 15 );
             this.lIRCBotChannels3.TabIndex = 16;
-            this.lIRCBotChannels3.Text = "NOTE: Channel names are case-sensitive!";
+            this.lIRCBotChannels3.Text = "NOTE: Channel names are case-sensitive on some networks!";
             // 
             // tIRCBotChannels
             // 
@@ -2795,13 +2823,12 @@
         private System.Windows.Forms.Label lTickInterval;
         private System.Windows.Forms.Label lAdvancedWarning;
         private System.Windows.Forms.ListBox vRanks;
-        private System.Windows.Forms.Label lRanks;
         private System.Windows.Forms.Button bAddRank;
         private System.Windows.Forms.Label lPermissions;
         private System.Windows.Forms.ListView vPermissions;
-        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ColumnHeader chPermissions;
         private System.Windows.Forms.GroupBox gRankOptions;
-        private System.Windows.Forms.Button bRemoveRank;
+        private System.Windows.Forms.Button bDeleteRank;
         private System.Windows.Forms.Label lRankColor;
         private System.Windows.Forms.TextBox tRankName;
         private System.Windows.Forms.Label lRankName;
@@ -2973,5 +3000,8 @@
         private System.Windows.Forms.ComboBox cPatrolledRank;
         private System.Windows.Forms.Label lPatrolledClass;
         private System.Windows.Forms.Label lPatrolledClassAndBelow;
+        private System.Windows.Forms.Button bLowerRank;
+        private System.Windows.Forms.Button bRaiseRank;
+        private System.Windows.Forms.Label lRankList;
     }
 }
