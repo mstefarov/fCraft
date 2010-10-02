@@ -67,7 +67,6 @@ namespace fCraft {
         IRCDelay,
 
         SendRedundantBlockUpdates,
-        PingInterval,
         AutomaticUpdates,
         NoPartialPositionUpdates,
         ProcessPriority,

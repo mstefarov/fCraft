@@ -143,13 +143,17 @@ namespace ConfigTool {
                 dgvWorlds.DataSource = worlds;
 
             } else {
-                worlds.Clear();
+                //dgvWorlds.DataSource = null;
                 rankNameList.Clear();
                 rankNameList.Add( WorldListEntry.DefaultClassOption );
                 foreach( Rank pc in RankList.Ranks ) {
                     rankNameList.Add( pc.ToComboBoxOption() );
                 }
-                LoadWorldList();
+                foreach( WorldListEntry world in worlds ) {
+                    world.ReparseRanks();
+                }
+                worlds.ResetBindings();
+                //dgvWorlds.DataSource = worlds;
             }
         }
 
@@ -248,9 +252,6 @@ namespace ConfigTool {
 
         void ApplyTabAdvanced() {
             xRedundantPacket.Checked = Config.GetBool( ConfigKey.SendRedundantBlockUpdates );
-            xPing.Checked = Config.GetInt( ConfigKey.PingInterval ) > 0;
-            nPing.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.PingInterval ) );
-            if( !xPing.Checked ) nPing.Enabled = false;
             xAbsoluteUpdates.Checked = Config.GetBool( ConfigKey.NoPartialPositionUpdates );
             nTickInterval.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.TickInterval ) );
 
@@ -370,8 +371,6 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.IRCDelay, nIRCDelay.Value );
 
             Config.SetValue( ConfigKey.SendRedundantBlockUpdates, xRedundantPacket.Checked );
-            if( xPing.Checked ) Config.SetValue( ConfigKey.PingInterval, nPing.Value );
-            else Config.SetValue( ConfigKey.PingInterval, 0 );
             Config.SetValue( ConfigKey.NoPartialPositionUpdates, xAbsoluteUpdates.Checked );
             Config.SetValue( ConfigKey.TickInterval, Convert.ToInt32( nTickInterval.Value ) );
 

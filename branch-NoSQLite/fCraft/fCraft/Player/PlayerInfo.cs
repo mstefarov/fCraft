@@ -277,7 +277,7 @@ namespace fCraft {
         }
 
 
-        public void ProcessClassChange( Rank newClass, Player changer, string reason ) {
+        public void ProcessRankChange( Rank newClass, Player changer, string reason ) {
             previousRank = rank;
             rank = newClass;
             rankChangeDate = DateTime.Now;

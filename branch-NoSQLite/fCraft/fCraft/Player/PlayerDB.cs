@@ -211,7 +211,7 @@ namespace fCraft {
 
 
 
-        public static int CountPlayersByClass( Rank pc ) {
+        public static int CountPlayersByRank( Rank pc ) {
             int count = 0;
             locker.EnterReadLock();
             try {

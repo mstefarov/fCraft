@@ -396,11 +396,11 @@ namespace fCraft {
         #region Changing Class (Promotion / Demotion)
 
         static CommandDescriptor cdChangeRank = new CommandDescriptor {
-            name = "user",
-            aliases = new string[] { "rank", "promote", "demote" },
+            name = "rank",
+            aliases = new string[] { "user", "promote", "demote" },
             consoleSafe = true,
             usage = "/user PlayerName RankName [Reason]",
-            help = "Changes the class/rank of a player to a specified class. " +
+            help = "Changes the rank of a player to a specified rank. " +
                    "Any text specified after the RankName will be saved as a memo.",
             handler = ChangeRank
         };
@@ -416,11 +416,10 @@ namespace fCraft {
                 return;
             }
 
-            // Parse class name
+            // Parse rank name
             Rank newClass = RankList.FindRank( newRankName );
             if( newClass == null ) {
-                player.Message( "Unrecognized player class: {0}",
-                                newRankName );
+                player.NoRankMessage( newRankName );
                 return;
             }
 
@@ -495,7 +494,7 @@ namespace fCraft {
 
             string verb = (promote ? "promoted" : "demoted");
 
-            // Do the class change
+            // Do the rank change
             if( (promote && targetInfo.rank < newRank) ||
                 (!promote && targetInfo.rank > newRank) ) {
                 Rank oldRank = targetInfo.rank;
@@ -518,9 +517,9 @@ namespace fCraft {
                     }
 
 
-                    // ==== Actual class change happens here ====
-                    targetInfo.ProcessClassChange( newRank, player, reason );
-                    // ==== Actual class change happens here ====
+                    // ==== Actual rank change happens here ====
+                    targetInfo.ProcessRankChange( newRank, player, reason );
+                    // ==== Actual rank change happens here ====
 
 
                     // change admincrete deletion permission
@@ -549,9 +548,9 @@ namespace fCraft {
                     target.world.CheckIfPlayerIsStillPatrollable( target );
 
                 } else {
-                    // ==== Actual class change happens here (offline) ====
-                    targetInfo.ProcessClassChange( newRank, player, reason );
-                    // ==== Actual class change happens here (offline) ====
+                    // ==== Actual rank change happens here (offline) ====
+                    targetInfo.ProcessRankChange( newRank, player, reason );
+                    // ==== Actual rank change happens here (offline) ====
                 }
 
                 Server.FirePlayerListChangedEvent();
@@ -664,11 +663,11 @@ namespace fCraft {
         static void ImportRanks( Player player, Command cmd ) {
             string serverName = cmd.Next();
             string fileName = cmd.Next();
-            string targetName = cmd.Next();
+            string rankName = cmd.Next();
 
 
             // Make sure all parameters are specified
-            if( targetName == null ) {
+            if( rankName == null ) {
                 cdImportRanks.PrintUsage( player );
                 return;
             }
@@ -679,9 +678,9 @@ namespace fCraft {
                 return;
             }
 
-            Rank targetClass = RankList.ParseRank( targetName );
+            Rank targetClass = RankList.ParseRank( rankName );
             if( targetClass == null ) {
-                player.Message( "Unrecognized player class: \"{0}\"", targetName );
+                player.NoRankMessage( rankName );
                 return;
             }
 

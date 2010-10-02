@@ -107,6 +107,7 @@ namespace ConfigTool {
 
         public bool Hidden { get; set; }
 
+        string accessRankString;
         internal Rank accessRank;
         public string AccessPermission {
             get {
@@ -117,9 +118,10 @@ namespace ConfigTool {
                 }
             }
             set {
-                foreach( Rank pc in RankList.Ranks ) {
-                    if( pc.ToComboBoxOption() == value ) {
-                        accessRank = pc;
+                foreach( Rank rank in RankList.Ranks ) {
+                    if( rank.ToComboBoxOption() == value ) {
+                        accessRank = rank;
+                        accessRankString = rank.ToString();
                         return;
                     }
                 }
@@ -127,6 +129,7 @@ namespace ConfigTool {
             }
         }
 
+        string buildRankString;
         internal Rank buildRank;
         public string BuildPermission {
             get {
@@ -140,6 +143,7 @@ namespace ConfigTool {
                 foreach( Rank rank in RankList.Ranks ) {
                     if( rank.ToComboBoxOption() == value ) {
                         buildRank = rank;
+                        buildRankString = rank.ToString();
                         return;
                     }
                 }
@@ -157,6 +161,11 @@ namespace ConfigTool {
             if( accessRank != null ) element.Add( new XAttribute( "access", accessRank ) );
             if( buildRank != null ) element.Add( new XAttribute( "build", buildRank ) );
             return element;
+        }
+
+        public void ReparseRanks() {
+            accessRank = RankList.ParseRank( accessRankString );
+            buildRank = RankList.ParseRank( buildRankString );
         }
     }
 }

@@ -17,30 +17,30 @@ namespace fCraft {
      *
      * 101 - r134 - Per-class draw limits and antigrief detection
      *              Removed AntigriefBlockCount and AntigriefBlockInterval keys
-     * 
+     *
      * 102 - r171 - Added RequireBanReason, RequireClassChangeReason, AnnounceKickAndBanReasons, AnnounceClassChanges keys
      *              Removed AnnounceUnverifiedNames key
-     *              
+     *
      * 103 - r190 - Added UseSpeedHack permission
      *              Added PrivateMessageColor and IRCColor keys
-     * 
+     *
      * 104 - r198 - Added IRCBotAnnounceServerJoins and IRCBotAnnounceIRCJoins keys
      *              Removed IRCBotMsg key
-     * 
+     *
      * 105 - r205 - Added SubmitCrashReports key
      *              Removed PolicyColorCodesInChat, PolicyIllegalCharacters, and RunOnStartup
-     *              
+     *
      * 106 - r212 - Added IRCDelay key
      * 
      * 107 - r214 - Added ShowJoinedWorldMessages and ClassColorsInWorldNames keys
      *              Removed ChangeName permission
-     *              
+     *
      * 108 - r224 - Added IP config key
      *              Capped MaxPlayers at 128
-     *              
+     *
      * 109 - r226 - Added PatrolledClass config key
      *              Added Patrol permission
-     *              
+     *
      * 110 - r227 - Added ShutdownServer and Mute permissions
      * 
      * 111 - r231 - Renamed config keys:
@@ -57,12 +57,15 @@ namespace fCraft {
      *                  PlayerClass -> Rank
      *              Removed "rank" from PlayerClass/Rank object
      *              Made the order of Rank elements determine the relative index
-     * 
+     *
+     * 112 - r235 - Removed PingInterval config key
+     *              Removed inactive ControlPhysics and AddLandmarks permissions
+     *
      */
 
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 110;
+        public const int ConfigVersion = 112;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
@@ -175,7 +178,6 @@ namespace fCraft {
 
         public static void LoadDefaultsAdvanced() {
             SetValue( ConfigKey.SendRedundantBlockUpdates, false );
-            SetValue( ConfigKey.PingInterval, 0 ); // 0 = ping disabled
             SetValue( ConfigKey.AutomaticUpdates, "Prompt" ); // can be "Disabled", "Notify", "Prompt", and "Auto"
             SetValue( ConfigKey.NoPartialPositionUpdates, false );
             SetValue( ConfigKey.ProcessPriority, "" );
@@ -395,7 +397,7 @@ namespace fCraft {
 
 
             XElement ranksTag = new XElement( "Ranks" );
-            foreach( Rank rank in RankList.RanksByName.Values ) {
+            foreach( Rank rank in RankList.Ranks ) {
                 ranksTag.Add( rank.Serialize() );
             }
             config.Add( ranksTag );

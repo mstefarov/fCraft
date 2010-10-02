@@ -385,12 +385,12 @@ namespace fCraft {
             } else {
                 player.Message( "To see a list of all commands, write &H/help commands" );
                 player.Message( "To see detailed help for a command, write &H/help CommandName" );
-                if( player.world != null ) {
-                    player.Message( "To find out about your permissions, write &H/class {0}", player.info.rank.Name );
+                if( player != Player.Console ) {
+                    player.Message( "To see your stats, write &H/info" );
                 }
                 player.Message( "To list available worlds, write &H/worlds" );
                 player.Message( "To send private messages, write &H@PlayerName Message" );
-                player.Message( "To message all players of a class, write &H@@Class Message" );
+                player.Message( "To message all players of a rank, write &H@@Rank Message" );
             }
         }
 
@@ -579,8 +579,8 @@ namespace fCraft {
 
 
         static CommandDescriptor cdRankInfo = new CommandDescriptor {
-            name = "rinfo",
-            aliases = new string[] { "class", "classinfo", "cinfo" },
+            name = "rankinfo",
+            aliases = new string[] { "class", "rinfo", "cinfo" },
             consoleSafe = true,
             usage = "/rinfo RankName",
             help = "Shows a list of permissions granted to a rank. To see a list of all ranks, use &H/ranks",
@@ -638,10 +638,10 @@ namespace fCraft {
 
         internal static void Ranks( Player player, Command cmd ) {
             player.Message( "Below is a list of ranks. For detail see &H{0}", cdRankInfo.usage );
-            foreach( Rank classListEntry in RankList.Ranks ) {
-                player.Message( "&S{0,16}  ({1} players)",
-                                classListEntry.GetClassyName(),
-                                PlayerDB.CountPlayersByClass( classListEntry ) );
+            foreach( Rank rank in RankList.Ranks ) {
+                player.Message( "&S    {0}  ({1} players)",
+                                rank.GetClassyName(),
+                                PlayerDB.CountPlayersByRank( rank ) );
             }
         }
 

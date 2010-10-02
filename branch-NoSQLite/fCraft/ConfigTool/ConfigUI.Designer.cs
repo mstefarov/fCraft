@@ -232,10 +232,7 @@
             this.nThrottling = new System.Windows.Forms.NumericUpDown();
             this.cProcessPriority = new System.Windows.Forms.ComboBox();
             this.lThrottling = new System.Windows.Forms.Label();
-            this.xPing = new System.Windows.Forms.CheckBox();
-            this.lPing = new System.Windows.Forms.Label();
             this.xAbsoluteUpdates = new System.Windows.Forms.CheckBox();
-            this.nPing = new System.Windows.Forms.NumericUpDown();
             this.gCrashReport = new System.Windows.Forms.GroupBox();
             this.lCrashReportDisclaimer = new System.Windows.Forms.Label();
             this.xSubmitCrashReports = new System.Windows.Forms.CheckBox();
@@ -289,7 +286,6 @@
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nPing)).BeginInit();
             this.gCrashReport.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -2397,10 +2393,7 @@
             this.groupBox1.Controls.Add( this.nThrottling );
             this.groupBox1.Controls.Add( this.cProcessPriority );
             this.groupBox1.Controls.Add( this.lThrottling );
-            this.groupBox1.Controls.Add( this.xPing );
-            this.groupBox1.Controls.Add( this.lPing );
             this.groupBox1.Controls.Add( this.xAbsoluteUpdates );
-            this.groupBox1.Controls.Add( this.nPing );
             this.groupBox1.Location = new System.Drawing.Point( 8, 118 );
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size( 635, 294 );
@@ -2423,7 +2416,7 @@
             // lTickInterval
             // 
             this.lTickInterval.AutoSize = true;
-            this.lTickInterval.Location = new System.Drawing.Point( 141, 269 );
+            this.lTickInterval.Location = new System.Drawing.Point( 96, 245 );
             this.lTickInterval.Name = "lTickInterval";
             this.lTickInterval.Size = new System.Drawing.Size( 71, 15 );
             this.lTickInterval.TabIndex = 15;
@@ -2432,11 +2425,11 @@
             // xLowLatencyMode
             // 
             this.xLowLatencyMode.AutoSize = true;
-            this.xLowLatencyMode.Location = new System.Drawing.Point( 9, 142 );
+            this.xLowLatencyMode.Location = new System.Drawing.Point( 9, 115 );
             this.xLowLatencyMode.Name = "xLowLatencyMode";
-            this.xLowLatencyMode.Size = new System.Drawing.Size( 613, 19 );
+            this.xLowLatencyMode.Size = new System.Drawing.Size( 616, 19 );
             this.xLowLatencyMode.TabIndex = 11;
-            this.xLowLatencyMode.Text = "Experimental low-latency mode (disables Nagle\'s alrorithm, reducing latency but i" +
+            this.xLowLatencyMode.Text = "Experimental low-latency mode (disables Nagle\'s algorithm, reducing latency but i" +
                 "ncreasing bandwidth use).";
             this.xLowLatencyMode.UseVisualStyleBackColor = true;
             // 
@@ -2447,7 +2440,7 @@
             0,
             0,
             0} );
-            this.nTickInterval.Location = new System.Drawing.Point( 218, 267 );
+            this.nTickInterval.Location = new System.Drawing.Point( 173, 243 );
             this.nTickInterval.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -2476,7 +2469,7 @@
             "Notify of update availability",
             "Download and prompt to install",
             "Fully automatic"} );
-            this.cUpdater.Location = new System.Drawing.Point( 218, 207 );
+            this.cUpdater.Location = new System.Drawing.Point( 173, 183 );
             this.cUpdater.Name = "cUpdater";
             this.cUpdater.Size = new System.Drawing.Size( 200, 23 );
             this.cUpdater.TabIndex = 8;
@@ -2484,7 +2477,7 @@
             // lTickIntervalUnits
             // 
             this.lTickIntervalUnits.AutoSize = true;
-            this.lTickIntervalUnits.Location = new System.Drawing.Point( 283, 269 );
+            this.lTickIntervalUnits.Location = new System.Drawing.Point( 238, 245 );
             this.lTickIntervalUnits.Name = "lTickIntervalUnits";
             this.lTickIntervalUnits.Size = new System.Drawing.Size( 24, 15 );
             this.lTickIntervalUnits.TabIndex = 17;
@@ -2493,7 +2486,7 @@
             // bUpdater
             // 
             this.bUpdater.AutoSize = true;
-            this.bUpdater.Location = new System.Drawing.Point( 76, 210 );
+            this.bUpdater.Location = new System.Drawing.Point( 31, 186 );
             this.bUpdater.Name = "bUpdater";
             this.bUpdater.Size = new System.Drawing.Size( 136, 15 );
             this.bUpdater.TabIndex = 38;
@@ -2514,7 +2507,7 @@
             // lThrottlingUnits
             // 
             this.lThrottlingUnits.AutoSize = true;
-            this.lThrottlingUnits.Location = new System.Drawing.Point( 283, 242 );
+            this.lThrottlingUnits.Location = new System.Drawing.Point( 238, 218 );
             this.lThrottlingUnits.Name = "lThrottlingUnits";
             this.lThrottlingUnits.Size = new System.Drawing.Size( 129, 15 );
             this.lThrottlingUnits.TabIndex = 37;
@@ -2523,7 +2516,7 @@
             // lProcessPriority
             // 
             this.lProcessPriority.AutoSize = true;
-            this.lProcessPriority.Location = new System.Drawing.Point( 122, 181 );
+            this.lProcessPriority.Location = new System.Drawing.Point( 77, 157 );
             this.lProcessPriority.Name = "lProcessPriority";
             this.lProcessPriority.Size = new System.Drawing.Size( 90, 15 );
             this.lProcessPriority.TabIndex = 6;
@@ -2536,7 +2529,7 @@
             0,
             0,
             0} );
-            this.nThrottling.Location = new System.Drawing.Point( 218, 240 );
+            this.nThrottling.Location = new System.Drawing.Point( 173, 216 );
             this.nThrottling.Maximum = new decimal( new int[] {
             10000,
             0,
@@ -2566,7 +2559,7 @@
             "Normal",
             "Below Normal",
             "Low"} );
-            this.cProcessPriority.Location = new System.Drawing.Point( 218, 178 );
+            this.cProcessPriority.Location = new System.Drawing.Point( 173, 154 );
             this.cProcessPriority.Name = "cProcessPriority";
             this.cProcessPriority.Size = new System.Drawing.Size( 109, 23 );
             this.cProcessPriority.TabIndex = 6;
@@ -2574,52 +2567,22 @@
             // lThrottling
             // 
             this.lThrottling.AutoSize = true;
-            this.lThrottling.Location = new System.Drawing.Point( 84, 242 );
+            this.lThrottling.Location = new System.Drawing.Point( 39, 218 );
             this.lThrottling.Name = "lThrottling";
             this.lThrottling.Size = new System.Drawing.Size( 128, 15 );
             this.lThrottling.TabIndex = 35;
             this.lThrottling.Text = "Block update throttling";
             // 
-            // xPing
-            // 
-            this.xPing.AutoSize = true;
-            this.xPing.Enabled = false;
-            this.xPing.Location = new System.Drawing.Point( 9, 91 );
-            this.xPing.Name = "xPing";
-            this.xPing.Size = new System.Drawing.Size( 203, 19 );
-            this.xPing.TabIndex = 3;
-            this.xPing.Text = "Send useless ping packets every";
-            this.xPing.UseVisualStyleBackColor = true;
-            this.xPing.CheckedChanged += new System.EventHandler( this.xPing_CheckedChanged );
-            // 
-            // lPing
-            // 
-            this.lPing.AutoSize = true;
-            this.lPing.Enabled = false;
-            this.lPing.Location = new System.Drawing.Point( 271, 92 );
-            this.lPing.Name = "lPing";
-            this.lPing.Size = new System.Drawing.Size( 123, 15 );
-            this.lPing.TabIndex = 34;
-            this.lPing.Text = "ms (vanilla behavior).";
-            // 
             // xAbsoluteUpdates
             // 
             this.xAbsoluteUpdates.AutoSize = true;
             this.xAbsoluteUpdates.Enabled = false;
-            this.xAbsoluteUpdates.Location = new System.Drawing.Point( 9, 117 );
+            this.xAbsoluteUpdates.Location = new System.Drawing.Point( 9, 90 );
             this.xAbsoluteUpdates.Name = "xAbsoluteUpdates";
             this.xAbsoluteUpdates.Size = new System.Drawing.Size( 326, 19 );
             this.xAbsoluteUpdates.TabIndex = 5;
             this.xAbsoluteUpdates.Text = "Do not use partial position updates (opcodes 9, 10, 11).";
             this.xAbsoluteUpdates.UseVisualStyleBackColor = true;
-            // 
-            // nPing
-            // 
-            this.nPing.Enabled = false;
-            this.nPing.Location = new System.Drawing.Point( 218, 90 );
-            this.nPing.Name = "nPing";
-            this.nPing.Size = new System.Drawing.Size( 47, 21 );
-            this.nPing.TabIndex = 4;
             // 
             // gCrashReport
             // 
@@ -2787,7 +2750,6 @@
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nPing)).EndInit();
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
             this.ResumeLayout( false );
@@ -2888,7 +2850,6 @@
         private System.Windows.Forms.Label lKickIdleUnits;
         private System.Windows.Forms.NumericUpDown nKickIdle;
         private System.Windows.Forms.CheckBox xKickIdle;
-        private System.Windows.Forms.CheckBox xPing;
         private System.Windows.Forms.CheckBox xAbsoluteUpdates;
         private System.Windows.Forms.Label lMaxBackups;
         private System.Windows.Forms.NumericUpDown nMaxBackups;
@@ -2896,8 +2857,6 @@
         private System.Windows.Forms.NumericUpDown nMaxBackupSize;
         private System.Windows.Forms.CheckBox xMaxBackupSize;
         private System.Windows.Forms.CheckBox xMaxBackups;
-        private System.Windows.Forms.Label lPing;
-        private System.Windows.Forms.NumericUpDown nPing;
         private System.Windows.Forms.Label lThrottlingUnits;
         private System.Windows.Forms.NumericUpDown nThrottling;
         private System.Windows.Forms.Label lThrottling;

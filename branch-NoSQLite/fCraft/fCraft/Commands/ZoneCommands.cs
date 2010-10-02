@@ -20,7 +20,7 @@ namespace fCraft {
             permissions = new Permission[] { Permission.ManageZones },
             usage = "/zedit ZoneName [RankName] [+IncludedName] [-ExcludedName]",
             help = "Allows editing the zone permissions after creation. " +
-                   "You can change the class restrictions, and include or exclude individual players.",
+                   "You can change the rank restrictions, and include or exclude individual players.",
             handler = ZoneEdit
         };
 
@@ -102,7 +102,7 @@ namespace fCraft {
                             changesWereMade = true;
                         }
                     } else {
-                        player.Message( "Unrecognized class name: \"{0}\"", name );
+                        player.NoRankMessage( name );
                     }
                 }
 
@@ -209,7 +209,7 @@ namespace fCraft {
                     player.Message( "Zone: Place a block or type /mark to use your location." );
 
                 } else {
-                    player.Message( "Unrecognized player class: \"{0}\"", rankName );
+                    player.NoRankMessage( rankName );
                 }
             }
         }
