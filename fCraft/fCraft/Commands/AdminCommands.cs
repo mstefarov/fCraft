@@ -828,6 +828,7 @@ namespace fCraft {
         static void ReloadConfig( Player player, Command cmd ) {
             player.Message( "Attempting to reload config..." );
             if( Config.Load( true ) ) {
+                Config.ApplyConfig();
                 player.Message( "Config reloaded." );
             } else {
                 player.Message( "An error occured while trying to reload the config. See server log for details." );

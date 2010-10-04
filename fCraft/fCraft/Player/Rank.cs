@@ -36,8 +36,8 @@ namespace fCraft {
         public string Prefix = "";
         public int IdleKickTimer,
                    DrawLimit,
-                   AntiGriefBlocks = 35,
-                   AntiGriefSeconds = 5;
+                   AntiGriefBlocks,
+                   AntiGriefSeconds;
         public bool ReservedSlot;
         public int Index;
 
@@ -136,7 +136,7 @@ namespace fCraft {
                     if( value >= 0 && value < 100 ) {
                         AntiGriefSeconds = value;
                     } else {
-                        Logger.Log( "PlayerClass({0}): Values for antiGriefSeconds in not within valid range (0-1000). Assuming default ({1}).", LogType.Warning,
+                        Logger.Log( "PlayerClass({0}): Values for antiGriefSeconds in not within valid range (0-100). Assuming default ({1}).", LogType.Warning,
                                     Name, AntiGriefSeconds );
                     }
                 } else {
@@ -151,7 +151,7 @@ namespace fCraft {
                     if( value >= 0 && value < 100000000 ) {
                         DrawLimit = value;
                     } else {
-                        Logger.Log( "PlayerClass({0}): Values for drawLimit in not within valid range (0-1000). Assuming default ({1}).", LogType.Warning,
+                        Logger.Log( "PlayerClass({0}): Values for drawLimit in not within valid range (0-100000000). Assuming default ({1}).", LogType.Warning,
                                     Name, DrawLimit );
                     }
                 } else {

@@ -320,21 +320,41 @@ namespace fCraft {
             }
         }
 
+
+        void WriteAlphaString( string str ) {
+            byte[] data = Encoding.UTF8.GetBytes( str );
+            writer.Write( (short)data.Length );
+            writer.Write( data );
+        }
+
+        string ReadAlphaString() {
+            int strLen = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
+            return Encoding.UTF8.GetString( reader.ReadBytes( strLen ) );
+        }
+
         const string noAlphaMessage = "This server is for Minecraft Classic only.";
         bool LoginSequence() {
             byte opcode = reader.ReadByte();
             if( opcode != (byte)InputCode.Handshake ) {
                 if( opcode == 2 ) {
-                    Logger.Log( "Session.LoginSequence: Someone tried connecting with SMP/Alpha client from {0}", LogType.Warning,
-                                GetIP() );
+
+                    // read the rest of the HANDSHAKE packet
+                    string alphaPlayerName = ReadAlphaString();
+
+                    Logger.Log( "Session.LoginSequence: Player \"{0}\" tried connecting with SMP/Alpha client from {1}. " +
+                                "fCraft does not support Alpha.", LogType.Warning,
+                                alphaPlayerName, GetIP() );
+
+                    // send KICK
                     writer.Write( (byte)255 );
-                    writer.Write( IPAddress.HostToNetworkOrder( (short)noAlphaMessage.Length ) );
-                    writer.Write( Encoding.ASCII.GetBytes( noAlphaMessage ) );
+                    WriteAlphaString( noAlphaMessage );
                     writer.Flush();
+
                     canReceive = false;
                     canSend = false;
                     canQueue = false;
                     return false;
+
                 } else {
                     Logger.Log( "Session.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.", LogType.Error,
                                 GetIP(), opcode );
