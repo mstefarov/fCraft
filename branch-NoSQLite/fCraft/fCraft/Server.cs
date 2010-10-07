@@ -1143,6 +1143,20 @@ namespace fCraft {
             return null;
         }
 
+
+        public static int GetPlayerCount( bool includeHiddenPlayers ) {
+            if( includeHiddenPlayers ) {
+                return playerList.Length;
+            } else {
+                int count = 0;
+                Player[] playerListCache = playerList;
+                foreach( Player player in playerListCache ) {
+                    if( !player.isHidden ) count++;
+                }
+                return count;
+            }
+        }
+
         #endregion
     }
 }

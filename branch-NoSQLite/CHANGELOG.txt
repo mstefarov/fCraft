@@ -1,3 +1,15 @@
+0.482
+ Feature: Added new command aliases: "f" for "freeze", and "pat" for "patrol".
+ Fix: Fixed typos in mute-related messages.
+ Fix: Added missing triggers for OnPlayerListChanged event.
+ Fix: Fixed /reloadconfig not changing several variables (like colors).
+ Fix: Fixed antigrief defaulting to 35/5 (instead of unmetered).
+ Fix: Fixed heartbeat counting hidden players.
+ Fix: Fixed a rare ObjectDisposedException crash on shutdown when running fCraftUI.
+ Change: Added a more informative disconnect message to players connecting with Alpha client.
+ Change: Improved the way player disconnects are handled to be more reliable, and to drop disconnected players sooner.
+ Change: Improved the way PlayerDB saving is triggered. New schedule reduces overall disk use and reduces possible data loss in case of crashes.
+
 0.481
  Fixed a bug in Rank deserializer that set antiGriefBlock=antiGriefSeconds (messing up antigrief permissions).
  Fixed a few more references to "player class" terminology instead of "rank".
