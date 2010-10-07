@@ -580,7 +580,7 @@ namespace fCraft {
         }
 
         public void SetBlock( int x, int y, int h, byte type ) {
-            if( x < widthX && y < widthY && h < height && x >= 0 && y >= 0 && h >= 0 && type < 50 )
+            if( h < height && x < widthX && y < widthY && x >= 0 && y >= 0 && h >= 0 && type < 50 )
                 blocks[Index( x, y, h )] = type;
         }
 

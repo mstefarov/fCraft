@@ -204,7 +204,7 @@ namespace fCraft {
                     }
                 } else {
                     player.Message( "You can only ban players ranked {0}&S or lower.",
-                                    player.info.rank.GetLimit(Permission.Ban).GetClassyName() );
+                                    player.info.rank.GetLimit( Permission.Ban ).GetClassyName() );
                     player.Message( "{0}&S is ranked {1}",
                                     offender.GetClassyName(),
                                     offender.info.rank.GetClassyName() );
@@ -242,7 +242,7 @@ namespace fCraft {
                     }
                 } else {
                     player.Message( "You can only ban players ranked {0}&S or lower.",
-                                    player.info.rank.GetLimit(Permission.Ban).GetClassyName() );
+                                    player.info.rank.GetLimit( Permission.Ban ).GetClassyName() );
                     player.Message( "{0} is ranked {1}",
                                     info.name,
                                     info.rank.Name );
@@ -366,7 +366,7 @@ namespace fCraft {
         internal static bool DoKick( Player player, Player target, string reason, bool silent ) {
             if( !player.info.rank.CanKick( target.info.rank ) ) {
                 player.Message( "You can only kick players ranked {0}&S or lower.",
-                                player.info.rank.GetLimit(Permission.Kick).GetClassyName() );
+                                player.info.rank.GetLimit( Permission.Kick ).GetClassyName() );
                 player.Message( target.GetClassyName() + "&S is ranked " + target.info.rank.GetClassyName() );
                 return false;
             } else {
@@ -467,14 +467,14 @@ namespace fCraft {
             // Make sure player has the specific permissions (including limits)
             if( promote && !player.info.rank.CanPromote( newRank ) ) {
                 player.Message( "You can only promote players up to {0}",
-                                player.info.rank.GetLimit(Permission.Promote).GetClassyName() );
+                                player.info.rank.GetLimit( Permission.Promote ).GetClassyName() );
                 player.Message( "{0} is ranked {1}",
                                 targetInfo.name,
                                 targetInfo.rank.GetClassyName() );
                 return;
             } else if( !promote && !player.info.rank.CanDemote( targetInfo.rank ) ) {
                 player.Message( "You can only demote players ranked {0}&S or lower",
-                                player.info.rank.GetLimit(Permission.Demote).GetClassyName() );
+                                player.info.rank.GetLimit( Permission.Demote ).GetClassyName() );
                 player.Message( "{0} is ranked {1}",
                                 targetInfo.name,
                                 targetInfo.rank.GetClassyName() );
@@ -644,7 +644,7 @@ namespace fCraft {
                 }
             }
 
-            PlayerDB.Save();
+            PlayerDB.Save(null);
             IPBanList.Save();
         }
 
@@ -712,7 +712,7 @@ namespace fCraft {
                 DoChangeRank( player, info, null, targetClass, reason );
             }
 
-            PlayerDB.Save();
+            PlayerDB.Save(null);
         }
 
         #endregion
@@ -866,6 +866,7 @@ namespace fCraft {
         static CommandDescriptor cdFreeze = new CommandDescriptor {
             name = "freeze",
             consoleSafe = true,
+            aliases = new string[] { "f" },
             permissions = new Permission[] { Permission.Freeze },
             usage = "/freeze PlayerName",
             help = "Freezes the specified player in place. " +
@@ -1079,6 +1080,7 @@ namespace fCraft {
 
         static CommandDescriptor cdPatrol = new CommandDescriptor {
             name = "patrol",
+            aliases = new string[] { "pat" },
             permissions = new Permission[] { Permission.Patrol },
             help = "Teleports you to the next player in need of checking.",
             handler = Patrol
@@ -1123,8 +1125,8 @@ namespace fCraft {
                 if( matches.Count == 1 ) {
                     Player target = matches[0];
                     target.Mute( seconds );
-                    target.Message( "You were muted by {0} seconds by {1}", seconds, player.GetClassyName() );
-                    Server.SendToAll( String.Format( "Player {0}&S was muted by {1}&S for {2} sec",
+                    target.Message( "You were muted by {0}&S for {1} sec", player.GetClassyName(), seconds );
+                    Server.SendToAll( String.Format( "&SPlayer {0}&S was muted by {1}&S for {2} sec",
                                                      target.GetClassyName(), player.GetClassyName(), seconds ),
                                       target );
                     Logger.Log( "Player {0} was muted by {1} for {2} seconds.", LogType.UserActivity,
