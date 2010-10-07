@@ -88,15 +88,17 @@ namespace fCraftUI {
         delegate void PlayerListUpdateDelegate( string[] items );
 
         public void Log( string message, LogType type ) {
-            if( shuttingDown ) return;
-            if( logBox.InvokeRequired ) {
-                LogDelegate d = new LogDelegate( LogInternal );
-                try {
-                    Invoke( d, new object[] { message } );
-                } catch { };
-            } else {
-                LogInternal( message );
-            }
+            try {
+                if( shuttingDown ) return;
+                if( logBox.InvokeRequired ) {
+                    LogDelegate d = new LogDelegate( LogInternal );
+                    try {
+                        Invoke( d, new object[] { message } );
+                    } catch { };
+                } else {
+                    LogInternal( message );
+                }
+            } catch( ObjectDisposedException ) { }
         }
 
         void LogInternal( string message ) {
@@ -114,12 +116,15 @@ namespace fCraftUI {
 
 
         public void SetURL( string URL ) {
-            if( urlDisplay.InvokeRequired ) {
-                LogDelegate d = new LogDelegate( SetURLInternal );
-                Invoke( d, new object[] { URL } );
-            } else {
-                SetURLInternal( URL );
-            }
+            try {
+                if( shuttingDown ) return;
+                if( urlDisplay.InvokeRequired ) {
+                    LogDelegate d = new LogDelegate( SetURLInternal );
+                    Invoke( d, new object[] { URL } );
+                } else {
+                    SetURLInternal( URL );
+                }
+            } catch( ObjectDisposedException ) { }
         }
 
         void SetURLInternal( string URL ) {
@@ -133,20 +138,24 @@ namespace fCraftUI {
 
 
         public void UpdatePlayerList( string[] playerNames ) {
-            if( playerList.InvokeRequired ) {
-                PlayerListUpdateDelegate d = new PlayerListUpdateDelegate( UpdatePlayerListInternal );
-                Invoke( d, new object[] { playerNames } );
-            } else {
-                UpdatePlayerListInternal( playerNames );
-            }
+            try {
+                if( shuttingDown ) return;
+                if( playerList.InvokeRequired ) {
+                    Invoke( (PlayerListUpdateDelegate)UpdatePlayerListInternal, new object[] { playerNames } );
+                } else {
+                    UpdatePlayerListInternal( playerNames );
+                }
+            } catch( ObjectDisposedException ) { }
         }
 
         void UpdatePlayerListInternal( string[] items ) {
-            playerList.Items.Clear();
-            Array.Sort( items );
-            foreach( string item in items ) {
-                playerList.Items.Add( item );
-            }
+            try {
+                playerList.Items.Clear();
+                Array.Sort( items );
+                foreach( string item in items ) {
+                    playerList.Items.Add( item );
+                }
+            } catch( ObjectDisposedException ) { }
         }
 
 
