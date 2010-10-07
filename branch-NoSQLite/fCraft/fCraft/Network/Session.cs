@@ -16,7 +16,7 @@ namespace fCraft {
         public bool canReceive,
                     canSend,
                     canQueue,
-                    canDispose;
+                    isDisconnected;
         public bool isBetweenWorlds = true;
         object joinWorldLock = new object();
 
@@ -72,19 +72,19 @@ namespace fCraft {
 
 
         void IoLoop() {
-            short x, y, h;
-            byte mode, type, opcode;
-            Packet packet = new Packet();
-
-            int pollInterval = 250;
-            int pollCounter = 0;
-
-            int pingInterval = 5;
-            int pingCounter = 0;
-
-            int packetsSent = 0;
-
             try {
+                short x, y, h;
+                byte mode, type, opcode;
+                Packet packet = new Packet();
+
+                int pollInterval = 250;
+                int pollCounter = 0;
+
+                int pingInterval = 5;
+                int pingCounter = 0;
+
+                int packetsSent = 0;
+
                 if( !LoginSequence() ) return;
 
                 canSend = true;
@@ -316,8 +316,36 @@ namespace fCraft {
             } finally {
                 canQueue = false;
                 canSend = false;
-                canDispose = true;
+                Disconnect();
             }
+        }
+
+
+        public void Disconnect() {
+            Server.UnregisterSession( this );
+
+            if( player != null ) {
+                Server.UnregisterPlayer( player );
+                player = null;
+            }
+
+            if( reader != null ) {
+                reader.Close();
+                reader = null;
+            }
+
+            if( writer != null ) {
+                writer.Close();
+                writer = null;
+            }
+
+            if( client != null ) {
+                client.Close();
+                client = null;
+            }
+
+            isDisconnected = true;
+            ioThread = null;
         }
 
 
@@ -331,6 +359,7 @@ namespace fCraft {
             int strLen = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
             return Encoding.UTF8.GetString( reader.ReadBytes( strLen ) );
         }
+
 
         const string noAlphaMessage = "This server is for Minecraft Classic only.";
         bool LoginSequence() {
@@ -496,8 +525,6 @@ namespace fCraft {
             hasRegistered = true;
 
             player.info.ProcessLogin( player );
-            Server.FirePlayerConnectedEvent( this );
-            Server.FirePlayerListChangedEvent();
 
             // Player is now authenticated. Send server info.
             writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), Config.GetString( ConfigKey.MOTD ) ) );
@@ -528,12 +555,14 @@ namespace fCraft {
             while( outputQueue.Dequeue( ref temp ) ) { }
         }
 
+
         public void JoinWorld( World newWorld, Position? position ) {
             lock( joinWorldLock ) {
                 forcedWorldToJoin = newWorld;
                 postJoinPosition = position;
             }
         }
+
 
         internal bool JoinWorldNow( World newWorld, bool firstTime ) {
             if( newWorld == null ) {
@@ -722,37 +751,10 @@ namespace fCraft {
         }
 
 
-        public void Disconnect() {
-            if( player != null ) {
-                Server.UnregisterPlayer( player );
-                player = null;
-            }
-
-            if( ioThread != null ) {
-                if( ioThread.IsAlive ) {
-                    ioThread.Abort();
-                }
-                ioThread = null;
-            }
-
-            if( reader != null ) {
-                reader.Close();
-                reader = null;
-            }
-
-            if( writer != null ) {
-                writer.Close();
-                writer = null;
-            }
-
-            if( client != null ) {
-                client.Close();
-                client = null;
-            }
-        }
-
         public void WaitForKick() {
-            ioThread.Join();
+            if( ioThread != null && ioThread.IsAlive ) {
+                ioThread.Join();
+            }
         }
     }
 }

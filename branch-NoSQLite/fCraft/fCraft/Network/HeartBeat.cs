@@ -48,7 +48,7 @@ namespace fCraft {
                                                        Server.Port,
                                                        Server.Salt,
                                                        Config.ProtocolVersion,
-                                                       Server.GetPlayerCount() );
+                                                       Server.playerList.Length );
 
                     byte[] formData = Encoding.ASCII.GetBytes( dataString );
                     request.ContentLength = formData.Length;

@@ -11,21 +11,23 @@ namespace fCraft {
     public static class PlayerDB {
         static StringTree tree = new StringTree();
         static List<PlayerInfo> list = new List<PlayerInfo>();
+        public const int SaveInterval = 30000; // 30s
 
         static int MaxID = 0;
 
         public const string DBFile = "PlayerDB.txt",
                             Header = "3 fCraft PlayerDB | Row format: " +
-                                     "playerName,lastIP,playerClass,classChangeDate,classChangeBy," +
+                                     "playerName,lastIP,rank,rankChangeDate,rankChangeBy," +
                                      "banStatus,banDate,bannedBy,unbanDate,unbannedBy," +
                                      "firstLoginDate,lastLoginDate,lastFailedLoginDate," +
                                      "lastFailedLoginIP,failedLoginCount,totalTimeOnServer," +
                                      "blocksBuilt,blocksDeleted,timesVisited," +
-                                     "linesWritten,UNUSED,UNUSED,previousClass,classChangeReason," +
+                                     "linesWritten,UNUSED,UNUSED,previousRank,rankChangeReason," +
                                      "timesKicked,timesKickedOthers,timesBannedOthers,UID";
 
         public static ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
         public static bool isLoaded;
+
 
         public static PlayerInfo AddFakeEntry( string name ) {
             PlayerInfo info = new PlayerInfo( name, RankList.DefaultRank );
@@ -83,9 +85,10 @@ namespace fCraft {
         }
 
 
-        public static void Save() {
+        public static void Save( object param ) {
             Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count() );
             string tempFile = Path.GetTempFileName();
+
             locker.EnterReadLock();
             try {
                 using( StreamWriter writer = File.CreateText( tempFile ) ) {
@@ -94,14 +97,14 @@ namespace fCraft {
                         writer.WriteLine( entry.Serialize() );
                     }
                 }
+                try {
+                    File.Delete( DBFile );
+                    File.Move( tempFile, DBFile );
+                } catch( Exception ex ) {
+                    Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );
+                }
             } finally {
                 locker.ExitReadLock();
-            }
-            try {
-                File.Delete( DBFile );
-                File.Move( tempFile, DBFile );
-            } catch( Exception ex ) {
-                Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );
             }
         }
 

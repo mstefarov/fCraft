@@ -149,6 +149,8 @@ namespace fCraft {
             // Monitor CPU usage every 60 seconds
             AddTask( MonitorProcessorUsage, CPUMonitorInterval );
 
+            AddTask( SavePlayerDB, PlayerDB.SaveInterval );
+
             // Write out initial (empty) playerlist cache
             UpdatePlayerList();
 
@@ -184,11 +186,10 @@ namespace fCraft {
 
 
                 // kick all players
-                lock( playerListLock ) {
-                    foreach( Session session in sessions ) {
-                        // NOTE: kick packet delivery here is not currently guaranteed
-                        session.Kick( "Server shutting down (" + reason + ")" );
-                    }
+                Player[] pListCached = playerList;
+                foreach( Player player in pListCached ) {
+                    // NOTE: kick packet delivery here is not currently guaranteed
+                    player.session.Kick( "Server shutting down (" + reason + ")" );
                 }
 
                 // kill the main thread
@@ -222,7 +223,7 @@ namespace fCraft {
                     }
                 }
 
-                if( PlayerDB.isLoaded ) PlayerDB.Save();
+                if( PlayerDB.isLoaded ) PlayerDB.Save(null);
                 if( IPBanList.isLoaded ) IPBanList.Save();
 
                 if( OnShutdownEnd != null ) OnShutdownEnd();
@@ -639,28 +640,22 @@ namespace fCraft {
             }
         }
 
+        static object sessionLock = new object();
         // checks for incoming connections and disposes old sessions
         internal static void CheckConnections( object param ) {
             if( listener.Pending() ) {
                 try {
-                    sessions.Add( new Session( listener.AcceptTcpClient() ) );
+                    lock( sessionLock ) {
+                        Session newSession = new Session( listener.AcceptTcpClient() );
+                        FirePlayerConnectedEvent( newSession ); // TODO: make cancelable
+                        sessions.Add( newSession );
+                    }
                 } catch( Exception ex ) {
                     Logger.Log( "Server.CheckConnections: Could not accept incoming connection: " + ex, LogType.Error );
                 }
             }
-            // this loop does not need to be thread-safe since only mainthread can alter session list
-            for( int i = 0; i < sessions.Count; i++ ) {
-                if( sessions[i].canDispose ) {
-                    if( OnPlayerDisconnected != null ) OnPlayerDisconnected( sessions[i] );
-                    sessions[i].Disconnect();
-                    Server.FirePlayerListChangedEvent();
-                    sessions.RemoveAt( i );
-                    i--;
-                    Logger.Log( "Server.CheckConnections: Session disposed. Active sessions left: {0}.", LogType.Debug, sessions.Count );
-                    GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
-                }
-            }
         }
+
         #endregion
 
 
@@ -779,6 +774,10 @@ namespace fCraft {
             if( world.map.changesSinceSave > 0 ) {
                 Tasks.Add( world.SaveMap, null, false );
             }
+        }
+
+        static void SavePlayerDB( object param ) {
+            Tasks.Add( PlayerDB.Save, null, false );
         }
 
         static void UpdateBlocks( object param ) {
@@ -1001,11 +1000,6 @@ namespace fCraft {
             }
         }
 
-        // Return player count
-        public static int GetPlayerCount() {
-            return sessions.Count;
-        }
-
         // Add a newly-logged-in player to the list, and notify existing players.
         public static bool RegisterPlayer( Player player ) {
             lock( playerListLock ) {
@@ -1013,11 +1007,11 @@ namespace fCraft {
                     players.Count == Config.MaxPlayersSupported ) {
                     return false;
                 }
-                for( int i = 0; i < 255; i++ ) {
+                for( int i = 0; i < Config.MaxPlayersSupported; i++ ) {
                     if( !players.ContainsKey( i ) ) {
                         player.id = i;
                         players[i] = player;
-                        Server.UpdatePlayerList();
+                        UpdatePlayerList();
                         return true;
                     }
                 }
@@ -1027,7 +1021,12 @@ namespace fCraft {
 
 
         // Remove player from the list, and notify remaining players
+        // Also removes session from the list
         public static void UnregisterPlayer( Player player ) {
+            if( player == null ) {
+                throw new ArgumentNullException( "Server.UnregisterPlayer: player cannot be null." );
+            }
+
             lock( playerListLock ) {
                 if( players.ContainsKey( player.id ) ) {
                     SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
@@ -1049,9 +1048,21 @@ namespace fCraft {
                     }
 
                     PlayerDB.ProcessLogout( player );
-                    PlayerDB.Save();
                 } else {
-                    Logger.LogWarning( "World.UnregisterPlayer: Trying to unregister a non-existent (unknown id) player.",
+                    Logger.LogWarning( "Server.UnregisterPlayer: Trying to unregister a non-existent player.",
+                                       WarningLogSubtype.OtherWarning );
+                }
+            }
+        }
+
+
+        public static void UnregisterSession( Session session ) {
+            lock( sessionLock ) {
+                if( sessions.Contains( session ) ) {
+                    sessions.Remove( session );
+                    if(OnPlayerDisconnected!=null) OnPlayerDisconnected( session );
+                } else {
+                    Logger.LogWarning( "Server.UnregisterPlayer: Trying to unregister a non-existent session.",
                                        WarningLogSubtype.OtherWarning );
                 }
             }
@@ -1067,6 +1078,7 @@ namespace fCraft {
                 }
                 playerList = newPlayerList.OrderBy( player => player.name ).ToArray<Player>();
             }
+            FirePlayerListChangedEvent();
         }
 
         // Find player by name using autocompletion (IGNORES HIDDEN PERMISSIONS)
