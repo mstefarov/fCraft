@@ -88,15 +88,12 @@ namespace Mcc {
 
 
         public bool Claims( Stream mapStream, string fileName ) {
-            mapStream.Seek( 0, SeekOrigin.Begin );
-            GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-            BinaryReader bs = new BinaryReader( gs );
-
             try {
+                mapStream.Seek( 0, SeekOrigin.Begin );
+                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
+                BinaryReader bs = new BinaryReader( gs );
                 return (bs.ReadByte() == 10 && NBTag.ReadString( bs ) == "MinecraftLevel");
-            } catch ( IOException ) {
-                return false;
-            } catch ( InvalidDataException ) {
+            } catch ( Exception ) {
                 return false;
             }
         }

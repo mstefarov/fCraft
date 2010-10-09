@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "matvei.org" )]
 [assembly: AssemblyProduct( "fCraftConsole" )]
-[assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov & Jesse O'Brien 2009-2010 (matvei.org)" )]
+[assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2010 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 
@@ -32,8 +32,8 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion( "0.4.8.0" )]
-[assembly: AssemblyFileVersion( "0.4.8.0" )]
+[assembly: AssemblyVersion( "0.4.8.3" )]
+[assembly: AssemblyFileVersion( "0.4.8.3" )]
 
 
 // CLS compliance

@@ -349,10 +349,10 @@ namespace fCraft {
             string name = cmd.Next();
             if( name != null ) {
                 string msg = cmd.NextAll();
-                List<Player> targets = Server.FindPlayers( player, name );
-                if( targets.Count == 1 ) {
+                Player[] targets = Server.FindPlayers( player, name );
+                if( targets.Length == 1 ) {
                     DoKick( player, targets[0], msg, false );
-                } else if( targets.Count > 1 ) {
+                } else if( targets.Length > 1 ) {
                     player.ManyPlayersMessage( targets );
                 } else {
                     player.NoPlayerMessage( name );
@@ -736,7 +736,7 @@ namespace fCraft {
 
                 Server.SendToBlind( PacketWriter.MakeRemoveEntity( player.id ), player );
 
-                string message = String.Format( "{0}&S left the server.", player.GetClassyName() );
+                string message = String.Format( "&SPlayer {0}&S left the server.", player.GetClassyName() );
                 foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
                     Server.SendToBlind( packet, player );
                 }
@@ -881,15 +881,15 @@ namespace fCraft {
                 cdFreeze.PrintUsage( player );
                 return;
             }
-            List<Player> targets = Server.FindPlayers( player, name );
-            if( targets.Count == 1 ) {
+            Player[] targets = Server.FindPlayers( player, name );
+            if( targets.Length == 1 ) {
                 if( !targets[0].isFrozen ) {
                     Server.SendToAll( targets[0].GetClassyName() + "&S has been frozen by " + player.GetClassyName() );
                     targets[0].isFrozen = true;
                 } else {
                     player.Message( targets[0].GetClassyName() + "&S is already frozen." );
                 }
-            } else if( targets.Count > 1 ) {
+            } else if( targets.Length > 1 ) {
                 player.ManyPlayersMessage( targets );
             } else {
                 player.NoPlayerMessage( name );
@@ -913,15 +913,15 @@ namespace fCraft {
                 cdFreeze.PrintUsage( player );
                 return;
             }
-            List<Player> targets = Server.FindPlayers( player, name );
-            if( targets.Count == 1 ) {
+            Player[] targets = Server.FindPlayers( player, name );
+            if( targets.Length == 1 ) {
                 if( targets[0].isFrozen ) {
                     Server.SendToAll( targets[0].GetClassyName() + "&S is no longer frozen." );
                     targets[0].isFrozen = false;
                 } else {
                     player.Message( targets[0].GetClassyName() + "&S is currently not frozen." );
                 }
-            } else if( targets.Count > 1 ) {
+            } else if( targets.Length > 1 ) {
                 player.ManyPlayersMessage( targets );
             } else {
                 player.NoPlayerMessage( name );
@@ -984,8 +984,8 @@ namespace fCraft {
                 return;
             }
 
-            List<Player> matches = Server.FindPlayers( player, name );
-            if( matches.Count == 1 ) {
+            Player[] matches = Server.FindPlayers( player, name );
+            if( matches.Length == 1 ) {
                 Player target = matches[0];
 
                 if( target.world == player.world ) {
@@ -1000,7 +1000,7 @@ namespace fCraft {
                                     player.world.accessRank.GetClassyName() );
                 }
 
-            } else if( matches.Count > 1 ) {
+            } else if( matches.Length > 1 ) {
                 player.ManyPlayersMessage( matches );
 
             } else if( cmd.Next() != null ) {
@@ -1054,8 +1054,8 @@ namespace fCraft {
                 return;
             }
 
-            List<Player> matches = Server.FindPlayers( player, name );
-            if( matches.Count == 1 ) {
+            Player[] matches = Server.FindPlayers( player, name );
+            if( matches.Length == 1 ) {
                 Player target = matches[0];
 
                 if( target.world == player.world ) {
@@ -1069,7 +1069,7 @@ namespace fCraft {
                                     target.GetClassyName(),
                                     player.world.accessRank.GetClassyName() );
                 }
-            } else if( matches.Count > 1 ) {
+            } else if( matches.Length > 1 ) {
                 player.ManyPlayersMessage( matches );
             } else {
                 player.NoPlayerMessage( name );
@@ -1121,8 +1121,8 @@ namespace fCraft {
             string playerName = cmd.Next();
             int seconds;
             if( playerName != null && Player.IsValidName( playerName ) && cmd.NextInt( out seconds ) && seconds > 0 ) {
-                List<Player> matches = Server.FindPlayers( playerName );
-                if( matches.Count == 1 ) {
+                Player[] matches = Server.FindPlayers( playerName );
+                if( matches.Length == 1 ) {
                     Player target = matches[0];
                     target.Mute( seconds );
                     target.Message( "You were muted by {0}&S for {1} sec", player.GetClassyName(), seconds );
@@ -1132,7 +1132,7 @@ namespace fCraft {
                     Logger.Log( "Player {0} was muted by {1} for {2} seconds.", LogType.UserActivity,
                                 target.name, player.name, seconds );
 
-                } else if( matches.Count > 1 ) {
+                } else if( matches.Length > 1 ) {
                     player.ManyPlayersMessage( matches );
 
                 } else {

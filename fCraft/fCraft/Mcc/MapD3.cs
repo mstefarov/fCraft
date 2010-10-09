@@ -187,8 +187,8 @@ namespace Mcc {
 
 
         public bool Claims( Stream mapStream, string fileName ) {
-            mapStream.Seek( 0, SeekOrigin.Begin );
             try {
+                mapStream.Seek( 0, SeekOrigin.Begin );
                 GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
                 BinaryReader bs = new BinaryReader( gs );
                 return (bs.ReadByte() == HeaderConstant1 && bs.ReadByte() == HeaderConstant2);

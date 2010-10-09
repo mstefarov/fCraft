@@ -146,23 +146,25 @@ namespace fCraft {
                         otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
                         messageText = message.Substring( message.IndexOf( ' ' ) + 1 );
                     }
-                    List<Player> otherPlayers = Server.FindPlayers( this, otherPlayerName );
-                    if( otherPlayers.Count == 1 ) {
-                        Player otherPlayer = otherPlayers[0];
-                        Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
-                                    name, otherPlayer, messageText );
-                        otherPlayer.Message( "{0}from {1}: {2}",
-                                             Color.PM,
-                                             name,
-                                             messageText );
-                        Message( "{0}to {1}: {2}",
-                                 Color.PM,
-                                 otherPlayer.name,
-                                 messageText );
-                    } else if( otherPlayers.Count == 0 ) {
+
+                    // first, find ALL players (visible and hidden)
+                    Player[] allPlayers = Server.FindPlayers( otherPlayerName );
+
+                    // if there is more than 1 target player, exclude hidden players
+                    if( allPlayers.Length > 1 ) {
+                        allPlayers = Server.FindPlayers( this, otherPlayerName );
+                    }
+
+                    if( allPlayers.Length == 1 ) {
+                        if( !PM( allPlayers[0], messageText ) ) {
+                            NoPlayerMessage( otherPlayerName );
+                        }
+
+                    } else if( allPlayers.Length == 0 ) {
                         NoPlayerMessage( otherPlayerName );
+
                     } else {
-                        ManyPlayersMessage( otherPlayers );
+                        ManyPlayersMessage( allPlayers );
                     }
                     break;
 
@@ -200,6 +202,21 @@ namespace fCraft {
             }
         }
 
+
+        public bool PM( Player otherPlayer, string messageText ) {
+            Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
+                        name, otherPlayer, messageText );
+            otherPlayer.Message( "{0}from {1}: {2}",
+                                 Color.PM, name, messageText );
+            if( CanSee( otherPlayer ) ) {
+                Message( "{0}to {1}: {2}",
+                         Color.PM, otherPlayer.name, messageText );
+                return true;
+
+            } else {
+                return false;
+            }
+        }
 
 
         public void Message( string message, params object[] args ) {
@@ -251,7 +268,7 @@ namespace fCraft {
         }
 
 
-        internal void ManyPlayersMessage( List<Player> names ) {
+        internal void ManyPlayersMessage( IEnumerable<Player> names ) {
             string playerString = "";
             foreach( Player player in names ) {
                 playerString += ", " + player.GetClassyName();
