@@ -23,7 +23,6 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( AddWorldPopup ) );
             this.lX2 = new System.Windows.Forms.Label();
             this.lX1 = new System.Windows.Forms.Label();
             this.lDim = new System.Windows.Forms.Label();
@@ -37,7 +36,7 @@
             this.bGenerate = new System.Windows.Forms.Button();
             this.cWorld = new System.Windows.Forms.ComboBox();
             this.tFile = new System.Windows.Forms.TextBox();
-            this.bBrowse = new System.Windows.Forms.Button();
+            this.bBrowseFile = new System.Windows.Forms.Button();
             this.lPreview = new System.Windows.Forms.Label();
             this.bOK = new System.Windows.Forms.Button();
             this.bCancel = new System.Windows.Forms.Button();
@@ -58,7 +57,6 @@
             this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.preview = new ConfigTool.CustomPictureBox();
             this.lDetailSize = new System.Windows.Forms.Label();
             this.sFeatureScale = new System.Windows.Forms.TrackBar();
             this.sRoughness = new System.Windows.Forms.TrackBar();
@@ -82,6 +80,11 @@
             this.tabExisting = new System.Windows.Forms.TabPage();
             this.tExistingMapInfo = new System.Windows.Forms.TextBox();
             this.tabLoad = new System.Windows.Forms.TabPage();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.lFolder = new System.Windows.Forms.Label();
+            this.tFolder = new System.Windows.Forms.TextBox();
+            this.bBrowseFolder = new System.Windows.Forms.Button();
             this.lFormatList = new System.Windows.Forms.Label();
             this.lFile = new System.Windows.Forms.Label();
             this.tLoadFileInfo = new System.Windows.Forms.TextBox();
@@ -148,12 +151,13 @@
             this.lTreeSpacing = new System.Windows.Forms.Label();
             this.lMapFileOptions = new System.Windows.Forms.Label();
             this.lCreateMap = new System.Windows.Forms.Label();
+            this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
+            this.preview = new ConfigTool.CustomPictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sFeatureScale)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sRoughness)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sWaterCoverage)).BeginInit();
@@ -186,6 +190,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacingVariation)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacing)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.SuspendLayout();
             // 
             // lX2
@@ -359,21 +364,21 @@
             // 
             // tFile
             // 
-            this.tFile.Location = new System.Drawing.Point( 70, 8 );
+            this.tFile.Location = new System.Drawing.Point( 72, 81 );
             this.tFile.Name = "tFile";
             this.tFile.ReadOnly = true;
-            this.tFile.Size = new System.Drawing.Size( 229, 20 );
+            this.tFile.Size = new System.Drawing.Size( 233, 20 );
             this.tFile.TabIndex = 0;
             // 
-            // bBrowse
+            // bBrowseFile
             // 
-            this.bBrowse.Location = new System.Drawing.Point( 305, 6 );
-            this.bBrowse.Name = "bBrowse";
-            this.bBrowse.Size = new System.Drawing.Size( 74, 23 );
-            this.bBrowse.TabIndex = 1;
-            this.bBrowse.Text = "Browse";
-            this.bBrowse.UseVisualStyleBackColor = true;
-            this.bBrowse.Click += new System.EventHandler( this.bBrowse_Click );
+            this.bBrowseFile.Location = new System.Drawing.Point( 311, 79 );
+            this.bBrowseFile.Name = "bBrowseFile";
+            this.bBrowseFile.Size = new System.Drawing.Size( 74, 23 );
+            this.bBrowseFile.TabIndex = 1;
+            this.bBrowseFile.Text = "Browse";
+            this.bBrowseFile.UseVisualStyleBackColor = true;
+            this.bBrowseFile.Click += new System.EventHandler( this.bBrowseFile_Click );
             // 
             // lPreview
             // 
@@ -574,20 +579,6 @@
             this.previewLayout.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Absolute, 28F ) );
             this.previewLayout.Size = new System.Drawing.Size( 555, 567 );
             this.previewLayout.TabIndex = 6;
-            // 
-            // preview
-            // 
-            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.preview.BackColor = System.Drawing.Color.Black;
-            this.previewLayout.SetColumnSpan( this.preview, 3 );
-            this.preview.Location = new System.Drawing.Point( 3, 3 );
-            this.preview.Name = "preview";
-            this.preview.Size = new System.Drawing.Size( 549, 533 );
-            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.preview.TabIndex = 17;
-            this.preview.TabStop = false;
             // 
             // lDetailSize
             // 
@@ -824,11 +815,16 @@
             // 
             // tabLoad
             // 
+            this.tabLoad.Controls.Add( this.label3 );
+            this.tabLoad.Controls.Add( this.label2 );
+            this.tabLoad.Controls.Add( this.lFolder );
+            this.tabLoad.Controls.Add( this.tFolder );
+            this.tabLoad.Controls.Add( this.bBrowseFolder );
             this.tabLoad.Controls.Add( this.lFormatList );
             this.tabLoad.Controls.Add( this.lFile );
             this.tabLoad.Controls.Add( this.tLoadFileInfo );
             this.tabLoad.Controls.Add( this.tFile );
-            this.tabLoad.Controls.Add( this.bBrowse );
+            this.tabLoad.Controls.Add( this.bBrowseFile );
             this.tabLoad.Location = new System.Drawing.Point( 4, 22 );
             this.tabLoad.Name = "tabLoad";
             this.tabLoad.Padding = new System.Windows.Forms.Padding( 3 );
@@ -837,32 +833,79 @@
             this.tabLoad.Text = "Load File";
             this.tabLoad.UseVisualStyleBackColor = true;
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point( 211, 3 );
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size( 153, 52 );
+            this.label3.TabIndex = 13;
+            this.label3.Text = "\r\n- MinerCPP and LuaCraft (.dat)\r\n- D3 (.map) - resets spawnpoint\r\n- JTE\'s (.gz)";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point( 6, 127 );
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size( 173, 26 );
+            this.label2.TabIndex = 12;
+            this.label2.Text = "Supported folder formats:\r\n- Myne, MyneCraft, Hyvebuilt, iCraft";
+            // 
+            // lFolder
+            // 
+            this.lFolder.AutoSize = true;
+            this.lFolder.Location = new System.Drawing.Point( 6, 163 );
+            this.lFolder.Name = "lFolder";
+            this.lFolder.Size = new System.Drawing.Size( 60, 13 );
+            this.lFolder.TabIndex = 11;
+            this.lFolder.Text = "Load folder";
+            // 
+            // tFolder
+            // 
+            this.tFolder.Location = new System.Drawing.Point( 72, 160 );
+            this.tFolder.Name = "tFolder";
+            this.tFolder.ReadOnly = true;
+            this.tFolder.Size = new System.Drawing.Size( 233, 20 );
+            this.tFolder.TabIndex = 9;
+            // 
+            // bBrowseFolder
+            // 
+            this.bBrowseFolder.Location = new System.Drawing.Point( 311, 157 );
+            this.bBrowseFolder.Name = "bBrowseFolder";
+            this.bBrowseFolder.Size = new System.Drawing.Size( 74, 23 );
+            this.bBrowseFolder.TabIndex = 10;
+            this.bBrowseFolder.Text = "Browse";
+            this.bBrowseFolder.UseVisualStyleBackColor = true;
+            this.bBrowseFolder.Click += new System.EventHandler( this.bBrowseFolder_Click );
+            // 
             // lFormatList
             // 
             this.lFormatList.AutoSize = true;
-            this.lFormatList.Location = new System.Drawing.Point( 6, 138 );
+            this.lFormatList.Location = new System.Drawing.Point( 6, 3 );
             this.lFormatList.Name = "lFormatList";
-            this.lFormatList.Size = new System.Drawing.Size( 278, 117 );
+            this.lFormatList.Size = new System.Drawing.Size( 278, 65 );
             this.lFormatList.TabIndex = 8;
-            this.lFormatList.Text = resources.GetString( "lFormatList.Text" );
+            this.lFormatList.Text = "Supported file formats:\r\n- fCraft (.fcm)\r\n- MCSharp and MCZall (.lvl)\r\n- Original" +
+                "/vanilla (server_level.dat)\r\n- Survival Indev (.mclevel) - does not support infi" +
+                "nite maps";
             // 
             // lFile
             // 
             this.lFile.AutoSize = true;
-            this.lFile.Location = new System.Drawing.Point( 6, 11 );
+            this.lFile.Location = new System.Drawing.Point( 6, 84 );
             this.lFile.Name = "lFile";
-            this.lFile.Size = new System.Drawing.Size( 58, 13 );
+            this.lFile.Size = new System.Drawing.Size( 47, 13 );
             this.lFile.TabIndex = 7;
-            this.lFile.Text = "File to load";
+            this.lFile.Text = "Load file";
             // 
             // tLoadFileInfo
             // 
             this.tLoadFileInfo.Font = new System.Drawing.Font( "Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.tLoadFileInfo.Location = new System.Drawing.Point( 6, 35 );
+            this.tLoadFileInfo.Location = new System.Drawing.Point( 3, 198 );
             this.tLoadFileInfo.Multiline = true;
             this.tLoadFileInfo.Name = "tLoadFileInfo";
             this.tLoadFileInfo.ReadOnly = true;
-            this.tLoadFileInfo.Size = new System.Drawing.Size( 373, 100 );
+            this.tLoadFileInfo.Size = new System.Drawing.Size( 379, 100 );
             this.tLoadFileInfo.TabIndex = 2;
             // 
             // tabCopy
@@ -1699,6 +1742,24 @@
             this.lCreateMap.TabIndex = 56;
             this.lCreateMap.Text = "Create a map to continue";
             // 
+            // folderBrowser
+            // 
+            this.folderBrowser.Description = "Find the folder where your Myne / MyneCraft / Hydebuild / iCraft map is located.";
+            // 
+            // preview
+            // 
+            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.preview.BackColor = System.Drawing.Color.Black;
+            this.previewLayout.SetColumnSpan( this.preview, 3 );
+            this.preview.Location = new System.Drawing.Point( 3, 3 );
+            this.preview.Name = "preview";
+            this.preview.Size = new System.Drawing.Size( 549, 533 );
+            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.preview.TabIndex = 17;
+            this.preview.TabStop = false;
+            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -1733,7 +1794,6 @@
             this.statusStrip.PerformLayout();
             this.previewLayout.ResumeLayout( false );
             this.previewLayout.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sFeatureScale)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sRoughness)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sWaterCoverage)).EndInit();
@@ -1778,6 +1838,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeight)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacingVariation)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacing)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.ResumeLayout( false );
             this.PerformLayout();
 
@@ -1795,7 +1856,7 @@
         private System.Windows.Forms.Button bGenerate;
         private System.Windows.Forms.ComboBox cWorld;
         private System.Windows.Forms.TextBox tFile;
-        private System.Windows.Forms.Button bBrowse;
+        private System.Windows.Forms.Button bBrowseFile;
         private System.Windows.Forms.Button bOK;
         private System.Windows.Forms.Button bCancel;
         private System.Windows.Forms.ComboBox cBackup;
@@ -1909,5 +1970,11 @@
         private System.Windows.Forms.Label lCaveSizeDisplay;
         private System.Windows.Forms.Label lCaveDensityDisplay;
         private System.Windows.Forms.Label lCreateMap;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lFolder;
+        private System.Windows.Forms.TextBox tFolder;
+        private System.Windows.Forms.Button bBrowseFolder;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowser;
     }
 }

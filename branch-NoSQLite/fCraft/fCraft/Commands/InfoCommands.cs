@@ -300,13 +300,13 @@ namespace fCraft {
             Player target = player;
 
             if( name != null ) {
-                List<Player> matches = Server.FindPlayers( player, name );
-                if( matches.Count == 1 ) {
+                Player[] matches = Server.FindPlayers( player, name );
+                if( matches.Length == 1 ) {
                     target = matches[0];
                     player.Message( "Coordinates of player {0}&S (on world {1}&S):",
                                     target.GetClassyName(),
                                     target.world.GetClassyName() );
-                } else if( matches.Count > 1 ) {
+                } else if( matches.Length > 1 ) {
                     player.ManyPlayersMessage( matches );
                     return;
                 } else {

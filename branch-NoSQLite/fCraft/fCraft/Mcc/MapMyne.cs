@@ -129,8 +129,11 @@ namespace Mcc {
 
 
         public bool Claims( Stream inputStream, string fileName ) {
-            // Checks are done in Load() instead, because Myne uses multiple files per map.
-            return false;
+            if( Directory.Exists( fileName ) ) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 

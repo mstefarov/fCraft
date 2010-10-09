@@ -1082,7 +1082,7 @@ namespace fCraft {
         }
 
         // Find player by name using autocompletion (IGNORES HIDDEN PERMISSIONS)
-        public static List<Player> FindPlayers( string name ) {
+        public static Player[] FindPlayers( string name ) {
             Player[] tempList = playerList;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -1096,11 +1096,11 @@ namespace fCraft {
                     }
                 }
             }
-            return results;
+            return results.ToArray();
         }
 
         // Find player by name using autocompletion
-        public static List<Player> FindPlayers( Player player, string name ) {
+        public static Player[] FindPlayers( Player player, string name ) {
             Player[] tempList = playerList;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -1114,7 +1114,7 @@ namespace fCraft {
                     }
                 }
             }
-            return results;
+            return results.ToArray();
         }
 
 

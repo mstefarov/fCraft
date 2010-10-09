@@ -489,7 +489,7 @@ namespace fCraft {
                 case ConfigKey.IRCDelay:
                     return ValidateInt( key, value, 100, 1000 );
                 case ConfigKey.AnnouncementInterval:
-                    return ValidateInt( key, value, 1, 60 );
+                    return ValidateInt( key, value, 0, 60 );
 
                 case ConfigKey.IsPublic:
                 case ConfigKey.RankColorsInChat:
@@ -536,7 +536,7 @@ namespace fCraft {
 
 
                 case ConfigKey.SaveInterval:
-                    return ValidateInt( key, value, 1, 100000 );
+                    return ValidateInt( key, value, 0, 100000 );
                 case ConfigKey.BackupInterval:
                     return ValidateInt( key, value, 0, 100000 );
                 case ConfigKey.MaxBackups:

@@ -157,13 +157,26 @@ namespace ConfigTool {
             bwLoader.RunWorkerAsync();
         }
 
-        private void bBrowse_Click( object sender, EventArgs e ) {
+        private void bBrowseFile_Click( object sender, EventArgs e ) {
             fileBrowser.FileName = tFile.Text;
             if( fileBrowser.ShowDialog() == DialogResult.OK && fileBrowser.FileName != "" ) {
+                tFolder.Text = "";
                 tFile.Text = fileBrowser.FileName;
                 tFile.SelectAll();
 
                 fileToLoad = fileBrowser.FileName;
+                ShowMapDetails( tLoadFileInfo, fileToLoad );
+                StartLoadingMap();
+            }
+        }
+
+        private void bBrowseFolder_Click( object sender, EventArgs e ) {
+            if( folderBrowser.ShowDialog() == DialogResult.OK && folderBrowser.SelectedPath != "" ) {
+                tFile.Text = "";
+                tFolder.Text = folderBrowser.SelectedPath;
+                tFolder.SelectAll();
+
+                fileToLoad = folderBrowser.SelectedPath;
                 ShowMapDetails( tLoadFileInfo, fileToLoad );
                 StartLoadingMap();
             }
@@ -505,18 +518,34 @@ namespace ConfigTool {
 
 
         void ShowMapDetails( TextBox textBox, string fileName ) {
+
+            Mcc.MapFormat format = Mcc.MapFormat.Unknown;
+            try {
+                if( File.Exists( fileName ) ) {
+                    using( Stream stream = File.OpenRead( fileName ) ) {
+                        format = Mcc.MapUtility.Identify( stream, fileName );
+                    }
+                } else {
+                    format = Mcc.MapUtility.Identify( null, fileName );
+                }
+            } catch( Exception ) { }
+
             if( File.Exists( fileName ) ) {
                 Map loadedMap = Map.LoadHeaderOnly( fileName );
                 FileInfo existingMapFileInfo = new FileInfo( fileName );
+
+
                 if( loadedMap != null ) {
                     textBox.Text = String.Format(
 @"      File: {0}
-  Filesize: {1} KB
-   Created: {2}
-  Modified: {3}
-Dimensions: {4}×{5}×{6}
-    Blocks: {7}",
+    Format: {1}
+  Filesize: {2} KB
+   Created: {3}
+  Modified: {4}
+Dimensions: {5}×{6}×{7}
+    Blocks: {8}",
                     fileName,
+                    format,
                     (existingMapFileInfo.Length / 1024),
                     existingMapFileInfo.CreationTime.ToLongDateString(),
                     existingMapFileInfo.LastWriteTime.ToLongDateString(),
@@ -527,14 +556,33 @@ Dimensions: {4}×{5}×{6}
                 } else {
                     textBox.Text = String.Format(
 @"      File: {0}
-  Filesize: {1} KB
-   Created: {2}
-  Modified: {3}",
+    Format: {1}
+  Filesize: {2} KB
+   Created: {3}
+  Modified: {4}",
                     fileName,
+                    format,
                     (existingMapFileInfo.Length / 1024),
                     existingMapFileInfo.CreationTime.ToLongDateString(),
                     existingMapFileInfo.LastWriteTime.ToLongDateString() );
                 }
+            } else if( Directory.Exists( fileName ) ) {
+                DirectoryInfo dirInfo = new DirectoryInfo( fileName );
+                long totalSize = 0;
+                foreach( FileInfo finfo in dirInfo.GetFiles() ) {
+                    totalSize += finfo.Length;
+                }
+                textBox.Text = String.Format(
+@"    Folder: {0}
+    Format: {1}
+  Filesize: {2} KB
+   Created: {3}
+  Modified: {4}",
+                    dirInfo.Name,
+                    format,
+                    (totalSize / 1024),
+                    dirInfo.CreationTime.ToLongDateString(),
+                    dirInfo.LastWriteTime.ToLongDateString() );
             } else {
                 textBox.Text = "File \"" + fileName + "\" does not exist.";
             }

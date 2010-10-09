@@ -158,10 +158,10 @@ namespace Mcc {
 
 
         public bool Claims( Stream mapStream, string fileName ) {
-            byte[] temp = new byte[8];
-            byte[] data;
-            int length;
             try {
+                byte[] temp = new byte[8];
+                byte[] data;
+                int length;
                 mapStream.Seek( -4, SeekOrigin.End );
                 mapStream.Read( temp, 0, sizeof( int ) );
                 mapStream.Seek( 0, SeekOrigin.Begin );

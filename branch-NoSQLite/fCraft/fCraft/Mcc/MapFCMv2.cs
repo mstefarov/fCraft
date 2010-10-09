@@ -134,13 +134,11 @@ namespace Mcc {
 
 
         public bool Claims( Stream mapStream, string fileName ) {
-            mapStream.Seek( 0, SeekOrigin.Begin );
-
-            BinaryReader reader = new BinaryReader( mapStream );
-
             try {
+                mapStream.Seek( 0, SeekOrigin.Begin );
+                BinaryReader reader = new BinaryReader( mapStream );
                 return reader.ReadUInt32() == Identifier;
-            } catch ( IOException ) {
+            } catch ( Exception ) {
                 return false;
             }
 

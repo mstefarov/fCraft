@@ -123,17 +123,9 @@
   <metadata name="statusStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>128, 17</value>
   </metadata>
-  <data name="lFormatList.Text" xml:space="preserve">
-    <value>Supported file formats:
-- fCraft (.fcm)
-- MCSharp and MCZall (.lvl)
-- Myne, MyneCraft, and iCraft (copy the whole folder)
-- Original/vanilla (server_level.dat)
-- MinerCPP and LuaCraft (.dat)
-- D3 (.map) - resets spawnpoint
-- JTE's (.gz)
-- Survival Indev (.mclevel) - does not support infinite maps</value>
-  </data>
+  <metadata name="folderBrowser.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>237, 17</value>
+  </metadata>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>35</value>
   </metadata>
