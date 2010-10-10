@@ -232,5 +232,10 @@ namespace fCraft {
             }
             return ID.ToString();
         }
+
+        internal static void SortRanksByLegacyNumericRank() {
+            Ranks = Ranks.OrderBy( rank => -rank.legacyNumericRank ).ToList();
+            RebuildIndex();
+        }
     }
 }

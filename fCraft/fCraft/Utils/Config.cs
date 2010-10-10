@@ -232,7 +232,7 @@ namespace fCraft {
             }
 
             if( !skipClassList ) {
-                LoadClassList( config, version, fromFile );
+                LoadRankList( config, version, fromFile );
             }
 
             XElement consoleOptions = config.Element( "ConsoleOptions" );
@@ -289,7 +289,7 @@ namespace fCraft {
             }
         }
 
-        static void LoadClassList( XElement config, int version, bool fromFile ) {
+        static void LoadRankList( XElement config, int version, bool fromFile ) {
 
             XElement legacyRankMappingTag = config.Element( "LegacyRankMapping" );
             if( legacyRankMappingTag != null ) {
@@ -347,8 +347,7 @@ namespace fCraft {
                     }
 
                     if( version < 111 ) {
-                        RankList.Ranks.OrderBy( rank => rank.legacyNumericRank );
-                        RankList.RebuildIndex();
+                        RankList.SortRanksByLegacyNumericRank();
                     }
 
                 } // end LEGACY code
