@@ -55,7 +55,6 @@ namespace fCraft {
 
         IRCBot,
         IRCBotNick,
-        IRCBotQuitMsg,
         IRCBotNetwork,
         IRCBotPort,
         IRCBotChannels,

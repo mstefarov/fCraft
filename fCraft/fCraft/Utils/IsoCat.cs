@@ -47,7 +47,6 @@ namespace fCraft {
         static IsoCat() {
 
             using( Bitmap tilesBmp = fCraft.Properties.Resources.Tileset ) {
-
                 tileX = tilesBmp.Width / 50;
                 tileY = tilesBmp.Height;
                 tileStride = tileX * tileY * 4;

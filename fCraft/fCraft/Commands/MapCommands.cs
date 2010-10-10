@@ -60,7 +60,7 @@ namespace fCraft {
                 if( players.Length == 1 ) {
                     player.ParseMessage( "/tp " + players[0].name, false );
                 } else {
-                    player.Message( "No world found with the name \"" + worldName + "\"." );
+                    player.NoWorldMessage( worldName );
                 }
             }
         }
@@ -101,13 +101,15 @@ namespace fCraft {
                 fileName = p2;
                 world = Server.FindWorld( p1 );
                 if( world == null ) {
-                    player.Message( "No world found named \"" + p1 + "\"." );
+                    player.NoWorldMessage( p1 );
                     return;
                 }
             }
 
-
-            string mapFileName = "maps/" + fileName + ".fcm";
+            string mapFileName = "maps/" + fileName;
+            if( !mapFileName.EndsWith( ".fcm" ) ) {
+                mapFileName += ".fcm";
+            }
 
             player.MessageNow( "Saving map to {0}", mapFileName );
 
@@ -150,7 +152,7 @@ namespace fCraft {
             if( worldName != null ) {
                 world = Server.FindWorld( worldName );
                 if( world == null ) {
-                    player.Message( "No world \"{0}\" found.", worldName );
+                    player.NoWorldMessage( worldName );
                     return;
                 }
             } else if( player.world == null ) {
@@ -189,7 +191,7 @@ namespace fCraft {
 
             World world = Server.FindWorld( worldName );
             if( world == null ) {
-                player.Message( "No world \"{0}\" found.", worldName );
+                player.NoWorldMessage( worldName );
             } else if( world == Server.mainWorld ) {
                 player.Message( "World {0}&S is already set as main.", world.GetClassyName() );
             } else {
@@ -246,7 +248,7 @@ namespace fCraft {
 
             World world = Server.FindWorld( worldName );
             if( world == null ) {
-                player.Message( "No world \"{0}\" found.", worldName );
+                player.NoWorldMessage( worldName );
             } else if( rankName == null ) {
                 if( world.accessRank == RankList.LowestRank ) {
                     player.Message( "World {0}&S can be visited by anyone.",
@@ -313,7 +315,7 @@ namespace fCraft {
 
             World world = Server.FindWorld( worldName );
             if( world == null ) {
-                player.Message( "No world \"{0}\" found.", worldName );
+                player.NoWorldMessage( worldName );
             } else if( rankName == null ) {
                 if( world.buildRank == RankList.LowestRank ) {
                     player.Message( "World {0}&S can be modified by anyone.",
@@ -491,7 +493,7 @@ namespace fCraft {
                 World newWorld = Server.FindWorld( newName );
 
                 if( oldWorld == null ) {
-                    player.Message( "No world found with the specified name: {0}", oldName );
+                    player.NoWorldMessage( oldName );
                 } else if( newWorld != null && oldWorld != newWorld ) {
                     player.Message( "A world with the specified name already exists: {0}", newName );
                 } else {
@@ -717,7 +719,7 @@ namespace fCraft {
             if( worldName != null ) {
                 world = Server.FindWorld( worldName );
                 if( world == null ) {
-                    player.Message( "No world found with the name \"" + worldName + "\"." );
+                    player.NoWorldMessage( worldName );
                     return;
                 }
             } else if( player.world != null ) {
@@ -769,7 +771,7 @@ namespace fCraft {
             if( worldName != null ) {
                 world = Server.FindWorld( worldName );
                 if( world == null ) {
-                    player.Message( "No world found with the name \"" + worldName + "\"." );
+                    player.NoWorldMessage( worldName );
                     return;
                 }
             } else if( player.world != null ) {

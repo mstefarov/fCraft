@@ -57,6 +57,7 @@ namespace fCraftConsole {
 
                         string input = "";
                         Console.WriteLine( "** Server is now ready. To shutdown, type /exit. URL is in externalurl.txt **" );
+
                         while( (input = Console.ReadLine()) != "/exit" ) {
                             Player.Console.ParseMessage( input, true );
                         }

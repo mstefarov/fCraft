@@ -268,6 +268,11 @@ namespace fCraft {
         }
 
 
+        internal void NoWorldMessage( string worldName ) {
+            NoWorldMessage( worldName );
+        }
+
+
         internal void ManyPlayersMessage( IEnumerable<Player> names ) {
             string playerString = "";
             foreach( Player player in names ) {

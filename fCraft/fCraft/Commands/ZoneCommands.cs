@@ -281,9 +281,9 @@ namespace fCraft {
                 return;
             }
             if( player.world.map.RemoveZone( zoneName ) ) {
-                player.Message( "Zone \"" + zoneName + "\" removed." );
+                player.Message( "Zone \"{0}\" removed.", zoneName );
             } else {
-                player.Message( "No zone with the name \"" + zoneName + "\" was found." );
+                player.Message( "No zone with the name \"{0}\" was found.", zoneName );
             }
         }
 
