@@ -230,8 +230,9 @@ namespace fCraft {
 
 
                 case IRCMessageType.Kick:
-                    Logger.Log( "IRC Bot was kicked from {0} by {1} ({2}), rejoining.", LogType.IRC,
+                    Logger.Log( "Bot was kicked from {0} by {1} ({2}), rejoining.", LogType.IRC,
                                 msg.Channel, msg.Nick, msg.Message );
+                    Thread.Sleep( ReconnectDelay );
                     Send( IRCCommands.Join( msg.Channel ) );
                     return;
 
@@ -250,19 +251,19 @@ namespace fCraft {
                         botNick += "_";
                         Send( IRCCommands.Nick( botNick ) );
                     } else {
-                        Logger.Log( "IRC Error (" + msg.ReplyCode + "): " + msg.RawMessage, LogType.IRC );
+                        Logger.Log( "Error (" + msg.ReplyCode + "): " + msg.RawMessage, LogType.IRC );
                     }
                     return;
 
 
                 case IRCMessageType.QueryAction:
                     // TODO: PMs
-                    Logger.Log( "IRC PM: " + msg.RawMessage, LogType.IRC );
+                    Logger.Log( "Query: " + msg.RawMessage, LogType.IRC );
                     break;
 
 
                 case IRCMessageType.Kill:
-                    Logger.Log( "IRC Bot was killed from {0} by {1} ({2}), reconnecting.", LogType.IRC,
+                    Logger.Log( "Bot was killed from {0} by {1} ({2}), reconnecting.", LogType.IRC,
                                 hostName, msg.Nick, msg.Message );
                     reconnect = true;
                     connected = false;

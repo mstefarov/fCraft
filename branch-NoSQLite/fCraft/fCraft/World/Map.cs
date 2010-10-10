@@ -123,10 +123,10 @@ namespace fCraft {
                 // try to append ".fcm" and/or prepend "maps/"
                 if( File.Exists( fileName + ".fcm" ) ) {
                     fileName += ".fcm";
-                } else if( File.Exists( "maps/" + fileName ) || Directory.Exists( "maps/" + fileName ) ) {
-                    fileName = "maps/" + fileName;
-                } else if( File.Exists( "maps/" + fileName + ".fcm" ) ) {
-                    fileName = "maps/" + fileName + ".fcm";
+                } else if( File.Exists( Path.Combine( "maps", fileName ) ) || Directory.Exists( Path.Combine( "maps", fileName ) ) ) {
+                    fileName = Path.Combine( "maps", fileName );
+                } else if( File.Exists( Path.Combine( "maps", fileName + ".fcm" ) ) ) {
+                    fileName = Path.Combine( "maps", fileName + ".fcm" );
                 } else {
                     Logger.Log( "Map.Load: Could not find the specified file: {0}", LogType.Error, fileName );
                     return null;

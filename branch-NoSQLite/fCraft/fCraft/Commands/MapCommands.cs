@@ -106,7 +106,7 @@ namespace fCraft {
                 }
             }
 
-            string mapFileName = "maps/" + fileName;
+            string mapFileName = Path.Combine( "maps", fileName );
             if( !mapFileName.EndsWith( ".fcm" ) ) {
                 mapFileName += ".fcm";
             }

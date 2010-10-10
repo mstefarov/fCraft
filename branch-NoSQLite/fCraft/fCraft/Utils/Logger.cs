@@ -211,6 +211,8 @@ namespace fCraft {
                     return "ERROR: ";
                 case LogType.Warning:
                     return "Warning: ";
+                case LogType.IRC:
+                    return "IRC: ";
                 default:
                     return String.Empty;
             }
