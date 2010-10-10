@@ -1,5 +1,11 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-10-07
+2010-10-08
+0.483
+ Feature: Myne/MyneCraft/Hyvebuild/iCraft maps can now be loaded from ConfigTool's "Add World" dialog.
+ Fix: Fixed incorrect range checks for AnnouncementInterval and SaveInterval config keys (thanks to Shcaap for reporting).
+ Fix: Fixed /hide showing a slightly different "player left" message compared to normal disconnect (thanks to Silverrock for reporting).
+ Change: Added MC#-style "/z" alias for cuboid, by popular demand.
+ Change: Hidden players can now receive PMs. The sender still gets the "No player found" message, but PMs are actually sent.
 482
  Feature: Added new command aliases: "f" for "freeze", and "pat" for "patrol".
  Fix: Fixed typos in mute-related messages.

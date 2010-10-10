@@ -121,13 +121,16 @@ namespace fCraft {
 
 
         public void UnloadMap() {
+            Map thisMap = map;
             lock( mapLock ) {
                 SaveMap( null );
                 map = null;
                 isReadyForUnload = false;
                 if( OnUnloaded != null ) OnUnloaded();
             }
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+            thisMap.world = null;
+            thisMap.blocks = null;
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
         }
 
 

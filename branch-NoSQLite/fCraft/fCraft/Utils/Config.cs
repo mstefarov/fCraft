@@ -61,6 +61,7 @@ namespace fCraft {
      * 112 - r235 - Removed PingInterval config key
      *              Removed inactive ControlPhysics and AddLandmarks permissions
      *
+     * 113 - r243 - Removed IRCBotQuitMsg config key
      */
 
     public static class Config {
@@ -117,7 +118,7 @@ namespace fCraft {
             SetValue( ConfigKey.SayColor, Color.GetName( Color.Green ) );
             SetValue( ConfigKey.AnnouncementColor, Color.GetName( Color.Green ) );
             SetValue( ConfigKey.PrivateMessageColor, Color.GetName( Color.Aqua ) );
-            SetValue( ConfigKey.AnnouncementInterval, 5 );
+            SetValue( ConfigKey.AnnouncementInterval, 0 );
         }
 
         public static void LoadDefaultsSecurity() {
@@ -164,7 +165,6 @@ namespace fCraft {
         public static void LoadDefaultsIRC() {
             SetValue( ConfigKey.IRCBot, false ); // Bot is disabled by default
             SetValue( ConfigKey.IRCBotNick, "fBot" );
-            SetValue( ConfigKey.IRCBotQuitMsg, "I've been told to go offline now." );
             SetValue( ConfigKey.IRCBotNetwork, "irc.esper.net" );
             SetValue( ConfigKey.IRCBotPort, 6667 );
             SetValue( ConfigKey.IRCBotChannels, "#changeme" ); // CASE SENSITIVE!!!!!!!!!!!!!!!!!!!!! This can be multiple using csv

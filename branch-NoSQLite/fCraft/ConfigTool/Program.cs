@@ -40,6 +40,7 @@ namespace ConfigTool {
                 Logger.Log( "Unhandled exception in ConfigTool: " + ex, LogType.FatalError );
                 Logger.UploadCrashReport( "Unhandled exception in ConfigTool", "ConfigTool", ex );
                 Server.CheckForCommonErrors( ex );
+                MessageBox.Show( ex.ToString(), "fCraft ConfigTool has crashed" );
             }
 #endif
         }

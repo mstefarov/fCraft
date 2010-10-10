@@ -233,7 +233,6 @@ namespace ConfigTool {
             tIRCBotChannels.Text = Config.GetString( ConfigKey.IRCBotChannels );
 
             tIRCBotNick.Text = Config.GetString( ConfigKey.IRCBotNick );
-            tIRCBotQuitMsg.Text = Config.GetString( ConfigKey.IRCBotQuitMsg );
 
             xIRCBotAnnounceIRCJoins.Checked = Config.GetBool( ConfigKey.IRCBotAnnounceIRCJoins );
             xIRCBotAnnounceServerJoins.Checked = Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins );
@@ -361,7 +360,6 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.IRCBotChannels, tIRCBotChannels.Text );
 
             Config.SetValue( ConfigKey.IRCBotNick, tIRCBotNick.Text );
-            Config.SetValue( ConfigKey.IRCBotQuitMsg, tIRCBotQuitMsg.Text );
 
             Config.SetValue( ConfigKey.IRCBotAnnounceIRCJoins, xIRCBotAnnounceIRCJoins.Checked );
             Config.SetValue( ConfigKey.IRCBotAnnounceServerJoins, xIRCBotAnnounceServerJoins.Checked );

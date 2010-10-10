@@ -256,7 +256,7 @@ namespace fCraft {
                     count++;
                 }
                 if( count > 0 ) {
-                    player.Message( "There are " + count + " players online: " + sb.ToString() );
+                    player.Message( "There are {0} players online: {1}", count, sb );
                 } else {
                     player.Message( "There are no players online." );
                 }
@@ -461,7 +461,7 @@ namespace fCraft {
                                         info.rankChangedBy,
                                         info.rankChangeDate );
                         if( info.rankChangeReason != null && info.rankChangeReason.Length > 0 ) {
-                            player.Message( "  Promotion reason: " + info.rankChangeReason );
+                            player.Message( "  Promotion reason: {0}", info.rankChangeReason );
                         }
                     } else {
                         player.Message( "  Demoted from {0}&S to {1}&S by {2} on {3:dd MMM yyyy}.",
@@ -470,7 +470,7 @@ namespace fCraft {
                                         info.rankChangedBy,
                                         info.rankChangeDate );
                         if( info.rankChangeReason != null && info.rankChangeReason.Length > 0 ) {
-                            player.Message( "  Demotion reason: " + info.rankChangeReason );
+                            player.Message( "  Demotion reason: {0}", info.rankChangeReason );
                         }
                     }
                 } else {
@@ -618,7 +618,7 @@ namespace fCraft {
                 player.Message( sb.ToString() );
                 if( rank.Can( Permission.Draw ) ) {
                     if( rank.DrawLimit > 0 ) {
-                        player.Message( "Draw command limit: " + rank.DrawLimit + " blocks." );
+                        player.Message( "Draw command limit: {0} blocks.", rank.DrawLimit );
                     } else {
                         player.Message( "Draw command limit: None (unlimited blocks)" );
                     }
@@ -664,7 +664,7 @@ namespace fCraft {
                 try {
                     foreach( string ruleLine in File.ReadAllLines( RuleFile ) ) {
                         if( ruleLine.Trim().Length > 0 ) {
-                            player.Message( Color.Announcement + ruleLine );
+                            player.Message( "&R{0}", ruleLine );
                         }
                     }
                 } catch( Exception ex ) {
@@ -685,6 +685,7 @@ namespace fCraft {
         };
 
         internal static void ServerInfo( Player player, Command cmd ) {
+            System.Diagnostics.Process.GetCurrentProcess().Refresh();
             player.Message( "Servers stats: Up for {0:0.0} hours, using {1:0} MB of memory",
                             DateTime.Now.Subtract( Server.serverStart ).TotalHours,
                             (System.Diagnostics.Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
