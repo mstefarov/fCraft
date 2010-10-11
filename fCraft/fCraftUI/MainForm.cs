@@ -39,6 +39,7 @@ namespace fCraftUI {
                     Application.DoEvents();
                     UpdaterResult update = Updater.CheckForUpdates();
                     Application.DoEvents();
+
                     if( update.UpdateAvailable ) {
                         if( Config.GetString( ConfigKey.AutomaticUpdates ) == "Notify" ) {
                             Log( String.Format( Environment.NewLine +
@@ -56,8 +57,7 @@ namespace fCraftUI {
                         StartServer();
                     }
                 } else {
-                    Server.Shutdown( "error on init" );
-                    Logger.Log( "---- Could Not Initialize Server ----", LogType.Error );
+                    Shutdown( "failed to init", false );
                 }
 #if DEBUG
 #else
@@ -65,26 +65,39 @@ namespace fCraftUI {
                 Logger.Log( "Fatal error at startup: " + ex, LogType.FatalError );
                 Logger.UploadCrashReport( "Unhandled exception in fCraftUI.StartUp", "fCraftUI", ex );
                 Server.CheckForCommonErrors( ex );
-                Server.Shutdown( "error on init" );
+                Shutdown( "error at init", false );
             }
 #endif
         }
 
 
         public void StartServer() {
-            Process.GetCurrentProcess().PriorityClass = Config.GetProcessPriority();
+            try {
+                if( Process.GetCurrentProcess().PriorityClass != Config.GetProcessPriority() ) {
+                    Process.GetCurrentProcess().PriorityClass = Config.GetProcessPriority();
+                }
+            } catch( Exception ) {
+                Logger.Log( "MainForm.StartServer: Could not set process priority, using defaults.", LogType.Warning );
+            }
             if( Server.Start() ) {
                 console.Enabled = true;
             } else {
-                Logger.Log( "---- Could Not Start The Server ----", LogType.Error );
+                Shutdown( "failed to start", false );
             }
         }
 
         void HandleShutDown( object sender, CancelEventArgs e ) {
-            shuttingDown = true;
-            Server.Shutdown( "quit" );
+            e.Cancel = true;
+            Shutdown( "quit", true );
         }
 
+        void Shutdown( string reason, bool quit ) {
+            if( shuttingDown ) return;
+            shuttingDown = true;
+            Logger.Log( "---- Shutting Down: {0} ----", LogType.Error, reason );
+            Server.InitiateShutdown( reason, 0, quit );
+            Enabled = false;
+        }
 
         delegate void LogDelegate( string message );
         delegate void PlayerListUpdateDelegate( string[] items );
@@ -93,10 +106,7 @@ namespace fCraftUI {
             try {
                 if( shuttingDown ) return;
                 if( logBox.InvokeRequired ) {
-                    LogDelegate d = new LogDelegate( LogInternal );
-                    try {
-                        Invoke( d, new object[] { message } );
-                    } catch { };
+                    Invoke( (LogDelegate)LogInternal, message );
                 } else {
                     LogInternal( message );
                 }
@@ -121,8 +131,7 @@ namespace fCraftUI {
             try {
                 if( shuttingDown ) return;
                 if( urlDisplay.InvokeRequired ) {
-                    LogDelegate d = new LogDelegate( SetURLInternal );
-                    Invoke( d, new object[] { URL } );
+                    Invoke( (LogDelegate)SetURLInternal, URL );
                 } else {
                     SetURLInternal( URL );
                 }
@@ -143,7 +152,7 @@ namespace fCraftUI {
             try {
                 if( shuttingDown ) return;
                 if( playerList.InvokeRequired ) {
-                    Invoke( (PlayerListUpdateDelegate)UpdatePlayerListInternal, new object[] { playerNames } );
+                    Invoke( (PlayerListUpdateDelegate)UpdatePlayerListInternal, playerNames );
                 } else {
                     UpdatePlayerListInternal( playerNames );
                 }

@@ -49,7 +49,13 @@ namespace fCraftConsole {
                                            DateTime.Now.Subtract( update.ReleaseDate ).TotalDays );
                     }
 
-                    Process.GetCurrentProcess().PriorityClass = Config.GetProcessPriority();
+                    try {
+                        if( Process.GetCurrentProcess().PriorityClass != Config.GetProcessPriority() ) {
+                            Process.GetCurrentProcess().PriorityClass = Config.GetProcessPriority();
+                        }
+                    } catch( Exception ) {
+                        Logger.Log( "Porgram.Main: Could not set process priority, using defaults.", LogType.Warning );
+                    }
 
                     if( Server.Start() ) {
                         Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
@@ -61,14 +67,15 @@ namespace fCraftConsole {
                         while( (input = Console.ReadLine()) != "/exit" ) {
                             Player.Console.ParseMessage( input, true );
                         }
-                        Server.Shutdown( "quit from console" );
                     } else {
+                        Console.Title = "fCraft " + Updater.GetVersionString() + " failed to start";
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine( "** Failed to start the server **" );
                         Server.Shutdown( "failed to start" );
                         Console.ReadLine();
                     }
                 } else {
+                    Console.Title = "fCraft " + Updater.GetVersionString() + " failed to initialize";
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine( "** Failed to initialize the server **" );
                     Server.Shutdown( "failed to initialize" );

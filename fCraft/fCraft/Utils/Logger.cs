@@ -237,6 +237,11 @@ namespace fCraft {
                     sb.Append( "&runtime=" ).Append( Server.UrlEncode( Environment.Version + " / " + RuntimeEnvironment.GetSystemVersion() ) );
                     sb.Append( "&os=" ).Append( Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString );
                     if( exception != null ) {
+                        if( exception is System.Reflection.TargetInvocationException ) {
+                            exception = ((System.Reflection.TargetInvocationException)exception).InnerException;
+                        } else if( exception is TypeInitializationException ) {
+                            exception = ((TypeInitializationException)exception).InnerException;
+                        }
                         sb.Append( "&exceptiontype=" ).Append( Server.UrlEncode( exception.GetType().ToString() ) );
                         sb.Append( "&exceptionmessage=" ).Append( Server.UrlEncode( exception.Message ) );
                         sb.Append( "&exceptionstacktrace=" ).Append( Server.UrlEncode( exception.StackTrace ) );

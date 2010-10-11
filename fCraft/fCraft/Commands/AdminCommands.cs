@@ -790,7 +790,9 @@ namespace fCraft {
         static CommandDescriptor cdSetSpawn = new CommandDescriptor {
             name = "setspawn",
             permissions = new Permission[] { Permission.SetSpawn },
-            help = "Assigns your current location to be the spawn point of the map/world.",
+            help = "Assigns your current location to be the spawn point of the map/world. "+
+                   "If an optional PlayerName param is given, the spawn point of only that player is changed instead.",
+            usage = "/setspawn [PlayerName]",
             handler = SetSpawn
         };
 
@@ -805,7 +807,7 @@ namespace fCraft {
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,
                             player.name );
             } else {
-                Player[] infos = Server.FindPlayers( player, playerName );
+                Player[] infos = Server.FindPlayers( player, playerName ); // TODO: search only on player's own world
                 if( infos.Length == 1 ) {
                     Player target = infos[0];
                     target.Send( PacketWriter.MakeAddEntity( 255, target.GetListName(), player.pos ) );
@@ -848,21 +850,28 @@ namespace fCraft {
             name = "shutdown",
             permissions = new Permission[] { Permission.ShutdownServer },
             consoleSafe = true,
-            help = "Shuts down the server immediately.",
+            help = "Shuts down the server remotely. "+
+                   "The default delay before shutdown is 5 seconds (can be changed by specifying a custom number of seconds). "+
+                   "A shutdown reason or message can be specified to be shown to players.",
+            usage = "/shutdown [Delay [Reason]]",
             handler = Shutdown
         };
 
         static void Shutdown( Player player, Command cmd ) {
+            int delay = 5;
+            if( !cmd.NextInt( out delay ) ) {
+                cmd.Rewind();
+            }
             string reason = cmd.Next();
 
             Server.SendToAll( Color.Red + "Server shutting down in 5 seconds." );
 
             if( reason == null ) {
                 Logger.Log( "{0} shut down the server.", LogType.UserActivity, player.name );
-                Server.InitiateShutdown( player.GetClassyName() );
+                Server.InitiateShutdown( player.GetClassyName(), delay, true );
             } else {
                 Logger.Log( "{0} shut down the server. Reason: {1}", LogType.UserActivity, player.name, reason );
-                Server.InitiateShutdown( reason );
+                Server.InitiateShutdown( reason, delay, true );
             }
         }
 
