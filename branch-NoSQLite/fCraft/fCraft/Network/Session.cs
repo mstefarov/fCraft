@@ -89,6 +89,8 @@ namespace fCraft {
 
                 if( !LoginSequence() ) return;
 
+                Server.FirePlayerConnectedEvent( this );
+
                 canSend = true;
 
                 while( canSend ) {
