@@ -62,11 +62,14 @@ namespace fCraft {
      *              Removed inactive ControlPhysics and AddLandmarks permissions
      *
      * 113 - r243 - Removed IRCBotQuitMsg config key
+     * 
+     * 114 - r244 - Added IRCRegisteredNick, IRCNickServ, and IRCNickServMessage config keys.
+     * 
      */
 
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 112;
+        public const int ConfigVersion = 114;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
@@ -174,6 +177,9 @@ namespace fCraft {
             SetValue( ConfigKey.IRCBotForwardFromServer, false ); // Disabled by default
             SetValue( ConfigKey.IRCMessageColor, Color.Purple );
             SetValue( ConfigKey.IRCDelay, 750 );
+            SetValue( ConfigKey.IRCRegisteredNick, false );
+            SetValue( ConfigKey.IRCNickServ, "NickServ" );
+            SetValue( ConfigKey.IRCNickServMessage, "IDENTIFY password" );
         }
 
         public static void LoadDefaultsAdvanced() {
@@ -280,7 +286,7 @@ namespace fCraft {
         }
 
         static void LoadLogOptions( XElement el, bool[] list ) {
-            for( int i = 0; i < 13; i++ ) {
+            for( int i = 0; i < list.Length; i++ ) {
                 if( el.Element( ((LogType)i).ToString() ) != null ) {
                     list[i] = true;
                 } else {
@@ -482,9 +488,11 @@ namespace fCraft {
                     }
 
                 case ConfigKey.IRCBotNick:
+                case ConfigKey.IRCNickServ:
                     return ValidateString( key, value, 1, 32 );
-                //case "IRCBotNetwork":
-                //case "IRCBotChannels": // don't bother validating network and channel list
+                //case ConfigKey.IRCNickServMessage:
+                //case ConfigKey.IRCBotNetwork:
+                //case ConfigKey.IRCBotChannels: // don't bother validating network, channel list, or nickserv cmd.
                 case ConfigKey.IRCDelay:
                     return ValidateInt( key, value, 100, 1000 );
                 case ConfigKey.AnnouncementInterval:
@@ -503,6 +511,7 @@ namespace fCraft {
                 case ConfigKey.SendRedundantBlockUpdates:
                 case ConfigKey.NoPartialPositionUpdates:
                 case ConfigKey.IRCBot:
+                case ConfigKey.IRCRegisteredNick:
                 case ConfigKey.IRCBotForwardFromIRC:
                 case ConfigKey.IRCBotForwardFromServer:
                 case ConfigKey.IRCBotAnnounceIRCJoins:

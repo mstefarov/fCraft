@@ -292,6 +292,7 @@ namespace fCraft {
                 } else {
                     player.Message( "{0} is not currently banned.", address );
                 }
+
                 if( banAll ) {
                     foreach( PlayerInfo otherInfo in PlayerDB.FindPlayersByIP( address ) ) {
                         if( otherInfo.ProcessUnban( player.name, reason + "~UnBanAll" ) ) {
@@ -312,6 +313,7 @@ namespace fCraft {
                 } else {
                     player.Message( "{0} is already banned.", address );
                 }
+
                 if( banAll ) {
                     foreach( PlayerInfo otherInfo in PlayerDB.FindPlayersByIP( address ) ) {
                         if( banAll && otherInfo.ProcessBan( player, reason + "~BanAll" ) ) {
@@ -321,13 +323,9 @@ namespace fCraft {
                                                          otherInfo.GetClassyName(),
                                                          Color.Red,
                                                          player.GetClassyName() ) );
-                        foreach( Player other in Server.FindPlayers( address ) ) {
-                            if( reason != null && reason.Length > 0 ) {
-                                other.session.Kick( "IP-banned by " + player.GetClassyName() + Color.White + ": " + reason );
-                            } else {
-                                other.session.Kick( "IP-banned by " + player.GetClassyName() );
-                            }
-                        }
+                    }
+                    foreach( Player other in Server.FindPlayers( address ) ) {
+                        DoKick( player, other, null, false );
                     }
                 }
             }
@@ -767,24 +765,20 @@ namespace fCraft {
         };
 
         internal static void Unhide( Player player, Command cmd ) {
-            if( player.Can( Permission.Hide ) ) {
-                if( player.isHidden ) {
-                    player.isHidden = false;
+            if( player.isHidden ) {
+                player.isHidden = false;
 
-                    player.Message( "You are no longer hidden.", Color.Gray );
-                    player.world.SendToBlind( PacketWriter.MakeAddEntity( player, player.pos ), player );
+                player.Message( "You are no longer hidden.", Color.Gray );
+                player.world.SendToBlind( PacketWriter.MakeAddEntity( player, player.pos ), player );
 
-                    string message = String.Format( "{0}&S is no longer hidden.", player.GetClassyName() );
-                    foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
-                        Server.SendToSeeing( packet, player );
-                    }
-
-                    Server.ShowPlayerConnectedMessage( player, false, player.world );
-                } else {
-                    player.Message( "You are not currently hidden." );
+                string message = String.Format( "{0}&S is no longer hidden.", player.GetClassyName() );
+                foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
+                    Server.SendToSeeing( packet, player );
                 }
+
+                Server.ShowPlayerConnectedMessage( player, false, player.world );
             } else {
-                player.NoAccessMessage( Permission.Hide );
+                player.Message( "You are not currently hidden." );
             }
         }
 
@@ -801,15 +795,27 @@ namespace fCraft {
         };
 
         internal static void SetSpawn( Player player, Command cmd ) {
-            if( player.Can( Permission.SetSpawn ) ) {
+            string playerName = cmd.Next();
+            if( playerName == null ) {
                 player.world.map.spawn = player.pos;
                 player.world.map.changesSinceSave++;
                 player.Send( PacketWriter.MakeSelfTeleport( player.world.map.spawn ), true );
+                player.Send( PacketWriter.MakeAddEntity( 255, player.GetListName(), player.pos ) );
                 player.Message( "New spawn point saved." );
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,
                             player.name );
             } else {
-                player.NoAccessMessage( Permission.SetSpawn );
+                Player[] infos = Server.FindPlayers( player, playerName );
+                if( infos.Length == 1 ) {
+                    Player target = infos[0];
+                    target.Send( PacketWriter.MakeAddEntity( 255, target.GetListName(), player.pos ) );
+
+                } else if( infos.Length > 0 ) {
+                    player.ManyPlayersMessage( infos );
+
+                } else {
+                    player.NoPlayerMessage( playerName );
+                }
             }
         }
 

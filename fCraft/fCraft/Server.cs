@@ -176,10 +176,12 @@ namespace fCraft {
         // NOTE: Do not call from any of the usual threads (main, heartbeat, tasks).
         // Call from UI thread or a new separate thread only.
         public static void Shutdown( string reason ) {
+            if( shuttingDown ) return;
 #if DEBUG
 #else
             try {
 #endif
+                shuttingDown = true;
                 if( OnShutdownBegin != null ) OnShutdownBegin();
 
                 Logger.Log( "Server shutting down ({0})", LogType.SystemActivity, reason );
@@ -193,7 +195,6 @@ namespace fCraft {
                 }
 
                 // kill the main thread
-                shuttingDown = true;
                 if( mainThread != null && mainThread.IsAlive ) {
                     mainThread.Join( 5000 );
                     if( mainThread.IsAlive ) {

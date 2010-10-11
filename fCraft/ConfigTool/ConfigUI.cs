@@ -970,5 +970,10 @@ namespace ConfigTool {
                 tIP.Text = IPAddress.Any.ToString();
             }
         }
+
+        private void xIRCRegisteredNick_CheckedChanged( object sender, EventArgs e ) {
+            tIRCNickServ.Enabled = xIRCRegisteredNick.Checked;
+            tIRCNickServMessage.Enabled = xIRCRegisteredNick.Checked;
+        }
     }
 }

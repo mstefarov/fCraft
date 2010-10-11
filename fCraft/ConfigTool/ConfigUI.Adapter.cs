@@ -228,21 +228,26 @@ namespace ConfigTool {
 
         void ApplyTabIRC() {
             xIRC.Checked = Config.GetBool( ConfigKey.IRCBot );
+            gIRCNetwork.Enabled = xIRC.Checked;
+            gIRCOptions.Enabled = xIRC.Checked;
+
             tIRCBotNetwork.Text = Config.GetString( ConfigKey.IRCBotNetwork );
             nIRCBotPort.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.IRCBotPort ) );
+            nIRCDelay.Value = Config.GetInt( ConfigKey.IRCDelay );
+
             tIRCBotChannels.Text = Config.GetString( ConfigKey.IRCBotChannels );
 
             tIRCBotNick.Text = Config.GetString( ConfigKey.IRCBotNick );
+            xIRCRegisteredNick.Checked = Config.GetBool( ConfigKey.IRCRegisteredNick );
+
+            tIRCNickServ.Text = Config.GetString( ConfigKey.IRCNickServ );
+            tIRCNickServMessage.Text = Config.GetString( ConfigKey.IRCNickServMessage );
 
             xIRCBotAnnounceIRCJoins.Checked = Config.GetBool( ConfigKey.IRCBotAnnounceIRCJoins );
             xIRCBotAnnounceServerJoins.Checked = Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins );
             xIRCBotForwardFromIRC.Checked = Config.GetBool( ConfigKey.IRCBotForwardFromIRC );
             xIRCBotForwardFromServer.Checked = Config.GetBool( ConfigKey.IRCBotForwardFromServer );
 
-            gIRCNetwork.Enabled = xIRC.Checked;
-            gIRCOptions.Enabled = xIRC.Checked;
-
-            nIRCDelay.Value = Config.GetInt( ConfigKey.IRCDelay );
 
             colorIRC = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.IRCMessageColor ) );
             ApplyColor( bColorIRC, colorIRC );
@@ -357,16 +362,20 @@ namespace ConfigTool {
 
             Config.SetValue( ConfigKey.IRCBotNetwork, tIRCBotNetwork.Text );
             Config.SetValue( ConfigKey.IRCBotPort, nIRCBotPort.Value );
+            Config.SetValue( ConfigKey.IRCDelay, nIRCDelay.Value );
+
             Config.SetValue( ConfigKey.IRCBotChannels, tIRCBotChannels.Text );
 
             Config.SetValue( ConfigKey.IRCBotNick, tIRCBotNick.Text );
+            Config.SetValue( ConfigKey.IRCRegisteredNick, xIRCRegisteredNick.Checked );
+            Config.SetValue( ConfigKey.IRCNickServ, tIRCNickServ.Text );
+            Config.SetValue( ConfigKey.IRCNickServMessage, tIRCNickServMessage.Text );
 
             Config.SetValue( ConfigKey.IRCBotAnnounceIRCJoins, xIRCBotAnnounceIRCJoins.Checked );
             Config.SetValue( ConfigKey.IRCBotAnnounceServerJoins, xIRCBotAnnounceServerJoins.Checked );
             Config.SetValue( ConfigKey.IRCBotForwardFromIRC, xIRCBotForwardFromIRC.Checked );
             Config.SetValue( ConfigKey.IRCBotForwardFromServer, xIRCBotForwardFromServer.Checked );
             Config.SetValue( ConfigKey.IRCMessageColor, fCraft.Color.GetName( colorIRC ) );
-            Config.SetValue( ConfigKey.IRCDelay, nIRCDelay.Value );
 
             Config.SetValue( ConfigKey.SendRedundantBlockUpdates, xRedundantPacket.Checked );
             Config.SetValue( ConfigKey.NoPartialPositionUpdates, xAbsoluteUpdates.Checked );
