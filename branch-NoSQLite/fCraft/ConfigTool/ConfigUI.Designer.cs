@@ -23,20 +23,20 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem( "System Activity" );
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem( "Warnings" );
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem( "Errors" );
-            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
-            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem( "User Activity" );
-            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem( "User Commands" );
-            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
-            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem( "Chat" );
-            System.Windows.Forms.ListViewItem listViewItem9 = new System.Windows.Forms.ListViewItem( "Private Chat" );
-            System.Windows.Forms.ListViewItem listViewItem10 = new System.Windows.Forms.ListViewItem( "Rank Chat" );
-            System.Windows.Forms.ListViewItem listViewItem11 = new System.Windows.Forms.ListViewItem( "Console Input" );
-            System.Windows.Forms.ListViewItem listViewItem12 = new System.Windows.Forms.ListViewItem( "Console Output" );
-            System.Windows.Forms.ListViewItem listViewItem13 = new System.Windows.Forms.ListViewItem( "Debug Information" );
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.ListViewItem listViewItem14 = new System.Windows.Forms.ListViewItem( "System Activity" );
+            System.Windows.Forms.ListViewItem listViewItem15 = new System.Windows.Forms.ListViewItem( "Warnings" );
+            System.Windows.Forms.ListViewItem listViewItem16 = new System.Windows.Forms.ListViewItem( "Errors" );
+            System.Windows.Forms.ListViewItem listViewItem17 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
+            System.Windows.Forms.ListViewItem listViewItem18 = new System.Windows.Forms.ListViewItem( "User Activity" );
+            System.Windows.Forms.ListViewItem listViewItem19 = new System.Windows.Forms.ListViewItem( "User Commands" );
+            System.Windows.Forms.ListViewItem listViewItem20 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
+            System.Windows.Forms.ListViewItem listViewItem21 = new System.Windows.Forms.ListViewItem( "Chat" );
+            System.Windows.Forms.ListViewItem listViewItem22 = new System.Windows.Forms.ListViewItem( "Private Chat" );
+            System.Windows.Forms.ListViewItem listViewItem23 = new System.Windows.Forms.ListViewItem( "Rank Chat" );
+            System.Windows.Forms.ListViewItem listViewItem24 = new System.Windows.Forms.ListViewItem( "Console Input" );
+            System.Windows.Forms.ListViewItem listViewItem25 = new System.Windows.Forms.ListViewItem( "Console Output" );
+            System.Windows.Forms.ListViewItem listViewItem26 = new System.Windows.Forms.ListViewItem( "Debug Information" );
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -202,6 +202,11 @@
             this.xIRCBotAnnounceServerJoins = new System.Windows.Forms.CheckBox();
             this.xIRCBotForwardFromServer = new System.Windows.Forms.CheckBox();
             this.gIRCNetwork = new System.Windows.Forms.GroupBox();
+            this.xIRCRegisteredNick = new System.Windows.Forms.CheckBox();
+            this.tIRCNickServMessage = new System.Windows.Forms.TextBox();
+            this.lIRCNickServMessage = new System.Windows.Forms.Label();
+            this.tIRCNickServ = new System.Windows.Forms.TextBox();
+            this.lIRCNickServ = new System.Windows.Forms.Label();
             this.nIRCDelay = new System.Windows.Forms.NumericUpDown();
             this.lIRCDelay = new System.Windows.Forms.Label();
             this.lIRCBotChannels2 = new System.Windows.Forms.Label();
@@ -239,11 +244,6 @@
             this.bResetTab = new System.Windows.Forms.Button();
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -915,8 +915,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 634, 348 );
             this.dgvWorlds.TabIndex = 0;
@@ -2048,33 +2048,33 @@
             this.columnHeader3} );
             this.vConsoleOptions.GridLines = true;
             this.vConsoleOptions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            listViewItem1.StateImageIndex = 0;
-            listViewItem2.StateImageIndex = 0;
-            listViewItem3.StateImageIndex = 0;
-            listViewItem4.StateImageIndex = 0;
-            listViewItem5.StateImageIndex = 0;
-            listViewItem6.StateImageIndex = 0;
-            listViewItem7.StateImageIndex = 0;
-            listViewItem8.StateImageIndex = 0;
-            listViewItem9.StateImageIndex = 0;
-            listViewItem10.StateImageIndex = 0;
-            listViewItem11.StateImageIndex = 0;
-            listViewItem12.StateImageIndex = 0;
-            listViewItem13.StateImageIndex = 0;
+            listViewItem14.StateImageIndex = 0;
+            listViewItem15.StateImageIndex = 0;
+            listViewItem16.StateImageIndex = 0;
+            listViewItem17.StateImageIndex = 0;
+            listViewItem18.StateImageIndex = 0;
+            listViewItem19.StateImageIndex = 0;
+            listViewItem20.StateImageIndex = 0;
+            listViewItem21.StateImageIndex = 0;
+            listViewItem22.StateImageIndex = 0;
+            listViewItem23.StateImageIndex = 0;
+            listViewItem24.StateImageIndex = 0;
+            listViewItem25.StateImageIndex = 0;
+            listViewItem26.StateImageIndex = 0;
             this.vConsoleOptions.Items.AddRange( new System.Windows.Forms.ListViewItem[] {
-            listViewItem1,
-            listViewItem2,
-            listViewItem3,
-            listViewItem4,
-            listViewItem5,
-            listViewItem6,
-            listViewItem7,
-            listViewItem8,
-            listViewItem9,
-            listViewItem10,
-            listViewItem11,
-            listViewItem12,
-            listViewItem13} );
+            listViewItem14,
+            listViewItem15,
+            listViewItem16,
+            listViewItem17,
+            listViewItem18,
+            listViewItem19,
+            listViewItem20,
+            listViewItem21,
+            listViewItem22,
+            listViewItem23,
+            listViewItem24,
+            listViewItem25,
+            listViewItem26} );
             this.vConsoleOptions.Location = new System.Drawing.Point( 88, 20 );
             this.vConsoleOptions.Name = "vConsoleOptions";
             this.vConsoleOptions.Size = new System.Drawing.Size( 161, 251 );
@@ -2181,11 +2181,11 @@
             this.gIRCNetwork.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.gIRCNetwork.Controls.Add( this.checkBox1 );
-            this.gIRCNetwork.Controls.Add( this.textBox2 );
-            this.gIRCNetwork.Controls.Add( this.label2 );
-            this.gIRCNetwork.Controls.Add( this.textBox1 );
-            this.gIRCNetwork.Controls.Add( this.label1 );
+            this.gIRCNetwork.Controls.Add( this.xIRCRegisteredNick );
+            this.gIRCNetwork.Controls.Add( this.tIRCNickServMessage );
+            this.gIRCNetwork.Controls.Add( this.lIRCNickServMessage );
+            this.gIRCNetwork.Controls.Add( this.tIRCNickServ );
+            this.gIRCNetwork.Controls.Add( this.lIRCNickServ );
             this.gIRCNetwork.Controls.Add( this.nIRCDelay );
             this.gIRCNetwork.Controls.Add( this.lIRCDelay );
             this.gIRCNetwork.Controls.Add( this.lIRCBotChannels2 );
@@ -2204,6 +2204,54 @@
             this.gIRCNetwork.TabIndex = 1;
             this.gIRCNetwork.TabStop = false;
             this.gIRCNetwork.Text = "Network";
+            // 
+            // xIRCRegisteredNick
+            // 
+            this.xIRCRegisteredNick.AutoSize = true;
+            this.xIRCRegisteredNick.Location = new System.Drawing.Point( 272, 102 );
+            this.xIRCRegisteredNick.Name = "xIRCRegisteredNick";
+            this.xIRCRegisteredNick.Size = new System.Drawing.Size( 86, 19 );
+            this.xIRCRegisteredNick.TabIndex = 26;
+            this.xIRCRegisteredNick.Text = "Registered";
+            this.xIRCRegisteredNick.UseVisualStyleBackColor = true;
+            this.xIRCRegisteredNick.CheckedChanged += new System.EventHandler( this.xIRCRegisteredNick_CheckedChanged );
+            // 
+            // tIRCNickServMessage
+            // 
+            this.tIRCNickServMessage.Enabled = false;
+            this.tIRCNickServMessage.Location = new System.Drawing.Point( 395, 127 );
+            this.tIRCNickServMessage.Name = "tIRCNickServMessage";
+            this.tIRCNickServMessage.Size = new System.Drawing.Size( 234, 21 );
+            this.tIRCNickServMessage.TabIndex = 25;
+            // 
+            // lIRCNickServMessage
+            // 
+            this.lIRCNickServMessage.AutoSize = true;
+            this.lIRCNickServMessage.Enabled = false;
+            this.lIRCNickServMessage.Location = new System.Drawing.Point( 272, 130 );
+            this.lIRCNickServMessage.Name = "lIRCNickServMessage";
+            this.lIRCNickServMessage.Size = new System.Drawing.Size( 117, 15 );
+            this.lIRCNickServMessage.TabIndex = 24;
+            this.lIRCNickServMessage.Text = "Authentication string";
+            // 
+            // tIRCNickServ
+            // 
+            this.tIRCNickServ.Enabled = false;
+            this.tIRCNickServ.Location = new System.Drawing.Point( 128, 127 );
+            this.tIRCNickServ.MaxLength = 32;
+            this.tIRCNickServ.Name = "tIRCNickServ";
+            this.tIRCNickServ.Size = new System.Drawing.Size( 138, 21 );
+            this.tIRCNickServ.TabIndex = 23;
+            // 
+            // lIRCNickServ
+            // 
+            this.lIRCNickServ.AutoSize = true;
+            this.lIRCNickServ.Enabled = false;
+            this.lIRCNickServ.Location = new System.Drawing.Point( 42, 130 );
+            this.lIRCNickServ.Name = "lIRCNickServ";
+            this.lIRCNickServ.Size = new System.Drawing.Size( 80, 15 );
+            this.lIRCNickServ.TabIndex = 22;
+            this.lIRCNickServ.Text = "NickServ nick";
             // 
             // nIRCDelay
             // 
@@ -2660,55 +2708,6 @@
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Enabled = false;
-            this.label1.Location = new System.Drawing.Point( 42, 130 );
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size( 80, 15 );
-            this.label1.TabIndex = 22;
-            this.label1.Text = "NickServ nick";
-            // 
-            // textBox1
-            // 
-            this.textBox1.Enabled = false;
-            this.textBox1.Location = new System.Drawing.Point( 128, 127 );
-            this.textBox1.MaxLength = 32;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size( 138, 21 );
-            this.textBox1.TabIndex = 23;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Enabled = false;
-            this.label2.Location = new System.Drawing.Point( 272, 130 );
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size( 117, 15 );
-            this.label2.TabIndex = 24;
-            this.label2.Text = "Authentication string";
-            // 
-            // textBox2
-            // 
-            this.textBox2.Enabled = false;
-            this.textBox2.Location = new System.Drawing.Point( 395, 127 );
-            this.textBox2.MaxLength = 32;
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size( 234, 21 );
-            this.textBox2.TabIndex = 25;
-            // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Enabled = false;
-            this.checkBox1.Location = new System.Drawing.Point( 272, 102 );
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size( 86, 19 );
-            this.checkBox1.TabIndex = 26;
-            this.checkBox1.Text = "Registered";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2995,10 +2994,10 @@
         private System.Windows.Forms.Button bLowerRank;
         private System.Windows.Forms.Button bRaiseRank;
         private System.Windows.Forms.Label lRankList;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.CheckBox xIRCRegisteredNick;
+        private System.Windows.Forms.TextBox tIRCNickServMessage;
+        private System.Windows.Forms.Label lIRCNickServMessage;
+        private System.Windows.Forms.TextBox tIRCNickServ;
+        private System.Windows.Forms.Label lIRCNickServ;
     }
 }

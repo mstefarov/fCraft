@@ -11,7 +11,7 @@ namespace fCraft {
     public static class PlayerDB {
         static StringTree tree = new StringTree();
         static List<PlayerInfo> list = new List<PlayerInfo>();
-        public const int SaveInterval = 30000; // 30s
+        public const int SaveInterval = 60000; // 60s
 
         static int MaxID = 0;
 
@@ -137,7 +137,7 @@ namespace fCraft {
             locker.EnterReadLock();
             try {
                 foreach( PlayerInfo info in list ) {
-                    if( info.lastIP == address ) {
+                    if( info.lastIP.ToString() == address.ToString() ) {
                         result.Add( info );
                     }
                 }

@@ -417,29 +417,48 @@ namespace fCraft {
             PlayerInfo info;
             if( !PlayerDB.FindPlayerInfo( name, out info ) ) {
                 player.Message( "More than one player found matching \"{0}\"", name );
-            } else if( info != null ) {
 
-                if( DateTime.Now.Subtract( info.lastLoginDate ).TotalDays < 1 ) {
-                    player.Message( "About {0}: Last login {1:F1} hours ago from {2}",
-                                    info.name,
-                                    DateTime.Now.Subtract( info.lastLoginDate ).TotalHours,
-                                    info.lastIP );
+            } else if( info != null ) {
+                if( info.lastIP.ToString() == IPAddress.None.ToString() ) {
+                    player.Message( "About {0}: Never seen before.", info.name );
+
                 } else {
-                    player.Message( "About {0}: Last login {1:F1} days ago from {2}",
-                                    info.name,
-                                    DateTime.Now.Subtract( info.lastLoginDate ).TotalDays,
-                                    info.lastIP );
+                    if( DateTime.Now.Subtract( info.lastLoginDate ).TotalDays < 1 ) {
+                        player.Message( "About {0}: Last login {1:F1} hours ago from {2}",
+                                        info.name,
+                                        DateTime.Now.Subtract( info.lastLoginDate ).TotalHours,
+                                        info.lastIP );
+
+                    } else {
+                        player.Message( "About {0}: Last login {1:F1} days ago from {2}",
+                                        info.name,
+                                        DateTime.Now.Subtract( info.lastLoginDate ).TotalDays,
+                                        info.lastIP );
+                    }
+                    // Show login information
+                    player.Message( "  Logged in {0} time(s) since {1:dd MMM yyyy}.",
+                                    info.timesVisited,
+                                    info.firstLoginDate );
                 }
 
-                player.Message( "  Logged in {0} time(s) since {1:dd MMM yyyy}.",
-                                info.timesVisited,
-                                info.firstLoginDate );
 
+                // Show ban information
+                IPBanInfo ipBan = IPBanList.Get( info.lastIP );
+                if( ipBan != null && info.banned ) {
+                    player.Message( "  Both name and IP are {0}BANNED.", Color.Red );
+                } else if( ipBan != null ) {
+                    player.Message( "  IP is {0}BANNED&S (but nick isn't).", Color.Red );
+                } else if( info.banned ) {
+                    player.Message( "  Nick is {0}BANNED&S (but IP isn't).", Color.Red );
+                }
+
+                // Stats
                 player.Message( "  Built {0} and deleted {1} blocks, and wrote {2} messages.",
                                 info.blocksBuilt,
                                 info.blocksDeleted,
                                 info.linesWritten );
 
+                // More stats
                 if( info.timesBannedOthers > 0 || info.timesKickedOthers > 0 ) {
                     player.Message( "  Kicked {0} and banned {1} players.", info.timesKickedOthers, info.timesBannedOthers );
                 }
@@ -448,6 +467,7 @@ namespace fCraft {
                     player.Message( "  Got kicked {0} times (so far).", info.timesKicked );
                 }
 
+                // Promotion/demotion
                 if( info.rankChangedBy != "-" ) {
                     if( info.previousRank == null ) {
                         player.Message( "  Promoted to {0}&S by {1} on {2:dd MMM yyyy}.",
@@ -478,13 +498,16 @@ namespace fCraft {
                                     info.rank.GetClassyName() );
                 }
 
-                TimeSpan totalTime = info.totalTimeOnServer;
-                if( Server.FindPlayerExact( player.name ) != null ) {
-                    totalTime = totalTime.Add( DateTime.Now.Subtract( info.lastLoginDate ) );
+                if( info.lastIP.ToString() != IPAddress.None.ToString() ) {
+                    // Time on the server
+                    TimeSpan totalTime = info.totalTimeOnServer;
+                    if( Server.FindPlayerExact( player.name ) != null ) {
+                        totalTime = totalTime.Add( DateTime.Now.Subtract( info.lastLoginDate ) );
+                    }
+                    player.Message( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
+                                    totalTime.TotalHours,
+                                    totalTime.TotalMinutes );
                 }
-                player.Message( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
-                                totalTime.TotalHours,
-                                totalTime.TotalMinutes );
             } else {
                 player.NoPlayerMessage( name );
             }

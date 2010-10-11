@@ -194,6 +194,10 @@ namespace fCraft {
 
             switch( msg.Type ) {
                 case IRCMessageType.Login:
+                    if( Config.GetBool( ConfigKey.IRCRegisteredNick ) ) {
+                        Send( IRCCommands.Privmsg( Config.GetString( ConfigKey.IRCNickServ ),
+                                                   Config.GetString( ConfigKey.IRCNickServMessage ) ) );
+                    }
                     foreach( string channel in channelNames ) {
                         Send( IRCCommands.Join( channel ) );
                     }

@@ -108,10 +108,13 @@ namespace fCraft {
         }
 
         internal static Packet MakeAddEntity( Player player, Position pos ) {
+            return MakeAddEntity( player.id, player.name, pos );
+        }
+        internal static Packet MakeAddEntity( int id, string name, Position pos ) {
             Packet packet = new Packet( 74 );
             packet.data[0] = (byte)OutputCode.AddEntity;
-            packet.data[1] = (byte)player.id;
-            Encoding.ASCII.GetBytes( player.GetListName().PadRight( 64 ), 0, 64, packet.data, 2 );
+            packet.data[1] = (byte)id;
+            Encoding.ASCII.GetBytes( name.PadRight( 64 ), 0, 64, packet.data, 2 );
             ToNetOrder( pos.x, packet.data, 66 );
             ToNetOrder( pos.h, packet.data, 68 );
             ToNetOrder( pos.y, packet.data, 70 );

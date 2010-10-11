@@ -33,37 +33,39 @@ namespace fCraftUI {
 #else
             try {
 #endif
-            if( Server.Init() ) {
-                Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
+                if( Server.Init() ) {
+                    Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
 
-                Application.DoEvents();
-                UpdaterResult update = Updater.CheckForUpdates();
-                Application.DoEvents();
-                if( update.UpdateAvailable ) {
-                    if( Config.GetString( ConfigKey.AutomaticUpdates ) == "Notify" ) {
-                        Log( String.Format( Environment.NewLine +
-                                            "*** A new version of fCraft is available: v{0}, released {1:0} day(s) ago. ***" +
-                                            Environment.NewLine,
-                                            update.GetVersionString(),
-                                            DateTime.Now.Subtract( update.ReleaseDate ).TotalDays ), LogType.ConsoleOutput );
-                        StartServer();
+                    Application.DoEvents();
+                    UpdaterResult update = Updater.CheckForUpdates();
+                    Application.DoEvents();
+                    if( update.UpdateAvailable ) {
+                        if( Config.GetString( ConfigKey.AutomaticUpdates ) == "Notify" ) {
+                            Log( String.Format( Environment.NewLine +
+                                                "*** A new version of fCraft is available: v{0}, released {1:0} day(s) ago. ***" +
+                                                Environment.NewLine,
+                                                update.GetVersionString(),
+                                                DateTime.Now.Subtract( update.ReleaseDate ).TotalDays ), LogType.ConsoleOutput );
+                            StartServer();
+                        } else {
+                            UpdateWindow updateWindow = new UpdateWindow( update, this, Config.GetString( ConfigKey.AutomaticUpdates ) == "Auto" );
+                            updateWindow.StartPosition = FormStartPosition.CenterParent;
+                            updateWindow.ShowDialog();
+                        }
                     } else {
-                        UpdateWindow updateWindow = new UpdateWindow( update, this, Config.GetString( ConfigKey.AutomaticUpdates ) == "Auto" );
-                        updateWindow.StartPosition = FormStartPosition.CenterParent;
-                        updateWindow.ShowDialog();
+                        StartServer();
                     }
                 } else {
-                    StartServer();
+                    Server.Shutdown( "error on init" );
+                    Logger.Log( "---- Could Not Initialize Server ----", LogType.Error );
                 }
-            } else {
-                Logger.Log( "---- Could Not Initialize Server ----", LogType.Error );
-            }
 #if DEBUG
 #else
             } catch( Exception ex ) {
                 Logger.Log( "Fatal error at startup: " + ex, LogType.FatalError );
                 Logger.UploadCrashReport( "Unhandled exception in fCraftUI.StartUp", "fCraftUI", ex );
                 Server.CheckForCommonErrors( ex );
+                Server.Shutdown( "error on init" );
             }
 #endif
         }

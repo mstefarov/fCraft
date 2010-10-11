@@ -570,10 +570,6 @@ namespace fCraft {
             double ry2 = 1 / (ry * ry);
             double rh2 = 1 / (rh * rh);
 
-            double rx3 = 1 / ((rx - 1) * (rx - 1));
-            double ry3 = 1 / ((ry - 1) * (ry - 1));
-            double rh3 = 1 / ((ry - 1) * (rh - 1));
-
             // find center points
             double cx = (ex + sx) / 2d;
             double cy = (ey + sy) / 2d;
