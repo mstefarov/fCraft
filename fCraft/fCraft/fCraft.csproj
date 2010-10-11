@@ -104,7 +104,7 @@
     <Compile Include="Player\RankList.cs" />
     <Compile Include="Player\Permission.cs" />
     <Compile Include="Utils\Color.cs" />
-    <Compile Include="Network\Heartbeat_.cs" />
+    <Compile Include="Network\Heartbeat.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Utils\Config.cs" />
     <Compile Include="Utils\Logger.cs" />
