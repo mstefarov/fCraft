@@ -687,13 +687,8 @@ namespace fCraft {
                 try {
                     lock( sessionLock ) {
                         Session newSession = new Session( listener.AcceptTcpClient() );
-                        if( !FirePlayerConnectedEvent( newSession ) ) {
-                            newSession.Disconnect(); // TODO: add a way for event handlers to customize kick message
-                            Logger.Log( "Server.CheckConnections: Connection cancelled by an event handler.", LogType.Error );
-                        } else {
-                            newSession.Start();
-                            sessions.Add( newSession );
-                        }
+                        newSession.Start();
+                        sessions.Add( newSession );
                     }
                 } catch( Exception ex ) {
                     Logger.Log( "Server.CheckConnections: Could not accept incoming connection: " + ex, LogType.Error );
