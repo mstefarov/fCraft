@@ -123,7 +123,6 @@ namespace fCraft {
         static string sessionStart = DateTime.Now.ToString( LongDateFormat );
 
         static Logger() {
-            // TODO: log splitting
             consoleOptions = new bool[15];
             logFileOptions = new bool[15];
             for( int i = 0; i < consoleOptions.Length; i++ ) {
@@ -156,7 +155,6 @@ namespace fCraft {
         }
 
         public static void LogConsole( string message ) {
-            // TODO: move to log
             if( message.Contains( "&N" ) ) {
                 foreach( string line in message.Split( PacketWriter.splitter, StringSplitOptions.RemoveEmptyEntries ) ) {
                     LogConsole( line );
@@ -173,7 +171,6 @@ namespace fCraft {
 
 
         public static void Log( string message, LogType type ) {
-            //TODO: check if logging is enabled
             if( type == LogType.FatalError ) {
                 LogCrash( message );
             }

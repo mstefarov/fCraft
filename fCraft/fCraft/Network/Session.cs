@@ -59,7 +59,9 @@ namespace fCraft {
             client = _client;
             client.SendTimeout = socketTimeout;
             client.ReceiveTimeout = socketTimeout;
+        }
 
+        public void Start() {
             reader = new BinaryReader( client.GetStream() );
             writer = new PacketWriter( client.GetStream() );
 

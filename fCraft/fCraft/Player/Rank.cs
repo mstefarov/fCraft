@@ -7,9 +7,11 @@ using System.Xml.Linq;
 
 
 namespace fCraft {
-    public sealed class Rank {
+    public interface IClassy {
+        string GetClassyName();
+    }
 
-        
+    public sealed class Rank : IClassy {
 
         public sealed class RankDefinitionException : Exception {
             public RankDefinitionException( string message ) : base( message ) { }

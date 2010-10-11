@@ -1,3 +1,17 @@
+0.485
+ Feature: Added optional "delay" parameter to /shutdown (default: 5)
+ Feature: World names can now be autocompleted for many commands (like /join and /lock)
+ Fix: Fixed /unhide failing to reveal the player in certain situations.
+ Fix: Fixed /setspawn being usable on players from other worlds.
+ Fix: Fixed player names appearing white for all players.
+ Fix: Fixed a recursion loop in NoWorldMessage()
+ Fix: Fixed help entries for /setspawn and /shutdown
+ Fix: Fixed potential crash in Server.Shutdown() if called after failed initialization/startup.
+ Fix: Fixed potential deadlock/freeze in fCraftUI on shutdown.
+ Change: Improved crash reporting for TargetInvokationException and TypeInitializerException errors.
+ Change: All assemblies are now once again x86/x86_64/IA64 compatible.
+ Change: Server.OnPlayerConnected event now supports cancellation.
+
 0.484
  Feature: Added a way for IRC bot to use registered nicknames.
  Feature: /banall-related kicks are now announced in chat.

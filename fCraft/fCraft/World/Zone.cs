@@ -7,7 +7,7 @@ using System.Text;
 
 namespace fCraft {
 
-    public sealed class Zone {
+    public sealed class Zone : IClassy {
 
         public class ZonePlayerList {
             // keeping both lists on one object allows lock-free synchronization
@@ -182,6 +182,10 @@ namespace fCraft {
             }
 
             return ZonePermissionType.Denied;
+        }
+
+        public string GetClassyName() {
+            return rank.Color + name;
         }
     }
 

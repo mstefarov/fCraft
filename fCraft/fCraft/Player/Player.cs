@@ -1,13 +1,14 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 
 namespace fCraft {
 
     public delegate void SelectionCallback( Player player, Position[] marks, object tag );
 
-    public sealed class Player {
+    public sealed class Player : IClassy {
         public string name, lowercaseName;
         internal Session session;
         public PlayerInfo info;
@@ -164,7 +165,7 @@ namespace fCraft {
                         NoPlayerMessage( otherPlayerName );
 
                     } else {
-                        ManyPlayersMessage( allPlayers );
+                        ManyMatchesMessage( "player", allPlayers );
                     }
                     break;
 
@@ -269,17 +270,23 @@ namespace fCraft {
 
 
         internal void NoWorldMessage( string worldName ) {
-            NoWorldMessage( worldName );
+            Message( "No world found with the name \"{0}\"", name );
         }
 
-
-        internal void ManyPlayersMessage( IEnumerable<Player> names ) {
-            string playerString = "";
-            foreach( Player player in names ) {
-                playerString += ", " + player.GetClassyName();
+        internal void ManyMatchesMessage( string itemType, IClassy[] names ) {
+            bool first = true;
+            StringBuilder list = new StringBuilder();
+            foreach( IClassy item in names ) {
+                if( !first ) {
+                    list.Append( ", " );
+                }
+                list.Append( item.GetClassyName() );
+                first = false;
             }
-            Message( "More than one player matched: \"{0}\"", playerString.Substring( 2 ) );
+            Message( "More than one {0} matched: {1}", itemType, list );
         }
+
+
 
 
         internal void NoAccessMessage( params Permission[] permissions ) {
