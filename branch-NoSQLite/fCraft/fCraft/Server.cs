@@ -188,10 +188,12 @@ namespace fCraft {
 
 
                 // kick all players
-                Player[] pListCached = playerList;
-                foreach( Player player in pListCached ) {
-                    // NOTE: kick packet delivery here is not currently guaranteed
-                    player.session.Kick( "Server shutting down (" + reason + ")" );
+                if( playerList != null ) {
+                    Player[] pListCached = playerList;
+                    foreach( Player player in pListCached ) {
+                        // NOTE: kick packet delivery here is not currently guaranteed
+                        player.session.Kick( "Server shutting down (" + reason + ")" );
+                    }
                 }
 
                 // kill the main thread
@@ -238,12 +240,25 @@ namespace fCraft {
         }
 
 
-        public static void InitiateShutdown( string reason ) {
+        class ShutdownParams {
+            public string Reason;
+            public int Delay;
+            public bool KillProcess;
+        }
+
+        public static void InitiateShutdown( string reason, int delay, bool killProcess ) {
             new Thread( delegate( object obj ) {
-                Thread.Sleep( 5000 );
-                Server.Shutdown( (string)obj );
-                Process.GetCurrentProcess().Kill();
-            } ).Start( reason );
+                ShutdownParams param = (ShutdownParams)obj;
+                Thread.Sleep( param.Delay );
+                Server.Shutdown( param.Reason );
+                if( param.KillProcess ) {
+                    Process.GetCurrentProcess().Kill();
+                }
+            } ).Start( new ShutdownParams {
+                Reason = reason,
+                Delay = delay,
+                KillProcess = killProcess
+            } );
         }
 
         #region Worlds
