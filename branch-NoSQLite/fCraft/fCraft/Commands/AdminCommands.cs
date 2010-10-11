@@ -355,7 +355,7 @@ namespace fCraft {
                 if( targets.Length == 1 ) {
                     DoKick( player, targets[0], msg, false );
                 } else if( targets.Length > 1 ) {
-                    player.ManyPlayersMessage( targets );
+                    player.ManyMatchesMessage( "player", targets );
                 } else {
                     player.NoPlayerMessage( name );
                 }
@@ -766,10 +766,9 @@ namespace fCraft {
 
         internal static void Unhide( Player player, Command cmd ) {
             if( player.isHidden ) {
-                player.isHidden = false;
-
                 player.Message( "You are no longer hidden.", Color.Gray );
                 player.world.SendToBlind( PacketWriter.MakeAddEntity( player, player.pos ), player );
+                player.isHidden = false;
 
                 string message = String.Format( "{0}&S is no longer hidden.", player.GetClassyName() );
                 foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
@@ -807,16 +806,21 @@ namespace fCraft {
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,
                             player.name );
             } else {
-                Player[] infos = Server.FindPlayers( player, playerName ); // TODO: search only on player's own world
+                Player[] infos = player.world.FindPlayers( player, playerName ); // TODO: search only on player's own world
                 if( infos.Length == 1 ) {
                     Player target = infos[0];
                     target.Send( PacketWriter.MakeAddEntity( 255, target.GetListName(), player.pos ) );
 
                 } else if( infos.Length > 0 ) {
-                    player.ManyPlayersMessage( infos );
+                    player.ManyMatchesMessage( "player", infos );
 
                 } else {
-                    player.NoPlayerMessage( playerName );
+                    infos = Server.FindPlayers( player, playerName );
+                    if( infos.Length > 0 ) {
+                        player.Message( "You can only set spawn of players on the same world as you." );
+                    }else{
+                        player.NoPlayerMessage( playerName );
+                    }
                 }
             }
         }
@@ -908,7 +912,7 @@ namespace fCraft {
                     player.Message( "{0}&S is already frozen.", targets[0].GetClassyName() );
                 }
             } else if( targets.Length > 1 ) {
-                player.ManyPlayersMessage( targets );
+                player.ManyMatchesMessage( "player", targets );
             } else {
                 player.NoPlayerMessage( name );
             }
@@ -940,7 +944,7 @@ namespace fCraft {
                     player.Message( targets[0].GetClassyName() + "&S is currently not frozen." );
                 }
             } else if( targets.Length > 1 ) {
-                player.ManyPlayersMessage( targets );
+                player.ManyMatchesMessage( "player", targets );
             } else {
                 player.NoPlayerMessage( name );
             }
@@ -1019,7 +1023,7 @@ namespace fCraft {
                 }
 
             } else if( matches.Length > 1 ) {
-                player.ManyPlayersMessage( matches );
+                player.ManyMatchesMessage( "player", matches );
 
             } else if( cmd.Next() != null ) {
                 cmd.Rewind();
@@ -1044,8 +1048,9 @@ namespace fCraft {
                 }
 
             } else {
-                World w = Server.FindWorld( name );
-                if( w != null ) {
+                // Try to guess if player typed "/tp" instead of "/join"
+                World[] worlds = Server.FindWorlds( name );
+                if( worlds.Length == 1 ) {
                     player.ParseMessage( "/join " + name, false );
                 } else {
                     player.NoPlayerMessage( name );
@@ -1088,7 +1093,7 @@ namespace fCraft {
                                     player.world.accessRank.GetClassyName() );
                 }
             } else if( matches.Length > 1 ) {
-                player.ManyPlayersMessage( matches );
+                player.ManyMatchesMessage( "player", matches );
             } else {
                 player.NoPlayerMessage( name );
             }
@@ -1151,7 +1156,7 @@ namespace fCraft {
                                 target.name, player.name, seconds );
 
                 } else if( matches.Length > 1 ) {
-                    player.ManyPlayersMessage( matches );
+                    player.ManyMatchesMessage( "player", matches );
 
                 } else {
                     player.NoPlayerMessage( playerName );

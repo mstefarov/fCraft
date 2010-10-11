@@ -45,8 +45,13 @@ namespace fCraft {
                 cdJoin.PrintUsage( player );
                 return;
             }
-            World world = Server.FindWorld( worldName );
-            if( world != null ) {
+
+            World[] worlds = Server.FindWorlds( worldName );
+            if( worlds.Length > 1 ) {
+                player.ManyMatchesMessage( "world", worlds );
+
+            } else if( worlds.Length == 1 ) {
+                World world = worlds[0];
                 if( player.CanJoin( world ) ) {
                     if( !player.session.JoinWorldNow( world, false ) ) {
                         player.Message( "Failed to join world." );
@@ -55,7 +60,9 @@ namespace fCraft {
                     player.Message( "Cannot join world {0}&S: must be {1}+",
                                     world.GetClassyName(), world.accessRank.GetClassyName() );
                 }
+
             } else {
+                // no worlds found - see if player ment to type in "/join" and not "/tp"
                 Player[] players = Server.FindPlayers( player, worldName );
                 if( players.Length == 1 ) {
                     player.ParseMessage( "/tp " + players[0].name, false );
@@ -99,10 +106,13 @@ namespace fCraft {
                 }
             } else {
                 fileName = p2;
-                world = Server.FindWorld( p1 );
-                if( world == null ) {
+                World[] worlds = Server.FindWorlds( p1 );
+                if( worlds.Length == 0 ) {
                     player.NoWorldMessage( p1 );
-                    return;
+                } else if( worlds.Length > 1 ) {
+                    player.ManyMatchesMessage( "world", worlds );
+                } else {
+                    world = worlds[0];
                 }
             }
 
@@ -150,10 +160,15 @@ namespace fCraft {
             World world = player.world;
 
             if( worldName != null ) {
-                world = Server.FindWorld( worldName );
-                if( world == null ) {
+                World[] worlds = Server.FindWorlds( worldName );
+                if( worlds.Length == 0 ) {
                     player.NoWorldMessage( worldName );
                     return;
+                } else if( worlds.Length > 1 ) {
+                    player.ManyMatchesMessage( "world", worlds );
+                    return;
+                } else {
+                    world = worlds[0];
                 }
             } else if( player.world == null ) {
                 player.Message( "When using /wflush from console, you must specify a world name." );
@@ -189,7 +204,18 @@ namespace fCraft {
                 return;
             }
 
-            World world = Server.FindWorld( worldName );
+            World world;
+            World[] worlds = Server.FindWorlds( worldName );
+            if( worlds.Length == 0 ) {
+                player.NoWorldMessage( worldName );
+                return;
+            } else if( worlds.Length > 1 ) {
+                player.ManyMatchesMessage( "world", worlds );
+                return;
+            } else {
+                world = worlds[0];
+            }
+            
             if( world == null ) {
                 player.NoWorldMessage( worldName );
             } else if( world == Server.mainWorld ) {
@@ -246,10 +272,19 @@ namespace fCraft {
                 return;
             }
 
-            World world = Server.FindWorld( worldName );
-            if( world == null ) {
+            World world;
+            World[] worlds = Server.FindWorlds( worldName );
+            if( worlds.Length == 0 ) {
                 player.NoWorldMessage( worldName );
-            } else if( rankName == null ) {
+                return;
+            } else if( worlds.Length > 1 ) {
+                player.ManyMatchesMessage( "world", worlds );
+                return;
+            } else {
+                world = worlds[0];
+            }
+
+            if( rankName == null ) {
                 if( world.accessRank == RankList.LowestRank ) {
                     player.Message( "World {0}&S can be visited by anyone.",
                                     world.GetClassyName() );
@@ -313,10 +348,19 @@ namespace fCraft {
                 return;
             }
 
-            World world = Server.FindWorld( worldName );
-            if( world == null ) {
+            World world;
+            World[] worlds = Server.FindWorlds( worldName );
+            if( worlds.Length == 0 ) {
                 player.NoWorldMessage( worldName );
-            } else if( rankName == null ) {
+                return;
+            } else if( worlds.Length > 1 ) {
+                player.ManyMatchesMessage( "world", worlds );
+                return;
+            } else {
+                world = worlds[0];
+            }
+
+            if( rankName == null ) {
                 if( world.buildRank == RankList.LowestRank ) {
                     player.Message( "World {0}&S can be modified by anyone.",
                                     world.GetClassyName() );
@@ -489,13 +533,21 @@ namespace fCraft {
             }
 
             lock( Server.worldListLock ) {
-                World oldWorld = Server.FindWorld( oldName );
+                World[] oldWorlds = Server.FindWorlds( oldName );
+                if( oldWorlds.Length > 1 ) {
+                    player.ManyMatchesMessage( "world", oldWorlds );
+                    return;
+                } else if( oldWorlds.Length == 0 ) {
+                    player.NoWorldMessage( oldName );
+                    return;
+                }
+                World oldWorld = oldWorlds[0];
                 World newWorld = Server.FindWorld( newName );
 
-                if( oldWorld == null ) {
-                    player.NoWorldMessage( oldName );
-                } else if( newWorld != null && oldWorld != newWorld ) {
+                // the "oldWorld != newWorld" check allows changing capitalization without triggering "world already exists"
+                if( newWorld != null && oldWorld != newWorld ) {
                     player.Message( "A world with the specified name already exists: {0}", newName );
+
                 } else {
                     oldName = oldWorld.name;
 
@@ -544,10 +596,17 @@ namespace fCraft {
             }
 
             lock( Server.worldListLock ) {
-                World world = Server.FindWorld( worldName );
-                if( world == null ) {
-                    player.Message( "World not found: {0}", worldName );
-                } else if( world == Server.mainWorld ) {
+                World[] worlds = Server.FindWorlds( worldName );
+                if( worlds.Length > 1 ) {
+                    player.ManyMatchesMessage( "world", worlds );
+                    return;
+                } else if( worlds.Length == 0 ) {
+                    player.NoWorldMessage( worldName );
+                    return;
+                }
+                World world = worlds[0];
+
+                if( world == Server.mainWorld ) {
                     player.Message( "Deleting the main world is not allowed. Assign a new main first." );
                 } else {
                     Server.RemoveWorld( worldName );
@@ -717,13 +776,19 @@ namespace fCraft {
 
             World world;
             if( worldName != null ) {
-                world = Server.FindWorld( worldName );
-                if( world == null ) {
+                World[] worlds = Server.FindWorlds( worldName );
+                if( worlds.Length > 1 ) {
+                    player.ManyMatchesMessage( "world", worlds );
+                    return;
+                } else if( worlds.Length == 0 ) {
                     player.NoWorldMessage( worldName );
                     return;
                 }
+                world = worlds[0];
+
             } else if( player.world != null ) {
                 world = player.world;
+
             } else {
                 player.Message( "When called from console, /lock requires a world name." );
                 return;
@@ -769,13 +834,19 @@ namespace fCraft {
 
             World world;
             if( worldName != null ) {
-                world = Server.FindWorld( worldName );
-                if( world == null ) {
+                World[] worlds = Server.FindWorlds( worldName );
+                if( worlds.Length > 1 ) {
+                    player.ManyMatchesMessage( "world", worlds );
+                    return;
+                } else if( worlds.Length == 0 ) {
                     player.NoWorldMessage( worldName );
                     return;
                 }
+                world = worlds[0];
+
             } else if( player.world != null ) {
                 world = player.world;
+
             } else {
                 player.Message( "When called from console, /lock requires a world name." );
                 return;

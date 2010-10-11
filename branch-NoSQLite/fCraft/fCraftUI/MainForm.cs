@@ -152,7 +152,7 @@ namespace fCraftUI {
             try {
                 if( shuttingDown ) return;
                 if( playerList.InvokeRequired ) {
-                    Invoke( (PlayerListUpdateDelegate)UpdatePlayerListInternal, playerNames );
+                    Invoke( (PlayerListUpdateDelegate)UpdatePlayerListInternal, new object[] { playerNames } );
                 } else {
                     UpdatePlayerListInternal( playerNames );
                 }

@@ -174,12 +174,15 @@ namespace fCraft {
                 }
             }
 
-            World world = Server.FindWorld( worldName );
-            if( world == null ) {
-                player.Message( "Unrecognized world name: \"{0}\".", worldName );
-                player.Message( "See &H/worlds&S for a list of worlds." );
+            World[] worlds = Server.FindWorlds( worldName );
+            if( worlds.Length > 1 ) {
+                player.ManyMatchesMessage( "world", worlds );
+                return;
+            }else if(worlds.Length==0){
+                player.NoWorldMessage( worldName );
                 return;
             }
+            World world = worlds[0];
 
             player.Message( "World {0}&S has {1} player(s) on.",
                             world.GetClassyName(),
@@ -307,7 +310,7 @@ namespace fCraft {
                                     target.GetClassyName(),
                                     target.world.GetClassyName() );
                 } else if( matches.Length > 1 ) {
-                    player.ManyPlayersMessage( matches );
+                    player.ManyMatchesMessage( "player", matches );
                     return;
                 } else {
                     player.NoPlayerMessage( name );

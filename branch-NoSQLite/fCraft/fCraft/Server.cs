@@ -482,6 +482,29 @@ namespace fCraft {
         }
 
 
+        public static World[] FindWorlds( string name ) {
+            if( name == null ) return null;
+            World[] tempList;
+            lock( worldListLock ) {
+                tempList = worlds.Values.ToArray();
+            }
+
+            List<World> results = new List<World>();
+            for( int i = 0; i < tempList.Length; i++ ) {
+                if( tempList[i] != null ) {
+                    if( tempList[i].name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
+                        results.Clear();
+                        results.Add( tempList[i] );
+                        break;
+                    } else if( tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                        results.Add( tempList[i] );
+                    }
+                }
+            }
+            return results.ToArray();
+        }
+
+
         public static bool RemoveWorld( string name ) {
             lock( worldListLock ) {
                 World worldToDelete = FindWorld( name );
@@ -508,11 +531,12 @@ namespace fCraft {
         }
 
 
+        // Note: no autocompletion
         public static bool RenameWorld( string oldName, string newName ) {
             lock( worldListLock ) {
                 World oldWorld = FindWorld( oldName );
                 World newWorld = FindWorld( newName );
-                if( oldWorld == null || newWorld != null ) return false;
+                if( oldWorld == null || (newWorld != null && newWorld != oldWorld) ) return false;
                 worlds.Remove( oldName.ToLower() );
                 oldWorld.name = newName;
                 worlds.Add( newName.ToLower(), oldWorld );
@@ -663,8 +687,13 @@ namespace fCraft {
                 try {
                     lock( sessionLock ) {
                         Session newSession = new Session( listener.AcceptTcpClient() );
-                        FirePlayerConnectedEvent( newSession ); // TODO: make cancelable
-                        sessions.Add( newSession );
+                        if( !FirePlayerConnectedEvent( newSession ) ) {
+                            newSession.Disconnect(); // TODO: add a way for event handlers to customize kick message
+                            Logger.Log( "Server.CheckConnections: Connection cancelled by an event handler.", LogType.Error );
+                        } else {
+                            newSession.Start();
+                            sessions.Add( newSession );
+                        }
                     }
                 } catch( Exception ex ) {
                     Logger.Log( "Server.CheckConnections: Could not accept incoming connection: " + ex, LogType.Error );

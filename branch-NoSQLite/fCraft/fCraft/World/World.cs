@@ -29,7 +29,7 @@ using System.Text;
 
 namespace fCraft {
 
-    public sealed class World {
+    public sealed class World : IClassy {
 
         public static string[] BackupEnum = new string[] {
             "Never", "5 Minutes", "10 Minutes", "15 Minutes", "20 Minutes",
@@ -308,6 +308,22 @@ namespace fCraft {
             return result;
         }
 
+        public Player[] FindPlayers( Player player, string name ) {
+            Player[] tempList = playerList;
+            List<Player> results = new List<Player>();
+            for( int i = 0; i < tempList.Length; i++ ) {
+                if( tempList[i] != null && player.CanSee( tempList[i] ) ) {
+                    if( tempList[i].name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
+                        results.Clear();
+                        results.Add( tempList[i] );
+                        break;
+                    } else if( tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                        results.Add( tempList[i] );
+                    }
+                }
+            }
+            return results.ToArray();
+        }
 
         // Get player by name without autocompletion
         public Player FindPlayerExact( string name ) {

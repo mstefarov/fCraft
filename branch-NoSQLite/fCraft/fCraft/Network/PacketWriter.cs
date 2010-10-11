@@ -108,7 +108,7 @@ namespace fCraft {
         }
 
         internal static Packet MakeAddEntity( Player player, Position pos ) {
-            return MakeAddEntity( player.id, player.name, pos );
+            return MakeAddEntity( player.id, player.GetListName(), pos );
         }
         internal static Packet MakeAddEntity( int id, string name, Position pos ) {
             Packet packet = new Packet( 74 );

@@ -103,7 +103,6 @@ namespace Mcc {
 
 
         public bool Save( Map mapToSave, Stream mapStream ) {
-            // Todo: Implement saving
             using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress, true ) ) {
                 BinaryWriter bs = new BinaryWriter( gs );
 
