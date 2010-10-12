@@ -26,30 +26,41 @@ namespace ConfigTool {
         public ConfigUI() {
             instance = this;
             InitializeComponent();
+
             foreach( ListViewItem item in vConsoleOptions.Items ) {
                 vLogFileOptions.Items.Add( (ListViewItem)item.Clone() );
             }
 
             bold = new Font( Font, FontStyle.Bold );
 
-            FillPermissionList();
+            FillOptionList();
+
             dgvWorlds.DataError += delegate( object sender, DataGridViewDataErrorEventArgs e ) {
                 MessageBox.Show( e.Exception.Message, "Data Error" );
             };
 
             nMaxPlayers.Maximum = Config.MaxPlayersSupported;
 
-            Load += LoadConfig;
             Config.logToString = true;
+
+            Load += LoadConfig;
         }
 
-        void FillPermissionList() {
-            ListViewItem item;
+        void FillOptionList() {
             foreach( Permission permission in Enum.GetValues( typeof( Permission ) ) ) {
-                item = new ListViewItem( permission.ToString() );
+                ListViewItem item = new ListViewItem( permission.ToString() );
                 item.Tag = permission;
                 vPermissions.Items.Add( item );
             }
+
+            foreach( LogType type in Enum.GetValues( typeof( LogType ) ) ) {
+                ListViewItem item = new ListViewItem( type.ToString() );
+                item.Tag = type;
+                vLogFileOptions.Items.Add( item );
+                vConsoleOptions.Items.Add( (ListViewItem)item.Clone() );
+            }
+
+            FillOptionToolTips();
         }
 
         internal static void HandleWorldRename( string from, string to ) {
@@ -91,6 +102,57 @@ namespace ConfigTool {
         private void xAnnouncements_CheckedChanged( object sender, EventArgs e ) {
             nAnnouncements.Enabled = xAnnouncements.Checked;
             bAnnouncements.Enabled = xAnnouncements.Checked;
+        }
+
+        private void bPortCheck_Click( object sender, EventArgs e ) {
+            bPortCheck.Text = "Checking";
+            this.Enabled = false;
+            TcpListener listener = null;
+
+            try {
+                listener = new TcpListener( IPAddress.Any, (int)nPort.Value );
+                listener.Start();
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create( "http://www.utorrent.com/testport?plain=1&port=" + nPort.Value );
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+                if( response.StatusCode == HttpStatusCode.OK ) {
+                    using( Stream stream = response.GetResponseStream() ) {
+                        StreamReader reader = new StreamReader( stream );
+                        if( reader.ReadLine().StartsWith( "ok" ) ) {
+                            MessageBox.Show( "Port " + nPort.Value + " is open!", "Port check success" );
+                            return;
+                        }
+                    }
+                }
+                MessageBox.Show( "Port " + nPort.Value + " is closed. You will need to set up forwarding.", "Port check failed" );
+
+            } catch {
+                MessageBox.Show( "Could not start listening on port " + nPort.Value + ". Another program may be using the port.", "Port check failed" );
+            } finally {
+                if( listener != null ) {
+                    listener.Stop();
+                }
+                this.Enabled = true;
+                bPortCheck.Text = "Check";
+            }
+        }
+
+        private void tIP_Validating( object sender, CancelEventArgs e ) {
+            IPAddress IP;
+            if( IPAddress.TryParse( tIP.Text, out IP ) ) {
+                tIP.ForeColor = SystemColors.ControlText;
+            } else {
+                tIP.ForeColor = Color.Red;
+                e.Cancel = true;
+            }
+        }
+
+        private void xIP_CheckedChanged( object sender, EventArgs e ) {
+            tIP.Enabled = xIP.Checked;
+            if( !xIP.Checked ) {
+                tIP.Text = IPAddress.Any.ToString();
+            }
         }
 
         #endregion
@@ -214,10 +276,17 @@ namespace ConfigTool {
         #endregion
 
         #region IRC
+
         private void xIRC_CheckedChanged( object sender, EventArgs e ) {
             gIRCNetwork.Enabled = xIRC.Checked;
             gIRCOptions.Enabled = xIRC.Checked;
         }
+
+        private void xIRCRegisteredNick_CheckedChanged( object sender, EventArgs e ) {
+            tIRCNickServ.Enabled = xIRCRegisteredNick.Checked;
+            tIRCNickServMessage.Enabled = xIRCRegisteredNick.Checked;
+        }
+
         #endregion
 
         #endregion
@@ -250,6 +319,7 @@ namespace ConfigTool {
             cPromoteLimit.SelectedIndex = rank.GetLimitIndex( Permission.Promote );
             cDemoteLimit.SelectedIndex = rank.GetLimitIndex( Permission.Demote );
             cMaxHideFrom.SelectedIndex = rank.GetLimitIndex( Permission.Hide );
+            cFreezeLimit.SelectedIndex = rank.GetLimitIndex( Permission.Freeze );
             xReserveSlot.Checked = rank.ReservedSlot;
             xKickIdle.Checked = rank.IdleKickTimer > 0;
             nKickIdle.Value = rank.IdleKickTimer;
@@ -277,6 +347,7 @@ namespace ConfigTool {
             cPromoteLimit.Enabled = rank.Can( Permission.Promote );
             cDemoteLimit.Enabled = rank.Can( Permission.Demote );
             cMaxHideFrom.Enabled = rank.Can( Permission.Hide );
+            cFreezeLimit.Enabled = rank.Can( Permission.Freeze );
 
             xDrawLimit.Enabled = rank.Can( Permission.Draw );
             nDrawLimit.Enabled &= rank.Can( Permission.Draw );
@@ -310,12 +381,15 @@ namespace ConfigTool {
             FillClassList( cPromoteLimit, "(own rank)" );
             FillClassList( cDemoteLimit, "(own rank)" );
             FillClassList( cMaxHideFrom, "(own rank)" );
+            FillClassList( cFreezeLimit, "(own rank)" );
+
             if( selectedRank != null ) {
                 cKickLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Kick );
                 cBanLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Ban );
                 cPromoteLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Promote );
                 cDemoteLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Demote );
                 cMaxHideFrom.SelectedIndex = selectedRank.GetLimitIndex( Permission.Hide );
+                cFreezeLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Freeze );
             }
         }
 
@@ -327,16 +401,21 @@ namespace ConfigTool {
             tRankName.Text = "";
             bColorRank.Text = "";
             tPrefix.Text = "";
+
             FillClassList( cPromoteLimit, "(own rank)" );
             FillClassList( cDemoteLimit, "(own rank)" );
             FillClassList( cKickLimit, "(own rank)" );
             FillClassList( cBanLimit, "(own rank)" );
             FillClassList( cMaxHideFrom, "(own rank)" );
+            FillClassList( cFreezeLimit, "(own rank)" );
+
             cPromoteLimit.SelectedIndex = 0;
             cDemoteLimit.SelectedIndex = 0;
             cKickLimit.SelectedIndex = 0;
             cBanLimit.SelectedIndex = 0;
             cMaxHideFrom.SelectedIndex = 0;
+            cFreezeLimit.SelectedIndex = 0;
+
             xReserveSlot.Checked = false;
             xKickIdle.Checked = false;
             nKickIdle.Value = 0;
@@ -361,6 +440,43 @@ namespace ConfigTool {
             }
         }
 
+        #region Permission Limits
+
+        private void cPromoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
+            PermissionLimitChange( Permission.Promote, cPromoteLimit );
+        }
+
+        private void cDemoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
+            PermissionLimitChange( Permission.Demote, cDemoteLimit );
+        }
+
+        private void cKickLimit_SelectedIndexChanged( object sender, EventArgs e ) {
+            PermissionLimitChange( Permission.Kick, cKickLimit );
+        }
+
+        private void cBanLimit_SelectedIndexChanged( object sender, EventArgs e ) {
+            PermissionLimitChange( Permission.Ban, cBanLimit );
+        }
+
+        private void cMaxHideFrom_SelectedIndexChanged( object sender, EventArgs e ) {
+            PermissionLimitChange( Permission.Hide, cMaxHideFrom );
+        }
+
+        private void cFreezeLimit_SelectedIndexChanged( object sender, EventArgs e ) {
+            PermissionLimitChange( Permission.Freeze, cFreezeLimit );
+        }
+
+        void PermissionLimitChange( Permission permission, ComboBox control ) {
+            if( selectedRank != null ) {
+                if( control.SelectedIndex == 0 ) {
+                    selectedRank.ResetLimit( permission );
+                } else {
+                    selectedRank.SetLimit( permission, RankList.FindRank( control.SelectedIndex - 1 ) );
+                }
+            }
+        }
+
+        #endregion
 
         #region Ranks Input Handlers
 
@@ -505,58 +621,6 @@ namespace ConfigTool {
         }
 
 
-        private void cPromoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( selectedRank != null ) {
-                if( cPromoteLimit.SelectedIndex == 0 ) {
-                    selectedRank.ResetLimit( Permission.Promote );
-                } else {
-                    selectedRank.SetLimit( Permission.Promote, RankList.FindRank( cPromoteLimit.SelectedIndex - 1 ) );
-                }
-            }
-        }
-
-        private void cDemoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( selectedRank != null ) {
-                if( cDemoteLimit.SelectedIndex == 0 ) {
-                    selectedRank.ResetLimit( Permission.Demote );
-                } else {
-                    selectedRank.SetLimit( Permission.Demote, RankList.FindRank( cDemoteLimit.SelectedIndex - 1 ) );
-                }
-            }
-        }
-
-        private void cKickLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( selectedRank != null ) {
-                if( cKickLimit.SelectedIndex == 0 ) {
-                    selectedRank.ResetLimit( Permission.Kick );
-                } else {
-                    selectedRank.SetLimit( Permission.Kick, RankList.FindRank( cKickLimit.SelectedIndex - 1 ) );
-                }
-            }
-        }
-
-        private void cBanLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( selectedRank != null ) {
-                if( cBanLimit.SelectedIndex == 0 ) {
-                    selectedRank.ResetLimit( Permission.Ban );
-                } else {
-                    selectedRank.SetLimit( Permission.Ban, RankList.FindRank( cBanLimit.SelectedIndex - 1 ) );
-                }
-            }
-        }
-
-        private void cMaxHideFrom_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( selectedRank != null ) {
-                if( cMaxHideFrom.SelectedIndex == 0 ) {
-                    selectedRank.ResetLimit( Permission.Hide );
-                } else {
-                    selectedRank.SetLimit( Permission.Hide, RankList.FindRank( cMaxHideFrom.SelectedIndex - 1 ) );
-                }
-            }
-        }
-
-
-
         private void xSpamChatKick_CheckedChanged( object sender, EventArgs e ) {
             nSpamChatWarnings.Enabled = xSpamChatKick.Checked;
         }
@@ -646,6 +710,8 @@ namespace ConfigTool {
                     xDrawLimit.Enabled = check; break;
                 case Permission.Hide:
                     cMaxHideFrom.Enabled = check; break;
+                case Permission.Freeze:
+                    cFreezeLimit.Enabled = check; break;
             }
 
             selectedRank.Permissions[(int)e.Item.Tag] = e.Item.Checked;
@@ -919,61 +985,5 @@ namespace ConfigTool {
         }
 
         #endregion
-
-        private void bPortCheck_Click( object sender, EventArgs e ) {
-            bPortCheck.Text = "Checking";
-            this.Enabled = false;
-            TcpListener listener = null;
-
-            try {
-                listener = new TcpListener( IPAddress.Any, (int)nPort.Value );
-                listener.Start();
-
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create( "http://www.utorrent.com/testport?plain=1&port=" + nPort.Value );
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-
-                if( response.StatusCode == HttpStatusCode.OK ) {
-                    using( Stream stream = response.GetResponseStream() ) {
-                        StreamReader reader = new StreamReader( stream );
-                        if( reader.ReadLine().StartsWith( "ok" ) ) {
-                            MessageBox.Show( "Port " + nPort.Value + " is open!", "Port check success" );
-                            return;
-                        }
-                    }
-                }
-                MessageBox.Show( "Port " + nPort.Value + " is closed. You will need to set up forwarding.", "Port check failed" );
-                
-            } catch {
-                MessageBox.Show( "Could not start listening on port " + nPort.Value + ". Another program may be using the port.", "Port check failed" );
-            } finally {
-                if( listener != null ) {
-                    listener.Stop();
-                }
-                this.Enabled = true;
-                bPortCheck.Text = "Check";
-            }
-        }
-
-        private void tIP_Validating( object sender, CancelEventArgs e ) {
-            IPAddress IP;
-            if( IPAddress.TryParse( tIP.Text, out IP ) ) {
-                tIP.ForeColor = SystemColors.ControlText;
-            } else {
-                tIP.ForeColor = Color.Red;
-                e.Cancel = true;
-            }
-        }
-
-        private void xIP_CheckedChanged( object sender, EventArgs e ) {
-            tIP.Enabled = xIP.Checked;
-            if( !xIP.Checked ) {
-                tIP.Text = IPAddress.Any.ToString();
-            }
-        }
-
-        private void xIRCRegisteredNick_CheckedChanged( object sender, EventArgs e ) {
-            tIRCNickServ.Enabled = xIRCRegisteredNick.Checked;
-            tIRCNickServMessage.Enabled = xIRCRegisteredNick.Checked;
-        }
     }
 }

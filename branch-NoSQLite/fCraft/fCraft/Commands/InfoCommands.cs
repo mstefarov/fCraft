@@ -286,6 +286,7 @@ namespace fCraft {
         static CommandDescriptor cdWhere = new CommandDescriptor {
             name = "where",
             aliases = new string[] { "compass" },
+            permissions = new Permission[]{ Permission.ViewOthersInfo },
             consoleSafe = true,
             usage = "/where [PlayerName]",
             help = "Shows information about the location and orientation of a player. " +
@@ -704,7 +705,6 @@ namespace fCraft {
 
         static CommandDescriptor cdServerInfo = new CommandDescriptor {
             name = "sinfo",
-            permissions = new Permission[] { Permission.ViewOthersInfo },
             consoleSafe = true,
             help = "Shows server stats",
             handler = ServerInfo

@@ -175,7 +175,7 @@ namespace fCraft {
             SetValue( ConfigKey.IRCBotAnnounceServerJoins, false );
             SetValue( ConfigKey.IRCBotForwardFromIRC, false ); // Disabled by default
             SetValue( ConfigKey.IRCBotForwardFromServer, false ); // Disabled by default
-            SetValue( ConfigKey.IRCMessageColor, Color.Purple );
+            SetValue( ConfigKey.IRCMessageColor, Color.GetName(Color.Purple) );
             SetValue( ConfigKey.IRCDelay, 750 );
             SetValue( ConfigKey.IRCRegisteredNick, false );
             SetValue( ConfigKey.IRCNickServ, "NickServ" );

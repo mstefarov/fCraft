@@ -23,21 +23,9 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.ListViewItem listViewItem14 = new System.Windows.Forms.ListViewItem( "System Activity" );
-            System.Windows.Forms.ListViewItem listViewItem15 = new System.Windows.Forms.ListViewItem( "Warnings" );
-            System.Windows.Forms.ListViewItem listViewItem16 = new System.Windows.Forms.ListViewItem( "Errors" );
-            System.Windows.Forms.ListViewItem listViewItem17 = new System.Windows.Forms.ListViewItem( "Critical Errors" );
-            System.Windows.Forms.ListViewItem listViewItem18 = new System.Windows.Forms.ListViewItem( "User Activity" );
-            System.Windows.Forms.ListViewItem listViewItem19 = new System.Windows.Forms.ListViewItem( "User Commands" );
-            System.Windows.Forms.ListViewItem listViewItem20 = new System.Windows.Forms.ListViewItem( "Suspicious Activity" );
-            System.Windows.Forms.ListViewItem listViewItem21 = new System.Windows.Forms.ListViewItem( "Chat" );
-            System.Windows.Forms.ListViewItem listViewItem22 = new System.Windows.Forms.ListViewItem( "Private Chat" );
-            System.Windows.Forms.ListViewItem listViewItem23 = new System.Windows.Forms.ListViewItem( "Rank Chat" );
-            System.Windows.Forms.ListViewItem listViewItem24 = new System.Windows.Forms.ListViewItem( "Console Input" );
-            System.Windows.Forms.ListViewItem listViewItem25 = new System.Windows.Forms.ListViewItem( "Console Output" );
-            System.Windows.Forms.ListViewItem listViewItem26 = new System.Windows.Forms.ListViewItem( "Debug Information" );
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
             this.gInformation = new System.Windows.Forms.GroupBox();
@@ -100,6 +88,8 @@
             this.bLowerRank = new System.Windows.Forms.Button();
             this.bRaiseRank = new System.Windows.Forms.Button();
             this.gRankOptions = new System.Windows.Forms.GroupBox();
+            this.cFreezeLimit = new System.Windows.Forms.ComboBox();
+            this.lFreezeLimit = new System.Windows.Forms.Label();
             this.cMaxHideFrom = new System.Windows.Forms.ComboBox();
             this.lMaxSeeHidden = new System.Windows.Forms.Label();
             this.lAntiGrief1 = new System.Windows.Forms.Label();
@@ -244,6 +234,7 @@
             this.bResetTab = new System.Windows.Forms.Button();
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
+            this.toolTip = new System.Windows.Forms.ToolTip( this.components );
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -385,6 +376,7 @@
             this.bRules.Size = new System.Drawing.Size( 98, 28 );
             this.bRules.TabIndex = 2;
             this.bRules.Text = "Edit Rules";
+            this.toolTip.SetToolTip( this.bRules, resources.GetString( "bRules.ToolTip" ) );
             this.bRules.UseVisualStyleBackColor = true;
             this.bRules.Click += new System.EventHandler( this.bRules_Click );
             // 
@@ -397,13 +389,12 @@
             this.bAnnouncements.Size = new System.Drawing.Size( 165, 28 );
             this.bAnnouncements.TabIndex = 15;
             this.bAnnouncements.Text = "Edit Announcement List";
+            this.toolTip.SetToolTip( this.bAnnouncements, resources.GetString( "bAnnouncements.ToolTip" ) );
             this.bAnnouncements.UseVisualStyleBackColor = true;
             this.bAnnouncements.Click += new System.EventHandler( this.bAnnouncements_Click );
             // 
             // gAppearence
             // 
-            this.gAppearence.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
             this.gAppearence.Controls.Add( this.xShowJoinedWorldMessages );
             this.gAppearence.Controls.Add( this.xRankColorsInWorldNames );
             this.gAppearence.Controls.Add( this.bColorPM );
@@ -434,6 +425,7 @@
             this.xShowJoinedWorldMessages.Size = new System.Drawing.Size( 219, 19 );
             this.xShowJoinedWorldMessages.TabIndex = 11;
             this.xShowJoinedWorldMessages.Text = "Show \"X joined world Y\" messages.";
+            this.toolTip.SetToolTip( this.xShowJoinedWorldMessages, "Show messages when players change worlds." );
             this.xShowJoinedWorldMessages.UseVisualStyleBackColor = true;
             // 
             // xRankColorsInWorldNames
@@ -444,6 +436,7 @@
             this.xRankColorsInWorldNames.Size = new System.Drawing.Size( 243, 19 );
             this.xRankColorsInWorldNames.TabIndex = 10;
             this.xRankColorsInWorldNames.Text = "Color world names based on build rank.";
+            this.toolTip.SetToolTip( this.xRankColorsInWorldNames, "Color world names in chat based on their build and access permissions." );
             this.xRankColorsInWorldNames.UseVisualStyleBackColor = true;
             // 
             // bColorPM
@@ -453,6 +446,7 @@
             this.bColorPM.Name = "bColorPM";
             this.bColorPM.Size = new System.Drawing.Size( 100, 23 );
             this.bColorPM.TabIndex = 9;
+            this.toolTip.SetToolTip( this.bColorPM, "Color of private messages and rank-wide messages.\r\nDefault is aqua." );
             this.bColorPM.UseVisualStyleBackColor = false;
             this.bColorPM.Click += new System.EventHandler( this.bColorPM_Click );
             // 
@@ -472,6 +466,8 @@
             this.bColorAnnouncement.Name = "bColorAnnouncement";
             this.bColorAnnouncement.Size = new System.Drawing.Size( 100, 23 );
             this.bColorAnnouncement.TabIndex = 7;
+            this.toolTip.SetToolTip( this.bColorAnnouncement, "Color of announcements and rules.\r\nDefault is dark-green.\r\nNote that this default" +
+                    " color can be overriden by\r\ncolorcodes in announcement and rule files." );
             this.bColorAnnouncement.UseVisualStyleBackColor = false;
             this.bColorAnnouncement.Click += new System.EventHandler( this.bColorAnnouncement_Click );
             // 
@@ -491,6 +487,7 @@
             this.bColorSay.Name = "bColorSay";
             this.bColorSay.Size = new System.Drawing.Size( 100, 23 );
             this.bColorSay.TabIndex = 5;
+            this.toolTip.SetToolTip( this.bColorSay, "Color of messages produced by \"/say\" command.\r\nDefault is dark-green." );
             this.bColorSay.UseVisualStyleBackColor = false;
             this.bColorSay.Click += new System.EventHandler( this.bColorSay_Click );
             // 
@@ -501,6 +498,7 @@
             this.bColorHelp.Name = "bColorHelp";
             this.bColorHelp.Size = new System.Drawing.Size( 100, 23 );
             this.bColorHelp.TabIndex = 4;
+            this.toolTip.SetToolTip( this.bColorHelp, "Color of command usage examples in help.\r\nDefault is green." );
             this.bColorHelp.UseVisualStyleBackColor = false;
             this.bColorHelp.Click += new System.EventHandler( this.bColorHelp_Click );
             // 
@@ -511,6 +509,7 @@
             this.bColorSys.Name = "bColorSys";
             this.bColorSys.Size = new System.Drawing.Size( 100, 23 );
             this.bColorSys.TabIndex = 3;
+            this.toolTip.SetToolTip( this.bColorSys, "This is the color of normal system messages.\r\nDefault is yellow." );
             this.bColorSys.UseVisualStyleBackColor = false;
             this.bColorSys.Click += new System.EventHandler( this.bColorSys_Click );
             // 
@@ -522,6 +521,8 @@
             this.xListPrefixes.Size = new System.Drawing.Size( 219, 19 );
             this.xListPrefixes.TabIndex = 2;
             this.xListPrefixes.Text = "Prefixes in player list (breaks skins).";
+            this.toolTip.SetToolTip( this.xListPrefixes, "Show prefixes in the player list. As a side-effect, Minecraft client\r\nwill not sh" +
+                    "ow custom skins for players with prefixed names." );
             this.xListPrefixes.UseVisualStyleBackColor = true;
             // 
             // xChatPrefixes
@@ -532,6 +533,8 @@
             this.xChatPrefixes.Size = new System.Drawing.Size( 133, 19 );
             this.xChatPrefixes.TabIndex = 1;
             this.xChatPrefixes.Text = "Show rank prefixes.";
+            this.toolTip.SetToolTip( this.xChatPrefixes, "Show 1-letter prefixes before player names. This can be\r\nused to set up IRC-style" +
+                    " \"+\" and \"@\" prefixes for ops." );
             this.xChatPrefixes.UseVisualStyleBackColor = true;
             // 
             // xRankColors
@@ -542,6 +545,7 @@
             this.xRankColors.Size = new System.Drawing.Size( 123, 19 );
             this.xRankColors.TabIndex = 0;
             this.xRankColors.Text = "Show rank colors.";
+            this.toolTip.SetToolTip( this.xRankColors, "Color player names in chat and in-game based on their rank." );
             this.xRankColors.UseVisualStyleBackColor = true;
             // 
             // lSayColor
@@ -573,8 +577,6 @@
             // 
             // gBasic
             // 
-            this.gBasic.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
             this.gBasic.Controls.Add( this.tIP );
             this.gBasic.Controls.Add( this.xIP );
             this.gBasic.Controls.Add( this.bPortCheck );
@@ -618,6 +620,9 @@
             this.xIP.Size = new System.Drawing.Size( 103, 19 );
             this.xIP.TabIndex = 34;
             this.xIP.Text = "Designated IP";
+            this.toolTip.SetToolTip( this.xIP, "If the machine has more than one available IP address\r\n(for example if you have m" +
+                    "ore than one NIC) you can\r\nuse this setting to make fCraft bind to the same IP\r\n" +
+                    "every time." );
             this.xIP.UseVisualStyleBackColor = true;
             this.xIP.CheckedChanged += new System.EventHandler( this.xIP_CheckedChanged );
             // 
@@ -628,6 +633,8 @@
             this.bPortCheck.Size = new System.Drawing.Size( 68, 23 );
             this.bPortCheck.TabIndex = 33;
             this.bPortCheck.Text = "Check";
+            this.toolTip.SetToolTip( this.bPortCheck, "Check if the selected port is connectible.\r\nIf port check fails, you may need to " +
+                    "set up\r\nport forwarding on your router." );
             this.bPortCheck.UseVisualStyleBackColor = true;
             this.bPortCheck.Click += new System.EventHandler( this.bPortCheck_Click );
             // 
@@ -656,6 +663,7 @@
             this.nPort.Name = "nPort";
             this.nPort.Size = new System.Drawing.Size( 71, 21 );
             this.nPort.TabIndex = 7;
+            this.toolTip.SetToolTip( this.nPort, resources.GetString( "nPort.ToolTip" ) );
             this.nPort.Value = new decimal( new int[] {
             1,
             0,
@@ -670,6 +678,8 @@
             this.cDefaultRank.Name = "cDefaultRank";
             this.cDefaultRank.Size = new System.Drawing.Size( 189, 23 );
             this.cDefaultRank.TabIndex = 6;
+            this.toolTip.SetToolTip( this.cDefaultRank, "New players will be assigned this rank by default.\r\nIt\'s generally a good idea no" +
+                    "t to give new players\r\nmany powers until they prove themselves trustworthy." );
             // 
             // lDefaultRank
             // 
@@ -696,6 +706,8 @@
             this.bMeasure.Size = new System.Drawing.Size( 65, 23 );
             this.bMeasure.TabIndex = 5;
             this.bMeasure.Text = "Measure";
+            this.toolTip.SetToolTip( this.bMeasure, "Test your connection\'s upload speed with speedtest.net\r\nNote: to convert from meg" +
+                    "abits to kilobytes, multiply the\r\nnumber by 128" );
             this.bMeasure.UseVisualStyleBackColor = true;
             this.bMeasure.Click += new System.EventHandler( this.bMeasure_Click );
             // 
@@ -708,6 +720,8 @@
             this.tServerName.Name = "tServerName";
             this.tServerName.Size = new System.Drawing.Size( 509, 21 );
             this.tServerName.TabIndex = 0;
+            this.toolTip.SetToolTip( this.tServerName, "The name of the server, as shown on the welcome screen\r\nand the official server l" +
+                    "ist (if server is public)." );
             // 
             // lUploadBandwidthUnits
             // 
@@ -748,6 +762,9 @@
             this.nUploadBandwidth.Name = "nUploadBandwidth";
             this.nUploadBandwidth.Size = new System.Drawing.Size( 80, 21 );
             this.nUploadBandwidth.TabIndex = 4;
+            this.toolTip.SetToolTip( this.nUploadBandwidth, "Total available upload bandwidth, in kilobytes.\r\nThis number is used to throttle " +
+                    "drawing commands\r\nto prevent server from overwhelming the Internet\r\nconnection w" +
+                    "ith data." );
             this.nUploadBandwidth.Value = new decimal( new int[] {
             10,
             0,
@@ -763,6 +780,8 @@
             this.tMOTD.Name = "tMOTD";
             this.tMOTD.Size = new System.Drawing.Size( 509, 21 );
             this.tMOTD.TabIndex = 1;
+            this.toolTip.SetToolTip( this.tMOTD, "MOTD (Message Of The Day) is a message shown to\r\nconnecting players right under t" +
+                    "he server name.\r\nIt can be left blank." );
             // 
             // lMOTD
             // 
@@ -785,6 +804,7 @@
             this.cPublic.Name = "cPublic";
             this.cPublic.Size = new System.Drawing.Size( 80, 23 );
             this.cPublic.TabIndex = 3;
+            this.toolTip.SetToolTip( this.cPublic, resources.GetString( "cPublic.ToolTip" ) );
             // 
             // nMaxPlayers
             // 
@@ -802,6 +822,7 @@
             this.nMaxPlayers.Name = "nMaxPlayers";
             this.nMaxPlayers.Size = new System.Drawing.Size( 48, 21 );
             this.nMaxPlayers.TabIndex = 2;
+            this.toolTip.SetToolTip( this.nMaxPlayers, resources.GetString( "nMaxPlayers.ToolTip" ) );
             this.nMaxPlayers.Value = new decimal( new int[] {
             1,
             0,
@@ -915,8 +936,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle6.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle6;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 634, 348 );
             this.dgvWorlds.TabIndex = 0;
@@ -987,7 +1008,6 @@
             // 
             // lRankList
             // 
-            this.lRankList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lRankList.AutoSize = true;
             this.lRankList.Location = new System.Drawing.Point( 8, 10 );
             this.lRankList.Name = "lRankList";
@@ -1021,6 +1041,8 @@
             // 
             this.gRankOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gRankOptions.Controls.Add( this.cFreezeLimit );
+            this.gRankOptions.Controls.Add( this.lFreezeLimit );
             this.gRankOptions.Controls.Add( this.cMaxHideFrom );
             this.gRankOptions.Controls.Add( this.lMaxSeeHidden );
             this.gRankOptions.Controls.Add( this.lAntiGrief1 );
@@ -1057,6 +1079,25 @@
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
             // 
+            // cFreezeLimit
+            // 
+            this.cFreezeLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cFreezeLimit.FormattingEnabled = true;
+            this.cFreezeLimit.Location = new System.Drawing.Point( 96, 222 );
+            this.cFreezeLimit.Name = "cFreezeLimit";
+            this.cFreezeLimit.Size = new System.Drawing.Size( 180, 23 );
+            this.cFreezeLimit.TabIndex = 25;
+            this.cFreezeLimit.SelectedIndexChanged += new System.EventHandler( this.cFreezeLimit_SelectedIndexChanged );
+            // 
+            // lFreezeLimit
+            // 
+            this.lFreezeLimit.AutoSize = true;
+            this.lFreezeLimit.Location = new System.Drawing.Point( 19, 225 );
+            this.lFreezeLimit.Name = "lFreezeLimit";
+            this.lFreezeLimit.Size = new System.Drawing.Size( 71, 15 );
+            this.lFreezeLimit.TabIndex = 26;
+            this.lFreezeLimit.Text = "Freeze limit";
+            // 
             // cMaxHideFrom
             // 
             this.cMaxHideFrom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -1079,7 +1120,7 @@
             // lAntiGrief1
             // 
             this.lAntiGrief1.AutoSize = true;
-            this.lAntiGrief1.Location = new System.Drawing.Point( 19, 314 );
+            this.lAntiGrief1.Location = new System.Drawing.Point( 43, 340 );
             this.lAntiGrief1.Name = "lAntiGrief1";
             this.lAntiGrief1.Size = new System.Drawing.Size( 47, 15 );
             this.lAntiGrief1.TabIndex = 22;
@@ -1088,15 +1129,15 @@
             // lAntiGrief3
             // 
             this.lAntiGrief3.AutoSize = true;
-            this.lAntiGrief3.Location = new System.Drawing.Point( 241, 314 );
+            this.lAntiGrief3.Location = new System.Drawing.Point( 265, 340 );
             this.lAntiGrief3.Name = "lAntiGrief3";
-            this.lAntiGrief3.Size = new System.Drawing.Size( 53, 15 );
+            this.lAntiGrief3.Size = new System.Drawing.Size( 26, 15 );
             this.lAntiGrief3.TabIndex = 21;
-            this.lAntiGrief3.Text = "seconds";
+            this.lAntiGrief3.Text = "sec";
             // 
             // nAntiGriefSeconds
             // 
-            this.nAntiGriefSeconds.Location = new System.Drawing.Point( 190, 312 );
+            this.nAntiGriefSeconds.Location = new System.Drawing.Point( 214, 338 );
             this.nAntiGriefSeconds.Name = "nAntiGriefSeconds";
             this.nAntiGriefSeconds.Size = new System.Drawing.Size( 45, 21 );
             this.nAntiGriefSeconds.TabIndex = 20;
@@ -1115,7 +1156,7 @@
             // xDrawLimit
             // 
             this.xDrawLimit.AutoSize = true;
-            this.xDrawLimit.Location = new System.Drawing.Point( 9, 347 );
+            this.xDrawLimit.Location = new System.Drawing.Point( 9, 373 );
             this.xDrawLimit.Name = "xDrawLimit";
             this.xDrawLimit.Size = new System.Drawing.Size( 81, 19 );
             this.xDrawLimit.TabIndex = 13;
@@ -1126,7 +1167,7 @@
             // lDrawLimitUnits
             // 
             this.lDrawLimitUnits.AutoSize = true;
-            this.lDrawLimitUnits.Location = new System.Drawing.Point( 169, 348 );
+            this.lDrawLimitUnits.Location = new System.Drawing.Point( 169, 374 );
             this.lDrawLimitUnits.Name = "lDrawLimitUnits";
             this.lDrawLimitUnits.Size = new System.Drawing.Size( 42, 15 );
             this.lDrawLimitUnits.TabIndex = 8;
@@ -1135,7 +1176,7 @@
             // lKickIdleUnits
             // 
             this.lKickIdleUnits.AutoSize = true;
-            this.lKickIdleUnits.Location = new System.Drawing.Point( 178, 258 );
+            this.lKickIdleUnits.Location = new System.Drawing.Point( 178, 284 );
             this.lKickIdleUnits.Name = "lKickIdleUnits";
             this.lKickIdleUnits.Size = new System.Drawing.Size( 51, 15 );
             this.lKickIdleUnits.TabIndex = 19;
@@ -1148,7 +1189,7 @@
             0,
             0,
             0} );
-            this.nDrawLimit.Location = new System.Drawing.Point( 96, 346 );
+            this.nDrawLimit.Location = new System.Drawing.Point( 96, 372 );
             this.nDrawLimit.Maximum = new decimal( new int[] {
             100000000,
             0,
@@ -1161,7 +1202,7 @@
             // 
             // nKickIdle
             // 
-            this.nKickIdle.Location = new System.Drawing.Point( 113, 256 );
+            this.nKickIdle.Location = new System.Drawing.Point( 113, 282 );
             this.nKickIdle.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -1175,7 +1216,7 @@
             // xAntiGrief
             // 
             this.xAntiGrief.AutoSize = true;
-            this.xAntiGrief.Location = new System.Drawing.Point( 9, 287 );
+            this.xAntiGrief.Location = new System.Drawing.Point( 9, 313 );
             this.xAntiGrief.Name = "xAntiGrief";
             this.xAntiGrief.Size = new System.Drawing.Size( 213, 19 );
             this.xAntiGrief.TabIndex = 11;
@@ -1186,7 +1227,7 @@
             // lAntiGrief2
             // 
             this.lAntiGrief2.AutoSize = true;
-            this.lAntiGrief2.Location = new System.Drawing.Point( 129, 314 );
+            this.lAntiGrief2.Location = new System.Drawing.Point( 153, 340 );
             this.lAntiGrief2.Name = "lAntiGrief2";
             this.lAntiGrief2.Size = new System.Drawing.Size( 55, 15 );
             this.lAntiGrief2.TabIndex = 5;
@@ -1195,7 +1236,7 @@
             // xKickIdle
             // 
             this.xKickIdle.AutoSize = true;
-            this.xKickIdle.Location = new System.Drawing.Point( 9, 257 );
+            this.xKickIdle.Location = new System.Drawing.Point( 9, 283 );
             this.xKickIdle.Name = "xKickIdle";
             this.xKickIdle.Size = new System.Drawing.Size( 98, 19 );
             this.xKickIdle.TabIndex = 9;
@@ -1205,7 +1246,7 @@
             // 
             // nAntiGriefBlocks
             // 
-            this.nAntiGriefBlocks.Location = new System.Drawing.Point( 72, 312 );
+            this.nAntiGriefBlocks.Location = new System.Drawing.Point( 96, 338 );
             this.nAntiGriefBlocks.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -1219,7 +1260,7 @@
             // xReserveSlot
             // 
             this.xReserveSlot.AutoSize = true;
-            this.xReserveSlot.Location = new System.Drawing.Point( 9, 227 );
+            this.xReserveSlot.Location = new System.Drawing.Point( 9, 253 );
             this.xReserveSlot.Name = "xReserveSlot";
             this.xReserveSlot.Size = new System.Drawing.Size( 129, 19 );
             this.xReserveSlot.TabIndex = 8;
@@ -1270,38 +1311,38 @@
             // lBanLimit
             // 
             this.lBanLimit.AutoSize = true;
-            this.lBanLimit.Location = new System.Drawing.Point( 31, 109 );
+            this.lBanLimit.Location = new System.Drawing.Point( 35, 109 );
             this.lBanLimit.Name = "lBanLimit";
-            this.lBanLimit.Size = new System.Drawing.Size( 59, 15 );
+            this.lBanLimit.Size = new System.Drawing.Size( 55, 15 );
             this.lBanLimit.TabIndex = 11;
-            this.lBanLimit.Text = "Ban Limit";
+            this.lBanLimit.Text = "Ban limit";
             // 
             // lKickLimit
             // 
             this.lKickLimit.AutoSize = true;
-            this.lKickLimit.Location = new System.Drawing.Point( 30, 80 );
+            this.lKickLimit.Location = new System.Drawing.Point( 34, 80 );
             this.lKickLimit.Name = "lKickLimit";
-            this.lKickLimit.Size = new System.Drawing.Size( 60, 15 );
+            this.lKickLimit.Size = new System.Drawing.Size( 56, 15 );
             this.lKickLimit.TabIndex = 10;
-            this.lKickLimit.Text = "Kick Limit";
+            this.lKickLimit.Text = "Kick limit";
             // 
             // lDemoteLimit
             // 
             this.lDemoteLimit.AutoSize = true;
-            this.lDemoteLimit.Location = new System.Drawing.Point( 9, 167 );
+            this.lDemoteLimit.Location = new System.Drawing.Point( 13, 167 );
             this.lDemoteLimit.Name = "lDemoteLimit";
-            this.lDemoteLimit.Size = new System.Drawing.Size( 81, 15 );
+            this.lDemoteLimit.Size = new System.Drawing.Size( 77, 15 );
             this.lDemoteLimit.TabIndex = 9;
-            this.lDemoteLimit.Text = "Demote Limit";
+            this.lDemoteLimit.Text = "Demote limit";
             // 
             // lPromoteLimit
             // 
             this.lPromoteLimit.AutoSize = true;
-            this.lPromoteLimit.Location = new System.Drawing.Point( 6, 138 );
+            this.lPromoteLimit.Location = new System.Drawing.Point( 10, 138 );
             this.lPromoteLimit.Name = "lPromoteLimit";
-            this.lPromoteLimit.Size = new System.Drawing.Size( 84, 15 );
+            this.lPromoteLimit.Size = new System.Drawing.Size( 80, 15 );
             this.lPromoteLimit.TabIndex = 8;
-            this.lPromoteLimit.Text = "Promote Limit";
+            this.lPromoteLimit.Text = "Promote limit";
             // 
             // tPrefix
             // 
@@ -1350,7 +1391,6 @@
             // 
             // bDeleteRank
             // 
-            this.bDeleteRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bDeleteRank.Location = new System.Drawing.Point( 84, 28 );
             this.bDeleteRank.Name = "bDeleteRank";
             this.bDeleteRank.Size = new System.Drawing.Size( 70, 23 );
@@ -1372,6 +1412,7 @@
             this.vPermissions.MultiSelect = false;
             this.vPermissions.Name = "vPermissions";
             this.vPermissions.ShowGroups = false;
+            this.vPermissions.ShowItemToolTips = true;
             this.vPermissions.Size = new System.Drawing.Size( 171, 384 );
             this.vPermissions.TabIndex = 2;
             this.vPermissions.UseCompatibleStateImageBehavior = false;
@@ -1384,7 +1425,6 @@
             // 
             // bAddRank
             // 
-            this.bAddRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bAddRank.Location = new System.Drawing.Point( 8, 28 );
             this.bAddRank.Name = "bAddRank";
             this.bAddRank.Size = new System.Drawing.Size( 70, 23 );
@@ -1714,8 +1754,6 @@
             // 
             // gSaving
             // 
-            this.gSaving.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
             this.gSaving.Controls.Add( this.xSaveOnShutdown );
             this.gSaving.Controls.Add( this.nSaveInterval );
             this.gSaving.Controls.Add( this.nSaveIntervalUnits );
@@ -1766,8 +1804,6 @@
             // 
             // gBackups
             // 
-            this.gBackups.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
             this.gBackups.Controls.Add( this.xBackupOnlyWhenChanged );
             this.gBackups.Controls.Add( this.lMaxBackupSize );
             this.gBackups.Controls.Add( this.xMaxBackupSize );
@@ -1941,7 +1977,7 @@
             // 
             this.xLogLimit.AutoSize = true;
             this.xLogLimit.Enabled = false;
-            this.xLogLimit.Location = new System.Drawing.Point( 34, 306 );
+            this.xLogLimit.Location = new System.Drawing.Point( 34, 325 );
             this.xLogLimit.Name = "xLogLimit";
             this.xLogLimit.Size = new System.Drawing.Size( 102, 19 );
             this.xLogLimit.TabIndex = 2;
@@ -1967,7 +2003,8 @@
             this.vLogFileOptions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
             this.vLogFileOptions.Location = new System.Drawing.Point( 100, 20 );
             this.vLogFileOptions.Name = "vLogFileOptions";
-            this.vLogFileOptions.Size = new System.Drawing.Size( 161, 251 );
+            this.vLogFileOptions.ShowItemToolTips = true;
+            this.vLogFileOptions.Size = new System.Drawing.Size( 161, 270 );
             this.vLogFileOptions.TabIndex = 0;
             this.vLogFileOptions.UseCompatibleStateImageBehavior = false;
             this.vLogFileOptions.View = System.Windows.Forms.View.Details;
@@ -1980,7 +2017,7 @@
             // lLogLimitUnits
             // 
             this.lLogLimitUnits.AutoSize = true;
-            this.lLogLimitUnits.Location = new System.Drawing.Point( 210, 307 );
+            this.lLogLimitUnits.Location = new System.Drawing.Point( 210, 326 );
             this.lLogLimitUnits.Name = "lLogLimitUnits";
             this.lLogLimitUnits.Size = new System.Drawing.Size( 29, 15 );
             this.lLogLimitUnits.TabIndex = 4;
@@ -1989,7 +2026,7 @@
             // nLogLimit
             // 
             this.nLogLimit.Enabled = false;
-            this.nLogLimit.Location = new System.Drawing.Point( 142, 305 );
+            this.nLogLimit.Location = new System.Drawing.Point( 142, 324 );
             this.nLogLimit.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -2007,7 +2044,7 @@
             "One long file",
             "Multiple files, split by session",
             "Multiple files, split by day"} );
-            this.cLogMode.Location = new System.Drawing.Point( 100, 277 );
+            this.cLogMode.Location = new System.Drawing.Point( 100, 296 );
             this.cLogMode.Name = "cLogMode";
             this.cLogMode.Size = new System.Drawing.Size( 199, 23 );
             this.cLogMode.TabIndex = 1;
@@ -2015,7 +2052,7 @@
             // lLogMode
             // 
             this.lLogMode.AutoSize = true;
-            this.lLogMode.Location = new System.Drawing.Point( 31, 280 );
+            this.lLogMode.Location = new System.Drawing.Point( 31, 299 );
             this.lLogMode.Name = "lLogMode";
             this.lLogMode.Size = new System.Drawing.Size( 63, 15 );
             this.lLogMode.TabIndex = 0;
@@ -2048,36 +2085,10 @@
             this.columnHeader3} );
             this.vConsoleOptions.GridLines = true;
             this.vConsoleOptions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            listViewItem14.StateImageIndex = 0;
-            listViewItem15.StateImageIndex = 0;
-            listViewItem16.StateImageIndex = 0;
-            listViewItem17.StateImageIndex = 0;
-            listViewItem18.StateImageIndex = 0;
-            listViewItem19.StateImageIndex = 0;
-            listViewItem20.StateImageIndex = 0;
-            listViewItem21.StateImageIndex = 0;
-            listViewItem22.StateImageIndex = 0;
-            listViewItem23.StateImageIndex = 0;
-            listViewItem24.StateImageIndex = 0;
-            listViewItem25.StateImageIndex = 0;
-            listViewItem26.StateImageIndex = 0;
-            this.vConsoleOptions.Items.AddRange( new System.Windows.Forms.ListViewItem[] {
-            listViewItem14,
-            listViewItem15,
-            listViewItem16,
-            listViewItem17,
-            listViewItem18,
-            listViewItem19,
-            listViewItem20,
-            listViewItem21,
-            listViewItem22,
-            listViewItem23,
-            listViewItem24,
-            listViewItem25,
-            listViewItem26} );
             this.vConsoleOptions.Location = new System.Drawing.Point( 88, 20 );
             this.vConsoleOptions.Name = "vConsoleOptions";
-            this.vConsoleOptions.Size = new System.Drawing.Size( 161, 251 );
+            this.vConsoleOptions.ShowItemToolTips = true;
+            this.vConsoleOptions.Size = new System.Drawing.Size( 161, 270 );
             this.vConsoleOptions.TabIndex = 0;
             this.vConsoleOptions.UseCompatibleStateImageBehavior = false;
             this.vConsoleOptions.View = System.Windows.Forms.View.Details;
@@ -2102,8 +2113,6 @@
             // 
             // gIRCOptions
             // 
-            this.gIRCOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
             this.gIRCOptions.Controls.Add( this.xIRCBotAnnounceIRCJoins );
             this.gIRCOptions.Controls.Add( this.bColorIRC );
             this.gIRCOptions.Controls.Add( this.lColorIRC );
@@ -2178,9 +2187,6 @@
             // 
             // gIRCNetwork
             // 
-            this.gIRCNetwork.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
             this.gIRCNetwork.Controls.Add( this.xIRCRegisteredNick );
             this.gIRCNetwork.Controls.Add( this.tIRCNickServMessage );
             this.gIRCNetwork.Controls.Add( this.lIRCNickServMessage );
@@ -2708,6 +2714,12 @@
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 
+            // toolTip
+            // 
+            this.toolTip.AutoPopDelay = 10000;
+            this.toolTip.InitialDelay = 500;
+            this.toolTip.ReshowDelay = 100;
+            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2720,7 +2732,7 @@
             this.Controls.Add( this.bOK );
             this.Controls.Add( this.tabs );
             this.Icon = ((System.Drawing.Icon)(resources.GetObject( "$this.Icon" )));
-            this.MinimumSize = new System.Drawing.Size( 700, 500 );
+            this.MinimumSize = new System.Drawing.Size( 700, 547 );
             this.Name = "ConfigUI";
             this.Text = "fCraft Config Tool";
             this.tabs.ResumeLayout( false );
@@ -2999,5 +3011,8 @@
         private System.Windows.Forms.Label lIRCNickServMessage;
         private System.Windows.Forms.TextBox tIRCNickServ;
         private System.Windows.Forms.Label lIRCNickServ;
+        private System.Windows.Forms.ComboBox cFreezeLimit;
+        private System.Windows.Forms.Label lFreezeLimit;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }
