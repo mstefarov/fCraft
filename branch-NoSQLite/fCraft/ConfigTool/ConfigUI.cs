@@ -38,10 +38,10 @@ namespace ConfigTool {
             FillToolTipsWorlds();
             FillToolTipsRanks();
             FillToolTipsSecurity();
-            //FillToolTipsSavingAndBackup();
+            FillToolTipsSavingAndBackup();
             FillToolTipsLogging();
             FillToolTipsIRC();
-            //FillToolTipsAdvanced();
+            FillToolTipsAdvanced();
 
             dgvWorlds.DataError += delegate( object sender, DataGridViewDataErrorEventArgs e ) {
                 MessageBox.Show( e.Exception.Message, "Data Error" );
@@ -266,11 +266,11 @@ namespace ConfigTool {
         #region Saving & Backup
 
         private void xSaveAtInterval_CheckedChanged( object sender, EventArgs e ) {
-            nSaveInterval.Enabled = xSaveAtInterval.Checked;
+            nSaveInterval.Enabled = xSaveInterval.Checked;
         }
 
         private void xBackupAtInterval_CheckedChanged( object sender, EventArgs e ) {
-            nBackupInterval.Enabled = xBackupAtInterval.Checked;
+            nBackupInterval.Enabled = xBackupInterval.Checked;
         }
 
         private void xMaxBackups_CheckedChanged( object sender, EventArgs e ) {

@@ -645,7 +645,7 @@ namespace fCraft {
                 }
             }
 
-            PlayerDB.Save(null);
+            PlayerDB.Save( null );
             IPBanList.Save();
         }
 
@@ -713,7 +713,7 @@ namespace fCraft {
                 DoChangeRank( player, info, null, targetClass, reason );
             }
 
-            PlayerDB.Save(null);
+            PlayerDB.Save( null );
         }
 
         #endregion
@@ -789,7 +789,7 @@ namespace fCraft {
         static CommandDescriptor cdSetSpawn = new CommandDescriptor {
             name = "setspawn",
             permissions = new Permission[] { Permission.SetSpawn },
-            help = "Assigns your current location to be the spawn point of the map/world. "+
+            help = "Assigns your current location to be the spawn point of the map/world. " +
                    "If an optional PlayerName param is given, the spawn point of only that player is changed instead.",
             usage = "/setspawn [PlayerName]",
             handler = SetSpawn
@@ -818,7 +818,7 @@ namespace fCraft {
                     infos = Server.FindPlayers( player, playerName );
                     if( infos.Length > 0 ) {
                         player.Message( "You can only set spawn of players on the same world as you." );
-                    }else{
+                    } else {
                         player.NoPlayerMessage( playerName );
                     }
                 }
@@ -854,8 +854,8 @@ namespace fCraft {
             name = "shutdown",
             permissions = new Permission[] { Permission.ShutdownServer },
             consoleSafe = true,
-            help = "Shuts down the server remotely. "+
-                   "The default delay before shutdown is 5 seconds (can be changed by specifying a custom number of seconds). "+
+            help = "Shuts down the server remotely. " +
+                   "The default delay before shutdown is 5 seconds (can be changed by specifying a custom number of seconds). " +
                    "A shutdown reason or message can be specified to be shown to players.",
             usage = "/shutdown [Delay [Reason]]",
             handler = Shutdown
@@ -1134,6 +1134,7 @@ namespace fCraft {
         #region Mute
         static CommandDescriptor cdMute = new CommandDescriptor {
             name = "mute",
+            consoleSafe = true,
             permissions = new Permission[] { Permission.Mute },
             help = "Mutes a player for a specified number of seconds.",
             usage = "/mute PlayerName Seconds",

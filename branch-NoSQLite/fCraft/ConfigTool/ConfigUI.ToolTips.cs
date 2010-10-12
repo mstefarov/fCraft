@@ -24,6 +24,7 @@ It can be left blank.";
             toolTip.SetToolTip( tMOTD, tipMOTD );
 
 
+
             string tipPublic =
 @"Public servers are listed on minecraft.net server list,
 so expect random players to join. Private servers can
@@ -40,7 +41,6 @@ uses more RAM and more bandwidth. If a player's rank is given a
 Minecraft protocol limits total number of players to 128.";
             toolTip.SetToolTip( lMaxPlayers, tipMaxPlayers );
             toolTip.SetToolTip( nMaxPlayers, tipMaxPlayers );
-
 
 
             string tipUploadBandwidth =
@@ -141,12 +141,14 @@ You can include any color codes in the announcements.
 You can also edit announcements.txt with any text editor." );
         }
 
+
         void FillToolTipsWorlds() {
             toolTip.SetToolTip( bAddWorld, "Add a new world to the list." );
             toolTip.SetToolTip( bWorldEdit, "Edit or replace an existing world." );
             toolTip.SetToolTip( cMainWorld, "Main world is the first world that players see when they join the server." );
             toolTip.SetToolTip( bWorldDelete, "Delete a world from the list." );
         }
+
 
         void FillToolTipsRanks() {
             toolTip.SetToolTip( bAddRank, "Add a new rank to the list." );
@@ -494,6 +496,49 @@ to other players to check on them, usually while hidden.";
         }
 
 
+        void FillToolTipsSavingAndBackup() {
+            toolTip.SetToolTip( xSaveOnShutdown,
+@"Whether to save maps when server is shutting down or not.
+generally this is a good idea." );
+
+            string tipSaveInterval =
+@"Whether to save maps (if modified) automatically once in a while.
+If disabled, maps are only saved when a world is unloaded.";
+            toolTip.SetToolTip( xSaveInterval, tipSaveInterval );
+            toolTip.SetToolTip( nSaveInterval, tipSaveInterval );
+            toolTip.SetToolTip( lSaveIntervalUnits, tipSaveInterval );
+
+            toolTip.SetToolTip( xBackupOnStartup, "Create a backup of every map when the server starts." );
+
+            string tipBackupInterval =
+@"Create backups of loaded maps automatically once in a while.
+A world is considered ""loaded"" if there is at least one player on it.";
+            toolTip.SetToolTip( xBackupInterval, tipBackupInterval );
+            toolTip.SetToolTip( nBackupInterval, tipBackupInterval );
+            toolTip.SetToolTip( lBackupIntervalUnits, tipBackupInterval );
+
+            toolTip.SetToolTip( xBackupOnlyWhenChanged, "Only save backups if the map changed in any way since last backup." );
+
+            toolTip.SetToolTip( xBackupOnJoin,
+@"Create backups any time a player joins a map.
+Both a timestamp and player's name are included in the filename." );
+
+            string tipMaxBackups =
+@"Maximum number of backup files that fCraft should keep.
+If exceeded, oldest backups will be deleted.";
+            toolTip.SetToolTip( xMaxBackups, tipMaxBackups );
+            toolTip.SetToolTip( nMaxBackups, tipMaxBackups );
+            toolTip.SetToolTip( lMaxBackups, tipMaxBackups );
+
+            string tipMaxBackupSize =
+@"Maximum combined filesize of all backups.
+If exceeded, oldest backups will be deleted.";
+            toolTip.SetToolTip( xMaxBackupSize, tipMaxBackupSize );
+            toolTip.SetToolTip( nMaxBackupSize, tipMaxBackupSize );
+            toolTip.SetToolTip( lMaxBackupSize, tipMaxBackupSize );
+        }
+
+
         void FillToolTipsLogging() {
             string tipLogMode = "Select the way logs are stored.";
             toolTip.SetToolTip( lLogMode, tipLogMode );
@@ -583,6 +628,56 @@ Otherwise, only chat messages starting with a hash (#) will be relayed." );
 
             toolTip.SetToolTip( xIRCBotAnnounceServerJoins, "Show a message on IRC when someone joins of leaves the server." );
             toolTip.SetToolTip( xIRCBotAnnounceIRCJoins, "Show a message in-gam,e when someone joins of leaves the IRC channel." );
+        }
+
+
+        void FillToolTipsAdvanced() {
+            toolTip.SetToolTip( xRedundantPacket,
+@"When a player places or deletes a block, vanilla Minecraft server
+relays the action back. This is not needed, and only wastes bandwidth." );
+
+            toolTip.SetToolTip( xAbsoluteUpdates,
+@"Minecraft protocol specifies 4 different movement packet types.
+One of them sends absolute position, and other 3 send incremental relative positions." );
+
+            toolTip.SetToolTip( xLowLatencyMode,
+@"This mode reduces lag by up to 200ms, at the cost of vastly increased
+bandwidth use. It's only practical if you have a very fast connection
+with few players, or if your server is LAN-only." );
+
+            string tipProcessPriority =
+@"It is recommended to leave fCraft at default priority.
+Setting this below ""Normal"" may starve fCraft of resources.
+Setting this above ""Normal"" may slow down other software on your machine.";
+            toolTip.SetToolTip( lProcessPriority, tipProcessPriority );
+            toolTip.SetToolTip( cProcessPriority, tipProcessPriority );
+
+            string tipUpdater =
+@"fCraft can automatically update to latest stable versions.
+The update check is done on-startup.
+    ""Disabled"" - no check is done at all
+    ""Notify"" - fCraft only shows a message about availability
+    ""Download/Prompt"" - fCraft downloads the update automatically,
+        shows a list of changes, and asks to continue (or cancel).
+    ""Automatic"" - fCraft downloads and applies updates at once.";
+            toolTip.SetToolTip( lUpdater, tipUpdater );
+            toolTip.SetToolTip( cUpdater, tipUpdater );
+
+            string tipThrottling =
+@"The maximum number of block changes that can be sent to each client per second.
+Unmodified Minecraft client can only handle about 2500 updates per second.
+Setting this any higher may cause lag. Setting this lower will show down
+drawing commands (like cuboid).";
+            toolTip.SetToolTip( lThrottling, tipThrottling );
+            toolTip.SetToolTip( nThrottling, tipThrottling );
+            toolTip.SetToolTip( lThrottlingUnits, tipThrottling );
+
+            string tipTickInterval =
+@"The rate at which fCraft applies block updates. Lowering this will slightly
+reduce bandwidth and CPU use, but will add latency to block placement.";
+            toolTip.SetToolTip( lTickInterval, tipTickInterval );
+            toolTip.SetToolTip( nTickInterval, tipTickInterval );
+            toolTip.SetToolTip( lTickIntervalUnits, tipTickInterval );
         }
     }
 }
