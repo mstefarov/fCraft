@@ -191,16 +191,16 @@ namespace ConfigTool {
 
         void ApplyTabSavingAndBackup() {
             xSaveOnShutdown.Checked = Config.GetBool( ConfigKey.SaveOnShutdown );
-            xSaveAtInterval.Checked = Config.GetInt( ConfigKey.SaveInterval ) > 0;
+            xSaveInterval.Checked = Config.GetInt( ConfigKey.SaveInterval ) > 0;
             nSaveInterval.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.SaveInterval ) );
-            if( !xSaveAtInterval.Checked ) nSaveInterval.Enabled = false;
+            if( !xSaveInterval.Checked ) nSaveInterval.Enabled = false;
 
             xBackupOnStartup.Checked = Config.GetBool( ConfigKey.BackupOnStartup );
             xBackupOnJoin.Checked = Config.GetBool( ConfigKey.BackupOnJoin );
             xBackupOnlyWhenChanged.Checked = Config.GetBool( ConfigKey.BackupOnlyWhenChanged );
-            xBackupAtInterval.Checked = Config.GetInt( ConfigKey.BackupInterval ) > 0;
+            xBackupInterval.Checked = Config.GetInt( ConfigKey.BackupInterval ) > 0;
             nBackupInterval.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.BackupInterval ) );
-            if( !xBackupAtInterval.Checked ) nBackupInterval.Enabled = false;
+            if( !xBackupInterval.Checked ) nBackupInterval.Enabled = false;
             xMaxBackups.Checked = Config.GetInt( ConfigKey.MaxBackups ) > 0;
             nMaxBackups.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.MaxBackups ) );
             if( !xMaxBackups.Checked ) nMaxBackups.Enabled = false;
@@ -333,13 +333,13 @@ namespace ConfigTool {
 
 
             Config.SetValue( ConfigKey.SaveOnShutdown, xSaveOnShutdown.Checked );
-            if( xSaveAtInterval.Checked ) Config.SetValue( ConfigKey.SaveInterval, nSaveInterval.Value );
+            if( xSaveInterval.Checked ) Config.SetValue( ConfigKey.SaveInterval, nSaveInterval.Value );
             else Config.SetValue( ConfigKey.SaveInterval, 0 );
             Config.SetValue( ConfigKey.BackupOnStartup, xBackupOnStartup.Checked );
             Config.SetValue( ConfigKey.BackupOnJoin, xBackupOnJoin.Checked );
             Config.SetValue( ConfigKey.BackupOnlyWhenChanged, xBackupOnlyWhenChanged.Checked );
 
-            if( xBackupAtInterval.Checked ) Config.SetValue( ConfigKey.BackupInterval, nBackupInterval.Value );
+            if( xBackupInterval.Checked ) Config.SetValue( ConfigKey.BackupInterval, nBackupInterval.Value );
             else Config.SetValue( ConfigKey.BackupInterval, 0 );
             if( xMaxBackups.Checked ) Config.SetValue( ConfigKey.MaxBackups, nMaxBackups.Value );
             else Config.SetValue( ConfigKey.MaxBackups, 0 );

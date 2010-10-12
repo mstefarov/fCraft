@@ -154,8 +154,8 @@
             this.gSaving = new System.Windows.Forms.GroupBox();
             this.xSaveOnShutdown = new System.Windows.Forms.CheckBox();
             this.nSaveInterval = new System.Windows.Forms.NumericUpDown();
-            this.nSaveIntervalUnits = new System.Windows.Forms.Label();
-            this.xSaveAtInterval = new System.Windows.Forms.CheckBox();
+            this.lSaveIntervalUnits = new System.Windows.Forms.Label();
+            this.xSaveInterval = new System.Windows.Forms.CheckBox();
             this.gBackups = new System.Windows.Forms.GroupBox();
             this.xBackupOnlyWhenChanged = new System.Windows.Forms.CheckBox();
             this.lMaxBackupSize = new System.Windows.Forms.Label();
@@ -167,7 +167,7 @@
             this.nMaxBackups = new System.Windows.Forms.NumericUpDown();
             this.nBackupInterval = new System.Windows.Forms.NumericUpDown();
             this.lBackupIntervalUnits = new System.Windows.Forms.Label();
-            this.xBackupAtInterval = new System.Windows.Forms.CheckBox();
+            this.xBackupInterval = new System.Windows.Forms.CheckBox();
             this.xBackupOnJoin = new System.Windows.Forms.CheckBox();
             this.tabLogging = new System.Windows.Forms.TabPage();
             this.gLogFile = new System.Windows.Forms.GroupBox();
@@ -185,6 +185,7 @@
             this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
             this.tabIRC = new System.Windows.Forms.TabPage();
             this.gIRCOptions = new System.Windows.Forms.GroupBox();
+            this.lIRCNoForwardingMessage = new System.Windows.Forms.Label();
             this.xIRCBotAnnounceIRCJoins = new System.Windows.Forms.CheckBox();
             this.bColorIRC = new System.Windows.Forms.Button();
             this.lColorIRC = new System.Windows.Forms.Label();
@@ -192,6 +193,7 @@
             this.xIRCBotAnnounceServerJoins = new System.Windows.Forms.CheckBox();
             this.xIRCBotForwardFromServer = new System.Windows.Forms.CheckBox();
             this.gIRCNetwork = new System.Windows.Forms.GroupBox();
+            this.lIRCDelayUnits = new System.Windows.Forms.Label();
             this.xIRCRegisteredNick = new System.Windows.Forms.CheckBox();
             this.tIRCNickServMessage = new System.Windows.Forms.TextBox();
             this.lIRCNickServMessage = new System.Windows.Forms.Label();
@@ -218,7 +220,7 @@
             this.nTickInterval = new System.Windows.Forms.NumericUpDown();
             this.cUpdater = new System.Windows.Forms.ComboBox();
             this.lTickIntervalUnits = new System.Windows.Forms.Label();
-            this.bUpdater = new System.Windows.Forms.Label();
+            this.lUpdater = new System.Windows.Forms.Label();
             this.xRedundantPacket = new System.Windows.Forms.CheckBox();
             this.lThrottlingUnits = new System.Windows.Forms.Label();
             this.lProcessPriority = new System.Windows.Forms.Label();
@@ -235,8 +237,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.lIRCNoForwardingMessage = new System.Windows.Forms.Label();
-            this.lIRCDelayUnits = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -1723,8 +1723,8 @@
             // 
             this.gSaving.Controls.Add( this.xSaveOnShutdown );
             this.gSaving.Controls.Add( this.nSaveInterval );
-            this.gSaving.Controls.Add( this.nSaveIntervalUnits );
-            this.gSaving.Controls.Add( this.xSaveAtInterval );
+            this.gSaving.Controls.Add( this.lSaveIntervalUnits );
+            this.gSaving.Controls.Add( this.xSaveInterval );
             this.gSaving.Location = new System.Drawing.Point( 8, 13 );
             this.gSaving.Name = "gSaving";
             this.gSaving.Size = new System.Drawing.Size( 635, 77 );
@@ -1737,37 +1737,37 @@
             this.xSaveOnShutdown.AutoSize = true;
             this.xSaveOnShutdown.Location = new System.Drawing.Point( 16, 20 );
             this.xSaveOnShutdown.Name = "xSaveOnShutdown";
-            this.xSaveOnShutdown.Size = new System.Drawing.Size( 154, 19 );
+            this.xSaveOnShutdown.Size = new System.Drawing.Size( 160, 19 );
             this.xSaveOnShutdown.TabIndex = 0;
-            this.xSaveOnShutdown.Text = "Save map on shutdown";
+            this.xSaveOnShutdown.Text = "Save maps on shutdown";
             this.xSaveOnShutdown.UseVisualStyleBackColor = true;
             // 
             // nSaveInterval
             // 
-            this.nSaveInterval.Location = new System.Drawing.Point( 134, 44 );
+            this.nSaveInterval.Location = new System.Drawing.Point( 140, 44 );
             this.nSaveInterval.Name = "nSaveInterval";
             this.nSaveInterval.Size = new System.Drawing.Size( 48, 21 );
             this.nSaveInterval.TabIndex = 2;
             // 
-            // nSaveIntervalUnits
+            // lSaveIntervalUnits
             // 
-            this.nSaveIntervalUnits.AutoSize = true;
-            this.nSaveIntervalUnits.Location = new System.Drawing.Point( 188, 46 );
-            this.nSaveIntervalUnits.Name = "nSaveIntervalUnits";
-            this.nSaveIntervalUnits.Size = new System.Drawing.Size( 53, 15 );
-            this.nSaveIntervalUnits.TabIndex = 3;
-            this.nSaveIntervalUnits.Text = "seconds";
+            this.lSaveIntervalUnits.AutoSize = true;
+            this.lSaveIntervalUnits.Location = new System.Drawing.Point( 194, 46 );
+            this.lSaveIntervalUnits.Name = "lSaveIntervalUnits";
+            this.lSaveIntervalUnits.Size = new System.Drawing.Size( 53, 15 );
+            this.lSaveIntervalUnits.TabIndex = 3;
+            this.lSaveIntervalUnits.Text = "seconds";
             // 
-            // xSaveAtInterval
+            // xSaveInterval
             // 
-            this.xSaveAtInterval.AutoSize = true;
-            this.xSaveAtInterval.Location = new System.Drawing.Point( 16, 45 );
-            this.xSaveAtInterval.Name = "xSaveAtInterval";
-            this.xSaveAtInterval.Size = new System.Drawing.Size( 112, 19 );
-            this.xSaveAtInterval.TabIndex = 1;
-            this.xSaveAtInterval.Text = "Save map every";
-            this.xSaveAtInterval.UseVisualStyleBackColor = true;
-            this.xSaveAtInterval.CheckedChanged += new System.EventHandler( this.xSaveAtInterval_CheckedChanged );
+            this.xSaveInterval.AutoSize = true;
+            this.xSaveInterval.Location = new System.Drawing.Point( 16, 45 );
+            this.xSaveInterval.Name = "xSaveInterval";
+            this.xSaveInterval.Size = new System.Drawing.Size( 118, 19 );
+            this.xSaveInterval.TabIndex = 1;
+            this.xSaveInterval.Text = "Save maps every";
+            this.xSaveInterval.UseVisualStyleBackColor = true;
+            this.xSaveInterval.CheckedChanged += new System.EventHandler( this.xSaveAtInterval_CheckedChanged );
             // 
             // gBackups
             // 
@@ -1781,7 +1781,7 @@
             this.gBackups.Controls.Add( this.nMaxBackups );
             this.gBackups.Controls.Add( this.nBackupInterval );
             this.gBackups.Controls.Add( this.lBackupIntervalUnits );
-            this.gBackups.Controls.Add( this.xBackupAtInterval );
+            this.gBackups.Controls.Add( this.xBackupInterval );
             this.gBackups.Controls.Add( this.xBackupOnJoin );
             this.gBackups.Location = new System.Drawing.Point( 8, 96 );
             this.gBackups.Name = "gBackups";
@@ -1793,7 +1793,7 @@
             // xBackupOnlyWhenChanged
             // 
             this.xBackupOnlyWhenChanged.AutoSize = true;
-            this.xBackupOnlyWhenChanged.Location = new System.Drawing.Point( 366, 47 );
+            this.xBackupOnlyWhenChanged.Location = new System.Drawing.Point( 369, 46 );
             this.xBackupOnlyWhenChanged.Name = "xBackupOnlyWhenChanged";
             this.xBackupOnlyWhenChanged.Size = new System.Drawing.Size( 260, 19 );
             this.xBackupOnlyWhenChanged.TabIndex = 3;
@@ -1803,7 +1803,7 @@
             // lMaxBackupSize
             // 
             this.lMaxBackupSize.AutoSize = true;
-            this.lMaxBackupSize.Location = new System.Drawing.Point( 418, 127 );
+            this.lMaxBackupSize.Location = new System.Drawing.Point( 418, 124 );
             this.lMaxBackupSize.Name = "lMaxBackupSize";
             this.lMaxBackupSize.Size = new System.Drawing.Size( 103, 15 );
             this.lMaxBackupSize.TabIndex = 13;
@@ -1812,7 +1812,7 @@
             // xMaxBackupSize
             // 
             this.xMaxBackupSize.AutoSize = true;
-            this.xMaxBackupSize.Location = new System.Drawing.Point( 16, 126 );
+            this.xMaxBackupSize.Location = new System.Drawing.Point( 16, 123 );
             this.xMaxBackupSize.Name = "xMaxBackupSize";
             this.xMaxBackupSize.Size = new System.Drawing.Size( 317, 19 );
             this.xMaxBackupSize.TabIndex = 7;
@@ -1822,7 +1822,7 @@
             // 
             // nMaxBackupSize
             // 
-            this.nMaxBackupSize.Location = new System.Drawing.Point( 339, 126 );
+            this.nMaxBackupSize.Location = new System.Drawing.Point( 339, 122 );
             this.nMaxBackupSize.Maximum = new decimal( new int[] {
             1000000,
             0,
@@ -1849,9 +1849,9 @@
             this.xBackupOnStartup.Enabled = false;
             this.xBackupOnStartup.Location = new System.Drawing.Point( 16, 20 );
             this.xBackupOnStartup.Name = "xBackupOnStartup";
-            this.xBackupOnStartup.Size = new System.Drawing.Size( 162, 19 );
+            this.xBackupOnStartup.Size = new System.Drawing.Size( 168, 19 );
             this.xBackupOnStartup.TabIndex = 0;
-            this.xBackupOnStartup.Text = "Create backup on startup";
+            this.xBackupOnStartup.Text = "Create backups on startup";
             this.xBackupOnStartup.UseVisualStyleBackColor = true;
             // 
             // lMaxBackups
@@ -1877,7 +1877,7 @@
             // 
             // nBackupInterval
             // 
-            this.nBackupInterval.Location = new System.Drawing.Point( 158, 45 );
+            this.nBackupInterval.Location = new System.Drawing.Point( 164, 45 );
             this.nBackupInterval.Name = "nBackupInterval";
             this.nBackupInterval.Size = new System.Drawing.Size( 48, 21 );
             this.nBackupInterval.TabIndex = 2;
@@ -1885,31 +1885,31 @@
             // lBackupIntervalUnits
             // 
             this.lBackupIntervalUnits.AutoSize = true;
-            this.lBackupIntervalUnits.Location = new System.Drawing.Point( 212, 47 );
+            this.lBackupIntervalUnits.Location = new System.Drawing.Point( 218, 47 );
             this.lBackupIntervalUnits.Name = "lBackupIntervalUnits";
             this.lBackupIntervalUnits.Size = new System.Drawing.Size( 51, 15 );
             this.lBackupIntervalUnits.TabIndex = 5;
             this.lBackupIntervalUnits.Text = "minutes";
             // 
-            // xBackupAtInterval
+            // xBackupInterval
             // 
-            this.xBackupAtInterval.AutoSize = true;
-            this.xBackupAtInterval.Location = new System.Drawing.Point( 16, 46 );
-            this.xBackupAtInterval.Name = "xBackupAtInterval";
-            this.xBackupAtInterval.Size = new System.Drawing.Size( 136, 19 );
-            this.xBackupAtInterval.TabIndex = 1;
-            this.xBackupAtInterval.Text = "Create backup every";
-            this.xBackupAtInterval.UseVisualStyleBackColor = true;
-            this.xBackupAtInterval.CheckedChanged += new System.EventHandler( this.xBackupAtInterval_CheckedChanged );
+            this.xBackupInterval.AutoSize = true;
+            this.xBackupInterval.Location = new System.Drawing.Point( 16, 46 );
+            this.xBackupInterval.Name = "xBackupInterval";
+            this.xBackupInterval.Size = new System.Drawing.Size( 142, 19 );
+            this.xBackupInterval.TabIndex = 1;
+            this.xBackupInterval.Text = "Create backups every";
+            this.xBackupInterval.UseVisualStyleBackColor = true;
+            this.xBackupInterval.CheckedChanged += new System.EventHandler( this.xBackupAtInterval_CheckedChanged );
             // 
             // xBackupOnJoin
             // 
             this.xBackupOnJoin.AutoSize = true;
             this.xBackupOnJoin.Location = new System.Drawing.Point( 16, 72 );
             this.xBackupOnJoin.Name = "xBackupOnJoin";
-            this.xBackupOnJoin.Size = new System.Drawing.Size( 236, 19 );
+            this.xBackupOnJoin.Size = new System.Drawing.Size( 279, 19 );
             this.xBackupOnJoin.TabIndex = 4;
-            this.xBackupOnJoin.Text = "Create backup whenever a player joins";
+            this.xBackupOnJoin.Text = "Create backup whenever a player joins a world";
             this.xBackupOnJoin.UseVisualStyleBackColor = true;
             // 
             // tabLogging
@@ -2094,6 +2094,16 @@
             this.gIRCOptions.TabStop = false;
             this.gIRCOptions.Text = "Options";
             // 
+            // lIRCNoForwardingMessage
+            // 
+            this.lIRCNoForwardingMessage.AutoSize = true;
+            this.lIRCNoForwardingMessage.Location = new System.Drawing.Point( 33, 110 );
+            this.lIRCNoForwardingMessage.Name = "lIRCNoForwardingMessage";
+            this.lIRCNoForwardingMessage.Size = new System.Drawing.Size( 567, 15 );
+            this.lIRCNoForwardingMessage.TabIndex = 15;
+            this.lIRCNoForwardingMessage.Text = "NOTE: If forwarding all messages is not enabled, only messages starting with a ha" +
+                "sh (#) will be relayed.";
+            // 
             // xIRCBotAnnounceIRCJoins
             // 
             this.xIRCBotAnnounceIRCJoins.AutoSize = true;
@@ -2179,6 +2189,15 @@
             this.gIRCNetwork.TabIndex = 1;
             this.gIRCNetwork.TabStop = false;
             this.gIRCNetwork.Text = "Network";
+            // 
+            // lIRCDelayUnits
+            // 
+            this.lIRCDelayUnits.AutoSize = true;
+            this.lIRCDelayUnits.Location = new System.Drawing.Point( 605, 23 );
+            this.lIRCDelayUnits.Name = "lIRCDelayUnits";
+            this.lIRCDelayUnits.Size = new System.Drawing.Size( 24, 15 );
+            this.lIRCDelayUnits.TabIndex = 27;
+            this.lIRCDelayUnits.Text = "ms";
             // 
             // xIRCRegisteredNick
             // 
@@ -2396,7 +2415,7 @@
             this.groupBox1.Controls.Add( this.nTickInterval );
             this.groupBox1.Controls.Add( this.cUpdater );
             this.groupBox1.Controls.Add( this.lTickIntervalUnits );
-            this.groupBox1.Controls.Add( this.bUpdater );
+            this.groupBox1.Controls.Add( this.lUpdater );
             this.groupBox1.Controls.Add( this.xRedundantPacket );
             this.groupBox1.Controls.Add( this.lThrottlingUnits );
             this.groupBox1.Controls.Add( this.lProcessPriority );
@@ -2493,14 +2512,14 @@
             this.lTickIntervalUnits.TabIndex = 17;
             this.lTickIntervalUnits.Text = "ms";
             // 
-            // bUpdater
+            // lUpdater
             // 
-            this.bUpdater.AutoSize = true;
-            this.bUpdater.Location = new System.Drawing.Point( 31, 186 );
-            this.bUpdater.Name = "bUpdater";
-            this.bUpdater.Size = new System.Drawing.Size( 136, 15 );
-            this.bUpdater.TabIndex = 38;
-            this.bUpdater.Text = "Check for fCraft updates";
+            this.lUpdater.AutoSize = true;
+            this.lUpdater.Location = new System.Drawing.Point( 31, 186 );
+            this.lUpdater.Name = "lUpdater";
+            this.lUpdater.Size = new System.Drawing.Size( 136, 15 );
+            this.lUpdater.TabIndex = 38;
+            this.lUpdater.Text = "Check for fCraft updates";
             // 
             // xRedundantPacket
             // 
@@ -2689,25 +2708,6 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.ReshowDelay = 100;
             // 
-            // lIRCNoForwardingMessage
-            // 
-            this.lIRCNoForwardingMessage.AutoSize = true;
-            this.lIRCNoForwardingMessage.Location = new System.Drawing.Point( 33, 110 );
-            this.lIRCNoForwardingMessage.Name = "lIRCNoForwardingMessage";
-            this.lIRCNoForwardingMessage.Size = new System.Drawing.Size( 567, 15 );
-            this.lIRCNoForwardingMessage.TabIndex = 15;
-            this.lIRCNoForwardingMessage.Text = "NOTE: If forwarding all messages is not enabled, only messages starting with a ha" +
-                "sh (#) will be relayed.";
-            // 
-            // lIRCDelayUnits
-            // 
-            this.lIRCDelayUnits.AutoSize = true;
-            this.lIRCDelayUnits.Location = new System.Drawing.Point( 605, 23 );
-            this.lIRCDelayUnits.Name = "lIRCDelayUnits";
-            this.lIRCDelayUnits.Size = new System.Drawing.Size( 24, 15 );
-            this.lIRCDelayUnits.TabIndex = 27;
-            this.lIRCDelayUnits.Text = "ms";
-            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2856,13 +2856,13 @@
         private System.Windows.Forms.GroupBox gSaving;
         private System.Windows.Forms.CheckBox xSaveOnShutdown;
         private System.Windows.Forms.NumericUpDown nSaveInterval;
-        private System.Windows.Forms.Label nSaveIntervalUnits;
-        private System.Windows.Forms.CheckBox xSaveAtInterval;
+        private System.Windows.Forms.Label lSaveIntervalUnits;
+        private System.Windows.Forms.CheckBox xSaveInterval;
         private System.Windows.Forms.GroupBox gBackups;
         private System.Windows.Forms.CheckBox xBackupOnStartup;
         private System.Windows.Forms.NumericUpDown nBackupInterval;
         private System.Windows.Forms.Label lBackupIntervalUnits;
-        private System.Windows.Forms.CheckBox xBackupAtInterval;
+        private System.Windows.Forms.CheckBox xBackupInterval;
         private System.Windows.Forms.CheckBox xBackupOnJoin;
         private System.Windows.Forms.CheckBox xRedundantPacket;
         private System.Windows.Forms.ComboBox cProcessPriority;
@@ -2902,7 +2902,7 @@
         private System.Windows.Forms.Button bColorHelp;
         private System.Windows.Forms.Button bColorRank;
         private System.Windows.Forms.ComboBox cUpdater;
-        private System.Windows.Forms.Label bUpdater;
+        private System.Windows.Forms.Label lUpdater;
         private System.Windows.Forms.TabPage tabSecurity;
         private System.Windows.Forms.GroupBox gVerify;
         private System.Windows.Forms.Label lVerifyNames;
