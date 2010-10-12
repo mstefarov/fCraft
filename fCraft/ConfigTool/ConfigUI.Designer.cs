@@ -24,8 +24,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
             this.gInformation = new System.Windows.Forms.GroupBox();
@@ -47,9 +47,9 @@
             this.xListPrefixes = new System.Windows.Forms.CheckBox();
             this.xChatPrefixes = new System.Windows.Forms.CheckBox();
             this.xRankColors = new System.Windows.Forms.CheckBox();
-            this.lSayColor = new System.Windows.Forms.Label();
-            this.lHelpColor = new System.Windows.Forms.Label();
-            this.lMessageColor = new System.Windows.Forms.Label();
+            this.lColorSay = new System.Windows.Forms.Label();
+            this.lColorHelp = new System.Windows.Forms.Label();
+            this.lColorSys = new System.Windows.Forms.Label();
             this.gBasic = new System.Windows.Forms.GroupBox();
             this.tIP = new System.Windows.Forms.TextBox();
             this.xIP = new System.Windows.Forms.CheckBox();
@@ -91,7 +91,7 @@
             this.cFreezeLimit = new System.Windows.Forms.ComboBox();
             this.lFreezeLimit = new System.Windows.Forms.Label();
             this.cMaxHideFrom = new System.Windows.Forms.ComboBox();
-            this.lMaxSeeHidden = new System.Windows.Forms.Label();
+            this.lMaxHideFrom = new System.Windows.Forms.Label();
             this.lAntiGrief1 = new System.Windows.Forms.Label();
             this.lAntiGrief3 = new System.Windows.Forms.Label();
             this.nAntiGriefSeconds = new System.Windows.Forms.NumericUpDown();
@@ -376,7 +376,6 @@
             this.bRules.Size = new System.Drawing.Size( 98, 28 );
             this.bRules.TabIndex = 2;
             this.bRules.Text = "Edit Rules";
-            this.toolTip.SetToolTip( this.bRules, resources.GetString( "bRules.ToolTip" ) );
             this.bRules.UseVisualStyleBackColor = true;
             this.bRules.Click += new System.EventHandler( this.bRules_Click );
             // 
@@ -389,7 +388,6 @@
             this.bAnnouncements.Size = new System.Drawing.Size( 165, 28 );
             this.bAnnouncements.TabIndex = 15;
             this.bAnnouncements.Text = "Edit Announcement List";
-            this.toolTip.SetToolTip( this.bAnnouncements, resources.GetString( "bAnnouncements.ToolTip" ) );
             this.bAnnouncements.UseVisualStyleBackColor = true;
             this.bAnnouncements.Click += new System.EventHandler( this.bAnnouncements_Click );
             // 
@@ -407,9 +405,9 @@
             this.gAppearence.Controls.Add( this.xListPrefixes );
             this.gAppearence.Controls.Add( this.xChatPrefixes );
             this.gAppearence.Controls.Add( this.xRankColors );
-            this.gAppearence.Controls.Add( this.lSayColor );
-            this.gAppearence.Controls.Add( this.lHelpColor );
-            this.gAppearence.Controls.Add( this.lMessageColor );
+            this.gAppearence.Controls.Add( this.lColorSay );
+            this.gAppearence.Controls.Add( this.lColorHelp );
+            this.gAppearence.Controls.Add( this.lColorSys );
             this.gAppearence.Location = new System.Drawing.Point( 8, 184 );
             this.gAppearence.Name = "gAppearence";
             this.gAppearence.Size = new System.Drawing.Size( 635, 166 );
@@ -425,7 +423,6 @@
             this.xShowJoinedWorldMessages.Size = new System.Drawing.Size( 219, 19 );
             this.xShowJoinedWorldMessages.TabIndex = 11;
             this.xShowJoinedWorldMessages.Text = "Show \"X joined world Y\" messages.";
-            this.toolTip.SetToolTip( this.xShowJoinedWorldMessages, "Show messages when players change worlds." );
             this.xShowJoinedWorldMessages.UseVisualStyleBackColor = true;
             // 
             // xRankColorsInWorldNames
@@ -436,7 +433,6 @@
             this.xRankColorsInWorldNames.Size = new System.Drawing.Size( 243, 19 );
             this.xRankColorsInWorldNames.TabIndex = 10;
             this.xRankColorsInWorldNames.Text = "Color world names based on build rank.";
-            this.toolTip.SetToolTip( this.xRankColorsInWorldNames, "Color world names in chat based on their build and access permissions." );
             this.xRankColorsInWorldNames.UseVisualStyleBackColor = true;
             // 
             // bColorPM
@@ -446,7 +442,6 @@
             this.bColorPM.Name = "bColorPM";
             this.bColorPM.Size = new System.Drawing.Size( 100, 23 );
             this.bColorPM.TabIndex = 9;
-            this.toolTip.SetToolTip( this.bColorPM, "Color of private messages and rank-wide messages.\r\nDefault is aqua." );
             this.bColorPM.UseVisualStyleBackColor = false;
             this.bColorPM.Click += new System.EventHandler( this.bColorPM_Click );
             // 
@@ -466,8 +461,6 @@
             this.bColorAnnouncement.Name = "bColorAnnouncement";
             this.bColorAnnouncement.Size = new System.Drawing.Size( 100, 23 );
             this.bColorAnnouncement.TabIndex = 7;
-            this.toolTip.SetToolTip( this.bColorAnnouncement, "Color of announcements and rules.\r\nDefault is dark-green.\r\nNote that this default" +
-                    " color can be overriden by\r\ncolorcodes in announcement and rule files." );
             this.bColorAnnouncement.UseVisualStyleBackColor = false;
             this.bColorAnnouncement.Click += new System.EventHandler( this.bColorAnnouncement_Click );
             // 
@@ -487,7 +480,6 @@
             this.bColorSay.Name = "bColorSay";
             this.bColorSay.Size = new System.Drawing.Size( 100, 23 );
             this.bColorSay.TabIndex = 5;
-            this.toolTip.SetToolTip( this.bColorSay, "Color of messages produced by \"/say\" command.\r\nDefault is dark-green." );
             this.bColorSay.UseVisualStyleBackColor = false;
             this.bColorSay.Click += new System.EventHandler( this.bColorSay_Click );
             // 
@@ -498,7 +490,6 @@
             this.bColorHelp.Name = "bColorHelp";
             this.bColorHelp.Size = new System.Drawing.Size( 100, 23 );
             this.bColorHelp.TabIndex = 4;
-            this.toolTip.SetToolTip( this.bColorHelp, "Color of command usage examples in help.\r\nDefault is green." );
             this.bColorHelp.UseVisualStyleBackColor = false;
             this.bColorHelp.Click += new System.EventHandler( this.bColorHelp_Click );
             // 
@@ -509,7 +500,6 @@
             this.bColorSys.Name = "bColorSys";
             this.bColorSys.Size = new System.Drawing.Size( 100, 23 );
             this.bColorSys.TabIndex = 3;
-            this.toolTip.SetToolTip( this.bColorSys, "This is the color of normal system messages.\r\nDefault is yellow." );
             this.bColorSys.UseVisualStyleBackColor = false;
             this.bColorSys.Click += new System.EventHandler( this.bColorSys_Click );
             // 
@@ -521,8 +511,6 @@
             this.xListPrefixes.Size = new System.Drawing.Size( 219, 19 );
             this.xListPrefixes.TabIndex = 2;
             this.xListPrefixes.Text = "Prefixes in player list (breaks skins).";
-            this.toolTip.SetToolTip( this.xListPrefixes, "Show prefixes in the player list. As a side-effect, Minecraft client\r\nwill not sh" +
-                    "ow custom skins for players with prefixed names." );
             this.xListPrefixes.UseVisualStyleBackColor = true;
             // 
             // xChatPrefixes
@@ -533,8 +521,6 @@
             this.xChatPrefixes.Size = new System.Drawing.Size( 133, 19 );
             this.xChatPrefixes.TabIndex = 1;
             this.xChatPrefixes.Text = "Show rank prefixes.";
-            this.toolTip.SetToolTip( this.xChatPrefixes, "Show 1-letter prefixes before player names. This can be\r\nused to set up IRC-style" +
-                    " \"+\" and \"@\" prefixes for ops." );
             this.xChatPrefixes.UseVisualStyleBackColor = true;
             // 
             // xRankColors
@@ -545,35 +531,34 @@
             this.xRankColors.Size = new System.Drawing.Size( 123, 19 );
             this.xRankColors.TabIndex = 0;
             this.xRankColors.Text = "Show rank colors.";
-            this.toolTip.SetToolTip( this.xRankColors, "Color player names in chat and in-game based on their rank." );
             this.xRankColors.UseVisualStyleBackColor = true;
             // 
-            // lSayColor
+            // lColorSay
             // 
-            this.lSayColor.AutoSize = true;
-            this.lSayColor.Location = new System.Drawing.Point( 400, 82 );
-            this.lSayColor.Name = "lSayColor";
-            this.lSayColor.Size = new System.Drawing.Size( 111, 15 );
-            this.lSayColor.TabIndex = 2;
-            this.lSayColor.Text = "Say message color";
+            this.lColorSay.AutoSize = true;
+            this.lColorSay.Location = new System.Drawing.Point( 400, 82 );
+            this.lColorSay.Name = "lColorSay";
+            this.lColorSay.Size = new System.Drawing.Size( 111, 15 );
+            this.lColorSay.TabIndex = 2;
+            this.lColorSay.Text = "Say message color";
             // 
-            // lHelpColor
+            // lColorHelp
             // 
-            this.lHelpColor.AutoSize = true;
-            this.lHelpColor.Location = new System.Drawing.Point( 394, 53 );
-            this.lHelpColor.Name = "lHelpColor";
-            this.lHelpColor.Size = new System.Drawing.Size( 117, 15 );
-            this.lHelpColor.TabIndex = 1;
-            this.lHelpColor.Text = "Help message color";
+            this.lColorHelp.AutoSize = true;
+            this.lColorHelp.Location = new System.Drawing.Point( 394, 53 );
+            this.lColorHelp.Name = "lColorHelp";
+            this.lColorHelp.Size = new System.Drawing.Size( 117, 15 );
+            this.lColorHelp.TabIndex = 1;
+            this.lColorHelp.Text = "Help message color";
             // 
-            // lMessageColor
+            // lColorSys
             // 
-            this.lMessageColor.AutoSize = true;
-            this.lMessageColor.Location = new System.Drawing.Point( 380, 24 );
-            this.lMessageColor.Name = "lMessageColor";
-            this.lMessageColor.Size = new System.Drawing.Size( 131, 15 );
-            this.lMessageColor.TabIndex = 0;
-            this.lMessageColor.Text = "System message color";
+            this.lColorSys.AutoSize = true;
+            this.lColorSys.Location = new System.Drawing.Point( 380, 24 );
+            this.lColorSys.Name = "lColorSys";
+            this.lColorSys.Size = new System.Drawing.Size( 131, 15 );
+            this.lColorSys.TabIndex = 0;
+            this.lColorSys.Text = "System message color";
             // 
             // gBasic
             // 
@@ -620,9 +605,6 @@
             this.xIP.Size = new System.Drawing.Size( 103, 19 );
             this.xIP.TabIndex = 34;
             this.xIP.Text = "Designated IP";
-            this.toolTip.SetToolTip( this.xIP, "If the machine has more than one available IP address\r\n(for example if you have m" +
-                    "ore than one NIC) you can\r\nuse this setting to make fCraft bind to the same IP\r\n" +
-                    "every time." );
             this.xIP.UseVisualStyleBackColor = true;
             this.xIP.CheckedChanged += new System.EventHandler( this.xIP_CheckedChanged );
             // 
@@ -633,8 +615,6 @@
             this.bPortCheck.Size = new System.Drawing.Size( 68, 23 );
             this.bPortCheck.TabIndex = 33;
             this.bPortCheck.Text = "Check";
-            this.toolTip.SetToolTip( this.bPortCheck, "Check if the selected port is connectible.\r\nIf port check fails, you may need to " +
-                    "set up\r\nport forwarding on your router." );
             this.bPortCheck.UseVisualStyleBackColor = true;
             this.bPortCheck.Click += new System.EventHandler( this.bPortCheck_Click );
             // 
@@ -663,7 +643,6 @@
             this.nPort.Name = "nPort";
             this.nPort.Size = new System.Drawing.Size( 71, 21 );
             this.nPort.TabIndex = 7;
-            this.toolTip.SetToolTip( this.nPort, resources.GetString( "nPort.ToolTip" ) );
             this.nPort.Value = new decimal( new int[] {
             1,
             0,
@@ -678,8 +657,6 @@
             this.cDefaultRank.Name = "cDefaultRank";
             this.cDefaultRank.Size = new System.Drawing.Size( 189, 23 );
             this.cDefaultRank.TabIndex = 6;
-            this.toolTip.SetToolTip( this.cDefaultRank, "New players will be assigned this rank by default.\r\nIt\'s generally a good idea no" +
-                    "t to give new players\r\nmany powers until they prove themselves trustworthy." );
             // 
             // lDefaultRank
             // 
@@ -706,8 +683,6 @@
             this.bMeasure.Size = new System.Drawing.Size( 65, 23 );
             this.bMeasure.TabIndex = 5;
             this.bMeasure.Text = "Measure";
-            this.toolTip.SetToolTip( this.bMeasure, "Test your connection\'s upload speed with speedtest.net\r\nNote: to convert from meg" +
-                    "abits to kilobytes, multiply the\r\nnumber by 128" );
             this.bMeasure.UseVisualStyleBackColor = true;
             this.bMeasure.Click += new System.EventHandler( this.bMeasure_Click );
             // 
@@ -720,8 +695,6 @@
             this.tServerName.Name = "tServerName";
             this.tServerName.Size = new System.Drawing.Size( 509, 21 );
             this.tServerName.TabIndex = 0;
-            this.toolTip.SetToolTip( this.tServerName, "The name of the server, as shown on the welcome screen\r\nand the official server l" +
-                    "ist (if server is public)." );
             // 
             // lUploadBandwidthUnits
             // 
@@ -762,9 +735,6 @@
             this.nUploadBandwidth.Name = "nUploadBandwidth";
             this.nUploadBandwidth.Size = new System.Drawing.Size( 80, 21 );
             this.nUploadBandwidth.TabIndex = 4;
-            this.toolTip.SetToolTip( this.nUploadBandwidth, "Total available upload bandwidth, in kilobytes.\r\nThis number is used to throttle " +
-                    "drawing commands\r\nto prevent server from overwhelming the Internet\r\nconnection w" +
-                    "ith data." );
             this.nUploadBandwidth.Value = new decimal( new int[] {
             10,
             0,
@@ -780,8 +750,6 @@
             this.tMOTD.Name = "tMOTD";
             this.tMOTD.Size = new System.Drawing.Size( 509, 21 );
             this.tMOTD.TabIndex = 1;
-            this.toolTip.SetToolTip( this.tMOTD, "MOTD (Message Of The Day) is a message shown to\r\nconnecting players right under t" +
-                    "he server name.\r\nIt can be left blank." );
             // 
             // lMOTD
             // 
@@ -804,7 +772,6 @@
             this.cPublic.Name = "cPublic";
             this.cPublic.Size = new System.Drawing.Size( 80, 23 );
             this.cPublic.TabIndex = 3;
-            this.toolTip.SetToolTip( this.cPublic, resources.GetString( "cPublic.ToolTip" ) );
             // 
             // nMaxPlayers
             // 
@@ -822,7 +789,6 @@
             this.nMaxPlayers.Name = "nMaxPlayers";
             this.nMaxPlayers.Size = new System.Drawing.Size( 48, 21 );
             this.nMaxPlayers.TabIndex = 2;
-            this.toolTip.SetToolTip( this.nMaxPlayers, resources.GetString( "nMaxPlayers.ToolTip" ) );
             this.nMaxPlayers.Value = new decimal( new int[] {
             1,
             0,
@@ -867,7 +833,6 @@
             // cMainWorld
             // 
             this.cMainWorld.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cMainWorld.FormattingEnabled = true;
             this.cMainWorld.Location = new System.Drawing.Point( 371, 17 );
             this.cMainWorld.Name = "cMainWorld";
             this.cMainWorld.Size = new System.Drawing.Size( 102, 23 );
@@ -936,10 +901,10 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle6.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvWorlds.Size = new System.Drawing.Size( 634, 348 );
+            this.dgvWorlds.Size = new System.Drawing.Size( 634, 365 );
             this.dgvWorlds.TabIndex = 0;
             this.dgvWorlds.SelectionChanged += new System.EventHandler( this.dgvWorlds_SelectionChanged );
             // 
@@ -1044,7 +1009,7 @@
             this.gRankOptions.Controls.Add( this.cFreezeLimit );
             this.gRankOptions.Controls.Add( this.lFreezeLimit );
             this.gRankOptions.Controls.Add( this.cMaxHideFrom );
-            this.gRankOptions.Controls.Add( this.lMaxSeeHidden );
+            this.gRankOptions.Controls.Add( this.lMaxHideFrom );
             this.gRankOptions.Controls.Add( this.lAntiGrief1 );
             this.gRankOptions.Controls.Add( this.lAntiGrief3 );
             this.gRankOptions.Controls.Add( this.nAntiGriefSeconds );
@@ -1108,14 +1073,14 @@
             this.cMaxHideFrom.TabIndex = 23;
             this.cMaxHideFrom.SelectedIndexChanged += new System.EventHandler( this.cMaxHideFrom_SelectedIndexChanged );
             // 
-            // lMaxSeeHidden
+            // lMaxHideFrom
             // 
-            this.lMaxSeeHidden.AutoSize = true;
-            this.lMaxSeeHidden.Location = new System.Drawing.Point( 6, 196 );
-            this.lMaxSeeHidden.Name = "lMaxSeeHidden";
-            this.lMaxSeeHidden.Size = new System.Drawing.Size( 84, 15 );
-            this.lMaxSeeHidden.TabIndex = 24;
-            this.lMaxSeeHidden.Text = "Can hide from";
+            this.lMaxHideFrom.AutoSize = true;
+            this.lMaxHideFrom.Location = new System.Drawing.Point( 6, 196 );
+            this.lMaxHideFrom.Name = "lMaxHideFrom";
+            this.lMaxHideFrom.Size = new System.Drawing.Size( 84, 15 );
+            this.lMaxHideFrom.TabIndex = 24;
+            this.lMaxHideFrom.Text = "Can hide from";
             // 
             // lAntiGrief1
             // 
@@ -1151,7 +1116,7 @@
             this.bColorRank.Size = new System.Drawing.Size( 100, 24 );
             this.bColorRank.TabIndex = 2;
             this.bColorRank.UseVisualStyleBackColor = false;
-            this.bColorRank.Click += new System.EventHandler( this.bColorClass_Click );
+            this.bColorRank.Click += new System.EventHandler( this.bColorRank_Click );
             // 
             // xDrawLimit
             // 
@@ -2735,6 +2700,7 @@
             this.MinimumSize = new System.Drawing.Size( 700, 547 );
             this.Name = "ConfigUI";
             this.Text = "fCraft Config Tool";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.ConfigUI_FormClosing );
             this.tabs.ResumeLayout( false );
             this.tabGeneral.ResumeLayout( false );
             this.gInformation.ResumeLayout( false );
@@ -2855,13 +2821,13 @@
         private System.Windows.Forms.ComboBox cKickLimit;
         private System.Windows.Forms.ComboBox cDemoteLimit;
         private System.Windows.Forms.GroupBox gAppearence;
-        private System.Windows.Forms.Label lHelpColor;
-        private System.Windows.Forms.Label lMessageColor;
+        private System.Windows.Forms.Label lColorHelp;
+        private System.Windows.Forms.Label lColorSys;
         private System.Windows.Forms.GroupBox gBasic;
         private System.Windows.Forms.CheckBox xListPrefixes;
         private System.Windows.Forms.CheckBox xChatPrefixes;
         private System.Windows.Forms.CheckBox xRankColors;
-        private System.Windows.Forms.Label lSayColor;
+        private System.Windows.Forms.Label lColorSay;
         private System.Windows.Forms.ComboBox cDefaultRank;
         private System.Windows.Forms.Label lDefaultRank;
         private System.Windows.Forms.GroupBox gSaving;
@@ -2997,7 +2963,7 @@
         private System.Windows.Forms.CheckBox xRankColorsInWorldNames;
         private System.Windows.Forms.CheckBox xShowJoinedWorldMessages;
         private System.Windows.Forms.ComboBox cMaxHideFrom;
-        private System.Windows.Forms.Label lMaxSeeHidden;
+        private System.Windows.Forms.Label lMaxHideFrom;
         private System.Windows.Forms.CheckBox xIP;
         private System.Windows.Forms.TextBox tIP;
         private System.Windows.Forms.ComboBox cPatrolledRank;

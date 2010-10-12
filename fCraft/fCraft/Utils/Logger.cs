@@ -122,8 +122,8 @@ namespace fCraft {
         static string sessionStart = DateTime.Now.ToString( LongDateFormat );
 
         static Logger() {
-            consoleOptions = new bool[15];
-            logFileOptions = new bool[15];
+            consoleOptions = new bool[Enum.GetNames( typeof( LogType ) ).Length];
+            logFileOptions = new bool[consoleOptions.Length];
             for( int i = 0; i < consoleOptions.Length; i++ ) {
                 consoleOptions[i] = true;
                 logFileOptions[i] = true;

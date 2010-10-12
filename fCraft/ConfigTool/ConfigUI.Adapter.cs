@@ -93,7 +93,7 @@ namespace ConfigTool {
             tServerName.Text = Config.GetString( ConfigKey.ServerName );
             tMOTD.Text = Config.GetString( ConfigKey.MOTD );
             nMaxPlayers.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.MaxPlayers ) );
-            FillClassList( cDefaultRank, "(lowest class)" );
+            FillRankList( cDefaultRank, "(lowest class)" );
             cDefaultRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.DefaultRank ) ) );
             cPublic.SelectedIndex = Config.GetBool( ConfigKey.IsPublic ) ? 0 : 1;
             nPort.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.Port ) );
@@ -184,7 +184,7 @@ namespace ConfigTool {
             xAnnounceKickAndBanReasons.Checked = Config.GetBool( ConfigKey.AnnounceKickAndBanReasons );
             xAnnounceRankChanges.Checked = Config.GetBool( ConfigKey.AnnounceRankChanges );
 
-            FillClassList( cPatrolledRank, "(lowest class)" );
+            FillRankList( cPatrolledRank, "(lowest class)" );
             cPatrolledRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.PatrolledRank ) ) );
         }
 
