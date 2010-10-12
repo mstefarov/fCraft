@@ -24,7 +24,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -127,9 +127,9 @@
             this.vRanks = new System.Windows.Forms.ListBox();
             this.tabSecurity = new System.Windows.Forms.TabPage();
             this.gSecurityMisc = new System.Windows.Forms.GroupBox();
-            this.lPatrolledClassAndBelow = new System.Windows.Forms.Label();
+            this.lPatrolledRankAndBelow = new System.Windows.Forms.Label();
             this.cPatrolledRank = new System.Windows.Forms.ComboBox();
-            this.lPatrolledClass = new System.Windows.Forms.Label();
+            this.lPatrolledRank = new System.Windows.Forms.Label();
             this.xAnnounceRankChanges = new System.Windows.Forms.CheckBox();
             this.xAnnounceKickAndBanReasons = new System.Windows.Forms.CheckBox();
             this.xRequireRankChangeReason = new System.Windows.Forms.CheckBox();
@@ -235,6 +235,8 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
+            this.lIRCNoForwardingMessage = new System.Windows.Forms.Label();
+            this.lIRCDelayUnits = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -901,8 +903,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 634, 365 );
             this.dgvWorlds.TabIndex = 0;
@@ -1437,9 +1439,9 @@
             // 
             // gSecurityMisc
             // 
-            this.gSecurityMisc.Controls.Add( this.lPatrolledClassAndBelow );
+            this.gSecurityMisc.Controls.Add( this.lPatrolledRankAndBelow );
             this.gSecurityMisc.Controls.Add( this.cPatrolledRank );
-            this.gSecurityMisc.Controls.Add( this.lPatrolledClass );
+            this.gSecurityMisc.Controls.Add( this.lPatrolledRank );
             this.gSecurityMisc.Controls.Add( this.xAnnounceRankChanges );
             this.gSecurityMisc.Controls.Add( this.xAnnounceKickAndBanReasons );
             this.gSecurityMisc.Controls.Add( this.xRequireRankChangeReason );
@@ -1451,14 +1453,14 @@
             this.gSecurityMisc.TabStop = false;
             this.gSecurityMisc.Text = "Misc";
             // 
-            // lPatrolledClassAndBelow
+            // lPatrolledRankAndBelow
             // 
-            this.lPatrolledClassAndBelow.AutoSize = true;
-            this.lPatrolledClassAndBelow.Location = new System.Drawing.Point( 242, 81 );
-            this.lPatrolledClassAndBelow.Name = "lPatrolledClassAndBelow";
-            this.lPatrolledClassAndBelow.Size = new System.Drawing.Size( 72, 15 );
-            this.lPatrolledClassAndBelow.TabIndex = 8;
-            this.lPatrolledClassAndBelow.Text = "(and below)";
+            this.lPatrolledRankAndBelow.AutoSize = true;
+            this.lPatrolledRankAndBelow.Location = new System.Drawing.Point( 242, 81 );
+            this.lPatrolledRankAndBelow.Name = "lPatrolledRankAndBelow";
+            this.lPatrolledRankAndBelow.Size = new System.Drawing.Size( 72, 15 );
+            this.lPatrolledRankAndBelow.TabIndex = 8;
+            this.lPatrolledRankAndBelow.Text = "(and below)";
             // 
             // cPatrolledRank
             // 
@@ -1469,14 +1471,14 @@
             this.cPatrolledRank.Size = new System.Drawing.Size( 123, 23 );
             this.cPatrolledRank.TabIndex = 7;
             // 
-            // lPatrolledClass
+            // lPatrolledRank
             // 
-            this.lPatrolledClass.AutoSize = true;
-            this.lPatrolledClass.Location = new System.Drawing.Point( 24, 81 );
-            this.lPatrolledClass.Name = "lPatrolledClass";
-            this.lPatrolledClass.Size = new System.Drawing.Size( 83, 15 );
-            this.lPatrolledClass.TabIndex = 6;
-            this.lPatrolledClass.Text = "Patrolled rank";
+            this.lPatrolledRank.AutoSize = true;
+            this.lPatrolledRank.Location = new System.Drawing.Point( 24, 81 );
+            this.lPatrolledRank.Name = "lPatrolledRank";
+            this.lPatrolledRank.Size = new System.Drawing.Size( 83, 15 );
+            this.lPatrolledRank.TabIndex = 6;
+            this.lPatrolledRank.Text = "Patrolled rank";
             // 
             // xAnnounceRankChanges
             // 
@@ -2078,6 +2080,7 @@
             // 
             // gIRCOptions
             // 
+            this.gIRCOptions.Controls.Add( this.lIRCNoForwardingMessage );
             this.gIRCOptions.Controls.Add( this.xIRCBotAnnounceIRCJoins );
             this.gIRCOptions.Controls.Add( this.bColorIRC );
             this.gIRCOptions.Controls.Add( this.lColorIRC );
@@ -2086,7 +2089,7 @@
             this.gIRCOptions.Controls.Add( this.xIRCBotForwardFromServer );
             this.gIRCOptions.Location = new System.Drawing.Point( 8, 205 );
             this.gIRCOptions.Name = "gIRCOptions";
-            this.gIRCOptions.Size = new System.Drawing.Size( 635, 110 );
+            this.gIRCOptions.Size = new System.Drawing.Size( 635, 137 );
             this.gIRCOptions.TabIndex = 2;
             this.gIRCOptions.TabStop = false;
             this.gIRCOptions.Text = "Options";
@@ -2152,6 +2155,7 @@
             // 
             // gIRCNetwork
             // 
+            this.gIRCNetwork.Controls.Add( this.lIRCDelayUnits );
             this.gIRCNetwork.Controls.Add( this.xIRCRegisteredNick );
             this.gIRCNetwork.Controls.Add( this.tIRCNickServMessage );
             this.gIRCNetwork.Controls.Add( this.lIRCNickServMessage );
@@ -2231,7 +2235,7 @@
             0,
             0,
             0} );
-            this.nIRCDelay.Location = new System.Drawing.Point( 564, 21 );
+            this.nIRCDelay.Location = new System.Drawing.Point( 543, 21 );
             this.nIRCDelay.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -2243,7 +2247,7 @@
             0,
             0} );
             this.nIRCDelay.Name = "nIRCDelay";
-            this.nIRCDelay.Size = new System.Drawing.Size( 65, 21 );
+            this.nIRCDelay.Size = new System.Drawing.Size( 56, 21 );
             this.nIRCDelay.TabIndex = 21;
             this.nIRCDelay.Value = new decimal( new int[] {
             1,
@@ -2254,7 +2258,7 @@
             // lIRCDelay
             // 
             this.lIRCDelay.AutoSize = true;
-            this.lIRCDelay.Location = new System.Drawing.Point( 444, 23 );
+            this.lIRCDelay.Location = new System.Drawing.Point( 423, 23 );
             this.lIRCDelay.Name = "lIRCDelay";
             this.lIRCDelay.Size = new System.Drawing.Size( 114, 15 );
             this.lIRCDelay.TabIndex = 20;
@@ -2685,6 +2689,25 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.ReshowDelay = 100;
             // 
+            // lIRCNoForwardingMessage
+            // 
+            this.lIRCNoForwardingMessage.AutoSize = true;
+            this.lIRCNoForwardingMessage.Location = new System.Drawing.Point( 33, 110 );
+            this.lIRCNoForwardingMessage.Name = "lIRCNoForwardingMessage";
+            this.lIRCNoForwardingMessage.Size = new System.Drawing.Size( 567, 15 );
+            this.lIRCNoForwardingMessage.TabIndex = 15;
+            this.lIRCNoForwardingMessage.Text = "NOTE: If forwarding all messages is not enabled, only messages starting with a ha" +
+                "sh (#) will be relayed.";
+            // 
+            // lIRCDelayUnits
+            // 
+            this.lIRCDelayUnits.AutoSize = true;
+            this.lIRCDelayUnits.Location = new System.Drawing.Point( 605, 23 );
+            this.lIRCDelayUnits.Name = "lIRCDelayUnits";
+            this.lIRCDelayUnits.Size = new System.Drawing.Size( 24, 15 );
+            this.lIRCDelayUnits.TabIndex = 27;
+            this.lIRCDelayUnits.Text = "ms";
+            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2967,8 +2990,8 @@
         private System.Windows.Forms.CheckBox xIP;
         private System.Windows.Forms.TextBox tIP;
         private System.Windows.Forms.ComboBox cPatrolledRank;
-        private System.Windows.Forms.Label lPatrolledClass;
-        private System.Windows.Forms.Label lPatrolledClassAndBelow;
+        private System.Windows.Forms.Label lPatrolledRank;
+        private System.Windows.Forms.Label lPatrolledRankAndBelow;
         private System.Windows.Forms.Button bLowerRank;
         private System.Windows.Forms.Button bRaiseRank;
         private System.Windows.Forms.Label lRankList;
@@ -2980,5 +3003,7 @@
         private System.Windows.Forms.ComboBox cFreezeLimit;
         private System.Windows.Forms.Label lFreezeLimit;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.Label lIRCNoForwardingMessage;
+        private System.Windows.Forms.Label lIRCDelayUnits;
     }
 }

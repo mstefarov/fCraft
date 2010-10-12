@@ -36,6 +36,12 @@ namespace ConfigTool {
             FillOptionList();
             FillToolTipsGeneral();
             FillToolTipsWorlds();
+            FillToolTipsRanks();
+            FillToolTipsSecurity();
+            //FillToolTipsSavingAndBackup();
+            FillToolTipsLogging();
+            FillToolTipsIRC();
+            //FillToolTipsAdvanced();
 
             dgvWorlds.DataError += delegate( object sender, DataGridViewDataErrorEventArgs e ) {
                 MessageBox.Show( e.Exception.Message, "Data Error" );
@@ -62,7 +68,7 @@ namespace ConfigTool {
                 vConsoleOptions.Items.Add( (ListViewItem)item.Clone() );
             }
 
-            FillToolTipsLists();
+            FillToolTipsLogging();
         }
 
         internal static void HandleWorldRename( string from, string to ) {
