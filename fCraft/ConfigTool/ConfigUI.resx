@@ -117,6 +117,53 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 6</value>
+  </metadata>
+  <data name="bRules.ToolTip" xml:space="preserve">
+    <value>Edit the list of rules displayed by the "/rules" command.
+This list is stored in rules.txt, and can also be edited with any text editor.
+If rules.txt is missing or empty, "/rules" shows this message:
+"Use common sense!"</value>
+  </data>
+  <data name="bAnnouncements.ToolTip" xml:space="preserve">
+    <value>Edit the list of announcements (announcements.txt).
+One line is shown at a time, in random order.
+You can include any color codes in the announcements.
+You can also edit announcements.txt with any text editor.</value>
+  </data>
+  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 6</value>
+  </metadata>
+  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 6</value>
+  </metadata>
+  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 6</value>
+  </metadata>
+  <data name="nPort.ToolTip" xml:space="preserve">
+    <value>Port number on your local machine that fCraft uses to listen for
+incoming connections. If you are behind a router, you may need
+to set up port forwarding. You may also need to add a firewall 
+exception for fCraftUI/fCraftConsole/ConfigTool.  Note that your
+server's URL will change if you change the port number.</value>
+  </data>
+  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 6</value>
+  </metadata>
+  <data name="cPublic.ToolTip" xml:space="preserve">
+    <value>Public servers are listed on minecraft.net server list,
+so expect random players to join. Private servers can
+only be joined by people who already know the
+server port/address or URL. Note that the URL changes
+if your computer's IP or server's port change.</value>
+  </data>
+  <data name="nMaxPlayers.ToolTip" xml:space="preserve">
+    <value>Maximum number of players on the server. Having more players
+uses more RAM and more bandwidth. If a player's rank is given a
+"reserved slot" on the server, they can join even if server is full.
+Minecraft protocol limits total number of players to 128.</value>
+  </data>
   <metadata name="dgvcName.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>

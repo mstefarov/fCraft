@@ -1,5 +1,7 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-10-11
+486
+ Quick fix for IRC Bot bug that made server unconnectable.
 485
  Feature: Added optional "delay" parameter to /shutdown (default: 5)
  Feature: World names can now be autocompleted for many commands (like /join and /lock)

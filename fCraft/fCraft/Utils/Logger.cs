@@ -19,7 +19,6 @@ namespace fCraft {
         UserCommand,
         SuspiciousActivity,
 
-        WorldChat,
         GlobalChat,
         PrivateChat,
         RankChat,

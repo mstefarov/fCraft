@@ -95,6 +95,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <Compile Include="ConfigUI.ToolTips.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ConfigUI.Adapter.cs">
       <SubType>Form</SubType>
     </Compile>
