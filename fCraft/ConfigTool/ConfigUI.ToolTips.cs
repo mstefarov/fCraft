@@ -139,6 +139,14 @@ If rules.txt is missing or empty, ""/rules"" shows this message:
 One line is shown at a time, in random order.
 You can include any color codes in the announcements.
 You can also edit announcements.txt with any text editor." );
+
+
+            string tipAnnouncements =
+@"Show a random announcement every once in a while.
+Announcements are shown to all players, one line at a time, in random order.";
+            toolTip.SetToolTip( xAnnouncements, tipAnnouncements );
+            toolTip.SetToolTip( nAnnouncements, tipAnnouncements );
+            toolTip.SetToolTip( lAnnouncementsUnits, tipAnnouncements );
         }
 
 
