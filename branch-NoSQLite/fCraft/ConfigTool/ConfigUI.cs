@@ -34,6 +34,8 @@ namespace ConfigTool {
             bold = new Font( Font, FontStyle.Bold );
 
             FillOptionList();
+            FillToolTipsGeneral();
+            FillToolTipsWorlds();
 
             dgvWorlds.DataError += delegate( object sender, DataGridViewDataErrorEventArgs e ) {
                 MessageBox.Show( e.Exception.Message, "Data Error" );
@@ -60,7 +62,7 @@ namespace ConfigTool {
                 vConsoleOptions.Items.Add( (ListViewItem)item.Clone() );
             }
 
-            FillOptionToolTips();
+            FillToolTipsLists();
         }
 
         internal static void HandleWorldRename( string from, string to ) {
@@ -202,7 +204,7 @@ namespace ConfigTool {
                         File.Delete( fileName );
                     } catch( Exception ex ) {
                         MessageBox.Show( "You have to delete the file (" + fileName + ") manually. " +
-                            "An error occured while trying to delete it automatically:" + Environment.NewLine + ex, "Error" );
+                                         "An error occured while trying to delete it automatically:" + Environment.NewLine + ex, "Error" );
                     }
                 }
 
@@ -371,17 +373,17 @@ namespace ConfigTool {
             }
             SelectRank( selectedRank );
 
-            FillClassList( cDefaultRank, "(lowest rank)" );
+            FillRankList( cDefaultRank, "(lowest rank)" );
             cDefaultRank.SelectedIndex = RankList.GetIndex( defaultRank );
-            FillClassList( cPatrolledRank, "(lowest rank)" );
+            FillRankList( cPatrolledRank, "(lowest rank)" );
             cPatrolledRank.SelectedIndex = RankList.GetIndex( patrolledRank );
 
-            FillClassList( cKickLimit, "(own rank)" );
-            FillClassList( cBanLimit, "(own rank)" );
-            FillClassList( cPromoteLimit, "(own rank)" );
-            FillClassList( cDemoteLimit, "(own rank)" );
-            FillClassList( cMaxHideFrom, "(own rank)" );
-            FillClassList( cFreezeLimit, "(own rank)" );
+            FillRankList( cKickLimit, "(own rank)" );
+            FillRankList( cBanLimit, "(own rank)" );
+            FillRankList( cPromoteLimit, "(own rank)" );
+            FillRankList( cDemoteLimit, "(own rank)" );
+            FillRankList( cMaxHideFrom, "(own rank)" );
+            FillRankList( cFreezeLimit, "(own rank)" );
 
             if( selectedRank != null ) {
                 cKickLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Kick );
@@ -402,12 +404,12 @@ namespace ConfigTool {
             bColorRank.Text = "";
             tPrefix.Text = "";
 
-            FillClassList( cPromoteLimit, "(own rank)" );
-            FillClassList( cDemoteLimit, "(own rank)" );
-            FillClassList( cKickLimit, "(own rank)" );
-            FillClassList( cBanLimit, "(own rank)" );
-            FillClassList( cMaxHideFrom, "(own rank)" );
-            FillClassList( cFreezeLimit, "(own rank)" );
+            FillRankList( cPromoteLimit, "(own rank)" );
+            FillRankList( cDemoteLimit, "(own rank)" );
+            FillRankList( cKickLimit, "(own rank)" );
+            FillRankList( cBanLimit, "(own rank)" );
+            FillRankList( cMaxHideFrom, "(own rank)" );
+            FillRankList( cFreezeLimit, "(own rank)" );
 
             cPromoteLimit.SelectedIndex = 0;
             cDemoteLimit.SelectedIndex = 0;
@@ -432,7 +434,7 @@ namespace ConfigTool {
             vPermissions.Enabled = false;
         }
 
-        static void FillClassList( ComboBox box, string firstItem ) {
+        static void FillRankList( ComboBox box, string firstItem ) {
             box.Items.Clear();
             box.Items.Add( firstItem );
             foreach( Rank rank in RankList.Ranks ) {
@@ -512,20 +514,20 @@ namespace ConfigTool {
 
                 string messages = "";
 
-                // Ask for substitute class
+                // Ask for substitute rank
                 DeleteRankPopup popup = new DeleteRankPopup( deletedRank );
                 if( popup.ShowDialog() != DialogResult.OK ) return;
 
                 Rank replacementRank = popup.substituteRank;
 
-                // Update default class
+                // Update default rank
                 Rank defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
                 if( defaultRank == deletedRank ) {
                     defaultRank = replacementRank;
                     messages += "DefaultRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
                 }
 
-                // Delete class
+                // Delete rank
                 if( RankList.DeleteRank( deletedRank, replacementRank ) ) {
                     messages += "Some of the rank limits for kick, ban, promote, and/or demote have been reset." + Environment.NewLine;
                 }
@@ -580,9 +582,9 @@ namespace ConfigTool {
 
             string oldName = selectedRank.ToComboBoxOption();
 
-            // To avoid DataErrors in World tab's DataGridView while renaming a class,
+            // To avoid DataErrors in World tab's DataGridView while renaming a rank,
             // the new name is first added to the list of options (without removing the old name)
-            rankNameList.Insert( selectedRank.Index+1, String.Format( "{0,1}{1}", tPrefix.Text, selectedRank.Name ) );
+            rankNameList.Insert( selectedRank.Index + 1, String.Format( "{0,1}{1}", tPrefix.Text, selectedRank.Name ) );
 
             selectedRank.Prefix = tPrefix.Text;
 
@@ -727,18 +729,18 @@ namespace ConfigTool {
                 return;
 
             } else if( newName.Length == 0 ) {
-                MessageBox.Show( "Class name cannot be blank." );
+                MessageBox.Show( "Rank name cannot be blank." );
                 tRankName.ForeColor = Color.Red;
                 e.Cancel = true;
 
             } else if( !Rank.IsValidRankName( newName ) ) {
-                MessageBox.Show( "Class name can only contain letters, digits, and underscores." );
+                MessageBox.Show( "Rank name can only contain letters, digits, and underscores." );
                 tRankName.ForeColor = Color.Red;
                 e.Cancel = true;
 
             } else if( !RankList.CanRenameRank( selectedRank, newName ) ) {
-                MessageBox.Show( "There is already another class named \"" + newName + "\".\n" +
-                                "Duplicate class names are now allowed." );
+                MessageBox.Show( "There is already another rank named \"" + newName + "\".\n" +
+                                 "Duplicate rank names are now allowed." );
                 tRankName.ForeColor = Color.Red;
                 e.Cancel = true;
 
@@ -749,9 +751,9 @@ namespace ConfigTool {
                 defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
                 patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
 
-                // To avoid DataErrors in World tab's DataGridView while renaming a class,
+                // To avoid DataErrors in World tab's DataGridView while renaming a rank,
                 // the new name is first added to the list of options (without removing the old name)
-                rankNameList.Insert( selectedRank.Index+1, String.Format( "{0,1}{1}", selectedRank.Prefix, newName ) );
+                rankNameList.Insert( selectedRank.Index + 1, String.Format( "{0,1}{1}", selectedRank.Prefix, newName ) );
 
                 RankList.RenameRank( selectedRank, newName );
 
@@ -808,6 +810,7 @@ namespace ConfigTool {
             if( Config.errors.Length > 0 ) {
                 MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
             } else if( Config.Save() ) {
+                bApply.Enabled = false;
                 Application.Exit();
             } else {
                 MessageBox.Show( Config.errors, "An error occured while trying to save:" );
@@ -914,10 +917,11 @@ namespace ConfigTool {
         #region Colors
         int colorSys, colorSay, colorHelp, colorAnnouncement, colorPM, colorIRC;
 
-        static void ApplyColor( Button button, int color ) {
+        void ApplyColor( Button button, int color ) {
             button.Text = fCraft.Color.GetName( color );
             button.BackColor = ColorPicker.colors[color].background;
             button.ForeColor = ColorPicker.colors[color].foreground;
+            bApply.Enabled = true;
         }
 
         private void bColorSys_Click( object sender, EventArgs e ) {
@@ -948,15 +952,15 @@ namespace ConfigTool {
             ApplyColor( bColorAnnouncement, colorAnnouncement );
         }
 
-        private void bColorClass_Click( object sender, EventArgs e ) {
-            ColorPicker picker = new ColorPicker( "Class color for \"" + selectedRank.Name + "\"", fCraft.Color.ParseToIndex( selectedRank.Color ) );
+        private void bColorRank_Click( object sender, EventArgs e ) {
+            ColorPicker picker = new ColorPicker( "Rank color for \"" + selectedRank.Name + "\"", fCraft.Color.ParseToIndex( selectedRank.Color ) );
             picker.ShowDialog();
             ApplyColor( bColorRank, picker.color );
             selectedRank.Color = fCraft.Color.GetName( picker.color );
         }
 
         private void bColorPM_Click( object sender, EventArgs e ) {
-            ColorPicker picker = new ColorPicker( "Private / class chat color", colorPM );
+            ColorPicker picker = new ColorPicker( "Private / rank chat color", colorPM );
             picker.ShowDialog();
             colorPM = picker.color;
             ApplyColor( bColorPM, colorPM );
@@ -985,5 +989,25 @@ namespace ConfigTool {
         }
 
         #endregion
+
+        private void ConfigUI_FormClosing( object sender, FormClosingEventArgs e ) {
+            if( bApply.Enabled ) {
+                switch( MessageBox.Show( "Would you like to save the changes before exiting?", "Warning", MessageBoxButtons.YesNoCancel ) ) {
+                    case DialogResult.Yes:
+                        SaveConfig();
+                        if( Config.errors.Length > 0 ) {
+                            MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
+                        } else if( Config.Save() ) {
+                            bApply.Enabled = false;
+                        } else {
+                            MessageBox.Show( Config.errors, "An error occured while trying to save:" );
+                        }
+                        return;
+                    case DialogResult.Cancel:
+                        e.Cancel = true;
+                        return;
+                }
+            }
+        }
     }
 }

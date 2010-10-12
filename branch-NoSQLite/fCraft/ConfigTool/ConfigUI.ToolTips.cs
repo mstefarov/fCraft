@@ -7,7 +7,7 @@ using fCraft;
 
 namespace ConfigTool {
     public sealed partial class ConfigUI : Form {
-        void FillOptionToolTips() {
+        void FillToolTipsLists() {
             vPermissions.Items[(int)Permission.Ban].ToolTipText =
 @"Ability to ban/unban other players from the server.
 Affected commands:
@@ -243,6 +243,247 @@ Does not include IRC chatter (see IRCChat).";
             foreach( LogType type in Enum.GetValues( typeof( LogType ) ) ) {
                 vConsoleOptions.Items[(int)type].ToolTipText = vLogFileOptions.Items[(int)type].ToolTipText;
             }
+        }
+
+        void FillToolTipsGeneral() {
+
+            string tipServerName =
+@"The name of the server, as shown on the welcome screen
+and the official server list (if server is public).";
+            toolTip.SetToolTip( lServerName, tipServerName );
+            toolTip.SetToolTip( tServerName, tipServerName );
+
+            string tipMOTD =
+@"MOTD (Message Of The Day) is a message shown to
+connecting players right under the server name.
+It can be left blank.";
+            toolTip.SetToolTip( lMOTD, tipMOTD );
+            toolTip.SetToolTip( tMOTD, tipMOTD );
+
+
+            string tipPublic =
+@"Public servers are listed on minecraft.net server list,
+so expect random players to join. Private servers can
+only be joined by people who already know the
+server port/address or URL. Note that the URL changes
+if your computer's IP or server's port change.";
+            toolTip.SetToolTip( lPublic, tipPublic );
+            toolTip.SetToolTip( cPublic, tipPublic );
+
+            string tipMaxPlayers =
+@"Maximum number of players on the server. Having more players
+uses more RAM and more bandwidth. If a player's rank is given a
+""reserved slot"" on the server, they can join even if server is full.
+Minecraft protocol limits total number of players to 128.";
+            toolTip.SetToolTip( lMaxPlayers, tipMaxPlayers );
+            toolTip.SetToolTip( nMaxPlayers, tipMaxPlayers );
+
+
+
+            string tipUploadBandwidth =
+@"Total available upload bandwidth, in kilobytes.
+This number is used to pace drawing commands
+to prevent server from overwhelming the Internet
+connection with data.";
+            toolTip.SetToolTip( nUploadBandwidth, tipUploadBandwidth );
+            toolTip.SetToolTip( lUploadBandwidth, tipUploadBandwidth );
+
+            toolTip.SetToolTip( bMeasure,
+@"Test your connection\'s upload speed with speedtest.net
+Note: to convert from megabits to kilobytes, multiply the
+number by 128" );
+
+            string tipDefaultRank =
+@"New players will be assigned this rank by default.
+It\'s generally a good idea not to give new players
+many powers until they prove themselves trustworthy.";
+            toolTip.SetToolTip( lDefaultRank, tipDefaultRank );
+            toolTip.SetToolTip( cDefaultRank, tipDefaultRank );
+
+            string tipPort =
+@"Port number on your local machine that fCraft uses to listen for
+incoming connections. If you are behind a router, you may need
+to set up port forwarding. You may also need to add a firewall 
+exception for fCraftUI/fCraftConsole/ConfigTool.  Note that your
+server's URL will change if you change the port number.";
+            toolTip.SetToolTip( nPort, tipPort );
+            toolTip.SetToolTip( lPort, tipPort );
+
+            toolTip.SetToolTip( bPortCheck,
+@"Check if the selected port is connectible.
+If port check fails, you may need to set up
+port forwarding on your router." );
+
+            string tipIP =
+@"If the machine has more than one available IP address
+(for example if you have more than one NIC) you can
+use this setting to make fCraft bind to the same IP
+every time.";
+            toolTip.SetToolTip( xIP, tipIP );
+            toolTip.SetToolTip( tIP, tipIP );
+
+
+
+            string tipColorSys = "This is the color of normal system messages. Default is yellow.";
+            toolTip.SetToolTip( bColorSys, tipColorSys );
+            toolTip.SetToolTip( lColorSys, tipColorSys );
+
+            string tipColorHelp = "Color of command usage examples in help. Default is lime-green.";
+            toolTip.SetToolTip( bColorHelp, tipColorHelp );
+            toolTip.SetToolTip( lColorHelp, tipColorHelp );
+
+            string tipColorSay = "Color of messages produced by \"/say\" command. Default is dark-green.";
+            toolTip.SetToolTip( bColorSay, tipColorSay );
+            toolTip.SetToolTip( lColorSay, tipColorSay );
+
+            string tipColorAnnouncement =
+@"Color of announcements and rules. Default is dark-green.
+Note that this default color can be overriden by
+colorcodes in announcement and rule files.";
+            toolTip.SetToolTip( bColorAnnouncement, tipColorAnnouncement );
+            toolTip.SetToolTip( lColorAnnouncement, tipColorAnnouncement );
+
+            string tipColorPM = "Color of private messages and rank-wide messages. Default is aqua.";
+            toolTip.SetToolTip( bColorPM, tipColorPM );
+            toolTip.SetToolTip( lColorPM, tipColorPM );
+
+
+
+            toolTip.SetToolTip( xShowJoinedWorldMessages, "Show messages when players change worlds." );
+
+            toolTip.SetToolTip( xRankColors, "Color player names in chat and in-game based on their rank." );
+
+            toolTip.SetToolTip( xRankColorsInWorldNames, "Color world names in chat based on their build and access permissions." );
+
+            toolTip.SetToolTip( xChatPrefixes,
+@"Show 1-letter prefixes in chat before player names. This can be
+used to set up IRC-style ""+"" and ""@"" prefixes for ops." );
+
+            toolTip.SetToolTip( xListPrefixes,
+@"Show prefixes in the player list. As a side-effect, Minecraft client
+will not show custom skins for players with prefixed names." );
+
+
+
+            toolTip.SetToolTip( bRules,
+@"Edit the list of rules displayed by the ""/rules"" command.
+This list is stored in rules.txt, and can also be edited with any text editor.
+If rules.txt is missing or empty, ""/rules"" shows this message:
+""Use common sense!""" );
+
+            toolTip.SetToolTip( bAnnouncements,
+@"Edit the list of announcements (announcements.txt).
+One line is shown at a time, in random order.
+You can include any color codes in the announcements.
+You can also edit announcements.txt with any text editor." );
+        }
+
+        void FillToolTipsWorlds() {
+            toolTip.SetToolTip( bAddWorld, "Add a new world to the list." );
+            toolTip.SetToolTip( bWorldEdit, "Edit or replace an existing world." );
+            toolTip.SetToolTip( cMainWorld, "Main world is the first world that players see when they join the server." );
+            toolTip.SetToolTip( bWorldDelete, "Delete a world from the list." );
+        }
+
+        void FillToolTipsRanks() {
+            toolTip.SetToolTip( bAddRank, "Add a new rank to the list." );
+            toolTip.SetToolTip( bDeleteRank,
+@"Delete a rank from the list. You will be prompted to specify a replacement
+rank - to be able to convert old references to the deleted rank." );
+            toolTip.SetToolTip( bRaiseRank,
+@"Raise a rank (and all players of the rank) on the hierarchy.
+The hierarchy is used for all permission checks." );
+            toolTip.SetToolTip( bLowerRank,
+@"Lower a rank (and all players of the rank) on the hierarchy.
+The hierarchy is used for all permission checks." );
+
+            string tipRankName = "Name of the rank - between 2 and 16 alphanumeric characters.";
+            toolTip.SetToolTip( lRankName, tipRankName );
+            toolTip.SetToolTip( tRankName, tipRankName );
+
+            string tipRankColor =
+@"Color associated with this rank.
+Rank colors may be applied to player and world names.";
+            toolTip.SetToolTip( lRankColor, tipRankColor );
+            toolTip.SetToolTip( bColorRank, tipRankColor );
+
+            string tipPrefix =
+@"1-character prefix that may be shown above player names.
+The option to show prefixes in chat is on ""General"" tab.";
+            toolTip.SetToolTip( lPrefix, tipPrefix );
+            toolTip.SetToolTip( tPrefix, tipPrefix );
+
+
+
+            string tipKickLimit =
+@"Limit on who can be kicked by players of this rank.
+By default, players can only kick players of same or lower rank.";
+            toolTip.SetToolTip( lKickLimit, tipKickLimit );
+            toolTip.SetToolTip( cKickLimit, tipKickLimit );
+
+            string tipBanLimit =
+@"Limit on who can be banned by players of this rank.
+By default, players can only ban players of same or lower rank.";
+            toolTip.SetToolTip( lBanLimit, tipBanLimit );
+            toolTip.SetToolTip( cBanLimit, tipBanLimit );
+
+            string tipPromoteLimit =
+@"Limit on how much can players of this rank promote others.
+By default, players can only promote up to the same or lower rank.";
+            toolTip.SetToolTip( lPromoteLimit, tipPromoteLimit );
+            toolTip.SetToolTip( cPromoteLimit, tipPromoteLimit );
+
+            string tipDemoteLimit =
+@"Limit on who can be demoted by players of this rank.
+By default, players can only demote players of same or lower rank.";
+            toolTip.SetToolTip( lDemoteLimit, tipDemoteLimit );
+            toolTip.SetToolTip( cDemoteLimit, tipDemoteLimit );
+
+            string tipHideLimit =
+@"Limit on whom can players of this rank hide from.
+By default, players can only hide from players of same or lower rank.";
+            toolTip.SetToolTip( lMaxHideFrom, tipHideLimit );
+            toolTip.SetToolTip( cMaxHideFrom, tipHideLimit );
+
+            string tipFreezeLimit =
+@"Limit on who can be frozen by players of this rank.
+By default, players can only freeze players of same or lower rank.";
+            toolTip.SetToolTip( lFreezeLimit, tipFreezeLimit );
+            toolTip.SetToolTip( cFreezeLimit, tipFreezeLimit );
+
+
+
+            toolTip.SetToolTip( xReserveSlot,
+@"Allows players of this rank to join the server
+even if it reached the maximum number of players." );
+
+            string tipKickIdle = "Allows kicking players who have been inactive/AFK for some time.";
+            toolTip.SetToolTip( xKickIdle, tipKickIdle );
+            toolTip.SetToolTip( nKickIdle, tipKickIdle );
+            toolTip.SetToolTip( lKickIdleUnits, tipKickIdle );
+
+            toolTip.SetToolTip( xAntiGrief,
+@"Antigrief is an automated system for kicking players who build
+or delete at abnormally high rates. This helps stop certain kinds
+of malicious software (like MCTunnel) from doing large-scale damage
+to server maps. False positives can sometimes occur if server or
+player connection is very laggy." );
+
+            toolTip.SetToolTip( nAntiGriefBlocks,
+@"Maximum number of blocks that players of this rank are
+allowed to build in a specified time period." );
+
+            toolTip.SetToolTip( nAntiGriefBlocks,
+@"Minimum time interval that players of this rank are
+expected to spent to build a specified number of blocks." );
+
+            string tipDrawLimit =
+@"Limit on the number of blocks that a player is
+allowed to affect with drawing or copy/paste commands
+at one time. If unchecked, there is no limit.";
+            toolTip.SetToolTip( xDrawLimit, tipDrawLimit );
+            toolTip.SetToolTip( nDrawLimit, tipDrawLimit );
+            toolTip.SetToolTip( lDrawLimitUnits, tipDrawLimit );
         }
     }
 }
