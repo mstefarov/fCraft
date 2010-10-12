@@ -29,7 +29,7 @@
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
             this.gInformation = new System.Windows.Forms.GroupBox();
-            this.lAnnouncements = new System.Windows.Forms.Label();
+            this.lAnnouncementsUnits = new System.Windows.Forms.Label();
             this.nAnnouncements = new System.Windows.Forms.NumericUpDown();
             this.xAnnouncements = new System.Windows.Forms.CheckBox();
             this.bRules = new System.Windows.Forms.Button();
@@ -320,7 +320,7 @@
             // 
             // gInformation
             // 
-            this.gInformation.Controls.Add( this.lAnnouncements );
+            this.gInformation.Controls.Add( this.lAnnouncementsUnits );
             this.gInformation.Controls.Add( this.nAnnouncements );
             this.gInformation.Controls.Add( this.xAnnouncements );
             this.gInformation.Controls.Add( this.bRules );
@@ -332,14 +332,14 @@
             this.gInformation.TabStop = false;
             this.gInformation.Text = "Information";
             // 
-            // lAnnouncements
+            // lAnnouncementsUnits
             // 
-            this.lAnnouncements.AutoSize = true;
-            this.lAnnouncements.Location = new System.Drawing.Point( 306, 27 );
-            this.lAnnouncements.Name = "lAnnouncements";
-            this.lAnnouncements.Size = new System.Drawing.Size( 28, 15 );
-            this.lAnnouncements.TabIndex = 17;
-            this.lAnnouncements.Text = "min";
+            this.lAnnouncementsUnits.AutoSize = true;
+            this.lAnnouncementsUnits.Location = new System.Drawing.Point( 306, 27 );
+            this.lAnnouncementsUnits.Name = "lAnnouncementsUnits";
+            this.lAnnouncementsUnits.Size = new System.Drawing.Size( 28, 15 );
+            this.lAnnouncementsUnits.TabIndex = 17;
+            this.lAnnouncementsUnits.Text = "min";
             // 
             // nAnnouncements
             // 
@@ -2952,7 +2952,7 @@
         private System.Windows.Forms.GroupBox gInformation;
         private System.Windows.Forms.CheckBox xAnnouncements;
         private System.Windows.Forms.Button bAnnouncements;
-        private System.Windows.Forms.Label lAnnouncements;
+        private System.Windows.Forms.Label lAnnouncementsUnits;
         private System.Windows.Forms.NumericUpDown nAnnouncements;
         private System.Windows.Forms.Button bColorAnnouncement;
         private System.Windows.Forms.Label lColorAnnouncement;
