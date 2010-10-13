@@ -1,3 +1,11 @@
+0.487
+ Feature: Added contextual help (tooltips) for all of ConfigTool. Help for "Add World" popup is coming in next version.
+ Feature: Added rank limits for Freeze permission
+ Fix: Fixed /mute being unusable from console.
+ Change: Removed ViewOthersInfo requirement from /sinfo
+ Change: Added ViewOthersInfo requirement to /where
+ Change: Improvements to IRC tab layout in ConfigTool.
+
 0.486
  Quick fix for IRC Bot bug that made server unconnectable.
 
