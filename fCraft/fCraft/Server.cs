@@ -249,7 +249,7 @@ namespace fCraft {
         public static void InitiateShutdown( string reason, int delay, bool killProcess ) {
             new Thread( delegate( object obj ) {
                 ShutdownParams param = (ShutdownParams)obj;
-                Thread.Sleep( param.Delay );
+                Thread.Sleep( param.Delay * 1000 );
                 Server.Shutdown( param.Reason );
                 if( param.KillProcess ) {
                     Process.GetCurrentProcess().Kill();

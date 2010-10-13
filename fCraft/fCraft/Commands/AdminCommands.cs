@@ -862,13 +862,14 @@ namespace fCraft {
         };
 
         static void Shutdown( Player player, Command cmd ) {
-            int delay = 5;
+            int delay;
             if( !cmd.NextInt( out delay ) ) {
+                delay = 5;
                 cmd.Rewind();
             }
             string reason = cmd.Next();
 
-            Server.SendToAll( Color.Red + "Server shutting down in 5 seconds." );
+            Server.SendToAll( String.Format( Color.Red + "Server shutting down in {0} seconds.", delay ) );
 
             if( reason == null ) {
                 Logger.Log( "{0} shut down the server.", LogType.UserActivity, player.name );

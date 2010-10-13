@@ -264,13 +264,13 @@ namespace fCraft {
         }
 
 
-        internal void NoPlayerMessage( string name ) {
-            Message( "No players found matching \"{0}\"", name );
+        internal void NoPlayerMessage( string playerName     ) {
+            Message( "No players found matching \"{0}\"", playerName );
         }
 
 
         internal void NoWorldMessage( string worldName ) {
-            Message( "No world found with the name \"{0}\"", name );
+            Message( "No world found with the name \"{0}\"", worldName );
         }
 
         internal void ManyMatchesMessage( string itemType, IClassy[] names ) {
