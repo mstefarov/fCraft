@@ -71,6 +71,8 @@ namespace fCraft {
 
             if( OnInit != null ) OnInit();
 
+            ZLibStream.Init();
+
             return true;
         }
 
