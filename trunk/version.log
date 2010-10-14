@@ -1,5 +1,12 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-10-12
+2010-10-14
+490
+ Feature: Testing a new map compressor/decompressor: ZLibStream. It should provide 50-200% speed increase, smaller map sizes, lower bandwidth use, and faster map loading.
+ Fix: Fixed /shutdown not waiting the right amount and mixing up seconds/milliseconds.
+ Fix: Fixed "No world found with the name..." showing player's own name.
+ Fix: Added a fail-safe exception handler to Player.WaitForKick() - a temporary fix.
+ Change: Previous verification salt is now stored, to allow players to validate even right after the server restarts.
+ Change: Restructured SVN. Stable code is now always in /trunk/
 487
  Feature: Added contextual help (tooltips) for all of ConfigTool. Help for "Add World" popup is coming in next version.
  Feature: Added rank limits for Freeze permission
