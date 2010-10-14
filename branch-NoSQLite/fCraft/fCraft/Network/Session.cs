@@ -757,7 +757,10 @@ namespace fCraft {
 
         public void WaitForKick() {
             if( ioThread != null && ioThread.IsAlive ) {
-                ioThread.Join();
+                try {
+                    ioThread.Join();
+                } catch( NullReferenceException ) {
+                } catch( ThreadStateException ) { }
             }
         }
     }
