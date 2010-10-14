@@ -421,7 +421,7 @@ namespace fCraft {
 
         // zips a copy of the block array
         public void GetCompressedCopy( Stream stream, bool prependBlockCount ) {
-            using( GZipStream compressor = new GZipStream( stream, CompressionMode.Compress ) ) {
+            using( ZLibStream compressor = ZLibStream.MakeCompressor(stream,ZLibStream.BufferSize) ) {
                 if( prependBlockCount ) {
                     // convert block count to big-endian
                     int convertedBlockCount = IPAddress.HostToNetworkOrder( blocks.Length );

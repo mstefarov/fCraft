@@ -64,7 +64,7 @@ namespace Mcc {
             BinaryReader reader = new BinaryReader( mapStream );
 
             // Read in the magic number
-            if ( reader.ReadUInt32() != Identifier ) {
+            if( reader.ReadUInt32() != Identifier ) {
                 throw new FormatException();
             }
 
@@ -91,7 +91,7 @@ namespace Mcc {
 
             // Read in the map data
             map.blocks = new Byte[map.GetBlockCount()];
-            using ( GZipStream decompressor = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
+            using( ZLibStream decompressor = ZLibStream.MakeDecompressor( mapStream, ZLibStream.BufferSize ) ) {
                 decompressor.Read( map.blocks, 0, map.blocks.Length );
             }
 

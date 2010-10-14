@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="Commands\AdminCommands.cs" />
     <Compile Include="Commands\ZoneCommands.cs" />
+    <Compile Include="Utils\ZLibStream.cs" />
     <Compile Include="World\BlockDB.cs" />
     <Compile Include="Commands\CommandDescriptor.cs" />
     <Compile Include="Commands\DrawCommands.cs" />
@@ -171,6 +172,14 @@
   <ItemGroup>
     <None Include="Tileset.png" />
     <None Include="TilesetShadowed.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="zlib32.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zlib64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
