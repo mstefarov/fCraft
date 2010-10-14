@@ -804,7 +804,7 @@ namespace ConfigTool {
             SaveConfig();
             if( Config.errors.Length > 0 ) {
                 MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
-            } else if( Config.Save() ) {
+            } else if( Config.Save(false) ) {
                 bApply.Enabled = false;
             } else {
                 MessageBox.Show( Config.errors, "An error occured while trying to save:" );
@@ -815,7 +815,7 @@ namespace ConfigTool {
             SaveConfig();
             if( Config.errors.Length > 0 ) {
                 MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
-            } else if( Config.Save() ) {
+            } else if( Config.Save(false) ) {
                 bApply.Enabled = false;
                 Application.Exit();
             } else {
@@ -1003,7 +1003,7 @@ namespace ConfigTool {
                         SaveConfig();
                         if( Config.errors.Length > 0 ) {
                             MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
-                        } else if( Config.Save() ) {
+                        } else if( Config.Save(false) ) {
                             bApply.Enabled = false;
                         } else {
                             MessageBox.Show( Config.errors, "An error occured while trying to save:" );

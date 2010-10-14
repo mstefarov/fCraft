@@ -237,6 +237,11 @@ namespace fCraft {
                      "It is recommended that you run ConfigTool to make sure everything is in order.", LogType.Warning );
             }
 
+            attr = config.Attribute( "salt" );
+            if( attr != null && attr.Value.Length > 0 ) {
+                Server.OldSalt = attr.Value;
+            }
+
             if( !skipClassList ) {
                 LoadRankList( config, version, fromFile );
             }
@@ -371,11 +376,14 @@ namespace fCraft {
 
 
         #region Saving
-        public static bool Save() {
+        public static bool Save( bool saveSalt ) {
             XDocument file = new XDocument();
 
             XElement config = new XElement( ConfigRootName );
             config.Add( new XAttribute( "version", ConfigVersion ) );
+            if( saveSalt ) {
+                config.Add( new XAttribute( "salt", Server.Salt ) );
+            }
 
 
             foreach( KeyValuePair<ConfigKey, string> pair in settings ) {
@@ -406,7 +414,6 @@ namespace fCraft {
                 ranksTag.Add( rank.Serialize() );
             }
             config.Add( ranksTag );
-
 
             XElement legacyRankMappingTag = new XElement( "LegacyRankMapping" );
             foreach( KeyValuePair<string, string> pair in RankList.LegacyRankMapping ) {

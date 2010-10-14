@@ -457,7 +457,9 @@ namespace fCraft {
             }
 
             // verify name
-            if( !Server.VerifyName( player.name, verificationCode ) ) {
+            if( !Server.VerifyName( player.name, verificationCode, Server.Salt ) &&
+                !Server.VerifyName( player.name, verificationCode, Server.OldSalt) ) {
+
                 string standardMessage = String.Format( "Session.LoginSequence: Could not verify player name for {0} ({1}).",
                                                         player.name,
                                                         GetIP() );
