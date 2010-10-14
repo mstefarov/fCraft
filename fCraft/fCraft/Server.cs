@@ -1,4 +1,4 @@
-﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org> and Jesse O'Brien <destroyer661@gmail.com>
+﻿    // Copyright 2009, 2010 Matvei Stefarov <me@matvei.org> and Jesse O'Brien <destroyer661@gmail.com>
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -50,9 +50,8 @@ namespace fCraft {
             // try to load the config
             if( !Config.Load( false ) ) return false;
             Config.ApplyConfig();
-            if( !Config.Save() ) return false;
-
             GenerateSalt();
+            if( !Config.Save(true) ) return false;
 
             CheckMapDirectory();
 
@@ -943,6 +942,7 @@ namespace fCraft {
         }
 
         internal static string Salt = "";
+        internal static string OldSalt = "";
         static void GenerateSalt() {
             // generate random salt
             Random rand = new Random();
@@ -968,12 +968,12 @@ namespace fCraft {
             return output.ToString();
         }
 
-        public static bool VerifyName( string name, string hash ) {
+        public static bool VerifyName( string name, string hash, string salt ) {
             while( hash.Length < 32 ) {
                 hash = "0" + hash;
             }
             MD5 hasher = MD5.Create();
-            byte[] data = hasher.ComputeHash( Encoding.ASCII.GetBytes( Server.Salt + name ) );
+            byte[] data = hasher.ComputeHash( Encoding.ASCII.GetBytes( salt + name ) );
             for( int i = 0; i < 16; i += 2 ) {
                 if( hash[i] + "" + hash[i + 1] != data[i / 2].ToString( "x2" ) ) {
                     return false;
@@ -981,6 +981,7 @@ namespace fCraft {
             }
             return true;
         }
+
 
         public static int CalculateMaxPacketsPerUpdate( World world ) {
             int packetsPerTick = (int)(packetsPerSecond / ticksPerSecond);
