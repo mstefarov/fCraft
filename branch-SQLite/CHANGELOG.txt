@@ -1,0 +1,545 @@
+0.450
+ Feature: IRC bot rewritten for better performance, flexibility, and safety.
+ Feature: New IRC options: IRCBotAnnounceIRCJoins and IRCBotAnnounceServerJoins.
+ Fix: Fixed messages containing only a single slash ('/') crashing client thread.
+ Change: Removed obsolete IRCBotMsgs config key.
+ Change: Added OnPlayerSentMessage event to Server.
+ Change: IRC bot's commands (e.g. !status) are temporarily unavailable.
+
+0.445
+ IMPORTANT! Please update ASAP, a security was identified in previous version.
+ Fix: If you need to start message with a slash, you can now escape the slash (type "//")
+ Fix: Fixed endless update loop (if automatic updates were enabled)
+ Fix: Private messages with a space between '@' and the player name now work.
+ Fix: Hacking-related kicks are not announced globally.
+ Fix: Fixed "/help" giving wrong message if help entry was not found.
+ Change: Minor changes in MapGenerator/Noise
+
+0.444
+ Feature: New stat command, /sinfo (server info).
+ Fix: Ban reason/memo now shown for normal bans.
+ Fix: /cinfo for unlimited classes no longer shows "draw limit: 0"
+ Fix: Fixed IRC message colors, and removed IRC color codes from log.
+
+0.443
+ FEATURE: New /wflush command. It allows finishing all in-progress draw commands at maximum speed (over 100k blocks/second) then forces a map rejoin.
+ Feature: Added more customization options for colors: PrivateMessageColor and IRCMessageColor in Config.
+ Feature: /players list is now sorted alphabetically.
+ Feature: Added "Check Port" button to ConfigTool to see if port is open. Uses www.utorrent.com/testport
+ Feature: Added "Play" button to fCraftUI to open server URL in the browser
+ Feature: World names in /worlds list are now colored according to each world's build permission. 
+ Feature: Added speedhack detection & prevention (BETA) and corresponding Permission.UseSpeedHack. All your classes will be granted this permission by default. Edit the config to customize it.
+ Fix: When using /mark outside of map boundaries, draw limits are no longer calculated incorrectly (thanks to Darnest).
+ Fix: Fixed possible crash in Map.CheckZones() on maps created with /gen
+ Fix: Fixed compilation issue with "tileset.png" on case-sensitive filesystems.
+ Fix: Fixed class-wide messages not wrapping correctly.
+ Optimization: antigrief and antispam checking overhead reduced.
+
+0.442
+ Fix: Addresses a security issue.
+ Fix: "OK" button in AddWorldPopup is now always disabled if no map is set.
+ Fix: "Feature size" label is now updater correctly when map dimensions are changed.
+ Fix: Added missing player notifications for /undo and /cancel commands.
+ Change: MapGenerator's default map size changed to 128x128x80
+
+0.441
+ Feature: Added cuboid limits to /cinfo
+ Fix: Fixed a bug in BoundingBox that made /paste and zones behave incorrectly
+ Fix: Fixed ban/unban commands not kicking the player if entered name capitalization did not match actual capitalization
+ Fix: Fixed "flatgrass" being broken when using "/gen"
+ Fix: Fixed "/ban" rank checks affecting "/unban"
+ Change: Optimized zone permission checks
+
+0.440
+ FEATURE: New MapGenerator with tons of options. You can also save/load custom templates for it.
+ FEATURE: AddWorldPopup interface overhaul.
+ FEATURE: JTE, D3, and Myne/Mynecraft/Hyvebuild/iCraft map format converters added.
+ Feature: Improved syntax of the /gen command. See "/help gen" for details.
+ Feature: Reason/memo is now shown publicly when someone gets banned, unbanned, or kicked.
+ Feature: Teleport and Bring work across worlds - world permissions still apply.
+ Feature: Added 4 new Config keys: RequireBanReason, RequireClassChangeReason, AnnounceKickAndBanReasons, AnnounceClassChanges. By default "AnnounceKickAndBanReasons" and "AnnounceClassChanges" are enabled.
+ Feature: Added 5 new fields to PlayerDB: previousClass, classChangeReason, timesKicked, timesKickedOthers, timesBannedOthers.
+ Feature: Added a lot of new information to /info.
+ Feature: You can now save map preview images (isometric) from AddWorldPopup.
+ Feature: ConfigTool now shows warnings about any errors logged during Config.Load
+ Fix: Yet another workaround for VerifyNames false negatives (thanks to SpaceManiac).
+ Fix: Fixed being able to paste admincrete/water/lava without permission (part of Player.CanPlace overhaul).
+ Fix: Trying to go over class draw limit no longer causes "Another drawing command is in progress" error.
+ Fix: Mcc.MapUtility.TryLoading() and Map.LoadHeaderOnly() now release file handles as soon as possible. This should fix some "file is being used by another process" errors.
+ Fix: Map spawn should be parsed correctly for MCSharp/MCZall maps
+ Fix: If a map doesn't start with a gzip header, it no longer has a chance to abort the whole load process.
+ Fix: Fixed blocktype names being case-sensitive.
+ Fix: Added a more informative message when idle players are kicked.
+ Fix: Fixed undo buffer not getting cleared when doing paste/pasteonly
+ Fix: Fixed /waccess exception kicking players.
+ Fix: 100% Empty maps no longer crash AddWorldPopup with OutOfMemoryException
+ Fix: Fixed "player is already banned" message when doing /BanAll
+ Fix: Fixed no public message appearing when doing /BanAll
+ Fix: Fixed cuboid/ellipsoid/cuboidh logging blocktype code instead of blocktype name.
+ Fix: Improved the message that's shown when idle players are kicked.
+ Fix: Documented ability to /tp to specific coordinates.
+ Fix: AddWorldPopup no longer crashes if user closes "Load Map" dialog before selecting any file.
+ Fix: When drawing affects (in part or in full) a restricted zone, the zone is left untouched, and the rest of draw command finishes (part of Player.CanPlace overhaul).
+ Fix: Fixed crash in AddWorldPopup.AsyncLoad() if map loading failed.
+ Fix: LegacyRankMapping is now parsed correctly
+ Fix: Renaming a class no longer causes "Worlds" tab dropdown menus to go out-of-sync.
+ Change: AddWorldPopup preview image quality improved.
+ Change: Updated to newest version of NBTag library.
+ Change: Frozen players can no longer build/delete.
+ Change: Removed public "undo" message, added log message instead.
+ Change: Removed AnnounceUnverifiedNames settings.
+ Change: When building/deleting permission is denied, the exact reason is given (instead of a vague "you cannot do that" message) (part of Player.CanPlace overhaul).
+
+0.435
+ Feature: Added /copy, /paste, and /pasteonly commands. Rotation coming soon.
+ Feature: Added CopyAndPaste permission, granted to op and owner by default.
+ Feature: Added MapGenType.Cliffs - similar to Mountains type, but with cliffs!
+ Fix: Fixed /paint command
+ Fix: Fixed /baninfo now showing any information if used without parameters.
+ Change: Replaced surface rocks in MapGenTheme.Hell with Obsidian.
+
+0.434
+ Feature: new /bind command allows mapping any block to any other. Now you can place those unbuildable blocks (water, lava, grass, double-step) in any way you wish. For compatibility, old commands (/water, /solid, /lava, /grass) have been preserved.
+ Change: "step" added as an alias for Stair block. "doublestep" added as an alias for DoubleStair.
+
+0.433
+ Feature: /winfo now shows who locked/unlocked the map, and how long ago.
+ Fix: Fixed a error message that showed up when announcements.txt was blank.
+ Fix: Permission check added back to lock/unlock commands.
+ Fix: "mapinfo" added back as alias for /winfo
+ Fix: Fixed locked maps not getting unloaded when all players left
+
+0.432
+ Fix: List of worlds printed by /worlds is now sorted alphabetically.
+ Fix: Fixed an obscure half-disconnect bug that left players with id=0 who happened to be on the main world in a semi-disconnected state IF someone else was kicked halfway through the login process before it was assigned an id.
+
+0.431
+ Fix: Fixed still messed-up /worlds command.
+ Change: Downgraded standard Session.IoLoop messages that occur on player disconnect from Warning to Debug.
+
+0.430
+ Fix: Fixed messed-up /worlds command. Sorry about that.
+ Change: Downgraded standard Session.IoLoop messages that occur on player disconnect from Warning to Debug.
+
+0.429
+ Feature: Command-handler infrastructure has been redesigned. This will allow much more flexibility for devs and plugin makers later.
+ Feature: "/help commands" now only shows available commands by default. Type "/help commands all" to see all commands.
+ Feature: /worlds command now only available worlds by default. Type "/worlds all" to include worlds inaccessible to you.
+ Feature: Help entries added for /zedit, /mark, /version, /rules, and /say.
+ Feature: ConfigTool World tab columns are now sortable.
+ Fix: Fixed "max backups" in ConfigTool being limited to 100. Now it's at a more reasonable limit of 100000.
+ Fix: Fixed Map.Backup() deleting the newest (instead of the oldest) backup if the total number of files was limited.
+ Fix: Fixed an ERROR that popped up if a player got disconnected during the login process (while player=null).
+ Fix: FormatException crash fixed that caused whole server to go down instead of a player thread.
+ Fix: Several draw-related bugs and crashes fixed.
+ Fix: Fixed crash in /winfo when used on unloaded worlds.
+ Fix: Fixed a bug in Config that caused antigrief to be re-enabled every load.
+ Fix: Fixed a bug in ConfigTool that didn't update AntiGriefSeconds properly when changing between classes.
+ Change: Many /help entries have been improved.
+ Change: Split /class command into two: /classes (aka /ranks) shows a list of classes, and /class (aka /cinfo or /classinfo) shows permission list (missed from last release notes).
+ Change: Added /spawn as an alias for /tp (missed from last release notes).
+
+
+0.428
+ Feature: Line wrapping. Yes, finally.
+ Feature: Per-class draw limits. Defaults are: owner unlimited, op unlimited, regular 4096 (16x16x16), guest 512 (8*8*8)
+ Feature: Per-class antigrief detection. Defaults are: owner unmetered, op umetered, regular 45/6 (7.5 blocks/second), guest 35/5 (7 blocks/second)
+ Feature: Memory usage of draw commands has been reduced by 6 bytes per block (37% improvement).
+ Fix: Extra color codes fixed in /players command.
+ Fix: Fixed a bug with /undo that caused more than one command to be undone at once.
+ Fix: Fixed maps generated with "Realistic terrain" (MapGenerator) having an empty layer at the bottom of the map.
+ Change: Default classes have been tweaked:
+         - regular can now use draw commands
+         - op can now lock/unlock
+ Change: Improved arrangement of Permission list items.
+ Change: Removed obsolete ConfigKey variables AntigriefBlockCount and AntigriefBlockInterval
+
+
+0.427
+ Feature: Added /zedit command for changing zone permissions after creation
+ Feature: New aliases for drawing commands: /c /e /h /r /m
+ Fix: Fix for cuboid command kicking players with "Block.Undefined" if called with no optional BlockType parameter
+ Fix: Fixed zone definitions getting corrupted.
+ Fix: Allowed /save command to be used from console and from remote worlds. Previously you had to join the world to save it.
+ Fix: Fixed potential crash in /winfo when looking up unloaded worlds.
+ Fix: Fixed /zone allowing duplicate names, then kicking the client.
+ Fix: Fixed /ztest showing the standard "you are not allowed to build in this zone" message instead of the expected zone list.
+ Fix: Fixed incorrect description of draw log messages, and backup error messages
+ Fix: Fixed false triggering of "Player asked to be released from its world, but the world did not contain the player" error
+ Change: Fruitified fragmer's name 
+
+
+0.426
+ Feature: Announcements! You can define a list of announcements to show periodically. A random line from announcements.txt will be shown to all players at specified interval (in minutes).
+ Feature: /replace command.
+ Feature: /undo command has been improved for more flexibility and better performance.
+ Feature: /winfo (alias: /mapinfo) is added for displaying world name, player count, map dimensions, and access/build permissions.
+ Fix: Fixed a bug that caused duplicate entries to be added to PlayerDB when doing /importranks or /importbans.
+ Change: New ConfigKeys: AnnouncementColor (default: green) and AnnouncementInterval (default: 5 minutes).
+ Change: Draw command stride increased to 16x16x16, for better theoretical performance.
+
+
+0.425
+ Feature: Added hollow draw command (/cubh) and aliases (/cuboidh and /bhb)
+ Feature: /players now shows class colors and a total number of players. Breakdown of /players by world is coming soon
+ Feature: Added "Joined world WorldName" message that shows when changing worlds
+ Fix: Improved several /help entries
+ Fix: Fixed a bug in Map.SaveBackup() that could cause a crash if MaxBackups was set
+ Fix: Fixed a bug in ConfigUI where "Delete World" button could leave the map file behind and/or cause an error
+ Fix: Calling lock/unlock from console without a WorldName now shows a nicer error message
+ Change: Improved safety checks of /join command
+ Change: Added a catch-all exception handler into Server.MainLoop
+ Change: Added exception handlers for EVERY single piece of code that requires file access
+ Change: Added more thread safety in MapCommands.WorldRename that resolves a potential race condition with Map.Save
+ Change: Modified IPBanList to use the standard temp folder (instead of fCraft working path) for its temp files
+
+
+0.424
+ Fix: Fixed /unhide and normal connection getting different messages
+ Fix: Fixed client crash when viewing /rules if the rule file has blank lines
+ Fix: Worlds with capital letters in the name are joinable again
+ Fix: Potential crash in DoClassChange() if target player is already same rank AND is not currently on the server
+ Change: Moved the command list to /help commands
+ Change: Performance and thread-safety improvements to PlayerDB
+ Change: Disabled some more debugging code to avoid taking up unnecessary resources
+
+
+0.423
+ Feature: /importbans now also supports "banned-ip.txt"
+ Feature: Logs are now stored in /logs/ folder. Your fCraft.log file will be moved there automatically and renamed to "_OldLog.log"
+ Feature: Log splitting now works by day or by session. Set "LogMode" key in config.xml or see Logging tab in ConfigTool.
+ Feature: All maps are now stored in /maps/ folder. Your map files will be moved automatically first time you start ConfigTool/fCraftConsole/fCraftUI
+ Feature: Reserved slots now work
+ Fix: Fixed a bug in fCraft.Server.LoadWorldListXML that could make all worlds hidden.
+ Fix: "player connected" message shown when someone connects, instead of just "player joined world"
+ Fix: "player left the server" message is not shown if the player got kicked before LoginSequence finished (e.g. if server was full)
+ Fix: Added back IP logging for incoming connections
+ Fix: Fixed ConfigTool-generated maps not having correct spawn point
+ Fix: Fixed /user showing both promote and demote messages at once
+ Fix: Removed references to old "/drawundo" command name in "/undo" messages
+ Fix: Fixed "Unrecognized entry ignored: LegacyRankMapping =" warning
+ Change: Made /importbans and /importranks save PlayerDB at once
+ Change: fCraft now forcibly resets its working directory to the same path where the executable is
+ Change: Removed "delete old file?" prompt when renaming worlds in AddWorldPopup. Now it just does it, to match tabWorlds' DataGridView behavior
+ Change: Added additional error checks to Map.Backup() 
+
+
+0.422
+ Feature: Further improved network performance by introducing nonblocking (lock-free) data structure to packet output buffer
+ Fix: Fixed "world creation failed" error if worlds.xml defined a non-existing world to be main
+ Fix: Added back missing messages when doing /user on offline users
+ Fix: Fixed player name color not being updated when their class changes
+ Fix: Added missing /help entries for /importbans and /importranks
+ Change: Improved help messages for /lock, /unban, /unbanip, /undo, /wload, /wmain, and /wremove
+ Change: Tweaked default values of BlockUpdateThrottling and maxBlockUpdatesPerTick for maximum lag-free performance
+
+
+0.421
+ Feature: Added the ability to promote/demote offline and unseen (not in PlayerDB) players
+ Feature: Added the ability to ban unseen players
+ Feature: Added ability to import bans and ranks from MCSharp/MCZall formats. An associated "Import" permission was added. See "/help importbans" and "/help importranks" for more information. Importer for ip-bans and iCraft/Hyvebuild/Myne format are coming soon.
+ Feature: Improved BlockUpdateQueue performance (faster drawing commands!) by switching to a lock-free data structure
+ Fix: Fixed startup errors not being logged if config.xml has not been parsed yet
+ Fix: Fixed ConfigUI input box not aligning properly when window is resized
+ Fix: Fixed "flatgrass" generated maps being 1 block off vertically
+ Change: Updated PlayerDB and IPBanList to use standard temporary folder (instead of dumping temp files into fCraft directory)
+ Change: Added "logging starts" marker that's written to console and log on-startup
+ Change: fCraftUI log now displays the last 2000 lines (up from 1000 lines)
+
+
+0.420
+ Feature: New "Worlds" tab in ConfigTool for managing your world list
+ Feature: Isometric map previews and map generation in ConfigTool
+ Feature: Implemented a class-ID system that allows adding/renaming/deleting classes without breaking compatibility. DeleteClassPopup was added for this
+ Feature: Added LimitOneConnectionPerIP option to config & configtool
+ Feature: Worlds can now be hidden from the /worlds list
+ Feature: Added /whois command for checking if a player is using real name or nickname. BE CAREFUL WITH "ChangeName" PERMISSION!
+ Feature: fCraft now generates crash.txt on unhandled fatal errors
+ Feature: Implemented theme support, and added 2 new terrain types (Coast and River) for MapGenerator. See "/help gen" for details, or use ConfigTool.
+ Feature: Pressing Up/Down keys in fCraftUI will show previously typed commands.
+ Fix: Fixed a bug in /wmain and /wload that sometimes made the server unconnectable after changing map
+ Fix: Limits on the /kick command now apply correctly
+ Fix: Fixed /wbuild and /waccess showing wrong messages
+ Fix: Fixed hidden players unable to build due to grief protection
+ Fix: Added /nick and /whois entries to /help
+ Fix: Removed the ability to call draw commands from console (caused crash)
+ Fix: Fixed /lava checking PlaceWater permission instead of PlaceLava
+ Fix: A debug message about "attempting to unregister an non-existent player" is no longer logged every time VerifyNames fails
+ Fix: When using /where command on other players, correct coordinates are now shown]
+ Fix: Player's classes are now updated in fCraftUI list when promoted/demoted
+ Fix: PMs are now logged as LogType.PrivateChat (instead of generic LogType.WorldChat)
+ Fix: /hide and /unhide now use Color.Sys instead of hardcoded Color.Yellow
+ Fix: Player's nicknames (as set by /nick) are applied correctly and preserved when changing worlds
+ Fix: Added missing checks for "Chat" permissions
+ Fix: Color buttons in ConfigTool now show correct background color under Mono
+ Fix: Fixed help entry to /freeze showing incorrect information
+ Fix: Corrected tab order in all ConfigTool forms
+ Change: Added /blb as another alias for /cuboid
+ Change: Removed ReservedSlotBehavior config key
+ Change: Disabled word wrapping in rules.txt editor popup
+ Change: /unhide now resets the player's nick
+ Change: Both player's real name and nickname (if any) are now recorded in the log
+ Change: Added a warning to /info when looking up nicknames (instead of real names)
+ Change: Heartbeat salt generation (used to verify names) is now more secure
+ Change: Removed CanPlaceHardenedBlocks from permission list
+ Change: All map generator terrain types have been tweaked for improved appearence
+ Change: Centered all ConfigTool popup windows (AddWorldPopup, ColorPicker, DeleteClassPopup, TextEditorPopup)
+ Change: Hid unneeded icons and buttons from ConfigTool popups
+ Change: Changed the way zones store rank restriction (as part of the compatibility assurance), and added versioning to zone definitions
+ Change: Map.Save() now creates temporary files in the OS-specific temporary folder, not in same folder where fCraft is installed
+ Change: World permissions are now updated automatically when a class is deleted
+ Refactor: Improved consistency in code naming conventions, especially in IRC code
+ Refactor: Improved code organization in many areas
+
+
+0.410
+ Implemented per-world access and build permissions.
+ Changed worlds.txt format to worlds.xml. Your old worlds.txt file will be converted automatically.
+ New world-related commands:
+  /wmain changes the main world
+  /waccess and /wbuild allow setting per-world permissions
+  /wremove allows deleting worlds
+  /wrename allows renaming worlds without reloading
+ /wload command is significantly improved (see /help wload for more info). The functionality of the old /load command has been merged with /wload. Now /load is an alias for /join, together with /l, /j, and /goto.
+ Removed SaveAndLoad permission - it became redundant with ManageWorlds. Please check your config to ensure that permissions remain consistent.
+ Added new and previously-missing (/lockall, /unlockall, /where, /me, /rules, /setspawn) commands to /help.
+ Disabled verify-names check for localhost (127.0.0.1) when running in Balanced mode.
+ When player is denied access to some command, server now names the specific permission that's needed.
+ Fixed a potential desync issue when one player rejoins a world, and another joins it simultaneously.
+ Removed /genh command and /compass alias for the /where command.
+ Added a fail-safe exception check when executing console commands. Now the server will stay up even if an exception occurs while executing console command.
+ Improved the way server reacts to fatal errors on startup. Now there is a clear indication that server cannot start.
+ "default map" is now referred to as "main world" for consistency. 
+ Improved garbage collection.
+
+
+0.405
+ Added back support for vanilla (server_level.dat) maps.
+ Fixed MCSharp importer leaving nonstandard blocks in the map, causing client crashes. Now all MCSharp-specific blocks are converted to normal types.
+ Fixed visual player list not updating in fCraftUI.
+ Added /players command to list ALL players on the server (in all worlds)
+ Made the BlockType parameter optional for /cuboid and /ellipsoid. Now it takes blocktype of the second click (or last-previously-used-blocktype when using /mark) in the absence of the optional parameter.
+ ConfigTool: Added a new tab for IRC setting.
+ ConfigTool: Fixed a bug that prevented  the last 2 checkboxes on the permission list from being saved properly.
+ IRC: Split IRCForwardAll into IRCForwardFromServer and IRCForwardFromIRC to make it easier to manage which messages you want to see.
+ IRC: Added IRCBotQuitMsg to allow users to define their own quit message for the bot. 
+ IRC: Fixed a bug with infinite reconnects on receiving error 433 Nickname already in use.
+ Zones: Changed behavior of overlapping zones:
+  - Before: To touch a block, AT LEAST ONE zone has to allow it
+  - Now: To touch a block, ALL ZONES have to allow it
+ Zones: Added /ztest command that lists all zones affecting a particular block. It can be used to detect and resolve zone overlaps.
+ Zones: Added proper /help entries for /zone, /zones, /zremove, and /ztest, and contextual help for /zone and /zones.
+ Zones: Made zone commands inaccessible from console (it would cause a crash, since zones are world-specific).
+ Fixed OnPlayerDisconnected and OnPlayerListChanged sometimes firing at the wrong time.
+ Added better error handling to Map.Save() in case the target file is not writable.
+ Updated /help entries for /lock, /unlock, and /load commands.
+
+
+0.404
+ Fixed zone borders being off by 1 block.
+ Fixed a rare crash on shutdown.
+ Fixed heartbeat reporting incorrect port number to heartbeat if the port specified in config was not available.
+ Adjusted default class permissions slightly, by popular demand:
+ - regulars can now place Water and Lava
+ - ops can now use draw commands
+ IRC: Added a config option 'IRCMsgs' to toggle join/leave messages on/off. Default is disabled to prevent massive spam.
+ IRC: Fixed a possible crash in IRCComm, related to static initializers.
+ ConfigTool: Fixed many bugs in permission checkbox list.
+ ConfigTool: Added visual editor for rules.txt
+ ConfigTool: Added stub tab for IRC settings (coming soon).
+
+
+0.403
+ Fixed spawnpoint being read incorrectly when using /load.
+ Added a note to ban*/unban* commands that's shown when player name is not found: "Use the FULL player name for ban/unban commands."
+ Fixed a thread crash (not server-wide crash) in Session.IoLoop that can be caused by corrupted or malicious handshake packets.
+ Fixed a potential crash when using /info on offline players from console.
+ Fixed a potential crash when using /gen from console.
+ Added more fail-safe checks that ensure that map spawn point is always within the map boundaries.
+ Started logging IPs of connections that try sending corrupted or malicious handshake packets.
+
+
+0.402
+ Added back /load command, and hooked up MCC. Currenly supported: fCraft/fcm, MCSharp/lvl, indev/mclevel, MinerCPP and LuaCraft (dat). Vanilla support coming soon.
+ Fixed worlds being unloaded before all block updates are processed (thus aborting draw commands).
+ Fixed several potential multiworld-related crashes and freezes.
+ Made Server.UnregisterPlayer check ALL worlds to remove the player, not just most recent one.
+ IRC: Added an information message to notify users of the IRC Bot's online status when joining the server.
+ IRC: Added the ability to send NOTICES.
+ IRC: !status/!help can both be sent to the bot in channel now and it will respond appropriately.
+ IRC: Added a check to see if the IRC Bot is actually enabled and online before sending a notification that it IS online.
+ Drawing-related state is now reset when changing worlds.
+ Added a limiter to the number of block updates that can be processed per tick (even if there are no players in a world). Fixes server becoming unresponsive when doing enormous drawing commands (millions of blocks).
+ Allowed players to /join the world that they are already on.
+
+
+0.401
+ *IDLE/AFK CHECKING* This is configurable per-class.
+ Added /version command, and added revision to the version string.
+ Added an option parameter to /lock and /unlock to target a specific world, and added global /lockall and /unlockall commands. 
+ Removed all references to the old pre-multiworld "map.fcm." Backups now work again. 
+ Fixed players not spawning in the right place when changing worlds.
+ IRC Bot will now handle terminations by the IRCd and restart itself upon any errors. 
+ IRC Bot can now send from inside the server TO IRC! Use the prefix '#' in-game to send any message to IRC. Forwarding all server chat may be added if requested. To send from the bot to the server, use the bot's nickname and either ':', ',' or nothing, then your message.
+ Improved performance of the IRC bot and the task scheduler.
+ Fixed a bug with getting the server url from the externalurl.txt file crashing the IRC MessageHandler() when the file didn't exist. FORWARD_ALL is now enabled for both SERVER and IRC for 100% transparent chatting.
+ Fixed a bug in the server-to-irc code that forwarded a blank message if there was nothing after '#' in server chat.
+ Handshake packet is now written when doing /join, to replace MOTD with a more informative "Now loading [worldname]".
+
+
+0.400
+ *MULTIWORLD*. It's finally here. See /help for information on new commands: /worlds, /wload, /join
+ Added a persistent world list, saved in worlds.txt - this is subject to change. The file contains a list of world names, each corresponding to an .fcm file. The first world listed at the top of worlds.txt is the default/main one.
+ *IRC BOT*. Thanks to the efforts by Destroyer661, fCraft now has an optional IRC bot for relaying chat and commands.
+ A field has been added in the config to allow forwarding ALL IRC CHANNEL TRAFFIC to the server. This will override the prefix and make it inactive. 'IRCBotForwardAll' is set to false by default.
+ *ZONES*. It is now possible to make guest zones and op zones (and anything in-between) on any map. See /help for information on new commands: /zones, /zone, /zremove.
+ Added 2 new permissions: ManageZones and ManageWorlds. You might need to update your config.xml to add these permissions to appropriate classes.
+ Added /compass command (aka /where).
+ Fixed players sometimes not seeing their /kick message.
+ Added a way to teleport to specific coordinates (/tp x y h)
+ Fixed heartbeats timing out when running fCraft under Mono.
+ Fixed Config.ApplyConfig setting the wrong server throttling variables.
+ Fixed air blocks appearing underwater when using /gen
+ Tweaked /gen parameters to make "island" a bit less ugly.
+ Updated text in fCraftConsole.
+
+
+0.330
+ Added /cuboid and /ellipsoid drawing commands.
+ Improved memory usage.
+ Added "Draw" permission, and made /draw check "DeleteAdmincrete" permission when replacing blocks, and removed unused "PlaceGlitchedSand" permission.
+ Added "Port" and "BackupOnlyWhenChanged" config lines, and corresponding ConfigTool fields.
+ Fixed bug that deleted ALL backups when you check "don't delete old backups." That was embarrassing.
+
+
+0.325
+ Added an experimental low-latency mode (faster server response, but more bandwidth required).
+ Improved hacking detection: added anti-chat-spam and anti-grief (block spam) checks.
+ New more aggressive anti-hacking checks for incoming movement and SetTile packets.
+ Fixed an issue with fCraftUI console log getting truncated in the wrong places.
+ Improved Mono compatibility (fixes HttpWebRequest failures).
+
+
+0.324
+ Added /me command.
+ Added step stacking.
+ Fixed a case where disconnected players would leave a ghost behind.
+ Improved shutdown speed.
+ Implemented ProcessPriority setting.
+
+0.323
+ Fixed players not being able to delete admincrete after promotion.
+ Fixed a bug that allowed players to noclip into walls when using /tp or /bring.
+ Fixed a security issue with "VerifyNames: Balanced"
+ Added prototype of the security tab in ConfigTool (work in progress).
+
+
+0.322
+ Added a range check to Player.SetTile, to prevent certain types of grief bots.
+ Fixed a bug where map spawnpoint did not change after doing /load.
+ Fixed some typos.
+
+
+0.321
+ Fixed welcome messages not showing.
+ Renamed /alias to /nick, and added a permission check.
+
+
+0.320
+ Finally last fix for the disconnect problem. Sorry about that.
+
+
+0.319
+ Quick fix for disconnect problem.
+
+
+0.318
+ Fixed VerifyNames not saving properly when using ConfigTool.
+ Fixed several potential crashers in Session and World.
+ Fixed a bug that sometimes wrongly showed "class name not recognized".
+ Added class name autocompletion for class chat (@@classname blah)
+ Started working on the new /load mode that allows loading different sized maps, and loading much faster (not done yet).
+
+
+0.317
+ Optimized handling of player movement and some block/tile updates, making servers more responsive and less laggy.
+ Fixed a possible crash that sometimes happened when server has 1 slot left and 2 people tried to join at once.
+ Fixed a case where a Session object was not properly disposed.
+ Fixed resizing issue in UpdateWindow and reduced connection timeout in Updater
+ Disabled ShowPrefixesInChat and ShowPrefixesInList by default (breaks skin support)
+ Added Player.Send, a safe wrapper for Player.session.Send
+ Fixed /tp, /bring, and /setspawn commands that were broken in the last revision.
+ Fixed ConfigTool not saving "IsPublic" setting correctly.
+
+
+0.316
+ Added partial class-name matching for /class and /user commands.
+ Fixed /banip and /banall not kicking the banned players immediately.
+ Added /rules command. Create "rules.txt" in the server folder to specify.
+ Fixed a bug where player movement sometimes got a little out of sync.
+ Optimized /load speed a bit.
+ Added nicer application icons.
+
+
+0.315
+ Added visual color picker to ConfigTool
+ Added lightweight console interface for fCraft
+ Refactored the main update loop
+
+
+0.314
+ Added AutomaticUpdates option.
+ Integrated the color picker to ConfigTool.
+ Improved hacking detection.
+
+
+0.313
+ Fixed a few glitches left after switching file formats.
+ Improved memory usage when saving maps.
+ Fixed an updater-related crash.
+
+
+0.312
+ New map format (FCM v2) should provide faster loading times.
+ server_level.dat loader is now functional.
+ Fixed possible crash if the default port was not available.
+ Automatic updater should now work properly. More update options to come.
+
+
+0.311
+ Preview version of automatic updater.
+
+
+0.310
+ Cleaned up some VC# crapfiles.
+ Added class prefixes and colors.
+ Added PlaceWater and PlaceLava back to permissions.
+ Fixed rank-limited permissions.
+ Other assorted glitches fixed.
+
+
+0.305
+ removed config.xml from svn.
+
+
+0.304
+ More potential crashes fixed.
+
+
+0.303
+ Fixed a couple potential crashes in ConfigTool and Config.DefineClass
+
+
+0.302
+ Fixed a few minor ConfigTool bugs.
+
+
+0.301
+ Forgot to save config from World.cs after parsing. Minor update.
+
+
+0.300
+ ConfigTool finished. Note that some of the options do not have an effect yet.
+
+*version log was not kept before this point*
+
