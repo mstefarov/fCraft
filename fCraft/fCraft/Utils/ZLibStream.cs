@@ -10,7 +10,7 @@ namespace fCraft {
 
         #region const, structs, and defs
 
-        public const int BufferSize = 1024 * 1024;
+        public const int BufferSize = 512 * 1024;
 
         private enum ZLibReturnCode {
             Ok = 0,
@@ -100,67 +100,110 @@ namespace fCraft {
             public uint adler;      /* adler32 value of the uncompressed data */
             public uint reserved;   /* reserved for future use */
         };
+
+        [StructLayoutAttribute( LayoutKind.Sequential )]
+        private struct z_stream64 {
+            public IntPtr next_in;  /* next input byte */
+            public uint avail_in;  /* number of bytes available at next_in */
+            public ulong total_in;  /* total nb of input bytes read so far */
+
+            public IntPtr next_out; /* next output byte should be put there */
+            public uint avail_out; /* remaining free space at next_out */
+            public ulong total_out; /* total nb of bytes output so far */
+
+            public IntPtr msg;      /* last error message, NULL if no error */
+            public IntPtr state; /* not visible by applications */
+
+            public IntPtr zalloc;  /* used to allocate the internal state */
+            public IntPtr zfree;   /* used to free the internal state */
+            public IntPtr opaque;  /* private data object passed to zalloc and zfree */
+
+            public ZLibDataType data_type;  /* best guess about the data type: ascii or binary */
+            public ulong adler;      /* adler32 value of the uncompressed data */
+            public ulong reserved;   /* reserved for future use */
+        };
         #endregion
 
 
         #region Initialization
 
-        private static string ZLibVersion; // set by static constructor (below)
+        public static string ZLibVersion { get; private set; }
         private static IntPtr VersionPointer;
-        public static string GetVersion() {
-            return ZLibVersion;
-        }
+        public static int StateObjectSize { get; private set; }
+        public static long CompileFlags { get; private set; }
+        public static bool UseZStream64 { get; private set; }
 
         static ZLibPInvoke Native;
 
         public static bool Init() {
-
-
             try {
                 Native = new ZLibPInvokeWin32();
-                ZLibVersion = Native.Version();
-                VersionPointer = Marshal.StringToCoTaskMemAnsi( ZLibStream.ZLibVersion );
                 Test();
                 Console.WriteLine( "> Using zlib32.dll (Win32)" );
                 return true;
-            } catch( Exception ) {
-                Console.WriteLine( "> Could not load zlib32.dll (Win32), trying next." );
+            } catch( Exception ex ) {
+                Console.WriteLine( "> Could not load zlib32.dll (Win): {0}", ex.GetType() );
             }
 
             try {
                 Native = new ZLibPInvokeWin64();
-                ZLibVersion = Native.Version();
-                VersionPointer = Marshal.StringToCoTaskMemAnsi( ZLibStream.ZLibVersion );
                 Test();
                 Console.WriteLine( "> Using zlib64.dll (Win64)" );
                 return true;
-            } catch( Exception ) {
-                Console.WriteLine( "> Could not load zlib64.dll (Win64), trying next." );
+            } catch( Exception ex ) {
+                Console.WriteLine( "> Could not load zlib64.dll (Win): {0}", ex.GetType() );
             }
 
             try {
-                Native = new ZLibPInvokeUnix();
-                ZLibVersion = Native.Version();
-                VersionPointer = Marshal.StringToCoTaskMemAnsi( ZLibStream.ZLibVersion );
+                Native = new ZLibPInvokeNix32();
                 Test();
-                Console.WriteLine( "> Using libz (*nix)" );
+                Console.WriteLine( "> Using libz32 (*nix)" );
                 return true;
-            } catch( Exception ) {
-                Console.WriteLine( "> Could not load libz (*nix). Fail." );
+            } catch( Exception ex ) {
+                Console.WriteLine( "> Could not load libz32 (*nix): {0}", ex.GetType() );
             }
 
+            try {
+                Native = new ZLibPInvokeNix64();
+                Test();
+                Console.WriteLine( "> Using libz64 (*nix)" );
+                return true;
+            } catch( Exception ex ) {
+                Console.WriteLine( "> Could not load libz64 (*nix): {0}", ex.GetType() );
+            }
+
+            Console.WriteLine( "Falling back to GZipStream :(" );
             Native = null;
             return false;
         }
 
         static void Test() {
-            z_stream zs = new z_stream();
-            zs.zalloc = IntPtr.Zero;
-            zs.zfree = IntPtr.Zero;
-            zs.opaque = IntPtr.Zero;
-            Native.DeflateInit2( ref zs, ZLibCompressionLevel.Default, ZLibHeaderType.GZip,
-                                ZLibMemLevel.Default, ZLibCompressionStrategy.DefaultStrategy, 1 );
-            Native.DeflateEnd( ref zs );
+            ZLibVersion = Native.Version();
+            VersionPointer = Marshal.StringToCoTaskMemAnsi( ZLibStream.ZLibVersion );
+
+            // Check if uLong is 32 or 64 bits
+            CompileFlags = Native.CompileFlags();
+            UseZStream64 = ((CompileFlags & 12) == 2);
+            if( UseZStream64 ) {
+                StateObjectSize = Marshal.SizeOf( typeof( z_stream64 ) );
+                z_stream64 zs = new z_stream64();
+                zs.zalloc = IntPtr.Zero;
+                zs.zfree = IntPtr.Zero;
+                zs.opaque = IntPtr.Zero;
+                Native.DeflateInit2( ref zs, ZLibCompressionLevel.Default, ZLibHeaderType.GZip,
+                                    ZLibMemLevel.Default, ZLibCompressionStrategy.DefaultStrategy );
+                Native.DeflateEnd( ref zs );
+
+            } else {
+                StateObjectSize = Marshal.SizeOf( typeof( z_stream ) );
+                z_stream zs = new z_stream();
+                zs.zalloc = IntPtr.Zero;
+                zs.zfree = IntPtr.Zero;
+                zs.opaque = IntPtr.Zero;
+                Native.DeflateInit2( ref zs, ZLibCompressionLevel.Default, ZLibHeaderType.GZip,
+                                    ZLibMemLevel.Default, ZLibCompressionStrategy.DefaultStrategy );
+                Native.DeflateEnd( ref zs );
+            }
         }
         #endregion
 
@@ -168,7 +211,8 @@ namespace fCraft {
         private Stream stream;
         private CompressionMode mode;
         private GZipStream fallback;
-        private z_stream zstream = new z_stream();
+        private z_stream zstream;
+        private z_stream64 zstream64;
         private byte[] buffer;
         private GCHandle bufferHandle;
 
@@ -198,16 +242,29 @@ namespace fCraft {
             }
             buffer = new byte[bufferSize];
 
-            this.zstream.zalloc = IntPtr.Zero;
-            this.zstream.zfree = IntPtr.Zero;
-            this.zstream.opaque = IntPtr.Zero;
-
             ZLibReturnCode ret;
-            if( mode == CompressionMode.Decompress ) {
-                ret = Native.InflateInit2( ref this.zstream, ZLibHeaderType.Both, ZLibVersion, Marshal.SizeOf( typeof( z_stream ) ) );
+            if( UseZStream64 ) {
+                this.zstream64 = new z_stream64();
+                this.zstream64.zalloc = IntPtr.Zero;
+                this.zstream64.zfree = IntPtr.Zero;
+                this.zstream64.opaque = IntPtr.Zero;
+                if( mode == CompressionMode.Decompress ) {
+                    ret = Native.InflateInit2( ref this.zstream64, ZLibHeaderType.Both );
+                } else {
+                    ret = Native.DeflateInit2( ref this.zstream64, compressionLevel, ZLibHeaderType.GZip, memLevel,
+                                               ZLibCompressionStrategy.DefaultStrategy );
+                }
+
             } else {
-                ret = Native.DeflateInit2( ref this.zstream, compressionLevel, ZLibHeaderType.GZip, memLevel,
-                                           ZLibCompressionStrategy.DefaultStrategy, Marshal.SizeOf( typeof( z_stream ) ) );
+                this.zstream.zalloc = IntPtr.Zero;
+                this.zstream.zfree = IntPtr.Zero;
+                this.zstream.opaque = IntPtr.Zero;
+                if( mode == CompressionMode.Decompress ) {
+                    ret = Native.InflateInit2( ref this.zstream, ZLibHeaderType.Both );
+                } else {
+                    ret = Native.DeflateInit2( ref this.zstream, compressionLevel, ZLibHeaderType.GZip, memLevel,
+                                               ZLibCompressionStrategy.DefaultStrategy );
+                }
             }
 
             if( ret != ZLibReturnCode.Ok ) {
@@ -223,10 +280,18 @@ namespace fCraft {
         #region Close / Flush / Destructor
 
         public override void Close() {
-            if( fallback != null ) fallback.Close();
+            if( fallback != null ) {
+                fallback.Close();
+                return;
+            }
             if( mode == CompressionMode.Compress ) {
-                zstream.avail_in = 0;
-                WriteLoop( ZLibFlush.Finish );
+                if( UseZStream64 ) {
+                    zstream64.avail_in = 0;
+                    WriteLoop64( ZLibFlush.Finish );
+                } else {
+                    zstream.avail_in = 0;
+                    WriteLoop32( ZLibFlush.Finish );
+                }
             }
 
             this.stream.Close();
@@ -241,17 +306,33 @@ namespace fCraft {
             if( this.mode != CompressionMode.Compress ) {
                 throw new NotSupportedException( "The method or operation is not implemented." );
             }
-            zstream.avail_in = 0;
-            WriteLoop( ZLibFlush.SyncFlush );
+            if( UseZStream64 ) {
+                zstream64.avail_in = 0;
+                WriteLoop64( ZLibFlush.SyncFlush );
+            } else {
+                zstream.avail_in = 0;
+                WriteLoop32( ZLibFlush.SyncFlush );
+            }
         }
 
+
         ~ZLibStream() {
-            if( fallback != null ) return;
+            if( fallback != null ) {
+                return;
+            }
             bufferHandle.Free();
-            if( mode == CompressionMode.Decompress ) {
-                Native.InflateEnd( ref this.zstream );
+            if( UseZStream64 ) {
+                if( mode == CompressionMode.Decompress ) {
+                    Native.InflateEnd( ref this.zstream64 );
+                } else {
+                    Native.DeflateEnd( ref this.zstream64 );
+                }
             } else {
-                Native.DeflateEnd( ref this.zstream );
+                if( mode == CompressionMode.Decompress ) {
+                    Native.InflateEnd( ref this.zstream );
+                } else {
+                    Native.DeflateEnd( ref this.zstream );
+                }
             }
         }
 
@@ -264,15 +345,22 @@ namespace fCraft {
 
             if( fallback != null ) return fallback.Read( array, offset, count );
 
+            if( UseZStream64 ) {
+                return ReadLoop64( array, offset, count );
+            } else {
+                return ReadLoop32( array, offset, count );
+            }
+        }
+
+        int ReadLoop32( byte[] array, int offset, int count ) {
             bool exitLoop = false;
 
             byte[] tmpOutputBuffer = new byte[count];
             GCHandle tmpOutpuBufferHandle = GCHandle.Alloc( tmpOutputBuffer, GCHandleType.Pinned );
 
-            this.zstream.next_out = tmpOutpuBufferHandle.AddrOfPinnedObject();
-            this.zstream.avail_out = (uint)tmpOutputBuffer.Length;
-
             try {
+                this.zstream.next_out = tmpOutpuBufferHandle.AddrOfPinnedObject();
+                this.zstream.avail_out = (uint)tmpOutputBuffer.Length;
                 while( this.zstream.avail_out > 0 && exitLoop == false ) {
                     if( this.zstream.avail_in == 0 ) {
                         int readLength = this.stream.Read( buffer, 0, buffer.Length );
@@ -301,6 +389,42 @@ namespace fCraft {
             }
         }
 
+        int ReadLoop64( byte[] array, int offset, int count ) {
+            bool exitLoop = false;
+
+            byte[] tmpOutputBuffer = new byte[count];
+            GCHandle tmpOutpuBufferHandle = GCHandle.Alloc( tmpOutputBuffer, GCHandleType.Pinned );
+
+            try {
+                this.zstream64.next_out = tmpOutpuBufferHandle.AddrOfPinnedObject();
+                this.zstream64.avail_out = (uint)tmpOutputBuffer.Length;
+                while( this.zstream64.avail_out > 0 && exitLoop == false ) {
+                    if( this.zstream64.avail_in == 0 ) {
+                        int readLength = this.stream.Read( buffer, 0, buffer.Length );
+                        this.zstream64.avail_in = (uint)readLength;
+                        this.zstream64.next_in = this.bufferHandle.AddrOfPinnedObject();
+                    }
+                    ZLibReturnCode result = Native.Inflate( ref this.zstream64, ZLibFlush.NoFlush );
+                    switch( result ) {
+                        case ZLibReturnCode.StreamEnd:
+                            exitLoop = true;
+                            Array.Copy( tmpOutputBuffer, 0, array, offset, count - (int)this.zstream64.avail_out );
+                            break;
+                        case ZLibReturnCode.Ok:
+                            Array.Copy( tmpOutputBuffer, 0, array, offset, count - (int)this.zstream64.avail_out );
+                            break;
+                        case ZLibReturnCode.MemoryError:
+                            throw new OutOfMemoryException( "ZLib return code: " + result.ToString() );
+                        default:
+                            throw new Exception( "ZLib return code: " + result.ToString() );
+                    }
+                }
+
+                return (count - (int)this.zstream64.avail_out);
+            } finally {
+                tmpOutpuBufferHandle.Free();
+            }
+        }
 
         public unsafe override void Write( byte[] input, int offset, int count ) {
             if( this.mode != CompressionMode.Compress )
@@ -312,14 +436,20 @@ namespace fCraft {
             }
 
             fixed( byte* inputPtr = input ) {
-                zstream.next_in = (IntPtr)(inputPtr + offset);
-                zstream.avail_in = (uint)count;
-                WriteLoop( ZLibFlush.NoFlush );
+                if( UseZStream64 ) {
+                    this.zstream64.next_in = (IntPtr)(inputPtr + offset);
+                    this.zstream64.avail_in = (uint)count;
+                    WriteLoop64( ZLibFlush.NoFlush );
+                } else {
+                    this.zstream.next_in = (IntPtr)(inputPtr + offset);
+                    this.zstream.avail_in = (uint)count;
+                    WriteLoop32( ZLibFlush.NoFlush );
+                }
             }
         }
 
 
-        void WriteLoop( ZLibFlush flushType ) {
+        void WriteLoop32( ZLibFlush flushType ) {
             bool exitLoop = false;
             while( !exitLoop ) {
                 ZLibReturnCode result;
@@ -346,6 +476,44 @@ namespace fCraft {
 
                     case ZLibReturnCode.Ok:
                         stream.Write( buffer, 0, (int)(buffer.Length - zstream.avail_out) );
+                        break;
+
+                    case ZLibReturnCode.MemoryError:
+                        throw new OutOfMemoryException( "ZLib return code: " + result.ToString() );
+
+                    default:
+                        throw new Exception( "ZLib return code: " + result.ToString() );
+                }
+            }
+        }
+
+        void WriteLoop64( ZLibFlush flushType ) {
+            bool exitLoop = false;
+            while( !exitLoop ) {
+                ZLibReturnCode result;
+
+                if( this.zstream64.avail_in == 0 ) {
+                    if( flushType != ZLibFlush.NoFlush ) {
+                        this.zstream64.next_out = bufferHandle.AddrOfPinnedObject();
+                        this.zstream64.avail_out = (uint)buffer.Length;
+                        result = Native.Deflate( ref this.zstream64, flushType );
+                    } else {
+                        return;
+                    }
+                } else {
+                    this.zstream64.next_out = bufferHandle.AddrOfPinnedObject();
+                    this.zstream64.avail_out = (uint)buffer.Length;
+                    result = Native.Deflate( ref this.zstream64, ZLibFlush.NoFlush );
+                }
+
+                switch( result ) {
+                    case ZLibReturnCode.StreamEnd:
+                        exitLoop = true;
+                        stream.Write( buffer, 0, (int)(buffer.Length - this.zstream64.avail_out) );
+                        break;
+
+                    case ZLibReturnCode.Ok:
+                        stream.Write( buffer, 0, (int)(buffer.Length - this.zstream64.avail_out) );
                         break;
 
                     case ZLibReturnCode.MemoryError:
@@ -397,66 +565,115 @@ namespace fCraft {
 
         #region P/Invoke
 
-        interface ZLibPInvoke {
-            ZLibReturnCode InflateInit2( ref z_stream strm, ZLibHeaderType windowBits, string version, int stream_size );
-            ZLibReturnCode Inflate( ref z_stream strm, ZLibFlush flush );
-            ZLibReturnCode InflateEnd( ref z_stream strm );
-            ZLibReturnCode DeflateInit2( ref z_stream strm, ZLibCompressionLevel level, ZLibHeaderType windowBits,
-                                                     ZLibMemLevel memLevel, ZLibCompressionStrategy strategy, int stream_size );
-            ZLibReturnCode Deflate( ref z_stream strm, ZLibFlush flush );
-            ZLibReturnCode DeflateEnd( ref z_stream strm );
-            string Version();
+        abstract class ZLibPInvoke {
+            public virtual ZLibReturnCode InflateInit2( ref z_stream strm, ZLibHeaderType windowBits ) {
+                return ZLibReturnCode.VersionError;
+            }
+            public virtual ZLibReturnCode Inflate( ref z_stream strm, ZLibFlush flush ) {
+                return ZLibReturnCode.VersionError;
+            }
+            public virtual ZLibReturnCode InflateEnd( ref z_stream strm ) {
+                return ZLibReturnCode.VersionError;
+            }
+            public virtual ZLibReturnCode DeflateInit2( ref z_stream strm, ZLibCompressionLevel level, ZLibHeaderType windowBits,
+                                         ZLibMemLevel memLevel, ZLibCompressionStrategy strategy ) {
+                return ZLibReturnCode.VersionError;
+            }
+            public virtual ZLibReturnCode Deflate( ref z_stream strm, ZLibFlush flush ) {
+                return ZLibReturnCode.VersionError;
+            }
+            public virtual ZLibReturnCode DeflateEnd( ref z_stream strm ) {
+                return ZLibReturnCode.VersionError;
+            }
+
+
+            public virtual ZLibReturnCode InflateInit2( ref z_stream64 strm, ZLibHeaderType windowBits ) {
+                return ZLibReturnCode.VersionError;
+            }
+            public virtual ZLibReturnCode Inflate( ref z_stream64 strm, ZLibFlush flush ) {
+                return ZLibReturnCode.VersionError;
+            }
+            public virtual ZLibReturnCode InflateEnd( ref z_stream64 strm ) {
+                return ZLibReturnCode.VersionError;
+            }
+            public virtual ZLibReturnCode DeflateInit2( ref z_stream64 strm, ZLibCompressionLevel level, ZLibHeaderType windowBits,
+                                         ZLibMemLevel memLevel, ZLibCompressionStrategy strategy ) {
+                return ZLibReturnCode.VersionError;
+            }
+            public virtual ZLibReturnCode Deflate( ref z_stream64 strm, ZLibFlush flush ) {
+                return ZLibReturnCode.VersionError;
+            }
+            public virtual ZLibReturnCode DeflateEnd( ref z_stream64 strm ) {
+                return ZLibReturnCode.VersionError;
+            }
+
+
+            public abstract string Version();
+            public abstract long CompileFlags();
         }
 
 
         class ZLibPInvokeWin32 : ZLibPInvoke {
             [DllImport( "zlib32.dll", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode inflateInit2_( ref z_stream strm, ZLibHeaderType windowBits,
-                                                                [MarshalAs( UnmanagedType.LPStr )] string version, int stream_size );
-            public ZLibReturnCode InflateInit2( ref z_stream strm, ZLibHeaderType windowBits, string version, int stream_size ) {
-                return inflateInit2_( ref strm, windowBits, version, stream_size );
+                                                                IntPtr version, int stream_size );
+            public override ZLibReturnCode InflateInit2( ref z_stream strm, ZLibHeaderType windowBits ) {
+                return inflateInit2_( ref strm, windowBits, ZLibStream.VersionPointer, ZLibStream.StateObjectSize );
             }
+
 
             [DllImport( "zlib32.dll", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode inflate( ref z_stream strm, ZLibFlush flush );
-            public ZLibReturnCode Inflate( ref z_stream strm, ZLibFlush flush ) {
+            public override ZLibReturnCode Inflate( ref z_stream strm, ZLibFlush flush ) {
                 return inflate( ref strm, flush );
             }
 
+
             [DllImport( "zlib32.dll", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode inflateEnd( ref z_stream strm );
-            public ZLibReturnCode InflateEnd( ref z_stream strm ) {
+            public override ZLibReturnCode InflateEnd( ref z_stream strm ) {
                 return inflateEnd( ref strm );
             }
+
 
             [DllImport( "zlib32.dll", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode deflateInit2_( ref z_stream strm, ZLibCompressionLevel level, ZLibCompressionMethod method,
                                                                ZLibHeaderType windowBits, ZLibMemLevel memLevel, ZLibCompressionStrategy strategy,
                                                                IntPtr version, int stream_size );
 
-            public ZLibReturnCode DeflateInit2( ref z_stream strm, ZLibCompressionLevel level, ZLibHeaderType windowBits,
-                                                ZLibMemLevel memLevel, ZLibCompressionStrategy strategy, int stream_size ) {
-                return deflateInit2_( ref strm, level, ZLibCompressionMethod.Deflated, windowBits, memLevel, strategy, ZLibStream.VersionPointer, stream_size );
+            public override ZLibReturnCode DeflateInit2( ref z_stream strm, ZLibCompressionLevel level, ZLibHeaderType windowBits,
+                                                ZLibMemLevel memLevel, ZLibCompressionStrategy strategy ) {
+                return deflateInit2_( ref strm, level, ZLibCompressionMethod.Deflated, windowBits,
+                                      memLevel, strategy, ZLibStream.VersionPointer, ZLibStream.StateObjectSize );
             }
+
+
 
             [DllImport( "zlib32.dll", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode deflate( ref z_stream strm, ZLibFlush flush );
-            public ZLibReturnCode Deflate( ref z_stream strm, ZLibFlush flush ) {
+            public override ZLibReturnCode Deflate( ref z_stream strm, ZLibFlush flush ) {
                 return deflate( ref strm, flush );
             }
 
 
             [DllImport( "zlib32.dll", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode deflateEnd( ref z_stream strm );
-            public ZLibReturnCode DeflateEnd( ref z_stream strm ) {
+            public override ZLibReturnCode DeflateEnd( ref z_stream strm ) {
                 return deflateEnd( ref strm );
             }
 
 
             [DllImport( "zlib32.dll", CharSet = CharSet.Ansi )]
             private static extern string zlibVersion();
-            public string Version() {
+            public override string Version() {
                 return zlibVersion();
+            }
+
+
+            [DllImport( "zlib32.dll", CharSet = CharSet.Ansi )]
+            private static extern long zlibCompileFlags();
+            public override long CompileFlags() {
+                return zlibCompileFlags();
             }
         }
 
@@ -464,105 +681,191 @@ namespace fCraft {
         class ZLibPInvokeWin64 : ZLibPInvoke {
             [DllImport( "zlib64.dll", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode inflateInit2_( ref z_stream strm, ZLibHeaderType windowBits,
-                                                                [MarshalAs( UnmanagedType.LPStr )] string version, int stream_size );
-            public ZLibReturnCode InflateInit2( ref z_stream strm, ZLibHeaderType windowBits, string version, int stream_size ) {
-                return inflateInit2_( ref strm, windowBits, version, stream_size );
+                                                                IntPtr version, int stream_size );
+            public override ZLibReturnCode InflateInit2( ref z_stream strm, ZLibHeaderType windowBits ) {
+                return inflateInit2_( ref strm, windowBits, ZLibStream.VersionPointer, ZLibStream.StateObjectSize );
             }
+
 
             [DllImport( "zlib64.dll", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode inflate( ref z_stream strm, ZLibFlush flush );
-            public ZLibReturnCode Inflate( ref z_stream strm, ZLibFlush flush ) {
+            public override ZLibReturnCode Inflate( ref z_stream strm, ZLibFlush flush ) {
                 return inflate( ref strm, flush );
             }
 
+
             [DllImport( "zlib64.dll", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode inflateEnd( ref z_stream strm );
-            public ZLibReturnCode InflateEnd( ref z_stream strm ) {
+            public override ZLibReturnCode InflateEnd( ref z_stream strm ) {
                 return inflateEnd( ref strm );
             }
+
 
             [DllImport( "zlib64.dll", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode deflateInit2_( ref z_stream strm, ZLibCompressionLevel level, ZLibCompressionMethod method,
                                                                ZLibHeaderType windowBits, ZLibMemLevel memLevel, ZLibCompressionStrategy strategy,
                                                                IntPtr version, int stream_size );
-
-            public ZLibReturnCode DeflateInit2( ref z_stream strm, ZLibCompressionLevel level, ZLibHeaderType windowBits,
-                                                ZLibMemLevel memLevel, ZLibCompressionStrategy strategy, int stream_size ) {
-                return deflateInit2_( ref strm, level, ZLibCompressionMethod.Deflated, windowBits, memLevel, strategy, ZLibStream.VersionPointer, stream_size );
+            public override ZLibReturnCode DeflateInit2( ref z_stream strm, ZLibCompressionLevel level, ZLibHeaderType windowBits,
+                                                ZLibMemLevel memLevel, ZLibCompressionStrategy strategy ) {
+                return deflateInit2_( ref strm, level, ZLibCompressionMethod.Deflated, windowBits,
+                                      memLevel, strategy, ZLibStream.VersionPointer, ZLibStream.StateObjectSize );
             }
+
 
             [DllImport( "zlib64.dll", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode deflate( ref z_stream strm, ZLibFlush flush );
-            public ZLibReturnCode Deflate( ref z_stream strm, ZLibFlush flush ) {
+            public override ZLibReturnCode Deflate( ref z_stream strm, ZLibFlush flush ) {
                 return deflate( ref strm, flush );
             }
 
 
             [DllImport( "zlib64.dll", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode deflateEnd( ref z_stream strm );
-            public ZLibReturnCode DeflateEnd( ref z_stream strm ) {
+            public override ZLibReturnCode DeflateEnd( ref z_stream strm ) {
                 return deflateEnd( ref strm );
             }
 
 
             [DllImport( "zlib64.dll", CharSet = CharSet.Ansi )]
             private static extern IntPtr zlibVersion();
-            public string Version() {
+            public override string Version() {
                 IntPtr ptr = zlibVersion();
                 return Marshal.PtrToStringAnsi( ptr );
+            }
+
+
+            [DllImport( "zlib64.dll", CharSet = CharSet.Ansi )]
+            private static extern long zlibCompileFlags();
+            public override long CompileFlags() {
+                return zlibCompileFlags();
             }
         }
 
 
-        class ZLibPInvokeUnix : ZLibPInvoke {
+        class ZLibPInvokeNix32 : ZLibPInvoke {
             [DllImport( "z", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode inflateInit2_( ref z_stream strm, ZLibHeaderType windowBits,
-                                                                [MarshalAs( UnmanagedType.LPStr )]string version, int stream_size );
-            public ZLibReturnCode InflateInit2( ref z_stream strm, ZLibHeaderType windowBits, string version, int stream_size ) {
-                return inflateInit2_( ref strm, windowBits, version, stream_size );
+                                                                IntPtr version, int stream_size );
+            public override ZLibReturnCode InflateInit2( ref z_stream strm, ZLibHeaderType windowBits ) {
+                return inflateInit2_( ref strm, windowBits, ZLibStream.VersionPointer, ZLibStream.StateObjectSize );
             }
+
 
             [DllImport( "z", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode inflate( ref z_stream strm, ZLibFlush flush );
-            public ZLibReturnCode Inflate( ref z_stream strm, ZLibFlush flush ) {
+            public override ZLibReturnCode Inflate( ref z_stream strm, ZLibFlush flush ) {
                 return inflate( ref strm, flush );
             }
 
+
             [DllImport( "z", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode inflateEnd( ref z_stream strm );
-            public ZLibReturnCode InflateEnd( ref z_stream strm ) {
+            public override ZLibReturnCode InflateEnd( ref z_stream strm ) {
                 return inflateEnd( ref strm );
             }
+
 
             [DllImport( "z", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode deflateInit2_( ref z_stream strm, ZLibCompressionLevel level, ZLibCompressionMethod method,
                                                                 ZLibHeaderType windowBits, ZLibMemLevel memLevel, ZLibCompressionStrategy strategy,
                                                                 IntPtr version, int stream_size );
-
-            public ZLibReturnCode DeflateInit2( ref z_stream strm, ZLibCompressionLevel level, ZLibHeaderType windowBits,
-                                                ZLibMemLevel memLevel, ZLibCompressionStrategy strategy, int stream_size ) {
-                return deflateInit2_( ref strm, level, ZLibCompressionMethod.Deflated, windowBits, memLevel, strategy, ZLibStream.VersionPointer, stream_size );
+            public override ZLibReturnCode DeflateInit2( ref z_stream strm, ZLibCompressionLevel level, ZLibHeaderType windowBits,
+                                                ZLibMemLevel memLevel, ZLibCompressionStrategy strategy ) {
+                return deflateInit2_( ref strm, level, ZLibCompressionMethod.Deflated, windowBits,
+                                      memLevel, strategy, ZLibStream.VersionPointer, ZLibStream.StateObjectSize );
             }
+
 
             [DllImport( "z", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode deflate( ref z_stream strm, ZLibFlush flush );
-            public ZLibReturnCode Deflate( ref z_stream strm, ZLibFlush flush ) {
+            public override ZLibReturnCode Deflate( ref z_stream strm, ZLibFlush flush ) {
                 return deflate( ref strm, flush );
             }
 
 
             [DllImport( "z", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode deflateEnd( ref z_stream strm );
-            public ZLibReturnCode DeflateEnd( ref z_stream strm ) {
+            public override ZLibReturnCode DeflateEnd( ref z_stream strm ) {
                 return deflateEnd( ref strm );
             }
 
 
             [DllImport( "z", CharSet = CharSet.Ansi )]
             private static extern IntPtr zlibVersion();
-            public string Version() {
+            public override string Version() {
                 IntPtr ptr = zlibVersion();
                 return Marshal.PtrToStringAnsi( ptr );
+            }
+
+
+            [DllImport( "z", CharSet = CharSet.Ansi )]
+            private static extern long zlibCompileFlags();
+            public override long CompileFlags() {
+                return zlibCompileFlags();
+            }
+        }
+
+
+        class ZLibPInvokeNix64 : ZLibPInvoke {
+            [DllImport( "z", CharSet = CharSet.Ansi )]
+            private static extern ZLibReturnCode inflateInit2_( ref z_stream64 strm, ZLibHeaderType windowBits,
+                                                                IntPtr version, int stream_size );
+            public override ZLibReturnCode InflateInit2( ref z_stream64 strm, ZLibHeaderType windowBits ) {
+                return inflateInit2_( ref strm, windowBits, ZLibStream.VersionPointer, ZLibStream.StateObjectSize );
+            }
+
+
+            [DllImport( "z", CharSet = CharSet.Ansi )]
+            private static extern ZLibReturnCode inflate( ref z_stream64 strm, ZLibFlush flush );
+            public override ZLibReturnCode Inflate( ref z_stream64 strm, ZLibFlush flush ) {
+                return inflate( ref strm, flush );
+            }
+
+
+            [DllImport( "z", CharSet = CharSet.Ansi )]
+            private static extern ZLibReturnCode inflateEnd( ref z_stream64 strm );
+            public override ZLibReturnCode InflateEnd( ref z_stream64 strm ) {
+                return inflateEnd( ref strm );
+            }
+
+
+            [DllImport( "z", CharSet = CharSet.Ansi )]
+            private static extern ZLibReturnCode deflateInit2_( ref z_stream64 strm, ZLibCompressionLevel level, ZLibCompressionMethod method,
+                                                                ZLibHeaderType windowBits, ZLibMemLevel memLevel, ZLibCompressionStrategy strategy,
+                                                                IntPtr version, int stream_size );
+            public override ZLibReturnCode DeflateInit2( ref z_stream64 strm, ZLibCompressionLevel level, ZLibHeaderType windowBits,
+                                                ZLibMemLevel memLevel, ZLibCompressionStrategy strategy ) {
+                return deflateInit2_( ref strm, level, ZLibCompressionMethod.Deflated, windowBits,
+                                      memLevel, strategy, ZLibStream.VersionPointer, ZLibStream.StateObjectSize );
+            }
+
+
+            [DllImport( "z", CharSet = CharSet.Ansi )]
+            private static extern ZLibReturnCode deflate( ref z_stream64 strm, ZLibFlush flush );
+            public override ZLibReturnCode Deflate( ref z_stream64 strm, ZLibFlush flush ) {
+                return deflate( ref strm, flush );
+            }
+
+
+            [DllImport( "z", CharSet = CharSet.Ansi )]
+            private static extern ZLibReturnCode deflateEnd( ref z_stream64 strm );
+            public override ZLibReturnCode DeflateEnd( ref z_stream64 strm ) {
+                return deflateEnd( ref strm );
+            }
+
+
+            [DllImport( "z", CharSet = CharSet.Ansi )]
+            private static extern IntPtr zlibVersion();
+            public override string Version() {
+                IntPtr ptr = zlibVersion();
+                return Marshal.PtrToStringAnsi( ptr );
+            }
+
+
+            [DllImport( "z", CharSet = CharSet.Ansi )]
+            private static extern long zlibCompileFlags();
+            public override long CompileFlags() {
+                return zlibCompileFlags();
             }
         }
 
