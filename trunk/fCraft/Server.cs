@@ -41,7 +41,6 @@ namespace fCraft {
         public static string URL;
 
 
-
         public static bool Init() {
             serverStart = DateTime.Now;
 
@@ -76,7 +75,6 @@ namespace fCraft {
         }
 
 
-        // Opens a socket for listening for incoming connections
         public static bool Start() {
 
             if( CheckForFCraftProcesses() ) {
@@ -173,6 +171,7 @@ namespace fCraft {
             return true;
         }
 
+
         // shuts down the server and aborts threads
         // NOTE: Do not call from any of the usual threads (main, heartbeat, tasks).
         // Call from UI thread or a new separate thread only.
@@ -215,7 +214,7 @@ namespace fCraft {
                 Heartbeat.Shutdown();
 
                 // kill IRC bot
-                if( IRC.connected ) IRC.Disconnect();
+                IRC.Disconnect();
 
                 // kill background tasks
                 Tasks.Shutdown();
@@ -246,6 +245,7 @@ namespace fCraft {
             public int Delay;
             public bool KillProcess;
         }
+
 
         public static void InitiateShutdown( string reason, int delay, bool killProcess ) {
             new Thread( delegate( object obj ) {
@@ -606,11 +606,12 @@ namespace fCraft {
 
 
         #region Networking
+
         public static void SendToAllDelayed( Packet packet, Player except ) {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != except ) {
-                    tempList[i].Send( packet, false );
+                    tempList[i].SendDelayed( packet );
                 }
             }
         }

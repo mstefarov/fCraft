@@ -17,6 +17,7 @@ namespace fCraft {
                     canSend,
                     canQueue,
                     isDisconnected;
+
         public bool isBetweenWorlds = true;
         object joinWorldLock = new object();
 
@@ -45,6 +46,7 @@ namespace fCraft {
 
         public int PacketsReceived, PacketsSent, PacketsSkippedZero, PacketsSkippedOptimized;
 
+
         public Session( TcpClient _client ) {
             loginTime = DateTime.Now;
 
@@ -60,6 +62,7 @@ namespace fCraft {
             client.SendTimeout = socketTimeout;
             client.ReceiveTimeout = socketTimeout;
         }
+
 
         public void Start() {
             reader = new BinaryReader( client.GetStream() );
@@ -348,8 +351,8 @@ namespace fCraft {
                 client = null;
             }
 
-            isDisconnected = true;
             ioThread = null;
+            isDisconnected = true;
         }
 
 
@@ -458,7 +461,7 @@ namespace fCraft {
 
             // verify name
             if( !Server.VerifyName( player.name, verificationCode, Server.Salt ) &&
-                !Server.VerifyName( player.name, verificationCode, Server.OldSalt) ) {
+                !Server.VerifyName( player.name, verificationCode, Server.OldSalt ) ) {
 
                 string standardMessage = String.Format( "Session.LoginSequence: Could not verify player name for {0} ({1}).",
                                                         player.name,
@@ -695,17 +698,11 @@ namespace fCraft {
 
 
         public void Send( Packet packet ) {
-            Send( packet, true );
+            if( canQueue ) priorityOutputQueue.Enqueue( packet );
         }
 
-        public void Send( Packet packet, bool isHighPriority ) {
-            if( canQueue ) {
-                if( isHighPriority ) {
-                    priorityOutputQueue.Enqueue( packet );
-                } else {
-                    outputQueue.Enqueue( packet );
-                }
-            }
+        public void SendDelayed( Packet packet ) {
+            if( canQueue ) outputQueue.Enqueue( packet );
         }
 
 

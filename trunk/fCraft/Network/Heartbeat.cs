@@ -40,9 +40,8 @@ namespace fCraft {
                     request.ContentType = "application/x-www-form-urlencoded";
                     request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
 
-                    string dataString = String.Format( "name={0}&motd={1}&max={2}&public={3}&port={4}&salt={5}&version={6}&users={7}",
+                    string dataString = String.Format( "name={0}&max={1}&public={2}&port={3}&salt={4}&version={5}&users={6}",
                                                        Server.UrlEncode( Config.GetString( ConfigKey.ServerName ) ),
-                                                       Server.UrlEncode( Config.GetString( ConfigKey.MOTD ) ),
                                                        Config.GetInt( ConfigKey.MaxPlayers ),
                                                        Config.GetBool( ConfigKey.IsPublic ),
                                                        Server.Port,

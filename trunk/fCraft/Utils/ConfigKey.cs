@@ -67,6 +67,7 @@ namespace fCraft {
         IRCNickServMessage,
         IRCMessageColor,
         IRCDelay,
+        IRCThreads,
 
         SendRedundantBlockUpdates,
         AutomaticUpdates,
