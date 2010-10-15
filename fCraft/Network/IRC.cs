@@ -45,7 +45,7 @@ namespace fCraft {
             Thread thread;
             bool connected, reconnect, registered;
             bool parseInput;
-            string actualBotNick;
+            public string actualBotNick;
 
 
             public bool Start( string _botNick, bool _parseInput ) {
@@ -135,9 +135,9 @@ namespace fCraft {
                         reconnect = true;
 #if DEBUG
 #else
-                } catch( Exception ex ) {
-                    Logger.Log( "IRC: " + ex, LogType.Error );
-                    reconnect = true;
+                    } catch( Exception ex ) {
+                        Logger.Log( "IRC: " + ex, LogType.Error );
+                        reconnect = true;
 #endif
                     }
 
@@ -148,7 +148,7 @@ namespace fCraft {
 
             void HandleMessage( string message ) {
 
-                IRCMessage msg = MessageParser( message );
+                IRCMessage msg = MessageParser( message, actualBotNick );
 
                 switch( msg.Type ) {
                     case IRCMessageType.Login:
@@ -172,7 +172,7 @@ namespace fCraft {
                     case IRCMessageType.ChannelMessage:
                         // channel chat
                         if( !parseInput ) return;
-                        if( msg.Nick != actualBotNick ) {
+                        if( !IsBotNick(msg.Nick) ) {
                             string processedMessage = nonPrintableChars.Replace( msg.Message, "" ).Trim();
                             if( processedMessage.Length > 0 ) {
                                 if( Config.GetBool( ConfigKey.IRCBotForwardFromIRC ) ) {
@@ -213,8 +213,8 @@ namespace fCraft {
                     case IRCMessageType.ErrorMessage:
                     case IRCMessageType.Error:
                         if( !registered && msg.ReplyCode == IRCReplyCode.ErrorNicknameInUse ) {
-                            botNick += "_";
-                            Send( IRCCommands.Nick( botNick ) );
+                            actualBotNick += "_";
+                            Send( IRCCommands.Nick( actualBotNick ) );
                         } else {
                             Logger.Log( "Error (" + msg.ReplyCode + "): " + msg.RawMessage, LogType.IRC );
                         }
@@ -375,8 +375,15 @@ namespace fCraft {
             threads[nextThread].Send( line );
         }
 
+        static bool IsBotNick( string str ) {
+            for( int i = 0; i < threads.Length; i++ ) {
+                if( threads[i].actualBotNick == str ) return true;
+            }
+            return false;
+        }
+
         public static void Disconnect() {
-            if( threads!=null && threads.Length > 0 ) {
+            if( threads != null && threads.Length > 0 ) {
                 foreach( IRCThread thread in threads ) {
                     thread.Disconnect();
                 }
@@ -384,7 +391,7 @@ namespace fCraft {
         }
 
         static IRCReplyCode[] _ReplyCodes = (IRCReplyCode[])Enum.GetValues( typeof( IRCReplyCode ) );
-        static IRCMessageType _GetMessageType( string rawline ) {
+        static IRCMessageType _GetMessageType( string rawline, string actualBotNick ) {
             Match found = _ReplyCodeRegex.Match( rawline );
             if( found.Success ) {
                 string code = found.Groups[1].Value;
@@ -544,7 +551,7 @@ namespace fCraft {
 
             found = _ModeRegex.Match( rawline );
             if( found.Success ) {
-                if( found.Groups[1].Value == botNick ) {
+                if( found.Groups[1].Value == actualBotNick ) {
                     return IRCMessageType.UserModeChange;
                 } else {
                     return IRCMessageType.ChannelModeChange;
@@ -565,7 +572,7 @@ namespace fCraft {
         }
 
 
-        static IRCMessage MessageParser( string rawline ) {
+        static IRCMessage MessageParser( string rawline, string actualBotNick ) {
             string line;
             string[] linear;
             string messagecode;
@@ -615,7 +622,7 @@ namespace fCraft {
             } catch( FormatException ) {
                 replycode = IRCReplyCode.Null;
             }
-            type = _GetMessageType( rawline );
+            type = _GetMessageType( rawline, actualBotNick );
             if( colonpos != -1 ) {
                 message = line.Substring( colonpos + 1 );
             }
