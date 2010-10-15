@@ -373,7 +373,7 @@ namespace fCraft {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != except ) {
-                    tempList[i].Send( packet, false );
+                    tempList[i].SendDelayed( packet );
                 }
             }
         }

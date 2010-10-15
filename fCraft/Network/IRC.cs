@@ -35,17 +35,253 @@ using System.Threading;
 
 
 namespace fCraft {
+
     class IRC {
+
+        class IRCThread {
+            TcpClient client;
+            StreamReader reader;
+            StreamWriter writer;
+            Thread thread;
+            bool connected, reconnect, registered;
+            bool parseInput;
+            string actualBotNick;
+
+
+            public bool Start( string _botNick, bool _parseInput ) {
+                actualBotNick = _botNick;
+                parseInput = _parseInput;
+                try {
+                    // start the machinery!
+                    thread = new Thread( IoThread );
+                    thread.IsBackground = true;
+                    thread.Start();
+                    return true;
+                } catch( Exception ex ) {
+                    Logger.Log( "IRC: Could not start the bot: " + ex, LogType.Error );
+                    return false;
+                }
+            }
+
+            public void Reconnect() {
+                reconnect = true;
+            }
+
+            void Connect() {
+                // initialize the client
+                client = new TcpClient();
+                client.NoDelay = true;
+                client.ReceiveTimeout = Timeout;
+                client.SendTimeout = Timeout;
+                client.Client.SetSocketOption( SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1 );
+
+                // connect
+                client.Connect( hostName, port );
+
+                // prepare to read/write
+                reader = new StreamReader( client.GetStream() );
+                writer = new StreamWriter( client.GetStream() );
+                connected = true;
+            }
+
+
+
+            Queue<string> outputQueue = new Queue<string>();
+            object queueLock = new object();
+            DateTime lastMessageSend;
+
+            // runs in its own thread, started from Connect()
+            void IoThread() {
+                string outputLine = "";
+                lastMessageSend = DateTime.UtcNow;
+
+                do {
+                    try {
+                        reconnect = false;
+                        Logger.Log( "Connecting to {0}:{1} as {2}", LogType.IRC,
+                                    hostName, port, actualBotNick );
+                        Connect();
+
+                        // register
+                        Send( IRCCommands.User( actualBotNick, 8, Config.GetString( ConfigKey.ServerName ) ) );
+                        Send( IRCCommands.Nick( actualBotNick ) );
+                        registered = false;
+
+                        while( connected && !reconnect ) {
+                            Thread.Sleep( 10 );
+
+                            if( outputQueue.Count > 0 && DateTime.UtcNow.Subtract( lastMessageSend ).TotalMilliseconds >= SendDelay ) {
+                                lock( queueLock ) {
+                                    outputLine = outputQueue.Dequeue();
+                                }
+                                writer.Write( outputLine + "\r\n" );
+                                lastMessageSend = DateTime.UtcNow;
+                                writer.Flush();
+                            }
+
+                            if( client.Client.Available > 0 ) {
+                                HandleMessage( reader.ReadLine() );
+                            }
+                        }
+
+                    } catch( SocketException ) {
+                        Logger.Log( "IRC: Disconnected. Will retry in {0} seconds.", LogType.Warning,
+                                    ReconnectDelay / 1000 );
+                        reconnect = true;
+
+                    } catch( IOException ) {
+                        Logger.Log( "IRC: Disconnected. Will retry in {0} seconds.", LogType.Warning,
+                                    ReconnectDelay / 1000 );
+                        reconnect = true;
+#if DEBUG
+#else
+                } catch( Exception ex ) {
+                    Logger.Log( "IRC: " + ex, LogType.Error );
+                    reconnect = true;
+#endif
+                    }
+
+                    if( reconnect ) Thread.Sleep( ReconnectDelay );
+                } while( reconnect );
+            }
+
+
+            void HandleMessage( string message ) {
+
+                IRCMessage msg = MessageParser( message );
+
+                switch( msg.Type ) {
+                    case IRCMessageType.Login:
+                        if( Config.GetBool( ConfigKey.IRCRegisteredNick ) ) {
+                            Send( IRCCommands.Privmsg( Config.GetString( ConfigKey.IRCNickServ ),
+                                                       Config.GetString( ConfigKey.IRCNickServMessage ) ) );
+                        }
+                        foreach( string channel in channelNames ) {
+                            Send( IRCCommands.Join( channel ) );
+                        }
+                        registered = true;
+                        return;
+
+
+                    case IRCMessageType.Ping:
+                        // ping-pong
+                        Send( IRCCommands.Pong( msg.RawMessageArray[1].Substring( 1 ) ) );
+                        return;
+
+
+                    case IRCMessageType.ChannelMessage:
+                        // channel chat
+                        if( !parseInput ) return;
+                        if( msg.Nick != actualBotNick ) {
+                            string processedMessage = nonPrintableChars.Replace( msg.Message, "" ).Trim();
+                            if( processedMessage.Length > 0 ) {
+                                if( Config.GetBool( ConfigKey.IRCBotForwardFromIRC ) ) {
+                                    Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + Color.White + ": " + processedMessage );
+                                } else if( msg.Message.StartsWith( "#" ) ) {
+                                    Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + Color.White + ": " + processedMessage.Substring( 1 ) );
+                                }
+                            }
+                        }
+                        return;
+
+
+                    case IRCMessageType.Join:
+                        if( !parseInput ) return;
+                        if( Config.GetBool( ConfigKey.IRCBotAnnounceIRCJoins ) ) {
+                            Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + " joined " + msg.Channel );
+                        }
+                        return;
+
+
+                    case IRCMessageType.Kick:
+                        Logger.Log( "Bot was kicked from {0} by {1} ({2}), rejoining.", LogType.IRC,
+                                    msg.Channel, msg.Nick, msg.Message );
+                        Thread.Sleep( ReconnectDelay );
+                        Send( IRCCommands.Join( msg.Channel ) );
+                        return;
+
+
+                    case IRCMessageType.Part:
+                    case IRCMessageType.Quit:
+                        if( !parseInput ) return;
+                        if( Config.GetBool( ConfigKey.IRCBotAnnounceIRCJoins ) ) {
+                            Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + " left " + msg.Channel );
+                        }
+                        return;
+
+
+                    case IRCMessageType.ErrorMessage:
+                    case IRCMessageType.Error:
+                        if( !registered && msg.ReplyCode == IRCReplyCode.ErrorNicknameInUse ) {
+                            botNick += "_";
+                            Send( IRCCommands.Nick( botNick ) );
+                        } else {
+                            Logger.Log( "Error (" + msg.ReplyCode + "): " + msg.RawMessage, LogType.IRC );
+                        }
+                        return;
+
+
+                    case IRCMessageType.QueryAction:
+                        // TODO: PMs
+                        Logger.Log( "Query: " + msg.RawMessage, LogType.IRC );
+                        break;
+
+
+                    case IRCMessageType.Kill:
+                        Logger.Log( "Bot was killed from {0} by {1} ({2}), reconnecting.", LogType.IRC,
+                                    hostName, msg.Nick, msg.Message );
+                        reconnect = true;
+                        connected = false;
+                        return;
+
+
+                    case IRCMessageType.Unknown:
+                        //Logger.Log( msg.RawMessage, LogType.IRC );
+                        break;
+
+
+                    default:
+                        //Logger.Log( "[" + msg.Type + "]: " + msg.RawMessage, LogType.IRC );
+                        return;
+                }
+            }
+
+
+            public void Send( string line ) {
+                lock( queueLock ) {
+                    outputQueue.Enqueue( line );
+                }
+            }
+
+            public int QueueLength() {
+                return outputQueue.Count;
+            }
+
+            public void Disconnect() {
+                connected = false;
+                if( thread != null && thread.IsAlive ) {
+                    thread.Join( 1000 );
+                    if( thread != null && thread.IsAlive ) {
+                        thread.Abort();
+                    }
+                }
+                try {
+                    if( reader != null ) reader.Close();
+                } catch( ObjectDisposedException ) { }
+                try {
+                    if( writer != null ) reader.Close();
+                } catch( ObjectDisposedException ) { }
+                try {
+                    if( client != null ) reader.Close();
+                } catch( ObjectDisposedException ) { }
+            }
+        }
+
+        static IRCThread[] threads;
+
         const int Timeout = 10000; // socket timeout (ms)
         internal static int SendDelay; // set by ApplyConfig
-        const int ReconnectDelay = 1000;
-
-        static TcpClient client;
-        static StreamReader reader;
-        static StreamWriter writer;
-        static Thread thread;
-
-        public static bool connected, reconnect, registered;
+        const int ReconnectDelay = 5000;
 
         static string hostName;
         static int port;
@@ -56,6 +292,7 @@ namespace fCraft {
 
         public static void Init() {
             if( !Config.GetBool( ConfigKey.IRCBot ) ) return;
+
             hostName = Config.GetString( ConfigKey.IRCBotNetwork );
             port = Config.GetInt( ConfigKey.IRCBotPort );
             channelNames = Config.GetString( ConfigKey.IRCBotChannels ).Split( ',' );
@@ -66,10 +303,6 @@ namespace fCraft {
                 }
             }
             botNick = Config.GetString( ConfigKey.IRCBotNick );
-
-            Server.OnPlayerSentMessage += PlayerMessageHandler;
-            Server.OnPlayerConnected += PlayerConnectedHandler;
-            Server.OnPlayerDisconnected += PlayerDisconnectedHandler;
         }
 
 
@@ -95,230 +328,63 @@ namespace fCraft {
 
 
         public static bool Start() {
-            try {
-                // start the machinery!
-                thread = new Thread( IoThread );
-                thread.IsBackground = true;
-                thread.Start();
+            int threadCount = Config.GetInt( ConfigKey.IRCThreads );
+
+            if( threadCount == 1 ) {
+                IRCThread thread = new IRCThread();
+                if( thread.Start( botNick, true ) ) {
+                    threads = new IRCThread[] { thread };
+                }
+            } else {
+
+                List<IRCThread> threadTemp = new List<IRCThread>();
+                for( int i = 0; i < threadCount; i++ ) {
+                    IRCThread temp = new IRCThread();
+                    if( temp.Start( botNick + (i + 1), (threadTemp.Count == 0) ) ) {
+                        threadTemp.Add( temp );
+                    }
+                }
+
+                threads = threadTemp.ToArray();
+            }
+
+            if( threads.Length > 0 ) {
+                Server.OnPlayerSentMessage += PlayerMessageHandler;
+                Server.OnPlayerConnected += PlayerConnectedHandler;
+                Server.OnPlayerDisconnected += PlayerDisconnectedHandler;
                 return true;
-            } catch( Exception ex ) {
-                Logger.Log( "IRC: Could not start the bot: " + ex, LogType.Error );
+            } else {
+                Logger.Log( "IRC functionality disabled.", LogType.IRC );
                 return false;
             }
         }
 
 
-        public static void Reconnect() {
-            reconnect = true;
-        }
-
-
-        static void Connect() {
-            // initialize the client
-            client = new TcpClient();
-            client.NoDelay = true;
-            client.ReceiveTimeout = Timeout;
-            client.SendTimeout = Timeout;
-            client.Client.SetSocketOption( SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1 );
-
-            // connect
-            client.Connect( hostName, port );
-
-            // prepare to read/write
-            reader = new StreamReader( client.GetStream() );
-            writer = new StreamWriter( client.GetStream() );
-            connected = true;
-        }
-
-
-        static ConcurrentQueue<string> outputQueue = new ConcurrentQueue<string>();
-        static DateTime lastMessageSend;
-        // runs in its own thread, started from Connect()
-        static void IoThread() {
-            string outputLine = "";
-            lastMessageSend = DateTime.UtcNow;
-
-            do {
-                try {
-                    reconnect = false;
-                    Logger.Log( "Connecting to {0}:{1} as {2}", LogType.IRC,
-                                hostName, port, botNick );
-                    Connect();
-
-                    // register
-                    Send( IRCCommands.User( botNick, 8, Config.GetString( ConfigKey.ServerName ) ) );
-                    Send( IRCCommands.Nick( botNick ) );
-                    registered = false;
-
-                    while( connected && !reconnect ) {
-                        Thread.Sleep( 10 );
-
-                        if( outputQueue.Length > 0 && DateTime.UtcNow.Subtract( lastMessageSend ).TotalMilliseconds >= SendDelay ) {
-                            if( outputQueue.Dequeue( ref outputLine ) ) {
-                                writer.Write( outputLine + "\r\n" );
-                                lastMessageSend = DateTime.UtcNow;
-                                writer.Flush();
-                            }
-                        }
-
-                        if( client.Client.Available > 0 ) {
-                            HandleMessage( reader.ReadLine() );
-                        }
-                    }
-
-                } catch( SocketException ) {
-                    Logger.Log( "IRC: Disconnected. Will retry in {0} seconds.", LogType.Warning,
-                                ReconnectDelay / 1000 );
-                    reconnect = true;
-
-                } catch( IOException ) {
-                    Logger.Log( "IRC: Disconnected. Will retry in {0} seconds.", LogType.Warning,
-                                ReconnectDelay / 1000 );
-                    reconnect = true;
-#if DEBUG
-#else
-                } catch( Exception ex ) {
-                    Logger.Log( "IRC: " + ex, LogType.Error );
-                    reconnect = true;
-#endif
-                }
-
-                if( reconnect ) Thread.Sleep( ReconnectDelay );
-            } while( reconnect );
-        }
-
-
-        static void HandleMessage( string message ) {
-
-            IRCMessage msg = MessageParser( message );
-
-            switch( msg.Type ) {
-                case IRCMessageType.Login:
-                    if( Config.GetBool( ConfigKey.IRCRegisteredNick ) ) {
-                        Send( IRCCommands.Privmsg( Config.GetString( ConfigKey.IRCNickServ ),
-                                                   Config.GetString( ConfigKey.IRCNickServMessage ) ) );
-                    }
-                    foreach( string channel in channelNames ) {
-                        Send( IRCCommands.Join( channel ) );
-                    }
-                    registered = true;
-                    return;
-
-
-                case IRCMessageType.Ping:
-                    // ping-pong
-                    Send( IRCCommands.Pong( msg.RawMessageArray[1].Substring( 1 ) ) );
-                    return;
-
-
-                case IRCMessageType.ChannelMessage:
-                    // channel chat
-                    if( msg.Nick != botNick ) {
-                        string processedMessage = nonPrintableChars.Replace( msg.Message, "" ).Trim();
-                        if( processedMessage.Length > 0 ) {
-                            if( Config.GetBool( ConfigKey.IRCBotForwardFromIRC ) ) {
-                                Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + Color.White + ": " + processedMessage );
-                            } else if( msg.Message.StartsWith( "#" ) ) {
-                                Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + Color.White + ": " + processedMessage.Substring( 1 ) );
-                            }
-                        }
-                    }
-                    return;
-
-
-                case IRCMessageType.Join:
-                    if( Config.GetBool( ConfigKey.IRCBotAnnounceIRCJoins ) ) {
-                        Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + " joined " + msg.Channel );
-                    }
-                    return;
-
-
-                case IRCMessageType.Kick:
-                    Logger.Log( "Bot was kicked from {0} by {1} ({2}), rejoining.", LogType.IRC,
-                                msg.Channel, msg.Nick, msg.Message );
-                    Thread.Sleep( ReconnectDelay );
-                    Send( IRCCommands.Join( msg.Channel ) );
-                    return;
-
-
-                case IRCMessageType.Part:
-                case IRCMessageType.Quit:
-                    if( Config.GetBool( ConfigKey.IRCBotAnnounceIRCJoins ) ) {
-                        Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + " left " + msg.Channel );
-                    }
-                    return;
-
-
-                case IRCMessageType.ErrorMessage:
-                case IRCMessageType.Error:
-                    if( !registered && msg.ReplyCode == IRCReplyCode.ErrorNicknameInUse ) {
-                        botNick += "_";
-                        Send( IRCCommands.Nick( botNick ) );
-                    } else {
-                        Logger.Log( "Error (" + msg.ReplyCode + "): " + msg.RawMessage, LogType.IRC );
-                    }
-                    return;
-
-
-                case IRCMessageType.QueryAction:
-                    // TODO: PMs
-                    Logger.Log( "Query: " + msg.RawMessage, LogType.IRC );
-                    break;
-
-
-                case IRCMessageType.Kill:
-                    Logger.Log( "Bot was killed from {0} by {1} ({2}), reconnecting.", LogType.IRC,
-                                hostName, msg.Nick, msg.Message );
-                    reconnect = true;
-                    connected = false;
-                    return;
-
-
-                case IRCMessageType.Unknown:
-                    //Logger.Log( msg.RawMessage, LogType.IRC );
-                    break;
-
-
-                default:
-                    //Logger.Log( "[" + msg.Type + "]: " + msg.RawMessage, LogType.IRC );
-                    return;
-            }
-        }
-
-
-        public static void Send( string line ) {
-            outputQueue.Enqueue( line );
-        }
-
         public static void SendToAllChannels( string line ) {
-            foreach( string channel in channelNames ) {
-                Send( IRCCommands.Privmsg( channel, line ) );
+            for( int i = 0; i < channelNames.Length; i++ ) {
+                Send( IRCCommands.Privmsg( channelNames[i], line ) );
             }
         }
 
+
+        static int lastThread;
+        public static void Send( string line ) {
+            int lastThread2 = lastThread;
+            int nextThread = (lastThread2 == threads.Length - 1 ? 0 : lastThread2 + 1);
+            while( Interlocked.CompareExchange( ref lastThread, nextThread, lastThread2 ) != lastThread2 ) ;
+            threads[nextThread].Send( line );
+        }
 
         public static void Disconnect() {
-            connected = false;
-            if( thread != null && thread.IsAlive ) {
-                thread.Join( 1000 );
-                if( thread != null && thread.IsAlive ) {
-                    thread.Abort();
+            if( threads!=null && threads.Length > 0 ) {
+                foreach( IRCThread thread in threads ) {
+                    thread.Disconnect();
                 }
             }
-            try {
-                if( reader != null ) reader.Close();
-            } catch( ObjectDisposedException ) { }
-            try {
-                if( writer != null ) reader.Close();
-            } catch( ObjectDisposedException ) { }
-            try {
-                if( client != null ) reader.Close();
-            } catch( ObjectDisposedException ) { }
         }
 
-
-        private static IRCReplyCode[] _ReplyCodes = (IRCReplyCode[])Enum.GetValues( typeof( IRCReplyCode ) );
-        private static IRCMessageType _GetMessageType( string rawline ) {
+        static IRCReplyCode[] _ReplyCodes = (IRCReplyCode[])Enum.GetValues( typeof( IRCReplyCode ) );
+        static IRCMessageType _GetMessageType( string rawline ) {
             Match found = _ReplyCodeRegex.Match( rawline );
             if( found.Success ) {
                 string code = found.Groups[1].Value;
@@ -499,7 +565,7 @@ namespace fCraft {
         }
 
 
-        public static IRCMessage MessageParser( string rawline ) {
+        static IRCMessage MessageParser( string rawline ) {
             string line;
             string[] linear;
             string messagecode;

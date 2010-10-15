@@ -28,7 +28,7 @@ namespace fCraft {
 
     public static class Updater {
         public static int Version = 490;
-        public static int Revision = 259;
+        public static int Revision = 265;
         public static bool IsUnstable = false;
 
         public static UpdaterResult CheckForUpdates() {
@@ -78,7 +78,7 @@ namespace fCraft {
         }
 
         public static string GetVersionString() {
-            return Decimal.Divide( Version, 1000 ).ToString( "0.000" ) + "_r" + Revision + (IsUnstable ? "_dev" : "");
+            return Decimal.Divide( Version, 1000 ).ToString( "0.000", System.Globalization.CultureInfo.InvariantCulture ) + "_r" + Revision + (IsUnstable ? "_dev" : "");
         }
     }
 }

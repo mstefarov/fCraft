@@ -310,8 +310,15 @@ namespace fCraft {
             blockNames["greenyellow"] = Block.Lime;
             blockNames["yellowgreen"] = Block.Lime;
             blockNames["springgreen"] = Block.Teal;
+            blockNames["emerald"] = Block.Teal;
             blockNames["purple"] = Block.Violet;
+            blockNames["fuchsia"] = Block.Magenta;
+            blockNames["cloth"] = Block.White;
             blockNames["grey"] = Block.Gray;
+            blockNames["lightgray"] = Block.Gray;
+            blockNames["lightgrey"] = Block.Gray;
+            blockNames["darkgray"] = Block.Black;
+            blockNames["darkgrey"] = Block.Black;
 
             blockNames["yellow_flower"] = Block.YellowFlower;
             blockNames["flower"] = Block.YellowFlower;
@@ -324,6 +331,7 @@ namespace fCraft {
 
             blockNames["golden"] = Block.Gold;
             blockNames["copper"] = Block.Gold;
+            blockNames["brass"] = Block.Gold;
 
             blockNames["iron"] = Block.Steel;
             blockNames["metal"] = Block.Steel;

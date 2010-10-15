@@ -53,8 +53,8 @@ namespace fCraft {
             if( session != null ) session.Send( packet );
         }
 
-        public void Send( Packet packet, bool isHighPriority ) {
-            if( session != null ) session.Send( packet, isHighPriority );
+        public void SendDelayed( Packet packet ) {
+            if( session != null ) session.SendDelayed( packet );
         }
 
 

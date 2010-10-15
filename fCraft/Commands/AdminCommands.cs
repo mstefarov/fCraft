@@ -800,7 +800,7 @@ namespace fCraft {
             if( playerName == null ) {
                 player.world.map.spawn = player.pos;
                 player.world.map.changesSinceSave++;
-                player.Send( PacketWriter.MakeSelfTeleport( player.world.map.spawn ), true );
+                player.Send( PacketWriter.MakeSelfTeleport( player.world.map.spawn ) );
                 player.Send( PacketWriter.MakeAddEntity( 255, player.GetListName(), player.pos ) );
                 player.Message( "New spawn point saved." );
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,

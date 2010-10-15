@@ -99,7 +99,7 @@ namespace ConfigTool {
         #region General
 
         private void bMeasure_Click( object sender, EventArgs e ) {
-            System.Diagnostics.Process.Start( "http://www.speedtest.net/" );
+            Process.Start( "http://www.speedtest.net/" );
         }
 
         private void bAnnouncements_Click( object sender, EventArgs e ) {
