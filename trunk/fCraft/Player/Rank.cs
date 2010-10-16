@@ -286,6 +286,10 @@ namespace fCraft {
             return this > other.GetLimit( Permission.Hide );
         }
 
+        public bool CanFreeze( Rank other ) {
+            return GetLimit( Permission.Freeze ) >= other;
+        }
+
         #endregion
 
         #region Permission Limits

@@ -906,11 +906,18 @@ namespace fCraft {
             }
             Player[] targets = Server.FindPlayers( player, name );
             if( targets.Length == 1 ) {
-                if( !targets[0].isFrozen ) {
-                    Server.SendToAll( targets[0].GetClassyName() + "&S has been frozen by " + player.GetClassyName() );
-                    targets[0].isFrozen = true;
+                Player target = targets[0];
+                if( player.info.rank.CanFreeze( target.info.rank ) ) {
+                    if( !target.isFrozen ) {
+                        Server.SendToAll( target.GetClassyName() + "&S has been frozen by " + player.GetClassyName() );
+                        target.isFrozen = true;
+                    } else {
+                        player.Message( "{0}&S is already frozen.", target.GetClassyName() );
+                    }
                 } else {
-                    player.Message( "{0}&S is already frozen.", targets[0].GetClassyName() );
+                    player.Message( "You can only freeze players ranked {0}&S or lower",
+                                    player.info.rank.GetLimit( Permission.Kick ).GetClassyName() );
+                    player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.info.rank.GetClassyName() );
                 }
             } else if( targets.Length > 1 ) {
                 player.ManyMatchesMessage( "player", targets );
@@ -938,11 +945,18 @@ namespace fCraft {
             }
             Player[] targets = Server.FindPlayers( player, name );
             if( targets.Length == 1 ) {
-                if( targets[0].isFrozen ) {
-                    Server.SendToAll( targets[0].GetClassyName() + "&S is no longer frozen." );
-                    targets[0].isFrozen = false;
+                Player target = targets[0];
+                if( player.info.rank.CanFreeze( target.info.rank ) ) {
+                    if( target.isFrozen ) {
+                        Server.SendToAll( target.GetClassyName() + "&S is no longer frozen." );
+                        target.isFrozen = false;
+                    } else {
+                        player.Message( target.GetClassyName() + "&S is currently not frozen." );
+                    }
                 } else {
-                    player.Message( targets[0].GetClassyName() + "&S is currently not frozen." );
+                    player.Message( "You can only unfreeze players ranked {0}&S or lower",
+                                    player.info.rank.GetLimit( Permission.Kick ).GetClassyName() );
+                    player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.info.rank.GetClassyName() );
                 }
             } else if( targets.Length > 1 ) {
                 player.ManyMatchesMessage( "player", targets );
