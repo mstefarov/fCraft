@@ -33,10 +33,33 @@ namespace fCraft {
 
             CommandList.RegisterCommand( cdMeasure );
 
-            //CommandList.RegisterCommand( cdMD ); // DEBUG
+            CommandList.RegisterCommand( cdDebugAutoRank ); // DEBUG
         }
 
+        static CommandDescriptor cdDebugAutoRank = new CommandDescriptor {
+            name = "dar",
+            consoleSafe = true,
+            help = "",
+            handler = DebugAutoRank
+        };
 
+        internal static void DebugAutoRank( Player player, Command cmd ) {
+            PlayerInfo info;
+            string playerName = cmd.Next();
+
+            AutoRank.InitTest();
+
+            if( PlayerDB.FindPlayerInfo( playerName, out info ) ) {
+                Rank result = AutoRank.Check( info );
+                if( result == null ) {
+                    player.Message( "Not qualified." );
+                } else {
+                    player.Message( "Qualified for {0}", result.GetClassyName() );
+                }
+            } else {
+                player.NoPlayerMessage( playerName );
+            }
+        }
 
 
         static CommandDescriptor cdMe = new CommandDescriptor {
