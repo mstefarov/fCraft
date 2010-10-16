@@ -47,6 +47,8 @@ namespace fCraft {
         public int timesKickedOthers;
         public int timesBannedOthers;
 
+        public RankStatus rankStatus;
+
 
         // === Serialization & Defaults =======================================
         // fabricate info for a player

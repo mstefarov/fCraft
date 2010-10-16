@@ -25,7 +25,6 @@ using System.Text;
 using fCraft;
 using System.IO;
 using System.Diagnostics;
-
 using System.Collections.Generic;
 
 
@@ -60,13 +59,12 @@ namespace fCraftConsole {
                     if( Server.Start() ) {
                         Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
                         Console.WriteLine( "** Running fCraft version " + Updater.GetVersionString() + ". **" );
-
-                        string input = "";
                         Console.WriteLine( "** Server is now ready. To shutdown, type /exit. URL is in externalurl.txt **" );
 
-                        while( (input = Console.ReadLine()) != "/exit" ) {
-                            Player.Console.ParseMessage( input, true );
+                        while( true ) {
+                            Player.Console.ParseMessage( Console.ReadLine(), true );
                         }
+
                     } else {
                         Console.Title = "fCraft " + Updater.GetVersionString() + " failed to start";
                         Console.ForegroundColor = ConsoleColor.Red;
