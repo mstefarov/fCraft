@@ -76,6 +76,8 @@ namespace fCraft {
         BlockUpdateThrottling,
         TickInterval,
         LowLatencyMode,
-        SubmitCrashReports
+        SubmitCrashReports,
+
+        AutoRankEnabled
     }
 }

@@ -212,7 +212,22 @@ namespace fCraft {
         }
 
 
-
+        public static int MassRankChange( Player player, Rank from, Rank to, bool silent ) {
+            int affected = 0;
+            locker.EnterWriteLock();
+            try {
+                foreach( PlayerInfo info in list ) {
+                    if( info.rank == from ) {
+                        Player target = Server.FindPlayerExact(info.name);
+                        AdminCommands.DoChangeRank( player, info, target, to, "~MassRank", silent );
+                        affected++;
+                    }
+                }
+                return affected;
+            } finally {
+                locker.ExitWriteLock();
+            }
+        }
 
         public static int CountPlayersByRank( Rank pc ) {
             int count = 0;
@@ -222,6 +237,30 @@ namespace fCraft {
                     if( info.rank == pc ) count++;
                 }
                 return count;
+            } finally {
+                locker.ExitReadLock();
+            }
+        }
+
+        public static PlayerInfo[] GetPlayerListCopy() {
+            locker.EnterReadLock();
+            try {
+                return list.ToArray();
+            } finally {
+                locker.ExitReadLock();
+            }
+        }
+
+        public static PlayerInfo[] GetPlayerListCopy( Rank pc ) {
+            locker.EnterReadLock();
+            try {
+                List<PlayerInfo> tempList = new List<PlayerInfo>();
+                foreach( PlayerInfo info in list ) {
+                    if( info.rank == pc ) {
+                        tempList.Add( info );
+                    }
+                }
+                return tempList.ToArray();
             } finally {
                 locker.ExitReadLock();
             }
