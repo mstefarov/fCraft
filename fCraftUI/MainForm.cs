@@ -13,7 +13,7 @@ using fCraft;
 namespace fCraftUI {
 
     public sealed partial class MainForm : Form {
-        bool shuttingDown;
+        bool shutdownPending, shutdownComplete;
         const int MaxLinesInLog = 2000;
 
 
@@ -29,6 +29,8 @@ namespace fCraftUI {
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;
             Server.OnPlayerListChanged += UpdatePlayerList;
+            Server.OnShutdownEnd += OnServerShutdown;
+
 #if DEBUG
 #else
             try {
@@ -87,16 +89,19 @@ namespace fCraftUI {
         }
 
         void HandleShutDown( object sender, CancelEventArgs e ) {
-            e.Cancel = true;
-            Shutdown( "quit", true );
+            if( !shutdownComplete ) {
+                e.Cancel = true;
+                Shutdown( "quit", true );
+            }
         }
 
         void Shutdown( string reason, bool quit ) {
-            if( shuttingDown ) return;
-            shuttingDown = true;
+            if( shutdownPending ) return;
+            shutdownPending = true;
             Logger.Log( "---- Shutting Down: {0} ----", LogType.Error, reason );
             Server.InitiateShutdown( reason, 0, quit );
-            Enabled = false;
+            urlDisplay.Enabled = false;
+            console.Enabled = false;
         }
 
         delegate void LogDelegate( string message );
@@ -104,7 +109,7 @@ namespace fCraftUI {
 
         public void Log( string message, LogType type ) {
             try {
-                if( shuttingDown ) return;
+                if( shutdownPending ) return;
                 if( logBox.InvokeRequired ) {
                     Invoke( (LogDelegate)LogInternal, message );
                 } else {
@@ -129,12 +134,8 @@ namespace fCraftUI {
 
         public void SetURL( string URL ) {
             try {
-                if( shuttingDown ) return;
-                if( urlDisplay.InvokeRequired ) {
-                    Invoke( (LogDelegate)SetURLInternal, URL );
-                } else {
-                    SetURLInternal( URL );
-                }
+                if( shutdownPending ) return;
+                Invoke( (LogDelegate)SetURLInternal, URL );
             } catch( ObjectDisposedException ) { }
         }
 
@@ -150,12 +151,8 @@ namespace fCraftUI {
 
         public void UpdatePlayerList( string[] playerNames ) {
             try {
-                if( shuttingDown ) return;
-                if( playerList.InvokeRequired ) {
-                    Invoke( (PlayerListUpdateDelegate)UpdatePlayerListInternal, new object[] { playerNames } );
-                } else {
-                    UpdatePlayerListInternal( playerNames );
-                }
+                if( shutdownPending ) return;
+                Invoke( (PlayerListUpdateDelegate)UpdatePlayerListInternal, new object[] { playerNames } );
             } catch( ObjectDisposedException ) { }
         }
 
@@ -166,6 +163,15 @@ namespace fCraftUI {
                 foreach( string item in items ) {
                     playerList.Items.Add( item );
                 }
+            } catch( ObjectDisposedException ) { }
+        }
+
+        void OnServerShutdown() {
+            try {
+                Invoke( (MethodInvoker)delegate() {
+                    shutdownComplete = true;
+                    Application.Exit();
+                } );
             } catch( ObjectDisposedException ) { }
         }
 

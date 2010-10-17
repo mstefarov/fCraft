@@ -59,7 +59,7 @@ namespace fCraftConsole {
                     if( Server.Start() ) {
                         Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
                         Console.WriteLine( "** Running fCraft version " + Updater.GetVersionString() + ". **" );
-                        Console.WriteLine( "** Server is now ready. To shutdown, type /exit. URL is in externalurl.txt **" );
+                        Console.WriteLine( "** Server is now ready. Type /shutdown to exit. URL is in externalurl.txt **" );
 
                         while( true ) {
                             Player.Console.ParseMessage( Console.ReadLine(), true );

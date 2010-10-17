@@ -12,6 +12,7 @@ namespace fCraft {
         public static List<Rank> Ranks { get; private set; }
         public static Rank DefaultRank, LowestRank, HighestRank;
 
+
         static RankList() {
             RanksByName = new Dictionary<string, Rank>();
             RanksByID = new Dictionary<string, Rank>();

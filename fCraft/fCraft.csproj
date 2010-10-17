@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="AutoRank.cs" />
     <Compile Include="Commands\AdminCommands.cs" />
+    <Compile Include="Commands\AutoRankCommands.cs" />
     <Compile Include="Commands\ZoneCommands.cs" />
     <Compile Include="Utils\ZLibStream.cs" />
     <Compile Include="World\BlockDB.cs" />

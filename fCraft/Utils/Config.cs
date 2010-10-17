@@ -66,11 +66,13 @@ namespace fCraft {
      * 114 - r244 - Added IRCRegisteredNick, IRCNickServ, and IRCNickServMessage config keys.
      * 
      * 115 - r265 - Added IRCThreads
+     * 
+     * 116 - r272 - Added AutoRankEnabled
      */
 
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 115;
+        public const int ConfigVersion = 116;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
@@ -193,6 +195,8 @@ namespace fCraft {
             SetValue( ConfigKey.TickInterval, 100 );
             SetValue( ConfigKey.LowLatencyMode, false );
             SetValue( ConfigKey.SubmitCrashReports, true );
+
+            SetValue( ConfigKey.AutoRankEnabled, false );
         }
 
         #endregion
@@ -532,6 +536,7 @@ namespace fCraft {
                 case ConfigKey.AnnounceKickAndBanReasons:
                 case ConfigKey.AnnounceRankChanges:
                 case ConfigKey.SubmitCrashReports:
+                case ConfigKey.AutoRankEnabled:
                     return ValidateBool( key, value );
 
                 case ConfigKey.SystemMessageColor:

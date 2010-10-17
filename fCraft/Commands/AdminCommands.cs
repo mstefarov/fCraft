@@ -439,12 +439,11 @@ namespace fCraft {
                                 name );
             }
 
-
-
-            DoChangeRank( player, info, target, newClass, cmd.NextAll() );
+            DoChangeRank( player, info, target, newClass, cmd.NextAll(),false );
         }
 
-        internal static void DoChangeRank( Player player, PlayerInfo targetInfo, Player target, Rank newRank, string reason ) {
+
+        internal static void DoChangeRank( Player player, PlayerInfo targetInfo, Player target, Rank newRank, string reason, bool silent ) {
 
             bool promote = (targetInfo.rank < newRank);
 
@@ -502,8 +501,8 @@ namespace fCraft {
 
                 if( !Server.FirePlayerRankChange( targetInfo, player, oldRank, newRank ) ) return;
 
-                Logger.Log( "{0} {1} {2} from {3} to {4}.", LogType.UserActivity,
-                            player.name, verb, targetInfo.name, targetInfo.rank.Name, newRank.Name );
+                if(!silent) Logger.Log( "{0} {1} {2} from {3} to {4}.", LogType.UserActivity,
+                                        player.name, verb, targetInfo.name, targetInfo.rank.Name, newRank.Name );
 
                 // if player is online, toggle visible/invisible players
                 if( target != null && target.world != null ) {
@@ -548,27 +547,27 @@ namespace fCraft {
                     // check if player is still patrollable by others
                     target.world.CheckIfPlayerIsStillPatrollable( target );
 
+                    Server.FirePlayerListChangedEvent();
                 } else {
                     // ==== Actual rank change happens here (offline) ====
                     targetInfo.ProcessRankChange( newRank, player, reason );
                     // ==== Actual rank change happens here (offline) ====
                 }
 
-                Server.FirePlayerListChangedEvent();
-
-
-                if( Config.GetBool( ConfigKey.AnnounceRankChanges ) ) {
-                    Server.SendToAll( String.Format( "&S{0} was {1} from {2}&S to {3}",
-                                                    targetInfo.name,
-                                                    verb,
-                                                    oldRank.GetClassyName(),
-                                                    newRank.GetClassyName() ) );
-                } else {
-                    player.Message( "You {0} {1} from {2}&S to {3}",
-                                    verb,
-                                    targetInfo.name,
-                                    oldRank.GetClassyName(),
-                                    newRank.GetClassyName() );
+                if( !silent ) {
+                    if( Config.GetBool( ConfigKey.AnnounceRankChanges ) ) {
+                        Server.SendToAll( String.Format( "&S{0} was {1} from {2}&S to {3}",
+                                                        targetInfo.name,
+                                                        verb,
+                                                        oldRank.GetClassyName(),
+                                                        newRank.GetClassyName() ) );
+                    } else {
+                        player.Message( "You {0} {1} from {2}&S to {3}",
+                                        verb,
+                                        targetInfo.name,
+                                        oldRank.GetClassyName(),
+                                        newRank.GetClassyName() );
+                    }
                 }
 
             } else {
@@ -619,6 +618,7 @@ namespace fCraft {
             switch( serverName.ToLower() ) {
                 case "mcsharp":
                 case "mczall":
+                case "mclawl":
                     try {
                         names = File.ReadAllLines( file );
                     } catch( Exception ex ) {
@@ -665,6 +665,7 @@ namespace fCraft {
             string serverName = cmd.Next();
             string fileName = cmd.Next();
             string rankName = cmd.Next();
+            bool silent = (cmd.Next() != null);
 
 
             // Make sure all parameters are specified
@@ -690,6 +691,7 @@ namespace fCraft {
             switch( serverName.ToLower() ) {
                 case "mcsharp":
                 case "mczall":
+                case "mclawl":
                     try {
                         names = File.ReadAllLines( fileName );
                     } catch( Exception ex ) {
@@ -710,7 +712,7 @@ namespace fCraft {
                 if( info == null ) {
                     info = PlayerDB.AddFakeEntry( name );
                 }
-                DoChangeRank( player, info, null, targetClass, reason );
+                DoChangeRank( player, info, null, targetClass, reason, silent );
             }
 
             PlayerDB.Save( null );

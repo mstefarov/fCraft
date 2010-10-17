@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-
+using System.IO;
 
 namespace fCraft {
-
     public static class AutoRank {
+        const string AutoRankFile = "autorank.xml";
         static List<Criterion> criteria = new List<Criterion>();
+
 
         public static void Add( Criterion criterion ) {
             criteria.Add( criterion );
         }
+
 
         public static Rank Check( PlayerInfo info ) {
             foreach( Criterion c in criteria ) {
@@ -23,19 +25,31 @@ namespace fCraft {
             return null;
         }
 
-        public static void InitTest() {
-            if( criteria.Count != 0 ) return;
-            AutoRank.Add( new Criterion {
-                Type = CriterionType.Automatic,
-                FromRank = RankList.LowestRank,
-                ToRank = RankList.HighestRank,
-                Condition = new ConditionAND( new Condition[]{
-                                new ConditionIntRange(ConditionField.BlocksBuilt, ComparisonOperation.gte, 20),
-                                new ConditionIntRange(ConditionField.BlocksDeleted, ComparisonOperation.gte, 10)
-                            } )
-            } );
+
+        public static void Init() {
+            criteria.Clear();
+            if( File.Exists( AutoRankFile ) ) {
+                try {
+                    XDocument doc = XDocument.Load( AutoRankFile );
+                    foreach( XElement el in doc.Root.Elements( "Criterion" ) ) {
+                        try {
+                            Add( new Criterion( el ) );
+                        } catch( Exception ex ) {
+                            Logger.Log( "AutoRank.Init: Could not parse an AutoRank criterion: {0}", LogType.Error, ex );
+                        }
+                    }
+                    if( criteria.Count == 0 ) {
+                        Logger.Log( "AutoRank.Init: No criteria loaded.", LogType.Warning );
+                    }
+                } catch( Exception ex ) {
+                    Logger.Log( "AutoRank.Init: Could not parse the AutoRank file: {0}", LogType.Error, ex );
+                }
+            } else {
+                Logger.Log( "AutoRank.Init: autorank.xml not found. No criteria loaded.", LogType.Warning );
+            }
         }
     }
+
 
     public class Criterion {
         public CriterionType Type { get; set; }
@@ -64,10 +78,18 @@ namespace fCraft {
                 throw new FormatException( "At least one condition required." );
             }
         }
+
+        public XElement Serialize() {
+            XElement el = new XElement( "Criterion" );
+            el.Add( new XAttribute( "fromRank", FromRank ) );
+            el.Add( new XAttribute( "toRank", ToRank ) );
+            el.Add( Condition.Serialize() );
+            return el;
+        }
     }
 
 
-    #region Condition Sets
+    #region Conditions
 
     // Base class for all conditions
     public abstract class Condition {
@@ -93,108 +115,14 @@ namespace fCraft {
                 return null;
             }
         }
+
+        public abstract XElement Serialize();
     }
-
-    // base class for condition combinations
-    public class ConditionSet : Condition {
-        protected ConditionSet() {
-            Conditions = new List<Condition>();
-        }
-
-        public List<Condition> Conditions {
-            get;
-            private set;
-        }
-
-        protected ConditionSet( IEnumerable<Condition> _conditions ) {
-            Conditions = _conditions.ToList();
-        }
-
-        protected ConditionSet( XElement el ) {
-            foreach( XElement cel in el.Elements() ) {
-                Add( Condition.Parse( cel ) );
-            }
-        }
-
-        public override bool Eval( PlayerInfo info ) {
-            throw new NotImplementedException();
-        }
-
-        public void Add( Condition cond ) {
-            Conditions.Add( cond );
-        }
-    }
-
-    // Logical AND
-    public sealed class ConditionAND : ConditionSet {
-        public ConditionAND() { }
-        public ConditionAND( IEnumerable<Condition> conditions ) : base( conditions ) { }
-        public ConditionAND( XElement el ) : base( el ) { }
-
-        public override bool Eval( PlayerInfo info ) {
-            if( Conditions == null ) return true;
-            for( int i=0; i<Conditions.Count; i++){
-                if( !Conditions[i].Eval( info ) ) return false;
-            }
-            return true;
-        }
-    }
-
-    // Logical NAND
-    public sealed class ConditionNAND : ConditionSet {
-        public ConditionNAND() { }
-        public ConditionNAND( IEnumerable<Condition> conditions ) : base( conditions ) { }
-        public ConditionNAND( XElement el ) : base( el ) { }
-
-        public override bool Eval( PlayerInfo info ) {
-            if( Conditions == null ) return true;
-            for( int i = 0; i < Conditions.Count; i++ ) {
-                if( !Conditions[i].Eval( info ) ) return true;
-            }
-            return false;
-        }
-    }
-
-    // Logical OR
-    public sealed class ConditionOR : ConditionSet {
-        public ConditionOR() { }
-        public ConditionOR( IEnumerable<Condition> conditions ) : base( conditions ) { }
-        public ConditionOR( XElement el ) : base( el ) { }
-
-        public override bool Eval( PlayerInfo info ) {
-            if( Conditions == null ) return true;
-            for( int i = 0; i < Conditions.Count; i++ ) {
-                if( Conditions[i].Eval( info ) ) return true;
-            }
-            return false;
-        }
-    }
-
-    // Logical NOR
-    public sealed class ConditionNOR : ConditionSet {
-        public ConditionNOR() { }
-        public ConditionNOR( IEnumerable<Condition> conditions ) : base( conditions ) { }
-        public ConditionNOR( XElement el ) : base( el ) { }
-
-        public override bool Eval( PlayerInfo info ) {
-            if( Conditions == null ) return true;
-            for( int i = 0; i < Conditions.Count; i++ ) {
-                if( Conditions[i].Eval( info ) ) return false;
-            }
-            return true;
-        }
-    }
-
-    #endregion
-
-
-    #region Conditions
 
     // range checks on countable PlayerInfo fields
     public sealed class ConditionIntRange : Condition {
         public ConditionField Field;
         public ConditionScopeType Scope = ConditionScopeType.Total;
-        public TimeSpan ScopeTimeSpan = TimeSpan.Zero;
         public ComparisonOperation Comparison = ComparisonOperation.eq;
         public int Value;
 
@@ -208,9 +136,6 @@ namespace fCraft {
             }
             if( el.Attribute( "scope" ) != null ) {
                 Scope = (ConditionScopeType)Enum.Parse( typeof( ConditionScopeType ), el.Attribute( "scope" ).Value );
-            }
-            if( el.Attribute( "timespan" ) != null ) {
-                ScopeTimeSpan = TimeSpan.Parse( el.Attribute( "timespan" ).Value );
             }
         }
 
@@ -271,6 +196,15 @@ namespace fCraft {
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        public override XElement Serialize() {
+            XElement el = new XElement( "ConditionIntRange" );
+            el.Add( new XAttribute( "field", Field.ToString() ) );
+            el.Add( new XAttribute( "val", Value.ToString() ) );
+            el.Add( new XAttribute( "op", Comparison.ToString() ) );
+            el.Add( new XAttribute( "scope", Scope.ToString() ) );
+            return el;
+        }
     }
 
 
@@ -288,6 +222,12 @@ namespace fCraft {
 
         public override bool Eval( PlayerInfo info ) {
             return (info.rankStatus & this.Status) > 0;
+        }
+
+        public override XElement Serialize() {
+            XElement el = new XElement( "ConditionRankStatus" );
+            el.Add( new XAttribute( "val", Status.ToString() ) );
+            return el;
         }
     }
 
@@ -324,6 +264,144 @@ namespace fCraft {
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public override XElement Serialize() {
+            XElement el = new XElement( "ConditionPreviousRank" );
+            el.Add( new XAttribute( "val", Rank.ToString() ) );
+            el.Add( new XAttribute( "op", Comparison.ToString() ) );
+            return el;
+        }
+    }
+
+    #endregion
+
+
+    #region Condition Sets
+
+    // base class for condition combinations
+    public class ConditionSet : Condition {
+        protected ConditionSet() {
+            Conditions = new List<Condition>();
+        }
+
+        public List<Condition> Conditions {
+            get;
+            private set;
+        }
+
+        protected ConditionSet( IEnumerable<Condition> _conditions ) {
+            Conditions = _conditions.ToList();
+        }
+
+        protected ConditionSet( XElement el ) {
+            foreach( XElement cel in el.Elements() ) {
+                Add( Condition.Parse( cel ) );
+            }
+        }
+
+        public override bool Eval( PlayerInfo info ) {
+            throw new NotImplementedException();
+        }
+
+        public void Add( Condition cond ) {
+            Conditions.Add( cond );
+        }
+
+        public override XElement Serialize() {
+            throw new NotImplementedException();
+        }
+    }
+
+    // Logical AND
+    public sealed class ConditionAND : ConditionSet {
+        public ConditionAND() { }
+        public ConditionAND( IEnumerable<Condition> conditions ) : base( conditions ) { }
+        public ConditionAND( XElement el ) : base( el ) { }
+
+        public override bool Eval( PlayerInfo info ) {
+            if( Conditions == null ) return true;
+            for( int i = 0; i < Conditions.Count; i++ ) {
+                if( !Conditions[i].Eval( info ) ) return false;
+            }
+            return true;
+        }
+
+        public override XElement Serialize() {
+            XElement el = new XElement( "AND" );
+            foreach( Condition cond in Conditions ) {
+                el.Add( cond.Serialize() );
+            }
+            return el;
+        }
+    }
+
+    // Logical NAND
+    public sealed class ConditionNAND : ConditionSet {
+        public ConditionNAND() { }
+        public ConditionNAND( IEnumerable<Condition> conditions ) : base( conditions ) { }
+        public ConditionNAND( XElement el ) : base( el ) { }
+
+        public override bool Eval( PlayerInfo info ) {
+            if( Conditions == null ) return true;
+            for( int i = 0; i < Conditions.Count; i++ ) {
+                if( !Conditions[i].Eval( info ) ) return true;
+            }
+            return false;
+        }
+
+        public override XElement Serialize() {
+            XElement el = new XElement( "NAND" );
+            foreach( Condition cond in Conditions ) {
+                el.Add( cond.Serialize() );
+            }
+            return el;
+        }
+    }
+
+    // Logical OR
+    public sealed class ConditionOR : ConditionSet {
+        public ConditionOR() { }
+        public ConditionOR( IEnumerable<Condition> conditions ) : base( conditions ) { }
+        public ConditionOR( XElement el ) : base( el ) { }
+
+        public override bool Eval( PlayerInfo info ) {
+            if( Conditions == null ) return true;
+            for( int i = 0; i < Conditions.Count; i++ ) {
+                if( Conditions[i].Eval( info ) ) return true;
+            }
+            return false;
+        }
+
+        public override XElement Serialize() {
+            XElement el = new XElement( "OR" );
+            foreach( Condition cond in Conditions ) {
+                el.Add( cond.Serialize() );
+            }
+            return el;
+        }
+    }
+
+    // Logical NOR
+    public sealed class ConditionNOR : ConditionSet {
+        public ConditionNOR() { }
+        public ConditionNOR( IEnumerable<Condition> conditions ) : base( conditions ) { }
+        public ConditionNOR( XElement el ) : base( el ) { }
+
+        public override bool Eval( PlayerInfo info ) {
+            if( Conditions == null ) return true;
+            for( int i = 0; i < Conditions.Count; i++ ) {
+                if( Conditions[i].Eval( info ) ) return false;
+            }
+            return true;
+        }
+
+        public override XElement Serialize() {
+            XElement el = new XElement( "NOR" );
+            foreach( Condition cond in Conditions ) {
+                el.Add( cond.Serialize() );
+            }
+            return el;
         }
     }
 
