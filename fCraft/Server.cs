@@ -452,6 +452,8 @@ namespace fCraft {
                 }
                 worlds.Add( name.ToLower(), newWorld );
 
+                newWorld.UpdatePlayerList();
+
                 newWorld.updateTaskId = AddTask( UpdateBlocks, Config.GetInt( ConfigKey.TickInterval ), newWorld );
 
                 if( Config.GetInt( ConfigKey.SaveInterval ) > 0 ) {
@@ -464,7 +466,6 @@ namespace fCraft {
                     newWorld.backupTaskId = AddTask( AutoBackup, backupInterval, newWorld, (Config.GetBool( ConfigKey.BackupOnStartup ) ? 0 : backupInterval) );
                 }
 
-                newWorld.UpdatePlayerList();
 
                 return newWorld;
             }
@@ -520,6 +521,8 @@ namespace fCraft {
                     worldToDelete.SaveMap( null );
                     lock( taskListLock ) {
                         tasks.Remove( worldToDelete.updateTaskId );
+                        // If saveTaskId or backupTaskId were not defined, Remove does nothing
+                        // because default value for saveTaskId and backupTaskId is -1
                         tasks.Remove( worldToDelete.saveTaskId );
                         tasks.Remove( worldToDelete.backupTaskId );
                         UpdateTaskListCache();
@@ -857,8 +860,10 @@ namespace fCraft {
             newTask.callback = task;
             newTask.interval = interval;
             newTask.param = param;
-            tasks.Add( ++taskIdCounter, newTask );
-            UpdateTaskListCache();
+            lock( taskListLock ) {
+                tasks.Add( ++taskIdCounter, newTask );
+                UpdateTaskListCache();
+            }
             return taskIdCounter;
         }
 
@@ -1065,36 +1070,36 @@ namespace fCraft {
 
 
         // Remove player from the list, and notify remaining players
-        // Also removes session from the list
         public static void UnregisterPlayer( Player player ) {
             if( player == null ) {
                 throw new ArgumentNullException( "Server.UnregisterPlayer: player cannot be null." );
             }
 
-            lock( playerListLock ) {
-                if( players.ContainsKey( player.id ) ) {
-                    SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
-                    if( player.session.hasRegistered ) {
-                        SendToAll( "&SPlayer " + player.GetClassyName() + "&S left the server." );
-                    }
-                    Logger.Log( "{0} left the server.", LogType.UserActivity,
-                                player.name );
+            lock( worldListLock ) {
+                lock( playerListLock ) {
+                    if( players.ContainsKey( player.id ) ) {
+                        SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
+                        if( player.session.hasRegistered ) {
+                            SendToAll( "&SPlayer " + player.GetClassyName() + "&S left the server." );
+                        }
+                        Logger.Log( "{0} left the server.", LogType.UserActivity,
+                                    player.name );
 
-                    if( player.session.hasRegistered ) {
-                        // better safe than sorry: go through ALL worlds looking for leftover players
-                        lock( worldListLock ) {
+                        if( player.session.hasRegistered ) {
+                            // better safe than sorry: go through ALL worlds looking for leftover players
+
                             foreach( World world in worlds.Values ) {
                                 world.ReleasePlayer( player );
                             }
+                            players.Remove( player.id );
+                            UpdatePlayerList();
                         }
-                        players.Remove( player.id );
-                        UpdatePlayerList();
-                    }
 
-                    PlayerDB.ProcessLogout( player );
-                } else {
-                    Logger.LogWarning( "Server.UnregisterPlayer: Trying to unregister a non-existent player.",
-                                       WarningLogSubtype.OtherWarning );
+                        PlayerDB.ProcessLogout( player );
+                    } else {
+                        Logger.LogWarning( "Server.UnregisterPlayer: Trying to unregister a non-existent player.",
+                                           WarningLogSubtype.OtherWarning );
+                    }
                 }
             }
         }

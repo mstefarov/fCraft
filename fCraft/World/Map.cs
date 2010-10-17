@@ -617,7 +617,7 @@ namespace fCraft {
 
         public void ProcessUpdates() {
             if( world.isLocked ) {
-                if( world.isReadyForUnload ) world.UnloadMap();
+                if( world.pendingUnload ) world.UnloadMap();
                 return;
             }
 
@@ -640,7 +640,7 @@ namespace fCraft {
                 packetsSent++;
             }
 
-            if( packetsSent == 0 && world.isReadyForUnload ) {
+            if( packetsSent == 0 && world.pendingUnload ) {
                 world.UnloadMap();
             }
         }

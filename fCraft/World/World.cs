@@ -43,7 +43,7 @@ namespace fCraft {
         public Player[] playerList;
         public bool isLocked,
                     isHidden,
-                    isReadyForUnload,
+                    pendingUnload,
                     isFlushing,
                     neverUnload;
         public Rank accessRank, buildRank;
@@ -125,7 +125,7 @@ namespace fCraft {
             lock( mapLock ) {
                 SaveMap( null );
                 map = null;
-                isReadyForUnload = false;
+                pendingUnload = false;
                 if( OnUnloaded != null ) OnUnloaded();
             }
             thisMap.world = null;
@@ -200,7 +200,7 @@ namespace fCraft {
 
                 // load the map, if it's not yet loaded
                 lock( mapLock ) {
-                    isReadyForUnload = false;
+                    pendingUnload = false;
                     if( map == null ) {
                         LoadMap();
                     }
@@ -272,7 +272,7 @@ namespace fCraft {
                 // unload map (if needed)
                 lock( mapLock ) {
                     if( players.Count == 0 && !neverUnload ) {
-                        isReadyForUnload = true;
+                        pendingUnload = true;
                     }
                 }
                 return true;
