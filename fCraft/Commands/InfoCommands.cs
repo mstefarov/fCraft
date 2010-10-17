@@ -33,7 +33,7 @@ namespace fCraft {
 
             CommandList.RegisterCommand( cdMeasure );
 
-            CommandList.RegisterCommand( cdDebugAutoRank ); // DEBUG
+            //CommandList.RegisterCommand( cdDebugAutoRank ); // DEBUG
         }
 
         static CommandDescriptor cdDebugAutoRank = new CommandDescriptor {

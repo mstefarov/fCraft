@@ -119,7 +119,8 @@ namespace fCraft {
             } catch( Exception ex ) {
                 Console.WriteLine( "> Could not load zlib32.dll (Win): {0}", ex.GetType() );
             }
-
+            
+            /*
             try {
                 Native = new ZLibPInvokeWin64();
                 Test();
@@ -128,6 +129,7 @@ namespace fCraft {
             } catch( Exception ex ) {
                 Console.WriteLine( "> Could not load zlib64.dll (Win): {0}", ex.GetType() );
             }
+            */
 
             try {
                 Native = new ZLibPInvokeNix32();
@@ -240,6 +242,10 @@ namespace fCraft {
 
 
         #region Close / Flush / Destructor
+
+        protected override void Dispose( bool disposing ) {
+            base.Dispose( disposing );
+        }
 
         public override void Close() {
             if( fallback != null ) {
@@ -443,7 +449,6 @@ namespace fCraft {
             public ZLibReturnCode InflateInit2( ref z_stream strm, ZLibHeaderType windowBits ) {
                 return inflateInit2_( ref strm, windowBits, ZLibStream.VersionPointer, ZLibStream.StateObjectSize );
             }
-
 
             [DllImport( "zlib32.dll", CharSet = CharSet.Ansi )]
             private static extern ZLibReturnCode inflate( ref z_stream strm, ZLibFlush flush );
