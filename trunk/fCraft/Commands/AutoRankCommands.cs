@@ -70,7 +70,7 @@ namespace fCraft {
             for( int i = 0; i < infos.Length; i++ ) {
                 stat.TimeSinceFirstLogin += DateTime.Now.Subtract( infos[i].firstLoginDate );
                 stat.TimeSinceLastLogin += DateTime.Now.Subtract( infos[i].lastLoginDate );
-                stat.TotalTime += infos[i].totalTimeOnServer;
+                stat.TotalTime += infos[i].totalTime;
                 stat.BlocksBuilt += infos[i].blocksBuilt;
                 stat.BlocksDeleted += infos[i].blocksDeleted;
                 stat.TimesVisited += infos[i].timesVisited;
@@ -90,7 +90,7 @@ namespace fCraft {
                                                     .ElementAt( infos.Length / 2 ).firstLoginDate );
             stat.TimeSinceLastLoginMedian = DateTime.Now.Subtract( infos.OrderByDescending( ( info ) => info.lastLoginDate )
                                                     .ElementAt( infos.Length / 2 ).lastLoginDate );
-            stat.TotalTimeMedian = infos.OrderByDescending( ( info ) => info.totalTimeOnServer ).ElementAt( infos.Length / 2 ).totalTimeOnServer;
+            stat.TotalTimeMedian = infos.OrderByDescending( ( info ) => info.totalTime ).ElementAt( infos.Length / 2 ).totalTime;
             stat.BlocksBuiltMedian = infos.OrderByDescending( ( info ) => info.blocksBuilt ).ElementAt( infos.Length / 2 ).blocksBuilt;
             stat.BlocksDeletedMedian = infos.OrderByDescending( ( info ) => info.blocksDeleted ).ElementAt( infos.Length / 2 ).blocksDeleted;
             PlayerInfo medianBlocksChangedPlayerInfo = infos.OrderByDescending( ( info ) => (info.blocksDeleted + info.blocksBuilt) ).ElementAt( infos.Length / 2 );
@@ -107,7 +107,7 @@ namespace fCraft {
 
             stat.TopTimeSinceFirstLogin = infos.OrderBy( ( info ) => info.firstLoginDate ).ToArray();
             stat.TopTimeSinceLastLogin = infos.OrderBy( ( info ) => info.lastLoginDate ).ToArray();
-            stat.TopTotalTime = infos.OrderByDescending( ( info ) => info.totalTimeOnServer ).ToArray();
+            stat.TopTotalTime = infos.OrderByDescending( ( info ) => info.totalTime ).ToArray();
             stat.TopBlocksBuilt = infos.OrderByDescending( ( info ) => info.blocksBuilt ).ToArray();
             stat.TopBlocksDeleted = infos.OrderByDescending( ( info ) => info.blocksDeleted ).ToArray();
             stat.TopBlocksChanged = infos.OrderByDescending( ( info ) => (info.blocksDeleted + info.blocksBuilt) ).ToArray();
@@ -121,9 +121,9 @@ namespace fCraft {
 
             writer.WriteLine( "{0}: {1} players, {2} banned", groupName, infos.Length, stat.Banned );
             writer.WriteLine( "    TimeSinceFirstLogin: {0} mean,  {1} median,  {2} total",
-                              FormatTimeSpan(TimeSpan.FromTicks( stat.TimeSinceFirstLogin.Ticks / infos.Length )),
-                              FormatTimeSpan(stat.TimeSinceFirstLoginMedian),
-                              FormatTimeSpan(stat.TimeSinceFirstLogin) );
+                              FormatTimeSpan( TimeSpan.FromTicks( stat.TimeSinceFirstLogin.Ticks / infos.Length ) ),
+                              FormatTimeSpan( stat.TimeSinceFirstLoginMedian ),
+                              FormatTimeSpan( stat.TimeSinceFirstLogin ) );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( DateTime.Now.Subtract( info.firstLoginDate ) ), info.name );
@@ -141,9 +141,9 @@ namespace fCraft {
 
 
             writer.WriteLine( "    TimeSinceLastLogin: {0} mean,  {1} median,  {2} total",
-                              FormatTimeSpan(TimeSpan.FromTicks( stat.TimeSinceLastLogin.Ticks / infos.Length )),
-                              FormatTimeSpan(stat.TimeSinceLastLoginMedian),
-                              FormatTimeSpan(stat.TimeSinceLastLogin) );
+                              FormatTimeSpan( TimeSpan.FromTicks( stat.TimeSinceLastLogin.Ticks / infos.Length ) ),
+                              FormatTimeSpan( stat.TimeSinceLastLoginMedian ),
+                              FormatTimeSpan( stat.TimeSinceLastLogin ) );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimeSinceLastLogin.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( DateTime.Now.Subtract( info.lastLoginDate ) ), info.name );
@@ -161,20 +161,20 @@ namespace fCraft {
 
 
             writer.WriteLine( "    TotalTime: {0} mean,  {1} median,  {2} total",
-                              FormatTimeSpan(TimeSpan.FromTicks( stat.TotalTime.Ticks / infos.Length )),
-                              FormatTimeSpan(stat.TotalTimeMedian),
-                              FormatTimeSpan(stat.TotalTime ));
+                              FormatTimeSpan( TimeSpan.FromTicks( stat.TotalTime.Ticks / infos.Length ) ),
+                              FormatTimeSpan( stat.TotalTimeMedian ),
+                              FormatTimeSpan( stat.TotalTime ) );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTotalTime.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( info.totalTimeOnServer ), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( info.totalTime ), info.name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopTotalTime.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( info.totalTimeOnServer ), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( info.totalTime ), info.name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopTotalTime ) {
-                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( info.totalTimeOnServer ), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( info.totalTime ), info.name );
                 }
             }
             writer.WriteLine();
@@ -556,48 +556,76 @@ namespace fCraft {
             handler = EditPlayerInfo
         };
 
-        internal static void EditPlayerInfo( Player player, Command cmd ){
+        internal static void EditPlayerInfo( Player player, Command cmd ) {
             string playerName = cmd.Next();
             string paramName = cmd.Next();
             string valName = cmd.Next();
 
-            if(valName==null){
-                cdEditPlayerInfo.PrintUsage(player);
+            if( valName == null ) {
+                cdEditPlayerInfo.PrintUsage( player );
                 return;
             }
 
             PlayerInfo info;
-            if(!PlayerDB.FindPlayerInfo(playerName,out info)){
+            if( !PlayerDB.FindPlayerInfo( playerName, out info ) ) {
                 player.Message( "More than one player found matching \"{0}\"", playerName );
-            }else if(info==null){
-                player.NoPlayerMessage(playerName);
-            }else{
-                switch(paramName.ToLower()){
+            } else if( info == null ) {
+                player.NoPlayerMessage( playerName );
+            } else {
+                switch( paramName.ToLower() ) {
                     case "timeskicked":
-                        if(ValidateInt(valName,0,1000)){
-                            info.timesKicked = Int32.Parse(valName);
+                        int oldTimesKicked = info.timesKicked;
+                        if( ValidateInt( valName, 0, 1000 ) ) {
+                            info.timesKicked = Int32.Parse( valName );
+                            player.Message( "TimesKicked for {0}&S chagned from {1} to {2}",
+                                            info.GetClassyName(),
+                                            oldTimesKicked,
+                                            info.timesKicked );
+                        } else {
+                            player.Message( "Value not in valid range (0...1000)" );
                         }
-                        player.Message( "TimesKicked for {0}&S set to {1}", info.GetClassyName(), info.timesKicked );
                         break;
+
                     case "previousrank":
-                        Rank testRank = RankList.ParseRank( valName );
-                        if( testRank != null ) {
-                            info.previousRank = testRank;
+                        Rank newPreviousRank = RankList.ParseRank( valName );
+                        Rank oldPreviousRank = info.previousRank;
+                        if( newPreviousRank != null ) {
+                            info.previousRank = newPreviousRank;
+                            player.Message( "PreviousRank for {0}&S changed from {1}&S to {2}",
+                                            info.GetClassyName(),
+                                            oldPreviousRank.GetClassyName(),
+                                            info.previousRank.GetClassyName() );
+                        } else {
+                            player.NoRankMessage( valName );
                         }
-                        player.Message( "PreviousRank for {0}&S set to {1}", info.GetClassyName(), info.previousRank.GetClassyName() );
                         break;
+
+                    case "totaltime":
+                        TimeSpan newTotalTime;
+                        TimeSpan oldTotalTime = info.totalTime;
+                        if( TimeSpan.TryParse( valName, out newTotalTime ) ) {
+                            info.totalTime = newTotalTime;
+                            player.Message( "TotalTime for {0}&S changed from {1} to {2}",
+                                            info.GetClassyName(),
+                                            FormatTimeSpan( oldTotalTime ),
+                                            FormatTimeSpan( info.totalTime ) );
+                        } else {
+                            player.Message( "Could not parse time. Expected format: Days.HH:MM:SS" );
+                        }
+                        break;
+
                     default:
-                        player.Message( "Only TimesKicked and PreviousRank are implemented so far." );
+                        player.Message( "Only TimesKicked, PreviousRank, and TotalTime are implemented so far." );
                         break;
                 }
             }
         }
 
-        static bool ValidateInt( string stringVal, int min, int max){
+        static bool ValidateInt( string stringVal, int min, int max ) {
             int val;
-            if(Int32.TryParse(stringVal,out val)){
-                return (val>=min && val<=max);
-            }else{
+            if( Int32.TryParse( stringVal, out val ) ) {
+                return (val >= min && val <= max);
+            } else {
                 return false;
             }
         }

@@ -33,7 +33,7 @@ namespace fCraft {
         public DateTime firstLoginDate;
         public DateTime lastLoginDate;
 
-        public TimeSpan totalTimeOnServer;
+        public TimeSpan totalTime;
         public int blocksBuilt;
         public int blocksDeleted;
         public short timesVisited;
@@ -75,7 +75,7 @@ namespace fCraft {
             lastFailedLoginIP = IPAddress.None;
             //failedLoginCount = 0;
 
-            totalTimeOnServer = new TimeSpan( 0 );
+            totalTime = new TimeSpan( 0 );
             //blocksBuilt = 0;
             //blocksDeleted = 0;
             timesVisited = 1;
@@ -112,7 +112,7 @@ namespace fCraft {
             lastFailedLoginIP = IPAddress.None;
             //failedLoginCount = 0;
 
-            totalTimeOnServer = new TimeSpan( 0 );
+            totalTime = new TimeSpan( 0 );
             //blocksBuilt = 0;
             //blocksDeleted = 0;
             timesVisited = 1;
@@ -158,7 +158,7 @@ namespace fCraft {
 
             firstLoginDate = DateTime.Parse( fields[15] );
             lastLoginDate = DateTime.Parse( fields[16] );
-            totalTimeOnServer = TimeSpan.Parse( fields[17] );
+            totalTime = TimeSpan.Parse( fields[17] );
 
             blocksBuilt = Int32.Parse( fields[18] );
             blocksDeleted = Int32.Parse( fields[19] );
@@ -208,7 +208,7 @@ namespace fCraft {
 
             fields[15] = firstLoginDate.ToString( DateFormat );
             fields[16] = lastLoginDate.ToString( DateFormat );
-            fields[17] = totalTimeOnServer.ToString();
+            fields[17] = totalTime.ToString();
 
             fields[18] = blocksBuilt.ToString();
             fields[19] = blocksDeleted.ToString();
@@ -247,7 +247,7 @@ namespace fCraft {
 
 
         public void ProcessLogout( Player player ) {
-            totalTimeOnServer += DateTime.Now.Subtract( player.session.loginTime );
+            totalTime += DateTime.Now.Subtract( player.session.loginTime );
         }
 
 

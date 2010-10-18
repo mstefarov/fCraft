@@ -501,7 +501,7 @@ namespace fCraft {
 
                 if( info.lastIP.ToString() != IPAddress.None.ToString() ) {
                     // Time on the server
-                    TimeSpan totalTime = info.totalTimeOnServer;
+                    TimeSpan totalTime = info.totalTime;
                     if( Server.FindPlayerExact( info.name ) != null ) {
                         totalTime = totalTime.Add( DateTime.Now.Subtract( info.lastLoginDate ) );
                     }
