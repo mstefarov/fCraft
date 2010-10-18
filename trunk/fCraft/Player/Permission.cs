@@ -13,6 +13,7 @@ namespace fCraft {
         DeleteAdmincrete, // delete admincrete
 
         ViewOthersInfo,
+        EditPlayerDB,
         Say,
 
         UseSpeedHack,

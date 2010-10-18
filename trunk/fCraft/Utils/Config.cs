@@ -764,6 +764,7 @@ namespace fCraft {
             owner.Add( new XElement( Permission.Hide.ToString() ) );
 
             owner.Add( new XElement( Permission.ViewOthersInfo.ToString() ) );
+            owner.Add( new XElement( Permission.EditPlayerDB.ToString() ) );
 
             owner.Add( new XElement( Permission.Teleport.ToString() ) );
             owner.Add( new XElement( Permission.Bring.ToString() ) );

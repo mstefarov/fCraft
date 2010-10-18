@@ -13,6 +13,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdMassRank );
             CommandList.RegisterCommand( cdAutoRankAll );
             CommandList.RegisterCommand( cdDumpStats );
+            CommandList.RegisterCommand( cdEditPlayerInfo );
         }
 
 
@@ -411,10 +412,11 @@ namespace fCraft {
 
 
 
+
         static CommandDescriptor cdAutoRankAll = new CommandDescriptor {
             name = "autorankall",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Import, Permission.Promote, Permission.Demote },
+            permissions = new Permission[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
             help = "",
             usage = "/autorankall [silent] [FromRank]",
             handler = AutoRankAll
@@ -447,6 +449,9 @@ namespace fCraft {
 
             int promoted = 0, demoted = 0;
             foreach( PlayerInfo info in list ) {
+                if( info.name == "Hit_Girl" ) {
+                    Console.Write( "" );
+                }
                 Rank newRank = AutoRank.Check( info );
                 if( newRank != null ) {
                     Player target = Server.FindPlayerExact( info.name );
@@ -464,7 +469,7 @@ namespace fCraft {
         static CommandDescriptor cdMassRank = new CommandDescriptor {
             name = "massrank",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Import, Permission.Promote, Permission.Demote },
+            permissions = new Permission[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
             help = "",
             usage = "/massrank FromRank ToRank [silent]",
             handler = MassRank
@@ -508,7 +513,7 @@ namespace fCraft {
         static CommandDescriptor cdAutoRankReload = new CommandDescriptor {
             name = "autorankreload",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Import },
+            permissions = new Permission[] { Permission.EditPlayerDB },
             help = "",
             handler = AutoRankReload
         };
@@ -521,7 +526,7 @@ namespace fCraft {
         static CommandDescriptor cdAutoRankTest = new CommandDescriptor {
             name = "autoranktest",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Import },
+            permissions = new Permission[] { Permission.ViewOthersInfo },
             help = "",
             handler = AutoRankTest
         };
@@ -539,6 +544,61 @@ namespace fCraft {
                 }
             } else {
                 player.NoPlayerMessage( playerName );
+            }
+        }
+
+
+        static CommandDescriptor cdEditPlayerInfo = new CommandDescriptor {
+            name = "editplayerinfo",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.EditPlayerDB },
+            help = "",
+            handler = EditPlayerInfo
+        };
+
+        internal static void EditPlayerInfo( Player player, Command cmd ){
+            string playerName = cmd.Next();
+            string paramName = cmd.Next();
+            string valName = cmd.Next();
+
+            if(valName==null){
+                cdEditPlayerInfo.PrintUsage(player);
+                return;
+            }
+
+            PlayerInfo info;
+            if(!PlayerDB.FindPlayerInfo(playerName,out info)){
+                player.Message( "More than one player found matching \"{0}\"", playerName );
+            }else if(info==null){
+                player.NoPlayerMessage(playerName);
+            }else{
+                switch(paramName.ToLower()){
+                    case "timeskicked":
+                        if(ValidateInt(valName,0,1000)){
+                            info.timesKicked = Int32.Parse(valName);
+                        }
+                        player.Message( "TimesKicked for {0}&S set to {1}", info.GetClassyName(), info.timesKicked );
+                        break;
+                    case "previousrank":
+                        Rank testRank = RankList.ParseRank( valName );
+                        if( testRank != null ) {
+                            info.previousRank = testRank;
+                        }
+                        player.Message( "PreviousRank for {0}&S set to {1}", info.GetClassyName(), info.previousRank.GetClassyName() );
+                        break;
+                    default:
+                        player.Message( "Only TimesKicked and PreviousRank are implemented so far." );
+                        break;
+                }
+            }
+        }
+
+        static bool ValidateInt( string stringVal, int min, int max){
+            int val;
+            if(Int32.TryParse(stringVal,out val)){
+                return (val>=min && val<=max);
+            }else{
+                return false;
             }
         }
     }
