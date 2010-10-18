@@ -47,6 +47,42 @@ namespace fCraft {
             } else {
                 Logger.Log( "AutoRank.Init: autorank.xml not found. No criteria loaded.", LogType.Warning );
             }
+
+            /*
+            criteria.Clear();
+            Add(
+                new Criterion( CriterionType.Automatic, RankList.ParseRank( "guest" ), RankList.ParseRank( "builder" ),
+                    new ConditionOR(
+                        new Condition[]{
+                            new ConditionAND(
+                                new Condition[]{
+                                    new ConditionIntRange( ConditionField.TimesKicked, ComparisonOperation.lte, 1 ),
+                                    new ConditionIntRange( ConditionField.MessagesWritten, ComparisonOperation.gte, 40),
+                                    new ConditionIntRange( ConditionField.TotalTime, ComparisonOperation.gte, 60*60*5),
+                                    //new ConditionIntRange( ConditionField.TimeSinceLastLogin, ComparisonOperation.gte, 60*60*24*3),
+                                    new ConditionIntRange( ConditionField.TimeSinceFirstLogin, ComparisonOperation.gte, 60*60*24*2)
+                                }
+                            ),
+                            new ConditionAND(
+                                new Condition[]{
+                                    new ConditionIntRange( ConditionField.TimesKicked, ComparisonOperation.eq, 2 ),
+                                    new ConditionIntRange( ConditionField.MessagesWritten, ComparisonOperation.gte, 80),
+                                    new ConditionIntRange( ConditionField.TotalTime, ComparisonOperation.gte, 60*60*10),
+                                    //new ConditionIntRange( ConditionField.TimeSinceLastLogin, ComparisonOperation.gte, 60*60*24*3),
+                                    new ConditionIntRange( ConditionField.TimeSinceFirstLogin, ComparisonOperation.gte, 60*60*24*4)
+                                }
+                            )
+                        }
+                    )
+                )
+            );
+            XDocument docx = new XDocument();
+            XElement root = new XElement( "fCraftAutoRank" );
+            foreach( Criterion crit in criteria ) {
+                root.Add( crit.Serialize() );
+            }
+            docx.Add( root );
+            docx.Save( "autorank.xml" );*/
         }
     }
 
@@ -71,9 +107,13 @@ namespace fCraft {
             FromRank = RankList.ParseRank( el.Attribute( "fromRank" ).Value );
             ToRank = RankList.ParseRank( el.Attribute( "toRank" ).Value );
             if( el.Elements().Count() == 1 ) {
-                Condition = Condition.Parse( el );
+                Condition = Condition.Parse( el.Elements().First() );
             } else if( el.Elements().Count() > 1 ) {
-                Condition = new ConditionAND( el );
+                ConditionAND cand = new ConditionAND();
+                foreach( XElement cond in el.Elements() ) {
+                    cand.Add( Condition.Parse(cond) );
+                }
+                Condition = cand;
             } else {
                 throw new FormatException( "At least one condition required." );
             }
@@ -81,9 +121,12 @@ namespace fCraft {
 
         public XElement Serialize() {
             XElement el = new XElement( "Criterion" );
+            el.Add( new XAttribute( "type", Type ) );
             el.Add( new XAttribute( "fromRank", FromRank ) );
             el.Add( new XAttribute( "toRank", ToRank ) );
-            el.Add( Condition.Serialize() );
+            if( Condition != null ) {
+                el.Add( Condition.Serialize() );
+            }
             return el;
         }
     }
@@ -105,7 +148,7 @@ namespace fCraft {
                 return new ConditionNOR( el );
             } else if( el.Name == "NAND" ) {
                 return new ConditionNAND( el );
-            } else if( Enum.GetNames( typeof( ConditionField ) ).Contains( el.Name.ToString() ) ) {
+            } else if( el.Name == "ConditionIntRange" ) {
                 return new ConditionIntRange( el );
             } else if( el.Name == "RankStatus" ) {
                 return new ConditionRankStatus( el );
@@ -294,7 +337,8 @@ namespace fCraft {
             Conditions = _conditions.ToList();
         }
 
-        protected ConditionSet( XElement el ) {
+        protected ConditionSet( XElement el )
+            : this() {
             foreach( XElement cel in el.Elements() ) {
                 Add( Condition.Parse( cel ) );
             }

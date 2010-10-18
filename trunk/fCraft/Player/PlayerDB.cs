@@ -97,14 +97,14 @@ namespace fCraft {
                         writer.WriteLine( entry.Serialize() );
                     }
                 }
-                try {
-                    File.Delete( DBFile );
-                    File.Move( tempFile, DBFile );
-                } catch( Exception ex ) {
-                    Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );
-                }
             } finally {
                 locker.ExitReadLock();
+            }
+            try {
+                File.Delete( DBFile );
+                File.Move( tempFile, DBFile );
+            } catch( Exception ex ) {
+                Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );
             }
         }
 
@@ -179,16 +179,6 @@ namespace fCraft {
             return info;
         }
 
-
-        internal static void ProcessLogout( Player player ) {
-            if( player == null ) return;
-            locker.EnterWriteLock();
-            try {
-                tree.Get( player.name ).ProcessLogout( player );
-            } finally {
-                locker.ExitWriteLock();
-            }
-        }
 
         public static int CountBannedPlayers() {
             int banned = 0;

@@ -1099,7 +1099,7 @@ namespace fCraft {
                             UpdatePlayerList();
                         }
 
-                        PlayerDB.ProcessLogout( player );
+                        if( player.info != null ) player.info.ProcessLogout(player);
                     } else {
                         Logger.LogWarning( "Server.UnregisterPlayer: Trying to unregister a non-existent player.",
                                            WarningLogSubtype.OtherWarning );
