@@ -291,6 +291,10 @@ namespace fCraft {
         }
 
         public override bool Eval( PlayerInfo info ) {
+            Rank prevRank = info.previousRank;
+            if( prevRank == null ) {
+                prevRank = info.rank;
+            }
             switch( this.Comparison ) {
                 case ComparisonOperation.lt:
                     return (info.previousRank < this.Rank);
