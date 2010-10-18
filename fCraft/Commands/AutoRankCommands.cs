@@ -64,6 +64,8 @@ namespace fCraft {
                 stat.PreviousRank.Add( rank2, 0 );
             }
 
+            infos = infos.Where( ( info ) => (DateTime.Now.Subtract( info.lastLoginDate ).TotalDays < 30) ).ToArray();
+
             for( int i = 0; i < infos.Length; i++ ) {
                 stat.TimeSinceFirstLogin += DateTime.Now.Subtract( infos[i].firstLoginDate );
                 stat.TimeSinceLastLogin += DateTime.Now.Subtract( infos[i].lastLoginDate );
@@ -82,24 +84,12 @@ namespace fCraft {
             stat.BlockRatio = stat.BlocksBuilt / (double)Math.Max( stat.BlocksDeleted, 1 );
             stat.BlocksChanged = stat.BlocksDeleted + stat.BlocksBuilt;
 
-            stat.TopTimeSinceFirstLogin = infos.OrderBy( ( info ) => info.firstLoginDate ).Take( TopPlayersToList ).ToArray();
-            stat.TopTimeSinceLastLogin = infos.OrderBy( ( info ) => info.lastLoginDate ).Take( TopPlayersToList ).ToArray();
-            stat.TopTotalTime = infos.OrderByDescending( ( info ) => info.totalTimeOnServer ).Take( TopPlayersToList ).ToArray();
-            stat.TopBlocksBuilt = infos.OrderByDescending( ( info ) => info.blocksBuilt ).Take( TopPlayersToList ).ToArray();
-            stat.TopBlocksDeleted = infos.OrderByDescending( ( info ) => info.blocksDeleted ).Take( TopPlayersToList ).ToArray();
-            stat.TopBlocksChanged = infos.OrderByDescending( ( info ) => (info.blocksDeleted + info.blocksBuilt) ).Take( TopPlayersToList ).ToArray();
-            stat.TopBlockRatio = infos.OrderByDescending( ( info ) => (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )) ).Take( TopPlayersToList ).ToArray();
-            stat.TopTimesVisited = infos.OrderByDescending( ( info ) => info.timesVisited ).Take( TopPlayersToList ).ToArray();
-            stat.TopMessagesWritten = infos.OrderByDescending( ( info ) => info.linesWritten ).Take( TopPlayersToList ).ToArray();
-            stat.TopTimesKicked = infos.OrderByDescending( ( info ) => info.timesKicked ).Take( TopPlayersToList ).ToArray();
-            stat.TopTimesKickedOthers = infos.OrderByDescending( ( info ) => info.timesKickedOthers ).Take( TopPlayersToList ).ToArray();
-            stat.TopTimesBannedOthers = infos.OrderByDescending( ( info ) => info.timesBannedOthers ).Take( TopPlayersToList ).ToArray();
 
             stat.TimeSinceFirstLoginMedian = DateTime.Now.Subtract( infos.OrderByDescending( ( info ) => info.firstLoginDate )
                                                     .ElementAt( infos.Length / 2 ).firstLoginDate );
             stat.TimeSinceLastLoginMedian = DateTime.Now.Subtract( infos.OrderByDescending( ( info ) => info.lastLoginDate )
                                                     .ElementAt( infos.Length / 2 ).lastLoginDate );
-            stat.TotalTimeMedian = infos.OrderByDescending( ( info ) => info.lastLoginDate ).ElementAt( infos.Length / 2 ).totalTimeOnServer;
+            stat.TotalTimeMedian = infos.OrderByDescending( ( info ) => info.totalTimeOnServer ).ElementAt( infos.Length / 2 ).totalTimeOnServer;
             stat.BlocksBuiltMedian = infos.OrderByDescending( ( info ) => info.blocksBuilt ).ElementAt( infos.Length / 2 ).blocksBuilt;
             stat.BlocksDeletedMedian = infos.OrderByDescending( ( info ) => info.blocksDeleted ).ElementAt( infos.Length / 2 ).blocksDeleted;
             PlayerInfo medianBlocksChangedPlayerInfo = infos.OrderByDescending( ( info ) => (info.blocksDeleted + info.blocksBuilt) ).ElementAt( infos.Length / 2 );
@@ -113,40 +103,99 @@ namespace fCraft {
             stat.TimesKickedOthersMedian = infos.OrderByDescending( ( info ) => info.timesKickedOthers ).ElementAt( infos.Length / 2 ).timesKickedOthers;
             stat.TimesBannedOthersMedian = infos.OrderByDescending( ( info ) => info.timesBannedOthers ).ElementAt( infos.Length / 2 ).timesBannedOthers;
 
+
+            stat.TopTimeSinceFirstLogin = infos.OrderBy( ( info ) => info.firstLoginDate ).ToArray();
+            stat.TopTimeSinceLastLogin = infos.OrderBy( ( info ) => info.lastLoginDate ).ToArray();
+            stat.TopTotalTime = infos.OrderByDescending( ( info ) => info.totalTimeOnServer ).ToArray();
+            stat.TopBlocksBuilt = infos.OrderByDescending( ( info ) => info.blocksBuilt ).ToArray();
+            stat.TopBlocksDeleted = infos.OrderByDescending( ( info ) => info.blocksDeleted ).ToArray();
+            stat.TopBlocksChanged = infos.OrderByDescending( ( info ) => (info.blocksDeleted + info.blocksBuilt) ).ToArray();
+            stat.TopBlockRatio = infos.OrderByDescending( ( info ) => (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )) ).ToArray();
+            stat.TopTimesVisited = infos.OrderByDescending( ( info ) => info.timesVisited ).ToArray();
+            stat.TopMessagesWritten = infos.OrderByDescending( ( info ) => info.linesWritten ).ToArray();
+            stat.TopTimesKicked = infos.OrderByDescending( ( info ) => info.timesKicked ).ToArray();
+            stat.TopTimesKickedOthers = infos.OrderByDescending( ( info ) => info.timesKickedOthers ).ToArray();
+            stat.TopTimesBannedOthers = infos.OrderByDescending( ( info ) => info.timesBannedOthers ).ToArray();
+
+
             writer.WriteLine( "{0}: {1} players, {2} banned", groupName, infos.Length, stat.Banned );
             writer.WriteLine( "    TimeSinceFirstLogin: {0} mean,  {1} median,  {2} total",
-                              TimeSpan.FromTicks( stat.TimeSinceFirstLogin.Ticks / infos.Length ),
-                              stat.TimeSinceFirstLoginMedian,
-                              stat.TimeSinceFirstLogin );
-            foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin ) {
-                writer.WriteLine( "        {0,20} {1}", DateTime.Now.Subtract( info.firstLoginDate ), info.name );
+                              FormatTimeSpan(TimeSpan.FromTicks( stat.TimeSinceFirstLogin.Ticks / infos.Length )),
+                              FormatTimeSpan(stat.TimeSinceFirstLoginMedian),
+                              FormatTimeSpan(stat.TimeSinceFirstLogin) );
+            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+                foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin.Take( TopPlayersToList ) ) {
+                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( DateTime.Now.Subtract( info.firstLoginDate ) ), info.name );
+                }
+                writer.WriteLine( "                           ...." );
+                foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin.Reverse().Take( TopPlayersToList ).Reverse() ) {
+                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( DateTime.Now.Subtract( info.firstLoginDate ) ), info.name );
+                }
+            } else {
+                foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin ) {
+                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( DateTime.Now.Subtract( info.firstLoginDate ) ), info.name );
+                }
             }
+            writer.WriteLine();
 
 
             writer.WriteLine( "    TimeSinceLastLogin: {0} mean,  {1} median,  {2} total",
-                              TimeSpan.FromTicks( stat.TimeSinceLastLogin.Ticks / infos.Length ),
-                              stat.TimeSinceLastLoginMedian,
-                              stat.TimeSinceLastLogin );
-            foreach( PlayerInfo info in stat.TopTimeSinceLastLogin ) {
-                writer.WriteLine( "        {0,20} {1}", DateTime.Now.Subtract( info.lastLoginDate ), info.name );
+                              FormatTimeSpan(TimeSpan.FromTicks( stat.TimeSinceLastLogin.Ticks / infos.Length )),
+                              FormatTimeSpan(stat.TimeSinceLastLoginMedian),
+                              FormatTimeSpan(stat.TimeSinceLastLogin) );
+            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+                foreach( PlayerInfo info in stat.TopTimeSinceLastLogin.Take( TopPlayersToList ) ) {
+                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( DateTime.Now.Subtract( info.lastLoginDate ) ), info.name );
+                }
+                writer.WriteLine( "                           ...." );
+                foreach( PlayerInfo info in stat.TopTimeSinceLastLogin.Reverse().Take( TopPlayersToList ).Reverse() ) {
+                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( DateTime.Now.Subtract( info.lastLoginDate ) ), info.name );
+                }
+            } else {
+                foreach( PlayerInfo info in stat.TopTimeSinceLastLogin ) {
+                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( DateTime.Now.Subtract( info.lastLoginDate ) ), info.name );
+                }
             }
+            writer.WriteLine();
 
 
             writer.WriteLine( "    TotalTime: {0} mean,  {1} median,  {2} total",
-                              TimeSpan.FromTicks( stat.TotalTime.Ticks / infos.Length ),
-                              stat.TotalTimeMedian,
-                              stat.TotalTime );
-            foreach( PlayerInfo info in stat.TopTotalTime ) {
-                writer.WriteLine( "        {0,20}  {1}", info.totalTimeOnServer, info.name );
+                              FormatTimeSpan(TimeSpan.FromTicks( stat.TotalTime.Ticks / infos.Length )),
+                              FormatTimeSpan(stat.TotalTimeMedian),
+                              FormatTimeSpan(stat.TotalTime ));
+            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+                foreach( PlayerInfo info in stat.TopTotalTime.Take( TopPlayersToList ) ) {
+                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( info.totalTimeOnServer ), info.name );
+                }
+                writer.WriteLine( "                           ...." );
+                foreach( PlayerInfo info in stat.TopTotalTime.Reverse().Take( TopPlayersToList ).Reverse() ) {
+                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( info.totalTimeOnServer ), info.name );
+                }
+            } else {
+                foreach( PlayerInfo info in stat.TopTotalTime ) {
+                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( info.totalTimeOnServer ), info.name );
+                }
             }
+            writer.WriteLine();
+
 
 
             writer.WriteLine( "    BlocksBuilt: {0} mean,  {1} median,  {2} total",
                               stat.BlocksBuilt / infos.Length,
                               stat.BlocksBuiltMedian,
                               stat.BlocksBuilt );
-            foreach( PlayerInfo info in stat.TopBlocksBuilt ) {
-                writer.WriteLine( "        {0,20}  {1}", info.blocksBuilt, info.name );
+            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+                foreach( PlayerInfo info in stat.TopBlocksBuilt.Take( TopPlayersToList ) ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.blocksBuilt, info.name );
+                }
+                writer.WriteLine( "                           ...." );
+                foreach( PlayerInfo info in stat.TopBlocksBuilt.Reverse().Take( TopPlayersToList ).Reverse() ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.blocksBuilt, info.name );
+                }
+            } else {
+                foreach( PlayerInfo info in stat.TopBlocksBuilt ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.blocksBuilt, info.name );
+                }
             }
             writer.WriteLine();
 
@@ -155,25 +204,58 @@ namespace fCraft {
                               stat.BlocksDeleted / infos.Length,
                               stat.BlocksDeletedMedian,
                               stat.BlocksDeleted );
-            foreach( PlayerInfo info in stat.TopBlocksDeleted ) {
-                writer.WriteLine( "        {0,20}  {1}", info.blocksDeleted, info.name );
+            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+                foreach( PlayerInfo info in stat.TopBlocksDeleted.Take( TopPlayersToList ) ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.blocksDeleted, info.name );
+                }
+                writer.WriteLine( "                           ...." );
+                foreach( PlayerInfo info in stat.TopBlocksDeleted.Reverse().Take( TopPlayersToList ).Reverse() ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.blocksDeleted, info.name );
+                }
+            } else {
+                foreach( PlayerInfo info in stat.TopBlocksDeleted ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.blocksDeleted, info.name );
+                }
             }
             writer.WriteLine();
+
+
 
             writer.WriteLine( "    BlocksChanged: {0} mean,  {1} median,  {2} total",
                               stat.BlocksChanged / infos.Length,
                               stat.BlocksChangedMedian,
                               stat.BlocksChanged );
-            foreach( PlayerInfo info in stat.TopBlocksChanged ) {
-                writer.WriteLine( "        {0,20}  {1}", (info.blocksDeleted + info.blocksBuilt), info.name );
+            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+                foreach( PlayerInfo info in stat.TopBlocksChanged.Take( TopPlayersToList ) ) {
+                    writer.WriteLine( "        {0,20}  {1}", (info.blocksDeleted + info.blocksBuilt), info.name );
+                }
+                writer.WriteLine( "                           ...." );
+                foreach( PlayerInfo info in stat.TopBlocksChanged.Reverse().Take( TopPlayersToList ).Reverse() ) {
+                    writer.WriteLine( "        {0,20}  {1}", (info.blocksDeleted + info.blocksBuilt), info.name );
+                }
+            } else {
+                foreach( PlayerInfo info in stat.TopBlocksChanged ) {
+                    writer.WriteLine( "        {0,20}  {1}", (info.blocksDeleted + info.blocksBuilt), info.name );
+                }
             }
             writer.WriteLine();
+
 
             writer.WriteLine( "    BlockRatio: {0:0.000} mean,  {1:0.000} median",
                               stat.BlockRatio,
                               stat.BlockRatioMedian );
-            foreach( PlayerInfo info in stat.TopBlockRatio ) {
-                writer.WriteLine( "        {0,20:0.000}  {1}", (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )), info.name );
+            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+                foreach( PlayerInfo info in stat.TopBlockRatio.Take( TopPlayersToList ) ) {
+                    writer.WriteLine( "        {0,20:0.000}  {1}", (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )), info.name );
+                }
+                writer.WriteLine( "                           ...." );
+                foreach( PlayerInfo info in stat.TopBlockRatio.Reverse().Take( TopPlayersToList ).Reverse() ) {
+                    writer.WriteLine( "        {0,20:0.000}  {1}", (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )), info.name );
+                }
+            } else {
+                foreach( PlayerInfo info in stat.TopBlockRatio ) {
+                    writer.WriteLine( "        {0,20:0.000}  {1}", (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )), info.name );
+                }
             }
             writer.WriteLine();
 
@@ -182,8 +264,18 @@ namespace fCraft {
                               stat.TimesVisited / infos.Length,
                               stat.TimesVisitedMedian,
                               stat.TimesVisited );
-            foreach( PlayerInfo info in stat.TopTimesVisited ) {
-                writer.WriteLine( "        {0,20}  {1}", info.timesVisited, info.name );
+            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+                foreach( PlayerInfo info in stat.TopTimesVisited.Take( TopPlayersToList ) ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.timesVisited, info.name );
+                }
+                writer.WriteLine( "                           ...." );
+                foreach( PlayerInfo info in stat.TopTimesVisited.Reverse().Take( TopPlayersToList ).Reverse() ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.timesVisited, info.name );
+                }
+            } else {
+                foreach( PlayerInfo info in stat.TopTimesVisited ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.timesVisited, info.name );
+                }
             }
             writer.WriteLine();
 
@@ -192,8 +284,18 @@ namespace fCraft {
                               stat.MessagesWritten / infos.Length,
                               stat.MessagesWrittenMedian,
                               stat.MessagesWritten );
-            foreach( PlayerInfo info in stat.TopMessagesWritten ) {
-                writer.WriteLine( "        {0,20}  {1}", info.linesWritten, info.name );
+            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+                foreach( PlayerInfo info in stat.TopMessagesWritten.Take( TopPlayersToList ) ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.linesWritten, info.name );
+                }
+                writer.WriteLine( "                           ...." );
+                foreach( PlayerInfo info in stat.TopMessagesWritten.Reverse().Take( TopPlayersToList ).Reverse() ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.linesWritten, info.name );
+                }
+            } else {
+                foreach( PlayerInfo info in stat.TopMessagesWritten ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.linesWritten, info.name );
+                }
             }
             writer.WriteLine();
 
@@ -202,8 +304,18 @@ namespace fCraft {
                               stat.TimesKicked / (double)infos.Length,
                               stat.TimesKickedMedian,
                               stat.TimesKicked );
-            foreach( PlayerInfo info in stat.TopTimesKicked ) {
-                writer.WriteLine( "        {0,20}  {1}", info.timesKicked, info.name );
+            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+                foreach( PlayerInfo info in stat.TopTimesKicked.Take( TopPlayersToList ) ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.timesKicked, info.name );
+                }
+                writer.WriteLine( "                           ...." );
+                foreach( PlayerInfo info in stat.TopTimesKicked.Reverse().Take( TopPlayersToList ).Reverse() ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.timesKicked, info.name );
+                }
+            } else {
+                foreach( PlayerInfo info in stat.TopTimesKicked ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.timesKicked, info.name );
+                }
             }
             writer.WriteLine();
 
@@ -212,8 +324,18 @@ namespace fCraft {
                               stat.TimesKickedOthers / (double)infos.Length,
                               stat.TimesKickedOthersMedian,
                               stat.TimesKickedOthers );
-            foreach( PlayerInfo info in stat.TopTimesKickedOthers ) {
-                writer.WriteLine( "        {0,20}  {1}", info.timesKickedOthers, info.name );
+            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+                foreach( PlayerInfo info in stat.TopTimesKickedOthers.Take( TopPlayersToList ) ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.timesKickedOthers, info.name );
+                }
+                writer.WriteLine( "                           ...." );
+                foreach( PlayerInfo info in stat.TopTimesKickedOthers.Reverse().Take( TopPlayersToList ).Reverse() ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.timesKickedOthers, info.name );
+                }
+            } else {
+                foreach( PlayerInfo info in stat.TopTimesKickedOthers ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.timesKickedOthers, info.name );
+                }
             }
             writer.WriteLine();
 
@@ -222,10 +344,26 @@ namespace fCraft {
                               stat.TimesBannedOthers / (double)infos.Length,
                               stat.TimesBannedOthersMedian,
                               stat.TimesBannedOthers );
-            foreach( PlayerInfo info in stat.TopTimesBannedOthers ) {
-                writer.WriteLine( "        {0,20}  {1}", info.timesBannedOthers, info.name );
+            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+                foreach( PlayerInfo info in stat.TopTimesBannedOthers.Take( TopPlayersToList ) ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.timesBannedOthers, info.name );
+                }
+                writer.WriteLine( "                           ...." );
+                foreach( PlayerInfo info in stat.TopTimesBannedOthers.Reverse().Take( TopPlayersToList ).Reverse() ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.timesBannedOthers, info.name );
+                }
+            } else {
+                foreach( PlayerInfo info in stat.TopTimesBannedOthers ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.timesBannedOthers, info.name );
+                }
             }
             writer.WriteLine();
+        }
+
+
+        static string FormatTimeSpan( TimeSpan span ) {
+            return String.Format( "{0}.{1:00}:{2:00}:{3:00}",
+                span.Days, span.Hours, span.Minutes, span.Seconds );
         }
 
         class RankStats {
