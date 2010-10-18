@@ -18,7 +18,7 @@ namespace fCraft {
 
         public static Rank Check( PlayerInfo info ) {
             foreach( Criterion c in criteria ) {
-                if( c.FromRank == info.rank && c.Condition.Eval( info ) ) {
+                if( c.FromRank == info.rank && !info.banned && c.Condition.Eval( info ) ) {
                     return c.ToRank;
                 }
             }
