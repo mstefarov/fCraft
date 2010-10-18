@@ -216,7 +216,7 @@ namespace fCraft {
                     value = info.timesVisited;
                     break;
                 case ConditionField.TotalTime:
-                    value = (int)info.totalTimeOnServer.TotalSeconds;
+                    value = (int)info.totalTime.TotalSeconds;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
