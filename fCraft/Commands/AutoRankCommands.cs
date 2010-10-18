@@ -438,6 +438,10 @@ namespace fCraft {
             } else {
                 list = PlayerDB.GetPlayerListCopy( rank );
             }
+            DoAutoRankAll( player, list, silent );
+        }
+
+        internal static void DoAutoRankAll( Player player, PlayerInfo[] list, bool silent ) {
 
             player.Message( "AutoRankAll: Evaluating {0} players...", list.Length );
 
@@ -456,7 +460,6 @@ namespace fCraft {
             }
             player.Message( "AutoRankAll: {0} players promoted, {1} demoted.", promoted, demoted );
         }
-
 
         static CommandDescriptor cdMassRank = new CommandDescriptor {
             name = "massrank",

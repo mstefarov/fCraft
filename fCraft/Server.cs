@@ -88,6 +88,7 @@ namespace fCraft {
 
             Player.Console = new Player( null, "(console)" );
 
+
             // try to load the world list
             if( !LoadWorldList() ) return false;
             SaveWorldList();
@@ -156,6 +157,11 @@ namespace fCraft {
 
             // Write out initial (empty) playerlist cache
             UpdatePlayerList();
+
+            // apply AutoRank
+            if( Config.GetBool( ConfigKey.AutoRankEnabled ) ) {
+                AddTask( AutoRankTick, AutoRankTickInterval );
+            }
 
             // Announcements
             if( Config.GetInt( ConfigKey.AnnouncementInterval ) > 0 ) {
@@ -810,6 +816,10 @@ namespace fCraft {
 #endif
         }
 
+        const int AutoRankTickInterval = 60000; // 60 seconds
+        static void AutoRankTick( object param ) {
+            AutoRankCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false );
+        }
 
         static void AutoBackup( object param ) {
             World world = (World)param;
