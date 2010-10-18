@@ -1,5 +1,13 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-10-14
+491
+ Feature: Added ability to run multiple parallel IRC bots, to help high-traffic servers deal with IRC lag. This also makes it possible to connect to multiple networks in the future.
+ Feature: Added new block aliases, by popular demand: "emerald"=teal, "fuchsia"=magenta, "cloth"=white, "lightgray"=gray, "lightgrey"=gray, "darkgray"=black, "darkgrey"=black, "brass"=gold
+ Fix: Temporarily disabled 64-bit zlib support while I track down memory leaks. Should fix OutOfMemoryException, I'm very sorry about overlooking that.
+ Fix: Fixed a bug in /info that displayed incorrect "total time on server".
+ Fix: Per-rank permission checks for /freeze now apply as intended
+ Fix: Fixed several improbable (but not impossible) threading deadlocks/crashes. Thanks to wootalyzer for catching these.
+ Change: Added IRCThreads config key (default: 1, allowed range: 1-3)
 490
  Feature: Testing a new map compressor/decompressor: ZLibStream. It should provide 50-200% speed increase, smaller map sizes, lower bandwidth use, and faster map loading.
  Fix: Fixed /shutdown not waiting the right amount and mixing up seconds/milliseconds.
