@@ -68,11 +68,13 @@ namespace fCraft {
      * 115 - r265 - Added IRCThreads
      * 
      * 116 - r272 - Added AutoRankEnabled
+     * 
+     * 117 - r280 - Added MaxUndo
      */
 
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 116;
+        public const int ConfigVersion = 117;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
@@ -196,6 +198,7 @@ namespace fCraft {
             SetValue( ConfigKey.LowLatencyMode, false );
             SetValue( ConfigKey.SubmitCrashReports, true );
 
+            SetValue( ConfigKey.MaxUndo, 2000000 );
             SetValue( ConfigKey.AutoRankEnabled, false );
         }
 
@@ -581,6 +584,10 @@ namespace fCraft {
                     return ValidateInt( key, value, 10, 100000 );
                 case ConfigKey.TickInterval:
                     return ValidateInt( key, value, 20, 1000 );
+
+                case ConfigKey.MaxUndo:
+                    return ValidateInt( key, value, 0, Int32.MaxValue );
+
                 default:
                     settings[key] = value;
                     return true;
@@ -708,6 +715,8 @@ namespace fCraft {
 
             // IRC delay
             IRC.SendDelay = GetInt( ConfigKey.IRCDelay );
+
+            DrawCommands.MaxUndoCount = GetInt( ConfigKey.MaxUndo );
         }
 
 

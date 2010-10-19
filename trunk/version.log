@@ -1,5 +1,32 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-10-14
+2010-10-19
+492
+ Feature: Added EditPlayerDB permission. This permission affects the upcoming AutoRank commands, /editplayerinfo, and ability to promote/demote/ban unrecognized players.
+ Feature: When you kick a player, you are now shown the number of kicks they already have.
+ Feature: More stats are now logged! RankType, TimeSinceLastKick, LastSeen, BlocksDrawn, LastKickBy, LastKickReason.
+ Feature: Added "MaxUndo" config key for changing the default undo limit of 2,000,000 blocks per player.
+ Feature: /info command is augmented with new stats (if available).
+ Fix: Fixed ellipsoid command calculating volume incorrectly for draw limit checks.
+ Fix: Fixed overflowing color code in "Player logged in from an IP previously used by banned players" message.
+ Fix: Fixed PM recipient's name not getting logged properly.
+ Fix: Previously-unseen players no longer have their FirstLoginDate, LastLoginDate, or TimesVisited set.
+ Fix: /importranks now works correctly on players who are online at the time of import.
+ Change: Added block aliases by popular demand: "bedrock" as an alias for admincrete, "cotton" as alias for "white", and "aire" as alias for "air"
+ Change: PlayerDB.txt format changes:
+  - MaxFieldCount raised to 36
+  - New fields added: UID (Int32), RankChangeType (enum, serialized as Int32), LastKickDate (DateTime), LastSeen (DateTime), BlocksDrawn (Int64), LastKickBy (string), LastKickReason (string).
+  - RankChangeBy, BannedBy, UnbannedBy, BanReason, UnbanReason, and RankChangeReason now default to empty string instead of "-" or null.
+  - If LastIP==IPAddress.None, empty string is saved instead of "255.255.255.255".
+  - DateTime and TimeSpan format shortened to exclude microseconds. See PlayerDB.ToCompactString() for details.
+ Change: AutoRank improvements (disabled in stable builds):
+  - Added /editplayerinfo command for easy editing of PlayerDB.
+  - Made AutoRank check players in-login (to accelerate promotion).
+  - AutoRank now runs on a scheduler.
+  - Fixed ConditionPreviousRank crash for played with default rank.
+  - Fixed banned players getting promoted by AutoRank.
+  - Fixed several serialization/loading issues in AutoRank.
+  - New fields added to ConditionIntRange: LastSeen, BlocksDrawn, TimeSinceRankChange, TimeSinceLastKick
+  - ConditionRankStatus renamed to ConditionRankChangeType
 491
  Feature: Added ability to run multiple parallel IRC bots, to help high-traffic servers deal with IRC lag. This also makes it possible to connect to multiple networks in the future.
  Feature: Added new block aliases, by popular demand: "emerald"=teal, "fuchsia"=magenta, "cloth"=white, "lightgray"=gray, "lightgrey"=gray, "darkgray"=black, "darkgrey"=black, "brass"=gold

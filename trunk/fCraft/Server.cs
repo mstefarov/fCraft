@@ -50,7 +50,7 @@ namespace fCraft {
             if( !Config.Load( false ) ) return false;
             Config.ApplyConfig();
             GenerateSalt();
-            if( !Config.Save(true) ) return false;
+            if( !Config.Save( true ) ) return false;
 
             CheckMapDirectory();
 
@@ -82,7 +82,7 @@ namespace fCraft {
         public static bool Start() {
 
             if( CheckForFCraftProcesses() ) {
-                Logger.Log( "Please close all other fCraft processes (fCraftUI, fCraftConsole, or ConfigTool) "+
+                Logger.Log( "Please close all other fCraft processes (fCraftUI, fCraftConsole, or ConfigTool) " +
                             "that are started form the same directory.", LogType.Warning );
             }
 
@@ -236,7 +236,7 @@ namespace fCraft {
                     }
                 }
 
-                if( PlayerDB.isLoaded ) PlayerDB.Save(null);
+                if( PlayerDB.isLoaded ) PlayerDB.Save();
                 if( IPBanList.isLoaded ) IPBanList.Save();
 
                 if( OnShutdownEnd != null ) OnShutdownEnd();
@@ -818,7 +818,9 @@ namespace fCraft {
 
         const int AutoRankTickInterval = 60000; // 60 seconds
         static void AutoRankTick( object param ) {
-            AutoRankCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false );
+            Tasks.Add( (TaskCallback)delegate( object innerParam ) {
+                AutoRankCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );
+            }, null, false );
         }
 
         static void AutoBackup( object param ) {
@@ -836,7 +838,9 @@ namespace fCraft {
         }
 
         static void SavePlayerDB( object param ) {
-            Tasks.Add( PlayerDB.Save, null, false );
+            Tasks.Add( (TaskCallback)delegate( object innerParam ) {
+                PlayerDB.Save();
+            }, null, false );
         }
 
         static void UpdateBlocks( object param ) {
@@ -1020,7 +1024,7 @@ namespace fCraft {
             return maxPacketsPerUpdate;
         }
 
-        public static bool CheckForFCraftProcesses(){
+        public static bool CheckForFCraftProcesses() {
             try {
                 Process[] processList = Process.GetProcesses();
 
@@ -1109,7 +1113,7 @@ namespace fCraft {
                             UpdatePlayerList();
                         }
 
-                        if( player.info != null ) player.info.ProcessLogout(player);
+                        if( player.info != null ) player.info.ProcessLogout( player );
                     } else {
                         Logger.LogWarning( "Server.UnregisterPlayer: Trying to unregister a non-existent player.",
                                            WarningLogSubtype.OtherWarning );
@@ -1123,7 +1127,7 @@ namespace fCraft {
             lock( sessionLock ) {
                 if( sessions.Contains( session ) ) {
                     sessions.Remove( session );
-                    if(OnPlayerDisconnected!=null) OnPlayerDisconnected( session );
+                    if( OnPlayerDisconnected != null ) OnPlayerDisconnected( session );
                 } else {
                     Logger.LogWarning( "Server.UnregisterPlayer: Trying to unregister a non-existent session.",
                                        WarningLogSubtype.OtherWarning );

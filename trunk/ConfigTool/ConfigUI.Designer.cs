@@ -24,7 +24,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -237,6 +237,9 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
+            this.nMaxUndo = new System.Windows.Forms.NumericUpDown();
+            this.lMaxUndoUnits = new System.Windows.Forms.Label();
+            this.xMaxUndo = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -283,6 +286,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             this.gCrashReport.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).BeginInit();
             this.SuspendLayout();
             // 
             // tabs
@@ -903,8 +907,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 634, 365 );
             this.dgvWorlds.TabIndex = 0;
@@ -2409,6 +2413,9 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add( this.nMaxUndo );
+            this.groupBox1.Controls.Add( this.lMaxUndoUnits );
+            this.groupBox1.Controls.Add( this.xMaxUndo );
             this.groupBox1.Controls.Add( this.lAdvancedWarning );
             this.groupBox1.Controls.Add( this.lTickInterval );
             this.groupBox1.Controls.Add( this.xLowLatencyMode );
@@ -2445,7 +2452,7 @@
             // lTickInterval
             // 
             this.lTickInterval.AutoSize = true;
-            this.lTickInterval.Location = new System.Drawing.Point( 96, 245 );
+            this.lTickInterval.Location = new System.Drawing.Point( 98, 261 );
             this.lTickInterval.Name = "lTickInterval";
             this.lTickInterval.Size = new System.Drawing.Size( 71, 15 );
             this.lTickInterval.TabIndex = 15;
@@ -2469,7 +2476,7 @@
             0,
             0,
             0} );
-            this.nTickInterval.Location = new System.Drawing.Point( 173, 243 );
+            this.nTickInterval.Location = new System.Drawing.Point( 175, 259 );
             this.nTickInterval.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -2498,7 +2505,7 @@
             "Notify of update availability",
             "Download and prompt to install",
             "Fully automatic"} );
-            this.cUpdater.Location = new System.Drawing.Point( 173, 183 );
+            this.cUpdater.Location = new System.Drawing.Point( 175, 199 );
             this.cUpdater.Name = "cUpdater";
             this.cUpdater.Size = new System.Drawing.Size( 200, 23 );
             this.cUpdater.TabIndex = 8;
@@ -2506,7 +2513,7 @@
             // lTickIntervalUnits
             // 
             this.lTickIntervalUnits.AutoSize = true;
-            this.lTickIntervalUnits.Location = new System.Drawing.Point( 238, 245 );
+            this.lTickIntervalUnits.Location = new System.Drawing.Point( 240, 261 );
             this.lTickIntervalUnits.Name = "lTickIntervalUnits";
             this.lTickIntervalUnits.Size = new System.Drawing.Size( 24, 15 );
             this.lTickIntervalUnits.TabIndex = 17;
@@ -2515,7 +2522,7 @@
             // lUpdater
             // 
             this.lUpdater.AutoSize = true;
-            this.lUpdater.Location = new System.Drawing.Point( 31, 186 );
+            this.lUpdater.Location = new System.Drawing.Point( 33, 202 );
             this.lUpdater.Name = "lUpdater";
             this.lUpdater.Size = new System.Drawing.Size( 136, 15 );
             this.lUpdater.TabIndex = 38;
@@ -2536,7 +2543,7 @@
             // lThrottlingUnits
             // 
             this.lThrottlingUnits.AutoSize = true;
-            this.lThrottlingUnits.Location = new System.Drawing.Point( 238, 218 );
+            this.lThrottlingUnits.Location = new System.Drawing.Point( 240, 234 );
             this.lThrottlingUnits.Name = "lThrottlingUnits";
             this.lThrottlingUnits.Size = new System.Drawing.Size( 129, 15 );
             this.lThrottlingUnits.TabIndex = 37;
@@ -2545,7 +2552,7 @@
             // lProcessPriority
             // 
             this.lProcessPriority.AutoSize = true;
-            this.lProcessPriority.Location = new System.Drawing.Point( 77, 157 );
+            this.lProcessPriority.Location = new System.Drawing.Point( 79, 173 );
             this.lProcessPriority.Name = "lProcessPriority";
             this.lProcessPriority.Size = new System.Drawing.Size( 90, 15 );
             this.lProcessPriority.TabIndex = 6;
@@ -2558,7 +2565,7 @@
             0,
             0,
             0} );
-            this.nThrottling.Location = new System.Drawing.Point( 173, 216 );
+            this.nThrottling.Location = new System.Drawing.Point( 175, 232 );
             this.nThrottling.Maximum = new decimal( new int[] {
             10000,
             0,
@@ -2588,7 +2595,7 @@
             "Normal",
             "Below Normal",
             "Low"} );
-            this.cProcessPriority.Location = new System.Drawing.Point( 173, 154 );
+            this.cProcessPriority.Location = new System.Drawing.Point( 175, 170 );
             this.cProcessPriority.Name = "cProcessPriority";
             this.cProcessPriority.Size = new System.Drawing.Size( 109, 23 );
             this.cProcessPriority.TabIndex = 6;
@@ -2596,7 +2603,7 @@
             // lThrottling
             // 
             this.lThrottling.AutoSize = true;
-            this.lThrottling.Location = new System.Drawing.Point( 39, 218 );
+            this.lThrottling.Location = new System.Drawing.Point( 41, 234 );
             this.lThrottling.Name = "lThrottling";
             this.lThrottling.Size = new System.Drawing.Size( 128, 15 );
             this.lThrottling.TabIndex = 35;
@@ -2708,6 +2715,49 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.ReshowDelay = 100;
             // 
+            // nMaxUndo
+            // 
+            this.nMaxUndo.Increment = new decimal( new int[] {
+            1000,
+            0,
+            0,
+            0} );
+            this.nMaxUndo.Location = new System.Drawing.Point( 306, 139 );
+            this.nMaxUndo.Maximum = new decimal( new int[] {
+            2147483647,
+            0,
+            0,
+            0} );
+            this.nMaxUndo.Name = "nMaxUndo";
+            this.nMaxUndo.Size = new System.Drawing.Size( 86, 21 );
+            this.nMaxUndo.TabIndex = 44;
+            this.nMaxUndo.Value = new decimal( new int[] {
+            100,
+            0,
+            0,
+            0} );
+            this.nMaxUndo.ValueChanged += new System.EventHandler( this.nMaxUndo_ValueChanged );
+            // 
+            // lMaxUndoUnits
+            // 
+            this.lMaxUndoUnits.AutoSize = true;
+            this.lMaxUndoUnits.Location = new System.Drawing.Point( 398, 141 );
+            this.lMaxUndoUnits.Name = "lMaxUndoUnits";
+            this.lMaxUndoUnits.Size = new System.Drawing.Size( 179, 15 );
+            this.lMaxUndoUnits.TabIndex = 43;
+            this.lMaxUndoUnits.Text = "(up to {0}MB of RAM per player)";
+            // 
+            // xMaxUndo
+            // 
+            this.xMaxUndo.AutoSize = true;
+            this.xMaxUndo.Location = new System.Drawing.Point( 9, 140 );
+            this.xMaxUndo.Name = "xMaxUndo";
+            this.xMaxUndo.Size = new System.Drawing.Size( 291, 19 );
+            this.xMaxUndo.TabIndex = 42;
+            this.xMaxUndo.Text = "Limit the number of blocks that can be undone to";
+            this.xMaxUndo.UseVisualStyleBackColor = true;
+            this.xMaxUndo.CheckedChanged += new System.EventHandler( this.xMaxUndo_CheckedChanged );
+            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2788,6 +2838,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).EndInit();
             this.ResumeLayout( false );
 
         }
@@ -3005,5 +3056,8 @@
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.Label lIRCNoForwardingMessage;
         private System.Windows.Forms.Label lIRCDelayUnits;
+        private System.Windows.Forms.NumericUpDown nMaxUndo;
+        private System.Windows.Forms.Label lMaxUndoUnits;
+        private System.Windows.Forms.CheckBox xMaxUndo;
     }
 }

@@ -29,7 +29,7 @@ namespace fCraft {
             world = _world;
             name = _name;
             lowercaseName = name.ToLower();
-            info = new PlayerInfo( _name, RankList.HighestRank );
+            info = new PlayerInfo( _name, RankList.HighestRank, true, RankChangeType.AutoPromoted );
             spamBlockLog = new Queue<DateTime>( info.rank.AntiGriefBlocks );
             ResetAllBinds();
         }
@@ -206,7 +206,7 @@ namespace fCraft {
 
         public bool PM( Player otherPlayer, string messageText ) {
             Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
-                        name, otherPlayer, messageText );
+                        name, otherPlayer.name, messageText );
             otherPlayer.Message( "{0}from {1}: {2}",
                                  Color.PM, name, messageText );
             if( CanSee( otherPlayer ) ) {
@@ -576,7 +576,7 @@ namespace fCraft {
                      selectionMarksExpected;
         internal object selectionArgs; // can be used for 'block' or 'zone' or whatever
 
-        internal CopyInformation copyInformation;
+        internal DrawCommands.CopyInformation copyInformation;
 
         public void SetCallback( int marksExpected, SelectionCallback callback, object args ) {
             selectionArgs = args;

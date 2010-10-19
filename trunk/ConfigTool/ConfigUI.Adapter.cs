@@ -265,6 +265,9 @@ namespace ConfigTool {
             nThrottling.Value = Config.GetInt( ConfigKey.BlockUpdateThrottling );
             xLowLatencyMode.Checked = Config.GetBool( ConfigKey.LowLatencyMode );
             xSubmitCrashReports.Checked = Config.GetBool( ConfigKey.SubmitCrashReports );
+
+            xMaxUndo.Checked = Config.GetInt( ConfigKey.MaxUndo ) > 0;
+            nMaxUndo.Value = Config.GetInt( ConfigKey.MaxUndo );
         }
 
 
@@ -278,6 +281,7 @@ namespace ConfigTool {
         }
 
         #endregion
+
 
         #region Saving Config
 
@@ -389,8 +393,12 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.LowLatencyMode, xLowLatencyMode.Checked );
             Config.SetValue( ConfigKey.SubmitCrashReports, xSubmitCrashReports.Checked );
 
+            if( xMaxUndo.Checked ) Config.SetValue( ConfigKey.MaxUndo, Convert.ToInt32( nMaxUndo.Value ) );
+            else Config.SetValue( ConfigKey.MaxUndo, 0 );
+
             SaveWorldList();
         }
+
 
         void SaveWorldList() {
             try {
@@ -408,6 +416,7 @@ namespace ConfigTool {
                 MessageBox.Show( "An error occured while trying to save world list (worlds.xml):" + Environment.NewLine + ex );
             }
         }
+
 
         static void WriteEnum( ComboBox box, ConfigKey value, params string[] options ) {
             Config.SetValue( value, options[box.SelectedIndex] );

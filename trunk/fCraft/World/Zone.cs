@@ -132,13 +132,13 @@ namespace fCraft {
             lock( locker ) {
                 string xheader;
                 if( createdBy != null ) {
-                    xheader = createdBy.name + " " + createdDate.ToString( PlayerInfo.DateFormat ) + " ";
+                    xheader = createdBy.name + " " + createdDate.ToCompactString() + " ";
                 } else {
                     xheader = "- - ";
                 }
 
                 if( editedBy != null ) {
-                    xheader += editedBy.name + " " + editedDate.ToString( PlayerInfo.DateFormat );
+                    xheader += editedBy.name + " " + editedDate.ToCompactString();
                 } else {
                     xheader += "- -";
                 }

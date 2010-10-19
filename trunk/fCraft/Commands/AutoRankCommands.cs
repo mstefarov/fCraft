@@ -22,6 +22,7 @@ namespace fCraft {
             consoleSafe = true,
             permissions = new Permission[] { Permission.Import },
             help = "",
+            usage = "/dumpstats FileName",
             handler = DumpStats
         };
 
@@ -121,60 +122,60 @@ namespace fCraft {
 
             writer.WriteLine( "{0}: {1} players, {2} banned", groupName, infos.Length, stat.Banned );
             writer.WriteLine( "    TimeSinceFirstLogin: {0} mean,  {1} median,  {2} total",
-                              FormatTimeSpan( TimeSpan.FromTicks( stat.TimeSinceFirstLogin.Ticks / infos.Length ) ),
-                              FormatTimeSpan( stat.TimeSinceFirstLoginMedian ),
-                              FormatTimeSpan( stat.TimeSinceFirstLogin ) );
+                              TimeSpan.FromTicks( stat.TimeSinceFirstLogin.Ticks / infos.Length ).ToCompactString(),
+                              stat.TimeSinceFirstLoginMedian.ToCompactString(),
+                              stat.TimeSinceFirstLogin.ToCompactString() );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( DateTime.Now.Subtract( info.firstLoginDate ) ), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.firstLoginDate ).ToCompactString(), info.name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( DateTime.Now.Subtract( info.firstLoginDate ) ), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.firstLoginDate ).ToCompactString(), info.name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin ) {
-                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( DateTime.Now.Subtract( info.firstLoginDate ) ), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.firstLoginDate ).ToCompactString(), info.name );
                 }
             }
             writer.WriteLine();
 
 
             writer.WriteLine( "    TimeSinceLastLogin: {0} mean,  {1} median,  {2} total",
-                              FormatTimeSpan( TimeSpan.FromTicks( stat.TimeSinceLastLogin.Ticks / infos.Length ) ),
-                              FormatTimeSpan( stat.TimeSinceLastLoginMedian ),
-                              FormatTimeSpan( stat.TimeSinceLastLogin ) );
+                              TimeSpan.FromTicks( stat.TimeSinceLastLogin.Ticks / infos.Length ).ToCompactString(),
+                              stat.TimeSinceLastLoginMedian.ToCompactString(),
+                              stat.TimeSinceLastLogin.ToCompactString() );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimeSinceLastLogin.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( DateTime.Now.Subtract( info.lastLoginDate ) ), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.lastLoginDate ).ToCompactString(), info.name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopTimeSinceLastLogin.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( DateTime.Now.Subtract( info.lastLoginDate ) ), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.lastLoginDate ).ToCompactString(), info.name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopTimeSinceLastLogin ) {
-                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( DateTime.Now.Subtract( info.lastLoginDate ) ), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.lastLoginDate ).ToCompactString(), info.name );
                 }
             }
             writer.WriteLine();
 
 
             writer.WriteLine( "    TotalTime: {0} mean,  {1} median,  {2} total",
-                              FormatTimeSpan( TimeSpan.FromTicks( stat.TotalTime.Ticks / infos.Length ) ),
-                              FormatTimeSpan( stat.TotalTimeMedian ),
-                              FormatTimeSpan( stat.TotalTime ) );
+                              TimeSpan.FromTicks( stat.TotalTime.Ticks / infos.Length ).ToCompactString(),
+                              stat.TotalTimeMedian.ToCompactString(),
+                              stat.TotalTime.ToCompactString() );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTotalTime.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( info.totalTime ), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.totalTime.ToCompactString(), info.name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopTotalTime.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( info.totalTime ), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.totalTime.ToCompactString(), info.name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopTotalTime ) {
-                    writer.WriteLine( "        {0,20}  {1}", FormatTimeSpan( info.totalTime ), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.totalTime.ToCompactString(), info.name );
                 }
             }
             writer.WriteLine();
@@ -361,12 +362,6 @@ namespace fCraft {
             writer.WriteLine();
         }
 
-
-        static string FormatTimeSpan( TimeSpan span ) {
-            return String.Format( "{0}.{1:00}:{2:00}:{3:00}",
-                span.Days, span.Hours, span.Minutes, span.Seconds );
-        }
-
         class RankStats {
             public TimeSpan TimeSinceFirstLogin;
             public TimeSpan TimeSinceLastLogin;
@@ -440,18 +435,15 @@ namespace fCraft {
             } else {
                 list = PlayerDB.GetPlayerListCopy( rank );
             }
-            DoAutoRankAll( player, list, silent );
+            DoAutoRankAll( player, list, silent, "~AutoRankAll" );
         }
 
-        internal static void DoAutoRankAll( Player player, PlayerInfo[] list, bool silent ) {
+        internal static void DoAutoRankAll( Player player, PlayerInfo[] list, bool silent, string message ) {
 
             player.Message( "AutoRankAll: Evaluating {0} players...", list.Length );
 
             int promoted = 0, demoted = 0;
             foreach( PlayerInfo info in list ) {
-                if( info.name == "Hit_Girl" ) {
-                    Console.Write( "" );
-                }
                 Rank newRank = AutoRank.Check( info );
                 if( newRank != null ) {
                     Player target = Server.FindPlayerExact( info.name );
@@ -460,7 +452,7 @@ namespace fCraft {
                     } else if( newRank < info.rank ) {
                         demoted++;
                     }
-                    AdminCommands.DoChangeRank( player, info, target, newRank, "~AutoRankAll", silent );
+                    AdminCommands.DoChangeRank( player, info, target, newRank, message, silent );
                 }
             }
             player.Message( "AutoRankAll: {0} players promoted, {1} demoted.", promoted, demoted );
@@ -528,6 +520,7 @@ namespace fCraft {
             consoleSafe = true,
             permissions = new Permission[] { Permission.ViewOthersInfo },
             help = "",
+            usage = "/autoranktest PlayerName",
             handler = AutoRankTest
         };
 
@@ -553,6 +546,7 @@ namespace fCraft {
             consoleSafe = true,
             permissions = new Permission[] { Permission.EditPlayerDB },
             help = "",
+            usage = "/editplayerinfo PlayerName Stat Value",
             handler = EditPlayerInfo
         };
 
@@ -607,8 +601,8 @@ namespace fCraft {
                             info.totalTime = newTotalTime;
                             player.Message( "TotalTime for {0}&S changed from {1} to {2}",
                                             info.GetClassyName(),
-                                            FormatTimeSpan( oldTotalTime ),
-                                            FormatTimeSpan( info.totalTime ) );
+                                            oldTotalTime.ToCompactString(),
+                                            info.totalTime.ToCompactString() );
                         } else {
                             player.Message( "Could not parse time. Expected format: Days.HH:MM:SS" );
                         }

@@ -254,10 +254,17 @@ namespace fCraft {
 
                 // ban players who are not in the database yet
             } else if( Player.IsValidName( nameOrIP ) ) {
+                if( !player.Can( Permission.EditPlayerDB ) ) {
+                    player.Message( "Player not found. Please specify valid name or IP." );
+                    return;
+                }
+
+                player.Message( "Warning: player \"{0}\" is not in the database (possible typo)", nameOrIP );
+
                 if( unban ) {
                     player.Message( "\"{0}\" (unrecognized) is not banned.", nameOrIP );
                 } else {
-                    info = PlayerDB.AddFakeEntry( nameOrIP );
+                    info = PlayerDB.AddFakeEntry( nameOrIP, RankChangeType.Default );
                     info.ProcessBan( player, reason );
                     player.Message( "Player \"{0}\" (unrecognized) was banned.", nameOrIP );
                     Logger.Log( "{0} (unrecognized) was banned by {1}", LogType.UserActivity,
@@ -353,7 +360,21 @@ namespace fCraft {
                 string msg = cmd.NextAll();
                 Player[] targets = Server.FindPlayers( player, name );
                 if( targets.Length == 1 ) {
-                    DoKick( player, targets[0], msg, false );
+                    Player target = targets[0];
+                    if( target.info.timesKicked > 0 ) {
+                        player.Message( "Warning: {0}&S has been kicked {1} times before.",
+                                        target.GetClassyName(), target.info.timesKicked);
+                        if( target.info.lastKickDate != DateTime.MinValue ) {
+                            player.Message( "Most recent kick was {0} ago, by {1}.",
+                                            DateTime.Now.Subtract( target.info.lastKickDate ).ToCompactString(),
+                                            target.info.lastKickBy );
+                        }
+                        if( target.info.lastKickReason.Length > 0 ) {
+                            player.Message( "Most recent kick reason was: {0}",
+                                            target.info.lastKickReason );
+                        }
+                    }
+                    DoKick( player, target, msg, false );
                 } else if( targets.Length > 1 ) {
                     player.ManyMatchesMessage( "player", targets );
                 } else {
@@ -373,7 +394,7 @@ namespace fCraft {
             } else {
                 if( !silent ) {
                     Server.SendToAll( target.GetClassyName() + Color.Red + " was kicked by " + player.GetClassyName() );
-                    target.info.ProcessKick( player );
+                    target.info.ProcessKick( player, reason );
                 }
                 if( reason != null && reason.Length > 0 ) {
                     if( !silent && Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) ) {
@@ -434,12 +455,19 @@ namespace fCraft {
             }
 
             if( info == null ) {
-                info = PlayerDB.AddFakeEntry( name );
-                player.Message( "Warning: player \"{0}\" is in the database (possible typo)",
-                                name );
+                if( !player.Can( Permission.EditPlayerDB ) ) {
+                    player.NoPlayerMessage( name );
+                    return;
+                }
+                if( Player.IsValidName( name ) ) {
+                    player.Message( "Warning: player \"{0}\" is not in the database (possible typo)", name );
+                    info = PlayerDB.AddFakeEntry( name, (newClass > RankList.DefaultRank ? RankChangeType.Promoted : RankChangeType.Demoted) );
+                } else {
+                    player.Message( "Player not found. Please specify a valid name." );
+                }
             }
 
-            DoChangeRank( player, info, target, newClass, cmd.NextAll(),false );
+            DoChangeRank( player, info, target, newClass, cmd.NextAll(), false );
         }
 
 
@@ -501,8 +529,8 @@ namespace fCraft {
 
                 if( !Server.FirePlayerRankChange( targetInfo, player, oldRank, newRank ) ) return;
 
-                if(!silent) Logger.Log( "{0} {1} {2} from {3} to {4}.", LogType.UserActivity,
-                                        player.name, verb, targetInfo.name, targetInfo.rank.Name, newRank.Name );
+                if( !silent ) Logger.Log( "{0} {1} {2} from {3} to {4}.", LogType.UserActivity,
+                                          player.name, verb, targetInfo.name, targetInfo.rank.Name, newRank.Name );
 
                 // if player is online, toggle visible/invisible players
                 if( target != null && target.world != null ) {
@@ -645,7 +673,7 @@ namespace fCraft {
                 }
             }
 
-            PlayerDB.Save( null );
+            PlayerDB.Save();
             IPBanList.Save();
         }
 
@@ -710,12 +738,13 @@ namespace fCraft {
             foreach( string name in names ) {
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name );
                 if( info == null ) {
-                    info = PlayerDB.AddFakeEntry( name );
+                    info = PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
                 }
-                DoChangeRank( player, info, null, targetClass, reason, silent );
+                Player target = Server.FindPlayerExact( info.name );
+                DoChangeRank( player, info, target, targetClass, reason, silent );
             }
 
-            PlayerDB.Save( null );
+            PlayerDB.Save();
         }
 
         #endregion

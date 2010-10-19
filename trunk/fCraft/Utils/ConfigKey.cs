@@ -78,6 +78,8 @@ namespace fCraft {
         LowLatencyMode,
         SubmitCrashReports,
 
+        MaxUndo,
+
         AutoRankEnabled
     }
 }

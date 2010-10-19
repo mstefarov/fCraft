@@ -424,16 +424,16 @@ namespace fCraft {
                     player.Message( "About {0}: Never seen before.", info.name );
 
                 } else {
-                    if( DateTime.Now.Subtract( info.lastLoginDate ).TotalDays < 1 ) {
-                        player.Message( "About {0}: Last login {1:F1} hours ago from {2}",
+                    if( DateTime.Now.Subtract( info.lastSeen ).TotalDays < 2 ) {
+                        player.Message( "About {0}: Last seen {1:F1} hours ago from {2}",
                                         info.name,
-                                        DateTime.Now.Subtract( info.lastLoginDate ).TotalHours,
+                                        DateTime.Now.Subtract( info.lastSeen ).TotalHours,
                                         info.lastIP );
 
                     } else {
-                        player.Message( "About {0}: Last login {1:F1} days ago from {2}",
+                        player.Message( "About {0}: Last seen {1:F1} days ago from {2}",
                                         info.name,
-                                        DateTime.Now.Subtract( info.lastLoginDate ).TotalDays,
+                                        DateTime.Now.Subtract( info.lastSeen ).TotalDays,
                                         info.lastIP );
                     }
                     // Show login information
@@ -454,10 +454,24 @@ namespace fCraft {
                 }
 
                 // Stats
-                player.Message( "  Built {0} and deleted {1} blocks, and wrote {2} messages.",
-                                info.blocksBuilt,
-                                info.blocksDeleted,
-                                info.linesWritten );
+                if( info.blocksDrawn > 1000000 ) {
+                    player.Message( "  Built {0} and deleted {1} blocks, affected {2}k blocks with draw commands, wrote {3} messages.",
+                                    info.blocksBuilt,
+                                    info.blocksDeleted,
+                                    info.blocksDrawn/1000,
+                                    info.linesWritten );
+                } else if( info.blocksDrawn > 0 ) {
+                    player.Message( "  Built {0} and deleted {1} blocks, draw {2} blocks with draw commands, wrote {3} messages.",
+                                    info.blocksBuilt,
+                                    info.blocksDeleted,
+                                    info.blocksDrawn,
+                                    info.linesWritten );
+                } else {
+                    player.Message( "  Built {0} and deleted {1} blocks, wrote {2} messages.",
+                                    info.blocksBuilt,
+                                    info.blocksDeleted,
+                                    info.linesWritten );
+                }
 
                 // More stats
                 if( info.timesBannedOthers > 0 || info.timesKickedOthers > 0 ) {
@@ -465,11 +479,29 @@ namespace fCraft {
                 }
 
                 if( info.timesKicked > 0 ) {
-                    player.Message( "  Got kicked {0} times (so far).", info.timesKicked );
+                    if( info.lastKickDate != DateTime.MinValue ) {
+                        TimeSpan timeSinceLastKick = DateTime.Now.Subtract( info.lastKickDate );
+                        if( timeSinceLastKick.TotalDays < 2 ) {
+                            player.Message( "  Got kicked {0} times. Last kick {1:F1} hours ago by {2}",
+                                            info.timesKicked,
+                                            timeSinceLastKick.TotalHours,
+                                            info.lastKickBy );
+                        } else {
+                            player.Message( "  Got kicked {0} times. Last kick {1:F1} days ago by {2}",
+                                            info.timesKicked,
+                                            timeSinceLastKick.TotalDays,
+                                            info.lastKickBy );
+                        }
+                        if( info.lastKickReason.Length > 0 ) {
+                            player.Message( "  Last kick reason: {0}", info.lastKickReason );
+                        }
+                    } else {
+                        player.Message( "  Got kicked {0} times", info.timesKicked );
+                    }
                 }
 
                 // Promotion/demotion
-                if( info.rankChangedBy != "-" ) {
+                if( info.rankChangedBy != "" ) {
                     if( info.previousRank == null ) {
                         player.Message( "  Promoted to {0}&S by {1} on {2:dd MMM yyyy}.",
                                         info.rank.GetClassyName(),
@@ -490,7 +522,7 @@ namespace fCraft {
                                         info.rank.GetClassyName(),
                                         info.rankChangedBy,
                                         info.rankChangeDate );
-                        if( info.rankChangeReason != null && info.rankChangeReason.Length > 0 ) {
+                        if( info.rankChangeReason.Length > 0 ) {
                             player.Message( "  Demotion reason: {0}", info.rankChangeReason );
                         }
                     }
@@ -567,7 +599,7 @@ namespace fCraft {
                     } else {
                         player.Message( "Player {0} is currently NOT banned.", info.name );
                     }
-                    if( info.bannedBy != "-" ) {
+                    if( info.bannedBy != "" ) {
                         player.Message( "  Last banned by {0} on {1:dd MMM yyyy}.",
                                         info.bannedBy,
                                         info.banDate );
@@ -575,7 +607,7 @@ namespace fCraft {
                             player.Message( "  Last ban memo: {0}", info.banReason );
                         }
                     }
-                    if( info.unbannedBy != "-" ) {
+                    if( info.unbannedBy != "" ) {
                         player.Message( "  Unbanned by {0} on {1:dd MMM yyyy}.",
                                         info.unbannedBy,
                                         info.unbanDate );

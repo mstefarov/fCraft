@@ -13,24 +13,35 @@ namespace fCraft {
         static List<PlayerInfo> list = new List<PlayerInfo>();
         public const int SaveInterval = 60000; // 60s
 
-        static int MaxID = 0;
+        static int MaxID = 255;
+
+        public static string ToCompactString( this TimeSpan span ) {
+            return String.Format( "{0}.{1:00}:{2:00}:{3:00}",
+                span.Days, span.Hours, span.Minutes, span.Seconds );
+        }
+
+        public static string ToCompactString( this DateTime date ) {
+            return date.ToString( "yyyy'-'MM'-'dd'T'HH':'mm':'ssK" );
+        }
+
 
         public const string DBFile = "PlayerDB.txt",
-                            Header = "3 fCraft PlayerDB | Row format: " +
+                            Header = " fCraft PlayerDB | Row format: " +
                                      "playerName,lastIP,rank,rankChangeDate,rankChangeBy," +
                                      "banStatus,banDate,bannedBy,unbanDate,unbannedBy," +
                                      "firstLoginDate,lastLoginDate,lastFailedLoginDate," +
                                      "lastFailedLoginIP,failedLoginCount,totalTimeOnServer," +
                                      "blocksBuilt,blocksDeleted,timesVisited," +
                                      "linesWritten,UNUSED,UNUSED,previousRank,rankChangeReason," +
-                                     "timesKicked,timesKickedOthers,timesBannedOthers,UID";
+                                     "timesKicked,timesKickedOthers,timesBannedOthers,UID," +
+                                     "rankChangeType,lastKickDate,LastSeen,BlocksDrawn,lastKickBy,lastKickReason";
 
         public static ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
         public static bool isLoaded;
 
 
-        public static PlayerInfo AddFakeEntry( string name ) {
-            PlayerInfo info = new PlayerInfo( name, RankList.DefaultRank );
+        public static PlayerInfo AddFakeEntry( string name, RankChangeType _rankChangeType ) {
+            PlayerInfo info = new PlayerInfo( name, RankList.DefaultRank, false, _rankChangeType );
             locker.EnterWriteLock();
             try {
                 list.Add( info );
@@ -42,12 +53,24 @@ namespace fCraft {
         }
 
 
+        #region Saving/Loading
+
         public static void Load() {
             if( File.Exists( DBFile ) ) {
                 locker.EnterWriteLock();
                 try {
                     using( StreamReader reader = File.OpenText( DBFile ) ) {
-                        reader.ReadLine(); // header
+
+                        string header = reader.ReadLine();// header
+                        int maxIDField;
+
+                        // first number of the header is MaxID
+                        if( Int32.TryParse( header.Split( ' ' )[0], out maxIDField ) ) {
+                            if( maxIDField >= 255 ) {// IDs start at 256
+                                MaxID = maxIDField;
+                            }
+                        }
+
                         while( !reader.EndOfStream ) {
                             string[] fields = reader.ReadLine().Split( ',' );
                             if( fields.Length >= PlayerInfo.MinFieldCount && fields.Length <= PlayerInfo.MaxFieldCount ) {
@@ -85,14 +108,14 @@ namespace fCraft {
         }
 
 
-        public static void Save( object param ) {
+        public static void Save() {
             Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count() );
             string tempFile = Path.GetTempFileName();
 
             locker.EnterReadLock();
             try {
                 using( StreamWriter writer = File.CreateText( tempFile ) ) {
-                    writer.WriteLine( Header );
+                    writer.WriteLine( MaxID + Header );
                     foreach( PlayerInfo entry in list ) {
                         writer.WriteLine( entry.Serialize() );
                     }
@@ -108,6 +131,10 @@ namespace fCraft {
             }
         }
 
+        #endregion
+
+
+        #region Lookup
 
         public static PlayerInfo FindPlayerInfo( Player player ) {
             if( player == null ) return null;
@@ -179,6 +206,10 @@ namespace fCraft {
             return info;
         }
 
+        #endregion
+
+
+        #region Stats
 
         public static int CountBannedPlayers() {
             int banned = 0;
@@ -193,31 +224,11 @@ namespace fCraft {
             }
         }
 
+
         public static int CountTotalPlayers() {
             return list.Count;
         }
 
-        public static int GetNextID() {
-            return Interlocked.Increment( ref MaxID );
-        }
-
-
-        public static int MassRankChange( Player player, Rank from, Rank to, bool silent ) {
-            int affected = 0;
-            locker.EnterWriteLock();
-            try {
-                foreach( PlayerInfo info in list ) {
-                    if( info.rank == from ) {
-                        Player target = Server.FindPlayerExact(info.name);
-                        AdminCommands.DoChangeRank( player, info, target, to, "~MassRank", silent );
-                        affected++;
-                    }
-                }
-                return affected;
-            } finally {
-                locker.ExitWriteLock();
-            }
-        }
 
         public static int CountPlayersByRank( Rank pc ) {
             int count = 0;
@@ -232,6 +243,32 @@ namespace fCraft {
             }
         }
 
+        #endregion
+
+
+        public static int GetNextID() {
+            return Interlocked.Increment( ref MaxID );
+        }
+
+
+        public static int MassRankChange( Player player, Rank from, Rank to, bool silent ) {
+            int affected = 0;
+            locker.EnterWriteLock();
+            try {
+                foreach( PlayerInfo info in list ) {
+                    if( info.rank == from ) {
+                        Player target = Server.FindPlayerExact( info.name );
+                        AdminCommands.DoChangeRank( player, info, target, to, "~MassRank", silent );
+                        affected++;
+                    }
+                }
+                return affected;
+            } finally {
+                locker.ExitWriteLock();
+            }
+        }
+
+
         public static PlayerInfo[] GetPlayerListCopy() {
             locker.EnterReadLock();
             try {
@@ -240,6 +277,7 @@ namespace fCraft {
                 locker.ExitReadLock();
             }
         }
+
 
         public static PlayerInfo[] GetPlayerListCopy( Rank pc ) {
             locker.EnterReadLock();
