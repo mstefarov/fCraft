@@ -270,6 +270,7 @@ namespace fCraft {
 
             // alternative names for some blocks
             blockNames["none"] = Block.Air;
+            blockNames["aire"] = Block.Air; // common typo
             blockNames["nothing"] = Block.Air;
             blockNames["empty"] = Block.Air;
             blockNames["delete"] = Block.Air;
@@ -292,6 +293,7 @@ namespace fCraft {
             blockNames["adminium"] = Block.Admincrete;
             blockNames["opcrete"] = Block.Admincrete;
             blockNames["solid"] = Block.Admincrete;
+            blockNames["bedrock"] = Block.Admincrete;
             blockNames["gold_ore"] = Block.GoldOre;
             blockNames["iron_ore"] = Block.IronOre;
             blockNames["ore"] = Block.IronOre;
@@ -314,6 +316,7 @@ namespace fCraft {
             blockNames["purple"] = Block.Violet;
             blockNames["fuchsia"] = Block.Magenta;
             blockNames["cloth"] = Block.White;
+            blockNames["cotton"] = Block.White;
             blockNames["grey"] = Block.Gray;
             blockNames["lightgray"] = Block.Gray;
             blockNames["lightgrey"] = Block.Gray;

@@ -160,13 +160,13 @@ namespace fCraft {
 
             fields[0] = address.ToString();
             fields[1] = bannedBy;
-            fields[2] = banDate.ToString( PlayerInfo.DateFormat );
+            fields[2] = banDate.ToCompactString();
             fields[3] = PlayerInfo.Escape( banReason );
             fields[4] = playerName;
             fields[5] = attempts.ToString();
             fields[6] = lastAttemptName;
             if( lastAttemptDate == DateTime.MinValue ) fields[7] = "-";
-            else fields[7] = lastAttemptDate.ToString( PlayerInfo.DateFormat );
+            else fields[7] = lastAttemptDate.ToCompactString();
 
             return String.Join( ",", fields );
         }

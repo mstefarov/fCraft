@@ -4,37 +4,40 @@ using System.Collections.Generic;
 
 namespace fCraft {
 
-    enum DrawMode {
-        Cuboid,
-        CuboidHollow,
-        Ellipsoid,
-        Replace,
-        ReplaceNot
-    }
-
-
-    class CopyInformation {
-        public byte[, ,] buffer;
-        public int widthX, widthY, height;
-    }
-
-
-    struct ReplaceArgs {
-        public bool doExclude;
-        public Block[] types;
-        public Block replacementBlock;
-    }
-
-
-    struct PasteArgs {
-        public bool doInclude, doExclude;
-        public Block[] types;
-    }
-
-
     static class DrawCommands {
 
-        const int MaxUndoCount = 2000000;
+        #region State Objects and Enums
+
+        public enum DrawMode {
+            Cuboid,
+            CuboidHollow,
+            Ellipsoid,
+            Replace,
+            ReplaceNot
+        }
+
+
+        public class CopyInformation {
+            public byte[, ,] buffer;
+            public int widthX, widthY, height;
+        }
+
+
+        struct ReplaceArgs {
+            public bool doExclude;
+            public Block[] types;
+            public Block replacementBlock;
+        }
+
+
+        struct PasteArgs {
+            public bool doInclude, doExclude;
+            public Block[] types;
+        }
+
+        #endregion
+
+        public static int MaxUndoCount = 2000000;
         const int DrawStride = 16;
 
 
@@ -69,6 +72,8 @@ namespace fCraft {
             CommandList.RegisterCommand( cdRotate );
         }
 
+
+        #region Command Descriptors
 
         static CommandDescriptor cdCuboid = new CommandDescriptor {
             name = "cuboid",
@@ -145,6 +150,7 @@ namespace fCraft {
             Draw( player, cmd, DrawMode.ReplaceNot );
         }
 
+        #endregion
 
 
         internal static void Draw( Player player, Command cmd, DrawMode mode ) {
@@ -252,57 +258,6 @@ namespace fCraft {
         }
 
 
-
-        static CommandDescriptor cdMark = new CommandDescriptor {
-            name = "mark",
-            aliases = new string[] { "m" },
-            help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. " +
-                   "You can mark in places where making blocks is difficult (e.g. mid-air).",
-            handler = Mark
-        };
-
-        internal static void Mark( Player player, Command command ) {
-            Position pos = new Position( (short)((player.pos.x - 1) / 32), (short)((player.pos.y - 1) / 32), (short)((player.pos.h - 1) / 32) );
-            pos.x = (short)Math.Min( player.world.map.widthX - 1, Math.Max( 0, (int)pos.x ) );
-            pos.y = (short)Math.Min( player.world.map.widthY - 1, Math.Max( 0, (int)pos.y ) );
-            pos.h = (short)Math.Min( player.world.map.height - 1, Math.Max( 0, (int)pos.h ) );
-
-            if( player.selectionMarksExpected > 0 ) {
-                player.selectionMarks.Enqueue( pos );
-                player.selectionMarkCount++;
-                if( player.selectionMarkCount >= player.selectionMarksExpected ) {
-                    player.selectionCallback( player, player.selectionMarks.ToArray(), player.selectionArgs );
-                    player.selectionMarksExpected = 0;
-                } else {
-                    player.MessageNow( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
-                                       player.selectionMarkCount,
-                                       pos.x, pos.y, pos.h,
-                                       player.selectionMarkCount + 1 );
-                }
-            } else {
-                player.MessageNow( "Cannot mark - no draw or zone commands initiated." );
-            }
-        }
-
-
-
-        static CommandDescriptor cdCancel = new CommandDescriptor {
-            name = "cancel",
-            help = "Cancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. " +
-                   "If you wish to stop a drawing in-progress, use &H/lock&S instead.",
-            handler = Cancel
-        };
-
-        internal static void Cancel( Player player, Command command ) {
-            if( player.selectionMarksExpected > 0 ) {
-                player.selectionMarksExpected = 0;
-                player.MessageNow( "Selection cancelled." );
-            } else {
-                player.MessageNow( "There is currently nothing to cancel." );
-            }
-        }
-
-
         #region Undo / Redo
         static CommandDescriptor cdUndo = new CommandDescriptor {
             name = "undo",
@@ -342,6 +297,8 @@ namespace fCraft {
         }
         #endregion
 
+
+        #region Draw Callbacks
 
         internal static void ReplaceCallback( Player player, Position[] marks, object drawArgs ) {
             ReplaceArgs args = (ReplaceArgs)drawArgs;
@@ -430,6 +387,7 @@ namespace fCraft {
             foreach( Block affectedBlock in specialTypes ) {
                 affectedString += ", " + affectedBlock.ToString();
             }
+            player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} replaced {1} blocks {2} ({3}) with {4} (on world {5})", LogType.UserActivity,
                         player.name, blocks,
                         (doExclude ? "except" : "of"),
@@ -480,6 +438,7 @@ namespace fCraft {
                 }
             }
             player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
+            player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} drew a cuboid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
                         player.name,
                         blocks,
@@ -537,6 +496,7 @@ namespace fCraft {
             }
 
             player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
+            player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} drew a hollow cuboid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
                         player.name,
                         blocks,
@@ -576,7 +536,7 @@ namespace fCraft {
             double ch = (eh + sh) / 2d;
 
 
-            int volume = (int)(.75d * Math.PI * rx * ry * rh);
+            int volume = (int)(4/3d * Math.PI * rx * ry * rh);
             if( player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                    player.info.rank.DrawLimit,
@@ -610,6 +570,7 @@ namespace fCraft {
                 }
             }
             player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
+            player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} drew an ellipsoid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
                         player.name,
                         blocks,
@@ -640,6 +601,8 @@ namespace fCraft {
             }
             blocks++;
         }
+
+        #endregion
 
 
         #region Copy and Paste
@@ -774,6 +737,7 @@ namespace fCraft {
                                (copyInfo.widthY > 0 ? "south" : "north"),
                                (copyInfo.widthX > 0 ? "west" : "east") );
 
+            player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} cut {1} blocks from {2}, replacing {3} blocks with {4}.", LogType.UserActivity,
                         player.name, volume, player.world.name, blocks, (Block)fillType );
 
@@ -946,6 +910,7 @@ namespace fCraft {
 
             player.MessageNow( "{0} blocks pasted. The map is now being updated...", blocks );
 
+            player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} pasted {1} blocks to {2}.", LogType.UserActivity,
                         player.name, blocks, player.world.name );
             player.undoBuffer.TrimExcess();
@@ -1202,5 +1167,55 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        static CommandDescriptor cdMark = new CommandDescriptor {
+            name = "mark",
+            aliases = new string[] { "m" },
+            help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. " +
+                   "You can mark in places where making blocks is difficult (e.g. mid-air).",
+            handler = Mark
+        };
+
+        internal static void Mark( Player player, Command command ) {
+            Position pos = new Position( (short)((player.pos.x - 1) / 32), (short)((player.pos.y - 1) / 32), (short)((player.pos.h - 1) / 32) );
+            pos.x = (short)Math.Min( player.world.map.widthX - 1, Math.Max( 0, (int)pos.x ) );
+            pos.y = (short)Math.Min( player.world.map.widthY - 1, Math.Max( 0, (int)pos.y ) );
+            pos.h = (short)Math.Min( player.world.map.height - 1, Math.Max( 0, (int)pos.h ) );
+
+            if( player.selectionMarksExpected > 0 ) {
+                player.selectionMarks.Enqueue( pos );
+                player.selectionMarkCount++;
+                if( player.selectionMarkCount >= player.selectionMarksExpected ) {
+                    player.selectionCallback( player, player.selectionMarks.ToArray(), player.selectionArgs );
+                    player.selectionMarksExpected = 0;
+                } else {
+                    player.MessageNow( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
+                                       player.selectionMarkCount,
+                                       pos.x, pos.y, pos.h,
+                                       player.selectionMarkCount + 1 );
+                }
+            } else {
+                player.MessageNow( "Cannot mark - no draw or zone commands initiated." );
+            }
+        }
+
+
+
+        static CommandDescriptor cdCancel = new CommandDescriptor {
+            name = "cancel",
+            help = "Cancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. " +
+                   "If you wish to stop a drawing in-progress, use &H/lock&S instead.",
+            handler = Cancel
+        };
+
+        internal static void Cancel( Player player, Command command ) {
+            if( player.selectionMarksExpected > 0 ) {
+                player.selectionMarksExpected = 0;
+                player.MessageNow( "Selection cancelled." );
+            } else {
+                player.MessageNow( "There is currently nothing to cancel." );
+            }
+        }
     }
 }

@@ -452,7 +452,7 @@ namespace fCraft {
                 }
             }
             if( bannedPlayerNames.Count > 0 ) {
-                string logString = String.Format( Color.Red + "Player {0} logged in from an IP previously used by banned players: {1}",
+                string logString = String.Format( Color.Red + "Player {0}&S logged in from an IP previously used by banned players: {1}",
                                                   player.GetClassyName(),
                                                   String.Join( ", ", bannedPlayerNames.ToArray() ) );
                 Server.SendToAll( logString );
@@ -537,6 +537,12 @@ namespace fCraft {
 
             // Player is now authenticated. Send server info.
             writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), Config.GetString( ConfigKey.MOTD ) ) );
+
+            // AutoRank
+            Rank newRank = AutoRank.Check( player.info );
+            if( newRank != null ) {
+                AdminCommands.DoChangeRank( Player.Console, player.info, player, newRank, "~AutoRank", false );
+            }
 
             bool firstTime = (player.info.timesVisited == 1);
             Server.ShowPlayerConnectedMessage( player, firstTime, Server.mainWorld );

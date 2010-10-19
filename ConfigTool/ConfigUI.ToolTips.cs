@@ -338,6 +338,15 @@ Affected commands:
     /cancel
     /undo";
 
+            vPermissions.Items[(int)Permission.EditPlayerDB].ToolTipText =
+@"Ability to edit the player database directly. This also adds the ability to
+promote/demote/ban players by name, even if they have not visited the server yet.
+Affected commands:
+    /massrank
+    /autorankall
+    /autorankreload
+    /editplayerinfo";
+
             vPermissions.Items[(int)Permission.Freeze].ToolTipText =
 @"Ability to freeze/unfreeze players. Frozen players cannot
 move or build/delete.
@@ -686,6 +695,15 @@ reduce bandwidth and CPU use, but will add latency to block placement.";
             toolTip.SetToolTip( lTickInterval, tipTickInterval );
             toolTip.SetToolTip( nTickInterval, tipTickInterval );
             toolTip.SetToolTip( lTickIntervalUnits, tipTickInterval );
+
+            string tipMaxUndo =
+@"The number of blocks that players can undo at a time.
+Only the most-recent draw command can be undo, so the actual
+limit also depends on rank draw limits. Saving undo information
+takes up 16 bytes per block.";
+            toolTip.SetToolTip( xMaxUndo, tipMaxUndo );
+            toolTip.SetToolTip( nMaxUndo, tipMaxUndo );
+            toolTip.SetToolTip( lMaxUndoUnits, tipMaxUndo );
         }
     }
 }

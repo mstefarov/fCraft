@@ -150,9 +150,9 @@ namespace fCraft {
                 return new ConditionNAND( el );
             } else if( el.Name == "ConditionIntRange" ) {
                 return new ConditionIntRange( el );
-            } else if( el.Name == "RankStatus" ) {
-                return new ConditionRankStatus( el );
-            } else if( el.Name == "PreviousRank" ) {
+            } else if( el.Name == "ConditionRankChangeType" ) {
+                return new ConditionRankChangeType( el );
+            } else if( el.Name == "ConditionPreviousRank" ) {
                 return new ConditionPreviousRank( el );
             } else {
                 return null;
@@ -189,34 +189,60 @@ namespace fCraft {
         }
 
         public override bool Eval( PlayerInfo info ) {
-            int value;
+            long givenValue;
+            /*
+             *         TimeSinceFirstLogin,
+        TimeSinceLastLogin,
+        LastSeen,
+        TotalTime,
+        BlocksBuilt,
+        BlocksDeleted,
+        BlocksChanged,
+        BlocksDrawn,
+        TimesVisited,
+        MessagesWritten,
+        TimesKicked,
+        TimeSinceRankChange,
+        TimeSinceLastKick*/
             switch( Field ) {
-                case ConditionField.BlocksBuilt:
-                    value = info.blocksBuilt;
-                    break;
-                case ConditionField.BlocksChanged:
-                    value = info.blocksBuilt + info.blocksDeleted;
-                    break;
-                case ConditionField.BlocksDeleted:
-                    value = info.blocksDeleted;
-                    break;
-                case ConditionField.MessagesWritten:
-                    value = info.linesWritten;
-                    break;
                 case ConditionField.TimeSinceFirstLogin:
-                    value = (int)DateTime.Now.Subtract( info.firstLoginDate ).TotalSeconds;
+                    givenValue = (int)DateTime.Now.Subtract( info.firstLoginDate ).TotalSeconds;
                     break;
                 case ConditionField.TimeSinceLastLogin:
-                    value = (int)DateTime.Now.Subtract( info.lastLoginDate ).TotalSeconds;
+                    givenValue = (int)DateTime.Now.Subtract( info.lastLoginDate ).TotalSeconds;
                     break;
-                case ConditionField.TimesKicked:
-                    value = info.timesKicked;
+                case ConditionField.LastSeen:
+                    givenValue = (int)DateTime.Now.Subtract( info.lastSeen ).TotalSeconds;
+                    break;
+                case ConditionField.BlocksBuilt:
+                    givenValue = info.blocksBuilt;
+                    break;
+                case ConditionField.BlocksDeleted:
+                    givenValue = info.blocksDeleted;
+                    break;
+                case ConditionField.BlocksChanged:
+                    givenValue = info.blocksBuilt + info.blocksDeleted;
+                    break;
+                case ConditionField.BlocksDrawn:
+                    givenValue = info.blocksDrawn;
                     break;
                 case ConditionField.TimesVisited:
-                    value = info.timesVisited;
+                    givenValue = info.timesVisited;
+                    break;
+                case ConditionField.MessagesWritten:
+                    givenValue = info.linesWritten;
+                    break;
+                case ConditionField.TimesKicked:
+                    givenValue = info.timesKicked;
                     break;
                 case ConditionField.TotalTime:
-                    value = (int)info.totalTime.TotalSeconds;
+                    givenValue = (int)info.totalTime.TotalSeconds;
+                    break;
+                case ConditionField.TimeSinceRankChange:
+                    givenValue = (int)DateTime.Now.Subtract( info.rankChangeDate ).TotalSeconds;
+                    break;
+                case ConditionField.TimeSinceLastKick:
+                    givenValue = (int)DateTime.Now.Subtract( info.lastKickDate ).TotalSeconds;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -224,17 +250,17 @@ namespace fCraft {
 
             switch( this.Comparison ) {
                 case ComparisonOperation.lt:
-                    return (value < Value);
+                    return (givenValue < Value);
                 case ComparisonOperation.lte:
-                    return (value <= Value);
+                    return (givenValue <= Value);
                 case ComparisonOperation.gte:
-                    return (value >= Value);
+                    return (givenValue >= Value);
                 case ComparisonOperation.gt:
-                    return (value > Value);
+                    return (givenValue > Value);
                 case ComparisonOperation.eq:
-                    return (value == Value);
+                    return (givenValue == Value);
                 case ComparisonOperation.neq:
-                    return (value != Value);
+                    return (givenValue != Value);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -252,24 +278,24 @@ namespace fCraft {
 
 
     // check RankStatus
-    public sealed class ConditionRankStatus : Condition {
-        public RankStatus Status;
+    public sealed class ConditionRankChangeType : Condition {
+        public RankChangeType Type;
 
-        public ConditionRankStatus( RankStatus _status ) {
-            this.Status = _status;
+        public ConditionRankChangeType( RankChangeType _type ) {
+            this.Type = _type;
         }
 
-        public ConditionRankStatus( XElement el ) {
-            Status = (RankStatus)Enum.Parse( typeof( RankStatus ), el.Attribute( "val" ).Value );
+        public ConditionRankChangeType( XElement el ) {
+                Type = (RankChangeType)Enum.Parse( typeof( RankChangeType ), el.Attribute( "val" ).Value );
         }
 
         public override bool Eval( PlayerInfo info ) {
-            return (info.rankStatus & this.Status) > 0;
+            return (info.rankChangeType & Type) == Type;
         }
 
         public override XElement Serialize() {
-            XElement el = new XElement( "ConditionRankStatus" );
-            el.Add( new XAttribute( "val", Status.ToString() ) );
+            XElement el = new XElement( "ConditionRankChangeType" );
+            el.Add( new XAttribute( "val", this.Type.ToString() ) );
             return el;
         }
     }
@@ -470,15 +496,17 @@ namespace fCraft {
     public enum ConditionField {
         TimeSinceFirstLogin,
         TimeSinceLastLogin,
-        //LastSeen, TODO
+        LastSeen,
         TotalTime,
-        //NonIdleTime, TODO
         BlocksBuilt,
         BlocksDeleted,
         BlocksChanged,
+        BlocksDrawn,
         TimesVisited,
         MessagesWritten,
-        TimesKicked
+        TimesKicked,
+        TimeSinceRankChange,
+        TimeSinceLastKick
     }
 
     public enum ConditionScopeType {
@@ -494,13 +522,12 @@ namespace fCraft {
         Automatic
     }
 
-    public enum RankStatus {
-        Promoted,
-        Demoted,
-        AutoPromoted,
-        AutoDemoted,
-        Default,
-        Unknown
+    public enum RankChangeType {
+        Default = 0,
+        Promoted = 1,
+        Demoted = 2,
+        AutoPromoted = 3,
+        AutoDemoted = 4
     }
 
     #endregion
