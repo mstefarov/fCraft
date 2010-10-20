@@ -545,7 +545,7 @@ namespace fCraft {
             }
 
             bool firstTime = (player.info.timesVisited == 1);
-            Server.ShowPlayerConnectedMessage( player, firstTime, Server.mainWorld );
+            Server.SendToAll( Server.MakePlayerConnectedMessage( player, firstTime, Server.mainWorld ) );
             if( !JoinWorldNow( Server.mainWorld, true ) ) {
                 Logger.Log( "Failed to load main world ({0}) for connecting player {1} (from {2})", LogType.Error,
                             Server.mainWorld.name, player.name, GetIP() );

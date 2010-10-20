@@ -669,12 +669,24 @@ namespace fCraft {
             }
         }
 
+        public static void SendToSeeing( string message, Player source ) {
+            foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
+                SendToSeeing( packet, source );
+            }
+        }
+
         public static void SendToBlind( Packet packet, Player source ) {
             Player[] playerListCopy = playerList;
             for( int i = 0; i < playerListCopy.Length; i++ ) {
                 if( playerListCopy[i] != source && !playerListCopy[i].CanSee( source ) ) {
                     playerListCopy[i].Send( packet );
                 }
+            }
+        }
+
+        public static void SendToBlind( string message, Player source ) {
+            foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
+                SendToBlind( packet, source );
             }
         }
 
@@ -1051,19 +1063,17 @@ namespace fCraft {
 
         #region PlayerList
 
-        public static void ShowPlayerConnectedMessage( Player player, bool firstTime, World world ) {
+        public static string MakePlayerConnectedMessage( Player player, bool firstTime, World world ) {
             if( firstTime ) {
-                SendToAll( String.Format( "&S{0} ({1}&S) connected for the first time, joined {2}",
-                                          player.name,
-                                          player.info.rank.GetClassyName(),
-                                          world.GetClassyName() ),
-                                          player );
+                return String.Format( "&S{0} ({1}&S) connected for the first time, joined {2}",
+                                      player.name,
+                                      player.info.rank.GetClassyName(),
+                                      world.GetClassyName() );
             } else {
-                SendToAll( String.Format( "&S{0} ({1}&S) connected, joined {2}",
-                                          player.name,
-                                          player.info.rank.GetClassyName(),
-                                          world.GetClassyName() ),
-                                          player );
+                return String.Format( "&S{0} ({1}&S) connected, joined {2}",
+                                      player.name,
+                                      player.info.rank.GetClassyName(),
+                                      world.GetClassyName() );
             }
         }
 

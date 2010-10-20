@@ -764,21 +764,17 @@ namespace fCraft {
 
         internal static void Hide( Player player, Command cmd ) {
             if( !player.isHidden ) {
+
                 player.isHidden = true;
-
-                Server.SendToBlind( PacketWriter.MakeRemoveEntity( player.id ), player );
-
-                string message = String.Format( "&SPlayer {0}&S left the server.", player.GetClassyName() );
-                foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
-                    Server.SendToBlind( packet, player );
-                }
-
-                message = String.Format( "{0}&S is now hidden.", player.GetClassyName() );
-                foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
-                    Server.SendToSeeing( packet, player );
-                }
-
                 player.Message( "{0}You are now hidden.", Color.Gray );
+
+                // for oblivious players: remove player from the list
+                Server.SendToBlind( PacketWriter.MakeRemoveEntity( player.id ), player );
+                Server.SendToBlind( String.Format( "&SPlayer {0}&S left the server.", player.GetClassyName() ), player );
+
+                // for aware players: notify
+                Server.SendToSeeing( String.Format( "{0}&S is now hidden.", player.GetClassyName() ), player );
+
             } else {
                 player.Message( "You are already hidden." );
             }
@@ -797,16 +793,17 @@ namespace fCraft {
 
         internal static void Unhide( Player player, Command cmd ) {
             if( player.isHidden ) {
-                player.Message( "You are no longer hidden.", Color.Gray );
+
+                // for aware players: notify
+                Server.SendToSeeing( String.Format( "{0}&S is no longer hidden.", player.GetClassyName() ), player );
+
+                // for oblivious players: add player to the list
                 player.world.SendToBlind( PacketWriter.MakeAddEntity( player, player.pos ), player );
+                Server.SendToBlind( Server.MakePlayerConnectedMessage( player, false, player.world ), player );
+
+                player.Message( "You are no longer hidden.", Color.Gray );
                 player.isHidden = false;
 
-                string message = String.Format( "{0}&S is no longer hidden.", player.GetClassyName() );
-                foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
-                    Server.SendToSeeing( packet, player );
-                }
-
-                Server.ShowPlayerConnectedMessage( player, false, player.world );
             } else {
                 player.Message( "You are not currently hidden." );
             }

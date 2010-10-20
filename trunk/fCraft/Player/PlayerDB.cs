@@ -36,18 +36,15 @@ namespace fCraft {
                                      "timesKicked,timesKickedOthers,timesBannedOthers,UID," +
                                      "rankChangeType,lastKickDate,LastSeen,BlocksDrawn,lastKickBy,lastKickReason";
 
-        public static ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
+        static object locker = new object();
         public static bool isLoaded;
 
 
         public static PlayerInfo AddFakeEntry( string name, RankChangeType _rankChangeType ) {
             PlayerInfo info = new PlayerInfo( name, RankList.DefaultRank, false, _rankChangeType );
-            locker.EnterWriteLock();
-            try {
+            lock( locker ) {
                 list.Add( info );
                 tree.Add( info.name, info );
-            } finally {
-                locker.ExitWriteLock();
             }
             return info;
         }
@@ -57,13 +54,12 @@ namespace fCraft {
 
         public static void Load() {
             if( File.Exists( DBFile ) ) {
-                locker.EnterWriteLock();
-                try {
-                    using( StreamReader reader = File.OpenText( DBFile ) ) {
+                using( StreamReader reader = File.OpenText( DBFile ) ) {
 
-                        string header = reader.ReadLine();// header
-                        int maxIDField;
+                    string header = reader.ReadLine();// header
+                    int maxIDField;
 
+                    lock( locker ) {
                         // first number of the header is MaxID
                         if( Int32.TryParse( header.Split( ' ' )[0], out maxIDField ) ) {
                             if( maxIDField >= 255 ) {// IDs start at 256
@@ -96,8 +92,6 @@ namespace fCraft {
                             }
                         }
                     }
-                } finally {
-                    locker.ExitWriteLock();
                 }
                 Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records).", LogType.Debug, tree.Count() );
                 list.TrimExcess();
@@ -112,16 +106,13 @@ namespace fCraft {
             Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count() );
             string tempFile = Path.GetTempFileName();
 
-            locker.EnterReadLock();
-            try {
-                using( StreamWriter writer = File.CreateText( tempFile ) ) {
+            using( StreamWriter writer = File.CreateText( tempFile ) ) {
+                lock( locker ) {
                     writer.WriteLine( MaxID + Header );
                     foreach( PlayerInfo entry in list ) {
                         writer.WriteLine( entry.Serialize() );
                     }
                 }
-            } finally {
-                locker.ExitReadLock();
             }
             try {
                 File.Delete( DBFile );
@@ -139,21 +130,14 @@ namespace fCraft {
         public static PlayerInfo FindPlayerInfo( Player player ) {
             if( player == null ) return null;
             PlayerInfo info;
-            locker.EnterUpgradeableReadLock();
-            try {
+
+            lock( locker ) {
                 info = tree.Get( player.name );
                 if( info == null ) {
                     info = new PlayerInfo( player );
-                    locker.EnterWriteLock();
-                    try {
-                        tree.Add( player.name, info );
-                        list.Add( info );
-                    } finally {
-                        locker.ExitWriteLock();
-                    }
+                    tree.Add( player.name, info );
+                    list.Add( info );
                 }
-            } finally {
-                locker.ExitUpgradeableReadLock();
             }
             return info;
         }
@@ -161,15 +145,12 @@ namespace fCraft {
 
         public static List<PlayerInfo> FindPlayersByIP( IPAddress address ) {
             List<PlayerInfo> result = new List<PlayerInfo>();
-            locker.EnterReadLock();
-            try {
+            lock( locker ) {
                 foreach( PlayerInfo info in list ) {
                     if( info.lastIP.ToString() == address.ToString() ) {
                         result.Add( info );
                     }
                 }
-            } finally {
-                locker.ExitReadLock();
             }
             return result;
         }
@@ -181,29 +162,17 @@ namespace fCraft {
                 return false;
             }
 
-            bool noDupe;
-            locker.EnterReadLock();
-            try {
-                noDupe = tree.Get( name, out info );
-            } finally {
-                locker.ExitReadLock();
+            lock( locker ) {
+                return tree.Get( name, out info );
             }
-
-            return noDupe;
         }
 
 
         public static PlayerInfo FindPlayerInfoExact( string name ) {
             if( name == null ) return null;
-            PlayerInfo info;
-            locker.EnterReadLock();
-            try {
-                info = tree.Get( name );
-            } finally {
-                locker.ExitReadLock();
+            lock( locker ) {
+                return tree.Get( name );
             }
-
-            return info;
         }
 
         #endregion
@@ -213,14 +182,11 @@ namespace fCraft {
 
         public static int CountBannedPlayers() {
             int banned = 0;
-            locker.EnterReadLock();
-            try {
+            lock( locker ) {
                 foreach( PlayerInfo info in list ) {
                     if( info.banned ) banned++;
                 }
                 return banned;
-            } finally {
-                locker.ExitReadLock();
             }
         }
 
@@ -232,14 +198,11 @@ namespace fCraft {
 
         public static int CountPlayersByRank( Rank pc ) {
             int count = 0;
-            locker.EnterReadLock();
-            try {
+            lock( locker ) {
                 foreach( PlayerInfo info in list ) {
                     if( info.rank == pc ) count++;
                 }
                 return count;
-            } finally {
-                locker.ExitReadLock();
             }
         }
 
@@ -253,8 +216,7 @@ namespace fCraft {
 
         public static int MassRankChange( Player player, Rank from, Rank to, bool silent ) {
             int affected = 0;
-            locker.EnterWriteLock();
-            try {
+            lock( locker ) {
                 foreach( PlayerInfo info in list ) {
                     if( info.rank == from ) {
                         Player target = Server.FindPlayerExact( info.name );
@@ -263,25 +225,19 @@ namespace fCraft {
                     }
                 }
                 return affected;
-            } finally {
-                locker.ExitWriteLock();
             }
         }
 
 
         public static PlayerInfo[] GetPlayerListCopy() {
-            locker.EnterReadLock();
-            try {
+            lock( locker ) {
                 return list.ToArray();
-            } finally {
-                locker.ExitReadLock();
             }
         }
 
 
         public static PlayerInfo[] GetPlayerListCopy( Rank pc ) {
-            locker.EnterReadLock();
-            try {
+            lock( locker ) {
                 List<PlayerInfo> tempList = new List<PlayerInfo>();
                 foreach( PlayerInfo info in list ) {
                     if( info.rank == pc ) {
@@ -289,8 +245,6 @@ namespace fCraft {
                     }
                 }
                 return tempList.ToArray();
-            } finally {
-                locker.ExitReadLock();
             }
         }
     }

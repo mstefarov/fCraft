@@ -95,26 +95,39 @@ namespace fCraft {
             }
             if( fields[3] != "-" && fields[3] != "" ) rankChangeDate = DateTime.Parse( fields[3] ); // LEGACY
             rankChangedBy = fields[4];
+            if( rankChangedBy == "-" ) rankChangedBy = "";
 
             banned = (fields[5] == "b");
 
-            if( fields[6] != "-" && fields[6] != "" ) banDate = DateTime.Parse( fields[6] ); // LEGACY
-            bannedBy = fields[7];
-            if( fields[8] != "-" && fields[8] != "" ) unbanDate = DateTime.Parse( fields[8] ); // LEGACY
-            unbannedBy = fields[9];
-            banReason = Unescape( fields[10] );
-            unbanReason = Unescape( fields[11] );
+            // ban information
+            if( fields[6] != "-" && fields[6] != "" && DateTime.TryParse( fields[6], out banDate ) ) {
+                banDate = DateTime.Parse( fields[6] ); // LEGACY
+                bannedBy = fields[7];
+                banReason = Unescape( fields[10] );
+                if( banReason == "-" ) banReason = "";
+            }
 
+            // unban information
+            if( fields[8] != "-" && fields[8] != "" && DateTime.TryParse( fields[8], out unbanDate ) ) {
+                unbanDate = DateTime.Parse( fields[8] ); // LEGACY
+                unbannedBy = fields[9];
+                unbanReason = Unescape( fields[11] );
+                if( unbanReason == "-" ) unbanReason = "";
+            }
+
+            // failed logins
             if( fields[12] != "-" && fields[12] != "" ) lastFailedLoginDate = DateTime.Parse( fields[12] ); // LEGACY
             if( fields[13] == "-" || fields[13] == "" || !IPAddress.TryParse( fields[13], out lastFailedLoginIP ) ) { // LEGACY
                 lastFailedLoginIP = IPAddress.None;
             }
             failedLoginCount = Int32.Parse( fields[14] );
-
             firstLoginDate = DateTime.Parse( fields[15] );
+
+            // login/logout times
             lastLoginDate = DateTime.Parse( fields[16] );
             totalTime = TimeSpan.Parse( fields[17] );
 
+            // stats
             Int32.TryParse( fields[18], out blocksBuilt );
             Int32.TryParse( fields[19], out blocksDeleted );
             Int32.TryParse( fields[20], out timesVisited );
@@ -248,6 +261,7 @@ namespace fCraft {
             name = player.name;
             lastIP = player.session.GetIP();
             lastLoginDate = DateTime.Now;
+            lastSeen = DateTime.Now;
             Interlocked.Increment( ref timesVisited );
         }
 

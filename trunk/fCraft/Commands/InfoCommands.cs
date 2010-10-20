@@ -420,11 +420,22 @@ namespace fCraft {
                 player.Message( "More than one player found matching \"{0}\"", name );
 
             } else if( info != null ) {
+                Player target = Server.FindPlayerExact( info.name );
+
+                // hide online status when hidden
+                if( player != null && !player.CanSee( target ) ) {
+                    target = null;
+                }
+
                 if( info.lastIP.ToString() == IPAddress.None.ToString() ) {
                     player.Message( "About {0}: Never seen before.", info.name );
 
                 } else {
-                    if( DateTime.Now.Subtract( info.lastSeen ).TotalDays < 2 ) {
+                    if(target!=null){
+                        player.Message( "About {0}: Online now from {1}",
+                                        info.name,
+                                        info.lastIP );
+                    }else if( DateTime.Now.Subtract( info.lastSeen ).TotalDays < 2 ) {
                         player.Message( "About {0}: Last seen {1:F1} hours ago from {2}",
                                         info.name,
                                         DateTime.Now.Subtract( info.lastSeen ).TotalHours,
@@ -534,7 +545,7 @@ namespace fCraft {
                 if( info.lastIP.ToString() != IPAddress.None.ToString() ) {
                     // Time on the server
                     TimeSpan totalTime = info.totalTime;
-                    if( Server.FindPlayerExact( info.name ) != null ) {
+                    if( target != null ) {
                         totalTime = totalTime.Add( DateTime.Now.Subtract( info.lastLoginDate ) );
                     }
                     player.Message( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
