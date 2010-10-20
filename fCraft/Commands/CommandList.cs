@@ -22,7 +22,7 @@ namespace fCraft {
             InfoCommands.Init();
             MapCommands.Init();
             ZoneCommands.Init();
-            //AutoRankCommands.Init();
+            AutoRankCommands.Init();
             commands.TrimExcess();
             aliases.TrimExcess();
         }
