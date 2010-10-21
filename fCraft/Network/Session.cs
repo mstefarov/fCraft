@@ -13,12 +13,13 @@ namespace fCraft {
     public sealed class Session {
         public Player player;
         public DateTime loginTime;
-        public bool canReceive,
-                    canSend,
-                    canQueue,
-                    isDisconnected;
+        public bool canReceive = true,
+                    canSend = true,
+                    canQueue = true,
+                    isDisconnected = false,
+                    hasRegistered = false,
+                    isBetweenWorlds = true;
 
-        public bool isBetweenWorlds = true;
         object joinWorldLock = new object();
 
         Thread ioThread;
@@ -29,9 +30,10 @@ namespace fCraft {
         World forcedWorldToJoin;
         Position? postJoinPosition;
 
+        // movement optimization
         int fullPositionUpdateCounter;
         const int fullPositionUpdateInterval = 20;
-        internal bool hasRegistered = false;
+        bool skippedLastMovementPacket = false;
 
         // anti-speedhack vars
         int speedHackDetectionCounter;
@@ -42,18 +44,10 @@ namespace fCraft {
         const int socketTimeout = 10000;
         Queue<DateTime> antiSpeedPacketLog = new Queue<DateTime>();
         DateTime antiSpeedLastNotification = DateTime.UtcNow;
-        bool skippedLastMovementPacket = false;
-
-        public int PacketsReceived, PacketsSent, PacketsSkippedZero, PacketsSkippedOptimized;
 
 
         public Session( TcpClient _client ) {
             loginTime = DateTime.Now;
-
-            canReceive = true;
-            canQueue = true;
-            //canSend = false;
-            //canDispose = false;
 
             outputQueue = new ConcurrentQueue<Packet>();
             priorityOutputQueue = new ConcurrentQueue<Packet>();
@@ -94,8 +88,6 @@ namespace fCraft {
 
                 Server.FirePlayerConnectedEvent( this );
 
-                canSend = true;
-
                 while( canSend ) {
                     Thread.Sleep( 1 );
 
@@ -128,23 +120,11 @@ namespace fCraft {
 
                     // send priority output to player
                     while( canSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
-                        if( !priorityOutputQueue.Dequeue( ref packet ) ) break;
+                        if( !priorityOutputQueue.Dequeue( ref packet ) )
+                            if( !outputQueue.Dequeue( ref packet ) ) break;
                         writer.Write( packet.data );
                         packetsSent++;
                         if( packet.data[0] == (byte)OutputCode.Disconnect ) {
-                            Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
-                                        player.name );
-                            return;
-                        }
-                    }
-
-                    // send output to player
-                    while( canSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
-                        if( !outputQueue.Dequeue( ref packet ) ) break;
-                        writer.Write( packet.data );
-                        packetsSent++;
-                        if( packet.data[0] == (byte)OutputCode.Disconnect ) {
-                            writer.Flush();
                             Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
                                         player.name );
                             return;
@@ -174,7 +154,6 @@ namespace fCraft {
 
                             // Player movement
                             case InputCode.MoveRotate:
-                                PacketsReceived++;
                                 reader.ReadByte();
                                 Position newPos = new Position();
                                 newPos.x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
@@ -210,7 +189,6 @@ namespace fCraft {
 
                                     if( rotChanged ) {
                                         player.world.SendToSeeing( PacketWriter.MakeRotate( player.id, newPos ), player );
-                                        PacketsSent++;
                                         player.pos.r = newPos.r;
                                         player.pos.l = newPos.l;
                                     }
@@ -250,7 +228,6 @@ namespace fCraft {
 
                                     if( distSquared < 64 && delta.r * delta.r + delta.l + delta.l < 4096 && !skippedLastMovementPacket ) {
                                         skippedLastMovementPacket = true;
-                                        PacketsSkippedOptimized++;
                                         continue;
                                     }
                                     skippedLastMovementPacket = false;
@@ -262,7 +239,6 @@ namespace fCraft {
                                         } else if( rotChanged ) {
                                             packet = PacketWriter.MakeRotate( player.id, newPos );
                                         } else {
-                                            PacketsSkippedZero++;
                                             continue;
                                         }
                                     } else if( !delta.IsZero() ) {
@@ -275,7 +251,6 @@ namespace fCraft {
                                     fullPositionUpdateCounter++;
                                     if( fullPositionUpdateCounter >= fullPositionUpdateInterval ) fullPositionUpdateCounter = 0;
 
-                                    PacketsSent++;
                                     player.world.SendToSeeing( packet, player );
                                 }
                                 break;
@@ -385,10 +360,6 @@ namespace fCraft {
                     writer.Write( (byte)255 );
                     WriteAlphaString( noAlphaMessage );
                     writer.Flush();
-
-                    canReceive = false;
-                    canSend = false;
-                    canQueue = false;
                     return false;
 
                 } else {
@@ -676,8 +647,9 @@ namespace fCraft {
             } else {
                 spawn = newWorld.map.spawn;
             }
+
             player.pos = spawn;
-            writer.WriteAddEntity( 255, player, spawn );
+            writer.WriteAddEntity( 255, player, newWorld.map.spawn );
             writer.WriteTeleport( 255, spawn );
 
             // Send player list
@@ -733,9 +705,9 @@ namespace fCraft {
         public void KickNow( string message ) {
             SendNow( PacketWriter.MakeDisconnect( message ) );
             writer.Flush();
+            canQueue = false;
             canReceive = false;
             canSend = false;
-            canQueue = false;
         }
 
 

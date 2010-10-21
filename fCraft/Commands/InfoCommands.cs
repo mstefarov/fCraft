@@ -175,7 +175,7 @@ namespace fCraft {
             if( worlds.Length > 1 ) {
                 player.ManyMatchesMessage( "world", worlds );
                 return;
-            }else if(worlds.Length==0){
+            } else if( worlds.Length == 0 ) {
                 player.NoWorldMessage( worldName );
                 return;
             }
@@ -283,7 +283,7 @@ namespace fCraft {
         static CommandDescriptor cdWhere = new CommandDescriptor {
             name = "where",
             aliases = new string[] { "compass" },
-            permissions = new Permission[]{ Permission.ViewOthersInfo },
+            permissions = new Permission[] { Permission.ViewOthersInfo },
             consoleSafe = true,
             usage = "/where [PlayerName]",
             help = "Shows information about the location and orientation of a player. " +
@@ -423,7 +423,7 @@ namespace fCraft {
                 Player target = Server.FindPlayerExact( info.name );
 
                 // hide online status when hidden
-                if( player != null && !player.CanSee( target ) ) {
+                if( target != null && !player.CanSee( target ) ) {
                     target = null;
                 }
 
@@ -431,11 +431,11 @@ namespace fCraft {
                     player.Message( "About {0}: Never seen before.", info.name );
 
                 } else {
-                    if(target!=null){
+                    if( target != null ) {
                         player.Message( "About {0}: Online now from {1}",
                                         info.name,
                                         info.lastIP );
-                    }else if( DateTime.Now.Subtract( info.lastSeen ).TotalDays < 2 ) {
+                    } else if( DateTime.Now.Subtract( info.lastSeen ).TotalDays < 2 ) {
                         player.Message( "About {0}: Last seen {1:F1} hours ago from {2}",
                                         info.name,
                                         DateTime.Now.Subtract( info.lastSeen ).TotalHours,
@@ -469,7 +469,7 @@ namespace fCraft {
                     player.Message( "  Built {0} and deleted {1} blocks, affected {2}k blocks with draw commands, wrote {3} messages.",
                                     info.blocksBuilt,
                                     info.blocksDeleted,
-                                    info.blocksDrawn/1000,
+                                    info.blocksDrawn / 1000,
                                     info.linesWritten );
                 } else if( info.blocksDrawn > 0 ) {
                     player.Message( "  Built {0} and deleted {1} blocks, draw {2} blocks with draw commands, wrote {3} messages.",

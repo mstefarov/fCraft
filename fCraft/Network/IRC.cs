@@ -369,9 +369,11 @@ namespace fCraft {
 
         static int lastThread;
         public static void Send( string line ) {
-            int lastThread2 = lastThread;
-            int nextThread = (lastThread2 == threads.Length - 1 ? 0 : lastThread2 + 1);
-            while( Interlocked.CompareExchange( ref lastThread, nextThread, lastThread2 ) != lastThread2 ) ;
+            int lastThread2, nextThread;
+            do {
+                lastThread2 = lastThread;
+                nextThread = (lastThread2 + 1) % threads.Length;
+            } while( Interlocked.CompareExchange( ref lastThread, nextThread, lastThread2 ) != lastThread2 );
             threads[nextThread].Send( line );
         }
 
