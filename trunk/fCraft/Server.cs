@@ -1107,15 +1107,12 @@ namespace fCraft {
                 lock( playerListLock ) {
                     if( players.ContainsKey( player.id ) ) {
                         SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
-                        if( player.session.hasRegistered ) {
-                            SendToAll( "&SPlayer " + player.GetClassyName() + "&S left the server." );
-                        }
                         Logger.Log( "{0} left the server.", LogType.UserActivity,
                                     player.name );
-
                         if( player.session.hasRegistered ) {
-                            // better safe than sorry: go through ALL worlds looking for leftover players
+                            SendToAll( "&SPlayer " + player.GetClassyName() + "&S left the server." );
 
+                            // better safe than sorry: go through ALL worlds looking for leftover players
                             foreach( World world in worlds.Values ) {
                                 world.ReleasePlayer( player );
                             }
