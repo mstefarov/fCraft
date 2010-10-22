@@ -176,7 +176,7 @@ namespace fCraft {
 
 
         public static bool CanRenameRank( Rank rank, string newName ) {
-            if( rank.Name.ToLower() == newName.ToLower() ) return true;
+            if( rank.Name.Equals(newName, StringComparison.OrdinalIgnoreCase) ) return true;
             if( RanksByName.ContainsKey( newName.ToLower() ) ) return false;
             return true;
         }

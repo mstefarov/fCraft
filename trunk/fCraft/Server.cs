@@ -17,13 +17,33 @@ using System.Linq;
 namespace fCraft {
     public static class Server {
         static List<Session> sessions = new List<Session>();
+        static object sessionLock = new object();
+
+        public static void KickGhostsAndRegisterSession( Session newSession ) {
+            List<Session> sessionsToKick = new List<Session>();
+            lock( sessionLock ) {
+                foreach( Session s in sessions ) {
+                    if( s.player.name.Equals( newSession.player.name, StringComparison.OrdinalIgnoreCase ) ) {
+                        sessionsToKick.Add( s );
+                        s.Kick( "Connected from elsewhere!" );
+                        Logger.Log( "Session.LoginSequence: Player {0} logged in. Ghost was kicked.", LogType.SuspiciousActivity,
+                                    s.player.name );
+                    }
+                }
+                sessions.Add( newSession );
+            }
+            foreach( Session ses in sessionsToKick ) {
+                ses.WaitForKick();
+            }
+        }
+
         static Dictionary<int, Player> players = new Dictionary<int, Player>();
         internal static Player[] playerList;
         static object playerListLock = new object();
-        public static object worldListLock = new object();
 
-        const string WorldListFile = "worlds.xml";
         public static SortedDictionary<string, World> worlds = new SortedDictionary<string, World>();
+        public static object worldListLock = new object();
+        const string WorldListFile = "worlds.xml";
         public static World mainWorld;
 
         static TcpListener listener;
@@ -191,55 +211,55 @@ namespace fCraft {
 #else
             try {
 #endif
-                shuttingDown = true;
-                if( OnShutdownBegin != null ) OnShutdownBegin();
+            shuttingDown = true;
+            if( OnShutdownBegin != null ) OnShutdownBegin();
 
-                Logger.Log( "Server shutting down ({0})", LogType.SystemActivity, reason );
+            Logger.Log( "Server shutting down ({0})", LogType.SystemActivity, reason );
 
 
-                // kick all players
-                if( playerList != null ) {
-                    Player[] pListCached = playerList;
-                    foreach( Player player in pListCached ) {
-                        // NOTE: kick packet delivery here is not currently guaranteed
-                        player.session.Kick( "Server shutting down (" + reason + ")" );
-                    }
+            // kick all players
+            if( playerList != null ) {
+                Player[] pListCached = playerList;
+                foreach( Player player in pListCached ) {
+                    // NOTE: kick packet delivery here is not currently guaranteed
+                    player.session.Kick( "Server shutting down (" + reason + ")" );
                 }
+            }
 
-                // kill the main thread
-                if( mainThread != null && mainThread.IsAlive ) {
-                    mainThread.Join( 5000 );
-                    if( mainThread.IsAlive ) {
-                        mainThread.Abort(); // temporary kludge until i find a real cause
-                    }
+            // kill the main thread
+            if( mainThread != null && mainThread.IsAlive ) {
+                mainThread.Join( 5000 );
+                if( mainThread.IsAlive ) {
+                    mainThread.Abort(); // temporary kludge until i find a real cause
                 }
+            }
 
-                // stop accepting new players
-                if( listener != null ) {
-                    listener.Stop();
-                    listener = null;
+            // stop accepting new players
+            if( listener != null ) {
+                listener.Stop();
+                listener = null;
+            }
+
+            // kill the heartbeat
+            Heartbeat.Shutdown();
+
+            // kill IRC bot
+            IRC.Disconnect();
+
+            // kill background tasks
+            Tasks.Shutdown();
+
+            lock( worldListLock ) {
+                // unload all worlds (includes saving)
+                foreach( World world in worlds.Values ) {
+                    world.Shutdown();
                 }
+            }
 
-                // kill the heartbeat
-                Heartbeat.Shutdown();
+            if( PlayerDB.isLoaded ) PlayerDB.Save();
+            if( IPBanList.isLoaded ) IPBanList.Save();
 
-                // kill IRC bot
-                IRC.Disconnect();
-
-                // kill background tasks
-                Tasks.Shutdown();
-
-                lock( worldListLock ) {
-                    // unload all worlds (includes saving)
-                    foreach( World world in worlds.Values ) {
-                        world.Shutdown();
-                    }
-                }
-
-                if( PlayerDB.isLoaded ) PlayerDB.Save();
-                if( IPBanList.isLoaded ) IPBanList.Save();
-
-                if( OnShutdownEnd != null ) OnShutdownEnd();
+            if( OnShutdownEnd != null ) OnShutdownEnd();
 #if DEBUG
 #else
             } catch( Exception ex ) {
@@ -707,16 +727,12 @@ namespace fCraft {
             }
         }
 
-        static object sessionLock = new object();
-        // checks for incoming connections and disposes old sessions
+        // checks for incoming connections
         internal static void CheckConnections( object param ) {
             if( listener.Pending() ) {
                 try {
-                    lock( sessionLock ) {
-                        Session newSession = new Session( listener.AcceptTcpClient() );
-                        newSession.Start();
-                        sessions.Add( newSession );
-                    }
+                    Session newSession = new Session( listener.AcceptTcpClient() );
+                    newSession.Start();
                 } catch( Exception ex ) {
                     Logger.Log( "Server.CheckConnections: Could not accept incoming connection: " + ex, LogType.Error );
                 }
@@ -797,13 +813,13 @@ namespace fCraft {
 #else
             try {
 #endif
-                ScheduledTask[] taskCache;
-                ScheduledTask task;
-                while( !shuttingDown ) {
-                    taskCache = taskList;
-                    for( int i = 0; i < taskCache.Length; i++ ) {
-                        task = taskCache[i];
-                        if( task.enabled && task.nextTime < DateTime.UtcNow ) {
+            ScheduledTask[] taskCache;
+            ScheduledTask task;
+            while( !shuttingDown ) {
+                taskCache = taskList;
+                for( int i = 0; i < taskCache.Length; i++ ) {
+                    task = taskCache[i];
+                    if( task.enabled && task.nextTime < DateTime.UtcNow ) {
 #if DEBUG
                         task.callback( task.param );
 #else
@@ -814,11 +830,11 @@ namespace fCraft {
                                 Logger.UploadCrashReport( "Exception was thrown by a scheduled task", "fCraft", ex );
                             }
 #endif
-                            task.nextTime += TimeSpan.FromMilliseconds( task.interval );
-                        }
+                        task.nextTime += TimeSpan.FromMilliseconds( task.interval );
                     }
-                    Thread.Sleep( 1 );
                 }
+                Thread.Sleep( 1 );
+            }
 #if DEBUG
 #else
             } catch( Exception ex ) {
@@ -1134,12 +1150,9 @@ namespace fCraft {
             lock( sessionLock ) {
                 if( sessions.Contains( session ) ) {
                     sessions.Remove( session );
-                    if( OnPlayerDisconnected != null ) OnPlayerDisconnected( session );
-                } else {
-                    Logger.LogWarning( "Server.UnregisterPlayer: Trying to unregister a non-existent session.",
-                                       WarningLogSubtype.OtherWarning );
                 }
             }
+            if( OnPlayerDisconnected != null ) OnPlayerDisconnected( session );
         }
 
 
@@ -1173,7 +1186,7 @@ namespace fCraft {
             return results.ToArray();
         }
 
-        // Find player by name using autocompletion
+        // Find player by name using autocompletion (returns only whose whom player can see)
         public static Player[] FindPlayers( Player player, string name ) {
             Player[] tempList = playerList;
             List<Player> results = new List<Player>();
