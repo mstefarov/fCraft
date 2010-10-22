@@ -125,6 +125,7 @@ namespace fCraft {
                         writer.Write( packet.data );
                         packetsSent++;
                         if( packet.data[0] == (byte)OutputCode.Disconnect ) {
+                            writer.Flush();
                             Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
                                         player.name );
                             return;
@@ -475,13 +476,7 @@ namespace fCraft {
             }
 
             // check if another player with the same name is on
-            Player potentialClone = Server.FindPlayerExact( player.name );
-            if( potentialClone != null ) {
-                potentialClone.session.Kick( "Connected from elsewhere!" );
-                potentialClone.session.WaitForKick();
-                Logger.Log( "Session.LoginSequence: Player {0} logged in. Ghost was kicked.", LogType.SuspiciousActivity,
-                            player.name );
-            }
+            Server.KickGhostsAndRegisterSession( this );
 
             if( Config.GetBool( ConfigKey.LimitOneConnectionPerIP ) ) {
                 List<Player> potentialClones = Server.FindPlayers( GetIP() );

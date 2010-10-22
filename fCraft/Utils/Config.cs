@@ -657,7 +657,7 @@ namespace fCraft {
 
         static bool ValidateEnum( ConfigKey key, string value, params string[] options ) {
             for( int i = 0; i < options.Length; i++ ) {
-                if( value.ToLower() == options[i].ToLower() ) {
+                if( value.Equals(options[i], StringComparison.OrdinalIgnoreCase) ) {
                     settings[key] = options[i];
                     return true;
                 }
