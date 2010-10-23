@@ -672,7 +672,7 @@ namespace fCraft {
 
 
         internal static void ApplyConfig() {
-            Logger.split = (LogSplittingType)Enum.Parse( typeof( LogSplittingType ), settings[ConfigKey.LogMode] );
+            Logger.split = (LogSplittingType)Enum.Parse( typeof( LogSplittingType ), settings[ConfigKey.LogMode], true );
             Logger.MarkLogStart();
 
             // chat colors

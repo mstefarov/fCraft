@@ -85,44 +85,6 @@ namespace fCraft {
             Server.SendToAll( msg );
         }
 
-        /*
-         static CommandDescriptor cdMD = new CommandDescriptor { // DEBUG
-             name = "md",
-             help = "",
-             usage = "/md [PlayerName]",
-             handler = MD
-         };
-         static void MD( Player player, Command cmd ) {
-             string playerName = cmd.Next();
-             Session sess =player.session;
-             if( playerName != null ) {
-                 List<Player> players = Server.FindPlayers( player, playerName );
-                 if( players.Count == 1 ) {
-                     sess = players[0].session;
-                 } else if( players.Count > 1 ) {
-                     player.ManyPlayersMessage( players );
-                 } else {
-                     player.NoPlayerMessage( playerName );
-                 }
-             }
-             if( sess != null ) {
-                 player.Message( "MovDebug: {0} received, {1} sent ({2:0.0}%), {3} zero ({4:0.0}%), {5} skip ({6:0.0}%), {7} other ({8:0.0}%)",
-                                 sess.PacketsReceived,
-                                 sess.PacketsSent,
-                                 sess.PacketsSent / (float)sess.PacketsReceived * 100f,
-                                 sess.PacketsSkippedZero,
-                                 sess.PacketsSkippedZero / (float)sess.PacketsReceived * 100f,
-                                 sess.PacketsSkippedOptimized,
-                                 sess.PacketsSkippedOptimized / (float)sess.PacketsReceived * 100f,
-                                 (sess.PacketsReceived - sess.PacketsSent - sess.PacketsSkippedZero - sess.PacketsSkippedOptimized),
-                                 (sess.PacketsReceived - sess.PacketsSent - sess.PacketsSkippedZero - sess.PacketsSkippedOptimized) / (float)sess.PacketsReceived * 100f );
-             } else {
-                 player.Message( "When using from console, player name is required." );
-                 cdMD.PrintUsage( player );
-             }
-         }
-        
-         */
 
         static CommandDescriptor cdMeasure = new CommandDescriptor {
             name = "measure",
@@ -492,11 +454,11 @@ namespace fCraft {
             // Show ban information
             IPBanInfo ipBan = IPBanList.Get( info.lastIP );
             if( ipBan != null && info.banned ) {
-                player.Message( "  Both name and IP are {0}BANNED.", Color.Red );
+                player.Message( "  Both name and IP are {0}BANNED. See &H/baninfo", Color.Red );
             } else if( ipBan != null ) {
-                player.Message( "  IP is {0}BANNED&S (but nick isn't).", Color.Red );
+                player.Message( "  IP is {0}BANNED&S (but nick isn't). See &H/baninfo", Color.Red );
             } else if( info.banned ) {
-                player.Message( "  Nick is {0}BANNED&S (but IP isn't).", Color.Red );
+                player.Message( "  Nick is {0}BANNED&S (but IP isn't). See &H/baninfo", Color.Red );
             }
 
             // Stats

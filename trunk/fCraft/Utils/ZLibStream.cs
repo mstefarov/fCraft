@@ -120,7 +120,7 @@ namespace fCraft {
                 Console.WriteLine( "> Could not load zlib32.dll (Win): {0}", ex.GetType() );
             }
             
-            
+            /*
             try {
                 Native = new ZLibPInvokeWin64();
                 Test();
@@ -129,7 +129,7 @@ namespace fCraft {
             } catch( Exception ex ) {
                 Console.WriteLine( "> Could not load zlib64.dll (Win): {0}", ex.GetType() );
             }
-            
+            */
 
             try {
                 Native = new ZLibPInvokeNix32();

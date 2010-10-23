@@ -90,7 +90,7 @@ namespace fCraft {
                 version = Int32.Parse( versionTag.Value );
             }
 
-            theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), root.Element( "theme" ).Value );
+            theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), root.Element( "theme" ).Value, true );
             seed = Int32.Parse( root.Element( "seed" ).Value );
             dimX = Int32.Parse( root.Element( "dimX" ).Value );
             dimY = Int32.Parse( root.Element( "dimY" ).Value );

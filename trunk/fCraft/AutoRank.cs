@@ -103,7 +103,7 @@ namespace fCraft {
         }
 
         public Criterion( XElement el ) {
-            Type = (CriterionType)Enum.Parse( typeof( CriterionType ), el.Attribute( "type" ).Value );
+            Type = (CriterionType)Enum.Parse( typeof( CriterionType ), el.Attribute( "type" ).Value, true );
             FromRank = RankList.ParseRank( el.Attribute( "fromRank" ).Value );
             ToRank = RankList.ParseRank( el.Attribute( "toRank" ).Value );
             if( el.Elements().Count() == 1 ) {
@@ -172,13 +172,13 @@ namespace fCraft {
         public ConditionIntRange() { }
 
         public ConditionIntRange( XElement el ) {
-            Field = (ConditionField)Enum.Parse( typeof( ConditionField ), el.Attribute( "field" ).Value );
+            Field = (ConditionField)Enum.Parse( typeof( ConditionField ), el.Attribute( "field" ).Value, true );
             Value = Int32.Parse( el.Attribute( "val" ).Value );
             if( el.Attribute( "op" ) != null ) {
-                Comparison = (ComparisonOperation)Enum.Parse( typeof( ComparisonOperation ), el.Attribute( "op" ).Value );
+                Comparison = (ComparisonOperation)Enum.Parse( typeof( ComparisonOperation ), el.Attribute( "op" ).Value, true );
             }
             if( el.Attribute( "scope" ) != null ) {
-                Scope = (ConditionScopeType)Enum.Parse( typeof( ConditionScopeType ), el.Attribute( "scope" ).Value );
+                Scope = (ConditionScopeType)Enum.Parse( typeof( ConditionScopeType ), el.Attribute( "scope" ).Value, true );
             }
         }
 
@@ -190,20 +190,6 @@ namespace fCraft {
 
         public override bool Eval( PlayerInfo info ) {
             long givenValue;
-            /*
-             *         TimeSinceFirstLogin,
-        TimeSinceLastLogin,
-        LastSeen,
-        TotalTime,
-        BlocksBuilt,
-        BlocksDeleted,
-        BlocksChanged,
-        BlocksDrawn,
-        TimesVisited,
-        MessagesWritten,
-        TimesKicked,
-        TimeSinceRankChange,
-        TimeSinceLastKick*/
             switch( Field ) {
                 case ConditionField.TimeSinceFirstLogin:
                     givenValue = (int)DateTime.Now.Subtract( info.firstLoginDate ).TotalSeconds;
@@ -286,7 +272,7 @@ namespace fCraft {
         }
 
         public ConditionRankChangeType( XElement el ) {
-                Type = (RankChangeType)Enum.Parse( typeof( RankChangeType ), el.Attribute( "val" ).Value );
+            Type = (RankChangeType)Enum.Parse( typeof( RankChangeType ), el.Attribute( "val" ).Value, true );
         }
 
         public override bool Eval( PlayerInfo info ) {
@@ -313,7 +299,7 @@ namespace fCraft {
 
         public ConditionPreviousRank( XElement el ) {
             Rank = RankList.ParseRank( el.Attribute( "val" ).Value );
-            Comparison = (ComparisonOperation)Enum.Parse( typeof( ComparisonOperation ), el.Attribute( "op" ).Value );
+            Comparison = (ComparisonOperation)Enum.Parse( typeof( ComparisonOperation ), el.Attribute( "op" ).Value, true );
         }
 
         public override bool Eval( PlayerInfo info ) {
