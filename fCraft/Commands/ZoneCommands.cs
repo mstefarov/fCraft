@@ -296,7 +296,7 @@ namespace fCraft {
         };
 
         internal static void ZoneList( Player player, Command cmd ) {
-            Zone[] zones = player.world.map.ListZones();
+            Zone[] zones = player.world.map.zoneList;
             if( zones.Length > 0 ) {
                 player.Message( "List of zones (see &H/zinfo ZoneName&S for details):" );
                 foreach( Zone zone in zones ) {

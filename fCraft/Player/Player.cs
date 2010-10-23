@@ -42,7 +42,7 @@ namespace fCraft {
             lowercaseName = name.ToLower();
             session = _session;
             pos = _pos;
-            info = PlayerDB.FindPlayerInfo( this );
+            info = PlayerDB.FindOrCreateInfoForPlayer( this );
             spamBlockLog = new Queue<DateTime>( info.rank.AntiGriefBlocks );
             ResetAllBinds();
         }

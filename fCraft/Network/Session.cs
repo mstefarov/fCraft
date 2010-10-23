@@ -418,7 +418,7 @@ namespace fCraft {
 
             // check if other banned players logged in from this IP
             List<string> bannedPlayerNames = new List<string>();
-            foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayersByIP( GetIP() ) ) {
+            foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( GetIP(), 25 ) ) {
                 if( playerFromSameIP.banned ) {
                     bannedPlayerNames.Add( playerFromSameIP.name );
                 }
@@ -659,7 +659,7 @@ namespace fCraft {
             Server.FireWorldChangedEvent( player, oldWorld, newWorld );
 
             // Done.
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+            Server.RequestGC();
 
             return true;
         }

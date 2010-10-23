@@ -510,7 +510,7 @@ namespace fCraft {
                 }
             }
 
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+            Server.RequestGC();
         }
 
 
@@ -618,7 +618,7 @@ namespace fCraft {
                 }
             }
 
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+            Server.RequestGC();
         }
 
         #endregion

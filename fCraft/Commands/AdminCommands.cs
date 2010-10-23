@@ -301,7 +301,7 @@ namespace fCraft {
                 }
 
                 if( banAll ) {
-                    foreach( PlayerInfo otherInfo in PlayerDB.FindPlayersByIP( address ) ) {
+                    foreach( PlayerInfo otherInfo in PlayerDB.FindPlayers( address, int.MaxValue ) ) {
                         if( otherInfo.ProcessUnban( player.name, reason + "~UnBanAll" ) ) {
                             Server.SendToAll( Color.Red + otherInfo.name + " was unbanned (UnbanAll) by " + player.GetClassyName() );
                             player.Message( "{0}&S matched IP and was also unbanned.", otherInfo.GetClassyName() );
@@ -322,7 +322,7 @@ namespace fCraft {
                 }
 
                 if( banAll ) {
-                    foreach( PlayerInfo otherInfo in PlayerDB.FindPlayersByIP( address ) ) {
+                    foreach( PlayerInfo otherInfo in PlayerDB.FindPlayers( address, int.MaxValue ) ) {
                         if( banAll && otherInfo.ProcessBan( player, reason + "~BanAll" ) ) {
                             player.Message( "{0}&S matched IP and was also banned.", otherInfo.GetClassyName() );
                         }
@@ -768,6 +768,9 @@ namespace fCraft {
                 player.isHidden = true;
                 player.Message( "{0}You are now hidden.", Color.Gray );
 
+                // to make it look like player just logged out in /info
+                player.info.lastSeen = DateTime.Now;
+
                 // for oblivious players: remove player from the list
                 Server.SendToBlind( PacketWriter.MakeRemoveEntity( player.id ), player );
                 Server.SendToBlind( String.Format( "&SPlayer {0}&S left the server.", player.GetClassyName() ), player );
@@ -1049,26 +1052,7 @@ namespace fCraft {
                 return;
             }
 
-            Player[] matches = Server.FindPlayers( player, name );
-            if( matches.Length == 1 ) {
-                Player target = matches[0];
-
-                if( target.world == player.world ) {
-                    player.Send( PacketWriter.MakeSelfTeleport( target.pos ) );
-
-                } else if( player.CanJoin( target.world ) ) {
-                    player.session.JoinWorld( target.world, target.pos );
-
-                } else {
-                    player.Message( "Cannot teleport to {0}&S because this world requires {1}+&S to join.",
-                                    target.GetClassyName(),
-                                    player.world.accessRank.GetClassyName() );
-                }
-
-            } else if( matches.Length > 1 ) {
-                player.ManyMatchesMessage( "player", matches );
-
-            } else if( cmd.Next() != null ) {
+            if( cmd.Next() != null ) {
                 cmd.Rewind();
                 int x, y, h;
                 if( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out h ) ) {
@@ -1085,18 +1069,38 @@ namespace fCraft {
                             l = player.pos.l
                         } ) );
                     }
-
                 } else {
                     cdTP.PrintUsage( player );
                 }
 
             } else {
-                // Try to guess if player typed "/tp" instead of "/join"
-                World[] worlds = Server.FindWorlds( name );
-                if( worlds.Length == 1 ) {
-                    player.ParseMessage( "/join " + name, false );
+                Player[] matches = Server.FindPlayers( player, name );
+                if( matches.Length == 1 ) {
+                    Player target = matches[0];
+
+                    if( target.world == player.world ) {
+                        player.Send( PacketWriter.MakeSelfTeleport( target.pos ) );
+
+                    } else if( player.CanJoin( target.world ) ) {
+                        player.session.JoinWorld( target.world, target.pos );
+
+                    } else {
+                        player.Message( "Cannot teleport to {0}&S because this world requires {1}+&S to join.",
+                                        target.GetClassyName(),
+                                        player.world.accessRank.GetClassyName() );
+                    }
+
+                } else if( matches.Length > 1 ) {
+                    player.ManyMatchesMessage( "player", matches );
+
                 } else {
-                    player.NoPlayerMessage( name );
+                    // Try to guess if player typed "/tp" instead of "/join"
+                    World[] worlds = Server.FindWorlds( name );
+                    if( worlds.Length == 1 ) {
+                        player.ParseMessage( "/join " + name, false );
+                    } else {
+                        player.NoPlayerMessage( name );
+                    }
                 }
             }
         }

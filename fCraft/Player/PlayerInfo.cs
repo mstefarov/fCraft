@@ -6,7 +6,7 @@ using System.Threading;
 
 
 namespace fCraft {
-    public sealed class PlayerInfo {
+    public sealed class PlayerInfo : IClassy {
 
         public const int MinFieldCount = 24,
                          MaxFieldCount = 36;
