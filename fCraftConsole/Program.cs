@@ -53,7 +53,7 @@ namespace fCraftConsole {
                             Process.GetCurrentProcess().PriorityClass = Config.GetProcessPriority();
                         }
                     } catch( Exception ) {
-                        Logger.Log( "Porgram.Main: Could not set process priority, using defaults.", LogType.Warning );
+                        Logger.Log( "Program.Main: Could not set process priority, using defaults.", LogType.Warning );
                     }
 
                     if( Server.Start() ) {

@@ -201,23 +201,12 @@ namespace fCraft {
                                 } else {
                                     // speedhack detection
                                     if( !player.Can( Permission.UseSpeedHack ) ) {
-                                        if( DetectMovementPacketSpam() ) return;
+                                        if( DetectMovementPacketSpam( newPos ) ) continue;
                                         if( (distSquared - delta.h * delta.h > antiSpeedMaxDistanceSquared || delta.h > antiSpeedMaxJumpDelta) && speedHackDetectionCounter >= 0 ) {
                                             if( speedHackDetectionCounter == 0 ) {
                                                 player.lastNonHackingPosition = player.pos;
                                             } else if( speedHackDetectionCounter > 1 ) {
-                                                Position avgPosition = new Position();
-                                                avgPosition.Set( (player.lastNonHackingPosition.x * 3 + newPos.x) / 4 + 1,
-                                                                 (player.lastNonHackingPosition.y * 3 + newPos.y) / 4 + 1,
-                                                                 (player.lastNonHackingPosition.h * 3 + newPos.h) / 4 + 1,
-                                                                 player.lastNonHackingPosition.r,
-                                                                 player.lastNonHackingPosition.l );
-
-                                                SendNow( PacketWriter.MakeSelfTeleport( avgPosition ) );
-                                                if( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {
-                                                    player.Message( Color.Red + "You are not allowed to speedhack." );
-                                                    antiSpeedLastNotification = DateTime.UtcNow;
-                                                }
+                                                DenyMovement( newPos );
                                                 speedHackDetectionCounter = 0;
                                                 continue;
                                             }
@@ -300,6 +289,22 @@ namespace fCraft {
                 canQueue = false;
                 canSend = false;
                 Disconnect();
+            }
+        }
+
+
+        void DenyMovement( Position newPos ) {
+            Position avgPosition = new Position();
+            avgPosition.Set( (player.lastNonHackingPosition.x * 3 + newPos.x) / 4 + 1,
+                             (player.lastNonHackingPosition.y * 3 + newPos.y) / 4 + 1,
+                             (player.lastNonHackingPosition.h * 3 + newPos.h) / 4 + 1,
+                             player.lastNonHackingPosition.r,
+                             player.lastNonHackingPosition.l );
+
+            SendNow( PacketWriter.MakeSelfTeleport( avgPosition ) );
+            if( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {
+                player.Message( Color.Red + "You are not allowed to speedhack." );
+                antiSpeedLastNotification = DateTime.UtcNow;
             }
         }
 
@@ -706,20 +711,13 @@ namespace fCraft {
         }
 
 
-        bool DetectMovementPacketSpam() {
+        bool DetectMovementPacketSpam( Position newPos ) {
             if( antiSpeedPacketLog.Count >= antiSpeedMaxPacketCount ) {
                 DateTime oldestTime = antiSpeedPacketLog.Dequeue();
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
                 if( spamTimer < antiSpeedMaxPacketInterval ) {
-                    Logger.Log( "{0} was kicked for spamming movement packets ({1} packets in {2} seconds)", LogType.SuspiciousActivity,
-                                player.name,
-                                antiSpeedPacketLog.Count,
-                                spamTimer );
-                    Server.SendToAll( player.GetClassyName() + Color.Red + " was kicked for hacking (packet spam)." );
-                    KickNow( "Packet spamming detected." );
+                    DenyMovement( newPos );
                     return true;
-                    /*Server.SendToAll( "DEBUG: " + player.name + " moved " + antiSpeedPacketLog.Count + " times in " + spamTimer.ToString("0.000") );
-                    antiSpeedPacketLog.Clear();*/
                 }
             }
             antiSpeedPacketLog.Enqueue( DateTime.UtcNow );

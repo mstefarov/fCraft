@@ -102,7 +102,7 @@ namespace fCraft {
 
             if( CheckForFCraftProcesses() ) {
                 Logger.Log( "Please close all other fCraft processes (fCraftUI, fCraftConsole, or ConfigTool) " +
-                            "that are started form the same directory.", LogType.Warning );
+                            "that are started from the same directory.", LogType.Warning );
             }
 
             Player.Console = new Player( null, "(console)" );
@@ -840,7 +840,7 @@ namespace fCraft {
 #else
             } catch( Exception ex ) {
                 Logger.Log( "Fatal error in fCraft.Server main loop: " + ex, LogType.FatalError );
-                Logger.UploadCrashReport( "Misc unnhandled exception in fCraft.Server.MainLoop", "fCraft", ex );
+                Logger.UploadCrashReport( "Misc unhandled exception in fCraft.Server.MainLoop", "fCraft", ex );
             }
 #endif
         }
