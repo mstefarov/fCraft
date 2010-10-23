@@ -159,7 +159,7 @@ namespace fCraft {
                     Int64.TryParse( fields[33], out blocksDrawn );
 
                     lastKickBy = fields[34];
-                    lastKickReason = fields[35];
+                    lastKickReason = Unescape( fields[35] );
 
                 } else {
                     ID = PlayerDB.GetNextID();
@@ -249,7 +249,7 @@ namespace fCraft {
             fields[33] = blocksDrawn.ToString();
 
             fields[34] = lastKickBy;
-            fields[35] = lastKickReason;
+            fields[35] = Escape(lastKickReason);
             return String.Join( ",", fields );
         }
 

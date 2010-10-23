@@ -32,7 +32,7 @@ namespace fCraft {
             StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( CommandDescriptor cmd in commands.Values ) {
-                if( listAll || cmd.permissions == null || player.Can( cmd.permissions ) ) {
+                if( listAll || !cmd.hidden && (cmd.permissions == null || player.Can( cmd.permissions )) ) {
                     if( !first ) {
                         sb.Append( ", " );
                     }
