@@ -467,11 +467,11 @@ namespace fCraft {
                 }
             }
 
-            DoChangeRank( player, info, target, newClass, cmd.NextAll(), false );
+            DoChangeRank( player, info, target, newClass, cmd.NextAll(), false, false );
         }
 
 
-        internal static void DoChangeRank( Player player, PlayerInfo targetInfo, Player target, Rank newRank, string reason, bool silent ) {
+        internal static void DoChangeRank( Player player, PlayerInfo targetInfo, Player target, Rank newRank, string reason, bool silent, bool automatic ) {
 
             bool promote = (targetInfo.rank < newRank);
 
@@ -519,6 +519,14 @@ namespace fCraft {
                 return;
             }
 
+            RankChangeType changeType;
+            if( targetInfo.rank >= newRank ) {
+                if( automatic ) changeType = RankChangeType.AutoPromoted;
+                else changeType = RankChangeType.Promoted;
+            } else {
+                if( automatic ) changeType = RankChangeType.AutoDemoted;
+                else changeType = RankChangeType.Demoted;
+            }
 
             string verb = (promote ? "promoted" : "demoted");
 
@@ -546,7 +554,7 @@ namespace fCraft {
 
 
                     // ==== Actual rank change happens here ====
-                    targetInfo.ProcessRankChange( newRank, player, reason );
+                    targetInfo.ProcessRankChange( newRank, player, reason, changeType );
                     // ==== Actual rank change happens here ====
 
 
@@ -578,7 +586,7 @@ namespace fCraft {
                     Server.FirePlayerListChangedEvent();
                 } else {
                     // ==== Actual rank change happens here (offline) ====
-                    targetInfo.ProcessRankChange( newRank, player, reason );
+                    targetInfo.ProcessRankChange( newRank, player, reason, changeType );
                     // ==== Actual rank change happens here (offline) ====
                 }
 
@@ -741,7 +749,7 @@ namespace fCraft {
                     info = PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
                 }
                 Player target = Server.FindPlayerExact( info.name );
-                DoChangeRank( player, info, target, targetClass, reason, silent );
+                DoChangeRank( player, info, target, targetClass, reason, silent, false );
             }
 
             PlayerDB.Save();
@@ -961,6 +969,7 @@ namespace fCraft {
 
         static CommandDescriptor cdUnfreeze = new CommandDescriptor {
             name = "unfreeze",
+            aliases = new string[]{"uf"},
             consoleSafe = true,
             permissions = new Permission[] { Permission.Freeze },
             usage = "/unfreeze PlayerName",

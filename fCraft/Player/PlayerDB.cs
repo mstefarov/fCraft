@@ -245,7 +245,7 @@ namespace fCraft {
                 foreach( PlayerInfo info in list ) {
                     if( info.rank == from ) {
                         Player target = Server.FindPlayerExact( info.name );
-                        AdminCommands.DoChangeRank( player, info, target, to, "~MassRank", silent );
+                        AdminCommands.DoChangeRank( player, info, target, to, "~MassRank", silent, false );
                         affected++;
                     }
                 }

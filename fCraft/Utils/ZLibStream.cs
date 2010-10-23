@@ -9,7 +9,7 @@ namespace fCraft {
     public sealed class ZLibStream : Stream {
         #region const, structs, and defs
 
-        public const int BufferSize = 512 * 1024;
+        public const int BufferSize = 64*1024;
 
         private enum ZLibReturnCode {
             Ok = 0,
@@ -81,19 +81,19 @@ namespace fCraft {
         [StructLayoutAttribute( LayoutKind.Sequential )]
         private struct z_stream {
             public IntPtr next_in;  /* next input byte */
-            public uint avail_in;  /* number of bytes available at next_in */
-            public uint total_in;  /* total nb of input bytes read so far */
+            public uint avail_in;   /* number of bytes available at next_in */
+            public uint total_in;   /* total nb of input bytes read so far */
 
             public IntPtr next_out; /* next output byte should be put there */
-            public uint avail_out; /* remaining free space at next_out */
-            public uint total_out; /* total nb of bytes output so far */
+            public uint avail_out;  /* remaining free space at next_out */
+            public uint total_out;  /* total nb of bytes output so far */
 
             public IntPtr msg;      /* last error message, NULL if no error */
-            public IntPtr state; /* not visible by applications */
+            public IntPtr state;    /* not visible by applications */
 
-            public IntPtr zalloc;  /* used to allocate the internal state */
-            public IntPtr zfree;   /* used to free the internal state */
-            public IntPtr opaque;  /* private data object passed to zalloc and zfree */
+            public IntPtr zalloc;   /* used to allocate the internal state */
+            public IntPtr zfree;    /* used to free the internal state */
+            public IntPtr opaque;   /* private data object passed to zalloc and zfree */
 
             public ZLibDataType data_type;  /* best guess about the data type: ascii or binary */
             public uint adler;      /* adler32 value of the uncompressed data */
@@ -120,7 +120,7 @@ namespace fCraft {
                 Console.WriteLine( "> Could not load zlib32.dll (Win): {0}", ex.GetType() );
             }
             
-            /*
+            
             try {
                 Native = new ZLibPInvokeWin64();
                 Test();
@@ -129,7 +129,7 @@ namespace fCraft {
             } catch( Exception ex ) {
                 Console.WriteLine( "> Could not load zlib64.dll (Win): {0}", ex.GetType() );
             }
-            */
+            
 
             try {
                 Native = new ZLibPInvokeNix32();
