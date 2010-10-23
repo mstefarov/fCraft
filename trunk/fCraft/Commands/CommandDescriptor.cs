@@ -18,6 +18,7 @@ namespace fCraft {
         public string help;                 // full help
         public CommandHandler handler;      // callback function to execute the command
         public HelpHandler helpHandler;     // callback function to provide custom help (optional)
+        public bool hidden;                 // hidden command does not show up in /help
 
         public void PrintUsage( Player player ) {
             if( usage != null ) {

@@ -351,7 +351,7 @@ namespace fCraft {
 
             if( commandName == "commands" ) {
                 if( cmd.Next() != null ) {
-                    player.MessagePrefixed( "&S    ", "List of all available commands:&N{0}", CommandList.GetCommandList( player, true ) );
+                    player.MessagePrefixed( "&S    ", "List of available commands:&N{0}", CommandList.GetCommandList( player, true ) );
                 } else {
                     player.MessagePrefixed( "&S    ", "List of all commands:&N{0}", CommandList.GetCommandList( player, false ) );
                 }
@@ -483,7 +483,7 @@ namespace fCraft {
                                     info.lastIP );
                 }
                 // Show login information
-                player.Message( "  Logged in {0} time(s) since {1:dd MMM yyyy}.",
+                player.Message( "  Logged in {0} time(s) since {1:d MMM yyyy}.",
                                 info.timesVisited,
                                 info.firstLoginDate );
             }
@@ -501,13 +501,13 @@ namespace fCraft {
 
             // Stats
             if( info.blocksDrawn > 1000000 ) {
-                player.Message( "  Built {0} and deleted {1} blocks, affected {2}k blocks with draw commands, wrote {3} messages.",
+                player.Message( "  Built {0} and deleted {1} blocks, drew {2}k blocks, wrote {3} messages.",
                                 info.blocksBuilt,
                                 info.blocksDeleted,
                                 info.blocksDrawn / 1000,
                                 info.linesWritten );
             } else if( info.blocksDrawn > 0 ) {
-                player.Message( "  Built {0} and deleted {1} blocks, draw {2} blocks with draw commands, wrote {3} messages.",
+                player.Message( "  Built {0} and deleted {1} blocks, drew {2} blocks, wrote {3} messages.",
                                 info.blocksBuilt,
                                 info.blocksDeleted,
                                 info.blocksDrawn,
@@ -549,12 +549,12 @@ namespace fCraft {
             // Promotion/demotion
             if( info.rankChangedBy != "" ) {
                 if( info.previousRank == null ) {
-                    player.Message( "  Promoted to {0}&S by {1} on {2:dd MMM yyyy}.",
+                    player.Message( "  Promoted to {0}&S by {1} on {2:d MMM yyyy}.",
                                     info.rank.GetClassyName(),
                                     info.rankChangedBy,
                                     info.rankChangeDate );
                 } else if( info.previousRank < info.rank ) {
-                    player.Message( "  Promoted from {0}&S to {1}&S by {2} on {3:dd MMM yyyy}.",
+                    player.Message( "  Promoted from {0}&S to {1}&S by {2} on {3:d MMM yyyy}.",
                                     info.previousRank.GetClassyName(),
                                     info.rank.GetClassyName(),
                                     info.rankChangedBy,
@@ -563,7 +563,7 @@ namespace fCraft {
                         player.Message( "  Promotion reason: {0}", info.rankChangeReason );
                     }
                 } else {
-                    player.Message( "  Demoted from {0}&S to {1}&S by {2} on {3:dd MMM yyyy}.",
+                    player.Message( "  Demoted from {0}&S to {1}&S by {2} on {3:d MMM yyyy}.",
                                     info.previousRank.GetClassyName(),
                                     info.rank.GetClassyName(),
                                     info.rankChangedBy,

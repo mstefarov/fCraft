@@ -14,14 +14,17 @@ namespace fCraft {
             CommandList.RegisterCommand( cdAutoRankAll );
             CommandList.RegisterCommand( cdDumpStats );
             CommandList.RegisterCommand( cdSetInfo );
+            CommandList.RegisterCommand( cdFixStuff );
         }
 
 
         static CommandDescriptor cdDumpStats = new CommandDescriptor {
             name = "dumpstats",
             consoleSafe = true,
+            hidden = true,
             permissions = new Permission[] { Permission.Import },
-            help = "",
+            help = "Writes out a number of statistics about the server. " +
+                   "Only non-banned players active in the last 30 days are counted.",
             usage = "/dumpstats FileName",
             handler = DumpStats
         };
@@ -67,6 +70,7 @@ namespace fCraft {
             }
 
             infos = infos.Where( ( info ) => (DateTime.Now.Subtract( info.lastLoginDate ).TotalDays < 30) ).ToArray();
+            infos = infos.Where( ( info ) => (!info.banned) ).ToArray();
 
             for( int i = 0; i < infos.Length; i++ ) {
                 stat.TimeSinceFirstLogin += DateTime.Now.Subtract( infos[i].firstLoginDate );
@@ -411,8 +415,9 @@ namespace fCraft {
         static CommandDescriptor cdAutoRankAll = new CommandDescriptor {
             name = "autorankall",
             consoleSafe = true,
+            hidden = true,
             permissions = new Permission[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
-            help = "",
+            help = "If AutoRank is disabled, it can still be called manually using this command.",
             usage = "/autorankall [silent] [FromRank]",
             handler = AutoRankAll
         };
@@ -460,6 +465,7 @@ namespace fCraft {
 
         static CommandDescriptor cdMassRank = new CommandDescriptor {
             name = "massrank",
+            hidden = true,
             consoleSafe = true,
             permissions = new Permission[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
             help = "",
@@ -505,6 +511,7 @@ namespace fCraft {
         static CommandDescriptor cdAutoRankReload = new CommandDescriptor {
             name = "autorankreload",
             consoleSafe = true,
+            hidden = true,
             permissions = new Permission[] { Permission.EditPlayerDB },
             help = "",
             handler = AutoRankReload
@@ -544,16 +551,19 @@ namespace fCraft {
         static CommandDescriptor cdSetInfo = new CommandDescriptor {
             name = "setinfo",
             consoleSafe = true,
+            hidden = true,
             permissions = new Permission[] { Permission.EditPlayerDB },
-            help = "Supported values: TimesKicked, PreviousRank, TotalTime, RankType",
+            help = "Allows direct editing of player information. Editable properties: "+
+                   "TimesKicked, PreviousRank, TotalTime, RankChangeType, " +
+                   "BanReason, UnbanReason, RankChangeReason, LastKickReason",
             usage = "/setinfo PlayerName Key Value",
             handler = SetInfo
         };
 
         internal static void SetInfo( Player player, Command cmd ) {
-            string playerName = cmd.Next();
-            string paramName = cmd.Next();
-            string valName = cmd.Next();
+            string targetName = cmd.Next();
+            string propertyName = cmd.Next();
+            string valName = cmd.NextAll();
 
             if( valName == null ) {
                 cdSetInfo.PrintUsage( player );
@@ -561,12 +571,12 @@ namespace fCraft {
             }
 
             PlayerInfo info;
-            if( !PlayerDB.FindPlayerInfo( playerName, out info ) ) {
-                player.Message( "More than one player found matching \"{0}\"", playerName );
+            if( !PlayerDB.FindPlayerInfo( targetName, out info ) ) {
+                player.Message( "More than one player found matching \"{0}\"", targetName );
             } else if( info == null ) {
-                player.NoPlayerMessage( playerName );
+                player.NoPlayerMessage( targetName );
             } else {
-                switch( paramName.ToLower() ) {
+                switch( propertyName.ToLower() ) {
                     case "timeskicked":
                         int oldTimesKicked = info.timesKicked;
                         if( ValidateInt( valName, 0, 1000 ) ) {
@@ -624,8 +634,46 @@ namespace fCraft {
                                         String.Join( ", ", Enum.GetNames( typeof( RankChangeType ) ) ) );
                         return;
 
+                    case "banreason":
+                        string oldBanReason = info.banReason;
+                        info.banReason = valName;
+                        player.Message( "BanReason for {0}&S changed from \"{1}\" to \"{2}\"",
+                                        info.GetClassyName(),
+                                        oldBanReason,
+                                        info.banReason );
+                        return;
+
+                    case "unbanreason":
+                        string oldUnbanReason = info.unbanReason;
+                        info.unbanReason = valName;
+                        player.Message( "UnbanReason for {0}&S changed from \"{1}\" to \"{2}\"",
+                                        info.GetClassyName(),
+                                        oldUnbanReason,
+                                        info.unbanReason );
+                        return;
+
+                    case "rankchangereason":
+                        string oldRankChangeReason = info.rankChangeReason;
+                        info.rankChangeReason = valName;
+                        player.Message( "RankChangeReason for {0}&S changed from \"{1}\" to \"{2}\"",
+                                        info.GetClassyName(),
+                                        oldRankChangeReason,
+                                        info.rankChangeReason );
+                        return;
+
+                    case "lastkickreason":
+                        string oldLastKickReason = info.lastKickReason;
+                        info.lastKickReason = valName;
+                        player.Message( "LastKickReason for {0}&S changed from \"{1}\" to \"{2}\"",
+                                        info.GetClassyName(),
+                                        oldLastKickReason,
+                                        info.lastKickReason );
+                        return;
+
                     default:
-                        player.Message( "Only TimesKicked, PreviousRank, TotalTime, and RankType are implemented so far." );
+                        player.Message( "Only the following properties are editable: " +
+                                        "TimesKicked, PreviousRank, TotalTime, RankChangeType, " +
+                                        "BanReason, UnbanReason, RankChangeReason, LastKickReason" );
                         return;
                 }
             }
@@ -638,6 +686,40 @@ namespace fCraft {
             } else {
                 return false;
             }
+        }
+
+
+        static CommandDescriptor cdFixStuff = new CommandDescriptor {
+            name = "fixstuff",
+            consoleSafe = true,
+            hidden = true,
+            permissions = new Permission[] { Permission.EditPlayerDB },
+            help = "",
+            usage = "/fixstuff RankName",
+            handler = FixStuff
+        };
+        internal static void FixStuff( Player player, Command cmd ) {
+            string rankName = cmd.Next();
+            if( rankName == null ) {
+                cdFixStuff.PrintUsage( player );
+                return;
+            }
+            Rank rank = RankList.ParseRank( rankName );
+            if( rank == null ) {
+                player.NoRankMessage( rankName );
+                return;
+            }
+
+            PlayerInfo[] infos = PlayerDB.GetPlayerListCopy( rank );
+            int count = 0;
+            foreach( PlayerInfo info in infos ) {
+                if( info.rankChangeType != RankChangeType.Default && ( info.previousRank == null || info.rankChangeReason == "~MassRank" ) ) {
+                    info.rankChangeType = RankChangeType.Default;
+                    player.Message( "FixStuff: reset for {0}", info.GetClassyName() );
+                    count++;
+                }
+            }
+            player.Message( "FixStuff: {0} players affected.", count );
         }
     }
 }
