@@ -24,7 +24,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -214,6 +214,9 @@
             this.xIRC = new System.Windows.Forms.CheckBox();
             this.tabAdvanced = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.nMaxUndo = new System.Windows.Forms.NumericUpDown();
+            this.lMaxUndoUnits = new System.Windows.Forms.Label();
+            this.xMaxUndo = new System.Windows.Forms.CheckBox();
             this.lAdvancedWarning = new System.Windows.Forms.Label();
             this.lTickInterval = new System.Windows.Forms.Label();
             this.xLowLatencyMode = new System.Windows.Forms.CheckBox();
@@ -237,9 +240,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.nMaxUndo = new System.Windows.Forms.NumericUpDown();
-            this.lMaxUndoUnits = new System.Windows.Forms.Label();
-            this.xMaxUndo = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -283,10 +283,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.nIRCBotPort)).BeginInit();
             this.tabAdvanced.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             this.gCrashReport.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).BeginInit();
             this.SuspendLayout();
             // 
             // tabs
@@ -426,9 +426,9 @@
             this.xShowJoinedWorldMessages.AutoSize = true;
             this.xShowJoinedWorldMessages.Location = new System.Drawing.Point( 24, 23 );
             this.xShowJoinedWorldMessages.Name = "xShowJoinedWorldMessages";
-            this.xShowJoinedWorldMessages.Size = new System.Drawing.Size( 219, 19 );
+            this.xShowJoinedWorldMessages.Size = new System.Drawing.Size( 261, 19 );
             this.xShowJoinedWorldMessages.TabIndex = 11;
-            this.xShowJoinedWorldMessages.Text = "Show \"X joined world Y\" messages.";
+            this.xShowJoinedWorldMessages.Text = "Show a message when players join worlds.";
             this.xShowJoinedWorldMessages.UseVisualStyleBackColor = true;
             // 
             // xRankColorsInWorldNames
@@ -907,8 +907,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle5.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle5;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 634, 365 );
             this.dgvWorlds.TabIndex = 0;
@@ -2437,6 +2437,49 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Miscallaneous";
             // 
+            // nMaxUndo
+            // 
+            this.nMaxUndo.Increment = new decimal( new int[] {
+            1000,
+            0,
+            0,
+            0} );
+            this.nMaxUndo.Location = new System.Drawing.Point( 306, 139 );
+            this.nMaxUndo.Maximum = new decimal( new int[] {
+            2147483647,
+            0,
+            0,
+            0} );
+            this.nMaxUndo.Name = "nMaxUndo";
+            this.nMaxUndo.Size = new System.Drawing.Size( 86, 21 );
+            this.nMaxUndo.TabIndex = 44;
+            this.nMaxUndo.Value = new decimal( new int[] {
+            100,
+            0,
+            0,
+            0} );
+            this.nMaxUndo.ValueChanged += new System.EventHandler( this.nMaxUndo_ValueChanged );
+            // 
+            // lMaxUndoUnits
+            // 
+            this.lMaxUndoUnits.AutoSize = true;
+            this.lMaxUndoUnits.Location = new System.Drawing.Point( 398, 141 );
+            this.lMaxUndoUnits.Name = "lMaxUndoUnits";
+            this.lMaxUndoUnits.Size = new System.Drawing.Size( 179, 15 );
+            this.lMaxUndoUnits.TabIndex = 43;
+            this.lMaxUndoUnits.Text = "(up to {0}MB of RAM per player)";
+            // 
+            // xMaxUndo
+            // 
+            this.xMaxUndo.AutoSize = true;
+            this.xMaxUndo.Location = new System.Drawing.Point( 9, 140 );
+            this.xMaxUndo.Name = "xMaxUndo";
+            this.xMaxUndo.Size = new System.Drawing.Size( 291, 19 );
+            this.xMaxUndo.TabIndex = 42;
+            this.xMaxUndo.Text = "Limit the number of blocks that can be undone to";
+            this.xMaxUndo.UseVisualStyleBackColor = true;
+            this.xMaxUndo.CheckedChanged += new System.EventHandler( this.xMaxUndo_CheckedChanged );
+            // 
             // lAdvancedWarning
             // 
             this.lAdvancedWarning.AutoSize = true;
@@ -2646,9 +2689,9 @@
             this.xSubmitCrashReports.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.xSubmitCrashReports.Location = new System.Drawing.Point( 6, 20 );
             this.xSubmitCrashReports.Name = "xSubmitCrashReports";
-            this.xSubmitCrashReports.Size = new System.Drawing.Size( 253, 19 );
+            this.xSubmitCrashReports.Size = new System.Drawing.Size( 375, 19 );
             this.xSubmitCrashReports.TabIndex = 40;
-            this.xSubmitCrashReports.Text = "Submit crash reports to fragmer.net";
+            this.xSubmitCrashReports.Text = "Submit crash reports to fCraft developers (fragmer.net)";
             this.xSubmitCrashReports.UseVisualStyleBackColor = true;
             // 
             // bOK
@@ -2711,52 +2754,10 @@
             // 
             // toolTip
             // 
-            this.toolTip.AutoPopDelay = 10000;
+            this.toolTip.AutoPopDelay = 11111;
             this.toolTip.InitialDelay = 500;
+            this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // nMaxUndo
-            // 
-            this.nMaxUndo.Increment = new decimal( new int[] {
-            1000,
-            0,
-            0,
-            0} );
-            this.nMaxUndo.Location = new System.Drawing.Point( 306, 139 );
-            this.nMaxUndo.Maximum = new decimal( new int[] {
-            2147483647,
-            0,
-            0,
-            0} );
-            this.nMaxUndo.Name = "nMaxUndo";
-            this.nMaxUndo.Size = new System.Drawing.Size( 86, 21 );
-            this.nMaxUndo.TabIndex = 44;
-            this.nMaxUndo.Value = new decimal( new int[] {
-            100,
-            0,
-            0,
-            0} );
-            this.nMaxUndo.ValueChanged += new System.EventHandler( this.nMaxUndo_ValueChanged );
-            // 
-            // lMaxUndoUnits
-            // 
-            this.lMaxUndoUnits.AutoSize = true;
-            this.lMaxUndoUnits.Location = new System.Drawing.Point( 398, 141 );
-            this.lMaxUndoUnits.Name = "lMaxUndoUnits";
-            this.lMaxUndoUnits.Size = new System.Drawing.Size( 179, 15 );
-            this.lMaxUndoUnits.TabIndex = 43;
-            this.lMaxUndoUnits.Text = "(up to {0}MB of RAM per player)";
-            // 
-            // xMaxUndo
-            // 
-            this.xMaxUndo.AutoSize = true;
-            this.xMaxUndo.Location = new System.Drawing.Point( 9, 140 );
-            this.xMaxUndo.Name = "xMaxUndo";
-            this.xMaxUndo.Size = new System.Drawing.Size( 291, 19 );
-            this.xMaxUndo.TabIndex = 42;
-            this.xMaxUndo.Text = "Limit the number of blocks that can be undone to";
-            this.xMaxUndo.UseVisualStyleBackColor = true;
-            this.xMaxUndo.CheckedChanged += new System.EventHandler( this.xMaxUndo_CheckedChanged );
             // 
             // ConfigUI
             // 
@@ -2834,11 +2835,11 @@
             this.tabAdvanced.ResumeLayout( false );
             this.groupBox1.ResumeLayout( false );
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).EndInit();
             this.ResumeLayout( false );
 
         }

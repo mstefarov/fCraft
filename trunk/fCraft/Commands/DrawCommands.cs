@@ -290,7 +290,8 @@ namespace fCraft {
                 player.undoBuffer = redoBuffer;
                 redoBuffer.TrimExcess();
                 player.MessageNow( "Type /undo again to reverse this command." );
-                GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+                Server.RequestGC();
+
             } else {
                 player.MessageNow( "There is currently nothing to undo." );
             }
@@ -395,7 +396,7 @@ namespace fCraft {
                         player.world.name );
 
             player.undoBuffer.TrimExcess();
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+            Server.RequestGC();
         }
 
 
@@ -445,7 +446,7 @@ namespace fCraft {
                         (Block)drawBlock,
                         player.world.name );
             player.undoBuffer.TrimExcess();
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+            Server.RequestGC();
         }
 
 
@@ -503,7 +504,7 @@ namespace fCraft {
                         (Block)drawBlock,
                         player.world.name );
             player.undoBuffer.TrimExcess();
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+            Server.RequestGC();
         }
 
 
@@ -576,7 +577,7 @@ namespace fCraft {
                         blocks,
                         (Block)drawBlock,
                         player.world.name );
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+            Server.RequestGC();
         }
 
 
@@ -742,7 +743,7 @@ namespace fCraft {
                         player.name, volume, player.world.name, blocks, (Block)fillType );
 
             player.undoBuffer.TrimExcess();
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+            Server.RequestGC();
         }
 
 
@@ -914,7 +915,7 @@ namespace fCraft {
             Logger.Log( "{0} pasted {1} blocks to {2}.", LogType.UserActivity,
                         player.name, blocks, player.world.name );
             player.undoBuffer.TrimExcess();
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+            Server.RequestGC();
         }
 
 

@@ -4,6 +4,8 @@ using System.Net;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Linq;
 
 
 namespace fCraft {
@@ -406,6 +408,8 @@ namespace fCraft {
             handler = Info
         };
 
+        static Regex stripNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
+        const int MaxPlayersShownInInfo = 25;
         internal static void Info( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
@@ -415,145 +419,173 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo info;
-            if( !PlayerDB.FindPlayerInfo( name, out info ) ) {
-                player.Message( "More than one player found matching \"{0}\"", name );
+            IPAddress IP;
+            PlayerInfo[] infos;
+            if( IPAddress.TryParse( name, out IP ) ) {
+                infos = PlayerDB.FindPlayers( IP, MaxPlayersShownInInfo );
 
-            } else if( info != null ) {
-                Player target = Server.FindPlayerExact( info.name );
+            } else if( name.Contains( "*" ) || name.Contains( "." ) ) {
+                string regexString = "^" + stripNonNameChars.Replace( name, "" ).Replace( "*", ".*" ) + "$";
+                Regex regex = new Regex( regexString, RegexOptions.IgnoreCase | RegexOptions.Compiled );
+                infos = PlayerDB.FindPlayers( regex, MaxPlayersShownInInfo );
 
-                // hide online status when hidden
-                if( target != null && !player.CanSee( target ) ) {
-                    target = null;
+            } else {
+                PlayerInfo tempInfo;
+                if( !PlayerDB.FindPlayerInfo( name, out tempInfo ) ) {
+                    infos = PlayerDB.FindPlayers( name, MaxPlayersShownInInfo );
+                } else if(tempInfo==null) {
+                    player.NoPlayerMessage( name );
+                    return;
+                }else{
+                    infos = new PlayerInfo[] { tempInfo };
                 }
+            }
 
-                if( info.lastIP.ToString() == IPAddress.None.ToString() ) {
-                    player.Message( "About {0}: Never seen before.", info.name );
-
-                } else {
-                    if( target != null ) {
-                        player.Message( "About {0}: Online now from {1}",
-                                        info.name,
-                                        info.lastIP );
-                    } else if( DateTime.Now.Subtract( info.lastSeen ).TotalDays < 2 ) {
-                        player.Message( "About {0}: Last seen {1:F1} hours ago from {2}",
-                                        info.name,
-                                        DateTime.Now.Subtract( info.lastSeen ).TotalHours,
-                                        info.lastIP );
-
-                    } else {
-                        player.Message( "About {0}: Last seen {1:F1} days ago from {2}",
-                                        info.name,
-                                        DateTime.Now.Subtract( info.lastSeen ).TotalDays,
-                                        info.lastIP );
-                    }
-                    // Show login information
-                    player.Message( "  Logged in {0} time(s) since {1:dd MMM yyyy}.",
-                                    info.timesVisited,
-                                    info.firstLoginDate );
-                }
-
-
-                // Show ban information
-                IPBanInfo ipBan = IPBanList.Get( info.lastIP );
-                if( ipBan != null && info.banned ) {
-                    player.Message( "  Both name and IP are {0}BANNED.", Color.Red );
-                } else if( ipBan != null ) {
-                    player.Message( "  IP is {0}BANNED&S (but nick isn't).", Color.Red );
-                } else if( info.banned ) {
-                    player.Message( "  Nick is {0}BANNED&S (but IP isn't).", Color.Red );
-                }
-
-                // Stats
-                if( info.blocksDrawn > 1000000 ) {
-                    player.Message( "  Built {0} and deleted {1} blocks, affected {2}k blocks with draw commands, wrote {3} messages.",
-                                    info.blocksBuilt,
-                                    info.blocksDeleted,
-                                    info.blocksDrawn / 1000,
-                                    info.linesWritten );
-                } else if( info.blocksDrawn > 0 ) {
-                    player.Message( "  Built {0} and deleted {1} blocks, draw {2} blocks with draw commands, wrote {3} messages.",
-                                    info.blocksBuilt,
-                                    info.blocksDeleted,
-                                    info.blocksDrawn,
-                                    info.linesWritten );
-                } else {
-                    player.Message( "  Built {0} and deleted {1} blocks, wrote {2} messages.",
-                                    info.blocksBuilt,
-                                    info.blocksDeleted,
-                                    info.linesWritten );
-                }
-
-                // More stats
-                if( info.timesBannedOthers > 0 || info.timesKickedOthers > 0 ) {
-                    player.Message( "  Kicked {0} and banned {1} players.", info.timesKickedOthers, info.timesBannedOthers );
-                }
-
-                if( info.timesKicked > 0 ) {
-                    if( info.lastKickDate != DateTime.MinValue ) {
-                        TimeSpan timeSinceLastKick = DateTime.Now.Subtract( info.lastKickDate );
-                        if( timeSinceLastKick.TotalDays < 2 ) {
-                            player.Message( "  Got kicked {0} times. Last kick {1:F1} hours ago by {2}",
-                                            info.timesKicked,
-                                            timeSinceLastKick.TotalHours,
-                                            info.lastKickBy );
-                        } else {
-                            player.Message( "  Got kicked {0} times. Last kick {1:F1} days ago by {2}",
-                                            info.timesKicked,
-                                            timeSinceLastKick.TotalDays,
-                                            info.lastKickBy );
-                        }
-                        if( info.lastKickReason.Length > 0 ) {
-                            player.Message( "  Last kick reason: {0}", info.lastKickReason );
-                        }
-                    } else {
-                        player.Message( "  Got kicked {0} times", info.timesKicked );
-                    }
-                }
-
-                // Promotion/demotion
-                if( info.rankChangedBy != "" ) {
-                    if( info.previousRank == null ) {
-                        player.Message( "  Promoted to {0}&S by {1} on {2:dd MMM yyyy}.",
-                                        info.rank.GetClassyName(),
-                                        info.rankChangedBy,
-                                        info.rankChangeDate );
-                    } else if( info.previousRank < info.rank ) {
-                        player.Message( "  Promoted from {0}&S to {1}&S by {2} on {3:dd MMM yyyy}.",
-                                        info.previousRank.GetClassyName(),
-                                        info.rank.GetClassyName(),
-                                        info.rankChangedBy,
-                                        info.rankChangeDate );
-                        if( info.rankChangeReason != null && info.rankChangeReason.Length > 0 ) {
-                            player.Message( "  Promotion reason: {0}", info.rankChangeReason );
-                        }
-                    } else {
-                        player.Message( "  Demoted from {0}&S to {1}&S by {2} on {3:dd MMM yyyy}.",
-                                        info.previousRank.GetClassyName(),
-                                        info.rank.GetClassyName(),
-                                        info.rankChangedBy,
-                                        info.rankChangeDate );
-                        if( info.rankChangeReason.Length > 0 ) {
-                            player.Message( "  Demotion reason: {0}", info.rankChangeReason );
-                        }
-                    }
-                } else {
-                    player.Message( "  Class is {0}&S (default).",
-                                    info.rank.GetClassyName() );
-                }
-
-                if( info.lastIP.ToString() != IPAddress.None.ToString() ) {
-                    // Time on the server
-                    TimeSpan totalTime = info.totalTime;
-                    if( target != null ) {
-                        totalTime = totalTime.Add( DateTime.Now.Subtract( info.lastLoginDate ) );
-                    }
-                    player.Message( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
-                                    totalTime.TotalHours,
-                                    totalTime.TotalMinutes );
+            if( infos.Length == 1 ) {
+                PrintPlayerInfo( player, infos[0] );
+            } else if( infos.Length > 1 ) {
+                player.ManyMatchesMessage( "player", (IClassy[])infos );
+                if( infos.Length == MaxPlayersShownInInfo ) {
+                    player.Message( "NOTE: Only first 25 matches are shown." );
                 }
             } else {
                 player.NoPlayerMessage( name );
+            }
+        }
+
+
+        public static void PrintPlayerInfo( Player player, PlayerInfo info ) {
+            Player target = Server.FindPlayerExact( info.name );
+
+            // hide online status when hidden
+            if( target != null && !player.CanSee( target ) ) {
+                target = null;
+            }
+
+            if( info.lastIP.ToString() == IPAddress.None.ToString() ) {
+                player.Message( "About {0}: Never seen before.", info.name );
+
+            } else {
+                if( target != null ) {
+                    player.Message( "About {0}: Online now from {1}",
+                                    info.name,
+                                    info.lastIP );
+                } else if( DateTime.Now.Subtract( info.lastSeen ).TotalDays < 2 ) {
+                    player.Message( "About {0}: Last seen {1:F1} hours ago from {2}",
+                                    info.name,
+                                    DateTime.Now.Subtract( info.lastSeen ).TotalHours,
+                                    info.lastIP );
+
+                } else {
+                    player.Message( "About {0}: Last seen {1:F1} days ago from {2}",
+                                    info.name,
+                                    DateTime.Now.Subtract( info.lastSeen ).TotalDays,
+                                    info.lastIP );
+                }
+                // Show login information
+                player.Message( "  Logged in {0} time(s) since {1:dd MMM yyyy}.",
+                                info.timesVisited,
+                                info.firstLoginDate );
+            }
+
+
+            // Show ban information
+            IPBanInfo ipBan = IPBanList.Get( info.lastIP );
+            if( ipBan != null && info.banned ) {
+                player.Message( "  Both name and IP are {0}BANNED.", Color.Red );
+            } else if( ipBan != null ) {
+                player.Message( "  IP is {0}BANNED&S (but nick isn't).", Color.Red );
+            } else if( info.banned ) {
+                player.Message( "  Nick is {0}BANNED&S (but IP isn't).", Color.Red );
+            }
+
+            // Stats
+            if( info.blocksDrawn > 1000000 ) {
+                player.Message( "  Built {0} and deleted {1} blocks, affected {2}k blocks with draw commands, wrote {3} messages.",
+                                info.blocksBuilt,
+                                info.blocksDeleted,
+                                info.blocksDrawn / 1000,
+                                info.linesWritten );
+            } else if( info.blocksDrawn > 0 ) {
+                player.Message( "  Built {0} and deleted {1} blocks, draw {2} blocks with draw commands, wrote {3} messages.",
+                                info.blocksBuilt,
+                                info.blocksDeleted,
+                                info.blocksDrawn,
+                                info.linesWritten );
+            } else {
+                player.Message( "  Built {0} and deleted {1} blocks, wrote {2} messages.",
+                                info.blocksBuilt,
+                                info.blocksDeleted,
+                                info.linesWritten );
+            }
+
+            // More stats
+            if( info.timesBannedOthers > 0 || info.timesKickedOthers > 0 ) {
+                player.Message( "  Kicked {0} and banned {1} players.", info.timesKickedOthers, info.timesBannedOthers );
+            }
+
+            if( info.timesKicked > 0 ) {
+                if( info.lastKickDate != DateTime.MinValue ) {
+                    TimeSpan timeSinceLastKick = DateTime.Now.Subtract( info.lastKickDate );
+                    if( timeSinceLastKick.TotalDays < 2 ) {
+                        player.Message( "  Got kicked {0} times. Last kick {1:F1} hours ago by {2}",
+                                        info.timesKicked,
+                                        timeSinceLastKick.TotalHours,
+                                        info.lastKickBy );
+                    } else {
+                        player.Message( "  Got kicked {0} times. Last kick {1:F1} days ago by {2}",
+                                        info.timesKicked,
+                                        timeSinceLastKick.TotalDays,
+                                        info.lastKickBy );
+                    }
+                    if( info.lastKickReason.Length > 0 ) {
+                        player.Message( "  Last kick reason: {0}", info.lastKickReason );
+                    }
+                } else {
+                    player.Message( "  Got kicked {0} times", info.timesKicked );
+                }
+            }
+
+            // Promotion/demotion
+            if( info.rankChangedBy != "" ) {
+                if( info.previousRank == null ) {
+                    player.Message( "  Promoted to {0}&S by {1} on {2:dd MMM yyyy}.",
+                                    info.rank.GetClassyName(),
+                                    info.rankChangedBy,
+                                    info.rankChangeDate );
+                } else if( info.previousRank < info.rank ) {
+                    player.Message( "  Promoted from {0}&S to {1}&S by {2} on {3:dd MMM yyyy}.",
+                                    info.previousRank.GetClassyName(),
+                                    info.rank.GetClassyName(),
+                                    info.rankChangedBy,
+                                    info.rankChangeDate );
+                    if( info.rankChangeReason != null && info.rankChangeReason.Length > 0 ) {
+                        player.Message( "  Promotion reason: {0}", info.rankChangeReason );
+                    }
+                } else {
+                    player.Message( "  Demoted from {0}&S to {1}&S by {2} on {3:dd MMM yyyy}.",
+                                    info.previousRank.GetClassyName(),
+                                    info.rank.GetClassyName(),
+                                    info.rankChangedBy,
+                                    info.rankChangeDate );
+                    if( info.rankChangeReason.Length > 0 ) {
+                        player.Message( "  Demotion reason: {0}", info.rankChangeReason );
+                    }
+                }
+            } else {
+                player.Message( "  Class is {0}&S (default).",
+                                info.rank.GetClassyName() );
+            }
+
+            if( info.lastIP.ToString() != IPAddress.None.ToString() ) {
+                // Time on the server
+                TimeSpan totalTime = info.totalTime;
+                if( target != null ) {
+                    totalTime = totalTime.Add( DateTime.Now.Subtract( info.lastLoginDate ) );
+                }
+                player.Message( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
+                                totalTime.TotalHours,
+                                totalTime.TotalMinutes );
             }
         }
 

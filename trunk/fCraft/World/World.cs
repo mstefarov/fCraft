@@ -130,7 +130,7 @@ namespace fCraft {
             }
             thisMap.world = null;
             thisMap.blocks = null;
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
+            Server.RequestGC();
         }
 
 

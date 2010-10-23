@@ -97,37 +97,35 @@ namespace fCraftUI {
 
         void Shutdown( string reason, bool quit ) {
             if( shutdownPending ) return;
+
+            //Log( "Shutting down...", LogType.ConsoleOutput ); // write to console only
+
             shutdownPending = true;
-            Logger.Log( "---- Shutting Down: {0} ----", LogType.Error, reason );
+            Logger.Log( "---- Shutting Down: {0} ----", LogType.SystemActivity, reason );
             Server.InitiateShutdown( reason, 0, quit );
             urlDisplay.Enabled = false;
             console.Enabled = false;
         }
 
-        delegate void LogDelegate( string message );
+        delegate void LogDelegate( string message, LogType type );
+        delegate void SetURLDelegate( string URL );
         delegate void PlayerListUpdateDelegate( string[] items );
 
         public void Log( string message, LogType type ) {
             try {
-                if( shutdownPending ) return;
+                if( shutdownComplete ) return;
                 if( logBox.InvokeRequired ) {
-                    Invoke( (LogDelegate)LogInternal, message );
+                    Invoke( (LogDelegate)Log, message, type );
                 } else {
-                    LogInternal( message );
+                    logBox.AppendText( message + Environment.NewLine );
+                    if( logBox.Lines.Length > MaxLinesInLog ) {
+                        logBox.Text = "----- cut off, see fCraft.log for complete log -----" +
+                            Environment.NewLine +
+                            logBox.Text.Substring( logBox.GetFirstCharIndexFromLine( 50 ) );
+                    }
+                    logBox.SelectionStart = logBox.Text.Length;
+                    logBox.ScrollToCaret();
                 }
-            } catch( ObjectDisposedException ) { }
-        }
-
-        void LogInternal( string message ) {
-            try {
-                logBox.AppendText( message + Environment.NewLine );
-                if( logBox.Lines.Length > MaxLinesInLog ) {
-                    logBox.Text = "----- cut off, see fCraft.log for complete log -----" +
-                        Environment.NewLine +
-                        logBox.Text.Substring( logBox.GetFirstCharIndexFromLine( 50 ) );
-                }
-                logBox.SelectionStart = logBox.Text.Length;
-                logBox.ScrollToCaret();
             } catch( ObjectDisposedException ) { }
         }
 
@@ -135,16 +133,14 @@ namespace fCraftUI {
         public void SetURL( string URL ) {
             try {
                 if( shutdownPending ) return;
-                Invoke( (LogDelegate)SetURLInternal, URL );
-            } catch( ObjectDisposedException ) { }
-        }
-
-        void SetURLInternal( string URL ) {
-            try {
-                urlDisplay.Text = URL;
-                urlDisplay.Enabled = true;
-                urlDisplay.Select();
-                bPlay.Enabled = true;
+                if( urlDisplay.InvokeRequired ) {
+                    Invoke( (SetURLDelegate)SetURL, URL );
+                } else {
+                    urlDisplay.Text = URL;
+                    urlDisplay.Enabled = true;
+                    urlDisplay.Select();
+                    bPlay.Enabled = true;
+                }
             } catch( ObjectDisposedException ) { }
         }
 
@@ -152,19 +148,18 @@ namespace fCraftUI {
         public void UpdatePlayerList( string[] playerNames ) {
             try {
                 if( shutdownPending ) return;
-                Invoke( (PlayerListUpdateDelegate)UpdatePlayerListInternal, new object[] { playerNames } );
-            } catch( ObjectDisposedException ) { }
-        }
-
-        void UpdatePlayerListInternal( string[] items ) {
-            try {
-                playerList.Items.Clear();
-                Array.Sort( items );
-                foreach( string item in items ) {
-                    playerList.Items.Add( item );
+                if( playerList.InvokeRequired ) {
+                    Invoke( (PlayerListUpdateDelegate)UpdatePlayerList, new object[] { playerNames } );
+                } else {
+                    playerList.Items.Clear();
+                    Array.Sort( playerNames );
+                    foreach( string item in playerNames ) {
+                        playerList.Items.Add( item );
+                    }
                 }
             } catch( ObjectDisposedException ) { }
         }
+
 
         void OnServerShutdown() {
             try {

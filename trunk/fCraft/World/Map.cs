@@ -496,18 +496,6 @@ namespace fCraft {
             return true;
         }
 
-        public Zone[] ListZones() {
-            Zone[] output;
-            int i = 0;
-            lock( zoneLock ) {
-                output = new Zone[zones.Count];
-                foreach( Zone zone in zones.Values ) {
-                    output[i++] = zone;
-                }
-            }
-            return output;
-        }
-
 
         public ZoneOverride CheckZones( int x, int y, int h, Player player ) {
             ZoneOverride result = ZoneOverride.None;

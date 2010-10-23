@@ -295,7 +295,7 @@ namespace fCraft {
             MapGenerator gen = (MapGenerator)task;
             gen.Generate();
             //gen.map.Save( gen.fileName );
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
+            Server.RequestGC();
         }
 
 

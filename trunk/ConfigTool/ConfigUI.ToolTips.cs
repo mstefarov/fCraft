@@ -26,11 +26,10 @@ It can be left blank.";
 
 
             string tipPublic =
-@"Public servers are listed on minecraft.net server list,
-so expect random players to join. Private servers can
-only be joined by people who already know the
-server port/address or URL. Note that the URL changes
-if your computer's IP or server's port change.";
+@"Public servers are listed on minecraft.net server list, so expect
+random players to join. Private servers can only be joined by players
+who already know the server port/address or URL. Note that the URL
+changes if your computer's IP or server's port change.";
             toolTip.SetToolTip( lPublic, tipPublic );
             toolTip.SetToolTip( cPublic, tipPublic );
 

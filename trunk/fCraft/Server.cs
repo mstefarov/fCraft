@@ -60,7 +60,6 @@ namespace fCraft {
         public static int Port;
         public static string URL;
 
-
         public static bool Init() {
             serverStart = DateTime.Now;
 
@@ -173,20 +172,22 @@ namespace fCraft {
             // Monitor CPU usage every 60 seconds
             AddTask( MonitorProcessorUsage, CPUMonitorInterval );
 
-            AddTask( SavePlayerDB, PlayerDB.SaveInterval );
+            AddTask( SavePlayerDB, PlayerDB.SaveInterval, null, 15000 );
 
             // Write out initial (empty) playerlist cache
             UpdatePlayerList();
 
             // apply AutoRank
             if( Config.GetBool( ConfigKey.AutoRankEnabled ) ) {
-                AddTask( AutoRankTick, AutoRankTickInterval );
+                AddTask( AutoRankTick, AutoRankTickInterval, null, 30000 );
             }
 
             // Announcements
             if( Config.GetInt( ConfigKey.AnnouncementInterval ) > 0 ) {
                 AddTask( ShowRandomAnnouncement, Config.GetInt( ConfigKey.AnnouncementInterval ) * 60000 );
             }
+
+            AddTask( DoGC, GCInterval, null, 45000 );
 
             // start the main loop - server is now connectible
             mainThread = new Thread( MainLoop );
@@ -892,6 +893,18 @@ namespace fCraft {
             }
         }
 
+        const int GCInterval = 60000;
+        static void DoGC( object param ) {
+            if( GCRequested ) {
+                GCRequested = false;
+                Tasks.Add( (TaskCallback)delegate( object innerParam ) {
+                    GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
+                    Logger.Log( "Server.DoGC: Collected on schedule.", LogType.Debug );
+                }, null, false );
+            }
+        }
+
+
         internal static int AddTask( TaskCallback task, int interval ) {
             return AddTask( task, interval, null, 0 );
         }
@@ -962,6 +975,11 @@ namespace fCraft {
 
 
         #region Utilities
+
+        static bool GCRequested = false;
+        public static void RequestGC() {
+            GCRequested = true;
+        }
 
         public static void CheckMapDirectory() {
             // move files, if necessary

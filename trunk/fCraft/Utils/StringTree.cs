@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
 
 
 namespace fCraft {
@@ -29,6 +30,41 @@ namespace fCraft {
                 temp = temp.children[code];
             }
             return temp.payload;
+        }
+
+
+        // Searches for players starting with namePart.
+        //     Returns false if more than one name matched.
+        //     Returns true and sets info to null if no names matched.
+        public List<PlayerInfo> GetMultiple( string namePart, int limit ) {
+            List<PlayerInfo> results = new List<PlayerInfo>();
+            StringNode temp = root;
+            int code;
+            for( int i = 0; i < namePart.Length; i++ ) {
+                code = CharCode( namePart[i] );
+                if( temp.children[code] == null )
+                    return results;
+                temp = temp.children[code];
+            }
+            GetAllChildren( temp, results, limit );
+            return results;
+        }
+
+        bool GetAllChildren( StringNode node, List<PlayerInfo> list, int limit ) {
+            if( list.Count >= limit ) return false;
+            if(node.payload!=null){
+                list.Add(node.payload);
+            }
+            if( node.tag < MULTI ) {
+                if( !GetAllChildren( node.children[node.tag], list, limit ) ) return false;
+            } else if( node.tag == MULTI ) {
+                for( int i = 0; i < node.children.Length; i++ ) {
+                    if( node.children[i] != null ) {
+                        if( !GetAllChildren( node.children[i], list, limit ) ) return false;
+                    }
+                }
+            }
+            return true;
         }
 
 

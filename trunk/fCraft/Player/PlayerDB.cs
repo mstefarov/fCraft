@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Net;
 using System.Threading;
 
@@ -127,7 +128,7 @@ namespace fCraft {
 
         #region Lookup
 
-        public static PlayerInfo FindPlayerInfo( Player player ) {
+        public static PlayerInfo FindOrCreateInfoForPlayer( Player player ) {
             if( player == null ) return null;
             PlayerInfo info;
 
@@ -143,16 +144,40 @@ namespace fCraft {
         }
 
 
-        public static List<PlayerInfo> FindPlayersByIP( IPAddress address ) {
+        public static PlayerInfo[] FindPlayers( IPAddress address, int limit ) {
             List<PlayerInfo> result = new List<PlayerInfo>();
+            int count = 0;
             lock( locker ) {
                 foreach( PlayerInfo info in list ) {
                     if( info.lastIP.ToString() == address.ToString() ) {
                         result.Add( info );
+                        count++;
+                        if( count >= limit ) return result.ToArray();
                     }
                 }
             }
-            return result;
+            return result.ToArray();
+        }
+
+
+        public static PlayerInfo[] FindPlayers( Regex regex, int limit ) {
+            List<PlayerInfo> result = new List<PlayerInfo>();
+            int count = 0;
+            lock( locker ) {
+                foreach( PlayerInfo info in list ) {
+                    if( regex.IsMatch(info.name) ) {
+                        result.Add( info );
+                        count++;
+                        if( count >= limit ) return result.ToArray();
+                    }
+                }
+            }
+            return result.ToArray();
+        }
+
+
+        public static PlayerInfo[] FindPlayers( string namePart, int limit ) {
+            return tree.GetMultiple( namePart, limit ).ToArray();
         }
 
 

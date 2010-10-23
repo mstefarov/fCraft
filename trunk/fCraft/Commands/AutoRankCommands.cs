@@ -13,7 +13,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdMassRank );
             CommandList.RegisterCommand( cdAutoRankAll );
             CommandList.RegisterCommand( cdDumpStats );
-            CommandList.RegisterCommand( cdEditPlayerInfo );
+            CommandList.RegisterCommand( cdSetInfo );
         }
 
 
@@ -541,22 +541,22 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdEditPlayerInfo = new CommandDescriptor {
-            name = "editplayerinfo",
+        static CommandDescriptor cdSetInfo = new CommandDescriptor {
+            name = "setinfo",
             consoleSafe = true,
             permissions = new Permission[] { Permission.EditPlayerDB },
-            help = "",
-            usage = "/editplayerinfo PlayerName Stat Value",
-            handler = EditPlayerInfo
+            help = "Supported values: TimesKicked, PreviousRank, TotalTime, RankType",
+            usage = "/setinfo PlayerName Key Value",
+            handler = SetInfo
         };
 
-        internal static void EditPlayerInfo( Player player, Command cmd ) {
+        internal static void SetInfo( Player player, Command cmd ) {
             string playerName = cmd.Next();
             string paramName = cmd.Next();
             string valName = cmd.Next();
 
             if( valName == null ) {
-                cdEditPlayerInfo.PrintUsage( player );
+                cdSetInfo.PrintUsage( player );
                 return;
             }
 
@@ -571,14 +571,14 @@ namespace fCraft {
                         int oldTimesKicked = info.timesKicked;
                         if( ValidateInt( valName, 0, 1000 ) ) {
                             info.timesKicked = Int32.Parse( valName );
-                            player.Message( "TimesKicked for {0}&S chagned from {1} to {2}",
+                            player.Message( "TimesKicked for {0}&S changed from {1} to {2}",
                                             info.GetClassyName(),
                                             oldTimesKicked,
                                             info.timesKicked );
                         } else {
                             player.Message( "Value not in valid range (0...1000)" );
                         }
-                        break;
+                        return;
 
                     case "previousrank":
                         Rank newPreviousRank = RankList.ParseRank( valName );
@@ -592,7 +592,7 @@ namespace fCraft {
                         } else {
                             player.NoRankMessage( valName );
                         }
-                        break;
+                        return;
 
                     case "totaltime":
                         TimeSpan newTotalTime;
@@ -606,11 +606,27 @@ namespace fCraft {
                         } else {
                             player.Message( "Could not parse time. Expected format: Days.HH:MM:SS" );
                         }
-                        break;
+                        return;
+
+                    case "rankchangetype":
+                        RankChangeType oldType = info.rankChangeType;
+                        foreach( string val in Enum.GetNames( typeof( RankChangeType ) ) ) {
+                            if( val.Equals( valName, StringComparison.OrdinalIgnoreCase ) ) {
+                                info.rankChangeType = (RankChangeType)Enum.Parse( typeof( RankChangeType ), valName, true );
+                                player.Message( "RankChangeType for {0}&S changed from {1} to {2}",
+                                                info.GetClassyName(),
+                                                oldType,
+                                                info.rankChangeType );
+                                return;
+                            }
+                        }
+                        player.Message( "Could not parse RankChangeType. Allowed values: {0}",
+                                        String.Join( ", ", Enum.GetNames( typeof( RankChangeType ) ) ) );
+                        return;
 
                     default:
-                        player.Message( "Only TimesKicked, PreviousRank, and TotalTime are implemented so far." );
-                        break;
+                        player.Message( "Only TimesKicked, PreviousRank, TotalTime, and RankType are implemented so far." );
+                        return;
                 }
             }
         }
