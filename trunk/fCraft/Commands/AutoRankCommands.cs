@@ -457,7 +457,7 @@ namespace fCraft {
                     } else if( newRank < info.rank ) {
                         demoted++;
                     }
-                    AdminCommands.DoChangeRank( player, info, target, newRank, message, silent );
+                    AdminCommands.DoChangeRank( player, info, target, newRank, message, silent, true );
                 }
             }
             player.Message( "AutoRankAll: {0} players promoted, {1} demoted.", promoted, demoted );

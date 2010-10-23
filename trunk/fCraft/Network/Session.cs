@@ -507,7 +507,7 @@ namespace fCraft {
             // AutoRank
             Rank newRank = AutoRank.Check( player.info );
             if( newRank != null ) {
-                AdminCommands.DoChangeRank( Player.Console, player.info, player, newRank, "~AutoRank", false );
+                AdminCommands.DoChangeRank( Player.Console, player.info, player, newRank, "~AutoRank", false, true );
             }
 
             bool firstTime = (player.info.timesVisited == 1);
