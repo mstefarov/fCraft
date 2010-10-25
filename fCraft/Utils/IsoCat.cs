@@ -35,7 +35,8 @@ namespace fCraft {
     public enum IsoCatMode {
         Normal,
         Peeled,
-        Cut
+        Cut,
+        Chunk
     }
 
     unsafe public sealed class IsoCat {
@@ -93,6 +94,7 @@ namespace fCraft {
         int x, y, h;
         byte block;
         IsoCatMode mode;
+        int[] chunkCoords = new int[6];
         Map map;
         Bitmap imageBmp;
         BitmapData imageData;
@@ -138,6 +140,14 @@ namespace fCraft {
             mh34 = map.height * 3 / 4;
         }
 
+        public void SetChunk( int x1, int y1, int z1, int x2, int y2, int z2 ) {
+            chunkCoords[0] = x1;
+            chunkCoords[1] = y1;
+            chunkCoords[2] = z1;
+            chunkCoords[3] = x2;
+            chunkCoords[4] = y2;
+            chunkCoords[5] = z2;
+        }
 
         byte* bp, ctp;
         public unsafe Bitmap Draw( ref Rectangle cropRectangle, BackgroundWorker worker ) {
@@ -328,7 +338,7 @@ namespace fCraft {
             DA = 255 - SA;
 
             if( h < (map.height >> 1) ) {
-                int shadow = (h>>1) + mh34;
+                int shadow = (h >> 1) + mh34;
                 image[imageOffset] = (byte)((ctp[tileOffset] * SA * shadow + image[imageOffset] * DA * map.height) / blendDivisor);
                 image[imageOffset + 1] = (byte)((ctp[tileOffset + 1] * SA * shadow + image[imageOffset + 1] * DA * map.height) / blendDivisor);
                 image[imageOffset + 2] = (byte)((ctp[tileOffset + 2] * SA * shadow + image[imageOffset + 2] * DA * map.height) / blendDivisor);
@@ -342,39 +352,40 @@ namespace fCraft {
             image[imageOffset + 3] = (byte)FA;
         }
 
-
         byte GetBlock( int xx, int yy, int hh ) {
-            int pos;
+            int realx;
+            int realy;
             switch( rot ) {
                 case 0:
-                    pos = (hh * dimY + yy) * dimX + xx;
+                    realx = xx;
+                    realy = yy;
                     break;
                 case 1:
-                    pos = (hh * dimY + xx) * dimX + (dimX1 - yy);
+                    realx = dimX1 - yy;
+                    realy = xx;
                     break;
                 case 2:
-                    pos = (hh * dimY + (dimY1 - yy)) * dimX + (dimX1 - xx);
+                    realx = dimX1 - xx;
+                    realy = dimY1 - yy;
                     break;
                 default:
-                    pos = (hh * dimY + (dimY1 - xx)) * dimX + yy;
+                    realx = yy;
+                    realy = dimY1 - xx;
                     break;
             }
+            int pos = (hh * dimY + realy) * dimX + realx;
 
             if( mode == IsoCatMode.Normal ) {
                 return bp[pos];
-
-            } else if( bp[pos] != 0 ) {
-                if( mode == IsoCatMode.Peeled && (xx == (rot == 1 || rot == 3 ? dimY1 : dimX1) || yy == (rot == 1 || rot == 3 ? dimX1 : dimY1) || hh == map.height - 1) ) {
-                    return 0;
-                } else if( mode == IsoCatMode.Cut && xx > (rot == 1 || rot == 3 ? dimY2 : dimX2) && yy > (rot == 1 || rot == 3 ? dimX2 : dimY2) ) {
-                    return 0;
-                } else {
-                    return bp[pos];
-                }
-
-            } else {
+            } else if( mode == IsoCatMode.Peeled && (xx == (rot == 1 || rot == 3 ? dimY1 : dimX1) || yy == (rot == 1 || rot == 3 ? dimX1 : dimY1) || hh == map.height - 1) ) {
+                return 0;
+            } else if( mode == IsoCatMode.Cut && xx > (rot == 1 || rot == 3 ? dimY2 : dimX2) && yy > (rot == 1 || rot == 3 ? dimX2 : dimY2) ) {
+                return 0;
+            } else if( mode == IsoCatMode.Chunk && (realx < chunkCoords[0] || realy < chunkCoords[1] || hh < chunkCoords[2] || realx > chunkCoords[3] || realy > chunkCoords[4] || hh > chunkCoords[5]) ) {
                 return 0;
             }
+
+            return bp[pos];
         }
     }
 }

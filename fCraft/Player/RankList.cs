@@ -238,5 +238,20 @@ namespace fCraft {
             Ranks = Ranks.OrderBy( rank => -rank.legacyNumericRank ).ToList();
             RebuildIndex();
         }
+
+
+        public static Rank GetMinRankWithPermission( params Permission[] permission ) {
+            for( int r = Ranks.Count - 1; r >= 0; r-- ) {
+                bool can = true;
+                for( int p = 0; p < permission.Length; p++ ) {
+                    if( !Ranks[r].Can( permission[p] ) ) {
+                        can = false;
+                        break;
+                    }
+                }
+                if( can ) return Ranks[r];
+            }
+            return null;
+        }
     }
 }

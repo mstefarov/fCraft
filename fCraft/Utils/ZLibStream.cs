@@ -9,7 +9,7 @@ namespace fCraft {
     public sealed class ZLibStream : Stream {
         #region const, structs, and defs
 
-        public const int BufferSize = 64*1024;
+        public const int BufferSize = 64 * 1024;
 
         private enum ZLibReturnCode {
             Ok = 0,
@@ -119,7 +119,7 @@ namespace fCraft {
             } catch( Exception ex ) {
                 Console.WriteLine( "> Could not load zlib32.dll (Win): {0}", ex.GetType() );
             }
-            
+
             /*
             try {
                 Native = new ZLibPInvokeWin64();

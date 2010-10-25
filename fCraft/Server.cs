@@ -212,55 +212,55 @@ namespace fCraft {
 #else
             try {
 #endif
-            shuttingDown = true;
-            if( OnShutdownBegin != null ) OnShutdownBegin();
+                shuttingDown = true;
+                if( OnShutdownBegin != null ) OnShutdownBegin();
 
-            Logger.Log( "Server shutting down ({0})", LogType.SystemActivity, reason );
+                Logger.Log( "Server shutting down ({0})", LogType.SystemActivity, reason );
 
 
-            // kick all players
-            if( playerList != null ) {
-                Player[] pListCached = playerList;
-                foreach( Player player in pListCached ) {
-                    // NOTE: kick packet delivery here is not currently guaranteed
-                    player.session.Kick( "Server shutting down (" + reason + ")" );
+                // kick all players
+                if( playerList != null ) {
+                    Player[] pListCached = playerList;
+                    foreach( Player player in pListCached ) {
+                        // NOTE: kick packet delivery here is not currently guaranteed
+                        player.session.Kick( "Server shutting down (" + reason + ")" );
+                    }
                 }
-            }
 
-            // kill the main thread
-            if( mainThread != null && mainThread.IsAlive ) {
-                mainThread.Join( 5000 );
-                if( mainThread.IsAlive ) {
-                    mainThread.Abort(); // temporary kludge until i find a real cause
+                // kill the main thread
+                if( mainThread != null && mainThread.IsAlive ) {
+                    mainThread.Join( 5000 );
+                    if( mainThread.IsAlive ) {
+                        mainThread.Abort(); // temporary kludge until i find a real cause
+                    }
                 }
-            }
 
-            // stop accepting new players
-            if( listener != null ) {
-                listener.Stop();
-                listener = null;
-            }
-
-            // kill the heartbeat
-            Heartbeat.Shutdown();
-
-            // kill IRC bot
-            IRC.Disconnect();
-
-            // kill background tasks
-            Tasks.Shutdown();
-
-            lock( worldListLock ) {
-                // unload all worlds (includes saving)
-                foreach( World world in worlds.Values ) {
-                    world.Shutdown();
+                // stop accepting new players
+                if( listener != null ) {
+                    listener.Stop();
+                    listener = null;
                 }
-            }
 
-            if( PlayerDB.isLoaded ) PlayerDB.Save();
-            if( IPBanList.isLoaded ) IPBanList.Save();
+                // kill the heartbeat
+                Heartbeat.Shutdown();
 
-            if( OnShutdownEnd != null ) OnShutdownEnd();
+                // kill IRC bot
+                IRC.Disconnect();
+
+                // kill background tasks
+                Tasks.Shutdown();
+
+                lock( worldListLock ) {
+                    // unload all worlds (includes saving)
+                    foreach( World world in worlds.Values ) {
+                        world.Shutdown();
+                    }
+                }
+
+                if( PlayerDB.isLoaded ) PlayerDB.Save();
+                if( IPBanList.isLoaded ) IPBanList.Save();
+
+                if( OnShutdownEnd != null ) OnShutdownEnd();
 #if DEBUG
 #else
             } catch( Exception ex ) {
@@ -814,13 +814,13 @@ namespace fCraft {
 #else
             try {
 #endif
-            ScheduledTask[] taskCache;
-            ScheduledTask task;
-            while( !shuttingDown ) {
-                taskCache = taskList;
-                for( int i = 0; i < taskCache.Length; i++ ) {
-                    task = taskCache[i];
-                    if( task.enabled && task.nextTime < DateTime.UtcNow ) {
+                ScheduledTask[] taskCache;
+                ScheduledTask task;
+                while( !shuttingDown ) {
+                    taskCache = taskList;
+                    for( int i = 0; i < taskCache.Length; i++ ) {
+                        task = taskCache[i];
+                        if( task.enabled && task.nextTime < DateTime.UtcNow ) {
 #if DEBUG
                         task.callback( task.param );
 #else
@@ -831,11 +831,11 @@ namespace fCraft {
                                 Logger.UploadCrashReport( "Exception was thrown by a scheduled task", "fCraft", ex );
                             }
 #endif
-                        task.nextTime += TimeSpan.FromMilliseconds( task.interval );
+                            task.nextTime += TimeSpan.FromMilliseconds( task.interval );
+                        }
                     }
+                    Thread.Sleep( 1 );
                 }
-                Thread.Sleep( 1 );
-            }
 #if DEBUG
 #else
             } catch( Exception ex ) {

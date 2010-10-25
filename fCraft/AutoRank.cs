@@ -111,7 +111,7 @@ namespace fCraft {
             } else if( el.Elements().Count() > 1 ) {
                 ConditionAND cand = new ConditionAND();
                 foreach( XElement cond in el.Elements() ) {
-                    cand.Add( Condition.Parse(cond) );
+                    cand.Add( Condition.Parse( cond ) );
                 }
                 Condition = cand;
             } else {

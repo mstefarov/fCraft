@@ -14,7 +14,6 @@ namespace fCraft {
             CommandList.RegisterCommand( cdAutoRankAll );
             CommandList.RegisterCommand( cdDumpStats );
             CommandList.RegisterCommand( cdSetInfo );
-            CommandList.RegisterCommand( cdFixStuff );
         }
 
 
@@ -686,40 +685,6 @@ namespace fCraft {
             } else {
                 return false;
             }
-        }
-
-
-        static CommandDescriptor cdFixStuff = new CommandDescriptor {
-            name = "fixstuff",
-            consoleSafe = true,
-            hidden = true,
-            permissions = new Permission[] { Permission.EditPlayerDB },
-            help = "",
-            usage = "/fixstuff RankName",
-            handler = FixStuff
-        };
-        internal static void FixStuff( Player player, Command cmd ) {
-            string rankName = cmd.Next();
-            if( rankName == null ) {
-                cdFixStuff.PrintUsage( player );
-                return;
-            }
-            Rank rank = RankList.ParseRank( rankName );
-            if( rank == null ) {
-                player.NoRankMessage( rankName );
-                return;
-            }
-
-            PlayerInfo[] infos = PlayerDB.GetPlayerListCopy( rank );
-            int count = 0;
-            foreach( PlayerInfo info in infos ) {
-                if( info.rankChangeType != RankChangeType.Default && ( info.previousRank == null || info.rankChangeReason == "~MassRank" ) ) {
-                    info.rankChangeType = RankChangeType.Default;
-                    player.Message( "FixStuff: reset for {0}", info.GetClassyName() );
-                    count++;
-                }
-            }
-            player.Message( "FixStuff: {0} players affected.", count );
         }
     }
 }
