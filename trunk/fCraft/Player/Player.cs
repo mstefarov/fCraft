@@ -290,14 +290,12 @@ namespace fCraft {
 
 
         internal void NoAccessMessage( params Permission[] permissions ) {
-            Message( Color.Red + "You do not have access to this command." );
-            if( permissions.Length == 1 ) {
-                Message( Color.Red + "You need {0} permission.", permissions[0] );
+            Rank reqRank = RankList.GetMinRankWithPermission( permissions );
+            if( reqRank == null ) {
+                Message( "This command is disabled on the server." );
             } else {
-                Message( Color.Red + "You need the following permissions:" );
-                foreach( Permission permission in permissions ) {
-                    Message( Color.Red + permission.ToString() );
-                }
+                Message( "This command requires {0}+&S rank.",
+                         reqRank.GetClassyName() );
             }
         }
 

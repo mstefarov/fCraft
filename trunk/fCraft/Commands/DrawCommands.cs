@@ -11,6 +11,7 @@ namespace fCraft {
         public enum DrawMode {
             Cuboid,
             CuboidHollow,
+            CuboidWireframe,
             Ellipsoid,
             Replace,
             ReplaceNot

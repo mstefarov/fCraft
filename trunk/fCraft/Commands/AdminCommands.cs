@@ -363,7 +363,7 @@ namespace fCraft {
                     Player target = targets[0];
                     if( target.info.timesKicked > 0 ) {
                         player.Message( "Warning: {0}&S has been kicked {1} times before.",
-                                        target.GetClassyName(), target.info.timesKicked);
+                                        target.GetClassyName(), target.info.timesKicked );
                         if( target.info.lastKickDate != DateTime.MinValue ) {
                             player.Message( "Most recent kick was {0} ago, by {1}.",
                                             DateTime.Now.Subtract( target.info.lastKickDate ).ToCompactString(),
@@ -969,7 +969,7 @@ namespace fCraft {
 
         static CommandDescriptor cdUnfreeze = new CommandDescriptor {
             name = "unfreeze",
-            aliases = new string[]{"uf"},
+            aliases = new string[] { "uf" },
             consoleSafe = true,
             permissions = new Permission[] { Permission.Freeze },
             usage = "/unfreeze PlayerName",
