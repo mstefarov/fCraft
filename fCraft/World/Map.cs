@@ -21,6 +21,18 @@ namespace fCraft {
         public int changesSinceSave, changesSinceBackup;
         public short[,] shadows;
 
+        public DateTime DateModified;
+        public DateTime DateCreated;
+        public Guid GUID;
+
+        public Dictionary<DataLayerType, DataLayer> layers;
+
+        // undo information
+        public byte[] blockUndo;
+        public ushort[] blockOwnership;
+        public BlockChangeCause[] blockChangeCauses;
+        public int[] blockTimestamps;
+
         internal Map() { }
 
         public Map( World _world ) {
@@ -716,5 +728,40 @@ namespace fCraft {
             }
         }
         #endregion
+
+#region FCMv3
+        
+        public struct DataLayer {
+            public DataLayerType Type;         // see "DataLayerType" below
+            public DataLayerCompressionType CompressionType;   // see "DataLayerCompressionType" below
+            public uint GeneralPurposeField;   // 32 bits that can be used in implementation-specific ways
+            public uint ElementSize;           // size of each data element (if elements are variable-size, set this to 1)
+            public uint ElementCount;          // number of fixed-sized elements (if elements are variable-size, set this to total number of bytes)
+            // uncompressed length = (element size * element count)
+            public byte[] Data;
+            public long Offset;
+            public uint CompressedLength;
+        }
+
+        // type of block - allows storing multiple layers of information about blocks
+        public enum DataLayerType : byte {
+            Blocks          = 0,   // block types
+            BlockUndo       = 1,   // previous block type (per-block)
+            BlockOwnership  = 2,   // cause of previous change (per-block)
+            BlockDate       = 3    // modification date/time (per-block)
+            // 4-31 reserved
+            // 32-255 custom
+        }
+
+        public enum DataLayerCompressionType : byte {
+            None        = 0,    // raw, uncompressed data - implementation OPTIONAL
+            Deflate     = 1,    // deflate with no header - implementation OPTIONAL
+            DeflateGZip = 2,    // deflate with gzip header - implementation OPTIONAL
+            LZO         = 3,    // LZO (Lempel–Ziv–Oberhumer) compression - implementation OPTIONAL, for use with custom DataLayerTypes only
+            LZMA        = 4     // LZMA (7-Zip) compression - implementation OPTIONAL, for use with custom DataLayerTypes only
+            // 5-31 reserved
+            // 32-255 custom
+        }
+#endregion
     }
 }

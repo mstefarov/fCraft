@@ -47,42 +47,6 @@ namespace fCraft {
             } else {
                 Logger.Log( "AutoRank.Init: autorank.xml not found. No criteria loaded.", LogType.Warning );
             }
-
-            /*
-            criteria.Clear();
-            Add(
-                new Criterion( CriterionType.Automatic, RankList.ParseRank( "guest" ), RankList.ParseRank( "builder" ),
-                    new ConditionOR(
-                        new Condition[]{
-                            new ConditionAND(
-                                new Condition[]{
-                                    new ConditionIntRange( ConditionField.TimesKicked, ComparisonOperation.lte, 1 ),
-                                    new ConditionIntRange( ConditionField.MessagesWritten, ComparisonOperation.gte, 40),
-                                    new ConditionIntRange( ConditionField.TotalTime, ComparisonOperation.gte, 60*60*5),
-                                    //new ConditionIntRange( ConditionField.TimeSinceLastLogin, ComparisonOperation.gte, 60*60*24*3),
-                                    new ConditionIntRange( ConditionField.TimeSinceFirstLogin, ComparisonOperation.gte, 60*60*24*2)
-                                }
-                            ),
-                            new ConditionAND(
-                                new Condition[]{
-                                    new ConditionIntRange( ConditionField.TimesKicked, ComparisonOperation.eq, 2 ),
-                                    new ConditionIntRange( ConditionField.MessagesWritten, ComparisonOperation.gte, 80),
-                                    new ConditionIntRange( ConditionField.TotalTime, ComparisonOperation.gte, 60*60*10),
-                                    //new ConditionIntRange( ConditionField.TimeSinceLastLogin, ComparisonOperation.gte, 60*60*24*3),
-                                    new ConditionIntRange( ConditionField.TimeSinceFirstLogin, ComparisonOperation.gte, 60*60*24*4)
-                                }
-                            )
-                        }
-                    )
-                )
-            );
-            XDocument docx = new XDocument();
-            XElement root = new XElement( "fCraftAutoRank" );
-            foreach( Criterion crit in criteria ) {
-                root.Add( crit.Serialize() );
-            }
-            docx.Add( root );
-            docx.Save( "autorank.xml" );*/
         }
     }
 

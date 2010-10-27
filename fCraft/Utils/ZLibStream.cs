@@ -120,7 +120,7 @@ namespace fCraft {
                 Console.WriteLine( "> Could not load zlib32.dll (Win): {0}", ex.GetType() );
             }
 
-            /*
+            /* Disabled due to memory leaks
             try {
                 Native = new ZLibPInvokeWin64();
                 Test();
