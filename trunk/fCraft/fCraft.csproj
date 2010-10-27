@@ -68,6 +68,7 @@
     <Compile Include="Commands\AdminCommands.cs" />
     <Compile Include="Commands\AutoRankCommands.cs" />
     <Compile Include="Commands\ZoneCommands.cs" />
+    <Compile Include="Mcc\MapFCMv3.cs" />
     <Compile Include="Utils\ZLibStream.cs" />
     <Compile Include="World\BlockDB.cs" />
     <Compile Include="Commands\CommandDescriptor.cs" />

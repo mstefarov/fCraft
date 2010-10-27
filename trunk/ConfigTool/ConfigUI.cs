@@ -51,6 +51,8 @@ namespace ConfigTool {
 
             Config.logToString = true;
 
+            ZLibStream.Init();
+
             Load += LoadConfig;
         }
 
