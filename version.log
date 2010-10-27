@@ -1,5 +1,32 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-10-19
+2010-10-27
+493
+ Feature: /info now supports autocompletion, wildcards, and IP search.
+ Feature: Experimental service wrapper for fCraft.
+ Feature: Added more editable properties to /setinfo: RankChangeType, BanReason, UnbanReason, RankChangeReason, LastKickReason
+ Feature: Various improvements to /info, including hide-aware "online" indicator.
+ Feature: Made Player.NoAccessMessage() print the minimum required rank, instead of just permission name(s).
+ Feature: Added wootalyzer's chunk rendering code to IsoCat.
+ Fix: Fixed ConfigTool not taking advantage of ZLibStream 
+ Fix: Fixed a very improbable case of a thread getting spinlocked when calling IRC.Send() is preemptied, and if there are at least 2 IRC threads.
+ Fix: Fixed kick packets occasionally not being delivered due to a missing Flush() - thanks to wootalyzer for catching.
+ Fix: Excluded banned and inactive players from DumpStats
+ Fix: Fixed PlayerDB.Save() not escaping LastKickReason 
+ Fix: Cleaned up extra messages sent by /unhide.
+ Fix: Fixed LastSeen not updating on-login (only on-logout).
+ Fix: Improved the way fCraft checks for ghost/leftover sessions. Thanks to wootalyzer.
+ Fix: If a player's name starts with a number, and you try to /tp to a coordinate that starts with the same number, you are no longer teleported to that player instead.
+ Fix: Fixed hidden players being detectable by checking LastSeen in /info.
+ Fix: To avoid performance degradation, GC calls have been centralized, delayed, limited to 1/minute, and moved to the tasks thread.
+ Fix: Added delay between recurring calls to PlayerDB.Save, AutoRankAll, and DoGC - to balance load.
+ Fix: Fixed rankChangeType not being updated.
+ Fix: Fixed some typos reported by tvc. 
+ Change: Added "/uf" as an alias for "/unfreeze", by popular demand. 
+ Change: Modified PlayerDB not to use ReaderWriterLockSlim, to avoid Mono issues with recursion.
+ Change: Renamed /editplayerinfo to /setinfo
+ Change: Made enum values in AutoRank (CriterionType, ConditionField, ComparisonOperation, ConditionScopeType, RankChangeType) case-insensitive.
+ Change: Added a reference to /baninfo in /info
+ Change: Made DetectMovementPacketSpam warn players instead of kicking.
 492
  Feature: Added EditPlayerDB permission. This permission affects the upcoming AutoRank commands, /editplayerinfo, and ability to promote/demote/ban unrecognized players.
  Feature: When you kick a player, you are now shown the number of kicks they already have.
