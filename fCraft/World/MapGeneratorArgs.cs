@@ -11,6 +11,7 @@ namespace fCraft {
 
         public MapGenTheme theme;
         public int seed, dimX, dimY, dimH, maxHeight, maxDepth, waterLevel;
+        public bool customWaterLevel;
         public bool addWater;
 
         public bool matchWaterCoverage;
@@ -18,6 +19,7 @@ namespace fCraft {
         public int raisedCorners, loweredCorners, midPoint;
         public float bias;
         public bool useBias;
+        public bool delayBias;
 
         public int detailScale, featureScale;
         public float roughness;
@@ -28,6 +30,13 @@ namespace fCraft {
 
         public bool addCaves, addOre, addCaveWater, addCaveLava;
         public float caveDensity, caveSize;
+
+        public bool addSnow;
+        public int snowAltitude, snowTransition;
+
+        public bool addCliffs;
+        public float cliffThreshold;
+
 
         public void Validate() {
             if( raisedCorners < 0 || raisedCorners > 4 || loweredCorners < 0 || raisedCorners > 4 || raisedCorners + loweredCorners > 4 ) {
@@ -135,6 +144,12 @@ namespace fCraft {
                 caveSize = float.Parse( root.Element( "caveSize" ).Value );
             }
 
+            if( root.Element("addSnow")!=null){
+                addSnow = Boolean.Parse( root.Element( "addSnow" ).Value );
+                snowAltitude = Int32.Parse( root.Element( "snowAltitude" ).Value );
+                snowTransition = Int32.Parse( root.Element( "snowTransition" ).Value );
+            }
+
             Validate();
         }
 
@@ -182,6 +197,10 @@ namespace fCraft {
             root.Add( new XElement( "addOre", addOre ) );
             root.Add( new XElement( "caveDensity", caveDensity ) );
             root.Add( new XElement( "caveSize", caveSize ) );
+
+            root.Add( new XElement( "addSnow", addSnow ) );
+            root.Add( new XElement( "snowAltitude", snowAltitude ) );
+            root.Add( new XElement( "snowTransition", snowTransition ) );
 
             document.Add( root );
             document.Save( fileName );

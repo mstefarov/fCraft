@@ -9,8 +9,9 @@ namespace fCraft {
         Arctic,
         Desert,
         Forest,
+        Grass,
         Hell,
-        Rocky
+        Swamp
     }
 
     public enum MapGenTemplate {
@@ -25,7 +26,8 @@ namespace fCraft {
         Lake,
         Mountains,
         River,
-        Streams
+        Streams,
+        Peninsula
     }
 
 
@@ -33,7 +35,7 @@ namespace fCraft {
         MapGeneratorArgs args;
         Random rand;
         Noise noise;
-        float[,] heightmap, blendmap;
+        float[,] heightmap, blendmap, slopemap;
 
         const int WaterCoveragePasses = 10;
         const float CliffsideBlockThreshold = 0.01f;
@@ -63,27 +65,11 @@ namespace fCraft {
 
             noise.PerlinNoiseMap( heightmap, args.featureScale, args.detailScale, args.roughness, 0, 0 );
 
-            if( args.useBias ) {
+            if( args.useBias && !args.delayBias ) {
                 Noise.Normalize( heightmap );
-
-                // set corners and midpoint
-                float[] corners = new float[4];
-                int c = 0;
-                for( int i = 0; i < args.raisedCorners; i++ ) {
-                    corners[c++] = args.bias;
-                }
-                for( int i = 0; i < args.loweredCorners; i++ ) {
-                    corners[c++] = -args.bias;
-                }
-                float midpoint = (args.midPoint * args.bias);
-
-                // shuffle corners
-                corners = corners.OrderBy( r => rand.Next() ).ToArray();
-
-                // overlay the bias
-                Noise.ApplyBias( heightmap, corners[0], corners[1], corners[2], corners[3], midpoint );
-
+                ApplyBias();
             }
+
             Noise.Normalize( heightmap );
 
             if( args.layeredHeightmap ) {
@@ -110,12 +96,41 @@ namespace fCraft {
             if( args.invertHeightmap ) {
                 Noise.Invert( heightmap );
             }
+
+            if( args.useBias && args.delayBias ) {
+                Noise.Normalize( heightmap );
+                ApplyBias();
+            }
+            Noise.Normalize( heightmap );
         }
 
 
+        void ApplyBias() {
+            // set corners and midpoint
+            float[] corners = new float[4];
+            int c = 0;
+            for( int i = 0; i < args.raisedCorners; i++ ) {
+                corners[c++] = args.bias;
+            }
+            for( int i = 0; i < args.loweredCorners; i++ ) {
+                corners[c++] = -args.bias;
+            }
+            float midpoint = (args.midPoint * args.bias);
+
+            // shuffle corners
+            corners = corners.OrderBy( r => rand.Next() ).ToArray();
+
+            // overlay the bias
+            Noise.ApplyBias( heightmap, corners[0], corners[1], corners[2], corners[3], midpoint );
+        }
+
         public Map GenerateMap() {
             Map map = new Map( null, args.dimX, args.dimY, args.dimH );
-            args.waterLevel = (map.height - 1) / 2;
+            if( !args.customWaterLevel ) {
+                args.waterLevel = (map.height - 1) / 2;
+            }
+
+            slopemap = Noise.CalculateSlope( Noise.GaussianBlur5x5( Noise.GaussianBlur5x5(heightmap )) );
 
             float desiredWaterLevel = .5f;
             if( args.matchWaterCoverage ) {
@@ -131,9 +146,48 @@ namespace fCraft {
             }
 
             int level;
+            float slope;
+
+            /*
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
                     if( heightmap[x, y] < desiredWaterLevel ) {
+                        slope = slopemap[x, y] * args.maxDepth;
+                        level = args.waterLevel - (int)Math.Round( (1 - heightmap[x, y] / desiredWaterLevel) * args.maxDepth );
+                    } else {
+                        slope = slopemap[x, y] * args.maxHeight;
+                        level = args.waterLevel + (int)Math.Round( (heightmap[x, y] - desiredWaterLevel) * aboveWaterMultiplier );
+                    }
+                    Block block;
+                    if( slope < .12 ) {
+                        block = Block.Green;
+                    } else if( slope < .24 ) {
+                        block = Block.Lime;
+                    } else if( slope < .36 ) {
+                        block = Block.Yellow;
+                    } else if( slope < .48 ) {
+                        block = Block.Orange;
+                    } else if( slope < .6 ) {
+                        block = Block.Red;
+                    } else {
+                        block = Block.Black;
+                    }
+                    for( int i = level; i >= 0; i-- ) {
+                        map.SetBlock( x, y, i, block );
+                    }
+                }
+            }
+             */
+            
+            float cliffThreshold = 1;
+            int snowStartThreshold = args.snowTransition;
+            int snowThreshold = args.snowAltitude;
+
+            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
+
+                    if( heightmap[x, y] < desiredWaterLevel ) {
+                        slope = slopemap[x, y] * args.maxDepth;
                         level = args.waterLevel - (int)Math.Round( (1 - heightmap[x, y] / desiredWaterLevel) * args.maxDepth );
                         if( args.addWater ) {
                             if( args.waterLevel - level > 3 ) {
@@ -155,14 +209,23 @@ namespace fCraft {
                             if( blendmap != null && blendmap[x, y] > .25 && blendmap[x, y] < .75 ) {
                                 map.SetBlock( x, y, level, bCliff );
                             } else {
-                                map.SetBlock( x, y, level, bGroundSurface );
+                                if( slope < cliffThreshold ) {
+                                    map.SetBlock( x, y, level, bGroundSurface );
+                                } else {
+                                    map.SetBlock( x, y, level, bCliff );
+                                }
                             }
+
                             for( int i = level - 1; i >= 0; i-- ) {
                                 if( level - i < groundThickness ) {
                                     if( blendmap != null && blendmap[x, y] > CliffsideBlockThreshold && blendmap[x, y] < (1 - CliffsideBlockThreshold) ) {
                                         map.SetBlock( x, y, i, bCliff );
                                     } else {
-                                        map.SetBlock( x, y, i, bGround );
+                                        if( slope < cliffThreshold ) {
+                                            map.SetBlock( x, y, i, bGround );
+                                        } else {
+                                            map.SetBlock( x, y, i, bCliff );
+                                        }
                                     }
                                 } else {
                                     map.SetBlock( x, y, i, bBedrock );
@@ -171,19 +234,41 @@ namespace fCraft {
                         }
 
                     } else {
+                        slope = slopemap[x, y] * args.maxHeight;
                         level = args.waterLevel + (int)Math.Round( (heightmap[x, y] - desiredWaterLevel) * aboveWaterMultiplier );
+
+                        bool snow = args.addSnow &&
+                                    (level > snowThreshold ||
+                                    (level > snowStartThreshold && rand.NextDouble() < (level - snowStartThreshold) / (double)(snowThreshold - snowStartThreshold)));
 
                         if( blendmap != null && blendmap[x, y] > .25 && blendmap[x, y] < .75 ) {
                             map.SetBlock( x, y, level, bCliff );
                         } else {
-                            map.SetBlock( x, y, level, bGroundSurface );
+                            if( slope < cliffThreshold ) {
+                                if( snow ){
+                                    map.SetBlock( x, y, level, Block.White );
+                                } else {
+                                    map.SetBlock( x, y, level, bGroundSurface );
+                                }
+                            } else {
+                                map.SetBlock( x, y, level, bCliff );
+                            }
                         }
+
                         for( int i = level - 1; i >= 0; i-- ) {
                             if( level - i < groundThickness ) {
                                 if( blendmap != null && blendmap[x, y] > CliffsideBlockThreshold && blendmap[x, y] < (1 - CliffsideBlockThreshold) ) {
                                     map.SetBlock( x, y, i, bCliff );
                                 } else {
-                                    map.SetBlock( x, y, i, bGround );
+                                    if( slope < cliffThreshold ) {
+                                        if( snow ) {
+                                            map.SetBlock( x, y, i, Block.White );
+                                        } else {
+                                            map.SetBlock( x, y, i, bGround );
+                                        }
+                                    } else {
+                                        map.SetBlock( x, y, i, bCliff );
+                                    }
                                 }
                             } else {
                                 map.SetBlock( x, y, i, bBedrock );
@@ -192,7 +277,7 @@ namespace fCraft {
                     }
                 }
             }
-
+            
             if( args.addCaves ) {
                 AddCaves( map );
             }
@@ -233,6 +318,9 @@ namespace fCraft {
         }
 
 
+        public static void CalculateSlope( float[,] heightmap, float[,] slopemap ) {
+        }
+
         public void ApplyTheme( MapGenTheme theme ) {
             args.theme = theme;
             switch( theme ) {
@@ -265,8 +353,9 @@ namespace fCraft {
                     bGround = Block.Stone;
                     bSeaFloor = Block.Obsidian;
                     bBedrock = Block.Stone;
-                    bCliff = Block.Rocks;
+                    bCliff = Block.Stone;
                     break;
+                case MapGenTheme.Grass:
                 case MapGenTheme.Forest:
                     bWaterSurface = Block.Water;
                     bDeepWaterSurface = Block.Water;
@@ -275,15 +364,15 @@ namespace fCraft {
                     bGround = Block.Dirt;
                     bSeaFloor = Block.Sand;
                     bBedrock = Block.Stone;
-                    bCliff = Block.Rocks;
+                    bCliff = Block.Stone;
                     break;
-                case MapGenTheme.Rocky:
+                case MapGenTheme.Swamp:
                     bWaterSurface = Block.Water;
                     bDeepWaterSurface = Block.Water;
-                    bGroundSurface = Block.Rocks;
+                    bGroundSurface = Block.Dirt;
                     bWater = Block.Water;
-                    bGround = Block.Stone;
-                    bSeaFloor = Block.Rocks;
+                    bGround = Block.Dirt;
+                    bSeaFloor = Block.Leaves;
                     bBedrock = Block.Stone;
                     bCliff = Block.Stone;
                     break;
@@ -338,7 +427,7 @@ namespace fCraft {
                     if( nx < 0 || nx >= map.widthX || ny < 0 || ny >= map.widthY ) continue;
                     nz = map.shadows[nx, ny];
 
-                    if( map.GetBlock( nx, ny, nz ) == (byte)bGroundSurface ) {
+                    if( (map.GetBlock( nx, ny, nz ) == (byte)bGroundSurface) && slopemap[nx,ny]<.5 ) {
                         // Pick a random height for the tree between Min and Max,
                         // discarding this tree if it would breach the top of the map
                         if( (nh = rn.Next( MinHeight, MaxHeight )) + nz + nh / 2 > map.height )
@@ -380,6 +469,7 @@ namespace fCraft {
                         matchWaterCoverage = true,
                         waterCoverage = .85f
                     };
+
                 case MapGenTemplate.Atoll:
                     return new MapGeneratorArgs {
                         theme = MapGenTheme.Desert,
@@ -396,6 +486,7 @@ namespace fCraft {
                         matchWaterCoverage = true,
                         waterCoverage = .95f
                     };
+
                 case MapGenTemplate.Bay:
                     return new MapGeneratorArgs {
                         maxHeight = 22,
@@ -408,8 +499,10 @@ namespace fCraft {
                         treeSpacingMax = 12,
                         treeSpacingMin = 6
                     };
+
                 case MapGenTemplate.Default:
                     return new MapGeneratorArgs();
+
                 case MapGenTemplate.Dunes:
                     return new MapGeneratorArgs {
                         addTrees = false,
@@ -423,6 +516,7 @@ namespace fCraft {
                         marbledHeightmap = true,
                         invertHeightmap = true
                     };
+
                 case MapGenTemplate.Hills:
                     return new MapGeneratorArgs {
                         addWater = false,
@@ -432,6 +526,7 @@ namespace fCraft {
                         treeSpacingMin = 7,
                         treeSpacingMax = 13
                     };
+
                 case MapGenTemplate.Ice:
                     return new MapGeneratorArgs {
                         addTrees = false,
@@ -445,6 +540,7 @@ namespace fCraft {
                         matchWaterCoverage = true,
                         waterCoverage = .3f
                     };
+
                 case MapGenTemplate.Island:
                     return new MapGeneratorArgs {
                         maxHeight = 16,
@@ -456,6 +552,7 @@ namespace fCraft {
                         featureScale = 3,
                         detailScale = 7
                     };
+
                 case MapGenTemplate.Lake:
                     return new MapGeneratorArgs {
                         maxHeight = 14,
@@ -469,6 +566,7 @@ namespace fCraft {
                         matchWaterCoverage = true,
                         waterCoverage = .3f
                     };
+
                 case MapGenTemplate.Mountains:
                     return new MapGeneratorArgs {
                         addWater = false,
@@ -478,6 +576,7 @@ namespace fCraft {
                         detailScale = 7,
                         marbledHeightmap = true
                     };
+
                 case MapGenTemplate.River:
                     return new MapGeneratorArgs {
                         maxHeight = 22,
@@ -488,6 +587,7 @@ namespace fCraft {
                         matchWaterCoverage = true,
                         waterCoverage = .31f
                     };
+
                 case MapGenTemplate.Streams:
                     return new MapGeneratorArgs {
                         maxHeight = 5,
@@ -500,6 +600,21 @@ namespace fCraft {
                         waterCoverage = .25f,
                         treeSpacingMin = 8,
                         treeSpacingMax = 14
+                    };
+
+                case MapGenTemplate.Peninsula:
+                    return new MapGeneratorArgs {
+                        maxHeight = 22,
+                        maxDepth = 12,
+                        useBias = true,
+                        bias = .5f,
+                        midPoint = -1,
+                        raisedCorners = 3,
+                        loweredCorners = 1,
+                        treeSpacingMax = 12,
+                        treeSpacingMin = 6,
+                        invertHeightmap = true,
+                        waterCoverage = .5f
                     };
             }
             return null; // can never happen

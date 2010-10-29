@@ -212,7 +212,7 @@ namespace fCraft {
 
         #endregion
 
-        internal static string[] splitter = new string[]{"&N"};
+        internal static string[] splitter = new string[] { "&N" };
         internal static IEnumerable<Packet> MakeWrappedMessage( string prefix, string text, bool appendPrefixToFirstLine ) {
             if( appendPrefixToFirstLine ) text = prefix + text;
 
@@ -227,7 +227,7 @@ namespace fCraft {
                 }
                 yield break;
             }
-            
+
             /* STEP 2: Replace special colorcodes */
             text = text.Replace( "&S", Color.Sys ).Replace( "&Y", Color.Say ).Replace( "&R", Color.Announcement ).Replace( "&H", Color.Help );
 

@@ -244,5 +244,68 @@ namespace fCraft {
                 }
             }
         }
+
+
+        public static float[,] BoxBlur( float[,] heightmap ) {
+            float divisor = 1 / 23f;
+            float[,] output = new float[heightmap.GetLength( 0 ), heightmap.GetLength( 1 )];
+            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    if( (x == 0) || (y == 0) || (x == heightmap.GetLength( 0 ) - 1) || (y == heightmap.GetLength( 1 ) - 1) ) {
+                        output[x, y] = heightmap[x, y];
+                    } else {
+                        output[x, y] = (heightmap[x - 1, y - 1] * 2 + heightmap[x - 1, y] * 3 + heightmap[x - 1, y + 1] * 2 +
+                                        heightmap[x, y - 1] * 3 + heightmap[x, y] * 3 + heightmap[x, y + 1] * 3 +
+                                        heightmap[x + 1, y - 1] * 2 + heightmap[x + 1, y] * 3 + heightmap[x + 1, y + 1] * 2) * divisor;
+                    }
+                }
+            }
+            return output;
+        }
+
+
+
+        public static float[,] GaussianBlur5x5( float[,] heightmap ) {
+            float divisor = 1 / 273f;
+            float[,] output = new float[heightmap.GetLength( 0 ), heightmap.GetLength( 1 )];
+            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    if( (x < 2) || (y < 2) || (x > heightmap.GetLength( 0 ) - 3) || (y > heightmap.GetLength( 1 ) - 3) ) {
+                        output[x, y] = heightmap[x, y];
+                    } else {
+                        output[x, y] = (heightmap[x - 2, y - 2] + heightmap[x - 1, y - 2] * 4 + heightmap[x, y - 2] * 7 + heightmap[x + 1, y - 2] * 4 +heightmap[x + 2, y - 2] +
+                                        heightmap[x - 1, y - 1] * 4 + heightmap[x - 1, y - 1] * 16 + heightmap[x, y - 1] * 26 + heightmap[x + 1, y - 1] * 16 + heightmap[x + 2, y - 1]*4 +
+                                        heightmap[x - 2, y] * 7 + heightmap[x - 1, y] * 26 + heightmap[x, y] * 41 + heightmap[x + 1, y] * 26 +heightmap[x + 2, y]*7 +
+                                        heightmap[x - 2, y + 1] * 4 + heightmap[x - 1, y + 1] * 16 + heightmap[x, y + 1] * 26 + heightmap[x + 1, y + 1] * 16 + heightmap[x + 2, y + 1]*4 +
+                                        heightmap[x - 2, y + 2] + heightmap[x - 1, y + 2] * 4 + heightmap[x, y + 2] * 7 + heightmap[x + 1, y + 2] * 4 +heightmap[x + 2, y + 2]) * divisor;
+                    }
+                }
+            }
+            return output;
+        }
+
+
+        public static float[,] CalculateSlope( float[,] heightmap ) {
+            float[,] output = new float[heightmap.GetLength( 0 ), heightmap.GetLength( 1 )];
+
+            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    if( (x == 0) || (y == 0) || (x == heightmap.GetLength( 0 ) - 1) || (y == heightmap.GetLength( 1 ) - 1) ) {
+                        output[x, y] = 0;
+                    } else {
+                        output[x, y] = (Math.Abs( heightmap[x, y - 1] - heightmap[x, y] ) * 3 +
+                                        Math.Abs( heightmap[x, y + 1] - heightmap[x, y] ) * 3 +
+                                        Math.Abs( heightmap[x - 1, y] - heightmap[x, y] ) * 3 +
+                                        Math.Abs( heightmap[x + 1, y] - heightmap[x, y] ) * 3 +
+                                        Math.Abs( heightmap[x - 1, y - 1] - heightmap[x, y] ) * 2 +
+                                        Math.Abs( heightmap[x + 1, y - 1] - heightmap[x, y] ) * 2 +
+                                        Math.Abs( heightmap[x - 1, y + 1] - heightmap[x, y] ) * 2 +
+                                        Math.Abs( heightmap[x + 1, y + 1] - heightmap[x, y] ) * 2) / 20f;
+                    }
+                }
+            }
+
+            return output;
+        }
     }
 }

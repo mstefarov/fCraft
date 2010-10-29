@@ -71,6 +71,7 @@ namespace fCraftConsole {
                         Console.WriteLine( "** Failed to start the server **" );
                         Server.Shutdown( "failed to start" );
                         Console.ReadLine();
+                        Console.ResetColor();
                     }
                 } else {
                     Console.Title = "fCraft " + Updater.GetVersionString() + " failed to initialize";
@@ -78,6 +79,7 @@ namespace fCraftConsole {
                     Console.WriteLine( "** Failed to initialize the server **" );
                     Server.Shutdown( "failed to initialize" );
                     Console.ReadLine();
+                    Console.ResetColor();
                 }
 #if DEBUG
 #else
@@ -93,6 +95,7 @@ namespace fCraftConsole {
                 Server.CheckForCommonErrors( ex );
             }
             Console.ReadLine();
+            Console.ResetColor();
 #endif
         }
 

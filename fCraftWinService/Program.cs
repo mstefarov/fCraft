@@ -28,7 +28,13 @@ namespace fCraftWinService {
             if( args.Length == 1 ) {
                 Console.WriteLine( "Looking up .NET installation path..." );
                 string InstallUtilPath = Path.Combine( GetNetFrameworkDirectory(), "installutil.exe" );
+                if( !File.Exists( InstallUtilPath ) ) {
+                    Console.WriteLine( "ERROR: Could not locate installutil.exe (part of Microsoft .NET)" );
+                    return;
+                }
+
                 string CurrentProcessPath = Process.GetCurrentProcess().Modules[0].FileName;
+
                 switch( args[0].ToLower() ) {
                     case "install":
                         Console.WriteLine( "Installing the service..." );

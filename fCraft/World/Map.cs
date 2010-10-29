@@ -444,7 +444,7 @@ namespace fCraft {
 
         // zips a copy of the block array
         public void GetCompressedCopy( Stream stream, bool prependBlockCount ) {
-            using( ZLibStream compressor = ZLibStream.MakeCompressor(stream,ZLibStream.BufferSize) ) {
+            using( ZLibStream compressor = ZLibStream.MakeCompressor( stream, ZLibStream.BufferSize ) ) {
                 if( prependBlockCount ) {
                     // convert block count to big-endian
                     int convertedBlockCount = IPAddress.HostToNetworkOrder( blocks.Length );
@@ -595,10 +595,62 @@ namespace fCraft {
                 blocks[Index( x, y, h )] = type;
         }
 
+        public void SetBlock( Vector3i vec, Block type ) {
+            if( vec.x < widthX && vec.y < widthY && vec.h < height && vec.x >= 0 && vec.y >= 0 && vec.h >= 0 && (byte)type < 50 )
+                blocks[Index( vec.x, vec.y, vec.h )] = (byte)type;
+        }
+
+        public void SetBlock( Vector3i vec, byte type ) {
+            if( vec.x < widthX && vec.y < widthY && vec.h < height && vec.x >= 0 && vec.y >= 0 && vec.h >= 0 && type < 50 )
+                blocks[Index( vec.x, vec.y, vec.h )] = type;
+        }
+
         public byte GetBlock( int x, int y, int h ) {
             if( x < widthX && y < widthY && h < height && x >= 0 && y >= 0 && h >= 0 )
                 return blocks[Index( x, y, h )];
             return 0;
+        }
+
+        public byte GetBlock( Vector3i vec ) {
+            if( vec.x < widthX && vec.y < widthY && vec.h < height && vec.x >= 0 && vec.y >= 0 && vec.h >= 0 )
+                return blocks[Index( vec.x, vec.y, vec.h )];
+            return 0;
+        }
+
+        public bool InBounds( int x, int y, int h ) {
+            return x < widthX && y < widthY && h < height && x >= 0 && y >= 0 && h >= 0;
+        }
+
+        public bool InBounds( Vector3i vec ) {
+            return vec.x < widthX && vec.y < widthY && vec.h < height && vec.x >= 0 && vec.y >= 0 && vec.h >= 0;
+        }
+
+        public int SearchColumn( int x, int y, Block id, int startH ) {
+            int h = startH;
+            while( h > 0 ) {
+                if( GetBlock( x, y, h ) == (byte)id ) {
+                    return h;
+                } else {
+                    h--;
+                }
+            }
+            return -1;
+        }
+
+        public void HighestPoint( Block id, out int bestX, out int bestY, out int bestH, int step ) {
+            bestX = 0;
+            bestY = 0;
+            bestH = 0;
+            for( int x = 0; x < widthX; x += step ) {
+                for( int y = 0; y < widthY; y += step ) {
+                    int val = SearchColumn( x, y, id, height - 1 );
+                    if( val > bestH ) {
+                        bestH = val;
+                        bestX = x;
+                        bestY = y;
+                    }
+                }
+            }
         }
 
 
@@ -729,8 +781,8 @@ namespace fCraft {
         }
         #endregion
 
-#region FCMv3
-        
+        #region FCMv3
+
         public struct DataLayer {
             public DataLayerType Type;         // see "DataLayerType" below
             public DataLayerCompressionType CompressionType;   // see "DataLayerCompressionType" below
@@ -745,23 +797,23 @@ namespace fCraft {
 
         // type of block - allows storing multiple layers of information about blocks
         public enum DataLayerType : byte {
-            Blocks          = 0,   // block types
-            BlockUndo       = 1,   // previous block type (per-block)
-            BlockOwnership  = 2,   // cause of previous change (per-block)
-            BlockDate       = 3    // modification date/time (per-block)
+            Blocks = 0,   // block types
+            BlockUndo = 1,   // previous block type (per-block)
+            BlockOwnership = 2,   // cause of previous change (per-block)
+            BlockDate = 3    // modification date/time (per-block)
             // 4-31 reserved
             // 32-255 custom
         }
 
         public enum DataLayerCompressionType : byte {
-            None        = 0,    // raw, uncompressed data - implementation OPTIONAL
-            Deflate     = 1,    // deflate with no header - implementation OPTIONAL
+            None = 0,    // raw, uncompressed data - implementation OPTIONAL
+            Deflate = 1,    // deflate with no header - implementation OPTIONAL
             DeflateGZip = 2,    // deflate with gzip header - implementation OPTIONAL
-            LZO         = 3,    // LZO (Lempel–Ziv–Oberhumer) compression - implementation OPTIONAL, for use with custom DataLayerTypes only
-            LZMA        = 4     // LZMA (7-Zip) compression - implementation OPTIONAL, for use with custom DataLayerTypes only
+            LZO = 3,    // LZO (Lempel–Ziv–Oberhumer) compression - implementation OPTIONAL, for use with custom DataLayerTypes only
+            LZMA = 4     // LZMA (7-Zip) compression - implementation OPTIONAL, for use with custom DataLayerTypes only
             // 5-31 reserved
             // 32-255 custom
         }
-#endregion
+        #endregion
     }
 }

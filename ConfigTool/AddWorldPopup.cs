@@ -89,7 +89,7 @@ namespace ConfigTool {
             saveTemplateDialog.Filter = browseTemplateDialog.Filter;
             saveTemplateDialog.Title = "Saving a MapGenerator template...";
 
-            Load += LoadMap;
+            Shown += LoadMap;
         }
 
         void LoadMap( object sender, EventArgs args ) {
@@ -443,6 +443,7 @@ namespace ConfigTool {
             nRaisedCorners.Enabled = useBias;
             nLoweredCorners.Enabled = useBias;
             cMidpoint.Enabled = useBias;
+            xDelayBias.Enabled = useBias;
         }
 
         private void sRoughness_ValueChanged( object sender, EventArgs e ) {
@@ -674,6 +675,7 @@ Dimensions: {5}×{6}×{7}
 
             if( generatorArgs.useBias ) sBias.Value = (int)(generatorArgs.bias * 100);
             else sBias.Value = 0;
+            xDelayBias.Checked = generatorArgs.delayBias;
 
             sWaterCoverage.Value = (int)(100*generatorArgs.waterCoverage);
             cMidpoint.SelectedIndex = generatorArgs.midPoint + 1;
@@ -692,6 +694,10 @@ Dimensions: {5}×{6}×{7}
             xOre.Checked = generatorArgs.addOre;
             sCaveDensity.Value = (int)(generatorArgs.caveDensity * 100);
             sCaveSize.Value = (int)(generatorArgs.caveSize * 100);
+
+            xWaterLevel.Checked = generatorArgs.customWaterLevel;
+            nWaterLevel.Maximum = generatorArgs.dimH;
+            nWaterLevel.Value = Math.Min( generatorArgs.waterLevel, generatorArgs.dimH );
         }
 
         void SaveGeneratorArgs() {
@@ -715,6 +721,7 @@ Dimensions: {5}×{6}×{7}
                 treeSpacingMax = (int)(nTreeSpacing.Value + nTreeSpacingVariation.Value),
                 treeSpacingMin = (int)(nTreeSpacing.Value - nTreeSpacingVariation.Value),
                 useBias = (sBias.Value != 0),
+                delayBias = xDelayBias.Checked,
                 waterCoverage = sWaterCoverage.Value / 100f,
                 bias = sBias.Value / 100f,
                 midPoint = cMidpoint.SelectedIndex - 1,
@@ -727,7 +734,12 @@ Dimensions: {5}×{6}×{7}
                 addCaveLava = xCaveLava.Checked,
                 addCaveWater = xCaveWater.Checked,
                 caveDensity = sCaveDensity.Value / 100f,
-                caveSize = sCaveSize.Value / 100f
+                caveSize = sCaveSize.Value / 100f,
+                customWaterLevel = xWaterLevel.Checked,
+                waterLevel = (int)(xWaterLevel.Checked ? nWaterLevel.Value : nHeight.Value / 2),
+                addSnow = xAddSnow.Checked,
+                snowTransition = (int)(0.75 * (double)nHeight.Value),
+                snowAltitude = (int)(0.85 * (double)nHeight.Value)
             };
         }
 
@@ -759,6 +771,19 @@ Dimensions: {5}×{6}×{7}
 
         private void sCaveSize_ValueChanged( object sender, EventArgs e ) {
             lCaveSizeDisplay.Text = sCaveSize.Value + "%";
+        }
+
+        private void xWaterLevel_CheckedChanged( object sender, EventArgs e ) {
+            nWaterLevel.Enabled = xWaterLevel.Checked;
+        }
+
+        private void nHeight_ValueChanged( object sender, EventArgs e ) {
+            nWaterLevel.Value = Math.Min( nWaterLevel.Value, nHeight.Value );
+            nWaterLevel.Maximum = nHeight.Value;
+        }
+
+        private void xTrees_CheckedChanged( object sender, EventArgs e ) {
+            gTrees.Visible = xTrees.Checked;
         }
     }
 }
