@@ -69,6 +69,7 @@
     <Compile Include="Commands\AutoRankCommands.cs" />
     <Compile Include="Commands\ZoneCommands.cs" />
     <Compile Include="Mcc\MapFCMv3.cs" />
+    <Compile Include="Utils\Vector.cs" />
     <Compile Include="Utils\ZLibStream.cs" />
     <Compile Include="World\BlockDB.cs" />
     <Compile Include="Commands\CommandDescriptor.cs" />
@@ -128,6 +129,7 @@
     <Compile Include="World\Block.cs" />
     <Compile Include="World\BlockUpdate.cs" />
     <Compile Include="World\EventHandlers.cs" />
+    <Compile Include="World\Forester.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\MapGenerator.cs" />
     <Compile Include="World\MapGeneratorArgs.cs" />

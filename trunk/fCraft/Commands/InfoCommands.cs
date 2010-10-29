@@ -370,7 +370,7 @@ namespace fCraft {
             handler = Info
         };
 
-        static Regex stripNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
+        static Regex regexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
         const int MaxPlayersShownInInfo = 25;
         internal static void Info( Player player, Command cmd ) {
             string name = cmd.Next();
@@ -383,11 +383,11 @@ namespace fCraft {
 
             IPAddress IP;
             PlayerInfo[] infos;
-            if( IPAddress.TryParse( name, out IP ) ) {
+            if( Server.IsIP(name) && IPAddress.TryParse( name, out IP ) ) {
                 infos = PlayerDB.FindPlayers( IP, MaxPlayersShownInInfo );
 
             } else if( name.Contains( "*" ) || name.Contains( "." ) ) {
-                string regexString = "^" + stripNonNameChars.Replace( name, "" ).Replace( "*", ".*" ) + "$";
+                string regexString = "^" + regexNonNameChars.Replace( name, "" ).Replace( "*", ".*" ) + "$";
                 Regex regex = new Regex( regexString, RegexOptions.IgnoreCase | RegexOptions.Compiled );
                 infos = PlayerDB.FindPlayers( regex, MaxPlayersShownInInfo );
 
@@ -571,7 +571,7 @@ namespace fCraft {
                 player.NoAccessMessage( Permission.ViewOthersInfo );
             }
 
-            if( IPAddress.TryParse( name, out address ) ) {
+            if( Server.IsIP(name) && IPAddress.TryParse( name, out address ) ) {
                 IPBanInfo info = IPBanList.Get( address );
                 if( info != null ) {
                     player.Message( "{0} was banned by {1} on {2:dd MMM yyyy}.",

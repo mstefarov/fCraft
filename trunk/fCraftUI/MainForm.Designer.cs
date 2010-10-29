@@ -103,6 +103,7 @@
             // 
             // bPlay
             // 
+            this.bPlay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.bPlay.Enabled = false;
             this.bPlay.Location = new System.Drawing.Point( 582, 10 );
             this.bPlay.Name = "bPlay";

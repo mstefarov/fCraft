@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -1090,6 +1091,12 @@ namespace fCraft {
                 Logger.Log( "Server.CheckForFCraftProcesses: {0}", LogType.Debug, ex );
                 return false;
             }
+        }
+
+
+        static Regex regexIP = new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b", RegexOptions.Compiled );
+        public static bool IsIP( string IPString ) {
+            return regexIP.IsMatch( IPString );
         }
 
         #endregion

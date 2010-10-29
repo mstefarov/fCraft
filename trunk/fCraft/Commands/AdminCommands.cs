@@ -176,7 +176,7 @@ namespace fCraft {
             }
 
             // ban by IP address
-            if( banIP && IPAddress.TryParse( nameOrIP, out address ) ) {
+            if( banIP && Server.IsIP(nameOrIP) && IPAddress.TryParse( nameOrIP, out address ) ) {
                 DoIPBan( player, address, reason, null, banAll, unban );
 
                 // ban online players
@@ -520,7 +520,7 @@ namespace fCraft {
             }
 
             RankChangeType changeType;
-            if( targetInfo.rank >= newRank ) {
+            if( newRank >= targetInfo.rank ) {
                 if( automatic ) changeType = RankChangeType.AutoPromoted;
                 else changeType = RankChangeType.Promoted;
             } else {
@@ -674,7 +674,7 @@ namespace fCraft {
             foreach( string name in names ) {
                 if( Player.IsValidName( name ) ) {
                     DoBan( player, name, reason, false, false, false );
-                } else if( IPAddress.TryParse( name, out ip ) ) {
+                } else if( Server.IsIP(name) && IPAddress.TryParse( name, out ip ) ) {
                     DoIPBan( player, ip, reason, "", false, false );
                 } else {
                     player.Message( "Could not parse \"{0}\" as either name or IP. Skipping.", name );
@@ -1096,7 +1096,7 @@ namespace fCraft {
                     } else {
                         player.Message( "Cannot teleport to {0}&S because this world requires {1}+&S to join.",
                                         target.GetClassyName(),
-                                        player.world.accessRank.GetClassyName() );
+                                        target.world.accessRank.GetClassyName() );
                     }
 
                 } else if( matches.Length > 1 ) {
