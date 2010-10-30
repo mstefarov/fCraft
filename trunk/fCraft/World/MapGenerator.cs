@@ -283,6 +283,21 @@ namespace fCraft {
             }
 
             if( args.addTrees ) {
+                Map outMap = new Map();
+                outMap.blocks = (byte[])map.blocks.Clone();
+                outMap.widthX = map.widthX;
+                outMap.widthY = map.widthY;
+                outMap.height = map.height;
+
+                Forester treeGen = new Forester( new Forester.ForesterArgs{
+                    inMap = map,
+                    outMap = outMap,
+                    rand = rand,
+                    OPERATION = Forester.Operation.Add
+                });
+                treeGen.Generate();
+                map = outMap;
+
                 GenerateTrees( map );
             }
 

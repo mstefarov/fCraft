@@ -3,10 +3,10 @@
 namespace fCraft {
 
     public struct Vector3i {
-        public int x, y, h;
+        public int x, z, y;
 
         public double GetLength() {
-            return Math.Sqrt( x * x + y * y + h * h );
+            return Math.Sqrt( x * x + z * z + y * y );
         }
 
         public static bool operator >( Vector3i a, Vector3i b ) {
@@ -28,26 +28,26 @@ namespace fCraft {
             return a.GetLength() != b.GetLength();
         }
         public static Vector3i operator +( Vector3i a, Vector3i b ) {
-            return new Vector3i( a.x + b.x, a.y + b.y, a.h + b.h );
+            return new Vector3i( a.x + b.x, a.z + b.z, a.y + b.y );
         }
         public static Vector3i operator +( Vector3i a, int scalar ) {
-            return new Vector3i( a.x + scalar, a.y + scalar, a.h + scalar );
+            return new Vector3i( a.x + scalar, a.z + scalar, a.y + scalar );
         }
         public static Vector3i operator -( Vector3i a, Vector3i b ) {
-            return new Vector3i( a.x - b.x, a.y - b.y, a.h - b.h );
+            return new Vector3i( a.x - b.x, a.z - b.z, a.y - b.y );
         }
         public static Vector3i operator -( Vector3i a, int scalar ) {
-            return new Vector3i( a.x - scalar, a.y - scalar, a.h - scalar );
+            return new Vector3i( a.x - scalar, a.z - scalar, a.y - scalar );
         }
         public static Vector3i operator *( Vector3i a, double scalar ) {
-            return new Vector3i( (int)(a.x * scalar), (int)(a.y * scalar), (int)(a.h * scalar) );
+            return new Vector3i( (int)(a.x * scalar), (int)(a.z * scalar), (int)(a.y * scalar) );
         }
         public static Vector3i operator /( Vector3i a, double scalar ) {
-            return new Vector3i( (int)(a.x / scalar), (int)(a.y / scalar), (int)(a.h / scalar) );
+            return new Vector3i( (int)(a.x / scalar), (int)(a.z / scalar), (int)(a.y / scalar) );
         }
 
         public override int GetHashCode() {
-            return x + y * 1625 + h * 2642245;
+            return x + z * 1625 + y * 2642245;
         }
 
         public override bool Equals( object obj ) {
@@ -62,38 +62,39 @@ namespace fCraft {
             get {
                 switch( i ) {
                     case 0: return x;
-                    case 1: return h;
-                    default: return y;
+                    case 1: return y;
+                    default: return z;
                 }
             }
             set {
                 switch( i ) {
                     case 0: x = value; return;
-                    case 1: h = value; return;
-                    default: y = value; return;
+                    case 1: y = value; return;
+                    default: z = value; return;
                 }
             }
         }
 
         public Vector3i( int _x, int _y, int _h ) {
             x = _x;
-            y = _y;
-            h = _h;
+            z = _y;
+            y = _h;
         }
         public Vector3i( Vector3i other ) {
             x = other.x;
+            z = other.z;
             y = other.y;
-            h = other.h;
         }
         public Vector3i( Vector3f other ) {
             x = (int)other.x;
-            y = (int)other.y;
-            h = (int)other.h;
+            z = (int)other.y;
+            y = (int)other.h;
         }
 
         public int GetLargestComponent() {
-            if( Math.Abs(x) > Math.Abs(y) && Math.Abs(x) > Math.Abs(h) ) return 0;
-            if( Math.Abs(h) > Math.Abs(x) && Math.Abs(h) > Math.Abs(y) ) return 1;
+            int maxVal = Math.Max( Math.Abs( x ), Math.Max( Math.Abs( y ), Math.Abs( z ) ) );
+            if( maxVal == Math.Abs( x ) ) return 0;
+            if( maxVal == Math.Abs( y ) ) return 1;
             return 2;
         }
     }
@@ -145,16 +146,16 @@ namespace fCraft {
         }
 
         public static Vector3f operator +( Vector3i a, Vector3f b ) {
-            return new Vector3f( a.x + b.x, a.y + b.y, a.h + b.h );
+            return new Vector3f( a.x + b.x, a.z + b.y, a.y + b.h );
         }
         public static Vector3f operator +( Vector3f a, Vector3i b ) {
-            return new Vector3f( a.x + b.x, a.y + b.y, a.h + b.h );
+            return new Vector3f( a.x + b.x, a.y + b.z, a.h + b.y );
         }
         public static Vector3f operator -( Vector3i a, Vector3f b ) {
-            return new Vector3f( a.x - b.x, a.y - b.y, a.h - b.h );
+            return new Vector3f( a.x - b.x, a.z - b.y, a.y - b.h );
         }
         public static Vector3f operator -( Vector3f a, Vector3i b ) {
-            return new Vector3f( a.x - b.x, a.y - b.y, a.h - b.h );
+            return new Vector3f( a.x - b.x, a.y - b.z, a.h - b.y );
         }
 
         public float this[int i] {
@@ -186,8 +187,8 @@ namespace fCraft {
         }
         public Vector3f( Vector3i other ) {
             x = other.x;
-            y = other.y;
-            h = other.h;
+            y = other.z;
+            h = other.y;
         }
 
         public override int GetHashCode() {
