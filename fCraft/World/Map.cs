@@ -596,13 +596,13 @@ namespace fCraft {
         }
 
         public void SetBlock( Vector3i vec, Block type ) {
-            if( vec.x < widthX && vec.y < widthY && vec.h < height && vec.x >= 0 && vec.y >= 0 && vec.h >= 0 && (byte)type < 50 )
-                blocks[Index( vec.x, vec.y, vec.h )] = (byte)type;
+            if( vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && (byte)type < 50 )
+                blocks[Index( vec.x, vec.z, vec.y )] = (byte)type;
         }
 
         public void SetBlock( Vector3i vec, byte type ) {
-            if( vec.x < widthX && vec.y < widthY && vec.h < height && vec.x >= 0 && vec.y >= 0 && vec.h >= 0 && type < 50 )
-                blocks[Index( vec.x, vec.y, vec.h )] = type;
+            if( vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && type < 50 )
+                blocks[Index( vec.x, vec.z, vec.y )] = type;
         }
 
         public byte GetBlock( int x, int y, int h ) {
@@ -612,8 +612,8 @@ namespace fCraft {
         }
 
         public byte GetBlock( Vector3i vec ) {
-            if( vec.x < widthX && vec.y < widthY && vec.h < height && vec.x >= 0 && vec.y >= 0 && vec.h >= 0 )
-                return blocks[Index( vec.x, vec.y, vec.h )];
+            if( vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 )
+                return blocks[Index( vec.x, vec.z, vec.y )];
             return 0;
         }
 
@@ -622,35 +622,20 @@ namespace fCraft {
         }
 
         public bool InBounds( Vector3i vec ) {
-            return vec.x < widthX && vec.y < widthY && vec.h < height && vec.x >= 0 && vec.y >= 0 && vec.h >= 0;
+            return vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0;
+        }
+
+        public int SearchColumn( int x, int y, Block id ) {
+            return SearchColumn( x, y, id, height - 1 );
         }
 
         public int SearchColumn( int x, int y, Block id, int startH ) {
-            int h = startH;
-            while( h > 0 ) {
+            for( int h = startH; h > 0; h-- ) {
                 if( GetBlock( x, y, h ) == (byte)id ) {
                     return h;
-                } else {
-                    h--;
                 }
             }
-            return -1;
-        }
-
-        public void HighestPoint( Block id, out int bestX, out int bestY, out int bestH, int step ) {
-            bestX = 0;
-            bestY = 0;
-            bestH = 0;
-            for( int x = 0; x < widthX; x += step ) {
-                for( int y = 0; y < widthY; y += step ) {
-                    int val = SearchColumn( x, y, id, height - 1 );
-                    if( val > bestH ) {
-                        bestH = val;
-                        bestX = x;
-                        bestY = y;
-                    }
-                }
-            }
+            return -1; // -1 means 'not found'
         }
 
 
