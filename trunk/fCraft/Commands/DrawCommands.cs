@@ -102,8 +102,8 @@ namespace fCraft {
 
 
         static CommandDescriptor cdCuboidHollow = new CommandDescriptor {
-            name = "cuboidh",
-            aliases = new string[] { "cubh", "bhb", "h" },
+            name = "cubh",
+            aliases = new string[] { "cuboidh", "cubh", "ch", "h", "bhb" },
             permissions = new Permission[] { Permission.Draw },
             usage = "/cuboidh [OuterBlockName [InnerBlockName]]",
             help = "Allows to box a rectangular area (cuboid) with blocks. " +
@@ -119,8 +119,8 @@ namespace fCraft {
 
 
         static CommandDescriptor cdCuboidWireframe = new CommandDescriptor {
-            name = "cuboidw",
-            aliases = new string[] { "cubw", "bfb", "cw" },
+            name = "cubw",
+            aliases = new string[] { "cw", "cuboidw", "bfb" },
             permissions = new Permission[] { Permission.Draw },
             usage = "/cuboidw [BlockName]",
             help = "Draws a wireframe box around selected area. "+

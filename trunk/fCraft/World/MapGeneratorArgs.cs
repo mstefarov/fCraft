@@ -37,6 +37,8 @@ namespace fCraft {
         public bool addCliffs;
         public float cliffThreshold;
 
+        public bool addBeaches;
+        public int beachExtent;
 
         public void Validate() {
             if( raisedCorners < 0 || raisedCorners > 4 || loweredCorners < 0 || raisedCorners > 4 || raisedCorners + loweredCorners > 4 ) {
@@ -87,6 +89,15 @@ namespace fCraft {
             addOre = false;
             caveDensity = 2;
             caveSize = 1;
+
+            addSnow = false;
+            snowAltitude = 70;
+            snowTransition = 60;
+
+            addCliffs = true;
+            cliffThreshold = 1;
+            addBeaches = false;
+            beachExtent = 16;
         }
 
         public MapGeneratorArgs( string fileName ) {
@@ -150,6 +161,16 @@ namespace fCraft {
                 snowTransition = Int32.Parse( root.Element( "snowTransition" ).Value );
             }
 
+            if( root.Element( "addCliffs" ) != null ) {
+                addCliffs = Boolean.Parse( root.Element( "addCliffs" ).Value );
+                cliffThreshold = float.Parse( root.Element( "cliffThreshold" ).Value );
+            }
+
+            if( root.Element( "addBeaches" ) != null ) {
+                addBeaches = Boolean.Parse( root.Element( "addBeaches" ).Value );
+                beachExtent = Int32.Parse( root.Element( "beachExtent" ).Value );
+            }
+
             Validate();
         }
 
@@ -201,6 +222,12 @@ namespace fCraft {
             root.Add( new XElement( "addSnow", addSnow ) );
             root.Add( new XElement( "snowAltitude", snowAltitude ) );
             root.Add( new XElement( "snowTransition", snowTransition ) );
+
+            root.Add( new XElement( "addCliffs", addCliffs ) );
+            root.Add( new XElement( "cliffThreshold", cliffThreshold ) );
+
+            root.Add( new XElement( "addBeaches", addBeaches ) );
+            root.Add( new XElement( "beachExtent", beachExtent ) );
 
             document.Add( root );
             document.Save( fileName );
