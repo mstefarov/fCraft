@@ -42,6 +42,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdUnfreeze );
 
             CommandList.RegisterCommand( cdSay );
+            CommandList.RegisterCommand( cdStaffChat );
 
             CommandList.RegisterCommand( cdTP );
             CommandList.RegisterCommand( cdBring );
@@ -1018,7 +1019,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Say
+        #region Say, StaffChat
 
         static CommandDescriptor cdSay = new CommandDescriptor {
             name = "say",
@@ -1040,6 +1041,30 @@ namespace fCraft {
                 }
             } else {
                 player.NoAccessMessage( Permission.Say );
+            }
+        }
+
+
+        static CommandDescriptor cdStaffChat = new CommandDescriptor {
+            name = "staff",
+            consoleSafe = true,
+            usage = "/staff Message",
+            help = "Broadcasts your message to all operators/moderators on the server at once.",
+            handler = StaffChat
+        };
+
+        internal static void StaffChat( Player player, Command cmd ) {
+            if( DateTime.UtcNow < player.mutedUntil ) {
+                player.Message( "You are muted for another {0:0} seconds.",
+                                player.mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+                return;
+            }
+
+            Player[] plist = Server.playerList;
+            for( int i = 0; i < plist.Length; i++ ) {
+                if( plist[i].Can( Permission.ReadStaffChat ) || plist[i] == player ) {
+                    plist[i].Message( "{0}(staff){1}{0}: {2}", Color.PM, player.GetClassyName(), cmd.NextAll() );
+                }
             }
         }
 
