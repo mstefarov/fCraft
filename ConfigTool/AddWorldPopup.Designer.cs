@@ -159,6 +159,7 @@
             this.lMapFileOptions = new System.Windows.Forms.Label();
             this.lCreateMap = new System.Windows.Forms.Label();
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
+            this.xAddBeaches = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
@@ -1216,6 +1217,7 @@
             // 
             // gMapSize
             // 
+            this.gMapSize.Controls.Add( this.xAddBeaches );
             this.gMapSize.Controls.Add( this.xWaterLevel );
             this.gMapSize.Controls.Add( this.nWaterLevel );
             this.gMapSize.Controls.Add( this.lWaterLevelLabel );
@@ -1774,6 +1776,7 @@
             this.xWater.TabIndex = 20;
             this.xWater.Text = "Add water";
             this.xWater.UseVisualStyleBackColor = true;
+            this.xWater.CheckedChanged += new System.EventHandler( this.xWater_CheckedChanged );
             // 
             // xSeed
             // 
@@ -1839,6 +1842,16 @@
             // folderBrowser
             // 
             this.folderBrowser.Description = "Find the folder where your Myne / MyneCraft / Hydebuild / iCraft map is located.";
+            // 
+            // xAddBeaches
+            // 
+            this.xAddBeaches.AutoSize = true;
+            this.xAddBeaches.Location = new System.Drawing.Point( 267, 82 );
+            this.xAddBeaches.Name = "xAddBeaches";
+            this.xAddBeaches.Size = new System.Drawing.Size( 89, 17 );
+            this.xAddBeaches.TabIndex = 58;
+            this.xAddBeaches.Text = "Add beaches";
+            this.xAddBeaches.UseVisualStyleBackColor = true;
             // 
             // AddWorldPopup
             // 
@@ -2064,5 +2077,6 @@
         private System.Windows.Forms.CheckBox xWaterLevel;
         private System.Windows.Forms.CheckBox xAddSnow;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private System.Windows.Forms.CheckBox xAddBeaches;
     }
 }

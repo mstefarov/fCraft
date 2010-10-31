@@ -1,3 +1,30 @@
+0.494
+ Feature: New map generator features:
+  - Adjustable water level.
+  - Realistic trees (powered by Forester)
+  - Snow on mountaintops
+  - Realistic cliffs
+  - Beaches
+  - New template (peninsula) and theme (swamp).
+  - Option to delay heightmap bias until after marbling/inversion.
+ Feature: Added a way to load .mine maps.
+ Feature: Added confirmation for potentially destructive commands: /importranks, /importbans, /massrank, /wload overwrites, /gen overwrites, /wsave overwrites, /zremove.
+ Feature: Added /staff chat and ReadStaffChat permission.
+ Feature: Added wireframe cuboid (/cw)
+ Feature: Added an optional second param for /ch (cuboid hollow) that specifies the blocktype of the "filling".
+ Feature: Added a way to specify default build permission for new worlds.
+ Fix: Fixed /info, /baninfo, and /banip not handling players whose name
+ contain only digits.
+ Fix: Fixed DoChangeRank mixing up RankChangeType.
+ Fix: Added missing fields to MapGeneratorArgs serializer.
+ Fix: Fixed per-rank draw limits not being calculated correctly in some cases.
+ Fix: Replaced File.Delete/File.Move calls with a more reliable File.Replace call. This should slightly improve reliability of map/playerdb.txt/ipbans.txt/worlds.xml saving.
+ Fix: Fixed a little ConfigTool bug that did not properly reset PatrolledRank after a rank deletion.
+ Fix: Fixed terminal colors not resetting in fCraftConsole after a fatal crash under Mono.
+ Fix: Fixed detached "Play" button in fCraftUI.
+ Fix: Added some basic error reporting to fCraftWinService.
+ Change: Tweaked AddWorldPopup layout to accommodate more options.
+
 0.493
  Feature: /info now supports autocompletion, wildcards, and IP search.
  Feature: Experimental service wrapper for fCraft.
