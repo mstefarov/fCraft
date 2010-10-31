@@ -762,6 +762,7 @@ namespace fCraft {
             owner.Add( new XElement( Permission.DeleteAdmincrete.ToString() ) );
 
             owner.Add( new XElement( Permission.Say.ToString() ) );
+            owner.Add( new XElement( Permission.ReadStaffChat.ToString() ) );
             temp = new XElement( Permission.Kick.ToString() );
             temp.Add( new XAttribute( "max", "owner" ) );
             owner.Add( temp );
@@ -830,6 +831,7 @@ namespace fCraft {
             op.Add( new XElement( Permission.DeleteAdmincrete.ToString() ) );
 
             op.Add( new XElement( Permission.Say.ToString() ) );
+            op.Add( new XElement( Permission.ReadStaffChat.ToString() ) );
             temp = new XElement( Permission.Kick.ToString() );
             temp.Add( new XAttribute( "max", "op" ) );
             op.Add( temp );

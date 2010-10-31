@@ -36,6 +36,12 @@ namespace fCraft {
             public Block[] types;
         }
 
+
+        struct CuboidHollowArgs {
+            public Block innerBlock;
+            public Block outerBlock;
+        }
+
         #endregion
 
         public static int MaxUndoCount = 2000000;
@@ -49,14 +55,17 @@ namespace fCraft {
 
             cdCuboid.help += generalDrawingHelp;
             cdCuboidHollow.help += generalDrawingHelp;
+            cdCuboidWireframe.help += generalDrawingHelp;
             cdEllipsoid.help += generalDrawingHelp;
             cdReplace.help += generalDrawingHelp;
             cdReplaceNot.help += generalDrawingHelp;
+            cdCut.help += generalDrawingHelp;
             cdPasteNot.help += generalDrawingHelp;
             cdPaste.help += generalDrawingHelp;
 
             CommandList.RegisterCommand( cdCuboid );
             CommandList.RegisterCommand( cdCuboidHollow );
+            CommandList.RegisterCommand( cdCuboidWireframe );
             CommandList.RegisterCommand( cdEllipsoid );
             CommandList.RegisterCommand( cdReplace );
             CommandList.RegisterCommand( cdReplaceNot );
@@ -96,14 +105,31 @@ namespace fCraft {
             name = "cuboidh",
             aliases = new string[] { "cubh", "bhb", "h" },
             permissions = new Permission[] { Permission.Draw },
-            usage = "/cuboidh [BlockName]",
+            usage = "/cuboidh [OuterBlockName [InnerBlockName]]",
             help = "Allows to box a rectangular area (cuboid) with blocks. " +
-                   "If BlockType is omitted, uses the block that player is holding.",
+                   "If OuterBlockName is omitted, uses the block that player is holding. "+
+                   "Unless InnerBlockName is specified, the inside is left untouched.",
             handler = CuboidHollow
         };
 
         internal static void CuboidHollow( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.CuboidHollow );
+        }
+
+
+
+        static CommandDescriptor cdCuboidWireframe = new CommandDescriptor {
+            name = "cuboidw",
+            aliases = new string[] { "cubw", "bfb", "cw" },
+            permissions = new Permission[] { Permission.Draw },
+            usage = "/cuboidw [BlockName]",
+            help = "Draws a wireframe box around selected area. "+
+                   "If BlockType is omitted, uses the block that player is holding.",
+            handler = CuboidWireframe
+        };
+
+        internal static void CuboidWireframe( Player player, Command cmd ) {
+            Draw( player, cmd, DrawMode.CuboidWireframe );
         }
 
 
@@ -128,7 +154,7 @@ namespace fCraft {
             name = "replace",
             aliases = new string[] { "r" },
             permissions = new Permission[] { Permission.Draw },
-            usage = "/replace (BlockToReplace [AnotherOne]) ReplacementBlock",
+            usage = "/replace BlockToReplace [AnotherOne, ...] ReplacementBlock",
             help = "Replaces all blocks of specified type(s) in an area.",
             handler = Replace
         };
@@ -176,7 +202,7 @@ namespace fCraft {
                     case Block.StillLava:
                         permission = Permission.PlaceLava; break;
                     case Block.Undefined:
-                        player.MessageNow( "{0}: Unrecognized block name: {1}",
+                        player.MessageNow( "{0}: Unrecognized block: {1}",
                                            mode, blockName );
                         return;
                 }
@@ -189,18 +215,37 @@ namespace fCraft {
                 return;
             }
 
-            player.selectionArgs = (byte)block;
             switch( mode ) {
                 case DrawMode.Cuboid:
                     player.selectionCallback = CuboidCallback;
+                    player.selectionArgs = (byte)block;
                     break;
 
                 case DrawMode.CuboidHollow:
                     player.selectionCallback = CuboidHollowCallback;
+                    string innerBlockName = cmd.Next();
+                    Block innerBlock = Block.Undefined;
+                    if( innerBlockName != null ) {
+                        innerBlock = Map.GetBlockByName( innerBlockName );
+                        if( innerBlock == Block.Undefined ) {
+                            player.Message( "{0}: Unrecognized block: {1}",
+                                            mode, innerBlockName );
+                        }
+                    }
+                    player.selectionArgs = new CuboidHollowArgs {
+                        outerBlock = block,
+                        innerBlock = innerBlock
+                    };
+                    break;
+
+                case DrawMode.CuboidWireframe:
+                    player.selectionCallback = CuboidWireframeCallback;
+                    player.selectionArgs = (byte)block;
                     break;
 
                 case DrawMode.Ellipsoid:
                     player.selectionCallback = EllipsoidCallback;
+                    player.selectionArgs = (byte)block;
                     break;
 
                 case DrawMode.Replace:
@@ -321,7 +366,7 @@ namespace fCraft {
             int eh = Math.Max( marks[0].h, marks[1].h );
 
             int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
-            if( player.CanDraw( volume ) ) {
+            if( !player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                 player.info.rank.DrawLimit,
                                 volume );
@@ -416,7 +461,7 @@ namespace fCraft {
             int eh = Math.Max( marks[0].h, marks[1].h );
 
             int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
-            if( player.CanDraw( volume ) ) {
+            if( !player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                    player.info.rank.DrawLimit,
                                    volume );
@@ -452,10 +497,12 @@ namespace fCraft {
 
 
         internal static void CuboidHollowCallback( Player player, Position[] marks, object tag ) {
-            byte drawBlock = (byte)tag;
+            CuboidHollowArgs args = (CuboidHollowArgs)tag;
+            byte drawBlock = (byte)args.outerBlock;
             if( drawBlock == (byte)Block.Undefined ) {
                 drawBlock = (byte)player.lastUsedBlockType;
             }
+
 
             // find start/end coordinates
             int sx = Math.Min( marks[0].x, marks[1].x );
@@ -465,11 +512,18 @@ namespace fCraft {
             int sh = Math.Min( marks[0].h, marks[1].h );
             int eh = Math.Max( marks[0].h, marks[1].h );
 
-            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1) - (ex - sx - 1) * (ey - sy - 1) * (eh - sh - 1);
-            if( player.CanDraw( volume ) ) {
+            bool fillInner = (args.innerBlock != Block.Undefined && (ex - sx) > 1 && (ey - sy) > 1 && (eh - sh) > 1);
+
+
+            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
+            if( !fillInner ) {
+                volume -= (ex - sx - 1) * (ey - sy - 1) * (eh - sh - 1);
+            }
+
+            if( !player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                player.info.rank.DrawLimit,
-                                volume );
+                                   player.info.rank.DrawLimit,
+                                   volume );
                 return;
             }
 
@@ -497,9 +551,84 @@ namespace fCraft {
                 }
             }
 
+            if( fillInner ) {
+                for( int x = sx + 1; x < ex; x += DrawStride ) {
+                    for( int y = sy + 1; y < ey; y += DrawStride ) {
+                        for( int h = sh + 1; h < eh; h++ ) {
+                            for( int y3 = 0; y3 < DrawStride && y + y3 < ey; y3++ ) {
+                                for( int x3 = 0; x3 < DrawStride && x + x3 < ex; x3++ ) {
+                                    DrawOneBlock( player, (byte)args.innerBlock, x + x3, y + y3, h, ref blocks, ref cannotUndo );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
             player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} drew a hollow cuboid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
+                        player.name,
+                        blocks,
+                        (Block)drawBlock,
+                        player.world.name );
+            player.undoBuffer.TrimExcess();
+            Server.RequestGC();
+        }
+
+
+        internal static void CuboidWireframeCallback( Player player, Position[] marks, object tag ) {
+            byte drawBlock = (byte)tag;
+            if( drawBlock == (byte)Block.Undefined ) {
+                drawBlock = (byte)player.lastUsedBlockType;
+            }
+
+            // find start/end coordinates
+            int sx = Math.Min( marks[0].x, marks[1].x );
+            int ex = Math.Max( marks[0].x, marks[1].x );
+            int sy = Math.Min( marks[0].y, marks[1].y );
+            int ey = Math.Max( marks[0].y, marks[1].y );
+            int sh = Math.Min( marks[0].h, marks[1].h );
+            int eh = Math.Max( marks[0].h, marks[1].h );
+
+            int volume = (ex - sx + 1) * 4 + (ey - sy + 1) * 4 + (eh - sh + 1) * 4 - 16;
+
+            if( !player.CanDraw( volume ) ) {
+                player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                   player.info.rank.DrawLimit,
+                                   volume );
+                return;
+            }
+
+            player.undoBuffer.Clear();
+
+            int blocks = 0;
+            bool cannotUndo = false;
+
+            for( int x = sx; x <= ex; x++ ) {
+                DrawOneBlock( player, drawBlock, x, sy, sh, ref blocks, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, x, sy, eh, ref blocks, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, x, ey, sh, ref blocks, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, x, ey, eh, ref blocks, ref cannotUndo );
+            }
+
+            for( int y = sy; y <= ey; y++ ) {
+                DrawOneBlock( player, drawBlock, sx, y, sh, ref blocks, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, sx, y, eh, ref blocks, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, ex, y, sh, ref blocks, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, ex, y, eh, ref blocks, ref cannotUndo );
+            }
+
+            for( int h = sh; h <= eh; h++ ) {
+                DrawOneBlock( player, drawBlock, sx, sy, h, ref blocks, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, ex, sy, h, ref blocks, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, sx, ey, h, ref blocks, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, ex, ey, h, ref blocks, ref cannotUndo );
+            }
+
+            player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
+            player.info.ProcessDrawCommand( blocks );
+            Logger.Log( "{0} drew a wireframe cuboid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
                         player.name,
                         blocks,
                         (Block)drawBlock,
@@ -539,7 +668,7 @@ namespace fCraft {
 
 
             int volume = (int)(4/3d * Math.PI * rx * ry * rh);
-            if( player.CanDraw( volume ) ) {
+            if( !player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                    player.info.rank.DrawLimit,
                                    volume );
@@ -632,7 +761,7 @@ namespace fCraft {
             int eh = Math.Max( marks[0].h, marks[1].h );
 
             int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
-            if( player.CanDraw( volume ) ) {
+            if( !player.CanDraw( volume ) ) {
                 player.MessageNow( String.Format( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                                player.info.rank.DrawLimit, volume ) );
                 return;
@@ -704,7 +833,7 @@ namespace fCraft {
             byte fillType = (byte)tag;
 
             int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
-            if( player.CanDraw( volume ) ) {
+            if( !player.CanDraw( volume ) ) {
                 player.MessageNow( String.Format( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                                player.info.rank.DrawLimit, volume ) );
                 return;

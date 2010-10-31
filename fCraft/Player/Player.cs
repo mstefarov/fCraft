@@ -69,7 +69,7 @@ namespace fCraft {
 
         int muteWarnings;
         public static TimeSpan muteDuration = TimeSpan.FromSeconds( 5 );
-        DateTime mutedUntil = DateTime.MinValue;
+        public DateTime mutedUntil = DateTime.MinValue;
 
         const int confirmationTimeout = 60;
 
@@ -508,8 +508,7 @@ namespace fCraft {
 
 
         public bool CanDraw( int volume ) {
-            if( this == Console ) return true;
-            return (info.rank.DrawLimit > 0) && (volume > info.rank.DrawLimit);
+            return ( this == Console ) || (info.rank.DrawLimit == 0) || (volume <= info.rank.DrawLimit);
         }
 
 
