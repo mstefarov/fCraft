@@ -22,6 +22,9 @@ namespace fCraft {
         internal World world;
         internal DateTime idleTimer = DateTime.UtcNow;
 
+        public Command commandToConfirm;
+        public DateTime commandToConfirmDate;
+
 
         // This constructor is used to create dummy players (such as Console and /dummy)
         // It will soon be replaced by a generic Entity class
@@ -67,6 +70,8 @@ namespace fCraft {
         int muteWarnings;
         public static TimeSpan muteDuration = TimeSpan.FromSeconds( 5 );
         DateTime mutedUntil = DateTime.MinValue;
+
+        const int confirmationTimeout = 60;
 
         public void Mute( int seconds ) {
             mutedUntil = DateTime.UtcNow.AddSeconds( seconds );
@@ -200,6 +205,20 @@ namespace fCraft {
                         Message( "No class found matching \"{0}\"", rankName );
                     }
                     break;
+
+                case MessageType.Confirmation:
+                    if( commandToConfirm != null ) {
+                        if( DateTime.UtcNow.Subtract( commandToConfirmDate ).TotalSeconds < confirmationTimeout ) {
+                            commandToConfirm.confirmed = true;
+                            CommandList.ParseCommand( this, commandToConfirm, fromConsole );
+                            commandToConfirm = null;
+                        } else {
+                            MessageNow( "Confirmation timed out. Enter the command again." );
+                        }
+                    } else {
+                        MessageNow( "There is no command to confirm." );
+                    }
+                    break;
             }
         }
 
@@ -287,6 +306,12 @@ namespace fCraft {
         }
 
 
+        internal void AskForConfirmation( Command cmd, string message, params object[] args ) {
+            commandToConfirm = cmd;
+            commandToConfirmDate = DateTime.UtcNow;
+            Message( message + " Type &H/ok&S to continue.", args );
+            commandToConfirm.Rewind();
+        }
 
 
         internal void NoAccessMessage( params Permission[] permissions ) {

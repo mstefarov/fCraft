@@ -116,19 +116,32 @@ namespace fCraft {
                 }
             }
 
-            string mapFileName = Path.Combine( "maps", fileName );
-            if( !mapFileName.EndsWith( ".fcm" ) ) {
-                mapFileName += ".fcm";
+            string targetFileName = Path.Combine( "maps", fileName );
+            if( !targetFileName.ToLower().EndsWith( ".fcm" ) ) {
+                targetFileName += ".fcm";
             }
 
-            player.MessageNow( "Saving map to {0}", mapFileName );
+
+            if( File.Exists( targetFileName ) ) {
+                FileInfo targetFile = new FileInfo( targetFileName );
+                FileInfo sourceFile = new FileInfo( world.GetMapName() );
+                if( !targetFile.FullName.Equals( sourceFile.FullName, StringComparison.OrdinalIgnoreCase ) ) {
+                    if( !cmd.confirmed ) {
+                        player.AskForConfirmation( cmd, "Target file \"{0}\" already exists, and will be overwritten.", targetFile.Name );
+                        return;
+                    }
+                }
+            }
+
+
+            player.MessageNow( "Saving map to {0}", targetFileName );
 
             string mapSavingError = "Map saving failed. See server logs for details.";
             Map map = world.map;
             if( map == null ) {
                 if( File.Exists( world.GetMapName() ) ) {
                     try {
-                        File.Copy( world.GetMapName(), mapFileName, true );
+                        File.Copy( world.GetMapName(), targetFileName, true );
                     } catch( Exception ex ) {
                         Logger.Log( "StandardCommands.Save: Error occured while trying to copy an unloaded map: " + ex, LogType.Error );
                         player.Message( mapSavingError );
@@ -137,7 +150,7 @@ namespace fCraft {
                     Logger.Log( "StandardCommands.Save: Map for world \"" + world.name + "\" is unloaded, and file does not exist.", LogType.Error );
                     player.Message( mapSavingError );
                 }
-            } else if( map.Save( mapFileName ) ) {
+            } else if( map.Save( targetFileName ) ) {
                 player.Message( "Map saved succesfully." );
             } else {
                 Logger.Log( "StandardCommands.Save: Saving world \"" + world.name + "\" failed.", LogType.Error );
@@ -469,6 +482,10 @@ namespace fCraft {
             }
 
             if( worldName == null ) {
+                if( !cmd.confirmed ) {
+                    player.AskForConfirmation( cmd, "About to replace THIS MAP with \"{0}\".", fileName );
+                    return;
+                }
                 // Loading to current world
                 player.world.ChangeMap( map );
                 player.world.SendToAll( Color.Sys + player.GetClassyName() + " loaded a new map for the world " + player.world.GetClassyName(), player );
@@ -487,6 +504,10 @@ namespace fCraft {
                 lock( Server.worldListLock ) {
                     World world = Server.FindWorld( worldName );
                     if( world != null ) {
+                        if( !cmd.confirmed ) {
+                            player.AskForConfirmation( cmd, "About to replace map for {0}&S with \"{1}\".", world.GetClassyName(), fileName );
+                            return;
+                        }
                         // Replacing existing world's map
                         world.ChangeMap( map );
                         world.SendToAll( player.GetClassyName() + "&S loaded a new map for the world " + world.GetClassyName(), player );
@@ -495,8 +516,27 @@ namespace fCraft {
                                     player.name, world.name, fileName );
 
                     } else {
+
+                        string targetFileName = Path.Combine( "maps", worldName + ".fcm" );
+                        if( File.Exists( targetFileName ) ) {
+                            FileInfo targetFile = new FileInfo( targetFileName );
+                            FileInfo sourceFile = new FileInfo( fileName );
+                            if( !targetFile.FullName.Equals( sourceFile.FullName, StringComparison.OrdinalIgnoreCase ) ) {
+                                if( !cmd.confirmed ) {
+                                    player.AskForConfirmation( cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
+                                                               targetFile.Name, sourceFile.Name );
+                                    return;
+                                }
+                            }
+                        }
+
                         // Adding a new world
-                        if( Server.AddWorld( worldName, map, false ) != null ) {
+                        World newWorld = Server.AddWorld( worldName, map, false );
+                        if( newWorld != null ) {
+                            Rank newBuildRank = RankList.ParseRank( Config.GetString( ConfigKey.DefaultBuildRank ) );
+                            if( newBuildRank != null ) {
+                                newWorld.buildRank = newBuildRank;
+                            }
                             Server.SendToAll( player.GetClassyName() + "&S created a new world named \"" + worldName + "\"." );
                             Logger.Log( "{0} created a new world named \"{1}\" (loaded from \"{2}\")", LogType.UserActivity,
                                         player.name, worldName, fileName );
@@ -555,11 +595,14 @@ namespace fCraft {
                         Server.RenameWorld( oldName, newName );
 
                         // Move files
-                        string oldFileName = "maps/" + oldName + ".fcm";
-                        string newFileName = "maps/" + newName + ".fcm";
+                        string oldFileName = Path.Combine("maps", oldName + ".fcm");
+                        string newFileName = Path.Combine("maps", newName + ".fcm");
                         try {
-                            File.Delete( newFileName );
-                            File.Move( oldFileName, newFileName );
+                            if( File.Exists( newFileName ) ) {
+                                File.Replace( oldFileName, newFileName, null, true );
+                            } else {
+                                File.Move( oldFileName, newFileName );
+                            }
                         } catch( Exception ex ) {
                             Logger.Log( "MapCommands.WorldRename: A file with the same name as renamed world may already exist, " +
                                         "and an error occured while trying to use it: " + ex, LogType.Error );
@@ -684,6 +727,11 @@ namespace fCraft {
             } else if( player.world == null ) {
                 player.Message( "When used from console, /gen requires FileName." );
                 cdGenerate.PrintUsage( player );
+                return;
+            }
+
+            if( fileName==null && !cmd.confirmed ) {
+                player.AskForConfirmation( cmd, "About to replace THIS MAP with a generated map." );
                 return;
             }
 

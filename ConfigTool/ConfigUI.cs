@@ -18,7 +18,7 @@ namespace ConfigTool {
     public sealed partial class ConfigUI : Form {
         static ConfigUI instance;
         Font bold;
-        Rank selectedRank, defaultRank, patrolledRank;
+        Rank selectedRank, defaultRank, patrolledRank, defaultBuildRank;
         internal static SortableBindingList<WorldListEntry> worlds = new SortableBindingList<WorldListEntry>();
 
         #region Initialization
@@ -383,6 +383,8 @@ namespace ConfigTool {
 
             FillRankList( cDefaultRank, "(lowest rank)" );
             cDefaultRank.SelectedIndex = RankList.GetIndex( defaultRank );
+            FillRankList( cDefaultBuildRank, "(lowest rank)" );
+            cDefaultBuildRank.SelectedIndex = RankList.GetIndex( defaultBuildRank );
             FillRankList( cPatrolledRank, "(lowest rank)" );
             cPatrolledRank.SelectedIndex = RankList.GetIndex( patrolledRank );
 
@@ -503,6 +505,7 @@ namespace ConfigTool {
             rank.Color = "";
 
             defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+            defaultBuildRank = RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
             patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
 
             RankList.AddRank( rank );
@@ -533,6 +536,20 @@ namespace ConfigTool {
                 if( defaultRank == deletedRank ) {
                     defaultRank = replacementRank;
                     messages += "DefaultRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
+                }
+
+                // Update defaultbuild rank
+                Rank defaultBuildRank = RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
+                if( defaultBuildRank == deletedRank ) {
+                    defaultBuildRank = replacementRank;
+                    messages += "DefaultBuildRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
+                }
+
+                // Update patrolled rank
+                Rank patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
+                if( patrolledRank == deletedRank ) {
+                    patrolledRank = replacementRank;
+                    messages += "PatrolledRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
                 }
 
                 // Delete rank
@@ -586,6 +603,7 @@ namespace ConfigTool {
             if( selectedRank.Prefix == tPrefix.Text ) return;
 
             defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+            defaultBuildRank = RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
             patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
 
             string oldName = selectedRank.ToComboBoxOption();
@@ -757,6 +775,7 @@ namespace ConfigTool {
 
                 tRankName.ForeColor = SystemColors.ControlText;
                 defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+                defaultBuildRank = RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
                 patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
 
                 // To avoid DataErrors in World tab's DataGridView while renaming a rank,
@@ -777,6 +796,7 @@ namespace ConfigTool {
         private void bRaiseRank_Click( object sender, EventArgs e ) {
             if( selectedRank != null ) {
                 defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+                defaultBuildRank = RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
                 patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
                 RankList.RaiseRank( selectedRank );
                 RebuildRankList();
@@ -788,6 +808,7 @@ namespace ConfigTool {
         private void bLowerRank_Click( object sender, EventArgs e ) {
             if( selectedRank != null ) {
                 defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+                defaultBuildRank = RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
                 patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
                 RankList.LowerRank( selectedRank );
                 RebuildRankList();

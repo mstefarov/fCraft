@@ -99,6 +99,7 @@ namespace fCraft {
         public static void LoadDefaults() {
             settings.Clear();
             LoadDefaultsGeneral();
+            LoadDefaultsWorlds();
             LoadDefaultsSecurity();
             LoadDefaultsSavingAndBackup();
             LoadDefaultsLogging();
@@ -127,6 +128,10 @@ namespace fCraft {
             SetValue( ConfigKey.AnnouncementColor, Color.GetName( Color.Green ) );
             SetValue( ConfigKey.PrivateMessageColor, Color.GetName( Color.Aqua ) );
             SetValue( ConfigKey.AnnouncementInterval, 0 );
+        }
+
+        public static void LoadDefaultsWorlds() {
+            SetValue( ConfigKey.DefaultBuildRank, "" );
         }
 
         public static void LoadDefaultsSecurity() {
@@ -475,14 +480,16 @@ namespace fCraft {
                 case ConfigKey.MaxPlayers:
                     return ValidateInt( key, value, 1, MaxPlayersSupported );
                 case ConfigKey.DefaultRank:
+                case ConfigKey.DefaultBuildRank:
+                case ConfigKey.PatrolledRank:
                     if( value.Length > 0 ) {
                         if( RankList.ParseRank( value ) != null ) {
                             settings[key] = RankList.ParseRank( value ).Name;
                             return true;
                         } else {
-                            Log( "Config.SetValue: DefaultRank could not be parsed. " +
+                            Log( "Config.SetValue: {0} could not be parsed. " +
                                  "It should be either blank (indicating \"use lowest rank\") or set to a valid class name. " +
-                                 "DefaultRank was reset to default (lowest rank).", LogType.Warning );
+                                 "{0} was reset to default (lowest rank).", LogType.Warning, key );
                             return false;
                         }
                     } else {

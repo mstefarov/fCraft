@@ -154,6 +154,11 @@ Announcements are shown to all players, one line at a time, in random order.";
             toolTip.SetToolTip( bWorldEdit, "Edit or replace an existing world." );
             toolTip.SetToolTip( cMainWorld, "Main world is the first world that players see when they join the server." );
             toolTip.SetToolTip( bWorldDelete, "Delete a world from the list." );
+            string tipDefaultBuildRank =
+@"When new maps are loaded with the /wload command,
+the build permission for new maps will default to this rank.";
+            toolTip.SetToolTip( lDefaultBuildRank, tipDefaultBuildRank );
+            toolTip.SetToolTip( cDefaultBuildRank, tipDefaultBuildRank );
         }
 
 
@@ -441,6 +446,9 @@ Affected commands:
 @"Ability to promote players to a higher rank.
 Affected commands:
     /rank";
+
+            vPermissions.Items[(int)Permission.ReadStaffChat].ToolTipText =
+@"Ability to read staff chat.";
 
             vPermissions.Items[(int)Permission.ReloadConfig].ToolTipText =
 @"Ability to reload the configuration file without restarting.

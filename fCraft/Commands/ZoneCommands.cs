@@ -280,8 +280,17 @@ namespace fCraft {
                 cdZoneRemove.PrintUsage( player );
                 return;
             }
-            if( player.world.map.RemoveZone( zoneName ) ) {
-                player.Message( "Zone \"{0}\" removed.", zoneName );
+
+            if( player.world.map.FindZone( zoneName ) != null ) {
+                if( !cmd.confirmed ) {
+                    player.AskForConfirmation( cmd, "You are about to remove \"{0}\" zone.", zoneName );
+                    return;
+                }
+
+                if( player.world.map.RemoveZone( zoneName ) ) {
+                    player.Message( "Zone \"{0}\" removed.", zoneName );
+                }
+
             } else {
                 player.Message( "No zone with the name \"{0}\" was found.", zoneName );
             }
