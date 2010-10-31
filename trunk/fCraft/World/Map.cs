@@ -72,8 +72,11 @@ namespace fCraft {
             }
 
             try {
-                File.Delete( fileName );
-                File.Move( tempFileName, fileName );
+                if( File.Exists( fileName ) ) {
+                    File.Replace( tempFileName, fileName, null, true );
+                } else {
+                    File.Move( tempFileName, fileName );
+                }
                 changesSinceBackup++;
                 Logger.Log( "Saved map successfully to {0}", LogType.SystemActivity,
                             fileName );

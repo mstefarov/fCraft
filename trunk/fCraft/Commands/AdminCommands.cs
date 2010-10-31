@@ -669,6 +669,11 @@ namespace fCraft {
                     return;
             }
 
+            if( !cmd.confirmed ) {
+                player.AskForConfirmation( cmd, "You are about to import {0} bans.", names.Length );
+                return;
+            }
+
             string reason = "(import from " + serverName + ")";
             IPAddress ip;
             foreach( string name in names ) {
@@ -740,6 +745,11 @@ namespace fCraft {
                 default:
                     player.Message( "fCraft does not support importing from {0}", serverName );
                     return;
+            }
+
+            if( !cmd.confirmed ) {
+                player.AskForConfirmation( cmd, "You are about to import {0} player ranks.", names.Length );
+                return;
             }
 
             string reason = "(import from " + serverName + ")";

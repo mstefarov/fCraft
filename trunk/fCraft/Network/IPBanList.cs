@@ -55,8 +55,11 @@ namespace fCraft {
                 }
             }
             try {
-                File.Delete( BanFile );
-                File.Move( tempFile, BanFile );
+                if( File.Exists( BanFile ) ) {
+                    File.Replace( tempFile, BanFile, null, true );
+                } else {
+                    File.Move( tempFile, BanFile );
+                }
             } catch( Exception ex ) {
                 Logger.Log( "IPBanList.Save: An error occured while trying to save ban list file: " + ex, LogType.Error );
             }

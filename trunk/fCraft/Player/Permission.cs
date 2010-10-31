@@ -15,6 +15,7 @@ namespace fCraft {
         ViewOthersInfo,
         EditPlayerDB,
         Say,
+        ReadStaffChat,
 
         UseSpeedHack,
 
@@ -26,7 +27,7 @@ namespace fCraft {
         Promote,
         Demote,
         Hide,         // go invisible!
-        //Spectate,     // spectate others
+        //Spectate,   // spectate others
 
         Draw,
         CopyAndPaste,

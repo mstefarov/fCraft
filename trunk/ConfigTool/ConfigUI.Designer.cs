@@ -24,7 +24,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -240,6 +240,8 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
+            this.cDefaultBuildRank = new System.Windows.Forms.ComboBox();
+            this.lDefaultBuildRank = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -822,6 +824,8 @@
             // 
             // tabWorlds
             // 
+            this.tabWorlds.Controls.Add( this.lDefaultBuildRank );
+            this.tabWorlds.Controls.Add( this.cDefaultBuildRank );
             this.tabWorlds.Controls.Add( this.cMainWorld );
             this.tabWorlds.Controls.Add( this.lMainWorld );
             this.tabWorlds.Controls.Add( this.bWorldEdit );
@@ -907,10 +911,10 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle5.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvWorlds.Size = new System.Drawing.Size( 634, 365 );
+            this.dgvWorlds.Size = new System.Drawing.Size( 634, 344 );
             this.dgvWorlds.TabIndex = 0;
             this.dgvWorlds.SelectionChanged += new System.EventHandler( this.dgvWorlds_SelectionChanged );
             // 
@@ -2759,6 +2763,24 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // cDefaultBuildRank
+            // 
+            this.cDefaultBuildRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cDefaultBuildRank.FormattingEnabled = true;
+            this.cDefaultBuildRank.Location = new System.Drawing.Point( 245, 397 );
+            this.cDefaultBuildRank.Name = "cDefaultBuildRank";
+            this.cDefaultBuildRank.Size = new System.Drawing.Size( 121, 23 );
+            this.cDefaultBuildRank.TabIndex = 6;
+            // 
+            // lDefaultBuildRank
+            // 
+            this.lDefaultBuildRank.AutoSize = true;
+            this.lDefaultBuildRank.Location = new System.Drawing.Point( 8, 400 );
+            this.lDefaultBuildRank.Name = "lDefaultBuildRank";
+            this.lDefaultBuildRank.Size = new System.Drawing.Size( 231, 15 );
+            this.lDefaultBuildRank.TabIndex = 7;
+            this.lDefaultBuildRank.Text = "Default build requirement for new worlds:";
+            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -3060,5 +3082,7 @@
         private System.Windows.Forms.NumericUpDown nMaxUndo;
         private System.Windows.Forms.Label lMaxUndoUnits;
         private System.Windows.Forms.CheckBox xMaxUndo;
+        private System.Windows.Forms.Label lDefaultBuildRank;
+        private System.Windows.Forms.ComboBox cDefaultBuildRank;
     }
 }

@@ -155,6 +155,9 @@ namespace ConfigTool {
                 worlds.ResetBindings();
                 //dgvWorlds.DataSource = worlds;
             }
+
+            FillRankList( cDefaultBuildRank, "(lowest class)" );
+            cDefaultBuildRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.DefaultBuildRank ) ) );
         }
 
 
@@ -313,6 +316,12 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.PrivateMessageColor, fCraft.Color.GetName( colorPM ) );
             if( xAnnouncements.Checked ) Config.SetValue( ConfigKey.AnnouncementInterval, nAnnouncements.Value );
             else Config.SetValue( ConfigKey.AnnouncementInterval, 0 );
+
+            if( cDefaultBuildRank.SelectedIndex == 0 ) {
+                Config.SetValue( ConfigKey.DefaultBuildRank, "" );
+            } else {
+                Config.SetValue( ConfigKey.DefaultBuildRank, RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 ) );
+            }
 
             WriteEnum( cVerifyNames, ConfigKey.VerifyNames, "Never", "Balanced", "Always" );
             Config.SetValue( ConfigKey.LimitOneConnectionPerIP, xLimitOneConnectionPerIP.Checked );

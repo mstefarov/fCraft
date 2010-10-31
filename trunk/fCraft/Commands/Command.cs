@@ -9,13 +9,15 @@ namespace fCraft {
         PrivateChat,
         ClassChat,
         Command,
-        Invalid
+        Invalid,
+        Confirmation
     }
 
     public sealed class Command {
         int offset;
         string message;
         public string name;
+        public bool confirmed;
 
 
         public Command( string _message ) {

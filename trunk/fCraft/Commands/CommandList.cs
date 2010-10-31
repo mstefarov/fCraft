@@ -102,8 +102,10 @@ namespace fCraft {
 
         // Parses and calls a command
         internal static void ParseCommand( Player player, string message, bool fromConsole ) {
-            Command cmd = new Command( message );
+            ParseCommand( player, new Command( message ), fromConsole );
+        }
 
+        internal static void ParseCommand( Player player, Command cmd, bool fromConsole ) {
             CommandDescriptor descriptor = GetDescriptor( cmd.name );
 
             if( descriptor == null ) {
@@ -130,6 +132,7 @@ namespace fCraft {
         // Determines the type of message (Command, ClassChat, PrivateChat, Chat, or Invalid)
         internal static MessageType GetMessageType( string message ) {
             if( message == null || message.Length == 0 ) return MessageType.Invalid;
+            if( message.Equals( "/ok", StringComparison.OrdinalIgnoreCase ) ) return MessageType.Confirmation;
             if( message[0] == '/' ) {
                 if( message.Length > 1 && message[1] == '/' ) return MessageType.Chat;
                 if( message.Length < 2 || message[1] == ' ' ) return MessageType.Invalid;

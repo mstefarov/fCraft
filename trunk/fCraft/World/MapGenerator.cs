@@ -301,6 +301,50 @@ namespace fCraft {
                 GenerateTrees( map );
             }
 
+            /*if( args.addTrees ) {
+                Map outMap = new Map();
+                outMap.blocks = (byte[])map.blocks.Clone();
+                outMap.widthX = map.widthX;
+                outMap.widthY = map.widthY;
+                outMap.height = map.height;
+
+                Forester treeGen = new Forester( new Forester.ForesterArgs {
+                    inMap = map,
+                    outMap = outMap,
+                    rand = rand,
+                     SHAPE = Forester.TreeShape.Mangrove,
+                      TREECOUNT=4,
+                      HEIGHT=20,
+                    OPERATION = Forester.Operation.Add
+                } );
+                treeGen.Generate();
+                map = outMap;
+
+                GenerateTrees( map );
+            }
+
+            if( args.addTrees ) {
+                Map outMap = new Map();
+                outMap.blocks = (byte[])map.blocks.Clone();
+                outMap.widthX = map.widthX;
+                outMap.widthY = map.widthY;
+                outMap.height = map.height;
+
+                Forester treeGen = new Forester( new Forester.ForesterArgs {
+                    inMap = map,
+                    outMap = outMap,
+                    rand = rand,
+                    SHAPE = Forester.TreeShape.Round,
+                    TREECOUNT = 1,
+                    HEIGHT = 200,
+                    HEIGHTVARIATION=1,
+                    OPERATION = Forester.Operation.Add
+                } );
+                treeGen.Generate();
+                map = outMap;
+
+                GenerateTrees( map );
+            }*/
             map.ResetSpawn();
             return map;
         }

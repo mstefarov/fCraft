@@ -498,9 +498,18 @@ namespace fCraft {
                 return;
             }
 
-            player.Message( "MassRank: {0} {1} players...",
-                            (fromRank > toRank ? "demoting" : "promoting"),
-                            PlayerDB.CountPlayersByRank( fromRank ) );
+            int playerCount = PlayerDB.CountPlayersByRank( fromRank );
+            string verb = (fromRank > toRank ? "demot" : "promot");
+
+
+            if( !cmd.confirmed ) {
+                player.AskForConfirmation( cmd, "About to {0}e {1} players.", verb, playerCount );
+                return;
+            }
+
+            player.Message( "MassRank: {0}ing {1} players...",
+                            verb, playerCount );
+
             int affected = PlayerDB.MassRankChange( player, fromRank, toRank, silent );
             player.Message( "MassRank: done.", affected );
         }

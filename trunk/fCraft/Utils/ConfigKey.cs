@@ -12,6 +12,8 @@ namespace fCraft {
         IP,
         UploadBandwidth,
 
+        DefaultBuildRank,
+
         RankColorsInChat,
         RankColorsInWorldNames,
         RankPrefixesInChat,
@@ -25,11 +27,8 @@ namespace fCraft {
         AnnouncementInterval,
 
         VerifyNames,
-
         LimitOneConnectionPerIP,
-
         PatrolledRank,
-
         AntispamMessageCount,
         AntispamInterval,
         AntispamMuteDuration,
