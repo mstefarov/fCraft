@@ -130,7 +130,7 @@ namespace fCraft {
                 args.waterLevel = (map.height - 1) / 2;
             }
 
-            slopemap = Noise.CalculateSlope( Noise.GaussianBlur5x5( Noise.GaussianBlur5x5(heightmap )) );
+            slopemap = Noise.CalculateSlope( Noise.GaussianBlur5x5( Noise.GaussianBlur5x5( heightmap ) ) );
 
             float desiredWaterLevel = .5f;
             if( args.matchWaterCoverage ) {
@@ -178,7 +178,7 @@ namespace fCraft {
                 }
             }
              */
-            
+
             float cliffThreshold = 1;
             int snowStartThreshold = args.snowTransition;
             int snowThreshold = args.snowAltitude;
@@ -245,7 +245,7 @@ namespace fCraft {
                             map.SetBlock( x, y, level, bCliff );
                         } else {
                             if( slope < cliffThreshold ) {
-                                if( snow ){
+                                if( snow ) {
                                     map.SetBlock( x, y, level, Block.White );
                                 } else {
                                     map.SetBlock( x, y, level, bGroundSurface );
@@ -277,50 +277,39 @@ namespace fCraft {
                     }
                 }
             }
-            
+
             if( args.addCaves ) {
                 AddCaves( map );
             }
 
-            if( args.addTrees ) {
-                Map outMap = new Map();
-                outMap.blocks = (byte[])map.blocks.Clone();
-                outMap.widthX = map.widthX;
-                outMap.widthY = map.widthY;
-                outMap.height = map.height;
-
-                Forester treeGen = new Forester( new Forester.ForesterArgs{
-                    inMap = map,
-                    outMap = outMap,
-                    rand = rand,
-                    OPERATION = Forester.Operation.Add
-                });
-                treeGen.Generate();
-                map = outMap;
-
-                GenerateTrees( map );
-            }
-
-            /*if( args.addTrees ) {
-                Map outMap = new Map();
-                outMap.blocks = (byte[])map.blocks.Clone();
-                outMap.widthX = map.widthX;
-                outMap.widthY = map.widthY;
-                outMap.height = map.height;
-
-                Forester treeGen = new Forester( new Forester.ForesterArgs {
-                    inMap = map,
-                    outMap = outMap,
-                    rand = rand,
-                     SHAPE = Forester.TreeShape.Mangrove,
-                      TREECOUNT=4,
-                      HEIGHT=20,
-                    OPERATION = Forester.Operation.Add
-                } );
-                treeGen.Generate();
-                map = outMap;
-
-                GenerateTrees( map );
+            if( args.addBeaches ) {
+                int beachExtentSqr = (args.beachExtent + 1) * (args.beachExtent + 1);
+                for( int x = 0; x < map.widthX; x++ ) {
+                    for( int y = 0; y < map.widthY; y++ ) {
+                        int h = map.SearchColumn( x, y, bGroundSurface );
+                        if( h < 0 ) continue;
+                        bool found = false;
+                        for( int dx = -args.beachExtent; !found && dx <= args.beachExtent; dx++ ) {
+                            for( int dy = -args.beachExtent; !found && dy <= args.beachExtent; dy++ ) {
+                                for( int dh = -3; !found && dh <= 0; dh++ ) {
+                                    if( dx * dx + dy * dy + dh * dh > beachExtentSqr ) continue;
+                                    int xx = x + dx;
+                                    int yy = y + dy;
+                                    int hh = h + dh;
+                                    if( xx < 0 || xx >= map.widthX || yy < 0 || yy >= map.widthY || hh < 0 || hh >= map.height ) continue;
+                                    if( map.GetBlock( xx, yy, hh ) == (byte)bWater || map.GetBlock( xx, yy, hh ) == (byte)bWaterSurface ) {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if( found ) {
+                            map.SetBlock( x, y, h, bSeaFloor );
+                            if( h > 0 && map.GetBlock( x, y, h - 1 ) == (byte)bGround ) map.SetBlock( x, y, h - 1, bSeaFloor );
+                        }
+                    }
+                }
             }
 
             if( args.addTrees ) {
@@ -334,17 +323,15 @@ namespace fCraft {
                     inMap = map,
                     outMap = outMap,
                     rand = rand,
-                    SHAPE = Forester.TreeShape.Round,
-                    TREECOUNT = 1,
-                    HEIGHT = 200,
-                    HEIGHTVARIATION=1,
+                    TREECOUNT = (int)(map.widthX * map.widthY * 4 / (1024f * (args.treeSpacingMax+args.treeSpacingMin)/2)),
                     OPERATION = Forester.Operation.Add
                 } );
                 treeGen.Generate();
                 map = outMap;
 
                 GenerateTrees( map );
-            }*/
+            }
+
             map.ResetSpawn();
             return map;
         }
