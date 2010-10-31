@@ -97,7 +97,7 @@ namespace fCraft {
             addCliffs = true;
             cliffThreshold = 1;
             addBeaches = false;
-            beachExtent = 16;
+            beachExtent = 7;
         }
 
         public MapGeneratorArgs( string fileName ) {
@@ -112,9 +112,9 @@ namespace fCraft {
 
             theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), root.Element( "theme" ).Value, true );
             seed = Int32.Parse( root.Element( "seed" ).Value );
-            dimX = Int32.Parse( root.Element( "dimX" ).Value );
-            dimY = Int32.Parse( root.Element( "dimY" ).Value );
-            dimH = Int32.Parse( root.Element( "dimH" ).Value );
+            //dimX = Int32.Parse( root.Element( "dimX" ).Value );
+            //dimY = Int32.Parse( root.Element( "dimY" ).Value );
+            //dimH = Int32.Parse( root.Element( "dimH" ).Value );
             maxHeight = Int32.Parse( root.Element( "maxHeight" ).Value );
             maxDepth = Int32.Parse( root.Element( "maxDepth" ).Value );
             waterLevel = Int32.Parse( root.Element( "waterLevel" ).Value );

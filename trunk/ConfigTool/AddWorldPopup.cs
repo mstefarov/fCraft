@@ -698,6 +698,8 @@ Dimensions: {5}×{6}×{7}
             xWaterLevel.Checked = generatorArgs.customWaterLevel;
             nWaterLevel.Maximum = generatorArgs.dimH;
             nWaterLevel.Value = Math.Min( generatorArgs.waterLevel, generatorArgs.dimH );
+
+            xAddBeaches.Checked = generatorArgs.addBeaches;
         }
 
         void SaveGeneratorArgs() {
@@ -739,7 +741,8 @@ Dimensions: {5}×{6}×{7}
                 waterLevel = (int)(xWaterLevel.Checked ? nWaterLevel.Value : nHeight.Value / 2),
                 addSnow = xAddSnow.Checked,
                 snowTransition = (int)(0.75 * (double)nHeight.Value),
-                snowAltitude = (int)(0.85 * (double)nHeight.Value)
+                snowAltitude = (int)(0.85 * (double)nHeight.Value),
+                addBeaches = xAddBeaches.Checked
             };
         }
 
@@ -784,6 +787,10 @@ Dimensions: {5}×{6}×{7}
 
         private void xTrees_CheckedChanged( object sender, EventArgs e ) {
             gTrees.Visible = xTrees.Checked;
+        }
+
+        private void xWater_CheckedChanged( object sender, EventArgs e ) {
+            xAddBeaches.Enabled = xWater.Checked;
         }
     }
 }
