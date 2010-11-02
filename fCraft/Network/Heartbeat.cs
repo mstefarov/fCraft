@@ -29,7 +29,6 @@ namespace fCraft {
 
         static void HeartbeatHandler() {
             HttpWebRequest request;
-            bool hasReportedServerURL = false;
 
             while( true ) {
                 try {
@@ -57,14 +56,15 @@ namespace fCraft {
                         requestStream.Flush();
                     }
 
-                    if( !hasReportedServerURL ) {
-                        using( WebResponse response = request.GetResponse() ) {
-                            using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                                Server.URL = responseReader.ReadLine();
-                            }
+                    string newURL;
+                    using( WebResponse response = request.GetResponse() ) {
+                        using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
+                            newURL = responseReader.ReadLine();
                         }
+                    }
+                    if( newURL != Server.URL ) {
+                        Server.URL = newURL;
                         Server.FireURLChangeEvent( Server.URL );
-                        hasReportedServerURL = true;
                     }
                     request.Abort();
 
