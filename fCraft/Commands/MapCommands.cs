@@ -481,6 +481,21 @@ namespace fCraft {
                 return;
             }
 
+            if( !File.Exists( fileName ) && !Directory.Exists( fileName ) ) {
+                if( File.Exists( Path.Combine( "maps", fileName ) ) ) {
+                    fileName = Path.Combine( "maps", fileName );
+                } else if( File.Exists( fileName + ".fcm" ) ) {
+                    fileName += ".fcm";
+                } else if( File.Exists( Path.Combine( "maps", fileName + ".fcm" ) ) ) {
+                    fileName = Path.Combine( "maps", fileName + ".fcm" );
+                } else if( Directory.Exists( Path.Combine( "maps", fileName ) ) ) {
+                    fileName = Path.Combine( "maps", fileName );
+                } else {
+                    player.Message( "File/directory not found: {0}", fileName );
+                    return;
+                }
+            }
+
             if( worldName == null ) {
                 if( !cmd.confirmed ) {
                     player.AskForConfirmation( cmd, "About to replace THIS MAP with \"{0}\".", fileName );
@@ -501,6 +516,7 @@ namespace fCraft {
                     return;
                 }
 
+
                 lock( Server.worldListLock ) {
                     World world = Server.FindWorld( worldName );
                     if( world != null ) {
@@ -516,9 +532,8 @@ namespace fCraft {
                                     player.name, world.name, fileName );
 
                     } else {
-
                         string targetFileName = Path.Combine( "maps", worldName + ".fcm" );
-                        if( File.Exists( targetFileName ) ) {
+                        if( worldName != fileName && File.Exists( targetFileName ) && File.Exists(fileName) ) {
                             FileInfo targetFile = new FileInfo( targetFileName );
                             FileInfo sourceFile = new FileInfo( fileName );
                             if( !targetFile.FullName.Equals( sourceFile.FullName, StringComparison.OrdinalIgnoreCase ) ) {
@@ -541,8 +556,9 @@ namespace fCraft {
                             Logger.Log( "{0} created a new world named \"{1}\" (loaded from \"{2}\")", LogType.UserActivity,
                                         player.name, worldName, fileName );
                             Server.SaveWorldList();
-                            player.MessageNow( "Reminder: New worlds don't have any access or build restrictions. " +
-                                               "You may protect the world using &H/wbuild&S and &H/waccess&S now." );
+                            player.MessageNow( "Reminder: New world's access permission is {0}+&S, and build permission is {1}+",
+                                               newWorld.accessRank.GetClassyName(),
+                                               newWorld.buildRank.GetClassyName() );
                         } else {
                             player.MessageNow( "Error occured while trying to create a new world." );
                         }

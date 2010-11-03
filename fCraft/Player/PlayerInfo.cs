@@ -364,7 +364,7 @@ namespace fCraft {
         }
 
 
-        public static string PlayerArrayToString( PlayerInfo[] list ) {
+        public static string PlayerInfoArrayToString( PlayerInfo[] list ) {
             StringBuilder sb = new StringBuilder();
             bool first = true;
             for( int i = 0; i < list.Length; i++ ) {

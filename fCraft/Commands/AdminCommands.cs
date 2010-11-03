@@ -161,16 +161,16 @@ namespace fCraft {
             }
 
             IPAddress address;
-            Player offender = Server.FindPlayerExact( nameOrIP );
+            Player target = Server.FindPlayerExact( nameOrIP );
             PlayerInfo info = PlayerDB.FindPlayerInfoExact( nameOrIP );
 
             if( Config.GetBool( ConfigKey.RequireBanReason ) && (reason == null || reason.Length == 0) ) {
                 player.Message( "{0}Please specify a ban/unban reason.", Color.Red );
                 // freeze the target player to prevent further damage
-                if( !unban && offender != null && player.Can( Permission.Freeze ) && player.info.rank.CanBan( offender.info.rank ) ) {
+                if( !unban && target != null && player.Can( Permission.Freeze ) && player.info.rank.CanBan( target.info.rank ) ) {
                     player.Message( "{0}{1} has been frozen while you retry.",
-                                    offender.GetClassyName(), Color.Red );
-                    Freeze( player, new Command( "/freeze " + offender.name ) );
+                                    target.GetClassyName(), Color.Red );
+                    Freeze( player, new Command( "/freeze " + target.name ) );
                 }
 
                 return;
@@ -181,36 +181,50 @@ namespace fCraft {
                 DoIPBan( player, address, reason, null, banAll, unban );
 
                 // ban online players
-            } else if( !unban && offender != null ) {
+            } else if( !unban && target != null ) {
 
                 // check permissions
-                if( player.info.rank.CanBan( offender.info.rank ) ) {
-                    address = offender.info.lastIP;
-                    if( banIP ) DoIPBan( player, address, reason, offender.name, banAll, unban );
+                if( player.info.rank.CanBan( target.info.rank ) ) {
+                    address = target.info.lastIP;
+                    if( banIP ) DoIPBan( player, address, reason, target.name, banAll, unban );
                     if( !banAll ) {
-                        if( offender.info.ProcessBan( player, reason ) ) {
+                        if( target.info.ProcessBan( player, reason ) ) {
                             Logger.Log( "{0} was banned by {1}.", LogType.UserActivity,
-                                        offender.info.name, player.name );
-                            Server.SendToAll( offender.GetClassyName() + Color.Red + " was banned by " + player.GetClassyName(), offender );
+                                        target.info.name, player.name );
+                            Server.SendToAll( target.GetClassyName() + Color.Red + " was banned by " + player.GetClassyName(), target );
                             if( reason != null && reason.Length > 0 ) {
                                 if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) ) {
                                     Server.SendToAll( Color.Red + "Ban reason: " + reason );
                                 }
-                                offender.session.Kick( "Banned by " + player.GetClassyName() + Color.White + ": " + reason );
+                                target.session.Kick( "Banned by " + player.GetClassyName() + Color.White + ": " + reason );
                             } else {
-                                offender.session.Kick( "Banned by " + player.GetClassyName() );
+                                target.session.Kick( "Banned by " + player.GetClassyName() );
                             }
+
+                            if( !banIP ) {
+                                PlayerInfo[] alts = PlayerDB.FindPlayers( target.info.lastIP, 100 );
+                                List<PlayerInfo> bannedAlts = new List<PlayerInfo>();
+                                foreach( PlayerInfo alt in alts ) {
+                                    if( alt.banned && alt != target.info ) bannedAlts.Add( alt );
+                                }
+                                if( bannedAlts.Count > 0 ) {
+                                    player.Message( "Warning: {0}&S was shares IP with other banned players: {1}. Consider adding an IP-ban.",
+                                                    target.GetClassyName(),
+                                                    PlayerInfo.PlayerInfoArrayToString( bannedAlts.ToArray() ) );
+                                }
+                            }
+
                         } else {
                             player.Message( "{0}&S is already banned.",
-                                            offender.GetClassyName() );
+                                            target.GetClassyName() );
                         }
                     }
                 } else {
                     player.Message( "You can only ban players ranked {0}&S or lower.",
                                     player.info.rank.GetLimit( Permission.Ban ).GetClassyName() );
                     player.Message( "{0}&S is ranked {1}",
-                                    offender.GetClassyName(),
-                                    offender.info.rank.GetClassyName() );
+                                    target.GetClassyName(),
+                                    target.info.rank.GetClassyName() );
                 }
 
                 // ban or unban offline players
@@ -382,7 +396,7 @@ namespace fCraft {
                     player.NoPlayerMessage( name );
                 }
             } else {
-                player.Message( "Usage: &H/kick PlayerName [Message]&S or &H/k PlayerName [Message]" );
+                player.Message( "Usage: &H/kick PlayerName [Message]" );
             }
         }
 
