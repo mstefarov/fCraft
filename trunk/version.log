@@ -1,5 +1,14 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2010-10-31
+2010-11-02
+495
+ Feature: Added a way to edit the greeting message, by editing "greeting.txt"
+ Feature: When a player gets banned, any previously-banned accounts from same IP are listed.
+ Fix: Fixed renaming worlds from ConfigTool's "worlds" tab not always working.
+ Fix: Fixed several filesystem-related errors on non-Windows systems by using Path.Combine() instead of string concatenation.
+ Fix: Possible workaround for missing heartbeats.
+ Fix: Fixed detached "default build rank" controls in ConfigTools.
+ Fix: Fixed overwrite confirmation popping up for /wload when loading map into an unloaded world with the same name.
+ Fix: Fixed a case where Forester could get into an infinite loop when there's not enough room to place requested number of trees.
 494
  Feature: New map generator features:
   - Adjustable water level.

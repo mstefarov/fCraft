@@ -45,6 +45,8 @@ namespace fCraft {
         Queue<DateTime> antiSpeedPacketLog = new Queue<DateTime>();
         DateTime antiSpeedLastNotification = DateTime.UtcNow;
 
+        public const string GreetingFileName = "greeting.txt";
+
 
         public Session( TcpClient _client ) {
             loginTime = DateTime.Now;
@@ -516,7 +518,7 @@ namespace fCraft {
             }
 
             bool firstTime = (player.info.timesVisited == 1);
-            Server.SendToAll( Server.MakePlayerConnectedMessage( player, firstTime, Server.mainWorld ) );
+            Server.SendToAll( Server.MakePlayerConnectedMessage( player, firstTime, Server.mainWorld ), player );
             if( !JoinWorldNow( Server.mainWorld, true ) ) {
                 Logger.Log( "Failed to load main world ({0}) for connecting player {1} (from {2})", LogType.Error,
                             Server.mainWorld.name, player.name, GetIP() );
@@ -524,14 +526,23 @@ namespace fCraft {
             }
 
             // Welcome message
-            if( firstTime ) {
-                player.Message( "Welcome back to {0}", Config.GetString( ConfigKey.ServerName ) );
+            if( File.Exists( GreetingFileName ) ) {
+                string[] greetingText = File.ReadAllLines( GreetingFileName );
+                foreach( string greetingLine in greetingText ) {
+                    player.Message( greetingLine
+                                    .Replace( "{SERVER_NAME}", Config.GetString( ConfigKey.ServerName ) )
+                                    .Replace( "{RANK}", player.info.rank.GetClassyName() ) );
+                }
             } else {
-                player.Message( "Welcome to {0}", Config.GetString( ConfigKey.ServerName ) );
-            }
+                if( firstTime ) {
+                    player.Message( "Welcome back to {0}", Config.GetString( ConfigKey.ServerName ) );
+                } else {
+                    player.Message( "Welcome to {0}", Config.GetString( ConfigKey.ServerName ) );
+                }
 
-            player.Message( String.Format( "Your player class is {0}&S. Type &H/help&S for help.",
-                                           player.info.rank.GetClassyName() ) );
+                player.Message( String.Format( "Your player class is {0}&S. Type &H/help&S for help.",
+                                               player.info.rank.GetClassyName() ) );
+            }
             return true;
         }
 

@@ -35,11 +35,11 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.tRules.Font = new System.Drawing.Font( "Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.tRules.Location = new System.Drawing.Point( 13, 13 );
+            this.tRules.Location = new System.Drawing.Point( 13, 12 );
             this.tRules.Multiline = true;
             this.tRules.Name = "tRules";
             this.tRules.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tRules.Size = new System.Drawing.Size( 485, 212 );
+            this.tRules.Size = new System.Drawing.Size( 485, 256 );
             this.tRules.TabIndex = 0;
             this.tRules.WordWrap = false;
             this.tRules.KeyDown += new System.Windows.Forms.KeyEventHandler( this.tRules_KeyDown );
@@ -48,7 +48,7 @@
             // 
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bOK.Location = new System.Drawing.Point( 292, 231 );
+            this.bOK.Location = new System.Drawing.Point( 292, 274 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 28 );
             this.bOK.TabIndex = 1;
@@ -60,7 +60,7 @@
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.bCancel.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bCancel.Location = new System.Drawing.Point( 398, 231 );
+            this.bCancel.Location = new System.Drawing.Point( 398, 274 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 28 );
             this.bCancel.TabIndex = 2;
@@ -69,7 +69,7 @@
             // lWarning
             // 
             this.lWarning.AutoSize = true;
-            this.lWarning.Location = new System.Drawing.Point( 12, 240 );
+            this.lWarning.Location = new System.Drawing.Point( 12, 283 );
             this.lWarning.Name = "lWarning";
             this.lWarning.Size = new System.Drawing.Size( 261, 13 );
             this.lWarning.TabIndex = 4;
@@ -79,7 +79,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 510, 271 );
+            this.ClientSize = new System.Drawing.Size( 510, 314 );
             this.Controls.Add( this.lWarning );
             this.Controls.Add( this.bCancel );
             this.Controls.Add( this.bOK );

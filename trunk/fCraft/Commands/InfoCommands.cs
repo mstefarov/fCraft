@@ -9,7 +9,7 @@ using System.Linq;
 
 
 namespace fCraft {
-    static class InfoCommands {
+    public static class InfoCommands {
         public const string RuleFile = "rules.txt";
 
         // Register help commands

@@ -163,7 +163,7 @@ namespace fCraft {
             consoleSafe = true,
             permissions = new Permission[] { Permission.ManageWorlds },
             usage = "/wflush [WorldName]",
-            help = "Flushes the update buffer on specified map by causing players to rejoin. "+
+            help = "Flushes the update buffer on specified map by causing players to rejoin. " +
                    "Makes cuboids and other draw commands finish REALLY fast.",
             handler = WorldFlush
         };
@@ -228,7 +228,7 @@ namespace fCraft {
             } else {
                 world = worlds[0];
             }
-            
+
             if( world == null ) {
                 player.NoWorldMessage( worldName );
             } else if( world == Server.mainWorld ) {
@@ -407,7 +407,7 @@ namespace fCraft {
         static CommandDescriptor cdWorldList = new CommandDescriptor {
             name = "worlds",
             consoleSafe = true,
-            aliases = new string[]{"maps","levels"},
+            aliases = new string[] { "maps", "levels" },
             usage = "/worlds [all]",
             help = "Shows a list of worlds available for you to join. " +
                    "If the optional \"all\" is added, also shows unavailable (restricted) worlds.",
@@ -533,7 +533,7 @@ namespace fCraft {
 
                     } else {
                         string targetFileName = Path.Combine( "maps", worldName + ".fcm" );
-                        if( worldName != fileName && File.Exists( targetFileName ) && File.Exists(fileName) ) {
+                        if( worldName != fileName && File.Exists( targetFileName ) && File.Exists( fileName ) ) {
                             FileInfo targetFile = new FileInfo( targetFileName );
                             FileInfo sourceFile = new FileInfo( fileName );
                             if( !targetFile.FullName.Equals( sourceFile.FullName, StringComparison.OrdinalIgnoreCase ) ) {
@@ -611,8 +611,8 @@ namespace fCraft {
                         Server.RenameWorld( oldName, newName );
 
                         // Move files
-                        string oldFileName = Path.Combine("maps", oldName + ".fcm");
-                        string newFileName = Path.Combine("maps", newName + ".fcm");
+                        string oldFileName = Path.Combine( "maps", oldName + ".fcm" );
+                        string newFileName = Path.Combine( "maps", newName + ".fcm" );
                         try {
                             if( File.Exists( newFileName ) ) {
                                 File.Replace( oldFileName, newFileName, null, true );
@@ -688,7 +688,7 @@ namespace fCraft {
         static CommandDescriptor cdGenerate = new CommandDescriptor {
             name = "gen",
             consoleSafe = true,
-            permissions = new Permission[]{ Permission.ManageWorlds},
+            permissions = new Permission[] { Permission.ManageWorlds },
             usage = "/gen ThemeName TemplateName [Width Height Depth [FileName]]",
             helpHandler = delegate( Player player ) {
                 return "Generates a new map. If no dimensions are given, uses current world's dimensions. " +
@@ -733,8 +733,8 @@ namespace fCraft {
 
             string fileName = cmd.Next();
             if( fileName != null ) {
-                if( !fileName.StartsWith( "maps/" ) ) {
-                    fileName = "maps/" + fileName;
+                if( !fileName.StartsWith( "maps/" ) && !fileName.StartsWith( @"maps\" ) ) {
+                    fileName = Path.Combine("maps", fileName);
                 }
                 if( !fileName.ToLower().EndsWith( ".fcm" ) ) {
                     fileName += ".fcm";
@@ -746,7 +746,7 @@ namespace fCraft {
                 return;
             }
 
-            if( fileName==null && !cmd.confirmed ) {
+            if( fileName == null && !cmd.confirmed ) {
                 player.AskForConfirmation( cmd, "About to replace THIS MAP with a generated map." );
                 return;
             }

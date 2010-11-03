@@ -991,7 +991,7 @@ namespace fCraft {
                                 "Your maps have been moved automatically.", LogType.SystemActivity );
 
                     foreach( string file in files ) {
-                        string newFile = "maps/" + new FileInfo( file ).Name;
+                        string newFile = Path.Combine( "maps", new FileInfo( file ).Name );
                         File.Move( file, newFile );
                         Logger.Log( "Server.CheckMapDirectory: Moved " + newFile, LogType.SystemActivity );
                     }
