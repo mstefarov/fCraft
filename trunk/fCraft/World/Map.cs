@@ -55,7 +55,7 @@ namespace fCraft {
 
         #region Saving
         public bool Save( string fileName ) {
-            string tempFileName = Path.GetTempFileName();
+            string tempFileName = fileName + ".temp";
 
             try {
                 using( FileStream fs = File.OpenWrite( tempFileName ) ) {

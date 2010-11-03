@@ -383,7 +383,7 @@ namespace fCraft {
 
             IPAddress IP;
             PlayerInfo[] infos;
-            if( Server.IsIP(name) && IPAddress.TryParse( name, out IP ) ) {
+            if( Server.IsIP( name ) && IPAddress.TryParse( name, out IP ) ) {
                 infos = PlayerDB.FindPlayers( IP, MaxPlayersShownInInfo );
 
             } else if( name.Contains( "*" ) || name.Contains( "." ) ) {
@@ -395,10 +395,10 @@ namespace fCraft {
                 PlayerInfo tempInfo;
                 if( !PlayerDB.FindPlayerInfo( name, out tempInfo ) ) {
                     infos = PlayerDB.FindPlayers( name, MaxPlayersShownInInfo );
-                } else if(tempInfo==null) {
+                } else if( tempInfo == null ) {
                     player.NoPlayerMessage( name );
                     return;
-                }else{
+                } else {
                     infos = new PlayerInfo[] { tempInfo };
                 }
             }
@@ -571,7 +571,7 @@ namespace fCraft {
                 player.NoAccessMessage( Permission.ViewOthersInfo );
             }
 
-            if( Server.IsIP(name) && IPAddress.TryParse( name, out address ) ) {
+            if( Server.IsIP( name ) && IPAddress.TryParse( name, out address ) ) {
                 IPBanInfo info = IPBanList.Get( address );
                 if( info != null ) {
                     player.Message( "{0} was banned by {1} on {2:dd MMM yyyy}.",
@@ -759,10 +759,19 @@ namespace fCraft {
             player.Message( "    Of those, {0} are banned, and {1} are IP-banned.",
                             PlayerDB.CountBannedPlayers(),
                             IPBanList.CountBans() );
+
+            // count players that are not hidden from this player
+            Player[] players = Server.playerList;
+            int count = 0;
+            foreach( Player p in players ) {
+                if( !player.CanSee( p ) ) continue;
+                count++;
+            }
+
             player.Message( "    {0} worlds available ({1} loaded), {2} players online.",
                             Server.worlds.Count,
                             Server.CountLoadedWorlds(),
-                            Server.playerList.Length );
+                            count );
         }
     }
 }

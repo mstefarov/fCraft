@@ -146,6 +146,12 @@ Announcements are shown to all players, one line at a time, in random order.";
             toolTip.SetToolTip( xAnnouncements, tipAnnouncements );
             toolTip.SetToolTip( nAnnouncements, tipAnnouncements );
             toolTip.SetToolTip( lAnnouncementsUnits, tipAnnouncements );
+
+            toolTip.SetToolTip( bGreeting,
+@"Edit a custom greeting that's shown to connecting players.
+You can use any color codes, and these special variables:
+    {SERVER_NAME} = server name (as defined in config)
+    {RANK} = connecting player's rank" );
         }
 
 
