@@ -130,7 +130,7 @@ namespace fCraft {
                 args.waterLevel = (map.height - 1) / 2;
             }
 
-            slopemap = Noise.CalculateSlope( Noise.GaussianBlur5x5( Noise.GaussianBlur5x5( heightmap ) ) );
+            slopemap = Noise.CalculateSlope( Noise.GaussianBlur5x5( heightmap ) );
 
             float desiredWaterLevel = .5f;
             if( args.matchWaterCoverage ) {
@@ -323,8 +323,9 @@ namespace fCraft {
                     inMap = map,
                     outMap = outMap,
                     rand = rand,
-                    TREECOUNT = (int)(map.widthX * map.widthY * 4 / (1024f * (args.treeSpacingMax+args.treeSpacingMin)/2)),
-                    OPERATION = Forester.Operation.Add
+                    TREECOUNT = (int)(map.widthX * map.widthY * 4 / (1024f * (args.treeSpacingMax + args.treeSpacingMin) / 2)),
+                    OPERATION = Forester.Operation.Add,
+                    bGroundSurface = bGroundSurface
                 } );
                 treeGen.Generate();
                 map = outMap;

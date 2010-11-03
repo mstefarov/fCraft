@@ -375,12 +375,12 @@ namespace fCraft {
 
             if( playerList.included.Length > 0 ) {
                 player.Message( "  Zone whitelist includes: {0}",
-                                PlayerInfo.PlayerArrayToString( playerList.included ) );
+                                PlayerInfo.PlayerInfoArrayToString( playerList.included ) );
             }
 
             if( playerList.excluded.Length > 0 ) {
                 player.Message( "  Zone blacklist excludes: {0}",
-                                PlayerInfo.PlayerArrayToString( playerList.excluded ) );
+                                PlayerInfo.PlayerInfoArrayToString( playerList.excluded ) );
             }
         }
     }

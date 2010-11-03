@@ -498,7 +498,6 @@ namespace fCraft {
                     newWorld.backupTaskId = AddTask( AutoBackup, backupInterval, newWorld, (Config.GetBool( ConfigKey.BackupOnStartup ) ? 0 : backupInterval) );
                 }
 
-
                 return newWorld;
             }
         }
