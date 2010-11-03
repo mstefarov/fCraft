@@ -1,3 +1,8 @@
+0.496
+ Fix: Fixed File.Replace() failing if fCraft was set up on a partition/volume other than the one where temp folder is.
+ Fix: Added missing tooltip for "Edit Greeting"
+ Fix: Fixed /sinfo including hidden players in the player count.
+
 0.495
  Feature: Added a way to edit the greeting message, by editing "greeting.txt"
  Feature: When a player gets banned, any previously-banned accounts from same IP are listed.
