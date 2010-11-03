@@ -105,7 +105,7 @@ namespace fCraft {
 
         public static void Save() {
             Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count() );
-            string tempFile = Path.GetTempFileName();
+            string tempFile = DBFile + ".temp";
 
             using( StreamWriter writer = File.CreateText( tempFile ) ) {
                 lock( locker ) {
