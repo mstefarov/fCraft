@@ -150,7 +150,7 @@ namespace ConfigTool {
 
         private void tIP_Validating( object sender, CancelEventArgs e ) {
             IPAddress IP;
-            if( Server.IsIP(tIP.Text) && IPAddress.TryParse( tIP.Text, out IP ) ) {
+            if( Server.IsIP( tIP.Text ) && IPAddress.TryParse( tIP.Text, out IP ) ) {
                 tIP.ForeColor = SystemColors.ControlText;
             } else {
                 tIP.ForeColor = Color.Red;
@@ -205,7 +205,7 @@ namespace ConfigTool {
         private void bWorldDel_Click( object sender, EventArgs e ) {
             if( dgvWorlds.SelectedRows.Count > 0 ) {
                 WorldListEntry world = worlds[dgvWorlds.SelectedRows[0].Index];
-                string fileName = "maps/" + world.Name + ".fcm";
+                string fileName = Path.Combine( "maps", world.Name + ".fcm" );
                 if( File.Exists( fileName ) &&
                     MessageBox.Show( "Do you want to delete the map file (" + fileName + ") as well?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
                     try {
@@ -827,7 +827,7 @@ namespace ConfigTool {
             SaveConfig();
             if( Config.errors.Length > 0 ) {
                 MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
-            } else if( Config.Save(false) ) {
+            } else if( Config.Save( false ) ) {
                 bApply.Enabled = false;
             } else {
                 MessageBox.Show( Config.errors, "An error occured while trying to save:" );
@@ -838,7 +838,7 @@ namespace ConfigTool {
             SaveConfig();
             if( Config.errors.Length > 0 ) {
                 MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
-            } else if( Config.Save(false) ) {
+            } else if( Config.Save( false ) ) {
                 bApply.Enabled = false;
                 Application.Exit();
             } else {
@@ -1006,7 +1006,7 @@ namespace ConfigTool {
         #endregion
 
         private void bRules_Click( object sender, EventArgs e ) {
-            TextEditorPopup popup = new TextEditorPopup( "rules.txt", "Use common sense!" );
+            TextEditorPopup popup = new TextEditorPopup( InfoCommands.RuleFile, "Use common sense!" );
             popup.ShowDialog();
         }
 
@@ -1026,7 +1026,7 @@ namespace ConfigTool {
                         SaveConfig();
                         if( Config.errors.Length > 0 ) {
                             MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
-                        } else if( Config.Save(false) ) {
+                        } else if( Config.Save( false ) ) {
                             bApply.Enabled = false;
                         } else {
                             MessageBox.Show( Config.errors, "An error occured while trying to save:" );
@@ -1051,6 +1051,13 @@ namespace ConfigTool {
         private void xMaxUndo_CheckedChanged( object sender, EventArgs e ) {
             nMaxUndo.Enabled = xMaxUndo.Checked;
             lMaxUndoUnits.Enabled = xMaxUndo.Checked;
+        }
+
+        private void bGreeting_Click( object sender, EventArgs e ) {
+            TextEditorPopup popup = new TextEditorPopup( Session.GreetingFileName,
+@"Welcome to {SERVER_NAME}
+Your rank is {RANK}&S. Type &H/help&S for help." );
+            popup.ShowDialog();
         }
     }
 }

@@ -131,7 +131,7 @@ namespace ConfigTool {
             }
 
             // Disable "existing map" tab if there are no other worlds
-            fileToLoad = "maps/" + world.Name + ".fcm";
+            fileToLoad = Path.Combine( "maps", world.Name + ".fcm" );
             if( File.Exists( fileToLoad ) ) {
                 ShowMapDetails( tExistingMapInfo, fileToLoad );
                 StartLoadingMap();
@@ -246,7 +246,7 @@ namespace ConfigTool {
 
         void AsyncDrawCompleted( object sender, RunWorkerCompletedEventArgs e ) {
             stopwatch.Stop();
-            tStatus2.Text = String.Format("drawn ({0:0.000}s)",stopwatch.Elapsed.TotalSeconds);
+            tStatus2.Text = String.Format( "drawn ({0:0.000}s)", stopwatch.Elapsed.TotalSeconds );
             if( previewImage != null && previewImage != preview.Image ) {
                 Image oldImage = preview.Image;
                 if( oldImage != null ) oldImage.Dispose();
@@ -377,9 +377,9 @@ namespace ConfigTool {
         }
 
         private void bShow_Click( object sender, EventArgs e ) {
-            if( cWorld.SelectedIndex != -1 && File.Exists( "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm" ) ) {
+            if( cWorld.SelectedIndex != -1 && File.Exists( Path.Combine( "maps", copyOptionsList[cWorld.SelectedIndex].name + ".fcm" ) ) ) {
                 bShow.Enabled = false;
-                fileToLoad = "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm";
+                fileToLoad = Path.Combine( "maps", copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
                 ShowMapDetails( tCopyInfo, fileToLoad );
                 StartLoadingMap();
             }
@@ -387,7 +387,7 @@ namespace ConfigTool {
 
         private void cWorld_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cWorld.SelectedIndex != -1 ) {
-                string fileName = "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm";
+                string fileName = Path.Combine( "maps", copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
                 bShow.Enabled = File.Exists( fileName );
                 ShowMapDetails( tCopyInfo, fileName );
             }
@@ -481,7 +481,7 @@ namespace ConfigTool {
 
             switch( tab ) {
                 case Tabs.ExistingMap:
-                    fileToLoad = "maps/" + world.Name + ".fcm";
+                    fileToLoad = Path.Combine( "maps", world.Name + ".fcm" );
                     ShowMapDetails( tExistingMapInfo, fileToLoad );
                     StartLoadingMap();
                     return;
@@ -495,7 +495,7 @@ namespace ConfigTool {
                     return;
                 case Tabs.CopyWorld:
                     if( cWorld.SelectedIndex != -1 ) {
-                        bShow.Enabled = File.Exists( "maps/" + copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
+                        bShow.Enabled = File.Exists( Path.Combine( "maps", copyOptionsList[cWorld.SelectedIndex].name + ".fcm" ) );
                     }
                     return;
                 case Tabs.Flatgrass:
@@ -603,8 +603,8 @@ Dimensions: {5}×{6}×{7}
                     tStatus1.Text = "Saving map...";
                     tStatus2.Text = "";
                     Refresh();
-                    map.Save( "maps/" + world.Name + ".fcm" );
-                    string oldFile = "maps/" + originalWorldName + ".fcm";
+                    map.Save( Path.Combine( "maps",  world.Name + ".fcm") );
+                    string oldFile = Path.Combine( "maps", originalWorldName + ".fcm" );
                     if( originalWorldName != null && originalWorldName != world.Name && File.Exists( oldFile ) ) {
                         try {
                             File.Delete( oldFile );
@@ -619,9 +619,9 @@ Dimensions: {5}×{6}×{7}
 
         SaveFileDialog savePreviewDialog = new SaveFileDialog();
         private void bSavePreview_Click( object sender, EventArgs e ) {
-            try{
-                using(Image img = (Image)preview.Image.Clone()){
-                    if( savePreviewDialog.ShowDialog() == DialogResult.OK && savePreviewDialog.FileName != ""){
+            try {
+                using( Image img = (Image)preview.Image.Clone() ) {
+                    if( savePreviewDialog.ShowDialog() == DialogResult.OK && savePreviewDialog.FileName != "" ) {
                         switch( savePreviewDialog.FilterIndex ) {
                             case 1:
                                 img.Save( savePreviewDialog.FileName, ImageFormat.Png ); break;
@@ -634,8 +634,8 @@ Dimensions: {5}×{6}×{7}
                         }
                     }
                 }
-            }catch(Exception ex){
-                MessageBox.Show("Could not prepare image for saving: "+ex);
+            } catch( Exception ex ) {
+                MessageBox.Show( "Could not prepare image for saving: " + ex );
             }
         }
 
@@ -661,7 +661,7 @@ Dimensions: {5}×{6}×{7}
             sDetailScale.Value = generatorArgs.detailScale;
             sFeatureScale.Value = generatorArgs.featureScale;
 
-            xLayeredHeightmap.Checked=generatorArgs.layeredHeightmap;
+            xLayeredHeightmap.Checked = generatorArgs.layeredHeightmap;
             xMarbledMode.Checked = generatorArgs.marbledHeightmap;
             xMatchWaterCoverage.Checked = generatorArgs.matchWaterCoverage;
             xInvert.Checked = generatorArgs.invertHeightmap;
@@ -677,7 +677,7 @@ Dimensions: {5}×{6}×{7}
             else sBias.Value = 0;
             xDelayBias.Checked = generatorArgs.delayBias;
 
-            sWaterCoverage.Value = (int)(100*generatorArgs.waterCoverage);
+            sWaterCoverage.Value = (int)(100 * generatorArgs.waterCoverage);
             cMidpoint.SelectedIndex = generatorArgs.midPoint + 1;
             nRaisedCorners.Value = generatorArgs.raisedCorners;
             nLoweredCorners.Value = generatorArgs.loweredCorners;

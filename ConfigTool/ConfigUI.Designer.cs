@@ -24,7 +24,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -242,60 +242,61 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
+            this.bGreeting = new System.Windows.Forms.Button();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nAnnouncements ) ).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAnnouncements)).BeginInit();
             this.gAppearence.SuspendLayout();
             this.gBasic.SuspendLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nPort ) ).BeginInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nUploadBandwidth ) ).BeginInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nMaxPlayers ) ).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nPort)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nUploadBandwidth)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayers)).BeginInit();
             this.tabWorlds.SuspendLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.dgvWorlds ) ).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvWorlds)).BeginInit();
             this.tabRanks.SuspendLayout();
             this.gRankOptions.SuspendLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nAntiGriefSeconds ) ).BeginInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nDrawLimit ) ).BeginInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nKickIdle ) ).BeginInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nAntiGriefBlocks ) ).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefSeconds)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nDrawLimit)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nKickIdle)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefBlocks)).BeginInit();
             this.tabSecurity.SuspendLayout();
             this.gSecurityMisc.SuspendLayout();
             this.gSpamChat.SuspendLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nSpamChatWarnings ) ).BeginInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nSpamMute ) ).BeginInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nSpamChatTimer ) ).BeginInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nSpamChatCount ) ).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSpamChatWarnings)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSpamMute)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSpamChatTimer)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSpamChatCount)).BeginInit();
             this.gVerify.SuspendLayout();
             this.tabSavingAndBackup.SuspendLayout();
             this.gSaving.SuspendLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nSaveInterval ) ).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSaveInterval)).BeginInit();
             this.gBackups.SuspendLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nMaxBackupSize ) ).BeginInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nMaxBackups ) ).BeginInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nBackupInterval ) ).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxBackupSize)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxBackups)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nBackupInterval)).BeginInit();
             this.tabLogging.SuspendLayout();
             this.gLogFile.SuspendLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nLogLimit ) ).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nLogLimit)).BeginInit();
             this.gConsole.SuspendLayout();
             this.tabIRC.SuspendLayout();
             this.gIRCOptions.SuspendLayout();
             this.gIRCNetwork.SuspendLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nIRCDelay ) ).BeginInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nIRCBotPort ) ).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nIRCDelay)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nIRCBotPort)).BeginInit();
             this.tabAdvanced.SuspendLayout();
             this.groupBox1.SuspendLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nMaxUndo ) ).BeginInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nTickInterval ) ).BeginInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nThrottling ) ).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             this.gCrashReport.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabs
             // 
-            this.tabs.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
-                        | System.Windows.Forms.AnchorStyles.Left )
-                        | System.Windows.Forms.AnchorStyles.Right ) ) );
+            this.tabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.tabs.Controls.Add( this.tabGeneral );
             this.tabs.Controls.Add( this.tabWorlds );
             this.tabs.Controls.Add( this.tabRanks );
@@ -304,7 +305,7 @@
             this.tabs.Controls.Add( this.tabLogging );
             this.tabs.Controls.Add( this.tabIRC );
             this.tabs.Controls.Add( this.tabAdvanced );
-            this.tabs.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
+            this.tabs.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.tabs.Location = new System.Drawing.Point( 12, 12 );
             this.tabs.Name = "tabs";
             this.tabs.SelectedIndex = 0;
@@ -326,6 +327,7 @@
             // 
             // gInformation
             // 
+            this.gInformation.Controls.Add( this.bGreeting );
             this.gInformation.Controls.Add( this.lAnnouncementsUnits );
             this.gInformation.Controls.Add( this.nAnnouncements );
             this.gInformation.Controls.Add( this.xAnnouncements );
@@ -341,7 +343,7 @@
             // lAnnouncementsUnits
             // 
             this.lAnnouncementsUnits.AutoSize = true;
-            this.lAnnouncementsUnits.Location = new System.Drawing.Point( 306, 27 );
+            this.lAnnouncementsUnits.Location = new System.Drawing.Point( 266, 27 );
             this.lAnnouncementsUnits.Name = "lAnnouncementsUnits";
             this.lAnnouncementsUnits.Size = new System.Drawing.Size( 28, 15 );
             this.lAnnouncementsUnits.TabIndex = 17;
@@ -349,7 +351,7 @@
             // 
             // nAnnouncements
             // 
-            this.nAnnouncements.Location = new System.Drawing.Point( 250, 25 );
+            this.nAnnouncements.Location = new System.Drawing.Point( 210, 25 );
             this.nAnnouncements.Maximum = new decimal( new int[] {
             60,
             0,
@@ -369,19 +371,19 @@
             this.xAnnouncements.AutoSize = true;
             this.xAnnouncements.Location = new System.Drawing.Point( 24, 26 );
             this.xAnnouncements.Name = "xAnnouncements";
-            this.xAnnouncements.Size = new System.Drawing.Size( 220, 19 );
+            this.xAnnouncements.Size = new System.Drawing.Size( 180, 19 );
             this.xAnnouncements.TabIndex = 6;
-            this.xAnnouncements.Text = "Show random announcement every";
+            this.xAnnouncements.Text = "Show announcements every";
             this.xAnnouncements.UseVisualStyleBackColor = true;
             this.xAnnouncements.CheckedChanged += new System.EventHandler( this.xAnnouncements_CheckedChanged );
             // 
             // bRules
             // 
-            this.bRules.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right ) ) );
-            this.bRules.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
-            this.bRules.Location = new System.Drawing.Point( 532, 20 );
+            this.bRules.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bRules.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.bRules.Location = new System.Drawing.Point( 444, 20 );
             this.bRules.Name = "bRules";
-            this.bRules.Size = new System.Drawing.Size( 98, 28 );
+            this.bRules.Size = new System.Drawing.Size( 87, 28 );
             this.bRules.TabIndex = 2;
             this.bRules.Text = "Edit Rules";
             this.bRules.UseVisualStyleBackColor = true;
@@ -389,13 +391,13 @@
             // 
             // bAnnouncements
             // 
-            this.bAnnouncements.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right ) ) );
-            this.bAnnouncements.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
-            this.bAnnouncements.Location = new System.Drawing.Point( 361, 20 );
+            this.bAnnouncements.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bAnnouncements.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.bAnnouncements.Location = new System.Drawing.Point( 300, 20 );
             this.bAnnouncements.Name = "bAnnouncements";
-            this.bAnnouncements.Size = new System.Drawing.Size( 165, 28 );
+            this.bAnnouncements.Size = new System.Drawing.Size( 138, 28 );
             this.bAnnouncements.TabIndex = 15;
-            this.bAnnouncements.Text = "Edit Announcement List";
+            this.bAnnouncements.Text = "Edit Announcements";
             this.bAnnouncements.UseVisualStyleBackColor = true;
             this.bAnnouncements.Click += new System.EventHandler( this.bAnnouncements_Click );
             // 
@@ -696,8 +698,8 @@
             // 
             // tServerName
             // 
-            this.tServerName.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left )
-                        | System.Windows.Forms.AnchorStyles.Right ) ) );
+            this.tServerName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.tServerName.Location = new System.Drawing.Point( 120, 20 );
             this.tServerName.MaxLength = 64;
             this.tServerName.Name = "tServerName";
@@ -751,8 +753,8 @@
             // 
             // tMOTD
             // 
-            this.tMOTD.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left )
-                        | System.Windows.Forms.AnchorStyles.Right ) ) );
+            this.tMOTD.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.tMOTD.Location = new System.Drawing.Point( 120, 47 );
             this.tMOTD.MaxLength = 64;
             this.tMOTD.Name = "tMOTD";
@@ -771,7 +773,7 @@
             // cPublic
             // 
             this.cPublic.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cPublic.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
+            this.cPublic.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.cPublic.FormattingEnabled = true;
             this.cPublic.Items.AddRange( new object[] {
             "Public",
@@ -806,7 +808,7 @@
             // lPublic
             // 
             this.lPublic.AutoSize = true;
-            this.lPublic.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
+            this.lPublic.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.lPublic.Location = new System.Drawing.Point( 54, 135 );
             this.lPublic.Name = "lPublic";
             this.lPublic.Size = new System.Drawing.Size( 60, 15 );
@@ -842,7 +844,7 @@
             // 
             // lDefaultBuildRank
             // 
-            this.lDefaultBuildRank.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
+            this.lDefaultBuildRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lDefaultBuildRank.AutoSize = true;
             this.lDefaultBuildRank.Location = new System.Drawing.Point( 8, 400 );
             this.lDefaultBuildRank.Name = "lDefaultBuildRank";
@@ -852,7 +854,7 @@
             // 
             // cDefaultBuildRank
             // 
-            this.cDefaultBuildRank.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
+            this.cDefaultBuildRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cDefaultBuildRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cDefaultBuildRank.FormattingEnabled = true;
             this.cDefaultBuildRank.Location = new System.Drawing.Point( 245, 397 );
@@ -900,7 +902,7 @@
             // 
             // bWorldDelete
             // 
-            this.bWorldDelete.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right ) ) );
+            this.bWorldDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.bWorldDelete.Enabled = false;
             this.bWorldDelete.Location = new System.Drawing.Point( 523, 13 );
             this.bWorldDelete.Name = "bWorldDelete";
@@ -916,9 +918,9 @@
             this.dgvWorlds.AllowUserToDeleteRows = false;
             this.dgvWorlds.AllowUserToOrderColumns = true;
             this.dgvWorlds.AllowUserToResizeRows = false;
-            this.dgvWorlds.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
-                        | System.Windows.Forms.AnchorStyles.Left )
-                        | System.Windows.Forms.AnchorStyles.Right ) ) );
+            this.dgvWorlds.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvWorlds.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvWorlds.Columns.AddRange( new System.Windows.Forms.DataGridViewColumn[] {
             this.dgvcName,
@@ -931,8 +933,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 634, 344 );
             this.dgvWorlds.TabIndex = 0;
@@ -1012,7 +1014,7 @@
             // 
             // bLowerRank
             // 
-            this.bLowerRank.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
+            this.bLowerRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bLowerRank.Location = new System.Drawing.Point( 84, 389 );
             this.bLowerRank.Name = "bLowerRank";
             this.bLowerRank.Size = new System.Drawing.Size( 70, 23 );
@@ -1023,7 +1025,7 @@
             // 
             // bRaiseRank
             // 
-            this.bRaiseRank.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
+            this.bRaiseRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bRaiseRank.Location = new System.Drawing.Point( 8, 389 );
             this.bRaiseRank.Name = "bRaiseRank";
             this.bRaiseRank.Size = new System.Drawing.Size( 70, 23 );
@@ -1034,8 +1036,8 @@
             // 
             // gRankOptions
             // 
-            this.gRankOptions.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left )
-                        | System.Windows.Forms.AnchorStyles.Right ) ) );
+            this.gRankOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.gRankOptions.Controls.Add( this.cFreezeLimit );
             this.gRankOptions.Controls.Add( this.lFreezeLimit );
             this.gRankOptions.Controls.Add( this.cMaxHideFrom );
@@ -1396,8 +1398,8 @@
             // 
             // vPermissions
             // 
-            this.vPermissions.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
-                        | System.Windows.Forms.AnchorStyles.Right ) ) );
+            this.vPermissions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.vPermissions.CheckBoxes = true;
             this.vPermissions.Columns.AddRange( new System.Windows.Forms.ColumnHeader[] {
             this.chPermissions} );
@@ -1430,7 +1432,7 @@
             // 
             // lPermissions
             // 
-            this.lPermissions.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right ) ) );
+            this.lPermissions.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lPermissions.AutoSize = true;
             this.lPermissions.Location = new System.Drawing.Point( 472, 10 );
             this.lPermissions.Name = "lPermissions";
@@ -1440,9 +1442,9 @@
             // 
             // vRanks
             // 
-            this.vRanks.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
-                        | System.Windows.Forms.AnchorStyles.Left ) ) );
-            this.vRanks.Font = new System.Drawing.Font( "Lucida Console", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
+            this.vRanks.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)));
+            this.vRanks.Font = new System.Drawing.Font( "Lucida Console", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.vRanks.FormattingEnabled = true;
             this.vRanks.IntegralHeight = false;
             this.vRanks.ItemHeight = 15;
@@ -2314,7 +2316,7 @@
             // lIRCBotChannels2
             // 
             this.lIRCBotChannels2.AutoSize = true;
-            this.lIRCBotChannels2.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
+            this.lIRCBotChannels2.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.lIRCBotChannels2.Location = new System.Drawing.Point( 22, 66 );
             this.lIRCBotChannels2.Name = "lIRCBotChannels2";
             this.lIRCBotChannels2.Size = new System.Drawing.Size( 97, 13 );
@@ -2507,7 +2509,7 @@
             // lAdvancedWarning
             // 
             this.lAdvancedWarning.AutoSize = true;
-            this.lAdvancedWarning.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
+            this.lAdvancedWarning.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.lAdvancedWarning.Location = new System.Drawing.Point( 6, 17 );
             this.lAdvancedWarning.Name = "lAdvancedWarning";
             this.lAdvancedWarning.Size = new System.Drawing.Size( 555, 30 );
@@ -2710,7 +2712,7 @@
             // xSubmitCrashReports
             // 
             this.xSubmitCrashReports.AutoSize = true;
-            this.xSubmitCrashReports.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
+            this.xSubmitCrashReports.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.xSubmitCrashReports.Location = new System.Drawing.Point( 6, 20 );
             this.xSubmitCrashReports.Name = "xSubmitCrashReports";
             this.xSubmitCrashReports.Size = new System.Drawing.Size( 375, 19 );
@@ -2720,8 +2722,8 @@
             // 
             // bOK
             // 
-            this.bOK.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right ) ) );
-            this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
+            this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.bOK.Location = new System.Drawing.Point( 355, 471 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 28 );
@@ -2731,9 +2733,9 @@
             // 
             // bCancel
             // 
-            this.bCancel.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right ) ) );
+            this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.bCancel.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
+            this.bCancel.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.bCancel.Location = new System.Drawing.Point( 461, 471 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 28 );
@@ -2743,8 +2745,8 @@
             // 
             // bResetTab
             // 
-            this.bResetTab.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
-            this.bResetTab.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
+            this.bResetTab.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.bResetTab.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.bResetTab.Location = new System.Drawing.Point( 132, 471 );
             this.bResetTab.Name = "bResetTab";
             this.bResetTab.Size = new System.Drawing.Size( 100, 28 );
@@ -2755,8 +2757,8 @@
             // 
             // bResetAll
             // 
-            this.bResetAll.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
-            this.bResetAll.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
+            this.bResetAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.bResetAll.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.bResetAll.Location = new System.Drawing.Point( 12, 471 );
             this.bResetAll.Name = "bResetAll";
             this.bResetAll.Size = new System.Drawing.Size( 114, 28 );
@@ -2767,8 +2769,8 @@
             // 
             // bApply
             // 
-            this.bApply.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right ) ) );
-            this.bApply.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
+            this.bApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bApply.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.bApply.Location = new System.Drawing.Point( 567, 471 );
             this.bApply.Name = "bApply";
             this.bApply.Size = new System.Drawing.Size( 100, 28 );
@@ -2783,6 +2785,18 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // bGreeting
+            // 
+            this.bGreeting.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bGreeting.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.bGreeting.Location = new System.Drawing.Point( 537, 20 );
+            this.bGreeting.Name = "bGreeting";
+            this.bGreeting.Size = new System.Drawing.Size( 92, 28 );
+            this.bGreeting.TabIndex = 18;
+            this.bGreeting.Text = "Edit Greeting";
+            this.bGreeting.UseVisualStyleBackColor = true;
+            this.bGreeting.Click += new System.EventHandler( this.bGreeting_Click );
+            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2794,7 +2808,7 @@
             this.Controls.Add( this.bCancel );
             this.Controls.Add( this.bOK );
             this.Controls.Add( this.tabs );
-            this.Icon = ( (System.Drawing.Icon)( resources.GetObject( "$this.Icon" ) ) );
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject( "$this.Icon" )));
             this.MinimumSize = new System.Drawing.Size( 700, 547 );
             this.Name = "ConfigUI";
             this.Text = "fCraft Config Tool";
@@ -2803,49 +2817,49 @@
             this.tabGeneral.ResumeLayout( false );
             this.gInformation.ResumeLayout( false );
             this.gInformation.PerformLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nAnnouncements ) ).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAnnouncements)).EndInit();
             this.gAppearence.ResumeLayout( false );
             this.gAppearence.PerformLayout();
             this.gBasic.ResumeLayout( false );
             this.gBasic.PerformLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nPort ) ).EndInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nUploadBandwidth ) ).EndInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nMaxPlayers ) ).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nPort)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nUploadBandwidth)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayers)).EndInit();
             this.tabWorlds.ResumeLayout( false );
             this.tabWorlds.PerformLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.dgvWorlds ) ).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvWorlds)).EndInit();
             this.tabRanks.ResumeLayout( false );
             this.tabRanks.PerformLayout();
             this.gRankOptions.ResumeLayout( false );
             this.gRankOptions.PerformLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nAntiGriefSeconds ) ).EndInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nDrawLimit ) ).EndInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nKickIdle ) ).EndInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nAntiGriefBlocks ) ).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefSeconds)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nDrawLimit)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nKickIdle)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefBlocks)).EndInit();
             this.tabSecurity.ResumeLayout( false );
             this.gSecurityMisc.ResumeLayout( false );
             this.gSecurityMisc.PerformLayout();
             this.gSpamChat.ResumeLayout( false );
             this.gSpamChat.PerformLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nSpamChatWarnings ) ).EndInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nSpamMute ) ).EndInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nSpamChatTimer ) ).EndInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nSpamChatCount ) ).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSpamChatWarnings)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSpamMute)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSpamChatTimer)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSpamChatCount)).EndInit();
             this.gVerify.ResumeLayout( false );
             this.gVerify.PerformLayout();
             this.tabSavingAndBackup.ResumeLayout( false );
             this.gSaving.ResumeLayout( false );
             this.gSaving.PerformLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nSaveInterval ) ).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSaveInterval)).EndInit();
             this.gBackups.ResumeLayout( false );
             this.gBackups.PerformLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nMaxBackupSize ) ).EndInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nMaxBackups ) ).EndInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nBackupInterval ) ).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxBackupSize)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxBackups)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nBackupInterval)).EndInit();
             this.tabLogging.ResumeLayout( false );
             this.gLogFile.ResumeLayout( false );
             this.gLogFile.PerformLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nLogLimit ) ).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nLogLimit)).EndInit();
             this.gConsole.ResumeLayout( false );
             this.gConsole.PerformLayout();
             this.tabIRC.ResumeLayout( false );
@@ -2854,14 +2868,14 @@
             this.gIRCOptions.PerformLayout();
             this.gIRCNetwork.ResumeLayout( false );
             this.gIRCNetwork.PerformLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nIRCDelay ) ).EndInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nIRCBotPort ) ).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nIRCDelay)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nIRCBotPort)).EndInit();
             this.tabAdvanced.ResumeLayout( false );
             this.groupBox1.ResumeLayout( false );
             this.groupBox1.PerformLayout();
-            ( (System.ComponentModel.ISupportInitialize)( this.nMaxUndo ) ).EndInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nTickInterval ) ).EndInit();
-            ( (System.ComponentModel.ISupportInitialize)( this.nThrottling ) ).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
             this.ResumeLayout( false );
@@ -3086,5 +3100,6 @@
         private System.Windows.Forms.CheckBox xMaxUndo;
         private System.Windows.Forms.Label lDefaultBuildRank;
         private System.Windows.Forms.ComboBox cDefaultBuildRank;
+        private System.Windows.Forms.Button bGreeting;
     }
 }

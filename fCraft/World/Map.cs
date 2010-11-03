@@ -177,12 +177,12 @@ namespace fCraft {
                 if( !File.Exists( fileName ) ) {
                     if( File.Exists( fileName + ".fcm" ) ) {
                         fileName += ".fcm";
-                    } else if( File.Exists( "maps/" + fileName ) ) {
-                        fileName = "maps/" + fileName;
-                    } else if( File.Exists( "maps/" + fileName + ".fcm" ) ) {
-                        fileName = "maps/" + fileName + ".fcm";
+                    } else if( File.Exists( Path.Combine("maps", fileName) ) ) {
+                        fileName = Path.Combine("maps", fileName);
+                    } else if( File.Exists( Path.Combine("maps", fileName + ".fcm") ) ) {
+                        fileName = Path.Combine("maps", fileName + ".fcm");
                     } else {
-                        Logger.Log( "Map.LoadHeaderOnly: File \"" + fileName + "\" not found.", LogType.Error );
+                        Logger.Log( "Map.LoadHeaderOnly: File \"{0}\" not found.", LogType.Error, fileName );
                         return null;
                     }
                 }

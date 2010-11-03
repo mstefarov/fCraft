@@ -81,10 +81,12 @@ namespace ConfigTool {
                 } else {
                     string oldName = name;
                     name = value;
-                    if( File.Exists( "maps/" + name + ".fcm" ) && value != name ) {
-                        File.Move( "maps/" + name + ".fcm", value + ".fcm" );
+                    string oldFileName = Path.Combine( "maps", oldName + ".fcm" );
+                    string newFileName = Path.Combine( "maps", name + ".fcm" );
+                    if( File.Exists( oldFileName ) ) {
+                        File.Move( oldFileName, newFileName );
                     }
-                    ConfigUI.HandleWorldRename( oldName, value );
+                    ConfigUI.HandleWorldRename( oldName, name );
                 }
             }
         }
@@ -92,7 +94,7 @@ namespace ConfigTool {
         public string Description {
             get {
                 if( cachedMapHeader == null && !loadingFailed ) {
-                    cachedMapHeader = Map.LoadHeaderOnly( "maps/" + name + ".fcm" );
+                    cachedMapHeader = Map.LoadHeaderOnly( Path.Combine( "maps", name + ".fcm" ) );
                     if( cachedMapHeader == null ) {
                         loadingFailed = true;
                     }
