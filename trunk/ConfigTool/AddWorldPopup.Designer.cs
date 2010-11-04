@@ -104,6 +104,14 @@
             this.lHeightmapComingSoon = new System.Windows.Forms.Label();
             this.tabTerrain = new System.Windows.Forms.TabPage();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.gGenOptions = new System.Windows.Forms.GroupBox();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.xOre = new System.Windows.Forms.CheckBox();
+            this.xAddBeaches = new System.Windows.Forms.CheckBox();
+            this.xAddSnow = new System.Windows.Forms.CheckBox();
+            this.xWater = new System.Windows.Forms.CheckBox();
+            this.xCaves = new System.Windows.Forms.CheckBox();
             this.gTemplates = new System.Windows.Forms.GroupBox();
             this.cTemplates = new System.Windows.Forms.ComboBox();
             this.lUseTemplate = new System.Windows.Forms.Label();
@@ -124,6 +132,12 @@
             this.nRaisedCorners = new System.Windows.Forms.NumericUpDown();
             this.lBiasDisplay = new System.Windows.Forms.Label();
             this.gHeightmapCreation = new System.Windows.Forms.GroupBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lBelowFunc = new System.Windows.Forms.Label();
+            this.lAboveFunc = new System.Windows.Forms.Label();
+            this.sAboveFunc = new System.Windows.Forms.TrackBar();
+            this.sBelowFunc = new System.Windows.Forms.TrackBar();
             this.xDelayBias = new System.Windows.Forms.CheckBox();
             this.xInvert = new System.Windows.Forms.CheckBox();
             this.sDetailScale = new System.Windows.Forms.TrackBar();
@@ -132,7 +146,6 @@
             this.gCaves = new System.Windows.Forms.GroupBox();
             this.lCaveSizeDisplay = new System.Windows.Forms.Label();
             this.lCaveDensityDisplay = new System.Windows.Forms.Label();
-            this.xOre = new System.Windows.Forms.CheckBox();
             this.xCaveLava = new System.Windows.Forms.CheckBox();
             this.xCaveWater = new System.Windows.Forms.CheckBox();
             this.sCaveSize = new System.Windows.Forms.TrackBar();
@@ -150,16 +163,12 @@
             this.lTreeSpacingVariation = new System.Windows.Forms.Label();
             this.nTreeSpacing = new System.Windows.Forms.NumericUpDown();
             this.lTreeSpacing = new System.Windows.Forms.Label();
-            this.xAddSnow = new System.Windows.Forms.CheckBox();
-            this.xCaves = new System.Windows.Forms.CheckBox();
-            this.xWater = new System.Windows.Forms.CheckBox();
             this.xSeed = new System.Windows.Forms.CheckBox();
             this.nSeed = new System.Windows.Forms.NumericUpDown();
             this.xAdvanced = new System.Windows.Forms.CheckBox();
             this.lMapFileOptions = new System.Windows.Forms.Label();
             this.lCreateMap = new System.Windows.Forms.Label();
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
-            this.xAddBeaches = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
@@ -181,6 +190,7 @@
             this.tabHeightmap.SuspendLayout();
             this.tabTerrain.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
+            this.gGenOptions.SuspendLayout();
             this.gTemplates.SuspendLayout();
             this.gMapSize.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nWaterLevel)).BeginInit();
@@ -190,6 +200,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nLoweredCorners)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRaisedCorners)).BeginInit();
             this.gHeightmapCreation.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.sAboveFunc)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sBelowFunc)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sDetailScale)).BeginInit();
             this.gCaves.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.sCaveSize)).BeginInit();
@@ -326,7 +338,7 @@
             // xFloodBarrier
             // 
             this.xFloodBarrier.AutoSize = true;
-            this.xFloodBarrier.Location = new System.Drawing.Point( 284, 75 );
+            this.xFloodBarrier.Location = new System.Drawing.Point( 254, 65 );
             this.xFloodBarrier.Name = "xFloodBarrier";
             this.xFloodBarrier.Size = new System.Drawing.Size( 84, 17 );
             this.xFloodBarrier.TabIndex = 4;
@@ -337,7 +349,7 @@
             // cTheme
             // 
             this.cTheme.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cTheme.Location = new System.Drawing.Point( 281, 10 );
+            this.cTheme.Location = new System.Drawing.Point( 281, 6 );
             this.cTheme.Name = "cTheme";
             this.cTheme.Size = new System.Drawing.Size( 87, 21 );
             this.cTheme.TabIndex = 3;
@@ -345,7 +357,7 @@
             // lTheme
             // 
             this.lTheme.AutoSize = true;
-            this.lTheme.Location = new System.Drawing.Point( 235, 13 );
+            this.lTheme.Location = new System.Drawing.Point( 235, 9 );
             this.lTheme.Name = "lTheme";
             this.lTheme.Size = new System.Drawing.Size( 40, 13 );
             this.lTheme.TabIndex = 19;
@@ -356,7 +368,7 @@
             this.bGenerate.Font = new System.Drawing.Font( "Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.bGenerate.Location = new System.Drawing.Point( 6, 6 );
             this.bGenerate.Name = "bGenerate";
-            this.bGenerate.Size = new System.Drawing.Size( 95, 63 );
+            this.bGenerate.Size = new System.Drawing.Size( 95, 47 );
             this.bGenerate.TabIndex = 0;
             this.bGenerate.Text = "Generate";
             this.bGenerate.UseVisualStyleBackColor = true;
@@ -780,11 +792,11 @@
             this.xTrees.AutoSize = true;
             this.xTrees.Checked = true;
             this.xTrees.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.xTrees.Location = new System.Drawing.Point( 126, 6 );
+            this.xTrees.Location = new System.Drawing.Point( 13, 19 );
             this.xTrees.Name = "xTrees";
-            this.xTrees.Size = new System.Drawing.Size( 71, 17 );
+            this.xTrees.Size = new System.Drawing.Size( 53, 17 );
             this.xTrees.TabIndex = 5;
-            this.xTrees.Text = "Add trees";
+            this.xTrees.Text = "Trees";
             this.xTrees.UseVisualStyleBackColor = true;
             this.xTrees.CheckedChanged += new System.EventHandler( this.xTrees_CheckedChanged );
             // 
@@ -1125,16 +1137,11 @@
             // 
             this.tabTerrain.BackColor = System.Drawing.SystemColors.Window;
             this.tabTerrain.Controls.Add( this.flowLayoutPanel1 );
-            this.tabTerrain.Controls.Add( this.xAddSnow );
-            this.tabTerrain.Controls.Add( this.xCaves );
-            this.tabTerrain.Controls.Add( this.xWater );
             this.tabTerrain.Controls.Add( this.xSeed );
             this.tabTerrain.Controls.Add( this.nSeed );
             this.tabTerrain.Controls.Add( this.xAdvanced );
             this.tabTerrain.Controls.Add( this.bGenerate );
             this.tabTerrain.Controls.Add( this.lTheme );
-            this.tabTerrain.Controls.Add( this.xTrees );
-            this.tabTerrain.Controls.Add( this.xFloodBarrier );
             this.tabTerrain.Controls.Add( this.cTheme );
             this.tabTerrain.Location = new System.Drawing.Point( 4, 22 );
             this.tabTerrain.Name = "tabTerrain";
@@ -1150,6 +1157,7 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.flowLayoutPanel1.AutoScroll = true;
+            this.flowLayoutPanel1.Controls.Add( this.gGenOptions );
             this.flowLayoutPanel1.Controls.Add( this.gTemplates );
             this.flowLayoutPanel1.Controls.Add( this.gMapSize );
             this.flowLayoutPanel1.Controls.Add( this.gTerrainFeatures );
@@ -1157,11 +1165,104 @@
             this.flowLayoutPanel1.Controls.Add( this.gCaves );
             this.flowLayoutPanel1.Controls.Add( this.gTrees );
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point( 0, 98 );
+            this.flowLayoutPanel1.Location = new System.Drawing.Point( 0, 59 );
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size( 391, 326 );
+            this.flowLayoutPanel1.Size = new System.Drawing.Size( 391, 365 );
             this.flowLayoutPanel1.TabIndex = 57;
             this.flowLayoutPanel1.WrapContents = false;
+            // 
+            // gGenOptions
+            // 
+            this.gGenOptions.Controls.Add( this.checkBox2 );
+            this.gGenOptions.Controls.Add( this.checkBox1 );
+            this.gGenOptions.Controls.Add( this.xOre );
+            this.gGenOptions.Controls.Add( this.xAddBeaches );
+            this.gGenOptions.Controls.Add( this.xTrees );
+            this.gGenOptions.Controls.Add( this.xAddSnow );
+            this.gGenOptions.Controls.Add( this.xFloodBarrier );
+            this.gGenOptions.Controls.Add( this.xWater );
+            this.gGenOptions.Controls.Add( this.xCaves );
+            this.gGenOptions.Location = new System.Drawing.Point( 3, 3 );
+            this.gGenOptions.Name = "gGenOptions";
+            this.gGenOptions.Size = new System.Drawing.Size( 362, 91 );
+            this.gGenOptions.TabIndex = 22;
+            this.gGenOptions.TabStop = false;
+            this.gGenOptions.Text = "Optional Modules";
+            // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Location = new System.Drawing.Point( 254, 42 );
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size( 48, 17 );
+            this.checkBox2.TabIndex = 69;
+            this.checkBox2.Text = "Cliffs";
+            this.checkBox2.UseVisualStyleBackColor = true;
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Enabled = false;
+            this.checkBox1.Location = new System.Drawing.Point( 254, 19 );
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size( 53, 17 );
+            this.checkBox1.TabIndex = 68;
+            this.checkBox1.Text = "Ruins";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // xOre
+            // 
+            this.xOre.AutoSize = true;
+            this.xOre.Location = new System.Drawing.Point( 110, 65 );
+            this.xOre.Name = "xOre";
+            this.xOre.Size = new System.Drawing.Size( 71, 17 );
+            this.xOre.TabIndex = 67;
+            this.xOre.Text = "Ore veins";
+            this.xOre.UseVisualStyleBackColor = true;
+            // 
+            // xAddBeaches
+            // 
+            this.xAddBeaches.AutoSize = true;
+            this.xAddBeaches.Location = new System.Drawing.Point( 110, 19 );
+            this.xAddBeaches.Name = "xAddBeaches";
+            this.xAddBeaches.Size = new System.Drawing.Size( 68, 17 );
+            this.xAddBeaches.TabIndex = 58;
+            this.xAddBeaches.Text = "Beaches";
+            this.xAddBeaches.UseVisualStyleBackColor = true;
+            // 
+            // xAddSnow
+            // 
+            this.xAddSnow.AutoSize = true;
+            this.xAddSnow.Location = new System.Drawing.Point( 110, 42 );
+            this.xAddSnow.Name = "xAddSnow";
+            this.xAddSnow.Size = new System.Drawing.Size( 109, 17 );
+            this.xAddSnow.TabIndex = 24;
+            this.xAddSnow.Text = "Snowy mountains";
+            this.xAddSnow.UseVisualStyleBackColor = true;
+            // 
+            // xWater
+            // 
+            this.xWater.AutoSize = true;
+            this.xWater.Checked = true;
+            this.xWater.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.xWater.Location = new System.Drawing.Point( 13, 42 );
+            this.xWater.Name = "xWater";
+            this.xWater.Size = new System.Drawing.Size( 55, 17 );
+            this.xWater.TabIndex = 20;
+            this.xWater.Text = "Water";
+            this.xWater.UseVisualStyleBackColor = true;
+            this.xWater.CheckedChanged += new System.EventHandler( this.xWater_CheckedChanged );
+            // 
+            // xCaves
+            // 
+            this.xCaves.AutoSize = true;
+            this.xCaves.Location = new System.Drawing.Point( 13, 65 );
+            this.xCaves.Name = "xCaves";
+            this.xCaves.Size = new System.Drawing.Size( 56, 17 );
+            this.xCaves.TabIndex = 23;
+            this.xCaves.Text = "Caves";
+            this.xCaves.UseVisualStyleBackColor = true;
+            this.xCaves.CheckedChanged += new System.EventHandler( this.xCaves_CheckedChanged );
             // 
             // gTemplates
             // 
@@ -1169,7 +1270,7 @@
             this.gTemplates.Controls.Add( this.lUseTemplate );
             this.gTemplates.Controls.Add( this.bBrowseTemplate );
             this.gTemplates.Controls.Add( this.bSaveTemplate );
-            this.gTemplates.Location = new System.Drawing.Point( 3, 3 );
+            this.gTemplates.Location = new System.Drawing.Point( 3, 100 );
             this.gTemplates.Name = "gTemplates";
             this.gTemplates.Size = new System.Drawing.Size( 362, 52 );
             this.gTemplates.TabIndex = 21;
@@ -1217,7 +1318,6 @@
             // 
             // gMapSize
             // 
-            this.gMapSize.Controls.Add( this.xAddBeaches );
             this.gMapSize.Controls.Add( this.xWaterLevel );
             this.gMapSize.Controls.Add( this.nWaterLevel );
             this.gMapSize.Controls.Add( this.lWaterLevelLabel );
@@ -1233,7 +1333,7 @@
             this.gMapSize.Controls.Add( this.lX2 );
             this.gMapSize.Controls.Add( this.nHeight );
             this.gMapSize.Controls.Add( this.nWidthY );
-            this.gMapSize.Location = new System.Drawing.Point( 3, 61 );
+            this.gMapSize.Location = new System.Drawing.Point( 3, 158 );
             this.gMapSize.Name = "gMapSize";
             this.gMapSize.Size = new System.Drawing.Size( 362, 107 );
             this.gMapSize.TabIndex = 9;
@@ -1317,7 +1417,7 @@
             this.gTerrainFeatures.Controls.Add( this.lBiasDisplay );
             this.gTerrainFeatures.Controls.Add( this.lBias );
             this.gTerrainFeatures.Controls.Add( this.sBias );
-            this.gTerrainFeatures.Location = new System.Drawing.Point( 3, 174 );
+            this.gTerrainFeatures.Location = new System.Drawing.Point( 3, 271 );
             this.gTerrainFeatures.Name = "gTerrainFeatures";
             this.gTerrainFeatures.Size = new System.Drawing.Size( 362, 84 );
             this.gTerrainFeatures.TabIndex = 10;
@@ -1405,6 +1505,12 @@
             // 
             // gHeightmapCreation
             // 
+            this.gHeightmapCreation.Controls.Add( this.label4 );
+            this.gHeightmapCreation.Controls.Add( this.label1 );
+            this.gHeightmapCreation.Controls.Add( this.lBelowFunc );
+            this.gHeightmapCreation.Controls.Add( this.lAboveFunc );
+            this.gHeightmapCreation.Controls.Add( this.sAboveFunc );
+            this.gHeightmapCreation.Controls.Add( this.sBelowFunc );
             this.gHeightmapCreation.Controls.Add( this.xDelayBias );
             this.gHeightmapCreation.Controls.Add( this.xInvert );
             this.gHeightmapCreation.Controls.Add( this.sDetailScale );
@@ -1421,13 +1527,77 @@
             this.gHeightmapCreation.Controls.Add( this.lMatchWaterCoverageDisplay );
             this.gHeightmapCreation.Controls.Add( this.lRoughness );
             this.gHeightmapCreation.Controls.Add( this.lDetailSize );
-            this.gHeightmapCreation.Location = new System.Drawing.Point( 3, 264 );
+            this.gHeightmapCreation.Location = new System.Drawing.Point( 3, 361 );
             this.gHeightmapCreation.Name = "gHeightmapCreation";
-            this.gHeightmapCreation.Size = new System.Drawing.Size( 362, 158 );
+            this.gHeightmapCreation.Size = new System.Drawing.Size( 362, 236 );
             this.gHeightmapCreation.TabIndex = 11;
             this.gHeightmapCreation.TabStop = false;
             this.gHeightmapCreation.Text = "Heightmap Creation";
             this.gHeightmapCreation.Visible = false;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point( 6, 202 );
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size( 113, 13 );
+            this.label4.TabIndex = 47;
+            this.label4.Text = "Underwater steepness";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point( 37, 169 );
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size( 82, 13 );
+            this.label1.TabIndex = 46;
+            this.label1.Text = "Land steepness";
+            // 
+            // lBelowFunc
+            // 
+            this.lBelowFunc.AutoSize = true;
+            this.lBelowFunc.Location = new System.Drawing.Point( 313, 202 );
+            this.lBelowFunc.Name = "lBelowFunc";
+            this.lBelowFunc.Size = new System.Drawing.Size( 42, 13 );
+            this.lBelowFunc.TabIndex = 45;
+            this.lBelowFunc.Text = "100.0%";
+            // 
+            // lAboveFunc
+            // 
+            this.lAboveFunc.AutoSize = true;
+            this.lAboveFunc.Location = new System.Drawing.Point( 313, 169 );
+            this.lAboveFunc.Name = "lAboveFunc";
+            this.lAboveFunc.Size = new System.Drawing.Size( 42, 13 );
+            this.lAboveFunc.TabIndex = 44;
+            this.lAboveFunc.Text = "100.0%";
+            // 
+            // sAboveFunc
+            // 
+            this.sAboveFunc.AutoSize = false;
+            this.sAboveFunc.LargeChange = 50;
+            this.sAboveFunc.Location = new System.Drawing.Point( 125, 164 );
+            this.sAboveFunc.Maximum = 600;
+            this.sAboveFunc.Name = "sAboveFunc";
+            this.sAboveFunc.Size = new System.Drawing.Size( 182, 27 );
+            this.sAboveFunc.SmallChange = 20;
+            this.sAboveFunc.TabIndex = 43;
+            this.sAboveFunc.TickFrequency = 20;
+            this.sAboveFunc.Value = 300;
+            this.sAboveFunc.ValueChanged += new System.EventHandler( this.sAboveFunc_ValueChanged );
+            // 
+            // sBelowFunc
+            // 
+            this.sBelowFunc.AutoSize = false;
+            this.sBelowFunc.LargeChange = 50;
+            this.sBelowFunc.Location = new System.Drawing.Point( 125, 197 );
+            this.sBelowFunc.Maximum = 600;
+            this.sBelowFunc.Name = "sBelowFunc";
+            this.sBelowFunc.Size = new System.Drawing.Size( 182, 27 );
+            this.sBelowFunc.SmallChange = 20;
+            this.sBelowFunc.TabIndex = 42;
+            this.sBelowFunc.TickFrequency = 20;
+            this.sBelowFunc.Value = 300;
+            this.sBelowFunc.ValueChanged += new System.EventHandler( this.sBelowFunc_ValueChanged );
             // 
             // xDelayBias
             // 
@@ -1483,19 +1653,18 @@
             // 
             this.gCaves.Controls.Add( this.lCaveSizeDisplay );
             this.gCaves.Controls.Add( this.lCaveDensityDisplay );
-            this.gCaves.Controls.Add( this.xOre );
             this.gCaves.Controls.Add( this.xCaveLava );
             this.gCaves.Controls.Add( this.xCaveWater );
             this.gCaves.Controls.Add( this.sCaveSize );
             this.gCaves.Controls.Add( this.lCaveSize );
             this.gCaves.Controls.Add( this.sCaveDensity );
             this.gCaves.Controls.Add( this.lCaveDensity );
-            this.gCaves.Location = new System.Drawing.Point( 3, 428 );
+            this.gCaves.Location = new System.Drawing.Point( 3, 603 );
             this.gCaves.Name = "gCaves";
             this.gCaves.Size = new System.Drawing.Size( 362, 91 );
             this.gCaves.TabIndex = 22;
             this.gCaves.TabStop = false;
-            this.gCaves.Text = "Caves && Ore";
+            this.gCaves.Text = "Caves";
             this.gCaves.Visible = false;
             // 
             // lCaveSizeDisplay
@@ -1516,20 +1685,10 @@
             this.lCaveDensityDisplay.TabIndex = 67;
             this.lCaveDensityDisplay.Text = "200%";
             // 
-            // xOre
-            // 
-            this.xOre.AutoSize = true;
-            this.xOre.Location = new System.Drawing.Point( 258, 19 );
-            this.xOre.Name = "xOre";
-            this.xOre.Size = new System.Drawing.Size( 71, 17 );
-            this.xOre.TabIndex = 66;
-            this.xOre.Text = "Ore veins";
-            this.xOre.UseVisualStyleBackColor = true;
-            // 
             // xCaveLava
             // 
             this.xCaveLava.AutoSize = true;
-            this.xCaveLava.Location = new System.Drawing.Point( 258, 65 );
+            this.xCaveLava.Location = new System.Drawing.Point( 260, 56 );
             this.xCaveLava.Name = "xCaveLava";
             this.xCaveLava.Size = new System.Drawing.Size( 82, 17 );
             this.xCaveLava.TabIndex = 65;
@@ -1539,7 +1698,7 @@
             // xCaveWater
             // 
             this.xCaveWater.AutoSize = true;
-            this.xCaveWater.Location = new System.Drawing.Point( 258, 42 );
+            this.xCaveWater.Location = new System.Drawing.Point( 260, 22 );
             this.xCaveWater.Name = "xCaveWater";
             this.xCaveWater.Size = new System.Drawing.Size( 96, 17 );
             this.xCaveWater.TabIndex = 64;
@@ -1604,7 +1763,7 @@
             this.gTrees.Controls.Add( this.lTreeSpacingVariation );
             this.gTrees.Controls.Add( this.nTreeSpacing );
             this.gTrees.Controls.Add( this.lTreeSpacing );
-            this.gTrees.Location = new System.Drawing.Point( 3, 525 );
+            this.gTrees.Location = new System.Drawing.Point( 3, 700 );
             this.gTrees.Name = "gTrees";
             this.gTrees.Size = new System.Drawing.Size( 362, 74 );
             this.gTrees.TabIndex = 12;
@@ -1744,44 +1903,10 @@
             this.lTreeSpacing.TabIndex = 59;
             this.lTreeSpacing.Text = "Tree spacing";
             // 
-            // xAddSnow
-            // 
-            this.xAddSnow.AutoSize = true;
-            this.xAddSnow.Location = new System.Drawing.Point( 126, 75 );
-            this.xAddSnow.Name = "xAddSnow";
-            this.xAddSnow.Size = new System.Drawing.Size( 73, 17 );
-            this.xAddSnow.TabIndex = 24;
-            this.xAddSnow.Text = "Add snow";
-            this.xAddSnow.UseVisualStyleBackColor = true;
-            // 
-            // xCaves
-            // 
-            this.xCaves.AutoSize = true;
-            this.xCaves.Location = new System.Drawing.Point( 126, 52 );
-            this.xCaves.Name = "xCaves";
-            this.xCaves.Size = new System.Drawing.Size( 77, 17 );
-            this.xCaves.TabIndex = 23;
-            this.xCaves.Text = "Add caves";
-            this.xCaves.UseVisualStyleBackColor = true;
-            this.xCaves.CheckedChanged += new System.EventHandler( this.xCaves_CheckedChanged );
-            // 
-            // xWater
-            // 
-            this.xWater.AutoSize = true;
-            this.xWater.Checked = true;
-            this.xWater.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.xWater.Location = new System.Drawing.Point( 126, 29 );
-            this.xWater.Name = "xWater";
-            this.xWater.Size = new System.Drawing.Size( 74, 17 );
-            this.xWater.TabIndex = 20;
-            this.xWater.Text = "Add water";
-            this.xWater.UseVisualStyleBackColor = true;
-            this.xWater.CheckedChanged += new System.EventHandler( this.xWater_CheckedChanged );
-            // 
             // xSeed
             // 
             this.xSeed.AutoSize = true;
-            this.xSeed.Location = new System.Drawing.Point( 224, 42 );
+            this.xSeed.Location = new System.Drawing.Point( 224, 34 );
             this.xSeed.Name = "xSeed";
             this.xSeed.Size = new System.Drawing.Size( 51, 17 );
             this.xSeed.TabIndex = 6;
@@ -1792,7 +1917,7 @@
             // nSeed
             // 
             this.nSeed.Enabled = false;
-            this.nSeed.Location = new System.Drawing.Point( 281, 41 );
+            this.nSeed.Location = new System.Drawing.Point( 281, 33 );
             this.nSeed.Maximum = new decimal( new int[] {
             2147483647,
             0,
@@ -1810,7 +1935,7 @@
             // xAdvanced
             // 
             this.xAdvanced.AutoSize = true;
-            this.xAdvanced.Location = new System.Drawing.Point( 16, 75 );
+            this.xAdvanced.Location = new System.Drawing.Point( 107, 22 );
             this.xAdvanced.Name = "xAdvanced";
             this.xAdvanced.Size = new System.Drawing.Size( 75, 17 );
             this.xAdvanced.TabIndex = 1;
@@ -1842,16 +1967,6 @@
             // folderBrowser
             // 
             this.folderBrowser.Description = "Find the folder where your Myne / MyneCraft / Hydebuild / iCraft map is located.";
-            // 
-            // xAddBeaches
-            // 
-            this.xAddBeaches.AutoSize = true;
-            this.xAddBeaches.Location = new System.Drawing.Point( 267, 82 );
-            this.xAddBeaches.Name = "xAddBeaches";
-            this.xAddBeaches.Size = new System.Drawing.Size( 89, 17 );
-            this.xAddBeaches.TabIndex = 58;
-            this.xAddBeaches.Text = "Add beaches";
-            this.xAddBeaches.UseVisualStyleBackColor = true;
             // 
             // AddWorldPopup
             // 
@@ -1909,6 +2024,8 @@
             this.tabTerrain.ResumeLayout( false );
             this.tabTerrain.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout( false );
+            this.gGenOptions.ResumeLayout( false );
+            this.gGenOptions.PerformLayout();
             this.gTemplates.ResumeLayout( false );
             this.gTemplates.PerformLayout();
             this.gMapSize.ResumeLayout( false );
@@ -1922,6 +2039,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nRaisedCorners)).EndInit();
             this.gHeightmapCreation.ResumeLayout( false );
             this.gHeightmapCreation.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.sAboveFunc)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sBelowFunc)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sDetailScale)).EndInit();
             this.gCaves.ResumeLayout( false );
             this.gCaves.PerformLayout();
@@ -2054,7 +2173,6 @@
         private System.Windows.Forms.Button bBrowseTemplate;
         private System.Windows.Forms.Button bSaveTemplate;
         private System.Windows.Forms.GroupBox gCaves;
-        private System.Windows.Forms.CheckBox xOre;
         private System.Windows.Forms.CheckBox xCaveLava;
         private System.Windows.Forms.CheckBox xCaveWater;
         private System.Windows.Forms.TrackBar sCaveSize;
@@ -2078,5 +2196,15 @@
         private System.Windows.Forms.CheckBox xAddSnow;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.CheckBox xAddBeaches;
+        private System.Windows.Forms.GroupBox gGenOptions;
+        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox xOre;
+        private System.Windows.Forms.CheckBox checkBox2;
+        private System.Windows.Forms.TrackBar sAboveFunc;
+        private System.Windows.Forms.TrackBar sBelowFunc;
+        private System.Windows.Forms.Label lBelowFunc;
+        private System.Windows.Forms.Label lAboveFunc;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label1;
     }
 }

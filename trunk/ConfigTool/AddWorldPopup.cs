@@ -603,7 +603,7 @@ Dimensions: {5}×{6}×{7}
                     tStatus1.Text = "Saving map...";
                     tStatus2.Text = "";
                     Refresh();
-                    map.Save( Path.Combine( "maps",  world.Name + ".fcm") );
+                    map.Save( Path.Combine( "maps", world.Name + ".fcm" ) );
                     string oldFile = Path.Combine( "maps", originalWorldName + ".fcm" );
                     if( originalWorldName != null && originalWorldName != world.Name && File.Exists( oldFile ) ) {
                         try {
@@ -742,7 +742,9 @@ Dimensions: {5}×{6}×{7}
                 addSnow = xAddSnow.Checked,
                 snowTransition = (int)(0.75 * (double)nHeight.Value),
                 snowAltitude = (int)(0.85 * (double)nHeight.Value),
-                addBeaches = xAddBeaches.Checked
+                addBeaches = xAddBeaches.Checked,
+                aboveFuncExponent = TrackBarToExponent( sAboveFunc ),
+                belowFuncExponent = TrackBarToExponent( sBelowFunc )
             };
         }
 
@@ -791,6 +793,24 @@ Dimensions: {5}×{6}×{7}
 
         private void xWater_CheckedChanged( object sender, EventArgs e ) {
             xAddBeaches.Enabled = xWater.Checked;
+        }
+
+        private void sAboveFunc_ValueChanged( object sender, EventArgs e ) {
+            lAboveFunc.Text = (1/TrackBarToExponent( sAboveFunc )).ToString( "0.0%" );
+        }
+
+        private void sBelowFunc_ValueChanged( object sender, EventArgs e ) {
+            lBelowFunc.Text = (1/TrackBarToExponent( sBelowFunc )).ToString( "0.0%" );
+        }
+
+        float TrackBarToExponent( TrackBar bar ) {
+            if( bar.Value >= bar.Maximum / 2 ) {
+                float normalized = (bar.Value - bar.Maximum / 2f) / (float)(bar.Maximum / 2f);
+                return 1 + normalized * normalized * 3;
+            } else {
+                float normalized = (bar.Value / (bar.Maximum / 2f));
+                return normalized * .75f + .25f;
+            }
         }
     }
 }

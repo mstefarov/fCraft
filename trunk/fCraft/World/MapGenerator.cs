@@ -130,30 +130,50 @@ namespace fCraft {
                 args.waterLevel = (map.height - 1) / 2;
             }
 
-            slopemap = Noise.CalculateSlope( Noise.GaussianBlur5x5( heightmap ) );
 
+            // Match water coverage
             float desiredWaterLevel = .5f;
             if( args.matchWaterCoverage ) {
                 desiredWaterLevel = MatchWaterCoverage( heightmap, args.waterCoverage );
             }
-            float underWaterMultiplier = 0, aboveWaterMultiplier = 0;
 
+            
+            // Calculate above/below water multipliers
+            float underWaterMultiplier = 0, aboveWaterMultiplier = 0;
             if( desiredWaterLevel != 0 ) {
-                underWaterMultiplier = args.maxDepth / desiredWaterLevel;
+                underWaterMultiplier = (float)(args.maxDepth / desiredWaterLevel );
             }
             if( desiredWaterLevel != 1 ) {
-                aboveWaterMultiplier = args.maxHeight / (1 - desiredWaterLevel);
+                aboveWaterMultiplier = (float)(args.maxHeight / ( 1 - desiredWaterLevel));
             }
+
+
+            // Apply power functions to above/below water parts of the heightmap
+            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    if( heightmap[x, y] < desiredWaterLevel ) {
+                        float normalizedDepth = 1 - heightmap[x, y] / desiredWaterLevel;
+                        heightmap[x, y] = desiredWaterLevel - (float)Math.Pow( normalizedDepth, args.belowFuncExponent ) * desiredWaterLevel;
+                    } else {
+                        float normalizedHeight = (heightmap[x, y] - desiredWaterLevel) / (1 - desiredWaterLevel);
+                        heightmap[x, y] = desiredWaterLevel + (float)Math.Pow( normalizedHeight, args.aboveFuncExponent ) * (1 - desiredWaterLevel);
+                    }
+                }
+            }
+
+            // Calculate the slope
+            slopemap = Noise.CalculateSlope( Noise.GaussianBlur5x5( heightmap ) );
+
 
             int level;
             float slope;
 
-            /*
+            /* draw heightmap visually (DEBUG)
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
                     if( heightmap[x, y] < desiredWaterLevel ) {
                         slope = slopemap[x, y] * args.maxDepth;
-                        level = args.waterLevel - (int)Math.Round( (1 - heightmap[x, y] / desiredWaterLevel) * args.maxDepth );
+                        level = args.waterLevel - (int)Math.Round( (desiredWaterLevel - heightmap[x, y]) * underWaterMultiplier );
                     } else {
                         slope = slopemap[x, y] * args.maxHeight;
                         level = args.waterLevel + (int)Math.Round( (heightmap[x, y] - desiredWaterLevel) * aboveWaterMultiplier );
@@ -176,8 +196,14 @@ namespace fCraft {
                         map.SetBlock( x, y, i, block );
                     }
                 }
-            }
-             */
+            }*/
+
+
+            float[,] altmap = new float[map.widthX, map.widthY];
+            int blendmapDetailSize = (int)Math.Log( (double)Math.Max( args.dimX, args.dimY ), 2 ) - 2;
+            new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoiseMap( altmap, 3, blendmapDetailSize, 0.5f, 0, 0 );
+            Noise.Normalize( altmap, args.maxHeight * .9f, args.maxHeight * 1.1f );
+
 
             float cliffThreshold = 1;
             int snowStartThreshold = args.snowTransition;
@@ -188,7 +214,7 @@ namespace fCraft {
 
                     if( heightmap[x, y] < desiredWaterLevel ) {
                         slope = slopemap[x, y] * args.maxDepth;
-                        level = args.waterLevel - (int)Math.Round( (1 - heightmap[x, y] / desiredWaterLevel) * args.maxDepth );
+                        level = args.waterLevel - (int)Math.Round( Math.Pow(1 - heightmap[x, y] / desiredWaterLevel,args.belowFuncExponent) * args.maxDepth );
                         if( args.addWater ) {
                             if( args.waterLevel - level > 3 ) {
                                 map.SetBlock( x, y, args.waterLevel, bDeepWaterSurface );
@@ -234,8 +260,8 @@ namespace fCraft {
                         }
 
                     } else {
-                        slope = slopemap[x, y] * args.maxHeight;
-                        level = args.waterLevel + (int)Math.Round( (heightmap[x, y] - desiredWaterLevel) * aboveWaterMultiplier );
+                        slope = slopemap[x, y] * altmap[x, y];
+                        level = args.waterLevel + (int)Math.Round( Math.Pow( heightmap[x, y] - desiredWaterLevel, args.aboveFuncExponent ) * aboveWaterMultiplier / args.maxHeight * altmap[x,y] );
 
                         bool snow = args.addSnow &&
                                     (level > snowThreshold ||
