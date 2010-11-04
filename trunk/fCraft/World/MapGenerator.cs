@@ -162,8 +162,11 @@ namespace fCraft {
             }
 
             // Calculate the slope
-            slopemap = Noise.CalculateSlope( Noise.GaussianBlur5x5( heightmap ) );
-
+            if( args.cliffSmoothing ) {
+                slopemap = Noise.CalculateSlope( Noise.GaussianBlur5x5( heightmap ) );
+            } else {
+                slopemap = Noise.CalculateSlope( heightmap );
+            }
 
             int level;
             float slope;
@@ -205,7 +208,6 @@ namespace fCraft {
             Noise.Normalize( altmap, args.maxHeight * .9f, args.maxHeight * 1.1f );
 
 
-            float cliffThreshold = 1;
             int snowStartThreshold = args.snowTransition;
             int snowThreshold = args.snowAltitude;
 
@@ -235,7 +237,7 @@ namespace fCraft {
                             if( blendmap != null && blendmap[x, y] > .25 && blendmap[x, y] < .75 ) {
                                 map.SetBlock( x, y, level, bCliff );
                             } else {
-                                if( slope < cliffThreshold ) {
+                                if( slope < args.cliffThreshold ) {
                                     map.SetBlock( x, y, level, bGroundSurface );
                                 } else {
                                     map.SetBlock( x, y, level, bCliff );
@@ -247,7 +249,7 @@ namespace fCraft {
                                     if( blendmap != null && blendmap[x, y] > CliffsideBlockThreshold && blendmap[x, y] < (1 - CliffsideBlockThreshold) ) {
                                         map.SetBlock( x, y, i, bCliff );
                                     } else {
-                                        if( slope < cliffThreshold ) {
+                                        if( slope < args.cliffThreshold ) {
                                             map.SetBlock( x, y, i, bGround );
                                         } else {
                                             map.SetBlock( x, y, i, bCliff );
@@ -270,7 +272,7 @@ namespace fCraft {
                         if( blendmap != null && blendmap[x, y] > .25 && blendmap[x, y] < .75 ) {
                             map.SetBlock( x, y, level, bCliff );
                         } else {
-                            if( slope < cliffThreshold ) {
+                            if( slope < args.cliffThreshold ) {
                                 if( snow ) {
                                     map.SetBlock( x, y, level, Block.White );
                                 } else {
@@ -286,7 +288,7 @@ namespace fCraft {
                                 if( blendmap != null && blendmap[x, y] > CliffsideBlockThreshold && blendmap[x, y] < (1 - CliffsideBlockThreshold) ) {
                                     map.SetBlock( x, y, i, bCliff );
                                 } else {
-                                    if( slope < cliffThreshold ) {
+                                    if( slope < args.cliffThreshold ) {
                                         if( snow ) {
                                             map.SetBlock( x, y, i, Block.White );
                                         } else {
@@ -304,38 +306,10 @@ namespace fCraft {
                 }
             }
 
-            if( args.addCaves ) {
-                AddCaves( map );
-            }
+            AddCaves( map );
 
             if( args.addBeaches ) {
-                int beachExtentSqr = (args.beachExtent + 1) * (args.beachExtent + 1);
-                for( int x = 0; x < map.widthX; x++ ) {
-                    for( int y = 0; y < map.widthY; y++ ) {
-                        int h = map.SearchColumn( x, y, bGroundSurface );
-                        if( h < 0 ) continue;
-                        bool found = false;
-                        for( int dx = -args.beachExtent; !found && dx <= args.beachExtent; dx++ ) {
-                            for( int dy = -args.beachExtent; !found && dy <= args.beachExtent; dy++ ) {
-                                for( int dh = -3; !found && dh <= 0; dh++ ) {
-                                    if( dx * dx + dy * dy + dh * dh > beachExtentSqr ) continue;
-                                    int xx = x + dx;
-                                    int yy = y + dy;
-                                    int hh = h + dh;
-                                    if( xx < 0 || xx >= map.widthX || yy < 0 || yy >= map.widthY || hh < 0 || hh >= map.height ) continue;
-                                    if( map.GetBlock( xx, yy, hh ) == (byte)bWater || map.GetBlock( xx, yy, hh ) == (byte)bWaterSurface ) {
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        if( found ) {
-                            map.SetBlock( x, y, h, bSeaFloor );
-                            if( h > 0 && map.GetBlock( x, y, h - 1 ) == (byte)bGround ) map.SetBlock( x, y, h - 1, bSeaFloor );
-                        }
-                    }
-                }
+                AddBeaches( map );
             }
 
             if( args.addTrees ) {
@@ -361,6 +335,36 @@ namespace fCraft {
 
             map.ResetSpawn();
             return map;
+        }
+
+        void AddBeaches( Map map ) {
+            int beachExtentSqr = (args.beachExtent + 1) * (args.beachExtent + 1);
+            for( int x = 0; x < map.widthX; x++ ) {
+                for( int y = 0; y < map.widthY; y++ ) {
+                    int h = map.SearchColumn( x, y, bGroundSurface );
+                    if( h < 0 ) continue;
+                    bool found = false;
+                    for( int dx = -args.beachExtent; !found && dx <= args.beachExtent; dx++ ) {
+                        for( int dy = -args.beachExtent; !found && dy <= args.beachExtent; dy++ ) {
+                            for( int dh = -args.beachHeight; !found && dh <= 0; dh++ ) {
+                                if( dx * dx + dy * dy + dh * dh > beachExtentSqr ) continue;
+                                int xx = x + dx;
+                                int yy = y + dy;
+                                int hh = h + dh;
+                                if( xx < 0 || xx >= map.widthX || yy < 0 || yy >= map.widthY || hh < 0 || hh >= map.height ) continue;
+                                if( map.GetBlock( xx, yy, hh ) == (byte)bWater || map.GetBlock( xx, yy, hh ) == (byte)bWaterSurface ) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if( found ) {
+                        map.SetBlock( x, y, h, bSeaFloor );
+                        if( h > 0 && map.GetBlock( x, y, h - 1 ) == (byte)bGround ) map.SetBlock( x, y, h - 1, bSeaFloor );
+                    }
+                }
+            }
         }
 
 
@@ -799,16 +803,11 @@ namespace fCraft {
             for( int x = 1; x < map.widthX - 1; x++ ) {
                 for( int h = 0; h < map.height; h++ ) {
                     for( int y = 1; y < map.widthY - 1; y++ ) {
-                        int index = x + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * y;
+                        int index = map.Index( x, y, h );
                         if( (map.blocks[index] == 10 || map.blocks[index] == 11 || map.blocks[index] == 8 || map.blocks[index] == 9) &&
-                            (map.blocks[(x - 1) + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * y] == 0 ||
-                            map.blocks[(x - 1) + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * (y - 1)] == 0 ||
-                            map.blocks[(x - 1) + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * (y + 1)] == 0 |
-                            map.blocks[x + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * (y + 1)] == 0 ||
-                            map.blocks[x + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * (y - 1)] == 0 ||
-                            map.blocks[x + 1 + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * (y - 1)] == 0 ||
-                            map.blocks[x + 1 + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * y] == 0 ||
-                            map.blocks[x + 1 + map.widthX * map.widthY * (map.height - 1 - h) + map.widthX * (y + 1)] == 0) ) {
+                            (map.GetBlock(x-1,y,h)==0 || map.GetBlock(x+1,y,h)==0 || 
+                            map.GetBlock(x,y-1,h)==0 || map.GetBlock(x,y+1,h)==0 || 
+                            map.GetBlock(x,y,h-1)==0 )){
                             map.blocks[index] = sealantType;
                         }
                     }
@@ -819,33 +818,34 @@ namespace fCraft {
         public void AddCaves( Map map ) {
             Random rand = new Random();
 
+            if( args.addCaves ) {
+                for( int i1 = 0; i1 < 36 * args.caveDensity; i1++ )
+                    AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Air, 30, 0.05 * args.caveSize );
 
-            for( int i1 = 0; i1 < 36 * args.caveDensity; i1++ )
-                AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Air, 30, 0.05 * args.caveSize );
+                for( int j1 = 0; j1 < 9 * args.caveDensity; j1++ )
+                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Air, 500, 0.015 * args.caveSize, 1 );
 
-            for( int j1 = 0; j1 < 9 * args.caveDensity; j1++ )
-                AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Air, 500, 0.015 * args.caveSize, 1 );
-
-            for( int k1 = 0; k1 < 30 * args.caveDensity; k1++ )
-                AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Air, 300, 0.03 * args.caveSize, 1, 20 );
+                for( int k1 = 0; k1 < 30 * args.caveDensity; k1++ )
+                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Air, 300, 0.03 * args.caveSize, 1, 20 );
 
 
-            if( args.addCaveLava ) {
-                for( int i = 0; i < 8 * args.caveDensity; i++ ) {
-                    AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Lava, 30, 0.05 * args.caveSize );
+                if( args.addCaveLava ) {
+                    for( int i = 0; i < 8 * args.caveDensity; i++ ) {
+                        AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Lava, 30, 0.05 * args.caveSize );
+                    }
+                    for( int j = 0; j < 3 * args.caveDensity; j++ ) {
+                        AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Lava, 1000, 0.015 * args.caveSize, 1 );
+                    }
                 }
-                for( int j = 0; j < 3 * args.caveDensity; j++ ) {
-                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Lava, 1000, 0.015 * args.caveSize, 1 );
-                }
-            }
 
 
-            if( args.addCaveWater ) {
-                for( int k = 0; k < 8 * args.caveDensity; k++ ) {
-                    AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Water, 30, 0.05 * args.caveSize );
-                }
-                for( int l = 0; l < 3 * args.caveDensity; l++ ) {
-                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Water, 1000, 0.015 * args.caveSize, 1 );
+                if( args.addCaveWater ) {
+                    for( int k = 0; k < 8 * args.caveDensity; k++ ) {
+                        AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Water, 30, 0.05 * args.caveSize );
+                    }
+                    for( int l = 0; l < 3 * args.caveDensity; l++ ) {
+                        AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Water, 1000, 0.015 * args.caveSize, 1 );
+                    }
                 }
             }
 

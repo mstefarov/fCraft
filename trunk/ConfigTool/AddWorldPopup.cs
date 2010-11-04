@@ -396,8 +396,11 @@ namespace ConfigTool {
         private void xAdvanced_CheckedChanged( object sender, EventArgs e ) {
             gTerrainFeatures.Visible = xAdvanced.Checked;
             gHeightmapCreation.Visible = xAdvanced.Checked;
-            gTrees.Visible = xAdvanced.Checked;
+            gTrees.Visible = xAdvanced.Checked && xAddTrees.Checked;
             gCaves.Visible = xCaves.Checked && xAdvanced.Checked;
+            gSnow.Visible = xAdvanced.Checked && xAddSnow.Checked;
+            gCliffs.Visible = xAdvanced.Checked && xAddCliffs.Checked;
+            gBeaches.Visible = xAdvanced.Checked && xAddBeaches.Checked;
         }
 
         private void nWidthX_ValueChanged( object sender, EventArgs e ) {
@@ -668,7 +671,7 @@ Dimensions: {5}×{6}×{7}
 
             nMaxDepth.Value = generatorArgs.maxDepth;
             nMaxHeight.Value = generatorArgs.maxHeight;
-            xTrees.Checked = generatorArgs.addTrees;
+            xAddTrees.Checked = generatorArgs.addTrees;
             sRoughness.Value = (int)(generatorArgs.roughness * 100);
             nSeed.Value = generatorArgs.seed;
             xWater.Checked = generatorArgs.addWater;
@@ -699,7 +702,23 @@ Dimensions: {5}×{6}×{7}
             nWaterLevel.Maximum = generatorArgs.dimH;
             nWaterLevel.Value = Math.Min( generatorArgs.waterLevel, generatorArgs.dimH );
 
+            xAddSnow.Checked = generatorArgs.addSnow;
+
+
+            int givenSnowAltitude = (generatorArgs.customWaterLevel ? generatorArgs.waterLevel : generatorArgs.dimH / 2);
+            nSnowAltitude.Value = Math.Max(nSnowAltitude.Minimum,Math.Min(nSnowAltitude.Maximum,givenSnowAltitude));
+            nSnowTransition.Value = Math.Max( nSnowTransition.Minimum, Math.Min( nSnowTransition.Maximum, givenSnowAltitude - generatorArgs.snowTransition ) );
+
+            xAddCliffs.Checked = generatorArgs.addCliffs;
+            sCliffThreshold.Value = (int)(generatorArgs.cliffThreshold * 100);
+            xCliffSmoothing.Checked = generatorArgs.cliffSmoothing;
+
             xAddBeaches.Checked = generatorArgs.addBeaches;
+            nBeachExtent.Value = generatorArgs.beachExtent;
+            nBeachHeight.Value = generatorArgs.beachHeight;
+
+            sAboveFunc.Value = ExponentToTrackBar( sAboveFunc, generatorArgs.aboveFuncExponent );
+            sBelowFunc.Value = ExponentToTrackBar( sBelowFunc, generatorArgs.belowFuncExponent );
         }
 
         void SaveGeneratorArgs() {
@@ -714,7 +733,7 @@ Dimensions: {5}×{6}×{7}
                 matchWaterCoverage = xMatchWaterCoverage.Checked,
                 maxDepth = (int)nMaxDepth.Value,
                 maxHeight = (int)nMaxHeight.Value,
-                addTrees = xTrees.Checked,
+                addTrees = xAddTrees.Checked,
                 roughness = sRoughness.Value / 100f,
                 seed = (int)nSeed.Value,
                 theme = (MapGenTheme)cTheme.SelectedIndex,
@@ -740,11 +759,16 @@ Dimensions: {5}×{6}×{7}
                 customWaterLevel = xWaterLevel.Checked,
                 waterLevel = (int)(xWaterLevel.Checked ? nWaterLevel.Value : nHeight.Value / 2),
                 addSnow = xAddSnow.Checked,
-                snowTransition = (int)(0.75 * (double)nHeight.Value),
-                snowAltitude = (int)(0.85 * (double)nHeight.Value),
+                snowTransition = (int)(nSnowAltitude.Value + (xWaterLevel.Checked ? nWaterLevel.Value : nHeight.Value / 2) - nSnowTransition.Value),
+                snowAltitude = (int)(nSnowAltitude.Value + (xWaterLevel.Checked ? nWaterLevel.Value : nHeight.Value / 2)),
+                addCliffs = xAddCliffs.Checked,
+                cliffThreshold = sCliffThreshold.Value / 100f,
+                cliffSmoothing = xCliffSmoothing.Checked,
                 addBeaches = xAddBeaches.Checked,
+                beachExtent = (int)nBeachExtent.Value,
+                beachHeight = (int)nBeachHeight.Value,
                 aboveFuncExponent = TrackBarToExponent( sAboveFunc ),
-                belowFuncExponent = TrackBarToExponent( sBelowFunc )
+                belowFuncExponent = TrackBarToExponent( sBelowFunc ),
             };
         }
 
@@ -787,8 +811,8 @@ Dimensions: {5}×{6}×{7}
             nWaterLevel.Maximum = nHeight.Value;
         }
 
-        private void xTrees_CheckedChanged( object sender, EventArgs e ) {
-            gTrees.Visible = xTrees.Checked;
+        private void xAddTrees_CheckedChanged( object sender, EventArgs e ) {
+            gTrees.Visible = xAddTrees.Checked;
         }
 
         private void xWater_CheckedChanged( object sender, EventArgs e ) {
@@ -796,11 +820,11 @@ Dimensions: {5}×{6}×{7}
         }
 
         private void sAboveFunc_ValueChanged( object sender, EventArgs e ) {
-            lAboveFunc.Text = (1/TrackBarToExponent( sAboveFunc )).ToString( "0.0%" );
+            lAboveFuncUnits.Text = (1/TrackBarToExponent( sAboveFunc )).ToString( "0.0%" );
         }
 
         private void sBelowFunc_ValueChanged( object sender, EventArgs e ) {
-            lBelowFunc.Text = (1/TrackBarToExponent( sBelowFunc )).ToString( "0.0%" );
+            lBelowFuncUnits.Text = (1/TrackBarToExponent( sBelowFunc )).ToString( "0.0%" );
         }
 
         float TrackBarToExponent( TrackBar bar ) {
@@ -811,6 +835,32 @@ Dimensions: {5}×{6}×{7}
                 float normalized = (bar.Value / (bar.Maximum / 2f));
                 return normalized * .75f + .25f;
             }
+        }
+
+        int ExponentToTrackBar( TrackBar bar, float val ) {
+            if( val >= 1 ) {
+                float normalized = (float)Math.Sqrt( (val - 1) / 3f );
+                return (int)(bar.Maximum / 2 + normalized * (bar.Maximum / 2));
+            } else {
+                float normalized = (val - .25f) / .75f;
+                return (int)(normalized * bar.Maximum / 2f);
+            }
+        }
+
+        private void sCliffThreshold_ValueChanged( object sender, EventArgs e ) {
+            lCliffThresholdUnits.Text = sCliffThreshold.Value + "%";
+        }
+
+        private void xAddSnow_CheckedChanged( object sender, EventArgs e ) {
+            gSnow.Visible = xAdvanced.Checked && xAddSnow.Checked;
+        }
+
+        private void xAddCliffs_CheckedChanged( object sender, EventArgs e ) {
+            gCliffs.Visible = xAdvanced.Checked && xAddCliffs.Checked;
+        }
+
+        private void xAddBeaches_CheckedChanged( object sender, EventArgs e ) {
+            gBeaches.Visible = xAdvanced.Checked && xAddBeaches.Checked;
         }
     }
 }

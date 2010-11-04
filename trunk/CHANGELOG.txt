@@ -28,8 +28,7 @@
  Feature: Added wireframe cuboid (/cw)
  Feature: Added an optional second param for /ch (cuboid hollow) that specifies the blocktype of the "filling".
  Feature: Added a way to specify default build permission for new worlds.
- Fix: Fixed /info, /baninfo, and /banip not handling players whose name
- contain only digits.
+ Fix: Fixed /info, /baninfo, and /banip not handling players whose name contain only digits.
  Fix: Fixed DoChangeRank mixing up RankChangeType.
  Fix: Added missing fields to MapGeneratorArgs serializer.
  Fix: Fixed per-rank draw limits not being calculated correctly in some cases.
