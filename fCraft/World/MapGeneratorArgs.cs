@@ -34,11 +34,11 @@ namespace fCraft {
         public bool addSnow;
         public int snowAltitude, snowTransition;
 
-        public bool addCliffs;
+        public bool addCliffs, cliffSmoothing;
         public float cliffThreshold;
 
         public bool addBeaches;
-        public int beachExtent;
+        public int beachExtent=6, beachHeight=2;
 
         public float aboveFuncExponent=1, belowFuncExponent=1;
 

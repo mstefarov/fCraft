@@ -75,7 +75,7 @@
             this.lMaxDepthUnits = new System.Windows.Forms.Label();
             this.lBias = new System.Windows.Forms.Label();
             this.sBias = new System.Windows.Forms.TrackBar();
-            this.xTrees = new System.Windows.Forms.CheckBox();
+            this.xAddTrees = new System.Windows.Forms.CheckBox();
             this.bSavePreview = new System.Windows.Forms.Button();
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabExisting = new System.Windows.Forms.TabPage();
@@ -105,8 +105,8 @@
             this.tabTerrain = new System.Windows.Forms.TabPage();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.gGenOptions = new System.Windows.Forms.GroupBox();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.xAddCliffs = new System.Windows.Forms.CheckBox();
+            this.xAddRuins = new System.Windows.Forms.CheckBox();
             this.xOre = new System.Windows.Forms.CheckBox();
             this.xAddBeaches = new System.Windows.Forms.CheckBox();
             this.xAddSnow = new System.Windows.Forms.CheckBox();
@@ -132,10 +132,10 @@
             this.nRaisedCorners = new System.Windows.Forms.NumericUpDown();
             this.lBiasDisplay = new System.Windows.Forms.Label();
             this.gHeightmapCreation = new System.Windows.Forms.GroupBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
             this.lBelowFunc = new System.Windows.Forms.Label();
             this.lAboveFunc = new System.Windows.Forms.Label();
+            this.lBelowFuncUnits = new System.Windows.Forms.Label();
+            this.lAboveFuncUnits = new System.Windows.Forms.Label();
             this.sAboveFunc = new System.Windows.Forms.TrackBar();
             this.sBelowFunc = new System.Windows.Forms.TrackBar();
             this.xDelayBias = new System.Windows.Forms.CheckBox();
@@ -163,6 +163,25 @@
             this.lTreeSpacingVariation = new System.Windows.Forms.Label();
             this.nTreeSpacing = new System.Windows.Forms.NumericUpDown();
             this.lTreeSpacing = new System.Windows.Forms.Label();
+            this.gSnow = new System.Windows.Forms.GroupBox();
+            this.lSnowTransitionUnits = new System.Windows.Forms.Label();
+            this.lSnowTransition = new System.Windows.Forms.Label();
+            this.lSnowAltitudeUnits = new System.Windows.Forms.Label();
+            this.nSnowTransition = new System.Windows.Forms.NumericUpDown();
+            this.nSnowAltitude = new System.Windows.Forms.NumericUpDown();
+            this.lSnowAltitude = new System.Windows.Forms.Label();
+            this.gCliffs = new System.Windows.Forms.GroupBox();
+            this.xCliffSmoothing = new System.Windows.Forms.CheckBox();
+            this.lCliffThresholdUnits = new System.Windows.Forms.Label();
+            this.sCliffThreshold = new System.Windows.Forms.TrackBar();
+            this.lCliffThreshold = new System.Windows.Forms.Label();
+            this.gBeaches = new System.Windows.Forms.GroupBox();
+            this.lBeachHeight = new System.Windows.Forms.Label();
+            this.lBeachExtentUnits = new System.Windows.Forms.Label();
+            this.lBeachHeightUnits = new System.Windows.Forms.Label();
+            this.nBeachHeight = new System.Windows.Forms.NumericUpDown();
+            this.nBeachExtent = new System.Windows.Forms.NumericUpDown();
+            this.lBeachExtent = new System.Windows.Forms.Label();
             this.xSeed = new System.Windows.Forms.CheckBox();
             this.nSeed = new System.Windows.Forms.NumericUpDown();
             this.xAdvanced = new System.Windows.Forms.CheckBox();
@@ -211,6 +230,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacingVariation)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacing)).BeginInit();
+            this.gSnow.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nSnowTransition)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSnowAltitude)).BeginInit();
+            this.gCliffs.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.sCliffThreshold)).BeginInit();
+            this.gBeaches.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nBeachHeight)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nBeachExtent)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).BeginInit();
             this.SuspendLayout();
             // 
@@ -682,11 +709,11 @@
             // xMatchWaterCoverage
             // 
             this.xMatchWaterCoverage.AutoSize = true;
-            this.xMatchWaterCoverage.Location = new System.Drawing.Point( 29, 125 );
+            this.xMatchWaterCoverage.Location = new System.Drawing.Point( 6, 125 );
             this.xMatchWaterCoverage.Name = "xMatchWaterCoverage";
-            this.xMatchWaterCoverage.Size = new System.Drawing.Size( 144, 17 );
+            this.xMatchWaterCoverage.Size = new System.Drawing.Size( 133, 17 );
             this.xMatchWaterCoverage.TabIndex = 5;
-            this.xMatchWaterCoverage.Text = "Match % water coverage";
+            this.xMatchWaterCoverage.Text = "Match water coverage";
             this.xMatchWaterCoverage.UseVisualStyleBackColor = true;
             this.xMatchWaterCoverage.CheckedChanged += new System.EventHandler( this.xMatchWaterCoverage_CheckedChanged );
             // 
@@ -694,10 +721,10 @@
             // 
             this.sWaterCoverage.AutoSize = false;
             this.sWaterCoverage.Enabled = false;
-            this.sWaterCoverage.Location = new System.Drawing.Point( 170, 124 );
+            this.sWaterCoverage.Location = new System.Drawing.Point( 145, 124 );
             this.sWaterCoverage.Maximum = 100;
             this.sWaterCoverage.Name = "sWaterCoverage";
-            this.sWaterCoverage.Size = new System.Drawing.Size( 137, 27 );
+            this.sWaterCoverage.Size = new System.Drawing.Size( 163, 27 );
             this.sWaterCoverage.TabIndex = 6;
             this.sWaterCoverage.TickFrequency = 10;
             this.sWaterCoverage.Value = 50;
@@ -706,7 +733,7 @@
             // lMatchWaterCoverageDisplay
             // 
             this.lMatchWaterCoverageDisplay.AutoSize = true;
-            this.lMatchWaterCoverageDisplay.Location = new System.Drawing.Point( 313, 126 );
+            this.lMatchWaterCoverageDisplay.Location = new System.Drawing.Point( 314, 129 );
             this.lMatchWaterCoverageDisplay.Name = "lMatchWaterCoverageDisplay";
             this.lMatchWaterCoverageDisplay.Size = new System.Drawing.Size( 27, 13 );
             this.lMatchWaterCoverageDisplay.TabIndex = 33;
@@ -787,18 +814,18 @@
             this.sBias.TickFrequency = 20;
             this.sBias.ValueChanged += new System.EventHandler( this.sBias_ValueChanged );
             // 
-            // xTrees
+            // xAddTrees
             // 
-            this.xTrees.AutoSize = true;
-            this.xTrees.Checked = true;
-            this.xTrees.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.xTrees.Location = new System.Drawing.Point( 13, 19 );
-            this.xTrees.Name = "xTrees";
-            this.xTrees.Size = new System.Drawing.Size( 53, 17 );
-            this.xTrees.TabIndex = 5;
-            this.xTrees.Text = "Trees";
-            this.xTrees.UseVisualStyleBackColor = true;
-            this.xTrees.CheckedChanged += new System.EventHandler( this.xTrees_CheckedChanged );
+            this.xAddTrees.AutoSize = true;
+            this.xAddTrees.Checked = true;
+            this.xAddTrees.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.xAddTrees.Location = new System.Drawing.Point( 13, 19 );
+            this.xAddTrees.Name = "xAddTrees";
+            this.xAddTrees.Size = new System.Drawing.Size( 53, 17 );
+            this.xAddTrees.TabIndex = 5;
+            this.xAddTrees.Text = "Trees";
+            this.xAddTrees.UseVisualStyleBackColor = true;
+            this.xAddTrees.CheckedChanged += new System.EventHandler( this.xAddTrees_CheckedChanged );
             // 
             // bSavePreview
             // 
@@ -1157,6 +1184,7 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.flowLayoutPanel1.AutoScroll = true;
+            this.flowLayoutPanel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.flowLayoutPanel1.Controls.Add( this.gGenOptions );
             this.flowLayoutPanel1.Controls.Add( this.gTemplates );
             this.flowLayoutPanel1.Controls.Add( this.gMapSize );
@@ -1164,6 +1192,9 @@
             this.flowLayoutPanel1.Controls.Add( this.gHeightmapCreation );
             this.flowLayoutPanel1.Controls.Add( this.gCaves );
             this.flowLayoutPanel1.Controls.Add( this.gTrees );
+            this.flowLayoutPanel1.Controls.Add( this.gSnow );
+            this.flowLayoutPanel1.Controls.Add( this.gCliffs );
+            this.flowLayoutPanel1.Controls.Add( this.gBeaches );
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point( 0, 59 );
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
@@ -1173,11 +1204,11 @@
             // 
             // gGenOptions
             // 
-            this.gGenOptions.Controls.Add( this.checkBox2 );
-            this.gGenOptions.Controls.Add( this.checkBox1 );
+            this.gGenOptions.Controls.Add( this.xAddCliffs );
+            this.gGenOptions.Controls.Add( this.xAddRuins );
             this.gGenOptions.Controls.Add( this.xOre );
             this.gGenOptions.Controls.Add( this.xAddBeaches );
-            this.gGenOptions.Controls.Add( this.xTrees );
+            this.gGenOptions.Controls.Add( this.xAddTrees );
             this.gGenOptions.Controls.Add( this.xAddSnow );
             this.gGenOptions.Controls.Add( this.xFloodBarrier );
             this.gGenOptions.Controls.Add( this.xWater );
@@ -1189,26 +1220,27 @@
             this.gGenOptions.TabStop = false;
             this.gGenOptions.Text = "Optional Modules";
             // 
-            // checkBox2
+            // xAddCliffs
             // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point( 254, 42 );
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size( 48, 17 );
-            this.checkBox2.TabIndex = 69;
-            this.checkBox2.Text = "Cliffs";
-            this.checkBox2.UseVisualStyleBackColor = true;
+            this.xAddCliffs.AutoSize = true;
+            this.xAddCliffs.Location = new System.Drawing.Point( 254, 42 );
+            this.xAddCliffs.Name = "xAddCliffs";
+            this.xAddCliffs.Size = new System.Drawing.Size( 48, 17 );
+            this.xAddCliffs.TabIndex = 69;
+            this.xAddCliffs.Text = "Cliffs";
+            this.xAddCliffs.UseVisualStyleBackColor = true;
+            this.xAddCliffs.CheckedChanged += new System.EventHandler( this.xAddCliffs_CheckedChanged );
             // 
-            // checkBox1
+            // xAddRuins
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Enabled = false;
-            this.checkBox1.Location = new System.Drawing.Point( 254, 19 );
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size( 53, 17 );
-            this.checkBox1.TabIndex = 68;
-            this.checkBox1.Text = "Ruins";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.xAddRuins.AutoSize = true;
+            this.xAddRuins.Enabled = false;
+            this.xAddRuins.Location = new System.Drawing.Point( 254, 19 );
+            this.xAddRuins.Name = "xAddRuins";
+            this.xAddRuins.Size = new System.Drawing.Size( 53, 17 );
+            this.xAddRuins.TabIndex = 68;
+            this.xAddRuins.Text = "Ruins";
+            this.xAddRuins.UseVisualStyleBackColor = true;
             // 
             // xOre
             // 
@@ -1229,6 +1261,7 @@
             this.xAddBeaches.TabIndex = 58;
             this.xAddBeaches.Text = "Beaches";
             this.xAddBeaches.UseVisualStyleBackColor = true;
+            this.xAddBeaches.CheckedChanged += new System.EventHandler( this.xAddBeaches_CheckedChanged );
             // 
             // xAddSnow
             // 
@@ -1239,6 +1272,7 @@
             this.xAddSnow.TabIndex = 24;
             this.xAddSnow.Text = "Snowy mountains";
             this.xAddSnow.UseVisualStyleBackColor = true;
+            this.xAddSnow.CheckedChanged += new System.EventHandler( this.xAddSnow_CheckedChanged );
             // 
             // xWater
             // 
@@ -1505,10 +1539,10 @@
             // 
             // gHeightmapCreation
             // 
-            this.gHeightmapCreation.Controls.Add( this.label4 );
-            this.gHeightmapCreation.Controls.Add( this.label1 );
             this.gHeightmapCreation.Controls.Add( this.lBelowFunc );
             this.gHeightmapCreation.Controls.Add( this.lAboveFunc );
+            this.gHeightmapCreation.Controls.Add( this.lBelowFuncUnits );
+            this.gHeightmapCreation.Controls.Add( this.lAboveFuncUnits );
             this.gHeightmapCreation.Controls.Add( this.sAboveFunc );
             this.gHeightmapCreation.Controls.Add( this.sBelowFunc );
             this.gHeightmapCreation.Controls.Add( this.xDelayBias );
@@ -1529,56 +1563,56 @@
             this.gHeightmapCreation.Controls.Add( this.lDetailSize );
             this.gHeightmapCreation.Location = new System.Drawing.Point( 3, 361 );
             this.gHeightmapCreation.Name = "gHeightmapCreation";
-            this.gHeightmapCreation.Size = new System.Drawing.Size( 362, 236 );
+            this.gHeightmapCreation.Size = new System.Drawing.Size( 362, 226 );
             this.gHeightmapCreation.TabIndex = 11;
             this.gHeightmapCreation.TabStop = false;
             this.gHeightmapCreation.Text = "Heightmap Creation";
             this.gHeightmapCreation.Visible = false;
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point( 6, 202 );
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size( 113, 13 );
-            this.label4.TabIndex = 47;
-            this.label4.Text = "Underwater steepness";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point( 37, 169 );
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size( 82, 13 );
-            this.label1.TabIndex = 46;
-            this.label1.Text = "Land steepness";
-            // 
             // lBelowFunc
             // 
             this.lBelowFunc.AutoSize = true;
-            this.lBelowFunc.Location = new System.Drawing.Point( 313, 202 );
+            this.lBelowFunc.Location = new System.Drawing.Point( 26, 193 );
             this.lBelowFunc.Name = "lBelowFunc";
-            this.lBelowFunc.Size = new System.Drawing.Size( 42, 13 );
-            this.lBelowFunc.TabIndex = 45;
-            this.lBelowFunc.Text = "100.0%";
+            this.lBelowFunc.Size = new System.Drawing.Size( 113, 13 );
+            this.lBelowFunc.TabIndex = 47;
+            this.lBelowFunc.Text = "Underwater steepness";
             // 
             // lAboveFunc
             // 
             this.lAboveFunc.AutoSize = true;
-            this.lAboveFunc.Location = new System.Drawing.Point( 313, 169 );
+            this.lAboveFunc.Location = new System.Drawing.Point( 57, 159 );
             this.lAboveFunc.Name = "lAboveFunc";
-            this.lAboveFunc.Size = new System.Drawing.Size( 42, 13 );
-            this.lAboveFunc.TabIndex = 44;
-            this.lAboveFunc.Text = "100.0%";
+            this.lAboveFunc.Size = new System.Drawing.Size( 82, 13 );
+            this.lAboveFunc.TabIndex = 46;
+            this.lAboveFunc.Text = "Land steepness";
+            // 
+            // lBelowFuncUnits
+            // 
+            this.lBelowFuncUnits.AutoSize = true;
+            this.lBelowFuncUnits.Location = new System.Drawing.Point( 314, 193 );
+            this.lBelowFuncUnits.Name = "lBelowFuncUnits";
+            this.lBelowFuncUnits.Size = new System.Drawing.Size( 42, 13 );
+            this.lBelowFuncUnits.TabIndex = 45;
+            this.lBelowFuncUnits.Text = "100.0%";
+            // 
+            // lAboveFuncUnits
+            // 
+            this.lAboveFuncUnits.AutoSize = true;
+            this.lAboveFuncUnits.Location = new System.Drawing.Point( 314, 159 );
+            this.lAboveFuncUnits.Name = "lAboveFuncUnits";
+            this.lAboveFuncUnits.Size = new System.Drawing.Size( 42, 13 );
+            this.lAboveFuncUnits.TabIndex = 44;
+            this.lAboveFuncUnits.Text = "100.0%";
             // 
             // sAboveFunc
             // 
             this.sAboveFunc.AutoSize = false;
             this.sAboveFunc.LargeChange = 50;
-            this.sAboveFunc.Location = new System.Drawing.Point( 125, 164 );
+            this.sAboveFunc.Location = new System.Drawing.Point( 145, 157 );
             this.sAboveFunc.Maximum = 600;
             this.sAboveFunc.Name = "sAboveFunc";
-            this.sAboveFunc.Size = new System.Drawing.Size( 182, 27 );
+            this.sAboveFunc.Size = new System.Drawing.Size( 163, 27 );
             this.sAboveFunc.SmallChange = 20;
             this.sAboveFunc.TabIndex = 43;
             this.sAboveFunc.TickFrequency = 20;
@@ -1589,10 +1623,10 @@
             // 
             this.sBelowFunc.AutoSize = false;
             this.sBelowFunc.LargeChange = 50;
-            this.sBelowFunc.Location = new System.Drawing.Point( 125, 197 );
+            this.sBelowFunc.Location = new System.Drawing.Point( 145, 190 );
             this.sBelowFunc.Maximum = 600;
             this.sBelowFunc.Name = "sBelowFunc";
-            this.sBelowFunc.Size = new System.Drawing.Size( 182, 27 );
+            this.sBelowFunc.Size = new System.Drawing.Size( 163, 27 );
             this.sBelowFunc.SmallChange = 20;
             this.sBelowFunc.TabIndex = 42;
             this.sBelowFunc.TickFrequency = 20;
@@ -1659,7 +1693,7 @@
             this.gCaves.Controls.Add( this.lCaveSize );
             this.gCaves.Controls.Add( this.sCaveDensity );
             this.gCaves.Controls.Add( this.lCaveDensity );
-            this.gCaves.Location = new System.Drawing.Point( 3, 603 );
+            this.gCaves.Location = new System.Drawing.Point( 3, 593 );
             this.gCaves.Name = "gCaves";
             this.gCaves.Size = new System.Drawing.Size( 362, 91 );
             this.gCaves.TabIndex = 22;
@@ -1763,7 +1797,7 @@
             this.gTrees.Controls.Add( this.lTreeSpacingVariation );
             this.gTrees.Controls.Add( this.nTreeSpacing );
             this.gTrees.Controls.Add( this.lTreeSpacing );
-            this.gTrees.Location = new System.Drawing.Point( 3, 700 );
+            this.gTrees.Location = new System.Drawing.Point( 3, 690 );
             this.gTrees.Name = "gTrees";
             this.gTrees.Size = new System.Drawing.Size( 362, 74 );
             this.gTrees.TabIndex = 12;
@@ -1902,6 +1936,244 @@
             this.lTreeSpacing.Size = new System.Drawing.Size( 69, 13 );
             this.lTreeSpacing.TabIndex = 59;
             this.lTreeSpacing.Text = "Tree spacing";
+            // 
+            // gSnow
+            // 
+            this.gSnow.Controls.Add( this.lSnowTransitionUnits );
+            this.gSnow.Controls.Add( this.lSnowTransition );
+            this.gSnow.Controls.Add( this.lSnowAltitudeUnits );
+            this.gSnow.Controls.Add( this.nSnowTransition );
+            this.gSnow.Controls.Add( this.nSnowAltitude );
+            this.gSnow.Controls.Add( this.lSnowAltitude );
+            this.gSnow.Location = new System.Drawing.Point( 3, 770 );
+            this.gSnow.Name = "gSnow";
+            this.gSnow.Size = new System.Drawing.Size( 362, 45 );
+            this.gSnow.TabIndex = 24;
+            this.gSnow.TabStop = false;
+            this.gSnow.Text = "Snowy Mountains";
+            this.gSnow.Visible = false;
+            // 
+            // lSnowTransitionUnits
+            // 
+            this.lSnowTransitionUnits.AutoSize = true;
+            this.lSnowTransitionUnits.Location = new System.Drawing.Point( 318, 21 );
+            this.lSnowTransitionUnits.Name = "lSnowTransitionUnits";
+            this.lSnowTransitionUnits.Size = new System.Drawing.Size( 38, 13 );
+            this.lSnowTransitionUnits.TabIndex = 69;
+            this.lSnowTransitionUnits.Text = "blocks";
+            // 
+            // lSnowTransition
+            // 
+            this.lSnowTransition.AutoSize = true;
+            this.lSnowTransition.Location = new System.Drawing.Point( 217, 21 );
+            this.lSnowTransition.Name = "lSnowTransition";
+            this.lSnowTransition.Size = new System.Drawing.Size( 35, 13 );
+            this.lSnowTransition.TabIndex = 68;
+            this.lSnowTransition.Text = "Dither";
+            // 
+            // lSnowAltitudeUnits
+            // 
+            this.lSnowAltitudeUnits.AutoSize = true;
+            this.lSnowAltitudeUnits.Location = new System.Drawing.Point( 143, 21 );
+            this.lSnowAltitudeUnits.Name = "lSnowAltitudeUnits";
+            this.lSnowAltitudeUnits.Size = new System.Drawing.Size( 38, 13 );
+            this.lSnowAltitudeUnits.TabIndex = 67;
+            this.lSnowAltitudeUnits.Text = "blocks";
+            // 
+            // nSnowTransition
+            // 
+            this.nSnowTransition.Location = new System.Drawing.Point( 258, 19 );
+            this.nSnowTransition.Maximum = new decimal( new int[] {
+            1024,
+            0,
+            0,
+            0} );
+            this.nSnowTransition.Name = "nSnowTransition";
+            this.nSnowTransition.Size = new System.Drawing.Size( 54, 20 );
+            this.nSnowTransition.TabIndex = 64;
+            this.nSnowTransition.Value = new decimal( new int[] {
+            5,
+            0,
+            0,
+            0} );
+            // 
+            // nSnowAltitude
+            // 
+            this.nSnowAltitude.Location = new System.Drawing.Point( 83, 19 );
+            this.nSnowAltitude.Maximum = new decimal( new int[] {
+            2032,
+            0,
+            0,
+            0} );
+            this.nSnowAltitude.Minimum = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            this.nSnowAltitude.Name = "nSnowAltitude";
+            this.nSnowAltitude.Size = new System.Drawing.Size( 54, 20 );
+            this.nSnowAltitude.TabIndex = 63;
+            this.nSnowAltitude.Value = new decimal( new int[] {
+            40,
+            0,
+            0,
+            0} );
+            // 
+            // lSnowAltitude
+            // 
+            this.lSnowAltitude.AutoSize = true;
+            this.lSnowAltitude.Location = new System.Drawing.Point( 6, 21 );
+            this.lSnowAltitude.Name = "lSnowAltitude";
+            this.lSnowAltitude.Size = new System.Drawing.Size( 71, 13 );
+            this.lSnowAltitude.TabIndex = 65;
+            this.lSnowAltitude.Text = "Snow altitude";
+            // 
+            // gCliffs
+            // 
+            this.gCliffs.Controls.Add( this.xCliffSmoothing );
+            this.gCliffs.Controls.Add( this.lCliffThresholdUnits );
+            this.gCliffs.Controls.Add( this.sCliffThreshold );
+            this.gCliffs.Controls.Add( this.lCliffThreshold );
+            this.gCliffs.Location = new System.Drawing.Point( 3, 821 );
+            this.gCliffs.Name = "gCliffs";
+            this.gCliffs.Size = new System.Drawing.Size( 362, 59 );
+            this.gCliffs.TabIndex = 23;
+            this.gCliffs.TabStop = false;
+            this.gCliffs.Text = "Cliffs";
+            this.gCliffs.Visible = false;
+            // 
+            // xCliffSmoothing
+            // 
+            this.xCliffSmoothing.AutoSize = true;
+            this.xCliffSmoothing.Location = new System.Drawing.Point( 260, 23 );
+            this.xCliffSmoothing.Name = "xCliffSmoothing";
+            this.xCliffSmoothing.Size = new System.Drawing.Size( 74, 17 );
+            this.xCliffSmoothing.TabIndex = 75;
+            this.xCliffSmoothing.Text = "Smoothed";
+            this.xCliffSmoothing.UseVisualStyleBackColor = true;
+            // 
+            // lCliffThresholdUnits
+            // 
+            this.lCliffThresholdUnits.AutoSize = true;
+            this.lCliffThresholdUnits.Location = new System.Drawing.Point( 213, 23 );
+            this.lCliffThresholdUnits.Name = "lCliffThresholdUnits";
+            this.lCliffThresholdUnits.Size = new System.Drawing.Size( 33, 13 );
+            this.lCliffThresholdUnits.TabIndex = 74;
+            this.lCliffThresholdUnits.Text = "100%";
+            // 
+            // sCliffThreshold
+            // 
+            this.sCliffThreshold.AutoSize = false;
+            this.sCliffThreshold.LargeChange = 20;
+            this.sCliffThreshold.Location = new System.Drawing.Point( 103, 19 );
+            this.sCliffThreshold.Maximum = 200;
+            this.sCliffThreshold.Minimum = 20;
+            this.sCliffThreshold.Name = "sCliffThreshold";
+            this.sCliffThreshold.Size = new System.Drawing.Size( 110, 27 );
+            this.sCliffThreshold.TabIndex = 73;
+            this.sCliffThreshold.TickFrequency = 10;
+            this.sCliffThreshold.Value = 100;
+            this.sCliffThreshold.ValueChanged += new System.EventHandler( this.sCliffThreshold_ValueChanged );
+            // 
+            // lCliffThreshold
+            // 
+            this.lCliffThreshold.AutoSize = true;
+            this.lCliffThreshold.Location = new System.Drawing.Point( 43, 24 );
+            this.lCliffThreshold.Name = "lCliffThreshold";
+            this.lCliffThreshold.Size = new System.Drawing.Size( 54, 13 );
+            this.lCliffThreshold.TabIndex = 72;
+            this.lCliffThreshold.Text = "Threshold";
+            // 
+            // gBeaches
+            // 
+            this.gBeaches.Controls.Add( this.lBeachHeight );
+            this.gBeaches.Controls.Add( this.lBeachExtentUnits );
+            this.gBeaches.Controls.Add( this.lBeachHeightUnits );
+            this.gBeaches.Controls.Add( this.nBeachHeight );
+            this.gBeaches.Controls.Add( this.nBeachExtent );
+            this.gBeaches.Controls.Add( this.lBeachExtent );
+            this.gBeaches.Location = new System.Drawing.Point( 3, 886 );
+            this.gBeaches.Name = "gBeaches";
+            this.gBeaches.Size = new System.Drawing.Size( 362, 48 );
+            this.gBeaches.TabIndex = 76;
+            this.gBeaches.TabStop = false;
+            this.gBeaches.Text = "Beaches";
+            this.gBeaches.Visible = false;
+            // 
+            // lBeachHeight
+            // 
+            this.lBeachHeight.AutoSize = true;
+            this.lBeachHeight.Location = new System.Drawing.Point( 216, 23 );
+            this.lBeachHeight.Name = "lBeachHeight";
+            this.lBeachHeight.Size = new System.Drawing.Size( 38, 13 );
+            this.lBeachHeight.TabIndex = 69;
+            this.lBeachHeight.Text = "Height";
+            // 
+            // lBeachExtentUnits
+            // 
+            this.lBeachExtentUnits.AutoSize = true;
+            this.lBeachExtentUnits.Location = new System.Drawing.Point( 143, 23 );
+            this.lBeachExtentUnits.Name = "lBeachExtentUnits";
+            this.lBeachExtentUnits.Size = new System.Drawing.Size( 38, 13 );
+            this.lBeachExtentUnits.TabIndex = 68;
+            this.lBeachExtentUnits.Text = "blocks";
+            // 
+            // lBeachHeightUnits
+            // 
+            this.lBeachHeightUnits.AutoSize = true;
+            this.lBeachHeightUnits.Location = new System.Drawing.Point( 320, 23 );
+            this.lBeachHeightUnits.Name = "lBeachHeightUnits";
+            this.lBeachHeightUnits.Size = new System.Drawing.Size( 38, 13 );
+            this.lBeachHeightUnits.TabIndex = 67;
+            this.lBeachHeightUnits.Text = "blocks";
+            // 
+            // nBeachHeight
+            // 
+            this.nBeachHeight.Location = new System.Drawing.Point( 260, 21 );
+            this.nBeachHeight.Maximum = new decimal( new int[] {
+            512,
+            0,
+            0,
+            0} );
+            this.nBeachHeight.Name = "nBeachHeight";
+            this.nBeachHeight.Size = new System.Drawing.Size( 54, 20 );
+            this.nBeachHeight.TabIndex = 64;
+            this.nBeachHeight.Value = new decimal( new int[] {
+            2,
+            0,
+            0,
+            0} );
+            // 
+            // nBeachExtent
+            // 
+            this.nBeachExtent.Location = new System.Drawing.Point( 83, 19 );
+            this.nBeachExtent.Maximum = new decimal( new int[] {
+            1024,
+            0,
+            0,
+            0} );
+            this.nBeachExtent.Minimum = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            this.nBeachExtent.Name = "nBeachExtent";
+            this.nBeachExtent.Size = new System.Drawing.Size( 54, 20 );
+            this.nBeachExtent.TabIndex = 63;
+            this.nBeachExtent.Value = new decimal( new int[] {
+            7,
+            0,
+            0,
+            0} );
+            // 
+            // lBeachExtent
+            // 
+            this.lBeachExtent.AutoSize = true;
+            this.lBeachExtent.Location = new System.Drawing.Point( 40, 23 );
+            this.lBeachExtent.Name = "lBeachExtent";
+            this.lBeachExtent.Size = new System.Drawing.Size( 37, 13 );
+            this.lBeachExtent.TabIndex = 65;
+            this.lBeachExtent.Text = "Extent";
             // 
             // xSeed
             // 
@@ -2052,6 +2324,17 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeight)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacingVariation)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeSpacing)).EndInit();
+            this.gSnow.ResumeLayout( false );
+            this.gSnow.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nSnowTransition)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSnowAltitude)).EndInit();
+            this.gCliffs.ResumeLayout( false );
+            this.gCliffs.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.sCliffThreshold)).EndInit();
+            this.gBeaches.ResumeLayout( false );
+            this.gBeaches.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nBeachHeight)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nBeachExtent)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).EndInit();
             this.ResumeLayout( false );
             this.PerformLayout();
@@ -2111,7 +2394,7 @@
         private System.Windows.Forms.TrackBar sBias;
         private System.Windows.Forms.Label lBias;
         private System.Windows.Forms.Label lMaxDepthUnits;
-        private System.Windows.Forms.CheckBox xTrees;
+        private System.Windows.Forms.CheckBox xAddTrees;
         private System.Windows.Forms.Button bSavePreview;
         private System.Windows.Forms.TabControl tabs;
         private System.Windows.Forms.TabPage tabExisting;
@@ -2197,14 +2480,33 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.CheckBox xAddBeaches;
         private System.Windows.Forms.GroupBox gGenOptions;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox xAddRuins;
         private System.Windows.Forms.CheckBox xOre;
-        private System.Windows.Forms.CheckBox checkBox2;
+        private System.Windows.Forms.CheckBox xAddCliffs;
         private System.Windows.Forms.TrackBar sAboveFunc;
         private System.Windows.Forms.TrackBar sBelowFunc;
+        private System.Windows.Forms.Label lBelowFuncUnits;
+        private System.Windows.Forms.Label lAboveFuncUnits;
         private System.Windows.Forms.Label lBelowFunc;
         private System.Windows.Forms.Label lAboveFunc;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.GroupBox gCliffs;
+        private System.Windows.Forms.GroupBox gSnow;
+        private System.Windows.Forms.Label lSnowTransitionUnits;
+        private System.Windows.Forms.Label lSnowTransition;
+        private System.Windows.Forms.Label lSnowAltitudeUnits;
+        private System.Windows.Forms.NumericUpDown nSnowTransition;
+        private System.Windows.Forms.NumericUpDown nSnowAltitude;
+        private System.Windows.Forms.Label lSnowAltitude;
+        private System.Windows.Forms.Label lCliffThresholdUnits;
+        private System.Windows.Forms.TrackBar sCliffThreshold;
+        private System.Windows.Forms.Label lCliffThreshold;
+        private System.Windows.Forms.CheckBox xCliffSmoothing;
+        private System.Windows.Forms.GroupBox gBeaches;
+        private System.Windows.Forms.Label lBeachHeight;
+        private System.Windows.Forms.Label lBeachExtentUnits;
+        private System.Windows.Forms.Label lBeachHeightUnits;
+        private System.Windows.Forms.NumericUpDown nBeachHeight;
+        private System.Windows.Forms.NumericUpDown nBeachExtent;
+        private System.Windows.Forms.Label lBeachExtent;
     }
 }
