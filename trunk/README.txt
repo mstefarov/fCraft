@@ -9,6 +9,9 @@ fCraft requires Microsoft .NET Framework 3.5+ (on Windows) or Mono 2.6.4+
 Installation instructions:
 https://sourceforge.net/apps/mediawiki/fcraft/index.php?title=Installation
 
+Before starting the server, run ConfigTool.exe to choose your settings.
+To start a server, run any one of the front ends (fCraftConsole or fCraftUI
+are recommended).
 
 
 == List of Files ==

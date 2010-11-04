@@ -36,7 +36,7 @@ namespace fCraft {
                      featureScale = 1;
         public float roughness = .5f;
         public bool  layeredHeightmap = false,
-                     marbledHeightmap = true,
+                     marbledHeightmap = false,
                      invertHeightmap = false;
         public float aboveFuncExponent = 1,
                      belowFuncExponent = 1;

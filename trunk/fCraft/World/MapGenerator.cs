@@ -340,7 +340,9 @@ namespace fCraft {
                         raisedCorners = 3,
                         loweredCorners = 1,
                         treeSpacingMax = 12,
-                        treeSpacingMin = 6
+                        treeSpacingMin = 6,
+                        marbledHeightmap = true,
+                        delayBias = true
                     };
 
                 case MapGenTemplate.Default:
@@ -381,7 +383,8 @@ namespace fCraft {
                         roughness = .64f,
                         marbledHeightmap = true,
                         matchWaterCoverage = true,
-                        waterCoverage = .3f
+                        waterCoverage = .3f,
+                        maxHeightVariation = 0
                     };
 
                 case MapGenTemplate.Island:
@@ -393,7 +396,9 @@ namespace fCraft {
                         midPoint = 1,
                         loweredCorners = 4,
                         featureScale = 3,
-                        detailScale = 7
+                        detailScale = 7,
+                        marbledHeightmap = true,
+                        delayBias = true
                     };
 
                 case MapGenTemplate.Lake:
@@ -557,7 +562,7 @@ namespace fCraft {
                 Noise.Normalize( altmap, -1, 1 );
             }
 
-            int snowStartThreshold = args.snowTransition;
+            int snowStartThreshold = args.snowAltitude - args.snowTransition;
             int snowThreshold = args.snowAltitude;
 
             ReportProgress( 10, "Filling" );
