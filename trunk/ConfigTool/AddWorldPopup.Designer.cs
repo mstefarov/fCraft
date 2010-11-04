@@ -53,9 +53,9 @@
             this.xHidden = new System.Windows.Forms.CheckBox();
             this.fileBrowser = new System.Windows.Forms.OpenFileDialog();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.tStatus1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
             this.preview = new ConfigTool.CustomPictureBox();
             this.lDetailSize = new System.Windows.Forms.Label();
@@ -188,6 +188,10 @@
             this.lMapFileOptions = new System.Windows.Forms.Label();
             this.lCreateMap = new System.Windows.Forms.Label();
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
+            this.nMaxDepthVariation = new System.Windows.Forms.NumericUpDown();
+            this.nMaxHeightVariation = new System.Windows.Forms.NumericUpDown();
+            this.lMaxHeightVariationUnits = new System.Windows.Forms.Label();
+            this.lMaxDepthVariationUnits = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
@@ -239,6 +243,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nBeachHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nBeachExtent)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxDepthVariation)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxHeightVariation)).BeginInit();
             this.SuspendLayout();
             // 
             // lX2
@@ -580,14 +586,21 @@
             // statusStrip
             // 
             this.statusStrip.Items.AddRange( new System.Windows.Forms.ToolStripItem[] {
+            this.progressBar,
             this.tStatus1,
-            this.tStatus2,
-            this.progressBar} );
+            this.tStatus2} );
             this.statusStrip.Location = new System.Drawing.Point( 0, 561 );
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size( 984, 22 );
             this.statusStrip.TabIndex = 29;
             this.statusStrip.Text = "statusStrip1";
+            // 
+            // progressBar
+            // 
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size( 100, 16 );
+            this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            this.progressBar.Visible = false;
             // 
             // tStatus1
             // 
@@ -600,13 +613,6 @@
             this.tStatus2.Name = "tStatus2";
             this.tStatus2.Size = new System.Drawing.Size( 44, 17 );
             this.tStatus2.Text = "status2";
-            // 
-            // progressBar
-            // 
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size( 100, 16 );
-            this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
-            this.progressBar.Visible = false;
             // 
             // previewLayout
             // 
@@ -771,14 +777,14 @@
             this.lMaxHeightUnits.AutoSize = true;
             this.lMaxHeightUnits.Location = new System.Drawing.Point( 140, 54 );
             this.lMaxHeightUnits.Name = "lMaxHeightUnits";
-            this.lMaxHeightUnits.Size = new System.Drawing.Size( 38, 13 );
+            this.lMaxHeightUnits.Size = new System.Drawing.Size( 21, 13 );
             this.lMaxHeightUnits.TabIndex = 41;
-            this.lMaxHeightUnits.Text = "blocks";
+            this.lMaxHeightUnits.Text = "+/-";
             // 
             // lMaxDepth
             // 
             this.lMaxDepth.AutoSize = true;
-            this.lMaxDepth.Location = new System.Drawing.Point( 195, 54 );
+            this.lMaxDepth.Location = new System.Drawing.Point( 17, 80 );
             this.lMaxDepth.Name = "lMaxDepth";
             this.lMaxDepth.Size = new System.Drawing.Size( 57, 13 );
             this.lMaxDepth.TabIndex = 42;
@@ -787,11 +793,11 @@
             // lMaxDepthUnits
             // 
             this.lMaxDepthUnits.AutoSize = true;
-            this.lMaxDepthUnits.Location = new System.Drawing.Point( 318, 54 );
+            this.lMaxDepthUnits.Location = new System.Drawing.Point( 140, 80 );
             this.lMaxDepthUnits.Name = "lMaxDepthUnits";
-            this.lMaxDepthUnits.Size = new System.Drawing.Size( 38, 13 );
+            this.lMaxDepthUnits.Size = new System.Drawing.Size( 21, 13 );
             this.lMaxDepthUnits.TabIndex = 44;
-            this.lMaxDepthUnits.Text = "blocks";
+            this.lMaxDepthUnits.Text = "+/-";
             // 
             // lBias
             // 
@@ -1352,6 +1358,10 @@
             // 
             // gMapSize
             // 
+            this.gMapSize.Controls.Add( this.nMaxDepthVariation );
+            this.gMapSize.Controls.Add( this.nMaxHeightVariation );
+            this.gMapSize.Controls.Add( this.lMaxHeightVariationUnits );
+            this.gMapSize.Controls.Add( this.lMaxDepthVariationUnits );
             this.gMapSize.Controls.Add( this.xWaterLevel );
             this.gMapSize.Controls.Add( this.nWaterLevel );
             this.gMapSize.Controls.Add( this.lWaterLevelLabel );
@@ -1369,7 +1379,7 @@
             this.gMapSize.Controls.Add( this.nWidthY );
             this.gMapSize.Location = new System.Drawing.Point( 3, 158 );
             this.gMapSize.Name = "gMapSize";
-            this.gMapSize.Size = new System.Drawing.Size( 362, 107 );
+            this.gMapSize.Size = new System.Drawing.Size( 362, 147 );
             this.gMapSize.TabIndex = 9;
             this.gMapSize.TabStop = false;
             this.gMapSize.Text = "Dimensions";
@@ -1377,7 +1387,7 @@
             // xWaterLevel
             // 
             this.xWaterLevel.AutoSize = true;
-            this.xWaterLevel.Location = new System.Drawing.Point( 29, 82 );
+            this.xWaterLevel.Location = new System.Drawing.Point( 31, 122 );
             this.xWaterLevel.Name = "xWaterLevel";
             this.xWaterLevel.Size = new System.Drawing.Size( 115, 17 );
             this.xWaterLevel.TabIndex = 48;
@@ -1387,7 +1397,7 @@
             // 
             // nWaterLevel
             // 
-            this.nWaterLevel.Location = new System.Drawing.Point( 150, 81 );
+            this.nWaterLevel.Location = new System.Drawing.Point( 152, 121 );
             this.nWaterLevel.Name = "nWaterLevel";
             this.nWaterLevel.Size = new System.Drawing.Size( 54, 20 );
             this.nWaterLevel.TabIndex = 45;
@@ -1400,7 +1410,7 @@
             // lWaterLevelLabel
             // 
             this.lWaterLevelLabel.AutoSize = true;
-            this.lWaterLevelLabel.Location = new System.Drawing.Point( 210, 83 );
+            this.lWaterLevelLabel.Location = new System.Drawing.Point( 212, 123 );
             this.lWaterLevelLabel.Name = "lWaterLevelLabel";
             this.lWaterLevelLabel.Size = new System.Drawing.Size( 38, 13 );
             this.lWaterLevelLabel.TabIndex = 47;
@@ -1408,7 +1418,7 @@
             // 
             // nMaxDepth
             // 
-            this.nMaxDepth.Location = new System.Drawing.Point( 258, 52 );
+            this.nMaxDepth.Location = new System.Drawing.Point( 80, 78 );
             this.nMaxDepth.Maximum = new decimal( new int[] {
             2032,
             0,
@@ -1451,7 +1461,7 @@
             this.gTerrainFeatures.Controls.Add( this.lBiasDisplay );
             this.gTerrainFeatures.Controls.Add( this.lBias );
             this.gTerrainFeatures.Controls.Add( this.sBias );
-            this.gTerrainFeatures.Location = new System.Drawing.Point( 3, 271 );
+            this.gTerrainFeatures.Location = new System.Drawing.Point( 3, 311 );
             this.gTerrainFeatures.Name = "gTerrainFeatures";
             this.gTerrainFeatures.Size = new System.Drawing.Size( 362, 84 );
             this.gTerrainFeatures.TabIndex = 10;
@@ -1561,7 +1571,7 @@
             this.gHeightmapCreation.Controls.Add( this.lMatchWaterCoverageDisplay );
             this.gHeightmapCreation.Controls.Add( this.lRoughness );
             this.gHeightmapCreation.Controls.Add( this.lDetailSize );
-            this.gHeightmapCreation.Location = new System.Drawing.Point( 3, 361 );
+            this.gHeightmapCreation.Location = new System.Drawing.Point( 3, 401 );
             this.gHeightmapCreation.Name = "gHeightmapCreation";
             this.gHeightmapCreation.Size = new System.Drawing.Size( 362, 226 );
             this.gHeightmapCreation.TabIndex = 11;
@@ -1693,7 +1703,7 @@
             this.gCaves.Controls.Add( this.lCaveSize );
             this.gCaves.Controls.Add( this.sCaveDensity );
             this.gCaves.Controls.Add( this.lCaveDensity );
-            this.gCaves.Location = new System.Drawing.Point( 3, 593 );
+            this.gCaves.Location = new System.Drawing.Point( 3, 633 );
             this.gCaves.Name = "gCaves";
             this.gCaves.Size = new System.Drawing.Size( 362, 91 );
             this.gCaves.TabIndex = 22;
@@ -1797,7 +1807,7 @@
             this.gTrees.Controls.Add( this.lTreeSpacingVariation );
             this.gTrees.Controls.Add( this.nTreeSpacing );
             this.gTrees.Controls.Add( this.lTreeSpacing );
-            this.gTrees.Location = new System.Drawing.Point( 3, 690 );
+            this.gTrees.Location = new System.Drawing.Point( 3, 730 );
             this.gTrees.Name = "gTrees";
             this.gTrees.Size = new System.Drawing.Size( 362, 74 );
             this.gTrees.TabIndex = 12;
@@ -1945,7 +1955,7 @@
             this.gSnow.Controls.Add( this.nSnowTransition );
             this.gSnow.Controls.Add( this.nSnowAltitude );
             this.gSnow.Controls.Add( this.lSnowAltitude );
-            this.gSnow.Location = new System.Drawing.Point( 3, 770 );
+            this.gSnow.Location = new System.Drawing.Point( 3, 810 );
             this.gSnow.Name = "gSnow";
             this.gSnow.Size = new System.Drawing.Size( 362, 45 );
             this.gSnow.TabIndex = 24;
@@ -2034,7 +2044,7 @@
             this.gCliffs.Controls.Add( this.lCliffThresholdUnits );
             this.gCliffs.Controls.Add( this.sCliffThreshold );
             this.gCliffs.Controls.Add( this.lCliffThreshold );
-            this.gCliffs.Location = new System.Drawing.Point( 3, 821 );
+            this.gCliffs.Location = new System.Drawing.Point( 3, 861 );
             this.gCliffs.Name = "gCliffs";
             this.gCliffs.Size = new System.Drawing.Size( 362, 59 );
             this.gCliffs.TabIndex = 23;
@@ -2092,7 +2102,7 @@
             this.gBeaches.Controls.Add( this.nBeachHeight );
             this.gBeaches.Controls.Add( this.nBeachExtent );
             this.gBeaches.Controls.Add( this.lBeachExtent );
-            this.gBeaches.Location = new System.Drawing.Point( 3, 886 );
+            this.gBeaches.Location = new System.Drawing.Point( 3, 926 );
             this.gBeaches.Name = "gBeaches";
             this.gBeaches.Size = new System.Drawing.Size( 362, 48 );
             this.gBeaches.TabIndex = 76;
@@ -2240,6 +2250,53 @@
             // 
             this.folderBrowser.Description = "Find the folder where your Myne / MyneCraft / Hydebuild / iCraft map is located.";
             // 
+            // nMaxDepthVariation
+            // 
+            this.nMaxDepthVariation.Location = new System.Drawing.Point( 167, 78 );
+            this.nMaxDepthVariation.Maximum = new decimal( new int[] {
+            2032,
+            0,
+            0,
+            0} );
+            this.nMaxDepthVariation.Name = "nMaxDepthVariation";
+            this.nMaxDepthVariation.Size = new System.Drawing.Size( 54, 20 );
+            this.nMaxDepthVariation.TabIndex = 50;
+            // 
+            // nMaxHeightVariation
+            // 
+            this.nMaxHeightVariation.Location = new System.Drawing.Point( 167, 52 );
+            this.nMaxHeightVariation.Maximum = new decimal( new int[] {
+            2032,
+            0,
+            0,
+            0} );
+            this.nMaxHeightVariation.Name = "nMaxHeightVariation";
+            this.nMaxHeightVariation.Size = new System.Drawing.Size( 54, 20 );
+            this.nMaxHeightVariation.TabIndex = 49;
+            this.nMaxHeightVariation.Value = new decimal( new int[] {
+            4,
+            0,
+            0,
+            0} );
+            // 
+            // lMaxHeightVariationUnits
+            // 
+            this.lMaxHeightVariationUnits.AutoSize = true;
+            this.lMaxHeightVariationUnits.Location = new System.Drawing.Point( 227, 54 );
+            this.lMaxHeightVariationUnits.Name = "lMaxHeightVariationUnits";
+            this.lMaxHeightVariationUnits.Size = new System.Drawing.Size( 38, 13 );
+            this.lMaxHeightVariationUnits.TabIndex = 51;
+            this.lMaxHeightVariationUnits.Text = "blocks";
+            // 
+            // lMaxDepthVariationUnits
+            // 
+            this.lMaxDepthVariationUnits.AutoSize = true;
+            this.lMaxDepthVariationUnits.Location = new System.Drawing.Point( 227, 80 );
+            this.lMaxDepthVariationUnits.Name = "lMaxDepthVariationUnits";
+            this.lMaxDepthVariationUnits.Size = new System.Drawing.Size( 38, 13 );
+            this.lMaxDepthVariationUnits.TabIndex = 52;
+            this.lMaxDepthVariationUnits.Text = "blocks";
+            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2336,6 +2393,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nBeachHeight)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nBeachExtent)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxDepthVariation)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxHeightVariation)).EndInit();
             this.ResumeLayout( false );
             this.PerformLayout();
 
@@ -2508,5 +2567,9 @@
         private System.Windows.Forms.NumericUpDown nBeachHeight;
         private System.Windows.Forms.NumericUpDown nBeachExtent;
         private System.Windows.Forms.Label lBeachExtent;
+        private System.Windows.Forms.NumericUpDown nMaxDepthVariation;
+        private System.Windows.Forms.NumericUpDown nMaxHeightVariation;
+        private System.Windows.Forms.Label lMaxHeightVariationUnits;
+        private System.Windows.Forms.Label lMaxDepthVariationUnits;
     }
 }

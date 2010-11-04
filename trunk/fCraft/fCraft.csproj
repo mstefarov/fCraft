@@ -56,7 +56,6 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
@@ -131,7 +130,8 @@
     <Compile Include="World\EventHandlers.cs" />
     <Compile Include="World\Forester.cs" />
     <Compile Include="World\Map.cs" />
-    <Compile Include="World\MapGenerator.cs" />
+    <Compile Include="World\MapGenerator.cs">
+    </Compile>
     <Compile Include="World\MapGeneratorArgs.cs" />
     <Compile Include="World\World.cs" />
     <Compile Include="World\Zone.cs" />

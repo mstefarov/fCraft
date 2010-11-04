@@ -403,29 +403,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             new IRCNetwork("Worldnet", "irc.worldnet.net"),
             new IRCNetwork("PIK [BA]", "irc.krstarica.com", 6667,true),
             new IRCNetwork("Friend4ever [IT]", "irc.friend4ever.it", 6667,true),
-            new IRCNetwork("AustNet", "irc.austnet.org"),
-            new IRCNetwork("omgwtfhax", "irc.omgwtfhax.net"),
-            new IRCNetwork("Blitzed", "irc.blitzed.org"),
-            new IRCNetwork("UtoNet", "irc.utonet.org"),
-            new IRCNetwork("cre.jp [JP]", "irc.cre.jp", 6667,true),
-            new IRCNetwork("WhatNET", "irc.whatnet.org"),
-            new IRCNetwork("EuropNet [FR]", "irc.europnet.org", 6667,true),
-            new IRCNetwork("ShadowFire", "irc.shadowfire.org"),
-            new IRCNetwork("RedeNorte [PT]", "irc.redenorte.org", 6667,true),
-            new IRCNetwork("Station51.net", "irc.station51.net"),
-            new IRCNetwork("DeltaAnime (dairc)", "irc.deltaanime.net"),
-            new IRCNetwork("Otaku-IRC [FR]", "irc.otaku-irc.fr", 6667,true),
-            new IRCNetwork("PlatinumIRC", "irc.platinumirc.org"),
-            new IRCNetwork("A0Hell.Net", "irc.a0hell.net"),
-            new IRCNetwork("NewNet", "irc.newnet.net"),
-            new IRCNetwork("GlobalGamers", "irc.globalgamers.net"),
-            new IRCNetwork("AfterNET", "irc.afternet.org"),
-            new IRCNetwork("After-All", "irc.after-all.org"),
-            new IRCNetwork("DejaToons", "irc.dejatoons.net"),
-            new IRCNetwork("TRSohbet [TR]", "irc.trsohbet.com", 6667,true),
-            new IRCNetwork("TravianGames", "irc.travian.com.pt"),
-            new IRCNetwork("Red-Latina [ES]", "irc.red-latina.org", 6667,true),
-            new IRCNetwork("ChatSpike", "irc.chatspike.net")
+            new IRCNetwork("AustNet", "irc.austnet.org")
         }.OrderBy( ( network ) => network.Name ).ToArray();
 
         private void cIRCList_SelectedIndexChanged( object sender, EventArgs e ) {

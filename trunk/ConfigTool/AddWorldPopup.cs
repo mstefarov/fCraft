@@ -56,6 +56,8 @@ namespace ConfigTool {
             bwLoader.RunWorkerCompleted += AsyncLoadCompleted;
 
             bwGenerator.DoWork += AsyncGen;
+            bwGenerator.WorkerReportsProgress = true;
+            bwGenerator.ProgressChanged += AsyncGenProgress;
             bwGenerator.RunWorkerCompleted += AsyncGenCompleted;
 
             bwRenderer.WorkerReportsProgress = true;
@@ -292,8 +294,10 @@ namespace ConfigTool {
             }
 
             tStatus1.Text = "Generating...";
+            tStatus2.Text = "";
             progressBar.Visible = true;
-            progressBar.Style = ProgressBarStyle.Marquee;
+            progressBar.Style = ProgressBarStyle.Continuous;
+            progressBar.Value = 0;
 
             Refresh();
             bwGenerator.RunWorkerAsync();
@@ -304,7 +308,11 @@ namespace ConfigTool {
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
             Map generatedMap;
             if( tab == Tabs.Generator ) {
-                generatedMap = new MapGenerator( generatorArgs ).Generate();
+                MapGenerator gen = new MapGenerator( generatorArgs );
+                gen.ProgressCallback = delegate( object _sender, ProgressChangedEventArgs args) {
+                    bwGenerator.ReportProgress( args.ProgressPercentage, args.UserState );
+                };
+                generatedMap = gen.Generate();
             } else {
                 generatedMap = new Map( null, Convert.ToInt32( nFlatgrassDimX.Value ), Convert.ToInt32( nFlatgrassDimY.Value ), Convert.ToInt32( nFlatgrassDimH.Value ) );
                 MapGenerator.GenerateFlatgrass( generatedMap );
@@ -314,6 +322,11 @@ namespace ConfigTool {
             generatedMap.CalculateShadows();
             map = generatedMap;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
+        }
+
+        void AsyncGenProgress( object sender, ProgressChangedEventArgs e ) {
+            progressBar.Value = e.ProgressPercentage;
+            tStatus1.Text = (string)e.UserState;
         }
 
         void AsyncGenCompleted( object sender, RunWorkerCompletedEventArgs e ) {
@@ -719,6 +732,9 @@ Dimensions: {5}×{6}×{7}
 
             sAboveFunc.Value = ExponentToTrackBar( sAboveFunc, generatorArgs.aboveFuncExponent );
             sBelowFunc.Value = ExponentToTrackBar( sBelowFunc, generatorArgs.belowFuncExponent );
+
+            nMaxHeightVariation.Value = generatorArgs.maxHeightVariation;
+            nMaxDepthVariation.Value = generatorArgs.maxDepthVariation;
         }
 
         void SaveGeneratorArgs() {
@@ -769,6 +785,8 @@ Dimensions: {5}×{6}×{7}
                 beachHeight = (int)nBeachHeight.Value,
                 aboveFuncExponent = TrackBarToExponent( sAboveFunc ),
                 belowFuncExponent = TrackBarToExponent( sBelowFunc ),
+                maxHeightVariation = (int)nMaxHeightVariation.Value,
+                maxDepthVariation = (int)nMaxDepthVariation.Value
             };
         }
 

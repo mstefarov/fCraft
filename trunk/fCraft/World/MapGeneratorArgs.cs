@@ -10,12 +10,14 @@ namespace fCraft {
         const int FormatVersion = 2;
 
         public MapGenTheme theme = MapGenTheme.Forest;
-        public int seed,
+        public int   seed,
                      dimX = 256,
                      dimY = 256,
                      dimH = 96,
                      maxHeight = 20,
-                     maxDepth = 12;
+                     maxDepth = 12,
+                     maxHeightVariation = 4,
+                     maxDepthVariation = 0;
 
         public bool  addWater = true,
                      customWaterLevel = false,
@@ -63,7 +65,6 @@ namespace fCraft {
         public bool  addBeaches = false;
         public int   beachExtent = 6,
                      beachHeight = 2;
-
 
         public void Validate() {
             if( raisedCorners < 0 || raisedCorners > 4 || loweredCorners < 0 || raisedCorners > 4 || raisedCorners + loweredCorners > 4 ) {
@@ -152,6 +153,9 @@ namespace fCraft {
             if( root.Element( "beachExtent" ) != null ) beachExtent = Int32.Parse( root.Element( "beachExtent" ).Value );
             if( root.Element( "beachHeight" ) != null ) beachHeight = Int32.Parse( root.Element( "beachHeight" ).Value );
 
+            if( root.Element( "maxHeightVariation" ) != null ) maxHeightVariation = Int32.Parse( root.Element( "maxHeightVariation" ).Value );
+            if( root.Element( "maxDepthVariation" ) != null ) maxDepthVariation = Int32.Parse( root.Element( "maxDepthVariation" ).Value );
+
             Validate();
         }
 
@@ -217,6 +221,9 @@ namespace fCraft {
             root.Add( new XElement( "addBeaches", addBeaches ) );
             root.Add( new XElement( "beachExtent", beachExtent ) );
             root.Add( new XElement( "beachHeight", beachHeight ) );
+
+            root.Add( new XElement( "maxHeightVariation", maxHeightVariation ) );
+            root.Add( new XElement( "maxDepthVariation", maxDepthVariation ) );
             document.Add( root );
             document.Save( fileName );
         }

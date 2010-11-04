@@ -610,6 +610,12 @@ Does not include IRC chatter (see IRCChat).";
 relaying messages to and from any IRC network.
 Note that encrypted IRC (via SSL) is not supported." );
 
+            string tipIRCList =
+@"Choose one of these popular IRC networks,
+or type in address/port manually below.";
+            toolTip.SetToolTip( lIRCList, tipIRCList );
+            toolTip.SetToolTip( cIRCList, tipIRCList );
+
             string tipIRCBotNetwork = "Host or address of the IRC network.";
             toolTip.SetToolTip( lIRCBotNetwork, tipIRCBotNetwork );
             toolTip.SetToolTip( tIRCBotNetwork, tipIRCBotNetwork );
