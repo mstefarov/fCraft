@@ -149,14 +149,16 @@ namespace fCraft {
 
 
             // Apply power functions to above/below water parts of the heightmap
-            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( heightmap[x, y] < desiredWaterLevel ) {
-                        float normalizedDepth = 1 - heightmap[x, y] / desiredWaterLevel;
-                        heightmap[x, y] = desiredWaterLevel - (float)Math.Pow( normalizedDepth, args.belowFuncExponent ) * desiredWaterLevel;
-                    } else {
-                        float normalizedHeight = (heightmap[x, y] - desiredWaterLevel) / (1 - desiredWaterLevel);
-                        heightmap[x, y] = desiredWaterLevel + (float)Math.Pow( normalizedHeight, args.aboveFuncExponent ) * (1 - desiredWaterLevel);
+            if( args.belowFuncExponent != 1 || args.aboveFuncExponent != 1 ) {
+                for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                    for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                        if( heightmap[x, y] < desiredWaterLevel ) {
+                            float normalizedDepth = 1 - heightmap[x, y] / desiredWaterLevel;
+                            heightmap[x, y] = desiredWaterLevel - (float)Math.Pow( normalizedDepth, args.belowFuncExponent ) * desiredWaterLevel;
+                        } else {
+                            float normalizedHeight = (heightmap[x, y] - desiredWaterLevel) / (1 - desiredWaterLevel);
+                            heightmap[x, y] = desiredWaterLevel + (float)Math.Pow( normalizedHeight, args.aboveFuncExponent ) * (1 - desiredWaterLevel);
+                        }
                     }
                 }
             }

@@ -9,38 +9,61 @@ namespace fCraft {
     public sealed class MapGeneratorArgs {
         const int FormatVersion = 2;
 
-        public MapGenTheme theme;
-        public int seed, dimX, dimY, dimH, maxHeight, maxDepth, waterLevel;
-        public bool customWaterLevel;
-        public bool addWater;
+        public MapGenTheme theme = MapGenTheme.Forest;
+        public int seed,
+                     dimX = 256,
+                     dimY = 256,
+                     dimH = 96,
+                     maxHeight = 20,
+                     maxDepth = 12;
 
-        public bool matchWaterCoverage;
-        public float waterCoverage;
-        public int raisedCorners, loweredCorners, midPoint;
-        public float bias;
-        public bool useBias;
-        public bool delayBias;
+        public bool  addWater = true,
+                     customWaterLevel = false,
+                     matchWaterCoverage = false;
+        public int   waterLevel = 48;
+        public float waterCoverage = .5f;
 
-        public int detailScale, featureScale;
-        public float roughness;
-        public bool layeredHeightmap, marbledHeightmap, invertHeightmap;
+        public bool  useBias = false,
+                     delayBias = false;
+        public float bias = 0;
+        public int   raisedCorners = 0,
+                     loweredCorners = 0,
+                     midPoint = 0;
 
-        public bool addTrees;
-        public int treeSpacingMin, treeSpacingMax, treeHeightMin, treeHeightMax;
+        public int   detailScale = 7,
+                     featureScale = 1;
+        public float roughness = .5f;
+        public bool  layeredHeightmap = false,
+                     marbledHeightmap = true,
+                     invertHeightmap = false;
+        public float aboveFuncExponent = 1,
+                     belowFuncExponent = 1;
 
-        public bool addCaves, addOre, addCaveWater, addCaveLava;
-        public float caveDensity, caveSize;
+        public bool  addTrees = true;
+        public int   treeSpacingMin = 7,
+                     treeSpacingMax = 11,
+                     treeHeightMin = 5,
+                     treeHeightMax = 7;
 
-        public bool addSnow;
-        public int snowAltitude, snowTransition;
+        public bool  addCaves = false,
+                     addOre = false,
+                     addCaveWater = false,
+                     addCaveLava = false;
+        public float caveDensity = 2,
+                     caveSize = 1;
 
-        public bool addCliffs, cliffSmoothing;
-        public float cliffThreshold;
+        public bool  addSnow = false;
+        public int   snowAltitude = 70,
+                     snowTransition = 7;
 
-        public bool addBeaches;
-        public int beachExtent=6, beachHeight=2;
+        public bool  addCliffs = true,
+                     cliffSmoothing = true;
+        public float cliffThreshold = 1;
 
-        public float aboveFuncExponent=1, belowFuncExponent=1;
+        public bool  addBeaches = false;
+        public int   beachExtent = 6,
+                     beachHeight = 2;
+
 
         public void Validate() {
             if( raisedCorners < 0 || raisedCorners > 4 || loweredCorners < 0 || raisedCorners > 4 || raisedCorners + loweredCorners > 4 ) {
@@ -54,52 +77,7 @@ namespace fCraft {
         }
 
         public MapGeneratorArgs() {
-            theme = MapGenTheme.Forest;
             seed = (new Random()).Next();
-            dimX = 256;
-            dimY = 256;
-            dimH = 96;
-            maxHeight = 20;
-            maxDepth = 12;
-            waterLevel = 40;
-            addWater = true;
-
-            matchWaterCoverage = false;
-            waterCoverage = .5f;
-            raisedCorners = 0;
-            loweredCorners = 0;
-            midPoint = 0;
-            bias = 0;
-            useBias = false;
-
-            detailScale = 7;
-            featureScale = 1;
-            roughness = .5f;
-            layeredHeightmap = false;
-            marbledHeightmap = false;
-            invertHeightmap = false;
-
-            addTrees = true;
-            treeSpacingMin = 7;
-            treeSpacingMax = 11;
-            treeHeightMin = 5;
-            treeHeightMax = 7;
-
-            addCaves = false;
-            addCaveLava = false;
-            addCaveWater = false;
-            addOre = false;
-            caveDensity = 2;
-            caveSize = 1;
-
-            addSnow = false;
-            snowAltitude = 70;
-            snowTransition = 60;
-
-            addCliffs = true;
-            cliffThreshold = 1;
-            addBeaches = false;
-            beachExtent = 7;
         }
 
         public MapGeneratorArgs( string fileName ) {
@@ -119,16 +97,19 @@ namespace fCraft {
             //dimH = Int32.Parse( root.Element( "dimH" ).Value );
             maxHeight = Int32.Parse( root.Element( "maxHeight" ).Value );
             maxDepth = Int32.Parse( root.Element( "maxDepth" ).Value );
-            waterLevel = Int32.Parse( root.Element( "waterLevel" ).Value );
-            addWater = Boolean.Parse( root.Element( "addWater" ).Value );
 
+            addWater = Boolean.Parse( root.Element( "addWater" ).Value );
+            if( root.Element( "customWaterLevel" ) != null ) customWaterLevel = Boolean.Parse( root.Element( "customWaterLevel" ).Value );
             matchWaterCoverage = Boolean.Parse( root.Element( "matchWaterCoverage" ).Value );
+            waterLevel = Int32.Parse( root.Element( "waterLevel" ).Value );
             waterCoverage = float.Parse( root.Element( "waterCoverage" ).Value );
+
+            useBias = Boolean.Parse( root.Element( "useBias" ).Value );
+            if( root.Element( "delayBias" ) != null ) delayBias = Boolean.Parse( root.Element( "delayBias" ).Value );
+            bias = float.Parse( root.Element( "bias" ).Value );
             raisedCorners = Int32.Parse( root.Element( "raisedCorners" ).Value );
             loweredCorners = Int32.Parse( root.Element( "loweredCorners" ).Value );
             midPoint = Int32.Parse( root.Element( "midPoint" ).Value );
-            bias = float.Parse( root.Element( "bias" ).Value );
-            useBias = Boolean.Parse( root.Element( "useBias" ).Value );
 
             if( version == 0 ) {
                 detailScale = Int32.Parse( root.Element( "minDetailSize" ).Value );
@@ -141,6 +122,8 @@ namespace fCraft {
             layeredHeightmap = Boolean.Parse( root.Element( "layeredHeightmap" ).Value );
             marbledHeightmap = Boolean.Parse( root.Element( "marbledHeightmap" ).Value );
             invertHeightmap = Boolean.Parse( root.Element( "invertHeightmap" ).Value );
+            if( root.Element( "aboveFuncExponent" ) != null ) aboveFuncExponent = float.Parse( root.Element( "aboveFuncExponent" ).Value );
+            if( root.Element( "belowFuncExponent" ) != null ) belowFuncExponent = float.Parse( root.Element( "belowFuncExponent" ).Value );
 
             addTrees = Boolean.Parse( root.Element( "addTrees" ).Value );
             treeSpacingMin = Int32.Parse( root.Element( "treeSpacingMin" ).Value );
@@ -157,24 +140,21 @@ namespace fCraft {
                 caveSize = float.Parse( root.Element( "caveSize" ).Value );
             }
 
-            if( root.Element("addSnow")!=null){
-                addSnow = Boolean.Parse( root.Element( "addSnow" ).Value );
-                snowAltitude = Int32.Parse( root.Element( "snowAltitude" ).Value );
-                snowTransition = Int32.Parse( root.Element( "snowTransition" ).Value );
-            }
+            if( root.Element( "addSnow" ) != null ) addSnow = Boolean.Parse( root.Element( "addSnow" ).Value );
+            if( root.Element( "snowAltitude" ) != null ) snowAltitude = Int32.Parse( root.Element( "snowAltitude" ).Value );
+            if( root.Element( "snowTransition" ) != null ) snowTransition = Int32.Parse( root.Element( "snowTransition" ).Value );
 
-            if( root.Element( "addCliffs" ) != null ) {
-                addCliffs = Boolean.Parse( root.Element( "addCliffs" ).Value );
-                cliffThreshold = float.Parse( root.Element( "cliffThreshold" ).Value );
-            }
+            if( root.Element( "addCliffs" ) != null ) addCliffs = Boolean.Parse( root.Element( "addCliffs" ).Value );
+            if( root.Element( "cliffSmoothing" ) != null ) cliffSmoothing = Boolean.Parse( root.Element( "cliffSmoothing" ).Value );
+            if( root.Element( "cliffThreshold" ) != null ) cliffThreshold = float.Parse( root.Element( "cliffThreshold" ).Value );
 
-            if( root.Element( "addBeaches" ) != null ) {
-                addBeaches = Boolean.Parse( root.Element( "addBeaches" ).Value );
-                beachExtent = Int32.Parse( root.Element( "beachExtent" ).Value );
-            }
+            if( root.Element( "addBeaches" ) != null ) addBeaches = Boolean.Parse( root.Element( "addBeaches" ).Value );
+            if( root.Element( "beachExtent" ) != null ) beachExtent = Int32.Parse( root.Element( "beachExtent" ).Value );
+            if( root.Element( "beachHeight" ) != null ) beachHeight = Int32.Parse( root.Element( "beachHeight" ).Value );
 
             Validate();
         }
+
 
         const string RootTagName = "fCraftMapGeneratorArgs";
         public void Save( string fileName ) {
@@ -190,16 +170,19 @@ namespace fCraft {
             root.Add( new XElement( "dimH", dimH ) );
             root.Add( new XElement( "maxHeight", maxHeight ) );
             root.Add( new XElement( "maxDepth", maxDepth ) );
-            root.Add( new XElement( "waterLevel", waterLevel ) );
-            root.Add( new XElement( "addWater", addWater ) );
 
+            root.Add( new XElement( "addWater", addWater ) );
+            root.Add( new XElement( "customWaterLevel", customWaterLevel ) );
             root.Add( new XElement( "matchWaterCoverage", matchWaterCoverage ) );
+            root.Add( new XElement( "waterLevel", waterLevel ) );
             root.Add( new XElement( "waterCoverage", waterCoverage ) );
+
+            root.Add( new XElement( "useBias", useBias ) );
+            root.Add( new XElement( "delayBias", delayBias ) );
             root.Add( new XElement( "raisedCorners", raisedCorners ) );
             root.Add( new XElement( "loweredCorners", loweredCorners ) );
             root.Add( new XElement( "midPoint", midPoint ) );
             root.Add( new XElement( "bias", bias ) );
-            root.Add( new XElement( "useBias", useBias ) );
 
             root.Add( new XElement( "detailScale", detailScale ) );
             root.Add( new XElement( "featureScale", featureScale ) );
@@ -207,6 +190,8 @@ namespace fCraft {
             root.Add( new XElement( "layeredHeightmap", layeredHeightmap ) );
             root.Add( new XElement( "marbledHeightmap", marbledHeightmap ) );
             root.Add( new XElement( "invertHeightmap", invertHeightmap ) );
+            root.Add( new XElement( "aboveFuncExponent", aboveFuncExponent ) );
+            root.Add( new XElement( "belowFuncExponent", belowFuncExponent ) );
 
             root.Add( new XElement( "addTrees", addTrees ) );
             root.Add( new XElement( "treeSpacingMin", treeSpacingMin ) );
@@ -226,14 +211,14 @@ namespace fCraft {
             root.Add( new XElement( "snowTransition", snowTransition ) );
 
             root.Add( new XElement( "addCliffs", addCliffs ) );
+            root.Add( new XElement( "cliffSmoothing", cliffSmoothing ) );
             root.Add( new XElement( "cliffThreshold", cliffThreshold ) );
 
             root.Add( new XElement( "addBeaches", addBeaches ) );
             root.Add( new XElement( "beachExtent", beachExtent ) );
-
+            root.Add( new XElement( "beachHeight", beachHeight ) );
             document.Add( root );
             document.Save( fileName );
         }
     }
-
 }
