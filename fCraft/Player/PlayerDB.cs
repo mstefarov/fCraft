@@ -12,6 +12,7 @@ namespace fCraft {
     public static class PlayerDB {
         static StringTree tree = new StringTree();
         static List<PlayerInfo> list = new List<PlayerInfo>();
+        public static PlayerInfo[] listCache;
         public const int SaveInterval = 60000; // 60s
 
         static int MaxID = 255;
@@ -46,6 +47,7 @@ namespace fCraft {
             lock( locker ) {
                 list.Add( info );
                 tree.Add( info.name, info );
+                UpdateCache();
             }
             return info;
         }
@@ -94,11 +96,12 @@ namespace fCraft {
                         }
                     }
                 }
-                Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records).", LogType.Debug, tree.Count() );
                 list.TrimExcess();
+                Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records).", LogType.Debug, tree.Count() );
             } else {
                 Logger.Log( "PlayerDB.Load: No player DB file found.", LogType.Warning );
             }
+            UpdateCache();
             isLoaded = true;
         }
 
@@ -107,12 +110,12 @@ namespace fCraft {
             Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count() );
             string tempFile = DBFile + ".temp";
 
+            PlayerInfo[] listCopy = GetPlayerListCopy();
+
             using( StreamWriter writer = File.CreateText( tempFile ) ) {
-                lock( locker ) {
-                    writer.WriteLine( MaxID + Header );
-                    foreach( PlayerInfo entry in list ) {
-                        writer.WriteLine( entry.Serialize() );
-                    }
+                writer.WriteLine( MaxID + Header );
+                foreach( PlayerInfo entry in listCopy ) {
+                    writer.WriteLine( entry.Serialize() );
                 }
             }
             try {
@@ -141,6 +144,7 @@ namespace fCraft {
                     info = new PlayerInfo( player );
                     tree.Add( player.name, info );
                     list.Add( info );
+                    UpdateCache();
                 }
             }
             return info;
@@ -150,13 +154,12 @@ namespace fCraft {
         public static PlayerInfo[] FindPlayers( IPAddress address, int limit ) {
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
-            lock( locker ) {
-                foreach( PlayerInfo info in list ) {
-                    if( info.lastIP.ToString() == address.ToString() ) {
-                        result.Add( info );
-                        count++;
-                        if( count >= limit ) return result.ToArray();
-                    }
+            PlayerInfo[] cache = listCache;
+            foreach( PlayerInfo info in cache ) {
+                if( info.lastIP.ToString() == address.ToString() ) {
+                    result.Add( info );
+                    count++;
+                    if( count >= limit ) return result.ToArray();
                 }
             }
             return result.ToArray();
@@ -166,13 +169,12 @@ namespace fCraft {
         public static PlayerInfo[] FindPlayers( Regex regex, int limit ) {
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
-            lock( locker ) {
-                foreach( PlayerInfo info in list ) {
-                    if( regex.IsMatch(info.name) ) {
-                        result.Add( info );
-                        count++;
-                        if( count >= limit ) return result.ToArray();
-                    }
+            PlayerInfo[] cache = listCache;
+            foreach( PlayerInfo info in cache ) {
+                if( regex.IsMatch( info.name ) ) {
+                    result.Add( info );
+                    count++;
+                    if( count >= limit ) return result.ToArray();
                 }
             }
             return result.ToArray();
@@ -210,12 +212,11 @@ namespace fCraft {
 
         public static int CountBannedPlayers() {
             int banned = 0;
-            lock( locker ) {
-                foreach( PlayerInfo info in list ) {
-                    if( info.banned ) banned++;
-                }
-                return banned;
+            PlayerInfo[] cache = listCache;
+            foreach( PlayerInfo info in listCache ) {
+                if( info.banned ) banned++;
             }
+            return banned;
         }
 
 
@@ -226,12 +227,11 @@ namespace fCraft {
 
         public static int CountPlayersByRank( Rank pc ) {
             int count = 0;
-            lock( locker ) {
-                foreach( PlayerInfo info in list ) {
-                    if( info.rank == pc ) count++;
-                }
-                return count;
+            PlayerInfo[] cache = listCache;
+            foreach( PlayerInfo info in list ) {
+                if( info.rank == pc ) count++;
             }
+            return count;
         }
 
         #endregion
@@ -258,22 +258,27 @@ namespace fCraft {
 
 
         public static PlayerInfo[] GetPlayerListCopy() {
-            lock( locker ) {
-                return list.ToArray();
-            }
+            return listCache;
         }
 
 
         public static PlayerInfo[] GetPlayerListCopy( Rank pc ) {
-            lock( locker ) {
-                List<PlayerInfo> tempList = new List<PlayerInfo>();
-                foreach( PlayerInfo info in list ) {
-                    if( info.rank == pc ) {
-                        tempList.Add( info );
-                    }
+            List<PlayerInfo> tempList = new List<PlayerInfo>();
+            PlayerInfo[] cache = listCache;
+            foreach( PlayerInfo info in cache ) {
+                if( info.rank == pc ) {
+                    tempList.Add( info );
                 }
-                return tempList.ToArray();
+            }
+            return tempList.ToArray();
+        }
+
+
+        static void UpdateCache() {
+            lock( locker ) {
+                listCache = list.ToArray();
             }
         }
+
     }
 }

@@ -40,6 +40,8 @@ namespace fCraft {
         public bool addBeaches;
         public int beachExtent;
 
+        public float aboveFuncExponent=1, belowFuncExponent=1;
+
         public void Validate() {
             if( raisedCorners < 0 || raisedCorners > 4 || loweredCorners < 0 || raisedCorners > 4 || raisedCorners + loweredCorners > 4 ) {
                 throw new ArgumentOutOfRangeException( "raisedCorners and loweredCorners must be between 0 and 4." );
@@ -54,9 +56,9 @@ namespace fCraft {
         public MapGeneratorArgs() {
             theme = MapGenTheme.Forest;
             seed = (new Random()).Next();
-            dimX = 128;
-            dimY = 128;
-            dimH = 80;
+            dimX = 256;
+            dimY = 256;
+            dimH = 96;
             maxHeight = 20;
             maxDepth = 12;
             waterLevel = 40;
