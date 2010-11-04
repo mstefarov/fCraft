@@ -309,7 +309,7 @@ namespace ConfigTool {
             Map generatedMap;
             if( tab == Tabs.Generator ) {
                 MapGenerator gen = new MapGenerator( generatorArgs );
-                gen.ProgressCallback = delegate( object _sender, ProgressChangedEventArgs args) {
+                gen.ProgressCallback = delegate( object _sender, ProgressChangedEventArgs args ) {
                     bwGenerator.ReportProgress( args.ProgressPercentage, args.UserState );
                 };
                 generatedMap = gen.Generate();
@@ -717,10 +717,8 @@ Dimensions: {5}×{6}×{7}
 
             xAddSnow.Checked = generatorArgs.addSnow;
 
-
-            int givenSnowAltitude = (generatorArgs.customWaterLevel ? generatorArgs.waterLevel : generatorArgs.dimH / 2);
-            nSnowAltitude.Value = Math.Max(nSnowAltitude.Minimum,Math.Min(nSnowAltitude.Maximum,givenSnowAltitude));
-            nSnowTransition.Value = Math.Max( nSnowTransition.Minimum, Math.Min( nSnowTransition.Maximum, givenSnowAltitude - generatorArgs.snowTransition ) );
+            nSnowAltitude.Value = (generatorArgs.customWaterLevel ? generatorArgs.waterLevel : generatorArgs.dimH / 2);
+            nSnowTransition.Value = generatorArgs.snowTransition;
 
             xAddCliffs.Checked = generatorArgs.addCliffs;
             sCliffThreshold.Value = (int)(generatorArgs.cliffThreshold * 100);
@@ -775,7 +773,7 @@ Dimensions: {5}×{6}×{7}
                 customWaterLevel = xWaterLevel.Checked,
                 waterLevel = (int)(xWaterLevel.Checked ? nWaterLevel.Value : nHeight.Value / 2),
                 addSnow = xAddSnow.Checked,
-                snowTransition = (int)(nSnowAltitude.Value + (xWaterLevel.Checked ? nWaterLevel.Value : nHeight.Value / 2) - nSnowTransition.Value),
+                snowTransition = (int)nSnowTransition.Value,
                 snowAltitude = (int)(nSnowAltitude.Value + (xWaterLevel.Checked ? nWaterLevel.Value : nHeight.Value / 2)),
                 addCliffs = xAddCliffs.Checked,
                 cliffThreshold = sCliffThreshold.Value / 100f,
@@ -838,11 +836,11 @@ Dimensions: {5}×{6}×{7}
         }
 
         private void sAboveFunc_ValueChanged( object sender, EventArgs e ) {
-            lAboveFuncUnits.Text = (1/TrackBarToExponent( sAboveFunc )).ToString( "0.0%" );
+            lAboveFuncUnits.Text = (1 / TrackBarToExponent( sAboveFunc )).ToString( "0.0%" );
         }
 
         private void sBelowFunc_ValueChanged( object sender, EventArgs e ) {
-            lBelowFuncUnits.Text = (1/TrackBarToExponent( sBelowFunc )).ToString( "0.0%" );
+            lBelowFuncUnits.Text = (1 / TrackBarToExponent( sBelowFunc )).ToString( "0.0%" );
         }
 
         float TrackBarToExponent( TrackBar bar ) {

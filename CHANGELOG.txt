@@ -1,3 +1,16 @@
+0.497
+ Feature: Added accurate progress reporting from MapGenerator. Coming soon: cancellation.
+ Feature: New MapGenerator options: BeachHeight, CliffSmoothing, LandSlope, UnderwaterSlope, MaxHeightVariation, MaxDepthVariation.
+ Feature: Added UI controls for snow/cliff/beach settings to AddWorldPopup.
+ Feature: Added a list of popular IRC networks to ConfigTool.
+ Change: Improved PlayerDB lookup performance by reducing locking.
+ Fix: Fixed MapGenerator calculating slope incorrectly at the water boundary.
+ Fix: Fixed "Add Ore" requiring "Add Caves" in MapGenerator.
+ Fix: Fixed water/lava caves not sealing liquids properly. 
+ Change: Set MapGenerator to default to 256x256x96
+ Change: AddWorldPopup Generator tab layout overhaul
+ Change: Organized MapGeneratorArgs and added serialization/deserialization for all the new options.
+
 0.496
  Fix: Fixed File.Replace() failing if fCraft was set up on a partition/volume other than the one where temp folder is.
  Fix: Added missing tooltip for "Edit Greeting"
