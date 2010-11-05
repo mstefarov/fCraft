@@ -1,5 +1,10 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2010-11-04
+498
+ Change: Disabled zlib support due to more potential memory leaks. fffuuuuu....
+ Fix: Fixed Island, Bay, and Ice templates broken by the last patch.
+ Fix: MapGeneratorArgs: snowTransition was interpreted as absolute (instead of relative) altitude, and marbledHeightmap incorrectly defaulted to 'true'.
+ Change: Updated readme and changelog.
 497
  Feature: Added accurate progress reporting from MapGenerator. Coming soon: cancellation.
  Feature: New MapGenerator options: BeachHeight, CliffSmoothing, LandSlope, UnderwaterSlope, MaxHeightVariation, MaxDepthVariation.
