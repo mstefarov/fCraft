@@ -28,6 +28,7 @@ namespace fCraft {
 
         VerifyNames,
         LimitOneConnectionPerIP,
+        AllowUnverifiedLAN,
         PatrolledRank,
         AntispamMessageCount,
         AntispamInterval,

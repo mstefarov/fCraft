@@ -326,10 +326,11 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         static IRCNetwork[] IRCNetworks = new IRCNetwork[]{
+            new IRCNetwork("FreeNode", "chat.freenode.net"),
             new IRCNetwork("QuakeNet", "irc.quakenet.org"),
             new IRCNetwork("IRCnet", "irc.belwue.de"),
             new IRCNetwork("Undernet", "irc.undernet.org"),
-            new IRCNetwork("EFnet", "irc.servercentral.net"),
+            new IRCNetwork("EFNet", "irc.servercentral.net"),
             new IRCNetwork("Ustream", "c.ustream.tv"),
             new IRCNetwork("WebChat", "irc.webchat.org"),
             new IRCNetwork("DALnet", "irc.dal.net"),
@@ -403,7 +404,8 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             new IRCNetwork("Worldnet", "irc.worldnet.net"),
             new IRCNetwork("PIK [BA]", "irc.krstarica.com", 6667,true),
             new IRCNetwork("Friend4ever [IT]", "irc.friend4ever.it", 6667,true),
-            new IRCNetwork("AustNet", "irc.austnet.org")
+            new IRCNetwork("AustNet", "irc.austnet.org"),
+            new IRCNetwork("GamesNET","irc.GamesNET.net")
         }.OrderBy( ( network ) => network.Name ).ToArray();
 
         private void cIRCList_SelectedIndexChanged( object sender, EventArgs e ) {
@@ -868,6 +870,9 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             }
             if( selectedRank == null ) return;
             switch( (Permission)e.Item.Tag ) {
+                case Permission.Say:
+                    if( check ) vPermissions.Items[(int)Permission.Chat].Checked = true;
+                    break;
                 case Permission.Ban:
                     cBanLimit.Enabled = check;
                     if( !check ) {
@@ -888,7 +893,10 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 case Permission.Demote:
                     cDemoteLimit.Enabled = check; break;
                 case Permission.Draw:
-                    xDrawLimit.Enabled = check; break;
+                case Permission.CopyAndPaste:
+                    xDrawLimit.Enabled = vPermissions.Items[(int)Permission.Draw].Checked ||
+                                         vPermissions.Items[(int)Permission.CopyAndPaste].Checked;
+                    break;
                 case Permission.Hide:
                     cMaxHideFrom.Enabled = check; break;
                 case Permission.Freeze:
@@ -1190,6 +1198,10 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                         return;
                 }
             }
+        }
+
+        private void cVerifyNames_SelectedIndexChanged( object sender, EventArgs e ) {
+            xAllowUnverifiedLAN.Enabled = (cVerifyNames.SelectedIndex != 0);
         }
     }
 }

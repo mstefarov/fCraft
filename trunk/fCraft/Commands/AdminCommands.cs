@@ -204,11 +204,13 @@ namespace fCraft {
                             if( !banIP ) {
                                 PlayerInfo[] alts = PlayerDB.FindPlayers( target.info.lastIP, 100 );
                                 List<PlayerInfo> bannedAlts = new List<PlayerInfo>();
-                                foreach( PlayerInfo alt in alts ) {
-                                    if( alt.banned && alt != target.info ) bannedAlts.Add( alt );
+                                for( int i=0; i<alts.Length; i++ ) {
+                                    if( alts[i].banned && alts[i] != target.info ) {
+                                        bannedAlts.Add( alts[i] );
+                                    }
                                 }
                                 if( bannedAlts.Count > 0 ) {
-                                    player.Message( "Warning: {0}&S was shares IP with other banned players: {1}. Consider adding an IP-ban.",
+                                    player.Message( "Warning: {0}&S shares IP with other banned players: {1}&S. Consider adding an IP-ban.",
                                                     target.GetClassyName(),
                                                     PlayerInfo.PlayerInfoArrayToString( bannedAlts.ToArray() ) );
                                 }
@@ -1013,7 +1015,7 @@ namespace fCraft {
                 Player target = targets[0];
                 if( player.info.rank.CanFreeze( target.info.rank ) ) {
                     if( target.isFrozen ) {
-                        Server.SendToAll( target.GetClassyName() + "&S is no longer frozen." );
+                        Server.SendToAll( "{0}&S is no longer frozen.", target.GetClassyName() );
                         target.isFrozen = false;
                     } else {
                         player.Message( target.GetClassyName() + "&S is currently not frozen." );
@@ -1046,6 +1048,11 @@ namespace fCraft {
         };
 
         internal static void Say( Player player, Command cmd ) {
+            if( player.IsMuted() ) {
+                player.MutedMessage();
+                return;
+            }
+
             if( player.Can( Permission.Say ) ) {
                 string msg = cmd.NextAll();
                 if( msg != null && msg.Trim().Length > 0 ) {
@@ -1068,6 +1075,11 @@ namespace fCraft {
         };
 
         internal static void StaffChat( Player player, Command cmd ) {
+            if( player.IsMuted() ) {
+                player.MutedMessage();
+                return;
+            }
+
             if( DateTime.UtcNow < player.mutedUntil ) {
                 player.Message( "You are muted for another {0:0} seconds.",
                                 player.mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );

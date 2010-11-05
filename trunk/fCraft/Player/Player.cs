@@ -76,6 +76,14 @@ namespace fCraft {
         public void Mute( int seconds ) {
             mutedUntil = DateTime.UtcNow.AddSeconds( seconds );
         }
+        public bool IsMuted() {
+            return DateTime.UtcNow.Subtract( mutedUntil ).TotalSeconds > 0;
+        }
+
+        public void MutedMessage() {
+            Message( "You are muted for another {0:0} seconds.",
+                     mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+        }
 
         bool DetectChatSpam() {
             if( this == Console ) return false;
@@ -104,8 +112,7 @@ namespace fCraft {
                     if( !Can( Permission.Chat ) ) return;
 
                     if( DateTime.UtcNow < mutedUntil ) {
-                        Message( "You are muted for another {0:0} seconds.",
-                                 mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+                        MutedMessage();
                         return;
                     }
 

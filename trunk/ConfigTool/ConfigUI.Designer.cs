@@ -24,7 +24,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -187,8 +187,7 @@
             this.vConsoleOptions = new System.Windows.Forms.ListView();
             this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
             this.tabIRC = new System.Windows.Forms.TabPage();
-            this.lIRCList = new System.Windows.Forms.Label();
-            this.cIRCList = new System.Windows.Forms.ComboBox();
+            this.xIRCListShowNonEnglish = new System.Windows.Forms.CheckBox();
             this.gIRCOptions = new System.Windows.Forms.GroupBox();
             this.lIRCNoForwardingMessage = new System.Windows.Forms.Label();
             this.xIRCBotAnnounceIRCJoins = new System.Windows.Forms.CheckBox();
@@ -216,7 +215,9 @@
             this.lIRCBotNetwork = new System.Windows.Forms.Label();
             this.lIRCBotNick = new System.Windows.Forms.Label();
             this.tIRCBotNick = new System.Windows.Forms.TextBox();
+            this.lIRCList = new System.Windows.Forms.Label();
             this.xIRC = new System.Windows.Forms.CheckBox();
+            this.cIRCList = new System.Windows.Forms.ComboBox();
             this.tabAdvanced = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.nMaxUndo = new System.Windows.Forms.NumericUpDown();
@@ -245,7 +246,7 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.xIRCListShowNonEnglish = new System.Windows.Forms.CheckBox();
+            this.xAllowUnverifiedLAN = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -948,8 +949,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle3.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 634, 344 );
             this.dgvWorlds.TabIndex = 0;
@@ -1491,7 +1492,7 @@
             this.gSecurityMisc.Controls.Add( this.xAnnounceKickAndBanReasons );
             this.gSecurityMisc.Controls.Add( this.xRequireRankChangeReason );
             this.gSecurityMisc.Controls.Add( this.xRequireBanReason );
-            this.gSecurityMisc.Location = new System.Drawing.Point( 8, 172 );
+            this.gSecurityMisc.Location = new System.Drawing.Point( 8, 200 );
             this.gSecurityMisc.Name = "gSecurityMisc";
             this.gSecurityMisc.Size = new System.Drawing.Size( 635, 117 );
             this.gSecurityMisc.TabIndex = 3;
@@ -1578,7 +1579,7 @@
             this.gSpamChat.Controls.Add( this.lSpamChatMessages );
             this.gSpamChat.Controls.Add( this.nSpamChatCount );
             this.gSpamChat.Controls.Add( this.lSpamChat );
-            this.gSpamChat.Location = new System.Drawing.Point( 8, 72 );
+            this.gSpamChat.Location = new System.Drawing.Point( 8, 100 );
             this.gSpamChat.Name = "gSpamChat";
             this.gSpamChat.Size = new System.Drawing.Size( 635, 94 );
             this.gSpamChat.TabIndex = 2;
@@ -1710,12 +1711,13 @@
             // 
             // gVerify
             // 
+            this.gVerify.Controls.Add( this.xAllowUnverifiedLAN );
             this.gVerify.Controls.Add( this.xLimitOneConnectionPerIP );
             this.gVerify.Controls.Add( this.lVerifyNames );
             this.gVerify.Controls.Add( this.cVerifyNames );
             this.gVerify.Location = new System.Drawing.Point( 8, 13 );
             this.gVerify.Name = "gVerify";
-            this.gVerify.Size = new System.Drawing.Size( 635, 53 );
+            this.gVerify.Size = new System.Drawing.Size( 635, 81 );
             this.gVerify.TabIndex = 0;
             this.gVerify.TabStop = false;
             this.gVerify.Text = "Name Verification";
@@ -1751,6 +1753,7 @@
             this.cVerifyNames.Name = "cVerifyNames";
             this.cVerifyNames.Size = new System.Drawing.Size( 100, 23 );
             this.cVerifyNames.TabIndex = 0;
+            this.cVerifyNames.SelectedIndexChanged += new System.EventHandler( this.cVerifyNames_SelectedIndexChanged );
             // 
             // tabSavingAndBackup
             // 
@@ -2126,26 +2129,17 @@
             this.tabIRC.Text = "IRC";
             this.tabIRC.UseVisualStyleBackColor = true;
             // 
-            // lIRCList
+            // xIRCListShowNonEnglish
             // 
-            this.lIRCList.AutoSize = true;
-            this.lIRCList.Enabled = false;
-            this.lIRCList.Location = new System.Drawing.Point( 213, 14 );
-            this.lIRCList.Name = "lIRCList";
-            this.lIRCList.Size = new System.Drawing.Size( 105, 15 );
-            this.lIRCList.TabIndex = 4;
-            this.lIRCList.Text = "Popular networks:";
-            // 
-            // cIRCList
-            // 
-            this.cIRCList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cIRCList.Enabled = false;
-            this.cIRCList.FormattingEnabled = true;
-            this.cIRCList.Location = new System.Drawing.Point( 321, 11 );
-            this.cIRCList.Name = "cIRCList";
-            this.cIRCList.Size = new System.Drawing.Size( 138, 23 );
-            this.cIRCList.TabIndex = 3;
-            this.cIRCList.SelectedIndexChanged += new System.EventHandler( this.cIRCList_SelectedIndexChanged );
+            this.xIRCListShowNonEnglish.AutoSize = true;
+            this.xIRCListShowNonEnglish.Enabled = false;
+            this.xIRCListShowNonEnglish.Location = new System.Drawing.Point( 465, 13 );
+            this.xIRCListShowNonEnglish.Name = "xIRCListShowNonEnglish";
+            this.xIRCListShowNonEnglish.Size = new System.Drawing.Size( 178, 19 );
+            this.xIRCListShowNonEnglish.TabIndex = 5;
+            this.xIRCListShowNonEnglish.Text = "Show non-English networks";
+            this.xIRCListShowNonEnglish.UseVisualStyleBackColor = true;
+            this.xIRCListShowNonEnglish.CheckedChanged += new System.EventHandler( this.xIRCListShowNonEnglish_CheckedChanged );
             // 
             // gIRCOptions
             // 
@@ -2453,6 +2447,16 @@
             this.tIRCBotNick.Size = new System.Drawing.Size( 138, 21 );
             this.tIRCBotNick.TabIndex = 3;
             // 
+            // lIRCList
+            // 
+            this.lIRCList.AutoSize = true;
+            this.lIRCList.Enabled = false;
+            this.lIRCList.Location = new System.Drawing.Point( 213, 14 );
+            this.lIRCList.Name = "lIRCList";
+            this.lIRCList.Size = new System.Drawing.Size( 105, 15 );
+            this.lIRCList.TabIndex = 4;
+            this.lIRCList.Text = "Popular networks:";
+            // 
             // xIRC
             // 
             this.xIRC.AutoSize = true;
@@ -2463,6 +2467,17 @@
             this.xIRC.Text = "Enable IRC integration";
             this.xIRC.UseVisualStyleBackColor = true;
             this.xIRC.CheckedChanged += new System.EventHandler( this.xIRC_CheckedChanged );
+            // 
+            // cIRCList
+            // 
+            this.cIRCList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cIRCList.Enabled = false;
+            this.cIRCList.FormattingEnabled = true;
+            this.cIRCList.Location = new System.Drawing.Point( 321, 11 );
+            this.cIRCList.Name = "cIRCList";
+            this.cIRCList.Size = new System.Drawing.Size( 138, 23 );
+            this.cIRCList.TabIndex = 3;
+            this.cIRCList.SelectedIndexChanged += new System.EventHandler( this.cIRCList_SelectedIndexChanged );
             // 
             // tabAdvanced
             // 
@@ -2824,17 +2839,15 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // xIRCListShowNonEnglish
+            // xAllowUnverifiedLAN
             // 
-            this.xIRCListShowNonEnglish.AutoSize = true;
-            this.xIRCListShowNonEnglish.Enabled = false;
-            this.xIRCListShowNonEnglish.Location = new System.Drawing.Point( 465, 13 );
-            this.xIRCListShowNonEnglish.Name = "xIRCListShowNonEnglish";
-            this.xIRCListShowNonEnglish.Size = new System.Drawing.Size( 178, 19 );
-            this.xIRCListShowNonEnglish.TabIndex = 5;
-            this.xIRCListShowNonEnglish.Text = "Show non-English networks";
-            this.xIRCListShowNonEnglish.UseVisualStyleBackColor = true;
-            this.xIRCListShowNonEnglish.CheckedChanged += new System.EventHandler( this.xIRCListShowNonEnglish_CheckedChanged );
+            this.xAllowUnverifiedLAN.AutoSize = true;
+            this.xAllowUnverifiedLAN.Location = new System.Drawing.Point( 42, 49 );
+            this.xAllowUnverifiedLAN.Name = "xAllowUnverifiedLAN";
+            this.xAllowUnverifiedLAN.Size = new System.Drawing.Size( 353, 19 );
+            this.xAllowUnverifiedLAN.TabIndex = 17;
+            this.xAllowUnverifiedLAN.Text = "Allow connections from LAN without verification (192.168.*.*)";
+            this.xAllowUnverifiedLAN.UseVisualStyleBackColor = true;
             // 
             // ConfigUI
             // 
@@ -3143,5 +3156,6 @@
         private System.Windows.Forms.ComboBox cIRCList;
         private System.Windows.Forms.Label lIRCList;
         private System.Windows.Forms.CheckBox xIRCListShowNonEnglish;
+        private System.Windows.Forms.CheckBox xAllowUnverifiedLAN;
     }
 }

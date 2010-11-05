@@ -698,7 +698,8 @@ namespace fCraft {
                 try {
                     Directory.CreateDirectory( "backups" );
                 } catch( Exception ex ) {
-                    Logger.Log( "Map.SaveBackup: Error occured while trying to create backup directory: " + ex, LogType.Error );
+                    Logger.Log( "Map.SaveBackup: Error occured while trying to create backup directory: {0}", LogType.Error,
+                                ex );
                     return;
                 }
             }
@@ -708,7 +709,8 @@ namespace fCraft {
             try {
                 File.Copy( sourceName, targetName, true );
             } catch( Exception ex ) {
-                Logger.Log( "Map.SaveBackup: Error occured while trying to save backup to \"" + targetName + "\": " + ex, LogType.Error );
+                Logger.Log( "Map.SaveBackup: Error occured while trying to save backup to \"{0}\": {1}", LogType.Error,
+                            targetName,ex );
                 return;
             }
 
@@ -725,8 +727,9 @@ namespace fCraft {
                         Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
                                     info.Name );
                     } catch( Exception ex ) {
-                        Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": " + ex, LogType.Error,
-                                    info.Name );
+                        Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}", LogType.Error,
+                                    info.Name, ex );
+                        break;
                     }
                 }
             }
@@ -748,8 +751,9 @@ namespace fCraft {
                             Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
                                         info.Name );
                         } catch( Exception ex ) {
-                            Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": " + ex, LogType.Error,
-                                        info.Name );
+                            Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}", LogType.Error,
+                                        info.Name, ex );
+                            break;
                         }
                     } else {
                         break;

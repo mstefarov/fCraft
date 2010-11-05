@@ -445,10 +445,14 @@ namespace fCraft {
                 string standardMessage = String.Format( "Session.LoginSequence: Could not verify player name for {0} ({1}).",
                                                         player.name,
                                                         GetIP() );
-                if( GetIP().ToString() == "127.0.0.1" &&
-                    (Config.GetString( ConfigKey.VerifyNames ) == "Balanced" || Config.GetString( ConfigKey.VerifyNames ) == "Never") ) {
+                if( GetIP().ToString() == "127.0.0.1" && Config.GetString( ConfigKey.VerifyNames ) != "Always" ) {
                     Logger.Log( "{0} Player was identified as connecting from localhost and allowed in.", LogType.SuspiciousActivity,
                                 standardMessage );
+
+                }else if( GetIP().IsLAN() && Config.GetBool(ConfigKey.AllowUnverifiedLAN) ){
+                    Logger.Log( "{0} Player was identified as connecting from LAN and allowed in.", LogType.SuspiciousActivity,
+                                standardMessage );
+
                 } else if( player.info.timesVisited == 1 || player.info.lastIP.ToString() != GetIP().ToString() ) {
                     switch( Config.GetString( ConfigKey.VerifyNames ) ) {
                         case "Always":
@@ -465,6 +469,7 @@ namespace fCraft {
                             Server.SendToAll( Color.Red + "Name and IP of " + player.GetClassyName() + Color.Red + " are unverified!", player );
                             break;
                     }
+
                 } else {
                     switch( Config.GetString( ConfigKey.VerifyNames ) ) {
                         case "Always":

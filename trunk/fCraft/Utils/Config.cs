@@ -137,6 +137,7 @@ namespace fCraft {
         public static void LoadDefaultsSecurity() {
             SetValue( ConfigKey.VerifyNames, "Balanced" ); // can be "Always," "Balanced," or "Never"
             SetValue( ConfigKey.LimitOneConnectionPerIP, false );
+            SetValue( ConfigKey.AllowUnverifiedLAN, false );
 
             SetValue( ConfigKey.PatrolledRank, "" ); // empty = lowest rank
 
