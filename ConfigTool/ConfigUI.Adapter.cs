@@ -173,6 +173,7 @@ namespace ConfigTool {
         void ApplyTabSecurity() {
             ApplyEnum( cVerifyNames, ConfigKey.VerifyNames, 1, "Never", "Balanced", "Always" );
             xLimitOneConnectionPerIP.Checked = Config.GetBool( ConfigKey.LimitOneConnectionPerIP );
+            xAllowUnverifiedLAN.Checked = Config.GetBool( ConfigKey.AllowUnverifiedLAN );
 
             nSpamChatCount.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.AntispamMessageCount ) );
             nSpamChatTimer.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.AntispamInterval ) );
@@ -325,6 +326,7 @@ namespace ConfigTool {
 
             WriteEnum( cVerifyNames, ConfigKey.VerifyNames, "Never", "Balanced", "Always" );
             Config.SetValue( ConfigKey.LimitOneConnectionPerIP, xLimitOneConnectionPerIP.Checked );
+            Config.SetValue( ConfigKey.AllowUnverifiedLAN, xAllowUnverifiedLAN.Checked );
 
             Config.SetValue( ConfigKey.AntispamMessageCount, nSpamChatCount.Value );
             Config.SetValue( ConfigKey.AntispamInterval, nSpamChatTimer.Value );

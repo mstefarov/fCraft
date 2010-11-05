@@ -47,6 +47,11 @@ namespace fCraft {
         };
 
         internal static void Me( Player player, Command cmd ) {
+            if( player.IsMuted() ) {
+                player.MutedMessage();
+                return;
+            }
+
             string msg = cmd.NextAll().Trim();
             if( msg != null ) {
                 Server.SendToAll( "*" + Color.Purple + player.name + " " + msg );
@@ -67,6 +72,11 @@ namespace fCraft {
         };
 
         internal static void Roll( Player player, Command cmd ) {
+            if( player.IsMuted() ) {
+                player.MutedMessage();
+                return;
+            }
+
             Random rand = new Random();
             int min = 1, max = 100, num, t1, t2;
             if( cmd.NextInt( out t1 ) ) {

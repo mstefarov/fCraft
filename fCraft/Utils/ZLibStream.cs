@@ -113,7 +113,9 @@ namespace fCraft {
         public static bool Init() {
             Native = null;
             return false;
-
+            /*
+             * zlib support disabled due to reports of memory leaks
+             * 
             try {
                 Native = new ZLibPInvokeWin32();
                 Test();
@@ -123,7 +125,6 @@ namespace fCraft {
                 Console.WriteLine( "> Could not load zlib32.dll (Win): {0}", ex.GetType() );
             }
 
-            /* Disabled due to memory leaks
             try {
                 Native = new ZLibPInvokeWin64();
                 Test();
@@ -132,7 +133,6 @@ namespace fCraft {
             } catch( Exception ex ) {
                 Console.WriteLine( "> Could not load zlib64.dll (Win): {0}", ex.GetType() );
             }
-            */
 
             try {
                 Native = new ZLibPInvokeNix32();
@@ -146,6 +146,7 @@ namespace fCraft {
             Console.WriteLine( "Falling back to GZipStream :(" );
             Native = null;
             return false;
+            */
         }
 
         static void Test() {

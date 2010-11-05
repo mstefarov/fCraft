@@ -511,6 +511,11 @@ checks player's current and on-record IP address to eliminate false negatives.";
 will share an IP, and may be prevented from joining together. Don't enable
 this option unless there is a specific need/threat." );
 
+            toolTip.SetToolTip( xAllowUnverifiedLAN,
+@"Allow players from your local network (LAN) to connect without name verification.
+May be useful if minecraft.net is blocked on your LAN for some reason.
+Warning: unverified players can log in with ANY name - even as you!" );
+
             toolTip.SetToolTip( xRequireBanReason, "Require players to specify a reason/memo when banning or unbanning someone." );
             toolTip.SetToolTip( xRequireRankChangeReason, "Require players to specify a reason/memo when promoting or demoting someone." );
             toolTip.SetToolTip( xAnnounceKickAndBanReasons, "Show the reason/memo in chat for everyone when someone gets kicked/banned/unbanned." );

@@ -663,20 +663,18 @@ namespace fCraft {
             }
         }
 
+        static string[] emptyStringArray = new string[0];
         public static void SendToAll( string message ) {
-            SendToAll( ">", message, null );
+            SendToAll( message, null, emptyStringArray );
         }
 
-        public static void SendToAll( string prefix, string message ) {
-            SendToAll( prefix, message, null );
+        public static void SendToAll( string message, params string[] args ) {
+            SendToAll( message, null,args );
         }
 
-        public static void SendToAll( string message, Player except ) {
-            SendToAll( ">", message, except );
-        }
-
-        public static void SendToAll( string prefix, string message, Player except ) {
-            foreach( Packet p in PacketWriter.MakeWrappedMessage( prefix, message, false ) ) {
+        public static void SendToAll( string message, Player except, params string[] args ) {
+            string formattedMessage = String.Format(message,args);
+            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", formattedMessage, false ) ) {
                 SendToAll( p, except );
             }
         }
@@ -1050,6 +1048,11 @@ namespace fCraft {
                 }
             }
             return true;
+        }
+
+        public static bool IsLAN( this IPAddress addr ) {
+            byte[] bytes = addr.GetAddressBytes();
+            return (bytes[0] == 192 && bytes[1] == 168);
         }
 
 
