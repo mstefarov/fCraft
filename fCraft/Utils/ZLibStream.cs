@@ -111,6 +111,9 @@ namespace fCraft {
         static ZLibPInvoke Native;
 
         public static bool Init() {
+            Native = null;
+            return false;
+
             try {
                 Native = new ZLibPInvokeWin32();
                 Test();
