@@ -95,7 +95,7 @@ namespace fCraft {
                                 Math.Abs( xoff ) == rad ) {
                                 continue;
                             }
-                            args.outMap.SetBlock( pos[0] + xoff, pos[2] + zoff, y, args.bFoliage);
+                            args.outMap.SetBlock( pos[0] + xoff, pos[2] + zoff, y, args.bFoliage );
                         }
                     }
                 }
@@ -209,7 +209,7 @@ namespace fCraft {
                     float primdist = (float)Math.Abs( delta[primidx] );
                     float radius = endSize + (startSize - endSize) * Math.Abs( delta[primidx] - primoffset ) / (float)primdist;
 
-                    CrossSection( coord, radius, primidx, args.bTrunk);
+                    CrossSection( coord, radius, primidx, args.bTrunk );
                 }
                 return true;
             }
@@ -273,6 +273,7 @@ namespace fCraft {
             }
 
             void MakeRoots( RootBase[] rootbases ) {
+                if( rootbases.Length == 0 ) return;
                 foreach( Vector3i coord in foliageCoords ) {
                     float dist = (float)Math.Sqrt( Sqr( coord[0] - pos[0] ) + Sqr( coord[2] - pos[2] ) );
                     float ydist = coord[1] - pos[1];
@@ -622,7 +623,7 @@ namespace fCraft {
             int treeheight = args.HEIGHT;
 
             int attempts = 0;
-            while( treelist.Count < args.TREECOUNT && attempts< MaxTries ) {
+            while( treelist.Count < args.TREECOUNT && attempts < MaxTries ) {
                 attempts++;
                 int height = args.rand.Next( treeheight - args.HEIGHTVARIATION,
                                              treeheight + args.HEIGHTVARIATION + 1 );
@@ -644,8 +645,8 @@ namespace fCraft {
             if( padding > mindim / 2.2 ) {
                 padding = (int)(mindim / 2.2);
             }
-            int x = args.rand.Next( padding, args.inMap.widthX - padding-1 );
-            int z = args.rand.Next( padding, args.inMap.widthY - padding-1 );
+            int x = args.rand.Next( padding, args.inMap.widthX - padding - 1 );
+            int z = args.rand.Next( padding, args.inMap.widthY - padding - 1 );
             int y = args.inMap.SearchColumn( x, z, args.PLANTON );
             return new Vector3i( x, z, y );
         }
@@ -658,7 +659,7 @@ namespace fCraft {
 
             int short_tree_fraction = 6;
             int attempts = 0;
-            for( int i = 0; i < remainingtrees && attempts < MaxTries; attempts++) {
+            for( int i = 0; i < remainingtrees && attempts < MaxTries; attempts++ ) {
                 float randomfac = (float)((Math.Sqrt( args.rand.NextDouble() ) * 1.618 - .618) * args.HEIGHTVARIATION + .5);
 
                 int height;
@@ -708,12 +709,12 @@ namespace fCraft {
                 if( padding > mindim / 2.2 ) {
                     padding = (int)(mindim / 2.2);
                 }
-                int x = args.rand.Next( padding, args.inMap.widthX - padding -1 );
-                int z = args.rand.Next( padding, args.inMap.widthY - padding -1 );
+                int x = args.rand.Next( padding, args.inMap.widthX - padding - 1 );
+                int z = args.rand.Next( padding, args.inMap.widthY - padding - 1 );
                 int top = args.inMap.height - 1;
 
-                int y = top - DistanceToBlock( args.inMap, new Vector3f( x, z, top ), new Vector3f( 0, 0,-1 ), Block.Air, true );
-                int dist = DistanceToBlock( args.inMap, new Vector3f( x, z, y ), new Vector3f( 0, 0,-1 ), Block.Water, true );
+                int y = top - DistanceToBlock( args.inMap, new Vector3f( x, z, top ), new Vector3f( 0, 0, -1 ), Block.Air, true );
+                int dist = DistanceToBlock( args.inMap, new Vector3f( x, z, y ), new Vector3f( 0, 0, -1 ), Block.Water, true );
 
                 if( dist > height * .618 || dist == 0 ) {
                     continue;

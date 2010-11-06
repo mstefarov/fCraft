@@ -73,17 +73,22 @@ namespace fCraft {
 
         const int confirmationTimeout = 60;
 
+
         public void Mute( int seconds ) {
             mutedUntil = DateTime.UtcNow.AddSeconds( seconds );
         }
+
+
         public bool IsMuted() {
-            return DateTime.UtcNow.Subtract( mutedUntil ).TotalSeconds > 0;
+            return DateTime.UtcNow < mutedUntil;
         }
+
 
         public void MutedMessage() {
             Message( "You are muted for another {0:0} seconds.",
                      mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
         }
+
 
         bool DetectChatSpam() {
             if( this == Console ) return false;
@@ -105,13 +110,14 @@ namespace fCraft {
             return false;
         }
 
+
         // Parses message incoming from the player
         public void ParseMessage( string message, bool fromConsole ) {
             switch( CommandList.GetMessageType( message ) ) {
                 case MessageType.Chat:
                     if( !Can( Permission.Chat ) ) return;
 
-                    if( DateTime.UtcNow < mutedUntil ) {
+                    if( IsMuted() ) {
                         MutedMessage();
                         return;
                     }
@@ -143,9 +149,8 @@ namespace fCraft {
                 case MessageType.PrivateChat:
                     if( !Can( Permission.Chat ) ) return;
 
-                    if( DateTime.UtcNow < mutedUntil ) {
-                        Message( "You are muted for another {0:0} seconds.",
-                                 mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+                    if( IsMuted() ) {
+                        MutedMessage();
                         return;
                     }
 
@@ -184,9 +189,8 @@ namespace fCraft {
                 case MessageType.ClassChat:
                     if( !Can( Permission.Chat ) ) return;
 
-                    if( DateTime.UtcNow < mutedUntil ) {
-                        Message( "You are muted for another {0:0} seconds.",
-                            mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+                    if( IsMuted() ) {
+                        MutedMessage();
                         return;
                     }
 
@@ -262,10 +266,13 @@ namespace fCraft {
             }
         }
 
+
         public void MessagePrefixed( string prefix, string message, params object[] args ) {
             MessagePrefixed( prefix, string.Format( message, args ) );
         }
 
+
+        // Sends a message directly (synchronously). Should only be used from Session.IoThread
         public void MessageNow( string message, params object[] args ) {
             message = String.Format( message, args );
             if( session == null ) {
@@ -278,7 +285,7 @@ namespace fCraft {
         }
 
 
-        // Validates player name
+        // Makes sure that there are no unprintable or illegal characters in the message
         public static bool CheckForIllegalChars( string message ) {
             for( int i = 0; i < message.Length; i++ ) {
                 char ch = message[i];
@@ -298,6 +305,7 @@ namespace fCraft {
         internal void NoWorldMessage( string worldName ) {
             Message( "No world found with the name \"{0}\"", worldName );
         }
+
 
         internal void ManyMatchesMessage( string itemType, IClassy[] names ) {
             bool first = true;

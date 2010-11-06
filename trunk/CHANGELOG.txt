@@ -1,3 +1,16 @@
+0.499
+ Feature: Added an option to disable name verification for players connecting from LAN.
+ Feature: Added 'flat' template to MapGenerator, allowing to make flat maps with any theme.
+ Feature: Added 'grass' pseudotheme to /gen command, which is basically the 'Forest' theme with trees disabled.
+ Fix: Fixed /wflush leaving ghosts/clones behind.
+ Fix: Fixed muted players being able to use /say and /staff
+ Fix: Fixed /baninfo ignoring permission checks.
+ Fix: Fixed "draw limit" checkbox getting disabled in ConfigTool if a player had 'CopyAndPaste' permission but no 'Draw' permission.
+ Fix: Fixed several off-by-1 errors involving random number generation, notably in MapGenerator and Server.GenerateSalt()
+ Fix: Fixed potential crash in MapGenerator.SealLiquids
+ Fix: Fixed a potential crash in Map.SaveBackup() if the map filename contained brackets.
+ Fix: Fixed a forced disconnect when trying to feed /gen a theme or template with brackets in the name.
+
 0.498
  Change: Disabled zlib support due to more potential memory leaks. fffuuuuu....
  Fix: Fixed Island, Bay, and Ice templates broken by the last patch.

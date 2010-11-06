@@ -1015,7 +1015,7 @@ namespace fCraft {
         static void GenerateSalt() {
             // generate random salt
             Random rand = new Random();
-            int saltLength = rand.Next( 12, 16 );
+            int saltLength = rand.Next( 12, 17 );
             string saltChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.~";
             for( int i = 0; i < saltLength; i++ ) {
                 Salt += saltChars[rand.Next( 0, saltChars.Length - 1 )];

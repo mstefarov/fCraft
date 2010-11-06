@@ -307,6 +307,7 @@ namespace fCraft {
         #region Undo / Redo
         static CommandDescriptor cdUndo = new CommandDescriptor {
             name = "undo",
+            permissions = new Permission[]{ Permission.Draw},
             aliases = new string[] { "redo" },
             help = "Selectively removes changes from your last drawing command. " +
                    "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
@@ -314,10 +315,6 @@ namespace fCraft {
         };
 
         internal static void Undo( Player player, Command command ) {
-            if( !player.Can( Permission.Draw ) ) {
-                player.NoAccessMessage( Permission.Draw );
-                return;
-            }
             if( player.undoBuffer.Count > 0 ) {
                 // no need to set player.drawingInProgress here because this is done on the user thread
                 Logger.Log( "Player {0} initiated /undo affecting {1} blocks (on world {2})", LogType.UserActivity,

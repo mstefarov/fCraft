@@ -480,15 +480,15 @@ namespace fCraft {
         // Cave generation method from Omen 0.70, used with osici's permission
         static void AddSingleCave( Random rand, Map map, byte bedrockType, byte fillingType, int length, double maxDiameter ) {
 
-            int startX = rand.Next( 0, map.widthX - 1 );
-            int startY = rand.Next( 0, map.widthY - 1 );
-            int startH = rand.Next( 0, map.height - 1 );
+            int startX = rand.Next( 0, map.widthX );
+            int startY = rand.Next( 0, map.widthY );
+            int startH = rand.Next( 0, map.height );
 
             int k1;
             for( k1 = 0; map.blocks[startX + map.widthX * map.widthY * (map.height - 1 - startH) + map.widthX * startY] != bedrockType && k1 < 10000; k1++ ) {
-                startX = rand.Next( 0, map.widthX - 1 );
-                startY = rand.Next( 0, map.widthY - 1 );
-                startH = rand.Next( 0, map.height - 1 );
+                startX = rand.Next( 0, map.widthX );
+                startY = rand.Next( 0, map.widthY );
+                startH = rand.Next( 0, map.height );
             }
 
             if( k1 >= 10000 )
@@ -537,9 +537,9 @@ namespace fCraft {
 
         static void AddSingleVein( Random rand, Map map, byte bedrockType, byte fillingType, int k, double maxDiameter, int l, int i1 ) {
 
-            int j1 = rand.Next( 0, map.widthX - 1 );
-            int k1 = rand.Next( 0, map.height - 1 );
-            int l1 = rand.Next( 0, map.widthY - 1 );
+            int j1 = rand.Next( 0, map.widthX );
+            int k1 = rand.Next( 0, map.height );
+            int l1 = rand.Next( 0, map.widthY );
 
             double thirteenOverK = 1 / (double)k;
 
@@ -580,7 +580,7 @@ namespace fCraft {
 
         static void SealLiquids( Map map, byte sealantType ) {
             for( int x = 1; x < map.widthX - 1; x++ ) {
-                for( int h = 0; h < map.height; h++ ) {
+                for( int h = 1; h < map.height; h++ ) {
                     for( int y = 1; y < map.widthY - 1; y++ ) {
                         int index = map.Index( x, y, h );
                         if( (map.blocks[index] == 10 || map.blocks[index] == 11 || map.blocks[index] == 8 || map.blocks[index] == 9) &&
@@ -672,7 +672,8 @@ namespace fCraft {
                                 int yy = y + dy;
                                 int hh = h + dh;
                                 if( xx < 0 || xx >= map.widthX || yy < 0 || yy >= map.widthY || hh < 0 || hh >= map.height ) continue;
-                                if( map.GetBlock( xx, yy, hh ) == (byte)bWater || map.GetBlock( xx, yy, hh ) == (byte)bWaterSurface ) {
+                                byte block = map.GetBlock( xx, yy, hh );
+                                if( block == (byte)bWater || block == (byte)bWaterSurface ) {
                                     found = true;
                                     break;
                                 }
@@ -703,17 +704,17 @@ namespace fCraft {
 
             map.CalculateShadows();
 
-            for( int x = 0; x < map.widthX; x += rn.Next( MinTrunkPadding, MaxTrunkPadding ) ) {
-                for( int y = 0; y < map.widthY; y += rn.Next( MinTrunkPadding, MaxTrunkPadding ) ) {
-                    nx = x + rn.Next( -(MinTrunkPadding / 2), (MaxTrunkPadding / 2) );
-                    ny = y + rn.Next( -(MinTrunkPadding / 2), (MaxTrunkPadding / 2) );
+            for( int x = 0; x < map.widthX; x += rn.Next( MinTrunkPadding, MaxTrunkPadding + 1 ) ) {
+                for( int y = 0; y < map.widthY; y += rn.Next( MinTrunkPadding, MaxTrunkPadding + 1 ) ) {
+                    nx = x + rn.Next( -(MinTrunkPadding / 2), (MaxTrunkPadding / 2) + 1 );
+                    ny = y + rn.Next( -(MinTrunkPadding / 2), (MaxTrunkPadding / 2) + 1 );
                     if( nx < 0 || nx >= map.widthX || ny < 0 || ny >= map.widthY ) continue;
                     nz = map.shadows[nx, ny];
 
                     if( (map.GetBlock( nx, ny, nz ) == (byte)bGroundSurface) && slopemap[nx, ny] < .5 ) {
                         // Pick a random height for the tree between Min and Max,
                         // discarding this tree if it would breach the top of the map
-                        if( (nh = rn.Next( MinHeight, MaxHeight )) + nz + nh / 2 > map.height )
+                        if( (nh = rn.Next( MinHeight, MaxHeight + 1 )) + nz + nh / 2 > map.height )
                             continue;
 
                         // Generate the trunk of the tree
@@ -973,9 +974,9 @@ namespace fCraft {
                         maxDepth = 0,
                         maxHeightVariation = 0,
                         addWater = false,
-                        detailScale=0,
-                        featureScale=0,
-                        addCliffs=false
+                        detailScale = 0,
+                        featureScale = 0,
+                        addCliffs = false
                     };
             }
             return null; // can never happen
