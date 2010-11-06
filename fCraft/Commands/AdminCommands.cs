@@ -177,7 +177,7 @@ namespace fCraft {
             }
 
             // ban by IP address
-            if( banIP && Server.IsIP(nameOrIP) && IPAddress.TryParse( nameOrIP, out address ) ) {
+            if( banIP && Server.IsIP( nameOrIP ) && IPAddress.TryParse( nameOrIP, out address ) ) {
                 DoIPBan( player, address, reason, null, banAll, unban );
 
                 // ban online players
@@ -204,7 +204,7 @@ namespace fCraft {
                             if( !banIP ) {
                                 PlayerInfo[] alts = PlayerDB.FindPlayers( target.info.lastIP, 100 );
                                 List<PlayerInfo> bannedAlts = new List<PlayerInfo>();
-                                for( int i=0; i<alts.Length; i++ ) {
+                                for( int i = 0; i < alts.Length; i++ ) {
                                     if( alts[i].banned && alts[i] != target.info ) {
                                         bannedAlts.Add( alts[i] );
                                     }
@@ -696,7 +696,7 @@ namespace fCraft {
             foreach( string name in names ) {
                 if( Player.IsValidName( name ) ) {
                     DoBan( player, name, reason, false, false, false );
-                } else if( Server.IsIP(name) && IPAddress.TryParse( name, out ip ) ) {
+                } else if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
                     DoIPBan( player, ip, reason, "", false, false );
                 } else {
                     player.Message( "Could not parse \"{0}\" as either name or IP. Skipping.", name );

@@ -27,7 +27,8 @@ namespace fCraft {
         Mountains,
         River,
         Streams,
-        Peninsula
+        Peninsula,
+        Flat
     }
 
 
@@ -87,7 +88,6 @@ namespace fCraft {
                     map.SetBlock( i, j, map.height / 2 - 1, Block.Grass );
                 }
             }
-            map.ResetSpawn();
         }
 
 
@@ -236,236 +236,6 @@ namespace fCraft {
 
 
         public static void CalculateSlope( float[,] heightmap, float[,] slopemap ) {
-        }
-
-        #endregion
-
-
-        #region Themes / Templates
-
-        public void ApplyTheme( MapGenTheme theme ) {
-            args.theme = theme;
-            switch( theme ) {
-                case MapGenTheme.Arctic:
-                    bWaterSurface = Block.Glass;
-                    bDeepWaterSurface = Block.Water;
-                    bGroundSurface = Block.White;
-                    bWater = Block.Water;
-                    bGround = Block.White;
-                    bSeaFloor = Block.White;
-                    bBedrock = Block.Stone;
-                    bCliff = Block.Stone;
-                    groundThickness = 1;
-                    break;
-                case MapGenTheme.Desert:
-                    bWaterSurface = Block.Water;
-                    bDeepWaterSurface = Block.Water;
-                    bGroundSurface = Block.Sand;
-                    bWater = Block.Water;
-                    bGround = Block.Sand;
-                    bSeaFloor = Block.Sand;
-                    bBedrock = Block.Stone;
-                    bCliff = Block.Gravel;
-                    break;
-                case MapGenTheme.Hell:
-                    bWaterSurface = Block.Lava;
-                    bDeepWaterSurface = Block.Lava;
-                    bGroundSurface = Block.Obsidian;
-                    bWater = Block.Lava;
-                    bGround = Block.Stone;
-                    bSeaFloor = Block.Obsidian;
-                    bBedrock = Block.Stone;
-                    bCliff = Block.Stone;
-                    break;
-                case MapGenTheme.Forest:
-                    bWaterSurface = Block.Water;
-                    bDeepWaterSurface = Block.Water;
-                    bGroundSurface = Block.Grass;
-                    bWater = Block.Water;
-                    bGround = Block.Dirt;
-                    bSeaFloor = Block.Sand;
-                    bBedrock = Block.Stone;
-                    bCliff = Block.Stone;
-                    break;
-                case MapGenTheme.Swamp:
-                    bWaterSurface = Block.Water;
-                    bDeepWaterSurface = Block.Water;
-                    bGroundSurface = Block.Dirt;
-                    bWater = Block.Water;
-                    bGround = Block.Dirt;
-                    bSeaFloor = Block.Leaves;
-                    bBedrock = Block.Stone;
-                    bCliff = Block.Stone;
-                    break;
-            }
-        }
-
-
-        public static MapGeneratorArgs MakeTemplate( MapGenTemplate template ) {
-            switch( template ) {
-                case MapGenTemplate.Archipelago:
-                    return new MapGeneratorArgs {
-                        maxHeight = 8,
-                        maxDepth = 20,
-                        featureScale = 3,
-                        roughness = .46f,
-                        matchWaterCoverage = true,
-                        waterCoverage = .85f
-                    };
-
-                case MapGenTemplate.Atoll:
-                    return new MapGeneratorArgs {
-                        theme = MapGenTheme.Desert,
-                        maxHeight = 2,
-                        maxDepth = 39,
-                        useBias = true,
-                        bias = .9f,
-                        midPoint = 1,
-                        loweredCorners = 4,
-                        featureScale = 2,
-                        detailScale = 5,
-                        marbledHeightmap = true,
-                        invertHeightmap = true,
-                        matchWaterCoverage = true,
-                        waterCoverage = .95f
-                    };
-
-                case MapGenTemplate.Bay:
-                    return new MapGeneratorArgs {
-                        maxHeight = 22,
-                        maxDepth = 12,
-                        useBias = true,
-                        bias = 1,
-                        midPoint = -1,
-                        raisedCorners = 3,
-                        loweredCorners = 1,
-                        treeSpacingMax = 12,
-                        treeSpacingMin = 6,
-                        marbledHeightmap = true,
-                        delayBias = true
-                    };
-
-                case MapGenTemplate.Default:
-                    return new MapGeneratorArgs();
-
-                case MapGenTemplate.Dunes:
-                    return new MapGeneratorArgs {
-                        addTrees = false,
-                        addWater = false,
-                        theme = MapGenTheme.Desert,
-                        maxHeight = 12,
-                        maxDepth = 7,
-                        featureScale = 2,
-                        detailScale = 3,
-                        roughness = .44f,
-                        marbledHeightmap = true,
-                        invertHeightmap = true
-                    };
-
-                case MapGenTemplate.Hills:
-                    return new MapGeneratorArgs {
-                        addWater = false,
-                        maxHeight = 8,
-                        maxDepth = 8,
-                        featureScale = 2,
-                        treeSpacingMin = 7,
-                        treeSpacingMax = 13
-                    };
-
-                case MapGenTemplate.Ice:
-                    return new MapGeneratorArgs {
-                        addTrees = false,
-                        theme = MapGenTheme.Arctic,
-                        maxHeight = 2,
-                        maxDepth = 2032,
-                        featureScale = 2,
-                        detailScale = 7,
-                        roughness = .64f,
-                        marbledHeightmap = true,
-                        matchWaterCoverage = true,
-                        waterCoverage = .3f,
-                        maxHeightVariation = 0
-                    };
-
-                case MapGenTemplate.Island:
-                    return new MapGeneratorArgs {
-                        maxHeight = 16,
-                        maxDepth = 39,
-                        useBias = true,
-                        bias = .7f,
-                        midPoint = 1,
-                        loweredCorners = 4,
-                        featureScale = 3,
-                        detailScale = 7,
-                        marbledHeightmap = true,
-                        delayBias = true
-                    };
-
-                case MapGenTemplate.Lake:
-                    return new MapGeneratorArgs {
-                        maxHeight = 14,
-                        maxDepth = 20,
-                        useBias = true,
-                        bias = .65f,
-                        midPoint = -1,
-                        raisedCorners = 4,
-                        featureScale = 2,
-                        roughness = .56f,
-                        matchWaterCoverage = true,
-                        waterCoverage = .3f
-                    };
-
-                case MapGenTemplate.Mountains:
-                    return new MapGeneratorArgs {
-                        addWater = false,
-                        maxHeight = 40,
-                        maxDepth = 10,
-                        featureScale = 1,
-                        detailScale = 7,
-                        marbledHeightmap = true
-                    };
-
-                case MapGenTemplate.River:
-                    return new MapGeneratorArgs {
-                        maxHeight = 22,
-                        maxDepth = 8,
-                        featureScale = 0,
-                        detailScale = 6,
-                        marbledHeightmap = true,
-                        matchWaterCoverage = true,
-                        waterCoverage = .31f
-                    };
-
-                case MapGenTemplate.Streams:
-                    return new MapGeneratorArgs {
-                        maxHeight = 5,
-                        maxDepth = 4,
-                        featureScale = 2,
-                        detailScale = 7,
-                        roughness = .55f,
-                        marbledHeightmap = true,
-                        matchWaterCoverage = true,
-                        waterCoverage = .25f,
-                        treeSpacingMin = 8,
-                        treeSpacingMax = 14
-                    };
-
-                case MapGenTemplate.Peninsula:
-                    return new MapGeneratorArgs {
-                        maxHeight = 22,
-                        maxDepth = 12,
-                        useBias = true,
-                        bias = .5f,
-                        midPoint = -1,
-                        raisedCorners = 3,
-                        loweredCorners = 1,
-                        treeSpacingMax = 12,
-                        treeSpacingMin = 6,
-                        invertHeightmap = true,
-                        waterCoverage = .5f
-                    };
-            }
-            return null; // can never happen
         }
 
         #endregion
@@ -621,7 +391,11 @@ namespace fCraft {
                     } else {
                         float height = (args.maxHeightVariation != 0 ? (args.maxHeight + altmap[x, y] * args.maxHeightVariation) : args.maxHeight);
                         slope = slopemap[x, y] * height;
-                        level = args.waterLevel + (int)Math.Round( Math.Pow( heightmap[x, y] - desiredWaterLevel, args.aboveFuncExponent ) * aboveWaterMultiplier / args.maxHeight * height );
+                        if( height != 0 ) {
+                            level = args.waterLevel + (int)Math.Round( Math.Pow( heightmap[x, y] - desiredWaterLevel, args.aboveFuncExponent ) * aboveWaterMultiplier / args.maxHeight * height );
+                        } else {
+                            level = args.waterLevel;
+                        }
 
                         bool snow = args.addSnow &&
                                     (level > snowThreshold ||
@@ -964,6 +738,247 @@ namespace fCraft {
                     }
                 }
             }
+        }
+
+        #endregion
+
+
+        #region Themes / Templates
+
+        public void ApplyTheme( MapGenTheme theme ) {
+            args.theme = theme;
+            switch( theme ) {
+                case MapGenTheme.Arctic:
+                    bWaterSurface = Block.Glass;
+                    bDeepWaterSurface = Block.Water;
+                    bGroundSurface = Block.White;
+                    bWater = Block.Water;
+                    bGround = Block.White;
+                    bSeaFloor = Block.White;
+                    bBedrock = Block.Stone;
+                    bCliff = Block.Stone;
+                    groundThickness = 1;
+                    break;
+                case MapGenTheme.Desert:
+                    bWaterSurface = Block.Water;
+                    bDeepWaterSurface = Block.Water;
+                    bGroundSurface = Block.Sand;
+                    bWater = Block.Water;
+                    bGround = Block.Sand;
+                    bSeaFloor = Block.Sand;
+                    bBedrock = Block.Stone;
+                    bCliff = Block.Gravel;
+                    break;
+                case MapGenTheme.Hell:
+                    bWaterSurface = Block.Lava;
+                    bDeepWaterSurface = Block.Lava;
+                    bGroundSurface = Block.Obsidian;
+                    bWater = Block.Lava;
+                    bGround = Block.Stone;
+                    bSeaFloor = Block.Obsidian;
+                    bBedrock = Block.Stone;
+                    bCliff = Block.Stone;
+                    break;
+                case MapGenTheme.Forest:
+                    bWaterSurface = Block.Water;
+                    bDeepWaterSurface = Block.Water;
+                    bGroundSurface = Block.Grass;
+                    bWater = Block.Water;
+                    bGround = Block.Dirt;
+                    bSeaFloor = Block.Sand;
+                    bBedrock = Block.Stone;
+                    bCliff = Block.Stone;
+                    break;
+                case MapGenTheme.Swamp:
+                    bWaterSurface = Block.Water;
+                    bDeepWaterSurface = Block.Water;
+                    bGroundSurface = Block.Dirt;
+                    bWater = Block.Water;
+                    bGround = Block.Dirt;
+                    bSeaFloor = Block.Leaves;
+                    bBedrock = Block.Stone;
+                    bCliff = Block.Stone;
+                    break;
+            }
+        }
+
+
+        public static MapGeneratorArgs MakeTemplate( MapGenTemplate template ) {
+            switch( template ) {
+                case MapGenTemplate.Archipelago:
+                    return new MapGeneratorArgs {
+                        maxHeight = 8,
+                        maxDepth = 20,
+                        featureScale = 3,
+                        roughness = .46f,
+                        matchWaterCoverage = true,
+                        waterCoverage = .85f
+                    };
+
+                case MapGenTemplate.Atoll:
+                    return new MapGeneratorArgs {
+                        theme = MapGenTheme.Desert,
+                        maxHeight = 2,
+                        maxDepth = 39,
+                        useBias = true,
+                        bias = .9f,
+                        midPoint = 1,
+                        loweredCorners = 4,
+                        featureScale = 2,
+                        detailScale = 5,
+                        marbledHeightmap = true,
+                        invertHeightmap = true,
+                        matchWaterCoverage = true,
+                        waterCoverage = .95f
+                    };
+
+                case MapGenTemplate.Bay:
+                    return new MapGeneratorArgs {
+                        maxHeight = 22,
+                        maxDepth = 12,
+                        useBias = true,
+                        bias = 1,
+                        midPoint = -1,
+                        raisedCorners = 3,
+                        loweredCorners = 1,
+                        treeSpacingMax = 12,
+                        treeSpacingMin = 6,
+                        marbledHeightmap = true,
+                        delayBias = true
+                    };
+
+                case MapGenTemplate.Default:
+                    return new MapGeneratorArgs();
+
+                case MapGenTemplate.Dunes:
+                    return new MapGeneratorArgs {
+                        addTrees = false,
+                        addWater = false,
+                        theme = MapGenTheme.Desert,
+                        maxHeight = 12,
+                        maxDepth = 7,
+                        featureScale = 2,
+                        detailScale = 3,
+                        roughness = .44f,
+                        marbledHeightmap = true,
+                        invertHeightmap = true
+                    };
+
+                case MapGenTemplate.Hills:
+                    return new MapGeneratorArgs {
+                        addWater = false,
+                        maxHeight = 8,
+                        maxDepth = 8,
+                        featureScale = 2,
+                        treeSpacingMin = 7,
+                        treeSpacingMax = 13
+                    };
+
+                case MapGenTemplate.Ice:
+                    return new MapGeneratorArgs {
+                        addTrees = false,
+                        theme = MapGenTheme.Arctic,
+                        maxHeight = 2,
+                        maxDepth = 2032,
+                        featureScale = 2,
+                        detailScale = 7,
+                        roughness = .64f,
+                        marbledHeightmap = true,
+                        matchWaterCoverage = true,
+                        waterCoverage = .3f,
+                        maxHeightVariation = 0
+                    };
+
+                case MapGenTemplate.Island:
+                    return new MapGeneratorArgs {
+                        maxHeight = 16,
+                        maxDepth = 39,
+                        useBias = true,
+                        bias = .7f,
+                        midPoint = 1,
+                        loweredCorners = 4,
+                        featureScale = 3,
+                        detailScale = 7,
+                        marbledHeightmap = true,
+                        delayBias = true
+                    };
+
+                case MapGenTemplate.Lake:
+                    return new MapGeneratorArgs {
+                        maxHeight = 14,
+                        maxDepth = 20,
+                        useBias = true,
+                        bias = .65f,
+                        midPoint = -1,
+                        raisedCorners = 4,
+                        featureScale = 2,
+                        roughness = .56f,
+                        matchWaterCoverage = true,
+                        waterCoverage = .3f
+                    };
+
+                case MapGenTemplate.Mountains:
+                    return new MapGeneratorArgs {
+                        addWater = false,
+                        maxHeight = 40,
+                        maxDepth = 10,
+                        featureScale = 1,
+                        detailScale = 7,
+                        marbledHeightmap = true
+                    };
+
+                case MapGenTemplate.River:
+                    return new MapGeneratorArgs {
+                        maxHeight = 22,
+                        maxDepth = 8,
+                        featureScale = 0,
+                        detailScale = 6,
+                        marbledHeightmap = true,
+                        matchWaterCoverage = true,
+                        waterCoverage = .31f
+                    };
+
+                case MapGenTemplate.Streams:
+                    return new MapGeneratorArgs {
+                        maxHeight = 5,
+                        maxDepth = 4,
+                        featureScale = 2,
+                        detailScale = 7,
+                        roughness = .55f,
+                        marbledHeightmap = true,
+                        matchWaterCoverage = true,
+                        waterCoverage = .25f,
+                        treeSpacingMin = 8,
+                        treeSpacingMax = 14
+                    };
+
+                case MapGenTemplate.Peninsula:
+                    return new MapGeneratorArgs {
+                        maxHeight = 22,
+                        maxDepth = 12,
+                        useBias = true,
+                        bias = .5f,
+                        midPoint = -1,
+                        raisedCorners = 3,
+                        loweredCorners = 1,
+                        treeSpacingMax = 12,
+                        treeSpacingMin = 6,
+                        invertHeightmap = true,
+                        waterCoverage = .5f
+                    };
+
+                case MapGenTemplate.Flat:
+                    return new MapGeneratorArgs {
+                        maxHeight = 0,
+                        maxDepth = 0,
+                        maxHeightVariation = 0,
+                        addWater = false,
+                        detailScale=0,
+                        featureScale=0,
+                        addCliffs=false
+                    };
+            }
+            return null; // can never happen
         }
 
         #endregion

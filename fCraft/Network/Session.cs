@@ -93,13 +93,6 @@ namespace fCraft {
                 while( canSend ) {
                     Thread.Sleep( 1 );
 
-                    lock( joinWorldLock ) {
-                        if( forcedWorldToJoin != null ) {
-                            JoinWorldNow( forcedWorldToJoin, false );
-                            forcedWorldToJoin = null;
-                        }
-                    }
-
                     packetsSent = 0;
 
                     // detect player disconnect
@@ -131,6 +124,25 @@ namespace fCraft {
                             Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
                                         player.name );
                             return;
+                        }
+                    }
+
+                    if( canSend ) {
+                        lock( joinWorldLock ) {
+                            if( forcedWorldToJoin != null ) {
+                                while( priorityOutputQueue.Dequeue( ref packet ) ) {
+                                    writer.Write( packet.data );
+                                    packetsSent++;
+                                    if( packet.data[0] == (byte)OutputCode.Disconnect ) {
+                                        writer.Flush();
+                                        Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
+                                                    player.name );
+                                        return;
+                                    }
+                                }
+                                JoinWorldNow( forcedWorldToJoin, false );
+                                forcedWorldToJoin = null;
+                            }
                         }
                     }
 
@@ -560,8 +572,8 @@ namespace fCraft {
 
         public void JoinWorld( World newWorld, Position? position ) {
             lock( joinWorldLock ) {
-                forcedWorldToJoin = newWorld;
                 postJoinPosition = position;
+                forcedWorldToJoin = newWorld;
             }
         }
 
