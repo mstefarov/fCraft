@@ -183,7 +183,6 @@ namespace fCraft {
                 isFlushing = false;
                 SendToAll( Color.Red + "Map flushed. Rejoining..." );
                 foreach( Player player in playerList ) {
-                    SendToAll( PacketWriter.MakeRemoveEntity( player.id ), player );
                     player.session.JoinWorld( this, player.pos );
                 }
             }

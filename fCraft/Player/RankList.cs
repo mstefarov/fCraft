@@ -229,7 +229,7 @@ namespace fCraft {
             StringBuilder ID = new StringBuilder();
             string IDChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             for( int i = 0; i < 16; i++ ) {
-                ID.Append( IDChars[rand.Next( 0, IDChars.Length - 1 )] );
+                ID.Append( IDChars[rand.Next( 0, IDChars.Length )] );
             }
             return ID.ToString();
         }

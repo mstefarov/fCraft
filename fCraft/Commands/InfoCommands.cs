@@ -81,7 +81,10 @@ namespace fCraft {
             int min = 1, max = 100, num, t1, t2;
             if( cmd.NextInt( out t1 ) ) {
                 if( cmd.NextInt( out t2 ) ) {
-                    if( t2 >= t1 ) {
+                    if( t2 < t1 ) {
+                        min = t2;
+                        max = t1;
+                    } else {
                         min = t1;
                         max = t2;
                     }
@@ -579,6 +582,7 @@ namespace fCraft {
                 name = player.name;
             } else if( !player.Can( Permission.ViewOthersInfo ) ) {
                 player.NoAccessMessage( Permission.ViewOthersInfo );
+                return;
             }
 
             if( Server.IsIP( name ) && IPAddress.TryParse( name, out address ) ) {

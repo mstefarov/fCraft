@@ -461,7 +461,7 @@ namespace fCraft {
                     Logger.Log( "{0} Player was identified as connecting from localhost and allowed in.", LogType.SuspiciousActivity,
                                 standardMessage );
 
-                }else if( GetIP().IsLAN() && Config.GetBool(ConfigKey.AllowUnverifiedLAN) ){
+                } else if( GetIP().IsLAN() && Config.GetBool( ConfigKey.AllowUnverifiedLAN ) ) {
                     Logger.Log( "{0} Player was identified as connecting from LAN and allowed in.", LogType.SuspiciousActivity,
                                 standardMessage );
 
@@ -602,7 +602,7 @@ namespace fCraft {
             World oldWorld = player.world;
 
             // remove player from the old world
-            if( oldWorld != null ) {
+            if( oldWorld != null && oldWorld != newWorld ) {
                 if( !oldWorld.ReleasePlayer( player ) ) {
                     Logger.Log( "Session.JoinWorld: Player asked to be released from its world, but the world did not contain the player.", LogType.Error );
                 }
@@ -615,7 +615,10 @@ namespace fCraft {
             ClearBlockUpdateQueue();
 
             // try to join the new world
-            if( !newWorld.AcceptPlayer( player, !firstTime ) ) return false;
+            if( oldWorld != newWorld ) {
+                if( !newWorld.AcceptPlayer( player, !firstTime ) )
+                    return false;
+            }
             player.world = newWorld;
 
             // Start sending over the level copy
