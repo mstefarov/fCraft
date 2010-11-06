@@ -216,7 +216,8 @@ namespace fCraft {
                 shuttingDown = true;
                 if( OnShutdownBegin != null ) OnShutdownBegin();
 
-                Logger.Log( "Server shutting down ({0})", LogType.SystemActivity, reason );
+                Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
+                            reason );
 
 
                 // kick all players
@@ -224,7 +225,7 @@ namespace fCraft {
                     Player[] pListCached = playerList;
                     foreach( Player player in pListCached ) {
                         // NOTE: kick packet delivery here is not currently guaranteed
-                        player.session.Kick( "Server shutting down (" + reason + ")" );
+                        player.session.Kick( "Server shutting down (" + reason + Color.White + ")" );
                     }
                 }
 
@@ -669,11 +670,11 @@ namespace fCraft {
         }
 
         public static void SendToAll( string message, params string[] args ) {
-            SendToAll( message, null,args );
+            SendToAll( message, null, args );
         }
 
         public static void SendToAll( string message, Player except, params string[] args ) {
-            string formattedMessage = String.Format(message,args);
+            string formattedMessage = String.Format( message, args );
             foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", formattedMessage, false ) ) {
                 SendToAll( p, except );
             }

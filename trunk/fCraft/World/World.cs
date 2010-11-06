@@ -102,15 +102,17 @@ namespace fCraft {
                 try {
                     map = Map.Load( this, GetMapName() );
                 } catch( Exception ex ) {
-                    Logger.Log( "Could not open the specified file ({0}): {1}", LogType.Error, GetMapName(), ex.Message );
+                    Logger.Log( "World.LoadMap: Failed to load map ({0}): {1}", LogType.Error,
+                                GetMapName(), ex );
                 }
 
                 // or generate a default one
                 if( map == null ) {
-                    Logger.Log( "World.Init: Generating default flatgrass level.", LogType.SystemActivity );
+                    Logger.Log( "World.LoadMap: Generating default flatgrass level.", LogType.SystemActivity );
                     map = new Map( this, 64, 64, 64 );
 
                     MapGenerator.GenerateFlatgrass( map );
+                    map.ResetSpawn();
 
                     SaveMap( null );
                 }
@@ -160,6 +162,7 @@ namespace fCraft {
                     newMap.world = newWorld;
                     Server.ReplaceWorld( name, newWorld );
                     foreach( Player player in playerList ) {
+                        SendToAll( PacketWriter.MakeRemoveEntity( player.id ), player );
                         player.session.JoinWorld( newWorld, null );
                     }
                 }
@@ -178,8 +181,9 @@ namespace fCraft {
         public void EndFlushMapBuffer() {
             lock( playerListLock ) {
                 isFlushing = false;
-                SendToAll( Color.Red + "Map flushed. Rejoining" );
+                SendToAll( Color.Red + "Map flushed. Rejoining..." );
                 foreach( Player player in playerList ) {
+                    SendToAll( PacketWriter.MakeRemoveEntity( player.id ), player );
                     player.session.JoinWorld( this, player.pos );
                 }
             }
