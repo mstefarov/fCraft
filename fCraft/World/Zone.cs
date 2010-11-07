@@ -168,7 +168,7 @@ namespace fCraft {
             return false;
         }
 
-        
+
         public ZonePermissionType CanBuildDetailed( Player player ) {
             ZonePlayerList list = playerList;
             for( int i = 0; i < list.excluded.Length; i++ ) {

@@ -40,21 +40,22 @@ using fCraft;
 
 
 namespace Mcc {
-    public sealed class MapD3 : IConverter {
+    public sealed class MapD3 : IMapConverter {
 
         const byte HeaderConstant1 = 232, HeaderConstant2 = 3;
+
+        public bool ClaimsFileName( string fileName ) {
+            return fileName.EndsWith( ".map", StringComparison.OrdinalIgnoreCase );
+        }
 
         public MapFormat Format {
             get { return MapFormat.D3; }
         }
 
-        public string FileExtension {
-            get { return ".map"; }
-        }
-
         public string ServerName {
             get { return "D3"; }
         }
+
 
         static byte[] mapping = new byte[256];
         static MapD3() {

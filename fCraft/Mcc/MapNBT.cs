@@ -39,19 +39,19 @@ using fCraft;
 
 
 namespace Mcc {
-    public sealed class MapNBT : IConverter {
+    public sealed class MapNBT : IMapConverter {
+        public bool ClaimsFileName( string fileName ) {
+            return fileName.EndsWith( ".mclevel", StringComparison.OrdinalIgnoreCase );
+        }
 
         public MapFormat Format {
             get { return MapFormat.NBT; }
         }
 
-        public string FileExtension {
-            get { return ".mclevel"; }
+        public string ServerName {
+            get { return "InDev"; }
         }
 
-        public string ServerName {
-            get { return "indev"; }
-        }
 
         public Map Load( Stream mapStream, string fileName ) {
             mapStream.Seek( 0, SeekOrigin.Begin );

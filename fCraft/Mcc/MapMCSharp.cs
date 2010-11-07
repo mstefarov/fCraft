@@ -39,19 +39,19 @@ using fCraft;
 
 
 namespace Mcc {
-    public sealed class MapMCSharp : IConverter {
+    public sealed class MapMCSharp : IMapConverter {
+        public bool ClaimsFileName( string fileName ) {
+            return fileName.EndsWith( ".lvl", StringComparison.OrdinalIgnoreCase );
+        }
 
         public MapFormat Format {
             get { return MapFormat.MCSharp; }
         }
 
-        public string FileExtension {
-            get { return ".lvl"; }
+        public string ServerName {
+            get { return "MCSharp/MCZall/MCLawl"; }
         }
 
-        public string ServerName {
-            get { return "MCSharp"; }
-        }
 
         static byte[] mapping = new byte[256];
         static MapMCSharp() {

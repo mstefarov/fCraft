@@ -36,6 +36,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 using fCraft;
 
 
@@ -43,8 +44,7 @@ namespace Mcc {
 
     public static class MapUtility {
 
-        private static Dictionary<MapFormat, IConverter> AvailableConverters = new Dictionary<MapFormat, IConverter>();
-
+        static Dictionary<MapFormat, IMapConverter> AvailableConverters = new Dictionary<MapFormat, IMapConverter>();
 
         static MapUtility() {
             AvailableConverters.Add( MapFormat.MCSharp, new MapMCSharp() );
@@ -59,7 +59,7 @@ namespace Mcc {
 
 
         public static MapFormat Identify( Stream mapStream, string fileName ) {
-            foreach ( IConverter Converter in AvailableConverters.Values ) {
+            foreach ( IMapConverter Converter in AvailableConverters.Values ) {
                 if( Converter.Claims( mapStream, fileName ) )
                     return Converter.Format;
             }
@@ -71,16 +71,16 @@ namespace Mcc {
         public static Map TryLoading( string fileName ) {
             if( File.Exists( fileName ) ) {
                 using( Stream MapStream = File.OpenRead( fileName ) ) {
-                    string ext = new FileInfo( fileName ).Extension;
+                    string shortFileName = new FileInfo( fileName ).Name;
                     // first try all converters for the file extension
-                    foreach( IConverter Converter in AvailableConverters.Values ) {
-                        if( Converter.FileExtension == ext && Converter.Claims( MapStream, fileName ) ) {
+                    foreach( IMapConverter Converter in AvailableConverters.Values ) {
+                        if( Converter.ClaimsFileName(shortFileName) && Converter.Claims( MapStream, fileName ) ) {
                             return Converter.Load( MapStream, fileName );
                         }
                     }
                     // then try the rest
-                    foreach( IConverter Converter in AvailableConverters.Values ) {
-                        if( Converter.FileExtension != ext && Converter.Claims( MapStream, fileName ) ) {
+                    foreach( IMapConverter Converter in AvailableConverters.Values ) {
+                        if( !Converter.ClaimsFileName( shortFileName ) && Converter.Claims( MapStream, fileName ) ) {
                             return Converter.Load( MapStream, fileName );
                         }
                     }
@@ -96,11 +96,6 @@ namespace Mcc {
             }
         }
 
-
-
-        public static string GetFileExtension( MapFormat format ) {
-            return AvailableConverters[format].FileExtension;
-        }
 
         public static bool TrySaving( Map mapToSave, Stream mapStream, MapFormat format ) {
             if ( AvailableConverters.ContainsKey( format ) ) {

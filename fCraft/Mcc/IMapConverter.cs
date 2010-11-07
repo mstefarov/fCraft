@@ -38,10 +38,11 @@ using fCraft;
 
 
 namespace Mcc {
-    public interface IConverter {
-        MapFormat Format { get; }
-        string FileExtension { get; }
+    public interface IMapConverter {
         string ServerName { get; }
+        MapFormat Format { get; }
+
+        bool ClaimsFileName( string fileName );
 
         bool Claims( Stream mapStream, string fileName );
 

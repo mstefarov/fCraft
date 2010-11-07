@@ -40,17 +40,19 @@ using fCraft;
 
 
 namespace Mcc {
-    public sealed class MapDAT : IConverter {
+    public sealed class MapDAT : IMapConverter {
+
+        public bool ClaimsFileName( string fileName ) {
+            return fileName.EndsWith( ".dat", StringComparison.OrdinalIgnoreCase ) ||
+                   fileName.EndsWith( ".mine", StringComparison.OrdinalIgnoreCase );
+        }
+
         public MapFormat Format {
             get { return MapFormat.Creative; }
         }
 
-        public string FileExtension {
-            get { return ".dat"; }
-        }
-
         public string ServerName {
-            get { return "vanilla"; }
+            get { return "Vanilla"; }
         }
 
 

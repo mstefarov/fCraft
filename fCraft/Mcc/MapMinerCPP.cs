@@ -40,14 +40,14 @@ using fCraft;
 
 
 namespace Mcc {
-    public sealed class MapMinerCPP : IConverter {
+    public sealed class MapMinerCPP : IMapConverter {
+
+        public bool ClaimsFileName( string fileName ) {
+            return fileName.EndsWith( ".dat", StringComparison.OrdinalIgnoreCase );
+        }
 
         public MapFormat Format {
             get { return MapFormat.MinerCPP; }
-        }
-
-        public string FileExtension {
-            get { return ".dat"; }
         }
 
         public string ServerName {

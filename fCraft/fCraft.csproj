@@ -80,7 +80,7 @@
     <Compile Include="Mcc\MapD3.cs" />
     <Compile Include="Mcc\MapMyne.cs" />
     <Compile Include="Mcc\MapJTE.cs" />
-    <Compile Include="Mcc\IConverter.cs" />
+    <Compile Include="Mcc\IMapConverter.cs" />
     <Compile Include="Mcc\MapDAT.cs" />
     <Compile Include="Mcc\MapFCMv2.cs" />
     <Compile Include="Mcc\MapFormat.cs" />

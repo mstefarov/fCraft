@@ -15,16 +15,19 @@ namespace fCraft {
         internal byte[] blocks;
         public int widthX, widthY, height;
         public Position spawn;
+
         public Dictionary<string, string> meta = new Dictionary<string, string>();
+        Dictionary<string, Dictionary<string, string>> metadata = new Dictionary<string, Dictionary<string, string>>();
+
         ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
         object metaLock = new object(), zoneLock = new object();
         public int changesSinceSave, changesSinceBackup;
         public short[,] shadows;
 
+        // FCMv3 additions
         public DateTime DateModified;
         public DateTime DateCreated;
         public Guid GUID;
-
         public Dictionary<DataLayerType, DataLayer> layers;
 
         // undo information
@@ -33,11 +36,14 @@ namespace fCraft {
         public BlockChangeCause[] blockChangeCauses;
         public int[] blockTimestamps;
 
+
         internal Map() { }
+
 
         public Map( World _world ) {
             world = _world;
         }
+
 
         // creates an empty new world of specified dimensions
         public Map( World _world, int _widthX, int _widthY, int _height )
@@ -54,6 +60,7 @@ namespace fCraft {
 
 
         #region Saving
+
         public bool Save( string fileName ) {
             string tempFileName = fileName + ".temp";
 
@@ -129,9 +136,12 @@ namespace fCraft {
             writer.Write( stringData.Length );
             writer.Write( stringData );
         }
+
         #endregion
 
+
         #region Loading
+
         public static Map Load( World _world, string fileName ) {
             // locate the file
             if( !File.Exists( fileName ) && !Directory.Exists( fileName ) ) {
@@ -172,6 +182,7 @@ namespace fCraft {
             }
         }
 
+
         public static Map LoadHeaderOnly( string fileName ) {
             try {
                 if( !File.Exists( fileName ) ) {
@@ -209,7 +220,6 @@ namespace fCraft {
         }
 
 
-
         internal bool ValidateHeader() {
             if( !IsValidDimension( height ) ) {
                 Logger.Log( "Map.ReadHeader: Invalid dimension specified for widthX: {0}.", LogType.Error, widthX );
@@ -236,46 +246,62 @@ namespace fCraft {
         }
 
 
-        internal void ReadMetadata( BinaryReader reader ) {
-            try {
-                int metaSize = (int)reader.ReadUInt16();
-
-                for( int i = 0; i < metaSize; i++ ) {
-                    string key = ReadLengthPrefixedString( reader );
-                    string value = ReadLengthPrefixedString( reader );
-                    if( key.StartsWith( "@zone" ) ) {
-                        try {
-                            AddZone( new Zone( value, world ) );
-                        } catch( Exception ex ) {
-                            Logger.Log( "Map.ReadMetadata: cannot parse a zone: {0}", LogType.Error, ex.Message );
-                        }
-                    } else {
-                        meta.Add( key, value );
-                    }
-                }
-                UpdateZoneCache();
-
-            } catch( FormatException ex ) {
-                Logger.Log( "Map.ReadMetadata: Cannot parse one or more of the metadata entries: {0}", LogType.Error,
-                            ex.Message );
-            }
-        }
-
-        static string ReadLengthPrefixedString( BinaryReader reader ) {
-            int length = reader.ReadInt32();
-            byte[] stringData = reader.ReadBytes( length );
-            return ASCIIEncoding.ASCII.GetString( stringData );
-        }
-
-
         // Only multiples of 16 are allowed, between 16 and 2032
         public static bool IsValidDimension( int dimension ) {
             return dimension > 0 && dimension % 16 == 0 && dimension < 2048;
         }
+
         #endregion
 
+
+        #region Metadata
+
+        public string GetMeta( string key ) {
+            return GetMeta( "", key );
+        }
+
+
+        public string GetMeta( string group, string key ) {
+            try {
+                return metadata[group][key];
+            } catch( KeyNotFoundException ) {
+                return null;
+            }
+        }
+
+
+        public void SetMeta( string key, string value ) {
+            SetMeta( "", key, value );
+        }
+
+
+        public void SetMeta( string group, string key, string value ) {
+            if( !metadata.ContainsKey( group ) ) {
+                metadata[group] = new Dictionary<string, string>();
+            }
+            metadata[group][key] = value;
+        }
+
+
+        internal void ParseMetadata() {
+            foreach( string zoneDefinition in metadata["zones"].Values ) {
+                try {
+                    AddZone( new Zone( zoneDefinition, world ) );
+                } catch( Exception ex ) {
+                    Logger.Log( "Map.ParseMetadata: Cannot load a zone: {0}", LogType.Error,
+                                ex );
+                }
+            }
+            UpdateZoneCache();
+        }
+
+        #endregion
+
+
         #region Utilities
+
         static Dictionary<string, Block> blockNames = new Dictionary<string, Block>();
+
         static Map() {
             foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
                 if( block != Block.Undefined ) {
@@ -392,6 +418,7 @@ namespace fCraft {
             spawn.Set( widthX * 16, widthY * 16, height * 32, 0, 0 );
         }
 
+
         public void CalculateShadows() {
             if( shadows != null ) return;
 
@@ -445,6 +472,7 @@ namespace fCraft {
             return true;
         }
 
+
         // zips a copy of the block array
         public void GetCompressedCopy( Stream stream, bool prependBlockCount ) {
             using( ZLibStream compressor = ZLibStream.MakeCompressor( stream, ZLibStream.BufferSize ) ) {
@@ -457,6 +485,7 @@ namespace fCraft {
                 compressor.Write( blocks, 0, blocks.Length );
             }
         }
+
 
         public void MakeFloodBarrier() {
             for( int x = 0; x < widthX; x++ ) {
@@ -487,9 +516,12 @@ namespace fCraft {
 
         #endregion
 
+
         #region Zones
+
         public Dictionary<string, Zone> zones = new Dictionary<string, Zone>();
         public Zone[] zoneList = new Zone[0];
+
 
         public bool AddZone( Zone z ) {
             lock( zoneLock ) {
@@ -500,6 +532,7 @@ namespace fCraft {
             }
             return true;
         }
+
 
         public bool RemoveZone( string z ) {
             lock( zoneLock ) {
@@ -569,6 +602,7 @@ namespace fCraft {
             return null;
         }
 
+
         void UpdateZoneCache() {
             lock( zoneLock ) {
                 Zone[] newZoneList = new Zone[zones.Count];
@@ -582,11 +616,13 @@ namespace fCraft {
 
         #endregion
 
+
         #region Block Updates & Simulation
 
         public int Index( int x, int y, int h ) {
             return (h * widthY + y) * widthX + x;
         }
+
 
         public void SetBlock( int x, int y, int h, Block type ) {
             if( x < widthX && y < widthY && h < height && x >= 0 && y >= 0 && h >= 0 )
@@ -608,6 +644,7 @@ namespace fCraft {
                 blocks[Index( vec.x, vec.z, vec.y )] = type;
         }
 
+
         public byte GetBlock( int x, int y, int h ) {
             if( x < widthX && y < widthY && h < height && x >= 0 && y >= 0 && h >= 0 )
                 return blocks[Index( x, y, h )];
@@ -620,6 +657,7 @@ namespace fCraft {
             return 0;
         }
 
+
         public bool InBounds( int x, int y, int h ) {
             return x < widthX && y < widthY && h < height && x >= 0 && y >= 0 && h >= 0;
         }
@@ -627,6 +665,7 @@ namespace fCraft {
         public bool InBounds( Vector3i vec ) {
             return vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0;
         }
+
 
         public int SearchColumn( int x, int y, Block id ) {
             return SearchColumn( x, y, id, height - 1 );
@@ -690,7 +729,9 @@ namespace fCraft {
 
         #endregion
 
+
         #region Backup
+
         public void SaveBackup( string sourceName, string targetName, bool onlyIfChanged ) {
             if( onlyIfChanged && changesSinceBackup == 0 && Config.GetBool( ConfigKey.BackupOnlyWhenChanged ) ) return;
 
@@ -771,21 +812,24 @@ namespace fCraft {
                 return -x.CreationTime.CompareTo( y.CreationTime );
             }
         }
+
         #endregion
+
 
         #region FCMv3
 
         public struct DataLayer {
             public DataLayerType Type;         // see "DataLayerType" below
             public DataLayerCompressionType CompressionType;   // see "DataLayerCompressionType" below
-            public uint GeneralPurposeField;   // 32 bits that can be used in implementation-specific ways
-            public uint ElementSize;           // size of each data element (if elements are variable-size, set this to 1)
-            public uint ElementCount;          // number of fixed-sized elements (if elements are variable-size, set this to total number of bytes)
+            public int GeneralPurposeField;   // 32 bits that can be used in implementation-specific ways
+            public int ElementSize;           // size of each data element (if elements are variable-size, set this to 1)
+            public int ElementCount;          // number of fixed-sized elements (if elements are variable-size, set this to total number of bytes)
             // uncompressed length = (element size * element count)
             public byte[] Data;
             public long Offset;
-            public uint CompressedLength;
+            public int CompressedLength;
         }
+
 
         // type of block - allows storing multiple layers of information about blocks
         public enum DataLayerType : byte {
@@ -797,6 +841,7 @@ namespace fCraft {
             // 32-255 custom
         }
 
+
         public enum DataLayerCompressionType : byte {
             None = 0,    // raw, uncompressed data - implementation OPTIONAL
             Deflate = 1,    // deflate with no header - implementation OPTIONAL
@@ -806,6 +851,7 @@ namespace fCraft {
             // 5-31 reserved
             // 32-255 custom
         }
+
         #endregion
     }
 }
