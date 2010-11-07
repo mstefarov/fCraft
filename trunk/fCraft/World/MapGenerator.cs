@@ -20,15 +20,15 @@ namespace fCraft {
         Bay,
         Default,
         Dunes,
+        Flat,
         Hills,
         Ice,
         Island,
         Lake,
         Mountains,
-        River,
-        Streams,
         Peninsula,
-        Flat
+        River,
+        Streams
     }
 
 

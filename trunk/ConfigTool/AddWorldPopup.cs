@@ -316,7 +316,7 @@ namespace ConfigTool {
             } else {
                 generatedMap = new Map( null, Convert.ToInt32( nFlatgrassDimX.Value ), Convert.ToInt32( nFlatgrassDimY.Value ), Convert.ToInt32( nFlatgrassDimH.Value ) );
                 MapGenerator.GenerateFlatgrass( generatedMap );
-                map.ResetSpawn();
+                generatedMap.ResetSpawn();
             }
 
             if( floodBarrier ) generatedMap.MakeFloodBarrier();
