@@ -35,23 +35,26 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using fCraft;
 
+
 namespace Mcc {
-    public sealed class MapFCMv2 : IConverter {
+    public sealed class MapFCMv2 : IMapConverter {
         public const uint Identifier = 0xfc000002;
+
+        public bool ClaimsFileName( string fileName ) {
+            return fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase );
+        }
 
         public MapFormat Format {
             get { return MapFormat.FCMv2; }
         }
 
-        public string FileExtension {
-            get { return ".fcm"; }
-        }
-
         public string ServerName {
             get { return "fCraft"; }
         }
+
 
         public Map Load( Stream mapStream, string fileName ) {
             // Reset the seeker to the front of the stream
@@ -82,7 +85,22 @@ namespace Mcc {
             map.spawn.l = reader.ReadByte();
 
             // Read the metadata
-            map.ReadMetadata( reader );
+            int metaSize = (int)reader.ReadUInt16();
+
+            for( int i = 0; i < metaSize; i++ ) {
+                string key = ReadLengthPrefixedString( reader );
+                string value = ReadLengthPrefixedString( reader );
+                if( key.StartsWith( "@zone" ) ) {
+                    try {
+                        string zoneName = value.Substring( 0, value.IndexOf( ' ' ) );
+                        map.SetMeta( "zones", zoneName, value );
+                    } catch( Exception ex ) {
+                        Logger.Log( "MapFCMv2.Load: Error importing zone definition: {0}", LogType.Error, ex );
+                    }
+                } else {
+                    map.SetMeta( key, value );
+                }
+            }
 
             if( !map.ValidateHeader() ) {
                 throw new Exception( "One or more of the map dimensions are invalid." );
@@ -95,6 +113,20 @@ namespace Mcc {
             }
 
             return map;
+        }
+
+
+        static string ReadLengthPrefixedString( BinaryReader reader ) {
+            int length = reader.ReadInt32();
+            byte[] stringData = reader.ReadBytes( length );
+            return ASCIIEncoding.ASCII.GetString( stringData );
+        }
+
+
+        static void WriteLengthPrefixedString( BinaryWriter writer, string s ) {
+            byte[] stringData = ASCIIEncoding.ASCII.GetBytes( s );
+            writer.Write( stringData.Length );
+            writer.Write( stringData );
         }
 
 
@@ -122,7 +154,7 @@ namespace Mcc {
             mapToSave.WriteMetadata( bs );
 
             // Write the map data
-            using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress, true ) ) {
+            using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress, true ) ) {
                 gs.Write( mapToSave.blocks, 0, mapToSave.blocks.Length );
             }
 
@@ -137,7 +169,7 @@ namespace Mcc {
                 mapStream.Seek( 0, SeekOrigin.Begin );
                 BinaryReader reader = new BinaryReader( mapStream );
                 return reader.ReadUInt32() == Identifier;
-            } catch ( Exception ) {
+            } catch( Exception ) {
                 return false;
             }
 

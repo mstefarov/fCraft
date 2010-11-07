@@ -33,40 +33,21 @@
 // 
 
 using System;
+using System.IO;
+using fCraft;
+
 
 namespace Mcc {
-    // <summary>
-    // Enum defining all of the MapFormats supported by mcc
-    // </summary>
-    public enum MapFormat {
-        FCMv2,
-        // Map format used by fCraft.
-        // - Support added by Matvei
-        FCMv3,
-        // Future map format used by fCraft
-        // - Planned
-        MCSharp,
-        // Map format used by MCSharp
-        // - Support added by Tyler
-        MinerCPP,
-        // Map format used by MinerCPP and LuaCraft
-        // - Support added by Tyler
-        Myne,
-        // Map format used by Myne and its children (Mainly Hyvebuild)
-        // - Support added by Matvei
-        Creative,
-        // Creative makes more sense then the original "Vanilla"
-        // - Support added by Tyler
-        NBT,
-        // Format used by indev and infdev
-        // - Support added by Matvei
-        JTE,
-        // Format used by JTE's server
-        // - Support added by Matvei
-        D3,
-        // Format used by D3 server
-        // - Support added by Matvei
-        Unknown
-        // Returned when the map could not be identified
+    public interface IMapConverter {
+        string ServerName { get; }
+        MapFormat Format { get; }
+
+        bool ClaimsFileName( string fileName );
+
+        bool Claims( Stream mapStream, string fileName );
+
+        Map Load( Stream mapStream, string fileName );
+
+        bool Save( Map mapToSave, Stream mapStream );
     }
 }

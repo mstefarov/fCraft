@@ -40,19 +40,20 @@ using fCraft;
 
 
 namespace Mcc {
-    public sealed class MapJTE : IConverter {
+    public sealed class MapJTE : IMapConverter {
+
+        public bool ClaimsFileName( string fileName ) {
+            return fileName.EndsWith( ".gz", StringComparison.OrdinalIgnoreCase );
+        }
 
         public MapFormat Format {
             get { return MapFormat.JTE; }
         }
 
-        public string FileExtension {
-            get { return ".gz"; }
+        public string ServerName {
+            get { return "JTE's"; }
         }
 
-        public string ServerName {
-            get { return "JTE"; }
-        }
 
         static byte[] mapping = new byte[256];
         static MapJTE() {

@@ -41,22 +41,21 @@ using System.Collections.Generic;
 
 
 namespace Mcc {
-    public sealed class MapMyne : IConverter {
+    public sealed class MapMyne : IMapConverter {
+
+        public bool ClaimsFileName( string fileName ) {
+            return false;
+        }
 
         public MapFormat Format {
             get { return MapFormat.Myne; }
         }
 
-        public string FileExtension {
-            get { return ""; }
-        }
-
         public string ServerName {
-            get { return "Myne"; }
+            get { return "Myne/MyneCraft/HyveBuild/iCraft"; }
         }
 
-        public MapMyne() {
-        }
+
 
         public Map Load( Stream inputStream, string dirName ) {
             DirectoryInfo dirInfo = new DirectoryInfo( dirName );

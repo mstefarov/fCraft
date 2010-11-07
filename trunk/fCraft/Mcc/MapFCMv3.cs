@@ -7,21 +7,23 @@ using fCraft;
 
 
 namespace Mcc {
-    class MapFCMv3 : IConverter {
+    class MapFCMv3 : IMapConverter {
         public const int Identifier = 0x0FC2AF40;
-        public const byte Revision = 8;
+        public const byte Revision = 9;
+
+        public bool ClaimsFileName( string fileName ) {
+            return fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase );
+        }
 
         public MapFormat Format {
             get { return MapFormat.FCMv3; }
         }
 
-        public string FileExtension {
-            get { return ".fcm"; }
-        }
-
         public string ServerName {
             get { return "fCraft"; }
         }
+
+
 
         static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1 );
 
@@ -32,6 +34,7 @@ namespace Mcc {
         public static DateTime TimestampToDateTime( long timestamp ) {
             return UnixEpoch.AddSeconds( timestamp );
         }
+
 
         public Map Load( Stream mapStream, string fileName ) {
             BinaryReader reader = new BinaryReader( mapStream );
@@ -47,9 +50,9 @@ namespace Mcc {
             map.widthY = reader.ReadInt16();
 
             // read spawn
-            map.spawn.x = reader.ReadInt16();
-            map.spawn.h = reader.ReadInt16();
-            map.spawn.y = reader.ReadInt16();
+            map.spawn.x = (short)reader.ReadInt32();
+            map.spawn.h = (short)reader.ReadInt32();
+            map.spawn.y = (short)reader.ReadInt32();
             map.spawn.r = reader.ReadByte();
             map.spawn.l = reader.ReadByte();
 
@@ -60,7 +63,8 @@ namespace Mcc {
             // read UUID
             map.GUID = new Guid( reader.ReadBytes( 16 ) );
 
-            // read data index
+
+            // read data layer index
             int layerCount = reader.ReadByte();
             reader.ReadUInt32(); // DataLayerFlags
             map.layers = new Dictionary<Map.DataLayerType, Map.DataLayer>();
@@ -70,45 +74,77 @@ namespace Mcc {
                     Map.DataLayer layer = new Map.DataLayer();
                     layer.Type = (Map.DataLayerType)i;
                     layer.Offset = offset;
-                    layer.CompressedLength = reader.ReadUInt32();
+                    layer.CompressedLength = reader.ReadInt32();
+                } else {
+                    reader.ReadUInt32(); // skip CompressedLength
                 }
             }
 
-            // read metadata
-            map.ReadMetadata( reader );
 
+            // read metadata
+            Dictionary<string, Dictionary<string, string>> metadata = new Dictionary<string, Dictionary<string, string>>();
+            int metaSize = reader.ReadInt32();
+
+            for( int i = 0; i < metaSize; i++ ) {
+                string group = ReadLengthPrefixedString( reader ).ToLowerInvariant();
+                string key = ReadLengthPrefixedString( reader ).ToLowerInvariant();
+                string value = ReadLengthPrefixedString( reader );
+
+                if(map.GetMeta(group,key)!=null){
+                    Logger.Log( "MapFCMv3.Load: Duplicate metadata entry found for [{0}].[{1}]. Old value (overwritten): \"{2}\". New value: \"{3}\"", LogType.Warning,
+                                group, key, map.GetMeta( group, key ), value );
+                }
+                map.SetMeta( group, key, value );
+            }
+
+
+            // read data layers
             foreach( Map.DataLayer layer in map.layers.Values ) {
-                Map.DataLayer activeLayer = layer;
-                reader.BaseStream.Seek( layer.Offset, SeekOrigin.Begin );
-                reader.ReadByte();
+                Map.DataLayer activeLayer = layer; // reference copied to avoid compiler 'foreach iteration variable' complaints
+                reader.BaseStream.Seek( activeLayer.Offset, SeekOrigin.Begin );
+                reader.ReadByte(); // skip DataLayerType
                 activeLayer.CompressionType = (Map.DataLayerCompressionType)reader.ReadByte();
-                activeLayer.GeneralPurposeField = reader.ReadUInt32();
-                activeLayer.ElementSize = reader.ReadUInt32();
-                activeLayer.ElementCount = reader.ReadUInt32();
-                activeLayer.Data = new byte[activeLayer.ElementCount * activeLayer.ElementSize];
-                
+                activeLayer.GeneralPurposeField = reader.ReadInt32();
+                activeLayer.ElementSize = reader.ReadInt32();
+                activeLayer.ElementCount = reader.ReadInt32();
+
                 switch( activeLayer.CompressionType ) {
                     case Map.DataLayerCompressionType.Deflate:
                     case Map.DataLayerCompressionType.DeflateGZip:
+                        activeLayer.Data = new byte[activeLayer.ElementCount * activeLayer.ElementSize];
                         using( ZLibStream zs = ZLibStream.MakeDecompressor( reader.BaseStream, ZLibStream.BufferSize, true ) ) {
                             zs.Read( activeLayer.Data, 0, activeLayer.Data.Length );
                         }
                         break;
                     case Map.DataLayerCompressionType.None:
+                        activeLayer.Data = new byte[activeLayer.ElementCount * activeLayer.ElementSize];
                         reader.Read( activeLayer.Data, 0, activeLayer.Data.Length );
                         break;
+                    default:
+                        Logger.Log( "MapFCMv3.Load: Skipping data layer #{0} due to unsupported compression method ({1}).", LogType.Error,
+                                    activeLayer.Type, activeLayer.CompressionType );
+                        continue;
                 }
 
                 switch( activeLayer.Type ) {
                     case Map.DataLayerType.Blocks:
                         map.blocks = activeLayer.Data;
                         break;
+                    case Map.DataLayerType.BlockUndo:
+                        map.blockUndo = activeLayer.Data;
+                        break;
                 }
             }
 
             return map;
         }
-        
+
+        static string ReadLengthPrefixedString( BinaryReader reader ) {
+            int length = reader.ReadInt16();
+            byte[] stringData = reader.ReadBytes( length );
+            return ASCIIEncoding.ASCII.GetString( stringData );
+        }
+
 
         public bool Save( Map mapToSave, Stream mapStream ) {
             return false;
