@@ -229,7 +229,11 @@ namespace fCraft {
             }
 
             /* STEP 2: Replace special colorcodes */
-            text = text.Replace( "&S", Color.Sys ).Replace( "&Y", Color.Say ).Replace( "&R", Color.Announcement ).Replace( "&H", Color.Help );
+            text = text.Replace( "&S", Color.Sys )
+                       .Replace( "&Y", Color.Say )
+                       .Replace( "&R", Color.Announcement )
+                       .Replace( "&H", Color.Help )
+                       .Replace( "&W", Color.Warning );
 
 
             /* STEP 3: Remove consecutive colorcodes */

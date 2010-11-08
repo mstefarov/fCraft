@@ -165,11 +165,11 @@ namespace fCraft {
             PlayerInfo info = PlayerDB.FindPlayerInfoExact( nameOrIP );
 
             if( Config.GetBool( ConfigKey.RequireBanReason ) && (reason == null || reason.Length == 0) ) {
-                player.Message( "{0}Please specify a ban/unban reason.", Color.Red );
+                player.Message( "Please specify a ban/unban reason." );
                 // freeze the target player to prevent further damage
                 if( !unban && target != null && player.Can( Permission.Freeze ) && player.info.rank.CanBan( target.info.rank ) ) {
-                    player.Message( "{0}{1} has been frozen while you retry.",
-                                    target.GetClassyName(), Color.Red );
+                    player.Message( "{0} has been frozen while you retry.",
+                                    target.GetClassyName() );
                     Freeze( player, new Command( "/freeze " + target.name ) );
                 }
 
@@ -191,10 +191,12 @@ namespace fCraft {
                         if( target.info.ProcessBan( player, reason ) ) {
                             Logger.Log( "{0} was banned by {1}.", LogType.UserActivity,
                                         target.info.name, player.name );
-                            Server.SendToAll( target.GetClassyName() + Color.Red + " was banned by " + player.GetClassyName(), target );
+                            Server.SendToAllExcept( "{0}&W was banned by {1}", target,
+                                                    target.GetClassyName(), player.GetClassyName() );
                             if( reason != null && reason.Length > 0 ) {
                                 if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) ) {
-                                    Server.SendToAll( Color.Red + "Ban reason: " + reason );
+                                    Server.SendToAllExcept( "&WBan reason: {0}", target,
+                                                            reason );
                                 }
                                 target.session.Kick( "Banned by " + player.GetClassyName() + Color.White + ": " + reason );
                             } else {
@@ -202,7 +204,7 @@ namespace fCraft {
                             }
 
                             if( !banIP ) {
-                                PlayerInfo[] alts = PlayerDB.FindPlayers( target.info.lastIP, 100 );
+                                PlayerInfo[] alts = PlayerDB.FindPlayers( target.info.lastIP );
                                 List<PlayerInfo> bannedAlts = new List<PlayerInfo>();
                                 for( int i = 0; i < alts.Length; i++ ) {
                                     if( alts[i].banned && alts[i] != target.info ) {
@@ -217,16 +219,14 @@ namespace fCraft {
                             }
 
                         } else {
-                            player.Message( "{0}&S is already banned.",
-                                            target.GetClassyName() );
+                            player.Message( "{0}&S is already banned.", target.GetClassyName() );
                         }
                     }
                 } else {
                     player.Message( "You can only ban players ranked {0}&S or lower.",
                                     player.info.rank.GetLimit( Permission.Ban ).GetClassyName() );
                     player.Message( "{0}&S is ranked {1}",
-                                    target.GetClassyName(),
-                                    target.info.rank.GetClassyName() );
+                                    target.GetClassyName(), target.info.rank.GetClassyName() );
                 }
 
                 // ban or unban offline players
@@ -239,25 +239,25 @@ namespace fCraft {
                             if( info.ProcessUnban( player.name, reason ) ) {
                                 Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity,
                                             info.name, player.name );
-                                Server.SendToAll( info.GetClassyName() + Color.Red + " (offline) was unbanned by " + player.GetClassyName() );
+                                Server.SendToAll( "{0}&W (offline) was unbanned by {1}",
+                                                  info.GetClassyName(), player.GetClassyName() );
                                 if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
-                                    Server.SendToAll( Color.Red + "Unban reason: " + reason );
+                                    Server.SendToAll( "&WUnban reason: {0}", reason );
                                 }
                             } else {
-                                player.Message( "{0}&S (offline) is not currenty banned.",
-                                                info.GetClassyName() );
+                                player.Message( "{0}&S (offline) is not currenty banned.", info.GetClassyName() );
                             }
                         } else {
                             if( info.ProcessBan( player, reason ) ) {
                                 Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity,
                                             info.name, player.name );
-                                Server.SendToAll( info.GetClassyName() + Color.Red + " (offline) was banned by " + player.GetClassyName() );
+                                Server.SendToAll( "{0}&W (offline) was banned by {1}",
+                                                  info.GetClassyName(), player.GetClassyName() );
                                 if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
-                                    Server.SendToAll( Color.Red + "Ban reason: " + reason );
+                                    Server.SendToAll( "&WBan reason: {0}", reason );
                                 }
                             } else {
-                                player.Message( "{0}&S (offline) is already banned.",
-                                                info.GetClassyName() );
+                                player.Message( "{0}&S (offline) is already banned.", info.GetClassyName() );
                             }
                         }
                     }
@@ -265,8 +265,7 @@ namespace fCraft {
                     player.Message( "You can only ban players ranked {0}&S or lower.",
                                     player.info.rank.GetLimit( Permission.Ban ).GetClassyName() );
                     player.Message( "{0}&S is ranked {1}",
-                                    info.GetClassyName(),
-                                    info.rank.GetClassyName() );
+                                    info.GetClassyName(), info.rank.GetClassyName() );
                 }
 
                 // ban players who are not in the database yet
@@ -276,7 +275,7 @@ namespace fCraft {
                     return;
                 }
 
-                player.Message( "Warning: player \"{0}\" is not in the database (possible typo)", nameOrIP );
+                player.Message( "Warning: Player \"{0}\" is not in the database (possible typo)", nameOrIP );
 
                 if( unban ) {
                     player.Message( "\"{0}\" (unrecognized) is not banned.", nameOrIP );
@@ -285,12 +284,12 @@ namespace fCraft {
                     info.ProcessBan( player, reason );
                     player.Message( "Player \"{0}\" (unrecognized) was banned.", nameOrIP );
                     Logger.Log( "{0} (unrecognized) was banned by {1}", LogType.UserActivity,
-                                info.name,
-                                player.GetClassyName() );
-                    Server.SendToAll( Color.Red + info.name + " (unrecognized) was banned by " + player.GetClassyName() );
+                                info.name, player.GetClassyName() );
+                    Server.SendToAll( "{0}&W (unrecognized) was banned by {1}",
+                                      info.name, player.GetClassyName() );
 
                     if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
-                        Server.SendToAll( Color.Red + "Ban reason: " + reason );
+                        Server.SendToAll( "&WBan reason: {0}", reason );
                     }
                 }
             } else {
@@ -309,18 +308,20 @@ namespace fCraft {
             if( unban ) {
                 if( IPBanList.Remove( address ) ) {
                     player.Message( "{0} has been removed from the IP ban list.", address );
-                    Server.SendToAll( Color.Red + address.ToString() + " was unbanned by " + player.GetClassyName() );
+                    Server.SendToAll( "&W{0} was unbanned by {1}",
+                                      address, player.GetClassyName() );
                     if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
-                        Server.SendToAll( Color.Red + "Unban reason: " + reason );
+                        Server.SendToAll( "&WUnban reason: ", reason );
                     }
                 } else {
                     player.Message( "{0} is not currently banned.", address );
                 }
 
                 if( banAll ) {
-                    foreach( PlayerInfo otherInfo in PlayerDB.FindPlayers( address, int.MaxValue ) ) {
+                    foreach( PlayerInfo otherInfo in PlayerDB.FindPlayers( address ) ) {
                         if( otherInfo.ProcessUnban( player.name, reason + "~UnBanAll" ) ) {
-                            Server.SendToAll( Color.Red + otherInfo.name + " was unbanned (UnbanAll) by " + player.GetClassyName() );
+                            Server.SendToAllExcept( "{0}&W was unbanned (UnbanAll) by {1}", player,
+                                                    otherInfo.GetClassyName(), player.GetClassyName() );
                             player.Message( "{0}&S matched IP and was also unbanned.", otherInfo.GetClassyName() );
                         }
                     }
@@ -328,10 +329,10 @@ namespace fCraft {
 
             } else {
                 if( IPBanList.Add( new IPBanInfo( address, playerName, player.name, reason ) ) ) {
-                    player.Message( "{0} has been added to the IP ban list.", address );
-                    Server.SendToAll( Color.Red + address.ToString() + " was banned by " + player.GetClassyName() );
+                    Server.SendToAll( "&W{0} was banned by {1}",
+                                      address, player.GetClassyName() );
                     if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
-                        Server.SendToAll( Color.Red + "Ban reason: " + reason );
+                        Server.SendToAll( "&WBan reason: {0}", reason );
                     }
 
                 } else {
@@ -339,14 +340,12 @@ namespace fCraft {
                 }
 
                 if( banAll ) {
-                    foreach( PlayerInfo otherInfo in PlayerDB.FindPlayers( address, int.MaxValue ) ) {
-                        if( banAll && otherInfo.ProcessBan( player, reason + "~BanAll" ) ) {
+                    foreach( PlayerInfo otherInfo in PlayerDB.FindPlayers( address ) ) {
+                        if( otherInfo.ProcessBan( player, reason + "~BanAll" ) ) {
                             player.Message( "{0}&S matched IP and was also banned.", otherInfo.GetClassyName() );
+                            Server.SendToAllExcept( "{0}&W was banned (BanAll) by {1}", player,
+                                                    otherInfo.GetClassyName(), player.GetClassyName() );
                         }
-                        Server.SendToAll( String.Format( "{0}{1} was banned (BanAll) by {2}",
-                                                         otherInfo.GetClassyName(),
-                                                         Color.Red,
-                                                         player.GetClassyName() ) );
                     }
                     foreach( Player other in Server.FindPlayers( address ) ) {
                         DoKick( player, other, null, false );
@@ -410,12 +409,13 @@ namespace fCraft {
                 return false;
             } else {
                 if( !silent ) {
-                    Server.SendToAll( target.GetClassyName() + Color.Red + " was kicked by " + player.GetClassyName() );
+                    Server.SendToAll( "{0}&W was kicked by {1}",
+                                      target.GetClassyName(), player.GetClassyName() );
                     target.info.ProcessKick( player, reason );
                 }
                 if( reason != null && reason.Length > 0 ) {
                     if( !silent && Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) ) {
-                        Server.SendToAll( Color.Red + "Kick reason: " + reason );
+                        Server.SendToAll( "&WKick reason: {0}", reason );
                     }
                     Logger.Log( "{0} was kicked by {1}. Reason: {2}", LogType.UserActivity,
                                 target.name, player.name, reason );
@@ -423,7 +423,7 @@ namespace fCraft {
                 } else {
                     Logger.Log( "{0} was kicked by {1}", LogType.UserActivity,
                                 target.name, player.name );
-                    target.session.Kick( "You have been kicked by " + player.GetClassyName() );
+                    target.session.Kick( "You were kicked by " + player.GetClassyName() );
                 }
                 return true;
             }
@@ -528,9 +528,9 @@ namespace fCraft {
 
             if( Config.GetBool( ConfigKey.RequireRankChangeReason ) && (reason == null || reason.Length == 0) ) {
                 if( promote ) {
-                    player.Message( "{0}Please specify a promotion reason.", Color.Red );
+                    player.Message( "&WPlease specify a promotion reason." );
                 } else {
-                    player.Message( "{0}Please specify a demotion reason.", Color.Red );
+                    player.Message( "&WPlease specify a demotion reason." );
                 }
                 cdChangeRank.PrintUsage( player );
                 return;
@@ -935,7 +935,7 @@ namespace fCraft {
             }
             string reason = cmd.Next();
 
-            Server.SendToAll( String.Format( Color.Red + "Server shutting down in {0} seconds.", delay ) );
+            Server.SendToAll( "&WServer shutting down in {0} seconds.", delay );
 
             if( reason == null ) {
                 Logger.Log( "{0} shut down the server.", LogType.UserActivity, player.name );
@@ -975,7 +975,8 @@ namespace fCraft {
                 Player target = targets[0];
                 if( player.info.rank.CanFreeze( target.info.rank ) ) {
                     if( !target.isFrozen ) {
-                        Server.SendToAll( target.GetClassyName() + "&S has been frozen by " + player.GetClassyName() );
+                        Server.SendToAll( "{0}&S has been frozen by {1}",
+                                          target.GetClassyName(), player.GetClassyName() );
                         target.isFrozen = true;
                     } else {
                         player.Message( "{0}&S is already frozen.", target.GetClassyName() );
@@ -1056,7 +1057,7 @@ namespace fCraft {
             if( player.Can( Permission.Say ) ) {
                 string msg = cmd.NextAll();
                 if( msg != null && msg.Trim().Length > 0 ) {
-                    Server.SendToAll( Color.Say + msg.Trim() );
+                    Server.SendToAll( "&S{0}", msg.Trim() );
                 } else {
                     cdSay.PrintUsage( player );
                 }
@@ -1267,9 +1268,8 @@ namespace fCraft {
                     Player target = matches[0];
                     target.Mute( seconds );
                     target.Message( "You were muted by {0}&S for {1} sec", player.GetClassyName(), seconds );
-                    Server.SendToAll( String.Format( "&SPlayer {0}&S was muted by {1}&S for {2} sec",
-                                                     target.GetClassyName(), player.GetClassyName(), seconds ),
-                                      target );
+                    Server.SendToAllExcept( "&SPlayer {0}&S was muted by {1}&S for {2} sec", target,
+                                            target.GetClassyName(), player.GetClassyName(), seconds );
                     Logger.Log( "Player {0} was muted by {1} for {2} seconds.", LogType.UserActivity,
                                 target.name, player.name, seconds );
 

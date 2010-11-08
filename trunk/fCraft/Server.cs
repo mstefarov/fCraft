@@ -165,7 +165,7 @@ namespace fCraft {
                         mainWorld.name, RankList.DefaultRank.Name );
 
             // Check for incoming connections 4 times per second
-            AddTask( CheckConnections, 250 );
+            AddTask( CheckConnections, CheckConnectionsInterval );
 
             // Check for idle people every 30 seconds
             AddTask( CheckIdles, 30000 );
@@ -546,7 +546,7 @@ namespace fCraft {
                     return false;
                 } else {
                     Player[] worldPlayerList = worldToDelete.playerList;
-                    worldToDelete.SendToAll( Color.Sys + "You have been moved to the main world." );
+                    worldToDelete.SendToAll( "&SYou have been moved to the main world." );
                     foreach( Player player in worldPlayerList ) {
                         player.session.JoinWorld( mainWorld, null );
                     }
@@ -640,8 +640,10 @@ namespace fCraft {
         #endregion
 
 
-        #region Networking
+        #region Packet Sending
 
+        // Send a low-priority packet to everyone
+        // If 'except' is not null, excludes specified player
         public static void SendToAllDelayed( Packet packet, Player except ) {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -651,10 +653,15 @@ namespace fCraft {
             }
         }
 
+
+        // Send a normal priority packet to everyone
         public static void SendToAll( Packet packet ) {
             SendToAll( packet, null );
         }
 
+
+        // Send a normal priority packet to everyone
+        // If 'except' is not null, excludes specified player
         public static void SendToAll( Packet packet, Player except ) {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -664,22 +671,26 @@ namespace fCraft {
             }
         }
 
-        static string[] emptyStringArray = new string[0];
-        public static void SendToAll( string message ) {
-            SendToAll( message, null, emptyStringArray );
-        }
 
-        public static void SendToAll( string message, params string[] args ) {
-            SendToAll( message, null, args );
-        }
-
-        public static void SendToAll( string message, Player except, params string[] args ) {
-            string formattedMessage = String.Format( message, args );
-            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", formattedMessage, false ) ) {
+        // Send a message to everyone (except a specified player)
+        // Wraps String.Format() for easy formatting
+        public static void SendToAllExcept( string message, Player except, params object[] args ) {
+            if(args.Length>0) message = String.Format( message, args );
+            if( except != Player.Console ) Logger.LogConsole( message );
+            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
                 SendToAll( p, except );
             }
         }
 
+
+        // Send a message to everyone
+        // Wraps String.Format() for easy formatting
+        public static void SendToAll( string message, params object[] args ) {
+            SendToAllExcept( message, null, args );
+        }
+
+
+        // Sends a packet to everyone who CAN see 'source' player
         public static void SendToSeeing( Packet packet, Player source ) {
             Player[] playerListCopy = playerList;
             for( int i = 0; i < playerListCopy.Length; i++ ) {
@@ -689,12 +700,16 @@ namespace fCraft {
             }
         }
 
+
+        // Sends a string to everyone who CAN see 'source' player
         public static void SendToSeeing( string message, Player source ) {
             foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
                 SendToSeeing( packet, source );
             }
         }
 
+
+        // Sends a packet to everyone who CAN'T see 'source' player
         public static void SendToBlind( Packet packet, Player source ) {
             Player[] playerListCopy = playerList;
             for( int i = 0; i < playerListCopy.Length; i++ ) {
@@ -704,13 +719,15 @@ namespace fCraft {
             }
         }
 
+
+        // Sends a string to everyone who CAN'T see 'source' player
         public static void SendToBlind( string message, Player source ) {
             foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
                 SendToBlind( packet, source );
             }
         }
 
-        // Broadcast to a specific class
+        // Sends a packet to all players of a specific rank
         public static void SendToRank( Packet packet, Rank rank ) {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -720,22 +737,11 @@ namespace fCraft {
             }
         }
 
-        // Broadcast to a specific class
+
+        // Sends a string to all players of a specific rank
         public static void SendToRank( string message, Rank rank ) {
             foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
                 SendToRank( packet, rank );
-            }
-        }
-
-        // checks for incoming connections
-        internal static void CheckConnections( object param ) {
-            if( listener.Pending() ) {
-                try {
-                    Session newSession = new Session( listener.AcceptTcpClient() );
-                    newSession.Start();
-                } catch( Exception ex ) {
-                    Logger.Log( "Server.CheckConnections: Could not accept incoming connection: " + ex, LogType.Error );
-                }
             }
         }
 
@@ -844,6 +850,19 @@ namespace fCraft {
 #endif
         }
 
+        // checks for incoming connections
+        const int CheckConnectionsInterval = 250;
+        internal static void CheckConnections( object param ) {
+            if( listener.Pending() ) {
+                try {
+                    Session newSession = new Session( listener.AcceptTcpClient() );
+                    newSession.Start();
+                } catch( Exception ex ) {
+                    Logger.Log( "Server.CheckConnections: Could not accept incoming connection: " + ex, LogType.Error );
+                }
+            }
+        }
+
         const int AutoRankTickInterval = 60000; // 60 seconds
         static void AutoRankTick( object param ) {
             Tasks.Add( (TaskCallback)delegate( object innerParam ) {
@@ -882,9 +901,9 @@ namespace fCraft {
             foreach( Player player in tempPlayerList ) {
                 if( player.info.rank.IdleKickTimer > 0 ) {
                     if( DateTime.UtcNow.Subtract( player.idleTimer ).TotalMinutes >= player.info.rank.IdleKickTimer ) {
-                        SendToAll( String.Format( "{0}&S was kicked for being idle for {1} min",
-                                                  player.GetClassyName(),
-                                                  player.info.rank.IdleKickTimer ) );
+                        SendToAllExcept( "{0}&S was kicked for being idle for {1} min", player,
+                                         player.GetClassyName(),
+                                         player.info.rank.IdleKickTimer.ToString() );
                         AdminCommands.DoKick( Player.Console, player, "Idle for " + player.info.rank.IdleKickTimer + " minutes", true );
                         player.ResetIdleTimer(); // to prevent kick from firing more than once
                     }
@@ -948,12 +967,12 @@ namespace fCraft {
             if( File.Exists( AnnouncementsFile ) ) {
                 string[] lines = File.ReadAllLines( AnnouncementsFile );
                 if( lines.Length == 0 ) return;
-                string line = lines[new Random().Next( 0, lines.Length )];
-                if( line.Trim().Length > 0 ) {
+                string line = lines[new Random().Next( 0, lines.Length )].Trim();
+                if( line.Length > 0 ) {
                     if( line.StartsWith( "&" ) ) {
-                        SendToAll( line );
+                        SendToAll( "{0}", line );
                     } else {
-                        SendToAll( Color.Announcement + line );
+                        SendToAll( "{0}{1}", Color.Announcement, line );
                     }
                 }
             }
@@ -1154,7 +1173,7 @@ namespace fCraft {
                         Logger.Log( "{0} left the server.", LogType.UserActivity,
                                     player.name );
                         if( player.session.hasRegistered ) {
-                            SendToAll( "&SPlayer " + player.GetClassyName() + "&S left the server." );
+                            SendToAll( "&SPlayer {0}&S left the server.", player.GetClassyName() );
 
                             // better safe than sorry: go through ALL worlds looking for leftover players
                             foreach( World world in worlds.Values ) {

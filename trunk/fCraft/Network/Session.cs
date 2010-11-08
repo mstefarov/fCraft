@@ -159,7 +159,7 @@ namespace fCraft {
                                 if( Player.CheckForIllegalChars( message ) ) {
                                     Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.", LogType.SuspiciousActivity,
                                                 player.name );
-                                    Server.SendToAll( player.GetClassyName() + Color.Red + " was kicked for attempted hacking (0x0d)." );
+                                    Server.SendToAll( "{0}&W was kicked for attempted hacking (0x0d).", player.GetClassyName() );
                                     KickNow( "Illegal characters in chat." );
                                     return;
                                 } else {
@@ -274,7 +274,7 @@ namespace fCraft {
                                 if( type > 49 || x < 0 || x > player.world.map.widthX || y < 0 || y > player.world.map.widthY || h < 0 || h > player.world.map.height ) {
                                     Logger.Log( "{0} was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity,
                                                 player.name );
-                                    Server.SendToAll( player.GetClassyName() + Color.Red + " was kicked for attempted hacking (0x05)." );
+                                    Server.SendToAll( "{0}&W was kicked for attempted hacking (0x05).", player.GetClassyName() );
                                     KickNow( "Hacking detected: illegal SetTile packet." );
                                     return;
                                 } else {
@@ -317,7 +317,7 @@ namespace fCraft {
 
             SendNow( PacketWriter.MakeSelfTeleport( avgPosition ) );
             if( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {
-                player.Message( Color.Red + "You are not allowed to speedhack." );
+                player.Message( "&WYou are not allowed to speedhack." );
                 antiSpeedLastNotification = DateTime.UtcNow;
             }
         }
@@ -418,7 +418,7 @@ namespace fCraft {
                 player.info.ProcessFailedLogin( player );
                 Logger.Log( "Banned player {0} tried to log in.", LogType.SuspiciousActivity,
                             player.name );
-                Server.SendToAll( "&SBanned player " + player.GetClassyName() + "&S tried to log in." );
+                Server.SendToAll( "&SBanned player {0}&S tried to log in.", player.GetClassyName() );
                 KickNow( "You were banned by " + player.info.bannedBy + " " + DateTime.Now.Subtract( player.info.banDate ).Days + " days ago." );
                 return false;
             }
@@ -430,22 +430,22 @@ namespace fCraft {
                 IPBanInfo.ProcessAttempt( player );
                 Logger.Log( "{0} tried to log in from a banned IP.", LogType.SuspiciousActivity,
                             player.name );
-                Server.SendToAll( player.GetClassyName() + "&S tried to log in from a banned IP." );
+                Server.SendToAll( "{0}&S tried to log in from a banned IP.", player.GetClassyName() );
                 KickNow( "Your IP was banned by " + IPBanInfo.bannedBy + " " + DateTime.Now.Subtract( IPBanInfo.banDate ).Days + " days ago." );
                 return false;
             }
 
             // check if other banned players logged in from this IP
-            List<string> bannedPlayerNames = new List<string>();
+            List<PlayerInfo> bannedPlayerNames = new List<PlayerInfo>();
             foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( GetIP(), 25 ) ) {
                 if( playerFromSameIP.banned ) {
-                    bannedPlayerNames.Add( playerFromSameIP.name );
+                    bannedPlayerNames.Add( playerFromSameIP );
                 }
             }
             if( bannedPlayerNames.Count > 0 ) {
-                string logString = String.Format( Color.Red + "Player {0}&S logged in from an IP previously used by banned players: {1}",
+                string logString = String.Format( "&WPlayer {0}&W logged in from an IP previously used by banned players: {1}",
                                                   player.GetClassyName(),
-                                                  String.Join( ", ", bannedPlayerNames.ToArray() ) );
+                                                  PlayerInfo.PlayerInfoArrayToString( bannedPlayerNames.ToArray() ) );
                 Server.SendToAll( logString );
                 Logger.Log( logString, LogType.SuspiciousActivity );
             }
@@ -477,8 +477,9 @@ namespace fCraft {
                         case "Never":
                             Logger.Log( "{0} IP did not match. Player was allowed in anyway because VerifyNames is set to Never.", LogType.SuspiciousActivity,
                                         standardMessage );
-                            player.Message( Color.Red + "Your name could not be verified." );
-                            Server.SendToAll( Color.Red + "Name and IP of " + player.GetClassyName() + Color.Red + " are unverified!", player );
+                            player.Message( "&WYour name could not be verified." );
+                            Server.SendToAllExcept( "&WName and IP of {0}&W are unverified!", player,
+                                                    player.GetClassyName() );
                             break;
                     }
 
@@ -535,7 +536,7 @@ namespace fCraft {
             }
 
             bool firstTime = (player.info.timesVisited == 1);
-            Server.SendToAll( Server.MakePlayerConnectedMessage( player, firstTime, Server.mainWorld ), player );
+            Server.SendToAllExcept( Server.MakePlayerConnectedMessage( player, firstTime, Server.mainWorld ), player );
             if( !JoinWorldNow( Server.mainWorld, true ) ) {
                 Logger.Log( "Failed to load main world ({0}) for connecting player {1} (from {2})", LogType.Error,
                             Server.mainWorld.name, player.name, GetIP() );

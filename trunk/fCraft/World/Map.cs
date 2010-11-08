@@ -66,11 +66,9 @@ namespace fCraft {
 
             try {
                 using( FileStream fs = File.OpenWrite( tempFileName ) ) {
-                    WriteHeader( fs );
-                    WriteMetadata( new BinaryWriter( fs ) );
-                    changesSinceSave = 0;
-                    GetCompressedCopy( fs, false );
+                    MapUtility.TrySaving( this, fs, MapFormat.FCMv3 );
                 }
+
             } catch( IOException ex ) {
                 Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
                                tempFileName, ex.Message );
@@ -87,6 +85,7 @@ namespace fCraft {
                 changesSinceBackup++;
                 Logger.Log( "Saved map successfully to {0}", LogType.SystemActivity,
                             fileName );
+
             } catch( Exception ex ) {
                 Logger.Log( "Error trying to replace file \"{0}\": {1}", LogType.Error,
                             fileName, ex );
@@ -94,21 +93,6 @@ namespace fCraft {
                 return false;
             }
             return true;
-        }
-
-
-        void WriteHeader( FileStream fs ) {
-            BinaryWriter writer = new BinaryWriter( fs );
-            writer.Write( MapFCMv2.Identifier );
-            writer.Write( (ushort)widthX );
-            writer.Write( (ushort)widthY );
-            writer.Write( (ushort)height );
-            writer.Write( (ushort)spawn.x );
-            writer.Write( (ushort)spawn.y );
-            writer.Write( (ushort)spawn.h );
-            writer.Write( (byte)spawn.r );
-            writer.Write( (byte)spawn.l );
-            writer.Flush();
         }
 
 

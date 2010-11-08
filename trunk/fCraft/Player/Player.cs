@@ -98,7 +98,7 @@ namespace fCraft {
                     muteWarnings++;
                     if( muteWarnings > Config.GetInt( ConfigKey.AntispamMaxWarnings ) ) {
                         session.KickNow( "You were kicked for repeated spamming." );
-                        Server.SendToAll( GetClassyName() + Color.Red + " was kicked for repeated spamming." );
+                        Server.SendToAll( "&W{0} was kicked for repeated spamming.", GetClassyName() );
                     } else {
                         mutedUntil = DateTime.UtcNow.Add( muteDuration );
                         Message( "You have been muted for {0} seconds. Slow down.", muteDuration.TotalSeconds );
@@ -137,7 +137,7 @@ namespace fCraft {
                         message = message.Substring( 1 );
                     }
 
-                    Server.SendToAll( GetClassyName() + Color.White + ": " + message );
+                    Server.SendToAll( "{0}{1}: {2}", GetClassyName(), Color.White, message );
                     break;
 
                 case MessageType.Command:
@@ -429,26 +429,26 @@ namespace fCraft {
                     break;
 
                 case CanPlaceResult.BlocktypeDenied:
-                    Message( "{0}You are not permitted to affect this block type.", Color.Red );
+                    Message( "&WYou are not permitted to affect this block type." );
                     SendBlockNow( x, y, h );
                     break;
 
                 case CanPlaceResult.ClassDenied:
-                    Message( "{0}Your class is not allowed to build.", Color.Red );
+                    Message( "&WYour class is not allowed to build." );
                     SendBlockNow( x, y, h );
                     break;
 
                 case CanPlaceResult.WorldDenied:
-                    Message( "{0}Your class is not allowed to build on this world.", Color.Red );
+                    Message( "&WYour class is not allowed to build on this world." );
                     SendBlockNow( x, y, h );
                     break;
 
                 case CanPlaceResult.ZoneDenied:
                     Zone deniedZone = world.map.FindDeniedZone( x, y, h, this );
                     if( deniedZone != null ) {
-                        Message( "{0}You are not allowed to build in zone \"{1}\".", Color.Red, deniedZone.name );
+                        Message( "&WYou are not allowed to build in zone \"{0}\".", deniedZone.name );
                     } else {
-                        Message( "{0}You are not allowed to build here.", Color.Red );
+                        Message( "&WYou are not allowed to build here." );
                     }
                     SendBlockNow( x, y, h );
                     break;
@@ -469,7 +469,7 @@ namespace fCraft {
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
                 if( spamTimer < info.rank.AntiGriefSeconds ) {
                     session.KickNow( "You were kicked by antigrief system. Slow down." );
-                    Server.SendToAll( GetClassyName() + Color.Red + " was kicked for suspected griefing." );
+                    Server.SendToAll( "{0}&W was kicked for suspected griefing.", GetClassyName() );
                     Logger.Log( "{0} was kicked for block spam ({1} blocks in {2} seconds)", LogType.SuspiciousActivity,
                                 name, info.rank.AntiGriefBlocks, spamTimer );
                     return true;
