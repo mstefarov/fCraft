@@ -92,8 +92,7 @@ namespace Mcc {
                 string value = ReadLengthPrefixedString( reader );
                 if( key.StartsWith( "@zone" ) ) {
                     try {
-                        string zoneName = value.Substring( 0, value.IndexOf( ' ' ) );
-                        map.SetMeta( "zones", zoneName, value );
+                        map.AddZone( new Zone( value, map.world ) );
                     } catch( Exception ex ) {
                         Logger.Log( "MapFCMv2.Load: Error importing zone definition: {0}", LogType.Error, ex );
                     }
@@ -131,36 +130,7 @@ namespace Mcc {
 
 
         public bool Save( Map mapToSave, Stream mapStream ) {
-            BinaryWriter bs = new BinaryWriter( mapStream );
-
-            // Write the magic number
-            bs.Write( Identifier );
-
-            // Write the map dimensions
-            bs.Write( mapToSave.widthX );
-            bs.Write( mapToSave.widthY );
-            bs.Write( mapToSave.height );
-
-            // Write the spawn location
-            bs.Write( mapToSave.spawn.x );
-            bs.Write( mapToSave.spawn.y );
-            bs.Write( mapToSave.spawn.h );
-
-            // Write the spawn orientation
-            bs.Write( mapToSave.spawn.r );
-            bs.Write( mapToSave.spawn.l );
-
-            // Skip metadata pair count
-            mapToSave.WriteMetadata( bs );
-
-            // Write the map data
-            using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress, true ) ) {
-                gs.Write( mapToSave.blocks, 0, mapToSave.blocks.Length );
-            }
-
-            bs.Close();
-
-            return true;
+            return false;
         }
 
 

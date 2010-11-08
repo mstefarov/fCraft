@@ -729,7 +729,6 @@ namespace fCraft {
                 cmd.Next();
             }
 
-
             string fileName = cmd.Next();
             if( fileName != null ) {
                 if( !fileName.StartsWith( "maps/" ) && !fileName.StartsWith( @"maps\" ) ) {
@@ -777,7 +776,6 @@ namespace fCraft {
                 return;
             }
 
-            // check user typed in dimensions first
             if( !Enum.IsDefined( typeof( MapGenTheme ), theme ) || !Enum.IsDefined( typeof( MapGenTemplate ), template ) ) {
                 cdGenerate.PrintUsage( player );
                 return;
@@ -799,6 +797,7 @@ namespace fCraft {
                     player.MessageNow( "Generating {0} {1}...", theme, template );
                 }
                 if( theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat ) {
+                    map = new Map( null, args.dimX, args.dimY, args.dimH );
                     MapGenerator.GenerateFlatgrass( map );
                 } else {
                     MapGenerator generator = new MapGenerator( args );

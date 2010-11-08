@@ -112,30 +112,29 @@ namespace fCraft {
         }
 
 
-        internal void WriteMetadata( BinaryWriter writer ) {
+        internal int WriteMetadata( BinaryWriter writer ) {
+            int metaCount = 0;
             lock( metaLock ) {
-                writer.Write( (ushort)(meta.Count + zones.Count) );
-                foreach( KeyValuePair<string, string> pair in meta ) {
-                    WriteLengthPrefixedString( writer, pair.Key );
-                    WriteLengthPrefixedString( writer, pair.Value );
-                }
-                int i = 0;
-                lock( zoneLock ) {
-                    foreach( Zone zone in zones.Values ) {
-                        WriteLengthPrefixedString( writer, "@zone" + i );
-                        WriteLengthPrefixedString( writer, zone.Serialize() );
+                foreach( KeyValuePair<string, Dictionary<string, string>> group in metadata ) {
+                    foreach( KeyValuePair<string, string> key in group.Value ) {
+                        MapFCMv3.WriteLengthPrefixedString( writer, group.Key );
+                        MapFCMv3.WriteLengthPrefixedString( writer, key.Key );
+                        MapFCMv3.WriteLengthPrefixedString( writer, key.Value );
+                        metaCount++;
                     }
                 }
             }
-            writer.Flush();
+            lock( zoneLock ) {
+                foreach( Zone zone in zones.Values ) {
+                    MapFCMv3.WriteLengthPrefixedString( writer, "zones" );
+                    MapFCMv3.WriteLengthPrefixedString( writer, zone.name );
+                    MapFCMv3.WriteLengthPrefixedString( writer, zone.Serialize() );
+                    metaCount++;
+                }
+            }
+            return metaCount;
         }
 
-
-        static void WriteLengthPrefixedString( BinaryWriter writer, string s ) {
-            byte[] stringData = ASCIIEncoding.ASCII.GetBytes( s );
-            writer.Write( stringData.Length );
-            writer.Write( stringData );
-        }
 
         #endregion
 
@@ -280,19 +279,6 @@ namespace fCraft {
                 metadata[group] = new Dictionary<string, string>();
             }
             metadata[group][key] = value;
-        }
-
-
-        internal void ParseMetadata() {
-            foreach( string zoneDefinition in metadata["zones"].Values ) {
-                try {
-                    AddZone( new Zone( zoneDefinition, world ) );
-                } catch( Exception ex ) {
-                    Logger.Log( "Map.ParseMetadata: Cannot load a zone: {0}", LogType.Error,
-                                ex );
-                }
-            }
-            UpdateZoneCache();
         }
 
         #endregion
