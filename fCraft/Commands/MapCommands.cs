@@ -246,7 +246,8 @@ namespace fCraft {
                 Server.mainWorld = world;
                 Server.SaveWorldList();
 
-                Server.SendToAll( player.GetClassyName() + "&S set " + world.GetClassyName() + "&S to be the main world." );
+                Server.SendToAll( "{0}&S set {1}&S to be the main world.",
+                                  player.GetClassyName(), world.GetClassyName() );
                 Logger.Log( "{0} set {1} to be the main world.", LogType.UserActivity,
                             player.name, world.name );
             }
@@ -316,11 +317,11 @@ namespace fCraft {
                     world.accessRank = rank;
                     Server.SaveWorldList();
                     if( world.accessRank == RankList.LowestRank ) {
-                        Server.SendToAll( String.Format( "{0}&S made the world {1}&S accessible to anyone.",
-                                                        player.GetClassyName(), world.GetClassyName() ) );
+                        Server.SendToAll( "{0}&S made the world {1}&S accessible to anyone.",
+                                          player.GetClassyName(), world.GetClassyName() );
                     } else {
-                        Server.SendToAll( String.Format( "{0}&S made the world {1}&S accessible only to {2}+",
-                                                         player.GetClassyName(), world.GetClassyName(), world.accessRank.GetClassyName() ) );
+                        Server.SendToAll( "{0}&S made the world {1}&S accessible only to {2}+",
+                                          player.GetClassyName(), world.GetClassyName(), world.accessRank.GetClassyName() );
                     }
                     Logger.Log( "{0} made the world \"{1}\" accessible to {2}+", LogType.UserActivity,
                                 player.name, world.name, world.accessRank.Name );
@@ -390,11 +391,11 @@ namespace fCraft {
                     world.buildRank = rank;
                     Server.SaveWorldList();
                     if( world.buildRank == RankList.LowestRank ) {
-                        Server.SendToAll( String.Format( "{0}&S made the world {1}&S modifiable by anyone.",
-                                                         player.GetClassyName(), world.GetClassyName() ) );
+                        Server.SendToAll( "{0}&S made the world {1}&S modifiable by anyone.",
+                                          player.GetClassyName(), world.GetClassyName() );
                     } else {
-                        Server.SendToAll( String.Format( "{0}&S made the world {1}&S modifiable only by {2}+",
-                                                         player.GetClassyName(), world.GetClassyName(), world.buildRank.GetClassyName() ) );
+                        Server.SendToAll( "{0}&S made the world {1}&S modifiable only by {2}+",
+                                          player.GetClassyName(), world.GetClassyName(), world.buildRank.GetClassyName() );
                     }
                     Logger.Log( "{0} made the world \"{1}\" modifiable by {2}+", LogType.UserActivity,
                                 player.name, world.name, world.buildRank.Name );
@@ -503,10 +504,11 @@ namespace fCraft {
                 }
                 // Loading to current world
                 player.world.ChangeMap( map );
-                player.world.SendToAll( Color.Sys + player.GetClassyName() + " loaded a new map for the world " + player.world.GetClassyName(), player );
-                player.MessageNow( "New map for the world \"{0}\" has been loaded.", player.world.name );
+                player.world.SendToAllExcept( "{0}&S loaded a new map for this world.", player,
+                                              player.GetClassyName() );
+                player.MessageNow( "New map loaded for the world {0}", player.world.GetClassyName() );
 
-                Logger.Log( "{0} loaded new map for {1} from {2}", LogType.UserActivity,
+                Logger.Log( "{0} loaded new map for world \"{1}\" from {2}", LogType.UserActivity,
                             player.name, player.world.name, fileName );
 
             } else {
@@ -526,7 +528,8 @@ namespace fCraft {
                         }
                         // Replacing existing world's map
                         world.ChangeMap( map );
-                        world.SendToAll( player.GetClassyName() + "&S loaded a new map for the world " + world.GetClassyName(), player );
+                        world.SendToAllExcept( "{0}&S loaded a new map for the world {1}", player,
+                                               player.GetClassyName(), world.GetClassyName() );
                         player.MessageNow( "New map for the world {0}&S has been loaded.", world.GetClassyName() );
                         Logger.Log( "{0} loaded new map for world \"{1}\" from {2}", LogType.UserActivity,
                                     player.name, world.name, fileName );
@@ -552,7 +555,8 @@ namespace fCraft {
                             if( newBuildRank != null ) {
                                 newWorld.buildRank = newBuildRank;
                             }
-                            Server.SendToAll( player.GetClassyName() + "&S created a new world named \"" + worldName + "\"." );
+                            Server.SendToAll( "{0}&S created a new world named {1}",
+                                              player.GetClassyName(), newWorld.GetClassyName() );
                             Logger.Log( "{0} created a new world named \"{1}\" (loaded from \"{2}\")", LogType.UserActivity,
                                         player.name, worldName, fileName );
                             Server.SaveWorldList();
@@ -626,8 +630,8 @@ namespace fCraft {
                     }
 
                     Server.SaveWorldList();
-                    Server.SendToAll( String.Format( "{0}&S renamed the world \"{1}\" to \"{2}\"",
-                                                     player.GetClassyName(), oldName, newName ) );
+                    Server.SendToAll( "{0}&S renamed the world \"{1}\" to \"{2}\"",
+                                      player.GetClassyName(), oldName, newName );
                     Logger.Log( "{0} renamed the world \"{1}\" to \"{2}\".", LogType.UserActivity,
                                 player.name, oldName, newName );
                 }
@@ -667,13 +671,15 @@ namespace fCraft {
 
                 if( world == Server.mainWorld ) {
                     player.Message( "Deleting the main world is not allowed. Assign a new main first." );
-                } else {
-                    Server.RemoveWorld( worldName );
-                    Server.SendToAll( player.GetClassyName() + "&S removed " + world.GetClassyName() + "&S from the world list.", player );
-                    player.Message( "Removed {0}&S from the world list.", world.GetClassyName() );
-                    player.Message( "You can now delete the map file ({0}.fcm) manually.", world.name );
+                } else if( Server.RemoveWorld( worldName ) ) {
+                    Server.SendToAllExcept( "{0}&S removed {1}&S from the world list.", player,
+                                            player.GetClassyName(), world.GetClassyName() );
+                    player.Message( "Removed {0}&S from the world list. You can now delete the map file ({0}.fcm) manually.",
+                                    world.GetClassyName(), world.name );
                     Logger.Log( "{0} removed \"{1}\" from the world list.", LogType.UserActivity,
                                 player.name, worldName );
+                } else {
+                    player.Message( "&WDeleting the world failed. See log for details." );
                 }
             }
 
@@ -808,23 +814,23 @@ namespace fCraft {
             } catch( Exception ex ) {
                 Logger.Log( "MapGenerator: Generation failed: {0}", LogType.Error,
                             ex );
-                player.MessageNow( Color.Red + "An error occured while generating the map." );
+                player.MessageNow( "&WAn error occured while generating the map." );
                 return;
             }
 
             if( map != null ) {
                 if( fileName != null ) {
                     if( map.Save( fileName ) ) {
-                        player.MessageNow( "Generation done. Saved to " + fileName );
+                        player.MessageNow( "Generation done. Saved to {0}", fileName );
                     } else {
-                        player.Message( Color.Red + "An error occured while saving generated map." );
+                        player.Message( "&WAn error occured while saving generated map." );
                     }
                 } else {
                     player.MessageNow( "Generation done. Changing map..." );
                     player.world.ChangeMap( map );
                 }
             } else {
-                player.Message( Color.Red + "An error occured while generating the map." );
+                player.Message( "&WAn error occured while generating the map." );
             }
         }
 
@@ -948,27 +954,6 @@ namespace fCraft {
             }
             player.Message( "All worlds are now unlocked." );
         }
-        #endregion
-
-        #region Commented Out Stuff
-
-        //internal static void AddLandmark( Player player, Command cmd ) {
-        //    if(!player.Can(Permissions.AddLandmarks)){
-        //        player.NoAccessMessage();
-        //        return;
-        //    }
-
-        //    string name = cmd.Next();
-        //    if (name == null) {
-        //        player.Message("No landmark name specified. See " + Color.Help + "/help landmark");
-        //        return;
-        //    }
-
-        //    player.world.map.AddLandmark(player.pos);
-
-        //}
-
-
         #endregion
     }
 }

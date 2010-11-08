@@ -173,7 +173,7 @@ namespace fCraft {
         public void BeginFlushMapBuffer() {
             lock( mapLock ) {
                 if( map == null ) return;
-                SendToAll( Color.Red + "Map is being flushed. Stay put, map will reload shortly." );
+                SendToAll( "&WMap is being flushed. Stay put, world will reload shortly." );
                 isFlushing = true;
             }
         }
@@ -181,7 +181,7 @@ namespace fCraft {
         public void EndFlushMapBuffer() {
             lock( playerListLock ) {
                 isFlushing = false;
-                SendToAll( Color.Red + "Map flushed. Rejoining..." );
+                SendToAll( "&WMap flushed. Reloading..." );
                 foreach( Player player in playerList ) {
                     player.session.JoinWorld( this, player.pos );
                 }
@@ -241,7 +241,7 @@ namespace fCraft {
             if( OnPlayerJoined != null ) OnPlayerJoined( player, this );
 
             if( isLocked ) {
-                player.Message( "{0}This map is currently locked (read-only).", Color.Red );
+                player.Message( "&WThis map is currently locked (read-only)." );
             }
 
             if( player.isHidden ) {
@@ -381,23 +381,20 @@ namespace fCraft {
             }
         }
 
-        public void SendToAll( string message ) {
-            SendToAll( ">", message, null );
+        public void SendToAll( string message, params object[] args ) {
+            if( args.Length > 0 ) message = String.Format( message, args );
+            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
+                SendToAll( p, null );
+            }
         }
 
-        public void SendToAll( string prefix, string message ) {
-            SendToAll( prefix, message, null );
-        }
-
-        public void SendToAll( string message, Player except ) {
-            SendToAll( ">", message, except );
-        }
-
-        public void SendToAll( string prefix, string message, Player except ) {
-            foreach( Packet p in PacketWriter.MakeWrappedMessage( prefix, message, false ) ) {
+        public void SendToAllExcept( string message, Player except, params object[] args ) {
+            if( args.Length > 0 ) message = String.Format( message, args );
+            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
                 SendToAll( p, except );
             }
         }
+
 
         public void SendToSeeing( Packet packet, Player source ) {
             Player[] playerListCopy = playerList;
@@ -462,7 +459,7 @@ namespace fCraft {
                     lockedDate = DateTime.UtcNow;
                     isLocked = true;
                     if( map != null ) map.ClearUpdateQueue();
-                    SendToAll( Color.Red + "Map was locked by " + player.GetClassyName() );
+                    SendToAll( "&WMap was locked by {0}", player.GetClassyName() );
                     Logger.Log( "World {0} was locked by {1}", LogType.UserActivity,
                                 name, player.name );
                     return true;
@@ -476,7 +473,7 @@ namespace fCraft {
                     unlockedBy = player.name;
                     unlockedDate = DateTime.UtcNow;
                     isLocked = false;
-                    SendToAll( Color.Red + "Map was unlocked by " + player.GetClassyName() );
+                    SendToAll( "&WMap was unlocked by {0}", player.GetClassyName() );
                     Logger.Log( "World \"{0}\" was unlocked by {1}", LogType.UserActivity,
                                 name, player.name );
                     return true;

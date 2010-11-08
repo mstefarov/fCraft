@@ -172,7 +172,7 @@ namespace fCraft {
                     player.Bind( originalBlock, replacementBlock );
                     player.Message( "{0} is now replaced with {1}", originalBlock, replacementBlock );
                 } else {
-                    player.Message( "{0}You do not have {1} permission.", Color.Red, permission );
+                    player.Message( "&WYou do not have {0} permission.", permission );
                 }
             }
         }

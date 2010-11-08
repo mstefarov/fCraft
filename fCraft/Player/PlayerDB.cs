@@ -151,6 +151,10 @@ namespace fCraft {
         }
 
 
+        public static PlayerInfo[] FindPlayers( IPAddress address ) {
+            return FindPlayers( address, Int32.MaxValue );
+        }
+
         public static PlayerInfo[] FindPlayers( IPAddress address, int limit ) {
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
@@ -166,6 +170,10 @@ namespace fCraft {
         }
 
 
+        public static PlayerInfo[] FindPlayers( Regex regex ) {
+            return FindPlayers( regex, Int32.MaxValue );
+        }
+
         public static PlayerInfo[] FindPlayers( Regex regex, int limit ) {
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
@@ -180,6 +188,10 @@ namespace fCraft {
             return result.ToArray();
         }
 
+
+        public static PlayerInfo[] FindPlayers( string namePart ) {
+            return FindPlayers( namePart, Int32.MaxValue );
+        }
 
         public static PlayerInfo[] FindPlayers( string namePart, int limit ) {
             return tree.GetMultiple( namePart, limit ).ToArray();

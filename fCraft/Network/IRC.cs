@@ -176,9 +176,11 @@ namespace fCraft {
                             string processedMessage = nonPrintableChars.Replace( msg.Message, "" ).Trim();
                             if( processedMessage.Length > 0 ) {
                                 if( Config.GetBool( ConfigKey.IRCBotForwardFromIRC ) ) {
-                                    Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + Color.White + ": " + processedMessage );
+                                    Server.SendToAll( "{0}(IRC) {1}{2}: {3}",
+                                                      Color.IRC, msg.Nick, Color.White, processedMessage );
                                 } else if( msg.Message.StartsWith( "#" ) ) {
-                                    Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + Color.White + ": " + processedMessage.Substring( 1 ) );
+                                    Server.SendToAll( "{0}(IRC) {1}{2}: {3}",
+                                                      Color.IRC, msg.Nick, Color.White, processedMessage.Substring(1) );
                                 }
                             }
                         }
@@ -188,7 +190,8 @@ namespace fCraft {
                     case IRCMessageType.Join:
                         if( !parseInput ) return;
                         if( Config.GetBool( ConfigKey.IRCBotAnnounceIRCJoins ) ) {
-                            Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + " joined " + msg.Channel );
+                            Server.SendToAll( "{0}(IRC) {1} joined {2}",
+                                              Color.IRC, msg.Nick, msg.Channel );
                         }
                         return;
 
@@ -205,7 +208,8 @@ namespace fCraft {
                     case IRCMessageType.Quit:
                         if( !parseInput ) return;
                         if( Config.GetBool( ConfigKey.IRCBotAnnounceIRCJoins ) ) {
-                            Server.SendToAll( Color.IRC + "(IRC) " + msg.Nick + " left " + msg.Channel );
+                            Server.SendToAll( "{0}(IRC) {1} left {2}",
+                                              Color.IRC, msg.Nick, msg.Channel );
                         }
                         return;
 

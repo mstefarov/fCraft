@@ -54,7 +54,7 @@ namespace fCraft {
 
             string msg = cmd.NextAll().Trim();
             if( msg != null ) {
-                Server.SendToAll( "*" + Color.Purple + player.name + " " + msg );
+                Server.SendToAll( "*{0}{1} {2}", Color.Purple, player.name, msg );
             }
         }
 
@@ -93,9 +93,8 @@ namespace fCraft {
                 }
             }
             num = rand.Next( min, max + 1 );
-            string msg = player.GetClassyName() + Color.Silver + " rolled " + num + " (" + min + "..." + max + ")";
-            Logger.LogConsole( msg );
-            Server.SendToAll( msg );
+            Server.SendToAll( "{0}{1} rolled {1} ({2}...{3})",
+                              player.GetClassyName(), Color.Silver, num, min, max );
         }
 
 
@@ -467,7 +466,7 @@ namespace fCraft {
             // Show ban information
             IPBanInfo ipBan = IPBanList.Get( info.lastIP );
             if( ipBan != null && info.banned ) {
-                player.Message( "  Both name and IP are {0}BANNED. See &H/baninfo", Color.Red );
+                player.Message( "  Both name and IP are {0}BANNED&S. See &H/baninfo", Color.Red );
             } else if( ipBan != null ) {
                 player.Message( "  IP is {0}BANNED&S (but nick isn't). See &H/baninfo", Color.Red );
             } else if( info.banned ) {
@@ -603,7 +602,7 @@ namespace fCraft {
                                         info.lastAttemptName );
                     }
                     if( info.banReason.Length > 0 ) {
-                        player.Message( "  Memo: {0}", info.banReason );
+                        player.Message( "  Ban reason: {0}", info.banReason );
                     }
                 } else {
                     player.Message( "{0} is currently NOT banned.", address );
@@ -614,16 +613,16 @@ namespace fCraft {
                     player.Message( "More than one player found matching \"{0}\"", name );
                 } else if( info != null ) {
                     if( info.banned ) {
-                        player.Message( "Player {0} is currently {1}banned.", info.name, Color.Red );
+                        player.Message( "Player {0}&S is &WBANNED", info.GetClassyName() );
                     } else {
-                        player.Message( "Player {0} is currently NOT banned.", info.name );
+                        player.Message( "Player {0}&S is NOT banned.", info.GetClassyName() );
                     }
                     if( info.bannedBy != "" ) {
-                        player.Message( "  Last banned by {0} on {1:dd MMM yyyy}.",
+                        player.Message( "  Last ban by {0} on {1:dd MMM yyyy}.",
                                         info.bannedBy,
                                         info.banDate );
                         if( info.banReason.Length > 0 ) {
-                            player.Message( "  Last ban memo: {0}", info.banReason );
+                            player.Message( "  Last ban reason: {0}", info.banReason );
                         }
                     }
                     if( info.unbannedBy != "" ) {
@@ -631,7 +630,7 @@ namespace fCraft {
                                         info.unbannedBy,
                                         info.unbanDate );
                         if( info.unbanReason.Length > 0 ) {
-                            player.Message( "  Last unban memo: {0}", info.unbanReason );
+                            player.Message( "  Last unban reason: {0}", info.unbanReason );
                         }
                     }
                     if( info.banDate != DateTime.MinValue ) {
