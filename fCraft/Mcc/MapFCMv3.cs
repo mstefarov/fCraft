@@ -90,11 +90,19 @@ namespace Mcc {
                 string key = ReadLengthPrefixedString( reader ).ToLowerInvariant();
                 string value = ReadLengthPrefixedString( reader );
 
-                if(map.GetMeta(group,key)!=null){
+                if( map.GetMeta( group, key ) != null ) {
                     Logger.Log( "MapFCMv3.Load: Duplicate metadata entry found for [{0}].[{1}]. Old value (overwritten): \"{2}\". New value: \"{3}\"", LogType.Warning,
                                 group, key, map.GetMeta( group, key ), value );
                 }
-                map.SetMeta( group, key, value );
+                if( group == "zones" ) {
+                    try {
+                        map.AddZone( new Zone( value, map.world ) );
+                    } catch( Exception ex ) {
+                        Logger.Log( "MapFCMv3.Load: Error importing zone definition: {0}", LogType.Error, ex );
+                    }
+                } else {
+                    map.SetMeta( group, key, value );
+                }
             }
 
 
@@ -139,15 +147,81 @@ namespace Mcc {
             return map;
         }
 
-        static string ReadLengthPrefixedString( BinaryReader reader ) {
-            int length = reader.ReadInt16();
+        public static string ReadLengthPrefixedString( BinaryReader reader ) {
+            int length = reader.ReadUInt16();
             byte[] stringData = reader.ReadBytes( length );
             return ASCIIEncoding.ASCII.GetString( stringData );
         }
 
+        public static void WriteLengthPrefixedString( BinaryWriter writer, string s ) {
+            byte[] stringData = ASCIIEncoding.ASCII.GetBytes( s );
+            writer.Write( (ushort)stringData.Length );
+            writer.Write( stringData );
+        }
 
         public bool Save( Map mapToSave, Stream mapStream ) {
-            return false;
+            BinaryWriter writer = new BinaryWriter( mapStream );
+
+            writer.Write( Identifier );
+            writer.Write( Revision );
+
+            writer.Write( (short)mapToSave.widthX );
+            writer.Write( (short)mapToSave.height );
+            writer.Write( (short)mapToSave.widthY );
+
+            writer.Write( (int)mapToSave.spawn.x );
+            writer.Write( (int)mapToSave.spawn.h );
+            writer.Write( (int)mapToSave.spawn.y );
+
+            writer.Write( mapToSave.spawn.r );
+            writer.Write( mapToSave.spawn.l );
+
+            mapToSave.DateModified = DateTime.UtcNow;
+            writer.Write( DateTimeToTimestamp( mapToSave.DateModified ) );
+            writer.Write( DateTimeToTimestamp( mapToSave.DateCreated ) );
+
+            writer.Write( mapToSave.GUID.ToByteArray() );
+
+            // skip over the index (to be written later)
+            long indexOffset = writer.BaseStream.Position;
+            writer.BaseStream.Seek( 3127, SeekOrigin.Begin );
+
+            // write metadata
+            int metaCount = mapToSave.WriteMetadata( writer );
+
+            // write layers
+            int layerCount = 0;
+            int layerFlags = 0;
+            foreach( Map.DataLayer layer in mapToSave.layers.Values ) {
+                Map.DataLayer activeLayer = layer;
+                activeLayer.Offset = writer.BaseStream.Position;
+                activeLayer.CompressionType = Map.DataLayerCompressionType.Deflate;
+                writer.Write( (byte)activeLayer.Type );
+                writer.Write( (byte)activeLayer.CompressionType );
+                writer.Write( (int)0 );
+                writer.Write( (int)activeLayer.ElementSize );
+                writer.Write( (int)activeLayer.ElementCount );
+                using( DeflateStream ds = new DeflateStream( writer.BaseStream, CompressionMode.Compress, true ) ) {
+                    ds.Write( activeLayer.Data, 0, activeLayer.Data.Length );
+                }
+                activeLayer.CompressedLength = (int)(writer.BaseStream.Position - activeLayer.Offset);
+                layerCount++;
+                if((byte)activeLayer.Type < 32){
+                    layerFlags |= (1<<(int)activeLayer.Type);
+                }
+            }
+
+            // come back to write the index
+            writer.BaseStream.Seek( indexOffset, SeekOrigin.Begin );
+            writer.Write( layerCount );
+            writer.Write( layerFlags );
+            foreach( Map.DataLayer layer in mapToSave.layers.Values ) {
+                writer.Write( layer.Offset );
+                writer.Write( layer.CompressedLength );
+            }
+            writer.Write( metaCount );
+
+            return true;
         }
 
         public bool Claims( Stream mapStream, string fileName ) {
