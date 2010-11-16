@@ -28,6 +28,27 @@ namespace fCraft {
 
         public static void Init() {
             criteria.Clear();
+            /*
+            new Criterion( CriterionType.Automatic, RankList.ParseRank( "guest" ), RankList.ParseRank( "member" ), new ConditionOR( new Condition[]{
+                new ConditionAND( new Condition[]{
+                    new ConditionIntRange( ConditionField.TimesKicked, ComparisonOperation.eq, 0 ),
+                    new ConditionIntRange( ConditionField.TotalTime, ComparisonOperation.gte, 36000 ),
+                    new ConditionIntRange( ConditionField.TimeSinceFirstLogin, ComparisonOperation.gte, 604800 )
+                }),
+                new ConditionAND( new Condition[]{
+                    new ConditionIntRange( ConditionField.TimesKicked, ComparisonOperation.eq, 1 ),
+                    new ConditionIntRange( ConditionField.TotalTime, ComparisonOperation.gte, 54000 ),
+                    new ConditionIntRange( ConditionField.TimeSinceFirstLogin, ComparisonOperation.gte, 604800 )
+                }),
+                new ConditionAND( new Condition[]{
+                    new ConditionIntRange( ConditionField.TimesKicked, ComparisonOperation.eq, 2 ),
+                    new ConditionIntRange( ConditionField.TotalTime, ComparisonOperation.gte, 72000 ),
+                    new ConditionIntRange( ConditionField.TimeSinceFirstLogin, ComparisonOperation.gte, 604800 )
+                })
+            } ) ).Serialize().Save( "autorank_destoned.xml" );
+            */
+
+
             if( File.Exists( AutoRankFile ) ) {
                 try {
                     XDocument doc = XDocument.Load( AutoRankFile );
@@ -450,7 +471,7 @@ namespace fCraft {
         TotalTime,
         BlocksBuilt,
         BlocksDeleted,
-        BlocksChanged,
+        BlocksChanged, // BlocksBuilt+BlocksDeleted
         BlocksDrawn,
         TimesVisited,
         MessagesWritten,

@@ -455,8 +455,7 @@ namespace fCraft {
                 !Server.VerifyName( player.name, verificationCode, Server.OldSalt ) ) {
 
                 string standardMessage = String.Format( "Session.LoginSequence: Could not verify player name for {0} ({1}).",
-                                                        player.name,
-                                                        GetIP() );
+                                                        player.name, GetIP() );
                 if( GetIP().ToString() == "127.0.0.1" && Config.GetString( ConfigKey.VerifyNames ) != "Always" ) {
                     Logger.Log( "{0} Player was identified as connecting from localhost and allowed in.", LogType.SuspiciousActivity,
                                 standardMessage );
@@ -558,8 +557,8 @@ namespace fCraft {
                     player.Message( "Welcome to {0}", Config.GetString( ConfigKey.ServerName ) );
                 }
 
-                player.Message( String.Format( "Your player class is {0}&S. Type &H/help&S for help.",
-                                               player.info.rank.GetClassyName() ) );
+                player.Message( "Your player class is {0}&S. Type &H/help&S for help.",
+                                player.info.rank.GetClassyName() );
             }
             return true;
         }

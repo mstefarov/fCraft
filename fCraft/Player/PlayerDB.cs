@@ -59,7 +59,7 @@ namespace fCraft {
             if( File.Exists( DBFile ) ) {
                 using( StreamReader reader = File.OpenText( DBFile ) ) {
 
-                    string header = reader.ReadLine();// header
+                    string header = reader.ReadLine(); // header
                     int maxIDField;
 
                     lock( locker ) {

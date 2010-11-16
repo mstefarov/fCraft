@@ -12,11 +12,9 @@ namespace fCraft {
     public sealed class Map {
 
         internal World world;
-        internal byte[] blocks;
         public int widthX, widthY, height;
         public Position spawn;
 
-        public Dictionary<string, string> meta = new Dictionary<string, string>();
         Dictionary<string, Dictionary<string, string>> metadata = new Dictionary<string, Dictionary<string, string>>();
 
         ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
@@ -28,13 +26,42 @@ namespace fCraft {
         public DateTime DateModified;
         public DateTime DateCreated;
         public Guid GUID;
-        public Dictionary<DataLayerType, DataLayer> layers;
 
-        // undo information
-        public byte[] blockUndo;
-        public ushort[] blockOwnership;
-        public BlockChangeCause[] blockChangeCauses;
-        public int[] blockTimestamps;
+        // data layers
+        public Dictionary<DataLayerType, DataLayer> layers;
+        internal byte[] blocks;
+        internal byte[] blockUndo;
+        internal ushort[] blockOwnership;
+        internal BlockChangeCause[] blockChangeCauses;
+        internal int[] blockTimestamps;
+
+
+        internal void ReadLayer( DataLayer layer, Stream stream ) {
+            switch( layer.Type ) {
+                case DataLayerType.Blocks:
+                    layer.ElementType = typeof( byte );
+                    blocks = new byte[layer.ElementCount];
+                    stream.Read( blocks, 0, blocks.Length );
+                    layer.Data = blocks;
+                    break;
+
+                case DataLayerType.BlockUndo:
+                    layer.ElementType = typeof( byte );
+                    blockUndo = new byte[layer.ElementCount];
+                    stream.Read( blockUndo, 0, blockUndo.Length );
+                    layer.Data = blockUndo;
+                    break;
+
+                case DataLayerType.BlockOwnership:
+                    layer.ElementType = typeof( ushort );
+                    blockOwnership = new ushort[layer.ElementCount];
+                    stream.Read( blockUndo, 0, blockUndo.Length );
+                    break;
+            }
+        }
+
+
+
 
 
         internal Map() { }
@@ -795,7 +822,8 @@ namespace fCraft {
             public int ElementSize;           // size of each data element (if elements are variable-size, set this to 1)
             public int ElementCount;          // number of fixed-sized elements (if elements are variable-size, set this to total number of bytes)
             // uncompressed length = (element size * element count)
-            public byte[] Data;
+            public object Data;
+            public Type ElementType;
             public long Offset;
             public int CompressedLength;
         }

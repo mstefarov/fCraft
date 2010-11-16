@@ -285,7 +285,7 @@ namespace fCraft {
 
         const int Timeout = 10000; // socket timeout (ms)
         internal static int SendDelay; // set by ApplyConfig
-        const int ReconnectDelay = 5000;
+        const int ReconnectDelay = 15000;
 
         static string hostName;
         static int port;
