@@ -121,12 +121,12 @@ namespace Mcc {
                     case Map.DataLayerCompressionType.DeflateGZip:
                         activeLayer.Data = new byte[activeLayer.ElementCount * activeLayer.ElementSize];
                         using( ZLibStream zs = ZLibStream.MakeDecompressor( reader.BaseStream, ZLibStream.BufferSize, true ) ) {
-                            zs.Read( activeLayer.Data, 0, activeLayer.Data.Length );
+                            //zs.Read( activeLayer.Data, 0, activeLayer.Data.Length );
                         }
                         break;
                     case Map.DataLayerCompressionType.None:
                         activeLayer.Data = new byte[activeLayer.ElementCount * activeLayer.ElementSize];
-                        reader.Read( activeLayer.Data, 0, activeLayer.Data.Length );
+                        //reader.Read( activeLayer.Data, 0, activeLayer.Data.Length );
                         break;
                     default:
                         Logger.Log( "MapFCMv3.Load: Skipping data layer #{0} due to unsupported compression method ({1}).", LogType.Error,
@@ -136,10 +136,10 @@ namespace Mcc {
 
                 switch( activeLayer.Type ) {
                     case Map.DataLayerType.Blocks:
-                        map.blocks = activeLayer.Data;
+                        //map.blocks = activeLayer.Data;
                         break;
                     case Map.DataLayerType.BlockUndo:
-                        map.blockUndo = activeLayer.Data;
+                        //map.blockUndo = activeLayer.Data;
                         break;
                 }
             }
@@ -202,7 +202,7 @@ namespace Mcc {
                 writer.Write( (int)activeLayer.ElementSize );
                 writer.Write( (int)activeLayer.ElementCount );
                 using( DeflateStream ds = new DeflateStream( writer.BaseStream, CompressionMode.Compress, true ) ) {
-                    ds.Write( activeLayer.Data, 0, activeLayer.Data.Length );
+                    //ds.Write( activeLayer.Data, 0, activeLayer.Data.Length );
                 }
                 activeLayer.CompressedLength = (int)(writer.BaseStream.Position - activeLayer.Offset);
                 layerCount++;

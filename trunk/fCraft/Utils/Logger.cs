@@ -120,6 +120,8 @@ namespace fCraft {
         public static LogSplittingType split = LogSplittingType.OneFile;
 
         static string sessionStart = DateTime.Now.ToString( LongDateFormat );
+        static Queue<string> recentMessages = new Queue<string>();
+        const int MaxRecentMessages = 10;
 
         static Logger() {
             consoleOptions = new bool[Enum.GetNames( typeof( LogType ) ).Length];
@@ -174,23 +176,23 @@ namespace fCraft {
                 LogCrash( message );
             }
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message;
-            if( logFileOptions[(int)type] ) {
-                try {
-                    if( split == LogSplittingType.SplitBySession ) {
-                        lock( locker ) {
+            lock( locker ) {
+                recentMessages.Enqueue( line );
+                if( logFileOptions[(int)type] ) {
+                    try {
+                        if( split == LogSplittingType.SplitBySession ) {
                             File.AppendAllText( "logs/" + sessionStart + ".log", line + Environment.NewLine );
-                        }
-                    } else if( split == LogSplittingType.SplitByDay ) {
-                        lock( locker ) {
+                        } else if( split == LogSplittingType.SplitByDay ) {
                             File.AppendAllText( "logs/" + DateTime.Now.ToString( ShortDateFormat ) + ".log", line + Environment.NewLine );
-                        }
-                    } else {
-                        lock( locker ) {
+                        } else {
                             File.AppendAllText( "logs/" + LogFileName, line + Environment.NewLine );
                         }
+                    } catch( Exception ex ) {
+                        Server.FireLogEvent( "Logger.Log: " + ex, type );
                     }
-                } catch( Exception ex ) {
-                    Server.FireLogEvent( "Logger.Log: " + ex, type );
+                }
+                while( recentMessages.Count > MaxRecentMessages ) {
+                    recentMessages.Dequeue();
                 }
             }
             if( consoleOptions[(int)type] ) Server.FireLogEvent( line, type );
@@ -249,6 +251,12 @@ namespace fCraft {
                     } else {
                         sb.Append( "&config=" );
                     }
+
+                    string[] lastFewLines;
+                    lock( locker ) {
+                        lastFewLines = recentMessages.ToArray();
+                    }
+                    sb.Append( "&log=" ).Append( Server.UrlEncode( String.Join( Environment.NewLine, lastFewLines ) ) );
 
                     byte[] formData = Encoding.ASCII.GetBytes( sb.ToString() );
 

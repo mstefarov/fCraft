@@ -64,6 +64,13 @@ namespace fCraft {
         public static bool Init() {
             serverStart = DateTime.Now;
 
+            if( Updater.IsUnstable ) {
+                Logger.LogWarning( "You are using an unstable/developer version of fCraft. " +
+                                   "Do not use this version unless are are ready to deal with bugs and potential data loss. " +
+                                   "Consider using the lastest stable version instead, available from www.fcraft.net",
+                                   WarningLogSubtype.OtherWarning );
+            }
+
             ResetWorkingDirectory();
 
             // try to load the config
@@ -1018,9 +1025,12 @@ namespace fCraft {
         }
 
         public static void CheckForCommonErrors( Exception ex ) {
-            if( ex.Message.StartsWith( "Could not load file or assembly 'System.Xml.Linq" ) ) {
+            if( ex.Message.Contains( "System.Xml.Linq" ) ) {
                 Logger.Log( "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
                             "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).", LogType.Warning );
+            } else if( ex.Message.Equals( "libMonoPosixHelper.so", StringComparison.OrdinalIgnoreCase ) ) {
+                Logger.Log( "fCraft could not locate Mono's compression functionality. " +
+                            "Please make sure that you have libmono-posix-2.0-cil or equivalent package installed.", LogType.Warning );
             }
         }
 

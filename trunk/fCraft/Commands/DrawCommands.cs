@@ -344,10 +344,11 @@ namespace fCraft {
 
         #region Draw Callbacks
 
-        internal static void ReplaceCallback( Player player, Position[] marks, object drawArgs ) {
+        unsafe internal static void ReplaceCallback( Player player, Position[] marks, object drawArgs ) {
             ReplaceArgs args = (ReplaceArgs)drawArgs;
 
-            byte[] specialTypes = new byte[args.types.Length];
+            byte* specialTypes = stackalloc byte[args.types.Length];
+            int specialTypeCount = args.types.Length;
             for( int i = 0; i < args.types.Length; i++ ) {
                 specialTypes[i] = (byte)args.types[i];
             }
@@ -385,7 +386,7 @@ namespace fCraft {
 
                                 if( args.doExclude ) {
                                     bool skip = false;
-                                    for( int i = 0; i < specialTypes.Length; i++ ) {
+                                    for( int i = 0; i < specialTypeCount; i++ ) {
                                         if( block == specialTypes[i] ) {
                                             skip = true;
                                             break;
@@ -394,7 +395,7 @@ namespace fCraft {
                                     if( skip ) continue;
                                 } else {
                                     bool skip = true;
-                                    for( int i = 0; i < specialTypes.Length; i++ ) {
+                                    for( int i = 0; i < specialTypeCount; i++ ) {
                                         if( block == specialTypes[i] ) {
                                             skip = false;
                                             break;
@@ -428,8 +429,8 @@ namespace fCraft {
             player.MessageNow( "Replacing {0} blocks... The map is now being updated.", blocks );
 
             string affectedString = "";
-            foreach( Block affectedBlock in specialTypes ) {
-                affectedString += ", " + affectedBlock.ToString();
+            for( int i=0; i<specialTypeCount; i++){
+                affectedString += ", " + ((Block)specialTypes[i]).ToString();
             }
             player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} replaced {1} blocks {2} ({3}) with {4} (on world {5})", LogType.UserActivity,
@@ -975,11 +976,12 @@ namespace fCraft {
         }
 
 
-        internal static void PasteCallback( Player player, Position[] marks, object tag ) {
+        unsafe internal static void PasteCallback( Player player, Position[] marks, object tag ) {
             CopyInformation info = player.copyInformation;
 
             PasteArgs args = (PasteArgs)tag;
-            byte[] specialTypes = new byte[args.types.Length];
+            byte* specialTypes = stackalloc byte[args.types.Length];
+            int specialTypeCount = args.types.Length;
             for( int i = 0; i < args.types.Length; i++ ) {
                 specialTypes[i] = (byte)args.types[i];
             }
@@ -1012,7 +1014,7 @@ namespace fCraft {
 
                                 if( args.doInclude ) {
                                     bool skip = true;
-                                    for( int i = 0; i < specialTypes.Length; i++ ) {
+                                    for( int i = 0; i < specialTypeCount; i++ ) {
                                         if( block == specialTypes[i] ) {
                                             skip = false;
                                             break;
@@ -1021,7 +1023,7 @@ namespace fCraft {
                                     if( skip ) continue;
                                 } else if( args.doExclude ) {
                                     bool skip = false;
-                                    for( int i = 0; i < specialTypes.Length; i++ ) {
+                                    for( int i = 0; i < specialTypeCount; i++ ) {
                                         if( block == specialTypes[i] ) {
                                             skip = true;
                                             break;

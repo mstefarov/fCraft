@@ -49,6 +49,7 @@ namespace Mcc {
         static MapUtility() {
             AvailableConverters.Add( MapFormat.MCSharp, new MapMCSharp() );
             AvailableConverters.Add( MapFormat.FCMv2, new MapFCMv2() );
+            AvailableConverters.Add( MapFormat.FCMv3, new MapFCMv3() );
             AvailableConverters.Add( MapFormat.MinerCPP, new MapMinerCPP() );
             AvailableConverters.Add( MapFormat.NBT, new MapNBT() );
             AvailableConverters.Add( MapFormat.Creative, new MapDAT() );

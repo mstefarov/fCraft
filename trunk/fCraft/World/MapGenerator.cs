@@ -983,5 +983,53 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        #region Erosion
+
+        void Erode( Map map ) {
+            float[] volume = new float[map.blocks.Length];
+            for( int i = 0; i < map.blocks.Length; i++ ) {
+                if( map.blocks[i] != (byte)Block.Air ) {
+                    volume[i] = 0.5f;
+                }
+            }
+            ErosionPass( volume, map );
+        }
+
+
+        void ErosionPass( float[] volume, Map map ) {
+            for( int x = 0; x < map.widthX; x+=2 ) {
+                for( int y = 0; y < map.widthY; y+=2 ) {
+                    ErosionDrop( x, y, volume, map );
+                }
+            }
+            for( int x = 1; x < map.widthX; x += 2 ) {
+                for( int y = 1; y < map.widthY; y += 2 ) {
+                    ErosionDrop( x, y, volume, map );
+                }
+            }
+        }
+
+        //float TerminalVelocity
+
+        void ErosionDrop( int x, int y, float[] volume, Map map ) {
+            WaterParticle particle = new WaterParticle() {
+                x = x,
+                y = y,
+                h = map.height,
+                mass = .5f,
+                deposit = 0,
+                velocity = 0
+            };
+        }
+
+
+        class WaterParticle {
+            public int x, y, h;
+            public float velocity, mass, deposit;
+        }
+
+        #endregion
     }
 }
