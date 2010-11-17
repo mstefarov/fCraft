@@ -70,7 +70,6 @@ namespace Mcc {
             }
 
             map.blocks = mapTag["Blocks"].GetBytes();
-            map.ValidateBlockTypes( false );
 
             map.spawn.x = mapTag["Spawn"][0].GetShort();
             map.spawn.h = mapTag["Spawn"][1].GetShort();

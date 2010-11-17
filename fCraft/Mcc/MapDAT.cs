@@ -55,6 +55,52 @@ namespace Mcc {
             get { return "Vanilla"; }
         }
 
+                static byte[] mapping = new byte[256];
+                static MapDAT() {
+            mapping[50] = (byte)Block.Air;      // torch
+            mapping[51] = (byte)Block.Lava;     // fire
+            mapping[52] = (byte)Block.Glass;    // spawner
+            mapping[53] = (byte)Block.Stair;    // wood stairs
+            mapping[54] = (byte)Block.Wood;     // chest
+            mapping[55] = (byte)Block.Air;      // redstone wire
+            mapping[56] = (byte)Block.IronOre;  // diamond ore
+            mapping[57] = (byte)Block.Aqua;     // diamond block
+            mapping[58] = (byte)Block.Log;      // workbench
+            mapping[59] = (byte)Block.Leaves;   // crops
+            mapping[60] = (byte)Block.Dirt;     // soil
+            mapping[61] = (byte)Block.Stone;    // furnace
+            mapping[62] = (byte)Block.Stone;    // burning furnance
+            mapping[63] = (byte)Block.Air;      // sign post
+            mapping[64] = (byte)Block.Air;      // wooden door
+            mapping[65] = (byte)Block.Air;      // ladder
+            mapping[66] = (byte)Block.Air;      // rails
+            mapping[67] = (byte)Block.Stair;    // cobblestone stairs
+            mapping[68] = (byte)Block.Air;      // wall sign
+            mapping[69] = (byte)Block.Air;      // lever
+            mapping[70] = (byte)Block.Air;      // pressure plate
+            mapping[71] = (byte)Block.Air;      // iron door
+            mapping[72] = (byte)Block.Air;      // wooden pressure plate
+            mapping[73] = (byte)Block.IronOre;  // redstone ore
+            mapping[74] = (byte)Block.IronOre;  // glowing redstone ore
+            mapping[75] = (byte)Block.Air;      // redstone torch (off)
+            mapping[76] = (byte)Block.Air;      // redstone torch (on)
+            mapping[77] = (byte)Block.Air;      // stone button
+            mapping[78] = (byte)Block.Air;      // snow
+            mapping[79] = (byte)Block.Glass;    // ice
+            mapping[80] = (byte)Block.White;    // snow block
+            mapping[81] = (byte)Block.Leaves;   // cactus
+            mapping[82] = (byte)Block.Gray;     // clay
+            mapping[83] = (byte)Block.Leaves;   // reed
+            mapping[84] = (byte)Block.Log;      // jukebox
+            mapping[85] = (byte)Block.Wood;     // fence
+            mapping[86] = (byte)Block.Orange;   // pumpkin
+            mapping[87] = (byte)Block.Dirt;     // netherstone
+            mapping[88] = (byte)Block.Gravel;   // slow sand
+            mapping[89] = (byte)Block.Sand;     // lightstone
+            mapping[90] = (byte)Block.Violet;   // portal
+            mapping[91] = (byte)Block.Orange;   // jack-o-lantern
+            // all others default to 0/air
+        }
 
         public Map Load( Stream mapStream, string fileName ) {
             byte[] temp = new byte[8];
@@ -134,8 +180,10 @@ namespace Mcc {
                         // copy the block array... or fail
                         if( foundBlockArray ) {
                             map.CopyBlocks( data, pointer );
-                            if( !map.ValidateBlockTypes( true ) ) {
-                                throw new Exception( "Map validation failed: unknown block types found. Either parsing has done wrong, or this is an incompatible format." );
+                            for( int j = 0; j < map.blocks.Length; j++ ) {
+                                if( map.blocks[j] > 49 ) {
+                                    map.blocks[j] = mapping[map.blocks[j]];
+                                }
                             }
                         } else {
                             throw new Exception( "Could not locate block array." );
