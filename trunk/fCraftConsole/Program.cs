@@ -58,7 +58,7 @@ namespace fCraftConsole {
 
                     if( Server.Start() ) {
                         Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
-                        Console.WriteLine( "** Running fCraft version " + Updater.GetVersionString() + ". **" );
+                        Console.WriteLine( "** Running fCraft version {0}. **", Updater.GetVersionString() );
                         Console.WriteLine( "** Server is now ready. Type /shutdown to exit. URL is in externalurl.txt **" );
 
                         while( true ) {
@@ -86,11 +86,11 @@ namespace fCraftConsole {
             } catch( Exception ex ) {
                 Console.Title = "fCraft " + Updater.GetVersionString() + " CRASHED";
                 Console.ForegroundColor = ConsoleColor.Red;
-                Logger.Log( "Unhandled exception in fCraftConsole input loop: " + ex, LogType.FatalError );
+                Console.WriteLine( "fCraft CRASHED" );
 
-                Console.WriteLine( "fCraft crashed! Crash message saved to crash.log." );
-                Console.Write( ex );
                 Logger.UploadCrashReport( "Unhandled exception in fCraftConsole", "fCraftConsole", ex );
+
+                Logger.Log( "Unhandled exception in fCraftConsole input loop: " + ex, LogType.FatalError );
 
                 Server.CheckForCommonErrors( ex );
             }

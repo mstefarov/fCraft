@@ -1105,7 +1105,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         #endregion
 
         #region Colors
-        int colorSys, colorSay, colorHelp, colorAnnouncement, colorPM, colorIRC;
+        int colorSys, colorSay, colorHelp, colorAnnouncement, colorPM, colorIRC, colorMe, colorWarning;
 
         void ApplyColor( Button button, int color ) {
             button.Text = fCraft.Color.GetName( color );
@@ -1156,6 +1156,19 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             ApplyColor( bColorPM, colorPM );
         }
 
+        private void bColorWarning_Click( object sender, EventArgs e ) {
+            ColorPicker picker = new ColorPicker( "Warning / Error message color", colorWarning );
+            picker.ShowDialog();
+            colorWarning = picker.color;
+            ApplyColor( bColorWarning, colorWarning );
+        }
+
+        private void bColorMe_Click( object sender, EventArgs e ) {
+            ColorPicker picker = new ColorPicker( "/me command color", colorMe );
+            picker.ShowDialog();
+            colorMe = picker.color;
+            ApplyColor( bColorMe, colorMe );
+        }
 
         private void bColorIRC_Click( object sender, EventArgs e ) {
             ColorPicker picker = new ColorPicker( "IRC message color", colorIRC );
@@ -1163,7 +1176,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             colorIRC = picker.color;
             ApplyColor( bColorIRC, colorIRC );
         }
-
         #endregion
 
         private void bRules_Click( object sender, EventArgs e ) {

@@ -24,6 +24,8 @@ namespace fCraft {
         SayColor,
         AnnouncementColor,
         PrivateMessageColor,
+        MeColor,
+        WarningColor,
         AnnouncementInterval,
 
         VerifyNames,

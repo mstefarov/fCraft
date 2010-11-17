@@ -53,6 +53,11 @@ namespace fCraft {
         public string lastKickBy = "";
         public string lastKickReason = "";
 
+        public DateTime bannedUntil;
+        public bool loggedOutFrozen;
+        public string frozenBy;
+        public DateTime frozenOn;
+
 
         // === Serialization & Defaults =======================================
         // fabricate info for a player
@@ -78,6 +83,7 @@ namespace fCraft {
             lastLoginDate = firstLoginDate;
             lastSeen = firstLoginDate;
             timesVisited = 1;
+            ID = PlayerDB.GetNextID();
         }
 
 
@@ -91,7 +97,7 @@ namespace fCraft {
             rank = RankList.ParseRank( fields[2] );
             if( rank == null ) {
                 rank = RankList.DefaultRank;
-                Logger.Log( "PlayerInfo: Could not parse class for player {0}. Setting to default ({1}).", LogType.Error, name, rank.Name );
+                //Logger.Log( "PlayerInfo: Could not parse class for player {0}. Setting to default ({1}).", LogType.Error, name, rank.Name );
             }
             if( fields[3] != "-" && fields[3] != "" ) rankChangeDate = DateTime.Parse( fields[3] ); // LEGACY
             rankChangedBy = fields[4];
@@ -142,7 +148,8 @@ namespace fCraft {
                 Int32.TryParse( fields[28], out timesBannedOthers );
                 if( fields.Length > 29 ) {
                     ID = Int32.Parse( fields[29] );
-                    if( ID < 256 ) ID = PlayerDB.GetNextID();
+                    if( ID < 256 )
+                        ID = PlayerDB.GetNextID();
                     int rankChangeTypeCode;
                     if( Int32.TryParse( fields[30], out rankChangeTypeCode ) ) {
                         rankChangeType = (RankChangeType)rankChangeTypeCode;

@@ -127,6 +127,8 @@ namespace fCraft {
             SetValue( ConfigKey.SayColor, Color.GetName( Color.Green ) );
             SetValue( ConfigKey.AnnouncementColor, Color.GetName( Color.Green ) );
             SetValue( ConfigKey.PrivateMessageColor, Color.GetName( Color.Aqua ) );
+            SetValue( ConfigKey.MeColor, Color.GetName( Color.Purple ) );
+            SetValue( ConfigKey.WarningColor, Color.GetName( Color.Red ) );
             SetValue( ConfigKey.AnnouncementInterval, 0 );
         }
 
@@ -690,6 +692,8 @@ namespace fCraft {
             Color.Announcement = Color.Parse( settings[ConfigKey.AnnouncementColor] );
             Color.PM = Color.Parse( settings[ConfigKey.PrivateMessageColor] );
             Color.IRC = Color.Parse( settings[ConfigKey.IRCMessageColor] );
+            Color.Me = Color.Parse( settings[ConfigKey.MeColor] );
+            Color.Warning = Color.Parse( settings[ConfigKey.WarningColor] );
 
             // default class
             if( settings[ConfigKey.DefaultRank] != "" ) {
