@@ -1031,6 +1031,9 @@ namespace fCraft {
             } else if( ex.Message.Equals( "libMonoPosixHelper.so", StringComparison.OrdinalIgnoreCase ) ) {
                 Logger.Log( "fCraft could not locate Mono's compression functionality. " +
                             "Please make sure that you have libmono-posix-2.0-cil or equivalent package installed.", LogType.Warning );
+            } else if( ex is UnauthorizedAccessException ) {
+                Logger.Log( "fCraft was blocked from accessing a file or resource. " +
+                            "Make sure that correct permissions are set for the fCraft files, folders, and processes.", LogType.Warning );
             }
         }
 

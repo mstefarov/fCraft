@@ -150,6 +150,7 @@
             this.nSpamChatCount = new System.Windows.Forms.NumericUpDown();
             this.lSpamChat = new System.Windows.Forms.Label();
             this.gVerify = new System.Windows.Forms.GroupBox();
+            this.xAllowUnverifiedLAN = new System.Windows.Forms.CheckBox();
             this.xLimitOneConnectionPerIP = new System.Windows.Forms.CheckBox();
             this.lVerifyNames = new System.Windows.Forms.Label();
             this.cVerifyNames = new System.Windows.Forms.ComboBox();
@@ -246,7 +247,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.xAllowUnverifiedLAN = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -1722,6 +1722,16 @@
             this.gVerify.TabStop = false;
             this.gVerify.Text = "Name Verification";
             // 
+            // xAllowUnverifiedLAN
+            // 
+            this.xAllowUnverifiedLAN.AutoSize = true;
+            this.xAllowUnverifiedLAN.Location = new System.Drawing.Point( 42, 49 );
+            this.xAllowUnverifiedLAN.Name = "xAllowUnverifiedLAN";
+            this.xAllowUnverifiedLAN.Size = new System.Drawing.Size( 353, 19 );
+            this.xAllowUnverifiedLAN.TabIndex = 17;
+            this.xAllowUnverifiedLAN.Text = "Allow connections from LAN without verification (192.168.*.*)";
+            this.xAllowUnverifiedLAN.UseVisualStyleBackColor = true;
+            // 
             // xLimitOneConnectionPerIP
             // 
             this.xLimitOneConnectionPerIP.AutoSize = true;
@@ -2759,7 +2769,7 @@
             this.lCrashReportDisclaimer.AutoSize = true;
             this.lCrashReportDisclaimer.Location = new System.Drawing.Point( 27, 42 );
             this.lCrashReportDisclaimer.Name = "lCrashReportDisclaimer";
-            this.lCrashReportDisclaimer.Size = new System.Drawing.Size( 550, 45 );
+            this.lCrashReportDisclaimer.Size = new System.Drawing.Size( 584, 45 );
             this.lCrashReportDisclaimer.TabIndex = 41;
             this.lCrashReportDisclaimer.Text = resources.GetString( "lCrashReportDisclaimer.Text" );
             // 
@@ -2769,9 +2779,9 @@
             this.xSubmitCrashReports.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.xSubmitCrashReports.Location = new System.Drawing.Point( 6, 20 );
             this.xSubmitCrashReports.Name = "xSubmitCrashReports";
-            this.xSubmitCrashReports.Size = new System.Drawing.Size( 375, 19 );
+            this.xSubmitCrashReports.Size = new System.Drawing.Size( 462, 19 );
             this.xSubmitCrashReports.TabIndex = 40;
-            this.xSubmitCrashReports.Text = "Submit crash reports to fCraft developers (fragmer.net)";
+            this.xSubmitCrashReports.Text = "Automatically submit crash reports to fCraft developers (fragmer.net)";
             this.xSubmitCrashReports.UseVisualStyleBackColor = true;
             // 
             // bOK
@@ -2838,16 +2848,6 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // xAllowUnverifiedLAN
-            // 
-            this.xAllowUnverifiedLAN.AutoSize = true;
-            this.xAllowUnverifiedLAN.Location = new System.Drawing.Point( 42, 49 );
-            this.xAllowUnverifiedLAN.Name = "xAllowUnverifiedLAN";
-            this.xAllowUnverifiedLAN.Size = new System.Drawing.Size( 353, 19 );
-            this.xAllowUnverifiedLAN.TabIndex = 17;
-            this.xAllowUnverifiedLAN.Text = "Allow connections from LAN without verification (192.168.*.*)";
-            this.xAllowUnverifiedLAN.UseVisualStyleBackColor = true;
             // 
             // ConfigUI
             // 

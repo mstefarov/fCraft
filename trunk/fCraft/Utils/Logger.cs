@@ -121,7 +121,7 @@ namespace fCraft {
 
         static string sessionStart = DateTime.Now.ToString( LongDateFormat );
         static Queue<string> recentMessages = new Queue<string>();
-        const int MaxRecentMessages = 10;
+        const int MaxRecentMessages = 25;
 
         static Logger() {
             consoleOptions = new bool[Enum.GetNames( typeof( LogType ) ).Length];

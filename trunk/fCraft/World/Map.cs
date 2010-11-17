@@ -171,10 +171,11 @@ namespace fCraft {
             // do the loading
             try {
                 Map map = MapUtility.TryLoading( fileName );
-                if( !map.ValidateBlockTypes( true ) ) {
-                    Logger.Log( "Map.Load: Invalid block types detected in \"{0}\". File may be corrupt, or format unsupported.", LogType.Error,
-                                fileName );
+
+                if( !map.ValidateBlockTypes( false ) ) {
+                    Logger.Log( "MapDAT.Load: Some unknown block types were replaced with air.", LogType.Warning );
                 }
+
                 map.world = _world;
                 return map;
 
@@ -460,13 +461,15 @@ namespace fCraft {
 
 
         internal bool ValidateBlockTypes( bool returnOnErrors ) {
+            bool foundUnknownTypes = false;
             for( int i = 0; i < blocks.Length; i++ ) {
                 if( (blocks[i]) > 49 ) {
                     if( returnOnErrors ) return false;
-                    else blocks[i] = 0;
+                    blocks[i] = 0;
+                    foundUnknownTypes = true;
                 }
             }
-            return true;
+            return !foundUnknownTypes;
         }
 
 

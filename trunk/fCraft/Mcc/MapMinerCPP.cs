@@ -60,7 +60,7 @@ namespace Mcc {
             // This should probably be done differently.
             mapStream.Seek( 0, SeekOrigin.Begin );
 
-            Map m = new Map();
+            Map map = new Map();
 
             // Setup a GZipStream to decompress and read the map file
             using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
@@ -74,31 +74,28 @@ namespace Mcc {
                 // Read in the map dimesions
                 // Saved in big endian for who-know-what reason.
                 // XYZ(?)
-                m.widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                m.height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                m.widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                map.widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                map.height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                map.widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
 
                 // Read in the spawn location
                 // XYZ(?)
-                m.spawn.x = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                m.spawn.h = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                m.spawn.y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                map.spawn.x = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                map.spawn.h = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                map.spawn.y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
 
                 // Read in the spawn orientation
-                m.spawn.r = bs.ReadByte();
-                m.spawn.l = bs.ReadByte();
+                map.spawn.r = bs.ReadByte();
+                map.spawn.l = bs.ReadByte();
 
                 // Skip over the block count, totally useless
                 bs.ReadInt32();
 
                 // Read in the map data
-                m.blocks = bs.ReadBytes( m.GetBlockCount() );
-                if ( !m.ValidateBlockTypes( true ) ) {
-                    throw new Exception( "Unrecognized block types in the map." );
-                }
+                map.blocks = bs.ReadBytes( map.GetBlockCount() );
             }
 
-            return m;
+            return map;
         }
 
 
