@@ -273,8 +273,8 @@ namespace fCraft {
 #if DEBUG
 #else
             } catch( Exception ex ) {
-                Logger.Log( "Server.Shutdown: Unexpected error: {0}", LogType.Error, ex );
                 Logger.UploadCrashReport( "Unexpected error on shutdown", "fCraft", ex );
+                Logger.Log( "Server.Shutdown: Unexpected error: {0}", LogType.Error, ex );
             }
 #endif
         }
@@ -839,8 +839,8 @@ namespace fCraft {
                             try {
                                 task.callback( task.param );
                             } catch( Exception ex ) {
-                                Logger.Log( "Server.MainLoop: Exception was thrown by a scheduled task: " + ex, LogType.Error );
                                 Logger.UploadCrashReport( "Exception was thrown by a scheduled task", "fCraft", ex );
+                                Logger.Log( "Server.MainLoop: Exception was thrown by a scheduled task: " + ex, LogType.Error );
                             }
 #endif
                             task.nextTime += TimeSpan.FromMilliseconds( task.interval );

@@ -24,6 +24,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <ErrorReport>prompt</ErrorReport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -33,6 +34,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <ErrorReport>prompt</ErrorReport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -68,6 +70,9 @@
     <Compile Include="TextEditorPopup.Designer.cs">
       <DependentUpon>TextEditorPopup.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="ChatPreview.resx">
+      <DependentUpon>ChatPreview.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ColorPicker.resx">
       <DependentUpon>ColorPicker.cs</DependentUpon>
     </EmbeddedResource>
@@ -80,6 +85,10 @@
     <EmbeddedResource Include="DeleteRankPopup.resx">
       <DependentUpon>DeleteRankPopup.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="TextEditorPopup.resx">
       <DependentUpon>TextEditorPopup.cs</DependentUpon>
     </EmbeddedResource>
@@ -91,10 +100,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ChatBackground.png" />
     <Content Include="fcraft_config.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="MinecraftFont\minecraft.ttf" />
+    <Compile Include="ChatPreview.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ChatPreview.Designer.cs">
+      <DependentUpon>ChatPreview.cs</DependentUpon>
+    </Compile>
     <Compile Include="ConfigUI.ToolTips.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -115,6 +132,11 @@
     </Compile>
     <Compile Include="DeleteRankPopup.Designer.cs">
       <DependentUpon>DeleteRankPopup.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SortableBindingList.cs" />
     <Compile Include="WorldListEntry.cs" />

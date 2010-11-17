@@ -122,6 +122,10 @@ namespace ConfigTool {
             ApplyColor( bColorAnnouncement, colorAnnouncement );
             colorPM = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.PrivateMessageColor ) );
             ApplyColor( bColorPM, colorPM );
+            colorWarning = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.WarningColor ) );
+            ApplyColor( bColorWarning, colorWarning );
+            colorMe = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.MeColor ) );
+            ApplyColor( bColorMe, colorMe );
 
             xAnnouncements.Checked = (Config.GetInt( ConfigKey.AnnouncementInterval ) > 0);
             nAnnouncements.Value = Config.GetInt( ConfigKey.AnnouncementInterval );
@@ -315,6 +319,8 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.SayColor, fCraft.Color.GetName( colorSay ) );
             Config.SetValue( ConfigKey.AnnouncementColor, fCraft.Color.GetName( colorAnnouncement ) );
             Config.SetValue( ConfigKey.PrivateMessageColor, fCraft.Color.GetName( colorPM ) );
+            Config.SetValue( ConfigKey.WarningColor, fCraft.Color.GetName( colorWarning ) );
+            Config.SetValue( ConfigKey.MeColor, fCraft.Color.GetName( colorMe ) );
             if( xAnnouncements.Checked ) Config.SetValue( ConfigKey.AnnouncementInterval, nAnnouncements.Value );
             else Config.SetValue( ConfigKey.AnnouncementInterval, 0 );
 

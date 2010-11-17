@@ -313,6 +313,9 @@ namespace fCraft {
                     player.NoRankMessage( rankName );
                 } else if( world == Server.mainWorld ) {
                     player.Message( "The main world cannot have access restrictions." );
+                } else if( world.accessRank > rank && world.accessRank > player.info.rank ) {
+                    player.Message( "Cannot lower access permission for world {0}&S: Must be {1}+",
+                                    world.GetClassyName(), world.accessRank.GetClassyName() );
                 } else {
                     world.accessRank = rank;
                     Server.SaveWorldList();
@@ -387,6 +390,9 @@ namespace fCraft {
                 Rank rank = RankList.FindRank( rankName );
                 if( rank == null ) {
                     player.NoRankMessage( rankName );
+                } else if( world.buildRank > rank && world.buildRank > player.info.rank ) {
+                    player.Message( "Cannot lower build permission for world {0}&S: Must be {1}+",
+                                    world.GetClassyName(), world.buildRank.GetClassyName() );
                 } else {
                     world.buildRank = rank;
                     Server.SaveWorldList();

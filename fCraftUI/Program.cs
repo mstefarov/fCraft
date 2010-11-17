@@ -37,8 +37,8 @@ namespace fCraftUI {
             try {
                 Application.Run( new MainForm() );
             } catch( Exception ex ) {
-                Logger.Log( "Unhandled exception in fCraftUI: " + ex, LogType.FatalError );
                 Logger.UploadCrashReport( "Unhandled exception in fCraftUI", "fCraftUI", ex );
+                Logger.Log( "Unhandled exception in fCraftUI: " + ex, LogType.FatalError );
                 Server.CheckForCommonErrors( ex );
             }
 #endif

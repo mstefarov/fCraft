@@ -54,7 +54,7 @@ namespace fCraft {
 
             string msg = cmd.NextAll().Trim();
             if( msg != null ) {
-                Server.SendToAll( "*{0}{1} {2}", Color.Purple, player.name, msg );
+                Server.SendToAll( "{0}*{1} {2}", Color.Me, player.name, msg );
             }
         }
 
