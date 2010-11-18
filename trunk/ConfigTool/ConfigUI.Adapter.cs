@@ -47,7 +47,12 @@ namespace ConfigTool {
             ApplyTabIRC();
             ApplyTabAdvanced();
 
-            AddChangeHandler( tabs );
+            AddChangeHandler( tabs, SomethingChanged );
+            AddChangeHandler( bResetTab, SomethingChanged );
+            AddChangeHandler( bResetAll, SomethingChanged );
+
+            AddChangeHandler( tabChat, HandleTabChatChange );
+            UpdateChatPreview();
             bApply.Enabled = false;
         }
 
@@ -114,18 +119,31 @@ namespace ConfigTool {
 
             colorSys = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.SystemMessageColor ) );
             ApplyColor( bColorSys, colorSys );
+            fCraft.Color.Sys = fCraft.Color.Parse( colorSys );
+
             colorHelp = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.HelpColor ) );
             ApplyColor( bColorHelp, colorHelp );
+            fCraft.Color.Help = fCraft.Color.Parse( colorHelp );
+
             colorSay = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.SayColor ) );
             ApplyColor( bColorSay, colorSay );
+            fCraft.Color.Say = fCraft.Color.Parse( colorSay );
+
             colorAnnouncement = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.AnnouncementColor ) );
             ApplyColor( bColorAnnouncement, colorAnnouncement );
+            fCraft.Color.Announcement = fCraft.Color.Parse( colorAnnouncement );
+
             colorPM = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.PrivateMessageColor ) );
             ApplyColor( bColorPM, colorPM );
+            fCraft.Color.PM = fCraft.Color.Parse( colorPM );
+
             colorWarning = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.WarningColor ) );
             ApplyColor( bColorWarning, colorWarning );
+            fCraft.Color.Warning = fCraft.Color.Parse( colorWarning );
+
             colorMe = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.MeColor ) );
             ApplyColor( bColorMe, colorMe );
+            fCraft.Color.Me = fCraft.Color.Parse( colorMe );
 
             xAnnouncements.Checked = (Config.GetInt( ConfigKey.AnnouncementInterval ) > 0);
             nAnnouncements.Value = Config.GetInt( ConfigKey.AnnouncementInterval );
@@ -259,6 +277,7 @@ namespace ConfigTool {
 
             colorIRC = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.IRCMessageColor ) );
             ApplyColor( bColorIRC, colorIRC );
+            fCraft.Color.IRC = fCraft.Color.Parse( colorIRC );
         }
 
 

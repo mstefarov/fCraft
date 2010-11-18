@@ -72,8 +72,6 @@ namespace ConfigTool {
                 vLogFileOptions.Items.Add( item );
                 vConsoleOptions.Items.Add( (ListViewItem)item.Clone() );
             }
-
-            FillToolTipsLogging();
         }
 
         internal static void HandleWorldRename( string from, string to ) {
@@ -1083,22 +1081,26 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             bApply.Enabled = true;
         }
 
-        void AddChangeHandler( Control c ) {
+        void AddChangeHandler( Control c, EventHandler handler ) {
             if( c is CheckBox ) {
-                ((CheckBox)c).CheckedChanged += SomethingChanged;
+                ((CheckBox)c).CheckedChanged += handler;
             } else if( c is ComboBox ) {
-                ((ComboBox)c).SelectedIndexChanged += SomethingChanged;
+                ((ComboBox)c).SelectedIndexChanged += handler;
             } else if( c is ListView ) {
-                ((ListView)c).ItemChecked += SomethingChanged;
+                ((ListView)c).ItemChecked += ((o,e) => handler(o,e));
             } else if( c is NumericUpDown ) {
-                ((NumericUpDown)c).ValueChanged += SomethingChanged;
+                ((NumericUpDown)c).ValueChanged += handler;
             } else if( c is ListBox ) {
-                ((ListBox)c).SelectedIndexChanged += SomethingChanged;
+                ((ListBox)c).SelectedIndexChanged += handler;
             } else if( c is TextBoxBase ) {
-                c.TextChanged += SomethingChanged;
+                c.TextChanged += handler;
+            } else if( c is ButtonBase ) {
+                if( c != bPortCheck && c != bMeasure ) {
+                    c.Click += handler;
+                }
             }
             foreach( Control child in c.Controls ) {
-                AddChangeHandler( child );
+                AddChangeHandler( child, handler );
             }
         }
 
@@ -1119,6 +1121,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             picker.ShowDialog();
             colorSys = picker.color;
             ApplyColor( bColorSys, colorSys );
+            fCraft.Color.Sys = fCraft.Color.Parse( colorSys );
         }
 
         private void bColorHelp_Click( object sender, EventArgs e ) {
@@ -1126,6 +1129,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             picker.ShowDialog();
             colorHelp = picker.color;
             ApplyColor( bColorHelp, colorHelp );
+            fCraft.Color.Help = fCraft.Color.Parse( colorHelp );
         }
 
         private void bColorSay_Click( object sender, EventArgs e ) {
@@ -1133,6 +1137,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             picker.ShowDialog();
             colorSay = picker.color;
             ApplyColor( bColorSay, colorSay );
+            fCraft.Color.Say = fCraft.Color.Parse( colorSay );
         }
 
         private void bColorAnnouncement_Click( object sender, EventArgs e ) {
@@ -1140,6 +1145,39 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             picker.ShowDialog();
             colorAnnouncement = picker.color;
             ApplyColor( bColorAnnouncement, colorAnnouncement );
+            fCraft.Color.Announcement = fCraft.Color.Parse( colorAnnouncement );
+        }
+
+        private void bColorPM_Click( object sender, EventArgs e ) {
+            ColorPicker picker = new ColorPicker( "Private / rank chat color", colorPM );
+            picker.ShowDialog();
+            colorPM = picker.color;
+            ApplyColor( bColorPM, colorPM );
+            fCraft.Color.PM = fCraft.Color.Parse( colorPM );
+        }
+
+        private void bColorWarning_Click( object sender, EventArgs e ) {
+            ColorPicker picker = new ColorPicker( "Warning / Error message color", colorWarning );
+            picker.ShowDialog();
+            colorWarning = picker.color;
+            ApplyColor( bColorWarning, colorWarning );
+            fCraft.Color.Warning = fCraft.Color.Parse( colorWarning );
+        }
+
+        private void bColorMe_Click( object sender, EventArgs e ) {
+            ColorPicker picker = new ColorPicker( "/me command color", colorMe );
+            picker.ShowDialog();
+            colorMe = picker.color;
+            ApplyColor( bColorMe, colorMe );
+            fCraft.Color.Me = fCraft.Color.Parse( colorMe );
+        }
+
+        private void bColorIRC_Click( object sender, EventArgs e ) {
+            ColorPicker picker = new ColorPicker( "IRC message color", colorIRC );
+            picker.ShowDialog();
+            colorIRC = picker.color;
+            ApplyColor( bColorIRC, colorIRC );
+            fCraft.Color.IRC = fCraft.Color.Parse( colorIRC );
         }
 
         private void bColorRank_Click( object sender, EventArgs e ) {
@@ -1149,33 +1187,34 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             selectedRank.Color = fCraft.Color.GetName( picker.color );
         }
 
-        private void bColorPM_Click( object sender, EventArgs e ) {
-            ColorPicker picker = new ColorPicker( "Private / rank chat color", colorPM );
-            picker.ShowDialog();
-            colorPM = picker.color;
-            ApplyColor( bColorPM, colorPM );
+
+        void HandleTabChatChange( object sender, EventArgs args ) {
+            UpdateChatPreview();
         }
 
-        private void bColorWarning_Click( object sender, EventArgs e ) {
-            ColorPicker picker = new ColorPicker( "Warning / Error message color", colorWarning );
-            picker.ShowDialog();
-            colorWarning = picker.color;
-            ApplyColor( bColorWarning, colorWarning );
+        void UpdateChatPreview() {
+            string[] lines = new string[8];
+            lines[0] = String.Format( "{0}{1}Notch&S joined {2}{3}main",
+                                      xRankColors.Checked ? RankList.HighestRank.Color : "&S",
+                                      xChatPrefixes.Checked ? RankList.HighestRank.Prefix : "",
+                                      xRankColorsInWorldNames.Checked ? RankList.LowestRank.Color : "",
+                                      xChatPrefixes.Checked ? RankList.LowestRank.Prefix : "" );
+            lines[1] = String.Format( "{0}{1}Notch&F: This is a normal chat message",
+                                      xRankColors.Checked ? RankList.HighestRank.Color : "&S",
+                                      xChatPrefixes.Checked ? RankList.HighestRank.Prefix : "" );
+            lines[2] = "&YSomeone wrote this message with /say";
+            lines[3] = "&R<*- This is a random announcement -*>";
+            lines[4] = "&Pfrom Notch: This is a private message / whisper";
+            lines[5] = "* &MNotch is using /me to write this";
+            lines[6] = "&SUnknown command \"kic\", see &H/help commands";
+            lines[7] = String.Format( "&W{0}{1}Notch&W was kicked by {0}{1}gamer1",
+                                      xRankColors.Checked ? RankList.HighestRank.Color : "&S",
+                                      xChatPrefixes.Checked ? RankList.HighestRank.Prefix : "" );
+
+            chatPreview.SetText( lines );
+            chatPreview.Invalidate();
         }
 
-        private void bColorMe_Click( object sender, EventArgs e ) {
-            ColorPicker picker = new ColorPicker( "/me command color", colorMe );
-            picker.ShowDialog();
-            colorMe = picker.color;
-            ApplyColor( bColorMe, colorMe );
-        }
-
-        private void bColorIRC_Click( object sender, EventArgs e ) {
-            ColorPicker picker = new ColorPicker( "IRC message color", colorIRC );
-            picker.ShowDialog();
-            colorIRC = picker.color;
-            ApplyColor( bColorIRC, colorIRC );
-        }
         #endregion
 
         private void bRules_Click( object sender, EventArgs e ) {
