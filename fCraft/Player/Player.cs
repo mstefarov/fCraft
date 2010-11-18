@@ -234,14 +234,14 @@ namespace fCraft {
         }
 
 
-        public bool PM( Player otherPlayer, string messageText ) {
+        public bool PM( Player targetPlayer, string messageText ) {
             Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
-                        name, otherPlayer.name, messageText );
-            otherPlayer.Message( "{0}from {1}: {2}",
+                        name, targetPlayer.name, messageText );
+            targetPlayer.Message( "{0}from {1}: {2}",
                                  Color.PM, name, messageText );
-            if( CanSee( otherPlayer ) ) {
+            if( CanSee( targetPlayer ) ) {
                 Message( "{0}to {1}: {2}",
-                         Color.PM, otherPlayer.name, messageText );
+                         Color.PM, targetPlayer.name, messageText );
                 return true;
 
             } else {

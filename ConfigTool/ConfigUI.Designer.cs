@@ -71,7 +71,7 @@
             this.lColorAnnouncement = new System.Windows.Forms.Label();
             this.bColorHelp = new System.Windows.Forms.Button();
             this.bColorSay = new System.Windows.Forms.Button();
-            this.chatPreview1 = new ConfigTool.ChatPreview();
+            this.chatPreview = new ConfigTool.ChatPreview();
             this.gAppearence = new System.Windows.Forms.GroupBox();
             this.xShowJoinedWorldMessages = new System.Windows.Forms.CheckBox();
             this.xRankColorsInWorldNames = new System.Windows.Forms.CheckBox();
@@ -683,11 +683,11 @@
             // tabChat
             // 
             this.tabChat.Controls.Add( this.gChatColors );
-            this.tabChat.Controls.Add( this.chatPreview1 );
+            this.tabChat.Controls.Add( this.chatPreview );
             this.tabChat.Controls.Add( this.gAppearence );
             this.tabChat.Location = new System.Drawing.Point( 4, 24 );
             this.tabChat.Name = "tabChat";
-            this.tabChat.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
+            this.tabChat.Padding = new System.Windows.Forms.Padding( 5, 5, 5, 10 );
             this.tabChat.Size = new System.Drawing.Size( 651, 425 );
             this.tabChat.TabIndex = 10;
             this.tabChat.Text = "Chat";
@@ -709,9 +709,9 @@
             this.gChatColors.Controls.Add( this.lColorAnnouncement );
             this.gChatColors.Controls.Add( this.bColorHelp );
             this.gChatColors.Controls.Add( this.bColorSay );
-            this.gChatColors.Location = new System.Drawing.Point( 8, 113 );
+            this.gChatColors.Location = new System.Drawing.Point( 8, 8 );
             this.gChatColors.Name = "gChatColors";
-            this.gChatColors.Size = new System.Drawing.Size( 634, 147 );
+            this.gChatColors.Size = new System.Drawing.Size( 634, 139 );
             this.gChatColors.TabIndex = 4;
             this.gChatColors.TabStop = false;
             this.gChatColors.Text = "Colors";
@@ -802,11 +802,11 @@
             // lColorSay
             // 
             this.lColorSay.AutoSize = true;
-            this.lColorSay.Location = new System.Drawing.Point( 408, 53 );
+            this.lColorSay.Location = new System.Drawing.Point( 407, 53 );
             this.lColorSay.Name = "lColorSay";
-            this.lColorSay.Size = new System.Drawing.Size( 111, 15 );
+            this.lColorSay.Size = new System.Drawing.Size( 112, 15 );
             this.lColorSay.TabIndex = 2;
-            this.lColorSay.Text = "Say message color";
+            this.lColorSay.Text = "/say message color";
             // 
             // bColorAnnouncement
             // 
@@ -820,11 +820,11 @@
             // lColorAnnouncement
             // 
             this.lColorAnnouncement.AutoSize = true;
-            this.lColorAnnouncement.Location = new System.Drawing.Point( 363, 24 );
+            this.lColorAnnouncement.Location = new System.Drawing.Point( 342, 24 );
             this.lColorAnnouncement.Name = "lColorAnnouncement";
-            this.lColorAnnouncement.Size = new System.Drawing.Size( 156, 15 );
+            this.lColorAnnouncement.Size = new System.Drawing.Size( 177, 15 );
             this.lColorAnnouncement.TabIndex = 6;
-            this.lColorAnnouncement.Text = "Announcement / rules color";
+            this.lColorAnnouncement.Text = "Announcement and /rules color";
             // 
             // bColorHelp
             // 
@@ -844,12 +844,12 @@
             this.bColorSay.TabIndex = 5;
             this.bColorSay.UseVisualStyleBackColor = false;
             // 
-            // chatPreview1
+            // chatPreview
             // 
-            this.chatPreview1.Location = new System.Drawing.Point( 8, 13 );
-            this.chatPreview1.Name = "chatPreview1";
-            this.chatPreview1.Size = new System.Drawing.Size( 635, 94 );
-            this.chatPreview1.TabIndex = 3;
+            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 635, 166 );
+            this.chatPreview.TabIndex = 3;
             // 
             // gAppearence
             // 
@@ -858,9 +858,9 @@
             this.gAppearence.Controls.Add( this.xListPrefixes );
             this.gAppearence.Controls.Add( this.xChatPrefixes );
             this.gAppearence.Controls.Add( this.xRankColors );
-            this.gAppearence.Location = new System.Drawing.Point( 7, 266 );
+            this.gAppearence.Location = new System.Drawing.Point( 7, 153 );
             this.gAppearence.Name = "gAppearence";
-            this.gAppearence.Size = new System.Drawing.Size( 635, 105 );
+            this.gAppearence.Size = new System.Drawing.Size( 635, 97 );
             this.gAppearence.TabIndex = 2;
             this.gAppearence.TabStop = false;
             this.gAppearence.Text = "Appearence Tweaks";
@@ -868,7 +868,7 @@
             // xShowJoinedWorldMessages
             // 
             this.xShowJoinedWorldMessages.AutoSize = true;
-            this.xShowJoinedWorldMessages.Location = new System.Drawing.Point( 365, 26 );
+            this.xShowJoinedWorldMessages.Location = new System.Drawing.Point( 365, 20 );
             this.xShowJoinedWorldMessages.Name = "xShowJoinedWorldMessages";
             this.xShowJoinedWorldMessages.Size = new System.Drawing.Size( 261, 19 );
             this.xShowJoinedWorldMessages.TabIndex = 11;
@@ -878,7 +878,7 @@
             // xRankColorsInWorldNames
             // 
             this.xRankColorsInWorldNames.AutoSize = true;
-            this.xRankColorsInWorldNames.Location = new System.Drawing.Point( 365, 51 );
+            this.xRankColorsInWorldNames.Location = new System.Drawing.Point( 365, 45 );
             this.xRankColorsInWorldNames.Name = "xRankColorsInWorldNames";
             this.xRankColorsInWorldNames.Size = new System.Drawing.Size( 243, 19 );
             this.xRankColorsInWorldNames.TabIndex = 10;
@@ -888,7 +888,7 @@
             // xListPrefixes
             // 
             this.xListPrefixes.AutoSize = true;
-            this.xListPrefixes.Location = new System.Drawing.Point( 44, 76 );
+            this.xListPrefixes.Location = new System.Drawing.Point( 44, 70 );
             this.xListPrefixes.Name = "xListPrefixes";
             this.xListPrefixes.Size = new System.Drawing.Size( 219, 19 );
             this.xListPrefixes.TabIndex = 2;
@@ -898,7 +898,7 @@
             // xChatPrefixes
             // 
             this.xChatPrefixes.AutoSize = true;
-            this.xChatPrefixes.Location = new System.Drawing.Point( 25, 51 );
+            this.xChatPrefixes.Location = new System.Drawing.Point( 25, 45 );
             this.xChatPrefixes.Name = "xChatPrefixes";
             this.xChatPrefixes.Size = new System.Drawing.Size( 133, 19 );
             this.xChatPrefixes.TabIndex = 1;
@@ -908,7 +908,7 @@
             // xRankColors
             // 
             this.xRankColors.AutoSize = true;
-            this.xRankColors.Location = new System.Drawing.Point( 25, 26 );
+            this.xRankColors.Location = new System.Drawing.Point( 25, 20 );
             this.xRankColors.Name = "xRankColors";
             this.xRankColors.Size = new System.Drawing.Size( 123, 19 );
             this.xRankColors.TabIndex = 0;
@@ -3236,7 +3236,7 @@
         private System.Windows.Forms.Label lColorSay;
         private System.Windows.Forms.Label lColorHelp;
         private System.Windows.Forms.Label lColorSys;
-        private ChatPreview chatPreview1;
+        private ChatPreview chatPreview;
         private System.Windows.Forms.GroupBox gChatColors;
         private System.Windows.Forms.Label lColorWarning;
         private System.Windows.Forms.Button bColorWarning;

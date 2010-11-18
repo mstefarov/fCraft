@@ -63,6 +63,14 @@ namespace fCraft {
             return colors.Values[index];
         }
 
+        public static string Parse( int index ) {
+            if( index >= 0 && index <= 15 ) {
+                return "&" + colors.Keys[index];
+            } else {
+                return White;
+            }
+        }
+
         public static string Parse( string color ) {
             color = color.ToLower();
             if( color.Length == 2 && color[0] == '&' && colors.ContainsKey( color[1] ) ) {
@@ -77,18 +85,32 @@ namespace fCraft {
 
         public static int ParseToIndex( string color ) {
             color = color.ToLower();
-            if( color.Length == 2 && color[0] == '&' && colors.ContainsKey( color[1] ) ) {
-                return colors.IndexOfKey( color[1] );
+            if( color.Length == 2 && color[0] == '&' ) {
+                if( colors.ContainsKey( color[1] ) ) {
+                    return colors.IndexOfKey( color[1] );
+                } else {
+                    switch( color ) {
+                        case "&s": return colors.IndexOfKey( Color.Sys[1] );
+                        case "&y": return colors.IndexOfKey( Color.Say[1] );
+                        case "&p": return colors.IndexOfKey( Color.PM[1] );
+                        case "&r": return colors.IndexOfKey( Color.Announcement[1] );
+                        case "&h": return colors.IndexOfKey( Color.Help[1] );
+                        case "&w": return colors.IndexOfKey( Color.Warning[1] );
+                        case "&m": return colors.IndexOfKey( Color.Me[1] );
+                        case "&i": return colors.IndexOfKey( Color.IRC[1] );
+                        default: return 15;
+                    }
+                }
             } else if( colors.ContainsValue( color ) ) {
                 return colors.IndexOfValue( color );
             } else {
-                return colors.IndexOfValue( "white" );
+                return 15; // white
             }
         }
 
 
         public static bool IsValidColorCode( char code ) {
-            return code >= '0' && code <= '9' || code >= 'a' && code <= 'f';
+            return code >= '0' && code <= '9' || code >= 'a' && code <= 'f' || code >= 'A' && code <= 'F';
         }
     }
 }
