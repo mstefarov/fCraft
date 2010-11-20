@@ -9,8 +9,7 @@ namespace fCraft {
     public sealed class PlayerInfo : IClassy {
 
         public const int MinFieldCount = 24,
-                         MaxFieldCount = 36;
-
+                         MaxFieldCount = 44;
 
         public string name;
         public IPAddress lastIP = IPAddress.None;
@@ -55,8 +54,14 @@ namespace fCraft {
 
         public DateTime bannedUntil;
         public bool loggedOutFrozen;
-        public string frozenBy;
+        public string frozenBy = "";
         public DateTime frozenOn;
+        public DateTime mutedUntil;
+        public string mutedBy = "";
+
+        public string IRCPassword = "";
+
+        public bool online;
 
 
         // === Serialization & Defaults =======================================
@@ -107,7 +112,6 @@ namespace fCraft {
 
             // ban information
             if( fields[6] != "-" && fields[6] != "" && DateTime.TryParse( fields[6], out banDate ) ) {
-                banDate = DateTime.Parse( fields[6] ); // LEGACY
                 bannedBy = fields[7];
                 banReason = Unescape( fields[10] );
                 if( banReason == "-" ) banReason = "";
@@ -115,7 +119,6 @@ namespace fCraft {
 
             // unban information
             if( fields[8] != "-" && fields[8] != "" && DateTime.TryParse( fields[8], out unbanDate ) ) {
-                unbanDate = DateTime.Parse( fields[8] ); // LEGACY
                 unbannedBy = fields[9];
                 unbanReason = Unescape( fields[11] );
                 if( unbanReason == "-" ) unbanReason = "";
@@ -127,11 +130,11 @@ namespace fCraft {
                 lastFailedLoginIP = IPAddress.None;
             }
             failedLoginCount = Int32.Parse( fields[14] );
-            firstLoginDate = DateTime.Parse( fields[15] );
+            DateTime.TryParse( fields[15], out firstLoginDate );
 
             // login/logout times
-            lastLoginDate = DateTime.Parse( fields[16] );
-            totalTime = TimeSpan.Parse( fields[17] );
+            DateTime.TryParse( fields[16], out lastLoginDate );
+            TimeSpan.TryParse( fields[17], out totalTime );
 
             // stats
             Int32.TryParse( fields[18], out blocksBuilt );
@@ -173,13 +176,24 @@ namespace fCraft {
                     GuessRankChangeType();
                     lastSeen = lastLoginDate;
                 }
+
+                if( fields.Length > 36 ) {
+                    DateTime.TryParse( fields[36], out bannedUntil );
+                    loggedOutFrozen = (fields[37] == "f");
+                    frozenBy = Unescape( fields[38] );
+                    DateTime.TryParse( fields[39], out frozenOn );
+                    DateTime.TryParse( fields[40], out mutedUntil );
+                    mutedBy = Unescape( fields[41] );
+                    IRCPassword = Unescape( fields[42] );
+                    // fields[43] is "online", and is ignored
+                }
             }
         }
 
 
         void GuessRankChangeType() {
             if( previousRank != null ) {
-                if( rankChangeReason == "~AutoRank" || rankChangeReason == "~AutoRankAll" ) {
+                if( rankChangeReason == "~AutoRank" || rankChangeReason == "~AutoRankAll" || rankChangeReason == "~MassRank" ) {
                     if( previousRank > rank ) {
                         rankChangeType = RankChangeType.AutoDemoted;
                     } else if( previousRank < rank ) {
@@ -230,9 +244,12 @@ namespace fCraft {
             else fields[13] = lastFailedLoginIP.ToString();
             fields[14] = failedLoginCount.ToString();
 
-            fields[15] = firstLoginDate.ToCompactString();
-            fields[16] = lastLoginDate.ToCompactString();
-            fields[17] = totalTime.ToString();
+            if( firstLoginDate == DateTime.MinValue ) fields[15] = "";
+            else fields[15] = firstLoginDate.ToCompactString();
+            if( lastLoginDate == DateTime.MinValue ) fields[16] = "";
+            else fields[16] = lastLoginDate.ToCompactString();
+
+            fields[17] = totalTime.ToCompactString();
 
             fields[18] = blocksBuilt.ToString();
             fields[19] = blocksDeleted.ToString();
@@ -245,18 +262,43 @@ namespace fCraft {
 
             if( previousRank != null ) fields[24] = previousRank.ToString();
             else fields[24] = "";
+
             fields[25] = Escape( rankChangeReason );
             fields[26] = timesKicked.ToString();
             fields[27] = timesKickedOthers.ToString();
             fields[28] = timesBannedOthers.ToString();
             fields[29] = ID.ToString();
             fields[30] = ((int)rankChangeType).ToString();
-            fields[31] = lastKickDate.ToCompactString();
-            fields[32] = lastSeen.ToCompactString();
+
+            if( lastKickDate == DateTime.MinValue ) fields[31] = "";
+            else fields[31] = lastKickDate.ToCompactString();
+
+            if( lastSeen == DateTime.MinValue ) fields[32] = "";
+            else if( online ) fields[32] = DateTime.Now.ToCompactString();
+            else fields[32] = lastSeen.ToCompactString();
+
             fields[33] = blocksDrawn.ToString();
 
             fields[34] = lastKickBy;
-            fields[35] = Escape(lastKickReason);
+            fields[35] = Escape( lastKickReason );
+
+            if( bannedUntil == DateTime.MinValue ) fields[36] = "";
+            else fields[36] = bannedUntil.ToCompactString();
+
+            fields[37] = (loggedOutFrozen ? "f" : "");
+
+            fields[38] = Escape( frozenBy );
+
+            if( frozenOn == DateTime.MinValue ) fields[39] = "";
+            else fields[39] = frozenOn.ToCompactString();
+
+            if( mutedUntil == DateTime.MinValue ) fields[40] = "";
+            else fields[40] = mutedUntil.ToCompactString();
+
+            fields[41] = Escape( mutedBy );
+            fields[42] = Escape( IRCPassword );
+            fields[43] = (online ? "o" : "");
+
             return String.Join( ",", fields );
         }
 
@@ -270,6 +312,7 @@ namespace fCraft {
             lastLoginDate = DateTime.Now;
             lastSeen = DateTime.Now;
             Interlocked.Increment( ref timesVisited );
+            online = true;
         }
 
 
@@ -283,6 +326,7 @@ namespace fCraft {
         public void ProcessLogout( Player player ) {
             totalTime += DateTime.Now.Subtract( player.session.loginTime );
             lastSeen = DateTime.Now;
+            online = false;
         }
 
 
@@ -357,17 +401,22 @@ namespace fCraft {
             return str.Replace( '\xFF', ',' ).Replace( "\\'", "'" ).Replace( "\\\\", "\\" );
         }
 
+        // implements IClassy interface
         public string GetClassyName() {
-            string displayedName = name;
-            if( Config.GetBool( ConfigKey.RankPrefixesInChat ) ) {
-                displayedName = rank.Prefix + displayedName;
-            }
+            StringBuilder sb = new StringBuilder();
             if( Config.GetBool( ConfigKey.RankColorsInChat ) ) {
-                displayedName = rank.Color + displayedName;
                 if( name == "fragmer" ) return "&4f&cr&ea&ag&bm&9e&5r";
                 if( name == "Kirshi" ) return "&bKir&dshi";
+                sb.Append( rank.Color );
             }
-            return displayedName;
+            if( Config.GetBool( ConfigKey.RankPrefixesInChat ) ) {
+                sb.Append( rank.Prefix );
+            }
+            sb.Append( name );
+            if( banned ) {
+                sb.Append( '*' );
+            }
+            return sb.ToString();
         }
 
 

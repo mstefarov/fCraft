@@ -6,6 +6,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Net;
 using System.Threading;
+using System.Diagnostics;
+
 
 
 namespace fCraft {
@@ -35,8 +37,11 @@ namespace fCraft {
                                      "lastFailedLoginIP,failedLoginCount,totalTimeOnServer," +
                                      "blocksBuilt,blocksDeleted,timesVisited," +
                                      "linesWritten,UNUSED,UNUSED,previousRank,rankChangeReason," +
-                                     "timesKicked,timesKickedOthers,timesBannedOthers,UID," +
-                                     "rankChangeType,lastKickDate,LastSeen,BlocksDrawn,lastKickBy,lastKickReason";
+                                     "timesKicked,timesKickedOthers,timesBannedOthers,UID,rankChangeType," +
+                                     "lastKickDate,LastSeen,BlocksDrawn,lastKickBy,lastKickReason," +
+                                     "bannedUntil,loggedOutFrozen,frozenBy,"+
+                                     "mutedUntil,mutedBy,IRCPassword,online";
+
 
         static object locker = new object();
         public static bool isLoaded;
@@ -57,6 +62,7 @@ namespace fCraft {
 
         public static void Load() {
             if( File.Exists( DBFile ) ) {
+                Stopwatch sw = Stopwatch.StartNew();
                 using( StreamReader reader = File.OpenText( DBFile ) ) {
 
                     string header = reader.ReadLine(); // header
@@ -97,7 +103,9 @@ namespace fCraft {
                     }
                 }
                 list.TrimExcess();
-                Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records).", LogType.Debug, tree.Count() );
+                sw.Stop();
+                Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records) in {1}ms.", LogType.Debug,
+                            tree.Count(), sw.ElapsedMilliseconds );
             } else {
                 Logger.Log( "PlayerDB.Load: No player DB file found.", LogType.Warning );
             }

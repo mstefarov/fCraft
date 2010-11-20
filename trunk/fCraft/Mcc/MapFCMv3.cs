@@ -192,6 +192,7 @@ namespace Mcc {
             // write layers
             int layerCount = 0;
             int layerFlags = 0;
+            return false;
             foreach( Map.DataLayer layer in mapToSave.layers.Values ) {
                 Map.DataLayer activeLayer = layer;
                 activeLayer.Offset = writer.BaseStream.Position;
