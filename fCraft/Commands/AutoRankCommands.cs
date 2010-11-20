@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
 
 
 namespace fCraft {
@@ -446,20 +447,22 @@ namespace fCraft {
 
             player.Message( "AutoRankAll: Evaluating {0} players...", list.Length );
 
+            Stopwatch sw = Stopwatch.StartNew();
             int promoted = 0, demoted = 0;
-            foreach( PlayerInfo info in list ) {
-                Rank newRank = AutoRank.Check( info );
+            for( int i = 0; i < list.Length; i++ ) {
+                Rank newRank = AutoRank.Check( list[i] );
                 if( newRank != null ) {
-                    Player target = Server.FindPlayerExact( info.name );
-                    if( newRank > info.rank ) {
+                    Player target = Server.FindPlayerExact( list[i].name );
+                    if( newRank > list[i].rank ) {
                         promoted++;
-                    } else if( newRank < info.rank ) {
+                    } else if( newRank < list[i].rank ) {
                         demoted++;
                     }
-                    AdminCommands.DoChangeRank( player, info, target, newRank, message, silent, true );
+                    AdminCommands.DoChangeRank( player, list[i], target, newRank, message, silent, true );
                 }
             }
-            player.Message( "AutoRankAll: {0} players promoted, {1} demoted.", promoted, demoted );
+            sw.Stop();
+            player.Message( "AutoRankAll: Worked for {0}ms, {0} players promoted, {1} demoted.", sw.ElapsedMilliseconds, promoted, demoted );
         }
 
         static CommandDescriptor cdMassRank = new CommandDescriptor {

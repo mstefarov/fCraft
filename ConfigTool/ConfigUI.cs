@@ -1194,21 +1194,23 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         void UpdateChatPreview() {
             string[] lines = new string[8];
-            lines[0] = String.Format( "{0}{1}Notch&S joined {2}{3}main",
-                                      xRankColors.Checked ? RankList.HighestRank.Color : "&S",
-                                      xChatPrefixes.Checked ? RankList.HighestRank.Prefix : "",
-                                      xRankColorsInWorldNames.Checked ? RankList.LowestRank.Color : "",
-                                      xChatPrefixes.Checked ? RankList.LowestRank.Prefix : "" );
-            lines[1] = String.Format( "{0}{1}Notch&F: This is a normal chat message",
-                                      xRankColors.Checked ? RankList.HighestRank.Color : "&S",
-                                      xChatPrefixes.Checked ? RankList.HighestRank.Prefix : "" );
+            if( xShowJoinedWorldMessages.Checked ) {
+                lines[0] = String.Format( "{0}{1}Notch&S joined {2}{3}main",
+                                          xRankColors.Checked ? RankList.HighestRank.Color : "&S",
+                                          xChatPrefixes.Checked ? RankList.HighestRank.Prefix : "",
+                                          xRankColorsInWorldNames.Checked ? RankList.LowestRank.Color : "",
+                                          xChatPrefixes.Checked ? RankList.LowestRank.Prefix : "" );
+            }
+            lines[1] = "&R<*- This is a random announcement -*>";
             lines[2] = "&YSomeone wrote this message with /say";
-            lines[3] = "&R<*- This is a random announcement -*>";
+            lines[3] = String.Format( "{0}{1}Notch&F: This is a normal chat message",
+                                      xRankColors.Checked ? RankList.HighestRank.Color : "",
+                                      xChatPrefixes.Checked ? RankList.HighestRank.Prefix : "" );
             lines[4] = "&Pfrom Notch: This is a private message / whisper";
             lines[5] = "* &MNotch is using /me to write this";
             lines[6] = "&SUnknown command \"kic\", see &H/help commands";
             lines[7] = String.Format( "&W{0}{1}Notch&W was kicked by {0}{1}gamer1",
-                                      xRankColors.Checked ? RankList.HighestRank.Color : "&S",
+                                      xRankColors.Checked ? RankList.HighestRank.Color : "",
                                       xChatPrefixes.Checked ? RankList.HighestRank.Prefix : "" );
 
             chatPreview.SetText( lines );

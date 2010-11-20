@@ -762,6 +762,7 @@
             this.bColorSys.Size = new System.Drawing.Size( 100, 23 );
             this.bColorSys.TabIndex = 3;
             this.bColorSys.UseVisualStyleBackColor = false;
+            this.bColorSys.Click += new System.EventHandler( this.bColorSys_Click );
             // 
             // lColorSys
             // 
@@ -780,6 +781,7 @@
             this.bColorPM.Size = new System.Drawing.Size( 100, 23 );
             this.bColorPM.TabIndex = 9;
             this.bColorPM.UseVisualStyleBackColor = false;
+            this.bColorPM.Click += new System.EventHandler( this.bColorPM_Click );
             // 
             // lColorHelp
             // 
@@ -816,6 +818,7 @@
             this.bColorAnnouncement.Size = new System.Drawing.Size( 100, 23 );
             this.bColorAnnouncement.TabIndex = 7;
             this.bColorAnnouncement.UseVisualStyleBackColor = false;
+            this.bColorAnnouncement.Click += new System.EventHandler( this.bColorAnnouncement_Click );
             // 
             // lColorAnnouncement
             // 
@@ -834,6 +837,7 @@
             this.bColorHelp.Size = new System.Drawing.Size( 100, 23 );
             this.bColorHelp.TabIndex = 4;
             this.bColorHelp.UseVisualStyleBackColor = false;
+            this.bColorHelp.Click += new System.EventHandler( this.bColorHelp_Click );
             // 
             // bColorSay
             // 
@@ -843,6 +847,7 @@
             this.bColorSay.Size = new System.Drawing.Size( 100, 23 );
             this.bColorSay.TabIndex = 5;
             this.bColorSay.UseVisualStyleBackColor = false;
+            this.bColorSay.Click += new System.EventHandler( this.bColorSay_Click );
             // 
             // chatPreview
             // 

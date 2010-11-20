@@ -5,6 +5,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.IO;
 
+
 namespace fCraft {
     public static class AutoRank {
         const string AutoRankFile = "autorank.xml";
@@ -28,26 +29,6 @@ namespace fCraft {
 
         public static void Init() {
             criteria.Clear();
-            /*
-            new Criterion( CriterionType.Automatic, RankList.ParseRank( "guest" ), RankList.ParseRank( "member" ), new ConditionOR( new Condition[]{
-                new ConditionAND( new Condition[]{
-                    new ConditionIntRange( ConditionField.TimesKicked, ComparisonOperation.eq, 0 ),
-                    new ConditionIntRange( ConditionField.TotalTime, ComparisonOperation.gte, 36000 ),
-                    new ConditionIntRange( ConditionField.TimeSinceFirstLogin, ComparisonOperation.gte, 604800 )
-                }),
-                new ConditionAND( new Condition[]{
-                    new ConditionIntRange( ConditionField.TimesKicked, ComparisonOperation.eq, 1 ),
-                    new ConditionIntRange( ConditionField.TotalTime, ComparisonOperation.gte, 54000 ),
-                    new ConditionIntRange( ConditionField.TimeSinceFirstLogin, ComparisonOperation.gte, 604800 )
-                }),
-                new ConditionAND( new Condition[]{
-                    new ConditionIntRange( ConditionField.TimesKicked, ComparisonOperation.eq, 2 ),
-                    new ConditionIntRange( ConditionField.TotalTime, ComparisonOperation.gte, 72000 ),
-                    new ConditionIntRange( ConditionField.TimeSinceFirstLogin, ComparisonOperation.gte, 604800 )
-                })
-            } ) ).Serialize().Save( "autorank_destoned.xml" );
-            */
-
 
             if( File.Exists( AutoRankFile ) ) {
                 try {
