@@ -242,7 +242,7 @@ namespace fCraft {
         }
 
         public override bool Eval( PlayerInfo info ) {
-            return (info.rankChangeType & Type) == Type;
+            return (info.rankChangeType == Type);
         }
 
         public override XElement Serialize() {
