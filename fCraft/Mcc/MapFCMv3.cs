@@ -94,7 +94,8 @@ namespace Mcc {
                     string oldValue = map.GetMeta( group, key );
 
                     if( oldValue != null && oldValue != newValue ) {
-                        Logger.Log( "MapFCMv3.Load: Duplicate metadata entry found for [{0}].[{1}]. Old value (overwritten): \"{2}\". New value: \"{3}\"", LogType.Warning,
+                        Logger.Log( "MapFCMv3.Load: Duplicate metadata entry found for [{0}].[{1}]. "+
+                                    "Old value (overwritten): \"{2}\". New value: \"{3}\"", LogType.Warning,
                                     group, key, map.GetMeta( group, key ), newValue );
                     }
                     if( group == "zones" ) {
@@ -128,8 +129,6 @@ namespace Mcc {
         }
 
         public bool Save( Map mapToSave, Stream mapStream ) {
-            Logger.Log( "Map saving is disabled in this release", LogType.Error );
-            return false;
             BinaryWriter writer = new BinaryWriter( mapStream );
 
             writer.Write( Identifier );
@@ -152,46 +151,34 @@ namespace Mcc {
 
             writer.Write( mapToSave.GUID.ToByteArray() );
 
-            // skip over the index (to be written later)
-            long indexOffset = writer.BaseStream.Position;
-            writer.BaseStream.Seek( 3127, SeekOrigin.Begin );
+            long indexOffset = mapStream.Position;
 
-            // write metadata
-            int metaCount = mapToSave.WriteMetadata( writer );
+            List<Map.DataLayer> layers = mapToSave.PrepareLayers();
+            writer.Write( (byte)layers.Count );
+            writer.Seek( 25 * layers.Count + 4, SeekOrigin.Current ); // skip over index and metacount
 
-            // write layers
-            int layerCount = 0;
-            int layerFlags = 0;
+            int metaCount;
+            using( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Compress ) ) {
+                // write metadata
+                metaCount = mapToSave.WriteMetadata( ds );
 
-
-            var layers = mapToSave.WriteLayers();
-
-            foreach( Map.DataLayer layer in layers.Values ) {
-                Map.DataLayer activeLayer = layer;
-                activeLayer.Offset = writer.BaseStream.Position;
-                activeLayer.CompressionType = Map.DataLayerCompressionType.Deflate;
-                writer.Write( (byte)activeLayer.Type );
-                writer.Write( (byte)activeLayer.CompressionType );
-                writer.Write( (int)0 );
-                writer.Write( (int)activeLayer.ElementSize );
-                writer.Write( (int)activeLayer.ElementCount );
-                using( DeflateStream ds = new DeflateStream( writer.BaseStream, CompressionMode.Compress, true ) ) {
-                    //ds.Write( activeLayer.Data, 0, activeLayer.Data.Length );
-                }
-                activeLayer.CompressedLength = (int)(writer.BaseStream.Position - activeLayer.Offset);
-                layerCount++;
-                if((byte)activeLayer.Type < 32){
-                    layerFlags |= (1<<(int)activeLayer.Type);
+                for( int i = 0; i < layers.Count; i++ ) {
+                    Map.DataLayer layer = layers[i];
+                    layer.Offset = mapStream.Position;
+                    mapToSave.WriteLayer( layer, ds );
+                    layer.CompressedLength = (int)(mapStream.Position - layer.Offset);
                 }
             }
 
             // come back to write the index
             writer.BaseStream.Seek( indexOffset, SeekOrigin.Begin );
-            writer.Write( layerCount );
-            writer.Write( layerFlags );
-            foreach( Map.DataLayer layer in layers.Values ) {
-                writer.Write( layer.Offset );
-                writer.Write( layer.CompressedLength );
+            for( int i = 0; i < layers.Count; i++ ) {
+                writer.Write( (byte)layers[i].Type );
+                writer.Write( (long)layers[i].Offset ); // written later
+                writer.Write( (int)layers[i].CompressedLength );  // written later
+                writer.Write( (int)layers[i].GeneralPurposeField );
+                writer.Write( (int)layers[i].ElementSize );  // -1 for PlayerIDs
+                writer.Write( (int)layers[i].ElementCount ); // to be written later for PlayerIDs
             }
             writer.Write( metaCount );
 

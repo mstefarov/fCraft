@@ -39,6 +39,72 @@ namespace fCraft {
         internal uint[] blockTimestamps;
 
 
+        // todo: layerLock object of some sort
+        internal List<Map.DataLayer> PrepareLayers() {
+            List<Map.DataLayer> layers = new List<DataLayer>();
+
+            byte[] blocksCache = blocks;
+            if( blocksCache != null ) {
+                layers.Add( new DataLayer {
+                    Type = DataLayerType.Blocks,
+                    Data = blocksCache,
+                    ElementSize = 1,
+                    ElementCount = blocksCache.Length
+                } );
+            }
+
+            byte[] blockUndoCache = blockUndo;
+            if( blockUndoCache != null ) {
+                layers.Add( new DataLayer {
+                    Type = DataLayerType.BlockUndo,
+                    Data = blockUndoCache,
+                    ElementSize = 1,
+                    ElementCount = blockUndoCache.Length
+                } );
+            }
+
+            ushort[] blockOwnershipCache = blockOwnership;
+            if( blockOwnershipCache != null ) {
+                layers.Add( new DataLayer {
+                    Type = DataLayerType.BlockOwnership,
+                    Data = blockOwnershipCache,
+                    ElementSize = 2,
+                    ElementCount = blockOwnershipCache.Length
+                } );
+            }
+
+            uint[] blockTimestampsCache = blockTimestamps;
+            if( blockTimestampsCache != null ) {
+                layers.Add( new DataLayer {
+                    Type = DataLayerType.BlockTimestamps,
+                    Data = blockTimestampsCache,
+                    ElementSize = 4,
+                    ElementCount = blockTimestampsCache.Length
+                } );
+            }
+
+            byte[] blockChangeFlagsCache = blockChangeFlags;
+            if( blockChangeFlagsCache != null ) {
+                layers.Add( new DataLayer {
+                    Type = DataLayerType.BlockChangeFlags,
+                    Data = blockChangeFlagsCache,
+                    ElementSize = 1,
+                    ElementCount = blockChangeFlagsCache.Length
+                } );
+            }
+
+            Dictionary<string, ushort> PlayerIDsCache = PlayerIDs;
+            if( PlayerIDsCache != null && PlayerNames != null ) {
+                layers.Add( new DataLayer {
+                    Type = DataLayerType.PlayerIDs,
+                    Data = PlayerIDsCache,
+                    ElementSize = -1, // variable
+                    ElementCount = PlayerIDsCache.Count
+                } );
+            }
+            return layers;
+        }
+
         internal void ReadLayer( DataLayer layer, Stream stream ) {
             switch( layer.Type ) {
                 case DataLayerType.Blocks:
@@ -91,30 +157,69 @@ namespace fCraft {
             }
         }
 
-        internal Dictionary<Map.DataLayerType, Map.DataLayer> WriteLayers() {
-            Dictionary<Map.DataLayerType, Map.DataLayer> layers = new Dictionary<Map.DataLayerType, Map.DataLayer>();
 
-            if( blocks != null ) {
-                layers.Add( Map.DataLayerType.Blocks, new Map.DataLayer {
-                    Type = Map.DataLayerType.Blocks,
-                    Data = blocks,
-                    ElementCount = blocks.Length,
-                    ElementSize = sizeof( byte )
-                } );
+        internal void WriteLayer( DataLayer layer, Stream stream ) {
+            using( BufferedStream bs = new BufferedStream( stream ) ) {
+                switch( layer.Type ) {
+                    case DataLayerType.Blocks:
+                    case DataLayerType.BlockUndo:
+                    case DataLayerType.BlockChangeFlags:
+                        stream.Write( (byte[])layer.Data, 0, layer.ElementCount );
+                        break;
+
+                    case DataLayerType.BlockOwnership: {
+                            BinaryWriter bw = new BinaryWriter( bs );
+                            ushort[] data = (ushort[])layer.Data;
+                            for( int i = 0; i < layer.ElementCount; i++ ) {
+                                bw.Write( data[i] );
+                            }
+                        }
+                        break;
+
+                    case DataLayerType.BlockTimestamps: {
+                            BinaryWriter bw = new BinaryWriter( bs );
+                            uint[] data = (uint[])layer.Data;
+                            for( int i = 0; i < layer.ElementCount; i++ ) {
+                                bw.Write( data[i] );
+                            }
+                        }
+                        break;
+
+                    case DataLayerType.PlayerIDs: {
+                            BinaryWriter bw = new BinaryWriter( bs );
+                            Dictionary<string, ushort> IDs = (Dictionary<string, ushort>)layer.Data;
+                            foreach( KeyValuePair<string, ushort> pair in IDs ) {//todo: thread safety
+                                bw.Write( pair.Value );
+                                MapFCMv3.WriteLengthPrefixedString( bw, pair.Key );
+                            }
+                        }
+                        break;
+
+                    default: {
+                            Type type = layer.GetType();
+                            if( type == typeof( byte[] ) ) {
+                                stream.Write( (byte[])layer.Data, 0, layer.ElementCount );
+                            } else if( type == typeof( ushort[] ) ) {
+                                BinaryWriter bw = new BinaryWriter( bs );
+                                ushort[] data = (ushort[])layer.Data;
+                                for( int i = 0; i < layer.ElementCount; i++ ) {
+                                    bw.Write( data[i] );
+                                }
+                            } else if( type == typeof( uint[] ) ) {
+                                BinaryWriter bw = new BinaryWriter( bs );
+                                uint[] data = (uint[])layer.Data;
+                                for( int i = 0; i < layer.ElementCount; i++ ) {
+                                    bw.Write( data[i] );
+                                }
+                            } else {
+                                Logger.Log( "Map.WriteLayer: Unknown layer type ({0})", LogType.Error,
+                                            layer.Type );
+                            }
+                        }
+                        break;
+                }
             }
-
-            if( blockUndo != null ) {
-                layers.Add( Map.DataLayerType.BlockUndo, new Map.DataLayer {
-                    Type = Map.DataLayerType.BlockUndo,
-                    Data = blockUndo,
-                    ElementCount = blockUndo.Length,
-                    ElementSize = sizeof( byte )
-                } );
-            }
-
-            return layers;
         }
-
 
 
         internal Map() { }
@@ -176,7 +281,8 @@ namespace fCraft {
         }
 
 
-        internal int WriteMetadata( BinaryWriter writer ) {
+        internal int WriteMetadata( Stream stream ) {
+            BinaryWriter writer = new BinaryWriter( stream );
             int metaCount = 0;
             lock( metaLock ) {
                 foreach( KeyValuePair<string, Dictionary<string, string>> group in metadata ) {
@@ -873,13 +979,11 @@ namespace fCraft {
 
         public struct DataLayer {
             public DataLayerType Type;         // see "DataLayerType" below
-            public DataLayerCompressionType CompressionType;   // see "DataLayerCompressionType" below
             public int GeneralPurposeField;   // 32 bits that can be used in implementation-specific ways
             public int ElementSize;           // size of each data element (if elements are variable-size, set this to 1)
             public int ElementCount;          // number of fixed-sized elements (if elements are variable-size, set this to total number of bytes)
             // uncompressed length = (element size * element count)
             public object Data;
-            public Type ElementType;
             public long Offset;
             public int CompressedLength;
         }
@@ -904,17 +1008,6 @@ namespace fCraft {
             // 32-255 custom
 
         } // 1 byte
-
-
-        public enum DataLayerCompressionType : byte {
-            None = 0,    // raw, uncompressed data - implementation OPTIONAL
-            Deflate = 1,    // deflate with no header - implementation OPTIONAL
-            DeflateGZip = 2,    // deflate with gzip header - implementation OPTIONAL
-            LZO = 3,    // LZO (Lempel–Ziv–Oberhumer) compression - implementation OPTIONAL, for use with custom DataLayerTypes only
-            LZMA = 4     // LZMA (7-Zip) compression - implementation OPTIONAL, for use with custom DataLayerTypes only
-            // 5-31 reserved
-            // 32-255 custom
-        }
 
         #endregion
     }
