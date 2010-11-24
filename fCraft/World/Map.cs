@@ -28,39 +28,92 @@ namespace fCraft {
         public Guid GUID;
 
         // data layers
-        public Dictionary<DataLayerType, DataLayer> layers;
         internal byte[] blocks;
         internal byte[] blockUndo;
+
+        Dictionary<string, ushort> PlayerIDs;
+        Dictionary<ushort, string> PlayerNames;
         internal ushort[] blockOwnership;
-        internal BlockChangeCause[] blockChangeCauses;
-        internal int[] blockTimestamps;
+
+        internal byte[] blockChangeFlags;
+        internal uint[] blockTimestamps;
 
 
         internal void ReadLayer( DataLayer layer, Stream stream ) {
             switch( layer.Type ) {
                 case DataLayerType.Blocks:
-                    layer.ElementType = typeof( byte );
                     blocks = new byte[layer.ElementCount];
                     stream.Read( blocks, 0, blocks.Length );
-                    layer.Data = blocks;
                     break;
 
                 case DataLayerType.BlockUndo:
-                    layer.ElementType = typeof( byte );
                     blockUndo = new byte[layer.ElementCount];
                     stream.Read( blockUndo, 0, blockUndo.Length );
-                    layer.Data = blockUndo;
                     break;
 
                 case DataLayerType.BlockOwnership:
-                    layer.ElementType = typeof( ushort );
                     blockOwnership = new ushort[layer.ElementCount];
-                    stream.Read( blockUndo, 0, blockUndo.Length );
+                    BinaryReader br1 = new BinaryReader( stream );
+                    for( int i = 0; i < layer.ElementCount; i++ ) {
+                        blockOwnership[i] = br1.ReadUInt16();
+                    }
+                    break;
+
+                case DataLayerType.BlockTimestamps:
+                    blockTimestamps = new uint[layer.ElementCount];
+                    BinaryReader br2 = new BinaryReader( stream );
+                    for( int i = 0; i < layer.ElementCount; i++ ) {
+                        blockTimestamps[i] = br2.ReadUInt32();
+                    }
+                    break;
+
+                case DataLayerType.BlockChangeFlags:
+                    blockChangeFlags = new byte[layer.ElementCount];
+                    stream.Read( blockChangeFlags, 0, blockChangeFlags.Length );
+                    break;
+
+                case DataLayerType.PlayerIDs:
+                    PlayerIDs = new Dictionary<string, ushort>();
+                    PlayerNames = new Dictionary<ushort, string>();
+                    BinaryReader br3 = new BinaryReader( stream );
+                    for( int i = 0; i < layer.ElementCount; i++ ) {
+                        ushort id = br3.ReadUInt16();
+                        string name = MapFCMv3.ReadLengthPrefixedString( br3 );
+                        PlayerIDs[name] = id;
+                        PlayerNames[id] = name;
+                    }
+                    break;
+
+                default:
+                    // skip
+                    stream.Seek( layer.CompressedLength, SeekOrigin.Current );
                     break;
             }
         }
 
+        internal Dictionary<Map.DataLayerType, Map.DataLayer> WriteLayers() {
+            Dictionary<Map.DataLayerType, Map.DataLayer> layers = new Dictionary<Map.DataLayerType, Map.DataLayer>();
 
+            if( blocks != null ) {
+                layers.Add( Map.DataLayerType.Blocks, new Map.DataLayer {
+                    Type = Map.DataLayerType.Blocks,
+                    Data = blocks,
+                    ElementCount = blocks.Length,
+                    ElementSize = sizeof( byte )
+                } );
+            }
+
+            if( blockUndo != null ) {
+                layers.Add( Map.DataLayerType.BlockUndo, new Map.DataLayer {
+                    Type = Map.DataLayerType.BlockUndo,
+                    Data = blockUndo,
+                    ElementCount = blockUndo.Length,
+                    ElementSize = sizeof( byte )
+                } );
+            }
+
+            return layers;
+        }
 
 
 
@@ -834,13 +887,23 @@ namespace fCraft {
 
         // type of block - allows storing multiple layers of information about blocks
         public enum DataLayerType : byte {
-            Blocks = 0,   // block types
-            BlockUndo = 1,   // previous block type (per-block)
-            BlockOwnership = 2,   // cause of previous change (per-block)
-            BlockDate = 3    // modification date/time (per-block)
+            Blocks = 0, // Block types (El.Size=1)
+
+            BlockUndo = 1, // Previous block type (per-block) (El.Size=1)
+
+            BlockOwnership = 2, // IDs of block changers (per-block) (El.Size=2)
+
+            BlockTimestamps = 3, // Modification date/time (per-block) (El.Size=4)
+
+            BlockChangeFlags = 4, // Type of action that resulted in the block change
+            // See BlockChangeCause flags (El.Size=1)
+
+            PlayerIDs = 5  // mapping of player names to ID numbers (El.Size=2)
+
             // 4-31 reserved
             // 32-255 custom
-        }
+
+        } // 1 byte
 
 
         public enum DataLayerCompressionType : byte {

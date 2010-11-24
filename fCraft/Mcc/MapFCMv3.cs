@@ -9,7 +9,7 @@ using fCraft;
 namespace Mcc {
     class MapFCMv3 : IMapConverter {
         public const int Identifier = 0x0FC2AF40;
-        public const byte Revision = 9;
+        public const byte Revision = 12;
 
         public bool ClaimsFileName( string fileName ) {
             return fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase );
@@ -63,21 +63,20 @@ namespace Mcc {
             // read UUID
             map.GUID = new Guid( reader.ReadBytes( 16 ) );
 
-
             // read data layer index
             int layerCount = reader.ReadByte();
-            reader.ReadUInt32(); // DataLayerFlags
-            map.layers = new Dictionary<Map.DataLayerType, Map.DataLayer>();
-            for( int i = 0; i < 256; i++ ) {
-                long offset = reader.ReadInt64();
-                if( offset != 0 ) {
-                    Map.DataLayer layer = new Map.DataLayer();
-                    layer.Type = (Map.DataLayerType)i;
-                    layer.Offset = offset;
-                    layer.CompressedLength = reader.ReadInt32();
-                } else {
-                    reader.ReadUInt32(); // skip CompressedLength
-                }
+
+            // read the index
+            List<Map.DataLayer> layers = new List<Map.DataLayer>();
+            for( int i = 0; i < layerCount; i++ ) {
+                Map.DataLayer layer = new Map.DataLayer();
+                layer.Type = (Map.DataLayerType)reader.ReadByte();
+                layer.Offset = reader.ReadInt64();
+                layer.CompressedLength = reader.ReadInt32();
+                layer.GeneralPurposeField = reader.ReadInt32();
+                layer.ElementSize = reader.ReadInt32();
+                layer.ElementCount = reader.ReadInt32();
+                layers.Add( layer );
             }
 
 
@@ -85,65 +84,34 @@ namespace Mcc {
             Dictionary<string, Dictionary<string, string>> metadata = new Dictionary<string, Dictionary<string, string>>();
             int metaSize = reader.ReadInt32();
 
-            for( int i = 0; i < metaSize; i++ ) {
-                string group = ReadLengthPrefixedString( reader ).ToLowerInvariant();
-                string key = ReadLengthPrefixedString( reader ).ToLowerInvariant();
-                string value = ReadLengthPrefixedString( reader );
+            using( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Decompress ) ) {
+                BinaryReader br = new BinaryReader( ds );
+                for( int i = 0; i < metaSize; i++ ) {
+                    string group = ReadLengthPrefixedString( br ).ToLowerInvariant();
+                    string key = ReadLengthPrefixedString( br ).ToLowerInvariant();
+                    string newValue = ReadLengthPrefixedString( br );
 
-                if( map.GetMeta( group, key ) != null ) {
-                    Logger.Log( "MapFCMv3.Load: Duplicate metadata entry found for [{0}].[{1}]. Old value (overwritten): \"{2}\". New value: \"{3}\"", LogType.Warning,
-                                group, key, map.GetMeta( group, key ), value );
-                }
-                if( group == "zones" ) {
-                    try {
-                        map.AddZone( new Zone( value, map.world ) );
-                    } catch( Exception ex ) {
-                        Logger.Log( "MapFCMv3.Load: Error importing zone definition: {0}", LogType.Error, ex );
+                    string oldValue = map.GetMeta( group, key );
+
+                    if( oldValue != null && oldValue != newValue ) {
+                        Logger.Log( "MapFCMv3.Load: Duplicate metadata entry found for [{0}].[{1}]. Old value (overwritten): \"{2}\". New value: \"{3}\"", LogType.Warning,
+                                    group, key, map.GetMeta( group, key ), newValue );
                     }
-                } else {
-                    map.SetMeta( group, key, value );
-                }
-            }
-
-
-            // read data layers
-            foreach( Map.DataLayer layer in map.layers.Values ) {
-                Map.DataLayer activeLayer = layer; // reference copied to avoid compiler 'foreach iteration variable' complaints
-                reader.BaseStream.Seek( activeLayer.Offset, SeekOrigin.Begin );
-                reader.ReadByte(); // skip DataLayerType
-                activeLayer.CompressionType = (Map.DataLayerCompressionType)reader.ReadByte();
-                activeLayer.GeneralPurposeField = reader.ReadInt32();
-                activeLayer.ElementSize = reader.ReadInt32();
-                activeLayer.ElementCount = reader.ReadInt32();
-
-                switch( activeLayer.CompressionType ) {
-                    case Map.DataLayerCompressionType.Deflate:
-                    case Map.DataLayerCompressionType.DeflateGZip:
-                        activeLayer.Data = new byte[activeLayer.ElementCount * activeLayer.ElementSize];
-                        using( ZLibStream zs = ZLibStream.MakeDecompressor( reader.BaseStream, ZLibStream.BufferSize, true ) ) {
-                            //zs.Read( activeLayer.Data, 0, activeLayer.Data.Length );
+                    if( group == "zones" ) {
+                        try {
+                            map.AddZone( new Zone( newValue, map.world ) );
+                        } catch( Exception ex ) {
+                            Logger.Log( "MapFCMv3.Load: Error importing zone definition: {0}", LogType.Error, ex );
                         }
-                        break;
-                    case Map.DataLayerCompressionType.None:
-                        activeLayer.Data = new byte[activeLayer.ElementCount * activeLayer.ElementSize];
-                        //reader.Read( activeLayer.Data, 0, activeLayer.Data.Length );
-                        break;
-                    default:
-                        Logger.Log( "MapFCMv3.Load: Skipping data layer #{0} due to unsupported compression method ({1}).", LogType.Error,
-                                    activeLayer.Type, activeLayer.CompressionType );
-                        continue;
+                    } else {
+                        map.SetMeta( group, key, newValue );
+                    }
                 }
 
-                switch( activeLayer.Type ) {
-                    case Map.DataLayerType.Blocks:
-                        //map.blocks = activeLayer.Data;
-                        break;
-                    case Map.DataLayerType.BlockUndo:
-                        //map.blockUndo = activeLayer.Data;
-                        break;
+                for( int i = 0; i < layerCount; i++ ) {
+                    map.ReadLayer( layers[i], ds );
                 }
             }
-
             return map;
         }
 
@@ -160,6 +128,8 @@ namespace Mcc {
         }
 
         public bool Save( Map mapToSave, Stream mapStream ) {
+            Logger.Log( "Map saving is disabled in this release", LogType.Error );
+            return false;
             BinaryWriter writer = new BinaryWriter( mapStream );
 
             writer.Write( Identifier );
@@ -192,8 +162,11 @@ namespace Mcc {
             // write layers
             int layerCount = 0;
             int layerFlags = 0;
-            return false;
-            foreach( Map.DataLayer layer in mapToSave.layers.Values ) {
+
+
+            var layers = mapToSave.WriteLayers();
+
+            foreach( Map.DataLayer layer in layers.Values ) {
                 Map.DataLayer activeLayer = layer;
                 activeLayer.Offset = writer.BaseStream.Position;
                 activeLayer.CompressionType = Map.DataLayerCompressionType.Deflate;
@@ -216,7 +189,7 @@ namespace Mcc {
             writer.BaseStream.Seek( indexOffset, SeekOrigin.Begin );
             writer.Write( layerCount );
             writer.Write( layerFlags );
-            foreach( Map.DataLayer layer in mapToSave.layers.Values ) {
+            foreach( Map.DataLayer layer in layers.Values ) {
                 writer.Write( layer.Offset );
                 writer.Write( layer.CompressedLength );
             }
