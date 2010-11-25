@@ -163,6 +163,11 @@ namespace fCraft {
         const string RootTagName = "fCraftMapGeneratorArgs";
         public void Save( string fileName ) {
             XDocument document = new XDocument();
+            document.Add( Serialize() );
+            document.Save( fileName );
+        }
+
+        public XElement Serialize() {
             XElement root = new XElement( RootTagName );
 
             root.Add( new XAttribute( "version", FormatVersion ) );
@@ -224,8 +229,8 @@ namespace fCraft {
 
             root.Add( new XElement( "maxHeightVariation", maxHeightVariation ) );
             root.Add( new XElement( "maxDepthVariation", maxDepthVariation ) );
-            document.Add( root );
-            document.Save( fileName );
+
+            return root;
         }
     }
 }

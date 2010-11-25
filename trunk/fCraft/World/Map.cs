@@ -23,9 +23,9 @@ namespace fCraft {
         public short[,] shadows;
 
         // FCMv3 additions
-        public DateTime DateModified;
-        public DateTime DateCreated;
-        public Guid GUID;
+        public DateTime DateModified = DateTime.UtcNow;
+        public DateTime DateCreated = DateTime.UtcNow;
+        public Guid GUID = Guid.NewGuid();
 
         // data layers
         internal byte[] blocks;
@@ -159,7 +159,6 @@ namespace fCraft {
 
 
         internal void WriteLayer( DataLayer layer, Stream stream ) {
-            using( BufferedStream bs = new BufferedStream( stream ) ) {
                 switch( layer.Type ) {
                     case DataLayerType.Blocks:
                     case DataLayerType.BlockUndo:
@@ -168,7 +167,7 @@ namespace fCraft {
                         break;
 
                     case DataLayerType.BlockOwnership: {
-                            BinaryWriter bw = new BinaryWriter( bs );
+                            BinaryWriter bw = new BinaryWriter( stream );
                             ushort[] data = (ushort[])layer.Data;
                             for( int i = 0; i < layer.ElementCount; i++ ) {
                                 bw.Write( data[i] );
@@ -177,7 +176,7 @@ namespace fCraft {
                         break;
 
                     case DataLayerType.BlockTimestamps: {
-                            BinaryWriter bw = new BinaryWriter( bs );
+                            BinaryWriter bw = new BinaryWriter( stream );
                             uint[] data = (uint[])layer.Data;
                             for( int i = 0; i < layer.ElementCount; i++ ) {
                                 bw.Write( data[i] );
@@ -186,7 +185,7 @@ namespace fCraft {
                         break;
 
                     case DataLayerType.PlayerIDs: {
-                            BinaryWriter bw = new BinaryWriter( bs );
+                            BinaryWriter bw = new BinaryWriter( stream );
                             Dictionary<string, ushort> IDs = (Dictionary<string, ushort>)layer.Data;
                             foreach( KeyValuePair<string, ushort> pair in IDs ) {//todo: thread safety
                                 bw.Write( pair.Value );
@@ -200,13 +199,13 @@ namespace fCraft {
                             if( type == typeof( byte[] ) ) {
                                 stream.Write( (byte[])layer.Data, 0, layer.ElementCount );
                             } else if( type == typeof( ushort[] ) ) {
-                                BinaryWriter bw = new BinaryWriter( bs );
+                                BinaryWriter bw = new BinaryWriter( stream );
                                 ushort[] data = (ushort[])layer.Data;
                                 for( int i = 0; i < layer.ElementCount; i++ ) {
                                     bw.Write( data[i] );
                                 }
                             } else if( type == typeof( uint[] ) ) {
-                                BinaryWriter bw = new BinaryWriter( bs );
+                                BinaryWriter bw = new BinaryWriter( stream );
                                 uint[] data = (uint[])layer.Data;
                                 for( int i = 0; i < layer.ElementCount; i++ ) {
                                     bw.Write( data[i] );
@@ -218,7 +217,6 @@ namespace fCraft {
                         }
                         break;
                 }
-            }
         }
 
 

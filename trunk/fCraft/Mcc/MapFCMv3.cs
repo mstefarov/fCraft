@@ -9,7 +9,7 @@ using fCraft;
 namespace Mcc {
     class MapFCMv3 : IMapConverter {
         public const int Identifier = 0x0FC2AF40;
-        public const byte Revision = 12;
+        public const byte Revision = 13;
 
         public bool ClaimsFileName( string fileName ) {
             return fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase );
@@ -27,19 +27,18 @@ namespace Mcc {
 
         static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1 );
 
-        public static long DateTimeToTimestamp( DateTime timestamp ) {
-            return (long)(timestamp - UnixEpoch).TotalSeconds;
+        public static uint DateTimeToTimestamp( DateTime timestamp ) {
+            return (uint)(timestamp - UnixEpoch).TotalSeconds;
         }
 
-        public static DateTime TimestampToDateTime( long timestamp ) {
+        public static DateTime TimestampToDateTime( uint timestamp ) {
             return UnixEpoch.AddSeconds( timestamp );
         }
 
 
         public Map Load( Stream mapStream, string fileName ) {
             BinaryReader reader = new BinaryReader( mapStream );
-            if( (reader.ReadInt32() != Identifier) ||
-                (reader.ReadByte() == Revision) ) {
+            if( reader.ReadInt32() != Identifier || reader.ReadByte() != Revision ) {
                 throw new FormatException();
             }
 
@@ -57,8 +56,8 @@ namespace Mcc {
             map.spawn.l = reader.ReadByte();
 
             // read modification/creation times
-            map.DateModified = TimestampToDateTime( reader.ReadInt64() );
-            map.DateCreated = TimestampToDateTime( reader.ReadInt64() );
+            map.DateModified = TimestampToDateTime( reader.ReadUInt32() );
+            map.DateCreated = TimestampToDateTime( reader.ReadUInt32() );
 
             // read UUID
             map.GUID = new Guid( reader.ReadBytes( 16 ) );
@@ -151,22 +150,27 @@ namespace Mcc {
 
             writer.Write( mapToSave.GUID.ToByteArray() );
 
-            long indexOffset = mapStream.Position;
-
             List<Map.DataLayer> layers = mapToSave.PrepareLayers();
             writer.Write( (byte)layers.Count );
-            writer.Seek( 25 * layers.Count + 4, SeekOrigin.Current ); // skip over index and metacount
+
+            // skip over index and metacount
+            long indexOffset = mapStream.Position;
+            writer.Seek( 25 * layers.Count + 4, SeekOrigin.Current );
 
             int metaCount;
-            using( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Compress ) ) {
-                // write metadata
-                metaCount = mapToSave.WriteMetadata( ds );
+            using( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Compress, true ) ) {
+                using( BufferedStream bs = new BufferedStream( ds ) ) {
+                    // write metadata
+                    metaCount = mapToSave.WriteMetadata( ds );
 
-                for( int i = 0; i < layers.Count; i++ ) {
-                    Map.DataLayer layer = layers[i];
-                    layer.Offset = mapStream.Position;
-                    mapToSave.WriteLayer( layer, ds );
-                    layer.CompressedLength = (int)(mapStream.Position - layer.Offset);
+                    for( int i = 0; i < layers.Count; i++ ) {
+                        Map.DataLayer layer = layers[i];
+                        layer.Offset = mapStream.Position;
+                        mapToSave.WriteLayer( layer, bs );
+                        bs.Flush();
+                        ds.Flush();
+                        layer.CompressedLength = (int)(mapStream.Position - layer.Offset);
+                    }
                 }
             }
 
@@ -187,8 +191,9 @@ namespace Mcc {
 
         public bool Claims( Stream mapStream, string fileName ) {
             BinaryReader reader = new BinaryReader( mapStream );
-            return ((reader.ReadInt32() == Identifier) &&
-                    (reader.ReadByte() == Revision));
+            int id = reader.ReadInt32();
+            int rev = reader.ReadByte();
+            return (id == Identifier && rev == Revision);
         }
 
 

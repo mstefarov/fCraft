@@ -63,6 +63,7 @@ namespace Mcc {
             foreach ( IMapConverter Converter in AvailableConverters.Values ) {
                 if( Converter.Claims( mapStream, fileName ) )
                     return Converter.Format;
+                mapStream.Seek( 0, SeekOrigin.Begin );
             }
             return MapFormat.Unknown;
         }
@@ -71,19 +72,23 @@ namespace Mcc {
 
         public static Map TryLoading( string fileName ) {
             if( File.Exists( fileName ) ) {
-                using( Stream MapStream = File.OpenRead( fileName ) ) {
+                using( Stream mapStream = File.OpenRead( fileName ) ) {
                     string shortFileName = new FileInfo( fileName ).Name;
                     // first try all converters for the file extension
                     foreach( IMapConverter Converter in AvailableConverters.Values ) {
-                        if( Converter.ClaimsFileName(shortFileName) && Converter.Claims( MapStream, fileName ) ) {
-                            return Converter.Load( MapStream, fileName );
+                        if( Converter.ClaimsFileName( shortFileName ) && Converter.Claims( mapStream, fileName ) ) {
+                            mapStream.Seek( 0, SeekOrigin.Begin );
+                            return Converter.Load( mapStream, fileName );
                         }
+                        mapStream.Seek( 0, SeekOrigin.Begin );
                     }
                     // then try the rest
                     foreach( IMapConverter Converter in AvailableConverters.Values ) {
-                        if( !Converter.ClaimsFileName( shortFileName ) && Converter.Claims( MapStream, fileName ) ) {
-                            return Converter.Load( MapStream, fileName );
+                        if( !Converter.ClaimsFileName( shortFileName ) && Converter.Claims( mapStream, fileName ) ) {
+                            mapStream.Seek( 0, SeekOrigin.Begin );
+                            return Converter.Load( mapStream, fileName );
                         }
+                        mapStream.Seek( 0, SeekOrigin.Begin );
                     }
                 }
                 // if all else fails
