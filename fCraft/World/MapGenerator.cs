@@ -471,6 +471,10 @@ namespace fCraft {
 
             ReportProgress( 0, "Generation complete" );
             map.ResetSpawn();
+
+            map.SetMeta( "_Origin", "GeneratorName", "fCraft" );
+            map.SetMeta( "_Origin", "GeneratorVersion", Updater.GetVersionString() );
+            map.SetMeta( "_Origin", "GeneratorParams", args.Serialize().ToString( System.Xml.Linq.SaveOptions.DisableFormatting ) );
             return map;
         }
 

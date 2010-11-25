@@ -54,7 +54,6 @@ namespace Mcc {
 
 
         public Map Load( Stream mapStream, string fileName ) {
-            mapStream.Seek( 0, SeekOrigin.Begin );
             GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
             NBTag tag = NBTag.ReadStream( gs );
 
@@ -88,7 +87,6 @@ namespace Mcc {
 
         public bool Claims( Stream mapStream, string fileName ) {
             try {
-                mapStream.Seek( 0, SeekOrigin.Begin );
                 GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
                 BinaryReader bs = new BinaryReader( gs );
                 return (bs.ReadByte() == 10 && NBTag.ReadString( bs ) == "MinecraftLevel");
