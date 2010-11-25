@@ -96,8 +96,6 @@ namespace fCraft {
 
             if( OnInit != null ) OnInit();
 
-            ZLibStream.Init();
-
             if( Config.GetBool( ConfigKey.AutoRankEnabled ) ) {
                 AutoRank.Init();
             }

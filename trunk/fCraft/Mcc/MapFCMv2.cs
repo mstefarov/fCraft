@@ -107,7 +107,7 @@ namespace Mcc {
 
             // Read in the map data
             map.blocks = new Byte[map.GetBlockCount()];
-            using( ZLibStream decompressor = ZLibStream.MakeDecompressor( mapStream, ZLibStream.BufferSize ) ) {
+            using( GZipStream decompressor = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
                 decompressor.Read( map.blocks, 0, map.blocks.Length );
             }
 
