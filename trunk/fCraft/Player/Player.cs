@@ -25,6 +25,10 @@ namespace fCraft {
         public Command commandToConfirm;
         public DateTime commandToConfirmDate;
 
+        [CLSCompliant(false)]
+        public ushort localPlayerID; // map-specific PlayerID
+                                     // if no ID is assigned, set to ReservedPlayerID.None (0)
+
 
         // This constructor is used to create dummy players (such as Console and /dummy)
         // It will soon be replaced by a generic Entity class

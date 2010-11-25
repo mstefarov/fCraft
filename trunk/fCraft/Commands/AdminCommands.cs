@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace fCraft {
-    class AdminCommands {
+    static class AdminCommands {
 
         internal static void Init() {
             string banCommonHelp = "Ban information can be viewed with &H/baninfo";

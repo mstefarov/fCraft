@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Resources;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -34,3 +36,6 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion( "0.4.9.5" )]
 [assembly: AssemblyFileVersion( "0.4.9.5" )]
+
+[assembly: CLSCompliantAttribute(true)]
+[assembly: NeutralResourcesLanguage("en-US")]

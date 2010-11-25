@@ -107,7 +107,7 @@ namespace fCraft {
             permissions = new Permission[] { Permission.Draw },
             usage = "/cuboidh [OuterBlockName [InnerBlockName]]",
             help = "Allows to box a rectangular area (cuboid) with blocks. " +
-                   "If OuterBlockName is omitted, uses the block that player is holding. "+
+                   "If OuterBlockName is omitted, uses the block that player is holding. " +
                    "Unless InnerBlockName is specified, the inside is left untouched.",
             handler = CuboidHollow
         };
@@ -123,7 +123,7 @@ namespace fCraft {
             aliases = new string[] { "cw", "cuboidw", "bfb" },
             permissions = new Permission[] { Permission.Draw },
             usage = "/cuboidw [BlockName]",
-            help = "Draws a wireframe box around selected area. "+
+            help = "Draws a wireframe box around selected area. " +
                    "If BlockType is omitted, uses the block that player is holding.",
             handler = CuboidWireframe
         };
@@ -307,7 +307,7 @@ namespace fCraft {
         #region Undo / Redo
         static CommandDescriptor cdUndo = new CommandDescriptor {
             name = "undo",
-            permissions = new Permission[]{ Permission.Draw},
+            permissions = new Permission[] { Permission.Draw },
             aliases = new string[] { "redo" },
             help = "Selectively removes changes from your last drawing command. " +
                    "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
@@ -429,7 +429,7 @@ namespace fCraft {
             player.MessageNow( "Replacing {0} blocks... The map is now being updated.", blocks );
 
             string affectedString = "";
-            for( int i=0; i<specialTypeCount; i++){
+            for( int i = 0; i < specialTypeCount; i++ ) {
                 affectedString += ", " + ((Block)specialTypes[i]).ToString();
             }
             player.info.ProcessDrawCommand( blocks );
@@ -665,7 +665,7 @@ namespace fCraft {
             double ch = (eh + sh) / 2d;
 
 
-            int volume = (int)(4/3d * Math.PI * rx * ry * rh);
+            int volume = (int)(4 / 3d * Math.PI * rx * ry * rh);
             if( !player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                    player.info.rank.DrawLimit,

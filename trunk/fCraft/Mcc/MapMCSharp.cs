@@ -91,6 +91,10 @@ namespace Mcc {
             map.widthY = bs.ReadInt16();
             map.height = bs.ReadInt16();
 
+            if( !map.ValidateHeader() ) {
+                throw new MapFormatException( "MapFCMv3.Load: One or more of the map dimensions are invalid." );
+            }
+
             // Read in the spawn location
             map.spawn.x = (short)(bs.ReadInt16() * 32);
             map.spawn.h = (short)(bs.ReadInt16() * 32);
@@ -103,10 +107,6 @@ namespace Mcc {
             // Skip over the VisitPermission and BuildPermission bytes
             bs.ReadByte();
             bs.ReadByte();
-
-            if( !map.ValidateHeader() ) {
-                throw new Exception( "One or more of the map dimensions are invalid." );
-            }
 
             // Read in the map data
             map.blocks = bs.ReadBytes( map.GetBlockCount() );

@@ -55,8 +55,8 @@ namespace Mcc {
             get { return "Vanilla"; }
         }
 
-                static byte[] mapping = new byte[256];
-                static MapDAT() {
+        static byte[] mapping = new byte[256];
+        static MapDAT() {
             mapping[50] = (byte)Block.Air;      // torch
             mapping[51] = (byte)Block.Lava;     // fire
             mapping[52] = (byte)Block.Glass;    // spawner
@@ -107,6 +107,7 @@ namespace Mcc {
             Map map = new Map();
             byte[] data;
             int length;
+
             try {
                 mapStream.Seek( -4, SeekOrigin.End );
                 mapStream.Read( temp, 0, sizeof( int ) );
@@ -166,6 +167,10 @@ namespace Mcc {
                             pointer += skip;
                         }
 
+                        if( !map.ValidateHeader() ) {
+                            throw new MapFormatException( "MapDAT.Load: One or more of the map dimensions are invalid." );
+                        }
+
                         // find the start of the block array
                         bool foundBlockArray = false;
                         offset = Array.IndexOf<byte>( data, 0x00, headerEnd );
@@ -186,7 +191,7 @@ namespace Mcc {
                                 }
                             }
                         } else {
-                            throw new Exception( "Could not locate block array." );
+                            throw new MapFormatException( "Could not locate block array." );
                         }
                         break;
                     }

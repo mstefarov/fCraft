@@ -42,6 +42,11 @@ using fCraft;
 
 namespace Mcc {
 
+    public sealed class MapFormatException : Exception {
+        public MapFormatException() : base() { }
+        public MapFormatException( string message ) : base( message ) { }
+    }
+
     public static class MapUtility {
 
         static Dictionary<MapFormat, IMapConverter> AvailableConverters = new Dictionary<MapFormat, IMapConverter>();
@@ -60,7 +65,7 @@ namespace Mcc {
 
 
         public static MapFormat Identify( Stream mapStream, string fileName ) {
-            foreach ( IMapConverter Converter in AvailableConverters.Values ) {
+            foreach( IMapConverter Converter in AvailableConverters.Values ) {
                 if( Converter.Claims( mapStream, fileName ) )
                     return Converter.Format;
                 mapStream.Seek( 0, SeekOrigin.Begin );
@@ -92,7 +97,7 @@ namespace Mcc {
                     }
                 }
                 // if all else fails
-                throw new FormatException();
+                throw new MapFormatException( "Unknown map format for loading." );
 
             } else if( Directory.Exists( fileName ) ) {
                 return AvailableConverters[MapFormat.Myne].Load( null, fileName );
@@ -104,10 +109,10 @@ namespace Mcc {
 
 
         public static bool TrySaving( Map mapToSave, Stream mapStream, MapFormat format ) {
-            if ( AvailableConverters.ContainsKey( format ) ) {
+            if( AvailableConverters.ContainsKey( format ) ) {
                 return AvailableConverters[format].Save( mapToSave, mapStream );
             }
-            throw new FormatException();
+            throw new MapFormatException( "Unknown map format for saving." );
         }
     }
 }

@@ -324,8 +324,8 @@ namespace fCraft {
                 foreach( XElement rankPair in legacyRankMappingTag.Elements( "LegacyRankPair" ) ) {
                     XAttribute fromClassID = rankPair.Attribute( "from" );
                     XAttribute toClassID = rankPair.Attribute( "to" );
-                    if( fromClassID == null || fromClassID.Value == null || fromClassID.Value == "" ||
-                        toClassID == null || toClassID.Value == null || toClassID.Value == "" ) {
+                    if( fromClassID == null || String.IsNullOrEmpty(fromClassID.Value) ||
+                        toClassID == null || String.IsNullOrEmpty(toClassID.Value) ) {
                         Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
                     } else {
                         RankList.LegacyRankMapping.Add( fromClassID.Value, toClassID.Value );
@@ -696,7 +696,7 @@ namespace fCraft {
             Color.Warning = Color.Parse( settings[ConfigKey.WarningColor] );
 
             // default class
-            if( settings[ConfigKey.DefaultRank] != "" ) {
+            if( !String.IsNullOrEmpty(settings[ConfigKey.DefaultRank]) ) {
                 if( RankList.ParseRank( settings[ConfigKey.DefaultRank] ) != null ) {
                     RankList.DefaultRank = RankList.ParseRank( settings[ConfigKey.DefaultRank] );
                 } else {

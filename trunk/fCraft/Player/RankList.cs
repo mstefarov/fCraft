@@ -70,7 +70,7 @@ namespace fCraft {
                         // avoid infinite loops due to recursive definitions
                         tries++;
                         if( tries > 100 ) {
-                            throw new Exception( "Recursive legacy rank definition" );
+                            throw new FormatException( "Recursive legacy rank definition" );
                         }
                     }
                     // try to fall back to name-only

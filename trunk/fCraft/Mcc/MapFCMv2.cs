@@ -41,6 +41,7 @@ using fCraft;
 
 namespace Mcc {
     public sealed class MapFCMv2 : IMapConverter {
+        [CLSCompliant( false )]
         public const uint Identifier = 0xfc000002;
 
         public bool ClaimsFileName( string fileName ) {
@@ -90,7 +91,7 @@ namespace Mcc {
             for( int i = 0; i < metaSize; i++ ) {
                 string key = ReadLengthPrefixedString( reader );
                 string value = ReadLengthPrefixedString( reader );
-                if( key.StartsWith( "@zone" ) ) {
+                if( key.StartsWith( "@zone", StringComparison.OrdinalIgnoreCase ) ) {
                     try {
                         map.AddZone( new Zone( value, map.world ) );
                     } catch( Exception ex ) {
@@ -102,7 +103,7 @@ namespace Mcc {
             }
 
             if( !map.ValidateHeader() ) {
-                throw new Exception( "One or more of the map dimensions are invalid." );
+                throw new MapFormatException( "MapFCMv2.Load: One or more of the map dimensions are invalid." );
             }
 
             // Read in the map data
@@ -122,15 +123,8 @@ namespace Mcc {
         }
 
 
-        static void WriteLengthPrefixedString( BinaryWriter writer, string s ) {
-            byte[] stringData = ASCIIEncoding.ASCII.GetBytes( s );
-            writer.Write( stringData.Length );
-            writer.Write( stringData );
-        }
-
-
         public bool Save( Map mapToSave, Stream mapStream ) {
-            return false;
+            throw new NotImplementedException();
         }
 
 

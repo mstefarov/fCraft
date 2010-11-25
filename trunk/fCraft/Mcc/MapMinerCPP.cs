@@ -78,6 +78,10 @@ namespace Mcc {
                 map.height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
                 map.widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
 
+                if( !map.ValidateHeader() ) {
+                    throw new MapFormatException( "MapFCMv3.Load: One or more of the map dimensions are invalid." );
+                }
+
                 // Read in the spawn location
                 // XYZ(?)
                 map.spawn.x = IPAddress.NetworkToHostOrder( bs.ReadInt16() );

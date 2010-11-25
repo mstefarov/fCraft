@@ -680,7 +680,7 @@ namespace fCraft {
         // Send a message to everyone (except a specified player)
         // Wraps String.Format() for easy formatting
         public static void SendToAllExcept( string message, Player except, params object[] args ) {
-            if(args.Length>0) message = String.Format( message, args );
+            if( args.Length > 0 ) message = String.Format( message, args );
             if( except != Player.Console ) Logger.LogConsole( message );
             foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
                 SendToAll( p, except );
@@ -1174,7 +1174,7 @@ namespace fCraft {
         // Remove player from the list, and notify remaining players
         public static void UnregisterPlayer( Player player ) {
             if( player == null ) {
-                throw new ArgumentNullException( "Server.UnregisterPlayer: player cannot be null." );
+                throw new ArgumentNullException( "player", "Server.UnregisterPlayer: player cannot be null." );
             }
 
             lock( worldListLock ) {

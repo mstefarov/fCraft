@@ -48,6 +48,10 @@ namespace Mcc {
             map.height = reader.ReadInt16();
             map.widthY = reader.ReadInt16();
 
+            if( !map.ValidateHeader() ) {
+                throw new MapFormatException( "MapFCMv3.Load: One or more of the map dimensions are invalid." );
+            }
+
             // read spawn
             map.spawn.x = (short)reader.ReadInt32();
             map.spawn.h = (short)reader.ReadInt32();
@@ -80,7 +84,6 @@ namespace Mcc {
 
 
             // read metadata
-            Dictionary<string, Dictionary<string, string>> metadata = new Dictionary<string, Dictionary<string, string>>();
             int metaSize = reader.ReadInt32();
 
             using( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Decompress ) ) {
@@ -166,7 +169,7 @@ namespace Mcc {
                     for( int i = 0; i < layers.Count; i++ ) {
                         Map.DataLayer layer = layers[i];
                         layer.Offset = mapStream.Position;
-                        mapToSave.WriteLayer( layer, bs );
+                        Map.WriteLayer( layer, bs );
                         bs.Flush();
                         ds.Flush();
                         layer.CompressedLength = (int)(mapStream.Position - layer.Offset);
