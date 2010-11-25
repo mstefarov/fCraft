@@ -52,8 +52,6 @@ namespace ConfigTool {
 
             Config.logToString = true;
 
-            ZLibStream.Init();
-
             PopulateIRCNetworkList( false );
 
             Load += LoadConfig;

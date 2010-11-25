@@ -52,6 +52,7 @@ namespace fCraft {
         public string lastKickBy = "";
         public string lastKickReason = "";
 
+        // TODO: start tracking
         public DateTime bannedUntil;
         public bool loggedOutFrozen;
         public string frozenBy = "";
