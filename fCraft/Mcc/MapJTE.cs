@@ -99,6 +99,10 @@ namespace Mcc {
             map.spawn.h = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
             map.spawn.y = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
 
+            if( !map.ValidateHeader() ) {
+                throw new MapFormatException( "MapFCMv3.Load: One or more of the map dimensions are invalid." );
+            }
+
             // Read in the spawn orientation
             map.spawn.r = bs.ReadByte();
             map.spawn.l = bs.ReadByte();
@@ -107,10 +111,6 @@ namespace Mcc {
             map.widthX = IPAddress.NetworkToHostOrder(bs.ReadInt16());
             map.widthY = IPAddress.NetworkToHostOrder(bs.ReadInt16());
             map.height = IPAddress.NetworkToHostOrder(bs.ReadInt16());
-
-            if( !map.ValidateHeader() ) {
-                throw new Exception( "One or more of the map dimensions are invalid." );
-            }
 
             // Read in the map data
             map.blocks = bs.ReadBytes( map.GetBlockCount() );

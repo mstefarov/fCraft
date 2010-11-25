@@ -521,7 +521,7 @@ namespace fCraft {
             }
 
             // Promotion/demotion
-            if( info.rankChangedBy != "" ) {
+            if( !String.IsNullOrEmpty( info.rankChangedBy ) ) {
                 if( info.previousRank == null ) {
                     player.Message( "  Promoted to {0}&S by {1} on {2:d MMM yyyy}.",
                                     info.rank.GetClassyName(),
@@ -591,7 +591,7 @@ namespace fCraft {
                                     info.address,
                                     info.bannedBy,
                                     info.banDate );
-                    if( info.playerName != null ) {
+                    if( !String.IsNullOrEmpty( info.playerName ) ) {
                         player.Message( "  IP ban was banned by association with {0}",
                                         info.playerName );
                     }
@@ -617,7 +617,7 @@ namespace fCraft {
                     } else {
                         player.Message( "Player {0}&S is NOT banned.", info.GetClassyName() );
                     }
-                    if( info.bannedBy != "" ) {
+                    if( !String.IsNullOrEmpty( info.bannedBy ) ) {
                         player.Message( "  Last ban by {0} on {1:dd MMM yyyy}.",
                                         info.bannedBy,
                                         info.banDate );
@@ -625,7 +625,7 @@ namespace fCraft {
                             player.Message( "  Last ban reason: {0}", info.banReason );
                         }
                     }
-                    if( info.unbannedBy != "" ) {
+                    if( !String.IsNullOrEmpty( info.unbannedBy ) ) {
                         player.Message( "  Unbanned by {0} on {1:dd MMM yyyy}.",
                                         info.unbannedBy,
                                         info.unbanDate );

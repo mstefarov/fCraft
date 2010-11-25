@@ -102,7 +102,6 @@ namespace fCraft {
 
     // Base class for all conditions
     public abstract class Condition {
-        public Condition() { }
         public abstract bool Eval( PlayerInfo info );
 
         public static Condition Parse( XElement el ) {
@@ -156,7 +155,7 @@ namespace fCraft {
 
         public override bool Eval( PlayerInfo info ) {
             long givenValue;
-            switch( Field ) {
+            switch( this.Field ) {
                 case ConditionField.TimeSinceFirstLogin:
                     givenValue = (int)DateTime.Now.Subtract( info.firstLoginDate ).TotalSeconds;
                     break;
@@ -197,7 +196,7 @@ namespace fCraft {
                     givenValue = (int)DateTime.Now.Subtract( info.lastKickDate ).TotalSeconds;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException( "Field", "Unknown field type" );
             }
 
             switch( this.Comparison ) {
@@ -214,7 +213,7 @@ namespace fCraft {
                 case ComparisonOperation.neq:
                     return (givenValue != Value);
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException( "Comparison", "Unknown comparison type" );
             }
         }
 
@@ -287,7 +286,7 @@ namespace fCraft {
                 case ComparisonOperation.neq:
                     return (info.previousRank != this.Rank);
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException( "Comparison", "Unknown comparison type" );
             }
         }
 

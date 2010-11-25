@@ -128,7 +128,7 @@ namespace fCraft {
                     p11 = InterpolateSpline( points[0, 3], points[1, 3], points[2, 3], points[3, 3], xFloat );
                     return InterpolateSpline( p00, p01, p10, p11, yFloat );
                 default:
-                    throw new ArgumentException();
+                    throw new ArgumentException("interpolationMode", "Unknown interpolation mode");
             }
         }
 

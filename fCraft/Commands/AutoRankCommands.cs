@@ -564,7 +564,7 @@ namespace fCraft {
             consoleSafe = true,
             hidden = true,
             permissions = new Permission[] { Permission.EditPlayerDB },
-            help = "Allows direct editing of player information. Editable properties: "+
+            help = "Allows direct editing of player information. Editable properties: " +
                    "TimesKicked, PreviousRank, TotalTime, RankChangeType, " +
                    "BanReason, UnbanReason, RankChangeReason, LastKickReason",
             usage = "/setinfo PlayerName Key Value",

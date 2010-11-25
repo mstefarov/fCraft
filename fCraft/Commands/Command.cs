@@ -47,7 +47,7 @@ namespace fCraft {
             return null;
         }
 
-        
+
         // Returns 
         public bool NextInt( out int number ) {
             return Int32.TryParse( Next(), out number );

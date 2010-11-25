@@ -68,11 +68,13 @@ namespace fCraft {
 
         public void Validate() {
             if( raisedCorners < 0 || raisedCorners > 4 || loweredCorners < 0 || raisedCorners > 4 || raisedCorners + loweredCorners > 4 ) {
-                throw new ArgumentOutOfRangeException( "raisedCorners and loweredCorners must be between 0 and 4." );
+                throw new ArgumentOutOfRangeException( "raisedCorners/loweredCorners",
+                                                       "raisedCorners and loweredCorners must be between 0 and 4." );
             }
 
             if( caveDensity <= 0 || caveSize <= 0 ) {
-                throw new ArgumentOutOfRangeException( "caveDensity and caveSize must be > 0" );
+                throw new ArgumentOutOfRangeException( "caveDensity/caveSize",
+                                                       "caveDensity and caveSize must be > 0" );
             }
             // todo: additional validation
         }

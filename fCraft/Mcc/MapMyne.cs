@@ -110,6 +110,10 @@ namespace Mcc {
             map.widthY = Int32.Parse( metaFile["size", "z"] );
             map.height = Int32.Parse( metaFile["size", "y"] );
 
+            if( !map.ValidateHeader() ) {
+                throw new MapFormatException( "MapFCMv3.Load: One or more of the map dimensions are invalid." );
+            }
+
             if( metaFile.Contains( "spawn", "x", "y", "z", "h" ) ) {
                 map.spawn.Set( Int16.Parse( metaFile["spawn", "x"] ) * 32 + 16,
                                Int16.Parse( metaFile["spawn", "z"] ) * 32 + 16,

@@ -5,62 +5,48 @@ using System.Text;
 
 namespace fCraft {
 
-    public enum BlockChangeCause : byte {
-        Built       = 0,
-        Deleted     = 1,
-        Painted     = 2,
-        Drawn       = 3,
-        Replaced    = 4,
-        Pasted      = 5,
-        Undone      = 6,
-        Restored    = 7
+
+    // Indicates what action resulted in block changing
+
+    [Flags]
+    public enum BlockChangeCauses {
+        // value of 0 means "unaltered" and default for new maps
+
+        Manual = 1, // On if block was changed by manual building (no tools)
+
+        Painted = 2, // On if block was replaced by /paint or client-side paint
+                     // (Also /replace or /rn, if combined with Drawn flag)
+
+        Drawn = 4, // On if block was changed by /e, /c, /ch, /cw, or /cut
+                   // Also applies to any future draw commands
+
+        Pasted = 8, // On if block was changed by /paste or /pastenot
+
+        Restored = 16, // On if block was restored using BlockDB or /undo
+
+        Physicsed = 32, // On if block was changed by physics
+
+        Overwritten = 64  // On if this is block overwrote another altered block
+
+        // 128 reserved for future use
     }
 
-
-    public struct BlockChangeRecord {
-        public int PlayerID;
-        public short X;
-        public short Y;
-        public short H;
-        public Block OldBlock, NewBlock;
-        public int Timestamp;
-        public BlockChangeCause Cause;
-
-        public BlockChangeRecord( BinaryReader reader ) {
-            PlayerID = reader.ReadInt32();
-            Cause = (BlockChangeCause)((PlayerID >> 24) & 0xFF);
-            PlayerID &= 0x00FFFFFF;
-            X = reader.ReadInt16();
-            Y = reader.ReadInt16();
-            H = reader.ReadInt16();
-            OldBlock = (Block)reader.ReadByte();
-            NewBlock = (Block)reader.ReadByte();
-            Timestamp = reader.ReadInt32();
-        }
-
-        public void Serialize( BinaryWriter writer ) {
-            writer.Write( PlayerID );
-            writer.Write( X );
-            writer.Write( Y );
-            writer.Write( H );
-            writer.Write( (byte)OldBlock );
-            writer.Write( (byte)NewBlock );
-            writer.Write( Timestamp );
-            writer.Write( (byte)Cause );
-        }
-
-        static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1 );
-
-        static int DateTimeToTimestamp( DateTime timestamp ) {
-            return (int)(timestamp - UnixEpoch).TotalSeconds;
-        }
-
-        static DateTime TimestampToDateTime( int timestamp ) {
-            return UnixEpoch.AddSeconds( timestamp );
-        }
-    }
-
-
-    class BlockChangeDB {
-    }
+    /*
+     *  Action              | Manu | Pain | Draw | Past | Rest | Phys | Over
+     * 
+     * unaltered block
+     * manual build/delete      X                                         ~
+     * /paint                   X      ~                                  ~
+     * draw (/c, /e, /r, etc)          ~      X                           ~
+     * draw with air                          X                           ~
+     * /cut                                   X                           ~
+     * /paste                          ~      X      X                    ~
+     * /undo                    .      .      .      .      X      .      ~
+     * /restore                 .      .      .      .      X      .      ~
+     * /regen                          ~                    X             ~
+     * 
+     * LEGEND:  X = always on
+     *          ~ = on depending on previous block type
+     *          . = flag copied from original/restored block
+     */
 }

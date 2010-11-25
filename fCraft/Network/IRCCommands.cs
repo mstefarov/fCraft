@@ -27,7 +27,7 @@
 using System;
 
 namespace fCraft {
-    class IRCCommands {
+    static class IRCCommands {
         public static string Pass( string password ) {
             return "PASS " + password;
         }

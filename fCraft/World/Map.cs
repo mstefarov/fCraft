@@ -912,7 +912,7 @@ namespace fCraft {
             }
         }
 
-        internal void WriteLayer( DataLayer layer, Stream stream ) {
+        internal static void WriteLayer( DataLayer layer, Stream stream ) {
             switch( layer.Type ) {
                 case DataLayerType.Blocks:
                 case DataLayerType.BlockUndo:
@@ -996,7 +996,7 @@ namespace fCraft {
             BlockTimestamps = 3, // Modification date/time (per-block) (El.Size=4)
 
             BlockChangeFlags = 4, // Type of action that resulted in the block change
-            // See BlockChangeCause flags (El.Size=1)
+                                  // See BlockChangeFlags flags (El.Size=1)
 
             PlayerIDs = 5  // mapping of player names to ID numbers (El.Size=2)
 

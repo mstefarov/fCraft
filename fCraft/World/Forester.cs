@@ -772,7 +772,7 @@ namespace fCraft {
                         newtree = new MangroveTree();
                         break;
                     default:
-                        throw new ArgumentException();
+                        throw new ArgumentException("newshape", "Unknown tree shape type");
                 }
                 newtree.Copy( treelist[i] );
 

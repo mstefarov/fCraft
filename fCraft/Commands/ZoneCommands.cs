@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace fCraft {
-    class ZoneCommands {
+    static class ZoneCommands {
 
         internal static void Init() {
             CommandList.RegisterCommand( cdZoneEdit );

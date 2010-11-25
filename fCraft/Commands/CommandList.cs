@@ -68,7 +68,7 @@ namespace fCraft {
                 foreach( string alias in command.aliases ) {
                     if( commands.ContainsKey( alias ) ) {
                         throw new CommandRegistrationException( "One of the aliases for \"{0}\" is using the name of an already-defined command." );
-                    }else if( aliases.ContainsKey( alias ) ) {
+                    } else if( aliases.ContainsKey( alias ) ) {
                         Logger.LogWarning( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden to resolve to \"{2}\" instead.",
                                            WarningLogSubtype.CommandWarning,
                                            alias, aliases[alias], command.name );

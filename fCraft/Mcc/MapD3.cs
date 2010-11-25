@@ -130,10 +130,10 @@ namespace Mcc {
             Map map = new Map();
 
             if( bs.ReadByte() != HeaderConstant1 ) {
-                throw new Exception( "Incorrect D3 map header." );
+                throw new MapFormatException( "Incorrect D3 map header." );
             }
             if( bs.ReadByte() != HeaderConstant2 ) {
-                throw new Exception( "Incorrect D3 map header." );
+                throw new MapFormatException( "Incorrect D3 map header." );
             }
 
             bs.ReadBytes( 2 );
@@ -143,12 +143,12 @@ namespace Mcc {
             map.widthY = IPAddress.NetworkToHostOrder(bs.ReadInt16());
             map.height = IPAddress.NetworkToHostOrder(bs.ReadInt16());
 
+            if( !map.ValidateHeader() ) {
+                throw new MapFormatException( "MapD3.Load: One or more of the map dimensions are invalid." );
+            }
+
             // D3 doesn't save spawnpoint in the map... for SOME reason
             map.ResetSpawn();
-
-            if( !map.ValidateHeader() ) {
-                throw new Exception( "One or more of the map dimensions are invalid." );
-            }
 
             // Read in the map data
             map.blocks = bs.ReadBytes( map.GetBlockCount() );
