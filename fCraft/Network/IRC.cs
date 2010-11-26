@@ -234,14 +234,15 @@ namespace fCraft {
                             actualBotNick += "_";
                             Send( IRCCommands.Nick( actualBotNick ) );
                         } else {
-                            Logger.Log( "Error (" + msg.ReplyCode + "): " + msg.RawMessage, LogType.IRC );
+                            Logger.Log( "Error ({0}): {1}", LogType.IRC,
+                                        msg.ReplyCode, msg.RawMessage );
                         }
                         return;
 
 
                     case IRCMessageType.QueryAction:
                         // TODO: PMs
-                        Logger.Log( "Query: " + msg.RawMessage, LogType.IRC );
+                        Logger.Log( "Query: {0}", LogType.IRC, msg.RawMessage );
                         break;
 
 

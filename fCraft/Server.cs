@@ -645,7 +645,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Packet Sending
+        #region Messaging / Packet Sending
 
         // Send a low-priority packet to everyone
         // If 'except' is not null, excludes specified player

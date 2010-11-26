@@ -329,12 +329,12 @@ namespace fCraft {
             if( zones.Length > 0 ) {
                 player.Message( "List of zones (see &H/zinfo ZoneName&S for details):" );
                 foreach( Zone zone in zones ) {
-                    player.Message( String.Format( "  {0} ({1}&S) - {2} x {3} x {4}",
-                                                   zone.name,
-                                                   zone.rank.GetClassyName(),
-                                                   zone.bounds.GetWidthX(),
-                                                   zone.bounds.GetWidthY(),
-                                                   zone.bounds.GetHeight() ) );
+                    player.Message( "  {0} ({1}&S) - {2} x {3} x {4}",
+                                    zone.name,
+                                    zone.rank.GetClassyName(),
+                                    zone.bounds.GetWidthX(),
+                                    zone.bounds.GetWidthY(),
+                                    zone.bounds.GetHeight() );
                 }
             } else {
                 player.Message( "No zones are defined for this map." );

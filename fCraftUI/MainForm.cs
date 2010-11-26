@@ -138,7 +138,6 @@ namespace fCraftUI {
                 } else {
                     urlDisplay.Text = URL;
                     urlDisplay.Enabled = true;
-                    urlDisplay.Select();
                     bPlay.Enabled = true;
                 }
             } catch( ObjectDisposedException ) { }

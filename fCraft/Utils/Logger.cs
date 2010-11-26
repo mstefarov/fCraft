@@ -155,6 +155,7 @@ namespace fCraft {
             Log( String.Format( message, values ), LogType.Warning );
         }
 
+
         public static void LogConsole( string message ) {
             if( message.Contains( "&N" ) ) {
                 foreach( string line in message.Split( PacketWriter.splitter, StringSplitOptions.RemoveEmptyEntries ) ) {
