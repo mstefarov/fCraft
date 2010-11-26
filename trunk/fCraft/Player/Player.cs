@@ -254,6 +254,10 @@ namespace fCraft {
         }
 
 
+        public void Message( string _message ) {
+            MessagePrefixed( ">", _message );
+        }
+
         public void Message( string _message, params object[] args ) {
             MessagePrefixed( ">", String.Format( _message, args ) );
         }
@@ -389,8 +393,8 @@ namespace fCraft {
                     selectionMarksExpected = 0;
                     selectionCallback( this, selectionMarks.ToArray(), selectionArgs );
                 } else {
-                    Message( String.Format( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
-                                            selectionMarkCount, x, y, h, selectionMarkCount + 1 ) );
+                    Message( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
+                             selectionMarkCount, x, y, h, selectionMarkCount + 1 );
                 }
                 return false;
             }

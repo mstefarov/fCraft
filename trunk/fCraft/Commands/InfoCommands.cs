@@ -315,7 +315,7 @@ namespace fCraft {
             name = "help",
             consoleSafe = true,
             usage = "/help [CommandName]",
-            help = "...",
+            help = "Derp.",
             handler = Help
         };
 
@@ -357,7 +357,12 @@ namespace fCraft {
                 } else {
                     sb.Append( descriptor.help );
                 }
+
                 player.MessagePrefixed( HelpPrefix, sb.ToString() );
+                
+                if( descriptor.permissions != null && descriptor.permissions.Length > 0 ) {
+                    player.NoAccessMessage( descriptor.permissions );
+                }
 
             } else {
                 player.Message( "To see a list of all commands, write &H/help commands" );

@@ -1019,7 +1019,7 @@ namespace fCraft {
                         Server.SendToAll( "{0}&S is no longer frozen.", target.GetClassyName() );
                         target.isFrozen = false;
                     } else {
-                        player.Message( target.GetClassyName() + "&S is currently not frozen." );
+                        player.Message( "{0}&S is currently not frozen.", target.GetClassyName() );
                     }
                 } else {
                     player.Message( "You can only unfreeze players ranked {0}&S or lower",
@@ -1183,8 +1183,9 @@ namespace fCraft {
             name = "bring",
             aliases = new string[] { "summon", "fetch" },
             permissions = new Permission[] { Permission.Bring },
-            usage = "/bring PlayerName",
-            help = "Teleports you to a specified player's location. If no name is given, teleports you to map spawn.",
+            usage = "/bring PlayerName [ToPlayer]",
+            help = "Teleports another player to your location. " +
+                   "If the optional second parameter is given, teleports player to another player.",
             handler = Bring
         };
 
@@ -1195,23 +1196,38 @@ namespace fCraft {
                 return;
             }
 
+            string toName = cmd.Next();
+            Player toPlayer = player;
+            if( toName != null ) {
+                Player[] toMatches = Server.FindPlayers( player, toName );
+                if( toMatches.Length == 1 ) {
+                    toPlayer = toMatches[0];
+                } else if( toMatches.Length > 1 ) {
+                    player.ManyMatchesMessage( "player", toMatches );
+                } else {
+                    player.NoPlayerMessage( toName );
+                }
+            }
+
             Player[] matches = Server.FindPlayers( player, name );
             if( matches.Length == 1 ) {
                 Player target = matches[0];
 
-                if( target.world == player.world ) {
-                    target.Send( PacketWriter.MakeSelfTeleport( player.pos ) );
+                if( target.world == toPlayer.world ) {
+                    target.Send( PacketWriter.MakeSelfTeleport( toPlayer.pos ) );
 
-                } else if( target.CanJoin( player.world ) ) {
-                    target.session.JoinWorld( player.world, player.pos );
+                } else if( target.CanJoin( toPlayer.world ) ) {
+                    target.session.JoinWorld( toPlayer.world, toPlayer.pos );
 
                 } else {
-                    player.Message( "Cannot bring {0}&S because this world requires {1}+&S to join.",
+                    player.Message( "Cannot bring {0}&S because the world requires {1}+&S to join.",
                                     target.GetClassyName(),
-                                    player.world.accessRank.GetClassyName() );
+                                    toPlayer.world.accessRank.GetClassyName() );
                 }
+
             } else if( matches.Length > 1 ) {
                 player.ManyMatchesMessage( "player", matches );
+
             } else {
                 player.NoPlayerMessage( name );
             }

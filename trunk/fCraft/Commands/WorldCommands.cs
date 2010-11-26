@@ -143,17 +143,17 @@ namespace fCraft {
                     try {
                         File.Copy( world.GetMapName(), targetFileName, true );
                     } catch( Exception ex ) {
-                        Logger.Log( "StandardCommands.Save: Error occured while trying to copy an unloaded map: " + ex, LogType.Error );
+                        Logger.Log( "StandardCommands.Save: Error occured while trying to copy an unloaded map: {0}", LogType.Error, ex );
                         player.Message( mapSavingError );
                     }
                 } else {
-                    Logger.Log( "StandardCommands.Save: Map for world \"" + world.name + "\" is unloaded, and file does not exist.", LogType.Error );
+                    Logger.Log( "StandardCommands.Save: Map for world \"{0}\" is unloaded, and file does not exist.", LogType.Error, world.name );
                     player.Message( mapSavingError );
                 }
             } else if( map.Save( targetFileName ) ) {
                 player.Message( "Map saved succesfully." );
             } else {
-                Logger.Log( "StandardCommands.Save: Saving world \"" + world.name + "\" failed.", LogType.Error );
+                Logger.Log( "StandardCommands.Save: Saving world \"{0}\" failed.", LogType.Error, world.name );
                 player.Message( mapSavingError );
             }
         }
@@ -631,7 +631,7 @@ namespace fCraft {
                             }
                         } catch( Exception ex ) {
                             Logger.Log( "MapCommands.WorldRename: A file with the same name as renamed world may already exist, " +
-                                        "and an error occured while trying to use it: " + ex, LogType.Error );
+                                        "and an error occured while trying to use it: {0}", LogType.Error, ex );
                         }
                     }
 
