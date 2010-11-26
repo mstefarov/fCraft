@@ -27,14 +27,75 @@ namespace fCraft {
         public DateTime DateCreated = DateTime.UtcNow;
         public Guid GUID = Guid.NewGuid();
 
-        // data layers
+        // block data
         internal byte[] blocks;
         internal byte[] blockUndo;
 
+        // block ownership
+        object playerIDLock = new object();
+        ushort MaxPlayerID = 256;
         Dictionary<string, ushort> PlayerIDs;
         Dictionary<ushort, string> PlayerNames;
         internal ushort[] blockOwnership;
 
+
+        public void EnableLayer( DataLayerType layer ) {
+            switch( layer ) {
+                case DataLayerType.PlayerIDs:
+                case DataLayerType.BlockOwnership:
+                    if( blockOwnership == null ) {
+                        blockOwnership = new ushort[blocks.Length];
+                    }
+                    if( PlayerIDs == null ) {
+                        PlayerIDs = new Dictionary<string, ushort>();
+                    }
+                    if( PlayerNames == null ) {
+                        PlayerNames = new Dictionary<ushort, string>();
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        [CLSCompliant(false)]
+        public ushort FindPlayerID( string name ) {
+            lock( playerIDLock ) {
+                if( PlayerIDs.ContainsKey( name ) ) {
+                    return PlayerIDs[name];
+                }
+            }
+            return (ushort)ReservedPlayerID.None;
+        }
+
+
+        [CLSCompliant( false )]
+        public ushort AssignPlayerID( string name ) {
+            ushort id;
+            lock( playerIDLock ) {
+                id = MaxPlayerID++;
+                PlayerIDs[name] = id;
+                PlayerNames[id] = name;
+            }
+            return id;
+        }
+
+
+        [CLSCompliant( false )]
+        public string FindPlayerName( ushort id ) {
+            if( id < 256 ) {
+                return ((ReservedPlayerID)id).ToString();
+            } else {
+                lock( playerIDLock ) {
+                    if( PlayerNames.ContainsKey( id ) ) {
+                        return PlayerNames[id];
+                    }
+                }
+                return ReservedPlayerID.Unknown.ToString();
+            }
+        }
+
+        // more block metadata
         internal byte[] blockChangeFlags;
         internal uint[] blockTimestamps;
 
@@ -42,14 +103,12 @@ namespace fCraft {
         internal Map() { }
 
 
-        public Map( World _world ) {
-            world = _world;
-        }
 
 
         // creates an empty new world of specified dimensions
-        public Map( World _world, int _widthX, int _widthY, int _height )
-            : this( _world ) {
+        public Map( World _world, int _widthX, int _widthY, int _height ) {
+            world = _world;
+
             widthX = _widthX;
             widthY = _widthY;
             height = _height;
@@ -58,6 +117,7 @@ namespace fCraft {
 
             blocks = new byte[blockCount];
             blocks.Initialize();
+            EnableLayer( DataLayerType.BlockOwnership );//TEMP
         }
 
 
@@ -690,10 +750,19 @@ namespace fCraft {
                     break;
                 }
                 changesSinceSave++;
-                SetBlock( update.x, update.y, update.h, update.type );
+                int blockIndex = Index( update.x, update.y, update.h );
+                blocks[blockIndex] = update.type;
+
                 if( !world.isFlushing ) world.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin );
                 if( update.origin != null ) {
                     update.origin.info.ProcessBlockPlaced( update.type );
+                    if( blockOwnership != null ) {
+                        // TODO: ensure safety in case player leaves the world (and localPlayerID changes) before everything is processed
+                        if( update.origin.localPlayerID != (ushort)ReservedPlayerID.None ) {
+                            update.origin.localPlayerID = AssignPlayerID( update.origin.name );
+                        }
+                        blockOwnership[blockIndex] = update.origin.localPlayerID;
+                    }
                 }
                 packetsSent++;
             }
@@ -850,17 +919,20 @@ namespace fCraft {
 
             Dictionary<string, ushort> PlayerIDsCache = PlayerIDs;
             if( PlayerIDsCache != null && PlayerNames != null ) {
-                layers.Add( new DataLayer {
-                    Type = DataLayerType.PlayerIDs,
-                    Data = PlayerIDsCache,
-                    ElementSize = -1, // variable
-                    ElementCount = PlayerIDsCache.Count
-                } );
+                lock( playerIDLock ) {
+                    layers.Add( new DataLayer {
+                        Type = DataLayerType.PlayerIDs,
+                        Data = new Dictionary<string, ushort>( PlayerIDsCache ), // locked copy is needed to avoid threading issues
+                        ElementSize = -1, // variable
+                        ElementCount = PlayerIDsCache.Count
+                    } );
+                }
             }
             return layers;
         }
 
         internal void ReadLayer( DataLayer layer, Stream stream ) {
+
             switch( layer.Type ) {
                 case DataLayerType.Blocks:
                     blocks = new byte[layer.ElementCount];
@@ -872,41 +944,45 @@ namespace fCraft {
                     stream.Read( blockUndo, 0, blockUndo.Length );
                     break;
 
-                case DataLayerType.BlockOwnership:
-                    blockOwnership = new ushort[layer.ElementCount];
-                    BinaryReader br1 = new BinaryReader( stream );
-                    for( int i = 0; i < layer.ElementCount; i++ ) {
-                        blockOwnership[i] = br1.ReadUInt16();
-                    }
-                    break;
+                case DataLayerType.BlockOwnership: {
+                        blockOwnership = new ushort[layer.ElementCount];
+                        BinaryReader reader = new BinaryReader( stream );
+                        for( int i = 0; i < layer.ElementCount; i++ ) {
+                            blockOwnership[i] = reader.ReadUInt16();
+                        }
+                    } break;
 
-                case DataLayerType.BlockTimestamps:
-                    blockTimestamps = new uint[layer.ElementCount];
-                    BinaryReader br2 = new BinaryReader( stream );
-                    for( int i = 0; i < layer.ElementCount; i++ ) {
-                        blockTimestamps[i] = br2.ReadUInt32();
-                    }
-                    break;
+                case DataLayerType.BlockTimestamps: {
+                        blockTimestamps = new uint[layer.ElementCount];
+                        BinaryReader reader = new BinaryReader( stream );
+                        for( int i = 0; i < layer.ElementCount; i++ ) {
+                            blockTimestamps[i] = reader.ReadUInt32();
+                        }
+                    } break;
 
                 case DataLayerType.BlockChangeFlags:
                     blockChangeFlags = new byte[layer.ElementCount];
                     stream.Read( blockChangeFlags, 0, blockChangeFlags.Length );
                     break;
 
-                case DataLayerType.PlayerIDs:
-                    PlayerIDs = new Dictionary<string, ushort>();
-                    PlayerNames = new Dictionary<ushort, string>();
-                    BinaryReader br3 = new BinaryReader( stream );
-                    for( int i = 0; i < layer.ElementCount; i++ ) {
-                        ushort id = br3.ReadUInt16();
-                        string name = MapFCMv3.ReadLengthPrefixedString( br3 );
-                        PlayerIDs[name] = id;
-                        PlayerNames[id] = name;
-                    }
-                    break;
+                case DataLayerType.PlayerIDs: {
+                        PlayerIDs = new Dictionary<string, ushort>();
+                        PlayerNames = new Dictionary<ushort, string>();
+                        BinaryReader reader = new BinaryReader( stream );
+                        MaxPlayerID = 256;
+                        for( int i = 0; i < layer.ElementCount; i++ ) {
+                            int length = reader.ReadByte();
+                            byte[] stringData = reader.ReadBytes( length );
+                            string name = ASCIIEncoding.ASCII.GetString( stringData );
+                            PlayerNames[MaxPlayerID] = name;
+                            PlayerIDs[name] = MaxPlayerID;
+                            MaxPlayerID++;
+                        }
+                    } break;
 
                 default:
                     // skip
+                    Logger.Log( "Map.ReadLayer: Skipping unknown layer ({0})", LogType.Warning, layer.Type );
                     stream.Seek( layer.CompressedLength, SeekOrigin.Current );
                     break;
             }
@@ -941,9 +1017,10 @@ namespace fCraft {
                 case DataLayerType.PlayerIDs: {
                         BinaryWriter bw = new BinaryWriter( stream );
                         Dictionary<string, ushort> IDs = (Dictionary<string, ushort>)layer.Data;
-                        foreach( KeyValuePair<string, ushort> pair in IDs ) {//todo: thread safety
-                            bw.Write( pair.Value );
-                            MapFCMv3.WriteLengthPrefixedString( bw, pair.Key );
+                        foreach( string name in IDs.Keys ) {//todo: thread safety
+                            byte[] stringData = ASCIIEncoding.ASCII.GetBytes( name );
+                            bw.Write( (byte)stringData.Length );
+                            bw.Write( stringData );
                         }
                     }
                     break;
@@ -973,7 +1050,7 @@ namespace fCraft {
             }
         }
 
-        public struct DataLayer {
+        public class DataLayer {
             public DataLayerType Type;         // see "DataLayerType" below
             public int GeneralPurposeField;   // 32 bits that can be used in implementation-specific ways
             public int ElementSize;           // size of each data element (if elements are variable-size, set this to 1)
@@ -996,7 +1073,7 @@ namespace fCraft {
             BlockTimestamps = 3, // Modification date/time (per-block) (El.Size=4)
 
             BlockChangeFlags = 4, // Type of action that resulted in the block change
-                                  // See BlockChangeFlags flags (El.Size=1)
+            // See BlockChangeFlags flags (El.Size=1)
 
             PlayerIDs = 5  // mapping of player names to ID numbers (El.Size=2)
 

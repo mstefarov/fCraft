@@ -70,19 +70,33 @@ namespace fCraft {
 
         public Criterion( XElement el ) {
             Type = (CriterionType)Enum.Parse( typeof( CriterionType ), el.Attribute( "type" ).Value, true );
+
             FromRank = RankList.ParseRank( el.Attribute( "fromRank" ).Value );
+            if( FromRank == null ) throw new FormatException( "Could not parse \"fromRank\"" );
+
             ToRank = RankList.ParseRank( el.Attribute( "toRank" ).Value );
+            if( ToRank == null ) throw new FormatException( "Could not parse \"toRank\"" );
+
             if( el.Elements().Count() == 1 ) {
                 Condition = Condition.Parse( el.Elements().First() );
+
             } else if( el.Elements().Count() > 1 ) {
                 ConditionAND cand = new ConditionAND();
                 foreach( XElement cond in el.Elements() ) {
                     cand.Add( Condition.Parse( cond ) );
                 }
                 Condition = cand;
+
             } else {
                 throw new FormatException( "At least one condition required." );
             }
+        }
+
+        public override string ToString() {
+            return String.Format( "Criteria( {0} from {1} to {2} )",
+                                  (FromRank < ToRank ? "promote" : "demote"),
+                                  FromRank.Name,
+                                  ToRank.Name );
         }
 
         public XElement Serialize() {
@@ -224,6 +238,13 @@ namespace fCraft {
             el.Add( new XAttribute( "op", Comparison.ToString() ) );
             el.Add( new XAttribute( "scope", Scope.ToString() ) );
             return el;
+        }
+
+        public override string ToString() {
+            return String.Format( "ConditionIntRange( {0} {1} {2} )",
+                                  Field,
+                                  Comparison,
+                                  Value );
         }
     }
 

@@ -12,6 +12,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdWater );
             CommandList.RegisterCommand( cdLava );
             CommandList.RegisterCommand( cdBind );
+            CommandList.RegisterCommand( cdWhoDid );
         }
 
 
@@ -175,6 +176,24 @@ namespace fCraft {
                     player.Message( "&WYou do not have {0} permission.", permission );
                 }
             }
+        }
+
+
+        static CommandDescriptor cdWhoDid = new CommandDescriptor {
+            name = "whodid",
+            help = "Checks who last modified a block.",
+            handler = WhoDid
+        };
+
+        static void WhoDid( Player player, Command cmd ) {
+            player.SetCallback( 1, WhoDidCallback, player.world.map );
+            player.Message( "Click the block that you would like to test." );
+        }
+
+
+        internal static void WhoDidCallback( Player player, Position[] marks, object tag ) {
+            Map map = (Map)tag;
+            player.Message( map.FindPlayerName( map.blockOwnership[map.Index( marks[0].x, marks[0].y, marks[0].h )] ) );
         }
     }
 }
