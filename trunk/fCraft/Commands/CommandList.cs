@@ -20,7 +20,7 @@ namespace fCraft {
             BlockCommands.Init();
             DrawCommands.Init();
             InfoCommands.Init();
-            MapCommands.Init();
+            WorldCommands.Init();
             ZoneCommands.Init();
             AutoRankCommands.Init();
             commands.TrimExcess();

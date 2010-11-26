@@ -35,6 +35,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion( "0.4.9.5" )]
 [assembly: AssemblyFileVersion( "0.4.9.5" )]
 
-
-// CLS compliance
 [assembly: System.CLSCompliant( true )]
+[assembly: System.Resources.NeutralResourcesLanguage( "en-US" )]

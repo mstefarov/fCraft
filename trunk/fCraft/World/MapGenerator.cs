@@ -234,10 +234,6 @@ namespace fCraft {
             return underwaterBlocks / (float)heightmap.Length;
         }
 
-
-        public static void CalculateSlope( float[,] heightmap, float[,] slopemap ) {
-        }
-
         #endregion
 
 
@@ -256,10 +252,7 @@ namespace fCraft {
 
 
             // Calculate above/below water multipliers
-            float underWaterMultiplier = 0, aboveWaterMultiplier = 0;
-            if( desiredWaterLevel != 0 ) {
-                underWaterMultiplier = (float)(args.maxDepth / desiredWaterLevel);
-            }
+            float aboveWaterMultiplier = 0;
             if( desiredWaterLevel != 1 ) {
                 aboveWaterMultiplier = (float)(args.maxHeight / (1 - desiredWaterLevel));
             }
@@ -293,6 +286,13 @@ namespace fCraft {
             float slope;
 
             /* draw heightmap visually (DEBUG)
+
+            
+            float underWaterMultiplier = 0;
+            if( desiredWaterLevel != 0 ) {
+                underWaterMultiplier = (float)(args.maxDepth / desiredWaterLevel);
+            }
+            
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
                     if( heightmap[x, y] < desiredWaterLevel ) {

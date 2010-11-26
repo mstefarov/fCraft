@@ -13,6 +13,7 @@
             if( disposing && (components != null) ) {
                 components.Dispose();
             }
+            bold.Dispose();
             base.Dispose( disposing );
         }
 

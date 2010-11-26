@@ -72,7 +72,7 @@
     <Compile Include="World\BlockDB.cs" />
     <Compile Include="Commands\CommandDescriptor.cs" />
     <Compile Include="Commands\DrawCommands.cs" />
-    <Compile Include="Commands\MapCommands.cs" />
+    <Compile Include="Commands\WorldCommands.cs" />
     <Compile Include="Commands\BlockCommands.cs" />
     <Compile Include="Commands\CommandList.cs" />
     <Compile Include="Commands\InfoCommands.cs" />

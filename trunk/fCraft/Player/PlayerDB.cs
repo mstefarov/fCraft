@@ -233,8 +233,8 @@ namespace fCraft {
         public static int CountBannedPlayers() {
             int banned = 0;
             PlayerInfo[] cache = listCache;
-            foreach( PlayerInfo info in listCache ) {
-                if( info.banned ) banned++;
+            for( int i=0; i<cache.Length; i++){
+                if( cache[i].banned ) banned++;
             }
             return banned;
         }
@@ -248,8 +248,8 @@ namespace fCraft {
         public static int CountPlayersByRank( Rank pc ) {
             int count = 0;
             PlayerInfo[] cache = listCache;
-            foreach( PlayerInfo info in list ) {
-                if( info.rank == pc ) count++;
+            for( int i = 0; i < cache.Length; i++ ) {
+                if( cache[i].rank == pc ) count++;
             }
             return count;
         }

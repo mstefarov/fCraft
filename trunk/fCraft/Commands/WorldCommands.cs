@@ -7,7 +7,7 @@ using System.Linq;
 
 
 namespace fCraft {
-    static class MapCommands {
+    static class WorldCommands {
         internal static void Init() {
             CommandList.RegisterCommand( cdJoin );
 

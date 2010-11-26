@@ -161,7 +161,7 @@ namespace ConfigTool {
 
         private void bBrowseFile_Click( object sender, EventArgs e ) {
             fileBrowser.FileName = tFile.Text;
-            if( fileBrowser.ShowDialog() == DialogResult.OK && fileBrowser.FileName != "" ) {
+            if( fileBrowser.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( fileBrowser.FileName ) ) {
                 tFolder.Text = "";
                 tFile.Text = fileBrowser.FileName;
                 tFile.SelectAll();
@@ -173,7 +173,7 @@ namespace ConfigTool {
         }
 
         private void bBrowseFolder_Click( object sender, EventArgs e ) {
-            if( folderBrowser.ShowDialog() == DialogResult.OK && folderBrowser.SelectedPath != "" ) {
+            if( folderBrowser.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty(folderBrowser.SelectedPath) ) {
                 tFile.Text = "";
                 tFolder.Text = folderBrowser.SelectedPath;
                 tFolder.SelectAll();
@@ -503,7 +503,7 @@ namespace ConfigTool {
                     StartLoadingMap();
                     return;
                 case Tabs.LoadFile:
-                    if( tFile.Text != "" ) {
+                    if( !String.IsNullOrEmpty(tFile.Text) ) {
                         tFile.SelectAll();
                         fileToLoad = tFile.Text;
                         ShowMapDetails( tLoadFileInfo, fileToLoad );
@@ -535,7 +535,7 @@ namespace ConfigTool {
         #endregion
 
 
-        void ShowMapDetails( TextBox textBox, string fileName ) {
+        static void ShowMapDetails( TextBox textBox, string fileName ) {
 
             Mcc.MapFormat format = Mcc.MapFormat.Unknown;
             try {
@@ -638,7 +638,7 @@ Dimensions: {5}×{6}×{7}
         private void bSavePreview_Click( object sender, EventArgs e ) {
             try {
                 using( Image img = (Image)preview.Image.Clone() ) {
-                    if( savePreviewDialog.ShowDialog() == DialogResult.OK && savePreviewDialog.FileName != "" ) {
+                    if( savePreviewDialog.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty(savePreviewDialog.FileName) ) {
                         switch( savePreviewDialog.FilterIndex ) {
                             case 1:
                                 img.Save( savePreviewDialog.FileName, ImageFormat.Png ); break;
@@ -659,7 +659,7 @@ Dimensions: {5}×{6}×{7}
 
         OpenFileDialog browseTemplateDialog = new OpenFileDialog();
         private void bBrowseTemplate_Click( object sender, EventArgs e ) {
-            if( browseTemplateDialog.ShowDialog() == DialogResult.OK && browseTemplateDialog.FileName != "" ) {
+            if( browseTemplateDialog.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty(browseTemplateDialog.FileName) ) {
                 try {
                     generatorArgs = new MapGeneratorArgs( browseTemplateDialog.FileName );
                     LoadGeneratorArgs();
@@ -791,7 +791,7 @@ Dimensions: {5}×{6}×{7}
 
         SaveFileDialog saveTemplateDialog = new SaveFileDialog();
         private void bSaveTemplate_Click( object sender, EventArgs e ) {
-            if( saveTemplateDialog.ShowDialog() == DialogResult.OK && saveTemplateDialog.FileName != "" ) {
+            if( saveTemplateDialog.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty(saveTemplateDialog.FileName) ) {
                 try {
                     SaveGeneratorArgs();
                     generatorArgs.Save( saveTemplateDialog.FileName );
@@ -844,7 +844,7 @@ Dimensions: {5}×{6}×{7}
             lBelowFuncUnits.Text = (1 / TrackBarToExponent( sBelowFunc )).ToString( "0.0%" );
         }
 
-        float TrackBarToExponent( TrackBar bar ) {
+        static float TrackBarToExponent( TrackBar bar ) {
             if( bar.Value >= bar.Maximum / 2 ) {
                 float normalized = (bar.Value - bar.Maximum / 2f) / (float)(bar.Maximum / 2f);
                 return 1 + normalized * normalized * 3;
@@ -854,7 +854,7 @@ Dimensions: {5}×{6}×{7}
             }
         }
 
-        int ExponentToTrackBar( TrackBar bar, float val ) {
+        static int ExponentToTrackBar( TrackBar bar, float val ) {
             if( val >= 1 ) {
                 float normalized = (float)Math.Sqrt( (val - 1) / 3f );
                 return (int)(bar.Maximum / 2 + normalized * (bar.Maximum / 2));

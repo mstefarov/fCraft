@@ -872,7 +872,7 @@ namespace fCraft {
         static void AutoRankTick( object param ) {
             Tasks.Add( (TaskCallback)delegate( object innerParam ) {
                 AutoRankCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );
-            }, null, false );
+            }, null );
         }
 
         static void AutoBackup( object param ) {
@@ -885,14 +885,14 @@ namespace fCraft {
             World world = (World)param;
             if( world.map == null ) return;
             if( world.map.changesSinceSave > 0 ) {
-                Tasks.Add( world.SaveMap, null, false );
+                Tasks.Add( world.SaveMap, null );
             }
         }
 
         static void SavePlayerDB( object param ) {
             Tasks.Add( (TaskCallback)delegate( object innerParam ) {
                 PlayerDB.Save();
-            }, null, false );
+            }, null );
         }
 
         static void UpdateBlocks( object param ) {
@@ -923,7 +923,7 @@ namespace fCraft {
                 Tasks.Add( (TaskCallback)delegate( object innerParam ) {
                     GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
                     Logger.Log( "Server.DoGC: Collected on schedule.", LogType.Debug );
-                }, null, false );
+                }, null );
             }
         }
 

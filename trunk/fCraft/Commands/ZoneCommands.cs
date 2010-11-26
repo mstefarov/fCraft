@@ -49,10 +49,21 @@ namespace fCraft {
                         player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
                         return;
                     }
+
                     if( info == null ) {
                         player.NoPlayerMessage( name.Substring( 1 ) );
                         return;
                     }
+
+                    // prevent players from whitelisting themselves to bypass protection
+                    if( player.info == info ) {
+                        if( !zone.CanBuild( player ) ) {
+                            player.Message( "You must be {0}+&S to add yourself to this zone's whitelist.",
+                                            zone.rank.GetClassyName() );
+                            continue;
+                        }
+                    }
+
                     switch( zone.Include( info ) ) {
                         case ZoneOverride.Deny:
                             player.Message( "{0}&S is no longer excluded from zone {1}", info.GetClassyName(), zone.name );
@@ -73,10 +84,12 @@ namespace fCraft {
                         player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
                         return;
                     }
+
                     if( info == null ) {
                         player.NoPlayerMessage( name.Substring( 1 ) );
                         return;
                     }
+
                     switch( zone.Exclude( info ) ) {
                         case ZoneOverride.Deny:
                             player.Message( "{0}&S is already excluded from zone {1}", info.GetClassyName(), zone.name );
@@ -93,7 +106,14 @@ namespace fCraft {
 
                 } else {
                     Rank minRank = RankList.ParseRank( name );
+
                     if( minRank != null ) {
+                        // prevent players from lowering rank so bypass protection
+                        if( zone.rank > player.info.rank && minRank <= player.info.rank ) {
+                            player.Message( "You are not allowed to lower the zone's rank." );
+                            continue;
+                        }
+
                         if( zone.rank != minRank ) {
                             zone.rank = minRank;
                             player.Message( "Permission for zone \"{0}\" changed to {1}+",
