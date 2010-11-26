@@ -25,42 +25,42 @@ namespace ConfigTool {
             XAttribute temp;
 
             if( (temp = el.Attribute( "name" )) == null ) {
-                throw new Exception( "WorldListEntity: Cannot parse XML: Unnamed worlds are not allowed." );
+                throw new FormatException( "WorldListEntity: Cannot parse XML: Unnamed worlds are not allowed." );
             }
             if( !Player.IsValidName( temp.Value ) ) {
-                throw new Exception( "WorldListEntity: Cannot parse XML: Invalid world name skipped \"" + temp.Value + "\"." );
+                throw new FormatException( "WorldListEntity: Cannot parse XML: Invalid world name skipped \"" + temp.Value + "\"." );
             }
             name = temp.Value;
 
-            if( (temp = el.Attribute( "hidden" )) != null && temp.Value != "" ) {
+            if( (temp = el.Attribute( "hidden" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
                 bool hidden;
                 if( Boolean.TryParse( temp.Value, out hidden ) ) {
                     Hidden = hidden;
                 } else {
-                    throw new Exception( "WorldListEntity: Cannot parse XML: Invalid value for \"hidden\" attribute." );
+                    throw new FormatException( "WorldListEntity: Cannot parse XML: Invalid value for \"hidden\" attribute." );
                 }
             } else {
                 Hidden = false;
             }
 
-            if( (temp = el.Attribute( "backup" )) != null && temp.Value != "" ) { // TODO: Make per-world backup settings actually work
+            if( (temp = el.Attribute( "backup" )) != null && !String.IsNullOrEmpty( temp.Value ) ) { // TODO: Make per-world backup settings actually work
                 if( Array.IndexOf<string>( World.BackupEnum, temp.Value ) != -1 ) {
                     Backup = temp.Value;
                 } else {
-                    throw new Exception( "WorldListEntity: Cannot parse XML: Invalid value for \"backup\" attribute." );
+                    throw new FormatException( "WorldListEntity: Cannot parse XML: Invalid value for \"backup\" attribute." );
                 }
             } else {
                 Backup = World.BackupEnum[5];
             }
 
-            if( (temp = el.Attribute( "access" )) != null && temp.Value != "" ) {
+            if( (temp = el.Attribute( "access" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
                 accessRank = RankList.ParseRank( temp.Value );
                 if( accessRank == null ) {
                     Logger.Log( "WorldListEntity: Unrecognized class specified for \"access\" permission. Permission reset to default (everyone).", LogType.Warning );
                 }
             }
 
-            if( (temp = el.Attribute( "build" )) != null && temp.Value != "" ) {
+            if( (temp = el.Attribute( "build" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
                 buildRank = RankList.ParseRank( temp.Value );
                 if( buildRank == null ) {
                     Logger.Log( "WorldListEntity: Unrecognized class specified for \"build\" permission. Permission reset to default (everyone).", LogType.Warning );

@@ -44,11 +44,11 @@ namespace ConfigTool {
             get { return true; }
         }
 
-        protected override void ApplySortCore( PropertyDescriptor property, ListSortDirection direction ) {
+        protected override void ApplySortCore( PropertyDescriptor prop, ListSortDirection direction ) {
             List<T> items = this.Items as List<T>;
 
-            if( (null != items) && (null != property) ) {
-                PropertyComparer<T> pc = new PropertyComparer<T>( property, direction );
+            if( (null != items) && (null != prop) ) {
+                PropertyComparer<T> pc = new PropertyComparer<T>( prop, direction );
                 items.Sort( pc );
 
                 /* Set sorted */

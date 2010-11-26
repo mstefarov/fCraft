@@ -41,7 +41,7 @@ namespace fCraft {
         }
 
 
-        public static void Add( TaskCallback callback, object param, bool isPriority ) {
+        public static void Add( TaskCallback callback, object param ) {
             if( keepGoing ) {
                 KeyValuePair<TaskCallback, object> newTask = new KeyValuePair<TaskCallback, object>( callback, param );
                 lock( queueLock ) {

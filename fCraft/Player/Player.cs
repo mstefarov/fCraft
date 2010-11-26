@@ -254,8 +254,8 @@ namespace fCraft {
         }
 
 
-        public void Message( string message, params object[] args ) {
-            MessagePrefixed( ">", String.Format( message, args ) );
+        public void Message( string _message, params object[] args ) {
+            MessagePrefixed( ">", String.Format( _message, args ) );
         }
 
 

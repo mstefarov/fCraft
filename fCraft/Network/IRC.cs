@@ -38,7 +38,7 @@ namespace fCraft {
 
     class IRC {
 
-        class IRCThread {
+        class IRCThread : IDisposable {
             TcpClient client;
             StreamReader reader;
             StreamWriter writer;
@@ -84,7 +84,21 @@ namespace fCraft {
                 connected = true;
             }
 
+            public void Dispose() {
+                try {
+                    if( reader != null ) reader.Dispose();
+                } catch( ObjectDisposedException ) { }
 
+                try {
+                    if( reader != null ) writer.Dispose();
+                } catch( ObjectDisposedException ) { }
+
+                try {
+                    if( client != null && client.Connected ) {
+                        client.Close();
+                    }
+                } catch( ObjectDisposedException ) { }
+            }
 
             Queue<string> outputQueue = new Queue<string>();
             object queueLock = new object();
