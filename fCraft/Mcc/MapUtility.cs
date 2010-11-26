@@ -83,7 +83,9 @@ namespace Mcc {
                     foreach( IMapConverter Converter in AvailableConverters.Values ) {
                         if( Converter.ClaimsFileName( shortFileName ) && Converter.Claims( mapStream, fileName ) ) {
                             mapStream.Seek( 0, SeekOrigin.Begin );
-                            return Converter.Load( mapStream, fileName );
+                            Map result = Converter.Load( mapStream, fileName );
+                            result.EnableLayer( Map.DataLayerType.BlockOwnership );//temp
+                            return result;
                         }
                         mapStream.Seek( 0, SeekOrigin.Begin );
                     }
@@ -91,7 +93,9 @@ namespace Mcc {
                     foreach( IMapConverter Converter in AvailableConverters.Values ) {
                         if( !Converter.ClaimsFileName( shortFileName ) && Converter.Claims( mapStream, fileName ) ) {
                             mapStream.Seek( 0, SeekOrigin.Begin );
-                            return Converter.Load( mapStream, fileName );
+                            Map result = Converter.Load( mapStream, fileName );
+                            result.EnableLayer( Map.DataLayerType.BlockOwnership );//temp
+                            return result;
                         }
                         mapStream.Seek( 0, SeekOrigin.Begin );
                     }
@@ -100,7 +104,9 @@ namespace Mcc {
                 throw new MapFormatException( "Unknown map format for loading." );
 
             } else if( Directory.Exists( fileName ) ) {
-                return AvailableConverters[MapFormat.Myne].Load( null, fileName );
+                Map result = AvailableConverters[MapFormat.Myne].Load( null, fileName );
+                result.EnableLayer( Map.DataLayerType.BlockOwnership );//temp
+                return result;
 
             } else {
                 throw new FileNotFoundException();
