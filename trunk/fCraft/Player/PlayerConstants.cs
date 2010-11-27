@@ -29,8 +29,8 @@ namespace fCraft {
 
 
     public enum ReservedPlayerID {
-        Unknown = 0, // unknown (uncertain) - initial state for imported maps
-        None = 1, // no one (certain) - initial state for generated maps
+        None = 0, // no one (certain) - initial state for generated maps
+        Unknown = 1, // unknown (uncertain) - initial state for imported maps
         Console = 2,
         IRCBot = 3, // IRC bot
         Automatic = 4, // For auto-bans / auto-kicks / etc
