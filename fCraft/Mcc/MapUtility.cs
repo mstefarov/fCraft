@@ -84,7 +84,11 @@ namespace Mcc {
                         if( Converter.ClaimsFileName( shortFileName ) && Converter.Claims( mapStream, fileName ) ) {
                             mapStream.Seek( 0, SeekOrigin.Begin );
                             Map result = Converter.Load( mapStream, fileName );
-                            result.EnableLayer( Map.DataLayerType.BlockOwnership );//temp
+                            if( Converter is MapFCMv3 ) {// TEMP
+                                result.EnableOwnershipTracking( ReservedPlayerID.None );// TEMP
+                            } else {// TEMP
+                                result.EnableOwnershipTracking( ReservedPlayerID.Unknown );// TEMP
+                            }// TEMP
                             return result;
                         }
                         mapStream.Seek( 0, SeekOrigin.Begin );
@@ -94,7 +98,11 @@ namespace Mcc {
                         if( !Converter.ClaimsFileName( shortFileName ) && Converter.Claims( mapStream, fileName ) ) {
                             mapStream.Seek( 0, SeekOrigin.Begin );
                             Map result = Converter.Load( mapStream, fileName );
-                            result.EnableLayer( Map.DataLayerType.BlockOwnership );//temp
+                            if( Converter is MapFCMv3 ) {// TEMP
+                                result.EnableOwnershipTracking( ReservedPlayerID.None );// TEMP
+                            } else {// TEMP
+                                result.EnableOwnershipTracking( ReservedPlayerID.Unknown );// TEMP
+                            }// TEMP
                             return result;
                         }
                         mapStream.Seek( 0, SeekOrigin.Begin );
@@ -105,7 +113,7 @@ namespace Mcc {
 
             } else if( Directory.Exists( fileName ) ) {
                 Map result = AvailableConverters[MapFormat.Myne].Load( null, fileName );
-                result.EnableLayer( Map.DataLayerType.BlockOwnership );//temp
+                result.EnableOwnershipTracking( ReservedPlayerID.Unknown );// TEMP
                 return result;
 
             } else {

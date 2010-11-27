@@ -193,7 +193,51 @@ namespace fCraft {
 
         internal static void WhoDidCallback( Player player, Position[] marks, object tag ) {
             Map map = (Map)tag;
-            player.Message( map.FindPlayerName( map.blockOwnership[map.Index( marks[0].x, marks[0].y, marks[0].h )] ) );
+            ushort ownership = map.blockOwnership[map.Index( marks[0].x, marks[0].y, marks[0].h )];
+            if( ownership < 256 ) {
+                switch( (ReservedPlayerID)ownership ) {
+
+                    case ReservedPlayerID.Automatic:
+                        player.Message( "Block at ({0},{1},{2}) edited automatically.",
+                                        marks[0].x, marks[0].y, marks[0].h );
+                        break;
+
+                    case ReservedPlayerID.Console:
+                        player.Message( "Block at ({0},{1},{2}) edited by {0}.",
+                                        marks[0].x, marks[0].y, marks[0].h, Player.Console.GetClassyName() );
+                        break;
+
+                    case ReservedPlayerID.IRCBot:
+                        player.Message( "Block at ({0},{1},{2}) edited by IRC Bot.",
+                                        marks[0].x, marks[0].y, marks[0].h );
+                        break;
+                        
+                    case ReservedPlayerID.None:
+                        player.Message( "Block at ({0},{1},{2}) was never touched.",
+                                        marks[0].x, marks[0].y, marks[0].h );
+                        break;
+
+                    case ReservedPlayerID.Physics:
+                        player.Message( "Block at ({0},{1},{2}) was modified by physics.",
+                                        marks[0].x, marks[0].y, marks[0].h );
+                        break;
+
+                    default: // includes "Unknown"
+                        player.Message( "No information available for block at ({0},{1},{2}).",
+                                        marks[0].x, marks[0].y, marks[0].h );
+                        break;
+                }
+            }else{
+                string name = map.FindPlayerName( ownership );
+                PlayerInfo info = PlayerDB.FindPlayerInfoExact( name );
+                if( info == null ) {
+                    player.Message( "Block at ({0},{1},{2}) edited by \"{3}\" (unrecognized)",
+                                    marks[0].x, marks[0].y, marks[0].h, name );
+                } else {
+                    player.Message( "Block at ({0},{1},{2}) edited by {3}",
+                                    marks[0].x, marks[0].y, marks[0].h, info.GetClassyName() );
+                }
+            }
         }
     }
 }

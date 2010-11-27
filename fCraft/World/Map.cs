@@ -39,12 +39,14 @@ namespace fCraft {
         internal ushort[] blockOwnership;
 
 
-        public void EnableLayer( DataLayerType layer ) {
-            switch( layer ) {
-                case DataLayerType.PlayerIDs:
-                case DataLayerType.BlockOwnership:
+        public void EnableOwnershipTracking( ReservedPlayerID initialState ) {
                     if( blockOwnership == null ) {
                         blockOwnership = new ushort[blocks.Length];
+                        if( initialState != ReservedPlayerID.None ) {
+                            for( int i = 0; i < blockOwnership.Length; i++ ) {
+                                blockOwnership[i] = (ushort)initialState;
+                            }
+                        }
                     }
                     if( PlayerIDs == null ) {
                         PlayerIDs = new Dictionary<string, ushort>();
@@ -52,10 +54,6 @@ namespace fCraft {
                     if( PlayerNames == null ) {
                         PlayerNames = new Dictionary<ushort, string>();
                     }
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
         }
 
         [CLSCompliant(false)]
@@ -117,7 +115,7 @@ namespace fCraft {
 
             blocks = new byte[blockCount];
             blocks.Initialize();
-            EnableLayer( DataLayerType.BlockOwnership );//TEMP
+            EnableOwnershipTracking( ReservedPlayerID.None );//TEMP
         }
 
 
