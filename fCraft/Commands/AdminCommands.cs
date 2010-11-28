@@ -37,6 +37,7 @@ namespace fCraft {
 
             CommandList.RegisterCommand( cdReloadConfig );
             CommandList.RegisterCommand( cdShutdown );
+            CommandList.RegisterCommand( cdRestart );
 
             CommandList.RegisterCommand( cdFreeze );
             CommandList.RegisterCommand( cdUnfreeze );
@@ -939,10 +940,40 @@ namespace fCraft {
 
             if( reason == null ) {
                 Logger.Log( "{0} shut down the server.", LogType.UserActivity, player.name );
-                Server.InitiateShutdown( player.GetClassyName(), delay, true );
+                Server.InitiateShutdown( player.GetClassyName(), delay, true, false );
             } else {
                 Logger.Log( "{0} shut down the server. Reason: {1}", LogType.UserActivity, player.name, reason );
-                Server.InitiateShutdown( reason, delay, true );
+                Server.InitiateShutdown( reason, delay, true, false );
+            }
+        }
+
+        static CommandDescriptor cdRestart = new CommandDescriptor {
+            name = "restart",
+            permissions = new Permission[] { Permission.ShutdownServer },
+            consoleSafe = true,
+            help = "Restarts the server remotely. " +
+                   "The default delay before restart is 5 seconds (can be changed by specifying a custom number of seconds). " +
+                   "A restart reason or message can be specified to be shown to players.",
+            usage = "/restart [Delay [Reason]]",
+            handler = Restart
+        };
+
+        static void Restart( Player player, Command cmd ) {
+            int delay;
+            if( !cmd.NextInt( out delay ) ) {
+                delay = 5;
+                cmd.Rewind();
+            }
+            string reason = cmd.Next();
+
+            Server.SendToAll( "&WServer restarting in {0} seconds.", delay );
+
+            if( reason == null ) {
+                Logger.Log( "{0} restarted the server.", LogType.UserActivity, player.name );
+                Server.InitiateShutdown( player.GetClassyName(), delay, true, true );
+            } else {
+                Logger.Log( "{0} restarted the server. Reason: {1}", LogType.UserActivity, player.name, reason );
+                Server.InitiateShutdown( reason, delay, true, true );
             }
         }
 

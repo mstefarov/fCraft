@@ -15,9 +15,10 @@ namespace fCraftUI {
     public sealed partial class MainForm : Form {
         bool shutdownPending, shutdownComplete;
         const int MaxLinesInLog = 2000;
+        string[] args;
 
-
-        public MainForm() {
+        public MainForm( string[] _args ) {
+            args = _args;
             InitializeComponent();
             Shown += StartUp;
             FormClosing += HandleShutDown;
@@ -35,7 +36,7 @@ namespace fCraftUI {
 #else
             try {
 #endif
-                if( Server.Init() ) {
+                if( Server.Init(args) ) {
                     Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
 
                     Application.DoEvents();
@@ -102,7 +103,7 @@ namespace fCraftUI {
 
             shutdownPending = true;
             Logger.Log( "---- Shutting Down: {0} ----", LogType.SystemActivity, reason );
-            Server.InitiateShutdown( reason, 0, quit );
+            Server.InitiateShutdown( reason, 0, quit, false );
             urlDisplay.Enabled = false;
             console.Enabled = false;
         }

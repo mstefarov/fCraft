@@ -32,10 +32,10 @@ namespace fCraftUI {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault( false );
 #if DEBUG
-            Application.Run( new MainForm() );
+            Application.Run( new MainForm( args ) );
 #else
             try {
-                Application.Run( new MainForm() );
+                Application.Run( new MainForm( args ) );
             } catch( Exception ex ) {
                 Logger.UploadCrashReport( "Unhandled exception in fCraftUI", "fCraftUI", ex );
                 Logger.Log( "Unhandled exception in fCraftUI: " + ex, LogType.FatalError );
