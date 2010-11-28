@@ -19,6 +19,7 @@ namespace fCraft {
     public static class Server {
         static List<Session> sessions = new List<Session>();
         static object sessionLock = new object();
+        static string[] args;
 
         public static void KickGhostsAndRegisterSession( Session newSession ) {
             List<Session> sessionsToKick = new List<Session>();
@@ -61,8 +62,9 @@ namespace fCraft {
         public static int Port;
         public static string URL;
 
-        public static bool Init() {
+        public static bool Init( string[] _args ) {
             serverStart = DateTime.Now;
+            args = _args;
 
             if( Updater.IsUnstable ) {
                 Logger.LogWarning( "You are using an unstable/developer version of fCraft. " +
@@ -71,7 +73,31 @@ namespace fCraft {
                                    WarningLogSubtype.OtherWarning );
             }
 
-            ResetWorkingDirectory();
+            bool resetPath=true;
+
+            foreach( string arg in _args ) {
+                if( arg.StartsWith( "--path=" ) ) {
+                    string workingDirName = arg.Substring( 7 ).Trim();
+                    try {
+                        DirectoryInfo workingDirInfo = new DirectoryInfo( workingDirName );
+                        Directory.SetCurrentDirectory( workingDirInfo.FullName );
+                        resetPath = false;
+                    } catch( System.Security.SecurityException ) {
+                        Logger.Log( "Server.Init: Cannot set working directory (permission denied)", LogType.Error,
+                                    workingDirName );
+                    } catch( DirectoryNotFoundException ) {
+                        Logger.Log( "Server.Init: Directory not found: {0}", LogType.Error,
+                                    workingDirName );
+                    } catch( PathTooLongException ) {
+                        Logger.Log( "Server.Init: Working path too long: {0}", LogType.Error,
+                                    workingDirName );
+                    }
+                }
+            }
+
+            if( resetPath ) {
+                ResetWorkingDirectory();
+            }
 
             // try to load the config
             if( !Config.Load( false ) ) return false;
@@ -282,21 +308,26 @@ namespace fCraft {
             public string Reason;
             public int Delay;
             public bool KillProcess;
+            public bool Restart;
         }
 
 
-        public static void InitiateShutdown( string reason, int delay, bool killProcess ) {
+        public static void InitiateShutdown( string reason, int delay, bool killProcess, bool restart ) {
             new Thread( delegate( object obj ) {
                 ShutdownParams param = (ShutdownParams)obj;
                 Thread.Sleep( param.Delay * 1000 );
                 Server.Shutdown( param.Reason );
+                if( param.Restart ) {
+                    Process.Start( Process.GetCurrentProcess().MainModule.FileName, String.Join( " ", args ) );
+                }
                 if( param.KillProcess ) {
                     Process.GetCurrentProcess().Kill();
                 }
             } ).Start( new ShutdownParams {
                 Reason = reason,
                 Delay = delay,
-                KillProcess = killProcess
+                KillProcess = killProcess,
+                Restart = restart
             } );
         }
 

@@ -22,10 +22,10 @@
  */
 using System;
 using System.Text;
-using fCraft;
 using System.IO;
 using System.Diagnostics;
 using System.Collections.Generic;
+using fCraft;
 
 
 namespace fCraftConsole {
@@ -35,11 +35,13 @@ namespace fCraftConsole {
         static void Main( string[] args ) {
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;
+
+
 #if DEBUG
 #else
             try {
 #endif
-                if( Server.Init() ) {
+                if( Server.Init( args) ) {
 
                     UpdaterResult update = Updater.CheckForUpdates();
                     if( update.UpdateAvailable ) {

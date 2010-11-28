@@ -40,23 +40,23 @@ namespace fCraft {
 
 
         public void EnableOwnershipTracking( ReservedPlayerID initialState ) {
-                    if( blockOwnership == null ) {
-                        blockOwnership = new ushort[blocks.Length];
-                        if( initialState != ReservedPlayerID.None ) {
-                            for( int i = 0; i < blockOwnership.Length; i++ ) {
-                                blockOwnership[i] = (ushort)initialState;
-                            }
-                        }
+            if( blockOwnership == null ) {
+                blockOwnership = new ushort[blocks.Length];
+                if( initialState != ReservedPlayerID.None ) {
+                    for( int i = 0; i < blockOwnership.Length; i++ ) {
+                        blockOwnership[i] = (ushort)initialState;
                     }
-                    if( PlayerIDs == null ) {
-                        PlayerIDs = new Dictionary<string, ushort>();
-                    }
-                    if( PlayerNames == null ) {
-                        PlayerNames = new Dictionary<ushort, string>();
-                    }
+                }
+            }
+            if( PlayerIDs == null ) {
+                PlayerIDs = new Dictionary<string, ushort>();
+            }
+            if( PlayerNames == null ) {
+                PlayerNames = new Dictionary<ushort, string>();
+            }
         }
 
-        [CLSCompliant(false)]
+        [CLSCompliant( false )]
         public ushort FindPlayerID( string name ) {
             lock( playerIDLock ) {
                 if( PlayerIDs.ContainsKey( name ) ) {

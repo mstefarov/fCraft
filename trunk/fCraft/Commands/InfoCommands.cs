@@ -442,21 +442,21 @@ namespace fCraft {
             }
 
             if( info.lastIP.ToString() == IPAddress.None.ToString() ) {
-                player.Message( "About {0}: Never seen before.", info.name );
+                player.Message( "About {0}&S: Never seen before.", info.GetClassyName() );
 
             } else {
                 if( target != null ) {
-                    player.Message( "About {0}: Online now from {1}",
-                                    info.name,
+                    player.Message( "About {0}&S: Online now from {1}",
+                                    info.GetClassyName(),
                                     info.lastIP );
                 } else if( DateTime.Now.Subtract( info.lastSeen ).TotalDays < 2 ) {
-                    player.Message( "About {0}: Last seen {1:F1} hours ago from {2}",
-                                    info.name,
+                    player.Message( "About {0}&S: Last seen {1:F1} hours ago from {2}",
+                                    info.GetClassyName(),
                                     DateTime.Now.Subtract( info.lastSeen ).TotalHours,
                                     info.lastIP );
 
                 } else {
-                    player.Message( "About {0}: Last seen {1:F1} days ago from {2}",
+                    player.Message( "About {0}&S: Last seen {1:F1} days ago from {2}",
                                     info.name,
                                     DateTime.Now.Subtract( info.lastSeen ).TotalDays,
                                     info.lastIP );
