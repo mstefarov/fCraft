@@ -1254,5 +1254,15 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void cVerifyNames_SelectedIndexChanged( object sender, EventArgs e ) {
             xAllowUnverifiedLAN.Enabled = (cVerifyNames.SelectedIndex != 0);
         }
+
+        private void xMapPath_CheckedChanged( object sender, EventArgs e ) {
+            tMapPath.Enabled = xMapPath.Checked;
+            bMapPath.Enabled = xMapPath.Checked;
+        }
+
+        private void xLogPath_CheckedChanged( object sender, EventArgs e ) {
+            tLogPath.Enabled = xLogPath.Checked;
+            bLogPath.Enabled = xLogPath.Checked;
+        }
     }
 }

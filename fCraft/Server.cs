@@ -1,18 +1,18 @@
 ﻿    // Copyright 2009, 2010 Matvei Stefarov <me@matvei.org> and Jesse O'Brien <destroyer661@gmail.com>
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Collections.Generic;
+using System.Reflection;
 using System.Security.Cryptography;
-using System.IO;
 using System.Xml;
 using System.Xml.Linq;
-using System.Diagnostics;
-using System.Linq;
 
 
 namespace fCraft {
@@ -73,31 +73,7 @@ namespace fCraft {
                                    WarningLogSubtype.OtherWarning );
             }
 
-            bool resetPath=true;
-
-            foreach( string arg in _args ) {
-                if( arg.StartsWith( "--path=" ) ) {
-                    string workingDirName = arg.Substring( 7 ).Trim();
-                    try {
-                        DirectoryInfo workingDirInfo = new DirectoryInfo( workingDirName );
-                        Directory.SetCurrentDirectory( workingDirInfo.FullName );
-                        resetPath = false;
-                    } catch( System.Security.SecurityException ) {
-                        Logger.Log( "Server.Init: Cannot set working directory (permission denied)", LogType.Error,
-                                    workingDirName );
-                    } catch( DirectoryNotFoundException ) {
-                        Logger.Log( "Server.Init: Directory not found: {0}", LogType.Error,
-                                    workingDirName );
-                    } catch( PathTooLongException ) {
-                        Logger.Log( "Server.Init: Working path too long: {0}", LogType.Error,
-                                    workingDirName );
-                    }
-                }
-            }
-
-            if( resetPath ) {
                 ResetWorkingDirectory();
-            }
 
             // try to load the config
             if( !Config.Load( false ) ) return false;
@@ -297,8 +273,8 @@ namespace fCraft {
 #if DEBUG
 #else
             } catch( Exception ex ) {
+                Logger.Log( "Unexpected error on shutdown: {0}", LogType.Error, ex );
                 Logger.UploadCrashReport( "Unexpected error on shutdown", "fCraft", ex );
-                Logger.Log( "Server.Shutdown: Unexpected error: {0}", LogType.Error, ex );
             }
 #endif
         }
@@ -868,8 +844,8 @@ namespace fCraft {
                             try {
                                 task.callback( task.param );
                             } catch( Exception ex ) {
+                                Logger.Log( "Exception was thrown by a scheduled task: {0}", LogType.Error, ex );
                                 Logger.UploadCrashReport( "Exception was thrown by a scheduled task", "fCraft", ex );
-                                Logger.Log( "Server.MainLoop: Exception was thrown by a scheduled task: " + ex, LogType.Error );
                             }
 #endif
                             task.nextTime += TimeSpan.FromMilliseconds( task.interval );
@@ -880,8 +856,8 @@ namespace fCraft {
 #if DEBUG
 #else
             } catch( Exception ex ) {
-                Logger.Log( "Fatal error in fCraft.Server main loop: " + ex, LogType.FatalError );
-                Logger.UploadCrashReport( "Misc unhandled exception in fCraft.Server.MainLoop", "fCraft", ex );
+                Logger.Log( "Fatal error in fCraft.Server main loop: {0}", LogType.FatalError, ex );
+                Logger.UploadCrashReport( "Fatal error in fCraft.Server main loop", "fCraft", ex );
             }
 #endif
         }
@@ -1067,12 +1043,45 @@ namespace fCraft {
         }
 
         public static void ResetWorkingDirectory() {
-            // reset working directory to same directory as the executable
-            Directory.SetCurrentDirectory( new FileInfo( Process.GetCurrentProcess().MainModule.FileName ).Directory.FullName );
+            // reset working directory to same directory as fCraft.dll
+            string path = Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location );
+            Directory.SetCurrentDirectory( path );
+
+            // check if path is overridden from command line args
+            foreach( string arg in args ) {
+                if( arg.StartsWith( "--path=" ) ) {
+                    string customPath = arg.Substring( 7 ).Trim();
+                    try {
+                        if( !Directory.Exists( customPath ) ) {
+                            Directory.CreateDirectory( customPath );
+                        }
+                        DirectoryInfo info = new DirectoryInfo( customPath );
+                        Directory.SetCurrentDirectory( info.FullName );
+                        Logger.Log( "Custom working path set to {0}", LogType.SystemActivity, info.FullName );
+
+                    } catch( ArgumentException ) {
+                        Logger.Log( "Specified working path is invalid (incorrect format), path reset to default.", LogType.Warning );
+                    } catch( PathTooLongException ) {
+                        Logger.Log( "Specified working path is invalid (too long), path reset to default.", LogType.Warning );
+                    } catch( System.Security.SecurityException ) {
+                        Logger.Log( "Cannot create specified working directory (SecurityException).", LogType.Warning );
+                    } catch( UnauthorizedAccessException ) {
+                        Logger.Log( "Cannot create specified working directory (UnauthorizedAccessException).", LogType.Warning );
+                    }
+                    break;
+                }
+            }
         }
 
+
         internal static string Salt = "";
+
+        // To keep server restarts as smooth as possible, fCreft stores the salt
+        // from the previous session in the config, and checks it if verification
+        // against the current salt fails.
         internal static string OldSalt = "";
+
+
         static void GenerateSalt() {
             // generate random salt
             Random rand = new Random();

@@ -28,15 +28,17 @@ namespace fCraft {
 
     public static class Updater {
         public static int Version = 500;
-        public static int Revision = 330;
+        public static int Revision = 331;
         public static bool IsUnstable = true;
+
+        const string UpdateURL = "http://fcraft.fragmer.net/version.log";
 
         public static UpdaterResult CheckForUpdates() {
             UpdaterResult result = new UpdaterResult( Version );
             if( Config.GetString( ConfigKey.AutomaticUpdates ) == "Disabled" ) return result;
             Logger.Log( "Checking for fCraft updates...", LogType.SystemActivity );
             try {
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create( "http://fcraft.fragmer.net/version.log" );
+                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create( UpdateURL );
 
                 request.Method = "GET";
                 request.UserAgent = "fCraft";

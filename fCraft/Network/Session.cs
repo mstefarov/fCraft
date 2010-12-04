@@ -296,8 +296,8 @@ namespace fCraft {
 #if DEBUG
 #else
             } catch( Exception ex ) {
+                Logger.Log( "Unhandled exception in Session.IoLoop: {0}", LogType.Error, ex );
                 Logger.UploadCrashReport( "Unhandled exception in Session.IoLoop", "fCraft", ex );
-                Logger.Log( "Session.IoLoop: {0}", LogType.Error, ex );
 #endif
             } finally {
                 canQueue = false;
