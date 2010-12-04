@@ -64,8 +64,8 @@ namespace fCraft {
                     try {
                         task.Key( task.Value );
                     } catch( Exception ex ) {
+                        Logger.Log( "Error was thrown by Tasks thread: {0}", LogType.Error, ex );
                         Logger.UploadCrashReport( "Error was thrown by Tasks thread", "fCraft", ex );
-                        Logger.Log( "Error was thrown by Tasks thread: " + ex, LogType.Error );
                     }
 #endif
                 }

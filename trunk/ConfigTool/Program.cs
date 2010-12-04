@@ -37,8 +37,8 @@ namespace ConfigTool {
             try {
                 Application.Run( new ConfigUI() );
             } catch( Exception ex ) {
-                Logger.UploadCrashReport( "Unhandled exception in ConfigTool", "ConfigTool", ex );
                 Logger.Log( "Unhandled exception in ConfigTool: {0}", LogType.FatalError, ex );
+                Logger.UploadCrashReport( "Unhandled exception in ConfigTool", "ConfigTool", ex );
                 Server.CheckForCommonErrors( ex );
                 MessageBox.Show( ex.ToString(), "fCraft ConfigTool has crashed" );
             }

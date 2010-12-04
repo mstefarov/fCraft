@@ -79,8 +79,9 @@ namespace fCraft {
         TickInterval,
         LowLatencyMode,
         SubmitCrashReports,
-
         MaxUndo,
+        MapPath,
+        LogPath,
 
         AutoRankEnabled
     }

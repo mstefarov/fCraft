@@ -83,6 +83,7 @@ namespace fCraft {
 
 
         static Config() { // LEGACY
+            LoadDefaults();
             legacyConfigKeys.Add( "DefaultClass".ToLower(), ConfigKey.DefaultRank );
             legacyConfigKeys.Add( "ClassColorsInChat".ToLower(), ConfigKey.RankColorsInChat );
             legacyConfigKeys.Add( "ClassColorsInWorldNames".ToLower(), ConfigKey.RankColorsInWorldNames );
@@ -208,6 +209,9 @@ namespace fCraft {
 
             SetValue( ConfigKey.MaxUndo, 2000000 );
             SetValue( ConfigKey.AutoRankEnabled, false );
+
+            SetValue( ConfigKey.MapPath, "maps/" );
+            SetValue( ConfigKey.LogPath, "logs/" );
         }
 
         #endregion
@@ -217,7 +221,6 @@ namespace fCraft {
 
         public static bool Load( bool skipClassList ) {
             // generate random salt
-            LoadDefaults();
             bool fromFile = false;
 
             // try to load config file (XML)

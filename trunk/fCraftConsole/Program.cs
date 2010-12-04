@@ -90,9 +90,8 @@ namespace fCraftConsole {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine( "fCraft CRASHED" );
 
+                Logger.Log( "Unhandled exception in fCraftConsole input loop: {0}", LogType.FatalError, ex );
                 Logger.UploadCrashReport( "Unhandled exception in fCraftConsole", "fCraftConsole", ex );
-
-                Logger.Log( "Unhandled exception in fCraftConsole input loop: " + ex, LogType.FatalError );
 
                 Server.CheckForCommonErrors( ex );
             }

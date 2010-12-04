@@ -200,10 +200,6 @@ namespace fCraft {
         }
 
 
-        public static void LogCrash( string message ) {
-            File.AppendAllText( CrashFileName, DateTime.Now.ToString() + Environment.NewLine + message + Environment.NewLine + Environment.NewLine );
-        }
-
         public static string GetPrefix( LogType level ) {
             switch( level ) {
                 case LogType.Error:
@@ -217,9 +213,24 @@ namespace fCraft {
             }
         }
 
+        public static void LogCrash( string message ) {
+            string crashMessage = String.Format( "{0}{1}{2}{1}{1}",
+                                                 DateTime.Now.ToString(),
+                                                 Environment.NewLine,
+                                                 message );
+            try {
+                File.AppendAllText( CrashFileName, crashMessage );
+            } catch( Exception ex ) {
+                Logger.Log( "Cannot save crash report to {0}: {1}", LogType.Error,
+                            CrashFileName, ex );
+            }
+        }
+
+
         static DateTime lastCrashReport;
         static object crashReportLock = new object();
-        const int MinCrashReportInterval = 30;
+        const int MinCrashReportInterval = 61; // minimum interval between submitting crash reports, in seconds
+
         public static void UploadCrashReport( string message, string assembly, Exception exception ) {
             lock( crashReportLock ) {
                 if( DateTime.UtcNow.Subtract( lastCrashReport ).TotalSeconds < MinCrashReportInterval ) {

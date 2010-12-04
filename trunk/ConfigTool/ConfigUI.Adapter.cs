@@ -295,6 +295,31 @@ namespace ConfigTool {
 
             xMaxUndo.Checked = Config.GetInt( ConfigKey.MaxUndo ) > 0;
             nMaxUndo.Value = Config.GetInt( ConfigKey.MaxUndo );
+
+
+            if( !String.IsNullOrEmpty( Config.GetString( ConfigKey.MapPath ) ) ||
+                    (Config.GetString( ConfigKey.MapPath ) != "maps" &&
+                     Config.GetString( ConfigKey.MapPath ) != "maps/" &&
+                     Config.GetString( ConfigKey.MapPath ) != "./maps" &&
+                     Config.GetString( ConfigKey.MapPath ) != "./maps/") ) {
+                tMapPath.Text = Config.GetString( ConfigKey.MapPath );
+                xMapPath.Checked = true;
+            } else {
+                tMapPath.Text = "maps/";
+                xMapPath.Checked = false;
+            }
+
+            if( !String.IsNullOrEmpty( Config.GetString( ConfigKey.LogPath ) ) ||
+                    (Config.GetString( ConfigKey.LogPath ) != "logs" &&
+                     Config.GetString( ConfigKey.LogPath ) != "logs/" &&
+                     Config.GetString( ConfigKey.LogPath ) != "./logs" &&
+                     Config.GetString( ConfigKey.LogPath ) != "./logs/") ) {
+                tLogPath.Text = Config.GetString( ConfigKey.LogPath );
+                xLogPath.Checked = true;
+            } else {
+                tMapPath.Text = "logs/";
+                xMapPath.Checked = false;
+            }
         }
 
 
@@ -431,6 +456,11 @@ namespace ConfigTool {
 
             if( xMaxUndo.Checked ) Config.SetValue( ConfigKey.MaxUndo, Convert.ToInt32( nMaxUndo.Value ) );
             else Config.SetValue( ConfigKey.MaxUndo, 0 );
+
+            if( xMapPath.Checked ) Config.SetValue( ConfigKey.MapPath, tMapPath.Text );
+            else Config.SetValue( ConfigKey.MapPath, "" );
+            if( xLogPath.Checked ) Config.SetValue( ConfigKey.LogPath, tLogPath.Text );
+            else Config.SetValue( ConfigKey.LogPath, "" );
 
             SaveWorldList();
         }
