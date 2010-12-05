@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Reflection;
+using System.Security;
 using System.Security.Cryptography;
 using System.Xml;
 using System.Xml.Linq;
@@ -73,10 +74,11 @@ namespace fCraft {
                                    WarningLogSubtype.OtherWarning );
             }
 
-                ResetWorkingDirectory();
+            ResetWorkingDirectory();
 
             // try to load the config
             if( !Config.Load( false ) ) return false;
+            Config.SetPaths();
             Config.ApplyConfig();
             GenerateSalt();
             if( !Config.Save( true ) ) return false;
@@ -1071,6 +1073,30 @@ namespace fCraft {
                     break;
                 }
             }
+        }
+
+
+        public static string TestDirectory( string path ) {
+            try {
+                if( !Directory.Exists( path ) ) {
+                    Directory.CreateDirectory( path );
+                }
+                DirectoryInfo info = new DirectoryInfo( path );
+                info.LastWriteTimeUtc = DateTime.UtcNow;
+                return info.FullName;
+
+            } catch( ArgumentException ) {
+                Logger.Log( "Specified path is invalid (incorrect format), path reset to default.", LogType.Warning );
+            } catch( PathTooLongException ) {
+                Logger.Log( "Specified path is invalid (too long), path reset to default.", LogType.Warning );
+            } catch( SecurityException ) {
+                Logger.Log( "Cannot create specified directory (SecurityException).", LogType.Warning );
+            } catch( UnauthorizedAccessException ) {
+                Logger.Log( "Cannot create specified directory (UnauthorizedAccessException).", LogType.Warning );
+            } catch( IOException ) {
+                Logger.Log( "Cannot write to specified directory (IOException).", LogType.Warning );
+            }
+            return null;
         }
 
 

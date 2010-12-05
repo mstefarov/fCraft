@@ -31,6 +31,7 @@ namespace ConfigTool {
             }
 
             if( Config.Load( false ) ) {
+                Config.SetPaths();
                 if( Config.errors.Length > 0 ) {
                     MessageBox.Show( Config.errors, "Config loading warnings" );
                 }
@@ -297,28 +298,28 @@ namespace ConfigTool {
             nMaxUndo.Value = Config.GetInt( ConfigKey.MaxUndo );
 
 
-            if( !String.IsNullOrEmpty( Config.GetString( ConfigKey.MapPath ) ) ||
-                    (Config.GetString( ConfigKey.MapPath ) != "maps" &&
-                     Config.GetString( ConfigKey.MapPath ) != "maps/" &&
-                     Config.GetString( ConfigKey.MapPath ) != "./maps" &&
-                     Config.GetString( ConfigKey.MapPath ) != "./maps/") ) {
-                tMapPath.Text = Config.GetString( ConfigKey.MapPath );
-                xMapPath.Checked = true;
-            } else {
+            if( Config.IsDefaultMapPath( Config.GetString( ConfigKey.MapPath ) ) ) {
                 tMapPath.Text = "maps/";
                 xMapPath.Checked = false;
+            } else {
+                tMapPath.Text = Config.GetString( ConfigKey.MapPath );
+                xMapPath.Checked = true;
             }
 
-            if( !String.IsNullOrEmpty( Config.GetString( ConfigKey.LogPath ) ) ||
-                    (Config.GetString( ConfigKey.LogPath ) != "logs" &&
-                     Config.GetString( ConfigKey.LogPath ) != "logs/" &&
-                     Config.GetString( ConfigKey.LogPath ) != "./logs" &&
-                     Config.GetString( ConfigKey.LogPath ) != "./logs/") ) {
-                tLogPath.Text = Config.GetString( ConfigKey.LogPath );
-                xLogPath.Checked = true;
-            } else {
+            if( Config.IsDefaultLogPath( Config.GetString( ConfigKey.LogPath ) ) ) {
                 tMapPath.Text = "logs/";
                 xMapPath.Checked = false;
+            } else {
+                tLogPath.Text = Config.GetString( ConfigKey.LogPath );
+                xLogPath.Checked = true;
+            }
+
+            if( Config.IsDefaultDataPath( Config.GetString( ConfigKey.DataPath ) ) ) {
+                tDataPath.Text = "";
+                xDataPath.Checked = false;
+            } else {
+                tDataPath.Text = Config.GetString( ConfigKey.DataPath );
+                xDataPath.Checked = true;
             }
         }
 
