@@ -189,7 +189,7 @@ namespace fCraft {
             SetValue( ConfigKey.IRCBotAnnounceServerJoins, false );
             SetValue( ConfigKey.IRCBotForwardFromIRC, false ); // Disabled by default
             SetValue( ConfigKey.IRCBotForwardFromServer, false ); // Disabled by default
-            SetValue( ConfigKey.IRCMessageColor, Color.GetName(Color.Purple) );
+            SetValue( ConfigKey.IRCMessageColor, Color.GetName( Color.Purple ) );
             SetValue( ConfigKey.IRCDelay, 750 );
             SetValue( ConfigKey.IRCRegisteredNick, false );
             SetValue( ConfigKey.IRCNickServ, "NickServ" );
@@ -210,8 +210,9 @@ namespace fCraft {
             SetValue( ConfigKey.MaxUndo, 2000000 );
             SetValue( ConfigKey.AutoRankEnabled, false );
 
-            SetValue( ConfigKey.MapPath, "maps/" );
-            SetValue( ConfigKey.LogPath, "logs/" );
+            SetValue( ConfigKey.DataPath, "" );
+            SetValue( ConfigKey.MapPath, "maps" );
+            SetValue( ConfigKey.LogPath, "logs" );
         }
 
         #endregion
@@ -327,8 +328,8 @@ namespace fCraft {
                 foreach( XElement rankPair in legacyRankMappingTag.Elements( "LegacyRankPair" ) ) {
                     XAttribute fromClassID = rankPair.Attribute( "from" );
                     XAttribute toClassID = rankPair.Attribute( "to" );
-                    if( fromClassID == null || String.IsNullOrEmpty(fromClassID.Value) ||
-                        toClassID == null || String.IsNullOrEmpty(toClassID.Value) ) {
+                    if( fromClassID == null || String.IsNullOrEmpty( fromClassID.Value ) ||
+                        toClassID == null || String.IsNullOrEmpty( toClassID.Value ) ) {
                         Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
                     } else {
                         RankList.LegacyRankMapping.Add( fromClassID.Value, toClassID.Value );
@@ -670,7 +671,7 @@ namespace fCraft {
 
         static bool ValidateEnum( ConfigKey key, string value, params string[] options ) {
             for( int i = 0; i < options.Length; i++ ) {
-                if( value.Equals(options[i], StringComparison.OrdinalIgnoreCase) ) {
+                if( value.Equals( options[i], StringComparison.OrdinalIgnoreCase ) ) {
                     settings[key] = options[i];
                     return true;
                 }
@@ -699,7 +700,7 @@ namespace fCraft {
             Color.Warning = Color.Parse( settings[ConfigKey.WarningColor] );
 
             // default class
-            if( !String.IsNullOrEmpty(settings[ConfigKey.DefaultRank]) ) {
+            if( !String.IsNullOrEmpty( settings[ConfigKey.DefaultRank] ) ) {
                 if( RankList.ParseRank( settings[ConfigKey.DefaultRank] ) != null ) {
                     RankList.DefaultRank = RankList.ParseRank( settings[ConfigKey.DefaultRank] );
                 } else {
@@ -974,5 +975,64 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        public static string MapPath { get; private set; }
+
+        public static string LogPath { get; private set; }
+
+        public static string DataPath { get; private set; }
+
+
+        public static bool IsDefaultDataPath( string path ) {
+            return String.IsNullOrEmpty( path ) ||
+                   path == ".";
+        }
+
+        public static bool IsDefaultMapPath( string path ) {
+            return String.IsNullOrEmpty( path ) ||
+                   path == "maps" ||
+                   path == "maps/" ||
+                   path == "./maps" ||
+                   path == "./maps/";
+        }
+
+        public static bool IsDefaultLogPath( string path ) {
+            return String.IsNullOrEmpty( path ) ||
+                   path == "logs" ||
+                   path == "logs/" ||
+                   path == "./logs" ||
+                   path == "./logs/";
+        }
+
+
+        public static void SetPaths() {
+            DataPath = "";
+            if( !IsDefaultDataPath( GetString( ConfigKey.DataPath ) ) ) {
+                string dataPathCandidate = Server.TestDirectory( GetString( ConfigKey.DataPath ) );
+                if( dataPathCandidate != null ) {
+                    DataPath = dataPathCandidate;
+                } else {
+                }
+            }
+
+            MapPath = "maps";
+            if( !IsDefaultMapPath( GetString( ConfigKey.MapPath ) ) ) {
+                string mapPathCandidate = Server.TestDirectory( GetString( ConfigKey.MapPath ) );
+                if( mapPathCandidate != null ) {
+                    MapPath = mapPathCandidate;
+                } else {
+                }
+            }
+
+            LogPath = "logs";
+            if( !IsDefaultLogPath( GetString( ConfigKey.LogPath ) ) ) {
+                string logPathCandidate = Server.TestDirectory( GetString( ConfigKey.LogPath ) );
+                if( logPathCandidate != null ) {
+                    LogPath = logPathCandidate;
+                } else {
+                }
+            }
+        }
     }
 }

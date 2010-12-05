@@ -80,6 +80,8 @@ namespace fCraft {
         LowLatencyMode,
         SubmitCrashReports,
         MaxUndo,
+
+        DataPath,
         MapPath,
         LogPath,
 

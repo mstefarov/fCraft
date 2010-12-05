@@ -61,6 +61,9 @@ namespace fCraft {
         #region Saving/Loading
 
         public static void Load() {
+
+
+
             if( File.Exists( DBFile ) ) {
                 Stopwatch sw = Stopwatch.StartNew();
                 using( StreamReader reader = File.OpenText( DBFile ) ) {

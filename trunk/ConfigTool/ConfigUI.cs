@@ -247,6 +247,14 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         #endregion
 
+        #region Security
+
+        private void cVerifyNames_SelectedIndexChanged( object sender, EventArgs e ) {
+            xAllowUnverifiedLAN.Enabled = (cVerifyNames.SelectedIndex != 0);
+        }
+
+        #endregion
+
         #region Logging
 
         private void vConsoleOptions_ItemChecked( object sender, ItemCheckedEventArgs e ) {
@@ -446,6 +454,21 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void xMaxUndo_CheckedChanged( object sender, EventArgs e ) {
             nMaxUndo.Enabled = xMaxUndo.Checked;
             lMaxUndoUnits.Enabled = xMaxUndo.Checked;
+        }
+
+        private void xMapPath_CheckedChanged( object sender, EventArgs e ) {
+            tMapPath.Enabled = xMapPath.Checked;
+            bMapPath.Enabled = xMapPath.Checked;
+        }
+
+        private void xLogPath_CheckedChanged( object sender, EventArgs e ) {
+            tLogPath.Enabled = xLogPath.Checked;
+            bLogPath.Enabled = xLogPath.Checked;
+        }
+
+        private void xDataPath_CheckedChanged( object sender, EventArgs e ) {
+            tDataPath.Enabled = xDataPath.Checked;
+            bDataPath.Enabled = xDataPath.Checked;
         }
 
         #endregion
@@ -1249,20 +1272,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                         return;
                 }
             }
-        }
-
-        private void cVerifyNames_SelectedIndexChanged( object sender, EventArgs e ) {
-            xAllowUnverifiedLAN.Enabled = (cVerifyNames.SelectedIndex != 0);
-        }
-
-        private void xMapPath_CheckedChanged( object sender, EventArgs e ) {
-            tMapPath.Enabled = xMapPath.Checked;
-            bMapPath.Enabled = xMapPath.Checked;
-        }
-
-        private void xLogPath_CheckedChanged( object sender, EventArgs e ) {
-            tLogPath.Enabled = xLogPath.Checked;
-            bLogPath.Enabled = xLogPath.Checked;
         }
     }
 }
