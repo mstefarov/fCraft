@@ -5,20 +5,14 @@ using System.Threading;
 
 namespace fCraft {
 
-    // used by Server.MainLoop
-    internal sealed class ScheduledTask {
-        public DateTime nextTime;
-        public int interval;
-        public TaskCallback callback;
-        public object param;
-        public bool enabled = true;
-    }
-
-    // used by Tasks
+    // used by both Server's MainLoop, and Tasks classes
     public delegate void TaskCallback( object param );
 
 
-    public static class Tasks {
+    /// <summary>
+    /// Used for offloading operations to a background thread.
+    /// </summary>
+    public static class BackgroundTasks {
         static object queueLock = new object();
         static Thread taskThread;
         static Queue<KeyValuePair<TaskCallback, object>> tasks = new Queue<KeyValuePair<TaskCallback, object>>();
@@ -64,8 +58,7 @@ namespace fCraft {
                     try {
                         task.Key( task.Value );
                     } catch( Exception ex ) {
-                        Logger.Log( "Error was thrown by Tasks thread: {0}", LogType.Error, ex );
-                        Logger.UploadCrashReport( "Error was thrown by Tasks thread", "fCraft", ex );
+                        Logger.LogAndReportCrash( "Error in Tasks thread", "fCraft", ex );
                     }
 #endif
                 }

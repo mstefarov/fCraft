@@ -300,7 +300,7 @@
             0,
             0,
             0} );
-            this.nWidthX.ValueChanged += new System.EventHandler( this.nWidthX_ValueChanged );
+            this.nWidthX.ValueChanged += new System.EventHandler( this.MapDimensionChanged );
             // 
             // nWidthY
             // 
@@ -328,7 +328,7 @@
             0,
             0,
             0} );
-            this.nWidthY.ValueChanged += new System.EventHandler( this.nWidthX_ValueChanged );
+            this.nWidthY.ValueChanged += new System.EventHandler( this.MapDimensionChanged );
             // 
             // nHeight
             // 

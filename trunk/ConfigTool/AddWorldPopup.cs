@@ -417,7 +417,7 @@ namespace ConfigTool {
             gBeaches.Visible = xAdvanced.Checked && xAddBeaches.Checked;
         }
 
-        private void nWidthX_ValueChanged( object sender, EventArgs e ) {
+        private void MapDimensionChanged( object sender, EventArgs e ) {
             sFeatureScale.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 );
             int value = sDetailScale.Maximum - sDetailScale.Value;
             sDetailScale.Maximum = sFeatureScale.Maximum;
