@@ -296,8 +296,7 @@ namespace fCraft {
 #if DEBUG
 #else
             } catch( Exception ex ) {
-                Logger.Log( "Unhandled exception in Session.IoLoop: {0}", LogType.Error, ex );
-                Logger.UploadCrashReport( "Unhandled exception in Session.IoLoop", "fCraft", ex );
+                Logger.LogAndReportCrash( "Error in Session.IoLoop", "fCraft", ex );
 #endif
             } finally {
                 canQueue = false;
@@ -580,19 +579,19 @@ namespace fCraft {
 
         internal bool JoinWorldNow( World newWorld, bool firstTime ) {
             if( newWorld == null ) {
-                Logger.Log( "Session.JoinWorld: Requested to join a non-existing (null) world.", LogType.Error );
+                Logger.Log( "Session.JoinWorldNow: Requested to join a non-existing (null) world.", LogType.Error );
                 return false;
             }
 
             if( newWorld.accessRank > player.info.rank ) {
-                Logger.Log( "Session.JoinWorld: Access limits prevented {0} from joining {1}.", LogType.Error,
+                Logger.Log( "Session.JoinWorldNow: Access limits prevented {0} from joining {1}.", LogType.Error,
                             player.name, newWorld.name );
                 return false;
             }
 
             if( !newWorld.FirePlayerTriedToJoinEvent( player ) ) {
-                Logger.LogWarning( "Session.JoinWorld: FirePlayerTriedToJoinEvent prevented {0} from joining {1}", WarningLogSubtype.EventWarning,
-                                   player.name, newWorld.name );
+                Logger.Log( "Session.JoinWorldNow: FirePlayerTriedToJoinEvent prevented {0} from joining {1}", LogType.Warning,
+                            player.name, newWorld.name );
                 return false;
             }
 
@@ -604,7 +603,8 @@ namespace fCraft {
             // remove player from the old world
             if( oldWorld != null && oldWorld != newWorld ) {
                 if( !oldWorld.ReleasePlayer( player ) ) {
-                    Logger.Log( "Session.JoinWorld: Player asked to be released from its world, but the world did not contain the player.", LogType.Error );
+                    Logger.Log( "Session.JoinWorldNow: Player asked to be released from its world, " +
+                                "but the world did not contain the player.", LogType.Error );
                 }
                 Player[] oldWorldPlayerList = oldWorld.playerList;
                 foreach( Player otherPlayer in oldWorldPlayerList ) {
@@ -623,7 +623,9 @@ namespace fCraft {
 
             // Start sending over the level copy
             if( !firstTime ) {
-                writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), "Loading world " + newWorld.GetClassyName() ) );
+                writer.Write( PacketWriter.MakeHandshake( player,
+                                                          Config.GetString( ConfigKey.ServerName ),
+                                                          "Loading world " + newWorld.GetClassyName() ) );
             }
 
             writer.WriteLevelBegin();
@@ -636,8 +638,8 @@ namespace fCraft {
                 newWorld.map.GetCompressedCopy( stream, true );
                 blockData = stream.ToArray();
             }
-            Logger.Log( "Session.JoinWorld: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
-                           blockData.Length, player.name );
+            Logger.Log( "Session.JoinWorldNow: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
+                        blockData.Length, player.name );
 
             // disable low-latency-mode to avoid wasting bandwidth for map transfer
             client.NoDelay = false;

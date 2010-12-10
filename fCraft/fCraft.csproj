@@ -123,7 +123,7 @@
     <None Include="app.config" />
     <Compile Include="Utils\StringTree.cs" />
     <Compile Include="Utils\Position.cs" />
-    <Compile Include="Utils\Tasks.cs" />
+    <Compile Include="Utils\BackgroundTasks.cs" />
     <Compile Include="World\Block.cs" />
     <Compile Include="World\BlockUpdate.cs" />
     <Compile Include="World\EventHandlers.cs" />

@@ -2,6 +2,10 @@
 
 
 namespace fCraft {
+    /// <summary>
+    /// Enumeration of available configuration keys. See comment
+    /// at the top of Config.cs for a history of changes.
+    /// </summary>
     public enum ConfigKey {
         ServerName,
         MOTD,
@@ -81,9 +85,9 @@ namespace fCraft {
         SubmitCrashReports,
         MaxUndo,
 
-        DataPath,
         MapPath,
         LogPath,
+        DataPath,
 
         AutoRankEnabled
     }

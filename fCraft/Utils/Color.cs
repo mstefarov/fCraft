@@ -4,81 +4,151 @@ using System.Collections.Generic;
 
 
 namespace fCraft {
-    public static class Color {
-        public const string Black   = "&0",
-                            Navy    = "&1",
-                            Green   = "&2",
-                            Teal    = "&3",
-                            Maroon  = "&4",
-                            Purple  = "&5",
-                            Olive   = "&6",
-                            Silver  = "&7",
-                            Gray    = "&8",
-                            Blue    = "&9",
-                            Lime    = "&a",
-                            Aqua    = "&b",
-                            Red     = "&c",
-                            Magenta = "&d",
-                            Yellow  = "&e",
-                            White   = "&f";
 
+    /// <summary>
+    /// Static class with definitions of Minecraft color codes, parsers/converers, and utilities.
+    /// </summary>
+    public static class Color {
+        public const string Black = "&0",
+                            Navy = "&1",
+                            Green = "&2",
+                            Teal = "&3",
+                            Maroon = "&4",
+                            Purple = "&5",
+                            Olive = "&6",
+                            Silver = "&7",
+                            Gray = "&8",
+                            Blue = "&9",
+                            Lime = "&a",
+                            Aqua = "&b",
+                            Red = "&c",
+                            Magenta = "&d",
+                            Yellow = "&e",
+                            White = "&f";
+
+        // User-defined color assignments. Set by Config.ApplyConfig.
         public static string Sys, Help, Say, Announcement, PM, IRC, Me, Warning;
 
-        static SortedList<char, string> colors = new SortedList<char, string>(16);
+        // Defaults for user-defined colors.
+        public const string SysDefault = Yellow,
+                            HelpDefault = Lime,
+                            SayDefault = Green,
+                            AnnouncementDefault = Green,
+                            PMDefault = Aqua,
+                            IRCDefault = Purple,
+                            MeDefault = Purple,
+                            WarningDefault = Red;
+
+        static SortedList<char, string> colorNames = new SortedList<char, string>( 16 );
 
 
         static Color() {
-            colors.Add( '0', "black" );
-            colors.Add( '1', "navy" );
-            colors.Add( '2', "green" );
-            colors.Add( '3', "teal" );
-            colors.Add( '4', "maroon" );
-            colors.Add( '5', "purple" );
-            colors.Add( '6', "olive" );
-            colors.Add( '7', "silver" );
-            colors.Add( '8', "gray" );
-            colors.Add( '9', "blue" );
-            colors.Add( 'a', "lime" );
-            colors.Add( 'b', "aqua" );
-            colors.Add( 'c', "red" );
-            colors.Add( 'd', "magenta" );
-            colors.Add( 'e', "yellow" );
-            colors.Add( 'f', "white" );
+            colorNames.Add( '0', "black" );
+            colorNames.Add( '1', "navy" );
+            colorNames.Add( '2', "green" );
+            colorNames.Add( '3', "teal" );
+            colorNames.Add( '4', "maroon" );
+            colorNames.Add( '5', "purple" );
+            colorNames.Add( '6', "olive" );
+            colorNames.Add( '7', "silver" );
+            colorNames.Add( '8', "gray" );
+            colorNames.Add( '9', "blue" );
+            colorNames.Add( 'a', "lime" );
+            colorNames.Add( 'b', "aqua" );
+            colorNames.Add( 'c', "red" );
+            colorNames.Add( 'd', "magenta" );
+            colorNames.Add( 'e', "yellow" );
+            colorNames.Add( 'f', "white" );
         }
 
 
+        /// <summary> Gets color name for hex color code. </summary>
+        /// <param name="code">Hexadecimal color code (between '0' and 'f')</param>
+        /// <returns>Lowercase color name</returns>
+        /// <exception cref="System.ArgumentException">Thrown when code is not hexadecimal</exception>
         public static string GetName( char code ) {
-            return colors[code];
+            code = Char.ToLower( code );
+            if( IsValidColorCode( code ) ) {
+                return colorNames[code];
+            } else {
+                return colorNames[Parse( code )[1]];
+            }
         }
 
+
+        public static string Parse( char code ) {
+            code = Char.ToLower( code );
+            if( IsValidColorCode( code ) ) {
+                return "&" + code;
+            } else {
+                switch( code ) {
+                    case 's': return Color.Sys;
+                    case 'y': return Color.Say;
+                    case 'p': return Color.PM;
+                    case 'r': return Color.Announcement;
+                    case 'h': return Color.Help;
+                    case 'w': return Color.Warning;
+                    case 'm': return Color.Me;
+                    case 'i': return Color.IRC;
+                    default:
+                        throw new ArgumentException( "Expected a hexadecimal color code.", "code" );
+                }
+            }
+        }
+
+
+        /// <summary> Gets color name for a string representation of a color. </summary>
+        /// <param name="color"> Any parsable string representation of a color. </param>
+        /// <returns> Lowercase color name </returns>
+        /// <exception cref="System.ArgumentException"> Thrown when color cannot be parsed </exception>
         public static string GetName( string color ) {
-            if( color != null && color.Length > 0 && Parse( color ) != null ) {
+            if( color != null && color.Length > 0 ) {
                 return GetName( Parse( color )[1] );
             } else {
-                return "";
+                throw new ArgumentException( "Could not parse color.", "color" );
             }
         }
 
+
+        /// <summary> Gets color name for a numeric color code. </summary>
+        /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
+        /// <returns> Lowercase color name </returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"> Thrown when color code is not between 0 and 15 </exception>
         public static string GetName( int index ) {
-            return colors.Values[index];
+            if( index >= 0 && index <= 15 ) {
+                return colorNames.Values[index];
+            } else {
+                throw new ArgumentOutOfRangeException( "index", "Expected an ordinal numeric color code, between 0 and 15" );
+            }
         }
 
+        /// <summary> Parses a numeric color code to a string readable by Minecraft clients </summary>
+        /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
+        /// <returns> Two-character color string, readable by Minecraft client </returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"> Thrown when color code is not between 0 and 15 </exception>
         public static string Parse( int index ) {
             if( index >= 0 && index <= 15 ) {
-                return "&" + colors.Keys[index];
+                return "&" + colorNames.Keys[index];
             } else {
-                return White;
+                throw new ArgumentOutOfRangeException( "index", "Expected an ordinal numeric color code, between 0 and 15" );
             }
         }
 
+
+        /// <summary> Parses a string to a format readable by Minecraft clients. Can accept color names, colorcodes </summary>
+        /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
+        /// <returns> Two-character color string, readable by Minecraft client </returns>
+        /// <exception cref="System.ArgumentException"> Thrown when color cannot be parsed </exception>
         public static string Parse( string color ) {
             color = color.ToLower();
-            if( color.Length == 2 && color[0] == '&' && colors.ContainsKey( color[1] ) ) {
+            if( color.Length == 2 && color[0] == '&' && IsValidColorCode(color[1]) ) {
                 return color;
-            } else if( colors.ContainsValue( color ) ) {
-                return "&" + colors.Keys[colors.IndexOfValue( color )];
+            } else if( colorNames.ContainsValue( color ) ) {
+                return "&" + colorNames.Keys[colorNames.IndexOfValue( color )];
+            } else if( color.Length == 1 ) {
+                return Parse(color[0]);
             } else {
-                return null;
+                throw new ArgumentException( "Could not parse color.", "color" );
             }
         }
 
@@ -86,23 +156,23 @@ namespace fCraft {
         public static int ParseToIndex( string color ) {
             color = color.ToLower();
             if( color.Length == 2 && color[0] == '&' ) {
-                if( colors.ContainsKey( color[1] ) ) {
-                    return colors.IndexOfKey( color[1] );
+                if( colorNames.ContainsKey( color[1] ) ) {
+                    return colorNames.IndexOfKey( color[1] );
                 } else {
                     switch( color ) {
-                        case "&s": return colors.IndexOfKey( Color.Sys[1] );
-                        case "&y": return colors.IndexOfKey( Color.Say[1] );
-                        case "&p": return colors.IndexOfKey( Color.PM[1] );
-                        case "&r": return colors.IndexOfKey( Color.Announcement[1] );
-                        case "&h": return colors.IndexOfKey( Color.Help[1] );
-                        case "&w": return colors.IndexOfKey( Color.Warning[1] );
-                        case "&m": return colors.IndexOfKey( Color.Me[1] );
-                        case "&i": return colors.IndexOfKey( Color.IRC[1] );
+                        case "&s": return colorNames.IndexOfKey( Color.Sys[1] );
+                        case "&y": return colorNames.IndexOfKey( Color.Say[1] );
+                        case "&p": return colorNames.IndexOfKey( Color.PM[1] );
+                        case "&r": return colorNames.IndexOfKey( Color.Announcement[1] );
+                        case "&h": return colorNames.IndexOfKey( Color.Help[1] );
+                        case "&w": return colorNames.IndexOfKey( Color.Warning[1] );
+                        case "&m": return colorNames.IndexOfKey( Color.Me[1] );
+                        case "&i": return colorNames.IndexOfKey( Color.IRC[1] );
                         default: return 15;
                     }
                 }
-            } else if( colors.ContainsValue( color ) ) {
-                return colors.IndexOfValue( color );
+            } else if( colorNames.ContainsValue( color ) ) {
+                return colorNames.IndexOfValue( color );
             } else {
                 return 15; // white
             }
@@ -110,7 +180,7 @@ namespace fCraft {
 
 
         public static bool IsValidColorCode( char code ) {
-            return code >= '0' && code <= '9' || code >= 'a' && code <= 'f' || code >= 'A' && code <= 'F';
+            return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f') || (code >= 'A' && code <= 'F');
         }
     }
 }

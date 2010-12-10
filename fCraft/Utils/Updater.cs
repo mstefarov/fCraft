@@ -26,9 +26,12 @@ namespace fCraft {
     }
 
 
+    /// <summary>
+    /// Checks for updates, and keeps track of current version/revision.
+    /// </summary>
     public static class Updater {
         public static int Version = 500;
-        public static int Revision = 332;
+        public static int Revision = 334;
         public static bool IsUnstable = true;
 
         const string UpdateURL = "http://fcraft.fragmer.net/version.log";

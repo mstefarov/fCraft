@@ -20,7 +20,7 @@ namespace fCraft {
     public static class Server {
         static List<Session> sessions = new List<Session>();
         static object sessionLock = new object();
-        static string[] args;
+        static string[] args = new string[0];
 
         public static void KickGhostsAndRegisterSession( Session newSession ) {
             List<Session> sessionsToKick = new List<Session>();
@@ -63,15 +63,19 @@ namespace fCraft {
         public static int Port;
         public static string URL;
 
+        public static void SetArgs( string[] _args ) {
+            args = _args;
+        }
+
         public static bool Init( string[] _args ) {
             serverStart = DateTime.Now;
-            args = _args;
+            SetArgs( _args );
 
             if( Updater.IsUnstable ) {
-                Logger.LogWarning( "You are using an unstable/developer version of fCraft. " +
-                                   "Do not use this version unless are are ready to deal with bugs and potential data loss. " +
-                                   "Consider using the lastest stable version instead, available from www.fcraft.net",
-                                   WarningLogSubtype.OtherWarning );
+                Logger.Log( "You are using an unstable/developer version of fCraft. " +
+                            "Do not use this version unless are are ready to deal with bugs and potential data loss. " +
+                            "Consider using the lastest stable version instead, available from www.fcraft.net",
+                            LogType.Warning );
             }
 
             ResetWorkingDirectory();
@@ -86,7 +90,7 @@ namespace fCraft {
             CheckMapDirectory();
 
             // start the task thread
-            Tasks.Start();
+            BackgroundTasks.Start();
 
             // load player DB
             PlayerDB.Load();
@@ -259,7 +263,7 @@ namespace fCraft {
                 IRC.Disconnect();
 
                 // kill background tasks
-                Tasks.Shutdown();
+                BackgroundTasks.Shutdown();
 
                 lock( worldListLock ) {
                     // unload all worlds (includes saving)
@@ -275,8 +279,7 @@ namespace fCraft {
 #if DEBUG
 #else
             } catch( Exception ex ) {
-                Logger.Log( "Unexpected error on shutdown: {0}", LogType.Error, ex );
-                Logger.UploadCrashReport( "Unexpected error on shutdown", "fCraft", ex );
+                Logger.LogAndReportCrash( "Error in Server.Shutdown", "fCraft", ex );
             }
 #endif
         }
@@ -318,11 +321,9 @@ namespace fCraft {
                 try {
                     LoadWorldListXML();
                 } catch( Exception ex ) {
-                    Logger.Log( "An error occured while trying to parse the world list: " + Environment.NewLine + ex.ToString(), LogType.FatalError );
+                    Logger.Log( "An error occured while trying to parse the world list: {0}", LogType.FatalError, ex );
                     return false;
                 }
-            } else if( File.Exists( "worlds.txt" ) ) { // LEGACY
-                LoadWorldListTXT();
             } else {
                 Logger.Log( "Server.Start: No world list found. Creating default \"main\" world.", LogType.SystemActivity );
                 mainWorld = AddWorld( "main", null, true );
@@ -339,9 +340,9 @@ namespace fCraft {
                 return false;
             } else {
                 if( mainWorld.accessRank != RankList.LowestRank ) {
-                    Logger.LogWarning( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
-                                       "Access permission for \"{0}\" has been reset.", WarningLogSubtype.WorldListWarning,
-                                       mainWorld.name );
+                    Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
+                                "Access permission for \"{0}\" has been reset.", LogType.Warning,
+                                 mainWorld.name );
                     mainWorld.accessRank = RankList.LowestRank;
                 }
                 if( !mainWorld.neverUnload ) {
@@ -379,14 +380,14 @@ namespace fCraft {
                 } else {
                     if( (temp = el.Attribute( "hidden" )) != null ) {
                         if( !Boolean.TryParse( temp.Value, out world.isHidden ) ) {
-                            Logger.LogWarning( "Server.ParseWorldListXML: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
-                                               WarningLogSubtype.WorldListWarning,
-                                               worldName );
+                            Logger.Log( "Server.ParseWorldListXML: Could not parse \"hidden\" attribute of world \"{0}\", " +
+                                        "assuming NOT hidden.", LogType.Warning,
+                                        worldName );
                             world.isHidden = false;
                         }
                     }
                     if( firstWorld == null ) firstWorld = world;
-                    Logger.Log( "Server.ParseWorldListXML: Loaded world \"" + worldName + "\"", LogType.Debug );
+                    Logger.Log( "Server.ParseWorldListXML: Loaded world \"{0}\"", LogType.Debug, worldName );
 
                     LoadWorldClassRestriction( world, ref world.accessRank, "access", el );
                     LoadWorldClassRestriction( world, ref world.buildRank, "build", el );
@@ -397,9 +398,10 @@ namespace fCraft {
                 mainWorld = FindWorld( temp.Value );
                 // if specified main world does not exist, use first-defined world
                 if( mainWorld == null && firstWorld != null ) {
-                    Logger.LogWarning( "The specified main world \"{0}\" does not exist. \"{1}\" was designated main instead. You can use /wmain to change it.",
-                                       WarningLogSubtype.WorldListWarning,
-                                       temp.Value, firstWorld.name );
+                    Logger.Log( "The specified main world \"{0}\" does not exist. " +
+                                "\"{1}\" was designated main instead. You can use /wmain to change it.",
+                                LogType.Warning,
+                                temp.Value, firstWorld.name );
                     mainWorld = firstWorld;
                 }
                 // if firstWorld was also null, LoadWorldList() should try creating a new mainWorld
@@ -425,27 +427,6 @@ namespace fCraft {
                 }
             } else {
                 field = RankList.LowestRank;
-            }
-        }
-
-
-        static void LoadWorldListTXT() { // LEGACY
-            string[] worldList = File.ReadAllLines( "worlds.txt" );
-            bool first = true;
-            foreach( string worldName in worldList ) {
-                World world = AddWorld( worldName, null, first );
-                if( world != null ) {
-                    if( first ) mainWorld = world;
-                    first = false;
-                    Logger.Log( "Server.ParseWorldListTXT: Loaded world \"{0}\"", LogType.Debug, worldName );
-                } else {
-                    Logger.Log( "Server.ParseWorldListTXT: Error loading world \"{0}\"", LogType.Error, worldName );
-                }
-            }
-            try {
-                File.Delete( "worlds.txt" );
-            } catch( Exception ex ) {
-                Logger.Log( "Server.LoadWorldListTXT: An error occured while trying to delete \"worlds.txt\": " + ex, LogType.Error );
             }
         }
 
@@ -820,6 +801,17 @@ namespace fCraft {
 
         #region Scheduler
 
+        /// <summary>
+        /// Represents the state of a scheduled task, for Server.MainLoop
+        /// </summary>
+        sealed class ScheduledTask {
+            public DateTime nextTime;
+            public int interval;
+            public TaskCallback callback;
+            public object param;
+            public bool enabled = true;
+        }
+
         static int taskIdCounter;
         static Dictionary<int, ScheduledTask> tasks = new Dictionary<int, ScheduledTask>();
         static ScheduledTask[] taskList;
@@ -846,8 +838,7 @@ namespace fCraft {
                             try {
                                 task.callback( task.param );
                             } catch( Exception ex ) {
-                                Logger.Log( "Exception was thrown by a scheduled task: {0}", LogType.Error, ex );
-                                Logger.UploadCrashReport( "Exception was thrown by a scheduled task", "fCraft", ex );
+                                Logger.LogAndReportCrash( "Exception was thrown by a scheduled task", "fCraft", ex );
                             }
 #endif
                             task.nextTime += TimeSpan.FromMilliseconds( task.interval );
@@ -858,8 +849,7 @@ namespace fCraft {
 #if DEBUG
 #else
             } catch( Exception ex ) {
-                Logger.Log( "Fatal error in fCraft.Server main loop: {0}", LogType.FatalError, ex );
-                Logger.UploadCrashReport( "Fatal error in fCraft.Server main loop", "fCraft", ex );
+                Logger.LogAndReportCrash( "Fatal error in fCraft.Server main loop", "fCraft", ex );
             }
 #endif
         }
@@ -879,7 +869,7 @@ namespace fCraft {
 
         const int AutoRankTickInterval = 60000; // 60 seconds
         static void AutoRankTick( object param ) {
-            Tasks.Add( (TaskCallback)delegate( object innerParam ) {
+            BackgroundTasks.Add( (TaskCallback)delegate( object innerParam ) {
                 AutoRankCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );
             }, null );
         }
@@ -894,12 +884,12 @@ namespace fCraft {
             World world = (World)param;
             if( world.map == null ) return;
             if( world.map.changesSinceSave > 0 ) {
-                Tasks.Add( world.SaveMap, null );
+                BackgroundTasks.Add( world.SaveMap, null );
             }
         }
 
         static void SavePlayerDB( object param ) {
-            Tasks.Add( (TaskCallback)delegate( object innerParam ) {
+            BackgroundTasks.Add( (TaskCallback)delegate( object innerParam ) {
                 PlayerDB.Save();
             }, null );
         }
@@ -929,7 +919,7 @@ namespace fCraft {
         static void DoGC( object param ) {
             if( GCRequested ) {
                 GCRequested = false;
-                Tasks.Add( (TaskCallback)delegate( object innerParam ) {
+                BackgroundTasks.Add( (TaskCallback)delegate( object innerParam ) {
                     GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
                     Logger.Log( "Server.DoGC: Collected on schedule.", LogType.Debug );
                 }, null );
@@ -1031,18 +1021,6 @@ namespace fCraft {
             }
         }
 
-        public static void CheckForCommonErrors( Exception ex ) {
-            if( ex.Message.Contains( "System.Xml.Linq" ) ) {
-                Logger.Log( "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
-                            "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).", LogType.Warning );
-            } else if( ex.Message.Equals( "libMonoPosixHelper.so", StringComparison.OrdinalIgnoreCase ) ) {
-                Logger.Log( "fCraft could not locate Mono's compression functionality. " +
-                            "Please make sure that you have libmono-posix-2.0-cil or equivalent package installed.", LogType.Warning );
-            } else if( ex is UnauthorizedAccessException ) {
-                Logger.Log( "fCraft was blocked from accessing a file or resource. " +
-                            "Make sure that correct permissions are set for the fCraft files, folders, and processes.", LogType.Warning );
-            }
-        }
 
         public static void ResetWorkingDirectory() {
             // reset working directory to same directory as fCraft.dll
@@ -1262,8 +1240,8 @@ namespace fCraft {
 
                         if( player.info != null ) player.info.ProcessLogout( player );
                     } else {
-                        Logger.LogWarning( "Server.UnregisterPlayer: Trying to unregister a non-existent player.",
-                                           WarningLogSubtype.OtherWarning );
+                        Logger.Log( "Server.UnregisterPlayer: Trying to unregister a non-existent player.",
+                                    LogType.Warning );
                     }
                 }
             }

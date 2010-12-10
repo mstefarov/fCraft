@@ -1,7 +1,10 @@
 ﻿using System;
 
 namespace fCraft {
-
+    
+    /// <summary>
+    /// Integer 3D vector, used by Forester.
+    /// </summary>
     public struct Vector3i {
         public int x, z, y;
 
@@ -100,7 +103,9 @@ namespace fCraft {
     }
 
 
-
+    /// <summary>
+    /// Floating-point (float) 3D vector, used by Forester
+    /// </summary>
     public struct Vector3f {
         public float x, y, h;
 

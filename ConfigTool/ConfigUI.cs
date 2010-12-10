@@ -24,7 +24,9 @@ namespace ConfigTool {
 
         #region Initialization
 
-        public ConfigUI() {
+        public ConfigUI( string[] args ) {
+            Server.SetArgs( args );
+
             instance = this;
             InitializeComponent();
 
@@ -43,6 +45,7 @@ namespace ConfigTool {
             FillToolTipsLogging();
             FillToolTipsIRC();
             FillToolTipsAdvanced();
+
 
             dgvWorlds.DataError += delegate( object sender, DataGridViewDataErrorEventArgs e ) {
                 MessageBox.Show( e.Exception.Message, "Data Error" );

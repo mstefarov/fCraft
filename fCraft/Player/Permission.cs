@@ -1,6 +1,9 @@
 ﻿using System;
 
 namespace fCraft {
+    /// <summary>
+    /// See comment at the top of Config.cs for a history of changes.
+    /// </summary>
     public enum Permission {
         Chat,
         Build,

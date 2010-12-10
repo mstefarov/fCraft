@@ -238,6 +238,7 @@ namespace ConfigTool {
 
 
         void ApplyTabLogging() {
+
             foreach( ListViewItem item in vConsoleOptions.Items ) {
                 item.Checked = Logger.consoleOptions[item.Index];
             }
@@ -250,6 +251,14 @@ namespace ConfigTool {
             xLogLimit.Checked = Config.GetInt( ConfigKey.MaxLogs ) > 0;
             nLogLimit.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.MaxLogs ) );
             if( !xLogLimit.Checked ) nLogLimit.Enabled = false;
+
+            if( Config.IsDefaultLogPath( Config.GetString( ConfigKey.LogPath ) ) ) {
+                tMapPath.Text = "logs/";
+                xMapPath.Checked = false;
+            } else {
+                tLogPath.Text = Config.GetString( ConfigKey.LogPath );
+                xLogPath.Checked = true;
+            }
         }
 
 
@@ -298,28 +307,20 @@ namespace ConfigTool {
             nMaxUndo.Value = Config.GetInt( ConfigKey.MaxUndo );
 
 
-            if( Config.IsDefaultMapPath( Config.GetString( ConfigKey.MapPath ) ) ) {
-                tMapPath.Text = "maps/";
-                xMapPath.Checked = false;
-            } else {
-                tMapPath.Text = Config.GetString( ConfigKey.MapPath );
-                xMapPath.Checked = true;
-            }
-
-            if( Config.IsDefaultLogPath( Config.GetString( ConfigKey.LogPath ) ) ) {
-                tMapPath.Text = "logs/";
-                xMapPath.Checked = false;
-            } else {
-                tLogPath.Text = Config.GetString( ConfigKey.LogPath );
-                xLogPath.Checked = true;
-            }
-
             if( Config.IsDefaultDataPath( Config.GetString( ConfigKey.DataPath ) ) ) {
                 tDataPath.Text = "";
                 xDataPath.Checked = false;
             } else {
                 tDataPath.Text = Config.GetString( ConfigKey.DataPath );
                 xDataPath.Checked = true;
+            }
+
+            if( Config.IsDefaultMapPath( Config.GetString( ConfigKey.MapPath ) ) ) {
+                tMapPath.Text = "maps/";
+                xMapPath.Checked = false;
+            } else {
+                tMapPath.Text = Config.GetString( ConfigKey.MapPath );
+                xMapPath.Checked = true;
             }
         }
 
@@ -422,6 +423,8 @@ namespace ConfigTool {
             foreach( ListViewItem item in vLogFileOptions.Items ) {
                 Logger.logFileOptions[item.Index] = item.Checked;
             }
+            if( xLogPath.Checked ) Config.SetValue( ConfigKey.LogPath, tLogPath.Text );
+            else Config.SetValue( ConfigKey.LogPath, "" );
 
 
             Config.SetValue( ConfigKey.IRCBot, xIRC.Checked );
@@ -458,10 +461,10 @@ namespace ConfigTool {
             if( xMaxUndo.Checked ) Config.SetValue( ConfigKey.MaxUndo, Convert.ToInt32( nMaxUndo.Value ) );
             else Config.SetValue( ConfigKey.MaxUndo, 0 );
 
+            if( xDataPath.Checked ) Config.SetValue( ConfigKey.DataPath, tDataPath.Text );
+            else Config.SetValue( ConfigKey.DataPath, "" );
             if( xMapPath.Checked ) Config.SetValue( ConfigKey.MapPath, tMapPath.Text );
             else Config.SetValue( ConfigKey.MapPath, "" );
-            if( xLogPath.Checked ) Config.SetValue( ConfigKey.LogPath, tLogPath.Text );
-            else Config.SetValue( ConfigKey.LogPath, "" );
 
             SaveWorldList();
         }

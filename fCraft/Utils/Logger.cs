@@ -9,6 +9,10 @@ using System.Runtime.InteropServices;
 
 
 namespace fCraft {
+
+    /// <summary>
+    /// Category of a log event.
+    /// </summary>
     public enum LogType {
         SystemActivity,
         Warning,
@@ -31,75 +35,6 @@ namespace fCraft {
     }
 
 
-    public enum WarningLogSubtype {
-        CommandWarning,
-        HeartbeatWarning,
-        MissingFileWarning,
-        IPBanListWarning,
-        PlayerDBWarning,
-        WorldListWarning,
-        ConfigWarning,
-        ClassListWarning,
-        MapLoadWarning,
-        EventWarning,
-        OtherWarning
-    }
-
-    public enum ErrorLogSubtype {
-        MapSaveFailed,
-        MapLoadingFailed,
-        WorldError,
-        GenerationFailed,
-        HeartbeatError,
-        UpdateError,
-        IPBanListError,
-        SessionError,
-        LoginSequenceError,
-        JoinWorldError,
-        ClassListError,
-        PlayerDBError,
-        NetworkError,
-        WorldListError,
-        ConfigError,
-        BackupError,
-        ImportError
-    }
-
-    public enum FatalErrorLogSubtype {
-        PlayerDBSchemaTooNew,
-        PlayerDBVersionNotFound,
-        PlayerDBVersionError,
-        CouldNotStartListening,
-        CouldNotParseWorldList,
-        WorldCreationFailed,
-        CouldNotLoadConfig,
-        CouldNotSaveConfig
-    }
-
-    public enum IRCLogSubtype {
-        IRCLoggingIn,
-        IRCBotNickTaken,
-        IRCBotKicked,
-        IRCBotKilled,
-        IRCBotDisconnected,
-        IRCError
-    }
-
-    public enum SuspicousActivityLogSubtype {
-        InvalidSetTilePacket,
-        LeavingMapBoundaries,
-        InvalidPlayerName,
-        NameNotVerified,
-        BannedPlayerTriedToLog,
-        PlayerLoggingInFromBannedIP,
-        LoginFromSameName,
-        LoginFromSameIP,
-        BlockSpam,
-        ChatSpam,
-        PacketSpam
-    }
-
-
     public enum LogSplittingType {
         OneFile,
         SplitBySession,
@@ -107,13 +42,16 @@ namespace fCraft {
     }
 
 
+    /// <summary>
+    /// Central logging class. Logs to file, relays messages to the frontend, submits crash reports.
+    /// </summary>
     public static class Logger {
         static object locker = new object();
         public static bool[] consoleOptions;
         public static bool[] logFileOptions;
 
-        const string LogFileName = "fCraft.log",
-                     CrashFileName = "fCraftCRASH.log",
+        const string DefaultLogFileName = "fCraft.log",
+                     CrashLogFileName = "fCraftCRASH.log",
                      CrashReportURL = "http://fragmer.net/fcraft/crashreport.php",
                      LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss",
                      ShortDateFormat = "yyyy'-'MM'-'dd";
@@ -131,13 +69,6 @@ namespace fCraft {
                 logFileOptions[i] = true;
             }
 
-            if( !Directory.Exists( "logs" ) ) {
-                Directory.CreateDirectory( "logs" );
-                if( File.Exists( LogFileName ) ) {
-                    File.Move( LogFileName, "logs/_OldLog.log" );
-                }
-            }
-
             MarkLogStart();
         }
 
@@ -150,11 +81,6 @@ namespace fCraft {
         public static void Log( string message, LogType type, params object[] values ) {
             Log( String.Format( message, values ), type );
         }
-
-        public static void LogWarning( string message, WarningLogSubtype subtype, params object[] values ) {
-            Log( String.Format( message, values ), LogType.Warning );
-        }
-
 
         public static void LogConsole( string message ) {
             if( message.Contains( "&N" ) ) {
@@ -174,34 +100,39 @@ namespace fCraft {
 
         public static void Log( string message, LogType type ) {
             if( type == LogType.FatalError ) {
-                LogCrash( message );
+                LogFatalError( message );
             }
+
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message;
-            lock( locker ) {
-                recentMessages.Enqueue( line );
-                if( logFileOptions[(int)type] ) {
-                    try {
-                        if( split == LogSplittingType.SplitBySession ) {
-                            File.AppendAllText( "logs/" + sessionStart + ".log", line + Environment.NewLine );
-                        } else if( split == LogSplittingType.SplitByDay ) {
-                            File.AppendAllText( "logs/" + DateTime.Now.ToString( ShortDateFormat ) + ".log", line + Environment.NewLine );
-                        } else {
-                            File.AppendAllText( "logs/" + LogFileName, line + Environment.NewLine );
-                        }
-                    } catch( Exception ex ) {
-                        Server.FireLogEvent( "Logger.Log: " + ex, type );
-                    }
+            if( logFileOptions[(int)type] ) {
+                string actualLogFileName;
+                if( split == LogSplittingType.SplitBySession ) {
+                    actualLogFileName = Path.Combine( Config.LogPath, sessionStart + ".log" );
+                } else if( split == LogSplittingType.SplitByDay ) {
+                    actualLogFileName = Path.Combine( Config.LogPath, DateTime.Now.ToString( ShortDateFormat ) + ".log" );
+                } else {
+                    actualLogFileName = Path.Combine( Config.LogPath, DefaultLogFileName );
                 }
-                while( recentMessages.Count > MaxRecentMessages ) {
-                    recentMessages.Dequeue();
+                try {
+                    lock( locker ) {
+                        File.AppendAllText( actualLogFileName, line + Environment.NewLine );
+                        recentMessages.Enqueue( line );
+                        while( recentMessages.Count > MaxRecentMessages ) {
+                            recentMessages.Dequeue();
+                        }
+                    }
+                } catch( Exception ex ) {
+                    Server.FireLogEvent( "Logger.Log: " + ex, type );
                 }
             }
+
             if( consoleOptions[(int)type] ) Server.FireLogEvent( line, type );
         }
 
 
         public static string GetPrefix( LogType level ) {
             switch( level ) {
+                case LogType.FatalError:
                 case LogType.Error:
                     return "ERROR: ";
                 case LogType.Warning:
@@ -213,16 +144,17 @@ namespace fCraft {
             }
         }
 
-        public static void LogCrash( string message ) {
+        public static void LogFatalError( string message ) {
             string crashMessage = String.Format( "{0}{1}{2}{1}{1}",
                                                  DateTime.Now.ToString(),
                                                  Environment.NewLine,
                                                  message );
+            string fileName = Path.Combine( Config.LogPath, CrashLogFileName );
             try {
-                File.AppendAllText( CrashFileName, crashMessage );
+                File.AppendAllText( fileName, crashMessage );
             } catch( Exception ex ) {
-                Logger.Log( "Cannot save crash report to {0}: {1}", LogType.Error,
-                            CrashFileName, ex );
+                Logger.Log( "Cannot save crash report to \"{0}\": {1}", LogType.Error,
+                            fileName, ex );
             }
         }
 
@@ -231,7 +163,12 @@ namespace fCraft {
         static object crashReportLock = new object();
         const int MinCrashReportInterval = 61; // minimum interval between submitting crash reports, in seconds
 
-        public static void UploadCrashReport( string message, string assembly, Exception exception ) {
+        public static void LogAndReportCrash( string message, string assembly, Exception exception ) {
+
+            if( !CheckForCommonErrors( exception ) ) return;
+
+            Logger.Log( "{0}: {1}", LogType.FatalError, message, exception );
+
             lock( crashReportLock ) {
                 if( DateTime.UtcNow.Subtract( lastCrashReport ).TotalSeconds < MinCrashReportInterval ) {
                     Logger.Log( "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent.", LogType.Warning );
@@ -291,6 +228,29 @@ namespace fCraft {
                 } catch( Exception ex ) {
                     Logger.Log( "Logger.SubmitCrashReport: {0}", LogType.Warning, ex.Message );
                 }
+            }
+        }
+
+        // Called by the Logger in case of serious errors to print troubleshooting advice.
+        // Returns true if a crash report should be submitted for this type of errors.
+        public static bool CheckForCommonErrors( Exception ex ) {
+            if( ex.Message.Contains( "System.Xml.Linq" ) ) {
+                Logger.Log( "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
+                            "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).", LogType.Warning );
+                return false;
+
+            } else if( ex.Message.Equals( "libMonoPosixHelper.so", StringComparison.OrdinalIgnoreCase ) ) {
+                Logger.Log( "fCraft could not locate Mono's compression functionality. " +
+                            "Please make sure that you have libmono-posix-2.0-cil or equivalent package installed.", LogType.Warning );
+                return false;
+
+            } else if( ex is UnauthorizedAccessException ) {
+                Logger.Log( "fCraft was blocked from accessing a file or resource. " +
+                            "Make sure that correct permissions are set for the fCraft files, folders, and processes.", LogType.Warning );
+                return false;
+
+            } else {
+                return true;
             }
         }
     }
