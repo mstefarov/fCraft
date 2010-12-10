@@ -36,12 +36,11 @@ namespace fCraftConsole {
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;
 
-
 #if DEBUG
 #else
             try {
 #endif
-                if( Server.Init( args) ) {
+                if( Server.Init( args ) ) {
 
                     UpdaterResult update = Updater.CheckForUpdates();
                     if( update.UpdateAvailable ) {
@@ -61,52 +60,57 @@ namespace fCraftConsole {
                     if( Server.Start() ) {
                         Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
                         Console.WriteLine( "** Running fCraft version {0}. **", Updater.GetVersionString() );
-                        Console.WriteLine( "** Server is now ready. Type /shutdown to exit. URL is in externalurl.txt **" );
+                        Console.WriteLine( "** Server is now ready. Type /shutdown to exit safely. **" );
 
                         while( true ) {
                             Player.Console.ParseMessage( Console.ReadLine(), true );
                         }
 
                     } else {
-                        Console.Title = "fCraft " + Updater.GetVersionString() + " failed to start";
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine( "** Failed to start the server **" );
-                        Server.Shutdown( "failed to start" );
-                        Console.ReadLine();
-                        Console.ResetColor();
+                        ReportFailure( "failed to start" );
                     }
                 } else {
-                    Console.Title = "fCraft " + Updater.GetVersionString() + " failed to initialize";
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine( "** Failed to initialize the server **" );
-                    Server.Shutdown( "failed to initialize" );
-                    Console.ReadLine();
-                    Console.ResetColor();
+                    ReportFailure( "failed to initialize" );
                 }
 #if DEBUG
 #else
             } catch( Exception ex ) {
-                Console.Title = "fCraft " + Updater.GetVersionString() + " CRASHED";
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine( "fCraft CRASHED" );
-
-                Logger.Log( "Unhandled exception in fCraftConsole input loop: {0}", LogType.FatalError, ex );
-                Logger.UploadCrashReport( "Unhandled exception in fCraftConsole", "fCraftConsole", ex );
-
-                Server.CheckForCommonErrors( ex );
+                ReportFailure( "CRASHED" );
+                Logger.LogAndReportCrash( "Unhandled exception in fCraftConsole", "fCraftConsole", ex );
             }
             Console.ReadLine();
             Console.ResetColor();
 #endif
         }
 
+
+        static void ReportFailure( string failureReason ) {
+            Console.Title = String.Format( "fCraft {0} {1}", Updater.GetVersionString(), failureReason );
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine( "** {0} **", failureReason );
+            Server.Shutdown( failureReason );
+            Console.ReadLine();
+            Console.ResetColor();
+        }
+
+
         static void Log( string message, LogType type ) {
-            Console.WriteLine( message );
+            switch( type ) {
+                case LogType.Error:
+                case LogType.FatalError:
+                case LogType.Warning:
+                    Console.Error.WriteLine( message );
+                    return;
+                default:
+                    Console.WriteLine( message );
+                    return;
+            }
         }
 
         static void SetURL( string URL ) {
             File.WriteAllText( "externalurl.txt", URL, ASCIIEncoding.ASCII );
-            Console.WriteLine( "** " + URL + " **" );
+            Console.WriteLine( "** URL: {0} **", URL );
+            Console.WriteLine( "URL is also saved to file externalurl.txt" );
         }
     }
 }

@@ -4,6 +4,10 @@ using System.Linq;
 using System.Text;
 
 namespace fCraft {
+
+    /// <summary>
+    /// Defines a 3D bounding box, in integer cartesian coordinates
+    /// </summary>
     public sealed class BoundingBox {
         public int xMin, yMin, hMin, xMax, yMax, hMax;
 

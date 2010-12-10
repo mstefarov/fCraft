@@ -32,6 +32,9 @@ THE SOFTWARE.
 
 namespace fCraft {
 
+    /// <summary>
+    /// Drawing/clipping mode of IsoCat map renderer.
+    /// </summary>
     public enum IsoCatMode {
         Normal,
         Peeled,
@@ -39,6 +42,10 @@ namespace fCraft {
         Chunk
     }
 
+    /// <summary>
+    /// Isometric map renderer, tightly integrated with BackgroundWorker.
+    /// Creates a bitmap of the map. Every IsoCat instance is single-use.
+    /// </summary>
     unsafe public sealed class IsoCat {
         static byte[] tiles, stiles;
         static int tileX, tileY;

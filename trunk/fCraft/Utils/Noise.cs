@@ -12,6 +12,9 @@ namespace fCraft {
         Spline
     }
 
+    /// <summary>
+    /// Class for generating and filtering 2D noise, extensively used by MapGenerator.
+    /// </summary>
     public class Noise {
 
         int seed;

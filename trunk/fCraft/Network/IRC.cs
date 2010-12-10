@@ -48,6 +48,12 @@ namespace fCraft {
             public string actualBotNick;
 
 
+            public bool IsConnected {
+                get {
+                    return (connected == true);
+                }
+            }
+
             public bool Start( string _botNick, bool _parseInput ) {
                 actualBotNick = _botNick;
                 parseInput = _parseInput;
@@ -58,7 +64,7 @@ namespace fCraft {
                     thread.Start();
                     return true;
                 } catch( Exception ex ) {
-                    Logger.Log( "IRC: Could not start the bot: " + ex, LogType.Error );
+                    Logger.Log( "IRC: Could not start the bot: {0}", LogType.Error, ex );
                     return false;
                 }
             }
@@ -387,14 +393,19 @@ namespace fCraft {
 
 
         static int lastThread;
+        // Multiple bots each run in a separate thread.
+        // This method roughly balances load between thread by using lock-free round-robin method.
         public static void Send( string line ) {
             int lastThread2, nextThread;
             do {
-                lastThread2 = lastThread;
-                nextThread = (lastThread2 + 1) % threads.Length;
-            } while( Interlocked.CompareExchange( ref lastThread, nextThread, lastThread2 ) != lastThread2 );
+                do {
+                    lastThread2 = lastThread;
+                    nextThread = (lastThread2 + 1) % threads.Length;
+                } while( Interlocked.CompareExchange( ref lastThread, nextThread, lastThread2 ) != lastThread2 );
+            } while( !threads[nextThread].IsConnected ); // TODO: make sure that this does not loop infinitely or deadlock if no bots are connected
             threads[nextThread].Send( line );
         }
+
 
         static bool IsBotNick( string str ) {
             for( int i = 0; i < threads.Length; i++ ) {

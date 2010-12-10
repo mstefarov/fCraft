@@ -60,15 +60,13 @@ namespace fCraftUI {
                         StartServer();
                     }
                 } else {
-                    Shutdown( "failed to init", false );
+                    Shutdown( "failed to initialize", false );
                 }
 #if DEBUG
 #else
             } catch( Exception ex ) {
-                Logger.Log( "Fatal error at startup: {0}", LogType.FatalError, ex );
-                Logger.UploadCrashReport( "Unhandled exception in fCraftUI.StartUp", "fCraftUI", ex );
-                Server.CheckForCommonErrors( ex );
-                Shutdown( "error at init", false );
+                Logger.LogAndReportCrash( "Unhandled exception in fCraftUI.StartUp", "fCraftUI", ex );
+                Shutdown( "error at startup", false );
             }
 #endif
         }

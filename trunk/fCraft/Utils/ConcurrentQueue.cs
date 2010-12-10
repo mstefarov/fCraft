@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Threading;
 
 namespace fCraft {
+    /// <summary>
+    /// A lightweight queue implementation with lock-free/concurrent operations.
+    /// </summary>
+    /// <typeparam name="T">Payload type</typeparam>
     public sealed class ConcurrentQueue<T> {
         sealed class Node {
             public T value;
             public Pointer next;
-            /// <summary>
-            /// default constructor
-            /// </summary>
             public Node() { }
         }
 
@@ -17,20 +18,11 @@ namespace fCraft {
             public long count;
             public Node ptr;
 
-            /// <summary>
-            /// copy constructor
-            /// </summary>
-            /// <param name="p"></param>
             public Pointer( Pointer p ) {
                 ptr = p.ptr;
                 count = p.count;
             }
 
-            /// <summary>
-            /// constructor that allows caller to specify ptr and count
-            /// </summary>
-            /// <param name="node"></param>
-            /// <param name="c"></param>
             public Pointer( Node node, long c ) {
                 ptr = node;
                 count = c;
@@ -45,15 +37,6 @@ namespace fCraft {
             Head.ptr = Tail.ptr = node;
         }
 
-        /// <summary>
-        /// CAS
-        /// stands for Compare And Swap
-        /// Interlocked Compare and Exchange operation
-        /// </summary>
-        /// <param name="destination"></param>
-        /// <param name="compared"></param>
-        /// <param name="exchange"></param>
-        /// <returns></returns>
         static bool CAS( ref Pointer destination, Pointer compared, Pointer exchange ) {
             if( compared.ptr == Interlocked.CompareExchange( ref destination.ptr, exchange.ptr, compared.ptr ) ) {
                 Interlocked.Exchange( ref destination.count, exchange.count );

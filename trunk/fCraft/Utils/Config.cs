@@ -63,18 +63,27 @@ namespace fCraft {
      *
      * 113 - r243 - Removed IRCBotQuitMsg config key
      * 
-     * 114 - r244 - Added IRCRegisteredNick, IRCNickServ, and IRCNickServMessage config keys.
+     * 114 - r244 - Added IRCRegisteredNick, IRCNickServ, and IRCNickServMessage keys
      * 
-     * 115 - r265 - Added IRCThreads
+     * 115 - r265 - Added IRCThreads keys
      * 
-     * 116 - r272 - Added AutoRankEnabled
+     * 116 - r272 - Added AutoRankEnabled keys
      * 
-     * 117 - r280 - Added MaxUndo
+     * 117 - r280 - Added MaxUndo keys
+     * 
+     * 118 - r318 - Added MeColor and WarningColor keys
+     * 
+     * 119 - r331 - Added LogPath and MapPath keys
+     * 
+     * 120 - r332 - Added DataPath key
+     * 
      */
 
+    /// <summary> Static class that handles loading/saving configuration, contains config defaults,
+    /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 117;
+        public const int ConfigVersion = 120;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
@@ -83,6 +92,9 @@ namespace fCraft {
 
 
         static Config() { // LEGACY
+            DataPath = DefaultDataPath;
+            LogPath = DefaultLogPath;
+            MapPath = DefaultMapPath;
             LoadDefaults();
             legacyConfigKeys.Add( "DefaultClass".ToLower(), ConfigKey.DefaultRank );
             legacyConfigKeys.Add( "ClassColorsInChat".ToLower(), ConfigKey.RankColorsInChat );
@@ -123,13 +135,13 @@ namespace fCraft {
             SetValue( ConfigKey.RankColorsInChat, true );
             SetValue( ConfigKey.RankPrefixesInChat, false );
             SetValue( ConfigKey.RankPrefixesInList, false );
-            SetValue( ConfigKey.SystemMessageColor, Color.GetName( Color.Yellow ) );
-            SetValue( ConfigKey.HelpColor, Color.GetName( Color.Lime ) );
-            SetValue( ConfigKey.SayColor, Color.GetName( Color.Green ) );
-            SetValue( ConfigKey.AnnouncementColor, Color.GetName( Color.Green ) );
-            SetValue( ConfigKey.PrivateMessageColor, Color.GetName( Color.Aqua ) );
-            SetValue( ConfigKey.MeColor, Color.GetName( Color.Purple ) );
-            SetValue( ConfigKey.WarningColor, Color.GetName( Color.Red ) );
+            SetValue( ConfigKey.SystemMessageColor, Color.GetName( Color.SysDefault ) );
+            SetValue( ConfigKey.HelpColor, Color.GetName( Color.HelpDefault ) );
+            SetValue( ConfigKey.SayColor, Color.GetName( Color.SayDefault ) );
+            SetValue( ConfigKey.AnnouncementColor, Color.GetName( Color.AnnouncementDefault ) );
+            SetValue( ConfigKey.PrivateMessageColor, Color.GetName( Color.PMDefault ) );
+            SetValue( ConfigKey.MeColor, Color.GetName( Color.MeDefault ) );
+            SetValue( ConfigKey.WarningColor, Color.GetName( Color.WarningDefault ) );
             SetValue( ConfigKey.AnnouncementInterval, 0 );
         }
 
@@ -167,6 +179,7 @@ namespace fCraft {
         }
 
         public static void LoadDefaultsLogging() {
+            SetValue( ConfigKey.LogPath, "logs" ); // TODO: Log to string/queue until config is done loading
             SetValue( ConfigKey.LogMode, LogSplittingType.OneFile ); // can be: "OneFile", "SplitBySession", "SplitByDay"
             SetValue( ConfigKey.MaxLogs, 0 );
             for( int i = 0; i < Logger.consoleOptions.Length; i++ ) {
@@ -189,7 +202,7 @@ namespace fCraft {
             SetValue( ConfigKey.IRCBotAnnounceServerJoins, false );
             SetValue( ConfigKey.IRCBotForwardFromIRC, false ); // Disabled by default
             SetValue( ConfigKey.IRCBotForwardFromServer, false ); // Disabled by default
-            SetValue( ConfigKey.IRCMessageColor, Color.GetName( Color.Purple ) );
+            SetValue( ConfigKey.IRCMessageColor, Color.GetName( Color.IRCDefault ) );
             SetValue( ConfigKey.IRCDelay, 750 );
             SetValue( ConfigKey.IRCRegisteredNick, false );
             SetValue( ConfigKey.IRCNickServ, "NickServ" );
@@ -212,7 +225,6 @@ namespace fCraft {
 
             SetValue( ConfigKey.DataPath, "" );
             SetValue( ConfigKey.MapPath, "maps" );
-            SetValue( ConfigKey.LogPath, "logs" );
         }
 
         #endregion
@@ -239,7 +251,7 @@ namespace fCraft {
                     }
                 } catch( Exception ex ) {
                     Log( "Config.Load: Fatal error while loading config file {0}: {1}", LogType.FatalError,
-                                        ConfigFile, ex.Message );
+                                        ConfigFile, ex );
                     return false;
                 }
             } else {
@@ -451,7 +463,8 @@ namespace fCraft {
                 file.Save( ConfigFile );
                 return true;
             } catch( Exception ex ) {
-                Log( "Config.Load: Fatal error while saving config file {0}: {1}", LogType.FatalError, ConfigFile, ex.Message );
+                Log( "Config.Load: Fatal error while saving config file {0}: {1}", LogType.FatalError,
+                     ConfigFile, ex );
                 return false;
             }
         }
@@ -964,11 +977,7 @@ namespace fCraft {
 
         static void Log( string message, LogType type ) {
             if( !logToString ) {
-                if( type == LogType.Warning ) {
-                    Logger.LogWarning( message, WarningLogSubtype.ConfigWarning );
-                } else {
-                    Logger.Log( message, type );
-                }
+                Logger.Log( message, type );
             } else if( type != LogType.Debug ) {
                 errors += message + Environment.NewLine;
             }
@@ -976,6 +985,12 @@ namespace fCraft {
 
         #endregion
 
+
+        #region Paths
+
+        public const string DefaultDataPath = "",
+                            DefaultLogPath = "logs",
+                            DefaultMapPath = "maps";
 
         public static string MapPath { get; private set; }
 
@@ -1009,30 +1024,35 @@ namespace fCraft {
         public static void SetPaths() {
             DataPath = "";
             if( !IsDefaultDataPath( GetString( ConfigKey.DataPath ) ) ) {
-                string dataPathCandidate = Server.TestDirectory( GetString( ConfigKey.DataPath ) );
-                if( dataPathCandidate != null ) {
-                    DataPath = dataPathCandidate;
+                string customDataPath = Server.TestDirectory( GetString( ConfigKey.DataPath ) );
+                if( customDataPath != null ) {
+                    DataPath = customDataPath;
                 } else {
+                    Logger.Log( "Could not set custom data path, using default ({0})", LogType.Error, DataPath );
                 }
             }
 
             MapPath = "maps";
             if( !IsDefaultMapPath( GetString( ConfigKey.MapPath ) ) ) {
-                string mapPathCandidate = Server.TestDirectory( GetString( ConfigKey.MapPath ) );
-                if( mapPathCandidate != null ) {
-                    MapPath = mapPathCandidate;
+                string customMapPath = Server.TestDirectory( GetString( ConfigKey.MapPath ) );
+                if( customMapPath != null ) {
+                    MapPath = customMapPath;
                 } else {
+                    Logger.Log( "Could not set custom map path, using default ({0})", LogType.Error, MapPath );
                 }
             }
 
             LogPath = "logs";
             if( !IsDefaultLogPath( GetString( ConfigKey.LogPath ) ) ) {
-                string logPathCandidate = Server.TestDirectory( GetString( ConfigKey.LogPath ) );
-                if( logPathCandidate != null ) {
-                    LogPath = logPathCandidate;
+                string customLogPath = Server.TestDirectory( GetString( ConfigKey.LogPath ) );
+                if( customLogPath != null ) {
+                    LogPath = customLogPath;
                 } else {
+                    Logger.Log( "Could not set custom log path, using default ({0})", LogType.Error, LogPath );
                 }
             }
         }
+
+        #endregion
     }
 }

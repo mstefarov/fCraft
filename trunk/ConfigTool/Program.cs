@@ -28,18 +28,16 @@ using fCraft;
 namespace ConfigTool {
     static class Program {
         [STAThread]
-        static void Main() {
+        static void Main( string[] args ) {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault( false );
 #if DEBUG
-            Application.Run( new ConfigUI() );
+            Application.Run( new ConfigUI( args ) );
 #else
             try {
-                Application.Run( new ConfigUI() );
+                Application.Run( new ConfigUI( args ) );
             } catch( Exception ex ) {
-                Logger.Log( "Unhandled exception in ConfigTool: {0}", LogType.FatalError, ex );
-                Logger.UploadCrashReport( "Unhandled exception in ConfigTool", "ConfigTool", ex );
-                Server.CheckForCommonErrors( ex );
+                Logger.LogAndReportCrash( "Error in ConfigTool", "ConfigTool", ex );
                 MessageBox.Show( ex.ToString(), "fCraft ConfigTool has crashed" );
             }
 #endif
