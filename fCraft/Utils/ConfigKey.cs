@@ -75,7 +75,7 @@ namespace fCraft {
         IRCDelay,
         IRCThreads,
 
-        SendRedundantBlockUpdates,
+        RelayAllBlockUpdates,
         AutomaticUpdates,
         NoPartialPositionUpdates,
         ProcessPriority,

@@ -718,7 +718,7 @@ Dimensions: {5}×{6}×{7}
 
             xAddSnow.Checked = generatorArgs.addSnow;
 
-            nSnowAltitude.Value = (generatorArgs.customWaterLevel ? generatorArgs.waterLevel : generatorArgs.dimH / 2);
+            nSnowAltitude.Value = generatorArgs.snowAltitude - (generatorArgs.customWaterLevel ? generatorArgs.waterLevel : generatorArgs.dimH / 2);
             nSnowTransition.Value = generatorArgs.snowTransition;
 
             xAddCliffs.Checked = generatorArgs.addCliffs;

@@ -673,11 +673,11 @@ Otherwise, only chat messages starting with a hash (#) will be relayed." );
 
 
         void FillToolTipsAdvanced() {
-            toolTip.SetToolTip( xRedundantPacket,
+            toolTip.SetToolTip( xRelayAllBlockUpdates,
 @"When a player places or deletes a block, vanilla Minecraft server
 relays the action back. This is not needed, and only wastes bandwidth." );
 
-            toolTip.SetToolTip( xAbsoluteUpdates,
+            toolTip.SetToolTip( xNoPartialPositionUpdates,
 @"Minecraft protocol specifies 4 different movement packet types.
 One of them sends absolute position, and other 3 send incremental relative positions." );
 

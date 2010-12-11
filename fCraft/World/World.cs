@@ -333,7 +333,7 @@ namespace fCraft {
             name = name.ToLower();
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i].lowercaseName == name ) {
+                if( tempList[i] != null && tempList[i].name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
                     return tempList[i];
                 }
             }
