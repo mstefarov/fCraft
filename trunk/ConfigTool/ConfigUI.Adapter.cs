@@ -13,8 +13,8 @@ using Color = System.Drawing.Color;
 
 
 namespace ConfigTool {
-    // This section handles transfer of settings from Config to the specific UI controls, and vice versa
-    // Effectively, it's an adapter between Config and ConfigUI representations of the settings
+    // This section handles transfer of settings from Config to the specific UI controls, and vice versa.
+    // Effectively, it's an adapter between Config's and ConfigUI's representations of the settings
     public sealed partial class ConfigUI : Form {
         #region Loading & Applying Config
 
@@ -253,7 +253,7 @@ namespace ConfigTool {
             if( !xLogLimit.Checked ) nLogLimit.Enabled = false;
 
             if( Config.IsDefaultLogPath( Config.GetString( ConfigKey.LogPath ) ) ) {
-                tMapPath.Text = "logs/";
+                tMapPath.Text = Config.LogPathDefault;
                 xMapPath.Checked = false;
             } else {
                 tLogPath.Text = Config.GetString( ConfigKey.LogPath );
@@ -292,8 +292,8 @@ namespace ConfigTool {
 
 
         void ApplyTabAdvanced() {
-            xRedundantPacket.Checked = Config.GetBool( ConfigKey.SendRedundantBlockUpdates );
-            xAbsoluteUpdates.Checked = Config.GetBool( ConfigKey.NoPartialPositionUpdates );
+            xRelayAllBlockUpdates.Checked = Config.GetBool( ConfigKey.RelayAllBlockUpdates );
+            xNoPartialPositionUpdates.Checked = Config.GetBool( ConfigKey.NoPartialPositionUpdates );
             nTickInterval.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.TickInterval ) );
 
             ApplyEnum( cProcessPriority, ConfigKey.ProcessPriority, 0, "", "High", "AboveNormal", "Normal", "BelowNormal", "Low" );
@@ -308,7 +308,7 @@ namespace ConfigTool {
 
 
             if( Config.IsDefaultDataPath( Config.GetString( ConfigKey.DataPath ) ) ) {
-                tDataPath.Text = "";
+                tDataPath.Text = Config.DataPathDefault;
                 xDataPath.Checked = false;
             } else {
                 tDataPath.Text = Config.GetString( ConfigKey.DataPath );
@@ -316,7 +316,7 @@ namespace ConfigTool {
             }
 
             if( Config.IsDefaultMapPath( Config.GetString( ConfigKey.MapPath ) ) ) {
-                tMapPath.Text = "maps/";
+                tMapPath.Text = Config.MapPathDefault;
                 xMapPath.Checked = false;
             } else {
                 tMapPath.Text = Config.GetString( ConfigKey.MapPath );
@@ -351,15 +351,15 @@ namespace ConfigTool {
             }
             Config.SetValue( ConfigKey.IsPublic, cPublic.SelectedIndex == 0 );
             Config.SetValue( ConfigKey.Port, nPort.Value );
-
             Config.SetValue( ConfigKey.IP, tIP.Text );
 
             Config.SetValue( ConfigKey.UploadBandwidth, nUploadBandwidth.Value );
-            Config.SetValue( ConfigKey.ShowJoinedWorldMessages, xShowJoinedWorldMessages.Checked );
-            Config.SetValue( ConfigKey.RankColorsInWorldNames, xRankColorsInWorldNames.Checked );
-            Config.SetValue( ConfigKey.RankColorsInChat, xRankColors.Checked );
-            Config.SetValue( ConfigKey.RankPrefixesInChat, xChatPrefixes.Checked );
-            Config.SetValue( ConfigKey.RankPrefixesInList, xListPrefixes.Checked );
+
+            if( xAnnouncements.Checked ) Config.SetValue( ConfigKey.AnnouncementInterval, nAnnouncements.Value );
+            else Config.SetValue( ConfigKey.AnnouncementInterval, 0 );
+
+
+            // Chat
             Config.SetValue( ConfigKey.SystemMessageColor, fCraft.Color.GetName( colorSys ) );
             Config.SetValue( ConfigKey.HelpColor, fCraft.Color.GetName( colorHelp ) );
             Config.SetValue( ConfigKey.SayColor, fCraft.Color.GetName( colorSay ) );
@@ -367,15 +367,22 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.PrivateMessageColor, fCraft.Color.GetName( colorPM ) );
             Config.SetValue( ConfigKey.WarningColor, fCraft.Color.GetName( colorWarning ) );
             Config.SetValue( ConfigKey.MeColor, fCraft.Color.GetName( colorMe ) );
-            if( xAnnouncements.Checked ) Config.SetValue( ConfigKey.AnnouncementInterval, nAnnouncements.Value );
-            else Config.SetValue( ConfigKey.AnnouncementInterval, 0 );
+            Config.SetValue( ConfigKey.ShowJoinedWorldMessages, xShowJoinedWorldMessages.Checked );
+            Config.SetValue( ConfigKey.RankColorsInWorldNames, xRankColorsInWorldNames.Checked );
+            Config.SetValue( ConfigKey.RankColorsInChat, xRankColors.Checked );
+            Config.SetValue( ConfigKey.RankPrefixesInChat, xChatPrefixes.Checked );
+            Config.SetValue( ConfigKey.RankPrefixesInList, xListPrefixes.Checked );
 
+
+            // Worlds
             if( cDefaultBuildRank.SelectedIndex == 0 ) {
                 Config.SetValue( ConfigKey.DefaultBuildRank, "" );
             } else {
                 Config.SetValue( ConfigKey.DefaultBuildRank, RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 ) );
             }
 
+
+            // Security
             WriteEnum( cVerifyNames, ConfigKey.VerifyNames, "Never", "Balanced", "Always" );
             Config.SetValue( ConfigKey.LimitOneConnectionPerIP, xLimitOneConnectionPerIP.Checked );
             Config.SetValue( ConfigKey.AllowUnverifiedLAN, xAllowUnverifiedLAN.Checked );
@@ -399,6 +406,7 @@ namespace ConfigTool {
             }
 
 
+            // Saving & Backups
             Config.SetValue( ConfigKey.SaveOnShutdown, xSaveOnShutdown.Checked );
             if( xSaveInterval.Checked ) Config.SetValue( ConfigKey.SaveInterval, nSaveInterval.Value );
             else Config.SetValue( ConfigKey.SaveInterval, 0 );
@@ -414,6 +422,7 @@ namespace ConfigTool {
             else Config.SetValue( ConfigKey.MaxBackupSize, 0 );
 
 
+            // Logging
             WriteEnum( cLogMode, ConfigKey.LogMode, "OneFile", "SplitBySession", "SplitByDay" );
             if( xLogLimit.Checked ) Config.SetValue( ConfigKey.MaxLogs, nLogLimit.Value );
             else Config.SetValue( ConfigKey.MaxLogs, "0" );
@@ -427,6 +436,7 @@ namespace ConfigTool {
             else Config.SetValue( ConfigKey.LogPath, "" );
 
 
+            // IRC
             Config.SetValue( ConfigKey.IRCBot, xIRC.Checked );
 
             Config.SetValue( ConfigKey.IRCBotNetwork, tIRCBotNetwork.Text );
@@ -446,17 +456,19 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.IRCBotForwardFromServer, xIRCBotForwardFromServer.Checked );
             Config.SetValue( ConfigKey.IRCMessageColor, fCraft.Color.GetName( colorIRC ) );
 
-            Config.SetValue( ConfigKey.SendRedundantBlockUpdates, xRedundantPacket.Checked );
-            Config.SetValue( ConfigKey.NoPartialPositionUpdates, xAbsoluteUpdates.Checked );
+
+            // advanced
+            Config.SetValue( ConfigKey.SubmitCrashReports, xSubmitCrashReports.Checked );
+            WriteEnum( cUpdater, ConfigKey.AutomaticUpdates, "Disabled", "Notify", "Prompt", "Auto" );
+
+            Config.SetValue( ConfigKey.RelayAllBlockUpdates, xRelayAllBlockUpdates.Checked );
+            Config.SetValue( ConfigKey.NoPartialPositionUpdates, xNoPartialPositionUpdates.Checked );
             Config.SetValue( ConfigKey.TickInterval, Convert.ToInt32( nTickInterval.Value ) );
 
             WriteEnum( cProcessPriority, ConfigKey.ProcessPriority, "", "High", "AboveNormal", "Normal", "BelowNormal", "Low" );
-            WriteEnum( cUpdater, ConfigKey.AutomaticUpdates, "Disabled", "Notify", "Prompt", "Auto" );
-
             Config.SetValue( ConfigKey.BlockUpdateThrottling, Convert.ToInt32( nThrottling.Value ) );
 
             Config.SetValue( ConfigKey.LowLatencyMode, xLowLatencyMode.Checked );
-            Config.SetValue( ConfigKey.SubmitCrashReports, xSubmitCrashReports.Checked );
 
             if( xMaxUndo.Checked ) Config.SetValue( ConfigKey.MaxUndo, Convert.ToInt32( nMaxUndo.Value ) );
             else Config.SetValue( ConfigKey.MaxUndo, 0 );

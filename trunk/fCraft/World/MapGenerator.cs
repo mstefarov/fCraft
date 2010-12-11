@@ -119,7 +119,7 @@ namespace fCraft {
             // post processing
             if( args.addCaves ) progressTotalEstimate += 5;
             if( args.addOre ) progressTotalEstimate += 3;
-            if( args.addBeaches ) progressTotalEstimate += 10;
+            if( args.addBeaches ) progressTotalEstimate += 5;
             if( args.addTrees ) progressTotalEstimate += 5;
         }
 
@@ -443,7 +443,7 @@ namespace fCraft {
             }
 
             if( args.addBeaches ) {
-                ReportProgress( 10, "Processing: Adding beaches" );
+                ReportProgress( 5, "Processing: Adding beaches" );
                 AddBeaches( map );
             }
 
@@ -666,28 +666,29 @@ namespace fCraft {
             int beachExtentSqr = (args.beachExtent + 1) * (args.beachExtent + 1);
             for( int x = 0; x < map.widthX; x++ ) {
                 for( int y = 0; y < map.widthY; y++ ) {
-                    int h = map.SearchColumn( x, y, bGroundSurface );
-                    if( h < 0 ) continue;
-                    bool found = false;
-                    for( int dx = -args.beachExtent; !found && dx <= args.beachExtent; dx++ ) {
-                        for( int dy = -args.beachExtent; !found && dy <= args.beachExtent; dy++ ) {
-                            for( int dh = -args.beachHeight; !found && dh <= 0; dh++ ) {
-                                if( dx * dx + dy * dy + dh * dh > beachExtentSqr ) continue;
-                                int xx = x + dx;
-                                int yy = y + dy;
-                                int hh = h + dh;
-                                if( xx < 0 || xx >= map.widthX || yy < 0 || yy >= map.widthY || hh < 0 || hh >= map.height ) continue;
-                                byte block = map.GetBlock( xx, yy, hh );
-                                if( block == (byte)bWater || block == (byte)bWaterSurface ) {
-                                    found = true;
-                                    break;
+                    for( int h = args.waterLevel; h <= args.waterLevel + args.beachHeight; h++ ) {
+                        if( map.GetBlock( x, y, h ) != (byte)bGroundSurface ) continue;
+                        bool found = false;
+                        for( int dx = -args.beachExtent; !found && dx <= args.beachExtent; dx++ ) {
+                            for( int dy = -args.beachExtent; !found && dy <= args.beachExtent; dy++ ) {
+                                for( int dh = -args.beachHeight; !found && dh <= 0; dh++ ) {
+                                    if( dx * dx + dy * dy + dh * dh > beachExtentSqr ) continue;
+                                    int xx = x + dx;
+                                    int yy = y + dy;
+                                    int hh = h + dh;
+                                    if( xx < 0 || xx >= map.widthX || yy < 0 || yy >= map.widthY || hh < 0 || hh >= map.height ) continue;
+                                    byte block = map.GetBlock( xx, yy, hh );
+                                    if( block == (byte)bWater || block == (byte)bWaterSurface ) {
+                                        found = true;
+                                        break;
+                                    }
                                 }
                             }
                         }
-                    }
-                    if( found ) {
-                        map.SetBlock( x, y, h, bSeaFloor );
-                        if( h > 0 && map.GetBlock( x, y, h - 1 ) == (byte)bGround ) map.SetBlock( x, y, h - 1, bSeaFloor );
+                        if( found ) {
+                            map.SetBlock( x, y, h, bSeaFloor );
+                            if( h > 0 && map.GetBlock( x, y, h - 1 ) == (byte)bGround ) map.SetBlock( x, y, h - 1, bSeaFloor );
+                        }
                     }
                 }
             }

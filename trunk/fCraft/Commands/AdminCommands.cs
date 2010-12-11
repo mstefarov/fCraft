@@ -1088,6 +1088,7 @@ namespace fCraft {
             if( player.Can( Permission.Say ) ) {
                 string msg = cmd.NextAll();
                 if( msg != null && msg.Trim().Length > 0 ) {
+                    player.info.linesWritten++;
                     Server.SendToAll( "&S{0}", msg.Trim() );
                 } else {
                     cdSay.PrintUsage( player );

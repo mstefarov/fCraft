@@ -54,6 +54,7 @@ namespace fCraft {
 
             string msg = cmd.NextAll().Trim();
             if( msg != null ) {
+                player.info.linesWritten++;
                 Server.SendToAll( "{0}*{1} {2}", Color.Me, player.name, msg );
             }
         }
@@ -98,6 +99,7 @@ namespace fCraft {
         }
 
 
+
         static CommandDescriptor cdMeasure = new CommandDescriptor {
             name = "measure",
             help = "Shows information about a selection: width/length/height and volume.",
@@ -124,6 +126,7 @@ namespace fCraft {
                             box.yMax,
                             box.hMax );
         }
+
 
 
         static CommandDescriptor cdWorldInfo = new CommandDescriptor {
@@ -401,14 +404,17 @@ namespace fCraft {
             IPAddress IP;
             PlayerInfo[] infos;
             if( Server.IsIP( name ) && IPAddress.TryParse( name, out IP ) ) {
+                // find players by IP
                 infos = PlayerDB.FindPlayers( IP, MaxPlayersShownInInfo );
 
             } else if( name.Contains( "*" ) || name.Contains( "." ) ) {
+                // find players by regex/wildcard
                 string regexString = "^" + regexNonNameChars.Replace( name, "" ).Replace( "*", ".*" ) + "$";
                 Regex regex = new Regex( regexString, RegexOptions.IgnoreCase | RegexOptions.Compiled );
                 infos = PlayerDB.FindPlayers( regex, MaxPlayersShownInInfo );
 
             } else {
+                // find players by partial matching
                 PlayerInfo tempInfo;
                 if( !PlayerDB.FindPlayerInfo( name, out tempInfo ) ) {
                     infos = PlayerDB.FindPlayers( name, MaxPlayersShownInInfo );
@@ -446,9 +452,15 @@ namespace fCraft {
 
             } else {
                 if( target != null ) {
-                    player.Message( "About {0}&S: Online now from {1}",
-                                    info.GetClassyName(),
-                                    info.lastIP );
+                    if( target.isHidden ) {
+                        player.Message( "About {0}&S: Online (hidden) from {1}",
+                                        info.GetClassyName(),
+                                        info.lastIP );
+                    } else {
+                        player.Message( "About {0}&S: Online now from {1}",
+                info.GetClassyName(),
+                info.lastIP );
+                    }
                 } else if( DateTime.Now.Subtract( info.lastSeen ).TotalDays < 2 ) {
                     player.Message( "About {0}&S: Last seen {1:F1} hours ago from {2}",
                                     info.GetClassyName(),

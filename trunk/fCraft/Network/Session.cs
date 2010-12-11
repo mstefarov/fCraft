@@ -218,7 +218,7 @@ namespace fCraft {
                                         if( DetectMovementPacketSpam( newPos ) ) continue;
                                         if( (distSquared - delta.h * delta.h > antiSpeedMaxDistanceSquared || delta.h > antiSpeedMaxJumpDelta) && speedHackDetectionCounter >= 0 ) {
                                             if( speedHackDetectionCounter == 0 ) {
-                                                player.lastNonHackingPosition = player.pos;
+                                                player.lastValidPosition = player.pos;
                                             } else if( speedHackDetectionCounter > 1 ) {
                                                 DenyMovement( newPos );
                                                 speedHackDetectionCounter = 0;
@@ -308,11 +308,11 @@ namespace fCraft {
 
         void DenyMovement( Position newPos ) {
             Position avgPosition = new Position();
-            avgPosition.Set( (player.lastNonHackingPosition.x * 3 + newPos.x) / 4 + 1,
-                             (player.lastNonHackingPosition.y * 3 + newPos.y) / 4 + 1,
-                             (player.lastNonHackingPosition.h * 3 + newPos.h) / 4 + 1,
-                             player.lastNonHackingPosition.r,
-                             player.lastNonHackingPosition.l );
+            avgPosition.Set( (player.lastValidPosition.x * 3 + newPos.x) / 4 + 1,
+                             (player.lastValidPosition.y * 3 + newPos.y) / 4 + 1,
+                             (player.lastValidPosition.h * 3 + newPos.h) / 4 + 1,
+                             player.lastValidPosition.r,
+                             player.lastValidPosition.l );
 
             SendNow( PacketWriter.MakeSelfTeleport( avgPosition ) );
             if( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {

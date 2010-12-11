@@ -25,7 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -182,6 +182,9 @@
             this.xBackupInterval = new System.Windows.Forms.CheckBox();
             this.xBackupOnJoin = new System.Windows.Forms.CheckBox();
             this.tabLogging = new System.Windows.Forms.TabPage();
+            this.bLogPath = new System.Windows.Forms.Button();
+            this.xLogPath = new System.Windows.Forms.CheckBox();
+            this.tLogPath = new System.Windows.Forms.TextBox();
             this.gLogFile = new System.Windows.Forms.GroupBox();
             this.label2 = new System.Windows.Forms.Label();
             this.xLogLimit = new System.Windows.Forms.CheckBox();
@@ -232,10 +235,7 @@
             this.bDataPath = new System.Windows.Forms.Button();
             this.xDataPath = new System.Windows.Forms.CheckBox();
             this.tDataPath = new System.Windows.Forms.TextBox();
-            this.bLogPath = new System.Windows.Forms.Button();
             this.bMapPath = new System.Windows.Forms.Button();
-            this.xLogPath = new System.Windows.Forms.CheckBox();
-            this.tLogPath = new System.Windows.Forms.TextBox();
             this.xMapPath = new System.Windows.Forms.CheckBox();
             this.tMapPath = new System.Windows.Forms.TextBox();
             this.nMaxUndo = new System.Windows.Forms.NumericUpDown();
@@ -245,19 +245,19 @@
             this.lTickInterval = new System.Windows.Forms.Label();
             this.xLowLatencyMode = new System.Windows.Forms.CheckBox();
             this.nTickInterval = new System.Windows.Forms.NumericUpDown();
-            this.cUpdater = new System.Windows.Forms.ComboBox();
             this.lTickIntervalUnits = new System.Windows.Forms.Label();
-            this.lUpdater = new System.Windows.Forms.Label();
-            this.xRedundantPacket = new System.Windows.Forms.CheckBox();
+            this.xRelayAllBlockUpdates = new System.Windows.Forms.CheckBox();
             this.lThrottlingUnits = new System.Windows.Forms.Label();
             this.lProcessPriority = new System.Windows.Forms.Label();
             this.nThrottling = new System.Windows.Forms.NumericUpDown();
             this.cProcessPriority = new System.Windows.Forms.ComboBox();
             this.lThrottling = new System.Windows.Forms.Label();
-            this.xAbsoluteUpdates = new System.Windows.Forms.CheckBox();
+            this.xNoPartialPositionUpdates = new System.Windows.Forms.CheckBox();
             this.gCrashReport = new System.Windows.Forms.GroupBox();
             this.lCrashReportDisclaimer = new System.Windows.Forms.Label();
             this.xSubmitCrashReports = new System.Windows.Forms.CheckBox();
+            this.cUpdater = new System.Windows.Forms.ComboBox();
+            this.lUpdater = new System.Windows.Forms.Label();
             this.bOK = new System.Windows.Forms.Button();
             this.bCancel = new System.Windows.Forms.Button();
             this.bResetTab = new System.Windows.Forms.Button();
@@ -359,7 +359,7 @@
             this.gInformation.Location = new System.Drawing.Point( 8, 184 );
             this.gInformation.Name = "gInformation";
             this.gInformation.Size = new System.Drawing.Size( 636, 57 );
-            this.gInformation.TabIndex = 16;
+            this.gInformation.TabIndex = 1;
             this.gInformation.TabStop = false;
             this.gInformation.Text = "Information";
             // 
@@ -370,7 +370,7 @@
             this.bGreeting.Location = new System.Drawing.Point( 538, 20 );
             this.bGreeting.Name = "bGreeting";
             this.bGreeting.Size = new System.Drawing.Size( 92, 28 );
-            this.bGreeting.TabIndex = 18;
+            this.bGreeting.TabIndex = 4;
             this.bGreeting.Text = "Edit Greeting";
             this.bGreeting.UseVisualStyleBackColor = true;
             this.bGreeting.Click += new System.EventHandler( this.bGreeting_Click );
@@ -394,7 +394,7 @@
             0} );
             this.nAnnouncements.Name = "nAnnouncements";
             this.nAnnouncements.Size = new System.Drawing.Size( 50, 21 );
-            this.nAnnouncements.TabIndex = 16;
+            this.nAnnouncements.TabIndex = 1;
             this.nAnnouncements.Value = new decimal( new int[] {
             1,
             0,
@@ -407,7 +407,7 @@
             this.xAnnouncements.Location = new System.Drawing.Point( 24, 26 );
             this.xAnnouncements.Name = "xAnnouncements";
             this.xAnnouncements.Size = new System.Drawing.Size( 180, 19 );
-            this.xAnnouncements.TabIndex = 6;
+            this.xAnnouncements.TabIndex = 0;
             this.xAnnouncements.Text = "Show announcements every";
             this.xAnnouncements.UseVisualStyleBackColor = true;
             this.xAnnouncements.CheckedChanged += new System.EventHandler( this.xAnnouncements_CheckedChanged );
@@ -419,7 +419,7 @@
             this.bRules.Location = new System.Drawing.Point( 445, 20 );
             this.bRules.Name = "bRules";
             this.bRules.Size = new System.Drawing.Size( 87, 28 );
-            this.bRules.TabIndex = 2;
+            this.bRules.TabIndex = 3;
             this.bRules.Text = "Edit Rules";
             this.bRules.UseVisualStyleBackColor = true;
             this.bRules.Click += new System.EventHandler( this.bRules_Click );
@@ -431,7 +431,7 @@
             this.bAnnouncements.Location = new System.Drawing.Point( 301, 20 );
             this.bAnnouncements.Name = "bAnnouncements";
             this.bAnnouncements.Size = new System.Drawing.Size( 138, 28 );
-            this.bAnnouncements.TabIndex = 15;
+            this.bAnnouncements.TabIndex = 2;
             this.bAnnouncements.Text = "Edit Announcements";
             this.bAnnouncements.UseVisualStyleBackColor = true;
             this.bAnnouncements.Click += new System.EventHandler( this.bAnnouncements_Click );
@@ -470,7 +470,7 @@
             this.tIP.MaxLength = 15;
             this.tIP.Name = "tIP";
             this.tIP.Size = new System.Drawing.Size( 97, 21 );
-            this.tIP.TabIndex = 35;
+            this.tIP.TabIndex = 10;
             this.tIP.Validating += new System.ComponentModel.CancelEventHandler( this.tIP_Validating );
             // 
             // xIP
@@ -479,7 +479,7 @@
             this.xIP.Location = new System.Drawing.Point( 331, 134 );
             this.xIP.Name = "xIP";
             this.xIP.Size = new System.Drawing.Size( 103, 19 );
-            this.xIP.TabIndex = 34;
+            this.xIP.TabIndex = 9;
             this.xIP.Text = "Designated IP";
             this.xIP.UseVisualStyleBackColor = true;
             this.xIP.CheckedChanged += new System.EventHandler( this.xIP_CheckedChanged );
@@ -489,7 +489,7 @@
             this.bPortCheck.Location = new System.Drawing.Point( 517, 103 );
             this.bPortCheck.Name = "bPortCheck";
             this.bPortCheck.Size = new System.Drawing.Size( 68, 23 );
-            this.bPortCheck.TabIndex = 33;
+            this.bPortCheck.TabIndex = 8;
             this.bPortCheck.Text = "Check";
             this.bPortCheck.UseVisualStyleBackColor = true;
             this.bPortCheck.Click += new System.EventHandler( this.bPortCheck_Click );
@@ -557,7 +557,7 @@
             this.bMeasure.Location = new System.Drawing.Point( 244, 103 );
             this.bMeasure.Name = "bMeasure";
             this.bMeasure.Size = new System.Drawing.Size( 65, 23 );
-            this.bMeasure.TabIndex = 5;
+            this.bMeasure.TabIndex = 4;
             this.bMeasure.Text = "Measure";
             this.bMeasure.UseVisualStyleBackColor = true;
             this.bMeasure.Click += new System.EventHandler( this.bMeasure_Click );
@@ -610,7 +610,7 @@
             0} );
             this.nUploadBandwidth.Name = "nUploadBandwidth";
             this.nUploadBandwidth.Size = new System.Drawing.Size( 80, 21 );
-            this.nUploadBandwidth.TabIndex = 4;
+            this.nUploadBandwidth.TabIndex = 3;
             this.nUploadBandwidth.Value = new decimal( new int[] {
             10,
             0,
@@ -647,7 +647,7 @@
             this.cPublic.Location = new System.Drawing.Point( 120, 132 );
             this.cPublic.Name = "cPublic";
             this.cPublic.Size = new System.Drawing.Size( 80, 23 );
-            this.cPublic.TabIndex = 3;
+            this.cPublic.TabIndex = 5;
             // 
             // nMaxPlayers
             // 
@@ -722,7 +722,7 @@
             this.gChatColors.Location = new System.Drawing.Point( 8, 8 );
             this.gChatColors.Name = "gChatColors";
             this.gChatColors.Size = new System.Drawing.Size( 636, 139 );
-            this.gChatColors.TabIndex = 4;
+            this.gChatColors.TabIndex = 0;
             this.gChatColors.TabStop = false;
             this.gChatColors.Text = "Colors";
             // 
@@ -741,7 +741,7 @@
             this.bColorMe.Location = new System.Drawing.Point( 525, 78 );
             this.bColorMe.Name = "bColorMe";
             this.bColorMe.Size = new System.Drawing.Size( 100, 23 );
-            this.bColorMe.TabIndex = 13;
+            this.bColorMe.TabIndex = 6;
             this.bColorMe.UseVisualStyleBackColor = false;
             this.bColorMe.Click += new System.EventHandler( this.bColorMe_Click );
             // 
@@ -760,7 +760,7 @@
             this.bColorWarning.Location = new System.Drawing.Point( 193, 49 );
             this.bColorWarning.Name = "bColorWarning";
             this.bColorWarning.Size = new System.Drawing.Size( 100, 23 );
-            this.bColorWarning.TabIndex = 11;
+            this.bColorWarning.TabIndex = 1;
             this.bColorWarning.UseVisualStyleBackColor = false;
             this.bColorWarning.Click += new System.EventHandler( this.bColorWarning_Click );
             // 
@@ -770,7 +770,7 @@
             this.bColorSys.Location = new System.Drawing.Point( 193, 20 );
             this.bColorSys.Name = "bColorSys";
             this.bColorSys.Size = new System.Drawing.Size( 100, 23 );
-            this.bColorSys.TabIndex = 3;
+            this.bColorSys.TabIndex = 0;
             this.bColorSys.UseVisualStyleBackColor = false;
             this.bColorSys.Click += new System.EventHandler( this.bColorSys_Click );
             // 
@@ -789,7 +789,7 @@
             this.bColorPM.Location = new System.Drawing.Point( 193, 78 );
             this.bColorPM.Name = "bColorPM";
             this.bColorPM.Size = new System.Drawing.Size( 100, 23 );
-            this.bColorPM.TabIndex = 9;
+            this.bColorPM.TabIndex = 2;
             this.bColorPM.UseVisualStyleBackColor = false;
             this.bColorPM.Click += new System.EventHandler( this.bColorPM_Click );
             // 
@@ -826,7 +826,7 @@
             this.bColorAnnouncement.Location = new System.Drawing.Point( 525, 20 );
             this.bColorAnnouncement.Name = "bColorAnnouncement";
             this.bColorAnnouncement.Size = new System.Drawing.Size( 100, 23 );
-            this.bColorAnnouncement.TabIndex = 7;
+            this.bColorAnnouncement.TabIndex = 4;
             this.bColorAnnouncement.UseVisualStyleBackColor = false;
             this.bColorAnnouncement.Click += new System.EventHandler( this.bColorAnnouncement_Click );
             // 
@@ -845,7 +845,7 @@
             this.bColorHelp.Location = new System.Drawing.Point( 193, 107 );
             this.bColorHelp.Name = "bColorHelp";
             this.bColorHelp.Size = new System.Drawing.Size( 100, 23 );
-            this.bColorHelp.TabIndex = 4;
+            this.bColorHelp.TabIndex = 3;
             this.bColorHelp.UseVisualStyleBackColor = false;
             this.bColorHelp.Click += new System.EventHandler( this.bColorHelp_Click );
             // 
@@ -869,7 +869,7 @@
             this.gAppearence.Location = new System.Drawing.Point( 7, 153 );
             this.gAppearence.Name = "gAppearence";
             this.gAppearence.Size = new System.Drawing.Size( 637, 97 );
-            this.gAppearence.TabIndex = 2;
+            this.gAppearence.TabIndex = 1;
             this.gAppearence.TabStop = false;
             this.gAppearence.Text = "Appearence Tweaks";
             // 
@@ -879,7 +879,7 @@
             this.xShowJoinedWorldMessages.Location = new System.Drawing.Point( 365, 20 );
             this.xShowJoinedWorldMessages.Name = "xShowJoinedWorldMessages";
             this.xShowJoinedWorldMessages.Size = new System.Drawing.Size( 261, 19 );
-            this.xShowJoinedWorldMessages.TabIndex = 11;
+            this.xShowJoinedWorldMessages.TabIndex = 3;
             this.xShowJoinedWorldMessages.Text = "Show a message when players join worlds.";
             this.xShowJoinedWorldMessages.UseVisualStyleBackColor = true;
             // 
@@ -889,7 +889,7 @@
             this.xRankColorsInWorldNames.Location = new System.Drawing.Point( 365, 45 );
             this.xRankColorsInWorldNames.Name = "xRankColorsInWorldNames";
             this.xRankColorsInWorldNames.Size = new System.Drawing.Size( 243, 19 );
-            this.xRankColorsInWorldNames.TabIndex = 10;
+            this.xRankColorsInWorldNames.TabIndex = 4;
             this.xRankColorsInWorldNames.Text = "Color world names based on build rank.";
             this.xRankColorsInWorldNames.UseVisualStyleBackColor = true;
             // 
@@ -928,7 +928,7 @@
             this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
             this.chatPreview.Name = "chatPreview";
             this.chatPreview.Size = new System.Drawing.Size( 637, 189 );
-            this.chatPreview.TabIndex = 3;
+            this.chatPreview.TabIndex = 2;
             // 
             // tabWorlds
             // 
@@ -966,7 +966,7 @@
             this.cDefaultBuildRank.Location = new System.Drawing.Point( 244, 412 );
             this.cDefaultBuildRank.Name = "cDefaultBuildRank";
             this.cDefaultBuildRank.Size = new System.Drawing.Size( 121, 23 );
-            this.cDefaultBuildRank.TabIndex = 6;
+            this.cDefaultBuildRank.TabIndex = 5;
             // 
             // cMainWorld
             // 
@@ -974,7 +974,7 @@
             this.cMainWorld.Location = new System.Drawing.Point( 371, 17 );
             this.cMainWorld.Name = "cMainWorld";
             this.cMainWorld.Size = new System.Drawing.Size( 102, 23 );
-            this.cMainWorld.TabIndex = 5;
+            this.cMainWorld.TabIndex = 3;
             // 
             // lMainWorld
             // 
@@ -1001,7 +1001,7 @@
             this.bAddWorld.Location = new System.Drawing.Point( 8, 13 );
             this.bAddWorld.Name = "bAddWorld";
             this.bAddWorld.Size = new System.Drawing.Size( 120, 28 );
-            this.bAddWorld.TabIndex = 1;
+            this.bAddWorld.TabIndex = 0;
             this.bAddWorld.Text = "Add World";
             this.bAddWorld.UseVisualStyleBackColor = true;
             this.bAddWorld.Click += new System.EventHandler( this.bAddWorld_Click );
@@ -1013,7 +1013,7 @@
             this.bWorldDelete.Location = new System.Drawing.Point( 524, 13 );
             this.bWorldDelete.Name = "bWorldDelete";
             this.bWorldDelete.Size = new System.Drawing.Size( 120, 28 );
-            this.bWorldDelete.TabIndex = 3;
+            this.bWorldDelete.TabIndex = 4;
             this.bWorldDelete.Text = "Delete World";
             this.bWorldDelete.UseVisualStyleBackColor = true;
             this.bWorldDelete.Click += new System.EventHandler( this.bWorldDel_Click );
@@ -1039,11 +1039,11 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle5.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 635, 359 );
-            this.dgvWorlds.TabIndex = 0;
+            this.dgvWorlds.TabIndex = 1;
             this.dgvWorlds.SelectionChanged += new System.EventHandler( this.dgvWorlds_SelectionChanged );
             // 
             // dgvcName
@@ -1124,7 +1124,7 @@
             this.bLowerRank.Location = new System.Drawing.Point( 84, 422 );
             this.bLowerRank.Name = "bLowerRank";
             this.bLowerRank.Size = new System.Drawing.Size( 70, 23 );
-            this.bLowerRank.TabIndex = 7;
+            this.bLowerRank.TabIndex = 4;
             this.bLowerRank.Text = "▼ Lower";
             this.bLowerRank.UseVisualStyleBackColor = true;
             this.bLowerRank.Click += new System.EventHandler( this.bLowerRank_Click );
@@ -1135,7 +1135,7 @@
             this.bRaiseRank.Location = new System.Drawing.Point( 8, 422 );
             this.bRaiseRank.Name = "bRaiseRank";
             this.bRaiseRank.Size = new System.Drawing.Size( 70, 23 );
-            this.bRaiseRank.TabIndex = 6;
+            this.bRaiseRank.TabIndex = 3;
             this.bRaiseRank.Text = "▲ Raise";
             this.bRaiseRank.UseVisualStyleBackColor = true;
             this.bRaiseRank.Click += new System.EventHandler( this.bRaiseRank_Click );
@@ -1178,7 +1178,7 @@
             this.gRankOptions.Location = new System.Drawing.Point( 160, 13 );
             this.gRankOptions.Name = "gRankOptions";
             this.gRankOptions.Size = new System.Drawing.Size( 307, 409 );
-            this.gRankOptions.TabIndex = 1;
+            this.gRankOptions.TabIndex = 5;
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
             // 
@@ -1189,7 +1189,7 @@
             this.cFreezeLimit.Location = new System.Drawing.Point( 96, 222 );
             this.cFreezeLimit.Name = "cFreezeLimit";
             this.cFreezeLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cFreezeLimit.TabIndex = 25;
+            this.cFreezeLimit.TabIndex = 8;
             this.cFreezeLimit.SelectedIndexChanged += new System.EventHandler( this.cFreezeLimit_SelectedIndexChanged );
             // 
             // lFreezeLimit
@@ -1208,7 +1208,7 @@
             this.cMaxHideFrom.Location = new System.Drawing.Point( 96, 193 );
             this.cMaxHideFrom.Name = "cMaxHideFrom";
             this.cMaxHideFrom.Size = new System.Drawing.Size( 180, 23 );
-            this.cMaxHideFrom.TabIndex = 23;
+            this.cMaxHideFrom.TabIndex = 7;
             this.cMaxHideFrom.SelectedIndexChanged += new System.EventHandler( this.cMaxHideFrom_SelectedIndexChanged );
             // 
             // lMaxHideFrom
@@ -1243,7 +1243,7 @@
             this.nAntiGriefSeconds.Location = new System.Drawing.Point( 214, 338 );
             this.nAntiGriefSeconds.Name = "nAntiGriefSeconds";
             this.nAntiGriefSeconds.Size = new System.Drawing.Size( 45, 21 );
-            this.nAntiGriefSeconds.TabIndex = 20;
+            this.nAntiGriefSeconds.TabIndex = 14;
             this.nAntiGriefSeconds.ValueChanged += new System.EventHandler( this.nAntiGriefSeconds_ValueChanged );
             // 
             // bColorRank
@@ -1252,7 +1252,7 @@
             this.bColorRank.Location = new System.Drawing.Point( 96, 47 );
             this.bColorRank.Name = "bColorRank";
             this.bColorRank.Size = new System.Drawing.Size( 100, 24 );
-            this.bColorRank.TabIndex = 2;
+            this.bColorRank.TabIndex = 1;
             this.bColorRank.UseVisualStyleBackColor = false;
             this.bColorRank.Click += new System.EventHandler( this.bColorRank_Click );
             // 
@@ -1262,7 +1262,7 @@
             this.xDrawLimit.Location = new System.Drawing.Point( 9, 373 );
             this.xDrawLimit.Name = "xDrawLimit";
             this.xDrawLimit.Size = new System.Drawing.Size( 81, 19 );
-            this.xDrawLimit.TabIndex = 13;
+            this.xDrawLimit.TabIndex = 15;
             this.xDrawLimit.Text = "Draw limit";
             this.xDrawLimit.UseVisualStyleBackColor = true;
             this.xDrawLimit.CheckedChanged += new System.EventHandler( this.xDrawLimit_CheckedChanged );
@@ -1300,7 +1300,7 @@
             0} );
             this.nDrawLimit.Name = "nDrawLimit";
             this.nDrawLimit.Size = new System.Drawing.Size( 67, 21 );
-            this.nDrawLimit.TabIndex = 14;
+            this.nDrawLimit.TabIndex = 16;
             this.nDrawLimit.ValueChanged += new System.EventHandler( this.nDrawLimit_ValueChanged );
             // 
             // nKickIdle
@@ -1313,7 +1313,7 @@
             0} );
             this.nKickIdle.Name = "nKickIdle";
             this.nKickIdle.Size = new System.Drawing.Size( 59, 21 );
-            this.nKickIdle.TabIndex = 10;
+            this.nKickIdle.TabIndex = 11;
             this.nKickIdle.ValueChanged += new System.EventHandler( this.nKickIdle_ValueChanged );
             // 
             // xAntiGrief
@@ -1322,7 +1322,7 @@
             this.xAntiGrief.Location = new System.Drawing.Point( 9, 313 );
             this.xAntiGrief.Name = "xAntiGrief";
             this.xAntiGrief.Size = new System.Drawing.Size( 213, 19 );
-            this.xAntiGrief.TabIndex = 11;
+            this.xAntiGrief.TabIndex = 12;
             this.xAntiGrief.Text = "Enable grief / autoclicker detection";
             this.xAntiGrief.UseVisualStyleBackColor = true;
             this.xAntiGrief.CheckedChanged += new System.EventHandler( this.xAntiGrief_CheckedChanged );
@@ -1342,7 +1342,7 @@
             this.xKickIdle.Location = new System.Drawing.Point( 9, 283 );
             this.xKickIdle.Name = "xKickIdle";
             this.xKickIdle.Size = new System.Drawing.Size( 98, 19 );
-            this.xKickIdle.TabIndex = 9;
+            this.xKickIdle.TabIndex = 10;
             this.xKickIdle.Text = "Kick if idle for";
             this.xKickIdle.UseVisualStyleBackColor = true;
             this.xKickIdle.CheckedChanged += new System.EventHandler( this.xKickIdle_CheckedChanged );
@@ -1357,7 +1357,7 @@
             0} );
             this.nAntiGriefBlocks.Name = "nAntiGriefBlocks";
             this.nAntiGriefBlocks.Size = new System.Drawing.Size( 51, 21 );
-            this.nAntiGriefBlocks.TabIndex = 12;
+            this.nAntiGriefBlocks.TabIndex = 13;
             this.nAntiGriefBlocks.ValueChanged += new System.EventHandler( this.nAntiGriefBlocks_ValueChanged );
             // 
             // xReserveSlot
@@ -1366,7 +1366,7 @@
             this.xReserveSlot.Location = new System.Drawing.Point( 9, 253 );
             this.xReserveSlot.Name = "xReserveSlot";
             this.xReserveSlot.Size = new System.Drawing.Size( 129, 19 );
-            this.xReserveSlot.TabIndex = 8;
+            this.xReserveSlot.TabIndex = 9;
             this.xReserveSlot.Text = "Reserve player slot";
             this.xReserveSlot.UseVisualStyleBackColor = true;
             this.xReserveSlot.CheckedChanged += new System.EventHandler( this.xReserveSlot_CheckedChanged );
@@ -1378,7 +1378,7 @@
             this.cBanLimit.Location = new System.Drawing.Point( 96, 106 );
             this.cBanLimit.Name = "cBanLimit";
             this.cBanLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cBanLimit.TabIndex = 7;
+            this.cBanLimit.TabIndex = 4;
             this.cBanLimit.SelectedIndexChanged += new System.EventHandler( this.cBanLimit_SelectedIndexChanged );
             // 
             // cKickLimit
@@ -1388,7 +1388,7 @@
             this.cKickLimit.Location = new System.Drawing.Point( 96, 77 );
             this.cKickLimit.Name = "cKickLimit";
             this.cKickLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cKickLimit.TabIndex = 6;
+            this.cKickLimit.TabIndex = 3;
             this.cKickLimit.SelectedIndexChanged += new System.EventHandler( this.cKickLimit_SelectedIndexChanged );
             // 
             // cDemoteLimit
@@ -1398,7 +1398,7 @@
             this.cDemoteLimit.Location = new System.Drawing.Point( 96, 164 );
             this.cDemoteLimit.Name = "cDemoteLimit";
             this.cDemoteLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cDemoteLimit.TabIndex = 5;
+            this.cDemoteLimit.TabIndex = 6;
             this.cDemoteLimit.SelectedIndexChanged += new System.EventHandler( this.cDemoteLimit_SelectedIndexChanged );
             // 
             // cPromoteLimit
@@ -1408,7 +1408,7 @@
             this.cPromoteLimit.Location = new System.Drawing.Point( 96, 135 );
             this.cPromoteLimit.Name = "cPromoteLimit";
             this.cPromoteLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cPromoteLimit.TabIndex = 4;
+            this.cPromoteLimit.TabIndex = 5;
             this.cPromoteLimit.SelectedIndexChanged += new System.EventHandler( this.cPromoteLimit_SelectedIndexChanged );
             // 
             // lBanLimit
@@ -1453,7 +1453,7 @@
             this.tPrefix.MaxLength = 1;
             this.tPrefix.Name = "tPrefix";
             this.tPrefix.Size = new System.Drawing.Size( 22, 21 );
-            this.tPrefix.TabIndex = 3;
+            this.tPrefix.TabIndex = 2;
             this.tPrefix.Validating += new System.ComponentModel.CancelEventHandler( this.tPrefix_Validating );
             // 
             // lPrefix
@@ -1497,7 +1497,7 @@
             this.bDeleteRank.Location = new System.Drawing.Point( 84, 28 );
             this.bDeleteRank.Name = "bDeleteRank";
             this.bDeleteRank.Size = new System.Drawing.Size( 70, 23 );
-            this.bDeleteRank.TabIndex = 4;
+            this.bDeleteRank.TabIndex = 2;
             this.bDeleteRank.Text = "Delete";
             this.bDeleteRank.UseVisualStyleBackColor = true;
             this.bDeleteRank.Click += new System.EventHandler( this.bDeleteRank_Click );
@@ -1517,7 +1517,7 @@
             this.vPermissions.ShowGroups = false;
             this.vPermissions.ShowItemToolTips = true;
             this.vPermissions.Size = new System.Drawing.Size( 171, 417 );
-            this.vPermissions.TabIndex = 2;
+            this.vPermissions.TabIndex = 6;
             this.vPermissions.UseCompatibleStateImageBehavior = false;
             this.vPermissions.View = System.Windows.Forms.View.Details;
             this.vPermissions.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler( this.vPermissions_ItemChecked );
@@ -1531,7 +1531,7 @@
             this.bAddRank.Location = new System.Drawing.Point( 8, 28 );
             this.bAddRank.Name = "bAddRank";
             this.bAddRank.Size = new System.Drawing.Size( 70, 23 );
-            this.bAddRank.TabIndex = 3;
+            this.bAddRank.TabIndex = 1;
             this.bAddRank.Text = "Add Rank";
             this.bAddRank.UseVisualStyleBackColor = true;
             this.bAddRank.Click += new System.EventHandler( this.bAddRank_Click );
@@ -1585,7 +1585,7 @@
             this.gSecurityMisc.Location = new System.Drawing.Point( 8, 200 );
             this.gSecurityMisc.Name = "gSecurityMisc";
             this.gSecurityMisc.Size = new System.Drawing.Size( 636, 117 );
-            this.gSecurityMisc.TabIndex = 3;
+            this.gSecurityMisc.TabIndex = 2;
             this.gSecurityMisc.TabStop = false;
             this.gSecurityMisc.Text = "Misc";
             // 
@@ -1605,7 +1605,7 @@
             this.cPatrolledRank.Location = new System.Drawing.Point( 113, 78 );
             this.cPatrolledRank.Name = "cPatrolledRank";
             this.cPatrolledRank.Size = new System.Drawing.Size( 123, 23 );
-            this.cPatrolledRank.TabIndex = 7;
+            this.cPatrolledRank.TabIndex = 4;
             // 
             // lPatrolledRank
             // 
@@ -1622,7 +1622,7 @@
             this.xAnnounceRankChanges.Location = new System.Drawing.Point( 304, 45 );
             this.xAnnounceRankChanges.Name = "xAnnounceRankChanges";
             this.xAnnounceRankChanges.Size = new System.Drawing.Size( 231, 19 );
-            this.xAnnounceRankChanges.TabIndex = 5;
+            this.xAnnounceRankChanges.TabIndex = 3;
             this.xAnnounceRankChanges.Text = "Announce promotions and demotions";
             this.xAnnounceRankChanges.UseVisualStyleBackColor = true;
             // 
@@ -1632,7 +1632,7 @@
             this.xAnnounceKickAndBanReasons.Location = new System.Drawing.Point( 304, 20 );
             this.xAnnounceKickAndBanReasons.Name = "xAnnounceKickAndBanReasons";
             this.xAnnounceKickAndBanReasons.Size = new System.Drawing.Size( 244, 19 );
-            this.xAnnounceKickAndBanReasons.TabIndex = 4;
+            this.xAnnounceKickAndBanReasons.TabIndex = 2;
             this.xAnnounceKickAndBanReasons.Text = "Announce kick, ban, and unban reasons";
             this.xAnnounceKickAndBanReasons.UseVisualStyleBackColor = true;
             // 
@@ -1642,7 +1642,7 @@
             this.xRequireRankChangeReason.Location = new System.Drawing.Point( 42, 45 );
             this.xRequireRankChangeReason.Name = "xRequireRankChangeReason";
             this.xRequireRankChangeReason.Size = new System.Drawing.Size( 225, 19 );
-            this.xRequireRankChangeReason.TabIndex = 3;
+            this.xRequireRankChangeReason.TabIndex = 1;
             this.xRequireRankChangeReason.Text = "Require promotion/demotion reason";
             this.xRequireRankChangeReason.UseVisualStyleBackColor = true;
             // 
@@ -1652,7 +1652,7 @@
             this.xRequireBanReason.Location = new System.Drawing.Point( 42, 20 );
             this.xRequireBanReason.Name = "xRequireBanReason";
             this.xRequireBanReason.Size = new System.Drawing.Size( 197, 19 );
-            this.xRequireBanReason.TabIndex = 2;
+            this.xRequireBanReason.TabIndex = 0;
             this.xRequireBanReason.Text = "Require ban and unban reason";
             this.xRequireBanReason.UseVisualStyleBackColor = true;
             // 
@@ -1672,7 +1672,7 @@
             this.gSpamChat.Location = new System.Drawing.Point( 8, 100 );
             this.gSpamChat.Name = "gSpamChat";
             this.gSpamChat.Size = new System.Drawing.Size( 636, 94 );
-            this.gSpamChat.TabIndex = 2;
+            this.gSpamChat.TabIndex = 1;
             this.gSpamChat.TabStop = false;
             this.gSpamChat.Text = "Chat Spam Prevention";
             // 
@@ -1726,7 +1726,7 @@
             this.nSpamMute.Location = new System.Drawing.Point( 153, 59 );
             this.nSpamMute.Name = "nSpamMute";
             this.nSpamMute.Size = new System.Drawing.Size( 62, 21 );
-            this.nSpamMute.TabIndex = 2;
+            this.nSpamMute.TabIndex = 3;
             // 
             // lSpamMute
             // 
@@ -1734,7 +1734,7 @@
             this.lSpamMute.Location = new System.Drawing.Point( 39, 62 );
             this.lSpamMute.Name = "lSpamMute";
             this.lSpamMute.Size = new System.Drawing.Size( 108, 15 );
-            this.lSpamMute.TabIndex = 7;
+            this.lSpamMute.TabIndex = 2;
             this.lSpamMute.Text = "Mute spammer for";
             // 
             // nSpamChatTimer
@@ -1818,7 +1818,7 @@
             this.xAllowUnverifiedLAN.Location = new System.Drawing.Point( 42, 49 );
             this.xAllowUnverifiedLAN.Name = "xAllowUnverifiedLAN";
             this.xAllowUnverifiedLAN.Size = new System.Drawing.Size( 353, 19 );
-            this.xAllowUnverifiedLAN.TabIndex = 17;
+            this.xAllowUnverifiedLAN.TabIndex = 1;
             this.xAllowUnverifiedLAN.Text = "Allow connections from LAN without verification (192.168.*.*)";
             this.xAllowUnverifiedLAN.UseVisualStyleBackColor = true;
             // 
@@ -2062,6 +2062,9 @@
             // 
             // tabLogging
             // 
+            this.tabLogging.Controls.Add( this.bLogPath );
+            this.tabLogging.Controls.Add( this.xLogPath );
+            this.tabLogging.Controls.Add( this.tLogPath );
             this.tabLogging.Controls.Add( this.gLogFile );
             this.tabLogging.Controls.Add( this.gConsole );
             this.tabLogging.Location = new System.Drawing.Point( 4, 24 );
@@ -2071,6 +2074,33 @@
             this.tabLogging.TabIndex = 5;
             this.tabLogging.Text = "Logging";
             this.tabLogging.UseVisualStyleBackColor = true;
+            // 
+            // bLogPath
+            // 
+            this.bLogPath.Location = new System.Drawing.Point( 574, 414 );
+            this.bLogPath.Name = "bLogPath";
+            this.bLogPath.Size = new System.Drawing.Size( 57, 23 );
+            this.bLogPath.TabIndex = 17;
+            this.bLogPath.Text = "Browse";
+            this.bLogPath.UseVisualStyleBackColor = true;
+            // 
+            // xLogPath
+            // 
+            this.xLogPath.AutoSize = true;
+            this.xLogPath.Location = new System.Drawing.Point( 23, 416 );
+            this.xLogPath.Name = "xLogPath";
+            this.xLogPath.Size = new System.Drawing.Size( 160, 19 );
+            this.xLogPath.TabIndex = 15;
+            this.xLogPath.Text = "Custom path for log files:";
+            this.xLogPath.UseVisualStyleBackColor = true;
+            // 
+            // tLogPath
+            // 
+            this.tLogPath.Font = new System.Drawing.Font( "Lucida Console", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.tLogPath.Location = new System.Drawing.Point( 189, 416 );
+            this.tLogPath.Name = "tLogPath";
+            this.tLogPath.Size = new System.Drawing.Size( 379, 19 );
+            this.tLogPath.TabIndex = 16;
             // 
             // gLogFile
             // 
@@ -2083,7 +2113,7 @@
             this.gLogFile.Controls.Add( this.lLogMode );
             this.gLogFile.Location = new System.Drawing.Point( 329, 13 );
             this.gLogFile.Name = "gLogFile";
-            this.gLogFile.Size = new System.Drawing.Size( 317, 409 );
+            this.gLogFile.Size = new System.Drawing.Size( 315, 395 );
             this.gLogFile.TabIndex = 1;
             this.gLogFile.TabStop = false;
             this.gLogFile.Text = "Log File";
@@ -2101,11 +2131,11 @@
             // 
             this.xLogLimit.AutoSize = true;
             this.xLogLimit.Enabled = false;
-            this.xLogLimit.Location = new System.Drawing.Point( 12, 370 );
+            this.xLogLimit.Location = new System.Drawing.Point( 18, 365 );
             this.xLogLimit.Name = "xLogLimit";
-            this.xLogLimit.Size = new System.Drawing.Size( 102, 19 );
+            this.xLogLimit.Size = new System.Drawing.Size( 80, 19 );
             this.xLogLimit.TabIndex = 2;
-            this.xLogLimit.Text = "Only keep last";
+            this.xLogLimit.Text = "Only keep";
             this.xLogLimit.UseVisualStyleBackColor = true;
             this.xLogLimit.CheckedChanged += new System.EventHandler( this.xLogLimit_CheckedChanged );
             // 
@@ -2116,7 +2146,7 @@
             this.columnHeader2} );
             this.vLogFileOptions.GridLines = true;
             this.vLogFileOptions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            this.vLogFileOptions.Location = new System.Drawing.Point( 78, 65 );
+            this.vLogFileOptions.Location = new System.Drawing.Point( 78, 59 );
             this.vLogFileOptions.Name = "vLogFileOptions";
             this.vLogFileOptions.ShowItemToolTips = true;
             this.vLogFileOptions.Size = new System.Drawing.Size( 161, 270 );
@@ -2132,23 +2162,23 @@
             // lLogLimitUnits
             // 
             this.lLogLimitUnits.AutoSize = true;
-            this.lLogLimitUnits.Location = new System.Drawing.Point( 188, 371 );
+            this.lLogLimitUnits.Location = new System.Drawing.Point( 166, 366 );
             this.lLogLimitUnits.Name = "lLogLimitUnits";
-            this.lLogLimitUnits.Size = new System.Drawing.Size( 29, 15 );
+            this.lLogLimitUnits.Size = new System.Drawing.Size( 129, 15 );
             this.lLogLimitUnits.TabIndex = 4;
-            this.lLogLimitUnits.Text = "files";
+            this.lLogLimitUnits.Text = "of most recent log files";
             // 
             // nLogLimit
             // 
             this.nLogLimit.Enabled = false;
-            this.nLogLimit.Location = new System.Drawing.Point( 120, 369 );
+            this.nLogLimit.Location = new System.Drawing.Point( 104, 364 );
             this.nLogLimit.Maximum = new decimal( new int[] {
             1000,
             0,
             0,
             0} );
             this.nLogLimit.Name = "nLogLimit";
-            this.nLogLimit.Size = new System.Drawing.Size( 62, 21 );
+            this.nLogLimit.Size = new System.Drawing.Size( 56, 21 );
             this.nLogLimit.TabIndex = 3;
             // 
             // cLogMode
@@ -2159,15 +2189,15 @@
             "One long file",
             "Multiple files, split by session",
             "Multiple files, split by day"} );
-            this.cLogMode.Location = new System.Drawing.Point( 78, 341 );
+            this.cLogMode.Location = new System.Drawing.Point( 104, 335 );
             this.cLogMode.Name = "cLogMode";
-            this.cLogMode.Size = new System.Drawing.Size( 199, 23 );
+            this.cLogMode.Size = new System.Drawing.Size( 185, 23 );
             this.cLogMode.TabIndex = 1;
             // 
             // lLogMode
             // 
             this.lLogMode.AutoSize = true;
-            this.lLogMode.Location = new System.Drawing.Point( 9, 344 );
+            this.lLogMode.Location = new System.Drawing.Point( 35, 338 );
             this.lLogMode.Name = "lLogMode";
             this.lLogMode.Size = new System.Drawing.Size( 63, 15 );
             this.lLogMode.TabIndex = 0;
@@ -2179,7 +2209,7 @@
             this.gConsole.Controls.Add( this.vConsoleOptions );
             this.gConsole.Location = new System.Drawing.Point( 8, 13 );
             this.gConsole.Name = "gConsole";
-            this.gConsole.Size = new System.Drawing.Size( 315, 409 );
+            this.gConsole.Size = new System.Drawing.Size( 315, 395 );
             this.gConsole.TabIndex = 0;
             this.gConsole.TabStop = false;
             this.gConsole.Text = "Console";
@@ -2187,7 +2217,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point( 9, 23 );
+            this.label1.Location = new System.Drawing.Point( 9, 21 );
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size( 212, 30 );
             this.label1.TabIndex = 8;
@@ -2200,7 +2230,7 @@
             this.columnHeader3} );
             this.vConsoleOptions.GridLines = true;
             this.vConsoleOptions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            this.vConsoleOptions.Location = new System.Drawing.Point( 74, 65 );
+            this.vConsoleOptions.Location = new System.Drawing.Point( 76, 59 );
             this.vConsoleOptions.Name = "vConsoleOptions";
             this.vConsoleOptions.ShowItemToolTips = true;
             this.vConsoleOptions.Size = new System.Drawing.Size( 161, 270 );
@@ -2236,7 +2266,7 @@
             this.xIRCListShowNonEnglish.Location = new System.Drawing.Point( 465, 13 );
             this.xIRCListShowNonEnglish.Name = "xIRCListShowNonEnglish";
             this.xIRCListShowNonEnglish.Size = new System.Drawing.Size( 178, 19 );
-            this.xIRCListShowNonEnglish.TabIndex = 5;
+            this.xIRCListShowNonEnglish.TabIndex = 2;
             this.xIRCListShowNonEnglish.Text = "Show non-English networks";
             this.xIRCListShowNonEnglish.UseVisualStyleBackColor = true;
             this.xIRCListShowNonEnglish.CheckedChanged += new System.EventHandler( this.xIRCListShowNonEnglish_CheckedChanged );
@@ -2253,7 +2283,7 @@
             this.gIRCOptions.Location = new System.Drawing.Point( 8, 206 );
             this.gIRCOptions.Name = "gIRCOptions";
             this.gIRCOptions.Size = new System.Drawing.Size( 636, 137 );
-            this.gIRCOptions.TabIndex = 2;
+            this.gIRCOptions.TabIndex = 4;
             this.gIRCOptions.TabStop = false;
             this.gIRCOptions.Text = "Options";
             // 
@@ -2263,7 +2293,7 @@
             this.lIRCNoForwardingMessage.Location = new System.Drawing.Point( 33, 110 );
             this.lIRCNoForwardingMessage.Name = "lIRCNoForwardingMessage";
             this.lIRCNoForwardingMessage.Size = new System.Drawing.Size( 567, 15 );
-            this.lIRCNoForwardingMessage.TabIndex = 15;
+            this.lIRCNoForwardingMessage.TabIndex = 5;
             this.lIRCNoForwardingMessage.Text = "NOTE: If forwarding all messages is not enabled, only messages starting with a ha" +
                 "sh (#) will be relayed.";
             // 
@@ -2273,7 +2303,7 @@
             this.xIRCBotAnnounceIRCJoins.Location = new System.Drawing.Point( 326, 79 );
             this.xIRCBotAnnounceIRCJoins.Name = "xIRCBotAnnounceIRCJoins";
             this.xIRCBotAnnounceIRCJoins.Size = new System.Drawing.Size( 303, 19 );
-            this.xIRCBotAnnounceIRCJoins.TabIndex = 14;
+            this.xIRCBotAnnounceIRCJoins.TabIndex = 4;
             this.xIRCBotAnnounceIRCJoins.Text = "Announce people joining/leaving the IRC channels.";
             this.xIRCBotAnnounceIRCJoins.UseVisualStyleBackColor = true;
             // 
@@ -2283,7 +2313,7 @@
             this.bColorIRC.Location = new System.Drawing.Point( 152, 20 );
             this.bColorIRC.Name = "bColorIRC";
             this.bColorIRC.Size = new System.Drawing.Size( 100, 23 );
-            this.bColorIRC.TabIndex = 13;
+            this.bColorIRC.TabIndex = 0;
             this.bColorIRC.UseVisualStyleBackColor = false;
             this.bColorIRC.Click += new System.EventHandler( this.bColorIRC_Click );
             // 
@@ -2312,7 +2342,7 @@
             this.xIRCBotAnnounceServerJoins.Location = new System.Drawing.Point( 326, 54 );
             this.xIRCBotAnnounceServerJoins.Name = "xIRCBotAnnounceServerJoins";
             this.xIRCBotAnnounceServerJoins.Size = new System.Drawing.Size( 279, 19 );
-            this.xIRCBotAnnounceServerJoins.TabIndex = 0;
+            this.xIRCBotAnnounceServerJoins.TabIndex = 3;
             this.xIRCBotAnnounceServerJoins.Text = "Announce people joining/leaving the SERVER.";
             this.xIRCBotAnnounceServerJoins.UseVisualStyleBackColor = true;
             // 
@@ -2349,7 +2379,7 @@
             this.gIRCNetwork.Location = new System.Drawing.Point( 8, 40 );
             this.gIRCNetwork.Name = "gIRCNetwork";
             this.gIRCNetwork.Size = new System.Drawing.Size( 636, 160 );
-            this.gIRCNetwork.TabIndex = 1;
+            this.gIRCNetwork.TabIndex = 3;
             this.gIRCNetwork.TabStop = false;
             this.gIRCNetwork.Text = "Network";
             // 
@@ -2368,7 +2398,7 @@
             this.xIRCRegisteredNick.Location = new System.Drawing.Point( 265, 101 );
             this.xIRCRegisteredNick.Name = "xIRCRegisteredNick";
             this.xIRCRegisteredNick.Size = new System.Drawing.Size( 86, 19 );
-            this.xIRCRegisteredNick.TabIndex = 26;
+            this.xIRCRegisteredNick.TabIndex = 5;
             this.xIRCRegisteredNick.Text = "Registered";
             this.xIRCRegisteredNick.UseVisualStyleBackColor = true;
             this.xIRCRegisteredNick.CheckedChanged += new System.EventHandler( this.xIRCRegisteredNick_CheckedChanged );
@@ -2379,7 +2409,7 @@
             this.tIRCNickServMessage.Location = new System.Drawing.Point( 388, 126 );
             this.tIRCNickServMessage.Name = "tIRCNickServMessage";
             this.tIRCNickServMessage.Size = new System.Drawing.Size( 234, 21 );
-            this.tIRCNickServMessage.TabIndex = 25;
+            this.tIRCNickServMessage.TabIndex = 7;
             // 
             // lIRCNickServMessage
             // 
@@ -2398,7 +2428,7 @@
             this.tIRCNickServ.MaxLength = 32;
             this.tIRCNickServ.Name = "tIRCNickServ";
             this.tIRCNickServ.Size = new System.Drawing.Size( 138, 21 );
-            this.tIRCNickServ.TabIndex = 23;
+            this.tIRCNickServ.TabIndex = 6;
             // 
             // lIRCNickServ
             // 
@@ -2430,7 +2460,7 @@
             0} );
             this.nIRCDelay.Name = "nIRCDelay";
             this.nIRCDelay.Size = new System.Drawing.Size( 56, 21 );
-            this.nIRCDelay.TabIndex = 21;
+            this.nIRCDelay.TabIndex = 2;
             this.nIRCDelay.Value = new decimal( new int[] {
             1,
             0,
@@ -2471,7 +2501,7 @@
             this.tIRCBotChannels.MaxLength = 1000;
             this.tIRCBotChannels.Name = "tIRCBotChannels";
             this.tIRCBotChannels.Size = new System.Drawing.Size( 501, 21 );
-            this.tIRCBotChannels.TabIndex = 2;
+            this.tIRCBotChannels.TabIndex = 3;
             // 
             // lIRCBotChannels
             // 
@@ -2545,7 +2575,7 @@
             this.tIRCBotNick.MaxLength = 32;
             this.tIRCBotNick.Name = "tIRCBotNick";
             this.tIRCBotNick.Size = new System.Drawing.Size( 138, 21 );
-            this.tIRCBotNick.TabIndex = 3;
+            this.tIRCBotNick.TabIndex = 4;
             // 
             // lIRCList
             // 
@@ -2576,7 +2606,7 @@
             this.cIRCList.Location = new System.Drawing.Point( 321, 11 );
             this.cIRCList.Name = "cIRCList";
             this.cIRCList.Size = new System.Drawing.Size( 138, 23 );
-            this.cIRCList.TabIndex = 3;
+            this.cIRCList.TabIndex = 1;
             this.cIRCList.SelectedIndexChanged += new System.EventHandler( this.cIRCList_SelectedIndexChanged );
             // 
             // tabAdvanced
@@ -2596,10 +2626,7 @@
             this.groupBox1.Controls.Add( this.bDataPath );
             this.groupBox1.Controls.Add( this.xDataPath );
             this.groupBox1.Controls.Add( this.tDataPath );
-            this.groupBox1.Controls.Add( this.bLogPath );
             this.groupBox1.Controls.Add( this.bMapPath );
-            this.groupBox1.Controls.Add( this.xLogPath );
-            this.groupBox1.Controls.Add( this.tLogPath );
             this.groupBox1.Controls.Add( this.xMapPath );
             this.groupBox1.Controls.Add( this.tMapPath );
             this.groupBox1.Controls.Add( this.nMaxUndo );
@@ -2609,106 +2636,80 @@
             this.groupBox1.Controls.Add( this.lTickInterval );
             this.groupBox1.Controls.Add( this.xLowLatencyMode );
             this.groupBox1.Controls.Add( this.nTickInterval );
-            this.groupBox1.Controls.Add( this.cUpdater );
             this.groupBox1.Controls.Add( this.lTickIntervalUnits );
-            this.groupBox1.Controls.Add( this.lUpdater );
-            this.groupBox1.Controls.Add( this.xRedundantPacket );
+            this.groupBox1.Controls.Add( this.xRelayAllBlockUpdates );
             this.groupBox1.Controls.Add( this.lThrottlingUnits );
             this.groupBox1.Controls.Add( this.lProcessPriority );
             this.groupBox1.Controls.Add( this.nThrottling );
             this.groupBox1.Controls.Add( this.cProcessPriority );
             this.groupBox1.Controls.Add( this.lThrottling );
-            this.groupBox1.Controls.Add( this.xAbsoluteUpdates );
-            this.groupBox1.Location = new System.Drawing.Point( 8, 118 );
+            this.groupBox1.Controls.Add( this.xNoPartialPositionUpdates );
+            this.groupBox1.Location = new System.Drawing.Point( 8, 148 );
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size( 638, 327 );
-            this.groupBox1.TabIndex = 42;
+            this.groupBox1.Size = new System.Drawing.Size( 638, 297 );
+            this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Miscallaneous";
             // 
             // bDataPath
             // 
-            this.bDataPath.Location = new System.Drawing.Point( 575, 292 );
+            this.bDataPath.Enabled = false;
+            this.bDataPath.Location = new System.Drawing.Point( 572, 266 );
             this.bDataPath.Name = "bDataPath";
             this.bDataPath.Size = new System.Drawing.Size( 57, 23 );
-            this.bDataPath.TabIndex = 56;
+            this.bDataPath.TabIndex = 13;
             this.bDataPath.Text = "Browse";
             this.bDataPath.UseVisualStyleBackColor = true;
             // 
             // xDataPath
             // 
             this.xDataPath.AutoSize = true;
-            this.xDataPath.Location = new System.Drawing.Point( 11, 292 );
+            this.xDataPath.Location = new System.Drawing.Point( 8, 266 );
             this.xDataPath.Name = "xDataPath";
             this.xDataPath.Size = new System.Drawing.Size( 173, 19 );
-            this.xDataPath.TabIndex = 55;
+            this.xDataPath.TabIndex = 11;
             this.xDataPath.Text = "Custom path for other data:";
             this.xDataPath.UseVisualStyleBackColor = true;
             this.xDataPath.CheckedChanged += new System.EventHandler( this.xDataPath_CheckedChanged );
             // 
             // tDataPath
             // 
+            this.tDataPath.Enabled = false;
             this.tDataPath.Font = new System.Drawing.Font( "Lucida Console", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.tDataPath.Location = new System.Drawing.Point( 190, 294 );
+            this.tDataPath.Location = new System.Drawing.Point( 203, 268 );
             this.tDataPath.Name = "tDataPath";
-            this.tDataPath.Size = new System.Drawing.Size( 379, 19 );
-            this.tDataPath.TabIndex = 54;
-            // 
-            // bLogPath
-            // 
-            this.bLogPath.Location = new System.Drawing.Point( 575, 263 );
-            this.bLogPath.Name = "bLogPath";
-            this.bLogPath.Size = new System.Drawing.Size( 57, 23 );
-            this.bLogPath.TabIndex = 53;
-            this.bLogPath.Text = "Browse";
-            this.bLogPath.UseVisualStyleBackColor = true;
+            this.tDataPath.Size = new System.Drawing.Size( 363, 19 );
+            this.tDataPath.TabIndex = 12;
             // 
             // bMapPath
             // 
-            this.bMapPath.Location = new System.Drawing.Point( 575, 234 );
+            this.bMapPath.Enabled = false;
+            this.bMapPath.Location = new System.Drawing.Point( 572, 237 );
             this.bMapPath.Name = "bMapPath";
             this.bMapPath.Size = new System.Drawing.Size( 57, 23 );
-            this.bMapPath.TabIndex = 52;
+            this.bMapPath.TabIndex = 10;
             this.bMapPath.Text = "Browse";
             this.bMapPath.UseVisualStyleBackColor = true;
-            // 
-            // xLogPath
-            // 
-            this.xLogPath.AutoSize = true;
-            this.xLogPath.Location = new System.Drawing.Point( 11, 263 );
-            this.xLogPath.Name = "xLogPath";
-            this.xLogPath.Size = new System.Drawing.Size( 168, 19 );
-            this.xLogPath.TabIndex = 50;
-            this.xLogPath.Text = "Custom path for LOG files:";
-            this.xLogPath.UseVisualStyleBackColor = true;
-            this.xLogPath.CheckedChanged += new System.EventHandler( this.xLogPath_CheckedChanged );
-            // 
-            // tLogPath
-            // 
-            this.tLogPath.Font = new System.Drawing.Font( "Lucida Console", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.tLogPath.Location = new System.Drawing.Point( 190, 265 );
-            this.tLogPath.Name = "tLogPath";
-            this.tLogPath.Size = new System.Drawing.Size( 379, 19 );
-            this.tLogPath.TabIndex = 49;
             // 
             // xMapPath
             // 
             this.xMapPath.AutoSize = true;
-            this.xMapPath.Location = new System.Drawing.Point( 11, 234 );
+            this.xMapPath.Location = new System.Drawing.Point( 8, 237 );
             this.xMapPath.Name = "xMapPath";
-            this.xMapPath.Size = new System.Drawing.Size( 169, 19 );
-            this.xMapPath.TabIndex = 48;
-            this.xMapPath.Text = "Custom path for MAP files:";
+            this.xMapPath.Size = new System.Drawing.Size( 189, 19 );
+            this.xMapPath.TabIndex = 8;
+            this.xMapPath.Text = "Custom path for storing maps:";
             this.xMapPath.UseVisualStyleBackColor = true;
             this.xMapPath.CheckedChanged += new System.EventHandler( this.xMapPath_CheckedChanged );
             // 
             // tMapPath
             // 
+            this.tMapPath.Enabled = false;
             this.tMapPath.Font = new System.Drawing.Font( "Lucida Console", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.tMapPath.Location = new System.Drawing.Point( 190, 236 );
+            this.tMapPath.Location = new System.Drawing.Point( 203, 239 );
             this.tMapPath.Name = "tMapPath";
-            this.tMapPath.Size = new System.Drawing.Size( 379, 19 );
-            this.tMapPath.TabIndex = 47;
+            this.tMapPath.Size = new System.Drawing.Size( 363, 19 );
+            this.tMapPath.TabIndex = 9;
             // 
             // nMaxUndo
             // 
@@ -2725,9 +2726,9 @@
             0} );
             this.nMaxUndo.Name = "nMaxUndo";
             this.nMaxUndo.Size = new System.Drawing.Size( 86, 21 );
-            this.nMaxUndo.TabIndex = 44;
+            this.nMaxUndo.TabIndex = 4;
             this.nMaxUndo.Value = new decimal( new int[] {
-            100,
+            2000000,
             0,
             0,
             0} );
@@ -2738,9 +2739,9 @@
             this.lMaxUndoUnits.AutoSize = true;
             this.lMaxUndoUnits.Location = new System.Drawing.Point( 399, 137 );
             this.lMaxUndoUnits.Name = "lMaxUndoUnits";
-            this.lMaxUndoUnits.Size = new System.Drawing.Size( 179, 15 );
+            this.lMaxUndoUnits.Size = new System.Drawing.Size( 191, 15 );
             this.lMaxUndoUnits.TabIndex = 43;
-            this.lMaxUndoUnits.Text = "(up to {0}MB of RAM per player)";
+            this.lMaxUndoUnits.Text = "(up to 30.6 MB of RAM per player)";
             // 
             // xMaxUndo
             // 
@@ -2748,7 +2749,7 @@
             this.xMaxUndo.Location = new System.Drawing.Point( 12, 136 );
             this.xMaxUndo.Name = "xMaxUndo";
             this.xMaxUndo.Size = new System.Drawing.Size( 291, 19 );
-            this.xMaxUndo.TabIndex = 42;
+            this.xMaxUndo.TabIndex = 3;
             this.xMaxUndo.Text = "Limit the number of blocks that can be undone to";
             this.xMaxUndo.UseVisualStyleBackColor = true;
             this.xMaxUndo.CheckedChanged += new System.EventHandler( this.xMaxUndo_CheckedChanged );
@@ -2768,7 +2769,7 @@
             // lTickInterval
             // 
             this.lTickInterval.AutoSize = true;
-            this.lTickInterval.Location = new System.Drawing.Point( 360, 199 );
+            this.lTickInterval.Location = new System.Drawing.Point( 406, 173 );
             this.lTickInterval.Name = "lTickInterval";
             this.lTickInterval.Size = new System.Drawing.Size( 71, 15 );
             this.lTickInterval.TabIndex = 15;
@@ -2779,10 +2780,10 @@
             this.xLowLatencyMode.AutoSize = true;
             this.xLowLatencyMode.Location = new System.Drawing.Point( 12, 111 );
             this.xLowLatencyMode.Name = "xLowLatencyMode";
-            this.xLowLatencyMode.Size = new System.Drawing.Size( 616, 19 );
-            this.xLowLatencyMode.TabIndex = 11;
-            this.xLowLatencyMode.Text = "Experimental low-latency mode (disables Nagle\'s algorithm, reducing latency but i" +
-                "ncreasing bandwidth use).";
+            this.xLowLatencyMode.Size = new System.Drawing.Size( 544, 19 );
+            this.xLowLatencyMode.TabIndex = 2;
+            this.xLowLatencyMode.Text = "Low-latency mode (disables Nagle\'s algorithm, reducing latency but increasing ban" +
+                "dwidth use).";
             this.xLowLatencyMode.UseVisualStyleBackColor = true;
             // 
             // nTickInterval
@@ -2792,7 +2793,7 @@
             0,
             0,
             0} );
-            this.nTickInterval.Location = new System.Drawing.Point( 437, 197 );
+            this.nTickInterval.Location = new System.Drawing.Point( 483, 171 );
             this.nTickInterval.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -2804,62 +2805,38 @@
             0,
             0} );
             this.nTickInterval.Name = "nTickInterval";
-            this.nTickInterval.Size = new System.Drawing.Size( 59, 21 );
-            this.nTickInterval.TabIndex = 10;
+            this.nTickInterval.Size = new System.Drawing.Size( 70, 21 );
+            this.nTickInterval.TabIndex = 6;
             this.nTickInterval.Value = new decimal( new int[] {
             100,
             0,
             0,
             0} );
             // 
-            // cUpdater
-            // 
-            this.cUpdater.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cUpdater.FormattingEnabled = true;
-            this.cUpdater.Items.AddRange( new object[] {
-            "Disabled",
-            "Notify of update availability",
-            "Download and prompt to install",
-            "Fully automatic"} );
-            this.cUpdater.Location = new System.Drawing.Point( 148, 196 );
-            this.cUpdater.Name = "cUpdater";
-            this.cUpdater.Size = new System.Drawing.Size( 150, 23 );
-            this.cUpdater.TabIndex = 8;
-            // 
             // lTickIntervalUnits
             // 
             this.lTickIntervalUnits.AutoSize = true;
-            this.lTickIntervalUnits.Location = new System.Drawing.Point( 502, 199 );
+            this.lTickIntervalUnits.Location = new System.Drawing.Point( 559, 173 );
             this.lTickIntervalUnits.Name = "lTickIntervalUnits";
             this.lTickIntervalUnits.Size = new System.Drawing.Size( 24, 15 );
             this.lTickIntervalUnits.TabIndex = 17;
             this.lTickIntervalUnits.Text = "ms";
             // 
-            // lUpdater
+            // xRelayAllBlockUpdates
             // 
-            this.lUpdater.AutoSize = true;
-            this.lUpdater.Location = new System.Drawing.Point( 6, 199 );
-            this.lUpdater.Name = "lUpdater";
-            this.lUpdater.Size = new System.Drawing.Size( 136, 15 );
-            this.lUpdater.TabIndex = 38;
-            this.lUpdater.Text = "Check for fCraft updates";
-            // 
-            // xRedundantPacket
-            // 
-            this.xRedundantPacket.AutoSize = true;
-            this.xRedundantPacket.Enabled = false;
-            this.xRedundantPacket.Location = new System.Drawing.Point( 12, 61 );
-            this.xRedundantPacket.Name = "xRedundantPacket";
-            this.xRedundantPacket.Size = new System.Drawing.Size( 554, 19 );
-            this.xRedundantPacket.TabIndex = 2;
-            this.xRedundantPacket.Text = "When a player changes a block, send him the redundant update packet anyway (vanil" +
+            this.xRelayAllBlockUpdates.AutoSize = true;
+            this.xRelayAllBlockUpdates.Location = new System.Drawing.Point( 12, 61 );
+            this.xRelayAllBlockUpdates.Name = "xRelayAllBlockUpdates";
+            this.xRelayAllBlockUpdates.Size = new System.Drawing.Size( 554, 19 );
+            this.xRelayAllBlockUpdates.TabIndex = 0;
+            this.xRelayAllBlockUpdates.Text = "When a player changes a block, send him the redundant update packet anyway (vanil" +
                 "la behavior).";
-            this.xRedundantPacket.UseVisualStyleBackColor = true;
+            this.xRelayAllBlockUpdates.UseVisualStyleBackColor = true;
             // 
             // lThrottlingUnits
             // 
             this.lThrottlingUnits.AutoSize = true;
-            this.lThrottlingUnits.Location = new System.Drawing.Point( 502, 170 );
+            this.lThrottlingUnits.Location = new System.Drawing.Point( 213, 201 );
             this.lThrottlingUnits.Name = "lThrottlingUnits";
             this.lThrottlingUnits.Size = new System.Drawing.Size( 129, 15 );
             this.lThrottlingUnits.TabIndex = 37;
@@ -2868,7 +2845,7 @@
             // lProcessPriority
             // 
             this.lProcessPriority.AutoSize = true;
-            this.lProcessPriority.Location = new System.Drawing.Point( 52, 170 );
+            this.lProcessPriority.Location = new System.Drawing.Point( 52, 173 );
             this.lProcessPriority.Name = "lProcessPriority";
             this.lProcessPriority.Size = new System.Drawing.Size( 90, 15 );
             this.lProcessPriority.TabIndex = 6;
@@ -2881,7 +2858,7 @@
             0,
             0,
             0} );
-            this.nThrottling.Location = new System.Drawing.Point( 437, 168 );
+            this.nThrottling.Location = new System.Drawing.Point( 148, 199 );
             this.nThrottling.Maximum = new decimal( new int[] {
             10000,
             0,
@@ -2894,9 +2871,9 @@
             0} );
             this.nThrottling.Name = "nThrottling";
             this.nThrottling.Size = new System.Drawing.Size( 59, 21 );
-            this.nThrottling.TabIndex = 9;
+            this.nThrottling.TabIndex = 7;
             this.nThrottling.Value = new decimal( new int[] {
-            2500,
+            2048,
             0,
             0,
             0} );
@@ -2911,46 +2888,47 @@
             "Normal",
             "Below Normal",
             "Low"} );
-            this.cProcessPriority.Location = new System.Drawing.Point( 148, 167 );
+            this.cProcessPriority.Location = new System.Drawing.Point( 148, 170 );
             this.cProcessPriority.Name = "cProcessPriority";
             this.cProcessPriority.Size = new System.Drawing.Size( 109, 23 );
-            this.cProcessPriority.TabIndex = 6;
+            this.cProcessPriority.TabIndex = 5;
             // 
             // lThrottling
             // 
             this.lThrottling.AutoSize = true;
-            this.lThrottling.Location = new System.Drawing.Point( 303, 170 );
+            this.lThrottling.Location = new System.Drawing.Point( 14, 201 );
             this.lThrottling.Name = "lThrottling";
             this.lThrottling.Size = new System.Drawing.Size( 128, 15 );
             this.lThrottling.TabIndex = 35;
             this.lThrottling.Text = "Block update throttling";
             // 
-            // xAbsoluteUpdates
+            // xNoPartialPositionUpdates
             // 
-            this.xAbsoluteUpdates.AutoSize = true;
-            this.xAbsoluteUpdates.Enabled = false;
-            this.xAbsoluteUpdates.Location = new System.Drawing.Point( 12, 86 );
-            this.xAbsoluteUpdates.Name = "xAbsoluteUpdates";
-            this.xAbsoluteUpdates.Size = new System.Drawing.Size( 326, 19 );
-            this.xAbsoluteUpdates.TabIndex = 5;
-            this.xAbsoluteUpdates.Text = "Do not use partial position updates (opcodes 9, 10, 11).";
-            this.xAbsoluteUpdates.UseVisualStyleBackColor = true;
+            this.xNoPartialPositionUpdates.AutoSize = true;
+            this.xNoPartialPositionUpdates.Location = new System.Drawing.Point( 12, 86 );
+            this.xNoPartialPositionUpdates.Name = "xNoPartialPositionUpdates";
+            this.xNoPartialPositionUpdates.Size = new System.Drawing.Size( 326, 19 );
+            this.xNoPartialPositionUpdates.TabIndex = 1;
+            this.xNoPartialPositionUpdates.Text = "Do not use partial position updates (opcodes 9, 10, 11).";
+            this.xNoPartialPositionUpdates.UseVisualStyleBackColor = true;
             // 
             // gCrashReport
             // 
             this.gCrashReport.Controls.Add( this.lCrashReportDisclaimer );
             this.gCrashReport.Controls.Add( this.xSubmitCrashReports );
+            this.gCrashReport.Controls.Add( this.cUpdater );
+            this.gCrashReport.Controls.Add( this.lUpdater );
             this.gCrashReport.Location = new System.Drawing.Point( 8, 13 );
             this.gCrashReport.Name = "gCrashReport";
-            this.gCrashReport.Size = new System.Drawing.Size( 638, 99 );
-            this.gCrashReport.TabIndex = 41;
+            this.gCrashReport.Size = new System.Drawing.Size( 638, 129 );
+            this.gCrashReport.TabIndex = 0;
             this.gCrashReport.TabStop = false;
-            this.gCrashReport.Text = "Crash Reporting";
+            this.gCrashReport.Text = "Web connectivity";
             // 
             // lCrashReportDisclaimer
             // 
             this.lCrashReportDisclaimer.AutoSize = true;
-            this.lCrashReportDisclaimer.Location = new System.Drawing.Point( 27, 42 );
+            this.lCrashReportDisclaimer.Location = new System.Drawing.Point( 44, 42 );
             this.lCrashReportDisclaimer.Name = "lCrashReportDisclaimer";
             this.lCrashReportDisclaimer.Size = new System.Drawing.Size( 584, 45 );
             this.lCrashReportDisclaimer.TabIndex = 41;
@@ -2963,9 +2941,32 @@
             this.xSubmitCrashReports.Location = new System.Drawing.Point( 6, 20 );
             this.xSubmitCrashReports.Name = "xSubmitCrashReports";
             this.xSubmitCrashReports.Size = new System.Drawing.Size( 462, 19 );
-            this.xSubmitCrashReports.TabIndex = 40;
+            this.xSubmitCrashReports.TabIndex = 0;
             this.xSubmitCrashReports.Text = "Automatically submit crash reports to fCraft developers (fragmer.net)";
             this.xSubmitCrashReports.UseVisualStyleBackColor = true;
+            // 
+            // cUpdater
+            // 
+            this.cUpdater.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cUpdater.FormattingEnabled = true;
+            this.cUpdater.Items.AddRange( new object[] {
+            "Disabled",
+            "Notify of update availability",
+            "Download and prompt to install",
+            "Fully automatic"} );
+            this.cUpdater.Location = new System.Drawing.Point( 148, 97 );
+            this.cUpdater.Name = "cUpdater";
+            this.cUpdater.Size = new System.Drawing.Size( 150, 23 );
+            this.cUpdater.TabIndex = 1;
+            // 
+            // lUpdater
+            // 
+            this.lUpdater.AutoSize = true;
+            this.lUpdater.Location = new System.Drawing.Point( 6, 100 );
+            this.lUpdater.Name = "lUpdater";
+            this.lUpdater.Size = new System.Drawing.Size( 136, 15 );
+            this.lUpdater.TabIndex = 38;
+            this.lUpdater.Text = "Check for fCraft updates";
             // 
             // bOK
             // 
@@ -3095,6 +3096,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMaxBackups)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nBackupInterval)).EndInit();
             this.tabLogging.ResumeLayout( false );
+            this.tabLogging.PerformLayout();
             this.gLogFile.ResumeLayout( false );
             this.gLogFile.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nLogLimit)).EndInit();
@@ -3185,7 +3187,7 @@
         private System.Windows.Forms.Label lBackupIntervalUnits;
         private System.Windows.Forms.CheckBox xBackupInterval;
         private System.Windows.Forms.CheckBox xBackupOnJoin;
-        private System.Windows.Forms.CheckBox xRedundantPacket;
+        private System.Windows.Forms.CheckBox xRelayAllBlockUpdates;
         private System.Windows.Forms.ComboBox cProcessPriority;
         private System.Windows.Forms.Label lProcessPriority;
         private System.Windows.Forms.Button bResetAll;
@@ -3205,7 +3207,7 @@
         private System.Windows.Forms.Label lKickIdleUnits;
         private System.Windows.Forms.NumericUpDown nKickIdle;
         private System.Windows.Forms.CheckBox xKickIdle;
-        private System.Windows.Forms.CheckBox xAbsoluteUpdates;
+        private System.Windows.Forms.CheckBox xNoPartialPositionUpdates;
         private System.Windows.Forms.Label lMaxBackups;
         private System.Windows.Forms.NumericUpDown nMaxBackups;
         private System.Windows.Forms.Label lMaxBackupSize;
@@ -3350,14 +3352,14 @@
         private System.Windows.Forms.Button bColorMe;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox tLogPath;
         private System.Windows.Forms.CheckBox xMapPath;
         private System.Windows.Forms.TextBox tMapPath;
-        private System.Windows.Forms.Button bLogPath;
         private System.Windows.Forms.Button bMapPath;
-        private System.Windows.Forms.CheckBox xLogPath;
         private System.Windows.Forms.Button bDataPath;
         private System.Windows.Forms.CheckBox xDataPath;
         private System.Windows.Forms.TextBox tDataPath;
+        private System.Windows.Forms.Button bLogPath;
+        private System.Windows.Forms.CheckBox xLogPath;
+        private System.Windows.Forms.TextBox tLogPath;
     }
 }

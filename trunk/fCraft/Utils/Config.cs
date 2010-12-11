@@ -77,6 +77,8 @@ namespace fCraft {
      * 
      * 120 - r332 - Added DataPath key
      * 
+     * 121 - r335 - Renamed SendRedundantBlockUpdates to RelayAllBlockUpdates
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -92,10 +94,11 @@ namespace fCraft {
 
 
         static Config() { // LEGACY
-            DataPath = DefaultDataPath;
-            LogPath = DefaultLogPath;
-            MapPath = DefaultMapPath;
+            DataPath = DataPathDefault;
+            LogPath = LogPathDefault;
+            MapPath = MapPathDefault;
             LoadDefaults();
+
             legacyConfigKeys.Add( "DefaultClass".ToLower(), ConfigKey.DefaultRank );
             legacyConfigKeys.Add( "ClassColorsInChat".ToLower(), ConfigKey.RankColorsInChat );
             legacyConfigKeys.Add( "ClassColorsInWorldNames".ToLower(), ConfigKey.RankColorsInWorldNames );
@@ -104,6 +107,8 @@ namespace fCraft {
             legacyConfigKeys.Add( "PatrolledClass".ToLower(), ConfigKey.PatrolledRank );
             legacyConfigKeys.Add( "RequireClassChangeReason".ToLower(), ConfigKey.RequireRankChangeReason );
             legacyConfigKeys.Add( "AnnounceClassChanges".ToLower(), ConfigKey.AnnounceRankChanges );
+
+            legacyConfigKeys.Add( "SendRedundantBlockUpdates".ToLower(), ConfigKey.RelayAllBlockUpdates );
         }
 
 
@@ -211,7 +216,7 @@ namespace fCraft {
         }
 
         public static void LoadDefaultsAdvanced() {
-            SetValue( ConfigKey.SendRedundantBlockUpdates, false );
+            SetValue( ConfigKey.RelayAllBlockUpdates, false );
             SetValue( ConfigKey.AutomaticUpdates, "Prompt" ); // can be "Disabled", "Notify", "Prompt", and "Auto"
             SetValue( ConfigKey.NoPartialPositionUpdates, false );
             SetValue( ConfigKey.ProcessPriority, "" );
@@ -553,7 +558,7 @@ namespace fCraft {
                 case ConfigKey.BackupOnStartup:
                 case ConfigKey.BackupOnJoin:
                 case ConfigKey.BackupOnlyWhenChanged:
-                case ConfigKey.SendRedundantBlockUpdates:
+                case ConfigKey.RelayAllBlockUpdates:
                 case ConfigKey.NoPartialPositionUpdates:
                 case ConfigKey.IRCBot:
                 case ConfigKey.IRCRegisteredNick:
@@ -575,6 +580,8 @@ namespace fCraft {
                 case ConfigKey.AnnouncementColor:
                 case ConfigKey.PrivateMessageColor:
                 case ConfigKey.IRCMessageColor:
+                case ConfigKey.MeColor:
+                case ConfigKey.WarningColor:
                     return ValidateColor( key, value );
 
                 case ConfigKey.VerifyNames:
@@ -701,6 +708,8 @@ namespace fCraft {
         internal static void ApplyConfig() {
             Logger.split = (LogSplittingType)Enum.Parse( typeof( LogSplittingType ), settings[ConfigKey.LogMode], true );
             Logger.MarkLogStart();
+
+            Player.relayAllUpdates = GetBool( ConfigKey.RelayAllBlockUpdates );
 
             // chat colors
             Color.Sys = Color.Parse( settings[ConfigKey.SystemMessageColor] );
@@ -988,9 +997,9 @@ namespace fCraft {
 
         #region Paths
 
-        public const string DefaultDataPath = "",
-                            DefaultLogPath = "logs",
-                            DefaultMapPath = "maps";
+        public const string DataPathDefault = "",
+                            LogPathDefault = "logs",
+                            MapPathDefault = "maps";
 
         public static string MapPath { get; private set; }
 

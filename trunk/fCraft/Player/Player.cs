@@ -5,29 +5,54 @@ using System.Text;
 
 
 namespace fCraft {
-
+    /// <summary>
+    /// Callback for a player-made selection of one or more blocks on a map.
+    /// A command may request a number of marks/blocks to select, and a specify callback
+    /// to be executed when the desired number of marks/blocks is reached.
+    /// </summary>
+    /// <param name="player">Player who made the selection.</param>
+    /// <param name="marks">An array of 3D marks/blocks, in terms of block coordinates.</param>
+    /// <param name="tag">An optional argument to pass to the callback, the value of player.selectionArgs</param>
     public delegate void SelectionCallback( Player player, Position[] marks, object tag );
 
+
+    /// <summary>
+    /// Object representing a connected player.
+    /// </summary>
     public sealed class Player : IClassy {
-        public string name, lowercaseName;
+        public static bool relayAllUpdates = false;
+
+        public string name; // always same as PlayerInfo.name
+                            // use Player.GetClassyName() to get the colorful version
+
         internal Session session;
         public PlayerInfo info;
-        public int id = -1; // should not default to any valid id
-        public Position pos, lastNonHackingPosition;
+
+        public Position pos,
+                        lastValidPosition; // used in speedhack detection
+
         public object locker = new object();
+
         public bool isPainting,
                     isFrozen,
                     isHidden;
-        public static Player Console;
         internal World world;
-        internal DateTime idleTimer = DateTime.UtcNow;
+        internal DateTime idleTimer = DateTime.UtcNow; // used for afk kicks
 
+        // the godly pseudo-player for commands called from the server console
+        public static Player Console;
+
+        // confirmation
         public Command commandToConfirm;
         public DateTime commandToConfirmDate;
 
+        // for block tracking
         [CLSCompliant(false)]
         public ushort localPlayerID; // map-specific PlayerID
-                                     // if no ID is assigned, set to ReservedPlayerID.None (0)
+                                     // if no ID is assigned, set to ReservedPlayerID.None
+
+        public int id = -1; // global PlayerID (currently unused)
+
 
 
         // This constructor is used to create dummy players (such as Console and /dummy)
@@ -35,7 +60,6 @@ namespace fCraft {
         internal Player( World _world, string _name ) {
             world = _world;
             name = _name;
-            lowercaseName = name.ToLower();
             info = new PlayerInfo( _name, RankList.HighestRank, true, RankChangeType.AutoPromoted );
             spamBlockLog = new Queue<DateTime>( info.rank.AntiGriefBlocks );
             ResetAllBinds();
@@ -46,7 +70,6 @@ namespace fCraft {
         internal Player( World _world, string _name, Session _session, Position _pos ) {
             world = _world;
             name = _name;
-            lowercaseName = name.ToLower();
             session = _session;
             pos = _pos;
             info = PlayerDB.FindOrCreateInfoForPlayer( this );
@@ -430,7 +453,7 @@ namespace fCraft {
                             return false;
                         }
                         world.map.QueueUpdate( blockUpdate );
-                        if( requiresUpdate ) {
+                        if( requiresUpdate || relayAllUpdates ) {
                             session.SendNow( PacketWriter.MakeSetBlock( x, y, h, (byte)type ) );
                         }
                     }

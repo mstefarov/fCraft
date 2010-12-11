@@ -1,8 +1,12 @@
 ﻿using System;
 
 namespace fCraft {
+
+    // See comment at the top of Config.cs for a history of changes.
+
     /// <summary>
-    /// See comment at the top of Config.cs for a history of changes.
+    /// Enumeration of permission types/categories.
+    /// Every rank definition contains a combination of these.
     /// </summary>
     public enum Permission {
         Chat,
