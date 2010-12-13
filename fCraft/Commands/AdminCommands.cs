@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Net;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+
 
 namespace fCraft {
     static class AdminCommands {
@@ -865,8 +866,7 @@ namespace fCraft {
         internal static void SetSpawn( Player player, Command cmd ) {
             string playerName = cmd.Next();
             if( playerName == null ) {
-                player.world.map.spawn = player.pos;
-                player.world.map.changesSinceSave++;
+                player.world.map.SetSpawn( player.pos );
                 player.Send( PacketWriter.MakeSelfTeleport( player.world.map.spawn ) );
                 player.Send( PacketWriter.MakeAddEntity( 255, player.GetListName(), player.pos ) );
                 player.Message( "New spawn point saved." );
@@ -1246,7 +1246,10 @@ namespace fCraft {
                 Player target = matches[0];
 
                 if( target.world == toPlayer.world ) {
-                    target.Send( PacketWriter.MakeSelfTeleport( toPlayer.pos ) );
+                    if( target.isFrozen )
+                        target.pos = toPlayer.pos;
+                    else
+                        target.Send( PacketWriter.MakeSelfTeleport( toPlayer.pos ) );
 
                 } else if( target.CanJoin( toPlayer.world ) ) {
                     target.session.JoinWorld( toPlayer.world, toPlayer.pos );

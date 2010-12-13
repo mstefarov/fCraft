@@ -1,15 +1,10 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
 using System.IO;
-using System.Xml;
+using System.Windows.Forms;
 using System.Xml.Linq;
 using fCraft;
-using Color = System.Drawing.Color;
 
 
 namespace ConfigTool {

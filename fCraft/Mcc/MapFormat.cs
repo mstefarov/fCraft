@@ -32,7 +32,6 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 
-using System;
 
 namespace Mcc {
     // <summary>
@@ -44,7 +43,7 @@ namespace Mcc {
         // - Support added by Matvei
         FCMv3,
         // Future map format used by fCraft
-        // - Planned
+        // - Support added by Matvei
         MCSharp,
         // Map format used by MCSharp
         // - Support added by Tyler

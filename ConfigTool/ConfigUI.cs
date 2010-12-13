@@ -1,16 +1,13 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Windows.Forms;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Diagnostics;
-using System.Linq;
+using System.Windows.Forms;
 using fCraft;
 using Color = System.Drawing.Color;
 
@@ -1244,7 +1241,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         #endregion
 
         private void bRules_Click( object sender, EventArgs e ) {
-            TextEditorPopup popup = new TextEditorPopup( InfoCommands.RuleFile, "Use common sense!" );
+            TextEditorPopup popup = new TextEditorPopup( InfoCommands.RuleFileName, "Use common sense!" );
             popup.ShowDialog();
         }
 

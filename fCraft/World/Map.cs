@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Text;
 using System.Net;
+using System.Text;
 using Mcc;
 
 
@@ -17,9 +17,16 @@ namespace fCraft {
 
         Dictionary<string, Dictionary<string, string>> metadata = new Dictionary<string, Dictionary<string, string>>();
 
+        // Queue of block updates. Updates are applied by ProcessUpdates()
         ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
-        object metaLock = new object(), zoneLock = new object();
-        public int changesSinceSave, changesSinceBackup;
+
+
+        object metaLock = new object(), // TODO: use for reading/writing. Metadata is not currently thread-safe.
+               zoneLock = new object(); // zone list (only needed when using "zones" dictionary, not "zoneList" cached array)
+
+        // used to skip backups/saves if no changes were made
+        public int changesSinceSave,
+                   changesSinceBackup;
         public short[,] shadows;
 
         // FCMv3 additions
@@ -39,6 +46,7 @@ namespace fCraft {
         internal ushort[] blockOwnership;
 
 
+        // temporarily hardcoded to be on at all times
         public void EnableOwnershipTracking( ReservedPlayerID initialState ) {
             if( blockOwnership == null ) {
                 blockOwnership = new ushort[blocks.Length];
@@ -55,6 +63,7 @@ namespace fCraft {
                 PlayerNames = new Dictionary<ushort, string>();
             }
         }
+
 
         [CLSCompliant( false )]
         public ushort FindPlayerID( string name ) {
@@ -445,6 +454,10 @@ namespace fCraft {
             blockNames["onyx"] = Block.Obsidian;
         }
 
+        public void SetSpawn( Position newSpawn ) {
+            spawn = newSpawn;
+            changesSinceSave++;
+        }
 
         public void ResetSpawn() {
             spawn.Set( widthX * 16, widthY * 16, height * 32, 0, 0 );
@@ -553,7 +566,7 @@ namespace fCraft {
 
         #region Zones
 
-        public Dictionary<string, Zone> zones = new Dictionary<string, Zone>();
+        Dictionary<string, Zone> zones = new Dictionary<string, Zone>();
         public Zone[] zoneList = new Zone[0];
 
 
@@ -645,6 +658,7 @@ namespace fCraft {
                     newZoneList[i++] = zone;
                 }
                 zoneList = newZoneList;
+                changesSinceSave++;
             }
         }
 

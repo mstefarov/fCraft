@@ -36,7 +36,7 @@ namespace fCraft {
                 sessions.Add( newSession );
             }
             foreach( Session ses in sessionsToKick ) {
-                ses.WaitForKick();
+                ses.WaitForDisconnect();
             }
         }
 

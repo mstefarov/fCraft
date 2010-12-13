@@ -1,14 +1,21 @@
-﻿using System;
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+// Based on Forester script by dudecon, ported with permission.
+// Original: http://www.minecraftforum.net/viewtopic.php?f=25&t=9426
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+
 
 namespace fCraft {
 
+    /// <summary>
+    /// Vegetation generator for MapGenerator
+    /// </summary>
     class Forester {
 
         const int MaxTries = 1000;
 
+        // TODO: Add a UI to ConfigTool.AddWorldPopup to set these
         public class ForesterArgs {
             public Operation OPERATION = Operation.Replant;
             public int TREECOUNT = 15; // 0 = no limit if op=conserve/replant

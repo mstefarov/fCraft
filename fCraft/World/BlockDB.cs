@@ -1,13 +1,14 @@
-﻿using System;
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+
 namespace fCraft {
-
-
-    // Indicates what action resulted in block changing
-
+    /// <summary>
+    /// Flags that indicate what action resulted in block changing.
+    /// </summary>
     [Flags]
     public enum BlockChangeCauses {
         // value of 0 means "unaltered" and default for new maps
