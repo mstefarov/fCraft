@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace fCraft {
     public static class InfoCommands {
-        public const string RuleFile = "rules.txt";
+        public const string RuleFileName = "rules.txt";
 
         // Register help commands
         internal static void Init() {
@@ -458,8 +458,8 @@ namespace fCraft {
                                         info.lastIP );
                     } else {
                         player.Message( "About {0}&S: Online now from {1}",
-                info.GetClassyName(),
-                info.lastIP );
+                                        info.GetClassyName(),
+                                        info.lastIP );
                     }
                 } else if( DateTime.Now.Subtract( info.lastSeen ).TotalDays < 2 ) {
                     player.Message( "About {0}&S: Last seen {1:F1} hours ago from {2}",
@@ -624,6 +624,7 @@ namespace fCraft {
                 } else {
                     player.Message( "{0} is currently NOT banned.", address );
                 }
+
             } else {
                 PlayerInfo info;
                 if( !PlayerDB.FindPlayerInfo( name, out info ) ) {
@@ -753,7 +754,7 @@ namespace fCraft {
                 player.Message( "Rules: Use common sense!" );
             } else {
                 try {
-                    foreach( string ruleLine in File.ReadAllLines( RuleFile ) ) {
+                    foreach( string ruleLine in File.ReadAllLines( RuleFileName ) ) {
                         if( ruleLine.Trim().Length > 0 ) {
                             player.Message( "&R{0}", ruleLine );
                         }

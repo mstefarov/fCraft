@@ -1,4 +1,5 @@
-﻿/*
+﻿/* Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+ * 
  * Based, in part, on SmartIrc4net code. Original license is reproduced below.
  * 
  *
@@ -26,33 +27,34 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.IO;
-using System.Net;
 using System.Net.Sockets;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 
 namespace fCraft {
 
-    class IRC {
+    /// <summary>
+    /// IRC control class. 
+    /// </summary>
+    static class IRC {
 
-        class IRCThread : IDisposable {
+        /// <summary>
+        /// Class represents an IRC connection/thread.
+        /// There is an undocumented option (IRCThreads) to "load balance" the outgoing
+        /// messages between multiple bots. If that's the case, several IRCThread objects
+        /// are created. The bots grab messages from IRC.outputQueue whenever they are
+        /// not on cooldown (a bit of an intentional race condition).
+        /// </summary>
+        sealed class IRCThread : IDisposable {
             TcpClient client;
             StreamReader reader;
             StreamWriter writer;
             Thread thread;
-            bool connected, reconnect, registered;
+            bool connected, reconnect;
             bool parseInput;
             public string actualBotNick;
-
-
-            public bool IsConnected {
-                get {
-                    return (connected == true);
-                }
-            }
 
             public bool Start( string _botNick, bool _parseInput ) {
                 actualBotNick = _botNick;
@@ -106,14 +108,17 @@ namespace fCraft {
                 } catch( ObjectDisposedException ) { }
             }
 
-            Queue<string> outputQueue = new Queue<string>();
-            object queueLock = new object();
-            DateTime lastMessageSend;
+            DateTime lastMessageSent;
+            ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
+
+            void Send( string msg ) {
+                localQueue.Enqueue( msg );
+            }
 
             // runs in its own thread, started from Connect()
             void IoThread() {
                 string outputLine = "";
-                lastMessageSend = DateTime.UtcNow;
+                lastMessageSent = DateTime.UtcNow;
 
                 do {
                     try {
@@ -125,17 +130,25 @@ namespace fCraft {
                         // register
                         Send( IRCCommands.User( actualBotNick, 8, Config.GetString( ConfigKey.ServerName ) ) );
                         Send( IRCCommands.Nick( actualBotNick ) );
-                        registered = false;
 
                         while( connected && !reconnect ) {
                             Thread.Sleep( 10 );
 
-                            if( outputQueue.Count > 0 && DateTime.UtcNow.Subtract( lastMessageSend ).TotalMilliseconds >= SendDelay ) {
-                                lock( queueLock ) {
-                                    outputLine = outputQueue.Dequeue();
-                                }
+                            if( localQueue.Length > 0 &&
+                                DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
+                                localQueue.Dequeue( ref outputLine ) ) {
+
                                 writer.Write( outputLine + "\r\n" );
-                                lastMessageSend = DateTime.UtcNow;
+                                lastMessageSent = DateTime.UtcNow;
+                                writer.Flush();
+                            }
+
+                            if( outputQueue.Length > 0 &&
+                                DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
+                                outputQueue.Dequeue( ref outputLine ) ) {
+
+                                writer.Write( outputLine + "\r\n" );
+                                lastMessageSent = DateTime.UtcNow;
                                 writer.Flush();
                             }
 
@@ -169,6 +182,9 @@ namespace fCraft {
             void HandleMessage( string message ) {
 
                 IRCMessage msg = MessageParser( message, actualBotNick );
+#if DEBUG
+                Logger.Log( "[" + msg.Type + "]: " + msg.RawMessage, LogType.IRC );
+#endif
 
                 switch( msg.Type ) {
                     case IRCMessageType.Login:
@@ -179,7 +195,6 @@ namespace fCraft {
                         foreach( string channel in channelNames ) {
                             Send( IRCCommands.Join( channel ) );
                         }
-                        registered = true;
                         return;
 
 
@@ -192,7 +207,7 @@ namespace fCraft {
                     case IRCMessageType.ChannelMessage:
                         // channel chat
                         if( !parseInput ) return;
-                        if( !IsBotNick(msg.Nick) ) {
+                        if( !IsBotNick( msg.Nick ) ) {
                             string processedMessage = nonPrintableChars.Replace( msg.Message, "" ).Trim();
                             if( processedMessage.Length > 0 ) {
                                 if( Config.GetBool( ConfigKey.IRCBotForwardFromIRC ) ) {
@@ -200,7 +215,7 @@ namespace fCraft {
                                                       Color.IRC, msg.Nick, Color.White, processedMessage );
                                 } else if( msg.Message.StartsWith( "#" ) ) {
                                     Server.SendToAll( "{0}(IRC) {1}{2}: {3}",
-                                                      Color.IRC, msg.Nick, Color.White, processedMessage.Substring(1) );
+                                                      Color.IRC, msg.Nick, Color.White, processedMessage.Substring( 1 ) );
                                 }
                             }
                         }
@@ -236,13 +251,40 @@ namespace fCraft {
 
                     case IRCMessageType.ErrorMessage:
                     case IRCMessageType.Error:
-                        if( !registered && msg.ReplyCode == IRCReplyCode.ErrorNicknameInUse ) {
-                            actualBotNick += "_";
-                            Send( IRCCommands.Nick( actualBotNick ) );
-                        } else {
-                            Logger.Log( "Error ({0}): {1}", LogType.IRC,
-                                        msg.ReplyCode, msg.RawMessage );
+                        bool die = false;
+                        switch( msg.ReplyCode ) {
+                            case IRCReplyCode.ErrorNicknameInUse:
+                            case IRCReplyCode.ErrorNicknameCollision:
+                                Logger.Log( "Error: Nickname \"{0}\" is already in use. Trying \"{0}_\"", LogType.IRC,
+                                            msg.ReplyCode, msg.Channel );
+                                actualBotNick += "_";
+                                Send( IRCCommands.Nick( actualBotNick ) );
+                                break;
+
+                            case IRCReplyCode.ErrorBannedFromChannel:
+                            case IRCReplyCode.ErrorNoSuchChannel:
+                                Logger.Log( "Error: {0} ({1})", LogType.IRC, msg.ReplyCode, msg.Channel );
+                                die = true;
+                                break;
+
+                            case IRCReplyCode.ErrorBadChannelKey:
+                                Logger.Log( "Error: Channel password required. fCraft does not currently support passworded channels.", LogType.IRC,
+                                            msg.Channel, msg.Message );
+                                die = true;
+                                break;
+
+                            default:
+                                Logger.Log( "Error ({0}): {1}", LogType.IRC,
+                                            msg.ReplyCode, msg.RawMessage );
+                                break;
                         }
+
+                        if( die ) {
+                            Logger.Log( "Error: Disconnecting.", LogType.IRC );
+                            reconnect = false;
+                            Disconnect();
+                        }
+
                         return;
 
 
@@ -258,28 +300,7 @@ namespace fCraft {
                         reconnect = true;
                         connected = false;
                         return;
-
-
-                    case IRCMessageType.Unknown:
-                        //Logger.Log( msg.RawMessage, LogType.IRC );
-                        break;
-
-
-                    default:
-                        //Logger.Log( "[" + msg.Type + "]: " + msg.RawMessage, LogType.IRC );
-                        return;
                 }
-            }
-
-
-            public void Send( string line ) {
-                lock( queueLock ) {
-                    outputQueue.Enqueue( line );
-                }
-            }
-
-            public int QueueLength() {
-                return outputQueue.Count;
             }
 
             public void Disconnect() {
@@ -302,6 +323,7 @@ namespace fCraft {
             }
         }
 
+
         static IRCThread[] threads;
 
         const int Timeout = 10000; // socket timeout (ms)
@@ -313,6 +335,9 @@ namespace fCraft {
         static string[] channelNames;
         static string botNick;
 
+        static ConcurrentQueue<string> outputQueue = new ConcurrentQueue<string>();
+
+        // includes IRC color codes and non-printable ASCII
         static Regex nonPrintableChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled );
 
         public static void Init() {
@@ -387,15 +412,19 @@ namespace fCraft {
 
         public static void SendToAllChannels( string line ) {
             for( int i = 0; i < channelNames.Length; i++ ) {
-                Send( IRCCommands.Privmsg( channelNames[i], line ) );
+                SendToAny( IRCCommands.Privmsg( channelNames[i], line ) );
             }
         }
 
 
-        static int lastThread;
+        //static int lastThread;
         // Multiple bots each run in a separate thread.
         // This method roughly balances load between thread by using lock-free round-robin method.
-        public static void Send( string line ) {
+        public static void SendToAny( string line ) {
+            outputQueue.Enqueue( line );
+            /*
+             * TODO: LEGACY: remove this old code when i make sure that new outputQueue works
+             * 
             int lastThread2, nextThread;
             do {
                 do {
@@ -404,6 +433,7 @@ namespace fCraft {
                 } while( Interlocked.CompareExchange( ref lastThread, nextThread, lastThread2 ) != lastThread2 );
             } while( !threads[nextThread].IsConnected ); // TODO: make sure that this does not loop infinitely or deadlock if no bots are connected
             threads[nextThread].Send( line );
+             * */
         }
 
 

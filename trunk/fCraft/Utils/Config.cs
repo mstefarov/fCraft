@@ -1,13 +1,12 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Xml;
-using System.Xml.Linq;
 using System.Collections.Generic;
-using System.IO;
-using System.Threading;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Xml.Linq;
+
 
 namespace fCraft {
 
@@ -710,6 +709,11 @@ namespace fCraft {
             Logger.MarkLogStart();
 
             Player.relayAllUpdates = GetBool( ConfigKey.RelayAllBlockUpdates );
+            if( GetBool( ConfigKey.NoPartialPositionUpdates ) ) {
+                Session.fullPositionUpdateInterval = 0;
+            } else {
+                Session.fullPositionUpdateInterval = Session.fullPositionUpdateIntervalDefault;
+            }
 
             // chat colors
             Color.Sys = Color.Parse( settings[ConfigKey.SystemMessageColor] );

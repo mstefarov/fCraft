@@ -1,10 +1,10 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Cache;
-using System.Threading;
 using System.Text;
-using System.IO;
+using System.Threading;
 
 
 namespace fCraft {

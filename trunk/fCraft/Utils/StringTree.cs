@@ -1,5 +1,4 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
-using System;
 using System.Collections.Generic;
 
 

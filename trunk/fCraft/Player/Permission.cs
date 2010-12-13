@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace fCraft {
+﻿namespace fCraft {
 
     // See comment at the top of Config.cs for a history of changes.
 

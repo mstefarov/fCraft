@@ -1,7 +1,7 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Linq;
 using System.ComponentModel;
+using System.Linq;
 
 
 namespace fCraft {

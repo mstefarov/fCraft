@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace fCraft {
+﻿namespace fCraft {
     public enum LeaveReason {
         Unknown = 0,
         UserQuit = 1,

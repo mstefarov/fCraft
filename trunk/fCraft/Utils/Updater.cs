@@ -1,8 +1,8 @@
-﻿using System;
-using System.Text;
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+using System;
+using System.IO;
 using System.Net;
 using System.Net.Cache;
-using System.IO;
 
 
 namespace fCraft {
@@ -31,7 +31,7 @@ namespace fCraft {
     /// </summary>
     public static class Updater {
         public static int Version = 500;
-        public static int Revision = 335;
+        public static int Revision = 336;
         public static bool IsUnstable = true;
 
         const string UpdateURL = "http://fcraft.fragmer.net/version.log";

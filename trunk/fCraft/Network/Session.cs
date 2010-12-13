@@ -1,18 +1,18 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
-using System.IO;
-using System.IO.Compression;
-using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 
 namespace fCraft {
     public sealed class Session {
         public Player player;
         public DateTime loginTime;
+
         public bool canReceive = true,
                     canSend = true,
                     canQueue = true,
@@ -23,16 +23,22 @@ namespace fCraft {
         object joinWorldLock = new object();
 
         Thread ioThread;
+
+        // networking
         TcpClient client;
         BinaryReader reader;
         PacketWriter writer;
-        public ConcurrentQueue<Packet> outputQueue, priorityOutputQueue;
+        public ConcurrentQueue<Packet> outputQueue,
+                                       priorityOutputQueue;
+
+        // joining worlds
         World forcedWorldToJoin;
         Position? postJoinPosition;
 
         // movement optimization
         int fullPositionUpdateCounter;
-        const int fullPositionUpdateInterval = 20;
+        public const int fullPositionUpdateIntervalDefault = 20;
+        public static int fullPositionUpdateInterval = fullPositionUpdateIntervalDefault;
         bool skippedLastMovementPacket = false;
 
         // anti-speedhack vars
@@ -86,10 +92,12 @@ namespace fCraft {
 
                 int packetsSent = 0;
 
+                // try to log the player in, otherwise die.
                 if( !LoginSequence() ) return;
 
                 Server.FirePlayerConnectedEvent( this );
 
+                // main i/o loop
                 while( canSend ) {
                     Thread.Sleep( 1 );
 
@@ -113,7 +121,7 @@ namespace fCraft {
                     }
                     pollCounter++;
 
-                    // send priority output to player
+                    // send output to player
                     while( canSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
                         if( !priorityOutputQueue.Dequeue( ref packet ) )
                             if( !outputQueue.Dequeue( ref packet ) ) break;
@@ -127,6 +135,7 @@ namespace fCraft {
                         }
                     }
 
+                    // check if player needs to change worlds
                     if( canSend ) {
                         lock( joinWorldLock ) {
                             if( forcedWorldToJoin != null ) {
@@ -170,93 +179,122 @@ namespace fCraft {
                             // Player movement
                             case InputCode.MoveRotate:
                                 reader.ReadByte();
-                                Position newPos = new Position();
-                                newPos.x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-                                newPos.h = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-                                newPos.y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-                                newPos.r = reader.ReadByte();
-                                newPos.l = reader.ReadByte();
+                                Position newPos = new Position {
+                                    x = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
+                                    h = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
+                                    y = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
+                                    r = reader.ReadByte(),
+                                    l = reader.ReadByte()
+                                };
 
+                                // ignore movement packets while a world is loading
                                 if( isBetweenWorlds ) continue;
 
-                                /*if( newPos.h < 0 ) {
-                                    Logger.Log( player.GetLogName() + " was kicked for moving out of map boundaries.", LogType.SuspiciousActivity );
-                                    KickNow( "Hacking detected: out of map boundaries." );
-                                    Server.SendToAll( Color.Red + player.GetLogName() + " was kicked for leaving the map." );
-                                    return;
-                                }*/
-
-                                Position delta = new Position();
                                 Position oldPos = player.pos;
                                 bool posChanged, rotChanged;
 
-                                delta.Set( newPos.x - oldPos.x, newPos.y - oldPos.y, newPos.h - oldPos.h, newPos.r, newPos.l );
-                                posChanged = delta.x != 0 || delta.y != 0 || delta.h != 0;
-                                rotChanged = newPos.r != oldPos.r || newPos.l != oldPos.l;
-
+                                // calculate difference between old and new positions
+                                Position delta = new Position {
+                                    x = (short)(newPos.x - oldPos.x),
+                                    y = (short)(newPos.y - oldPos.y),
+                                    h = (short)(newPos.h - oldPos.h),
+                                    r = (byte)Math.Abs( newPos.r - oldPos.r ),
+                                    l = (byte)Math.Abs( newPos.l - oldPos.l )
+                                };
+                                posChanged = (delta.x != 0) || (delta.y != 0) || (delta.h != 0);
+                                rotChanged = (delta.r != 0) || (delta.l != 0);
                                 int distSquared = delta.x * delta.x + delta.y * delta.y + delta.h * delta.h;
+
+                                // skip everything if player hasn't moved
+                                if( delta.IsZero() ) continue;
 
                                 // only reset the timer if player rotated
                                 // if player is pushed around, or /bring is used, rotation does not change (and timer should not reset)
                                 if( rotChanged ) player.ResetIdleTimer();
 
+                                // special handling for frozen players
                                 if( player.isFrozen ) {
-
-                                    if( rotChanged ) {
-                                        player.world.SendToSeeing( PacketWriter.MakeRotate( player.id, newPos ), player );
-                                        player.pos.r = newPos.r;
-                                        player.pos.l = newPos.l;
-                                    }
-
-                                    if( distSquared > antiSpeedMaxDistanceSquared ) {
+                                    if( distSquared > antiSpeedMaxDistanceSquared*2 ) {
+                                        // TODO: figure out why this is so jittery
                                         SendNow( PacketWriter.MakeSelfTeleport( player.pos ) );
+                                    }
+                                    newPos.x = player.pos.x;
+                                    newPos.y = player.pos.y;
+                                    newPos.h = player.pos.h;
+                                    
+                                    // recalculate deltas
+                                    delta = new Position {
+                                        x = (short)(newPos.x - oldPos.x),
+                                        y = (short)(newPos.y - oldPos.y),
+                                        h = (short)(newPos.h - oldPos.h),
+                                        r = (byte)Math.Abs( newPos.r - oldPos.r ),
+                                        l = (byte)Math.Abs( newPos.l - oldPos.l )
+                                    };
+                                    posChanged = delta.x != 0 || delta.y != 0 || delta.h != 0;
+                                    distSquared = delta.x * delta.x + delta.y * delta.y + delta.h * delta.h;
+
+                                // speedhack detection
+                                } else if( !player.Can( Permission.UseSpeedHack ) ) {
+                                    if( DetectMovementPacketSpam( newPos ) ) {
+                                        continue;
+
+                                    } else if( (distSquared - delta.h * delta.h > antiSpeedMaxDistanceSquared ||
+                                                    delta.h > antiSpeedMaxJumpDelta) &&
+                                               speedHackDetectionCounter >= 0 ) {
+
+                                        if( speedHackDetectionCounter == 0 ) {
+                                            player.lastValidPosition = player.pos;
+                                        } else if( speedHackDetectionCounter > 1 ) {
+                                            DenyMovement( newPos );
+                                            speedHackDetectionCounter = 0;
+                                            continue;
+                                        }
+                                        speedHackDetectionCounter++;
+
+                                    } else {
+                                        speedHackDetectionCounter = 0;
+                                    }
+                                }
+
+                                // movement optimization
+                                if( distSquared < 64 && (delta.r * delta.r + delta.l * delta.l) < 4096 && !skippedLastMovementPacket ) {
+                                    skippedLastMovementPacket = true;
+                                    continue;
+                                }
+                                skippedLastMovementPacket = false;
+
+                                // create the movement packet
+                                if( delta.FitsIntoByte() && fullPositionUpdateCounter < fullPositionUpdateInterval ) {
+                                    if( posChanged && rotChanged ) {
+                                        // incremental position + rotation update
+                                        packet = PacketWriter.MakeMoveRotate( player.id, new Position {
+                                            x = delta.x,
+                                            y = delta.y,
+                                            h = delta.h,
+                                            r = newPos.r,
+                                            l = newPos.l
+                                        } );
+
+                                    } else if( posChanged ) {
+                                        // incremental position update
+                                        packet = PacketWriter.MakeMove( player.id, delta );
+
+                                    } else {
+                                        // absolute rotation update
+                                        packet = PacketWriter.MakeRotate( player.id, newPos );
                                     }
 
                                 } else {
-                                    // speedhack detection
-                                    if( !player.Can( Permission.UseSpeedHack ) ) {
-                                        if( DetectMovementPacketSpam( newPos ) ) continue;
-                                        if( (distSquared - delta.h * delta.h > antiSpeedMaxDistanceSquared || delta.h > antiSpeedMaxJumpDelta) && speedHackDetectionCounter >= 0 ) {
-                                            if( speedHackDetectionCounter == 0 ) {
-                                                player.lastValidPosition = player.pos;
-                                            } else if( speedHackDetectionCounter > 1 ) {
-                                                DenyMovement( newPos );
-                                                speedHackDetectionCounter = 0;
-                                                continue;
-                                            }
-                                            speedHackDetectionCounter++;
-                                        } else {
-                                            speedHackDetectionCounter = 0;
-                                        }
-                                    }
-
-                                    if( distSquared < 64 && delta.r * delta.r + delta.l + delta.l < 4096 && !skippedLastMovementPacket ) {
-                                        skippedLastMovementPacket = true;
-                                        continue;
-                                    }
-                                    skippedLastMovementPacket = false;
-                                    if( delta.FitsIntoByte() && fullPositionUpdateCounter < fullPositionUpdateInterval ) {
-                                        if( posChanged && rotChanged ) {
-                                            packet = PacketWriter.MakeMoveRotate( player.id, delta );
-                                        } else if( posChanged ) {
-                                            packet = PacketWriter.MakeMove( player.id, delta );
-                                        } else if( rotChanged ) {
-                                            packet = PacketWriter.MakeRotate( player.id, newPos );
-                                        } else {
-                                            continue;
-                                        }
-                                    } else if( !delta.IsZero() ) {
-                                        // full position update
-                                        packet = PacketWriter.MakeTeleport( player.id, newPos );
-                                    }
-
-                                    player.pos = newPos;
-
-                                    fullPositionUpdateCounter++;
-                                    if( fullPositionUpdateCounter >= fullPositionUpdateInterval ) fullPositionUpdateCounter = 0;
-
-                                    player.world.SendToSeeing( packet, player );
+                                    // full (absolute position + rotation) update
+                                    packet = PacketWriter.MakeTeleport( player.id, newPos );
                                 }
+
+                                fullPositionUpdateCounter++;
+                                if( fullPositionUpdateCounter >= fullPositionUpdateInterval )
+                                    fullPositionUpdateCounter = 0;
+
+                                player.pos = newPos;
+                                player.world.SendToSeeing( packet, player );
                                 break;
 
                             // Set tile
@@ -534,8 +572,9 @@ namespace fCraft {
             }
 
             bool firstTime = (player.info.timesVisited == 1);
-            Server.SendToAllExcept( Server.MakePlayerConnectedMessage( player, firstTime, Server.mainWorld ), player );
-            if( !JoinWorldNow( Server.mainWorld, true ) ) {
+            if( JoinWorldNow( Server.mainWorld, true ) ) {
+                Server.SendToAllExcept( Server.MakePlayerConnectedMessage( player, firstTime, Server.mainWorld ), player );
+            } else {
                 Logger.Log( "Failed to load main world ({0}) for connecting player {1} (from {2})", LogType.Error,
                             Server.mainWorld.name, player.name, GetIP() );
                 return false;
@@ -563,10 +602,6 @@ namespace fCraft {
         }
 
 
-        internal void ClearBlockUpdateQueue() {
-            Packet temp = new Packet();
-            while( outputQueue.Dequeue( ref temp ) ) { }
-        }
 
 
         public void JoinWorld( World newWorld, Position? position ) {
@@ -621,6 +656,16 @@ namespace fCraft {
             }
             player.world = newWorld;
 
+            // Set spawn point
+            Position spawn;
+            if( postJoinPosition != null ) {
+                spawn = (Position)postJoinPosition;
+                postJoinPosition = null;
+            } else {
+                spawn = newWorld.map.spawn;
+            }
+            player.pos = spawn;
+
             // Start sending over the level copy
             if( !firstTime ) {
                 writer.Write( PacketWriter.MakeHandshake( player,
@@ -629,10 +674,14 @@ namespace fCraft {
             }
 
             writer.WriteLevelBegin();
-            byte[] buffer = new byte[1024];
-            int bytesSent = 0;
+
+            // enable Nagle's algorithm (in case it was turned off by LowLatencyMode)
+            // to avoid wasting bandwidth for map transfer
+            client.NoDelay = false;
 
             // Fetch compressed map copy
+            byte[] buffer = new byte[1024];
+            int bytesSent = 0;
             byte[] blockData;
             using( MemoryStream stream = new MemoryStream() ) {
                 newWorld.map.GetCompressedCopy( stream, true );
@@ -641,9 +690,7 @@ namespace fCraft {
             Logger.Log( "Session.JoinWorldNow: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
                         blockData.Length, player.name );
 
-            // disable low-latency-mode to avoid wasting bandwidth for map transfer
-            client.NoDelay = false;
-
+            // Transfer the map copy
             while( bytesSent < blockData.Length ) {
                 int chunkSize = blockData.Length - bytesSent;
                 if( chunkSize > 1024 ) {
@@ -672,16 +719,7 @@ namespace fCraft {
             // Begin accepting block changes again
             isBetweenWorlds = false;
 
-            // Send new spawn
-            Position spawn;
-            if( postJoinPosition != null ) {
-                spawn = (Position)postJoinPosition;
-                postJoinPosition = null;
-            } else {
-                spawn = newWorld.map.spawn;
-            }
-
-            player.pos = spawn;
+            // Send spawn point
             writer.WriteAddEntity( 255, player, newWorld.map.spawn );
             writer.WriteTeleport( 255, spawn );
 
@@ -690,6 +728,7 @@ namespace fCraft {
 
             player.Message( "Joined world {0}", newWorld.GetClassyName() );
 
+            // Turn off Nagel's algorithm again for LowLatencyMode
             if( Config.GetBool( ConfigKey.LowLatencyMode ) ) {
                 client.NoDelay = true;
             }
@@ -708,41 +747,49 @@ namespace fCraft {
         }
 
 
+        /// <summary>
+        /// Send packet to player (synchronous). Sends the packet off immediately.
+        /// Should not be used from any thread other than this session's IoThread.
+        /// Not thread-safe (for performance reason).
+        /// </summary>
+        public void SendNow( Packet packet ) {
+            writer.Write( packet.data );
+        }
+
+
+        /// <summary>
+        /// Send packet (asynchronous, priority queue).
+        /// This is used for most packets (movement, chat, etc).
+        /// </summary>
         public void Send( Packet packet ) {
             if( canQueue ) priorityOutputQueue.Enqueue( packet );
         }
 
+
+        /// <summary>
+        /// Send packet (asynchronous, delayed queue).
+        /// This is currently only used for block updates.
+        /// </summary>
         public void SendDelayed( Packet packet ) {
             if( canQueue ) outputQueue.Enqueue( packet );
         }
 
 
-        // warning: not thread safe. should ONLY be called from IoThread
-        public void SendNow( Packet packet ) {
-            writer.Write( packet.data );
-        }
 
 
         string ReadString() {
             return ASCIIEncoding.ASCII.GetString( reader.ReadBytes( 64 ) ).Trim();
         }
 
-
-        public void Kick( string message ) {
-            Send( PacketWriter.MakeDisconnect( message ) );
-            canReceive = false;
-            canQueue = false;
+        internal void ClearBlockUpdateQueue() {
+            Packet temp = new Packet();
+            while( outputQueue.Dequeue( ref temp ) ) { }
         }
 
-
-        public void KickNow( string message ) {
-            SendNow( PacketWriter.MakeDisconnect( message ) );
-            writer.Flush();
-            canQueue = false;
-            canReceive = false;
-            canSend = false;
+        public void ClearPriorityOutputQueue() {
+            Packet tempPacket = new Packet();
+            while( priorityOutputQueue.Dequeue( ref tempPacket ) ) ;
         }
-
 
         bool DetectMovementPacketSpam( Position newPos ) {
             if( antiSpeedPacketLog.Count >= antiSpeedMaxPacketCount ) {
@@ -758,7 +805,41 @@ namespace fCraft {
         }
 
 
-        public void WaitForKick() {
+        #region Kicking
+
+        /// <summary>
+        /// Kick (asynchronous). Immediately blocks all client input, but waits
+        /// until client thread sends the kick packet.
+        /// </summary>
+        public void Kick( string message ) {
+            canReceive = false;
+            canQueue = false;
+
+            // clear all pending output to be written to client (it won't matter after the kick)
+            ClearBlockUpdateQueue();
+            ClearPriorityOutputQueue();
+
+            Send( PacketWriter.MakeDisconnect( message ) );
+        }
+
+
+        /// <summary>
+        /// Kick (synchronous). Immediately sends the kick packet.
+        /// Can only be used from IoThread (this is not thread-safe).
+        /// </summary>
+        public void KickNow( string message ) {
+            canQueue = false;
+            canReceive = false;
+            canSend = false;
+            SendNow( PacketWriter.MakeDisconnect( message ) );
+            writer.Flush();
+        }
+
+
+        /// <summary>
+        /// Blocks the calling thread until this session disconnects.
+        /// </summary>
+        public void WaitForDisconnect() {
             if( ioThread != null && ioThread.IsAlive ) {
                 try {
                     ioThread.Join();
@@ -766,5 +847,7 @@ namespace fCraft {
                 } catch( ThreadStateException ) { }
             }
         }
+
+        #endregion
     }
 }

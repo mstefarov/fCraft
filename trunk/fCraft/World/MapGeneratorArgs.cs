@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Xml;
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Xml.Linq;
 
-namespace fCraft {
 
+namespace fCraft {
 
     public sealed class MapGeneratorArgs {
         const int FormatVersion = 2;

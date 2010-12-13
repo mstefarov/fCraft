@@ -1,8 +1,9 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.IO;
+using System.Net;
+
 
 namespace fCraft {
     public static class IPBanList {
@@ -12,6 +13,7 @@ namespace fCraft {
                      Header = "IP,bannedBy,banDate,banReason,playerName,attempts,lastAttemptName,lastAttemptDate";
         static object locker = new object();
         public static bool isLoaded;
+
 
         internal static void Load() {
             if( File.Exists( BanFile ) ) {
