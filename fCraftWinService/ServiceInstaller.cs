@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+using System.ComponentModel;
 using System.Configuration.Install;
 using System.ServiceProcess;
 

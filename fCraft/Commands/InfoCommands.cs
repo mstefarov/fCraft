@@ -1,11 +1,9 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Net;
 using System.IO;
-using System.Collections.Generic;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Linq;
 
 
 namespace fCraft {

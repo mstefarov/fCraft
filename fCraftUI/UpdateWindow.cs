@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+using System;
 using System.ComponentModel;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using System.Net;
 using fCraft;

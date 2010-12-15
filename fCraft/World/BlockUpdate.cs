@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 
+
 namespace fCraft {
     public struct BlockUpdate {
         public Player origin;

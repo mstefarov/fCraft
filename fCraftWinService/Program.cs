@@ -1,9 +1,11 @@
-﻿using System;
-using System.ServiceProcess;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.IO;
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.ServiceProcess;
+using System.Text;
+
 
 namespace fCraftWinService {
     class Program {

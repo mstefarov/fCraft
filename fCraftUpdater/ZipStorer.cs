@@ -1,9 +1,9 @@
 ﻿// ZipStorer, by Jaime Olivares
 // Website: zipstorer.codeplex.com
 // Version: 2.35 (March 14, 2010)
-
 using System.Collections.Generic;
 using System.Text;
+
 
 namespace System.IO.Compression {
     /// <summary>
