@@ -1,6 +1,11 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 
 namespace fCraft {
+    /// <summary>
+    /// Commands for placing specific blocks (solid, water, grass),
+    /// looking up block information (whodid),
+    /// and switching block placement modes (paint, bind).
+    /// </summary>
     static class BlockCommands {
 
         internal static void Init() {

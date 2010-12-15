@@ -5,6 +5,9 @@ using System.Text;
 
 
 namespace fCraft {
+    /// <summary>
+    /// Contains commands related to world management.
+    /// </summary>
     static class WorldCommands {
         internal static void Init() {
             CommandList.RegisterCommand( cdJoin );

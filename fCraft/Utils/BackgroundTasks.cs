@@ -6,7 +6,10 @@ using System.Threading;
 
 namespace fCraft {
 
-    // used by both Server's MainLoop, and Tasks classes
+    /// <summary>
+    /// Generic callback method with one param/arg, used by both Server.MainLoop and BackgroundTasks
+    /// </summary>
+    /// <param name="param"></param>
     public delegate void TaskCallback( object param );
 
 

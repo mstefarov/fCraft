@@ -3,6 +3,9 @@ using System;
 
 
 namespace fCraft {
+    /// <summary>
+    /// Contains commands related to zone management.
+    /// </summary>
     static class ZoneCommands {
 
         internal static void Init() {
