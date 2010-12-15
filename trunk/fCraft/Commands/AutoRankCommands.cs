@@ -7,6 +7,9 @@ using System.Linq;
 
 
 namespace fCraft {
+    /// <summary>
+    /// Several yet-undocumented commands, mostly related to AutoRank.
+    /// </summary>
     class AutoRankCommands {
         internal static void Init() {
             CommandList.RegisterCommand( cdAutoRankTest );

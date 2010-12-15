@@ -5,6 +5,21 @@ using System.Text;
 
 
 namespace fCraft {
+    /// <summary>
+    /// Type of message sent by the player. Set by CommandList.GetMessageType
+    /// </summary>
+    enum MessageType {
+        Chat,
+        PrivateChat,
+        ClassChat,
+        Command,
+        Invalid,
+        Confirmation
+    }
+
+    /// <summary>
+    /// Static class that allows registration and parsing of all text commands.
+    /// </summary>
     public static class CommandList {
         static SortedList<string, string> aliases = new SortedList<string, string>();
         static SortedList<string, CommandDescriptor> commands = new SortedList<string, CommandDescriptor>();

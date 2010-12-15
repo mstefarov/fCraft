@@ -5,7 +5,9 @@ using System.Collections.Generic;
 
 
 namespace fCraft {
-
+    /// <summary>
+    /// Commands for drawing commands - cuboid, ellipsoid, etc. Also copy/paste commands.
+    /// </summary>
     static class DrawCommands {
 
         #region State Objects and Enums
@@ -800,7 +802,6 @@ namespace fCraft {
             dy2 = m << 1;
             dz2 = n << 1;
 
-            DrawOneBlock( player, drawBlock, x2, y2, z2, ref blocks, ref cannotUndo );
             DrawOneBlock( player, drawBlock, x2, y2, z2, ref blocks, ref cannotUndo );
 
             if( (l >= m) && (l >= n) ) {

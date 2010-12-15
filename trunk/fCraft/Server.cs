@@ -1,4 +1,4 @@
-﻿    // Copyright 2009, 2010 Matvei Stefarov <me@matvei.org> and Jesse O'Brien <destroyer661@gmail.com>
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org> and Jesse O'Brien <destroyer661@gmail.com>
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,13 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Reflection;
 using System.Security;
 using System.Security.Cryptography;
-using System.Xml;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Xml.Linq;
 
 

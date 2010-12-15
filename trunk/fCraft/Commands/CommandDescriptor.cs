@@ -3,10 +3,23 @@
 
 namespace fCraft {
 
+    /// <summary>
+    /// Callback for a chat command.
+    /// </summary>
+    /// <param name="source">Player who called the command.</param>
+    /// <param name="message">Command and its arguments.</param>
     public delegate void CommandHandler( Player source, Command message );
 
+    /// <summary>
+    /// Callback for displaying help information for chat commands that require a non-static/personalized help message.
+    /// </summary>
+    /// <param name="source">Player who is asking for help.</param>
+    /// <returns>String to print to player.</returns>
     public delegate string HelpHandler( Player source );
 
+    /// <summary>
+    /// Describes a chat command handler. Defined properties and usage/help information, and specifies a callback.
+    /// </summary>
     public sealed class CommandDescriptor {
         public string name;                 // main name
         public string[] aliases;            // list of aliases

@@ -3,20 +3,14 @@ using System;
 
 
 namespace fCraft {
-    enum MessageType {
-        Chat,
-        PrivateChat,
-        ClassChat,
-        Command,
-        Invalid,
-        Confirmation
-    }
-
+    /// <summary>
+    /// Aids parsing chat commands and their arguments.
+    /// </summary>
     public sealed class Command {
         int offset;
         string message;
-        public string name;
-        public bool confirmed;
+        public string name; // lowercase name of the command
+        public bool confirmed; // whether this command has been confirmed by used (with /ok)
 
 
         public Command( string _message ) {
@@ -26,7 +20,11 @@ namespace fCraft {
         }
 
 
-        // Returns the next argument of the command (as a string), or null if there are no more arguments
+        /// <summary>
+        /// Returns the next command argument.
+        /// A single "argument" is either a word that ends with whitespace, or several words in double quiotes ("").
+        /// </summary>
+        /// <returns>Next argument (string), or null if there are no more arguments</returns>
         public string Next() {
             for( int t, j; offset < message.Length; offset++ ) {
                 if( message[offset] == '"' ) {
@@ -47,14 +45,26 @@ namespace fCraft {
         }
 
 
-        // Returns 
+        /// <summary>
+        /// Returns the next command argument, parsed as an integer.
+        /// </summary>
+        /// <param name="number">Set to the argument's value if parsing succeeded, or zero if parsing failed or if there are no more arguments.</param>
+        /// <returns>Returns true if parsing succeeded, and false if parsing failed or if there are no more arguments.</returns>
         public bool NextInt( out int number ) {
-            return Int32.TryParse( Next(), out number );
+            string nextVal = Next();
+            if( nextVal == null ) {
+                number = 0;
+                return false;
+            } else {
+                return Int32.TryParse( nextVal, out number );
+            }
         }
 
-
-        // Returns the rest of the command, from current offset to the end of string.
-        // If there is nothing to return (string ends at the current offset), returns empty string.
+        /// <summary>
+        /// Returns the rest of command's text, from current offset to the end of string.
+        /// If there is nothing to return (i.e. if string ends at the current offset), returns empty string.
+        /// </summary>
+        /// <returns>The rest of the command, or an empty string.</returns>
         public string NextAll() {
             for( ; offset < message.Length; offset++ ) {
                 if( message[offset] != ' ' )
@@ -64,8 +74,12 @@ namespace fCraft {
         }
 
 
-        // returns FALSE if nothing was given (no input)
-        // returns TRUE if something was given, and Block.Undefined if it couldnt be parsed
+        /// <summary>
+        /// OBSOLETE. Returns the next command argument, parsed as an block type.
+        /// </summary>
+        /// <param name="block">Block type if parsable, otherwise Block.Undefined.</param>
+        /// <returns>True if there was an argument to parse, false if there was nothing to parse.</returns>
+        [Obsolete("Will soon be removed.")]
         public bool NextBlockType( out Block block ) {
             block = Block.Undefined;
             string blockName = Next();
@@ -77,7 +91,10 @@ namespace fCraft {
         }
 
 
-        // Resets the argument offset. After calling Rewind, arguments can be read from the beginning again.
+        /// <summary>
+        /// Resets the argument offset.
+        /// After calling Rewind, arguments can be read from the beginning again.
+        /// </summary>
         public void Rewind() {
             offset = 1;
             Next();

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace fCraft {
     /// <summary>
-    /// Flags that indicate what action resulted in block changing.
+    /// Flags that indicate what action resulted in block changing (currently unused, and subject to change).
     /// </summary>
     [Flags]
     public enum BlockChangeCauses {

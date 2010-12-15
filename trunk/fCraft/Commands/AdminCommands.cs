@@ -6,6 +6,9 @@ using System.Net;
 
 
 namespace fCraft {
+    /// <summary>
+    /// Most commands for server moderation - kick, ban, rank change, etc - are here.
+    /// </summary>
     static class AdminCommands {
 
         internal static void Init() {
@@ -435,7 +438,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Changing Class (Promotion / Demotion)
+        #region Changing Rank (Promotion / Demotion)
 
         static CommandDescriptor cdChangeRank = new CommandDescriptor {
             name = "rank",
