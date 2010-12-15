@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+using System;
+
 
 namespace fCraft {
     static class ZoneCommands {

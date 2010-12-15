@@ -1,8 +1,9 @@
-﻿using System;
-using System.ServiceProcess;
-using System.Threading;
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+using System;
 using System.IO;
+using System.ServiceProcess;
 using System.Text;
+using System.Threading;
 using fCraft;
 
 

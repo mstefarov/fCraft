@@ -1,4 +1,7 @@
-﻿namespace fCraft {
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+
+
+namespace fCraft {
     public enum LeaveReason {
         Unknown = 0,
         UserQuit = 1,

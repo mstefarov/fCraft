@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+// With contributions by Sean Dolan <seanldolan@gmail.com>
+using System;
 using System.Collections.Generic;
 
 
@@ -14,7 +16,8 @@ namespace fCraft {
             CuboidWireframe,
             Ellipsoid,
             Replace,
-            ReplaceNot
+            ReplaceNot,
+            Line
         }
 
 
@@ -57,6 +60,7 @@ namespace fCraft {
             cdCuboidHollow.help += generalDrawingHelp;
             cdCuboidWireframe.help += generalDrawingHelp;
             cdEllipsoid.help += generalDrawingHelp;
+            cdLine.help += generalDrawingHelp;
             cdReplace.help += generalDrawingHelp;
             cdReplaceNot.help += generalDrawingHelp;
             cdCut.help += generalDrawingHelp;
@@ -69,6 +73,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdEllipsoid );
             CommandList.RegisterCommand( cdReplace );
             CommandList.RegisterCommand( cdReplaceNot );
+            CommandList.RegisterCommand( cdLine );
 
             CommandList.RegisterCommand( cdMark );
             CommandList.RegisterCommand( cdCancel );
@@ -80,6 +85,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdPaste );
             CommandList.RegisterCommand( cdMirror );
             CommandList.RegisterCommand( cdRotate );
+
         }
 
 
@@ -175,6 +181,21 @@ namespace fCraft {
 
         internal static void ReplaceNot( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.ReplaceNot );
+        }
+
+
+        static CommandDescriptor cdLine = new CommandDescriptor {
+            name = "line",
+            aliases = new string[] { "ln" },
+            permissions = new Permission[] { Permission.Draw },
+            usage = "/line [BlockName]",
+            help = "Draws a line between two points with blocks. " +
+                   "If BlockType is omitted, uses the block that player is holding.",
+            handler = Line
+        };
+
+        internal static void Line( Player player, Command cmd ) {
+            Draw( player, cmd, DrawMode.Line );
         }
 
         #endregion
@@ -290,6 +311,10 @@ namespace fCraft {
                         return;
                     }
                     break;
+                case DrawMode.Line:
+                    player.selectionCallback = LineCallback;
+                    player.selectionArgs = (byte)block;
+                    break;
             }
             player.selectionMarksExpected = 2;
             player.selectionMarkCount = 0;
@@ -304,7 +329,15 @@ namespace fCraft {
         }
 
 
+        #region Line
+
+
+
+        #endregion
+
+
         #region Undo / Redo
+
         static CommandDescriptor cdUndo = new CommandDescriptor {
             name = "undo",
             permissions = new Permission[] { Permission.Draw },
@@ -339,109 +372,35 @@ namespace fCraft {
                 player.MessageNow( "There is currently nothing to undo." );
             }
         }
+
         #endregion
 
 
         #region Draw Callbacks
 
-        unsafe internal static void ReplaceCallback( Player player, Position[] marks, object drawArgs ) {
-            ReplaceArgs args = (ReplaceArgs)drawArgs;
+        static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int h, ref int blocks, ref bool cannotUndo ) {
+            if( player.CanPlace( x, y, h, drawBlock ) != CanPlaceResult.Allowed ) return;
+            byte block = player.world.map.GetBlock( x, y, h );
+            if( block == drawBlock ||
+                (block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete )) ||
+                (drawBlock == (byte)Block.Admincrete && !player.Can( Permission.PlaceAdmincrete )) ) return;
 
-            byte* specialTypes = stackalloc byte[args.types.Length];
-            int specialTypeCount = args.types.Length;
-            for( int i = 0; i < args.types.Length; i++ ) {
-                specialTypes[i] = (byte)args.types[i];
-            }
-            byte replacementBlock = (byte)args.replacementBlock;
-            bool doExclude = args.doExclude;
-
-            // find start/end coordinates
-            int sx = Math.Min( marks[0].x, marks[1].x );
-            int ex = Math.Max( marks[0].x, marks[1].x );
-            int sy = Math.Min( marks[0].y, marks[1].y );
-            int ey = Math.Max( marks[0].y, marks[1].y );
-            int sh = Math.Min( marks[0].h, marks[1].h );
-            int eh = Math.Max( marks[0].h, marks[1].h );
-
-            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
-            if( !player.CanDraw( volume ) ) {
-                player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                player.info.rank.DrawLimit,
-                                volume );
-                return;
-            }
-
-            player.undoBuffer.Clear();
-
-            bool cannotUndo = false;
-            int blocks = 0;
-            byte block;
-            for( int x = sx; x <= ex; x += DrawStride ) {
-                for( int y = sy; y <= ey; y += DrawStride ) {
-                    for( int h = sh; h <= eh; h++ ) {
-                        for( int y3 = 0; y3 < DrawStride && y + y3 <= ey; y3++ ) {
-                            for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
-
-                                block = player.world.map.GetBlock( x + x3, y + y3, h );
-
-                                if( args.doExclude ) {
-                                    bool skip = false;
-                                    for( int i = 0; i < specialTypeCount; i++ ) {
-                                        if( block == specialTypes[i] ) {
-                                            skip = true;
-                                            break;
-                                        }
-                                    }
-                                    if( skip ) continue;
-                                } else {
-                                    bool skip = true;
-                                    for( int i = 0; i < specialTypeCount; i++ ) {
-                                        if( block == specialTypes[i] ) {
-                                            skip = false;
-                                            break;
-                                        }
-                                    }
-                                    if( skip ) continue;
-                                }
-
-                                if( block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) continue;
-                                if( player.CanPlace( x, y, h, replacementBlock ) != CanPlaceResult.Allowed ) continue;
-                                player.world.map.QueueUpdate( new BlockUpdate( null, x + x3, y + y3, h, replacementBlock ) );
-                                if( blocks < MaxUndoCount ) {
-                                    player.undoBuffer.Enqueue( new BlockUpdate( null, x + x3, y + y3, h, block ) );
-                                } else if( !cannotUndo ) {
-                                    player.undoBuffer.Clear();
-                                    player.undoBuffer.TrimExcess();
-                                    player.MessageNow( "NOTE: This draw command is too massive to undo." );
-                                    cannotUndo = true;
-                                    if( player.Can( Permission.ManageWorlds ) ) {
-                                        player.MessageNow( "Reminder: You can use &H/wflush&S to accelerate draw commands." );
-                                    }
-                                }
-                                blocks++;
-
-                            }
-                        }
-                    }
+            player.world.map.QueueUpdate( new BlockUpdate( null, x, y, h, drawBlock ) );
+            if( blocks < MaxUndoCount ) {
+                player.undoBuffer.Enqueue( new BlockUpdate( null, x, y, h, block ) );
+            } else if( !cannotUndo ) {
+                player.undoBuffer.Clear();
+                player.undoBuffer.TrimExcess();
+                player.MessageNow( "NOTE: This draw command is too massive to undo." );
+                if( player.Can( Permission.ManageWorlds ) ) {
+                    player.MessageNow( "Reminder: You can use &H/wflush&S to accelerate draw commands." );
                 }
+                cannotUndo = true;
             }
-
-            player.MessageNow( "Replacing {0} blocks... The map is now being updated.", blocks );
-
-            string affectedString = "";
-            for( int i = 0; i < specialTypeCount; i++ ) {
-                affectedString += ", " + ((Block)specialTypes[i]).ToString();
-            }
-            player.info.ProcessDrawCommand( blocks );
-            Logger.Log( "{0} replaced {1} blocks {2} ({3}) with {4} (on world {5})", LogType.UserActivity,
-                        player.name, blocks,
-                        (doExclude ? "except" : "of"),
-                        affectedString.Substring( 2 ), (Block)replacementBlock,
-                        player.world.name );
-
-            player.undoBuffer.TrimExcess();
-            Server.RequestGC();
+            blocks++;
         }
+
+        #region Cuboid, CuboidHollow, CuboidWireframe
 
 
         internal static void CuboidCallback( Player player, Position[] marks, object tag ) {
@@ -635,6 +594,107 @@ namespace fCraft {
             Server.RequestGC();
         }
 
+        #endregion
+
+
+        unsafe internal static void ReplaceCallback( Player player, Position[] marks, object drawArgs ) {
+            ReplaceArgs args = (ReplaceArgs)drawArgs;
+
+            byte* specialTypes = stackalloc byte[args.types.Length];
+            int specialTypeCount = args.types.Length;
+            for( int i = 0; i < args.types.Length; i++ ) {
+                specialTypes[i] = (byte)args.types[i];
+            }
+            byte replacementBlock = (byte)args.replacementBlock;
+            bool doExclude = args.doExclude;
+
+            // find start/end coordinates
+            int sx = Math.Min( marks[0].x, marks[1].x );
+            int ex = Math.Max( marks[0].x, marks[1].x );
+            int sy = Math.Min( marks[0].y, marks[1].y );
+            int ey = Math.Max( marks[0].y, marks[1].y );
+            int sh = Math.Min( marks[0].h, marks[1].h );
+            int eh = Math.Max( marks[0].h, marks[1].h );
+
+            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
+            if( !player.CanDraw( volume ) ) {
+                player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                player.info.rank.DrawLimit,
+                                volume );
+                return;
+            }
+
+            player.undoBuffer.Clear();
+
+            bool cannotUndo = false;
+            int blocks = 0;
+            byte block;
+            for( int x = sx; x <= ex; x += DrawStride ) {
+                for( int y = sy; y <= ey; y += DrawStride ) {
+                    for( int h = sh; h <= eh; h++ ) {
+                        for( int y3 = 0; y3 < DrawStride && y + y3 <= ey; y3++ ) {
+                            for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
+
+                                block = player.world.map.GetBlock( x + x3, y + y3, h );
+
+                                if( args.doExclude ) {
+                                    bool skip = false;
+                                    for( int i = 0; i < specialTypeCount; i++ ) {
+                                        if( block == specialTypes[i] ) {
+                                            skip = true;
+                                            break;
+                                        }
+                                    }
+                                    if( skip ) continue;
+                                } else {
+                                    bool skip = true;
+                                    for( int i = 0; i < specialTypeCount; i++ ) {
+                                        if( block == specialTypes[i] ) {
+                                            skip = false;
+                                            break;
+                                        }
+                                    }
+                                    if( skip ) continue;
+                                }
+
+                                if( block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) continue;
+                                if( player.CanPlace( x, y, h, replacementBlock ) != CanPlaceResult.Allowed ) continue;
+                                player.world.map.QueueUpdate( new BlockUpdate( null, x + x3, y + y3, h, replacementBlock ) );
+                                if( blocks < MaxUndoCount ) {
+                                    player.undoBuffer.Enqueue( new BlockUpdate( null, x + x3, y + y3, h, block ) );
+                                } else if( !cannotUndo ) {
+                                    player.undoBuffer.Clear();
+                                    player.undoBuffer.TrimExcess();
+                                    player.MessageNow( "NOTE: This draw command is too massive to undo." );
+                                    cannotUndo = true;
+                                    if( player.Can( Permission.ManageWorlds ) ) {
+                                        player.MessageNow( "Reminder: You can use &H/wflush&S to accelerate draw commands." );
+                                    }
+                                }
+                                blocks++;
+
+                            }
+                        }
+                    }
+                }
+            }
+
+            player.MessageNow( "Replacing {0} blocks... The map is now being updated.", blocks );
+
+            string affectedString = "";
+            for( int i = 0; i < specialTypeCount; i++ ) {
+                affectedString += ", " + ((Block)specialTypes[i]).ToString();
+            }
+            player.info.ProcessDrawCommand( blocks );
+            Logger.Log( "{0} replaced {1} blocks {2} ({3}) with {4} (on world {5})", LogType.UserActivity,
+                        player.name, blocks,
+                        (doExclude ? "except" : "of"),
+                        affectedString.Substring( 2 ), (Block)replacementBlock,
+                        player.world.name );
+
+            player.undoBuffer.TrimExcess();
+            Server.RequestGC();
+        }
 
         internal static void EllipsoidCallback( Player player, Position[] marks, object tag ) {
             byte drawBlock = (byte)tag;
@@ -708,28 +768,108 @@ namespace fCraft {
             Server.RequestGC();
         }
 
-
-        static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int h, ref int blocks, ref bool cannotUndo ) {
-            if( player.CanPlace( x, y, h, drawBlock ) != CanPlaceResult.Allowed ) return;
-            byte block = player.world.map.GetBlock( x, y, h );
-            if( block == drawBlock ||
-                (block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete )) ||
-                (drawBlock == (byte)Block.Admincrete && !player.Can( Permission.PlaceAdmincrete )) ) return;
-
-            player.world.map.QueueUpdate( new BlockUpdate( null, x, y, h, drawBlock ) );
-            if( blocks < MaxUndoCount ) {
-                player.undoBuffer.Enqueue( new BlockUpdate( null, x, y, h, block ) );
-            } else if( !cannotUndo ) {
-                player.undoBuffer.Clear();
-                player.undoBuffer.TrimExcess();
-                player.MessageNow( "NOTE: This draw command is too massive to undo." );
-                if( player.Can( Permission.ManageWorlds ) ) {
-                    player.MessageNow( "Reminder: You can use &H/wflush&S to accelerate draw commands." );
-                }
-                cannotUndo = true;
+        internal static void LineCallback( Player player, Position[] marks, object tag ) {
+            byte drawBlock = (byte)tag;
+            if( drawBlock == (byte)Block.Undefined ) {
+                drawBlock = (byte)player.lastUsedBlockType;
             }
-            blocks++;
+
+            player.undoBuffer.Clear();
+
+            int blocks = 0;
+            bool cannotUndo = false;
+
+            // LINE CODE
+
+            int x1 = marks[0].x, y1 = marks[0].y, z1 = marks[0].h, x2 = marks[1].x, y2 = marks[1].y, z2 = marks[1].h;
+            int i, dx, dy, dz, l, m, n, x_inc, y_inc, z_inc, err_1, err_2, dx2, dy2, dz2;
+            int[] pixel = new int[3];
+            pixel[0] = x1;
+            pixel[1] = y1;
+            pixel[2] = z1;
+            dx = x2 - x1;
+            dy = y2 - y1;
+            dz = z2 - z1;
+            x_inc = (dx < 0) ? -1 : 1;
+            l = Math.Abs( dx );
+            y_inc = (dy < 0) ? -1 : 1;
+            m = Math.Abs( dy );
+            z_inc = (dz < 0) ? -1 : 1;
+            n = Math.Abs( dz );
+            dx2 = l << 1;
+            dy2 = m << 1;
+            dz2 = n << 1;
+
+            DrawOneBlock( player, drawBlock, x2, y2, z2, ref blocks, ref cannotUndo );
+            DrawOneBlock( player, drawBlock, x2, y2, z2, ref blocks, ref cannotUndo );
+
+            if( (l >= m) && (l >= n) ) {
+
+                err_1 = dy2 - l;
+                err_2 = dz2 - l;
+                for( i = 0; i < l; i++ ) {
+                    DrawOneBlock( player, drawBlock, pixel[0], pixel[1], pixel[2], ref blocks, ref cannotUndo );
+                    if( err_1 > 0 ) {
+                        pixel[1] += y_inc;
+                        err_1 -= dx2;
+                    }
+                    if( err_2 > 0 ) {
+                        pixel[2] += z_inc;
+                        err_2 -= dx2;
+                    }
+                    err_1 += dy2;
+                    err_2 += dz2;
+                    pixel[0] += x_inc;
+                }
+            } else if( (m >= l) && (m >= n) ) {
+                err_1 = dx2 - m;
+                err_2 = dz2 - m;
+                for( i = 0; i < m; i++ ) {
+                    DrawOneBlock( player, drawBlock, pixel[0], pixel[1], pixel[2], ref blocks, ref cannotUndo );
+                    if( err_1 > 0 ) {
+                        pixel[0] += x_inc;
+                        err_1 -= dy2;
+                    }
+                    if( err_2 > 0 ) {
+                        pixel[2] += z_inc;
+                        err_2 -= dy2;
+                    }
+                    err_1 += dx2;
+                    err_2 += dz2;
+                    pixel[1] += y_inc;
+                }
+            } else {
+                err_1 = dy2 - n;
+                err_2 = dx2 - n;
+                for( i = 0; i < n; i++ ) {
+                    DrawOneBlock( player, drawBlock, pixel[0], pixel[1], pixel[2], ref blocks, ref cannotUndo );
+                    if( err_1 > 0 ) {
+                        pixel[1] += y_inc;
+                        err_1 -= dz2;
+                    }
+                    if( err_2 > 0 ) {
+                        pixel[0] += x_inc;
+                        err_2 -= dz2;
+                    }
+                    err_1 += dy2;
+                    err_2 += dx2;
+                    pixel[2] += z_inc;
+                }
+            }
+
+            // END LINE CODE
+
+            player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
+            player.info.ProcessDrawCommand( blocks );
+            Logger.Log( "{0} drew a line containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
+                        player.name,
+                        blocks,
+                        (Block)drawBlock,
+                        player.world.name );
+            player.undoBuffer.TrimExcess();
+            Server.RequestGC();
         }
+
 
         #endregion
 

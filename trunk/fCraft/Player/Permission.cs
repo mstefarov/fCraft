@@ -1,4 +1,7 @@
-﻿namespace fCraft {
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+
+
+namespace fCraft {
 
     // See comment at the top of Config.cs for a history of changes.
 

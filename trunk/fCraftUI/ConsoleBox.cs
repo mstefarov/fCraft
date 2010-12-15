@@ -1,10 +1,8 @@
-﻿using System;
+﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.ComponentModel;
 using fCraft;
+
 
 namespace fCraftUI {
     sealed class ConsoleBox : TextBox {
