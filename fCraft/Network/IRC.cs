@@ -52,13 +52,14 @@ namespace fCraft {
             StreamReader reader;
             StreamWriter writer;
             Thread thread;
-            bool connected, reconnect;
-            bool parseInput;
+            public bool connected, reconnect, ready;
+            public bool responsibleForInputParsing;
             public string actualBotNick;
+
 
             public bool Start( string _botNick, bool _parseInput ) {
                 actualBotNick = _botNick;
-                parseInput = _parseInput;
+                responsibleForInputParsing = _parseInput;
                 try {
                     // start the machinery!
                     thread = new Thread( IoThread );
@@ -195,6 +196,8 @@ namespace fCraft {
                         foreach( string channel in channelNames ) {
                             Send( IRCCommands.Join( channel ) );
                         }
+                        ready = true;
+                        AssignBotForInputParsing(); // bot should be ready to receive input after joining
                         return;
 
 
@@ -206,7 +209,7 @@ namespace fCraft {
 
                     case IRCMessageType.ChannelMessage:
                         // channel chat
-                        if( !parseInput ) return;
+                        if( !responsibleForInputParsing ) return;
                         if( !IsBotNick( msg.Nick ) ) {
                             string processedMessage = nonPrintableChars.Replace( msg.Message, "" ).Trim();
                             if( processedMessage.Length > 0 ) {
@@ -223,7 +226,7 @@ namespace fCraft {
 
 
                     case IRCMessageType.Join:
-                        if( !parseInput ) return;
+                        if( !responsibleForInputParsing ) return;
                         if( Config.GetBool( ConfigKey.IRCBotAnnounceIRCJoins ) ) {
                             Server.SendToAll( "{0}(IRC) {1} joined {2}",
                                               Color.IRC, msg.Nick, msg.Channel );
@@ -241,7 +244,7 @@ namespace fCraft {
 
                     case IRCMessageType.Part:
                     case IRCMessageType.Quit:
-                        if( !parseInput ) return;
+                        if( !responsibleForInputParsing ) return;
                         if( Config.GetBool( ConfigKey.IRCBotAnnounceIRCJoins ) ) {
                             Server.SendToAll( "{0}(IRC) {1} left {2}",
                                               Color.IRC, msg.Nick, msg.Channel );
@@ -304,6 +307,8 @@ namespace fCraft {
             }
 
             public void Disconnect() {
+                ready = false;
+                AssignBotForInputParsing();
                 connected = false;
                 if( thread != null && thread.IsAlive ) {
                     thread.Join( 1000 );
@@ -337,6 +342,27 @@ namespace fCraft {
 
         static ConcurrentQueue<string> outputQueue = new ConcurrentQueue<string>();
 
+        static void AssignBotForInputParsing() {
+            bool needReassignment = false;
+            foreach( IRCThread thread in threads ) {
+                if( thread.responsibleForInputParsing && !thread.ready ) {
+                    thread.responsibleForInputParsing = false;
+                    needReassignment = true;
+                }
+            }
+            if( needReassignment ) {
+                foreach( IRCThread thread in threads ) {
+                    if( thread.ready ) {
+                        thread.responsibleForInputParsing = true;
+                        Logger.Log( "Bot \"{0}\" is now responsible for parsing input.", LogType.IRC,
+                                    thread.actualBotNick );
+                        return;
+                    }
+                }
+                Logger.Log( "All IRC bots are temporarily disconnected.", LogType.IRC );
+            }
+        }
+
         // includes IRC color codes and non-printable ASCII
         static Regex nonPrintableChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled );
 
@@ -356,23 +382,29 @@ namespace fCraft {
         }
 
 
-        public static void PlayerMessageHandler( Player player, World world, ref string message, ref bool cancel ) {
+        internal static void PlayerMessageHandler( Player player, World world, ref string message, ref bool cancel ) {
             if( Config.GetBool( ConfigKey.IRCBotForwardFromServer ) ) {
-                SendToAllChannels( player.name + ": " + message );
+                SendToAllChannels( player.GetClassyName() + Color.IRCReset + ": " + message );
             } else if( message.StartsWith( "#" ) ) {
-                SendToAllChannels( player.name + ": " + message.Substring( 1 ) );
+                SendToAllChannels( player.GetClassyName() + Color.IRCReset + ": " + message.Substring( 1 ) );
             }
         }
 
-        public static void PlayerConnectedHandler( Session session, ref bool cancel ) {
+        internal static void PlayerConnectedHandler( Session session, ref bool cancel ) {
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
-                SendToAllChannels( "* " + session.player.name + " connected." );
+                SendToAllChannels( Color.IRCBold + Color.Warning + "* " + session.player.GetClassyName() + Color.Warning + " connected." );
             }
         }
 
-        public static void PlayerDisconnectedHandler( Session session ) {
+        internal static void PlayerDisconnectedHandler( Session session ) {
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) && session.player != null ) {
-                SendToAllChannels( "* " + session.player.name + " left the server." );
+                SendToAllChannels( Color.IRCBold + Color.Warning + "* " + session.player.GetClassyName() + Color.Warning + " left the server." );
+            }
+        }
+
+        internal static void PlayerKickedHandler( Player player, Player kicker, string reason ) {
+            if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
+                SendToAllChannels( Color.IRCBold + Color.Warning + "* " + player.GetClassyName() + Color.Warning + " was kicked by " + kicker.GetClassyName() + Color.Warning + ". Reason: " + reason );
             }
         }
 
@@ -402,6 +434,7 @@ namespace fCraft {
                 Server.OnPlayerSentMessage += PlayerMessageHandler;
                 Server.OnPlayerConnected += PlayerConnectedHandler;
                 Server.OnPlayerDisconnected += PlayerDisconnectedHandler;
+                Server.OnPlayerKicked += PlayerKickedHandler;
                 return true;
             } else {
                 Logger.Log( "IRC functionality disabled.", LogType.IRC );
@@ -411,6 +444,7 @@ namespace fCraft {
 
 
         public static void SendToAllChannels( string line ) {
+            line = Color.ToIRCColorCodes( line );
             for( int i = 0; i < channelNames.Length; i++ ) {
                 SendToAny( IRCCommands.Privmsg( channelNames[i], line ) );
             }

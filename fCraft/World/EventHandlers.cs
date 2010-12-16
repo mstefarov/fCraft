@@ -6,6 +6,7 @@ namespace fCraft {
     public delegate void URLChangeEventHandler( string message );
     public delegate void PlayerConnectedEventHandler( Session session, ref bool cancel );
     public delegate void PlayerDisconnectedEventHandler( Session session );
+    public delegate void PlayerKickedEventHandler( Player player, Player kicker, string reason );
 
     public delegate void PlayerTriedToJoinWorldEventHandler( Player player, World newWorld, ref bool cancel );
     public delegate void PlayerLeftWorldEventHandler( Player player, World oldWorld );

@@ -409,6 +409,10 @@ namespace fCraft {
         }
 
         internal static bool DoKick( Player player, Player target, string reason, bool silent ) {
+            if( player == target ) {
+                player.Message( "You cannot kick yourself." );
+                return false;
+            }
             if( !player.info.rank.CanKick( target.info.rank ) ) {
                 player.Message( "You can only kick players ranked {0}&S or lower.",
                                 player.info.rank.GetLimit( Permission.Kick ).GetClassyName() );
@@ -419,6 +423,7 @@ namespace fCraft {
                     Server.SendToAll( "{0}&W was kicked by {1}",
                                       target.GetClassyName(), player.GetClassyName() );
                     target.info.ProcessKick( player, reason );
+                    Server.FirePlayerKickedEvent( target, player, reason );
                 }
                 if( reason != null && reason.Length > 0 ) {
                     if( !silent && Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) ) {
