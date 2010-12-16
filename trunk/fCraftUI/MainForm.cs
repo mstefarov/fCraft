@@ -169,12 +169,17 @@ namespace fCraftUI {
             string[] separator = { Environment.NewLine };
             string[] lines = console.Text.Trim().Split( separator, StringSplitOptions.RemoveEmptyEntries );
             foreach( string line in lines ) {
+#if !DEBUG
                 try {
+#endif
                     Player.Console.ParseMessage( line, true );
+#if !DEBUG
                 } catch( Exception ex ) {
                     Logger.LogConsole( "Error occured while trying to execute last console command: " );
                     Logger.LogConsole( ex.ToString() + ": " + ex.Message );
+                    Logger.LogAndReportCrash( "Exception executing command from console", "fCraftUI", ex );
                 }
+#endif
             }
             console.Text = "";
         }

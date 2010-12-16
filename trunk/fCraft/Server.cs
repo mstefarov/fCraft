@@ -735,6 +735,7 @@ namespace fCraft {
         public static event SimpleEventHandler OnStart;
         public static event PlayerConnectedEventHandler OnPlayerConnected;
         public static event PlayerDisconnectedEventHandler OnPlayerDisconnected;
+        public static event PlayerKickedEventHandler OnPlayerKicked;
         public static event RankChangedEventHandler OnRankChanged;
         public static event URLChangeEventHandler OnURLChanged;
         public static event SimpleEventHandler OnShutdownBegin;
@@ -780,6 +781,11 @@ namespace fCraft {
                 OnPlayerSentMessage( player, player.world, ref message, ref cancel );
             }
             return !cancel;
+        }
+        internal static void FirePlayerKickedEvent( Player player, Player kicker, string reason ) {
+            if( OnPlayerKicked != null ) {
+                OnPlayerKicked( player, kicker, reason );
+            }
         }
 
         #endregion

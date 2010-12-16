@@ -819,7 +819,8 @@ namespace fCraft {
             ClearBlockUpdateQueue();
             ClearPriorityOutputQueue();
 
-            Send( PacketWriter.MakeDisconnect( message ) );
+            // bypassing Send() because canQueue is false
+            priorityOutputQueue.Enqueue( PacketWriter.MakeDisconnect( message ) );
         }
 
 

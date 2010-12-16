@@ -1,12 +1,13 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 
 namespace fCraft {
 
     /// <summary>
-    /// Static class with definitions of Minecraft color codes, parsers/converers, and utilities.
+    /// Static class with definitions of Minecraft color codes, parsers/converters, and utilities.
     /// </summary>
     public static class Color {
         public const string Black = "&0",
@@ -39,27 +40,24 @@ namespace fCraft {
                             MeDefault = Purple,
                             WarningDefault = Red;
 
-        static SortedList<char, string> colorNames = new SortedList<char, string>( 16 );
-
-
-        static Color() {
-            colorNames.Add( '0', "black" );
-            colorNames.Add( '1', "navy" );
-            colorNames.Add( '2', "green" );
-            colorNames.Add( '3', "teal" );
-            colorNames.Add( '4', "maroon" );
-            colorNames.Add( '5', "purple" );
-            colorNames.Add( '6', "olive" );
-            colorNames.Add( '7', "silver" );
-            colorNames.Add( '8', "gray" );
-            colorNames.Add( '9', "blue" );
-            colorNames.Add( 'a', "lime" );
-            colorNames.Add( 'b', "aqua" );
-            colorNames.Add( 'c', "red" );
-            colorNames.Add( 'd', "magenta" );
-            colorNames.Add( 'e', "yellow" );
-            colorNames.Add( 'f', "white" );
-        }
+        static SortedList<char, string> colorNames = new SortedList<char, string>{
+            { '0', "black" },
+            { '1', "navy" },
+            { '2', "green" },
+            { '3', "teal" },
+            { '4', "maroon" },
+            { '5', "purple" },
+            { '6', "olive" },
+            { '7', "silver" },
+            { '8', "gray" },
+            { '9', "blue" },
+            { 'a', "lime" },
+            { 'b', "aqua" },
+            { 'c', "red" },
+            { 'd', "magenta" },
+            { 'e', "yellow" },
+            { 'f', "white" }
+        };
 
 
         /// <summary> Gets color name for hex color code. </summary>
@@ -141,12 +139,12 @@ namespace fCraft {
         /// <exception cref="System.ArgumentException"> Thrown when color cannot be parsed </exception>
         public static string Parse( string color ) {
             color = color.ToLower();
-            if( color.Length == 2 && color[0] == '&' && IsValidColorCode(color[1]) ) {
+            if( color.Length == 2 && color[0] == '&' && IsValidColorCode( color[1] ) ) {
                 return color;
             } else if( colorNames.ContainsValue( color ) ) {
                 return "&" + colorNames.Keys[colorNames.IndexOfValue( color )];
             } else if( color.Length == 1 ) {
-                return Parse(color[0]);
+                return Parse( color[0] );
             } else {
                 throw new ArgumentException( "Could not parse color.", "color" );
             }
@@ -179,8 +177,64 @@ namespace fCraft {
         }
 
 
+        /// <summary>
+        /// Checks whether a color code is valid (checks if it's hexadecimal char).
+        /// </summary>
+        /// <returns>True is char is valid, otherwise false</returns>
         public static bool IsValidColorCode( char code ) {
             return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f') || (code >= 'A' && code <= 'F');
         }
+
+
+
+
+        static Dictionary<string, IRCColor> MinecraftToIRCColors = new Dictionary<string, IRCColor> {
+            { White, IRCColor.White },
+            { Black, IRCColor.Black },
+            { Navy, IRCColor.Navy },
+            { Green, IRCColor.Green },
+            { Red, IRCColor.Red },
+            { Maroon, IRCColor.Maroon },
+            { Purple, IRCColor.Purple },
+            { Olive, IRCColor.Olive },
+            { Yellow, IRCColor.Yellow },
+            { Lime, IRCColor.Lime },
+            { Teal, IRCColor.Teal },
+            { Aqua, IRCColor.Aqua },
+            { Blue, IRCColor.Blue },
+            { Magenta, IRCColor.Magenta },
+            { Gray, IRCColor.Gray },
+            { Silver, IRCColor.Silver },
+        };
+
+        public static string ToIRCColorCodes( string input ) {
+            StringBuilder sb = new StringBuilder( input );
+            foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {
+                sb.Replace( code.Key, '\u0003' + ((int)code.Value).ToString() );
+            }
+            return sb.ToString();
+        }
+
+        public const string IRCReset = "\u0003\u000f";
+        public const string IRCBold = "\u0002";
+    }
+
+    enum IRCColor {
+        White = 0,
+        Black,
+        Navy,
+        Green,
+        Red,
+        Maroon,
+        Purple,
+        Olive,
+        Yellow,
+        Lime,
+        Teal,
+        Aqua,
+        Blue,
+        Magenta,
+        Gray,
+        Silver
     }
 }
