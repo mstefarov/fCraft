@@ -48,8 +48,8 @@ namespace fCraft {
 
         // for block tracking
         [CLSCompliant(false)]
-        public ushort localPlayerID; // map-specific PlayerID
-                                     // if no ID is assigned, set to ReservedPlayerID.None
+        public ushort localPlayerID = (ushort)ReservedPlayerID.None; // map-specific PlayerID
+                                                                     // if no ID is assigned, set to ReservedPlayerID.None
 
         public int id = -1; // global PlayerID (currently unused)
 

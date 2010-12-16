@@ -20,9 +20,7 @@ namespace fCraft {
         // Queue of block updates. Updates are applied by ProcessUpdates()
         ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
 
-
-        object metaLock = new object(), // TODO: use for reading/writing. Metadata is not currently thread-safe.
-               zoneLock = new object(); // zone list (only needed when using "zones" dictionary, not "zoneList" cached array)
+        object metaLock = new object(); // TODO: use for reading/writing. Metadata is not currently thread-safe.
 
         // used to skip backups/saves if no changes were made
         public int changesSinceSave,
@@ -454,10 +452,12 @@ namespace fCraft {
             blockNames["onyx"] = Block.Obsidian;
         }
 
+
         public void SetSpawn( Position newSpawn ) {
             spawn = newSpawn;
             changesSinceSave++;
         }
+
 
         public void ResetSpawn() {
             spawn.Set( widthX * 16, widthY * 16, height * 32, 0, 0 );
@@ -520,7 +520,11 @@ namespace fCraft {
         }
 
 
-        // zips a copy of the block array
+        /// <summary>
+        /// Writes a copy of the current map to a specified stream, compressed with GZipStream
+        /// </summary>
+        /// <param name="stream">Stream to write the compressed data to.</param>
+        /// <param name="prependBlockCount">If true, prepends block data with signed, 32bit, big-endian block count.</param>
         public void GetCompressedCopy( Stream stream, bool prependBlockCount ) {
             using( GZipStream compressor = new GZipStream( stream, CompressionMode.Compress ) ) {
                 if( prependBlockCount ) {
@@ -557,6 +561,9 @@ namespace fCraft {
         }
 
 
+        /// <summary>
+        /// Returns the block count (volume) of the map.
+        /// </summary>
         public int GetBlockCount() {
             return widthX * widthY * height;
         }
@@ -566,6 +573,7 @@ namespace fCraft {
 
         #region Zones
 
+        object zoneLock = new object(); // zone list (only needed when using "zones" dictionary, not "zoneList" cached array)
         Dictionary<string, Zone> zones = new Dictionary<string, Zone>();
         public Zone[] zoneList = new Zone[0];
 
@@ -770,7 +778,7 @@ namespace fCraft {
                     update.origin.info.ProcessBlockPlaced( update.type );
                     if( blockOwnership != null ) {
                         // TODO: ensure safety in case player leaves the world (and localPlayerID changes) before everything is processed
-                        if( update.origin.localPlayerID != (ushort)ReservedPlayerID.None ) {
+                        if( update.origin.localPlayerID == (ushort)ReservedPlayerID.None ) {
                             update.origin.localPlayerID = AssignPlayerID( update.origin.name );
                         }
                         blockOwnership[blockIndex] = update.origin.localPlayerID;

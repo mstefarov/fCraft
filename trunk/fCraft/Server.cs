@@ -17,37 +17,24 @@ using System.Xml.Linq;
 
 namespace fCraft {
     public static class Server {
-        static List<Session> sessions = new List<Session>();
-        static object sessionLock = new object();
         static string[] args = new string[0];
 
-        public static void KickGhostsAndRegisterSession( Session newSession ) {
-            List<Session> sessionsToKick = new List<Session>();
-            lock( sessionLock ) {
-                foreach( Session s in sessions ) {
-                    if( s.player.name.Equals( newSession.player.name, StringComparison.OrdinalIgnoreCase ) ) {
-                        sessionsToKick.Add( s );
-                        s.Kick( "Connected from elsewhere!" );
-                        Logger.Log( "Session.LoginSequence: Player {0} logged in. Ghost was kicked.", LogType.SuspiciousActivity,
-                                    s.player.name );
-                    }
-                }
-                sessions.Add( newSession );
-            }
-            foreach( Session ses in sessionsToKick ) {
-                ses.WaitForDisconnect();
-            }
-        }
-
+        // player list
         static Dictionary<int, Player> players = new Dictionary<int, Player>();
         internal static Player[] playerList;
         static object playerListLock = new object();
 
+        // session list
+        static List<Session> sessions = new List<Session>();
+        static object sessionLock = new object();
+
+        // world list
         public static SortedDictionary<string, World> worlds = new SortedDictionary<string, World>();
         public static object worldListLock = new object();
         const string WorldListFile = "worlds.xml";
         public static World mainWorld;
 
+        // networking
         static TcpListener listener;
         public static IPAddress IP;
 
@@ -1179,6 +1166,25 @@ namespace fCraft {
 
 
         #region PlayerList
+
+
+        public static void KickGhostsAndRegisterSession( Session newSession ) {
+            List<Session> sessionsToKick = new List<Session>();
+            lock( sessionLock ) {
+                foreach( Session s in sessions ) {
+                    if( s.player.name.Equals( newSession.player.name, StringComparison.OrdinalIgnoreCase ) ) {
+                        sessionsToKick.Add( s );
+                        s.Kick( "Connected from elsewhere!" );
+                        Logger.Log( "Session.LoginSequence: Player {0} logged in. Ghost was kicked.", LogType.SuspiciousActivity,
+                                    s.player.name );
+                    }
+                }
+                sessions.Add( newSession );
+            }
+            foreach( Session ses in sessionsToKick ) {
+                ses.WaitForDisconnect();
+            }
+        }
 
         public static string MakePlayerConnectedMessage( Player player, bool firstTime, World world ) {
             if( firstTime ) {
