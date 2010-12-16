@@ -76,7 +76,9 @@ namespace fCraft {
      * 
      * 120 - r332 - Added DataPath key
      * 
-     * 121 - r335 - Renamed SendRedundantBlockUpdates to RelayAllBlockUpdates
+     * 121 - r335 - Renamed SendRedundantBlockUpdates key to RelayAllBlockUpdates
+     * 
+     * 122 - r341 - Added IRCUseColor key
      * 
      */
 
@@ -84,7 +86,7 @@ namespace fCraft {
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 120;
+        public const int ConfigVersion = 122;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFile = "config.xml";
@@ -212,6 +214,7 @@ namespace fCraft {
             SetValue( ConfigKey.IRCNickServ, "NickServ" );
             SetValue( ConfigKey.IRCNickServMessage, "IDENTIFY password" );
             SetValue( ConfigKey.IRCThreads, 1 );
+            SetValue( ConfigKey.IRCUseColor, true );
         }
 
         public static void LoadDefaultsAdvanced() {
@@ -565,6 +568,7 @@ namespace fCraft {
                 case ConfigKey.IRCBotForwardFromServer:
                 case ConfigKey.IRCBotAnnounceIRCJoins:
                 case ConfigKey.IRCBotAnnounceServerJoins:
+                case ConfigKey.IRCUseColor:
                 case ConfigKey.RequireBanReason:
                 case ConfigKey.RequireRankChangeReason:
                 case ConfigKey.AnnounceKickAndBanReasons:
