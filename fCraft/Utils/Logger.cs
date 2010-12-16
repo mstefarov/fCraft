@@ -241,12 +241,21 @@ namespace fCraft {
 
             } else if( ex.Message.Equals( "libMonoPosixHelper.so", StringComparison.OrdinalIgnoreCase ) ) {
                 Logger.Log( "fCraft could not locate Mono's compression functionality. " +
-                            "Please make sure that you have libmono-posix-2.0-cil or equivalent package installed.", LogType.Warning );
+                            "Please make sure that you have zlib and libmono-posix-2.0-cil or equivalent package installed.", LogType.Warning );
                 return false;
 
             } else if( ex is UnauthorizedAccessException ) {
                 Logger.Log( "fCraft was blocked from accessing a file or resource. " +
                             "Make sure that correct permissions are set for the fCraft files, folders, and processes.", LogType.Warning );
+                return false;
+
+            } else if( ex is OutOfMemoryException ) {
+                Logger.Log( "fCraft ran out of memory. Make sure there is enough RAM to run. " +
+                            "Note that large draw commands can consume a lot of RAM.", LogType.Warning );
+                return false;
+
+            }else if( ex is TypeLoadException && ex.Message.Contains("ZLibStream")){
+                Logger.Log( "Note that ZLibStream is obsolete since fCraft 0.498. Use GZipStream instead.", LogType.Warning );
                 return false;
 
             } else {

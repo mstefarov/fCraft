@@ -55,6 +55,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdPatrol );
 
             CommandList.RegisterCommand( cdMute );
+            CommandList.RegisterCommand( cdUnmute );
         }
 
 
@@ -1304,7 +1305,8 @@ namespace fCraft {
         #endregion
 
 
-        #region Mute
+        #region Mute / Unmute
+
         static CommandDescriptor cdMute = new CommandDescriptor {
             name = "mute",
             consoleSafe = true,
@@ -1336,6 +1338,44 @@ namespace fCraft {
                 }
             } else {
                 cdMute.PrintUsage( player );
+            }
+        }
+
+
+        static CommandDescriptor cdUnmute = new CommandDescriptor {
+            name = "unmute",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.Mute },
+            help = "Unmutes a player.",
+            usage = "/unmute PlayerName",
+            handler = Unmute
+        };
+
+        internal static void Unmute( Player player, Command cmd ) {
+            string playerName = cmd.Next();
+            if( playerName != null && Player.IsValidName( playerName ) ) {
+                Player[] matches = Server.FindPlayers( playerName );
+                if( matches.Length == 1 ) {
+                    Player target = matches[0];
+                    if( target.mutedUntil >= DateTime.UtcNow ) {
+                        target.Mute( 0 );
+                        target.Message( "You were unmuted by {0}", player.GetClassyName() );
+                        Server.SendToAllExcept( "&SPlayer {0}&S was unmuted by {1}", target,
+                                                target.GetClassyName(), player.GetClassyName() );
+                        Logger.Log( "Player {0} was unmuted by {1}.", LogType.UserActivity,
+                                    target.name, player.name );
+                    } else {
+                        player.Message( "Player {0}&S is not muted.", target.GetClassyName() );
+                    }
+
+                } else if( matches.Length > 1 ) {
+                    player.ManyMatchesMessage( "player", matches );
+
+                } else {
+                    player.NoPlayerMessage( playerName );
+                }
+            } else {
+                cdUnmute.PrintUsage( player );
             }
         }
         #endregion
