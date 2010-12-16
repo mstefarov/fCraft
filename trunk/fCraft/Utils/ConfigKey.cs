@@ -73,6 +73,7 @@ namespace fCraft {
         IRCMessageColor,
         IRCDelay,
         IRCThreads,
+        IRCUseColor,
 
         RelayAllBlockUpdates,
         AutomaticUpdates,

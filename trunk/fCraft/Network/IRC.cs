@@ -391,20 +391,36 @@ namespace fCraft {
         }
 
         internal static void PlayerConnectedHandler( Session session, ref bool cancel ) {
+            string message = String.Format( "{0}{1}* {2}{1} connected. ",
+                                            Color.IRCBold,
+                                            Color.Sys,
+                                            session.player.GetClassyName() );
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
-                SendToAllChannels( Color.IRCBold + Color.Warning + "* " + session.player.GetClassyName() + Color.Warning + " connected." );
+                SendToAllChannels( message );
             }
         }
 
         internal static void PlayerDisconnectedHandler( Session session ) {
+            string message = String.Format( "{0}{1}* {2}{1} left the server.",
+                                            Color.IRCBold,
+                                            Color.Sys,
+                                            session.player.GetClassyName() );
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) && session.player != null ) {
-                SendToAllChannels( Color.IRCBold + Color.Warning + "* " + session.player.GetClassyName() + Color.Warning + " left the server." );
+                SendToAllChannels( message );
             }
         }
 
         internal static void PlayerKickedHandler( Player player, Player kicker, string reason ) {
+            string message = String.Format( "{0}{1}* {2}{1} was kicked by {3} {1}. ",
+                                            Color.IRCBold,
+                                            Color.Warning,
+                                            player.GetClassyName(),
+                                            kicker.GetClassyName() );
+            if( !String.IsNullOrEmpty( reason ) ) {
+                message += ". Reason: " + reason;
+            }
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
-                SendToAllChannels( Color.IRCBold + Color.Warning + "* " + player.GetClassyName() + Color.Warning + " was kicked by " + kicker.GetClassyName() + Color.Warning + ". Reason: " + reason );
+                SendToAllChannels( message );
             }
         }
 
@@ -444,7 +460,11 @@ namespace fCraft {
 
 
         public static void SendToAllChannels( string line ) {
-            line = Color.ToIRCColorCodes( line );
+            if( Config.GetBool( ConfigKey.IRCUseColor ) ) {
+                line = Color.ToIRCColorCodes( line );
+            } else {
+                line = nonPrintableChars.Replace( line, "" ).Trim();
+            }
             for( int i = 0; i < channelNames.Length; i++ ) {
                 SendToAny( IRCCommands.Privmsg( channelNames[i], line ) );
             }
