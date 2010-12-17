@@ -210,7 +210,7 @@ namespace fCraft {
         public static string ToIRCColorCodes( string input ) {
             StringBuilder sb = new StringBuilder( input );
             foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {
-                sb.Replace( code.Key, '\u0003' + ((int)code.Value).ToString() );
+                sb.Replace( code.Key, '\u0003' + ((int)code.Value).ToString().PadLeft( 2, '0' ) );
             }
             return sb.ToString();
         }
