@@ -94,7 +94,7 @@ namespace fCraft {
         // load info from file
         public PlayerInfo( string[] fields ) {
             name = fields[0];
-            if( String.IsNullOrEmpty(fields[1]) || !IPAddress.TryParse( fields[1], out lastIP ) ) { // LEGACY
+            if( String.IsNullOrEmpty( fields[1] ) || !IPAddress.TryParse( fields[1], out lastIP ) ) { // LEGACY
                 lastIP = IPAddress.None;
             }
 
@@ -103,29 +103,29 @@ namespace fCraft {
                 rank = RankList.DefaultRank;
                 //Logger.Log( "PlayerInfo: Could not parse class for player {0}. Setting to default ({1}).", LogType.Error, name, rank.Name );
             }
-            if( fields[3] != "-" && !String.IsNullOrEmpty(fields[3]) ) rankChangeDate = DateTime.Parse( fields[3] ); // LEGACY
+            if( fields[3] != "-" && !String.IsNullOrEmpty( fields[3] ) ) rankChangeDate = DateTime.Parse( fields[3] ); // LEGACY
             rankChangedBy = fields[4];
             if( rankChangedBy == "-" ) rankChangedBy = "";
 
             banned = (fields[5] == "b");
 
             // ban information
-            if( fields[6] != "-" && !String.IsNullOrEmpty(fields[6]) && DateTime.TryParse( fields[6], out banDate ) ) {
+            if( fields[6] != "-" && !String.IsNullOrEmpty( fields[6] ) && DateTime.TryParse( fields[6], out banDate ) ) {
                 bannedBy = fields[7];
                 banReason = Unescape( fields[10] );
                 if( banReason == "-" ) banReason = "";
             }
 
             // unban information
-            if( fields[8] != "-" && !String.IsNullOrEmpty(fields[8]) && DateTime.TryParse( fields[8], out unbanDate ) ) {
+            if( fields[8] != "-" && !String.IsNullOrEmpty( fields[8] ) && DateTime.TryParse( fields[8], out unbanDate ) ) {
                 unbannedBy = fields[9];
                 unbanReason = Unescape( fields[11] );
                 if( unbanReason == "-" ) unbanReason = "";
             }
 
             // failed logins
-            if( fields[12] != "-" && !String.IsNullOrEmpty(fields[12]) ) lastFailedLoginDate = DateTime.Parse( fields[12] ); // LEGACY
-            if( fields[13] == "-" || String.IsNullOrEmpty(fields[13]) || !IPAddress.TryParse( fields[13], out lastFailedLoginIP ) ) { // LEGACY
+            if( fields[12] != "-" && !String.IsNullOrEmpty( fields[12] ) ) lastFailedLoginDate = DateTime.Parse( fields[12] ); // LEGACY
+            if( fields[13] == "-" || String.IsNullOrEmpty( fields[13] ) || !IPAddress.TryParse( fields[13], out lastFailedLoginIP ) ) { // LEGACY
                 lastFailedLoginIP = IPAddress.None;
             }
             failedLoginCount = Int32.Parse( fields[14] );
@@ -412,7 +412,7 @@ namespace fCraft {
             }
             sb.Append( name );
             if( banned ) {
-                sb.Append( '*' );
+                sb.Append( Color.Warning ).Append( "*" );
             }
             return sb.ToString();
         }
