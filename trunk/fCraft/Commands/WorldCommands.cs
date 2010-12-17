@@ -16,11 +16,14 @@ namespace fCraft {
             CommandList.RegisterCommand( cdWorldMain );
             CommandList.RegisterCommand( cdWorldAccess );
             CommandList.RegisterCommand( cdWorldBuild );
-            CommandList.RegisterCommand( cdWorldList );
+            CommandList.RegisterCommand( cdWorlds );
             CommandList.RegisterCommand( cdWorldLoad );
             CommandList.RegisterCommand( cdWorldRename );
             CommandList.RegisterCommand( cdWorldRemove );
             CommandList.RegisterCommand( cdWorldFlush );
+
+            CommandList.RegisterCommand( cdWorldHide );
+            CommandList.RegisterCommand( cdWorldUnhide );
 
             CommandList.RegisterCommand( cdGenerate );
 
@@ -28,6 +31,85 @@ namespace fCraft {
             CommandList.RegisterCommand( cdLockAll );
             CommandList.RegisterCommand( cdUnlock );
             CommandList.RegisterCommand( cdUnlockAll );
+        }
+
+
+        static CommandDescriptor cdWorldHide = new CommandDescriptor {
+            name = "whide",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.ManageWorlds },
+            usage = "/whide WorldName",
+            help = "Hides the specified world from the &H/worlds&S list. " +
+                   "Hidden worlds can be seen by typing &H/worlds all",
+            handler = WorldHide
+        };
+
+        internal static void WorldHide( Player player, Command cmd ) {
+            string worldName = cmd.Next();
+            if( worldName == null ) {
+                cdWorldAccess.PrintUsage( player );
+                return;
+            }
+
+            World world;
+            World[] worlds = Server.FindWorlds( worldName );
+            if( worlds.Length == 0 ) {
+                player.NoWorldMessage( worldName );
+                return;
+            } else if( worlds.Length > 1 ) {
+                player.ManyMatchesMessage( "world", worlds );
+                return;
+            } else {
+                world = worlds[0];
+            }
+
+            if( world.isHidden ) {
+                player.Message( "World \"{0}&S\" is already hidden.", world.GetClassyName() );
+            } else {
+                player.Message( "World \"{0}&S\" is now hidden.", world.GetClassyName() );
+                world.isHidden = true;
+                Server.SaveWorldList();
+            }
+        }
+
+
+
+        static CommandDescriptor cdWorldUnhide = new CommandDescriptor {
+            name = "wunhide",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.ManageWorlds },
+            usage = "/wunhide WorldName",
+            help = "Unhides the specified world from the &H/worlds&S list. " +
+                   "Hidden worlds can be listed by typing &H/worlds all",
+            handler = WorldUnhide
+        };
+
+        internal static void WorldUnhide( Player player, Command cmd ) {
+            string worldName = cmd.Next();
+            if( worldName == null ) {
+                cdWorldAccess.PrintUsage( player );
+                return;
+            }
+
+            World world;
+            World[] worlds = Server.FindWorlds( worldName );
+            if( worlds.Length == 0 ) {
+                player.NoWorldMessage( worldName );
+                return;
+            } else if( worlds.Length > 1 ) {
+                player.ManyMatchesMessage( "world", worlds );
+                return;
+            } else {
+                world = worlds[0];
+            }
+
+            if( world.isHidden ) {
+                player.Message( "World \"{0}&S\" is no longer hidden.", world.GetClassyName() );
+                world.isHidden = false;
+                Server.SaveWorldList();
+            } else {
+                player.Message( "World \"{0}&S\" is not hidden.", world.GetClassyName() );
+            }
         }
 
 
@@ -412,40 +494,57 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdWorldList = new CommandDescriptor {
+        static CommandDescriptor cdWorlds = new CommandDescriptor {
             name = "worlds",
             consoleSafe = true,
             aliases = new string[] { "maps", "levels" },
-            usage = "/worlds [all]",
+            usage = "/worlds [all|hidden]",
             help = "Shows a list of worlds available for you to join. " +
-                   "If the optional \"all\" is added, also shows unavailable (restricted) worlds.",
-            handler = WorldList
+                   "If the optional \"all\" is added, also shows unavailable (restricted) worlds. " +
+                   "If \"hidden\" is added, shows only hidden and inaccessible worlds.",
+            handler = Worlds
         };
 
-        internal static void WorldList( Player player, Command cmd ) {
-            bool listAll = (cmd.Next() != null);
+        internal static void Worlds( Player player, Command cmd ) {
+            string param = cmd.Next();
+            bool listVisible = true,
+                 listHidden = false;
+            if( !String.IsNullOrEmpty( param ) ) {
+                if( param[0] == 'a' || param[0] == 'A' ) {
+                    listHidden = true;
+                } else if( param[0] == 'h' || param[0] == 'H' ) {
+                    listVisible = false;
+                    listHidden = true;
+                } else {
+                    cdWorlds.PrintUsage( player );
+                    return;
+                }
+            }
+
             StringBuilder sb = new StringBuilder();
             bool first = true;
             int count = 0;
 
             lock( Server.worldListLock ) {
                 foreach( World world in Server.worlds.Values ) {
-                    if( world.isHidden ) continue;
-                    if( player.CanJoin( world ) || listAll ) {
+                    bool visible = player.CanJoin( world ) && !world.isHidden;
+                    if( (visible && listVisible) || (!visible && listHidden) ) {
                         if( !first ) {
                             sb.Append( ", " );
                         }
                         sb.Append( world.GetClassyName() );
                         count++;
+                        first = false;
                     }
-                    first = false;
                 }
             }
 
-            if( listAll ) {
-                player.MessagePrefixed( "&S    ", "There are " + count + " worlds: " + sb.ToString() );
+            if( listVisible && !listHidden ) {
+                player.MessagePrefixed( "&S   ", "There are " + count + " available worlds: " + sb.ToString() );
+            } else if( listHidden && !listVisible ) {
+                player.MessagePrefixed( "&S   ", "There are " + count + " hidden worlds: " + sb.ToString() );
             } else {
-                player.MessagePrefixed( "&S    ", "There are " + count + " available worlds: " + sb.ToString() );
+                player.MessagePrefixed( "&S   ", "There are " + count + " worlds total: " + sb.ToString() );
             }
         }
 

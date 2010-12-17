@@ -384,20 +384,21 @@ namespace fCraft {
                 Player[] targets = Server.FindPlayers( player, name );
                 if( targets.Length == 1 ) {
                     Player target = targets[0];
-                    if( target.info.timesKicked > 0 ) {
-                        player.Message( "Warning: {0}&S has been kicked {1} times before.",
-                                        target.GetClassyName(), target.info.timesKicked );
-                        if( target.info.lastKickDate != DateTime.MinValue ) {
-                            player.Message( "Most recent kick was {0} ago, by {1}.",
-                                            DateTime.Now.Subtract( target.info.lastKickDate ).ToCompactString(),
-                                            target.info.lastKickBy );
-                        }
-                        if( target.info.lastKickReason.Length > 0 ) {
-                            player.Message( "Most recent kick reason was: {0}",
-                                            target.info.lastKickReason );
+                    if( DoKick( player, target, msg, false ) ) {
+                        if( target.info.timesKicked > 0 ) {
+                            player.Message( "Warning: {0}&S has been kicked {1} times before.",
+                                            target.GetClassyName(), target.info.timesKicked );
+                            if( target.info.lastKickDate != DateTime.MinValue ) {
+                                player.Message( "Most recent kick was {0} ago, by {1}.",
+                                                DateTime.Now.Subtract( target.info.lastKickDate ).ToCompactString(),
+                                                target.info.lastKickBy );
+                            }
+                            if( target.info.lastKickReason.Length > 0 ) {
+                                player.Message( "Most recent kick reason was: {0}",
+                                                target.info.lastKickReason );
+                            }
                         }
                     }
-                    DoKick( player, target, msg, false );
                 } else if( targets.Length > 1 ) {
                     player.ManyMatchesMessage( "player", targets );
                 } else {

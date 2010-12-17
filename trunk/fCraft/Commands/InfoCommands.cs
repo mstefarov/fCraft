@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -364,7 +365,7 @@ namespace fCraft {
                 }
 
                 player.MessagePrefixed( HelpPrefix, sb.ToString() );
-                
+
                 if( descriptor.permissions != null && descriptor.permissions.Length > 0 ) {
                     player.NoAccessMessage( descriptor.permissions );
                 }
@@ -455,7 +456,7 @@ namespace fCraft {
             } else {
                 if( target != null ) {
                     if( target.isHidden ) {
-                        player.Message( "About {0}&S: Online (hidden) from {1}",
+                        player.Message( "About {0}&S: HIDDEN. Online from {1}",
                                         info.GetClassyName(),
                                         info.lastIP );
                     } else {
@@ -492,9 +493,42 @@ namespace fCraft {
                 player.Message( "  Nick is {0}BANNED&S (but IP isn't). See &H/baninfo", Color.Red );
             }
 
+
+            // Show alts
+            List<PlayerInfo> altNames = new List<PlayerInfo>();
+            int bannedAltCount = 0;
+            foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( info.lastIP, 25 ) ) {
+                if( playerFromSameIP != info ) {
+                    altNames.Add( playerFromSameIP );
+                    if( playerFromSameIP.banned ) {
+                        bannedAltCount++;
+                    }
+                }
+            }
+
+            if( altNames.Count > 0 ) {
+                if( bannedAltCount > 0 ) {
+                    player.Message( "  {0} accounts ({1} banned) share this IP: {2}",
+                                    altNames.Count,
+                                    bannedAltCount,
+                                    PlayerInfo.PlayerInfoArrayToString( altNames.ToArray() ) );
+                } else {
+                    player.Message( "  {0} accounts share this IP: {1}",
+                                    altNames.Count,
+                                    PlayerInfo.PlayerInfoArrayToString( altNames.ToArray() ) );
+                }
+            }
+
+
             // Stats
-            if( info.blocksDrawn > 1000000 ) {
-                player.Message( "  Built {0} and deleted {1} blocks, drew {2}k blocks, wrote {3} messages.",
+            if( info.blocksDrawn > 500000000 ) {
+                player.Message( "  Built {0} and deleted {1} blocks, drew {2}M blocks, wrote {3} messages.",
+                                info.blocksBuilt,
+                                info.blocksDeleted,
+                                info.blocksDrawn / 1000000,
+                                info.linesWritten );
+            } else if( info.blocksDrawn > 500000 ) {
+                player.Message( "  Built {0} and deleted {1} blocks, drew {2}K blocks, wrote {3} messages.",
                                 info.blocksBuilt,
                                 info.blocksDeleted,
                                 info.blocksDrawn / 1000,
@@ -511,6 +545,7 @@ namespace fCraft {
                                 info.blocksDeleted,
                                 info.linesWritten );
             }
+
 
             // More stats
             if( info.timesBannedOthers > 0 || info.timesKickedOthers > 0 ) {
@@ -538,6 +573,7 @@ namespace fCraft {
                     player.Message( "  Got kicked {0} times", info.timesKicked );
                 }
             }
+
 
             // Promotion/demotion
             if( !String.IsNullOrEmpty( info.rankChangedBy ) ) {
