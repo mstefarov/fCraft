@@ -97,7 +97,7 @@ namespace fCraft {
                 }
             }
             num = rand.Next( min, max + 1 );
-            Server.SendToAll( "{0}{1} rolled {1} ({2}...{3})",
+            Server.SendToAll( "{0}{1} rolled {2} ({3}...{4})",
                               player.GetClassyName(), Color.Silver, num, min, max );
         }
 
