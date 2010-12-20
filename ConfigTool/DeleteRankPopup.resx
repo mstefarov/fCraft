@@ -119,7 +119,7 @@
   </resheader>
   <data name="lWarning.Text" xml:space="preserve">
     <value>To preserve compatibility with older files (player database, world/zone permissions,
-etc) it is recommended that you specify a substitute class. This will allow fCraft to
-convert all references to the "{0}" class to the specified still-existing class.</value>
+etc) it is recommended that you specify a substitute rank. This will allow fCraft to
+convert all references to the "{0}" rank to the specified still-existing rank.</value>
   </data>
 </root>

@@ -355,9 +355,9 @@ namespace fCraft {
         }
 
 
-        public void ProcessRankChange( Rank newClass, Player changer, string reason, RankChangeType type ) {
+        public void ProcessRankChange( Rank newRank, Player changer, string reason, RankChangeType type ) {
             previousRank = rank;
-            rank = newClass;
+            rank = newRank;
             rankChangeDate = DateTime.Now;
             rankChangedBy = changer.name;
             rankChangeReason = reason;

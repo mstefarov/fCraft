@@ -602,7 +602,7 @@ namespace fCraft {
                     }
                 }
             } else {
-                player.Message( "  Class is {0}&S (default).",
+                player.Message( "  Rank is {0}&S (default).",
                                 info.rank.GetClassyName() );
             }
 

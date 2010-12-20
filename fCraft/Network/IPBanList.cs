@@ -9,15 +9,15 @@ namespace fCraft {
     public static class IPBanList {
 
         static SortedDictionary<string, IPBanInfo> bans = new SortedDictionary<string, IPBanInfo>();
-        const string BanFile = "ipbans.txt",
+        const string BanFileName = "ipbans.txt",
                      Header = "IP,bannedBy,banDate,banReason,playerName,attempts,lastAttemptName,lastAttemptDate";
         static object locker = new object();
         public static bool isLoaded;
 
 
         internal static void Load() {
-            if( File.Exists( BanFile ) ) {
-                using( StreamReader reader = File.OpenText( BanFile ) ) {
+            if( File.Exists( BanFileName ) ) {
+                using( StreamReader reader = File.OpenText( BanFileName ) ) {
                     reader.ReadLine(); // header
                     while( !reader.EndOfStream ) {
                         string[] fields = reader.ReadLine().Split( ',' );
@@ -47,9 +47,11 @@ namespace fCraft {
 
         internal static void Save() {
             Logger.Log( "IPBanList.Save: Saving IP ban list ({0} records).", LogType.Debug, bans.Count );
-            string tempFile = BanFile + ".temp";
+            string tempBanFileName = BanFileName + ".temp";
+            string backupBanFileName = BanFileName + ".backup";
+
             lock( locker ) {
-                using( StreamWriter writer = File.CreateText( tempFile ) ) {
+                using( StreamWriter writer = File.CreateText( tempBanFileName ) ) {
                     writer.WriteLine( Header );
                     foreach( IPBanInfo entry in bans.Values ) {
                         writer.WriteLine( entry.Serialize() );
@@ -57,10 +59,10 @@ namespace fCraft {
                 }
             }
             try {
-                if( File.Exists( BanFile ) ) {
-                    File.Replace( tempFile, BanFile, null, true );
+                if( File.Exists( BanFileName ) ) {
+                    File.Replace( tempBanFileName, BanFileName, backupBanFileName, true );
                 } else {
-                    File.Move( tempFile, BanFile );
+                    File.Move( tempBanFileName, BanFileName );
                 }
             } catch( Exception ex ) {
                 Logger.Log( "IPBanList.Save: An error occured while trying to save ban list file: " + ex, LogType.Error );

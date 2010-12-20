@@ -11,10 +11,10 @@ namespace fCraft {
     enum MessageType {
         Chat,
         PrivateChat,
-        ClassChat,
+        RankChat,
         Command,
-        Invalid,
-        Confirmation
+        Confirmation,
+        Invalid
     }
 
     /// <summary>
@@ -145,7 +145,7 @@ namespace fCraft {
         }
 
 
-        // Determines the type of message (Command, ClassChat, PrivateChat, Chat, or Invalid)
+        // Determines the type of message (Command, RankChat, PrivateChat, Chat, Confirmation, or Invalid)
         internal static MessageType GetMessageType( string message ) {
             if( message == null || message.Length == 0 ) return MessageType.Invalid;
             if( message.Equals( "/ok", StringComparison.OrdinalIgnoreCase ) ) return MessageType.Confirmation;
@@ -162,7 +162,7 @@ namespace fCraft {
                     if( message.Length < 5 || message[2] == ' ' ) {
                         return MessageType.Invalid;
                     }
-                    return MessageType.ClassChat;
+                    return MessageType.RankChat;
                 }
                 return MessageType.PrivateChat;
             }

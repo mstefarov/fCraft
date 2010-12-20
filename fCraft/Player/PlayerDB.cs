@@ -27,7 +27,7 @@ namespace fCraft {
         }
 
 
-        public const string DBFile = "PlayerDB.txt",
+        public const string DBFileName = "PlayerDB.txt",
                             Header = " fCraft PlayerDB | Row format: " +
                                      "playerName,lastIP,rank,rankChangeDate,rankChangeBy," +
                                      "banStatus,banDate,bannedBy,unbanDate,unbannedBy," +
@@ -62,9 +62,9 @@ namespace fCraft {
 
 
 
-            if( File.Exists( DBFile ) ) {
+            if( File.Exists( DBFileName ) ) {
                 Stopwatch sw = Stopwatch.StartNew();
-                using( StreamReader reader = File.OpenText( DBFile ) ) {
+                using( StreamReader reader = File.OpenText( DBFileName ) ) {
 
                     string header = reader.ReadLine(); // header
                     int maxIDField;
@@ -117,21 +117,22 @@ namespace fCraft {
 
         public static void Save() {
             Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count() );
-            string tempFile = DBFile + ".temp";
+            string tempDBFileName = DBFileName + ".temp";
+            string backupDBFileName = DBFileName + ".backup";
 
             PlayerInfo[] listCopy = GetPlayerListCopy();
 
-            using( StreamWriter writer = File.CreateText( tempFile ) ) {
+            using( StreamWriter writer = File.CreateText( tempDBFileName ) ) {
                 writer.WriteLine( MaxID + Header );
                 foreach( PlayerInfo entry in listCopy ) {
                     writer.WriteLine( entry.Serialize() );
                 }
             }
             try {
-                if( File.Exists( DBFile ) ) {
-                    File.Replace( tempFile, DBFile, null, true );
+                if( File.Exists( DBFileName ) ) {
+                    File.Replace( tempDBFileName, DBFileName, backupDBFileName, true );
                 } else {
-                    File.Move( tempFile, DBFile );
+                    File.Move( tempDBFileName, DBFileName );
                 }
             } catch( Exception ex ) {
                 Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );

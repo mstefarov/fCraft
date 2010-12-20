@@ -469,8 +469,8 @@ namespace fCraft {
             }
 
             // Parse rank name
-            Rank newClass = RankList.FindRank( newRankName );
-            if( newClass == null ) {
+            Rank newRank = RankList.FindRank( newRankName );
+            if( newRank == null ) {
                 player.NoRankMessage( newRankName );
                 return;
             }
@@ -491,13 +491,13 @@ namespace fCraft {
                 }
                 if( Player.IsValidName( name ) ) {
                     player.Message( "Warning: player \"{0}\" is not in the database (possible typo)", name );
-                    info = PlayerDB.AddFakeEntry( name, (newClass > RankList.DefaultRank ? RankChangeType.Promoted : RankChangeType.Demoted) );
+                    info = PlayerDB.AddFakeEntry( name, (newRank > RankList.DefaultRank ? RankChangeType.Promoted : RankChangeType.Demoted) );
                 } else {
                     player.Message( "Player not found. Please specify a valid name." );
                 }
             }
 
-            DoChangeRank( player, info, target, newClass, cmd.NextAll(), false, false );
+            DoChangeRank( player, info, target, newRank, cmd.NextAll(), false, false );
         }
 
 
@@ -725,7 +725,7 @@ namespace fCraft {
         static CommandDescriptor cdImportRanks = new CommandDescriptor {
             name = "importranks",
             permissions = new Permission[] { Permission.Import, Permission.Promote, Permission.Demote },
-            usage = "/importranks SoftwareName File ClassToAssign",
+            usage = "/importranks SoftwareName File RankToAssign",
             help = "Imports player list from formats used by other servers. " +
                    "All players listed in the specified file are added to PlayerDB with the specified rank. " +
                    "Currently only MCSharp/MCZall files are supported.",
@@ -751,8 +751,8 @@ namespace fCraft {
                 return;
             }
 
-            Rank targetClass = RankList.ParseRank( rankName );
-            if( targetClass == null ) {
+            Rank targetRank = RankList.ParseRank( rankName );
+            if( targetRank == null ) {
                 player.NoRankMessage( rankName );
                 return;
             }
@@ -789,7 +789,7 @@ namespace fCraft {
                     info = PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
                 }
                 Player target = Server.FindPlayerExact( info.name );
-                DoChangeRank( player, info, target, targetClass, reason, silent, false );
+                DoChangeRank( player, info, target, targetRank, reason, silent, false );
             }
 
             PlayerDB.Save();

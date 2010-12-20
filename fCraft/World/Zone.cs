@@ -28,7 +28,7 @@ namespace fCraft {
         }
 
         void UpdatePlayerLists() {
-            lock( locker ) {
+            lock( playerListLock ) {
                 ZonePlayerList newLists = new ZonePlayerList();
                 newLists.included = includedPlayers.Values.ToArray();
                 newLists.excluded = excludedPlayers.Values.ToArray();
@@ -36,16 +36,18 @@ namespace fCraft {
             }
         }
 
-        object locker = new object();
+
+        object playerListLock = new object();
 
         public Rank rank;
 
         public DateTime createdDate, editedDate;
         public PlayerInfo createdBy, editedBy;
 
+
         // returns the PREVIOUS state of the player
         public ZoneOverride Include( PlayerInfo info ) {
-            lock( locker ) {
+            lock( playerListLock ) {
                 if( includedPlayers.ContainsValue( info ) ) {
                     UpdatePlayerLists();
                     return ZoneOverride.Allow;
@@ -63,7 +65,7 @@ namespace fCraft {
 
         // returns the PREVIOUS state of the player
         public ZoneOverride Exclude( PlayerInfo info ) {
-            lock( locker ) {
+            lock( playerListLock ) {
                 if( excludedPlayers.ContainsValue( info ) ) {
                     UpdatePlayerLists();
                     return ZoneOverride.Deny;
@@ -128,7 +130,7 @@ namespace fCraft {
 
 
         public string Serialize() {
-            lock( locker ) {
+            lock( playerListLock ) {
                 string xheader;
                 if( createdBy != null ) {
                     xheader = createdBy.name + " " + createdDate.ToCompactString() + " ";

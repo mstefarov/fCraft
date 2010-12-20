@@ -16,8 +16,14 @@ namespace fCraft {
     public delegate void PlayerChangedBlockEventHandler( World world, ref BlockUpdate update, ref bool cancel );
     public delegate void PlayerSentMessageEventHandler( Player player, World world, ref string message, ref bool cancel );
 
-    public delegate void RankChangedEventHandler( PlayerInfo target, Player player, Rank oldClass, Rank newClass, ref bool cancel );
 
+    public delegate void RankChangedEventHandler( PlayerInfo target, Player player, Rank oldRank, Rank newRank, ref bool cancel );
+
+    /// <summary>
+    /// Simple event without parameters.
+    /// Used by Server (OnInit, OnStart, OnShutdownBegin, OnShutdownEnd), and World (OnLoaded, OnUnloaded).
+    /// </summary>
     public delegate void SimpleEventHandler();
+
     public delegate void PlayerListChangedHandler( string[] newPlayerList );
 }

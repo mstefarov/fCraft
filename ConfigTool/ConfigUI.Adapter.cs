@@ -17,9 +17,9 @@ namespace ConfigTool {
             Server.ResetWorkingDirectory();
             Server.CheckMapDirectory();
 
-            if( !File.Exists( "worlds.xml" ) && !File.Exists( Config.ConfigFile ) ) {
+            if( !File.Exists( "worlds.xml" ) && !File.Exists( Config.ConfigFileName ) ) {
                 MessageBox.Show( "Configuration (config.xml) and world list (worlds.xml) were not found. Using defaults." );
-            } else if( !File.Exists( Config.ConfigFile ) ) {
+            } else if( !File.Exists( Config.ConfigFileName ) ) {
                 MessageBox.Show( "Configuration (config.xml) was not found. Using defaults." );
             } else if( !File.Exists( "worlds.xml" ) ) {
                 MessageBox.Show( "World list (worlds.xml) was not found. Assuming 0 worlds." );
@@ -94,7 +94,7 @@ namespace ConfigTool {
             tServerName.Text = Config.GetString( ConfigKey.ServerName );
             tMOTD.Text = Config.GetString( ConfigKey.MOTD );
             nMaxPlayers.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.MaxPlayers ) );
-            FillRankList( cDefaultRank, "(lowest class)" );
+            FillRankList( cDefaultRank, "(lowest rank)" );
             cDefaultRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.DefaultRank ) ) );
             cPublic.SelectedIndex = Config.GetBool( ConfigKey.IsPublic ) ? 0 : 1;
             nPort.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.Port ) );
@@ -149,7 +149,7 @@ namespace ConfigTool {
         void ApplyTabWorlds() {
             if( rankNameList == null ) {
                 rankNameList = new BindingList<string>();
-                rankNameList.Add( WorldListEntry.DefaultClassOption );
+                rankNameList.Add( WorldListEntry.DefaultRankOption );
                 foreach( Rank rank in RankList.Ranks ) {
                     rankNameList.Add( rank.ToComboBoxOption() );
                 }
@@ -163,7 +163,7 @@ namespace ConfigTool {
             } else {
                 //dgvWorlds.DataSource = null;
                 rankNameList.Clear();
-                rankNameList.Add( WorldListEntry.DefaultClassOption );
+                rankNameList.Add( WorldListEntry.DefaultRankOption );
                 foreach( Rank rank in RankList.Ranks ) {
                     rankNameList.Add( rank.ToComboBoxOption() );
                 }
@@ -174,7 +174,7 @@ namespace ConfigTool {
                 //dgvWorlds.DataSource = worlds;
             }
 
-            FillRankList( cDefaultBuildRank, "(lowest class)" );
+            FillRankList( cDefaultBuildRank, "(lowest rank)" );
             cDefaultBuildRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.DefaultBuildRank ) ) );
         }
 
@@ -206,7 +206,7 @@ namespace ConfigTool {
             xAnnounceKickAndBanReasons.Checked = Config.GetBool( ConfigKey.AnnounceKickAndBanReasons );
             xAnnounceRankChanges.Checked = Config.GetBool( ConfigKey.AnnounceRankChanges );
 
-            FillRankList( cPatrolledRank, "(lowest class)" );
+            FillRankList( cPatrolledRank, "(lowest rank)" );
             cPatrolledRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.PatrolledRank ) ) );
         }
 
@@ -283,6 +283,9 @@ namespace ConfigTool {
             colorIRC = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.IRCMessageColor ) );
             ApplyColor( bColorIRC, colorIRC );
             fCraft.Color.IRC = fCraft.Color.Parse( colorIRC );
+
+            xIRCUseColor.Checked = Config.GetBool( ConfigKey.IRCUseColor );
+            xIRCBotAnnounceServerEvents.Checked = Config.GetBool( ConfigKey.IRCBotAnnounceServerEvents );
         }
 
 
@@ -447,9 +450,12 @@ namespace ConfigTool {
 
             Config.SetValue( ConfigKey.IRCBotAnnounceIRCJoins, xIRCBotAnnounceIRCJoins.Checked );
             Config.SetValue( ConfigKey.IRCBotAnnounceServerJoins, xIRCBotAnnounceServerJoins.Checked );
+            Config.SetValue( ConfigKey.IRCBotAnnounceServerEvents, xIRCBotAnnounceServerEvents.Checked );
             Config.SetValue( ConfigKey.IRCBotForwardFromIRC, xIRCBotForwardFromIRC.Checked );
             Config.SetValue( ConfigKey.IRCBotForwardFromServer, xIRCBotForwardFromServer.Checked );
+
             Config.SetValue( ConfigKey.IRCMessageColor, fCraft.Color.GetName( colorIRC ) );
+            Config.SetValue( ConfigKey.IRCUseColor, xIRCUseColor.Checked );
 
 
             // advanced
@@ -479,6 +485,8 @@ namespace ConfigTool {
 
         void SaveWorldList() {
             try {
+                string tempWorldListFileName = Server.WorldListFileName + ".tmp";
+                string backupWorldListFileName = Server.WorldListFileName + ".backup";
                 XDocument doc = new XDocument();
                 XElement root = new XElement( "fCraftWorldList" );
                 foreach( WorldListEntry world in worlds ) {
@@ -488,7 +496,8 @@ namespace ConfigTool {
                     root.Add( new XAttribute( "main", cMainWorld.SelectedItem ) );
                 }
                 doc.Add( root );
-                doc.Save( "worlds.xml" );
+                doc.Save( tempWorldListFileName );
+                File.Replace( tempWorldListFileName, Server.WorldListFileName, backupWorldListFileName );
             } catch( Exception ex ) {
                 MessageBox.Show( "An error occured while trying to save world list (worlds.xml):" + Environment.NewLine + ex );
             }

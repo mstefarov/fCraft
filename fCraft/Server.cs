@@ -31,7 +31,7 @@ namespace fCraft {
         // world list
         public static SortedDictionary<string, World> worlds = new SortedDictionary<string, World>();
         public static object worldListLock = new object();
-        const string WorldListFile = "worlds.xml";
+        public const string WorldListFileName = "worlds.xml";
         public static World mainWorld;
 
         // networking
@@ -303,7 +303,7 @@ namespace fCraft {
         #region World List Saving/Loading
 
         static bool LoadWorldList() {
-            if( File.Exists( WorldListFile ) ) {
+            if( File.Exists( WorldListFileName ) ) {
                 try {
                     LoadWorldListXML();
                 } catch( Exception ex ) {
@@ -342,7 +342,7 @@ namespace fCraft {
 
 
         static void LoadWorldListXML() {
-            XDocument doc = XDocument.Load( WorldListFile );
+            XDocument doc = XDocument.Load( WorldListFileName );
             XElement root = doc.Root;
             World firstWorld = null;
             XAttribute temp = null;
@@ -375,8 +375,8 @@ namespace fCraft {
                     if( firstWorld == null ) firstWorld = world;
                     Logger.Log( "Server.ParseWorldListXML: Loaded world \"{0}\"", LogType.Debug, worldName );
 
-                    LoadWorldClassRestriction( world, ref world.accessRank, "access", el );
-                    LoadWorldClassRestriction( world, ref world.buildRank, "build", el );
+                    LoadWorldRankRestriction( world, ref world.accessRank, "access", el );
+                    LoadWorldRankRestriction( world, ref world.buildRank, "build", el );
                 }
             }
 
@@ -398,7 +398,7 @@ namespace fCraft {
         }
 
 
-        static void LoadWorldClassRestriction( World world, ref Rank field, string fieldType, XElement element ) {
+        static void LoadWorldRankRestriction( World world, ref Rank field, string fieldType, XElement element ) {
             XAttribute temp;
             Rank rank;
             if( (temp = element.Attribute( fieldType )) != null ) {
@@ -419,26 +419,33 @@ namespace fCraft {
 
         public static void SaveWorldList() {
             // Save world list
-            lock( worldListLock ) {
+            try {
+                string tempWorldListFile = WorldListFileName + ".tmp";
+                string backupWorldListFile = WorldListFileName + ".backup";
                 XDocument doc = new XDocument();
                 XElement root = new XElement( "fCraftWorldList" );
                 XElement temp;
-                foreach( World world in worlds.Values ) {
-                    temp = new XElement( "World" );
-                    temp.Add( new XAttribute( "name", world.name ) );
-                    temp.Add( new XAttribute( "access", world.accessRank ) );
-                    temp.Add( new XAttribute( "build", world.buildRank ) );
-                    if( world.neverUnload ) {
-                        temp.Add( new XAttribute( "noUnload", true ) );
+                lock( worldListLock ) {
+                    foreach( World world in worlds.Values ) {
+                        temp = new XElement( "World" );
+                        temp.Add( new XAttribute( "name", world.name ) );
+                        temp.Add( new XAttribute( "access", world.accessRank ) );
+                        temp.Add( new XAttribute( "build", world.buildRank ) );
+                        if( world.neverUnload ) {
+                            temp.Add( new XAttribute( "noUnload", true ) );
+                        }
+                        if( world.isHidden ) {
+                            temp.Add( new XAttribute( "hidden", true ) );
+                        }
+                        root.Add( temp );
                     }
-                    if( world.isHidden ) {
-                        temp.Add( new XAttribute( "hidden", true ) );
-                    }
-                    root.Add( temp );
+                    root.Add( new XAttribute( "main", mainWorld.name ) );
                 }
-                root.Add( new XAttribute( "main", mainWorld.name ) );
                 doc.Add( root );
-                doc.Save( WorldListFile );
+                doc.Save( tempWorldListFile );
+                File.Replace( tempWorldListFile, WorldListFileName, backupWorldListFile );
+            } catch( Exception ex ) {
+                Logger.Log( "Server.SaveWorldList: An error occured while trying to save the world list: {0}", LogType.Error, ex );
             }
         }
 
@@ -748,22 +755,27 @@ namespace fCraft {
         internal static void FireURLChangeEvent( string URL ) {
             if( OnURLChanged != null ) OnURLChanged( URL );
         }
+
         internal static void FireLogEvent( string message, LogType type ) {
             if( OnLog != null ) OnLog( message, type );
         }
+
         internal static bool FirePlayerConnectedEvent( Session session ) {
             bool cancel = false;
             if( OnPlayerConnected != null ) OnPlayerConnected( session, ref cancel );
             return !cancel;
         }
-        internal static bool FirePlayerRankChange( PlayerInfo target, Player player, Rank oldClass, Rank newClass ) {
+
+        internal static bool FirePlayerRankChange( PlayerInfo target, Player player, Rank oldRank, Rank newRank ) {
             bool cancel = false;
-            if( OnRankChanged != null ) OnRankChanged( target, player, oldClass, newClass, ref cancel );
+            if( OnRankChanged != null ) OnRankChanged( target, player, oldRank, newRank, ref cancel );
             return !cancel;
         }
+
         internal static void FireWorldChangedEvent( Player player, World oldWorld, World newWorld ) {
             if( OnPlayerChangedWorld != null ) OnPlayerChangedWorld( player, oldWorld, newWorld );
         }
+
         internal static void FirePlayerListChangedEvent() {
             if( OnPlayerListChanged != null ) {
                 Player[] playerListCache = playerList;
@@ -775,6 +787,7 @@ namespace fCraft {
                 OnPlayerListChanged( list );
             }
         }
+
         internal static bool FireSentMessageEvent( Player player, ref string message ) {
             bool cancel = false;
             if( OnPlayerSentMessage != null ) {
@@ -782,6 +795,7 @@ namespace fCraft {
             }
             return !cancel;
         }
+
         internal static void FirePlayerKickedEvent( Player player, Player kicker, string reason ) {
             if( OnPlayerKicked != null ) {
                 OnPlayerKicked( player, kicker, reason );

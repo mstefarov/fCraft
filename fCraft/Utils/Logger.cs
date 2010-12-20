@@ -195,8 +195,8 @@ namespace fCraft {
                     } else {
                         sb.Append( "&exceptiontype=&exceptionmessage=&exceptiontrace=" );
                     }
-                    if( File.Exists( Config.ConfigFile ) ) {
-                        sb.Append( "&config=" ).Append( Server.UrlEncode( File.ReadAllText( Config.ConfigFile ) ) );
+                    if( File.Exists( Config.ConfigFileName ) ) {
+                        sb.Append( "&config=" ).Append( Server.UrlEncode( File.ReadAllText( Config.ConfigFileName ) ) );
                     } else {
                         sb.Append( "&config=" );
                     }

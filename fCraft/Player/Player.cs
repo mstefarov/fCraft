@@ -213,7 +213,7 @@ namespace fCraft {
                     }
                     break;
 
-                case MessageType.ClassChat:
+                case MessageType.RankChat:
                     if( !Can( Permission.Chat ) ) return;
 
                     if( IsMuted() ) {
@@ -464,13 +464,13 @@ namespace fCraft {
                     SendBlockNow( x, y, h );
                     break;
 
-                case CanPlaceResult.ClassDenied:
-                    Message( "&WYour class is not allowed to build." );
+                case CanPlaceResult.RankDenied:
+                    Message( "&WYour rank is not allowed to build." );
                     SendBlockNow( x, y, h );
                     break;
 
                 case CanPlaceResult.WorldDenied:
-                    Message( "&WYour class is not allowed to build on this world." );
+                    Message( "&WYour rank is not allowed to build on this world." );
                     SendBlockNow( x, y, h );
                     break;
 
@@ -590,7 +590,7 @@ namespace fCraft {
                         return CanPlaceResult.Allowed;
                     }
                 } else {
-                    return CanPlaceResult.ClassDenied;
+                    return CanPlaceResult.RankDenied;
                 }
 
             } else if( block == (byte)Block.Air ) {
@@ -603,7 +603,7 @@ namespace fCraft {
                         return CanPlaceResult.Allowed;
                     }
                 } else {
-                    return CanPlaceResult.ClassDenied;
+                    return CanPlaceResult.RankDenied;
                 }
 
             } else {
@@ -616,7 +616,7 @@ namespace fCraft {
                         return CanPlaceResult.Allowed;
                     }
                 } else {
-                    return CanPlaceResult.ClassDenied;
+                    return CanPlaceResult.RankDenied;
                 }
             }
         }
@@ -698,6 +698,6 @@ namespace fCraft {
         BlocktypeDenied,
         WorldDenied,
         ZoneDenied,
-        ClassDenied
+        RankDenied
     }
 }

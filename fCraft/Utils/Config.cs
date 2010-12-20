@@ -80,16 +80,18 @@ namespace fCraft {
      * 
      * 122 - r341 - Added IRCUseColor key
      * 
+     * 123 - r346 - Added IRCBotAnnounceServerEvents
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 122;
+        public const int ConfigVersion = 123;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig",
-                            ConfigFile = "config.xml";
+                            ConfigFileName = "config.xml";
         static Dictionary<ConfigKey, string> settings = new Dictionary<ConfigKey, string>();
         static Dictionary<string, ConfigKey> legacyConfigKeys = new Dictionary<string, ConfigKey>(); // LEGACY
 
@@ -100,6 +102,14 @@ namespace fCraft {
             MapPath = MapPathDefault;
             LoadDefaults();
 
+#if DEBUG
+            // TEST - ensure that all defaults are initialized
+            foreach( ConfigKey key in Enum.GetValues( typeof( ConfigKey ) ) ) {
+                if( !settings.ContainsKey( key ) )
+                    throw new Exception( "One of the ConfigKey keys is missing a default." );
+            }
+#endif
+
             legacyConfigKeys.Add( "DefaultClass".ToLower(), ConfigKey.DefaultRank );
             legacyConfigKeys.Add( "ClassColorsInChat".ToLower(), ConfigKey.RankColorsInChat );
             legacyConfigKeys.Add( "ClassColorsInWorldNames".ToLower(), ConfigKey.RankColorsInWorldNames );
@@ -108,15 +118,16 @@ namespace fCraft {
             legacyConfigKeys.Add( "PatrolledClass".ToLower(), ConfigKey.PatrolledRank );
             legacyConfigKeys.Add( "RequireClassChangeReason".ToLower(), ConfigKey.RequireRankChangeReason );
             legacyConfigKeys.Add( "AnnounceClassChanges".ToLower(), ConfigKey.AnnounceRankChanges );
-
             legacyConfigKeys.Add( "SendRedundantBlockUpdates".ToLower(), ConfigKey.RelayAllBlockUpdates );
         }
 
 
         #region Defaults
 
+        /// <summary>
+        /// Overwrites current settings with defaults
+        /// </summary>
         public static void LoadDefaults() {
-            settings.Clear();
             LoadDefaultsGeneral();
             LoadDefaultsWorlds();
             LoadDefaultsSecurity();
@@ -125,6 +136,7 @@ namespace fCraft {
             LoadDefaultsIRC();
             LoadDefaultsAdvanced();
         }
+
 
         public static void LoadDefaultsGeneral() {
             SetValue( ConfigKey.ServerName, "Minecraft custom server (fCraft)" );
@@ -203,7 +215,8 @@ namespace fCraft {
             SetValue( ConfigKey.IRCBotNick, "fBot" );
             SetValue( ConfigKey.IRCBotNetwork, "irc.esper.net" );
             SetValue( ConfigKey.IRCBotPort, 6667 );
-            SetValue( ConfigKey.IRCBotChannels, "#changeme" ); // CASE SENSITIVE!!!!!!!!!!!!!!!!!!!!! This can be multiple using csv
+            SetValue( ConfigKey.IRCBotChannels, "#changeme" ); // This can be multiple using csv
+            SetValue( ConfigKey.IRCBotAnnounceServerEvents, true );
             SetValue( ConfigKey.IRCBotAnnounceIRCJoins, false );
             SetValue( ConfigKey.IRCBotAnnounceServerJoins, false );
             SetValue( ConfigKey.IRCBotForwardFromIRC, false ); // Disabled by default
@@ -239,26 +252,31 @@ namespace fCraft {
 
         #region Loading
 
-        public static bool Load( bool skipClassList ) {
+        /// <summary>
+        /// Loads config from file.
+        /// </summary>
+        /// <param name="skipRankList">If true, skips over rank definitions.</param>
+        /// <returns>True if loading succeeded.</returns>
+        public static bool Load( bool skipRankList ) {
             // generate random salt
             bool fromFile = false;
 
             // try to load config file (XML)
             XDocument file;
-            if( File.Exists( ConfigFile ) ) {
+            if( File.Exists( ConfigFileName ) ) {
                 try {
-                    file = XDocument.Load( ConfigFile );
+                    file = XDocument.Load( ConfigFileName );
                     if( file.Root == null || file.Root.Name != ConfigRootName ) {
-                        Log( "Config.Load: Malformed or incompatible config file {0}. Loading defaults.", LogType.Warning, ConfigFile );
+                        Log( "Config.Load: Malformed or incompatible config file {0}. Loading defaults.", LogType.Warning, ConfigFileName );
                         file = new XDocument();
                         file.Add( new XElement( ConfigRootName ) );
                     } else {
-                        Log( "Config.Load: Config file {0} loaded succesfully.", LogType.Debug, ConfigFile );
+                        Log( "Config.Load: Config file {0} loaded succesfully.", LogType.Debug, ConfigFileName );
                         fromFile = true;
                     }
                 } catch( Exception ex ) {
                     Log( "Config.Load: Fatal error while loading config file {0}: {1}", LogType.FatalError,
-                                        ConfigFile, ex );
+                         ConfigFileName, ex );
                     return false;
                 }
             } else {
@@ -277,15 +295,18 @@ namespace fCraft {
                      "It is recommended that you run ConfigTool to make sure everything is in order.", LogType.Warning );
             }
 
+            // read salt
             attr = config.Attribute( "salt" );
             if( attr != null && attr.Value.Length > 0 ) {
                 Server.OldSalt = attr.Value;
             }
 
-            if( !skipClassList ) {
+            // read rank definitions
+            if( !skipRankList ) {
                 LoadRankList( config, version, fromFile );
             }
 
+            // read log options for console
             XElement consoleOptions = config.Element( "ConsoleOptions" );
             if( consoleOptions != null ) {
                 LoadLogOptions( consoleOptions, Logger.consoleOptions );
@@ -298,6 +319,7 @@ namespace fCraft {
                 Logger.consoleOptions[(int)LogType.Debug] = false;
             }
 
+            // read log options for logfile
             XElement logFileOptions = config.Element( "LogFileOptions" );
             if( logFileOptions != null ) {
                 LoadLogOptions( logFileOptions, Logger.logFileOptions );
@@ -308,27 +330,30 @@ namespace fCraft {
                 }
             }
 
-            // Load config
+            // read the rest of the keys
             string[] keyNames = Enum.GetNames( typeof( ConfigKey ) );
             foreach( XElement element in config.Elements() ) {
-                if( keyNames.Contains<string>( element.Name.ToString() ) ) {
+                string key = element.Name.ToString().ToLower();
+                if( keyNames.Contains<string>( key,StringComparer.OrdinalIgnoreCase ) ) {
                     // known key
-                    SetValue( (ConfigKey)Enum.Parse( typeof( ConfigKey ), element.Name.ToString(), true ), element.Value );
+                    SetValue( (ConfigKey)Enum.Parse( typeof( ConfigKey ), key, true ), element.Value );
 
-                } else if( legacyConfigKeys.ContainsKey( element.Name.ToString().ToLower() ) ) { // LEGACY
-                    SetValue( legacyConfigKeys[element.Name.ToString().ToLower()], element.Value );
+                } else if( legacyConfigKeys.ContainsKey( key ) ) { // LEGACY
+                    // renamed/legacy key
+                    SetValue( legacyConfigKeys[key], element.Value );
 
-                } else if( element.Name.ToString() != "ConsoleOptions" &&
-                           element.Name.ToString() != "LogFileOptions" &&
-                           element.Name.ToString() != "Classes" && // LEGACY
-                           element.Name.ToString() != "Ranks" &&
-                           element.Name.ToString() != "LegacyRankMapping" ) {
+                } else if( key != "consoleoptions" &&
+                           key != "logfileoptions" &&
+                           key != "classes" && // LEGACY
+                           key != "ranks" &&
+                           key != "legacyrankmapping" ) {
                     // unknown key
                     Log( "Unrecognized entry ignored: {0} = {1}", LogType.Debug, element.Name, element.Value );
                 }
             }
             return true;
         }
+
 
         static void LoadLogOptions( XElement el, bool[] list ) {
             for( int i = 0; i < list.Length; i++ ) {
@@ -340,29 +365,30 @@ namespace fCraft {
             }
         }
 
-        static void LoadRankList( XElement config, int version, bool fromFile ) {
 
+        static void LoadRankList( XElement config, int version, bool fromFile ) {
             XElement legacyRankMappingTag = config.Element( "LegacyRankMapping" );
             if( legacyRankMappingTag != null ) {
                 foreach( XElement rankPair in legacyRankMappingTag.Elements( "LegacyRankPair" ) ) {
-                    XAttribute fromClassID = rankPair.Attribute( "from" );
-                    XAttribute toClassID = rankPair.Attribute( "to" );
-                    if( fromClassID == null || String.IsNullOrEmpty( fromClassID.Value ) ||
-                        toClassID == null || String.IsNullOrEmpty( toClassID.Value ) ) {
+                    XAttribute fromRankID = rankPair.Attribute( "from" );
+                    XAttribute toRankID = rankPair.Attribute( "to" );
+                    if( fromRankID == null || String.IsNullOrEmpty( fromRankID.Value ) ||
+                        toRankID == null || String.IsNullOrEmpty( toRankID.Value ) ) {
                         Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
                     } else {
-                        RankList.LegacyRankMapping.Add( fromClassID.Value, toClassID.Value );
+                        RankList.LegacyRankMapping.Add( fromRankID.Value, toRankID.Value );
                     }
                 }
             }
 
-
             XElement rankList = config.Element( "Ranks" );
-            if( rankList == null ) rankList = config.Element( "Classes" ); // LEGACY
+            if( rankList == null ) 
+                rankList = config.Element( "Classes" ); // LEGACY
 
             if( rankList != null ) {
                 XElement[] rankDefinitionList = rankList.Elements( "Rank" ).ToArray();
-                if( rankDefinitionList.Length == 0 ) rankDefinitionList = rankList.Elements( "PlayerClass" ).ToArray(); // LEGACY
+                if( rankDefinitionList.Length == 0 )
+                    rankDefinitionList = rankList.Elements( "PlayerClass" ).ToArray(); // LEGACY
 
                 foreach( XElement rankDefinition in rankDefinitionList ) {
                     try {
@@ -380,14 +406,14 @@ namespace fCraft {
                 } else if( version < ConfigVersion ) { // start LEGACY code
 
                     if( version < 103 ) { // speedhack permission
-                        bool foundClassWithSpeedHackPermission = false;
+                        bool foundRankWithSpeedHackPermission = false;
                         foreach( Rank rank in RankList.RanksByID.Values ) {
                             if( rank.Can( Permission.UseSpeedHack ) ) {
-                                foundClassWithSpeedHackPermission = true;
+                                foundRankWithSpeedHackPermission = true;
                                 break;
                             }
                         }
-                        if( !foundClassWithSpeedHackPermission ) {
+                        if( !foundRankWithSpeedHackPermission ) {
                             foreach( Rank rank in RankList.RanksByID.Values ) {
                                 rank.Permissions[(int)Permission.UseSpeedHack] = true;
                             }
@@ -425,12 +451,12 @@ namespace fCraft {
                 config.Add( new XAttribute( "salt", Server.Salt ) );
             }
 
-
+            // save general settings
             foreach( KeyValuePair<ConfigKey, string> pair in settings ) {
                 config.Add( new XElement( pair.Key.ToString(), pair.Value ) );
             }
 
-
+            // save console options
             XElement consoleOptions = new XElement( "ConsoleOptions" );
             for( int i = 0; i < Logger.consoleOptions.Length; i++ ) {
                 if( Logger.consoleOptions[i] ) {
@@ -439,7 +465,7 @@ namespace fCraft {
             }
             config.Add( consoleOptions );
 
-
+            // save logfile options
             XElement logFileOptions = new XElement( "LogFileOptions" );
             for( int i = 0; i < Logger.logFileOptions.Length; i++ ) {
                 if( Logger.logFileOptions[i] ) {
@@ -448,13 +474,14 @@ namespace fCraft {
             }
             config.Add( logFileOptions );
 
-
+            // save ranks
             XElement ranksTag = new XElement( "Ranks" );
             foreach( Rank rank in RankList.Ranks ) {
                 ranksTag.Add( rank.Serialize() );
             }
             config.Add( ranksTag );
 
+            // save legacy rank mapping
             XElement legacyRankMappingTag = new XElement( "LegacyRankMapping" );
             foreach( KeyValuePair<string, string> pair in RankList.LegacyRankMapping ) {
                 XElement rankPair = new XElement( "LegacyRankPair" );
@@ -465,13 +492,16 @@ namespace fCraft {
 
 
             file.Add( config );
-            // save the settings
             try {
-                file.Save( ConfigFile );
+                // write out the changes
+                string tempConfigFileName = ConfigFileName + ".temp";
+                string backupFileName = ConfigFileName + ".backup";
+                file.Save( tempConfigFileName );
+                File.Replace( tempConfigFileName, ConfigFileName, backupFileName, true );
                 return true;
             } catch( Exception ex ) {
                 Log( "Config.Load: Fatal error while saving config file {0}: {1}", LogType.FatalError,
-                     ConfigFile, ex );
+                     ConfigFileName, ex );
                 return false;
             }
         }
@@ -754,9 +784,9 @@ namespace fCraft {
 
             // class to patrol
             if( RankList.ParseRank( settings[ConfigKey.PatrolledRank] ) != null ) {
-                World.classToPatrol = RankList.ParseRank( settings[ConfigKey.PatrolledRank] );
+                World.rankToPatrol = RankList.ParseRank( settings[ConfigKey.PatrolledRank] );
             } else {
-                World.classToPatrol = RankList.LowestRank;
+                World.rankToPatrol = RankList.LowestRank;
             }
 
             // IRC delay
