@@ -201,6 +201,8 @@
             this.tabIRC = new System.Windows.Forms.TabPage();
             this.xIRCListShowNonEnglish = new System.Windows.Forms.CheckBox();
             this.gIRCOptions = new System.Windows.Forms.GroupBox();
+            this.xIRCBotAnnounceServerEvents = new System.Windows.Forms.CheckBox();
+            this.xIRCUseColor = new System.Windows.Forms.CheckBox();
             this.lIRCNoForwardingMessage = new System.Windows.Forms.Label();
             this.xIRCBotAnnounceIRCJoins = new System.Windows.Forms.CheckBox();
             this.bColorIRC = new System.Windows.Forms.Button();
@@ -2273,6 +2275,8 @@
             // 
             // gIRCOptions
             // 
+            this.gIRCOptions.Controls.Add( this.xIRCBotAnnounceServerEvents );
+            this.gIRCOptions.Controls.Add( this.xIRCUseColor );
             this.gIRCOptions.Controls.Add( this.lIRCNoForwardingMessage );
             this.gIRCOptions.Controls.Add( this.xIRCBotAnnounceIRCJoins );
             this.gIRCOptions.Controls.Add( this.bColorIRC );
@@ -2282,15 +2286,36 @@
             this.gIRCOptions.Controls.Add( this.xIRCBotForwardFromServer );
             this.gIRCOptions.Location = new System.Drawing.Point( 8, 206 );
             this.gIRCOptions.Name = "gIRCOptions";
-            this.gIRCOptions.Size = new System.Drawing.Size( 636, 137 );
+            this.gIRCOptions.Size = new System.Drawing.Size( 636, 162 );
             this.gIRCOptions.TabIndex = 4;
             this.gIRCOptions.TabStop = false;
             this.gIRCOptions.Text = "Options";
             // 
+            // xIRCBotAnnounceServerEvents
+            // 
+            this.xIRCBotAnnounceServerEvents.AutoSize = true;
+            this.xIRCBotAnnounceServerEvents.Location = new System.Drawing.Point( 38, 109 );
+            this.xIRCBotAnnounceServerEvents.Name = "xIRCBotAnnounceServerEvents";
+            this.xIRCBotAnnounceServerEvents.Size = new System.Drawing.Size( 417, 19 );
+            this.xIRCBotAnnounceServerEvents.TabIndex = 14;
+            this.xIRCBotAnnounceServerEvents.Text = "Announce SERVER events (kicks, bans, promotions, demotions) on IRC.";
+            this.xIRCBotAnnounceServerEvents.UseVisualStyleBackColor = true;
+            // 
+            // xIRCUseColor
+            // 
+            this.xIRCUseColor.AutoSize = true;
+            this.xIRCUseColor.Enabled = false;
+            this.xIRCUseColor.Location = new System.Drawing.Point( 325, 23 );
+            this.xIRCUseColor.Name = "xIRCUseColor";
+            this.xIRCUseColor.Size = new System.Drawing.Size( 149, 19 );
+            this.xIRCUseColor.TabIndex = 13;
+            this.xIRCUseColor.Text = "Use text colors on IRC.";
+            this.xIRCUseColor.UseVisualStyleBackColor = true;
+            // 
             // lIRCNoForwardingMessage
             // 
             this.lIRCNoForwardingMessage.AutoSize = true;
-            this.lIRCNoForwardingMessage.Location = new System.Drawing.Point( 33, 110 );
+            this.lIRCNoForwardingMessage.Location = new System.Drawing.Point( 35, 137 );
             this.lIRCNoForwardingMessage.Name = "lIRCNoForwardingMessage";
             this.lIRCNoForwardingMessage.Size = new System.Drawing.Size( 567, 15 );
             this.lIRCNoForwardingMessage.TabIndex = 5;
@@ -2300,7 +2325,7 @@
             // xIRCBotAnnounceIRCJoins
             // 
             this.xIRCBotAnnounceIRCJoins.AutoSize = true;
-            this.xIRCBotAnnounceIRCJoins.Location = new System.Drawing.Point( 326, 79 );
+            this.xIRCBotAnnounceIRCJoins.Location = new System.Drawing.Point( 325, 84 );
             this.xIRCBotAnnounceIRCJoins.Name = "xIRCBotAnnounceIRCJoins";
             this.xIRCBotAnnounceIRCJoins.Size = new System.Drawing.Size( 303, 19 );
             this.xIRCBotAnnounceIRCJoins.TabIndex = 4;
@@ -2329,7 +2354,7 @@
             // xIRCBotForwardFromIRC
             // 
             this.xIRCBotForwardFromIRC.AutoSize = true;
-            this.xIRCBotForwardFromIRC.Location = new System.Drawing.Point( 38, 79 );
+            this.xIRCBotForwardFromIRC.Location = new System.Drawing.Point( 38, 84 );
             this.xIRCBotForwardFromIRC.Name = "xIRCBotForwardFromIRC";
             this.xIRCBotForwardFromIRC.Size = new System.Drawing.Size( 240, 19 );
             this.xIRCBotForwardFromIRC.TabIndex = 2;
@@ -2339,7 +2364,7 @@
             // xIRCBotAnnounceServerJoins
             // 
             this.xIRCBotAnnounceServerJoins.AutoSize = true;
-            this.xIRCBotAnnounceServerJoins.Location = new System.Drawing.Point( 326, 54 );
+            this.xIRCBotAnnounceServerJoins.Location = new System.Drawing.Point( 325, 59 );
             this.xIRCBotAnnounceServerJoins.Name = "xIRCBotAnnounceServerJoins";
             this.xIRCBotAnnounceServerJoins.Size = new System.Drawing.Size( 279, 19 );
             this.xIRCBotAnnounceServerJoins.TabIndex = 3;
@@ -2349,7 +2374,7 @@
             // xIRCBotForwardFromServer
             // 
             this.xIRCBotForwardFromServer.AutoSize = true;
-            this.xIRCBotForwardFromServer.Location = new System.Drawing.Point( 38, 54 );
+            this.xIRCBotForwardFromServer.Location = new System.Drawing.Point( 38, 59 );
             this.xIRCBotForwardFromServer.Name = "xIRCBotForwardFromServer";
             this.xIRCBotForwardFromServer.Size = new System.Drawing.Size( 240, 19 );
             this.xIRCBotForwardFromServer.TabIndex = 1;
@@ -3361,5 +3386,7 @@
         private System.Windows.Forms.Button bLogPath;
         private System.Windows.Forms.CheckBox xLogPath;
         private System.Windows.Forms.TextBox tLogPath;
+        private System.Windows.Forms.CheckBox xIRCBotAnnounceServerEvents;
+        private System.Windows.Forms.CheckBox xIRCUseColor;
     }
 }

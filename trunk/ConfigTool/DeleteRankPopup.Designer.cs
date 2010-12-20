@@ -47,7 +47,7 @@
             this.lSubstitute.Name = "lSubstitute";
             this.lSubstitute.Size = new System.Drawing.Size( 84, 13 );
             this.lSubstitute.TabIndex = 1;
-            this.lSubstitute.Text = "Substitute class:";
+            this.lSubstitute.Text = "Substitute rank:";
             // 
             // cSubstitute
             // 
@@ -94,11 +94,11 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "DeleteClassPopup";
+            this.Name = "DeleteRankPopup";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Deleting a Class";
+            this.Text = "Deleting a Rank";
             this.ResumeLayout( false );
             this.PerformLayout();
 

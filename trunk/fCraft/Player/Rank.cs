@@ -60,12 +60,12 @@ namespace fCraft {
             // Name
             XAttribute attr = el.Attribute( "name" );
             if( attr == null ) {
-                throw new RankDefinitionException( "Class definition with no name was ignored." );
+                throw new RankDefinitionException( "Rank definition with no name was ignored." );
 
             } else if( !Rank.IsValidRankName( attr.Value.Trim() ) ) {
-                throw new RankDefinitionException( "Invalid name specified for class \"{0}\". "+
-                                                   "Class names can only contain letters, digits, and underscores. "+
-                                                   "Class definition was ignored.", Name );
+                throw new RankDefinitionException( "Invalid name specified for rank \"{0}\". "+
+                                                   "Rank names can only contain letters, digits, and underscores. " +
+                                                   "Rank definition was ignored.", Name );
 
             } else {
                 // duplicate Name check is done in RankList.AddRank()
@@ -76,13 +76,13 @@ namespace fCraft {
             // ID
             attr = el.Attribute( "id" );
             if( attr == null ) {
-                Logger.Log( "PlayerClass({0}): Issued a new unique ID.", LogType.Warning, Name );
+                Logger.Log( "Rank({0}): Issued a new unique ID.", LogType.Warning, Name );
                 ID = RankList.GenerateID();
 
             } else if( !Rank.IsValidID( attr.Value.Trim() ) ) {
-                throw new RankDefinitionException( "Invalid ID specified for class \"{0}\". "+
+                throw new RankDefinitionException( "Invalid ID specified for rank \"{0}\". "+
                                                    "ID must be alphanumeric, and exactly 16 characters long. "+
-                                                   "Class definition was ignored.", Name );
+                                                   "Rank definition was ignored.", Name );
 
             } else {
                 ID = attr.Value.Trim();
@@ -99,7 +99,7 @@ namespace fCraft {
             // Color (optional)
             if( (attr = el.Attribute( "color" )) != null ) {
                 if( (Color = fCraft.Color.Parse( attr.Value )) == null ) {
-                    Logger.Log( "PlayerClass({0}): Could not parse class color. Assuming default (none).", LogType.Warning, Name );
+                    Logger.Log( "Rank({0}): Could not parse rank color. Assuming default (none).", LogType.Warning, Name );
                     Color = "";
                 }
             } else {
@@ -112,7 +112,7 @@ namespace fCraft {
                 if( Rank.IsValidPrefix( attr.Value ) ) {
                     Prefix = attr.Value;
                 } else {
-                    Logger.Log( "PlayerClass({0}): Invalid prefix format. Expecting 1 character.", LogType.Warning, Name );
+                    Logger.Log( "Rank({0}): Invalid prefix format. Expecting 1 character.", LogType.Warning, Name );
                 }
             }
 
@@ -126,11 +126,11 @@ namespace fCraft {
                         AntiGriefBlocks = value;
 
                     } else {
-                        Logger.Log( "PlayerClass({0}): Values for antiGriefBlocks in not within valid range (0-1000). Assuming default ({1}).", LogType.Warning,
+                        Logger.Log( "Rank({0}): Values for antiGriefBlocks in not within valid range (0-1000). Assuming default ({1}).", LogType.Warning,
                                     Name, AntiGriefBlocks );
                     }
                 } else {
-                    Logger.Log( "PlayerClass({0}): Could not parse the value for antiGriefBlocks. Assuming default ({1}).", LogType.Warning,
+                    Logger.Log( "Rank({0}): Could not parse the value for antiGriefBlocks. Assuming default ({1}).", LogType.Warning,
                                 Name, AntiGriefBlocks );
                 }
 
@@ -139,11 +139,11 @@ namespace fCraft {
                     if( value >= 0 && value < 100 ) {
                         AntiGriefSeconds = value;
                     } else {
-                        Logger.Log( "PlayerClass({0}): Values for antiGriefSeconds in not within valid range (0-100). Assuming default ({1}).", LogType.Warning,
+                        Logger.Log( "Rank({0}): Values for antiGriefSeconds in not within valid range (0-100). Assuming default ({1}).", LogType.Warning,
                                     Name, AntiGriefSeconds );
                     }
                 } else {
-                    Logger.Log( "PlayerClass({0}): Could not parse the value for antiGriefSeconds. Assuming default ({1}).", LogType.Warning,
+                    Logger.Log( "Rank({0}): Could not parse the value for antiGriefSeconds. Assuming default ({1}).", LogType.Warning,
                                 Name, AntiGriefSeconds );
                 }
             }
@@ -154,11 +154,11 @@ namespace fCraft {
                     if( value >= 0 && value < 100000000 ) {
                         DrawLimit = value;
                     } else {
-                        Logger.Log( "PlayerClass({0}): Values for drawLimit in not within valid range (0-100000000). Assuming default ({1}).", LogType.Warning,
+                        Logger.Log( "Rank({0}): Values for drawLimit in not within valid range (0-100000000). Assuming default ({1}).", LogType.Warning,
                                     Name, DrawLimit );
                     }
                 } else {
-                    Logger.Log( "PlayerClass({0}): Could not parse the value for drawLimit. Assuming default ({1}).", LogType.Warning,
+                    Logger.Log( "Rank({0}): Could not parse the value for drawLimit. Assuming default ({1}).", LogType.Warning,
                                 Name, DrawLimit );
                 }
             }
@@ -167,7 +167,7 @@ namespace fCraft {
 
             if( (attr = el.Attribute( "idleKickAfter" )) != null ) {
                 if( !Int32.TryParse( attr.Value, out IdleKickTimer ) ) {
-                    Logger.Log( "PlayerClass({0}): Could not parse the value for idleKickAfter. Assuming 0 (never).", LogType.Warning, Name );
+                    Logger.Log( "Rank({0}): Could not parse the value for idleKickAfter. Assuming 0 (never).", LogType.Warning, Name );
                     IdleKickTimer = 0;
                 }
             } else {
@@ -176,7 +176,7 @@ namespace fCraft {
 
             if( (attr = el.Attribute( "reserveSlot" )) != null ) {
                 if( !Boolean.TryParse( attr.Value, out ReservedSlot ) ) {
-                    Logger.Log( "PlayerClass({0}): Could not parse the value for reserveSlot. Assuming \"false\".", LogType.Warning, Name );
+                    Logger.Log( "Rank({0}): Could not parse the value for reserveSlot. Assuming \"false\".", LogType.Warning, Name );
                     ReservedSlot = false;
                 }
             } else {
@@ -198,7 +198,7 @@ namespace fCraft {
 
             // check consistency of ban permissions
             if( !Can( Permission.Ban ) && (Can( Permission.BanAll ) || Can( Permission.BanIP )) ) {
-                Logger.Log( "PlayerClass({0}): Class is allowed to BanIP and/or BanAll but not allowed to Ban. " +
+                Logger.Log( "Rank({0}): Rank is allowed to BanIP and/or BanAll but not allowed to Ban. " +
                             "Assuming that all ban permissions were ment to be off.", LogType.Warning, Name );
                 Permissions[(int)Permission.BanIP] = false;
                 Permissions[(int)Permission.BanAll] = false;
@@ -206,7 +206,7 @@ namespace fCraft {
 
             // check consistency of pantrol permissions
             if( !Can( Permission.Teleport ) && Can( Permission.Patrol ) ) {
-                Logger.Log( "PlayerClass({0}): Class is allowed to Patrol but not allowed to Teleport. " +
+                Logger.Log( "Rank({0}): Rank is allowed to Patrol but not allowed to Teleport. " +
                             "Assuming that Patrol permission was ment to be off.", LogType.Warning, Name );
                 Permissions[(int)Permission.Patrol] = false;
             }
@@ -214,16 +214,16 @@ namespace fCraft {
 
 
         public XElement Serialize() {
-            XElement classTag = new XElement( "Rank" );
-            classTag.Add( new XAttribute( "name", Name ) );
-            classTag.Add( new XAttribute( "id", ID ) );
-            classTag.Add( new XAttribute( "color", fCraft.Color.GetName( Color ) ) );
-            if( Prefix.Length > 0 ) classTag.Add( new XAttribute( "prefix", Prefix ) );
-            classTag.Add( new XAttribute( "antiGriefBlocks", AntiGriefBlocks ) );
-            classTag.Add( new XAttribute( "antiGriefSeconds", AntiGriefSeconds ) );
-            if( DrawLimit > 0 ) classTag.Add( new XAttribute( "drawLimit", DrawLimit ) );
-            if( IdleKickTimer > 0 ) classTag.Add( new XAttribute( "idleKickAfter", IdleKickTimer ) );
-            if( ReservedSlot ) classTag.Add( new XAttribute( "reserveSlot", ReservedSlot ) );
+            XElement rankTag = new XElement( "Rank" );
+            rankTag.Add( new XAttribute( "name", Name ) );
+            rankTag.Add( new XAttribute( "id", ID ) );
+            rankTag.Add( new XAttribute( "color", fCraft.Color.GetName( Color ) ) );
+            if( Prefix.Length > 0 ) rankTag.Add( new XAttribute( "prefix", Prefix ) );
+            rankTag.Add( new XAttribute( "antiGriefBlocks", AntiGriefBlocks ) );
+            rankTag.Add( new XAttribute( "antiGriefSeconds", AntiGriefSeconds ) );
+            if( DrawLimit > 0 ) rankTag.Add( new XAttribute( "drawLimit", DrawLimit ) );
+            if( IdleKickTimer > 0 ) rankTag.Add( new XAttribute( "idleKickAfter", IdleKickTimer ) );
+            if( ReservedSlot ) rankTag.Add( new XAttribute( "reserveSlot", ReservedSlot ) );
 
             XElement temp;
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
@@ -233,10 +233,10 @@ namespace fCraft {
                     if( PermissionLimits[i] != null ) {
                         temp.Add( new XAttribute( "max", GetLimit((Permission)i) ) );
                     }
-                    classTag.Add( temp );
+                    rankTag.Add( temp );
                 }
             }
-            return classTag;
+            return rankTag;
         }
 
 

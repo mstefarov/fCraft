@@ -481,7 +481,7 @@ namespace fCraft {
 
         object patrolLock = new object();
         LinkedList<Player> patrolList = new LinkedList<Player>();
-        internal static Rank classToPatrol;
+        internal static Rank rankToPatrol;
 
         public Player GetNextPatrolTarget() {
             lock( patrolLock ) {
@@ -505,7 +505,7 @@ namespace fCraft {
         }
 
         void AddPlayerForPatrol( Player player ) {
-            if( player.info.rank <= classToPatrol ) {
+            if( player.info.rank <= rankToPatrol ) {
                 lock( patrolLock ) {
                     patrolList.AddLast( player );
                 }
@@ -515,10 +515,10 @@ namespace fCraft {
         internal void CheckIfPlayerIsStillPatrollable( Player player ) {
             lock( patrolLock ) {
                 if( patrolList.Contains( player ) ) {
-                    if( player.info.rank > classToPatrol ) {
+                    if( player.info.rank > rankToPatrol ) {
                         RemovePlayerFromPatrol( player );
                     }
-                } else if( player.info.rank <= classToPatrol ) {
+                } else if( player.info.rank <= rankToPatrol ) {
                     AddPlayerForPatrol( player );
                 }
             }

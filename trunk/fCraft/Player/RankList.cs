@@ -163,7 +163,7 @@ namespace fCraft {
                 Ranks[i].Index = i;
             }
 
-            // assign nextClassUp/nextClassDown
+            // assign nextRankUp/nextRankDown
             if( Ranks.Count > 1 ) {
                 for( int i = 0; i < Ranks.Count - 1; i++ ) {
                     Ranks[i + 1].NextRankUp = Ranks[i];

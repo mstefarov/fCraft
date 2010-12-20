@@ -6,7 +6,7 @@ using fCraft;
 
 namespace ConfigTool {
     sealed class WorldListEntry {
-        public const string DefaultClassOption = "(everyone)";
+        public const string DefaultRankOption = "(everyone)";
         Map cachedMapHeader;
         internal bool loadingFailed;
 
@@ -115,7 +115,7 @@ namespace ConfigTool {
                 if( accessRank != null ) {
                     return accessRank.ToComboBoxOption();
                 } else {
-                    return DefaultClassOption;
+                    return DefaultRankOption;
                 }
             }
             set {
@@ -137,7 +137,7 @@ namespace ConfigTool {
                 if( buildRank != null ) {
                     return buildRank.ToComboBoxOption();
                 } else {
-                    return DefaultClassOption;
+                    return DefaultRankOption;
                 }
             }
             set {

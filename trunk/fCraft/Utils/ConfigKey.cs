@@ -67,6 +67,7 @@ namespace fCraft {
         IRCBotForwardFromIRC,
         IRCBotAnnounceServerJoins,
         IRCBotAnnounceIRCJoins,
+        IRCBotAnnounceServerEvents,
         IRCRegisteredNick,
         IRCNickServ,
         IRCNickServMessage,
