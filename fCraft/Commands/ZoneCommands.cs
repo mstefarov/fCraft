@@ -61,21 +61,21 @@ namespace fCraft {
                     if( player.info == info ) {
                         if( !zone.CanBuild( player ) ) {
                             player.Message( "You must be {0}+&S to add yourself to this zone's whitelist.",
-                                            zone.rank.GetClassyName() );
+                                            zone.minRank.GetClassyName() );
                             continue;
                         }
                     }
 
                     switch( zone.Include( info ) ) {
-                        case ZoneOverride.Deny:
+                        case PermissionOverride.Deny:
                             player.Message( "{0}&S is no longer excluded from zone {1}", info.GetClassyName(), zone.name );
                             changesWereMade = true;
                             break;
-                        case ZoneOverride.None:
+                        case PermissionOverride.None:
                             player.Message( "{0}&S is now included in zone {1}", info.GetClassyName(), zone.name );
                             changesWereMade = true;
                             break;
-                        case ZoneOverride.Allow:
+                        case PermissionOverride.Allow:
                             player.Message( "{0}&S is already included in zone {1}", info.GetClassyName(), zone.name );
                             break;
                     }
@@ -93,14 +93,14 @@ namespace fCraft {
                     }
 
                     switch( zone.Exclude( info ) ) {
-                        case ZoneOverride.Deny:
+                        case PermissionOverride.Deny:
                             player.Message( "{0}&S is already excluded from zone {1}", info.GetClassyName(), zone.name );
                             break;
-                        case ZoneOverride.None:
+                        case PermissionOverride.None:
                             player.Message( "{0}&S is now excluded from zone {1}", info.GetClassyName(), zone.name );
                             changesWereMade = true;
                             break;
-                        case ZoneOverride.Allow:
+                        case PermissionOverride.Allow:
                             player.Message( "{0}&S is no longer included in zone {1}", info.GetClassyName(), zone.name );
                             changesWereMade = true;
                             break;
@@ -111,13 +111,13 @@ namespace fCraft {
 
                     if( minRank != null ) {
                         // prevent players from lowering rank so bypass protection
-                        if( zone.rank > player.info.rank && minRank <= player.info.rank ) {
+                        if( zone.minRank > player.info.rank && minRank <= player.info.rank ) {
                             player.Message( "You are not allowed to lower the zone's rank." );
                             continue;
                         }
 
-                        if( zone.rank != minRank ) {
-                            zone.rank = minRank;
+                        if( zone.minRank != minRank ) {
+                            zone.minRank = minRank;
                             player.Message( "Permission for zone \"{0}\" changed to {1}+",
                                             zone.name,
                                             minRank.GetClassyName() );
@@ -174,13 +174,13 @@ namespace fCraft {
 
                 zone.name = info.name;
                 if( info.rank.NextRankUp != null ) {
-                    zone.rank = info.rank.NextRankUp;
+                    zone.minRank = info.rank.NextRankUp;
                 } else {
-                    zone.rank = info.rank;
+                    zone.minRank = info.rank;
                 }
                 zone.Include( info );
                 player.Message( "Zone: Creating a {0}+&S zone for player {1}&S. Place a block or type /mark to use your location.",
-                                zone.rank.GetClassyName(), info.GetClassyName() );
+                                zone.minRank.GetClassyName(), info.GetClassyName() );
                 player.SetCallback( 2, ZoneAddCallback, zone );
 
             } else {
@@ -226,7 +226,7 @@ namespace fCraft {
                         }
                     }
 
-                    zone.rank = minRank;
+                    zone.minRank = minRank;
                     player.SetCallback( 2, ZoneAddCallback, zone );
                     player.Message( "Zone: Place a block or type /mark to use your location." );
 
@@ -273,11 +273,11 @@ namespace fCraft {
             Zone[] allowed, denied;
             if( player.world.map.TestZones( marks[0].x, marks[0].y, marks[0].h, player, out allowed, out denied ) ) {
                 foreach( Zone zone in allowed ) {
-                    ZonePermissionType status = zone.CanBuildDetailed( player );
+                    PermissionType status = zone.CanBuildDetailed( player );
                     player.Message( "> {0}: {1}{2}", zone.name, Color.Lime, status );
                 }
                 foreach( Zone zone in denied ) {
-                    ZonePermissionType status = zone.CanBuildDetailed( player );
+                    PermissionType status = zone.CanBuildDetailed( player );
                     player.Message( "> {0}: {1}{2}", zone.name, Color.Red, status );
                 }
             } else {
@@ -333,7 +333,7 @@ namespace fCraft {
                 foreach( Zone zone in zones ) {
                     player.Message( "  {0} ({1}&S) - {2} x {3} x {4}",
                                     zone.name,
-                                    zone.rank.GetClassyName(),
+                                    zone.minRank.GetClassyName(),
                                     zone.bounds.GetWidthX(),
                                     zone.bounds.GetWidthY(),
                                     zone.bounds.GetHeight() );
@@ -370,7 +370,7 @@ namespace fCraft {
                             zone.name,
                             zone.bounds.GetWidthX(), zone.bounds.GetWidthY(), zone.bounds.GetHeight(),
                             zone.bounds.GetVolume(),
-                            zone.rank.GetClassyName() );
+                            zone.minRank.GetClassyName() );
 
             player.Message( "  Zone centre is at ({0},{1},{2}).",
                             (zone.bounds.xMin + zone.bounds.xMax) / 2,

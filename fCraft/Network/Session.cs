@@ -16,7 +16,6 @@ namespace fCraft {
         public bool canReceive = true,
                     canSend = true,
                     canQueue = true,
-                    isDisconnected = false,
                     hasRegistered = false,
                     isBetweenWorlds = true;
 
@@ -384,19 +383,6 @@ namespace fCraft {
             }
 
             ioThread = null;
-            isDisconnected = true;
-        }
-
-
-        void WriteAlphaString( string str ) {
-            byte[] data = Encoding.UTF8.GetBytes( str );
-            writer.Write( (short)data.Length );
-            writer.Write( data );
-        }
-
-        string ReadAlphaString() {
-            int strLen = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-            return Encoding.UTF8.GetString( reader.ReadBytes( strLen ) );
         }
 
 
@@ -405,18 +391,29 @@ namespace fCraft {
             byte opcode = reader.ReadByte();
             if( opcode != (byte)InputCode.Handshake ) {
                 if( opcode == 2 ) {
+                    // This may be someone connecting with an SMP client
+                    int strLen = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
 
-                    // read the rest of the HANDSHAKE packet
-                    string alphaPlayerName = ReadAlphaString();
+                    if( strLen >= 2 && strLen <= 16 ) {
+                        string alphaPlayerName = Encoding.UTF8.GetString( reader.ReadBytes( strLen ) );
 
-                    Logger.Log( "Session.LoginSequence: Player \"{0}\" tried connecting with SMP/Alpha client from {1}. " +
-                                "fCraft does not support Alpha.", LogType.Warning,
-                                alphaPlayerName, GetIP() );
+                        Logger.Log( "Session.LoginSequence: Player \"{0}\" tried connecting with SMP/Alpha client from {1}. " +
+                                    "fCraft does not support Alpha.", LogType.Warning,
+                                    alphaPlayerName, GetIP() );
 
-                    // send KICK
-                    writer.Write( (byte)255 );
-                    WriteAlphaString( noAlphaMessage );
-                    writer.Flush();
+                        // send SMP KICK packet
+                        writer.Write( (byte)255 );
+                        byte[] stringData = Encoding.UTF8.GetBytes( noAlphaMessage );
+                        writer.Write( (short)stringData.Length );
+                        writer.Write( stringData );
+                        writer.Flush();
+
+                    } else {
+                        // Not SMP client (invalid player name length)
+                        Logger.Log( "Session.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.", LogType.Error,
+            GetIP(), opcode );
+                        KickNow( "Unexpected handshake message - possible protocol mismatch!" );
+                    }
                     return false;
 
                 } else {
@@ -456,7 +453,10 @@ namespace fCraft {
                 Logger.Log( "Banned player {0} tried to log in.", LogType.SuspiciousActivity,
                             player.name );
                 Server.SendToAll( "&SBanned player {0}&S tried to log in.", player.GetClassyName() );
-                KickNow( "You were banned by " + player.info.bannedBy + " " + DateTime.Now.Subtract( player.info.banDate ).Days + " days ago." );
+                string bannedMessage = String.Format( "You were banned {0} days ago by {1}",
+                                                      DateTime.Now.Subtract( player.info.banDate ).Days,
+                                                      player.info.bannedBy );
+                KickNow( bannedMessage );
                 return false;
             }
 
@@ -468,7 +468,10 @@ namespace fCraft {
                 Logger.Log( "{0} tried to log in from a banned IP.", LogType.SuspiciousActivity,
                             player.name );
                 Server.SendToAll( "{0}&S tried to log in from a banned IP.", player.GetClassyName() );
-                KickNow( "Your IP was banned by " + IPBanInfo.bannedBy + " " + DateTime.Now.Subtract( IPBanInfo.banDate ).Days + " days ago." );
+                string bannedMessage = String.Format( "Your IP was banned by {0} days ago by {1}",
+                                                      DateTime.Now.Subtract( IPBanInfo.banDate ).Days,
+                                                      IPBanInfo.bannedBy );
+                KickNow( bannedMessage );
                 return false;
             }
 
@@ -511,7 +514,8 @@ namespace fCraft {
                             KickNow( "Could not verify player name!" );
                             return false;
                         case "Never":
-                            Logger.Log( "{0} IP did not match. Player was allowed in anyway because VerifyNames is set to Never.", LogType.SuspiciousActivity,
+                            Logger.Log( "{0} IP did not match. " +
+                                        "Player was allowed in anyway because VerifyNames is set to Never.", LogType.SuspiciousActivity,
                                         standardMessage );
                             player.Message( "&WYour name could not be verified." );
                             Server.SendToAllExcept( "&WName and IP of {0}&W are unverified!", player,
@@ -523,8 +527,9 @@ namespace fCraft {
                     switch( Config.GetString( ConfigKey.VerifyNames ) ) {
                         case "Always":
                             player.info.ProcessFailedLogin( player );
-                            Logger.Log( "{0} IP matched previous records for that name. Player was kicked anyway because VerifyNames is set to Always.", LogType.SuspiciousActivity,
-                                                standardMessage );
+                            Logger.Log( "{0} IP matched previous records for that name. "+
+                                        "Player was kicked anyway because VerifyNames is set to Always.", LogType.SuspiciousActivity,
+                                        standardMessage );
                             KickNow( "Could not verify player name!" );
                             return false;
                         case "Balanced":
@@ -536,10 +541,30 @@ namespace fCraft {
                 }
             }
 
+            if( Config.GetBool( ConfigKey.PaidPlayersOnly ) ) {
+                // write a "please wait" message while we validate player's paid status
+                writer.Write( PacketWriter.MakeHandshake( player,
+                                                          Config.GetString( ConfigKey.ServerName ),
+                                                          "Please wait; Validating paid status..." ) );
+                writer.Flush();
+
+                if( !Player.CheckPaidStatus( player.name ) ) {
+                    KickNow( "Paid players allowed only." );
+                    return false;
+                }
+            }
+
+            //
+            // Any additional security checks should be done right here
+            //
+
+            // ==== beyond this point, player is considered "allowed to join" ====
+
             // check if another player with the same name is on
             Server.KickGhostsAndRegisterSession( this );
 
             if( Config.GetBool( ConfigKey.LimitOneConnectionPerIP ) ) {
+                // note: FindPlayers only counts REGISTERED players
                 List<Player> potentialClones = Server.FindPlayers( GetIP() );
                 if( potentialClones.Count > 0 ) {
                     player.info.ProcessFailedLogin( player );
@@ -558,11 +583,12 @@ namespace fCraft {
                 KickNow( "Sorry, server is full (" + Server.playerList.Length + "/" + Config.GetInt( ConfigKey.MaxPlayers ) + ")" );
                 return false;
             }
+            player.info.ProcessLogin( player );
             hasRegistered = true;
 
-            player.info.ProcessLogin( player );
+            // ==== Beyond this point, player is considered authenticated/registered ====
 
-            // Player is now authenticated. Send server info.
+            // Send server information
             writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), Config.GetString( ConfigKey.MOTD ) ) );
 
             // AutoRank
@@ -600,8 +626,6 @@ namespace fCraft {
             }
             return true;
         }
-
-
 
 
         public void JoinWorld( World newWorld, Position? position ) {

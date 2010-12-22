@@ -399,11 +399,8 @@ namespace System.IO.Compression {
                 _zip.Close();
                 tempZip.Close();
 
-                if( File.Exists( _zip.FileName ) ) {
-                    File.Replace( tempZipName, _zip.FileName, null, true );
-                } else {
-                    File.Move( tempZipName, _zip.FileName );
-                }
+                if( File.Exists( _zip.FileName ) ) File.Replace( tempZipName, _zip.FileName, null, true );
+                else File.Move( tempZipName, _zip.FileName );
 
                 _zip = ZipStorer.Open( _zip.FileName, _zip.Access );
             } catch {

@@ -49,9 +49,11 @@ namespace fCraft {
         public static int Port;
         public static string URL;
 
+
         public static void SetArgs( string[] _args ) {
             args = _args;
         }
+
 
         public static bool Init( string[] _args ) {
             serverStart = DateTime.Now;
@@ -743,7 +745,7 @@ namespace fCraft {
         public static event PlayerConnectedEventHandler OnPlayerConnected;
         public static event PlayerDisconnectedEventHandler OnPlayerDisconnected;
         public static event PlayerKickedEventHandler OnPlayerKicked;
-        public static event RankChangedEventHandler OnRankChanged;
+        public static event PlayerRankChangedEventHandler OnRankChanged;
         public static event URLChangeEventHandler OnURLChanged;
         public static event SimpleEventHandler OnShutdownBegin;
         public static event SimpleEventHandler OnShutdownEnd;
@@ -751,6 +753,8 @@ namespace fCraft {
         public static event LogEventHandler OnLog;
         public static event PlayerListChangedHandler OnPlayerListChanged;
         public static event PlayerSentMessageEventHandler OnPlayerSentMessage;
+        public static event PlayerBanStatusChangedEventHandler OnPlayerBanned;
+        public static event PlayerBanStatusChangedEventHandler OnPlayerUnbanned;
 
         internal static void FireURLChangeEvent( string URL ) {
             if( OnURLChanged != null ) OnURLChanged( URL );
@@ -799,6 +803,18 @@ namespace fCraft {
         internal static void FirePlayerKickedEvent( Player player, Player kicker, string reason ) {
             if( OnPlayerKicked != null ) {
                 OnPlayerKicked( player, kicker, reason );
+            }
+        }
+
+        internal static void FirePlayerBannedEvent( PlayerInfo player, Player banner, string reason ) {
+            if( OnPlayerBanned != null ) {
+                OnPlayerBanned( player, banner, reason );
+            }
+        }
+
+        internal static void FirePlayerUnbannedEvent( PlayerInfo player, Player unbanner, string reason ) {
+            if( OnPlayerUnbanned != null ) {
+                OnPlayerUnbanned( player, unbanner, reason );
             }
         }
 
@@ -1102,21 +1118,6 @@ namespace fCraft {
             }
         }
 
-        public static string UrlEncode( string input ) {
-            StringBuilder output = new StringBuilder();
-            for( int i = 0; i < input.Length; i++ ) {
-                if( (input[i] >= '0' && input[i] <= '9') ||
-                    (input[i] >= 'a' && input[i] <= 'z') ||
-                    (input[i] >= 'A' && input[i] <= 'Z') ||
-                    input[i] == '-' || input[i] == '_' || input[i] == '.' || input[i] == '~' ) {
-                    output.Append( input[i] );
-                } else {
-                    output.Append( '%' ).Append( ((int)input[i]).ToString( "X2" ) );
-                }
-            }
-            return output.ToString();
-        }
-
         public static bool VerifyName( string name, string hash, string salt ) {
             while( hash.Length < 32 ) {
                 hash = "0" + hash;
@@ -1131,10 +1132,6 @@ namespace fCraft {
             return true;
         }
 
-        public static bool IsLAN( this IPAddress addr ) {
-            byte[] bytes = addr.GetAddressBytes();
-            return (bytes[0] == 192 && bytes[1] == 168);
-        }
 
 
         public static int CalculateMaxPacketsPerUpdate( World world ) {
@@ -1181,6 +1178,15 @@ namespace fCraft {
         public static bool IsIP( string IPString ) {
             return regexIP.IsMatch( IPString );
         }
+
+        #region Extension Methods
+
+        public static bool IsLAN( this IPAddress addr ) {
+            byte[] bytes = addr.GetAddressBytes();
+            return (bytes[0] == 192 && bytes[1] == 168);
+        }
+
+        #endregion
 
         #endregion
 

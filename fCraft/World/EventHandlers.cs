@@ -1,4 +1,5 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+using System.Net;
 
 
 namespace fCraft {
@@ -16,8 +17,10 @@ namespace fCraft {
     public delegate void PlayerChangedBlockEventHandler( World world, ref BlockUpdate update, ref bool cancel );
     public delegate void PlayerSentMessageEventHandler( Player player, World world, ref string message, ref bool cancel );
 
-
-    public delegate void RankChangedEventHandler( PlayerInfo target, Player player, Rank oldRank, Rank newRank, ref bool cancel );
+    public delegate void PlayerRankChangedEventHandler( PlayerInfo target, Player changer, Rank oldRank, Rank newRank, ref bool cancel );
+    public delegate void PlayerFrozenEventHandler( PlayerInfo target, Player freezer );
+    public delegate void PlayerBanStatusChangedEventHandler( PlayerInfo target, Player banner, string reason );
+    public delegate void IPBanStatusChangedEventHandler( IPAddress target, Player banner, string reason, Player association );
 
     /// <summary>
     /// Simple event without parameters.

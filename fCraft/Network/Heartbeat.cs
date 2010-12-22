@@ -14,7 +14,7 @@ namespace fCraft {
         static Thread thread;
         const string URL = "http://minecraft.net/heartbeat.jsp";
 
-        public static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
+        internal static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
             IPAddress IP = IPAddress.Parse( Config.GetString( ConfigKey.IP ) );
             return new IPEndPoint( IP, 0 );
         }
@@ -40,7 +40,7 @@ namespace fCraft {
                     request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
 
                     string dataString = String.Format( "name={0}&max={1}&public={2}&port={3}&salt={4}&version={5}&users={6}",
-                                                       Server.UrlEncode( Config.GetString( ConfigKey.ServerName ) ),
+                                                       Uri.EscapeDataString( Config.GetString( ConfigKey.ServerName ) ),
                                                        Config.GetInt( ConfigKey.MaxPlayers ),
                                                        Config.GetBool( ConfigKey.IsPublic ),
                                                        Server.Port,
@@ -69,7 +69,11 @@ namespace fCraft {
                     request.Abort();
 
                 } catch( Exception ex ) {
-                    Logger.Log( "Heartbeat: {0}", LogType.Warning, ex.Message );
+                    if( ex is WebException || ex is IOException ) {
+                        Logger.Log( "Heartbeat: Minecraft.net is probably down ({0})", LogType.Warning, ex.Message );
+                    } else {
+                        Logger.Log( "Heartbeat: {0}", LogType.Error, ex );
+                    }
                 }
 
                 Thread.Sleep( HeartbeatDelay );

@@ -6,7 +6,7 @@ using System.IO;
 
 namespace fCraft {
 
-    public sealed class World : IClassy {
+    public sealed class World : PermissionController, IClassy {
 
         public static string[] BackupEnum = new string[] {
             "Never", "5 Minutes", "10 Minutes", "15 Minutes", "20 Minutes",

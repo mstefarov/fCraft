@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Net; // for CheckPaidStatus
+using System.Net.Cache; // for CheckPaidStatus
+using System.IO; // for CheckPaidStatus
 
 
 namespace fCraft {
@@ -575,10 +578,10 @@ namespace fCraft {
             if( block == (byte)Block.Admincrete && !Can( Permission.DeleteAdmincrete ) ) return CanPlaceResult.BlocktypeDenied;
 
             // check zones & world permissions
-            ZoneOverride zoneCheckResult = world.map.CheckZones( x, y, h, this );
-            if( zoneCheckResult == ZoneOverride.Allow ) {
+            PermissionOverride zoneCheckResult = world.map.CheckZones( x, y, h, this );
+            if( zoneCheckResult == PermissionOverride.Allow ) {
                 return CanPlaceResult.Allowed;
-            } else if( zoneCheckResult == ZoneOverride.Deny ) {
+            } else if( zoneCheckResult == PermissionOverride.Deny ) {
                 return CanPlaceResult.ZoneDenied;
             } else if( drawBlock == (byte)Block.Air ) {
 
@@ -690,6 +693,30 @@ namespace fCraft {
 
         internal void ResetIdleTimer() {
             idleTimer = DateTime.UtcNow;
+        }
+
+
+        const string PaidCheckURL = "http://minecraft.net/haspaid.jsp?user=";
+        const int PaidCheckTimeout = 5000;
+
+        public static bool CheckPaidStatus( string name ) {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckURL + Uri.EscapeDataString(name) );
+            request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( Heartbeat.BindIPEndPointCallback );
+            request.Timeout = PaidCheckTimeout;
+            request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
+
+
+            using( WebResponse response = request.GetResponse() ) {
+                using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
+                    string paidStatusString = responseReader.ReadToEnd();
+                    bool isPaid;
+                    if( Boolean.TryParse( paidStatusString, out isPaid ) && isPaid ) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
         }
     }
 

@@ -196,6 +196,7 @@ namespace fCraft {
                     if( banIP ) DoIPBan( player, address, reason, target.name, banAll, unban );
                     if( !banAll ) {
                         if( target.info.ProcessBan( player, reason ) ) {
+                            Server.FirePlayerBannedEvent( target.info, player, reason );
                             Logger.Log( "{0} was banned by {1}.", LogType.UserActivity,
                                         target.info.name, player.name );
                             Server.SendToAllExcept( "{0}&W was banned by {1}", target,
@@ -244,6 +245,7 @@ namespace fCraft {
                     if( !banAll ) {
                         if( unban ) {
                             if( info.ProcessUnban( player.name, reason ) ) {
+                                Server.FirePlayerUnbannedEvent( info, player, reason );
                                 Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity,
                                             info.name, player.name );
                                 Server.SendToAll( "{0}&W (offline) was unbanned by {1}",
@@ -256,6 +258,7 @@ namespace fCraft {
                             }
                         } else {
                             if( info.ProcessBan( player, reason ) ) {
+                                Server.FirePlayerBannedEvent( info, player, reason );
                                 Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity,
                                             info.name, player.name );
                                 Server.SendToAll( "{0}&W (offline) was banned by {1}",
@@ -288,7 +291,8 @@ namespace fCraft {
                     player.Message( "\"{0}\" (unrecognized) is not banned.", nameOrIP );
                 } else {
                     info = PlayerDB.AddFakeEntry( nameOrIP, RankChangeType.Default );
-                    info.ProcessBan( player, reason );
+                    info.ProcessBan( player, reason ); // this will never return false (player could not have been banned already)
+                    Server.FirePlayerBannedEvent( target.info, player, reason );
                     player.Message( "Player \"{0}\" (unrecognized) was banned.", nameOrIP );
                     Logger.Log( "{0} (unrecognized) was banned by {1}", LogType.UserActivity,
                                 info.name, player.GetClassyName() );

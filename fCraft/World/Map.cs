@@ -45,6 +45,7 @@ namespace fCraft {
 
 
         // temporarily hardcoded to be on at all times
+        [Obsolete( "Will be removed in 0.500 final" )]
         public void EnableOwnershipTracking( ReservedPlayerID initialState ) {
             if( blockOwnership == null ) {
                 blockOwnership = new ushort[blocks.Length];
@@ -108,8 +109,6 @@ namespace fCraft {
         internal Map() { }
 
 
-
-
         // creates an empty new world of specified dimensions
         public Map( World _world, int _widthX, int _widthY, int _height ) {
             world = _world;
@@ -144,11 +143,8 @@ namespace fCraft {
             }
 
             try {
-                if( File.Exists( fileName ) ) {
-                    File.Replace( tempFileName, fileName, null, true );
-                } else {
-                    File.Move( tempFileName, fileName );
-                }
+                if( File.Exists( fileName ) ) File.Replace( tempFileName, fileName, null, true );
+                else File.Move( tempFileName, fileName );
                 changesSinceBackup++;
                 Logger.Log( "Saved map successfully to {0}", LogType.SystemActivity,
                             fileName );
@@ -600,15 +596,15 @@ namespace fCraft {
         }
 
 
-        public ZoneOverride CheckZones( int x, int y, int h, Player player ) {
-            ZoneOverride result = ZoneOverride.None;
+        public PermissionOverride CheckZones( int x, int y, int h, Player player ) {
+            PermissionOverride result = PermissionOverride.None;
             Zone[] zoneListCache = zoneList;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
                 if( zoneListCache[i].bounds.Contains( x, y, h ) ) {
                     if( zoneListCache[i].CanBuild( player ) ) {
-                        result = ZoneOverride.Allow;
+                        result = PermissionOverride.Allow;
                     } else {
-                        return ZoneOverride.Deny;
+                        return PermissionOverride.Deny;
                     }
                 }
             }
@@ -770,8 +766,9 @@ namespace fCraft {
                     break;
                 }
                 changesSinceSave++;
+                if( !InBounds( update.x, update.y, update.h ) ) continue;
                 int blockIndex = Index( update.x, update.y, update.h );
-                blocks[blockIndex] = update.type;
+                blocks[blockIndex] = update.type; // TODO: investigate IndexOutOfRangeException here
 
                 if( !world.isFlushing ) world.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin );
                 if( update.origin != null ) {
@@ -965,7 +962,7 @@ namespace fCraft {
                     break;
 
                 case DataLayerType.BlockOwnership: {
-                        blockOwnership = new ushort[layer.ElementCount];
+                            blockOwnership = new ushort[layer.ElementCount];
                         BinaryReader reader = new BinaryReader( stream );
                         for( int i = 0; i < layer.ElementCount; i++ ) {
                             blockOwnership[i] = reader.ReadUInt16();

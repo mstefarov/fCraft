@@ -11,7 +11,7 @@ namespace fCraft {
     /// <summary>
     /// Vegetation generator for MapGenerator
     /// </summary>
-    class Forester {
+    sealed class Forester {
 
         const int MaxTries = 1000;
 

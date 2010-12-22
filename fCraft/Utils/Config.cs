@@ -183,6 +183,8 @@ namespace fCraft {
             SetValue( ConfigKey.RequireRankChangeReason, false );
             SetValue( ConfigKey.AnnounceKickAndBanReasons, true );
             SetValue( ConfigKey.AnnounceRankChanges, true );
+
+            SetValue( ConfigKey.PaidPlayersOnly, false );
         }
 
         public static void LoadDefaultsSavingAndBackup() {
@@ -497,7 +499,10 @@ namespace fCraft {
                 string tempConfigFileName = ConfigFileName + ".temp";
                 string backupFileName = ConfigFileName + ".backup";
                 file.Save( tempConfigFileName );
-                File.Replace( tempConfigFileName, ConfigFileName, backupFileName, true );
+
+                if( File.Exists( ConfigFileName ) ) File.Replace( tempConfigFileName, ConfigFileName, backupFileName, true );
+                else File.Move( tempConfigFileName, ConfigFileName );
+
                 return true;
             } catch( Exception ex ) {
                 Log( "Config.Load: Fatal error while saving config file {0}: {1}", LogType.FatalError,

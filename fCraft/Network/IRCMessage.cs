@@ -26,7 +26,7 @@
  */
 
 namespace fCraft {
-    class IRCMessage {
+    sealed class IRCMessage {
         public string From;
         public string Nick;
         public string Ident;
