@@ -178,10 +178,10 @@ namespace fCraft {
 
                 try {
                     StringBuilder sb = new StringBuilder();
-                    sb.Append( "version=" ).Append( Server.UrlEncode( Updater.GetVersionString() ) );
-                    sb.Append( "&message=" ).Append( Server.UrlEncode( message ) );
-                    sb.Append( "&assembly=" ).Append( Server.UrlEncode( assembly ) );
-                    sb.Append( "&runtime=" ).Append( Server.UrlEncode( Environment.Version + " / " + RuntimeEnvironment.GetSystemVersion() ) );
+                    sb.Append( "version=" ).Append( Uri.EscapeDataString( Updater.GetVersionString() ) );
+                    sb.Append( "&message=" ).Append( Uri.EscapeDataString( message ) );
+                    sb.Append( "&assembly=" ).Append( Uri.EscapeDataString( assembly ) );
+                    sb.Append( "&runtime=" ).Append( Uri.EscapeDataString( Environment.Version + " / " + RuntimeEnvironment.GetSystemVersion() ) );
                     sb.Append( "&os=" ).Append( Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString );
                     if( exception != null ) {
                         if( exception is System.Reflection.TargetInvocationException ) {
@@ -189,14 +189,14 @@ namespace fCraft {
                         } else if( exception is TypeInitializationException ) {
                             exception = ((TypeInitializationException)exception).InnerException;
                         }
-                        sb.Append( "&exceptiontype=" ).Append( Server.UrlEncode( exception.GetType().ToString() ) );
-                        sb.Append( "&exceptionmessage=" ).Append( Server.UrlEncode( exception.Message ) );
-                        sb.Append( "&exceptionstacktrace=" ).Append( Server.UrlEncode( exception.StackTrace ) );
+                        sb.Append( "&exceptiontype=" ).Append( Uri.EscapeDataString( exception.GetType().ToString() ) );
+                        sb.Append( "&exceptionmessage=" ).Append( Uri.EscapeDataString( exception.Message ) );
+                        sb.Append( "&exceptionstacktrace=" ).Append( Uri.EscapeDataString( exception.StackTrace ) );
                     } else {
                         sb.Append( "&exceptiontype=&exceptionmessage=&exceptiontrace=" );
                     }
                     if( File.Exists( Config.ConfigFileName ) ) {
-                        sb.Append( "&config=" ).Append( Server.UrlEncode( File.ReadAllText( Config.ConfigFileName ) ) );
+                        sb.Append( "&config=" ).Append( Uri.EscapeDataString( File.ReadAllText( Config.ConfigFileName ) ) );
                     } else {
                         sb.Append( "&config=" );
                     }
@@ -205,7 +205,7 @@ namespace fCraft {
                     lock( locker ) {
                         lastFewLines = recentMessages.ToArray();
                     }
-                    sb.Append( "&log=" ).Append( Server.UrlEncode( String.Join( Environment.NewLine, lastFewLines ) ) );
+                    sb.Append( "&log=" ).Append( Uri.EscapeDataString( String.Join( Environment.NewLine, lastFewLines ) ) );
 
                     byte[] formData = Encoding.ASCII.GetBytes( sb.ToString() );
 

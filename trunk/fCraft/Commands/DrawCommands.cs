@@ -381,6 +381,7 @@ namespace fCraft {
         #region Draw Callbacks
 
         static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int h, ref int blocks, ref bool cannotUndo ) {
+            if( !player.world.map.InBounds( x, y, h ) ) return;
             if( player.CanPlace( x, y, h, drawBlock ) != CanPlaceResult.Allowed ) return;
             byte block = player.world.map.GetBlock( x, y, h );
             if( block == drawBlock ||

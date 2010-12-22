@@ -724,11 +724,8 @@ namespace fCraft {
                         string oldFileName = Path.Combine( "maps", oldName + ".fcm" );
                         string newFileName = Path.Combine( "maps", newName + ".fcm" );
                         try {
-                            if( File.Exists( newFileName ) ) {
-                                File.Replace( oldFileName, newFileName, null, true );
-                            } else {
-                                File.Move( oldFileName, newFileName );
-                            }
+                            if( File.Exists( newFileName ) ) File.Replace( oldFileName, newFileName, null, true );
+                            else File.Move( oldFileName, newFileName );
                         } catch( Exception ex ) {
                             Logger.Log( "MapCommands.WorldRename: A file with the same name as renamed world may already exist, " +
                                         "and an error occured while trying to use it: {0}", LogType.Error, ex );

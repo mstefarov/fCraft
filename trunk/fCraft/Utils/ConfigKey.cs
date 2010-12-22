@@ -39,6 +39,7 @@ namespace fCraft {
         AntispamInterval,
         AntispamMuteDuration,
         AntispamMaxWarnings,
+        PaidPlayersOnly,
 
         RequireBanReason,
         RequireRankChangeReason,

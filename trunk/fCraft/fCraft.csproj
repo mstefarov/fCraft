@@ -56,6 +56,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
@@ -68,6 +69,7 @@
     <Compile Include="Commands\AutoRankCommands.cs" />
     <Compile Include="Commands\ZoneCommands.cs" />
     <Compile Include="Mcc\MapFCMv3.cs" />
+    <Compile Include="Player\PermissionController.cs" />
     <Compile Include="Utils\Vector.cs" />
     <Compile Include="World\BlockDB.cs" />
     <Compile Include="Commands\CommandDescriptor.cs" />

@@ -10,7 +10,7 @@ namespace fCraft {
     /// <summary>
     /// Several yet-undocumented commands, mostly related to AutoRank.
     /// </summary>
-    class AutoRankCommands {
+    static class AutoRankCommands {
         internal static void Init() {
             CommandList.RegisterCommand( cdAutoRankTest );
             CommandList.RegisterCommand( cdAutoRankReload );

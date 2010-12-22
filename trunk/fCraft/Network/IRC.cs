@@ -52,9 +52,12 @@ namespace fCraft {
             StreamReader reader;
             StreamWriter writer;
             Thread thread;
-            public bool connected, reconnect, ready;
+            public bool isConnected, isReady;
+            bool reconnect;
             public bool responsibleForInputParsing;
             public string actualBotNick;
+            DateTime lastMessageSent;
+            ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
 
 
             public bool Start( string _botNick, bool _parseInput ) {
@@ -72,9 +75,11 @@ namespace fCraft {
                 }
             }
 
+
             public void Reconnect() {
                 reconnect = true;
             }
+
 
             void Connect() {
                 // initialize the client
@@ -90,8 +95,9 @@ namespace fCraft {
                 // prepare to read/write
                 reader = new StreamReader( client.GetStream() );
                 writer = new StreamWriter( client.GetStream() );
-                connected = true;
+                isConnected = true;
             }
+
 
             public void Dispose() {
                 try {
@@ -109,12 +115,11 @@ namespace fCraft {
                 } catch( ObjectDisposedException ) { }
             }
 
-            DateTime lastMessageSent;
-            ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
 
             void Send( string msg ) {
                 localQueue.Enqueue( msg );
             }
+
 
             // runs in its own thread, started from Connect()
             void IoThread() {
@@ -132,7 +137,7 @@ namespace fCraft {
                         Send( IRCCommands.User( actualBotNick, 8, Config.GetString( ConfigKey.ServerName ) ) );
                         Send( IRCCommands.Nick( actualBotNick ) );
 
-                        while( connected && !reconnect ) {
+                        while( isConnected && !reconnect ) {
                             Thread.Sleep( 10 );
 
                             if( localQueue.Length > 0 &&
@@ -196,7 +201,7 @@ namespace fCraft {
                         foreach( string channel in channelNames ) {
                             Send( IRCCommands.Join( channel ) );
                         }
-                        ready = true;
+                        isReady = true;
                         AssignBotForInputParsing(); // bot should be ready to receive input after joining
                         return;
 
@@ -301,15 +306,16 @@ namespace fCraft {
                         Logger.Log( "Bot was killed from {0} by {1} ({2}), reconnecting.", LogType.IRC,
                                     hostName, msg.Nick, msg.Message );
                         reconnect = true;
-                        connected = false;
+                        isConnected = false;
                         return;
                 }
             }
 
+
             public void Disconnect() {
-                ready = false;
+                isReady = false;
                 AssignBotForInputParsing();
-                connected = false;
+                isConnected = false;
                 if( thread != null && thread.IsAlive ) {
                     thread.Join( 1000 );
                     if( thread != null && thread.IsAlive ) {
@@ -345,14 +351,14 @@ namespace fCraft {
         static void AssignBotForInputParsing() {
             bool needReassignment = false;
             foreach( IRCThread thread in threads ) {
-                if( thread.responsibleForInputParsing && !thread.ready ) {
+                if( thread.responsibleForInputParsing && !thread.isReady ) {
                     thread.responsibleForInputParsing = false;
                     needReassignment = true;
                 }
             }
             if( needReassignment ) {
                 foreach( IRCThread thread in threads ) {
-                    if( thread.ready ) {
+                    if( thread.isReady ) {
                         thread.responsibleForInputParsing = true;
                         Logger.Log( "Bot \"{0}\" is now responsible for parsing input.", LogType.IRC,
                                     thread.actualBotNick );
@@ -381,6 +387,83 @@ namespace fCraft {
             botNick = Config.GetString( ConfigKey.IRCBotNick );
         }
 
+
+        public static bool Start() {
+            int threadCount = Config.GetInt( ConfigKey.IRCThreads );
+
+            if( threadCount == 1 ) {
+                IRCThread thread = new IRCThread();
+                if( thread.Start( botNick, true ) ) {
+                    threads = new IRCThread[] { thread };
+                }
+            } else {
+
+                List<IRCThread> threadTemp = new List<IRCThread>();
+                for( int i = 0; i < threadCount; i++ ) {
+                    IRCThread temp = new IRCThread();
+                    if( temp.Start( botNick + (i + 1), (threadTemp.Count == 0) ) ) {
+                        threadTemp.Add( temp );
+                    }
+                }
+
+                threads = threadTemp.ToArray();
+            }
+
+            if( threads.Length > 0 ) {
+                HookUpHandlers();
+                return true;
+            } else {
+                Logger.Log( "IRC functionality disabled.", LogType.IRC );
+                return false;
+            }
+        }
+
+
+        public static void SendToAllChannels( string line ) {
+            if( Config.GetBool( ConfigKey.IRCUseColor ) ) {
+                line = Color.ToIRCColorCodes( line );
+            } else {
+                line = nonPrintableChars.Replace( line, "" ).Trim();
+            }
+            for( int i = 0; i < channelNames.Length; i++ ) {
+                SendToAny( IRCCommands.Privmsg( channelNames[i], line ) );
+            }
+        }
+
+
+        public static void SendToAny( string line ) {
+            outputQueue.Enqueue( line );
+        }
+
+
+        static bool IsBotNick( string str ) {
+            for( int i = 0; i < threads.Length; i++ ) {
+                if( threads[i].actualBotNick == str ) return true;
+            }
+            return false;
+        }
+
+
+        public static void Disconnect() {
+            if( threads != null && threads.Length > 0 ) {
+                foreach( IRCThread thread in threads ) {
+                    thread.Disconnect();
+                }
+            }
+        }
+
+
+        #region Server Event Handlers
+
+        static void HookUpHandlers() {
+            Server.OnPlayerSentMessage += PlayerMessageHandler;
+            Server.OnPlayerConnected += PlayerConnectedHandler;
+            Server.OnPlayerDisconnected += PlayerDisconnectedHandler;
+            Server.OnPlayerKicked += PlayerKickedHandler;
+            Server.OnPlayerBanned += PlayerBannedHandler;
+            Server.OnPlayerUnbanned += PlayerUnbannedHandler;
+            Server.OnRankChanged += PlayerRankChangedHandler;
+        }
 
         internal static void PlayerMessageHandler( Player player, World world, ref string message, ref bool cancel ) {
             if( Config.GetBool( ConfigKey.IRCBotForwardFromServer ) ) {
@@ -411,102 +494,48 @@ namespace fCraft {
         }
 
         internal static void PlayerKickedHandler( Player player, Player kicker, string reason ) {
-            string message = String.Format( "{0}{1}* {2}{1} was kicked by {3} {1}. ",
-                                            Color.IRCBold,
-                                            Color.Warning,
-                                            player.GetClassyName(),
-                                            kicker.GetClassyName() );
+            PlayerSomethingMessage( kicker, "kicked", player.info, reason );
+        }
+
+        internal static void PlayerBannedHandler( PlayerInfo player, Player banner, string reason ) {
+            PlayerSomethingMessage( banner, "banned", player, reason );
+        }
+
+        internal static void PlayerUnbannedHandler( PlayerInfo player, Player unbanner, string reason ) {
+            PlayerSomethingMessage( unbanner, "unbanned", player, reason );
+        }
+
+        internal static void PlayerRankChangedHandler( PlayerInfo target, Player changer, Rank oldRank, Rank newRank, ref bool cancel ) {
+            string actionString = String.Format( "{0}moted from {1}&S to {2}&S",
+                                                 (oldRank < newRank ? "pro" : "de"),
+                                                 oldRank,
+                                                 newRank );
+            PlayerSomethingMessage( changer, actionString, target, null );
+        }
+
+        static void PlayerSomethingMessage( Player player, string action, PlayerInfo target, string reason ) {
+            string message = String.Format( "{0}{1}* {2}{1} was {3} by {4} {1}. ",
+                    Color.IRCBold,
+                    Color.Warning,
+                    target.GetClassyName(),
+                    action,
+                    player.GetClassyName() );
             if( !String.IsNullOrEmpty( reason ) ) {
                 message += ". Reason: " + reason;
             }
-            if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
+            if( Config.GetBool( ConfigKey.IRCBotAnnounceServerEvents ) ) {
                 SendToAllChannels( message );
             }
         }
 
-
-        public static bool Start() {
-            int threadCount = Config.GetInt( ConfigKey.IRCThreads );
-
-            if( threadCount == 1 ) {
-                IRCThread thread = new IRCThread();
-                if( thread.Start( botNick, true ) ) {
-                    threads = new IRCThread[] { thread };
-                }
-            } else {
-
-                List<IRCThread> threadTemp = new List<IRCThread>();
-                for( int i = 0; i < threadCount; i++ ) {
-                    IRCThread temp = new IRCThread();
-                    if( temp.Start( botNick + (i + 1), (threadTemp.Count == 0) ) ) {
-                        threadTemp.Add( temp );
-                    }
-                }
-
-                threads = threadTemp.ToArray();
-            }
-
-            if( threads.Length > 0 ) {
-                Server.OnPlayerSentMessage += PlayerMessageHandler;
-                Server.OnPlayerConnected += PlayerConnectedHandler;
-                Server.OnPlayerDisconnected += PlayerDisconnectedHandler;
-                Server.OnPlayerKicked += PlayerKickedHandler;
-                return true;
-            } else {
-                Logger.Log( "IRC functionality disabled.", LogType.IRC );
-                return false;
-            }
-        }
+        #endregion
 
 
-        public static void SendToAllChannels( string line ) {
-            if( Config.GetBool( ConfigKey.IRCUseColor ) ) {
-                line = Color.ToIRCColorCodes( line );
-            } else {
-                line = nonPrintableChars.Replace( line, "" ).Trim();
-            }
-            for( int i = 0; i < channelNames.Length; i++ ) {
-                SendToAny( IRCCommands.Privmsg( channelNames[i], line ) );
-            }
-        }
-
-
-        //static int lastThread;
-        // Multiple bots each run in a separate thread.
-        // This method roughly balances load between thread by using lock-free round-robin method.
-        public static void SendToAny( string line ) {
-            outputQueue.Enqueue( line );
-            /*
-             * TODO: LEGACY: remove this old code when i make sure that new outputQueue works
-             * 
-            int lastThread2, nextThread;
-            do {
-                do {
-                    lastThread2 = lastThread;
-                    nextThread = (lastThread2 + 1) % threads.Length;
-                } while( Interlocked.CompareExchange( ref lastThread, nextThread, lastThread2 ) != lastThread2 );
-            } while( !threads[nextThread].IsConnected ); // TODO: make sure that this does not loop infinitely or deadlock if no bots are connected
-            threads[nextThread].Send( line );
-             * */
-        }
-
-
-        static bool IsBotNick( string str ) {
-            for( int i = 0; i < threads.Length; i++ ) {
-                if( threads[i].actualBotNick == str ) return true;
-            }
-            return false;
-        }
-
-        public static void Disconnect() {
-            if( threads != null && threads.Length > 0 ) {
-                foreach( IRCThread thread in threads ) {
-                    thread.Disconnect();
-                }
-            }
-        }
+        #region Parsing
 
         static IRCReplyCode[] _ReplyCodes = (IRCReplyCode[])Enum.GetValues( typeof( IRCReplyCode ) );
+
+
         static IRCMessageType _GetMessageType( string rawline, string actualBotNick ) {
             Match found = _ReplyCodeRegex.Match( rawline );
             if( found.Success ) {
@@ -792,6 +821,8 @@ namespace fCraft {
         static Regex _ModeRegex = new Regex( "^:.*? MODE (.*) .*$", RegexOptions.Compiled );
         static Regex _QuitRegex = new Regex( "^:.*? QUIT :.*$", RegexOptions.Compiled );
         static Regex _KillRegex = new Regex( "^:.*? KILL (.*) :.*$", RegexOptions.Compiled );
+
+        #endregion
     }
 
 
