@@ -26,7 +26,7 @@ namespace fCraft {
         public static bool relayAllUpdates = false;
 
         public string name; // always same as PlayerInfo.name
-                            // use Player.GetClassyName() to get the colorful version
+        // use Player.GetClassyName() to get the colorful version
 
         internal Session session;
         public PlayerInfo info;
@@ -50,9 +50,9 @@ namespace fCraft {
         public DateTime commandToConfirmDate;
 
         // for block tracking
-        [CLSCompliant(false)]
+        [CLSCompliant( false )]
         public ushort localPlayerID = (ushort)ReservedPlayerID.None; // map-specific PlayerID
-                                                                     // if no ID is assigned, set to ReservedPlayerID.None
+        // if no ID is assigned, set to ReservedPlayerID.None
 
         public int id = -1; // global PlayerID (currently unused)
 
@@ -331,7 +331,7 @@ namespace fCraft {
         }
 
 
-        internal void NoPlayerMessage( string playerName     ) {
+        internal void NoPlayerMessage( string playerName ) {
             Message( "No players found matching \"{0}\"", playerName );
         }
 
@@ -432,29 +432,41 @@ namespace fCraft {
             }
             type = bindings[(byte)type];
 
+
+            CanPlaceResult canPlaceResult;
+            if( type == Block.Stair && h > 0 && world.map.GetBlock( x, y, h - 1 ) == (byte)Block.Stair ) {
+                // stair stacking
+                canPlaceResult = CanPlace( x, y, h - 1, (byte)Block.DoubleStair );
+            } else {
+                // normal placement
+                canPlaceResult = CanPlace( x, y, h, (byte)type );
+            }
+
             // if all is well, try placing it
-            switch( CanPlace( x, y, h, (byte)type ) ) {
+            switch( canPlaceResult ) {
                 case CanPlaceResult.Allowed:
                     BlockUpdate blockUpdate;
                     if( type == Block.Stair && h > 0 && world.map.GetBlock( x, y, h - 1 ) == (byte)Block.Stair ) {
-
                         // handle stair stacking
                         blockUpdate = new BlockUpdate( this, x, y, h - 1, (byte)Block.DoubleStair );
                         if( !world.FireChangedBlockEvent( ref blockUpdate ) ) {
                             SendBlockNow( x, y, h );
                             return false;
                         }
+                        info.ProcessBlockPlaced( (byte)Block.DoubleStair );
                         world.map.QueueUpdate( blockUpdate );
                         session.SendNow( PacketWriter.MakeSetBlock( x, y, h - 1, (byte)Block.DoubleStair ) );
-                        session.SendNow( PacketWriter.MakeSetBlock( x, y, h, (byte)Block.Air ) );
-                    } else {
+                        SendBlockNow( x, y, h );
+                        break;
 
+                    } else {
                         // handle normal blocks
                         blockUpdate = new BlockUpdate( this, x, y, h, (byte)type );
                         if( !world.FireChangedBlockEvent( ref blockUpdate ) ) {
                             SendBlockNow( x, y, h );
                             return false;
                         }
+                        info.ProcessBlockPlaced( (byte)type );
                         world.map.QueueUpdate( blockUpdate );
                         if( requiresUpdate || relayAllUpdates ) {
                             session.SendNow( PacketWriter.MakeSetBlock( x, y, h, (byte)type ) );
@@ -557,7 +569,7 @@ namespace fCraft {
 
 
         public bool CanDraw( int volume ) {
-            return ( this == Console ) || (info.rank.DrawLimit == 0) || (volume <= info.rank.DrawLimit);
+            return (this == Console) || (info.rank.DrawLimit == 0) || (volume <= info.rank.DrawLimit);
         }
 
 
@@ -700,11 +712,10 @@ namespace fCraft {
         const int PaidCheckTimeout = 5000;
 
         public static bool CheckPaidStatus( string name ) {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckURL + Uri.EscapeDataString(name) );
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckURL + Uri.EscapeDataString( name ) );
             request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( Heartbeat.BindIPEndPointCallback );
             request.Timeout = PaidCheckTimeout;
             request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
-
 
             using( WebResponse response = request.GetResponse() ) {
                 using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {

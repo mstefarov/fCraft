@@ -8,29 +8,12 @@ namespace fCraft {
 
     public sealed class Zone : PermissionController, IClassy {
 
-        public class ZonePlayerList {
-            // keeping both lists on one object allows lock-free synchronization
-            public PlayerInfo[] included;
-            public PlayerInfo[] excluded;
-        }
-
         public BoundingBox bounds;
 
         public string name;
 
-        ZonePlayerList playerList;
-
-        public ZonePlayerList GetPlayerList() {
-            return playerList;
-        }
-
-        void UpdatePlayerLists() {
-            lock( playerPermissionListLock ) {
-                ZonePlayerList newLists = new ZonePlayerList();
-                newLists.included = includedPlayers.Values.ToArray();
-                newLists.excluded = excludedPlayers.Values.ToArray();
-                playerList = newLists;
-            }
+        public PlayerListCollection GetPlayerList() {
+            return permissionList;
         }
 
         public DateTime createdDate, editedDate;
@@ -68,7 +51,7 @@ namespace fCraft {
                 excludedPlayers.Add( info.name.ToLower(), info );
             }
 
-            UpdatePlayerLists();
+            UpdatePlayerListCache();
 
             if( parts.Length > 3 ) {
                 string[] xheader = parts[3].Split( ' ' );
@@ -81,7 +64,7 @@ namespace fCraft {
 
 
         public Zone() {
-            UpdatePlayerLists();
+            UpdatePlayerListCache();
         }
 
 

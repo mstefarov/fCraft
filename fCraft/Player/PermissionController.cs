@@ -25,7 +25,7 @@ namespace fCraft {
             public PlayerInfo[] excluded;
         }
 
-        public PlayerListCollection list { get; private set; }
+        public PlayerListCollection permissionList { get; private set; }
 
         protected Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
         protected Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
@@ -56,9 +56,9 @@ namespace fCraft {
 
         protected object playerPermissionListLock = new object();
 
-        void UpdatePlayerListCache() {
+        protected void UpdatePlayerListCache() {
             lock( playerPermissionListLock ) {
-                list = new PlayerListCollection {
+                permissionList = new PlayerListCollection {
                     included = includedPlayers.Values.ToArray(),
                     excluded = excludedPlayers.Values.ToArray()
                 };
@@ -102,15 +102,15 @@ namespace fCraft {
         }
 
         public bool CanBuild( Player player ) {
-            PlayerListCollection listCache = list;
+            PlayerListCollection listCache = permissionList;
             for( int i = 0; i < listCache.excluded.Length; i++ ) {
                 if( player.info == listCache.excluded[i] ) return false;
             }
 
             if( player.info.rank >= minRank /*&& player.info.rank <= maxRank*/ ) return true; // TODO: implement maxrank
 
-            for( int i = 0; i < list.included.Length; i++ ) {
-                if( player.info == list.included[i] ) return true;
+            for( int i = 0; i < permissionList.included.Length; i++ ) {
+                if( player.info == permissionList.included[i] ) return true;
             }
 
             return false;
@@ -118,7 +118,7 @@ namespace fCraft {
 
 
         public PermissionType CanBuildDetailed( Player player ) {
-            PlayerListCollection listCache = list;
+            PlayerListCollection listCache = permissionList;
             for( int i = 0; i < listCache.excluded.Length; i++ ) {
                 if( player.info == listCache.excluded[i] )
                     return PermissionType.BlackListed;
