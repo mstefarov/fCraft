@@ -1,3 +1,7 @@
+0.500
+ *still in development, features are subject to change*
+ See SVN commit logs for detailed list of changes
+
 0.499
  Feature: Added an option to disable name verification for players connecting from LAN.
  Feature: Added 'flat' template to MapGenerator, allowing to make flat maps with any theme.

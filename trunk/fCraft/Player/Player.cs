@@ -167,7 +167,7 @@ namespace fCraft {
                         message = message.Substring( 1 );
                     }
 
-                    Server.SendToAll( "{0}{1}: {2}", GetClassyName(), Color.White, message );
+                    Server.SendToAllExcept( "{0}{1}: {2}", Player.Console, GetClassyName(), Color.White, message );
                     break;
 
                 case MessageType.Command:
@@ -291,7 +291,7 @@ namespace fCraft {
 
         // Queues a system message with a custom color
         public void MessagePrefixed( string prefix, string message ) {
-            if( session == null ) {
+            if( this == Console ) {
                 Logger.LogConsole( message );
             } else {
                 foreach( Packet p in PacketWriter.MakeWrappedMessage( prefix, Color.Sys + message, false ) ) {
