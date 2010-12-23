@@ -207,8 +207,34 @@ namespace fCraft {
             { Silver, IRCColor.Silver },
         };
 
+
         public static string ToIRCColorCodes( string input ) {
             StringBuilder sb = new StringBuilder( input );
+
+            sb.Replace("&s", Color.Sys);
+            sb.Replace("&S", Color.Sys);
+            
+            sb.Replace("&y", Color.Say);
+            sb.Replace("&Y", Color.Say);
+            
+            sb.Replace("&p", Color.PM);
+            sb.Replace("&P", Color.PM);
+            
+            sb.Replace("&r", Color.Announcement);
+            sb.Replace("&R", Color.Announcement);
+            
+            sb.Replace("&h", Color.Help);
+            sb.Replace("&H", Color.Help);
+            
+            sb.Replace("&w", Color.Warning);
+            sb.Replace("&W", Color.Warning);
+            
+            sb.Replace("&m", Color.Me);
+            sb.Replace("&M", Color.Me);
+            
+            sb.Replace("&i", Color.IRC);
+            sb.Replace("&I", Color.IRC);
+
             foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {
                 sb.Replace( code.Key, '\u0003' + ((int)code.Value).ToString().PadLeft( 2, '0' ) );
             }

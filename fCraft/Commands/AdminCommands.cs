@@ -569,7 +569,7 @@ namespace fCraft {
                 (!promote && targetInfo.rank > newRank) ) {
                 Rank oldRank = targetInfo.rank;
 
-                if( !Server.FirePlayerRankChange( targetInfo, player, oldRank, newRank ) ) return;
+                if( !Server.FirePlayerRankChange( targetInfo, player, oldRank, newRank, reason ) ) return;
 
                 if( !silent ) Logger.Log( "{0} {1} {2} from {3} to {4}.", LogType.UserActivity,
                                           player.name, verb, targetInfo.name, targetInfo.rank.Name, newRank.Name );
