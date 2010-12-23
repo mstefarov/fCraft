@@ -208,6 +208,8 @@ namespace ConfigTool {
 
             FillRankList( cPatrolledRank, "(lowest rank)" );
             cPatrolledRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.PatrolledRank ) ) );
+
+            xPaidPlayersOnly.Checked = Config.GetBool( ConfigKey.PaidPlayersOnly );
         }
 
 
@@ -402,6 +404,7 @@ namespace ConfigTool {
             } else {
                 Config.SetValue( ConfigKey.PatrolledRank, RankList.FindRank( cPatrolledRank.SelectedIndex - 1 ) );
             }
+            Config.SetValue( ConfigKey.PaidPlayersOnly, xPaidPlayersOnly.Checked );
 
 
             // Saving & Backups

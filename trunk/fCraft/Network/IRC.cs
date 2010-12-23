@@ -474,9 +474,8 @@ namespace fCraft {
         }
 
         internal static void PlayerConnectedHandler( Session session, ref bool cancel ) {
-            string message = String.Format( "{0}{1}* {2}{1} connected. ",
+            string message = String.Format( "{0}&S* {1}&S connected. ",
                                             Color.IRCBold,
-                                            Color.Sys,
                                             session.player.GetClassyName() );
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
                 SendToAllChannels( message );
@@ -484,9 +483,8 @@ namespace fCraft {
         }
 
         internal static void PlayerDisconnectedHandler( Session session ) {
-            string message = String.Format( "{0}{1}* {2}{1} left the server.",
+            string message = String.Format( "{0}&S* {1}&S left the server.",
                                             Color.IRCBold,
-                                            Color.Sys,
                                             session.player.GetClassyName() );
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) && session.player != null ) {
                 SendToAllChannels( message );
@@ -505,23 +503,22 @@ namespace fCraft {
             PlayerSomethingMessage( unbanner, "unbanned", player, reason );
         }
 
-        internal static void PlayerRankChangedHandler( PlayerInfo target, Player changer, Rank oldRank, Rank newRank, ref bool cancel ) {
-            string actionString = String.Format( "{0}moted from {1}&S to {2}&S",
+        internal static void PlayerRankChangedHandler( PlayerInfo target, Player changer, Rank oldRank, Rank newRank, string reason, ref bool cancel ) {
+            string actionString = String.Format( "{0}moted from {1}&W to {2}&W",
                                                  (oldRank < newRank ? "pro" : "de"),
-                                                 oldRank,
-                                                 newRank );
-            PlayerSomethingMessage( changer, actionString, target, null );
+                                                 oldRank.GetClassyName(),
+                                                 newRank.GetClassyName() );
+            PlayerSomethingMessage( changer, actionString, target, reason );
         }
 
         static void PlayerSomethingMessage( Player player, string action, PlayerInfo target, string reason ) {
-            string message = String.Format( "{0}{1}* {2}{1} was {3} by {4} {1}. ",
+            string message = String.Format( "{0}&W* {1}&W was {2} by {3}&W.",
                     Color.IRCBold,
-                    Color.Warning,
                     target.GetClassyName(),
                     action,
                     player.GetClassyName() );
             if( !String.IsNullOrEmpty( reason ) ) {
-                message += ". Reason: " + reason;
+                message += " Reason: " + reason;
             }
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerEvents ) ) {
                 SendToAllChannels( message );

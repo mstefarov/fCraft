@@ -770,9 +770,9 @@ namespace fCraft {
             return !cancel;
         }
 
-        internal static bool FirePlayerRankChange( PlayerInfo target, Player player, Rank oldRank, Rank newRank ) {
+        internal static bool FirePlayerRankChange( PlayerInfo target, Player player, Rank oldRank, Rank newRank, string reason ) {
             bool cancel = false;
-            if( OnRankChanged != null ) OnRankChanged( target, player, oldRank, newRank, ref cancel );
+            if( OnRankChanged != null ) OnRankChanged( target, player, oldRank, newRank, reason, ref cancel );
             return !cancel;
         }
 
@@ -1283,9 +1283,9 @@ namespace fCraft {
             lock( sessionLock ) {
                 if( sessions.Contains( session ) ) {
                     sessions.Remove( session );
+                    if( OnPlayerDisconnected != null ) OnPlayerDisconnected( session );
                 }
             }
-            if( OnPlayerDisconnected != null ) OnPlayerDisconnected( session );
         }
 
 

@@ -25,7 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -266,6 +266,7 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
+            this.xPaidPlayersOnly = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -1041,8 +1042,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 635, 359 );
             this.dgvWorlds.TabIndex = 1;
@@ -1577,6 +1578,7 @@
             // 
             // gSecurityMisc
             // 
+            this.gSecurityMisc.Controls.Add( this.xPaidPlayersOnly );
             this.gSecurityMisc.Controls.Add( this.lPatrolledRankAndBelow );
             this.gSecurityMisc.Controls.Add( this.cPatrolledRank );
             this.gSecurityMisc.Controls.Add( this.lPatrolledRank );
@@ -1586,7 +1588,7 @@
             this.gSecurityMisc.Controls.Add( this.xRequireBanReason );
             this.gSecurityMisc.Location = new System.Drawing.Point( 8, 200 );
             this.gSecurityMisc.Name = "gSecurityMisc";
-            this.gSecurityMisc.Size = new System.Drawing.Size( 636, 117 );
+            this.gSecurityMisc.Size = new System.Drawing.Size( 636, 148 );
             this.gSecurityMisc.TabIndex = 2;
             this.gSecurityMisc.TabStop = false;
             this.gSecurityMisc.Text = "Misc";
@@ -1594,7 +1596,7 @@
             // lPatrolledRankAndBelow
             // 
             this.lPatrolledRankAndBelow.AutoSize = true;
-            this.lPatrolledRankAndBelow.Location = new System.Drawing.Point( 242, 81 );
+            this.lPatrolledRankAndBelow.Location = new System.Drawing.Point( 242, 115 );
             this.lPatrolledRankAndBelow.Name = "lPatrolledRankAndBelow";
             this.lPatrolledRankAndBelow.Size = new System.Drawing.Size( 72, 15 );
             this.lPatrolledRankAndBelow.TabIndex = 8;
@@ -1604,7 +1606,7 @@
             // 
             this.cPatrolledRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cPatrolledRank.FormattingEnabled = true;
-            this.cPatrolledRank.Location = new System.Drawing.Point( 113, 78 );
+            this.cPatrolledRank.Location = new System.Drawing.Point( 113, 112 );
             this.cPatrolledRank.Name = "cPatrolledRank";
             this.cPatrolledRank.Size = new System.Drawing.Size( 123, 23 );
             this.cPatrolledRank.TabIndex = 4;
@@ -1612,7 +1614,7 @@
             // lPatrolledRank
             // 
             this.lPatrolledRank.AutoSize = true;
-            this.lPatrolledRank.Location = new System.Drawing.Point( 24, 81 );
+            this.lPatrolledRank.Location = new System.Drawing.Point( 24, 115 );
             this.lPatrolledRank.Name = "lPatrolledRank";
             this.lPatrolledRank.Size = new System.Drawing.Size( 83, 15 );
             this.lPatrolledRank.TabIndex = 6;
@@ -1621,7 +1623,7 @@
             // xAnnounceRankChanges
             // 
             this.xAnnounceRankChanges.AutoSize = true;
-            this.xAnnounceRankChanges.Location = new System.Drawing.Point( 304, 45 );
+            this.xAnnounceRankChanges.Location = new System.Drawing.Point( 304, 79 );
             this.xAnnounceRankChanges.Name = "xAnnounceRankChanges";
             this.xAnnounceRankChanges.Size = new System.Drawing.Size( 231, 19 );
             this.xAnnounceRankChanges.TabIndex = 3;
@@ -1631,7 +1633,7 @@
             // xAnnounceKickAndBanReasons
             // 
             this.xAnnounceKickAndBanReasons.AutoSize = true;
-            this.xAnnounceKickAndBanReasons.Location = new System.Drawing.Point( 304, 20 );
+            this.xAnnounceKickAndBanReasons.Location = new System.Drawing.Point( 304, 54 );
             this.xAnnounceKickAndBanReasons.Name = "xAnnounceKickAndBanReasons";
             this.xAnnounceKickAndBanReasons.Size = new System.Drawing.Size( 244, 19 );
             this.xAnnounceKickAndBanReasons.TabIndex = 2;
@@ -1641,7 +1643,7 @@
             // xRequireRankChangeReason
             // 
             this.xRequireRankChangeReason.AutoSize = true;
-            this.xRequireRankChangeReason.Location = new System.Drawing.Point( 42, 45 );
+            this.xRequireRankChangeReason.Location = new System.Drawing.Point( 42, 79 );
             this.xRequireRankChangeReason.Name = "xRequireRankChangeReason";
             this.xRequireRankChangeReason.Size = new System.Drawing.Size( 225, 19 );
             this.xRequireRankChangeReason.TabIndex = 1;
@@ -1651,7 +1653,7 @@
             // xRequireBanReason
             // 
             this.xRequireBanReason.AutoSize = true;
-            this.xRequireBanReason.Location = new System.Drawing.Point( 42, 20 );
+            this.xRequireBanReason.Location = new System.Drawing.Point( 42, 54 );
             this.xRequireBanReason.Name = "xRequireBanReason";
             this.xRequireBanReason.Size = new System.Drawing.Size( 197, 19 );
             this.xRequireBanReason.TabIndex = 0;
@@ -3058,6 +3060,17 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // xPaidPlayersOnly
+            // 
+            this.xPaidPlayersOnly.AutoSize = true;
+            this.xPaidPlayersOnly.Location = new System.Drawing.Point( 42, 20 );
+            this.xPaidPlayersOnly.Name = "xPaidPlayersOnly";
+            this.xPaidPlayersOnly.Size = new System.Drawing.Size( 489, 19 );
+            this.xPaidPlayersOnly.TabIndex = 9;
+            this.xPaidPlayersOnly.Text = "Only allow players with paid Minecraft accounts to join the server (not recommend" +
+                "ed).";
+            this.xPaidPlayersOnly.UseVisualStyleBackColor = true;
+            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -3388,5 +3401,6 @@
         private System.Windows.Forms.TextBox tLogPath;
         private System.Windows.Forms.CheckBox xIRCBotAnnounceServerEvents;
         private System.Windows.Forms.CheckBox xIRCUseColor;
+        private System.Windows.Forms.CheckBox xPaidPlayersOnly;
     }
 }

@@ -250,15 +250,21 @@ namespace fCraft {
                 using( FileStream fs = File.OpenRead( fileName ) ) {
                     BinaryReader reader = new BinaryReader( fs );
 
-                    // Read in the magic number
-                    if( reader.ReadUInt32() != Mcc.MapFCMv2.Identifier ) {
-                        throw new FormatException();
-                    }
+                    uint id = reader.ReadUInt32();
 
-                    // Read in the map dimesions
-                    map.widthX = reader.ReadInt16();
-                    map.widthY = reader.ReadInt16();
-                    map.height = reader.ReadInt16();
+                    if( id == Mcc.MapFCMv2.Identifier ) {
+                        map.widthX = reader.ReadInt16();
+                        map.widthY = reader.ReadInt16();
+                        map.height = reader.ReadInt16();
+
+                    } else if( id == Mcc.MapFCMv3.Identifier && reader.ReadByte() == Mcc.MapFCMv3.Revision ) {
+                        map.widthX = reader.ReadInt16();
+                        map.height = reader.ReadInt16();
+                        map.widthY = reader.ReadInt16();
+
+                    } else {
+                        return null;
+                    }
                 }
                 return map;
             } catch( Exception ex ) {
