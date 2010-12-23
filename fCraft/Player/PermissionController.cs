@@ -35,14 +35,14 @@ namespace fCraft {
         public Rank minRank {
             get { return _minRank; }
             set {
-                if( value > _maxRank ) {
-                    _maxRank = value;
-                }
+                //if( value > _maxRank ) {
+                //    _maxRank = value;
+                //}
                 _minRank = value;
             }
         }
 
-        public Rank maxRank {
+        /*public Rank maxRank {
             get {
                 return _maxRank;
             }
@@ -52,7 +52,7 @@ namespace fCraft {
                 }
                 _maxRank = value;
             }
-        }
+        }*/
 
         protected object playerPermissionListLock = new object();
 

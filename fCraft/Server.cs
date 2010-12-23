@@ -445,7 +445,11 @@ namespace fCraft {
                 }
                 doc.Add( root );
                 doc.Save( tempWorldListFile );
-                File.Replace( tempWorldListFile, WorldListFileName, backupWorldListFile );
+                if( File.Exists( WorldListFileName ) ) {
+                    File.Replace( tempWorldListFile, WorldListFileName, backupWorldListFile );
+                } else {
+                    File.Move( tempWorldListFile, WorldListFileName );
+                }
             } catch( Exception ex ) {
                 Logger.Log( "Server.SaveWorldList: An error occured while trying to save the world list: {0}", LogType.Error, ex );
             }
