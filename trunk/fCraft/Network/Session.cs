@@ -308,7 +308,7 @@ namespace fCraft {
                                 // ignore settile packets while player is changing world
                                 if( isBetweenWorlds ) continue;
 
-                                if( type > 49 || x < 0 || x > player.world.map.widthX || y < 0 || y > player.world.map.widthY || h < 0 || h > player.world.map.height ) {
+                                if( type > 49 || !player.world.map.InBounds( x, y, h ) ) {
                                     Logger.Log( "{0} was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity,
                                                 player.name );
                                     Server.SendToAll( "{0}&W was kicked for attempted hacking (0x05).", player.GetClassyName() );

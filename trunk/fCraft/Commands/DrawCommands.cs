@@ -384,11 +384,13 @@ namespace fCraft {
             if( !player.world.map.InBounds( x, y, h ) ) return;
             if( player.CanPlace( x, y, h, drawBlock ) != CanPlaceResult.Allowed ) return;
             byte block = player.world.map.GetBlock( x, y, h );
-            if( block == drawBlock ||
-                (block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete )) ||
-                (drawBlock == (byte)Block.Admincrete && !player.Can( Permission.PlaceAdmincrete )) ) return;
+            if( block == drawBlock  ) return;
 
+            // this would've been an easy way to do block tracking for draw commands BUT
+            // if i set "origin" to player, he will not receive the block update. I tried.
             player.world.map.QueueUpdate( new BlockUpdate( null, x, y, h, drawBlock ) );
+            //player.SendDelayed( PacketWriter.MakeSetBlock( x, y, h, drawBlock ) );
+
             if( blocks < MaxUndoCount ) {
                 player.undoBuffer.Enqueue( new BlockUpdate( null, x, y, h, block ) );
             } else if( !cannotUndo ) {
@@ -1109,7 +1111,6 @@ namespace fCraft {
                 args = new PasteArgs() {
                     types = new Block[0]
                 };
-                player.MessageNow( "Ready to paste all blocks." );
             }
 
             player.SetCallback( 1, PasteCallback, args );

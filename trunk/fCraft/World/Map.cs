@@ -777,15 +777,12 @@ namespace fCraft {
                 blocks[blockIndex] = update.type; // TODO: investigate IndexOutOfRangeException here
 
                 if( !world.isFlushing ) world.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin );
-                if( update.origin != null ) {
-                    update.origin.info.ProcessBlockPlaced( update.type );
-                    if( blockOwnership != null ) {
-                        // TODO: ensure safety in case player leaves the world (and localPlayerID changes) before everything is processed
-                        if( update.origin.localPlayerID == (ushort)ReservedPlayerID.None ) {
-                            update.origin.localPlayerID = AssignPlayerID( update.origin.name );
-                        }
-                        blockOwnership[blockIndex] = update.origin.localPlayerID;
+                if( update.origin != null && blockOwnership != null ) {
+                    // TODO: ensure safety in case player leaves the world (and localPlayerID changes) before everything is processed
+                    if( update.origin.localPlayerID == (ushort)ReservedPlayerID.None ) {
+                        update.origin.localPlayerID = AssignPlayerID( update.origin.name );
                     }
+                    blockOwnership[blockIndex] = update.origin.localPlayerID;
                 }
                 packetsSent++;
             }

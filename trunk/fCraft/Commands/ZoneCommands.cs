@@ -393,7 +393,7 @@ namespace fCraft {
                 DateTime.Now.Subtract( zone.editedDate ).Hours );
             }
 
-            Zone.ZonePlayerList playerList = zone.GetPlayerList();
+            PermissionController.PlayerListCollection playerList = zone.GetPlayerList();
 
             if( playerList.included.Length > 0 ) {
                 player.Message( "  Zone whitelist includes: {0}",

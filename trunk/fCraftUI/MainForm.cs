@@ -28,8 +28,7 @@ namespace fCraftUI {
             Server.OnPlayerListChanged += UpdatePlayerList;
             Server.OnShutdownEnd += OnServerShutdown;
 
-#if DEBUG
-#else
+#if !DEBUG
             try {
 #endif
                 if( Server.Init(args) ) {
@@ -58,8 +57,7 @@ namespace fCraftUI {
                 } else {
                     Shutdown( "failed to initialize", false );
                 }
-#if DEBUG
-#else
+#if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Unhandled exception in fCraftUI.StartUp", "fCraftUI", ex );
                 Shutdown( "error at startup", false );
