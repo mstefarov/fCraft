@@ -526,7 +526,7 @@ namespace fCraft {
         }
 
         static void PlayerSomethingMessage( Player player, string action, PlayerInfo target, string reason ) {
-            string message = String.Format( "\u0001ACTION {0}&W* {1}&W was {2} by {3}&W\u0001",
+            string message = String.Format( "\u0001ACTION {0}&W* {1}&W was {2} by {3}&W",
                     Color.IRCBold,
                     target.GetClassyName(),
                     action,
@@ -535,7 +535,7 @@ namespace fCraft {
                 message += " Reason: " + reason;
             }
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerEvents ) ) {
-                SendToAllChannels( message );
+                SendToAllChannels( message + '\u0001' );
             }
         }
 
