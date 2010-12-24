@@ -172,8 +172,7 @@ namespace fCraft {
                         Logger.Log( "IRC: Disconnected. Will retry in {0} seconds.", LogType.Warning,
                                     ReconnectDelay / 1000 );
                         reconnect = true;
-#if DEBUG
-#else
+#if !DEBUG
                     } catch( Exception ex ) {
                         Logger.Log( "IRC: " + ex, LogType.Error );
                         reconnect = true;
@@ -189,7 +188,8 @@ namespace fCraft {
 
                 IRCMessage msg = MessageParser( message, actualBotNick );
 #if DEBUG
-                Logger.Log( "[" + msg.Type + "]: " + msg.RawMessage, LogType.IRC );
+                Logger.Log( "[{0}]: {1}", LogType.IRC,
+                            msg.Type, msg.RawMessage );
 #endif
 
                 switch( msg.Type ) {
@@ -212,15 +212,29 @@ namespace fCraft {
                         return;
 
 
+                    case IRCMessageType.ChannelAction:
                     case IRCMessageType.ChannelMessage:
                         // channel chat
                         if( !responsibleForInputParsing ) return;
                         if( !IsBotNick( msg.Nick ) ) {
-                            string processedMessage = nonPrintableChars.Replace( msg.Message, "" ).Trim();
+                            string processedMessage = msg.Message;
+                            if( msg.Type == IRCMessageType.ChannelAction ) {
+                                if( processedMessage.StartsWith( "\u0001ACTION" ) ) {
+                                    processedMessage = processedMessage.Substring( 8 );
+                                } else {
+                                    return;
+                                }
+                            }
+                            processedMessage = nonPrintableChars.Replace( processedMessage, "" ).Trim();
                             if( processedMessage.Length > 0 ) {
                                 if( Config.GetBool( ConfigKey.IRCBotForwardFromIRC ) ) {
-                                    Server.SendToAll( "{0}(IRC) {1}{2}: {3}",
-                                                      Color.IRC, msg.Nick, Color.White, processedMessage );
+                                    if( msg.Type == IRCMessageType.ChannelAction ) {
+                                        Server.SendToAll( "{0}(IRC) * {1} {2}",
+                                                          Color.IRC, msg.Nick, processedMessage );
+                                    } else {
+                                        Server.SendToAll( "{0}(IRC) {1}{2}: {3}",
+                                                          Color.IRC, msg.Nick, Color.White, processedMessage );
+                                    }
                                 } else if( msg.Message.StartsWith( "#" ) ) {
                                     Server.SendToAll( "{0}(IRC) {1}{2}: {3}",
                                                       Color.IRC, msg.Nick, Color.White, processedMessage.Substring( 1 ) );
@@ -474,7 +488,7 @@ namespace fCraft {
         }
 
         internal static void PlayerConnectedHandler( Session session, ref bool cancel ) {
-            string message = String.Format( "{0}&S* {1}&S connected. ",
+            string message = String.Format( "\u0001ACTION {0}&S* {1}&S connected.\u0001",
                                             Color.IRCBold,
                                             session.player.GetClassyName() );
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
@@ -483,7 +497,7 @@ namespace fCraft {
         }
 
         internal static void PlayerDisconnectedHandler( Session session ) {
-            string message = String.Format( "{0}&S* {1}&S left the server.",
+            string message = String.Format( "\u0001ACTION {0}&S* {1}&S left the server.\u0001",
                                             Color.IRCBold,
                                             session.player.GetClassyName() );
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) && session.player != null ) {
@@ -512,7 +526,7 @@ namespace fCraft {
         }
 
         static void PlayerSomethingMessage( Player player, string action, PlayerInfo target, string reason ) {
-            string message = String.Format( "{0}&W* {1}&W was {2} by {3}&W.",
+            string message = String.Format( "\u0001ACTION {0}&W* {1}&W was {2} by {3}&W\u0001",
                     Color.IRCBold,
                     target.GetClassyName(),
                     action,

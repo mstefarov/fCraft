@@ -1134,7 +1134,11 @@ namespace fCraft {
                 return;
             }
 
+
             Player[] plist = Server.playerList;
+
+            if( plist.Length > 0 ) player.info.linesWritten++;
+
             for( int i = 0; i < plist.Length; i++ ) {
                 if( plist[i].Can( Permission.ReadStaffChat ) || plist[i] == player ) {
                     plist[i].Message( "{0}(staff){1}{0}: {2}", Color.PM, player.GetClassyName(), cmd.NextAll() );
