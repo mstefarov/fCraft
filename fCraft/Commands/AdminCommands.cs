@@ -331,6 +331,7 @@ namespace fCraft {
                 if( banAll ) {
                     foreach( PlayerInfo otherInfo in PlayerDB.FindPlayers( address ) ) {
                         if( otherInfo.ProcessUnban( player.name, reason + "~UnBanAll" ) ) {
+                            Server.FirePlayerUnbannedEvent( otherInfo, player, reason + "~UnBanAll" );
                             Server.SendToAllExcept( "{0}&W was unbanned (UnbanAll) by {1}", player,
                                                     otherInfo.GetClassyName(), player.GetClassyName() );
                             player.Message( "{0}&S matched IP and was also unbanned.", otherInfo.GetClassyName() );
@@ -353,13 +354,14 @@ namespace fCraft {
                 if( banAll ) {
                     foreach( PlayerInfo otherInfo in PlayerDB.FindPlayers( address ) ) {
                         if( otherInfo.ProcessBan( player, reason + "~BanAll" ) ) {
+                            Server.FirePlayerBannedEvent( otherInfo, player, reason + "~BanAll" );
                             player.Message( "{0}&S matched IP and was also banned.", otherInfo.GetClassyName() );
                             Server.SendToAllExcept( "{0}&W was banned (BanAll) by {1}", player,
                                                     otherInfo.GetClassyName(), player.GetClassyName() );
                         }
                     }
                     foreach( Player other in Server.FindPlayers( address ) ) {
-                        DoKick( player, other, null, false );
+                        DoKick( player, other, "Banned by " + player.GetClassyName(), true );
                     }
                 }
             }
@@ -807,6 +809,7 @@ namespace fCraft {
         static CommandDescriptor cdHide = new CommandDescriptor {
             name = "hide",
             permissions = new Permission[] { Permission.Hide },
+            usage = "/hide [silent]",
             help = "Enables invisible mode. It looks to other players like you left the server, " +
                    "but you can still do anything - chat, build, delete, type commands - as usual. " +
                    "Great way to spy on griefers and scare newbies. " +
@@ -815,24 +818,35 @@ namespace fCraft {
         };
 
         internal static void Hide( Player player, Command cmd ) {
-            if( !player.isHidden ) {
-
-                player.isHidden = true;
-                player.Message( "{0}You are now hidden.", Color.Gray );
-
-                // to make it look like player just logged out in /info
-                player.info.lastSeen = DateTime.Now;
-
-                // for oblivious players: remove player from the list
-                Server.SendToBlind( PacketWriter.MakeRemoveEntity( player.id ), player );
-                Server.SendToBlind( String.Format( "&SPlayer {0}&S left the server.", player.GetClassyName() ), player );
-
-                // for aware players: notify
-                Server.SendToSeeing( String.Format( "{0}&S is now hidden.", player.GetClassyName() ), player );
-
-            } else {
+            if( player.isHidden ) {
                 player.Message( "You are already hidden." );
+                return;
             }
+
+            string silentString = cmd.Next();
+            bool silent = false;
+            if( silentString != null ) {
+                silent = silentString.Equals( "silent", StringComparison.OrdinalIgnoreCase );
+            }
+
+            player.isHidden = true;
+            player.Message( "{0}You are now hidden.", Color.Gray );
+
+            // to make it look like player just logged out in /info
+            player.info.lastSeen = DateTime.Now;
+
+            // for oblivious players: remove player from the list
+            Server.SendToBlind( PacketWriter.MakeRemoveEntity( player.id ), player );
+
+            if( !silent ) {
+                Server.SendToBlind( String.Format( "&SPlayer {0}&S left the server.", player.GetClassyName() ), player );
+                if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
+                    IRC.PlayerDisconnectedHandler( player.session );
+                }
+            }
+
+            // for aware players: notify
+            Server.SendToSeeing( String.Format( "{0}&S is now hidden.", player.GetClassyName() ), player );
         }
 
 
@@ -840,28 +854,40 @@ namespace fCraft {
         static CommandDescriptor cdUnhide = new CommandDescriptor {
             name = "unhide",
             permissions = new Permission[] { Permission.Hide },
-            usage = "/unhide PlayerName",
+            usage = "/unhide [silent]",
             help = "Disables the &H/hide&S invisible mode. " +
                    "It looks to other players like you just joined the server.",
             handler = Unhide
         };
 
         internal static void Unhide( Player player, Command cmd ) {
-            if( player.isHidden ) {
-
-                // for aware players: notify
-                Server.SendToSeeing( String.Format( "{0}&S is no longer hidden.", player.GetClassyName() ), player );
-
-                // for oblivious players: add player to the list
-                player.world.SendToBlind( PacketWriter.MakeAddEntity( player, player.pos ), player );
-                Server.SendToBlind( Server.MakePlayerConnectedMessage( player, false, player.world ), player );
-
-                player.Message( "You are no longer hidden.", Color.Gray );
-                player.isHidden = false;
-
-            } else {
+            if( !player.isHidden ) {
                 player.Message( "You are not currently hidden." );
+                return;
             }
+
+            string silentString = cmd.Next();
+            bool silent = false;
+            if( silentString != null ) {
+                silent = silentString.Equals( "silent", StringComparison.OrdinalIgnoreCase );
+            }
+
+            // for aware players: notify
+            Server.SendToSeeing( String.Format( "{0}&S is no longer hidden.", player.GetClassyName() ), player );
+
+            // for oblivious players: add player to the list
+            player.world.SendToBlind( PacketWriter.MakeAddEntity( player, player.pos ), player );
+
+            if( !silent ) {
+                Server.SendToBlind( Server.MakePlayerConnectedMessage( player, false, player.world ), player );
+                if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
+                    bool temp = false;
+                    IRC.PlayerConnectedHandler( player.session, ref temp );
+                }
+            }
+
+            player.Message( "You are no longer hidden.", Color.Gray );
+            player.isHidden = false;
         }
 
         #endregion
@@ -1104,7 +1130,7 @@ namespace fCraft {
                 string msg = cmd.NextAll();
                 if( msg != null && msg.Trim().Length > 0 ) {
                     player.info.linesWritten++;
-                    Server.SendToAll( "&S{0}", msg.Trim() );
+                    Server.SendToAllExceptIgnored( player, "&S{0}", null, msg.Trim() );
                 } else {
                     cdSay.PrintUsage( player );
                 }
@@ -1140,7 +1166,7 @@ namespace fCraft {
             if( plist.Length > 0 ) player.info.linesWritten++;
 
             for( int i = 0; i < plist.Length; i++ ) {
-                if( plist[i].Can( Permission.ReadStaffChat ) || plist[i] == player ) {
+                if( (plist[i].Can( Permission.ReadStaffChat ) || plist[i] == player) && !plist[i].IsIgnored( player.info ) ) {
                     plist[i].Message( "{0}(staff){1}{0}: {2}", Color.PM, player.GetClassyName(), cmd.NextAll() );
                 }
             }

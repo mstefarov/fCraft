@@ -683,6 +683,18 @@ namespace fCraft {
             SendToAllExcept( message, null, args );
         }
 
+        public static void SendToAllExceptIgnored( Player origin, string message, Player except, params object[] args ) {
+            if( args.Length > 0 ) message = String.Format( message, args );
+            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
+                Player[] tempList = playerList;
+                for( int i = 0; i < tempList.Length; i++ ) {
+                    if( tempList[i] != except && !tempList[i].IsIgnored( origin.info ) ) {
+                        tempList[i].Send( p );
+                    }
+                }
+            }
+        }
+
 
         // Sends a packet to everyone who CAN see 'source' player
         public static void SendToSeeing( Packet packet, Player source ) {
@@ -733,9 +745,14 @@ namespace fCraft {
 
 
         // Sends a string to all players of a specific rank
-        public static void SendToRank( string message, Rank rank ) {
+        public static void SendToRank( Player origin, string message, Rank rank ) {
             foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
-                SendToRank( packet, rank );
+                Player[] tempList = playerList;
+                for( int i = 0; i < tempList.Length; i++ ) {
+                    if( tempList[i].info.rank == rank && !tempList[i].IsIgnored( origin.info ) ) {
+                        tempList[i].Send( packet );
+                    }
+                }
             }
         }
 

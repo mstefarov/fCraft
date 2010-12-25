@@ -5,6 +5,7 @@ using System.Text;
 using System.Net; // for CheckPaidStatus
 using System.Net.Cache; // for CheckPaidStatus
 using System.IO; // for CheckPaidStatus
+using System.Linq;
 
 
 namespace fCraft {
@@ -159,7 +160,6 @@ namespace fCraft {
 
                     info.linesWritten++;
 
-
                     Logger.Log( "{0}: {1}", LogType.GlobalChat, name, message );
 
                     // Escaped slash removed AFTER logging, to avoid confusion with real commands
@@ -167,7 +167,8 @@ namespace fCraft {
                         message = message.Substring( 1 );
                     }
 
-                    Server.SendToAllExcept( "{0}{1}: {2}", Player.Console, GetClassyName(), Color.White, message );
+                    Server.SendToAllExceptIgnored( this, "{0}{1}: {2}", Player.Console,
+                                                   GetClassyName(), Color.White, message );
                     break;
 
                 case MessageType.Command:
@@ -204,7 +205,9 @@ namespace fCraft {
                     }
 
                     if( allPlayers.Length == 1 ) {
-                        if( !PM( allPlayers[0], messageText ) ) {
+                        if( allPlayers[0].IsIgnored( this.info ) ) {
+                            MessageNow( "&WCannot PM {0}&W: you are ignored.", allPlayers[0].GetClassyName() );
+                        } else if( !PM( allPlayers[0], messageText ) ) {
                             NoPlayerMessage( otherPlayerName );
                         }
 
@@ -238,7 +241,7 @@ namespace fCraft {
                                                                  Color.PM,
                                                                  name,
                                                                  message.Substring( message.IndexOf( ' ' ) + 1 ) );
-                        Server.SendToRank( formattedMessage, rank );
+                        Server.SendToRank( this, formattedMessage, rank );
                         if( info.rank != rank ) {
                             Message( formattedMessage );
                         }
@@ -377,6 +380,48 @@ namespace fCraft {
         internal void NoRankMessage( string rankName ) {
             Message( "Unrecognized rank \"{0}\"", rankName );
         }
+
+
+        #region Ignore
+
+        HashSet<PlayerInfo> ignoreList = new HashSet<PlayerInfo>();
+        object ignoreLock = new object();
+
+        public bool IsIgnored( PlayerInfo other ) {
+            lock( ignoreLock ) {
+                return ignoreList.Contains( other );
+            }
+        }
+
+        public bool Ignore( PlayerInfo other ) {
+            lock( ignoreLock ) {
+                if( !ignoreList.Contains( other ) ) {
+                    ignoreList.Add( other );
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        public bool Unignore( PlayerInfo other ) {
+            lock( ignoreLock ) {
+                if( ignoreList.Contains( other ) ) {
+                    ignoreList.Remove( other );
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        public PlayerInfo[] GetIgnoreList() {
+            lock( ignoreLock ) {
+                return ignoreList.ToArray();
+            }
+        }
+
+        #endregion
 
         #endregion
 
@@ -730,6 +775,7 @@ namespace fCraft {
             }
         }
     }
+
 
     public enum CanPlaceResult {
         Allowed,

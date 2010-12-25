@@ -17,6 +17,9 @@ namespace fCraft {
 
         // Register help commands
         internal static void Init() {
+            CommandList.RegisterCommand( cdIgnore );
+            CommandList.RegisterCommand( cdUnignore );
+
             CommandList.RegisterCommand( cdMe );
             CommandList.RegisterCommand( cdRoll );
 
@@ -37,8 +40,88 @@ namespace fCraft {
             CommandList.RegisterCommand( cdServerInfo );
 
             CommandList.RegisterCommand( cdMeasure );
+
+
         }
 
+
+        static CommandDescriptor cdIgnore = new CommandDescriptor {
+            name = "ignore",
+            consoleSafe = true,
+            usage = "/ignore PlayerName",
+            help = "Temporarily blocks the other player from messaging you.",
+            handler = Ignore
+        };
+
+        internal static void Ignore( Player player, Command cmd ) {
+            string name = cmd.Next();
+            if( name != null ) {
+                PlayerInfo targetInfo;
+                if( !PlayerDB.FindPlayerInfo( name, out targetInfo ) ) {
+                    PlayerInfo[] infos = PlayerDB.FindPlayers( name );
+                    if( infos.Length == 1 ) {
+                        targetInfo = infos[0];
+                    } else if( infos.Length > 1 ) {
+                        player.ManyMatchesMessage( "player", (IClassy[])infos );
+                    } else {
+                        player.NoPlayerMessage( name );
+                    }
+                } else if( targetInfo == null ) {
+                    player.NoPlayerMessage( name );
+                    return;
+                }
+                if( player.Ignore( targetInfo ) ) {
+                    player.MessageNow( "You are now ignoring {0}", targetInfo.GetClassyName() );
+                } else {
+                    player.MessageNow( "You are already ignoring {0}", targetInfo.GetClassyName() );
+                }
+
+            } else {
+                PlayerInfo[] ignoreList = player.GetIgnoreList();
+                if( ignoreList.Length > 0 ) {
+                    player.MessageNow( "Ignored players: {0}", PlayerInfo.PlayerInfoArrayToString( ignoreList ) );
+                } else {
+                    player.MessageNow( "You are not currently ignoring anyone." );
+                }
+                return;
+            }
+        }
+
+
+        static CommandDescriptor cdUnignore = new CommandDescriptor {
+            name = "unignore",
+            consoleSafe = true,
+            usage = "/unignore PlayerName",
+            help = "Unblocks the other player from messaging you.",
+            handler = Unignore
+        };
+
+        internal static void Unignore( Player player, Command cmd ) {
+            string name = cmd.Next();
+            if( name != null ) {
+                PlayerInfo targetInfo;
+                if( !PlayerDB.FindPlayerInfo( name, out targetInfo ) ) {
+                    PlayerInfo[] infos = PlayerDB.FindPlayers( name );
+                    if( infos.Length == 1 ) {
+                        targetInfo = infos[0];
+                    } else if( infos.Length > 1 ) {
+                        player.ManyMatchesMessage( "player", (IClassy[])infos );
+                    } else {
+                        player.NoPlayerMessage( name );
+                    }
+                } else if( targetInfo == null ) {
+                    player.NoPlayerMessage( name );
+                    return;
+                }
+                if( player.Unignore( targetInfo ) ) {
+                    player.MessageNow( "You are no longer ignoring {0}", targetInfo.GetClassyName() );
+                } else {
+                    player.MessageNow( "You are not ignoring {0}", targetInfo.GetClassyName() );
+                }
+            } else {
+                cdUnignore.PrintUsage( player );
+            }
+        }
 
 
         static CommandDescriptor cdMe = new CommandDescriptor {
