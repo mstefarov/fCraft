@@ -308,12 +308,14 @@ namespace fCraft {
                                 // ignore settile packets while player is changing world
                                 if( isBetweenWorlds ) continue;
 
-                                if( type > 49 || !player.world.map.InBounds( x, y, h ) ) {
+                                if( type > 49 ) {
                                     Logger.Log( "{0} was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity,
                                                 player.name );
                                     Server.SendToAll( "{0}&W was kicked for attempted hacking (0x05).", player.GetClassyName() );
                                     KickNow( "Hacking detected: illegal SetTile packet." );
                                     return;
+                                }else if(!player.world.map.InBounds( x, y, h )){
+                                    continue;
                                 } else {
                                     if( player.PlaceBlock( x, y, h, mode == 1, (Block)type ) ) return;
                                 }
@@ -330,8 +332,7 @@ namespace fCraft {
 
             } catch( SocketException ex ) {
                 Logger.Log( "Session.IoLoop: {0}", LogType.Debug, ex.Message );
-#if DEBUG
-#else
+#if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Error in Session.IoLoop", "fCraft", ex );
 #endif

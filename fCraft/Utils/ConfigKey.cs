@@ -91,6 +91,7 @@ namespace fCraft {
         LogPath,
         DataPath,
 
-        AutoRankEnabled
+        AutoRankEnabled,
+        HeartbeatEnabled
     }
 }

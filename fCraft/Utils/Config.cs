@@ -82,13 +82,15 @@ namespace fCraft {
      * 
      * 123 - r346 - Added IRCBotAnnounceServerEvents
      * 
+     * 124 - r354 - Added HeartbeatEnabled
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 123;
+        public const int ConfigVersion = 124;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFileName = "config.xml";
@@ -244,6 +246,7 @@ namespace fCraft {
 
             SetValue( ConfigKey.MaxUndo, 2000000 );
             SetValue( ConfigKey.AutoRankEnabled, false );
+            SetValue( ConfigKey.HeartbeatEnabled, true );
 
             SetValue( ConfigKey.DataPath, "" );
             SetValue( ConfigKey.MapPath, "maps" );

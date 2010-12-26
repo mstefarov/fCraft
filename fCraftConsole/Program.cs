@@ -35,8 +35,7 @@ namespace fCraftConsole {
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;
 
-#if DEBUG
-#else
+#if !DEBUG
             try {
 #endif
                 if( Server.Init( args ) ) {
@@ -71,8 +70,7 @@ namespace fCraftConsole {
                 } else {
                     ReportFailure( "failed to initialize" );
                 }
-#if DEBUG
-#else
+#if !DEBUG
             } catch( Exception ex ) {
                 ReportFailure( "CRASHED" );
                 Logger.LogAndReportCrash( "Unhandled exception in fCraftConsole", "fCraftConsole", ex );
