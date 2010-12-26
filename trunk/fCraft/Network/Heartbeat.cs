@@ -31,51 +31,52 @@ namespace fCraft {
             HttpWebRequest request;
 
             while( true ) {
-                try {
-                    request = (HttpWebRequest)WebRequest.Create( URL );
-                    request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
-                    request.Method = "POST";
-                    request.Timeout = HeartbeatTimeout;
-                    request.ContentType = "application/x-www-form-urlencoded";
-                    request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
+                if( !Config.GetBool( ConfigKey.HeartbeatEnabled ) ) {
+                    try {
+                        request = (HttpWebRequest)WebRequest.Create( URL );
+                        request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
+                        request.Method = "POST";
+                        request.Timeout = HeartbeatTimeout;
+                        request.ContentType = "application/x-www-form-urlencoded";
+                        request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
 
-                    string dataString = String.Format( "name={0}&max={1}&public={2}&port={3}&salt={4}&version={5}&users={6}",
-                                                       Uri.EscapeDataString( Config.GetString( ConfigKey.ServerName ) ),
-                                                       Config.GetInt( ConfigKey.MaxPlayers ),
-                                                       Config.GetBool( ConfigKey.IsPublic ),
-                                                       Server.Port,
-                                                       Server.Salt,
-                                                       Config.ProtocolVersion,
-                                                       Server.GetPlayerCount( false ) );
+                        string dataString = String.Format( "name={0}&max={1}&public={2}&port={3}&salt={4}&version={5}&users={6}",
+                                                           Uri.EscapeDataString( Config.GetString( ConfigKey.ServerName ) ),
+                                                           Config.GetInt( ConfigKey.MaxPlayers ),
+                                                           Config.GetBool( ConfigKey.IsPublic ),
+                                                           Server.Port,
+                                                           Server.Salt,
+                                                           Config.ProtocolVersion,
+                                                           Server.GetPlayerCount( false ) );
 
-                    byte[] formData = Encoding.ASCII.GetBytes( dataString );
-                    request.ContentLength = formData.Length;
+                        byte[] formData = Encoding.ASCII.GetBytes( dataString );
+                        request.ContentLength = formData.Length;
 
-                    using( Stream requestStream = request.GetRequestStream() ) {
-                        requestStream.Write( formData, 0, formData.Length );
-                        requestStream.Flush();
-                    }
+                        using( Stream requestStream = request.GetRequestStream() ) {
+                            requestStream.Write( formData, 0, formData.Length );
+                            requestStream.Flush();
+                        }
 
-                    string newURL;
-                    using( WebResponse response = request.GetResponse() ) {
-                        using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                            newURL = responseReader.ReadLine();
+                        string newURL;
+                        using( WebResponse response = request.GetResponse() ) {
+                            using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
+                                newURL = responseReader.ReadLine();
+                            }
+                        }
+                        if( newURL != Server.URL ) {
+                            Server.URL = newURL;
+                            Server.FireURLChangeEvent( Server.URL );
+                        }
+                        request.Abort();
+
+                    } catch( Exception ex ) {
+                        if( ex is WebException || ex is IOException ) {
+                            Logger.Log( "Heartbeat: Minecraft.net is probably down ({0})", LogType.Warning, ex.Message );
+                        } else {
+                            Logger.Log( "Heartbeat: {0}", LogType.Error, ex );
                         }
                     }
-                    if( newURL != Server.URL ) {
-                        Server.URL = newURL;
-                        Server.FireURLChangeEvent( Server.URL );
-                    }
-                    request.Abort();
-
-                } catch( Exception ex ) {
-                    if( ex is WebException || ex is IOException ) {
-                        Logger.Log( "Heartbeat: Minecraft.net is probably down ({0})", LogType.Warning, ex.Message );
-                    } else {
-                        Logger.Log( "Heartbeat: {0}", LogType.Error, ex );
-                    }
                 }
-
                 Thread.Sleep( HeartbeatDelay );
             }
         }

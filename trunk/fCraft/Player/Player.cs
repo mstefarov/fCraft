@@ -433,7 +433,9 @@ namespace fCraft {
         internal Block lastUsedBlockType;
         const int maxRange = 6 * 32;
 
-        // Handles building/deleting by the player
+        /// <summary>
+        /// Handles manually-placed/deleted blocks. Returns true if player's action should result in a kick.
+        /// </summary>
         public bool PlaceBlock( short x, short y, short h, bool buildMode, Block type ) {
 
             lastUsedBlockType = type;

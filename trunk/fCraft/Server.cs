@@ -864,8 +864,7 @@ namespace fCraft {
         static object taskListLock = new object();
 
         internal static void MainLoop() {
-#if DEBUG
-#else
+#if !DEBUG
             try {
 #endif
                 ScheduledTask[] taskCache;
@@ -889,8 +888,7 @@ namespace fCraft {
                     }
                     Thread.Sleep( 1 );
                 }
-#if DEBUG
-#else
+#if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Fatal error in fCraft.Server main loop", "fCraft", ex );
             }
