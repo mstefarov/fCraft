@@ -69,6 +69,8 @@ namespace fCraft {
                 logFileOptions[i] = true;
             }
 
+            if( !Directory.Exists( "logs" ) ) Directory.CreateDirectory( "logs" );
+
             MarkLogStart();
         }
 

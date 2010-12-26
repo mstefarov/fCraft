@@ -13,10 +13,11 @@ namespace fCraft {
                   HeartbeatTimeout = 15000;
         static Thread thread;
         const string URL = "http://minecraft.net/heartbeat.jsp";
+        const string HeartbeatDataFileName = "heartbeatdata.txt";
+
 
         internal static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
-            IPAddress IP = IPAddress.Parse( Config.GetString( ConfigKey.IP ) );
-            return new IPEndPoint( IP, 0 );
+            return new IPEndPoint( Server.IP, 0 );
         }
 
         public static void Start() {
@@ -31,7 +32,7 @@ namespace fCraft {
             HttpWebRequest request;
 
             while( true ) {
-                if( !Config.GetBool( ConfigKey.HeartbeatEnabled ) ) {
+                if( Config.GetBool( ConfigKey.HeartbeatEnabled ) ) {
                     try {
                         request = (HttpWebRequest)WebRequest.Create( URL );
                         request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
@@ -75,6 +76,23 @@ namespace fCraft {
                         } else {
                             Logger.Log( "Heartbeat: {0}", LogType.Error, ex );
                         }
+                    }
+
+                } else {
+                    string tempFile = HeartbeatDataFileName + ".tmp";
+                    File.WriteAllLines( tempFile, new string[]{
+                        Server.Salt,
+                        Server.IP.ToString(),
+                        Server.Port.ToString(),
+                        Server.GetPlayerCount(false).ToString(),
+                        Config.GetString(ConfigKey.MaxPlayers),
+                        Config.GetString(ConfigKey.ServerName),
+                        Config.GetString(ConfigKey.IsPublic)
+                    } );
+                    if( File.Exists( HeartbeatDataFileName ) ) {
+                        File.Replace( tempFile, HeartbeatDataFileName, null, true );
+                    } else {
+                        File.Move( tempFile, HeartbeatDataFileName );
                     }
                 }
                 Thread.Sleep( HeartbeatDelay );
