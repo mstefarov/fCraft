@@ -75,6 +75,9 @@ namespace fCraftUI {
                 Logger.Log( "MainForm.StartServer: Could not set process priority, using defaults.", LogType.Warning );
             }
             if( Server.Start() ) {
+                if( !Config.GetBool( ConfigKey.HeartbeatEnabled ) ) {
+                    urlDisplay.Text = "Heartbeat disabled. See externalurl.txt";
+                }
                 console.Enabled = true;
             } else {
                 Shutdown( "failed to start", false );
