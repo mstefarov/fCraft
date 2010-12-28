@@ -212,7 +212,7 @@ namespace fCraft {
                                 if( rotChanged ) player.ResetIdleTimer();
 
                                 // special handling for frozen players
-                                if( player.isFrozen ) {
+                                if( player.info.isFrozen ) {
                                     if( distSquared > antiSpeedMaxDistanceSquared*2 ) {
                                         // TODO: figure out why this is so jittery
                                         SendNow( PacketWriter.MakeSelfTeleport( player.pos ) );

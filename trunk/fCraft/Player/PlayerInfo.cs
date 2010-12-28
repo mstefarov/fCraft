@@ -53,17 +53,17 @@ namespace fCraft {
         public string lastKickReason = "";
 
         // TODO: start tracking
-        public DateTime bannedUntil;
-        public bool loggedOutFrozen;
+        public DateTime bannedUntil = DateTime.MinValue;
+        public bool isFrozen = false;
         public string frozenBy = "";
-        public DateTime frozenOn;
-        public DateTime mutedUntil;
+        public DateTime frozenOn = DateTime.MinValue;
+        public DateTime mutedUntil = DateTime.MinValue;
         public string mutedBy = "";
 
-        public string IRCPassword = "";
+        public string IRCPassword = ""; // TODO
 
         public bool online;
-        public LeaveReason leaveReason;
+        public LeaveReason leaveReason; // TODO
 
 
         // === Serialization & Defaults =======================================
@@ -178,7 +178,7 @@ namespace fCraft {
 
                 if( fields.Length > 36 ) {
                     DateTime.TryParse( fields[36], out bannedUntil );
-                    loggedOutFrozen = (fields[37] == "f");
+                    isFrozen = (fields[37] == "f");
                     frozenBy = Unescape( fields[38] );
                     DateTime.TryParse( fields[39], out frozenOn );
                     DateTime.TryParse( fields[40], out mutedUntil );
@@ -284,7 +284,7 @@ namespace fCraft {
             if( bannedUntil == DateTime.MinValue ) fields[36] = "";
             else fields[36] = bannedUntil.ToCompactString();
 
-            fields[37] = (loggedOutFrozen ? "f" : "");
+            fields[37] = (isFrozen ? "f" : "");
 
             fields[38] = Escape( frozenBy );
 

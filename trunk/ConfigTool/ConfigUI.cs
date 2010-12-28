@@ -461,16 +461,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             bMapPath.Enabled = xMapPath.Checked;
         }
 
-        private void xLogPath_CheckedChanged( object sender, EventArgs e ) {
-            tLogPath.Enabled = xLogPath.Checked;
-            bLogPath.Enabled = xLogPath.Checked;
-        }
-
-        private void xDataPath_CheckedChanged( object sender, EventArgs e ) {
-            tDataPath.Enabled = xDataPath.Checked;
-            bDataPath.Enabled = xDataPath.Checked;
-        }
-
         #endregion
 
         #endregion

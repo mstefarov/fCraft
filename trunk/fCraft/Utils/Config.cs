@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Xml.Linq;
+using System.Reflection;
 
 
 namespace fCraft {
@@ -98,10 +99,10 @@ namespace fCraft {
         static Dictionary<string, ConfigKey> legacyConfigKeys = new Dictionary<string, ConfigKey>(); // LEGACY
 
 
-        static Config() { // LEGACY
-            DataPath = DataPathDefault;
-            LogPath = LogPathDefault;
+        static Config() {
+            WorkingPath = WorkingPathDefault;
             MapPath = MapPathDefault;
+            LogPath = LogPathDefault;
             LoadDefaults();
 
 #if DEBUG
@@ -111,7 +112,7 @@ namespace fCraft {
                     throw new Exception( "One of the ConfigKey keys is missing a default." );
             }
 #endif
-
+            // These keys were renamed at some point. LEGACY
             legacyConfigKeys.Add( "DefaultClass".ToLower(), ConfigKey.DefaultRank );
             legacyConfigKeys.Add( "ClassColorsInChat".ToLower(), ConfigKey.RankColorsInChat );
             legacyConfigKeys.Add( "ClassColorsInWorldNames".ToLower(), ConfigKey.RankColorsInWorldNames );
@@ -201,7 +202,6 @@ namespace fCraft {
         }
 
         public static void LoadDefaultsLogging() {
-            SetValue( ConfigKey.LogPath, "logs" ); // TODO: Log to string/queue until config is done loading
             SetValue( ConfigKey.LogMode, LogSplittingType.OneFile ); // can be: "OneFile", "SplitBySession", "SplitByDay"
             SetValue( ConfigKey.MaxLogs, 0 );
             for( int i = 0; i < Logger.consoleOptions.Length; i++ ) {
@@ -247,9 +247,6 @@ namespace fCraft {
             SetValue( ConfigKey.MaxUndo, 2000000 );
             SetValue( ConfigKey.AutoRankEnabled, false );
             SetValue( ConfigKey.HeartbeatEnabled, true );
-
-            SetValue( ConfigKey.DataPath, "" );
-            SetValue( ConfigKey.MapPath, "maps" );
         }
 
         #endregion
@@ -783,7 +780,7 @@ namespace fCraft {
             // antispam
             Player.spamChatCount = GetInt( ConfigKey.AntispamMessageCount );
             Player.spamChatTimer = GetInt( ConfigKey.AntispamInterval );
-            Player.muteDuration = TimeSpan.FromSeconds( GetInt( ConfigKey.AntispamMuteDuration ) );
+            Player.autoMuteDuration = TimeSpan.FromSeconds( GetInt( ConfigKey.AntispamMuteDuration ) );
 
             // scheduler settings
             Server.maxUploadSpeed = GetInt( ConfigKey.UploadBandwidth );
@@ -1043,50 +1040,49 @@ namespace fCraft {
 
         #region Paths
 
-        public const string DataPathDefault = "",
-                            LogPathDefault = "logs",
-                            MapPathDefault = "maps";
+        public const string WorkingPathDefault = ".",
+                            MapPathDefault = "./maps",
+                            LogPathDefault = "./logs";
 
+        /// <summary>
+        /// Path to save maps to (default: ./maps/)
+        /// Can be overridden at startup via command-line argument "--mappath="
+        /// </summary>
         public static string MapPath { get; private set; }
 
+        /// <summary>
+        /// Working path (default: whatever directory fCraft.dll is located in)
+        /// Can be overriden at startup via command line argument "--path="
+        /// </summary>
+        public static string WorkingPath { get; private set; }
+
+        /// <summary>
+        /// Path to save logs to (default: ./logs/)
+        /// Can be overriden at startup via command-line argument "--logpath="
+        /// </summary>
         public static string LogPath { get; private set; }
 
-        public static string DataPath { get; private set; }
-
-
-        public static bool IsDefaultDataPath( string path ) {
-            return String.IsNullOrEmpty( path ) ||
-                   path == ".";
-        }
 
         public static bool IsDefaultMapPath( string path ) {
-            return String.IsNullOrEmpty( path ) ||
-                   path == "maps" ||
-                   path == "maps/" ||
-                   path == "./maps" ||
-                   path == "./maps/";
+            return String.IsNullOrEmpty( path ) || ComparePaths( MapPathDefault, path );
         }
 
         public static bool IsDefaultLogPath( string path ) {
-            return String.IsNullOrEmpty( path ) ||
-                   path == "logs" ||
-                   path == "logs/" ||
-                   path == "./logs" ||
-                   path == "./logs/";
+            return String.IsNullOrEmpty( path ) || ComparePaths( LogPathDefault, path );
+        }
+
+        public static bool IsDefaultPath( string path ) {
+            return String.IsNullOrEmpty( path ) || ComparePaths( Assembly.GetExecutingAssembly().Location, path );
+        }
+
+        public static bool ComparePaths( string p1, string p2 ) {
+            return String.Equals( Path.GetFullPath( p1 ).TrimEnd( Path.PathSeparator ),
+                                  Path.GetFullPath( p2 ).TrimEnd( Path.PathSeparator ),
+                                  StringComparison.Ordinal );
         }
 
 
         public static void SetPaths() {
-            DataPath = "";
-            if( !IsDefaultDataPath( GetString( ConfigKey.DataPath ) ) ) {
-                string customDataPath = Server.TestDirectory( GetString( ConfigKey.DataPath ) );
-                if( customDataPath != null ) {
-                    DataPath = customDataPath;
-                } else {
-                    Logger.Log( "Could not set custom data path, using default ({0})", LogType.Error, DataPath );
-                }
-            }
-
             MapPath = "maps";
             if( !IsDefaultMapPath( GetString( ConfigKey.MapPath ) ) ) {
                 string customMapPath = Server.TestDirectory( GetString( ConfigKey.MapPath ) );
@@ -1094,16 +1090,6 @@ namespace fCraft {
                     MapPath = customMapPath;
                 } else {
                     Logger.Log( "Could not set custom map path, using default ({0})", LogType.Error, MapPath );
-                }
-            }
-
-            LogPath = "logs";
-            if( !IsDefaultLogPath( GetString( ConfigKey.LogPath ) ) ) {
-                string customLogPath = Server.TestDirectory( GetString( ConfigKey.LogPath ) );
-                if( customLogPath != null ) {
-                    LogPath = customLogPath;
-                } else {
-                    Logger.Log( "Could not set custom log path, using default ({0})", LogType.Error, LogPath );
                 }
             }
         }

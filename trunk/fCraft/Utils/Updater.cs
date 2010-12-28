@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
@@ -31,8 +32,10 @@ namespace fCraft {
     /// </summary>
     public static class Updater {
         public static int Version = 500;
-        public static int Revision = 354;
-        public static bool IsUnstable = true;
+        public static int Revision = 356;
+        public static bool IsDev = true,
+                           IsBroken = true;
+        public static string LatestNonBroken = "0.500_r355_dev";
 
         const string UpdateURL = "http://fcraft.fragmer.net/version.log";
 
@@ -83,7 +86,11 @@ namespace fCraft {
         }
 
         public static string GetVersionString() {
-            return Decimal.Divide( Version, 1000 ).ToString( "0.000", System.Globalization.CultureInfo.InvariantCulture ) + "_r" + Revision + (IsUnstable ? "_dev" : "");
+            return String.Format( "{0:0.000}_r{1}{2}{3}",
+                                  Decimal.Divide( Version, 1000 ).ToString( "0.000", CultureInfo.InvariantCulture ),
+                                  Revision,
+                                  (IsDev ? "_dev" : ""),
+                                  (IsBroken ? "_broken" : "") );
         }
     }
 }

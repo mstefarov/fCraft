@@ -25,7 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -138,6 +138,7 @@
             this.vRanks = new System.Windows.Forms.ListBox();
             this.tabSecurity = new System.Windows.Forms.TabPage();
             this.gSecurityMisc = new System.Windows.Forms.GroupBox();
+            this.xPaidPlayersOnly = new System.Windows.Forms.CheckBox();
             this.lPatrolledRankAndBelow = new System.Windows.Forms.Label();
             this.cPatrolledRank = new System.Windows.Forms.ComboBox();
             this.lPatrolledRank = new System.Windows.Forms.Label();
@@ -182,9 +183,6 @@
             this.xBackupInterval = new System.Windows.Forms.CheckBox();
             this.xBackupOnJoin = new System.Windows.Forms.CheckBox();
             this.tabLogging = new System.Windows.Forms.TabPage();
-            this.bLogPath = new System.Windows.Forms.Button();
-            this.xLogPath = new System.Windows.Forms.CheckBox();
-            this.tLogPath = new System.Windows.Forms.TextBox();
             this.gLogFile = new System.Windows.Forms.GroupBox();
             this.label2 = new System.Windows.Forms.Label();
             this.xLogLimit = new System.Windows.Forms.CheckBox();
@@ -234,12 +232,6 @@
             this.cIRCList = new System.Windows.Forms.ComboBox();
             this.tabAdvanced = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.bDataPath = new System.Windows.Forms.Button();
-            this.xDataPath = new System.Windows.Forms.CheckBox();
-            this.tDataPath = new System.Windows.Forms.TextBox();
-            this.bMapPath = new System.Windows.Forms.Button();
-            this.xMapPath = new System.Windows.Forms.CheckBox();
-            this.tMapPath = new System.Windows.Forms.TextBox();
             this.nMaxUndo = new System.Windows.Forms.NumericUpDown();
             this.lMaxUndoUnits = new System.Windows.Forms.Label();
             this.xMaxUndo = new System.Windows.Forms.CheckBox();
@@ -266,7 +258,9 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.xPaidPlayersOnly = new System.Windows.Forms.CheckBox();
+            this.bMapPath = new System.Windows.Forms.Button();
+            this.xMapPath = new System.Windows.Forms.CheckBox();
+            this.tMapPath = new System.Windows.Forms.TextBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -935,6 +929,9 @@
             // 
             // tabWorlds
             // 
+            this.tabWorlds.Controls.Add( this.bMapPath );
+            this.tabWorlds.Controls.Add( this.xMapPath );
+            this.tabWorlds.Controls.Add( this.tMapPath );
             this.tabWorlds.Controls.Add( this.lDefaultBuildRank );
             this.tabWorlds.Controls.Add( this.cDefaultBuildRank );
             this.tabWorlds.Controls.Add( this.cMainWorld );
@@ -955,18 +952,18 @@
             // 
             this.lDefaultBuildRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lDefaultBuildRank.AutoSize = true;
-            this.lDefaultBuildRank.Location = new System.Drawing.Point( 7, 415 );
+            this.lDefaultBuildRank.Location = new System.Drawing.Point( 23, 390 );
             this.lDefaultBuildRank.Name = "lDefaultBuildRank";
-            this.lDefaultBuildRank.Size = new System.Drawing.Size( 231, 15 );
+            this.lDefaultBuildRank.Size = new System.Drawing.Size( 342, 15 );
             this.lDefaultBuildRank.TabIndex = 7;
-            this.lDefaultBuildRank.Text = "Default build requirement for new worlds:";
+            this.lDefaultBuildRank.Text = "Default rank requirement for building on newly-loaded worlds:";
             // 
             // cDefaultBuildRank
             // 
             this.cDefaultBuildRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cDefaultBuildRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cDefaultBuildRank.FormattingEnabled = true;
-            this.cDefaultBuildRank.Location = new System.Drawing.Point( 244, 412 );
+            this.cDefaultBuildRank.Location = new System.Drawing.Point( 371, 387 );
             this.cDefaultBuildRank.Name = "cDefaultBuildRank";
             this.cDefaultBuildRank.Size = new System.Drawing.Size( 121, 23 );
             this.cDefaultBuildRank.TabIndex = 5;
@@ -1038,14 +1035,14 @@
             this.dgvcAccess,
             this.dgvcBuild,
             this.dgvcBackup} );
-            this.dgvWorlds.Location = new System.Drawing.Point( 9, 47 );
+            this.dgvWorlds.Location = new System.Drawing.Point( 8, 47 );
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvWorlds.Size = new System.Drawing.Size( 635, 359 );
+            this.dgvWorlds.Size = new System.Drawing.Size( 636, 334 );
             this.dgvWorlds.TabIndex = 1;
             this.dgvWorlds.SelectionChanged += new System.EventHandler( this.dgvWorlds_SelectionChanged );
             // 
@@ -1593,6 +1590,17 @@
             this.gSecurityMisc.TabStop = false;
             this.gSecurityMisc.Text = "Misc";
             // 
+            // xPaidPlayersOnly
+            // 
+            this.xPaidPlayersOnly.AutoSize = true;
+            this.xPaidPlayersOnly.Location = new System.Drawing.Point( 42, 20 );
+            this.xPaidPlayersOnly.Name = "xPaidPlayersOnly";
+            this.xPaidPlayersOnly.Size = new System.Drawing.Size( 489, 19 );
+            this.xPaidPlayersOnly.TabIndex = 9;
+            this.xPaidPlayersOnly.Text = "Only allow players with paid Minecraft accounts to join the server (not recommend" +
+                "ed).";
+            this.xPaidPlayersOnly.UseVisualStyleBackColor = true;
+            // 
             // lPatrolledRankAndBelow
             // 
             this.lPatrolledRankAndBelow.AutoSize = true;
@@ -2066,9 +2074,6 @@
             // 
             // tabLogging
             // 
-            this.tabLogging.Controls.Add( this.bLogPath );
-            this.tabLogging.Controls.Add( this.xLogPath );
-            this.tabLogging.Controls.Add( this.tLogPath );
             this.tabLogging.Controls.Add( this.gLogFile );
             this.tabLogging.Controls.Add( this.gConsole );
             this.tabLogging.Location = new System.Drawing.Point( 4, 24 );
@@ -2078,33 +2083,6 @@
             this.tabLogging.TabIndex = 5;
             this.tabLogging.Text = "Logging";
             this.tabLogging.UseVisualStyleBackColor = true;
-            // 
-            // bLogPath
-            // 
-            this.bLogPath.Location = new System.Drawing.Point( 574, 414 );
-            this.bLogPath.Name = "bLogPath";
-            this.bLogPath.Size = new System.Drawing.Size( 57, 23 );
-            this.bLogPath.TabIndex = 17;
-            this.bLogPath.Text = "Browse";
-            this.bLogPath.UseVisualStyleBackColor = true;
-            // 
-            // xLogPath
-            // 
-            this.xLogPath.AutoSize = true;
-            this.xLogPath.Location = new System.Drawing.Point( 23, 416 );
-            this.xLogPath.Name = "xLogPath";
-            this.xLogPath.Size = new System.Drawing.Size( 160, 19 );
-            this.xLogPath.TabIndex = 15;
-            this.xLogPath.Text = "Custom path for log files:";
-            this.xLogPath.UseVisualStyleBackColor = true;
-            // 
-            // tLogPath
-            // 
-            this.tLogPath.Font = new System.Drawing.Font( "Lucida Console", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.tLogPath.Location = new System.Drawing.Point( 189, 416 );
-            this.tLogPath.Name = "tLogPath";
-            this.tLogPath.Size = new System.Drawing.Size( 379, 19 );
-            this.tLogPath.TabIndex = 16;
             // 
             // gLogFile
             // 
@@ -2650,12 +2628,6 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add( this.bDataPath );
-            this.groupBox1.Controls.Add( this.xDataPath );
-            this.groupBox1.Controls.Add( this.tDataPath );
-            this.groupBox1.Controls.Add( this.bMapPath );
-            this.groupBox1.Controls.Add( this.xMapPath );
-            this.groupBox1.Controls.Add( this.tMapPath );
             this.groupBox1.Controls.Add( this.nMaxUndo );
             this.groupBox1.Controls.Add( this.lMaxUndoUnits );
             this.groupBox1.Controls.Add( this.xMaxUndo );
@@ -2677,66 +2649,6 @@
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Miscallaneous";
-            // 
-            // bDataPath
-            // 
-            this.bDataPath.Enabled = false;
-            this.bDataPath.Location = new System.Drawing.Point( 572, 266 );
-            this.bDataPath.Name = "bDataPath";
-            this.bDataPath.Size = new System.Drawing.Size( 57, 23 );
-            this.bDataPath.TabIndex = 13;
-            this.bDataPath.Text = "Browse";
-            this.bDataPath.UseVisualStyleBackColor = true;
-            // 
-            // xDataPath
-            // 
-            this.xDataPath.AutoSize = true;
-            this.xDataPath.Location = new System.Drawing.Point( 8, 266 );
-            this.xDataPath.Name = "xDataPath";
-            this.xDataPath.Size = new System.Drawing.Size( 173, 19 );
-            this.xDataPath.TabIndex = 11;
-            this.xDataPath.Text = "Custom path for other data:";
-            this.xDataPath.UseVisualStyleBackColor = true;
-            this.xDataPath.CheckedChanged += new System.EventHandler( this.xDataPath_CheckedChanged );
-            // 
-            // tDataPath
-            // 
-            this.tDataPath.Enabled = false;
-            this.tDataPath.Font = new System.Drawing.Font( "Lucida Console", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.tDataPath.Location = new System.Drawing.Point( 203, 268 );
-            this.tDataPath.Name = "tDataPath";
-            this.tDataPath.Size = new System.Drawing.Size( 363, 19 );
-            this.tDataPath.TabIndex = 12;
-            // 
-            // bMapPath
-            // 
-            this.bMapPath.Enabled = false;
-            this.bMapPath.Location = new System.Drawing.Point( 572, 237 );
-            this.bMapPath.Name = "bMapPath";
-            this.bMapPath.Size = new System.Drawing.Size( 57, 23 );
-            this.bMapPath.TabIndex = 10;
-            this.bMapPath.Text = "Browse";
-            this.bMapPath.UseVisualStyleBackColor = true;
-            // 
-            // xMapPath
-            // 
-            this.xMapPath.AutoSize = true;
-            this.xMapPath.Location = new System.Drawing.Point( 8, 237 );
-            this.xMapPath.Name = "xMapPath";
-            this.xMapPath.Size = new System.Drawing.Size( 189, 19 );
-            this.xMapPath.TabIndex = 8;
-            this.xMapPath.Text = "Custom path for storing maps:";
-            this.xMapPath.UseVisualStyleBackColor = true;
-            this.xMapPath.CheckedChanged += new System.EventHandler( this.xMapPath_CheckedChanged );
-            // 
-            // tMapPath
-            // 
-            this.tMapPath.Enabled = false;
-            this.tMapPath.Font = new System.Drawing.Font( "Lucida Console", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.tMapPath.Location = new System.Drawing.Point( 203, 239 );
-            this.tMapPath.Name = "tMapPath";
-            this.tMapPath.Size = new System.Drawing.Size( 363, 19 );
-            this.tMapPath.TabIndex = 9;
             // 
             // nMaxUndo
             // 
@@ -3060,16 +2972,38 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // xPaidPlayersOnly
+            // bMapPath
             // 
-            this.xPaidPlayersOnly.AutoSize = true;
-            this.xPaidPlayersOnly.Location = new System.Drawing.Point( 42, 20 );
-            this.xPaidPlayersOnly.Name = "xPaidPlayersOnly";
-            this.xPaidPlayersOnly.Size = new System.Drawing.Size( 489, 19 );
-            this.xPaidPlayersOnly.TabIndex = 9;
-            this.xPaidPlayersOnly.Text = "Only allow players with paid Minecraft accounts to join the server (not recommend" +
-                "ed).";
-            this.xPaidPlayersOnly.UseVisualStyleBackColor = true;
+            this.bMapPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bMapPath.Enabled = false;
+            this.bMapPath.Location = new System.Drawing.Point( 587, 416 );
+            this.bMapPath.Name = "bMapPath";
+            this.bMapPath.Size = new System.Drawing.Size( 57, 23 );
+            this.bMapPath.TabIndex = 8;
+            this.bMapPath.Text = "Browse";
+            this.bMapPath.UseVisualStyleBackColor = true;
+            // 
+            // xMapPath
+            // 
+            this.xMapPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.xMapPath.AutoSize = true;
+            this.xMapPath.Location = new System.Drawing.Point( 8, 419 );
+            this.xMapPath.Name = "xMapPath";
+            this.xMapPath.Size = new System.Drawing.Size( 189, 19 );
+            this.xMapPath.TabIndex = 6;
+            this.xMapPath.Text = "Custom path for storing maps:";
+            this.xMapPath.UseVisualStyleBackColor = true;
+            // 
+            // tMapPath
+            // 
+            this.tMapPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.tMapPath.Enabled = false;
+            this.tMapPath.Font = new System.Drawing.Font( "Lucida Console", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.tMapPath.Location = new System.Drawing.Point( 203, 418 );
+            this.tMapPath.Name = "tMapPath";
+            this.tMapPath.Size = new System.Drawing.Size( 378, 19 );
+            this.tMapPath.TabIndex = 7;
             // 
             // ConfigUI
             // 
@@ -3134,7 +3068,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMaxBackups)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nBackupInterval)).EndInit();
             this.tabLogging.ResumeLayout( false );
-            this.tabLogging.PerformLayout();
             this.gLogFile.ResumeLayout( false );
             this.gLogFile.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nLogLimit)).EndInit();
@@ -3390,17 +3323,11 @@
         private System.Windows.Forms.Button bColorMe;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.CheckBox xMapPath;
-        private System.Windows.Forms.TextBox tMapPath;
-        private System.Windows.Forms.Button bMapPath;
-        private System.Windows.Forms.Button bDataPath;
-        private System.Windows.Forms.CheckBox xDataPath;
-        private System.Windows.Forms.TextBox tDataPath;
-        private System.Windows.Forms.Button bLogPath;
-        private System.Windows.Forms.CheckBox xLogPath;
-        private System.Windows.Forms.TextBox tLogPath;
         private System.Windows.Forms.CheckBox xIRCBotAnnounceServerEvents;
         private System.Windows.Forms.CheckBox xIRCUseColor;
         private System.Windows.Forms.CheckBox xPaidPlayersOnly;
+        private System.Windows.Forms.Button bMapPath;
+        private System.Windows.Forms.CheckBox xMapPath;
+        private System.Windows.Forms.TextBox tMapPath;
     }
 }

@@ -16,6 +16,7 @@ namespace fCraft {
         UploadBandwidth,
 
         DefaultBuildRank,
+        MapPath,
 
         RankColorsInChat,
         RankColorsInWorldNames,
@@ -86,10 +87,6 @@ namespace fCraft {
         LowLatencyMode,
         SubmitCrashReports,
         MaxUndo,
-
-        MapPath,
-        LogPath,
-        DataPath,
 
         AutoRankEnabled,
         HeartbeatEnabled
