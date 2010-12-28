@@ -59,11 +59,18 @@ namespace fCraft {
             serverStart = DateTime.Now;
             SetArgs( _args );
 
-            if( Updater.IsUnstable ) {
-                Logger.Log( "You are using an unstable/developer version of fCraft. " +
+            if( Updater.IsDev ) {
+                Logger.Log( "You are using an unreleased developer version of fCraft. " +
                             "Do not use this version unless are are ready to deal with bugs and potential data loss. " +
                             "Consider using the lastest stable version instead, available from www.fcraft.net",
                             LogType.Warning );
+            }
+
+            if( Updater.IsBroken ) {
+                Logger.Log( "This build has been marked as BROKEN. " +
+                            "Do not use except for debugging purposes. " +
+                            "Latest non-broken version is {0}.", LogType.Warning,
+                            Updater.LatestNonBroken );
             }
 
             ResetWorkingDirectory();
@@ -1090,6 +1097,8 @@ namespace fCraft {
                         Logger.Log( "Cannot create specified working directory (UnauthorizedAccessException).", LogType.Warning );
                     }
                     break;
+                } else if( arg.StartsWith( "--logpath=" ) ) {
+                } else if( arg.StartsWith( "--configpath=" ) ) {
                 }
             }
         }

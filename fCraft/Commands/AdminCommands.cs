@@ -1046,10 +1046,11 @@ namespace fCraft {
             if( targets.Length == 1 ) {
                 Player target = targets[0];
                 if( player.info.rank.CanFreeze( target.info.rank ) ) {
-                    if( !target.isFrozen ) {
+                    if( !target.info.isFrozen ) {
                         Server.SendToAll( "{0}&S has been frozen by {1}",
                                           target.GetClassyName(), player.GetClassyName() );
-                        target.isFrozen = true;
+                        target.info.isFrozen = true;
+                        target.info.frozenBy = player.name;
                     } else {
                         player.Message( "{0}&S is already frozen.", target.GetClassyName() );
                     }
@@ -1087,9 +1088,9 @@ namespace fCraft {
             if( targets.Length == 1 ) {
                 Player target = targets[0];
                 if( player.info.rank.CanFreeze( target.info.rank ) ) {
-                    if( target.isFrozen ) {
+                    if( target.info.isFrozen ) {
                         Server.SendToAll( "{0}&S is no longer frozen.", target.GetClassyName() );
-                        target.isFrozen = false;
+                        target.info.isFrozen = false;
                     } else {
                         player.Message( "{0}&S is currently not frozen.", target.GetClassyName() );
                     }
@@ -1154,9 +1155,9 @@ namespace fCraft {
                 return;
             }
 
-            if( DateTime.UtcNow < player.mutedUntil ) {
+            if( DateTime.UtcNow < player.info.mutedUntil ) {
                 player.Message( "You are muted for another {0:0} seconds.",
-                                player.mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+                                player.info.mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
                 return;
             }
 
@@ -1291,7 +1292,7 @@ namespace fCraft {
                 Player target = matches[0];
 
                 if( target.world == toPlayer.world ) {
-                    if( target.isFrozen )
+                    if( target.info.isFrozen )
                         target.pos = toPlayer.pos;
                     else
                         target.Send( PacketWriter.MakeSelfTeleport( toPlayer.pos ) );
@@ -1363,7 +1364,7 @@ namespace fCraft {
                 Player[] matches = Server.FindPlayers( playerName );
                 if( matches.Length == 1 ) {
                     Player target = matches[0];
-                    target.Mute( seconds );
+                    target.Mute(player.name, seconds );
                     target.Message( "You were muted by {0}&S for {1} sec", player.GetClassyName(), seconds );
                     Server.SendToAllExcept( "&SPlayer {0}&S was muted by {1}&S for {2} sec", target,
                                             target.GetClassyName(), player.GetClassyName(), seconds );
@@ -1397,8 +1398,8 @@ namespace fCraft {
                 Player[] matches = Server.FindPlayers( playerName );
                 if( matches.Length == 1 ) {
                     Player target = matches[0];
-                    if( target.mutedUntil >= DateTime.UtcNow ) {
-                        target.Mute( 0 );
+                    if( target.info.mutedUntil >= DateTime.UtcNow ) {
+                        target.Unmute();
                         target.Message( "You were unmuted by {0}", player.GetClassyName() );
                         Server.SendToAllExcept( "&SPlayer {0}&S was unmuted by {1}", target,
                                                 target.GetClassyName(), player.GetClassyName() );

@@ -38,7 +38,6 @@ namespace fCraft {
         public object locker = new object();
 
         public bool isPainting,
-                    isFrozen,
                     isHidden;
         internal World world;
         internal DateTime idleTimer = DateTime.UtcNow; // used for afk kicks
@@ -99,25 +98,29 @@ namespace fCraft {
         Queue<DateTime> spamChatLog = new Queue<DateTime>( spamChatCount );
 
         int muteWarnings;
-        public static TimeSpan muteDuration = TimeSpan.FromSeconds( 5 );
-        public DateTime mutedUntil = DateTime.MinValue;
+        public static TimeSpan autoMuteDuration = TimeSpan.FromSeconds( 5 );
 
         const int confirmationTimeout = 60;
 
 
-        public void Mute( int seconds ) {
-            mutedUntil = DateTime.UtcNow.AddSeconds( seconds );
+        public void Mute( string by, int seconds ) {
+            info.mutedUntil = DateTime.UtcNow.AddSeconds( seconds );
+            info.mutedBy = by;
+        }
+
+        public void Unmute() {
+            info.mutedUntil = DateTime.UtcNow;
         }
 
 
         public bool IsMuted() {
-            return DateTime.UtcNow < mutedUntil;
+            return DateTime.UtcNow < info.mutedUntil;
         }
 
 
         public void MutedMessage() {
             Message( "You are muted for another {0:0} seconds.",
-                     mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+                     info.mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
         }
 
 
@@ -131,8 +134,8 @@ namespace fCraft {
                         session.KickNow( "You were kicked for repeated spamming." );
                         Server.SendToAll( "&W{0} was kicked for repeated spamming.", GetClassyName() );
                     } else {
-                        mutedUntil = DateTime.UtcNow.Add( muteDuration );
-                        Message( "You have been muted for {0} seconds. Slow down.", muteDuration.TotalSeconds );
+                        info.mutedUntil = DateTime.UtcNow.Add( autoMuteDuration );
+                        Message( "You have been muted for {0} seconds. Slow down.", autoMuteDuration.TotalSeconds );
                     }
                     return true;
                 }
@@ -441,7 +444,7 @@ namespace fCraft {
             lastUsedBlockType = type;
 
             // check if player is frozen or too far away to legitimately place a block
-            if( isFrozen ||
+            if( info.isFrozen ||
                 Math.Abs( x * 32 - pos.x ) > maxRange ||
                 Math.Abs( y * 32 - pos.y ) > maxRange ||
                 Math.Abs( h * 32 - pos.h ) > maxRange ) {

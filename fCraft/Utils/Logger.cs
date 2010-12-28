@@ -109,11 +109,11 @@ namespace fCraft {
             if( logFileOptions[(int)type] ) {
                 string actualLogFileName;
                 if( split == LogSplittingType.SplitBySession ) {
-                    actualLogFileName = Path.Combine( Config.LogPath, sessionStart + ".log" );
+                    actualLogFileName = sessionStart + ".log";
                 } else if( split == LogSplittingType.SplitByDay ) {
-                    actualLogFileName = Path.Combine( Config.LogPath, DateTime.Now.ToString( ShortDateFormat ) + ".log" );
+                    actualLogFileName = DateTime.Now.ToString( ShortDateFormat ) + ".log";
                 } else {
-                    actualLogFileName = Path.Combine( Config.LogPath, DefaultLogFileName );
+                    actualLogFileName = DefaultLogFileName;
                 }
                 try {
                     lock( locker ) {
@@ -151,12 +151,11 @@ namespace fCraft {
                                                  DateTime.Now.ToString(),
                                                  Environment.NewLine,
                                                  message );
-            string fileName = Path.Combine( Config.LogPath, CrashLogFileName );
             try {
-                File.AppendAllText( fileName, crashMessage );
+                File.AppendAllText( CrashLogFileName, crashMessage );
             } catch( Exception ex ) {
                 Logger.Log( "Cannot save crash report to \"{0}\": {1}", LogType.Error,
-                            fileName, ex );
+                            CrashLogFileName, ex );
             }
         }
 
