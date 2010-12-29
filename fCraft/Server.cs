@@ -931,7 +931,7 @@ namespace fCraft {
         static void SaveMap( object param ) {
             World world = (World)param;
             if( world.map == null ) return;
-            if( world.map.changesSinceSave > 0 ) {
+            if( world.map.changedSinceSave ) {
                 BackgroundTasks.Add( world.SaveMap, null );
             }
         }

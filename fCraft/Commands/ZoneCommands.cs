@@ -129,8 +129,7 @@ namespace fCraft {
                 }
 
                 if( changesWereMade ) {
-                    player.world.map.changesSinceSave++;
-                    player.world.SaveMap( null );
+                    player.world.map.changedSinceSave = true;
                     zone.editedBy = player.info;
                     zone.editedDate = DateTime.Now;
                 } else {
