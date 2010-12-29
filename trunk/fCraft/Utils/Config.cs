@@ -85,13 +85,15 @@ namespace fCraft {
      * 
      * 124 - r354 - Added HeartbeatEnabled
      * 
+     * 125 - r356 - Removed LogPath and DataPath keys
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 124;
+        public const int ConfigVersion = 125;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig",
                             ConfigFileName = "config.xml";
@@ -168,6 +170,7 @@ namespace fCraft {
 
         public static void LoadDefaultsWorlds() {
             SetValue( ConfigKey.DefaultBuildRank, "" );
+            SetValue( ConfigKey.MapPath, "./maps" );
         }
 
         public static void LoadDefaultsSecurity() {

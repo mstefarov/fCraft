@@ -109,11 +109,11 @@ namespace fCraft {
             if( logFileOptions[(int)type] ) {
                 string actualLogFileName;
                 if( split == LogSplittingType.SplitBySession ) {
-                    actualLogFileName = sessionStart + ".log";
+                    actualLogFileName = Path.Combine( Config.LogPath, sessionStart + ".log" );
                 } else if( split == LogSplittingType.SplitByDay ) {
-                    actualLogFileName = DateTime.Now.ToString( ShortDateFormat ) + ".log";
+                    actualLogFileName = Path.Combine( Config.LogPath, DateTime.Now.ToString( ShortDateFormat ) + ".log" );
                 } else {
-                    actualLogFileName = DefaultLogFileName;
+                    actualLogFileName = Path.Combine( Config.LogPath, DefaultLogFileName );
                 }
                 try {
                     lock( locker ) {

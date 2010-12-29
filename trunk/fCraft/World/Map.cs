@@ -23,8 +23,8 @@ namespace fCraft {
         object metaLock = new object(); // TODO: use for reading/writing. Metadata is not currently thread-safe.
 
         // used to skip backups/saves if no changes were made
-        public int changesSinceSave,
-                   changesSinceBackup;
+        public bool changedSinceSave,
+                    changedSinceBackup;
         public short[,] shadows;
 
         // FCMv3 additions
@@ -61,6 +61,7 @@ namespace fCraft {
             if( PlayerNames == null ) {
                 PlayerNames = new Dictionary<ushort, string>();
             }
+            changedSinceSave = true;
         }
 
 
@@ -82,6 +83,7 @@ namespace fCraft {
                 id = MaxPlayerID++;
                 PlayerIDs[name] = id;
                 PlayerNames[id] = name;
+                changedSinceSave = true;
             }
             return id;
         }
@@ -132,10 +134,12 @@ namespace fCraft {
 
             try {
                 using( FileStream fs = File.OpenWrite( tempFileName ) ) {
+                    changedSinceSave = false;
                     MapUtility.TrySaving( this, fs, MapFormat.FCMv3 );
                 }
 
             } catch( IOException ex ) {
+                changedSinceSave = true;
                 Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
                                tempFileName, ex.Message );
                 try { File.Delete( tempFileName ); } catch { }
@@ -145,11 +149,11 @@ namespace fCraft {
             try {
                 if( File.Exists( fileName ) ) File.Replace( tempFileName, fileName, null, true );
                 else File.Move( tempFileName, fileName );
-                changesSinceBackup++;
                 Logger.Log( "Saved map successfully to {0}", LogType.SystemActivity,
                             fileName );
 
             } catch( Exception ex ) {
+                changedSinceSave = true;
                 Logger.Log( "Error trying to replace file \"{0}\": {1}", LogType.Error,
                             fileName, ex );
                 try { File.Delete( tempFileName ); } catch { }
@@ -182,7 +186,6 @@ namespace fCraft {
             }
             return metaCount;
         }
-
 
         #endregion
 
@@ -334,6 +337,7 @@ namespace fCraft {
                 metadata[group] = new Dictionary<string, string>();
             }
             metadata[group][key] = value;
+            changedSinceSave = true;
         }
 
         #endregion
@@ -457,12 +461,13 @@ namespace fCraft {
 
         public void SetSpawn( Position newSpawn ) {
             spawn = newSpawn;
-            changesSinceSave++;
+            changedSinceSave = true;
         }
 
 
         public void ResetSpawn() {
             spawn.Set( widthX * 16, widthY * 16, height * 32, 0, 0 );
+            changedSinceSave = true;
         }
 
 
@@ -506,6 +511,7 @@ namespace fCraft {
         internal void CopyBlocks( byte[] source, int offset ) {
             blocks = new byte[widthX * widthY * height];
             Array.Copy( source, offset, blocks, 0, blocks.Length );
+            changedSinceSave = true;
         }
 
 
@@ -518,6 +524,7 @@ namespace fCraft {
                     foundUnknownTypes = true;
                 }
             }
+            if( foundUnknownTypes ) changedSinceSave = true;
             return !foundUnknownTypes;
         }
 
@@ -584,7 +591,7 @@ namespace fCraft {
             lock( zoneLock ) {
                 if( zones.ContainsKey( z.name.ToLower() ) ) return false;
                 zones.Add( z.name.ToLower(), z );
-                changesSinceSave++;
+                changedSinceSave = true;
                 UpdateZoneCache();
             }
             return true;
@@ -595,7 +602,7 @@ namespace fCraft {
             lock( zoneLock ) {
                 if( !zones.ContainsKey( z.ToLower() ) ) return false;
                 zones.Remove( z.ToLower() );
-                changesSinceSave++;
+                changedSinceSave = true;
                 UpdateZoneCache();
             }
             return true;
@@ -668,7 +675,7 @@ namespace fCraft {
                     newZoneList[i++] = zone;
                 }
                 zoneList = newZoneList;
-                changesSinceSave++;
+                changedSinceSave = true;
             }
         }
 
@@ -683,23 +690,31 @@ namespace fCraft {
 
 
         public void SetBlock( int x, int y, int h, Block type ) {
-            if( x < widthX && y < widthY && h < height && x >= 0 && y >= 0 && h >= 0 )
+            if( x < widthX && y < widthY && h < height && x >= 0 && y >= 0 && h >= 0 ) {
                 blocks[Index( x, y, h )] = (byte)type;
+                changedSinceSave = true;
+            }
         }
 
         public void SetBlock( int x, int y, int h, byte type ) {
-            if( h < height && x < widthX && y < widthY && x >= 0 && y >= 0 && h >= 0 && type < 50 )
+            if( h < height && x < widthX && y < widthY && x >= 0 && y >= 0 && h >= 0 && type < 50 ){
                 blocks[Index( x, y, h )] = type;
+                changedSinceSave = true;
+            }
         }
 
         public void SetBlock( Vector3i vec, Block type ) {
-            if( vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && (byte)type < 50 )
+            if( vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && (byte)type < 50 ){
                 blocks[Index( vec.x, vec.z, vec.y )] = (byte)type;
+                changedSinceSave = true;
+            }
         }
 
         public void SetBlock( Vector3i vec, byte type ) {
-            if( vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && type < 50 )
+            if( vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && type < 50 ){
                 blocks[Index( vec.x, vec.z, vec.y )] = type;
+                changedSinceSave = true;
+            }
         }
 
 
@@ -771,7 +786,7 @@ namespace fCraft {
                     }
                     break;
                 }
-                changesSinceSave++;
+                changedSinceSave = true;
                 if( !InBounds( update.x, update.y, update.h ) ) continue;
                 int blockIndex = Index( update.x, update.y, update.h );
                 blocks[blockIndex] = update.type; // TODO: investigate IndexOutOfRangeException here
@@ -798,7 +813,7 @@ namespace fCraft {
         #region Backup
 
         public void SaveBackup( string sourceName, string targetName, bool onlyIfChanged ) {
-            if( onlyIfChanged && changesSinceBackup == 0 && Config.GetBool( ConfigKey.BackupOnlyWhenChanged ) ) return;
+            if( onlyIfChanged && !changedSinceBackup && Config.GetBool( ConfigKey.BackupOnlyWhenChanged ) ) return;
 
             if( !Directory.Exists( "backups" ) ) {
                 try {
@@ -810,11 +825,11 @@ namespace fCraft {
                 }
             }
 
-            changesSinceBackup = 0;
-
             try {
+                changedSinceBackup = false;
                 File.Copy( sourceName, targetName, true );
             } catch( Exception ex ) {
+                changedSinceBackup = true;
                 Logger.Log( "Map.SaveBackup: Error occured while trying to save backup to \"{0}\": {1}", LogType.Error,
                             targetName, ex );
                 return;

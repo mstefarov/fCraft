@@ -16,8 +16,7 @@ namespace fCraft {
         public bool canReceive = true,
                     canSend = true,
                     canQueue = true,
-                    hasRegistered = false,
-                    isBetweenWorlds = true;
+                    hasRegistered = false;
 
         object joinWorldLock = new object();
 
@@ -186,9 +185,6 @@ namespace fCraft {
                                     l = reader.ReadByte()
                                 };
 
-                                // ignore movement packets while a world is loading
-                                if( isBetweenWorlds ) continue;
-
                                 Position oldPos = player.pos;
                                 bool posChanged, rotChanged;
 
@@ -304,9 +300,6 @@ namespace fCraft {
                                 y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
                                 mode = reader.ReadByte();
                                 type = reader.ReadByte();
-
-                                // ignore settile packets while player is changing world
-                                if( isBetweenWorlds ) continue;
 
                                 if( type > 49 ) {
                                     Logger.Log( "{0} was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity,
@@ -655,9 +648,6 @@ namespace fCraft {
                 return false;
             }
 
-            // prevents accepting block updates from player while he's switching worlds
-            isBetweenWorlds = true;
-
             World oldWorld = player.world;
 
             // remove player from the old world
@@ -734,15 +724,8 @@ namespace fCraft {
                 bytesSent += chunkSize;
             }
 
-            writer.Write( PacketWriter.MakeHandshake( player,
-                                                      Config.GetString( ConfigKey.ServerName ),
-                                                      "Loading world " + newWorld.GetClassyName() + Color.White + " (almost there...)" ) );
-
             // Done sending over level copy
             writer.Write( PacketWriter.MakeLevelEnd( newWorld.map ) );
-
-            // Begin accepting block changes again
-            isBetweenWorlds = false;
 
             // Send spawn point
             writer.WriteAddEntity( 255, player, newWorld.map.spawn );
