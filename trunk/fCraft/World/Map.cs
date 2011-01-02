@@ -980,7 +980,7 @@ namespace fCraft {
                     break;
 
                 case DataLayerType.BlockOwnership: {
-                            blockOwnership = new ushort[layer.ElementCount];
+                        blockOwnership = new ushort[layer.ElementCount];
                         BinaryReader reader = new BinaryReader( stream );
                         for( int i = 0; i < layer.ElementCount; i++ ) {
                             blockOwnership[i] = reader.ReadUInt16();
