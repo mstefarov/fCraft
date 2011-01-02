@@ -63,8 +63,10 @@ namespace fCraft {
                         targetInfo = infos[0];
                     } else if( infos.Length > 1 ) {
                         player.ManyMatchesMessage( "player", (IClassy[])infos );
+                        return;
                     } else {
                         player.NoPlayerMessage( name );
+                        return;
                     }
                 } else if( targetInfo == null ) {
                     player.NoPlayerMessage( name );
@@ -106,8 +108,10 @@ namespace fCraft {
                         targetInfo = infos[0];
                     } else if( infos.Length > 1 ) {
                         player.ManyMatchesMessage( "player", (IClassy[])infos );
+                        return;
                     } else {
                         player.NoPlayerMessage( name );
+                        return;
                     }
                 } else if( targetInfo == null ) {
                     player.NoPlayerMessage( name );

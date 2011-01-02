@@ -122,10 +122,12 @@ namespace fCraft {
 
             PlayerInfo[] listCopy = GetPlayerListCopy();
 
-            using( StreamWriter writer = File.CreateText( tempDBFileName ) ) {
-                writer.WriteLine( MaxID + Header );
-                foreach( PlayerInfo entry in listCopy ) {
-                    writer.WriteLine( entry.Serialize() );
+            using( FileStream fs = new FileStream( tempDBFileName, FileMode.Create, FileAccess.Write, FileShare.None, 64 * 1024 ) ) {
+                using( StreamWriter writer = new StreamWriter( fs ) ) {
+                    writer.WriteLine( MaxID + Header );
+                    foreach( PlayerInfo entry in listCopy ) {
+                        writer.WriteLine( entry.Serialize() );
+                    }
                 }
             }
             try {
