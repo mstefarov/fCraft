@@ -460,6 +460,13 @@ namespace fCraft {
 
             if( CheckBlockSpam() ) return true;
 
+            // bindings
+            bool requiresUpdate = (type != bindings[(byte)type] || isPainting);
+            if( !buildMode && !isPainting ) {
+                type = Block.Air;
+            }
+            type = bindings[(byte)type];
+
             // selection handling
             if( selectionMarksExpected > 0 ) {
                 SendBlockNow( x, y, h );
@@ -474,14 +481,6 @@ namespace fCraft {
                 }
                 return false;
             }
-
-            // bindings
-            bool requiresUpdate = (type != bindings[(byte)type] || isPainting);
-            if( !buildMode && !isPainting ) {
-                type = Block.Air;
-            }
-            type = bindings[(byte)type];
-
 
             CanPlaceResult canPlaceResult;
             if( type == Block.Stair && h > 0 && world.map.GetBlock( x, y, h - 1 ) == (byte)Block.Stair ) {
