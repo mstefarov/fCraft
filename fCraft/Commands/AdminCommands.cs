@@ -1131,7 +1131,8 @@ namespace fCraft {
                 string msg = cmd.NextAll();
                 if( msg != null && msg.Trim().Length > 0 ) {
                     player.info.linesWritten++;
-                    Server.SendToAllExceptIgnored( player, "&S{0}", null, msg.Trim() );
+                    Server.SendToAllExceptIgnored( player, "&Y{0}", null, msg.Trim() );
+                    IRC.SendAction( String.Format( "&Y{0}", msg.Trim() ) );
                 } else {
                     cdSay.PrintUsage( player );
                 }

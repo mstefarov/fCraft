@@ -145,7 +145,9 @@ namespace fCraft {
             string msg = cmd.NextAll().Trim();
             if( msg != null ) {
                 player.info.linesWritten++;
-                Server.SendToAll( "{0}*{1} {2}", Color.Me, player.name, msg );
+                string message = String.Format( "{0}*{1} {2}", Color.Me, player.name, msg );
+                Server.SendToAll( message );
+                IRC.SendChannelMessage( message );
             }
         }
 

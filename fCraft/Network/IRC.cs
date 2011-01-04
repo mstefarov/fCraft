@@ -433,19 +433,34 @@ namespace fCraft {
         }
 
 
-        public static void SendToAllChannels( string line ) {
+        public static void SendChannelMessage( string line ) {
             if( Config.GetBool( ConfigKey.IRCUseColor ) ) {
                 line = Color.ToIRCColorCodes( line );
             } else {
                 line = nonPrintableChars.Replace( line, "" ).Trim();
             }
             for( int i = 0; i < channelNames.Length; i++ ) {
-                SendToAny( IRCCommands.Privmsg( channelNames[i], line ) );
+                SendRawMessage( IRCCommands.Privmsg( channelNames[i], line ) );
             }
         }
 
+        public static void SendAction( string line ) {
+            SendChannelMessage( String.Format( "\u0001ACTION {0}\u0001", line ) );
+        }
 
-        public static void SendToAny( string line ) {
+
+        public static void SendNotice( string line ) {
+            if( Config.GetBool( ConfigKey.IRCUseColor ) ) {
+                line = Color.ToIRCColorCodes( line );
+            } else {
+                line = nonPrintableChars.Replace( line, "" ).Trim();
+            }
+            for( int i = 0; i < channelNames.Length; i++ ) {
+                SendRawMessage( IRCCommands.Notice( channelNames[i], line ) );
+            }
+        }
+
+        public static void SendRawMessage( string line ) {
             outputQueue.Enqueue( line );
         }
 
@@ -481,9 +496,9 @@ namespace fCraft {
 
         internal static void PlayerMessageHandler( Player player, World world, ref string message, ref bool cancel ) {
             if( Config.GetBool( ConfigKey.IRCBotForwardFromServer ) ) {
-                SendToAllChannels( player.GetClassyName() + Color.IRCReset + ": " + message );
+                SendChannelMessage( player.GetClassyName() + Color.IRCReset + ": " + message );
             } else if( message.StartsWith( "#" ) ) {
-                SendToAllChannels( player.GetClassyName() + Color.IRCReset + ": " + message.Substring( 1 ) );
+                SendChannelMessage( player.GetClassyName() + Color.IRCReset + ": " + message.Substring( 1 ) );
             }
         }
 
@@ -492,16 +507,17 @@ namespace fCraft {
                                             Color.IRCBold,
                                             session.player.GetClassyName() );
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
-                SendToAllChannels( message );
+                SendChannelMessage( message );
             }
         }
 
         internal static void PlayerDisconnectedHandler( Session session ) {
-            string message = String.Format( "\u0001ACTION {0}&S* {1}&S left the server.\u0001",
+            if( session.hasRegistered ) return; // ignore unregistered players
+            string message = String.Format( "{0}&S* {1}&S left the server.",
                                             Color.IRCBold,
                                             session.player.GetClassyName() );
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) && session.player != null ) {
-                SendToAllChannels( message );
+                SendAction( message );
             }
         }
 
@@ -526,7 +542,7 @@ namespace fCraft {
         }
 
         static void PlayerSomethingMessage( Player player, string action, PlayerInfo target, string reason ) {
-            string message = String.Format( "\u0001ACTION {0}&W* {1}&W was {2} by {3}&W",
+            string message = String.Format( "{0}&W* {1}&W was {2} by {3}&W",
                     Color.IRCBold,
                     target.GetClassyName(),
                     action,
@@ -535,7 +551,7 @@ namespace fCraft {
                 message += " Reason: " + reason;
             }
             if( Config.GetBool( ConfigKey.IRCBotAnnounceServerEvents ) ) {
-                SendToAllChannels( message + '\u0001' );
+                SendAction( message );
             }
         }
 

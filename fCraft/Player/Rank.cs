@@ -199,7 +199,7 @@ namespace fCraft {
             // check consistency of ban permissions
             if( !Can( Permission.Ban ) && (Can( Permission.BanAll ) || Can( Permission.BanIP )) ) {
                 Logger.Log( "Rank({0}): Rank is allowed to BanIP and/or BanAll but not allowed to Ban. " +
-                            "Assuming that all ban permissions were ment to be off.", LogType.Warning, Name );
+                            "Assuming that all ban permissions were meant to be off.", LogType.Warning, Name );
                 Permissions[(int)Permission.BanIP] = false;
                 Permissions[(int)Permission.BanAll] = false;
             }
@@ -207,7 +207,7 @@ namespace fCraft {
             // check consistency of pantrol permissions
             if( !Can( Permission.Teleport ) && Can( Permission.Patrol ) ) {
                 Logger.Log( "Rank({0}): Rank is allowed to Patrol but not allowed to Teleport. " +
-                            "Assuming that Patrol permission was ment to be off.", LogType.Warning, Name );
+                            "Assuming that Patrol permission was meant to be off.", LogType.Warning, Name );
                 Permissions[(int)Permission.Patrol] = false;
             }
         }
