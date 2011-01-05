@@ -23,6 +23,8 @@ namespace fCraftUI {
 
 
         void StartUp( object sender, EventArgs a ) {
+            Server.InitLibrary( args );
+
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;
             Server.OnPlayerListChanged += UpdatePlayerList;
@@ -31,7 +33,7 @@ namespace fCraftUI {
 #if !DEBUG
             try {
 #endif
-                if( Server.Init(args) ) {
+                if( Server.InitServer() ) {
                     Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
 
                     Application.DoEvents();
@@ -74,7 +76,7 @@ namespace fCraftUI {
             } catch( Exception ) {
                 Logger.Log( "MainForm.StartServer: Could not set process priority, using defaults.", LogType.Warning );
             }
-            if( Server.Start() ) {
+            if( Server.StartServer() ) {
                 if( !Config.GetBool( ConfigKey.HeartbeatEnabled ) ) {
                     urlDisplay.Text = "Heartbeat disabled. See externalurl.txt";
                 }

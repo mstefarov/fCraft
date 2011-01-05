@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace fCraft {
     public static class Server {
-        static string[] args = new string[0];
+        static string[] args = new string[0]; // saved to allow restarting with same params
 
         // player list
         static Dictionary<int, Player> players = new Dictionary<int, Player>();
@@ -50,22 +50,104 @@ namespace fCraft {
         public static string URL;
 
 
-        public static void SetArgs( string[] _args ) {
+        /// <summary>
+        /// Reads command-line switches and sets up paths and logging.
+        /// This should be called before any other library function.
+        /// </summary>
+        /// <param name="_args">string arguments passed to the frontend (if any)</param>
+        public static void InitLibrary( string[] _args ) {
             args = _args;
+
+            // try to parse arguments
+            Dictionary<string, string> parsedArgs = new Dictionary<string, string>();
+            foreach( string arg in args ) {
+                if( arg.StartsWith( "--" ) && arg.Contains( '=' ) ) {
+                    string argKey = arg.Substring( 2, arg.IndexOf( '=' ) - 2 ).ToLower().Trim();
+                    string argValue = arg.Substring( arg.IndexOf( '=' ) + 1 ).Trim();
+                    parsedArgs.Add( argKey, argValue );
+                    Console.WriteLine( "{0} = {1}", argKey, argValue );
+                }
+            }
+
+
+            // before we do anything, set path to the default location
+            Directory.SetCurrentDirectory( Paths.WorkingPath );
+
+            // set custom working path (if specified)
+            if( parsedArgs.ContainsKey( "path" ) && Paths.TestDirectory( parsedArgs["path"], true ) ) {
+                Paths.WorkingPath = Path.GetFullPath( parsedArgs["path"] );
+                Directory.SetCurrentDirectory( Paths.WorkingPath );
+            } else if( Paths.TestDirectory( Paths.WorkingPathDefault, true ) ) {
+                Paths.WorkingPath = Path.GetFullPath( Paths.WorkingPathDefault );
+                Directory.SetCurrentDirectory( Paths.WorkingPath );
+            } else {
+                throw new Exception( "Could not set the working path." );
+            }
+
+            Console.WriteLine( "Working directory: {0}", Directory.GetCurrentDirectory() );
+
+            // set log path
+            if( parsedArgs.ContainsKey( "logpath" ) && Paths.TestDirectory( parsedArgs["logpath"], true ) ) {
+                Paths.LogPath = Path.GetFullPath( parsedArgs["logpath"] );
+            } else if( Paths.TestDirectory( Paths.LogPathDefault, true ) ) {
+                Paths.LogPath = Path.GetFullPath( Paths.LogPathDefault );
+            } else {
+                throw new Exception( "Could not set the log path." );
+            }
+
+
+            // set map path
+            if( parsedArgs.ContainsKey( "mappath" ) && Paths.TestDirectory( parsedArgs["mappath"], true ) ) {
+                Paths.MapPath = Path.GetFullPath( parsedArgs["mappath"] );
+            } else if( Paths.TestDirectory( Paths.MapPathDefault, true ) ) {
+                Paths.MapPath = Path.GetFullPath( Paths.MapPathDefault );
+            } else {
+                throw new Exception( "Could not set the map path." );
+            }
+
+
+            // set config path
+            Paths.ConfigFileName = Paths.ConfigFileNameDefault;
+            if( parsedArgs.ContainsKey( "config" ) ) {
+                string fileName = parsedArgs["config"];
+                try {
+                    if( File.Exists( fileName ) ) {
+                        using( File.OpenWrite( fileName ) ) { }
+                    } else {
+                        using( File.Create( fileName ) ) { }
+                    }
+                    FileInfo info = new FileInfo( fileName );
+                    Paths.ConfigFileName = info.FullName;
+
+                } catch( Exception ex ) {
+                    if( ex is ArgumentException || ex is NotSupportedException || ex is PathTooLongException ) {
+                        Logger.Log( "Specified config path is invalid or incorrectly formatted ({0}: {1}).", LogType.Error,
+                                    ex.GetType().ToString(), ex.Message );
+                    } else if( ex is SecurityException || ex is UnauthorizedAccessException ) {
+                        Logger.Log( "Cannot create config file, check permissions ({0}: {1}).", LogType.Error,
+                                    ex.GetType().ToString(), ex.Message );
+                    } else if( ex is DirectoryNotFoundException ) {
+                        Logger.Log( "Cannot create config file: directory/drive/volume does not exist or is not mounted ({0}).", LogType.Error,
+                                    ex.Message );
+                    } else if( ex is IOException ) {
+                        Logger.Log( "Cannot write to specified directory ({0}: {1}).", LogType.Error,
+                                    ex.GetType().ToString(), ex.Message );
+                    } else {
+                        throw ex;
+                    }
+                }
+            }
         }
 
 
-        public static bool Init( string[] _args ) {
-            serverStart = DateTime.Now;
-            SetArgs( _args );
-
+        public static bool InitServer() {
+            // warnings/disclaimers
             if( Updater.IsDev ) {
                 Logger.Log( "You are using an unreleased developer version of fCraft. " +
                             "Do not use this version unless are are ready to deal with bugs and potential data loss. " +
                             "Consider using the lastest stable version instead, available from www.fcraft.net",
                             LogType.Warning );
             }
-
             if( Updater.IsBroken ) {
                 Logger.Log( "This build has been marked as BROKEN. " +
                             "Do not use except for debugging purposes. " +
@@ -73,16 +155,11 @@ namespace fCraft {
                             Updater.LatestNonBroken );
             }
 
-            ResetWorkingDirectory();
-
             // try to load the config
             if( !Config.Load( false ) ) return false;
-            Config.SetPaths();
             Config.ApplyConfig();
             GenerateSalt();
             if( !Config.Save( true ) ) return false;
-
-            CheckMapDirectory();
 
             // start the task thread
             BackgroundTasks.Start();
@@ -107,7 +184,8 @@ namespace fCraft {
         }
 
 
-        public static bool Start() {
+        public static bool StartServer() {
+            serverStart = DateTime.Now;
 
             if( CheckForFCraftProcesses() ) {
                 Logger.Log( "Please close all other fCraft processes (fCraftUI, fCraftConsole, or ConfigTool) " +
@@ -1051,82 +1129,6 @@ namespace fCraft {
             GCRequested = true;
         }
 
-        public static void CheckMapDirectory() {
-            // move files, if necessary
-            if( !Directory.Exists( "maps" ) ) { // LEGACY
-                Directory.CreateDirectory( "maps" );
-                string[] files = Directory.GetFiles( Directory.GetCurrentDirectory(), "*.fcm" );
-                if( files.Length > 0 ) {
-                    Logger.Log( "Server.CheckMapDirectory: fCraft now uses a dedicated /maps/ directory for storing map files. " +
-                                "Your maps have been moved automatically.", LogType.SystemActivity );
-
-                    foreach( string file in files ) {
-                        string newFile = Path.Combine( "maps", new FileInfo( file ).Name );
-                        File.Move( file, newFile );
-                        Logger.Log( "Server.CheckMapDirectory: Moved " + newFile, LogType.SystemActivity );
-                    }
-                }
-            }
-        }
-
-
-        public static void ResetWorkingDirectory() {
-            // reset working directory to same directory as fCraft.dll
-            string path = Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location );
-            Directory.SetCurrentDirectory( path );
-
-            // check if path is overridden from command line args
-            foreach( string arg in args ) {
-                if( arg.StartsWith( "--path=" ) ) {
-                    string customPath = arg.Substring( 7 ).Trim();
-                    try {
-                        if( !Directory.Exists( customPath ) ) {
-                            Directory.CreateDirectory( customPath );
-                        }
-                        DirectoryInfo info = new DirectoryInfo( customPath );
-                        Directory.SetCurrentDirectory( info.FullName );
-                        Logger.Log( "Custom working path set to {0}", LogType.SystemActivity, info.FullName );
-
-                    } catch( ArgumentException ) {
-                        Logger.Log( "Specified working path is invalid (incorrect format), path reset to default.", LogType.Warning );
-                    } catch( PathTooLongException ) {
-                        Logger.Log( "Specified working path is invalid (too long), path reset to default.", LogType.Warning );
-                    } catch( System.Security.SecurityException ) {
-                        Logger.Log( "Cannot create specified working directory (SecurityException).", LogType.Warning );
-                    } catch( UnauthorizedAccessException ) {
-                        Logger.Log( "Cannot create specified working directory (UnauthorizedAccessException).", LogType.Warning );
-                    }
-                    break;
-                } else if( arg.StartsWith( "--logpath=" ) ) {
-                } else if( arg.StartsWith( "--configpath=" ) ) {
-                }
-            }
-        }
-
-
-        public static string TestDirectory( string path ) {
-            try {
-                if( !Directory.Exists( path ) ) {
-                    Directory.CreateDirectory( path );
-                }
-                DirectoryInfo info = new DirectoryInfo( path );
-                info.LastWriteTimeUtc = DateTime.UtcNow;
-                return info.FullName;
-
-            } catch( ArgumentException ) {
-                Logger.Log( "Specified path is invalid (incorrect format), path reset to default.", LogType.Warning );
-            } catch( PathTooLongException ) {
-                Logger.Log( "Specified path is invalid (too long), path reset to default.", LogType.Warning );
-            } catch( SecurityException ) {
-                Logger.Log( "Cannot create specified directory (SecurityException).", LogType.Warning );
-            } catch( UnauthorizedAccessException ) {
-                Logger.Log( "Cannot create specified directory (UnauthorizedAccessException).", LogType.Warning );
-            } catch( IOException ) {
-                Logger.Log( "Cannot write to specified directory (IOException).", LogType.Warning );
-            }
-            return null;
-        }
-
 
         internal static string Salt = "";
 
@@ -1161,6 +1163,11 @@ namespace fCraft {
         }
 
 
+        public static bool ComparePaths( string p1, string p2 ) {
+            return String.Equals( Path.GetFullPath( p1 ).TrimEnd( Path.PathSeparator ),
+                                  Path.GetFullPath( p2 ).TrimEnd( Path.PathSeparator ),
+                                  StringComparison.Ordinal );
+        }
 
         public static int CalculateMaxPacketsPerUpdate( World world ) {
             int packetsPerTick = (int)(packetsPerSecond / ticksPerSecond);
@@ -1221,7 +1228,6 @@ namespace fCraft {
 
         #region PlayerList
 
-
         public static void KickGhostsAndRegisterSession( Session newSession ) {
             List<Session> sessionsToKick = new List<Session>();
             lock( sessionLock ) {
@@ -1240,6 +1246,7 @@ namespace fCraft {
             }
         }
 
+
         public static string MakePlayerConnectedMessage( Player player, bool firstTime, World world ) {
             if( firstTime ) {
                 return String.Format( "&S{0} ({1}&S) connected for the first time, joined {2}",
@@ -1253,6 +1260,7 @@ namespace fCraft {
                                       world.GetClassyName() );
             }
         }
+
 
         // Add a newly-logged-in player to the list, and notify existing players.
         public static bool RegisterPlayer( Player player ) {
@@ -1329,6 +1337,7 @@ namespace fCraft {
             FirePlayerListChangedEvent();
         }
 
+
         // Find player by name using autocompletion (IGNORES HIDDEN PERMISSIONS)
         public static Player[] FindPlayers( string name ) {
             Player[] tempList = playerList;
@@ -1346,6 +1355,7 @@ namespace fCraft {
             }
             return results.ToArray();
         }
+
 
         // Find player by name using autocompletion (returns only whose whom player can see)
         public static Player[] FindPlayers( Player player, string name ) {

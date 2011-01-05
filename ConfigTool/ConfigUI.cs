@@ -22,7 +22,7 @@ namespace ConfigTool {
         #region Initialization
 
         public ConfigUI( string[] args ) {
-            Server.SetArgs( args );
+            Server.InitLibrary( args );
 
             instance = this;
             InitializeComponent();
@@ -211,11 +211,11 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void bWorldDel_Click( object sender, EventArgs e ) {
             if( dgvWorlds.SelectedRows.Count > 0 ) {
                 WorldListEntry world = worlds[dgvWorlds.SelectedRows[0].Index];
-                string fileName = Path.Combine( "maps", world.Name + ".fcm" );
+                string fileName = world.Name + ".fcm";
                 if( File.Exists( fileName ) &&
                     MessageBox.Show( "Do you want to delete the map file (" + fileName + ") as well?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
                     try {
-                        File.Delete( fileName );
+                        File.Delete( Path.Combine( Paths.MapPath, fileName ) );
                     } catch( Exception ex ) {
                         MessageBox.Show( "You have to delete the file (" + fileName + ") manually. " +
                                          "An error occured while trying to delete it automatically:" + Environment.NewLine + ex, "Error" );

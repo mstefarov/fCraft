@@ -70,6 +70,7 @@
     <Compile Include="Commands\ZoneCommands.cs" />
     <Compile Include="Mcc\MapFCMv3.cs" />
     <Compile Include="Player\PermissionController.cs" />
+    <Compile Include="Utils\Paths.cs" />
     <Compile Include="Utils\Vector.cs" />
     <Compile Include="World\BlockDB.cs" />
     <Compile Include="Commands\CommandDescriptor.cs" />

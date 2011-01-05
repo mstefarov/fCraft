@@ -199,14 +199,13 @@ namespace fCraft {
                 }
             }
 
-            string targetFileName = Path.Combine( "maps", fileName );
-            if( !targetFileName.ToLower().EndsWith( ".fcm" ) ) {
-                targetFileName += ".fcm";
+            if( !fileName.ToLower().EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
+                fileName += ".fcm";
             }
+            string fullFileName = Path.Combine( Paths.MapPath, fileName );
 
-
-            if( File.Exists( targetFileName ) ) {
-                FileInfo targetFile = new FileInfo( targetFileName );
+            if( File.Exists( fullFileName ) ) {
+                FileInfo targetFile = new FileInfo( fullFileName );
                 FileInfo sourceFile = new FileInfo( world.GetMapName() );
                 if( !targetFile.FullName.Equals( sourceFile.FullName, StringComparison.OrdinalIgnoreCase ) ) {
                     if( !cmd.confirmed ) {
@@ -217,14 +216,14 @@ namespace fCraft {
             }
 
 
-            player.MessageNow( "Saving map to {0}", targetFileName );
+            player.MessageNow( "Saving map to {0}", fullFileName );
 
             string mapSavingError = "Map saving failed. See server logs for details.";
             Map map = world.map;
             if( map == null ) {
                 if( File.Exists( world.GetMapName() ) ) {
                     try {
-                        File.Copy( world.GetMapName(), targetFileName, true );
+                        File.Copy( world.GetMapName(), fullFileName, true );
                     } catch( Exception ex ) {
                         Logger.Log( "StandardCommands.Save: Error occured while trying to copy an unloaded map: {0}", LogType.Error, ex );
                         player.Message( mapSavingError );
@@ -233,7 +232,7 @@ namespace fCraft {
                     Logger.Log( "StandardCommands.Save: Map for world \"{0}\" is unloaded, and file does not exist.", LogType.Error, world.name );
                     player.Message( mapSavingError );
                 }
-            } else if( map.Save( targetFileName ) ) {
+            } else if( map.Save( fullFileName ) ) {
                 player.Message( "Map saved succesfully." );
             } else {
                 Logger.Log( "StandardCommands.Save: Saving world \"{0}\" failed.", LogType.Error, world.name );
@@ -589,14 +588,14 @@ namespace fCraft {
             }
 
             if( !File.Exists( fileName ) && !Directory.Exists( fileName ) ) {
-                if( File.Exists( Path.Combine( "maps", fileName ) ) ) {
-                    fileName = Path.Combine( "maps", fileName );
+                if( File.Exists( Path.Combine( Paths.MapPath, fileName ) ) ) {
+                    fileName = Path.Combine( Paths.MapPath, fileName );
                 } else if( File.Exists( fileName + ".fcm" ) ) {
                     fileName += ".fcm";
-                } else if( File.Exists( Path.Combine( "maps", fileName + ".fcm" ) ) ) {
-                    fileName = Path.Combine( "maps", fileName + ".fcm" );
-                } else if( Directory.Exists( Path.Combine( "maps", fileName ) ) ) {
-                    fileName = Path.Combine( "maps", fileName );
+                } else if( File.Exists( Path.Combine( Paths.MapPath, fileName + ".fcm" ) ) ) {
+                    fileName = Path.Combine( Paths.MapPath, fileName + ".fcm" );
+                } else if( Directory.Exists( Path.Combine( Paths.MapPath, fileName ) ) ) {
+                    fileName = Path.Combine( Paths.MapPath, fileName );
                 } else {
                     player.Message( "File/directory not found: {0}", fileName );
                     return;
@@ -641,7 +640,7 @@ namespace fCraft {
                                     player.name, world.name, fileName );
 
                     } else {
-                        string targetFileName = Path.Combine( "maps", worldName + ".fcm" );
+                        string targetFileName = Path.Combine( Paths.MapPath, worldName + ".fcm" );
                         if( worldName != fileName && File.Exists( targetFileName ) && File.Exists( fileName ) ) {
                             FileInfo targetFile = new FileInfo( targetFileName );
                             FileInfo sourceFile = new FileInfo( fileName );
@@ -721,8 +720,8 @@ namespace fCraft {
                         Server.RenameWorld( oldName, newName );
 
                         // Move files
-                        string oldFileName = Path.Combine( "maps", oldName + ".fcm" );
-                        string newFileName = Path.Combine( "maps", newName + ".fcm" );
+                        string oldFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
+                        string newFileName = Path.Combine( Paths.MapPath, newName + ".fcm" );
                         try {
                             if( File.Exists( newFileName ) ) File.Replace( oldFileName, newFileName, null, true );
                             else File.Move( oldFileName, newFileName );
@@ -839,14 +838,8 @@ namespace fCraft {
             }
 
             string fileName = cmd.Next();
-            if( fileName != null ) {
-                if( !fileName.StartsWith( "maps/" ) && !fileName.StartsWith( @"maps\" ) ) {
-                    fileName = Path.Combine( "maps", fileName );
-                }
-                if( !fileName.ToLower().EndsWith( ".fcm" ) ) {
-                    fileName += ".fcm";
-                }
-
+            if( fileName != null && !fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
+                fileName += ".fcm";
             } else if( player.world == null ) {
                 player.Message( "When used from console, /gen requires FileName." );
                 cdGenerate.PrintUsage( player );
@@ -923,10 +916,11 @@ namespace fCraft {
 
             if( map != null ) {
                 if( fileName != null ) {
-                    if( map.Save( fileName ) ) {
+                    string fullFileName = Path.Combine( Paths.MapPath, fileName );
+                    if( map.Save( fullFileName ) ) {
                         player.MessageNow( "Generation done. Saved to {0}", fileName );
                     } else {
-                        player.Message( "&WAn error occured while saving generated map." );
+                        player.Message( "&WAn error occured while saving generated map to {0}", fileName );
                     }
                 } else {
                     player.MessageNow( "Generation done. Changing map..." );

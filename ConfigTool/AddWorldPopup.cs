@@ -129,7 +129,7 @@ namespace ConfigTool {
             }
 
             // Disable "existing map" tab if there are no other worlds
-            fileToLoad = Path.Combine( "maps", world.Name + ".fcm" );
+            fileToLoad = Path.Combine( Paths.MapPath, world.Name + ".fcm" );
             if( File.Exists( fileToLoad ) ) {
                 ShowMapDetails( tExistingMapInfo, fileToLoad );
                 StartLoadingMap();
@@ -387,9 +387,9 @@ namespace ConfigTool {
         }
 
         private void bShow_Click( object sender, EventArgs e ) {
-            if( cWorld.SelectedIndex != -1 && File.Exists( Path.Combine( "maps", copyOptionsList[cWorld.SelectedIndex].name + ".fcm" ) ) ) {
+            if( cWorld.SelectedIndex != -1 && File.Exists( Path.Combine( Paths.MapPath, copyOptionsList[cWorld.SelectedIndex].name + ".fcm" ) ) ) {
                 bShow.Enabled = false;
-                fileToLoad = Path.Combine( "maps", copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
+                fileToLoad = Path.Combine( Paths.MapPath, copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
                 ShowMapDetails( tCopyInfo, fileToLoad );
                 StartLoadingMap();
             }
@@ -397,7 +397,7 @@ namespace ConfigTool {
 
         private void cWorld_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cWorld.SelectedIndex != -1 ) {
-                string fileName = Path.Combine( "maps", copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
+                string fileName = Path.Combine( Paths.MapPath, copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
                 bShow.Enabled = File.Exists( fileName );
                 ShowMapDetails( tCopyInfo, fileName );
             }
@@ -494,7 +494,7 @@ namespace ConfigTool {
 
             switch( tab ) {
                 case Tabs.ExistingMap:
-                    fileToLoad = Path.Combine( "maps", world.Name + ".fcm" );
+                    fileToLoad = Path.Combine( Paths.MapPath, world.Name + ".fcm" );
                     ShowMapDetails( tExistingMapInfo, fileToLoad );
                     StartLoadingMap();
                     return;
@@ -508,7 +508,7 @@ namespace ConfigTool {
                     return;
                 case Tabs.CopyWorld:
                     if( cWorld.SelectedIndex != -1 ) {
-                        bShow.Enabled = File.Exists( Path.Combine( "maps", copyOptionsList[cWorld.SelectedIndex].name + ".fcm" ) );
+                        bShow.Enabled = File.Exists( Path.Combine( Paths.MapPath, copyOptionsList[cWorld.SelectedIndex].name + ".fcm" ) );
                     }
                     return;
                 case Tabs.Flatgrass:
@@ -616,14 +616,18 @@ Dimensions: {5}×{6}×{7}
                     tStatus1.Text = "Saving map...";
                     tStatus2.Text = "";
                     Refresh();
-                    map.Save( Path.Combine( "maps", world.Name + ".fcm" ) );
-                    string oldFile = Path.Combine( "maps", originalWorldName + ".fcm" );
-                    if( originalWorldName != null && originalWorldName != world.Name && File.Exists( oldFile ) ) {
+
+                    string newFileName = Path.Combine( Paths.MapPath, world.Name + ".fcm" );
+                    map.Save( newFileName );
+                    string oldFileName = Path.Combine( Paths.MapPath, originalWorldName + ".fcm" );
+
+                    if( originalWorldName != null && originalWorldName != world.Name && File.Exists( oldFileName ) ) {
                         try {
-                            File.Delete( oldFile );
+                            File.Delete( oldFileName );
                         } catch( Exception ex ) {
-                            MessageBox.Show( "You can delete the old file (" + oldFile + ") manually. " +
-                                "An error occured while trying to delete it automatically: " + Environment.NewLine + ex, "Error" );
+                            string errorMessage = String.Format( "Renaming the map file failed. Please delete the old file ({0}.fcm) manually.{1}{2}",
+                                                                 originalWorldName, Environment.NewLine, ex );
+                            MessageBox.Show( errorMessage, "Error renaming the map file" );
                         }
                     }
                 }

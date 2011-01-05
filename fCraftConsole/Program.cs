@@ -32,13 +32,15 @@ namespace fCraftConsole {
     static class Program {
 
         static void Main( string[] args ) {
+            Server.InitLibrary( args );
+
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;
 
 #if !DEBUG
             try {
 #endif
-                if( Server.Init( args ) ) {
+                if( Server.InitServer() ) {
 
                     UpdaterResult update = Updater.CheckForUpdates();
                     if( update.UpdateAvailable ) {
@@ -55,7 +57,7 @@ namespace fCraftConsole {
                         Logger.Log( "Program.Main: Could not set process priority, using defaults.", LogType.Warning );
                     }
 
-                    if( Server.Start() ) {
+                    if( Server.StartServer() ) {
                         Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
                         Console.WriteLine( "** Running fCraft version {0}. **", Updater.GetVersionString() );
                         Console.WriteLine( "** Server is now ready. Type /shutdown to exit safely. **" );

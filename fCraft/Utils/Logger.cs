@@ -61,6 +61,7 @@ namespace fCraft {
         static Queue<string> recentMessages = new Queue<string>();
         const int MaxRecentMessages = 25;
 
+
         static Logger() {
             consoleOptions = new bool[Enum.GetNames( typeof( LogType ) ).Length];
             logFileOptions = new bool[consoleOptions.Length];
@@ -69,10 +70,9 @@ namespace fCraft {
                 logFileOptions[i] = true;
             }
 
-            if( !Directory.Exists( "logs" ) ) Directory.CreateDirectory( "logs" );
-
             MarkLogStart();
         }
+
 
         public static void MarkLogStart() {
             // Mark start of logging
@@ -80,9 +80,11 @@ namespace fCraft {
                  DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() );
         }
 
+
         public static void Log( string message, LogType type, params object[] values ) {
             Log( String.Format( message, values ), type );
         }
+
 
         public static void LogConsole( string message ) {
             if( message.Contains( "&N" ) ) {
@@ -109,11 +111,11 @@ namespace fCraft {
             if( logFileOptions[(int)type] ) {
                 string actualLogFileName;
                 if( split == LogSplittingType.SplitBySession ) {
-                    actualLogFileName = Path.Combine( Config.LogPath, sessionStart + ".log" );
+                    actualLogFileName = Path.Combine( Paths.LogPath, sessionStart + ".log" );
                 } else if( split == LogSplittingType.SplitByDay ) {
-                    actualLogFileName = Path.Combine( Config.LogPath, DateTime.Now.ToString( ShortDateFormat ) + ".log" );
+                    actualLogFileName = Path.Combine( Paths.LogPath, DateTime.Now.ToString( ShortDateFormat ) + ".log" );
                 } else {
-                    actualLogFileName = Path.Combine( Config.LogPath, DefaultLogFileName );
+                    actualLogFileName = Path.Combine( Paths.LogPath, DefaultLogFileName );
                 }
                 try {
                     lock( locker ) {
@@ -146,23 +148,13 @@ namespace fCraft {
             }
         }
 
-        public static void LogFatalError( string message ) {
-            string crashMessage = String.Format( "{0}{1}{2}{1}{1}",
-                                                 DateTime.Now.ToString(),
-                                                 Environment.NewLine,
-                                                 message );
-            try {
-                File.AppendAllText( CrashLogFileName, crashMessage );
-            } catch( Exception ex ) {
-                Logger.Log( "Cannot save crash report to \"{0}\": {1}", LogType.Error,
-                            CrashLogFileName, ex );
-            }
-        }
 
+        #region Crash Handling
 
-        static DateTime lastCrashReport;
-        static object crashReportLock = new object();
+        static object crashReportLock = new object(); // mutex to prevent simultaneous reports (messes up the timers/requests)
+        static DateTime lastCrashReport = DateTime.MinValue;
         const int MinCrashReportInterval = 61; // minimum interval between submitting crash reports, in seconds
+
 
         public static void LogAndReportCrash( string message, string assembly, Exception exception ) {
 
@@ -196,8 +188,8 @@ namespace fCraft {
                     } else {
                         sb.Append( "&exceptiontype=&exceptionmessage=&exceptiontrace=" );
                     }
-                    if( File.Exists( Config.ConfigFileName ) ) {
-                        sb.Append( "&config=" ).Append( Uri.EscapeDataString( File.ReadAllText( Config.ConfigFileName ) ) );
+                    if( File.Exists( Paths.ConfigFileName ) ) {
+                        sb.Append( "&config=" ).Append( Uri.EscapeDataString( File.ReadAllText( Paths.ConfigFileName ) ) );
                     } else {
                         sb.Append( "&config=" );
                     }
@@ -232,6 +224,20 @@ namespace fCraft {
             }
         }
 
+
+        public static void LogFatalError( string message ) {
+            string crashMessage = String.Format( "{0}{1}{2}{1}{1}",
+                                                 DateTime.Now.ToString(),
+                                                 Environment.NewLine,
+                                                 message );
+            try {
+                File.AppendAllText( CrashLogFileName, crashMessage );
+            } catch( Exception ex ) {
+                Logger.Log( "Cannot save crash report to \"{0}\": {1}", LogType.Error,
+                            CrashLogFileName, ex );
+            }
+        }
+
         // Called by the Logger in case of serious errors to print troubleshooting advice.
         // Returns true if a crash report should be submitted for this type of errors.
         public static bool CheckForCommonErrors( Exception ex ) {
@@ -263,5 +269,7 @@ namespace fCraft {
                 return true;
             }
         }
+
+        #endregion
     }
 }
