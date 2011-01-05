@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "matvei.org" )]
 [assembly: AssemblyProduct( "fCraftUpdater" )]
-[assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2010 (matvei.org)" )]
+[assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2011 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 

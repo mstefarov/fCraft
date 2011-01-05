@@ -1,4 +1,4 @@
-﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System.ComponentModel;
 using System.Configuration.Install;
 using System.ServiceProcess;
