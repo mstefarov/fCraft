@@ -114,7 +114,7 @@ namespace fCraft {
 
 
         public string GetMapName() {
-            return Path.Combine( "maps", name + ".fcm" );
+            return Path.Combine( Paths.MapPath, name + ".fcm" );
         }
 
 

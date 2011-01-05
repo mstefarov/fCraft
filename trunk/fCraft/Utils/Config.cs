@@ -95,16 +95,12 @@ namespace fCraft {
         public const int ProtocolVersion = 7;
         public const int ConfigVersion = 125;
         public const int MaxPlayersSupported = 128;
-        public const string ConfigRootName = "fCraftConfig",
-                            ConfigFileName = "config.xml";
+        public const string ConfigRootName = "fCraftConfig";
         static Dictionary<ConfigKey, string> settings = new Dictionary<ConfigKey, string>();
         static Dictionary<string, ConfigKey> legacyConfigKeys = new Dictionary<string, ConfigKey>(); // LEGACY
 
 
         static Config() {
-            WorkingPath = WorkingPathDefault;
-            MapPath = MapPathDefault;
-            LogPath = LogPathDefault;
             LoadDefaults();
 
 #if DEBUG
@@ -268,20 +264,20 @@ namespace fCraft {
 
             // try to load config file (XML)
             XDocument file;
-            if( File.Exists( ConfigFileName ) ) {
+            if( File.Exists( Paths.ConfigFileName ) ) {
                 try {
-                    file = XDocument.Load( ConfigFileName );
+                    file = XDocument.Load( Paths.ConfigFileName );
                     if( file.Root == null || file.Root.Name != ConfigRootName ) {
-                        Log( "Config.Load: Malformed or incompatible config file {0}. Loading defaults.", LogType.Warning, ConfigFileName );
+                        Log( "Config.Load: Malformed or incompatible config file {0}. Loading defaults.", LogType.Warning, Paths.ConfigFileName );
                         file = new XDocument();
                         file.Add( new XElement( ConfigRootName ) );
                     } else {
-                        Log( "Config.Load: Config file {0} loaded succesfully.", LogType.Debug, ConfigFileName );
+                        Log( "Config.Load: Config file {0} loaded succesfully.", LogType.Debug, Paths.ConfigFileName );
                         fromFile = true;
                     }
                 } catch( Exception ex ) {
                     Log( "Config.Load: Fatal error while loading config file {0}: {1}", LogType.FatalError,
-                         ConfigFileName, ex );
+                         Paths.ConfigFileName, ex );
                     return false;
                 }
             } else {
@@ -339,7 +335,7 @@ namespace fCraft {
             string[] keyNames = Enum.GetNames( typeof( ConfigKey ) );
             foreach( XElement element in config.Elements() ) {
                 string key = element.Name.ToString().ToLower();
-                if( keyNames.Contains<string>( key,StringComparer.OrdinalIgnoreCase ) ) {
+                if( keyNames.Contains<string>( key, StringComparer.OrdinalIgnoreCase ) ) {
                     // known key
                     SetValue( (ConfigKey)Enum.Parse( typeof( ConfigKey ), key, true ), element.Value );
 
@@ -387,7 +383,7 @@ namespace fCraft {
             }
 
             XElement rankList = config.Element( "Ranks" );
-            if( rankList == null ) 
+            if( rankList == null )
                 rankList = config.Element( "Classes" ); // LEGACY
 
             if( rankList != null ) {
@@ -499,17 +495,17 @@ namespace fCraft {
             file.Add( config );
             try {
                 // write out the changes
-                string tempConfigFileName = ConfigFileName + ".temp";
-                string backupFileName = ConfigFileName + ".backup";
+                string tempConfigFileName = Paths.ConfigFileName + ".temp";
+                string backupFileName = Paths.ConfigFileName + ".backup";
                 file.Save( tempConfigFileName );
 
-                if( File.Exists( ConfigFileName ) ) File.Replace( tempConfigFileName, ConfigFileName, backupFileName, true );
-                else File.Move( tempConfigFileName, ConfigFileName );
+                if( File.Exists( Paths.ConfigFileName ) ) File.Replace( tempConfigFileName, Paths.ConfigFileName, backupFileName, true );
+                else File.Move( tempConfigFileName, Paths.ConfigFileName );
 
                 return true;
             } catch( Exception ex ) {
                 Log( "Config.Load: Fatal error while saving config file {0}: {1}", LogType.FatalError,
-                     ConfigFileName, ex );
+                     Paths.ConfigFileName, ex );
                 return false;
             }
         }
@@ -1035,65 +1031,6 @@ namespace fCraft {
                 Logger.Log( message, type );
             } else if( type != LogType.Debug ) {
                 errors += message + Environment.NewLine;
-            }
-        }
-
-        #endregion
-
-
-        #region Paths
-
-        public const string WorkingPathDefault = ".",
-                            MapPathDefault = "./maps",
-                            LogPathDefault = "./logs";
-
-        /// <summary>
-        /// Path to save maps to (default: ./maps/)
-        /// Can be overridden at startup via command-line argument "--mappath="
-        /// </summary>
-        public static string MapPath { get; private set; }
-
-        /// <summary>
-        /// Working path (default: whatever directory fCraft.dll is located in)
-        /// Can be overriden at startup via command line argument "--path="
-        /// </summary>
-        public static string WorkingPath { get; private set; }
-
-        /// <summary>
-        /// Path to save logs to (default: ./logs/)
-        /// Can be overriden at startup via command-line argument "--logpath="
-        /// </summary>
-        public static string LogPath { get; private set; }
-
-
-        public static bool IsDefaultMapPath( string path ) {
-            return String.IsNullOrEmpty( path ) || ComparePaths( MapPathDefault, path );
-        }
-
-        public static bool IsDefaultLogPath( string path ) {
-            return String.IsNullOrEmpty( path ) || ComparePaths( LogPathDefault, path );
-        }
-
-        public static bool IsDefaultPath( string path ) {
-            return String.IsNullOrEmpty( path ) || ComparePaths( Assembly.GetExecutingAssembly().Location, path );
-        }
-
-        public static bool ComparePaths( string p1, string p2 ) {
-            return String.Equals( Path.GetFullPath( p1 ).TrimEnd( Path.PathSeparator ),
-                                  Path.GetFullPath( p2 ).TrimEnd( Path.PathSeparator ),
-                                  StringComparison.Ordinal );
-        }
-
-
-        public static void SetPaths() {
-            MapPath = "maps";
-            if( !IsDefaultMapPath( GetString( ConfigKey.MapPath ) ) ) {
-                string customMapPath = Server.TestDirectory( GetString( ConfigKey.MapPath ) );
-                if( customMapPath != null ) {
-                    MapPath = customMapPath;
-                } else {
-                    Logger.Log( "Could not set custom map path, using default ({0})", LogType.Error, MapPath );
-                }
             }
         }
 

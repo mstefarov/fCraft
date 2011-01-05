@@ -198,10 +198,10 @@ namespace fCraft {
                 // try to append ".fcm" and/or prepend "maps/"
                 if( File.Exists( fileName + ".fcm" ) ) {
                     fileName += ".fcm";
-                } else if( File.Exists( Path.Combine( "maps", fileName ) ) || Directory.Exists( Path.Combine( "maps", fileName ) ) ) {
-                    fileName = Path.Combine( "maps", fileName );
-                } else if( File.Exists( Path.Combine( "maps", fileName + ".fcm" ) ) ) {
-                    fileName = Path.Combine( "maps", fileName + ".fcm" );
+                } else if( File.Exists( Path.Combine( Paths.MapPath, fileName ) ) || Directory.Exists( Path.Combine( Paths.MapPath, fileName ) ) ) {
+                    fileName = Path.Combine( Paths.MapPath, fileName );
+                } else if( File.Exists( Path.Combine( Paths.MapPath, fileName + ".fcm" ) ) ) {
+                    fileName = Path.Combine( Paths.MapPath, fileName + ".fcm" );
                 } else {
                     Logger.Log( "Map.Load: Could not find the specified file: {0}", LogType.Error, fileName );
                     return null;
@@ -239,10 +239,10 @@ namespace fCraft {
                 if( !File.Exists( fileName ) ) {
                     if( File.Exists( fileName + ".fcm" ) ) {
                         fileName += ".fcm";
-                    } else if( File.Exists( Path.Combine( "maps", fileName ) ) ) {
-                        fileName = Path.Combine( "maps", fileName );
-                    } else if( File.Exists( Path.Combine( "maps", fileName + ".fcm" ) ) ) {
-                        fileName = Path.Combine( "maps", fileName + ".fcm" );
+                    } else if( File.Exists( Path.Combine( Paths.MapPath, fileName ) ) ) {
+                        fileName = Path.Combine( Paths.MapPath, fileName );
+                    } else if( File.Exists( Path.Combine( Paths.MapPath, fileName + ".fcm" ) ) ) {
+                        fileName = Path.Combine( Paths.MapPath, fileName + ".fcm" );
                     } else {
                         Logger.Log( "Map.LoadHeaderOnly: File \"{0}\" not found.", LogType.Error, fileName );
                         return null;

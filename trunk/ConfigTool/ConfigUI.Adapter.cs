@@ -14,19 +14,15 @@ namespace ConfigTool {
         #region Loading & Applying Config
 
         void LoadConfig( object sender, EventArgs args ) {
-            Server.ResetWorkingDirectory();
-            Server.CheckMapDirectory();
-
-            if( !File.Exists( "worlds.xml" ) && !File.Exists( Config.ConfigFileName ) ) {
+            if( !File.Exists( "worlds.xml" ) && !File.Exists( Paths.ConfigFileName ) ) {
                 MessageBox.Show( "Configuration (config.xml) and world list (worlds.xml) were not found. Using defaults." );
-            } else if( !File.Exists( Config.ConfigFileName ) ) {
+            } else if( !File.Exists( Paths.ConfigFileName ) ) {
                 MessageBox.Show( "Configuration (config.xml) was not found. Using defaults." );
             } else if( !File.Exists( "worlds.xml" ) ) {
                 MessageBox.Show( "World list (worlds.xml) was not found. Assuming 0 worlds." );
             }
 
             if( Config.Load( false ) ) {
-                Config.SetPaths();
                 if( Config.errors.Length > 0 ) {
                     MessageBox.Show( Config.errors, "Config loading warnings" );
                 }
@@ -177,8 +173,8 @@ namespace ConfigTool {
             FillRankList( cDefaultBuildRank, "(lowest rank)" );
             cDefaultBuildRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.DefaultBuildRank ) ) );
 
-            if( Config.IsDefaultMapPath( Config.GetString( ConfigKey.MapPath ) ) ) {
-                tMapPath.Text = Config.MapPathDefault;
+            if( Paths.IsDefaultMapPath( Config.GetString( ConfigKey.MapPath ) ) ) {
+                tMapPath.Text = Paths.MapPathDefault;
                 xMapPath.Checked = false;
             } else {
                 tMapPath.Text = Config.GetString( ConfigKey.MapPath );

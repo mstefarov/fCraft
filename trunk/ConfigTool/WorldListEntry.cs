@@ -80,8 +80,8 @@ namespace ConfigTool {
                 } else {
                     string oldName = name;
                     name = value;
-                    string oldFileName = Path.Combine( "maps", oldName + ".fcm" );
-                    string newFileName = Path.Combine( "maps", name + ".fcm" );
+                    string oldFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
+                    string newFileName = Path.Combine( Paths.MapPath, name + ".fcm" );
                     if( File.Exists( oldFileName ) ) {
                         File.Move( oldFileName, newFileName );
                     }
@@ -93,7 +93,7 @@ namespace ConfigTool {
         public string Description {
             get {
                 if( cachedMapHeader == null && !loadingFailed ) {
-                    cachedMapHeader = Map.LoadHeaderOnly( Path.Combine( "maps", name + ".fcm" ) );
+                    cachedMapHeader = Map.LoadHeaderOnly( Path.Combine( Paths.MapPath, name + ".fcm" ) );
                     if( cachedMapHeader == null ) {
                         loadingFailed = true;
                     }

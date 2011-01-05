@@ -22,9 +22,10 @@ namespace fCraftWinService {
         }
 
         protected override void OnStart( string[] args ) {
+            Server.InitLibrary( args );
             Server.OnShutdownEnd += ShutdownEndHandler;
             Server.OnURLChanged += SetURL;
-            if( !Server.Init( args ) || !Server.Start() ) {
+            if( !Server.InitServer() || !Server.StartServer() ) {
                 throw new Exception( "Could not start fCraft." );
             }
             Logger.Log( "fCraftWinService.OnStart: Service started.", LogType.SystemActivity );
