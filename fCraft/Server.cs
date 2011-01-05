@@ -1,4 +1,4 @@
-﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org> and Jesse O'Brien <destroyer661@gmail.com>
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org> and Jesse O'Brien <destroyer661@gmail.com>
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -304,7 +304,6 @@ namespace fCraft {
 
                 Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
                             reason );
-
 
                 // kick all players
                 if( playerList != null ) {

@@ -1,7 +1,8 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.IO;
-using System.Security;
 using System.Reflection;
+using System.Security;
 
 
 namespace fCraft {
@@ -26,21 +27,29 @@ namespace fCraft {
                     Directory.CreateDirectory( path );
                 }
                 DirectoryInfo info = new DirectoryInfo( path );
+                string randomFileName = Path.Combine( info.FullName, "fCraft_write_test_" + DateTime.UtcNow.Ticks );
                 if( checkForWriteAccess ) {
-                    info.LastWriteTimeUtc = DateTime.UtcNow; // equivalent to "touch" - checking for write access
+                    using( File.Create( randomFileName ) ) { }
+                    File.Delete( randomFileName );
                 }
                 return true;
 
-            } catch( ArgumentException ) {
-                Logger.Log( "Specified path is invalid (incorrect format), path reset to default.", LogType.Warning );
-            } catch( PathTooLongException ) {
-                Logger.Log( "Specified path is invalid (too long), path reset to default.", LogType.Warning );
-            } catch( SecurityException ) {
-                Logger.Log( "Cannot create specified directory (SecurityException).", LogType.Warning );
-            } catch( UnauthorizedAccessException ) {
-                Logger.Log( "Cannot create specified directory (UnauthorizedAccessException).", LogType.Warning );
-            } catch( IOException ) {
-                Logger.Log( "Cannot write to specified directory (IOException).", LogType.Warning );
+            } catch( Exception ex ) {
+                if( ex is ArgumentException || ex is NotSupportedException || ex is PathTooLongException ) {
+                    Logger.Log( "Specified path is invalid or incorrectly formatted ({0}: {1}).", LogType.Error,
+                                ex.GetType().ToString(), ex.Message );
+                } else if( ex is SecurityException || ex is UnauthorizedAccessException ) {
+                    Logger.Log( "Cannot create directory, check permissions ({0}: {1}).", LogType.Error,
+                                ex.GetType().ToString(), ex.Message );
+                } else if( ex is DirectoryNotFoundException ) {
+                    Logger.Log( "Cannot create directory: drive/volume does not exist or is not mounted ({0}).", LogType.Error,
+                                ex.Message );
+                } else if( ex is IOException ) {
+                    Logger.Log( "Cannot write to specified directory ({0}: {1}).", LogType.Error,
+                                ex.GetType().ToString(), ex.Message );
+                } else {
+                    throw ex;
+                }
             }
             return false;
         }

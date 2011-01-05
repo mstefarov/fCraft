@@ -1,4 +1,4 @@
-﻿// Copyright 2009, 2010 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.IO;
 using System.Text;
@@ -216,7 +216,7 @@ namespace fCraft {
             }
 
 
-            player.MessageNow( "Saving map to {0}", fullFileName );
+            player.MessageNow( "Saving map to {0}", fileName );
 
             string mapSavingError = "Map saving failed. See server logs for details.";
             Map map = world.map;
