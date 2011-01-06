@@ -99,6 +99,7 @@ namespace fCraft {
             // set map path
             if( parsedArgs.ContainsKey( "mappath" ) && Paths.TestDirectory( parsedArgs["mappath"], true ) ) {
                 Paths.MapPath = Path.GetFullPath( parsedArgs["mappath"] );
+                Paths.IgnoreMapPathConfigKey = true;
             } else if( Paths.TestDirectory( Paths.MapPathDefault, true ) ) {
                 Paths.MapPath = Path.GetFullPath( Paths.MapPathDefault );
             } else {
@@ -1161,12 +1162,6 @@ namespace fCraft {
             return true;
         }
 
-
-        public static bool ComparePaths( string p1, string p2 ) {
-            return String.Equals( Path.GetFullPath( p1 ).TrimEnd( Path.PathSeparator ),
-                                  Path.GetFullPath( p2 ).TrimEnd( Path.PathSeparator ),
-                                  StringComparison.Ordinal );
-        }
 
         public static int CalculateMaxPacketsPerUpdate( World world ) {
             int packetsPerTick = (int)(packetsPerSecond / ticksPerSecond);
