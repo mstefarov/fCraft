@@ -88,9 +88,17 @@ namespace fCraft {
         public static string ConfigFileName { get; set; }
 
 
+        internal static bool IgnoreMapPathConfigKey = false;
+
         public static bool IsDefaultMapPath( string path ) {
-            return String.IsNullOrEmpty( path ) || Server.ComparePaths( MapPathDefault, path );
+            return String.IsNullOrEmpty( path ) || Compare( MapPathDefault, path );
         }
 
+
+        public static bool Compare( string p1, string p2 ) {
+            return String.Equals( Path.GetFullPath( p1 ).TrimEnd( Path.PathSeparator ),
+                                  Path.GetFullPath( p2 ).TrimEnd( Path.PathSeparator ),
+                                  StringComparison.Ordinal );
+        }
     }
 }

@@ -103,6 +103,7 @@ namespace fCraft {
             }
         }
 
+
         // more block metadata
         internal byte[] blockChangeFlags;
         internal uint[] blockTimestamps;

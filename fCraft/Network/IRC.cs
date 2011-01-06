@@ -362,6 +362,7 @@ namespace fCraft {
 
         static ConcurrentQueue<string> outputQueue = new ConcurrentQueue<string>();
 
+
         static void AssignBotForInputParsing() {
             bool needReassignment = false;
             foreach( IRCThread thread in threads ) {
@@ -434,6 +435,7 @@ namespace fCraft {
 
 
         public static void SendChannelMessage( string line ) {
+            if( channelNames == null ) return; // in case IRC bot is disabled.
             if( Config.GetBool( ConfigKey.IRCUseColor ) ) {
                 line = Color.ToIRCColorCodes( line );
             } else {
@@ -450,6 +452,7 @@ namespace fCraft {
 
 
         public static void SendNotice( string line ) {
+            if( channelNames == null ) return; // in case IRC bot is disabled.
             if( Config.GetBool( ConfigKey.IRCUseColor ) ) {
                 line = Color.ToIRCColorCodes( line );
             } else {

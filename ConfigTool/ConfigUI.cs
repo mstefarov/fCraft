@@ -1098,7 +1098,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             } else if( c is ComboBox ) {
                 ((ComboBox)c).SelectedIndexChanged += handler;
             } else if( c is ListView ) {
-                ((ListView)c).ItemChecked += ((o,e) => handler(o,e));
+                ((ListView)c).ItemChecked += (( o, e ) => handler( o, e ));
             } else if( c is NumericUpDown ) {
                 ((NumericUpDown)c).ValueChanged += handler;
             } else if( c is ListBox ) {
@@ -1261,6 +1261,16 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                         e.Cancel = true;
                         return;
                 }
+            }
+        }
+
+        private void bMapPath_Click( object sender, EventArgs e ) {
+            FolderBrowserDialog dialog = new FolderBrowserDialog {
+                SelectedPath = tMapPath.Text,
+                Description = "Select a directory to save map files to"
+            };
+            if( dialog.ShowDialog() == DialogResult.OK ) {
+                tMapPath.Text = dialog.SelectedPath;
             }
         }
     }

@@ -797,6 +797,13 @@ namespace fCraft {
             IRC.SendDelay = GetInt( ConfigKey.IRCDelay );
 
             DrawCommands.MaxUndoCount = GetInt( ConfigKey.MaxUndo );
+
+            if( !Paths.IgnoreMapPathConfigKey && GetString( ConfigKey.MapPath ).Length > 0 ) {
+                if( Paths.TestDirectory( GetString( ConfigKey.MapPath ), true ) ) {
+                    Paths.MapPath = Path.GetFullPath( GetString( ConfigKey.MapPath ) );
+                    Logger.Log( "Maps are stored at: {0}", LogType.SystemActivity, Paths.MapPath );
+                }
+            }
         }
 
 

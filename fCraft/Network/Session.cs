@@ -557,6 +557,15 @@ namespace fCraft {
             // check if another player with the same name is on
             Server.KickGhostsAndRegisterSession( this );
 
+            // check if player is muted
+            if( player.info.mutedUntil > DateTime.UtcNow ) {
+                int secondsLeft = (int)player.info.mutedUntil.Subtract(DateTime.UtcNow).TotalSeconds;
+                player.Message( "&WYou were previously muted by {0}, {1} seconds left.",
+                                player.info.mutedBy, secondsLeft );
+                Server.SendToAllExcept( "&WPlayer {0}&W was previously muted by {1}&W, {2} seconds left.", player,
+                                        player.GetClassyName(), player.info.mutedBy, secondsLeft );
+            }
+
             if( Config.GetBool( ConfigKey.LimitOneConnectionPerIP ) ) {
                 // note: FindPlayers only counts REGISTERED players
                 List<Player> potentialClones = Server.FindPlayers( GetIP() );
