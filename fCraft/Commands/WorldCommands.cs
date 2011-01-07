@@ -350,10 +350,11 @@ namespace fCraft {
 
         internal static void WorldAccess( Player player, Command cmd ) {
             string worldName = cmd.Next();
-            string rankName = cmd.Next();
 
             if( worldName == null ) {
-                if( player.world != null ) {
+                if( player == Player.Console ) {
+                    player.Message( "When calling /waccess from console, you must specify the world name." );
+                } else {
                     if( player.world.accessRank == RankList.LowestRank ) {
                         player.Message( "This world ({0}&S) can be visited by anyone.",
                                         player.world.GetClassyName() );
@@ -362,8 +363,6 @@ namespace fCraft {
                                         player.world.GetClassyName(),
                                         player.world.accessRank.GetClassyName() );
                     }
-                } else {
-                    player.Message( "When calling /waccess from console, you must specify the world name." );
                 }
                 return;
             }
@@ -380,37 +379,123 @@ namespace fCraft {
                 world = worlds[0];
             }
 
-            if( rankName == null ) {
-                if( world.accessRank == RankList.LowestRank ) {
-                    player.Message( "World {0}&S can be visited by anyone.",
-                                    world.GetClassyName() );
-                } else {
-                    player.Message( "World {0}&S can only be visited by {1}+",
-                                    world.GetClassyName(),
-                                    world.accessRank.GetClassyName() );
-                }
-            } else {
-                Rank rank = RankList.FindRank( rankName );
-                if( rank == null ) {
-                    player.NoRankMessage( rankName );
+
+            string name;
+            bool changesWereMade = false;
+
+            do {
+                name = cmd.Next();
+                if( name == null ) {
+                    if( world.accessRank == RankList.LowestRank ) {
+                        player.Message( "World {0}&S can be visited by anyone.",
+                                        world.GetClassyName() );
+                    } else {
+                        player.Message( "World {0}&S can only be visited by {1}+",
+                                        world.GetClassyName(),
+                                        world.accessRank.GetClassyName() );
+                    }
+                    return;
+
                 } else if( world == Server.mainWorld ) {
                     player.Message( "The main world cannot have access restrictions." );
-                } else if( world.accessRank > rank && world.accessRank > player.info.rank ) {
-                    player.Message( "Cannot lower access permission for world {0}&S: Must be {1}+",
-                                    world.GetClassyName(), world.accessRank.GetClassyName() );
-                } else {
-                    world.accessRank = rank;
-                    Server.SaveWorldList();
-                    if( world.accessRank == RankList.LowestRank ) {
-                        Server.SendToAll( "{0}&S made the world {1}&S accessible to anyone.",
-                                          player.GetClassyName(), world.GetClassyName() );
-                    } else {
-                        Server.SendToAll( "{0}&S made the world {1}&S accessible only to {2}+",
-                                          player.GetClassyName(), world.GetClassyName(), world.accessRank.GetClassyName() );
-                    }
-                    Logger.Log( "{0} made the world \"{1}\" accessible to {2}+", LogType.UserActivity,
-                                player.name, world.name, world.accessRank.Name );
+                    return;
+
+                } else if( name.Length < 2 ) {
+                    continue;
                 }
+
+                if( name.StartsWith( "+" ) ) {
+                    PlayerInfo info;
+                    if( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
+                        player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
+                        return;
+                    }
+
+                    if( info == null ) {
+                        player.NoPlayerMessage( name.Substring( 1 ) );
+                        return;
+                    }
+
+                    // prevent players from whitelisting themselves to bypass protection
+                    if( player.info == info ) {
+                        if( !world.accessSecurity.CanBuild( player ) ) {
+                            player.Message( "You must be {0}+&S to add yourself to this zone's whitelist.",
+                                            world.accessSecurity.minRank.GetClassyName() );
+                            continue;
+                        }
+                    }
+
+                    switch( world.accessSecurity.Include( info ) ) {
+                        case PermissionOverride.Deny:
+                            player.Message( "{0}&S is no longer excluded from world {1}",
+                                            info.GetClassyName(), world.GetClassyName() );
+                            changesWereMade = true;
+                            break;
+                        case PermissionOverride.None:
+                            player.Message( "{0}&S is now included in world {1}",
+                                            info.GetClassyName(), world.GetClassyName() );
+                            changesWereMade = true;
+                            break;
+                        case PermissionOverride.Allow:
+                            player.Message( "{0}&S is already included in world {1}",
+                                            info.GetClassyName(), world.GetClassyName() );
+                            break;
+                    }
+
+                } else if( name.StartsWith( "-" ) ) {
+                    PlayerInfo info;
+                    if( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
+                        player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
+                        return;
+                    }
+
+                    if( info == null ) {
+                        player.NoPlayerMessage( name.Substring( 1 ) );
+                        return;
+                    }
+
+                    switch( world.accessSecurity.Exclude( info ) ) {
+                        case PermissionOverride.Deny:
+                            player.Message( "{0}&S is already barred from zone {1}",
+                                            info.GetClassyName(), world.GetClassyName() );
+                            break;
+                        case PermissionOverride.None:
+                            player.Message( "{0}&S is now barred from zone {1}",
+                                            info.GetClassyName(), world.GetClassyName() );
+                            changesWereMade = true;
+                            break;
+                        case PermissionOverride.Allow:
+                            player.Message( "{0}&S is no longer specially allowed in zone {1}",
+                                            info.GetClassyName(), world.GetClassyName() );
+                            changesWereMade = true;
+                            break;
+                    }
+
+                } else {
+                    Rank rank = RankList.FindRank( name );
+                    if( rank == null ) {
+                        player.NoRankMessage( name );
+                    } else if( world.accessRank > rank && world.accessRank > player.info.rank ) {
+                        player.Message( "Cannot lower access permission for world {0}&S: Must be {1}+",
+                                        world.GetClassyName(), world.accessRank.GetClassyName() );
+                    } else {
+                        world.accessRank = rank;
+                        changesWereMade = true;
+                        if( world.accessRank == RankList.LowestRank ) {
+                            Server.SendToAll( "{0}&S made the world {1}&S accessible to anyone.",
+                                              player.GetClassyName(), world.GetClassyName() );
+                        } else {
+                            Server.SendToAll( "{0}&S made the world {1}&S accessible only to {2}+",
+                                              player.GetClassyName(), world.GetClassyName(), world.accessRank.GetClassyName() );
+                        }
+                        Logger.Log( "{0} made the world \"{1}\" accessible to {2}+", LogType.UserActivity,
+                                    player.name, world.name, world.accessRank.Name );
+                    }
+                }
+            } while( (name = cmd.Next()) != null );
+
+            if( changesWereMade ) {
+                Server.SaveWorldList();
             }
         }
 
