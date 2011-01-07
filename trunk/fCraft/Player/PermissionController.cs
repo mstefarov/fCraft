@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
+
 
 namespace fCraft {
 
@@ -18,17 +21,21 @@ namespace fCraft {
     }
 
 
-    public class PermissionController {
+    public sealed class SecurityController {
         public class PlayerListCollection {
             // keeping both lists on one object allows lock-free synchronization
             public PlayerInfo[] included;
             public PlayerInfo[] excluded;
         }
 
+        public SecurityController() {
+            UpdatePlayerListCache();
+        }
+
         public PlayerListCollection permissionList { get; private set; }
 
-        protected Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
-        protected Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
+        Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
+        Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
 
         private Rank _minRank, _maxRank;
 
@@ -54,9 +61,9 @@ namespace fCraft {
             }
         }*/
 
-        protected object playerPermissionListLock = new object();
+        object playerPermissionListLock = new object();
 
-        protected void UpdatePlayerListCache() {
+        public void UpdatePlayerListCache() {
             lock( playerPermissionListLock ) {
                 permissionList = new PlayerListCollection {
                     included = includedPlayers.Values.ToArray(),
@@ -133,6 +140,40 @@ namespace fCraft {
             }
 
             return PermissionType.Denied;
+        }
+
+        public const string XmlRootElementName = "PermissionController";
+
+        public SecurityController( XElement root ) {
+            minRank = RankList.ParseRank( root.Element( "minRank" ).Value );
+            //maxRank = RankList.ParseRank( root.Element( "maxRank" ).Value );
+            foreach( XElement player in root.Elements( "included" ) ) {
+                if( !Player.IsValidName( player.Value ) ) continue;
+                PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
+                if( info != null ) Include( info );
+            }
+            foreach( XElement player in root.Elements( "excluded" ) ) {
+                if( !Player.IsValidName( player.Value ) ) continue;
+                PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
+                if( info != null ) Exclude( info );
+            }
+        }
+
+        public XElement Serialize() {
+            XElement root = new XElement( XmlRootElementName );
+
+            if( minRank != null ) root.Add( new XElement( "minRank", minRank ) );
+            //if(maxRank!=null) root.Add( new XElement( "maxRank", maxRank ) );
+
+            lock( playerPermissionListLock ) {
+                foreach( string name in includedPlayers.Keys ) {
+                    root.Add( new XElement( "included", name ) );
+                }
+                foreach( string name in excludedPlayers.Keys ) {
+                    root.Add( new XElement( "excluded", name ) );
+                }
+            }
+            return root;
         }
     }
 }

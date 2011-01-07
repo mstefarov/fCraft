@@ -615,7 +615,7 @@ namespace fCraft {
             Zone[] zoneListCache = zoneList;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
                 if( zoneListCache[i].bounds.Contains( x, y, h ) ) {
-                    if( zoneListCache[i].CanBuild( player ) ) {
+                    if( zoneListCache[i].controller.CanBuild( player ) ) {
                         result = PermissionOverride.Allow;
                     } else {
                         return PermissionOverride.Deny;
@@ -629,7 +629,7 @@ namespace fCraft {
         public Zone FindDeniedZone( int x, int y, int h, Player player ) {
             Zone[] zoneListCache = zoneList;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].bounds.Contains( x, y, h ) && !zoneListCache[i].CanBuild( player ) ) {
+                if( zoneListCache[i].bounds.Contains( x, y, h ) && !zoneListCache[i].controller.CanBuild( player ) ) {
                     return zoneListCache[i];
                 }
             }
@@ -645,7 +645,7 @@ namespace fCraft {
             for( int i = 0; i < zoneListCache.Length; i++ ) {
                 if( zoneListCache[i].bounds.Contains( x, y, h ) ) {
                     found = true;
-                    if( zoneListCache[i].CanBuild( player ) ) {
+                    if( zoneListCache[i].controller.CanBuild( player ) ) {
                         allowed.Add( zoneListCache[i] );
                     } else {
                         denied.Add( zoneListCache[i] );

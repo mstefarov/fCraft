@@ -6,7 +6,7 @@ using System.IO;
 
 namespace fCraft {
 
-    public sealed class World : PermissionController, IClassy {
+    public sealed class World : IClassy {
 
         public static string[] BackupEnum = new string[] {
             "Never", "5 Minutes", "10 Minutes", "15 Minutes", "20 Minutes",
@@ -24,6 +24,8 @@ namespace fCraft {
                     isFlushing,
                     neverUnload;
         public Rank accessRank, buildRank;
+        public SecurityController accessSecurity,
+                                  buildSecurity;
 
         public string lockedBy, unlockedBy;
         public DateTime lockedDate, unlockedDate;
@@ -34,31 +36,12 @@ namespace fCraft {
 
         internal int updateTaskId = -1, saveTaskId = -1, backupTaskId = -1;
 
-        //internal bool canDispose;
-        //AutoResetEvent waiter = new AutoResetEvent( false );
-        //Thread thread;
-
 
         public World( string _name ) {
             name = _name;
             accessRank = RankList.LowestRank;
             buildRank = RankList.LowestRank;
-            //thread = new Thread( WorldLoop );
-            //thread.IsBackground = true;
         }
-
-
-        /*void WorldLoop() {
-
-            LoadMap();
-            waiter.Set();
-
-            while( !Server.shuttingDown ) {
-                // update logic
-            }
-
-            UnloadMap();
-        }*/
 
 
         // Prepare for shutdown
@@ -525,5 +508,6 @@ namespace fCraft {
         }
 
         #endregion
+
     }
 }

@@ -1,5 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Xml;
+using System.Xml.Linq;
 
 
 namespace fCraft {
@@ -61,5 +63,30 @@ namespace fCraft {
         public int GetHeight() {
             return (hMax - hMin + 1);
         }
+
+        public const string XmlRootElementName = "BoundingBox";
+
+        public BoundingBox( XElement root ) {
+            string[] coords = root.Value.Split( ' ' );
+            int x1 = Int32.Parse( coords[0] );
+            int x2 = Int32.Parse( coords[1] );
+            int y1 = Int32.Parse( coords[2] );
+            int y2 = Int32.Parse( coords[3] );
+            int h1 = Int32.Parse( coords[4] );
+            int h2 = Int32.Parse( coords[5] );
+            xMin = Math.Min( x1, x2 );
+            xMax = Math.Max( x1, x2 );
+            yMin = Math.Min( y1, y2 );
+            yMax = Math.Max( y1, y2 );
+            hMin = Math.Min( h1, h2 );
+            hMax = Math.Max( h1, h2 );
+        }
+
+        public XElement Serialize() {
+            return new XElement( XmlRootElementName,
+                                 String.Format( "{0} {1} {2} {3} {4} {5}",
+                                                xMin, xMax, yMin, yMax, hMin, hMax ) );
+        }
+
     }
 }
