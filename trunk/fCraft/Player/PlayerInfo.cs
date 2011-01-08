@@ -9,7 +9,7 @@ namespace fCraft {
     public sealed class PlayerInfo : IClassy {
 
         public const int MinFieldCount = 24,
-                         MaxFieldCount = 44;
+                         ExpectedFieldCount = 44;
 
         public string name;
         public IPAddress lastIP = IPAddress.None;
@@ -212,7 +212,7 @@ namespace fCraft {
 
         // save to file
         public string Serialize() {
-            string[] fields = new string[MaxFieldCount];
+            string[] fields = new string[ExpectedFieldCount];
 
             fields[0] = name;
             if( lastIP.ToString() != IPAddress.None.ToString() ) {

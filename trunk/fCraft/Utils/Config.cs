@@ -87,7 +87,10 @@ namespace fCraft {
      * 
      * 125 - r356 - Removed LogPath and DataPath keys
      * 
-     * 126 - r366 - Added PreventSecurityCircumvention ley
+     * 126 - r366 - Added PreventSecurityCircumvention key
+     * 
+     * 127 - r368 - Removed PreventSecurityCircumvention key
+     *              Added per-rank AllowSecurityCircumvention setting instead
      * 
      */
 
@@ -189,7 +192,6 @@ namespace fCraft {
             SetValue( ConfigKey.AnnounceRankChanges, true );
 
             SetValue( ConfigKey.PaidPlayersOnly, false );
-            SetValue( ConfigKey.PreventSecurityCircumvention, true );
         }
 
         public static void LoadDefaultsSavingAndBackup() {
@@ -832,6 +834,8 @@ namespace fCraft {
             owner.Add( new XAttribute( "antiGriefBlocks", 0 ) );
             owner.Add( new XAttribute( "antiGriefSeconds", 0 ) );
             owner.Add( new XAttribute( "idleKickAfter", 0 ) );
+            owner.Add( new XAttribute( "reserveSlot", true ) );
+            owner.Add( new XAttribute( "allowSecurityCircumvention", true ) );
 
             owner.Add( new XElement( Permission.Chat.ToString() ) );
             owner.Add( new XElement( Permission.Build.ToString() ) );

@@ -57,7 +57,7 @@ namespace fCraft {
                     }
 
                     // prevent players from whitelisting themselves to bypass protection
-                    if( player.info == info ) {
+                    if( !player.info.rank.AllowSecurityCircumvention && player.info == info ) {
                         if( !zone.controller.CanUse( player ) ) {
                             player.Message( "You must be {0}+&S to add yourself to this zone's whitelist.",
                                             zone.controller.minRank.GetClassyName() );
@@ -116,7 +116,8 @@ namespace fCraft {
 
                     if( minRank != null ) {
                         // prevent players from lowering rank so bypass protection
-                        if( zone.controller.minRank > player.info.rank && minRank <= player.info.rank ) {
+                        if( !player.info.rank.AllowSecurityCircumvention && 
+                            zone.controller.minRank > player.info.rank && minRank <= player.info.rank ) {
                             player.Message( "You are not allowed to lower the zone's rank." );
                             continue;
                         }

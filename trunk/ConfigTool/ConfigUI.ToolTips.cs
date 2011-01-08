@@ -273,20 +273,19 @@ at one time. If unchecked, there is no limit.";
 @"Ability to ban/unban other players from the server.
 Affected commands:
     /ban
-    /unban
-Affected permissions:
-    BanIP
-    BanAll";
+    /unban";
 
             vPermissions.Items[(int)Permission.BanAll].ToolTipText =
-@"Ability to ban/unban a player, his IP, and all other players who used the IP.
+@"Ability to ban/unban a player account, his IP, and all other accounts that used the IP.
 BanAll/UnbanAll commands can be used on players who keep evading bans.
+Required permissions: Ban & BanIP
 Affected commands:
     /banall
     /unbanall";
 
             vPermissions.Items[(int)Permission.BanIP].ToolTipText =
 @"Ability to ban/unban players by IP.
+Required permission: Ban
 Affected commands:
     /banip
     /unbanip";
@@ -316,18 +315,19 @@ the draw limit.
 Affected commands:
     /copy
     /cut
+    /mirror
     /paste, /pastenot
-    /rotate
-    /mirror";
+    /rotate";
 
             vPermissions.Items[(int)Permission.Delete].ToolTipText =
-@"Ability to delete blocks on maps. This is a baseline permission
+@"Ability to delete or replace blocks on maps. This is a baseline permission
 that can be overriden by world-specific and zone-specific permissions.";
 
             vPermissions.Items[(int)Permission.DeleteAdmincrete].ToolTipText =
 @"Ability to delete admincrete (aka adminium) blocks. Even if someone
 has this permission, it can be overriden by world-specific and
-zone-specific permissions.";
+zone-specific permissions.
+Required permission: Delete";
 
             vPermissions.Items[(int)Permission.Demote].ToolTipText =
 @"Ability to demote other players to a lower rank.
@@ -338,22 +338,25 @@ Affected commands:
 @"Ability to use drawing tools (commands capable of affecting many blocks
 at once). This permission can be overriden by world-specific and
 zone-specific permissions.
+Required permission: Build, Delete
 Affected commands:
-    /cuboid and /cuboidh
-    /ellipsoid
-    /replace and /replacenot
-    /mark
     /cancel
+    /cuboid, /cuboidh, and /cuboidw
+    /ellipsoid
+    /line
+    /mark
+    /replace and /replacenot
     /undo";
 
             vPermissions.Items[(int)Permission.EditPlayerDB].ToolTipText =
 @"Ability to edit the player database directly. This also adds the ability to
 promote/demote/ban players by name, even if they have not visited the server yet.
 Affected commands:
-    /massrank
     /autorankall
     /autorankreload
-    /editplayerinfo";
+    /editplayerinfo
+    /massrank
+    /setinfo";
 
             vPermissions.Items[(int)Permission.Freeze].ToolTipText =
 @"Ability to freeze/unfreeze players. Frozen players cannot
@@ -419,29 +422,34 @@ Affected commands:
             vPermissions.Items[(int)Permission.Patrol].ToolTipText =
 @"Ability to patrol lower-ranked players. ""Patrolling"" means teleporting
 to other players to check on them, usually while hidden.
+Required permission: Teleport
 Affected commands:
     /patrol";
 
             vPermissions.Items[(int)Permission.PlaceAdmincrete].ToolTipText =
 @"Ability to place admincrete/adminium. This also affects draw commands.
+Required permission: Build
 Affected commands:
     /solid
     /bind";
 
             vPermissions.Items[(int)Permission.PlaceGrass].ToolTipText =
 @"Ability to place grass blocks. This also affects draw commands.
+Required permission: Build
 Affected commands:
     /grass
     /bind";
 
             vPermissions.Items[(int)Permission.PlaceLava].ToolTipText =
 @"Ability to place lava blocks. This also affects draw commands.
+Required permission: Build
 Affected commands:
     /lava
     /bind";
 
             vPermissions.Items[(int)Permission.PlaceWater].ToolTipText =
 @"Ability to place water blocks. This also affects draw commands.
+Required permission: Build
 Affected commands:
     /water
     /bind";
@@ -461,6 +469,7 @@ Affected commands:
 
             vPermissions.Items[(int)Permission.Say].ToolTipText =
 @"Ability to use /say command to show announcements.
+Required permission: Chat
 Affected commands:
     /say";
 
@@ -473,7 +482,8 @@ Affected commands:
 @"Ability to initiate a graceful shutdown remotely.
 Useful for servers that are run on dedicated machines.
 Affected commands:
-    /shutdown";
+    /shutdown
+    /restart";
 
             vPermissions.Items[(int)Permission.Teleport].ToolTipText =
 @"Ability to teleport to other players.
@@ -526,6 +536,20 @@ to other players to check on them, usually while hidden.";
             toolTip.SetToolTip( lPatrolledRank, tipPatrolledRank );
             toolTip.SetToolTip( cPatrolledRank, tipPatrolledRank );
             toolTip.SetToolTip( lPatrolledRankAndBelow, tipPatrolledRank );
+
+            toolTip.SetToolTip( xPaidPlayersOnly,
+@"Only allow players who have a paid Minecraft account (not recommended).
+This will help filter out griefers with throwaway accounts,
+but will also prevent many legitimate players from joining." );
+
+            toolTip.SetToolTip( xAllowSecurityCircumvention,
+@"Allows players to manupulate whitelists/blacklists or rank requirements
+in order to join restricted worlds, or to build in worlds/zones. Normally
+players with ManageWorlds and ManageZones permissions are not allowed to do this.
+Affected commands:
+    /waccess
+    /wbuild
+    /zedit" );
         }
 
 
@@ -634,6 +658,10 @@ of at least 500ms is recommended.";
             toolTip.SetToolTip( lIRCDelay, tipIRCDelay );
             toolTip.SetToolTip( nIRCDelay, tipIRCDelay );
             toolTip.SetToolTip( lIRCDelayUnits, tipIRCDelay );
+
+            toolTip.SetToolTip( tIRCBotChannels,
+@"Comma-separated list of channels to join. Channel names should include the hash (#).
+One some IRC networks, channel names are case-sensitive." );
 
             string tipIRCBotNick =
 @"IRC bot's nickname. If the nickname is taken, fCraft will append
