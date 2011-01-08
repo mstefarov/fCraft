@@ -139,7 +139,7 @@ namespace fCraft {
                     case PermissionType.Allowed:
                     case PermissionType.WhiteListed:
                         if( !player.session.JoinWorldNow( world, false ) ) {
-                            player.Message( "ERROR: Failed to join world." );
+                            player.Message( "ERROR: Failed to join world. See log for details." );
                         }
                         break;
                     case PermissionType.BlackListed:
@@ -435,7 +435,7 @@ namespace fCraft {
                         case PermissionOverride.None:
                             player.Message( "{0}&S is now included in world {1}",
                                             info.GetClassyName(), world.GetClassyName() );
-                            Logger.Log( "{0} added {1} to the access blacklist on world {2}", LogType.UserActivity,
+                            Logger.Log( "{0} added {1} to the access whitelist on world {2}", LogType.UserActivity,
                                         player.name, info.name, world.name );
                             changesWereMade = true;
                             break;
@@ -466,7 +466,7 @@ namespace fCraft {
                         case PermissionOverride.None:
                             player.Message( "{0}&S is now barred from world {1}",
                                             info.GetClassyName(), world.GetClassyName() );
-                            Logger.Log( "{0} added {1} to the access whitelist on world {2}", LogType.UserActivity,
+                            Logger.Log( "{0} added {1} to the access blacklist on world {2}", LogType.UserActivity,
                                         player.name, info.name, world.name );
                             changesWereMade = true;
                             break;
@@ -524,9 +524,10 @@ namespace fCraft {
                 message.AppendFormat( "World {0}&S can only be visited by {1}+&S",
                                       world.GetClassyName(),
                                       world.accessSecurity.minRank.GetClassyName() );
-                if( list.included.Length > 0 ) {
-                    message.AppendFormat( " and {0}&S", PlayerInfo.PlayerInfoArrayToString( list.included ) );
-                }
+            }
+
+            if( list.included.Length > 0 ) {
+                message.AppendFormat( " and {0}&S", PlayerInfo.PlayerInfoArrayToString( list.included ) );
             }
 
             if( list.excluded.Length > 0 ) {
