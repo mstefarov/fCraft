@@ -34,7 +34,7 @@ namespace fCraft {
             private set;
         }
 
-
+        public bool AllowSecurityCircumvention;
 
         public string Prefix = "";
         public int IdleKickTimer,
@@ -149,6 +149,7 @@ namespace fCraft {
             }
 
 
+            // Draw command limit, in number-of-blocks (assuming unlimited if not given)
             if( (attr = el.Attribute( "drawLimit" )) != null ) {
                 if( Int32.TryParse( attr.Value, out value ) ) {
                     if( value >= 0 && value < 100000000 ) {
@@ -164,7 +165,7 @@ namespace fCraft {
             }
 
 
-
+            // Idle kick timer, in minutes. (assuming 'never' if not given)
             if( (attr = el.Attribute( "idleKickAfter" )) != null ) {
                 if( !Int32.TryParse( attr.Value, out IdleKickTimer ) ) {
                     Logger.Log( "Rank({0}): Could not parse the value for idleKickAfter. Assuming 0 (never).", LogType.Warning, Name );
@@ -174,9 +175,11 @@ namespace fCraft {
                 IdleKickTimer = 0;
             }
 
+
+            // Reserved slot. (assuming 'no' if not given)
             if( (attr = el.Attribute( "reserveSlot" )) != null ) {
                 if( !Boolean.TryParse( attr.Value, out ReservedSlot ) ) {
-                    Logger.Log( "Rank({0}): Could not parse the value for reserveSlot. Assuming \"false\".", LogType.Warning, Name );
+                    Logger.Log( "Rank({0}): Could not parse value for reserveSlot. Assuming \"false\".", LogType.Warning, Name );
                     ReservedSlot = false;
                 }
             } else {
@@ -184,7 +187,18 @@ namespace fCraft {
             }
 
 
-            // read permissions
+            // Security circumvention. (assuming 'no' if not given)
+            if( (attr = el.Attribute( "allowSecurityCircumvention" )) != null ) {
+                if( !Boolean.TryParse( attr.Value, out AllowSecurityCircumvention ) ) {
+                    Logger.Log( "Rank({0}): Could not parse the value for allowSecurityCircumvention. Assuming \"false\".", LogType.Warning, Name );
+                    AllowSecurityCircumvention = false;
+                }
+            } else {
+                AllowSecurityCircumvention = false;
+            }
+
+
+            // Permissions
             XElement temp;
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
                 string permission = ((Permission)i).ToString();
@@ -224,6 +238,7 @@ namespace fCraft {
             if( DrawLimit > 0 ) rankTag.Add( new XAttribute( "drawLimit", DrawLimit ) );
             if( IdleKickTimer > 0 ) rankTag.Add( new XAttribute( "idleKickAfter", IdleKickTimer ) );
             if( ReservedSlot ) rankTag.Add( new XAttribute( "reserveSlot", ReservedSlot ) );
+            if( AllowSecurityCircumvention ) rankTag.Add( new XAttribute( "allowSecurityCircumvention", AllowSecurityCircumvention ) );
 
             XElement temp;
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {

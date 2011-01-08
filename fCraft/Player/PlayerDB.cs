@@ -17,15 +17,6 @@ namespace fCraft {
 
         static int MaxID = 255;
 
-        public static string ToCompactString( this TimeSpan span ) {
-            return String.Format( "{0}.{1:00}:{2:00}:{3:00}",
-                span.Days, span.Hours, span.Minutes, span.Seconds );
-        }
-
-        public static string ToCompactString( this DateTime date ) {
-            return date.ToString( "yyyy'-'MM'-'dd'T'HH':'mm':'ssK" );
-        }
-
 
         public const string DBFileName = "PlayerDB.txt",
                             Header = " fCraft PlayerDB | Row format: " +
@@ -79,7 +70,7 @@ namespace fCraft {
 
                         while( !reader.EndOfStream ) {
                             string[] fields = reader.ReadLine().Split( ',' );
-                            if( fields.Length >= PlayerInfo.MinFieldCount && fields.Length <= PlayerInfo.MaxFieldCount ) {
+                            if( fields.Length >= PlayerInfo.MinFieldCount ) {
                                 try {
                                     PlayerInfo info = new PlayerInfo( fields );
                                     PlayerInfo dupe = tree.Get( info.name );
@@ -95,10 +86,9 @@ namespace fCraft {
                                     Logger.Log( "PlayerDB.Load: Error while trying to read from file: {0}.", LogType.Error, ex );
                                 }
                             } else {
-                                Logger.Log( "PlayerDB.Load: Unexpected field count ({0}), expecting between {1} and {2} fields for a PlayerDB entry.", LogType.Error,
+                                Logger.Log( "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.", LogType.Error,
                                             fields.Length,
-                                            PlayerInfo.MinFieldCount,
-                                            PlayerInfo.MaxFieldCount );
+                                            PlayerInfo.MinFieldCount );
                             }
                         }
                     }

@@ -1215,6 +1215,32 @@ namespace fCraft {
             return (bytes[0] == 192 && bytes[1] == 168);
         }
 
+
+        public static string ToCompactString( this TimeSpan span ) {
+            return String.Format( "{0}.{1:00}:{2:00}:{3:00}",
+                span.Days, span.Hours, span.Minutes, span.Seconds );
+        }
+
+
+        public static string ToCompactString( this DateTime date ) {
+            return date.ToString( "yyyy'-'MM'-'dd'T'HH':'mm':'ssK" );
+        }
+
+
+        public static string ToMiniString( this TimeSpan span ) {
+            if( span.TotalSeconds < 60 ) {
+                return String.Format( "{0}s", span.Seconds );
+            } else if( span.TotalMinutes < 60 ) {
+                return String.Format( "{0:0}m{1}s", span.TotalMinutes, span.Seconds );
+            } else if( span.TotalHours < 48 ) {
+                return String.Format( "{0:0}h{1}m", span.TotalHours, span.Minutes );
+            } else if( span.TotalDays < 14 ) {
+                return String.Format( "{0:0}d{1}h", span.TotalDays, span.Hours );
+            } else {
+                return String.Format( "{0:0}w{1:0}d", span.TotalDays / 7, span.TotalDays % 7 );
+            }
+        }
+
         #endregion
 
         #endregion

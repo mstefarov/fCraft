@@ -382,6 +382,7 @@ namespace fCraft {
                 world = worlds[0];
             }
 
+            // See if there are any changes to be made
             string name;
             bool changesWereMade = false;
             do {
@@ -412,7 +413,7 @@ namespace fCraft {
                     }
 
                     // prevent players from whitelisting themselves to bypass protection
-                    if( player.info == info && Config.GetBool( ConfigKey.PreventSecurityCircumvention ) ) {
+                    if( player.info == info && !player.info.rank.AllowSecurityCircumvention ) {
                         switch( world.accessSecurity.CanUseDetailed( player ) ) {
                             case PermissionType.RankTooLow:
                                 player.Message( "You must be {0}+&S to add yourself to this world's whitelist.",
@@ -484,7 +485,7 @@ namespace fCraft {
                     Rank rank = RankList.FindRank( name );
                     if( rank == null ) {
                         player.NoRankMessage( name );
-                    } else if( Config.GetBool( ConfigKey.PreventSecurityCircumvention ) &&
+                    } else if( !player.info.rank.AllowSecurityCircumvention &&
                                world.accessSecurity.minRank > rank &&
                                world.accessSecurity.minRank > player.info.rank ) {
                         player.Message( "Cannot lower access permission for world {0}&S: Must be {1}+",
@@ -544,7 +545,7 @@ namespace fCraft {
             consoleSafe = true,
             permissions = new Permission[] { Permission.ManageWorlds },
             usage = "/wbuild [WorldName [RankName]]",
-            help = "Shows build permission for player's current world. " +
+            help = "Shows build permissions for player's current world. " +
                    "If optional WorldName parameter is given, shows build permission for another world. " +
                    "If RankName parameter is also given, sets build permission for specified world.",
             handler = WorldBuild

@@ -505,7 +505,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
             xDrawLimit.Checked = (rank.DrawLimit > 0);
             nDrawLimit.Value = rank.DrawLimit;
-            nDrawLimit.Enabled = xDrawLimit.Checked;
+            xAllowSecurityCircumvention.Checked = rank.AllowSecurityCircumvention;
 
             foreach( ListViewItem item in vPermissions.Items ) {
                 item.Checked = rank.Permissions[item.Index];
@@ -522,9 +522,9 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             cDemoteLimit.Enabled = rank.Can( Permission.Demote );
             cMaxHideFrom.Enabled = rank.Can( Permission.Hide );
             cFreezeLimit.Enabled = rank.Can( Permission.Freeze );
-
-            xDrawLimit.Enabled = rank.Can( Permission.Draw );
-            nDrawLimit.Enabled &= rank.Can( Permission.Draw );
+            xDrawLimit.Enabled = rank.Can( Permission.Draw ) || rank.Can( Permission.CopyAndPaste );
+            nDrawLimit.Enabled = xDrawLimit.Checked;
+            xAllowSecurityCircumvention.Enabled = rank.Can( Permission.ManageWorlds ) || rank.Can( Permission.ManageZones );
 
             gRankOptions.Enabled = true;
             lPermissions.Enabled = true;
@@ -599,6 +599,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             nAntiGriefBlocks.Value = 0;
             xDrawLimit.Checked = false;
             nDrawLimit.Value = 0;
+            xAllowSecurityCircumvention.Checked = false;
             foreach( ListViewItem item in vPermissions.Items ) {
                 item.Checked = false;
                 item.Font = vPermissions.Font;
@@ -812,6 +813,10 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed ); ;
         }
 
+        private void xAllowSecurityCircumvention_CheckedChanged( object sender, EventArgs e ) {
+            selectedRank.AllowSecurityCircumvention = xAllowSecurityCircumvention.Checked;
+        }
+
 
         private void xSpamChatKick_CheckedChanged( object sender, EventArgs e ) {
             nSpamChatWarnings.Enabled = xSpamChatKick.Checked;
@@ -879,37 +884,117 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             }
             if( selectedRank == null ) return;
             switch( (Permission)e.Item.Tag ) {
+                case Permission.Chat:
+                    if( !check ) {
+                        vPermissions.Items[(int)Permission.Say].Checked = false;
+                        vPermissions.Items[(int)Permission.Say].ForeColor = SystemColors.GrayText;
+                    } else {
+                        vPermissions.Items[(int)Permission.Say].ForeColor = SystemColors.ControlText;
+                    }
+                    break;
                 case Permission.Say:
                     if( check ) vPermissions.Items[(int)Permission.Chat].Checked = true;
                     break;
+
                 case Permission.Ban:
                     cBanLimit.Enabled = check;
                     if( !check ) {
                         vPermissions.Items[(int)Permission.BanIP].Checked = false;
+                        vPermissions.Items[(int)Permission.BanIP].ForeColor = SystemColors.GrayText;
                         vPermissions.Items[(int)Permission.BanAll].Checked = false;
+                        vPermissions.Items[(int)Permission.BanAll].ForeColor = SystemColors.GrayText;
+                    } else {
+                        vPermissions.Items[(int)Permission.BanIP].ForeColor = SystemColors.ControlText;
+                        vPermissions.Items[(int)Permission.BanAll].ForeColor = SystemColors.ControlText;
                     }
                     break;
                 case Permission.BanIP:
-                    if( check ) vPermissions.Items[(int)Permission.Ban].Checked = true;
+                    if( check ) {
+                        vPermissions.Items[(int)Permission.Ban].Checked = true;
+                        vPermissions.Items[(int)Permission.BanAll].ForeColor = SystemColors.ControlText;
+                    } else {
+                        vPermissions.Items[(int)Permission.BanAll].Checked = false;
+                        vPermissions.Items[(int)Permission.BanAll].ForeColor = SystemColors.GrayText;
+                    }
                     break;
                 case Permission.BanAll:
-                    if( check ) vPermissions.Items[(int)Permission.Ban].Checked = true;
+                    if( check ) {
+                        vPermissions.Items[(int)Permission.Ban].Checked = true;
+                        vPermissions.Items[(int)Permission.BanIP].Checked = true;
+                    }
                     break;
+
                 case Permission.Kick:
                     cKickLimit.Enabled = check; break;
                 case Permission.Promote:
                     cPromoteLimit.Enabled = check; break;
                 case Permission.Demote:
                     cDemoteLimit.Enabled = check; break;
+                case Permission.Hide:
+                    cMaxHideFrom.Enabled = check; break;
+                case Permission.Freeze:
+                    cFreezeLimit.Enabled = check; break;
+
                 case Permission.Draw:
                 case Permission.CopyAndPaste:
                     xDrawLimit.Enabled = vPermissions.Items[(int)Permission.Draw].Checked ||
                                          vPermissions.Items[(int)Permission.CopyAndPaste].Checked;
                     break;
-                case Permission.Hide:
-                    cMaxHideFrom.Enabled = check; break;
-                case Permission.Freeze:
-                    cFreezeLimit.Enabled = check; break;
+
+                case Permission.ManageWorlds:
+                case Permission.ManageZones:
+                    xAllowSecurityCircumvention.Enabled = vPermissions.Items[(int)Permission.ManageWorlds].Checked ||
+                                                          vPermissions.Items[(int)Permission.ManageZones].Checked;
+                    break;
+
+                case Permission.Teleport:
+                    if( !check ) {
+                        vPermissions.Items[(int)Permission.Patrol].Checked = false;
+                        vPermissions.Items[(int)Permission.Patrol].ForeColor = SystemColors.GrayText;
+                    } else {
+                        vPermissions.Items[(int)Permission.Patrol].ForeColor = SystemColors.ControlText;
+                    }
+                    break;
+                case Permission.Patrol:
+                    if( check ) vPermissions.Items[(int)Permission.Teleport].Checked = true;
+                    break;
+
+                case Permission.Delete:
+                    if( !check ) {
+                        vPermissions.Items[(int)Permission.DeleteAdmincrete].Checked = false;
+                        vPermissions.Items[(int)Permission.DeleteAdmincrete].ForeColor = SystemColors.GrayText;
+                    } else {
+                        vPermissions.Items[(int)Permission.DeleteAdmincrete].ForeColor = SystemColors.ControlText;
+                    }
+                    break;
+                case Permission.DeleteAdmincrete:
+                    if( check ) vPermissions.Items[(int)Permission.Delete].Checked = true;
+                    break;
+                    
+                case Permission.Build:
+                    if( !check ) {
+                        vPermissions.Items[(int)Permission.PlaceAdmincrete].Checked = false;
+                        vPermissions.Items[(int)Permission.PlaceAdmincrete].ForeColor = SystemColors.GrayText;
+                        vPermissions.Items[(int)Permission.PlaceGrass].Checked = false;
+                        vPermissions.Items[(int)Permission.PlaceGrass].ForeColor = SystemColors.GrayText;
+                        vPermissions.Items[(int)Permission.PlaceLava].Checked = false;
+                        vPermissions.Items[(int)Permission.PlaceLava].ForeColor = SystemColors.GrayText;
+                        vPermissions.Items[(int)Permission.PlaceWater].Checked = false;
+                        vPermissions.Items[(int)Permission.PlaceWater].ForeColor = SystemColors.GrayText;
+                    } else {
+                        vPermissions.Items[(int)Permission.PlaceAdmincrete].ForeColor = SystemColors.ControlText;
+                        vPermissions.Items[(int)Permission.PlaceGrass].ForeColor = SystemColors.ControlText;
+                        vPermissions.Items[(int)Permission.PlaceLava].ForeColor = SystemColors.ControlText;
+                        vPermissions.Items[(int)Permission.PlaceWater].ForeColor = SystemColors.ControlText;
+                    }
+                    break;
+
+                case Permission.PlaceAdmincrete:
+                case Permission.PlaceGrass:
+                case Permission.PlaceLava:
+                case Permission.PlaceWater:
+                    if( check ) vPermissions.Items[(int)Permission.Build].Checked = true;
+                    break;
             }
 
             selectedRank.Permissions[(int)e.Item.Tag] = e.Item.Checked;
