@@ -181,7 +181,7 @@ namespace fCraft {
                 foreach( Zone zone in zones.Values ) {
                     MapFCMv3.WriteLengthPrefixedString( writer, "zones" );
                     MapFCMv3.WriteLengthPrefixedString( writer, zone.name );
-                    MapFCMv3.WriteLengthPrefixedString( writer, zone.Serialize() );
+                    MapFCMv3.WriteLengthPrefixedString( writer, zone.SerializeFCMv2() );
                     metaCount++;
                 }
             }
@@ -615,7 +615,7 @@ namespace fCraft {
             Zone[] zoneListCache = zoneList;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
                 if( zoneListCache[i].bounds.Contains( x, y, h ) ) {
-                    if( zoneListCache[i].controller.CanBuild( player ) ) {
+                    if( zoneListCache[i].controller.CanUse( player ) ) {
                         result = PermissionOverride.Allow;
                     } else {
                         return PermissionOverride.Deny;
@@ -629,7 +629,7 @@ namespace fCraft {
         public Zone FindDeniedZone( int x, int y, int h, Player player ) {
             Zone[] zoneListCache = zoneList;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].bounds.Contains( x, y, h ) && !zoneListCache[i].controller.CanBuild( player ) ) {
+                if( zoneListCache[i].bounds.Contains( x, y, h ) && !zoneListCache[i].controller.CanUse( player ) ) {
                     return zoneListCache[i];
                 }
             }
@@ -645,7 +645,7 @@ namespace fCraft {
             for( int i = 0; i < zoneListCache.Length; i++ ) {
                 if( zoneListCache[i].bounds.Contains( x, y, h ) ) {
                     found = true;
-                    if( zoneListCache[i].controller.CanBuild( player ) ) {
+                    if( zoneListCache[i].controller.CanUse( player ) ) {
                         allowed.Add( zoneListCache[i] );
                     } else {
                         denied.Add( zoneListCache[i] );

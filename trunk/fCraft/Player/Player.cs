@@ -624,7 +624,7 @@ namespace fCraft {
 
         public bool CanJoin( World world ) {
             if( this == Console ) return true;
-            return info.rank >= world.accessRank;
+            return world.accessSecurity.CanUse( this );
         }
 
 
@@ -648,7 +648,7 @@ namespace fCraft {
 
                 // deleting a block
                 if( Can( Permission.Delete ) ) {
-                    if( world.buildRank > info.rank ) {
+                    if( world.buildSecurity.minRank > info.rank ) {
                         return CanPlaceResult.WorldDenied;
                     } else {
                         return CanPlaceResult.Allowed;
@@ -661,7 +661,7 @@ namespace fCraft {
 
                 // building a block
                 if( Can( Permission.Build ) ) {
-                    if( world.buildRank > info.rank ) {
+                    if( world.buildSecurity.minRank > info.rank ) {
                         return CanPlaceResult.WorldDenied;
                     } else {
                         return CanPlaceResult.Allowed;
@@ -674,7 +674,7 @@ namespace fCraft {
 
                 // replacing a block
                 if( Can( Permission.Delete, Permission.Build ) ) {
-                    if( world.buildRank > info.rank ) {
+                    if( world.buildSecurity.minRank > info.rank ) {
                         return CanPlaceResult.WorldDenied;
                     } else {
                         return CanPlaceResult.Allowed;

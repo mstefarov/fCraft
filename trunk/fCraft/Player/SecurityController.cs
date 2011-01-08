@@ -15,7 +15,8 @@ namespace fCraft {
 
     public enum PermissionType {
         Allowed,
-        Denied,
+        RankTooLow,
+        RankTooHigh,
         WhiteListed,
         BlackListed
     }
@@ -32,7 +33,7 @@ namespace fCraft {
             UpdatePlayerListCache();
         }
 
-        public PlayerListCollection permissionList { get; private set; }
+        public PlayerListCollection exceptionList { get; private set; }
 
         Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
         Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
@@ -65,7 +66,7 @@ namespace fCraft {
 
         public void UpdatePlayerListCache() {
             lock( playerPermissionListLock ) {
-                permissionList = new PlayerListCollection {
+                exceptionList = new PlayerListCollection {
                     included = includedPlayers.Values.ToArray(),
                     excluded = excludedPlayers.Values.ToArray()
                 };
@@ -108,24 +109,24 @@ namespace fCraft {
             }
         }
 
-        public bool CanBuild( Player player ) {
-            PlayerListCollection listCache = permissionList;
+        public bool CanUse( Player player ) {
+            PlayerListCollection listCache = exceptionList;
             for( int i = 0; i < listCache.excluded.Length; i++ ) {
                 if( player.info == listCache.excluded[i] ) return false;
             }
 
             if( player.info.rank >= minRank /*&& player.info.rank <= maxRank*/ ) return true; // TODO: implement maxrank
 
-            for( int i = 0; i < permissionList.included.Length; i++ ) {
-                if( player.info == permissionList.included[i] ) return true;
+            for( int i = 0; i < exceptionList.included.Length; i++ ) {
+                if( player.info == exceptionList.included[i] ) return true;
             }
 
             return false;
         }
 
 
-        public PermissionType CanBuildDetailed( Player player ) {
-            PlayerListCollection listCache = permissionList;
+        public PermissionType CanUseDetailed( Player player ) {
+            PlayerListCollection listCache = exceptionList;
             for( int i = 0; i < listCache.excluded.Length; i++ ) {
                 if( player.info == listCache.excluded[i] )
                     return PermissionType.BlackListed;
@@ -139,10 +140,14 @@ namespace fCraft {
                     return PermissionType.WhiteListed;
             }
 
-            return PermissionType.Denied;
+            return PermissionType.RankTooLow;
         }
 
+
+        #region XML Serialization
+
         public const string XmlRootElementName = "PermissionController";
+
 
         public SecurityController( XElement root ) {
             minRank = RankList.ParseRank( root.Element( "minRank" ).Value );
@@ -158,6 +163,7 @@ namespace fCraft {
                 if( info != null ) Exclude( info );
             }
         }
+
 
         public XElement Serialize() {
             XElement root = new XElement( XmlRootElementName );
@@ -175,5 +181,7 @@ namespace fCraft {
             }
             return root;
         }
+
+        #endregion
     }
 }

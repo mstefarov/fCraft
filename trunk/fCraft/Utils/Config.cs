@@ -187,6 +187,7 @@ namespace fCraft {
             SetValue( ConfigKey.AnnounceRankChanges, true );
 
             SetValue( ConfigKey.PaidPlayersOnly, false );
+            SetValue( ConfigKey.PreventSecurityCircumvention, true );
         }
 
         public static void LoadDefaultsSavingAndBackup() {

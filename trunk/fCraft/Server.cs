@@ -412,11 +412,11 @@ namespace fCraft {
                 Logger.Log( "World creation failed. Shutting down.", LogType.FatalError );
                 return false;
             } else {
-                if( mainWorld.accessRank != RankList.LowestRank ) {
+                if( mainWorld.accessSecurity.minRank != RankList.LowestRank ) {
                     Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
                                 "Access permission for \"{0}\" has been reset.", LogType.Warning,
                                  mainWorld.name );
-                    mainWorld.accessRank = RankList.LowestRank;
+                    mainWorld.accessSecurity.minRank = RankList.LowestRank;
                 }
                 if( !mainWorld.neverUnload ) {
                     mainWorld.neverUnload = true;
@@ -462,8 +462,8 @@ namespace fCraft {
                     if( firstWorld == null ) firstWorld = world;
                     Logger.Log( "Server.ParseWorldListXML: Loaded world \"{0}\"", LogType.Debug, worldName );
 
-                    LoadWorldRankRestriction( world, ref world.accessRank, "access", el );
-                    LoadWorldRankRestriction( world, ref world.buildRank, "build", el );
+                    world.accessSecurity.minRank = LoadWorldRankRestriction( world, "access", el );
+                    world.buildSecurity.minRank = LoadWorldRankRestriction( world, "build", el );
                 }
             }
 
@@ -485,21 +485,21 @@ namespace fCraft {
         }
 
 
-        static void LoadWorldRankRestriction( World world, ref Rank field, string fieldType, XElement element ) {
+        static Rank LoadWorldRankRestriction( World world, string fieldType, XElement element ) {
             XAttribute temp;
             Rank rank;
             if( (temp = element.Attribute( fieldType )) != null ) {
                 if( (rank = RankList.ParseRank( temp.Value )) != null ) {
-                    field = rank;
+                    return rank;
                 } else {
                     Logger.Log( "Server.ParseWorldListXML: Could not parse the specified {0} class for world \"{1}\": \"{2}\". No access limit was set.", LogType.Error,
                                 fieldType,
                                 world.name,
                                 temp.Value );
-                    field = RankList.LowestRank;
+                    return RankList.LowestRank;
                 }
             } else {
-                field = RankList.LowestRank;
+                return RankList.LowestRank;
             }
         }
 
@@ -516,8 +516,8 @@ namespace fCraft {
                     foreach( World world in worlds.Values ) {
                         temp = new XElement( "World" );
                         temp.Add( new XAttribute( "name", world.name ) );
-                        temp.Add( new XAttribute( "access", world.accessRank ) );
-                        temp.Add( new XAttribute( "build", world.buildRank ) );
+                        temp.Add( new XAttribute( "access", world.accessSecurity.minRank ) );
+                        temp.Add( new XAttribute( "build", world.buildSecurity.minRank ) );
                         if( world.neverUnload ) {
                             temp.Add( new XAttribute( "noUnload", true ) );
                         }

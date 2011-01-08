@@ -23,9 +23,8 @@ namespace fCraft {
                     pendingUnload,
                     isFlushing,
                     neverUnload;
-        public Rank accessRank, buildRank;
-        public SecurityController accessSecurity,
-                                  buildSecurity;
+        public SecurityController accessSecurity = new SecurityController(),
+                                  buildSecurity = new SecurityController();
 
         public string lockedBy, unlockedBy;
         public DateTime lockedDate, unlockedDate;
@@ -39,8 +38,8 @@ namespace fCraft {
 
         public World( string _name ) {
             name = _name;
-            accessRank = RankList.LowestRank;
-            buildRank = RankList.LowestRank;
+            accessSecurity.minRank = RankList.LowestRank;
+            buildSecurity.minRank = RankList.LowestRank;
         }
 
 
@@ -117,8 +116,8 @@ namespace fCraft {
                     World newWorld = new World( name );
                     newWorld.map = newMap;
                     newWorld.neverUnload = neverUnload;
-                    newWorld.accessRank = accessRank;
-                    newWorld.buildRank = buildRank;
+                    newWorld.accessSecurity.minRank = accessSecurity.minRank;
+                    newWorld.buildSecurity.minRank = buildSecurity.minRank;
                     newMap.world = newWorld;
                     Server.ReplaceWorld( name, newWorld );
                     foreach( Player player in playerList ) {
@@ -447,13 +446,13 @@ namespace fCraft {
             string displayedName = name;
             if( Config.GetBool( ConfigKey.RankColorsInWorldNames ) ) {
                 if( Config.GetBool( ConfigKey.RankPrefixesInChat ) ) {
-                    displayedName = buildRank.Prefix + displayedName;
+                    displayedName = buildSecurity.minRank.Prefix + displayedName;
                 }
                 if( Config.GetBool( ConfigKey.RankColorsInChat ) ) {
-                    if( buildRank >= accessRank ) {
-                        displayedName = buildRank.Color + displayedName;
+                    if( buildSecurity.minRank >= accessSecurity.minRank ) {
+                        displayedName = buildSecurity.minRank.Color + displayedName;
                     } else {
-                        displayedName = accessRank.Color + displayedName;
+                        displayedName = accessSecurity.minRank.Color + displayedName;
                     }
                 }
             }
