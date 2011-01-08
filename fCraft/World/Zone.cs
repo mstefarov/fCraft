@@ -14,7 +14,7 @@ namespace fCraft {
         public string name;
 
         public SecurityController.PlayerListCollection GetPlayerList() {
-            return controller.permissionList;
+            return controller.exceptionList;
         }
 
         public DateTime createdDate, editedDate;
@@ -36,7 +36,7 @@ namespace fCraft {
 
             // if all else fails, fall back to lowest class
             if( controller.minRank == null ) {
-                controller.minRank = world.buildRank;
+                controller.minRank = world.buildSecurity.minRank;
                 Logger.Log( "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to default ({1}).", LogType.Error,
                             header[7], controller.minRank.Name );
             }
@@ -70,8 +70,7 @@ namespace fCraft {
         }
 
 
-        [Obsolete( "Will be removed in 0.500 final" )]
-        public string Serialize() {
+        public string SerializeFCMv2() {
             string xheader;
             if( createdBy != null ) {
                 xheader = createdBy.name + " " + createdDate.ToCompactString() + " ";
@@ -85,7 +84,7 @@ namespace fCraft {
                 xheader += "- -";
             }
 
-            SecurityController.PlayerListCollection list = controller.permissionList;
+            SecurityController.PlayerListCollection list = controller.exceptionList;
             StringBuilder includedList = new StringBuilder();
             bool firstWord = true;
             foreach( PlayerInfo info in list.included ) {
@@ -138,7 +137,7 @@ namespace fCraft {
         }
 
 
-        public XElement SerializeXML() {
+        public XElement Serialize() {
             XElement root = new XElement( XmlRootElementName );
             root.Add( new XElement( "name", name ) );
 

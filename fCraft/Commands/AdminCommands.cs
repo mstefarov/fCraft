@@ -1231,13 +1231,25 @@ namespace fCraft {
                     if( target.world == player.world ) {
                         player.Send( PacketWriter.MakeSelfTeleport( target.pos ) );
 
-                    } else if( player.CanJoin( target.world ) ) {
-                        player.session.JoinWorld( target.world, target.pos );
-
                     } else {
-                        player.Message( "Cannot teleport to {0}&S because this world requires {1}+&S to join.",
-                                        target.GetClassyName(),
-                                        target.world.accessRank.GetClassyName() );
+                        switch( target.world.accessSecurity.CanUseDetailed( player ) ) {
+                            case PermissionType.Allowed:
+                            case PermissionType.WhiteListed:
+                                player.session.JoinWorld( target.world, target.pos );
+                                break;
+                            case PermissionType.BlackListed:
+                                player.Message( "Cannot teleport to {0}&S because you are blacklisted on world {1}",
+                                                target.GetClassyName(),
+                                                target.world.GetClassyName() );
+                                break;
+                            case PermissionType.RankTooLow:
+                                player.Message( "Cannot teleport to {0}&S because world {1}&S requires {1}+&S to join.",
+                                                target.GetClassyName(),
+                                                target.world.GetClassyName(),
+                                                target.world.accessSecurity.minRank.GetClassyName() );
+                                break;
+                            // TODO: case PermissionType.RankTooHigh:
+                        }
                     }
 
                 } else if( matches.Length > 1 ) {
@@ -1298,13 +1310,25 @@ namespace fCraft {
                     else
                         target.Send( PacketWriter.MakeSelfTeleport( toPlayer.pos ) );
 
-                } else if( target.CanJoin( toPlayer.world ) ) {
-                    target.session.JoinWorld( toPlayer.world, toPlayer.pos );
-
                 } else {
-                    player.Message( "Cannot bring {0}&S because the world requires {1}+&S to join.",
-                                    target.GetClassyName(),
-                                    toPlayer.world.accessRank.GetClassyName() );
+                    switch( toPlayer.world.accessSecurity.CanUseDetailed( target ) ) {
+                        case PermissionType.Allowed:
+                        case PermissionType.WhiteListed:
+                            target.session.JoinWorld( toPlayer.world, toPlayer.pos );
+                            break;
+                        case PermissionType.BlackListed:
+                            player.Message( "Cannot bring {0}&S because you are blacklisted on world {1}",
+                                            target.GetClassyName(),
+                                            toPlayer.world.GetClassyName() );
+                            break;
+                        case PermissionType.RankTooLow:
+                            player.Message( "Cannot bring {0}&S because world {1}&S requires {1}+&S to join.",
+                                            target.GetClassyName(),
+                                            toPlayer.world.GetClassyName(),
+                                            toPlayer.world.accessSecurity.minRank.GetClassyName() );
+                            break;
+                        // TODO: case PermissionType.RankTooHigh:
+                    }
                 }
 
             } else if( matches.Length > 1 ) {
@@ -1365,7 +1389,7 @@ namespace fCraft {
                 Player[] matches = Server.FindPlayers( playerName );
                 if( matches.Length == 1 ) {
                     Player target = matches[0];
-                    target.Mute(player.name, seconds );
+                    target.Mute( player.name, seconds );
                     target.Message( "You were muted by {0}&S for {1} sec", player.GetClassyName(), seconds );
                     Server.SendToAllExcept( "&SPlayer {0}&S was muted by {1}&S for {2} sec", target,
                                             target.GetClassyName(), player.GetClassyName(), seconds );

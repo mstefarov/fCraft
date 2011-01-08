@@ -9,8 +9,8 @@ using System.Threading;
 
 namespace fCraft {
     public static class Heartbeat {
-        const int HeartbeatDelay = 30000,
-                  HeartbeatTimeout = 15000;
+        const int HeartbeatDelay = 20000,
+                  HeartbeatTimeout = 10000;
         static Thread thread;
         const string URL = "http://minecraft.net/heartbeat.jsp";
         const string HeartbeatDataFileName = "heartbeatdata.txt";

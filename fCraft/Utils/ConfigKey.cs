@@ -42,6 +42,8 @@ namespace fCraft {
         AntispamMaxWarnings,
         PaidPlayersOnly,
 
+        PreventSecurityCircumvention,
+
         RequireBanReason,
         RequireRankChangeReason,
         AnnounceKickAndBanReasons,

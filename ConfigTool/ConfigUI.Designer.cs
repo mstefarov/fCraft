@@ -78,6 +78,7 @@
             this.xListPrefixes = new System.Windows.Forms.CheckBox();
             this.xChatPrefixes = new System.Windows.Forms.CheckBox();
             this.xRankColors = new System.Windows.Forms.CheckBox();
+            this.chatPreview = new ConfigTool.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.bMapPath = new System.Windows.Forms.Button();
             this.xMapPath = new System.Windows.Forms.CheckBox();
@@ -260,7 +261,7 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.chatPreview = new ConfigTool.ChatPreview();
+            this.xPreventSecurityCircumvention = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -919,6 +920,13 @@
             this.xRankColors.TabIndex = 0;
             this.xRankColors.Text = "Show rank colors.";
             this.xRankColors.UseVisualStyleBackColor = true;
+            // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 637, 189 );
+            this.chatPreview.TabIndex = 2;
             // 
             // tabWorlds
             // 
@@ -1603,6 +1611,7 @@
             // 
             // gSecurityMisc
             // 
+            this.gSecurityMisc.Controls.Add( this.xPreventSecurityCircumvention );
             this.gSecurityMisc.Controls.Add( this.xPaidPlayersOnly );
             this.gSecurityMisc.Controls.Add( this.lPatrolledRankAndBelow );
             this.gSecurityMisc.Controls.Add( this.cPatrolledRank );
@@ -1613,7 +1622,7 @@
             this.gSecurityMisc.Controls.Add( this.xRequireBanReason );
             this.gSecurityMisc.Location = new System.Drawing.Point( 8, 200 );
             this.gSecurityMisc.Name = "gSecurityMisc";
-            this.gSecurityMisc.Size = new System.Drawing.Size( 636, 148 );
+            this.gSecurityMisc.Size = new System.Drawing.Size( 636, 174 );
             this.gSecurityMisc.TabIndex = 2;
             this.gSecurityMisc.TabStop = false;
             this.gSecurityMisc.Text = "Misc";
@@ -1632,7 +1641,7 @@
             // lPatrolledRankAndBelow
             // 
             this.lPatrolledRankAndBelow.AutoSize = true;
-            this.lPatrolledRankAndBelow.Location = new System.Drawing.Point( 242, 115 );
+            this.lPatrolledRankAndBelow.Location = new System.Drawing.Point( 245, 143 );
             this.lPatrolledRankAndBelow.Name = "lPatrolledRankAndBelow";
             this.lPatrolledRankAndBelow.Size = new System.Drawing.Size( 72, 15 );
             this.lPatrolledRankAndBelow.TabIndex = 8;
@@ -1642,7 +1651,7 @@
             // 
             this.cPatrolledRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cPatrolledRank.FormattingEnabled = true;
-            this.cPatrolledRank.Location = new System.Drawing.Point( 113, 112 );
+            this.cPatrolledRank.Location = new System.Drawing.Point( 116, 140 );
             this.cPatrolledRank.Name = "cPatrolledRank";
             this.cPatrolledRank.Size = new System.Drawing.Size( 123, 23 );
             this.cPatrolledRank.TabIndex = 4;
@@ -1650,7 +1659,7 @@
             // lPatrolledRank
             // 
             this.lPatrolledRank.AutoSize = true;
-            this.lPatrolledRank.Location = new System.Drawing.Point( 24, 115 );
+            this.lPatrolledRank.Location = new System.Drawing.Point( 27, 143 );
             this.lPatrolledRank.Name = "lPatrolledRank";
             this.lPatrolledRank.Size = new System.Drawing.Size( 83, 15 );
             this.lPatrolledRank.TabIndex = 6;
@@ -1659,7 +1668,7 @@
             // xAnnounceRankChanges
             // 
             this.xAnnounceRankChanges.AutoSize = true;
-            this.xAnnounceRankChanges.Location = new System.Drawing.Point( 304, 79 );
+            this.xAnnounceRankChanges.Location = new System.Drawing.Point( 304, 106 );
             this.xAnnounceRankChanges.Name = "xAnnounceRankChanges";
             this.xAnnounceRankChanges.Size = new System.Drawing.Size( 231, 19 );
             this.xAnnounceRankChanges.TabIndex = 3;
@@ -1669,7 +1678,7 @@
             // xAnnounceKickAndBanReasons
             // 
             this.xAnnounceKickAndBanReasons.AutoSize = true;
-            this.xAnnounceKickAndBanReasons.Location = new System.Drawing.Point( 304, 54 );
+            this.xAnnounceKickAndBanReasons.Location = new System.Drawing.Point( 304, 81 );
             this.xAnnounceKickAndBanReasons.Name = "xAnnounceKickAndBanReasons";
             this.xAnnounceKickAndBanReasons.Size = new System.Drawing.Size( 244, 19 );
             this.xAnnounceKickAndBanReasons.TabIndex = 2;
@@ -1679,7 +1688,7 @@
             // xRequireRankChangeReason
             // 
             this.xRequireRankChangeReason.AutoSize = true;
-            this.xRequireRankChangeReason.Location = new System.Drawing.Point( 42, 79 );
+            this.xRequireRankChangeReason.Location = new System.Drawing.Point( 42, 106 );
             this.xRequireRankChangeReason.Name = "xRequireRankChangeReason";
             this.xRequireRankChangeReason.Size = new System.Drawing.Size( 225, 19 );
             this.xRequireRankChangeReason.TabIndex = 1;
@@ -1689,7 +1698,7 @@
             // xRequireBanReason
             // 
             this.xRequireBanReason.AutoSize = true;
-            this.xRequireBanReason.Location = new System.Drawing.Point( 42, 54 );
+            this.xRequireBanReason.Location = new System.Drawing.Point( 42, 81 );
             this.xRequireBanReason.Name = "xRequireBanReason";
             this.xRequireBanReason.Size = new System.Drawing.Size( 197, 19 );
             this.xRequireBanReason.TabIndex = 0;
@@ -3000,12 +3009,15 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // chatPreview
+            // xPreventSecurityCircumvention
             // 
-            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 189 );
-            this.chatPreview.TabIndex = 2;
+            this.xPreventSecurityCircumvention.AutoSize = true;
+            this.xPreventSecurityCircumvention.Location = new System.Drawing.Point( 42, 45 );
+            this.xPreventSecurityCircumvention.Name = "xPreventSecurityCircumvention";
+            this.xPreventSecurityCircumvention.Size = new System.Drawing.Size( 352, 19 );
+            this.xPreventSecurityCircumvention.TabIndex = 10;
+            this.xPreventSecurityCircumvention.Text = "Prevent players from circumventing access/build restrictions.";
+            this.xPreventSecurityCircumvention.UseVisualStyleBackColor = true;
             // 
             // ConfigUI
             // 
@@ -3331,5 +3343,6 @@
         private System.Windows.Forms.Button bMapPath;
         private System.Windows.Forms.CheckBox xMapPath;
         private System.Windows.Forms.TextBox tMapPath;
+        private System.Windows.Forms.CheckBox xPreventSecurityCircumvention;
     }
 }

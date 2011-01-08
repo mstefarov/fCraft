@@ -269,18 +269,18 @@ namespace fCraft {
             }
 
             // Print access/build limits
-            if( world.accessRank == RankList.LowestRank && world.buildRank == RankList.LowestRank ) {
+            if( world.accessSecurity.minRank == RankList.LowestRank && world.buildSecurity.minRank == RankList.LowestRank ) {
                 player.Message( "Anyone can join or build on {0}", world.GetClassyName() );
             } else {
-                if( world.accessRank != RankList.LowestRank ) {
+                if( world.accessSecurity.minRank != RankList.LowestRank ) {
                     player.Message( "Requires players to be ranked {0}+&S to join.",
-                                    world.accessRank.GetClassyName() );
+                                    world.accessSecurity.minRank.GetClassyName() );
                 } else {
                     player.Message( "Anyone can join {0}", world.GetClassyName() );
                 }
-                if( world.buildRank != RankList.LowestRank ) {
+                if( world.buildSecurity.minRank != RankList.LowestRank ) {
                     player.Message( "Requires players to be ranked {0}+&S to build.",
-                                    world.buildRank.GetClassyName() );
+                                    world.buildSecurity.minRank.GetClassyName() );
                 } else {
                     player.Message( "Anyone can build on {0}", world.GetClassyName() );
                 }

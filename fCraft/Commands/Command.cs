@@ -10,7 +10,7 @@ namespace fCraft {
         int offset;
         string message;
         public string name; // lowercase name of the command
-        public bool confirmed; // whether this command has been confirmed by used (with /ok)
+        public bool confirmed; // whether this command has been confirmed by the user (with /ok)
 
 
         public Command( string _message ) {
@@ -22,7 +22,7 @@ namespace fCraft {
 
         /// <summary>
         /// Returns the next command argument.
-        /// A single "argument" is either a word that ends with whitespace, or several words in double quiotes ("").
+        /// A single "argument" is either a word that ends with whitespace, or several words in double quotes ("").
         /// </summary>
         /// <returns>Next argument (string), or null if there are no more arguments</returns>
         public string Next() {
