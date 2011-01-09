@@ -110,34 +110,34 @@ namespace fCraft {
             }
         }
 
-        public bool CanUse( Player player ) {
+        public bool CanUse( PlayerInfo info ) {
             PlayerListCollection listCache = exceptionList;
             for( int i = 0; i < listCache.excluded.Length; i++ ) {
-                if( player.info == listCache.excluded[i] ) return false;
+                if( info == listCache.excluded[i] ) return false;
             }
 
-            if( player.info.rank >= minRank /*&& player.info.rank <= maxRank*/ ) return true; // TODO: implement maxrank
+            if( info.rank >= minRank /*&& player.info.rank <= maxRank*/ ) return true; // TODO: implement maxrank
 
             for( int i = 0; i < exceptionList.included.Length; i++ ) {
-                if( player.info == exceptionList.included[i] ) return true;
+                if( info == exceptionList.included[i] ) return true;
             }
 
             return false;
         }
 
 
-        public PermissionType CanUseDetailed( Player player ) {
+        public PermissionType CanUseDetailed( PlayerInfo info ) {
             PlayerListCollection listCache = exceptionList;
             for( int i = 0; i < listCache.excluded.Length; i++ ) {
-                if( player.info == listCache.excluded[i] )
+                if( info == listCache.excluded[i] )
                     return PermissionType.BlackListed;
             }
 
-            if( player.info.rank >= minRank /*&& player.info.rank <= maxRank*/ ) // TODO: implement maxrank
+            if( info.rank >= minRank /*&& player.info.rank <= maxRank*/ ) // TODO: implement maxrank
                 return PermissionType.Allowed;
 
             for( int i = 0; i < listCache.included.Length; i++ ) {
-                if( player.info == listCache.included[i] )
+                if( info == listCache.included[i] )
                     return PermissionType.WhiteListed;
             }
 

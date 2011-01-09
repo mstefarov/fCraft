@@ -169,7 +169,12 @@ namespace fCraft {
 
             IPAddress address;
             Player target = Server.FindPlayerExact( nameOrIP );
-            PlayerInfo info = PlayerDB.FindPlayerInfoExact( nameOrIP );
+            PlayerInfo info;
+            if( target != null ) {
+                info = target.info;
+            } else {
+                info = PlayerDB.FindPlayerInfoExact( nameOrIP );
+            }
 
             if( Config.GetBool( ConfigKey.RequireBanReason ) && (reason == null || reason.Length == 0) ) {
                 player.Message( "Please specify a ban/unban reason." );
@@ -387,28 +392,24 @@ namespace fCraft {
             string name = cmd.Next();
             if( name != null ) {
                 string msg = cmd.NextAll();
-                Player[] targets = Server.FindPlayers( player, name );
-                if( targets.Length == 1 ) {
-                    Player target = targets[0];
-                    if( DoKick( player, target, msg, false ) ) {
-                        if( target.info.timesKicked > 0 ) {
-                            player.Message( "Warning: {0}&S has been kicked {1} times before.",
-                                            target.GetClassyName(), target.info.timesKicked );
-                            if( target.info.lastKickDate != DateTime.MinValue ) {
-                                player.Message( "Most recent kick was {0} ago, by {1}.",
-                                                DateTime.Now.Subtract( target.info.lastKickDate ).ToCompactString(),
-                                                target.info.lastKickBy );
-                            }
-                            if( target.info.lastKickReason.Length > 0 ) {
-                                player.Message( "Most recent kick reason was: {0}",
-                                                target.info.lastKickReason );
-                            }
+
+                Player target = Server.FindPlayerOrPrintMatches( player, name, false );
+                if( target == null ) return;
+
+                if( DoKick( player, target, msg, false ) ) {
+                    if( target.info.timesKicked > 0 ) {
+                        player.Message( "Warning: {0}&S has been kicked {1} times before.",
+                                        target.GetClassyName(), target.info.timesKicked );
+                        if( target.info.lastKickDate != DateTime.MinValue ) {
+                            player.Message( "Most recent kick was {0} ago, by {1}.",
+                                            DateTime.Now.Subtract( target.info.lastKickDate ).ToCompactString(),
+                                            target.info.lastKickBy );
+                        }
+                        if( target.info.lastKickReason.Length > 0 ) {
+                            player.Message( "Most recent kick reason was: {0}",
+                                            target.info.lastKickReason );
                         }
                     }
-                } else if( targets.Length > 1 ) {
-                    player.ManyMatchesMessage( "player", targets );
-                } else {
-                    player.NoPlayerMessage( name );
                 }
             } else {
                 player.Message( "Usage: &H/kick PlayerName [Message]" );
@@ -1042,27 +1043,23 @@ namespace fCraft {
                 cdFreeze.PrintUsage( player );
                 return;
             }
-            Player[] targets = Server.FindPlayers( player, name );
-            if( targets.Length == 1 ) {
-                Player target = targets[0];
-                if( player.info.rank.CanFreeze( target.info.rank ) ) {
-                    if( !target.info.isFrozen ) {
-                        Server.SendToAll( "{0}&S has been frozen by {1}",
-                                          target.GetClassyName(), player.GetClassyName() );
-                        target.info.isFrozen = true;
-                        target.info.frozenBy = player.name;
-                    } else {
-                        player.Message( "{0}&S is already frozen.", target.GetClassyName() );
-                    }
+
+            Player target = Server.FindPlayerOrPrintMatches( player, name, false );
+            if( target == null ) return;
+
+            if( player.info.rank.CanFreeze( target.info.rank ) ) {
+                if( !target.info.isFrozen ) {
+                    Server.SendToAll( "{0}&S has been frozen by {1}",
+                                      target.GetClassyName(), player.GetClassyName() );
+                    target.info.isFrozen = true;
+                    target.info.frozenBy = player.name;
                 } else {
-                    player.Message( "You can only freeze players ranked {0}&S or lower",
-                                    player.info.rank.GetLimit( Permission.Kick ).GetClassyName() );
-                    player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.info.rank.GetClassyName() );
+                    player.Message( "{0}&S is already frozen.", target.GetClassyName() );
                 }
-            } else if( targets.Length > 1 ) {
-                player.ManyMatchesMessage( "player", targets );
             } else {
-                player.NoPlayerMessage( name );
+                player.Message( "You can only freeze players ranked {0}&S or lower",
+                                player.info.rank.GetLimit( Permission.Kick ).GetClassyName() );
+                player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.info.rank.GetClassyName() );
             }
         }
 
@@ -1084,25 +1081,21 @@ namespace fCraft {
                 cdFreeze.PrintUsage( player );
                 return;
             }
-            Player[] targets = Server.FindPlayers( player, name );
-            if( targets.Length == 1 ) {
-                Player target = targets[0];
-                if( player.info.rank.CanFreeze( target.info.rank ) ) {
-                    if( target.info.isFrozen ) {
-                        Server.SendToAll( "{0}&S is no longer frozen.", target.GetClassyName() );
-                        target.info.isFrozen = false;
-                    } else {
-                        player.Message( "{0}&S is currently not frozen.", target.GetClassyName() );
-                    }
+
+            Player target = Server.FindPlayerOrPrintMatches( player, name, false );
+            if( target == null ) return;
+
+            if( player.info.rank.CanFreeze( target.info.rank ) ) {
+                if( target.info.isFrozen ) {
+                    Server.SendToAll( "{0}&S is no longer frozen.", target.GetClassyName() );
+                    target.info.isFrozen = false;
                 } else {
-                    player.Message( "You can only unfreeze players ranked {0}&S or lower",
-                                    player.info.rank.GetLimit( Permission.Kick ).GetClassyName() );
-                    player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.info.rank.GetClassyName() );
+                    player.Message( "{0}&S is currently not frozen.", target.GetClassyName() );
                 }
-            } else if( targets.Length > 1 ) {
-                player.ManyMatchesMessage( "player", targets );
             } else {
-                player.NoPlayerMessage( name );
+                player.Message( "You can only unfreeze players ranked {0}&S or lower",
+                                player.info.rank.GetLimit( Permission.Kick ).GetClassyName() );
+                player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.info.rank.GetClassyName() );
             }
         }
 
@@ -1232,7 +1225,7 @@ namespace fCraft {
                         player.Send( PacketWriter.MakeSelfTeleport( target.pos ) );
 
                     } else {
-                        switch( target.world.accessSecurity.CanUseDetailed( player ) ) {
+                        switch( target.world.accessSecurity.CanUseDetailed( player.info ) ) {
                             case PermissionType.Allowed:
                             case PermissionType.WhiteListed:
                                 player.session.JoinWorld( target.world, target.pos );
@@ -1290,52 +1283,39 @@ namespace fCraft {
             string toName = cmd.Next();
             Player toPlayer = player;
             if( toName != null ) {
-                Player[] toMatches = Server.FindPlayers( player, toName );
-                if( toMatches.Length == 1 ) {
-                    toPlayer = toMatches[0];
-                } else if( toMatches.Length > 1 ) {
-                    player.ManyMatchesMessage( "player", toMatches );
-                } else {
-                    player.NoPlayerMessage( toName );
-                }
+                toPlayer = Server.FindPlayerOrPrintMatches( player, toName, false );
+                if( toPlayer == null ) return;
             }
 
-            Player[] matches = Server.FindPlayers( player, name );
-            if( matches.Length == 1 ) {
-                Player target = matches[0];
+            Player target = Server.FindPlayerOrPrintMatches( player, name, false );
+            if( target == null ) return;
 
-                if( target.world == toPlayer.world ) {
-                    if( target.info.isFrozen )
-                        target.pos = toPlayer.pos;
-                    else
-                        target.Send( PacketWriter.MakeSelfTeleport( toPlayer.pos ) );
-
+            if( target.world == toPlayer.world ) {
+                if( target.info.isFrozen ) {
+                    target.pos = toPlayer.pos;
                 } else {
-                    switch( toPlayer.world.accessSecurity.CanUseDetailed( target ) ) {
-                        case PermissionType.Allowed:
-                        case PermissionType.WhiteListed:
-                            target.session.JoinWorld( toPlayer.world, toPlayer.pos );
-                            break;
-                        case PermissionType.BlackListed:
-                            player.Message( "Cannot bring {0}&S because you are blacklisted on world {1}",
-                                            target.GetClassyName(),
-                                            toPlayer.world.GetClassyName() );
-                            break;
-                        case PermissionType.RankTooLow:
-                            player.Message( "Cannot bring {0}&S because world {1}&S requires {1}+&S to join.",
-                                            target.GetClassyName(),
-                                            toPlayer.world.GetClassyName(),
-                                            toPlayer.world.accessSecurity.minRank.GetClassyName() );
-                            break;
-                        // TODO: case PermissionType.RankTooHigh:
-                    }
+                    target.Send( PacketWriter.MakeSelfTeleport( toPlayer.pos ) );
                 }
 
-            } else if( matches.Length > 1 ) {
-                player.ManyMatchesMessage( "player", matches );
-
             } else {
-                player.NoPlayerMessage( name );
+                switch( toPlayer.world.accessSecurity.CanUseDetailed( target.info ) ) {
+                    case PermissionType.Allowed:
+                    case PermissionType.WhiteListed:
+                        target.session.JoinWorld( toPlayer.world, toPlayer.pos );
+                        break;
+                    case PermissionType.BlackListed:
+                        player.Message( "Cannot bring {0}&S because you are blacklisted on world {1}",
+                                        target.GetClassyName(),
+                                        toPlayer.world.GetClassyName() );
+                        break;
+                    case PermissionType.RankTooLow:
+                        player.Message( "Cannot bring {0}&S because world {1}&S requires {1}+&S to join.",
+                                        target.GetClassyName(),
+                                        toPlayer.world.GetClassyName(),
+                                        toPlayer.world.accessSecurity.minRank.GetClassyName() );
+                        break;
+                    // TODO: case PermissionType.RankTooHigh:
+                }
             }
         }
 
@@ -1383,25 +1363,19 @@ namespace fCraft {
         };
 
         internal static void Mute( Player player, Command cmd ) {
-            string playerName = cmd.Next();
+            string targetName = cmd.Next();
             int seconds;
-            if( playerName != null && Player.IsValidName( playerName ) && cmd.NextInt( out seconds ) && seconds > 0 ) {
-                Player[] matches = Server.FindPlayers( playerName );
-                if( matches.Length == 1 ) {
-                    Player target = matches[0];
-                    target.Mute( player.name, seconds );
-                    target.Message( "You were muted by {0}&S for {1} sec", player.GetClassyName(), seconds );
-                    Server.SendToAllExcept( "&SPlayer {0}&S was muted by {1}&S for {2} sec", target,
-                                            target.GetClassyName(), player.GetClassyName(), seconds );
-                    Logger.Log( "Player {0} was muted by {1} for {2} seconds.", LogType.UserActivity,
-                                target.name, player.name, seconds );
+            if( targetName != null && Player.IsValidName( targetName ) && cmd.NextInt( out seconds ) && seconds > 0 ) {
+                Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
+                if( target == null ) return;
 
-                } else if( matches.Length > 1 ) {
-                    player.ManyMatchesMessage( "player", matches );
+                target.Mute( player.name, seconds );
+                target.Message( "You were muted by {0}&S for {1} sec", player.GetClassyName(), seconds );
+                Server.SendToAllExcept( "&SPlayer {0}&S was muted by {1}&S for {2} sec", target,
+                                        target.GetClassyName(), player.GetClassyName(), seconds );
+                Logger.Log( "Player {0} was muted by {1} for {2} seconds.", LogType.UserActivity,
+                            target.name, player.name, seconds );
 
-                } else {
-                    player.NoPlayerMessage( playerName );
-                }
             } else {
                 cdMute.PrintUsage( player );
             }
@@ -1418,28 +1392,23 @@ namespace fCraft {
         };
 
         internal static void Unmute( Player player, Command cmd ) {
-            string playerName = cmd.Next();
-            if( playerName != null && Player.IsValidName( playerName ) ) {
-                Player[] matches = Server.FindPlayers( playerName );
-                if( matches.Length == 1 ) {
-                    Player target = matches[0];
-                    if( target.info.mutedUntil >= DateTime.UtcNow ) {
-                        target.Unmute();
-                        target.Message( "You were unmuted by {0}", player.GetClassyName() );
-                        Server.SendToAllExcept( "&SPlayer {0}&S was unmuted by {1}", target,
-                                                target.GetClassyName(), player.GetClassyName() );
-                        Logger.Log( "Player {0} was unmuted by {1}.", LogType.UserActivity,
-                                    target.name, player.name );
-                    } else {
-                        player.Message( "Player {0}&S is not muted.", target.GetClassyName() );
-                    }
+            string targetName = cmd.Next();
+            if( targetName != null && Player.IsValidName( targetName ) ) {
 
-                } else if( matches.Length > 1 ) {
-                    player.ManyMatchesMessage( "player", matches );
+                Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
+                if( target == null ) return;
 
+                if( target.info.mutedUntil >= DateTime.UtcNow ) {
+                    target.Unmute();
+                    target.Message( "You were unmuted by {0}", player.GetClassyName() );
+                    Server.SendToAllExcept( "&SPlayer {0}&S was unmuted by {1}", target,
+                                            target.GetClassyName(), player.GetClassyName() );
+                    Logger.Log( "Player {0} was unmuted by {1}.", LogType.UserActivity,
+                                target.name, player.name );
                 } else {
-                    player.NoPlayerMessage( playerName );
+                    player.Message( "Player {0}&S is not muted.", target.GetClassyName() );
                 }
+
             } else {
                 cdUnmute.PrintUsage( player );
             }

@@ -246,7 +246,7 @@ namespace fCraft {
         internal void SendPlayerList( Player player ) {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i] != player && player.CanSee(tempList[i]) ) {
+                if( tempList[i] != null && tempList[i] != player && player.CanSee( tempList[i] ) ) {
                     player.session.Send( PacketWriter.MakeAddEntity( tempList[i], tempList[i].pos ) );
                 }
             }

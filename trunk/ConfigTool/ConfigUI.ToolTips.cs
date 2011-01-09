@@ -549,6 +549,7 @@ players with ManageWorlds and ManageZones permissions are not allowed to do this
 Affected commands:
     /waccess
     /wbuild
+    /wmain
     /zedit" );
         }
 

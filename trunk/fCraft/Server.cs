@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
@@ -462,9 +461,9 @@ namespace fCraft {
                     if( firstWorld == null ) firstWorld = world;
                     Logger.Log( "Server.ParseWorldListXML: Loaded world \"{0}\"", LogType.Debug, worldName );
 
-                    if( el.Element("accessSecurity")!=null  ) {
-                        world.accessSecurity = new SecurityController( el.Element("accessSecurity") );
-                    }else{
+                    if( el.Element( "accessSecurity" ) != null ) {
+                        world.accessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
+                    } else {
                         world.accessSecurity.minRank = LoadWorldRankRestriction( world, "access", el );
                     }
 
@@ -527,7 +526,7 @@ namespace fCraft {
                         temp.Add( new XAttribute( "name", world.name ) );
                         temp.Add( new XAttribute( "access", world.accessSecurity.minRank ) );
                         temp.Add( new XAttribute( "build", world.buildSecurity.minRank ) );
-                        temp.Add( world.accessSecurity.Serialize("accessSecurity") );
+                        temp.Add( world.accessSecurity.Serialize( "accessSecurity" ) );
                         temp.Add( world.buildSecurity.Serialize( "buildSecurity" ) );
                         if( world.neverUnload ) {
                             temp.Add( new XAttribute( "noUnload", true ) );
@@ -626,6 +625,20 @@ namespace fCraft {
                 }
             }
             return results.ToArray();
+        }
+
+
+        public static World FindWorldOrPrintMatches( Player player, string worldName ) {
+            World[] worlds = FindWorlds( worldName );
+            if( worlds.Length == 0 ) {
+                player.NoWorldMessage( worldName );
+                return null;
+            } else if( worlds.Length > 1 ) {
+                player.ManyMatchesMessage( "world", worlds );
+                return null;
+            } else {
+                return worlds[0];
+            }
         }
 
 
@@ -1450,6 +1463,29 @@ namespace fCraft {
             return results.ToArray();
         }
 
+        // Find player by name using autocompletion (returns only whose whom player can see)
+        // Returns null and prints message if none or multiple players matched.
+        public static Player FindPlayerOrPrintMatches( Player player, string playerName, bool includeHidden ) {
+            Player[] players;
+            if( includeHidden ) {
+                players = FindPlayers( playerName );
+            } else {
+                players = FindPlayers( player, playerName );
+            }
+
+            if( players.Length == 0 ) {
+                player.NoPlayerMessage( playerName );
+                return null;
+
+            } else if( players.Length > 1 ) {
+                player.ManyMatchesMessage( "player", players );
+                return null;
+
+            } else {
+                return players[0];
+            }
+        }
+
 
         // Find player by IP
         public static List<Player> FindPlayers( IPAddress ip ) {
@@ -1476,6 +1512,10 @@ namespace fCraft {
             return null;
         }
 
+        public static Player FindPlayerExact( PlayerInfo info ) {
+            if( info==null || !info.online ) return null;
+            else return FindPlayerExact( info.name );
+        }
 
         public static int GetPlayerCount( bool includeHiddenPlayers ) {
             if( includeHiddenPlayers ) {

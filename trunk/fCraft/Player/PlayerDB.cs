@@ -17,6 +17,8 @@ namespace fCraft {
 
         static int MaxID = 255;
 
+        public const int NumberOfMatchesToPrint = 20;
+
 
         public const string DBFileName = "PlayerDB.txt",
                             Header = " fCraft PlayerDB | Row format: " +

@@ -58,7 +58,7 @@ namespace fCraft {
 
                     // prevent players from whitelisting themselves to bypass protection
                     if( !player.info.rank.AllowSecurityCircumvention && player.info == info ) {
-                        if( !zone.controller.CanUse( player ) ) {
+                        if( !zone.controller.CanUse( info ) ) {
                             player.Message( "You must be {0}+&S to add yourself to this zone's whitelist.",
                                             zone.controller.minRank.GetClassyName() );
                             continue;
@@ -278,11 +278,11 @@ namespace fCraft {
             Zone[] allowed, denied;
             if( player.world.map.TestZones( marks[0].x, marks[0].y, marks[0].h, player, out allowed, out denied ) ) {
                 foreach( Zone zone in allowed ) {
-                    PermissionType status = zone.controller.CanUseDetailed( player );
+                    PermissionType status = zone.controller.CanUseDetailed( player.info );
                     player.Message( "> {0}: {1}{2}", zone.name, Color.Lime, status );
                 }
                 foreach( Zone zone in denied ) {
-                    PermissionType status = zone.controller.CanUseDetailed( player );
+                    PermissionType status = zone.controller.CanUseDetailed( player.info );
                     player.Message( "> {0}: {1}{2}", zone.name, Color.Red, status );
                 }
             } else {

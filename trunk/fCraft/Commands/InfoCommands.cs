@@ -242,15 +242,8 @@ namespace fCraft {
                 }
             }
 
-            World[] worlds = Server.FindWorlds( worldName );
-            if( worlds.Length > 1 ) {
-                player.ManyMatchesMessage( "world", worlds );
-                return;
-            } else if( worlds.Length == 0 ) {
-                player.NoWorldMessage( worldName );
-                return;
-            }
-            World world = worlds[0];
+            World world = Server.FindWorldOrPrintMatches( player, worldName );
+            if( world == null ) return;
 
             player.Message( "World {0}&S has {1} player(s) on.",
                             world.GetClassyName(),
@@ -372,19 +365,11 @@ namespace fCraft {
             Player target = player;
 
             if( name != null ) {
-                Player[] matches = Server.FindPlayers( player, name );
-                if( matches.Length == 1 ) {
-                    target = matches[0];
-                    player.Message( "Coordinates of player {0}&S (on world {1}&S):",
-                                    target.GetClassyName(),
-                                    target.world.GetClassyName() );
-                } else if( matches.Length > 1 ) {
-                    player.ManyMatchesMessage( "player", matches );
-                    return;
-                } else {
-                    player.NoPlayerMessage( name );
-                    return;
-                }
+                target = Server.FindPlayerOrPrintMatches( player, name, false );
+                if( target == null ) return;
+                player.Message( "Coordinates of player {0}&S (on world {1}&S):",
+                                target.GetClassyName(),
+                                target.world.GetClassyName() );
             } else if( player.world == null ) {
                 player.Message( "When called form console, &H/where&S requires a player name." );
                 return;
@@ -483,7 +468,6 @@ namespace fCraft {
         };
 
         static Regex regexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
-        const int MaxPlayersShownInInfo = 25;
         internal static void Info( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
@@ -497,19 +481,19 @@ namespace fCraft {
             PlayerInfo[] infos;
             if( Server.IsIP( name ) && IPAddress.TryParse( name, out IP ) ) {
                 // find players by IP
-                infos = PlayerDB.FindPlayers( IP, MaxPlayersShownInInfo );
+                infos = PlayerDB.FindPlayers( IP, PlayerDB.NumberOfMatchesToPrint );
 
             } else if( name.Contains( "*" ) || name.Contains( "." ) ) {
                 // find players by regex/wildcard
                 string regexString = "^" + regexNonNameChars.Replace( name, "" ).Replace( "*", ".*" ) + "$";
                 Regex regex = new Regex( regexString, RegexOptions.IgnoreCase | RegexOptions.Compiled );
-                infos = PlayerDB.FindPlayers( regex, MaxPlayersShownInInfo );
+                infos = PlayerDB.FindPlayers( regex, PlayerDB.NumberOfMatchesToPrint );
 
             } else {
                 // find players by partial matching
                 PlayerInfo tempInfo;
                 if( !PlayerDB.FindPlayerInfo( name, out tempInfo ) ) {
-                    infos = PlayerDB.FindPlayers( name, MaxPlayersShownInInfo );
+                    infos = PlayerDB.FindPlayers( name, PlayerDB.NumberOfMatchesToPrint );
                 } else if( tempInfo == null ) {
                     player.NoPlayerMessage( name );
                     return;
@@ -522,8 +506,8 @@ namespace fCraft {
                 PrintPlayerInfo( player, infos[0] );
             } else if( infos.Length > 1 ) {
                 player.ManyMatchesMessage( "player", (IClassy[])infos );
-                if( infos.Length == MaxPlayersShownInInfo ) {
-                    player.Message( "NOTE: Only first 25 matches are shown." );
+                if( infos.Length == PlayerDB.NumberOfMatchesToPrint ) {
+                    player.Message( "NOTE: Only first {0} matches are shown.", PlayerDB.NumberOfMatchesToPrint );
                 }
             } else {
                 player.NoPlayerMessage( name );
