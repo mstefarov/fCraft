@@ -208,10 +208,23 @@ namespace fCraft {
                     }
 
                     if( allPlayers.Length == 1 ) {
-                        if( allPlayers[0].IsIgnored( this.info ) ) {
-                            MessageNow( "&WCannot PM {0}&W: you are ignored.", allPlayers[0].GetClassyName() );
-                        } else if( !PM( allPlayers[0], messageText ) ) {
-                            NoPlayerMessage( otherPlayerName );
+                        Player target = allPlayers[0];
+                        if( target.IsIgnored( info ) ) {
+                            if( CanSee( target ) ) {
+                                MessageNow( "&WCannot PM {0}&W: you are ignored.", target.GetClassyName() );
+                            }
+                        } else {
+                            Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
+                                        name, target.name, messageText );
+                            target.Message( "{0}from {1}: {2}",
+                                                 Color.PM, name, messageText );
+                            if( CanSee( target ) ) {
+                                Message( "{0}to {1}: {2}",
+                                         Color.PM, target.name, messageText );
+
+                            } else {
+                                NoPlayerMessage( otherPlayerName );
+                            }
                         }
 
                     } else if( allPlayers.Length == 0 ) {
@@ -266,22 +279,6 @@ namespace fCraft {
                         MessageNow( "There is no command to confirm." );
                     }
                     break;
-            }
-        }
-
-
-        public bool PM( Player targetPlayer, string messageText ) {
-            Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
-                        name, targetPlayer.name, messageText );
-            targetPlayer.Message( "{0}from {1}: {2}",
-                                 Color.PM, name, messageText );
-            if( CanSee( targetPlayer ) ) {
-                Message( "{0}to {1}: {2}",
-                         Color.PM, targetPlayer.name, messageText );
-                return true;
-
-            } else {
-                return false;
             }
         }
 
@@ -534,7 +531,15 @@ namespace fCraft {
                     break;
 
                 case CanPlaceResult.WorldDenied:
-                    Message( "&WYour rank is not allowed to build on this world." );
+                    switch( world.buildSecurity.CanUseDetailed( info ) ) {
+                        case PermissionType.RankTooLow:
+                        case PermissionType.RankTooHigh:
+                            Message( "&WYour rank is not allowed to build on this world." );
+                            break;
+                        case PermissionType.BlackListed:
+                            Message( "&WYou are not allowed to build on this world." );
+                            break;
+                    }
                     SendBlockNow( x, y, h );
                     break;
 
@@ -624,15 +629,19 @@ namespace fCraft {
 
         public bool CanJoin( World world ) {
             if( this == Console ) return true;
-            return world.accessSecurity.CanUse( this );
+            return world.accessSecurity.CanUse( info );
         }
 
 
         public CanPlaceResult CanPlace( int x, int y, int h, byte drawBlock ) {
             // check special blocktypes
-            if( drawBlock == (byte)Block.Admincrete && !Can( Permission.PlaceAdmincrete ) ) return CanPlaceResult.BlocktypeDenied;
-            if( (drawBlock == (byte)Block.Water || drawBlock == (byte)Block.StillWater) && !Can( Permission.PlaceWater ) ) return CanPlaceResult.BlocktypeDenied;
-            if( (drawBlock == (byte)Block.Lava || drawBlock == (byte)Block.StillLava) && !Can( Permission.PlaceLava ) ) return CanPlaceResult.BlocktypeDenied;
+            if( drawBlock == (byte)Block.Admincrete && !Can( Permission.PlaceAdmincrete ) ) {
+                return CanPlaceResult.BlocktypeDenied;
+            } else if( (drawBlock == (byte)Block.Water || drawBlock == (byte)Block.StillWater) && !Can( Permission.PlaceWater ) ) {
+                return CanPlaceResult.BlocktypeDenied;
+            } else if( (drawBlock == (byte)Block.Lava || drawBlock == (byte)Block.StillLava) && !Can( Permission.PlaceLava ) ) {
+                return CanPlaceResult.BlocktypeDenied;
+            }
 
             // check deleting admincrete
             byte block = world.map.GetBlock( x, y, h );
@@ -644,46 +653,25 @@ namespace fCraft {
                 return CanPlaceResult.Allowed;
             } else if( zoneCheckResult == PermissionOverride.Deny ) {
                 return CanPlaceResult.ZoneDenied;
-            } else if( drawBlock == (byte)Block.Air ) {
+            }
 
-                // deleting a block
-                if( Can( Permission.Delete ) ) {
-                    if( world.buildSecurity.minRank > info.rank ) {
-                        return CanPlaceResult.WorldDenied;
-                    } else {
+            // Check world permissions
+            switch( world.buildSecurity.CanUseDetailed( info ) ) {
+                case PermissionType.Allowed:
+                    // Check rank permissions
+                    if( (Can( Permission.Build ) || drawBlock == (byte)Block.Air) &&
+                        (Can( Permission.Delete ) || block == (byte)Block.Air) ) {
                         return CanPlaceResult.Allowed;
-                    }
-                } else {
-                    return CanPlaceResult.RankDenied;
-                }
-
-            } else if( block == (byte)Block.Air ) {
-
-                // building a block
-                if( Can( Permission.Build ) ) {
-                    if( world.buildSecurity.minRank > info.rank ) {
-                        return CanPlaceResult.WorldDenied;
                     } else {
-                        return CanPlaceResult.Allowed;
+                        return CanPlaceResult.RankDenied;
                     }
-                } else {
-                    return CanPlaceResult.RankDenied;
-                }
-
-            } else {
-
-                // replacing a block
-                if( Can( Permission.Delete, Permission.Build ) ) {
-                    if( world.buildSecurity.minRank > info.rank ) {
-                        return CanPlaceResult.WorldDenied;
-                    } else {
-                        return CanPlaceResult.Allowed;
-                    }
-                } else {
-                    return CanPlaceResult.RankDenied;
-                }
+                case PermissionType.WhiteListed:
+                    return CanPlaceResult.Allowed;
+                default:
+                    return CanPlaceResult.WorldDenied;
             }
         }
+
 
         // Determines what OP-code to send to the player. It only matters for deleting admincrete.
         public byte GetOPPacketCode() {
