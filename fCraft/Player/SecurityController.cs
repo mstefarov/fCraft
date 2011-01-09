@@ -1,4 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
@@ -33,10 +34,10 @@ namespace fCraft {
             UpdatePlayerListCache();
         }
 
-        public PlayerListCollection exceptionList { get; private set; }
-
         Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
         Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
+
+        public PlayerListCollection exceptionList { get; private set; }
 
         private Rank _minRank, _maxRank;
 
@@ -162,21 +163,25 @@ namespace fCraft {
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
                 if( info != null ) Exclude( info );
             }
+            UpdatePlayerListCache();
         }
 
-
         public XElement Serialize() {
-            XElement root = new XElement( XmlRootElementName );
+            return Serialize( XmlRootElementName );
+        }
+
+        public XElement Serialize( string tagName ) {
+            XElement root = new XElement( tagName );
 
             if( minRank != null ) root.Add( new XElement( "minRank", minRank ) );
             //if(maxRank!=null) root.Add( new XElement( "maxRank", maxRank ) );
 
             lock( playerPermissionListLock ) {
-                foreach( string name in includedPlayers.Keys ) {
-                    root.Add( new XElement( "included", name ) );
+                foreach( string playerName in includedPlayers.Keys ) {
+                    root.Add( new XElement( "included", playerName ) );
                 }
-                foreach( string name in excludedPlayers.Keys ) {
-                    root.Add( new XElement( "excluded", name ) );
+                foreach( string playerName in excludedPlayers.Keys ) {
+                    root.Add( new XElement( "excluded", playerName ) );
                 }
             }
             return root;

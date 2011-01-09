@@ -462,8 +462,17 @@ namespace fCraft {
                     if( firstWorld == null ) firstWorld = world;
                     Logger.Log( "Server.ParseWorldListXML: Loaded world \"{0}\"", LogType.Debug, worldName );
 
-                    world.accessSecurity.minRank = LoadWorldRankRestriction( world, "access", el );
-                    world.buildSecurity.minRank = LoadWorldRankRestriction( world, "build", el );
+                    if( el.Element("accessSecurity")!=null  ) {
+                        world.accessSecurity = new SecurityController( el.Element("accessSecurity") );
+                    }else{
+                        world.accessSecurity.minRank = LoadWorldRankRestriction( world, "access", el );
+                    }
+
+                    if( el.Element( "buildSecurity" ) != null ) {
+                        world.buildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
+                    } else {
+                        world.buildSecurity.minRank = LoadWorldRankRestriction( world, "build", el );
+                    }
                 }
             }
 
@@ -518,6 +527,8 @@ namespace fCraft {
                         temp.Add( new XAttribute( "name", world.name ) );
                         temp.Add( new XAttribute( "access", world.accessSecurity.minRank ) );
                         temp.Add( new XAttribute( "build", world.buildSecurity.minRank ) );
+                        temp.Add( world.accessSecurity.Serialize("accessSecurity") );
+                        temp.Add( world.buildSecurity.Serialize( "buildSecurity" ) );
                         if( world.neverUnload ) {
                             temp.Add( new XAttribute( "noUnload", true ) );
                         }
@@ -1239,6 +1250,50 @@ namespace fCraft {
             } else {
                 return String.Format( "{0:0}w{1:0}d", span.TotalDays / 7, span.TotalDays % 7 );
             }
+        }
+
+        public static TimeSpan ParseMiniTimespan( string text ) {
+            if( text == null ) throw new ArgumentNullException( "text" );
+            text = text.Trim();
+            bool expectingDigit = true;
+            TimeSpan result = new TimeSpan( 0 );
+            int digitOffset = 0;
+            for( int i = 0; i < text.Length; i++ ) {
+                if( expectingDigit ) {
+                    if( text[i] < '0' || text[i] > '9' ) {
+                        throw new FormatException();
+                    }
+                    expectingDigit = false;
+                } else {
+                    if( text[i] >= '0' && text[i] <= '9' ) {
+                        continue;
+                    } else {
+                        string numberString = text.Substring( digitOffset, i - digitOffset );
+                        digitOffset = i + 1;
+                        int number = Int32.Parse( numberString );
+                        switch( Char.ToLower( text[i] ) ) {
+                            case 's':
+                                result += TimeSpan.FromSeconds( number );
+                                break;
+                            case 'm':
+                                result += TimeSpan.FromMinutes( number );
+                                break;
+                            case 'h':
+                                result += TimeSpan.FromHours( number );
+                                break;
+                            case 'd':
+                                result += TimeSpan.FromDays( number );
+                                break;
+                            case 'w':
+                                result += TimeSpan.FromDays( number * 7 );
+                                break;
+                            default:
+                                throw new FormatException();
+                        }
+                    }
+                }
+            }
+            return result;
         }
 
         #endregion
