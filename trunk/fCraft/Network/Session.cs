@@ -380,7 +380,7 @@ namespace fCraft {
         }
 
 
-        const string noAlphaMessage = "This server is for Minecraft Classic only.";
+        const string noSMPMessage = "This server is for Minecraft Classic only.";
         bool LoginSequence() {
             byte opcode = reader.ReadByte();
             if( opcode != (byte)InputCode.Handshake ) {
@@ -389,15 +389,15 @@ namespace fCraft {
                     int strLen = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
 
                     if( strLen >= 2 && strLen <= 16 ) {
-                        string alphaPlayerName = Encoding.UTF8.GetString( reader.ReadBytes( strLen ) );
+                        string SMPPlayerName = Encoding.UTF8.GetString( reader.ReadBytes( strLen ) );
 
-                        Logger.Log( "Session.LoginSequence: Player \"{0}\" tried connecting with SMP/Alpha client from {1}. " +
-                                    "fCraft does not support Alpha.", LogType.Warning,
-                                    alphaPlayerName, GetIP() );
+                        Logger.Log( "Session.LoginSequence: Player \"{0}\" tried connecting with SMP/Beta client from {1}. " +
+                                    "fCraft does not support SMP/Beta.", LogType.Warning,
+                                    SMPPlayerName, GetIP() );
 
                         // send SMP KICK packet
                         writer.Write( (byte)255 );
-                        byte[] stringData = Encoding.UTF8.GetBytes( noAlphaMessage );
+                        byte[] stringData = Encoding.UTF8.GetBytes( noSMPMessage );
                         writer.Write( (short)stringData.Length );
                         writer.Write( stringData );
                         writer.Flush();
@@ -405,7 +405,7 @@ namespace fCraft {
                     } else {
                         // Not SMP client (invalid player name length)
                         Logger.Log( "Session.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.", LogType.Error,
-            GetIP(), opcode );
+                                    GetIP(), opcode );
                         KickNow( "Unexpected handshake message - possible protocol mismatch!" );
                     }
                     return false;
@@ -434,8 +434,7 @@ namespace fCraft {
 
             if( !Player.IsValidName( playerName ) ) {
                 Logger.Log( "Session.LoginSequence: Unacceptible player name: {0} ({1})", LogType.SuspiciousActivity,
-                            playerName,
-                            GetIP() );
+                            playerName, GetIP() );
                 KickNow( "Invalid characters in player name!" );
                 return false;
             }
@@ -447,8 +446,8 @@ namespace fCraft {
                 Logger.Log( "Banned player {0} tried to log in.", LogType.SuspiciousActivity,
                             player.name );
                 Server.SendToAll( "&SBanned player {0}&S tried to log in.", player.GetClassyName() );
-                string bannedMessage = String.Format( "You were banned {0} days ago by {1}",
-                                                      DateTime.Now.Subtract( player.info.banDate ).Days,
+                string bannedMessage = String.Format( "You were banned {0:0} days ago by {1}",
+                                                      DateTime.Now.Subtract( player.info.banDate ).TotalDays,
                                                       player.info.bannedBy );
                 KickNow( bannedMessage );
                 return false;
@@ -459,11 +458,11 @@ namespace fCraft {
             if( IPBanInfo != null ) {
                 player.info.ProcessFailedLogin( player );
                 IPBanInfo.ProcessAttempt( player );
+                Server.SendToAll( "{0}&S tried to log in from a banned IP.", player.GetClassyName() );
                 Logger.Log( "{0} tried to log in from a banned IP.", LogType.SuspiciousActivity,
                             player.name );
-                Server.SendToAll( "{0}&S tried to log in from a banned IP.", player.GetClassyName() );
-                string bannedMessage = String.Format( "Your IP was banned by {0} days ago by {1}",
-                                                      DateTime.Now.Subtract( IPBanInfo.banDate ).Days,
+                string bannedMessage = String.Format( "Your IP was banned by {0:0} days ago by {1}",
+                                                      DateTime.Now.Subtract( IPBanInfo.banDate ).TotalDays,
                                                       IPBanInfo.bannedBy );
                 KickNow( bannedMessage );
                 return false;

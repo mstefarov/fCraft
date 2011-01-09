@@ -356,7 +356,7 @@ namespace fCraft {
             do {
                 name = cmd.Next();
                 if( name == null ) {
-                    PrintWorldSecurityInfo( player, world, player.world.accessSecurity, "visited" );
+                    PrintWorldSecurityInfo( player, world, world.accessSecurity, "visited" );
                     return;
 
                 } else if( world == Server.mainWorld ) {
@@ -580,7 +580,7 @@ namespace fCraft {
             do {
                 name = cmd.Next();
                 if( name == null ) {
-                    PrintWorldSecurityInfo( player, world, player.world.buildSecurity, "edited" );
+                    PrintWorldSecurityInfo( player, world, world.buildSecurity, "edited" );
                     return;
 
                 } else if( name.Length < 2 ) {
@@ -714,8 +714,8 @@ namespace fCraft {
                                 player.Message( "{0}&S is no longer allowed to build in {1}",
                                                 info.GetClassyName(), world.GetClassyName() );
                                 if( target != null ) {
-                                    target.Message( "&WYou are no longer allowed to build in world {0}&S " +
-                                                    "(removed from whitelist by {1}&S).",
+                                    target.Message( "&WYou are no longer allowed to build in world {0}&W " +
+                                                    "(removed from whitelist by {1}&W).",
                                                     world.GetClassyName(), player.GetClassyName() );
                                 }
                             }
@@ -744,9 +744,11 @@ namespace fCraft {
                                 noLongerExcluded.Add( excludedPlayer );
                             }
                         }
-                        player.Message( "These players no longer need to on the build blacklist of {0}&S: {1}",
-                                        world.GetClassyName(),
-                                        PlayerInfo.PlayerInfoArrayToString( noLongerExcluded.ToArray() ) );
+                        if( noLongerExcluded.Count > 0 ) {
+                            player.Message( "These players no longer need to on the build blacklist of {0}&S: {1}",
+                                            world.GetClassyName(),
+                                            PlayerInfo.PlayerInfoArrayToString( noLongerExcluded.ToArray() ) );
+                        }
 
                         // list players who are redundantly whitelisted
                         List<PlayerInfo> noLongerIncluded = new List<PlayerInfo>();
@@ -755,9 +757,11 @@ namespace fCraft {
                                 noLongerExcluded.Add( includedPlayer );
                             }
                         }
-                        player.Message( "Following players no longer need to be whitelisted from {0}&S: {1}",
-                                        world.GetClassyName(),
-                                        PlayerInfo.PlayerInfoArrayToString( noLongerIncluded.ToArray() ) );
+                        if( noLongerIncluded.Count > 0 ) {
+                            player.Message( "Following players no longer need to be whitelisted from {0}&S: {1}",
+                                            world.GetClassyName(),
+                                            PlayerInfo.PlayerInfoArrayToString( noLongerIncluded.ToArray() ) );
+                        }
 
                         // apply changes
                         world.buildSecurity.minRank = rank;
