@@ -534,10 +534,10 @@ namespace fCraft {
                     switch( world.buildSecurity.CanUseDetailed( info ) ) {
                         case PermissionType.RankTooLow:
                         case PermissionType.RankTooHigh:
-                            Message( "&WYour rank is not allowed to build on this world." );
+                            Message( "&WYour rank is not allowed to build in this world." );
                             break;
                         case PermissionType.BlackListed:
-                            Message( "&WYou are not allowed to build on this world." );
+                            Message( "&WYou are not allowed to build in this world." );
                             break;
                     }
                     SendBlockNow( x, y, h );
