@@ -341,7 +341,7 @@ namespace fCraft {
                 if( player == Player.Console ) {
                     player.Message( "When calling /waccess from console, you must specify a world name." );
                 } else {
-                    PrintWorldSecurityInfo( player, player.world, player.world.accessSecurity, "visited" );
+                    PrintWorldSecurityInfo( player, player.world, player.world.accessSecurity, "accessed" );
                 }
                 return;
             }
@@ -350,13 +350,13 @@ namespace fCraft {
             World world = Server.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
 
-            // See if there are any changes to be made
+
             string name;
             bool changesWereMade = false;
             do {
                 name = cmd.Next();
                 if( name == null ) {
-                    PrintWorldSecurityInfo( player, world, world.accessSecurity, "visited" );
+                    PrintWorldSecurityInfo( player, world, world.accessSecurity, "accessed" );
                     return;
 
                 } else if( world == Server.mainWorld ) {
@@ -373,9 +373,8 @@ namespace fCraft {
                     if( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
                         player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
                         continue;
-                    }
 
-                    if( info == null ) {
+                    } else if( info == null ) {
                         player.NoPlayerMessage( name.Substring( 1 ) );
                         continue;
                     }
@@ -384,11 +383,14 @@ namespace fCraft {
                     if( player.info == info && !player.info.rank.AllowSecurityCircumvention ) {
                         switch( world.accessSecurity.CheckDetailed( player.info ) ) {
                             case SecurityCheckResult.RankTooLow:
-                                player.Message( "You must be {0}+&S to add yourself to this world's whitelist.",
-                                                world.accessSecurity.minRank.GetClassyName() );
+                                player.Message( "&WYou must be {0}&W+ to add yourself to the access whitelist of {0}",
+                                                world.accessSecurity.minRank.GetClassyName(),
+                                                world.GetClassyName() );
                                 continue;
+                            // TODO: RankTooHigh
                             case SecurityCheckResult.BlackListed:
-                                player.Message( "You cannot remove yourself from the world's blacklist." );
+                                player.Message( "&WYou cannot remove yourself from the access blacklist of {0}",
+                                                world.GetClassyName() );
                                 continue;
                         }
                     }
@@ -399,23 +401,46 @@ namespace fCraft {
                         continue;
                     }
 
+                    Player target = Server.FindPlayerExact( info );
+                    if( target == player ) target = null; // to avoid duplicate messages
+
                     switch( world.accessSecurity.Include( info ) ) {
                         case PermissionOverride.Deny:
-                            player.Message( "{0}&S is no longer excluded from world {1}",
-                                            info.GetClassyName(), world.GetClassyName() );
-                            Logger.Log( "{0} removed {1} from the access blacklist on world {2}", LogType.UserActivity,
+                            if( world.accessSecurity.Check( info ) ) {
+                                player.Message( "{0}&S is no longer barred from accessing {1}",
+                                                info.GetClassyName(), world.GetClassyName() );
+                                if( target != null ) {
+                                    target.Message( "You can now access world {0}&S (removed from blacklist by {1}&S).",
+                                                    world.GetClassyName(), player.GetClassyName() );
+                                }
+                            } else {
+                                player.Message( "{0}&S was removed from the access blacklist of {1}&S. " +
+                                                "Player is still NOT allowed to join (by rank).",
+                                                info.GetClassyName(), world.GetClassyName() );
+                                if( target != null ) {
+                                    target.Message( "You were removed from the access blacklist of world {0}&S by {1}&S. " +
+                                                    "You are still NOT allowed to join (by rank).",
+                                                    player.GetClassyName(), world.GetClassyName() );
+                                }
+                            }
+                            Logger.Log( "{0} removed {1} from the access blacklist of {2}", LogType.UserActivity,
                                         player.name, info.name, world.name );
                             changesWereMade = true;
                             break;
+
                         case PermissionOverride.None:
-                            player.Message( "{0}&S is now included in world {1}",
+                            player.Message( "{0}&S is now allowed to access {1}",
                                             info.GetClassyName(), world.GetClassyName() );
+                            if( target != null ) {
+                                target.Message( "You can now access world {0}&S (whitelisted by {1}&S).",
+                                                world.GetClassyName(), player.GetClassyName() );
+                            }
                             Logger.Log( "{0} added {1} to the access whitelist on world {2}", LogType.UserActivity,
                                         player.name, info.name, world.name );
-                            changesWereMade = true;
                             break;
+
                         case PermissionOverride.Allow:
-                            player.Message( "{0}&S is already included in world {1}",
+                            player.Message( "{0}&S is already on the access whitelist of {1}",
                                             info.GetClassyName(), world.GetClassyName() );
                             break;
                     }
@@ -426,35 +451,57 @@ namespace fCraft {
                     if( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
                         player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
                         continue;
-                    }
-
-                    if( info == null ) {
+                    } else if( info == null ) {
                         player.NoPlayerMessage( name.Substring( 1 ) );
                         continue;
                     }
 
                     if( world.accessSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooHigh ||
                         world.accessSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {
-                        player.Message( "{0}&S is already barred from {1}&S (by rank)",
+                        player.Message( "{0}&S is already barred from accessing {1}&S (by rank)",
                                         info.GetClassyName(), world.GetClassyName() );
                         continue;
                     }
 
+                    Player target = Server.FindPlayerExact( info );
+                    if( target == player ) target = null; // to avoid duplicate messages
+
                     switch( world.accessSecurity.Exclude( info ) ) {
                         case PermissionOverride.Deny:
-                            player.Message( "{0}&S is already barred from world {1}",
+                            player.Message( "{0}&S is already on access blacklist of {1}",
                                             info.GetClassyName(), world.GetClassyName() );
                             break;
+
                         case PermissionOverride.None:
-                            player.Message( "{0}&S is now barred from world {1}",
+                            player.Message( "{0}&S is now barred from accessing {1}",
                                             info.GetClassyName(), world.GetClassyName() );
+                            if( target != null ) {
+                                target.Message( "&WYou were barred by {0}&W from accessing world {1}",
+                                                player.GetClassyName(), world.GetClassyName() );
+                            }
                             Logger.Log( "{0} added {1} to the access blacklist on world {2}", LogType.UserActivity,
                                         player.name, info.name, world.name );
                             changesWereMade = true;
                             break;
+
                         case PermissionOverride.Allow:
-                            player.Message( "{0}&S is no longer specially allowed in world {1}",
-                                            info.GetClassyName(), world.GetClassyName() );
+                            if( world.accessSecurity.Check( info ) ) {
+                                player.Message( "{0}&S is no longer on the access whitelist of {1}&S. " +
+                                                "Player is still allowed to join (by rank).",
+                                                info.GetClassyName(), world.GetClassyName() );
+                                if( target != null ) {
+                                    target.Message( "You were removed from the access whitelist of world {0}&S by {1}&S. " +
+                                                    "You are still allowed to join (by rank).",
+                                                    player.GetClassyName(), world.GetClassyName() );
+                                }
+                            } else {
+                                player.Message( "{0}&S is no longer allowed to access {1}",
+                                                info.GetClassyName(), world.GetClassyName() );
+                                if( target != null ) {
+                                    target.Message( "&WYou can no longer access world {0}&W (removed from whitelist by {1}&W).",
+                                                    world.GetClassyName(), player.GetClassyName() );
+                                }
+                            }
                             Logger.Log( "{0} removed {1} from the access whitelist on world {2}", LogType.UserActivity,
                                         player.name, info.name, world.name );
                             changesWereMade = true;
@@ -466,11 +513,13 @@ namespace fCraft {
                     Rank rank = RankList.FindRank( name );
                     if( rank == null ) {
                         player.NoRankMessage( name );
+
                     } else if( !player.info.rank.AllowSecurityCircumvention &&
                                world.accessSecurity.minRank > rank &&
                                world.accessSecurity.minRank > player.info.rank ) {
-                        player.Message( "Cannot lower access permission for world {0}&S: Must be {1}+",
-                                        world.GetClassyName(), world.accessSecurity.minRank.GetClassyName() );
+                        player.Message( "&WYou must be ranked {1}&W+ to lower the access rank for world {0}",
+                                        world.accessSecurity.minRank.GetClassyName(), world.GetClassyName() );
+
                     } else {
                         // list players who are redundantly blacklisted
                         SecurityController.PlayerListCollection lists = world.accessSecurity.exceptionList;
@@ -480,9 +529,11 @@ namespace fCraft {
                                 noLongerExcluded.Add( excludedPlayer );
                             }
                         }
-                        player.Message( "These players no longer need to be blacklisted on {0}&S: {1}",
-                                        world.GetClassyName(),
-                                        PlayerInfo.PlayerInfoArrayToString( noLongerExcluded.ToArray() ) );
+                        if( noLongerExcluded.Count > 0 ) {
+                            player.Message( "Following players no longer need to be blacklisted to be barred from {0}&S: {1}",
+                                            world.GetClassyName(),
+                                            PlayerInfo.PlayerInfoArrayToString( noLongerExcluded.ToArray() ) );
+                        }
 
                         // list players who are redundantly whitelisted
                         List<PlayerInfo> noLongerIncluded = new List<PlayerInfo>();
@@ -491,21 +542,24 @@ namespace fCraft {
                                 noLongerExcluded.Add( includedPlayer );
                             }
                         }
-                        player.Message( "Following players no longer need to be whitelisted on {0}&S: {1}",
-                                        world.GetClassyName(),
-                                        PlayerInfo.PlayerInfoArrayToString( noLongerIncluded.ToArray() ) );
+                        if( noLongerIncluded.Count > 0 ) {
+                            player.Message( "Following players no longer need to be whitelisted to access {0}&S: {1}",
+                                            world.GetClassyName(),
+                                            PlayerInfo.PlayerInfoArrayToString( noLongerIncluded.ToArray() ) );
+                        }
 
                         // apply changes
                         world.accessSecurity.minRank = rank;
                         changesWereMade = true;
                         if( world.accessSecurity.minRank == RankList.LowestRank ) {
-                            Server.SendToAll( "{0}&S made the world {1}&S accessible to anyone.",
+                            Server.SendToAll( "{0}&S made the world {1}&S accessible to everyone.",
                                               player.GetClassyName(), world.GetClassyName() );
                         } else {
-                            Server.SendToAll( "{0}&S made the world {1}&S accessible only to {2}+",
-                                              player.GetClassyName(), world.GetClassyName(), world.accessSecurity.minRank.GetClassyName() );
+                            Server.SendToAll( "{0}&S made the world {1}&S accessible only by {2}+",
+                                              player.GetClassyName(), world.GetClassyName(),
+                                              world.accessSecurity.minRank.GetClassyName() );
                         }
-                        Logger.Log( "{0} made the world \"{1}\" accessible to {2}+", LogType.UserActivity,
+                        Logger.Log( "{0} set access rank for world {1} to {2}+", LogType.UserActivity,
                                     player.name, world.name, world.accessSecurity.minRank.Name );
                     }
                 }
@@ -514,11 +568,10 @@ namespace fCraft {
             if( changesWereMade ) {
                 Server.SaveWorldList();
             }
-            
         }
 
 
-        static void PrintWorldSecurityInfo( Player player, World world, SecurityController controller, string verb ) {
+        public static void PrintWorldSecurityInfo( Player player, World world, SecurityController controller, string verb ) {
             SecurityController.PlayerListCollection list = controller.exceptionList;
 
             StringBuilder message = new StringBuilder();
@@ -566,7 +619,7 @@ namespace fCraft {
                 if( player == Player.Console ) {
                     player.Message( "When calling /wbuild from console, you must specify a world name." );
                 } else {
-                    PrintWorldSecurityInfo( player, player.world, player.world.buildSecurity, "edited" );
+                    PrintWorldSecurityInfo( player, player.world, player.world.buildSecurity, "modified" );
                 }
                 return;
             }
@@ -581,7 +634,7 @@ namespace fCraft {
             do {
                 name = cmd.Next();
                 if( name == null ) {
-                    PrintWorldSecurityInfo( player, world, world.buildSecurity, "edited" );
+                    PrintWorldSecurityInfo( player, world, world.buildSecurity, "modified" );
                     return;
 
                 } else if( name.Length < 2 ) {
@@ -635,11 +688,11 @@ namespace fCraft {
                                 }
                             } else {
                                 player.Message( "{0}&S was removed from the build blacklist of {1}&S. " +
-                                                "Player is still not allowed to build (by rank).",
+                                                "Player is still NOT allowed to build (by rank).",
                                                 info.GetClassyName(), world.GetClassyName() );
                                 if( target != null ) {
                                     target.Message( "You were removed from the build blacklist of world {0}&S by {1}&S. " +
-                                                    "You are still not allowed to build (by rank).",
+                                                    "You are still NOT allowed to build (by rank).",
                                                     player.GetClassyName(), world.GetClassyName() );
                                 }
                             }
@@ -773,11 +826,10 @@ namespace fCraft {
                             Server.SendToAll( "{0}&S allowed anyone to build on world {1}",
                                               player.GetClassyName(), world.GetClassyName() );
                         } else {
-                            Server.SendToAll( "{0}&S set build permission for world {1}&S to {2}+",
-                                              player.GetClassyName(), world.GetClassyName(),
-                                              world.buildSecurity.minRank.GetClassyName() );
+                            Server.SendToAll( "{0}&S allowed only {1}+&S to build in world {2}",
+                                              player.GetClassyName(), world.buildSecurity.minRank.GetClassyName(), world.GetClassyName());
                         }
-                        Logger.Log( "{0} set build permission for world {1} to {2}+", LogType.UserActivity,
+                        Logger.Log( "{0} set build rank for world {1} to {2}+", LogType.UserActivity,
                                     player.name, world.name, world.buildSecurity.minRank.Name );
                     }
                 }

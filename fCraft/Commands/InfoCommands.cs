@@ -262,22 +262,8 @@ namespace fCraft {
             }
 
             // Print access/build limits
-            if( world.accessSecurity.minRank == RankList.LowestRank && world.buildSecurity.minRank == RankList.LowestRank ) {
-                player.Message( "Anyone can join or build in {0}", world.GetClassyName() );
-            } else {
-                if( world.accessSecurity.minRank != RankList.LowestRank ) {
-                    player.Message( "Requires players to be ranked {0}+&S to join.",
-                                    world.accessSecurity.minRank.GetClassyName() );
-                } else {
-                    player.Message( "Anyone can join {0}", world.GetClassyName() );
-                }
-                if( world.buildSecurity.minRank != RankList.LowestRank ) {
-                    player.Message( "Requires players to be ranked {0}+&S to build.",
-                                    world.buildSecurity.minRank.GetClassyName() );
-                } else {
-                    player.Message( "Anyone can build in {0}", world.GetClassyName() );
-                }
-            }
+            WorldCommands.PrintWorldSecurityInfo( player, world, world.accessSecurity, "accessed" );
+            WorldCommands.PrintWorldSecurityInfo( player, world, world.buildSecurity, "modified" );
 
             // Print lock/unlock information
             if( world.isLocked ) {
