@@ -297,12 +297,12 @@ namespace fCraft {
                 } else {
                     info = PlayerDB.AddFakeEntry( nameOrIP, RankChangeType.Default );
                     info.ProcessBan( player, reason ); // this will never return false (player could not have been banned already)
-                    Server.FirePlayerBannedEvent( target.info, player, reason );
+                    Server.FirePlayerBannedEvent( info, player, reason );
                     player.Message( "Player \"{0}\" (unrecognized) was banned.", nameOrIP );
                     Logger.Log( "{0} (unrecognized) was banned by {1}", LogType.UserActivity,
-                                info.name, player.GetClassyName() );
+                                info.name, player.name );
                     Server.SendToAll( "{0}&W (unrecognized) was banned by {1}",
-                                      info.name, player.GetClassyName() );
+                                      info.GetClassyName(), player.GetClassyName() );
 
                     if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
                         Server.SendToAll( "&WBan reason: {0}", reason );
@@ -1225,17 +1225,17 @@ namespace fCraft {
                         player.Send( PacketWriter.MakeSelfTeleport( target.pos ) );
 
                     } else {
-                        switch( target.world.accessSecurity.CanUseDetailed( player.info ) ) {
-                            case PermissionType.Allowed:
-                            case PermissionType.WhiteListed:
+                        switch( target.world.accessSecurity.CheckDetailed( player.info ) ) {
+                            case SecurityCheckResult.Allowed:
+                            case SecurityCheckResult.WhiteListed:
                                 player.session.JoinWorld( target.world, target.pos );
                                 break;
-                            case PermissionType.BlackListed:
+                            case SecurityCheckResult.BlackListed:
                                 player.Message( "Cannot teleport to {0}&S because you are blacklisted on world {1}",
                                                 target.GetClassyName(),
                                                 target.world.GetClassyName() );
                                 break;
-                            case PermissionType.RankTooLow:
+                            case SecurityCheckResult.RankTooLow:
                                 player.Message( "Cannot teleport to {0}&S because world {1}&S requires {1}+&S to join.",
                                                 target.GetClassyName(),
                                                 target.world.GetClassyName(),
@@ -1298,17 +1298,17 @@ namespace fCraft {
                 }
 
             } else {
-                switch( toPlayer.world.accessSecurity.CanUseDetailed( target.info ) ) {
-                    case PermissionType.Allowed:
-                    case PermissionType.WhiteListed:
+                switch( toPlayer.world.accessSecurity.CheckDetailed( target.info ) ) {
+                    case SecurityCheckResult.Allowed:
+                    case SecurityCheckResult.WhiteListed:
                         target.session.JoinWorld( toPlayer.world, toPlayer.pos );
                         break;
-                    case PermissionType.BlackListed:
+                    case SecurityCheckResult.BlackListed:
                         player.Message( "Cannot bring {0}&S because you are blacklisted on world {1}",
                                         target.GetClassyName(),
                                         toPlayer.world.GetClassyName() );
                         break;
-                    case PermissionType.RankTooLow:
+                    case SecurityCheckResult.RankTooLow:
                         player.Message( "Cannot bring {0}&S because world {1}&S requires {1}+&S to join.",
                                         target.GetClassyName(),
                                         toPlayer.world.GetClassyName(),
