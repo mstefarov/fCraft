@@ -531,12 +531,12 @@ namespace fCraft {
                     break;
 
                 case CanPlaceResult.WorldDenied:
-                    switch( world.buildSecurity.CanUseDetailed( info ) ) {
-                        case PermissionType.RankTooLow:
-                        case PermissionType.RankTooHigh:
+                    switch( world.buildSecurity.CheckDetailed( info ) ) {
+                        case SecurityCheckResult.RankTooLow:
+                        case SecurityCheckResult.RankTooHigh:
                             Message( "&WYour rank is not allowed to build in this world." );
                             break;
-                        case PermissionType.BlackListed:
+                        case SecurityCheckResult.BlackListed:
                             Message( "&WYou are not allowed to build in this world." );
                             break;
                     }
@@ -629,7 +629,7 @@ namespace fCraft {
 
         public bool CanJoin( World world ) {
             if( this == Console ) return true;
-            return world.accessSecurity.CanUse( info );
+            return world.accessSecurity.Check( info );
         }
 
 
@@ -656,8 +656,8 @@ namespace fCraft {
             }
 
             // Check world permissions
-            switch( world.buildSecurity.CanUseDetailed( info ) ) {
-                case PermissionType.Allowed:
+            switch( world.buildSecurity.CheckDetailed( info ) ) {
+                case SecurityCheckResult.Allowed:
                     // Check rank permissions
                     if( (Can( Permission.Build ) || drawBlock == (byte)Block.Air) &&
                         (Can( Permission.Delete ) || block == (byte)Block.Air) ) {
@@ -665,7 +665,7 @@ namespace fCraft {
                     } else {
                         return CanPlaceResult.RankDenied;
                     }
-                case PermissionType.WhiteListed:
+                case SecurityCheckResult.WhiteListed:
                     return CanPlaceResult.Allowed;
                 default:
                     return CanPlaceResult.WorldDenied;

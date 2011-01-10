@@ -14,7 +14,7 @@ namespace fCraft {
     }
 
 
-    public enum PermissionType {
+    public enum SecurityCheckResult {
         Allowed,
         RankTooLow,
         RankTooHigh,
@@ -110,7 +110,7 @@ namespace fCraft {
             }
         }
 
-        public bool CanUse( PlayerInfo info ) {
+        public bool Check( PlayerInfo info ) {
             PlayerListCollection listCache = exceptionList;
             for( int i = 0; i < listCache.excluded.Length; i++ ) {
                 if( info == listCache.excluded[i] ) return false;
@@ -126,22 +126,22 @@ namespace fCraft {
         }
 
 
-        public PermissionType CanUseDetailed( PlayerInfo info ) {
+        public SecurityCheckResult CheckDetailed( PlayerInfo info ) {
             PlayerListCollection listCache = exceptionList;
             for( int i = 0; i < listCache.excluded.Length; i++ ) {
                 if( info == listCache.excluded[i] )
-                    return PermissionType.BlackListed;
+                    return SecurityCheckResult.BlackListed;
             }
 
             if( info.rank >= minRank /*&& player.info.rank <= maxRank*/ ) // TODO: implement maxrank
-                return PermissionType.Allowed;
+                return SecurityCheckResult.Allowed;
 
             for( int i = 0; i < listCache.included.Length; i++ ) {
                 if( info == listCache.included[i] )
-                    return PermissionType.WhiteListed;
+                    return SecurityCheckResult.WhiteListed;
             }
 
-            return PermissionType.RankTooLow;
+            return SecurityCheckResult.RankTooLow;
         }
 
 
