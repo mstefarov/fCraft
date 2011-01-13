@@ -9,7 +9,7 @@ namespace fCraft {
     /// <summary>
     /// Generic callback method with one param/arg, used by both Server.MainLoop and BackgroundTasks
     /// </summary>
-    /// <param name="param"></param>
+    /// <param name="param">Object passed to the callback (can be null)</param>
     public delegate void TaskCallback( object param );
 
 

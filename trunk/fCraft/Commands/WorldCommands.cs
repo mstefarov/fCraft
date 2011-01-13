@@ -341,7 +341,7 @@ namespace fCraft {
                 if( player == Player.Console ) {
                     player.Message( "When calling /waccess from console, you must specify a world name." );
                 } else {
-                    PrintWorldSecurityInfo( player, player.world, player.world.accessSecurity, "accessed" );
+                    player.world.accessSecurity.PrintDescription( player, player.world, "world", "accessed" );
                 }
                 return;
             }
@@ -356,7 +356,7 @@ namespace fCraft {
             do {
                 name = cmd.Next();
                 if( name == null ) {
-                    PrintWorldSecurityInfo( player, world, world.accessSecurity, "accessed" );
+                    world.accessSecurity.PrintDescription( player, world, "world", "accessed" );
                     return;
 
                 } else if( world == Server.mainWorld ) {
@@ -571,35 +571,6 @@ namespace fCraft {
         }
 
 
-        public static void PrintWorldSecurityInfo( Player player, World world, SecurityController controller, string verb ) {
-            SecurityController.PlayerListCollection list = controller.exceptionList;
-
-            StringBuilder message = new StringBuilder();
-
-            if( controller.minRank == RankList.LowestRank ) {
-                message.AppendFormat( "World {0}&S can be {1} by anyone",
-                                      world.GetClassyName(), verb );
-
-            } else {
-                message.AppendFormat( "World {0}&S can only be {1} by {2}+&S",
-                                      world.GetClassyName(),
-                                      verb,
-                                      controller.minRank.GetClassyName() );
-            }
-
-            if( list.included.Length > 0 ) {
-                message.AppendFormat( " and {0}&S", PlayerInfo.PlayerInfoArrayToString( list.included ) );
-            }
-
-            if( list.excluded.Length > 0 ) {
-                message.AppendFormat( ", except {0}", PlayerInfo.PlayerInfoArrayToString( list.excluded ) );
-            }
-
-            message.Append( '.' );
-            player.Message( message.ToString() );
-        }
-
-
         static CommandDescriptor cdWorldBuild = new CommandDescriptor {
             name = "wbuild",
             consoleSafe = true,
@@ -619,7 +590,7 @@ namespace fCraft {
                 if( player == Player.Console ) {
                     player.Message( "When calling /wbuild from console, you must specify a world name." );
                 } else {
-                    PrintWorldSecurityInfo( player, player.world, player.world.buildSecurity, "modified" );
+                    player.world.buildSecurity.PrintDescription( player, player.world, "world", "modified" );
                 }
                 return;
             }
@@ -634,7 +605,7 @@ namespace fCraft {
             do {
                 name = cmd.Next();
                 if( name == null ) {
-                    PrintWorldSecurityInfo( player, world, world.buildSecurity, "modified" );
+                    world.buildSecurity.PrintDescription( player, world, "world", "modified" );
                     return;
 
                 } else if( name.Length < 2 ) {
@@ -1170,6 +1141,17 @@ namespace fCraft {
                 cmd.Rewind();
                 cmd.Next();
                 cmd.Next();
+            }
+
+            if( !Map.IsValidDimension( wx ) ) {
+                player.Message( "Cannot make map with width {0}: dimensions must be multiples of 16.", wx );
+                return;
+            } else if( !Map.IsValidDimension( wy ) ) {
+                player.Message( "Cannot make map with length {0}: dimensions must be multiples of 16.", wy );
+                return;
+            } else if( !Map.IsValidDimension( height ) ) {
+                player.Message( "Cannot make map with height {0}: dimensions must be multiples of 16.", height );
+                return;
             }
 
             string fileName = cmd.Next();

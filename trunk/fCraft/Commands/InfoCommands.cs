@@ -262,8 +262,8 @@ namespace fCraft {
             }
 
             // Print access/build limits
-            WorldCommands.PrintWorldSecurityInfo( player, world, world.accessSecurity, "accessed" );
-            WorldCommands.PrintWorldSecurityInfo( player, world, world.buildSecurity, "modified" );
+            world.accessSecurity.PrintDescription( player, world, "world", "accessed" );
+            world.buildSecurity.PrintDescription( player, world, "world", "modified" );
 
             // Print lock/unlock information
             if( world.isLocked ) {

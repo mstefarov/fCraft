@@ -3,29 +3,36 @@
 
 namespace fCraft {
     public enum LeaveReason {
-        Unknown = 0,
-        UserQuit = 1,
-        UserTimeout = 2,
-        Error = 3,
-        Kick = 4,
-        AFKKick = 5,
-        AntiGriefKick = 6,
-        InvalidMessageKick = 7,
-        InvalidSetTileKick = 8,
-        InvalidOpcodeKick = 9,
-        AntiBlockSpamKick = 10,
-        AntiMessageSpamKick = 11,
-        PacketSpamKick = 12,
-        Ban = 13,
-        BanIP = 14,
-        BanAll = 15,
-        ServerShutdown = 16
+        Unknown = 0x00,
+        UserQuit = 0x01,
+        UserTimeout = 0x02,
+        UserReconnect = 0x03,
+
+        Kick = 0x10,
+        AFKKick = 0x11,
+        InvalidMessageKick = 0x12,
+        InvalidSetTileKick = 0x13,
+        InvalidOpcodeKick = 0x14,
+        AntiBlockSpamKick = 0x15,
+        AntiMessageSpamKick = 0x16,
+        PacketSpamKick = 0x17,
+
+        Ban = 0x20,
+        BanIP = 0x21,
+        BanAll = 0x22,
+
+        SoftwareError = 0x30,
+
+        ServerShutdown = 0x40,
+        WrongProtocol = 0x41,
+        UnverifiedName = 0x42,
     }
 
-    // Used to distinguish actual players from special cases
-    // real PlayerDB IDs start at 256
 
-
+    /// <summary>
+    /// Used to distinguish actual players from special-purpose entities/states.
+    /// Real PlayerDB IDs start at 256
+    /// </summary>
     public enum ReservedPlayerID {
         None = 0, // no one (certain) - initial state for generated maps
         Unknown = 1, // unknown (uncertain) - initial state for imported maps

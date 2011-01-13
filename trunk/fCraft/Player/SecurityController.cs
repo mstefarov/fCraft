@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using System.Text;
 
 
 namespace fCraft {
@@ -188,5 +189,34 @@ namespace fCraft {
         }
 
         #endregion
+
+        public void PrintDescription( Player player, IClassy world, string noun, string verb ) {
+            SecurityController.PlayerListCollection list = exceptionList;
+
+            noun = Char.ToUpper( noun[0] ) + noun.Substring( 1 ); // capitalize first letter
+
+            StringBuilder message = new StringBuilder();
+
+            if( minRank == RankList.LowestRank ) {
+                message.AppendFormat( "{0} {1}&S can be {2} by anyone",
+                                      noun, world.GetClassyName(), verb );
+
+            } else {
+                message.AppendFormat( "{0} {1}&S can only be {2} by {3}+&S",
+                                      noun, world.GetClassyName(),
+                                      verb, minRank.GetClassyName() );
+            }
+
+            if( list.included.Length > 0 ) {
+                message.AppendFormat( " and {0}&S", PlayerInfo.PlayerInfoArrayToString( list.included ) );
+            }
+
+            if( list.excluded.Length > 0 ) {
+                message.AppendFormat( ", except {0}", PlayerInfo.PlayerInfoArrayToString( list.excluded ) );
+            }
+
+            message.Append( '.' );
+            player.Message( message.ToString() );
+        }
     }
 }
