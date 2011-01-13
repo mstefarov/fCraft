@@ -31,9 +31,11 @@ namespace fCraft {
         Ban,
         BanIP,
         BanAll,
+        //MakeBanExceptions,
 
         Promote,
         Demote,
+
         Hide,         // go invisible!
         //Spectate,   // spectate others
 

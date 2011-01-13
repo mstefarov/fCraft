@@ -66,8 +66,9 @@ namespace fCraft {
         public LeaveReason leaveReason; // TODO
 
 
-        // === Serialization & Defaults =======================================
-        // fabricate info for a player
+        #region Constructors and Serialization
+
+        // fabricate info for an unrecognized player
         public PlayerInfo( string _name, Rank _rank, bool setLoginDate, RankChangeType _rankChangeType ) {
             name = _name;
             rank = _rank;
@@ -81,7 +82,7 @@ namespace fCraft {
         }
 
 
-        // generate info for a new player
+        // generate blank info for a new player
         public PlayerInfo( Player player ) {
             name = player.name;
             lastIP = player.session.GetIP();
@@ -210,6 +211,7 @@ namespace fCraft {
             }
         }
 
+
         // save to file
         public string Serialize() {
             string[] fields = new string[ExpectedFieldCount];
@@ -301,10 +303,11 @@ namespace fCraft {
             return String.Join( ",", fields );
         }
 
+        #endregion
 
-        // === Updating =======================================================
 
-        // update information
+        #region Update Handlers
+
         public void ProcessLogin( Player player ) {
             lastIP = player.session.GetIP();
             lastLoginDate = DateTime.Now;
@@ -388,16 +391,20 @@ namespace fCraft {
             else lastKickReason = "";
         }
 
+        #endregion
 
-        // === Utils ==========================================================
+
+        #region Utilities
 
         public static string Escape( string str ) {
             return str.Replace( "\\", "\\\\" ).Replace( "'", "\\'" ).Replace( ',', '\xFF' );
         }
 
+
         public static string Unescape( string str ) {
             return str.Replace( '\xFF', ',' ).Replace( "\\'", "'" ).Replace( "\\\\", "\\" );
         }
+
 
         // implements IClassy interface
         public string GetClassyName() {
@@ -428,5 +435,7 @@ namespace fCraft {
             }
             return sb.ToString();
         }
+
+        #endregion
     }
 }

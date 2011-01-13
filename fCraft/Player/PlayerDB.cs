@@ -31,7 +31,7 @@ namespace fCraft {
                                      "timesKicked,timesKickedOthers,timesBannedOthers,UID,rankChangeType," +
                                      "lastKickDate,LastSeen,BlocksDrawn,lastKickBy,lastKickReason," +
                                      "bannedUntil,loggedOutFrozen,frozenBy,"+
-                                     "mutedUntil,mutedBy,IRCPassword,online";
+                                     "mutedUntil,mutedBy,IRCPassword,online,leaveReason";
 
 
         static object locker = new object();
