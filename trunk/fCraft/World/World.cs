@@ -33,8 +33,6 @@ namespace fCraft {
                         mapLock = new object(),
                         lockLock = new object();
 
-        internal int updateTaskId = -1, saveTaskId = -1, backupTaskId = -1;
-
 
         public World( string _name ) {
             name = _name;
@@ -45,10 +43,8 @@ namespace fCraft {
 
         // Prepare for shutdown
         public void Shutdown() {
-            lock( mapLock ) {
-                if( Config.GetBool( ConfigKey.SaveOnShutdown ) && map != null ) {
-                    SaveMap( null );
-                }
+            if( Config.GetBool( ConfigKey.SaveOnShutdown ) ) {
+                SaveMap();
             }
         }
 
@@ -73,7 +69,7 @@ namespace fCraft {
                     MapGenerator.GenerateFlatgrass( map );
                     map.ResetSpawn();
 
-                    SaveMap( null );
+                    SaveMap();
                 }
 
                 if( OnLoaded != null ) OnLoaded();
@@ -84,7 +80,7 @@ namespace fCraft {
         public void UnloadMap() {
             Map thisMap = map;
             lock( mapLock ) {
-                SaveMap( null );
+                SaveMap();
                 map = null;
                 pendingUnload = false;
                 if( OnUnloaded != null ) OnUnloaded();
@@ -100,7 +96,7 @@ namespace fCraft {
         }
 
 
-        public void SaveMap( object param ) {
+        public void SaveMap() {
             lock( mapLock ) {
                 if( map != null ) {
                     map.Save( GetMapName() );
@@ -503,6 +499,72 @@ namespace fCraft {
                 } else if( player.info.rank <= rankToPatrol ) {
                     AddPlayerForPatrol( player );
                 }
+            }
+        }
+
+        #endregion
+
+        #region Scheduled Tasks
+
+        public Scheduler.Task updateTask,
+                              saveTask,
+                              backupTask;
+
+        public void StopTasks() {
+            if( updateTask != null ) {
+                updateTask.Stop();
+                updateTask = null;
+            }
+            if( saveTask != null ) {
+                saveTask.Stop();
+                saveTask = null;
+            }
+            if( backupTask != null ) {
+                backupTask.Stop();
+                backupTask = null;
+            }
+        }
+
+        public void StartTasks() {
+            updateTask = Scheduler.AddTask( UpdateTask );
+            updateTask.RunForever( this,
+                                   TimeSpan.FromMilliseconds( Config.GetInt( ConfigKey.TickInterval ) ),
+                                   TimeSpan.Zero );
+
+            if( Config.GetInt( ConfigKey.SaveInterval ) > 0 ) {
+                saveTask = Scheduler.AddTask( SaveTask );
+                saveTask.RunForever( this,
+                                     TimeSpan.FromSeconds( Config.GetInt( ConfigKey.SaveInterval ) ),
+                                     TimeSpan.Zero );
+            }
+
+            if( Config.GetInt( ConfigKey.BackupInterval ) > 0 ) {
+                backupTask = Scheduler.AddTask( BackupTask );
+                TimeSpan interval = TimeSpan.FromMinutes( Config.GetInt( ConfigKey.BackupInterval ) );
+                backupTask.RunForever( this,
+                                       interval,
+                                       (Config.GetBool( ConfigKey.BackupOnStartup ) ? TimeSpan.Zero : interval) );
+            }
+        }
+
+        void UpdateTask( Scheduler.Task task ) {
+            Map tempMap = map;
+            if( tempMap != null ) {
+                tempMap.ProcessUpdates();
+            }
+        }
+
+        void BackupTask( Scheduler.Task task ) {
+            Map tempMap = map;
+            if( tempMap != null ) {
+                tempMap.SaveBackup( GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-ddTHH-mm}.fcm", name, DateTime.Now ), true );
+            }
+        }
+
+        void SaveTask( Scheduler.Task task ) {
+            Map tempMap = map;
+            if( tempMap != null && tempMap.changedSinceSave ) {
+                SaveMap();
             }
         }
 

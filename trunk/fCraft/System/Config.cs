@@ -98,7 +98,7 @@ namespace fCraft {
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 126;
+        public const int ConfigVersion = 127;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig";
         static Dictionary<ConfigKey, string> settings = new Dictionary<ConfigKey, string>();
