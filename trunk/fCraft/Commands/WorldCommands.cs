@@ -896,15 +896,7 @@ namespace fCraft {
                 return;
             }
 
-            Logger.Log( "Player {0} is attempting to load map \"{1}\"...", LogType.UserActivity,
-                        player.name, fileName );
             player.MessageNow( "Loading {0}...", fileName );
-
-            Map map = Map.Load( player.world, fileName );
-            if( map == null ) {
-                player.MessageNow( "Could not load specified file." );
-                return;
-            }
 
             if( !File.Exists( fileName ) && !Directory.Exists( fileName ) ) {
                 if( File.Exists( Path.Combine( Paths.MapPath, fileName ) ) ) {
@@ -926,6 +918,12 @@ namespace fCraft {
                     player.AskForConfirmation( cmd, "About to replace THIS MAP with \"{0}\".", fileName );
                     return;
                 }
+                Map map = Map.Load( player.world, fileName );
+                if( map == null ) {
+                    player.MessageNow( "Could not load specified file." );
+                    return;
+                }
+
                 // Loading to current world
                 player.world.ChangeMap( map );
                 player.world.SendToAllExcept( "{0}&S loaded a new map for this world.", player,
@@ -942,7 +940,6 @@ namespace fCraft {
                     return;
                 }
 
-
                 lock( Server.worldListLock ) {
                     World world = Server.FindWorldExact( worldName );
                     if( world != null ) {
@@ -950,6 +947,14 @@ namespace fCraft {
                             player.AskForConfirmation( cmd, "About to replace map for {0}&S with \"{1}\".", world.GetClassyName(), fileName );
                             return;
                         }
+
+
+                        Map map = Map.Load( player.world, fileName );
+                        if( map == null ) {
+                            player.MessageNow( "Could not load specified file." );
+                            return;
+                        }
+
                         // Replacing existing world's map
                         world.ChangeMap( map );
                         world.SendToAllExcept( "{0}&S loaded a new map for the world {1}", player,
@@ -970,6 +975,12 @@ namespace fCraft {
                                     return;
                                 }
                             }
+                        }
+
+                        Map map = Map.Load( player.world, fileName );
+                        if( map == null ) {
+                            player.MessageNow( "Could not load specified file." );
+                            return;
                         }
 
                         // Adding a new world
