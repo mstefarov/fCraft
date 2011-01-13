@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Text;
 
 
 namespace fCraft {
@@ -45,7 +46,7 @@ namespace fCraft {
                         } else {
                             task.State = SchedulerTaskState.Running;
 #if DEBUG
-                            task.Callback(task);
+                            task.Callback( task );
 #else
                             try {
                                 task.Callback( task );
@@ -91,6 +92,7 @@ namespace fCraft {
 
         public static void AddTask( Task task ) {
             lock( taskListLock ) {
+                Logger.Log( "Scheduler.AddTask: Added {0}", LogType.Debug, task );
                 tasks.Add( task );
                 task.State = SchedulerTaskState.Waiting;
                 taskList = tasks.ToArray();
@@ -98,19 +100,20 @@ namespace fCraft {
         }
 
 
-        static void UpdateCache() {
+        public static void UpdateCache() {
             List<Task> newList = new List<Task>();
             List<Task> deletionList = new List<Task>();
             lock( taskListLock ) {
                 foreach( Task task in tasks ) {
                     if( task.IsFinished ) {
                         deletionList.Add( task );
-                    }else if( task.Enabled ){
+                    } else if( task.Enabled ) {
                         newList.Add( task );
                     }
                 }
                 foreach( Task task in deletionList ) {
                     tasks.Remove( task );
+                    Logger.Log( "Scheduler.UpdateCache: Removed {0}", LogType.Debug, task );
                 }
             }
             taskList = newList.ToArray();
@@ -118,7 +121,7 @@ namespace fCraft {
 
 
         public static Task AddTask( SchedulerCallback _callback ) {
-            return new Task( _callback,false );
+            return new Task( _callback, false );
         }
 
 
@@ -136,6 +139,14 @@ namespace fCraft {
             }
         }
 
+
+        public static void PrintTasks( Player player ) {
+            lock( taskListLock ) {
+                foreach( Task task in tasks ) {
+                    player.Message( task.ToString() );
+                }
+            }
+        }
 
 
         public class Task {
@@ -267,6 +278,32 @@ namespace fCraft {
             public Task Stop() {
                 IsFinished = true;
                 return this;
+            }
+
+
+            public override string ToString() {
+                StringBuilder sb = new StringBuilder("Task(");
+
+                if( Callback.Target != null ) {
+                    sb.Append( Callback.Target ).Append( "::" );
+                }
+                sb.Append( Callback.Method ).Append( " @ " );
+
+                if( IsRecurring ) {
+                    sb.Append( Interval.ToCompactString() );
+                }
+                sb.Append( "+" ).Append( Delay.ToCompactString() );
+
+                if( UserState != null ) {
+                    sb.Append( " -> " );
+                    if( UserState is IClassy ) {
+                        sb.Append( (UserState as IClassy).GetClassyName() );
+                    } else {
+                        sb.Append( UserState );
+                    }
+                }
+                sb.Append( ')' );
+                return sb.ToString();
             }
         }
     }

@@ -276,10 +276,6 @@ namespace fCraft {
 
             if( Config.GetBool( ConfigKey.IRCBot ) ) IRC.Start();
 
-            Scheduler.AddTask( delegate( Scheduler.Task task ) {
-                Logger.Log( "I got scheduled!", LogType.SystemActivity );
-            } ).RunForever( TimeSpan.FromMilliseconds(500) );
-
             // fire OnStart event
             if( OnStart != null ) OnStart();
             return true;
@@ -573,6 +569,7 @@ namespace fCraft {
                 }
 
                 newWorld.UpdatePlayerList();
+                newWorld.StartTasks();
 
                 worlds.Add( name.ToLower(), newWorld );
 
@@ -684,6 +681,8 @@ namespace fCraft {
 
                 oldWorld.StopTasks();
                 newWorld.StopTasks();
+
+                Scheduler.UpdateCache();
 
                 newWorld.StartTasks();
             }

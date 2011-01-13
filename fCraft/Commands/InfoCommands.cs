@@ -41,8 +41,19 @@ namespace fCraft {
 
             CommandList.RegisterCommand( cdMeasure );
 
-
+            CommandList.RegisterCommand( cdTaskDebug );
         }
+
+
+        static CommandDescriptor cdTaskDebug = new CommandDescriptor {
+            name = "td",
+            consoleSafe = true,
+            help = "",
+            hidden = true,
+            handler = delegate( Player player, Command cmd ) {
+                Scheduler.PrintTasks( player );
+            }
+        };
 
 
         static CommandDescriptor cdIgnore = new CommandDescriptor {
