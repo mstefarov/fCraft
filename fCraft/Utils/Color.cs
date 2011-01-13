@@ -98,13 +98,8 @@ namespace fCraft {
         /// <summary> Gets color name for a string representation of a color. </summary>
         /// <param name="color"> Any parsable string representation of a color. </param>
         /// <returns> Lowercase color name </returns>
-        /// <exception cref="System.ArgumentException"> Thrown when color cannot be parsed </exception>
         public static string GetName( string color ) {
-            if( color != null && color.Length > 0 ) {
-                return GetName( Parse( color )[1] );
-            } else {
-                throw new ArgumentException( "Could not parse color.", "color" );
-            }
+            return GetName( Parse( color )[1] );
         }
 
 
@@ -136,8 +131,12 @@ namespace fCraft {
         /// <summary> Parses a string to a format readable by Minecraft clients. Can accept color names, colorcodes </summary>
         /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
         /// <returns> Two-character color string, readable by Minecraft client </returns>
+        /// <exception cref="System.ArgumentNullException"> Thrown when color is null </exception>
         /// <exception cref="System.ArgumentException"> Thrown when color cannot be parsed </exception>
         public static string Parse( string color ) {
+            if( color == null ) {
+                throw new ArgumentNullException( "color" );
+            }
             color = color.ToLower();
             if( color.Length == 2 && color[0] == '&' && IsValidColorCode( color[1] ) ) {
                 return color;

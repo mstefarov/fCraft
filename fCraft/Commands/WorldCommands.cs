@@ -944,7 +944,7 @@ namespace fCraft {
 
 
                 lock( Server.worldListLock ) {
-                    World world = Server.FindWorld( worldName );
+                    World world = Server.FindWorldExact( worldName );
                     if( world != null ) {
                         if( !cmd.confirmed ) {
                             player.AskForConfirmation( cmd, "About to replace map for {0}&S with \"{1}\".", world.GetClassyName(), fileName );
@@ -1020,7 +1020,7 @@ namespace fCraft {
                 World oldWorld = Server.FindWorldOrPrintMatches( player, oldName );
                 if( oldWorld == null ) return;
 
-                World newWorld = Server.FindWorld( newName );
+                World newWorld = Server.FindWorldExact( newName );
 
                 // the "oldWorld != newWorld" check allows changing capitalization without triggering "world already exists"
                 if( newWorld != null && oldWorld != newWorld ) {

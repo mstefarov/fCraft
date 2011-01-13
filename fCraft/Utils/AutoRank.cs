@@ -8,6 +8,19 @@ using System.Xml.Linq;
 
 namespace fCraft {
     public static class AutoRank {
+
+        static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
+        public static Scheduler.Task Task;
+
+        public static void SetAutoRankSetting( bool autoEnabled ) {
+            Task.Enabled = autoEnabled;
+        }
+
+        public static void TaskCallback( Scheduler.Task task){
+            AutoRankCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );
+        }
+
+
         const string AutoRankFile = "autorank.xml";
         static List<Criterion> criteria = new List<Criterion>();
 

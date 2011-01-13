@@ -16,26 +16,10 @@ using System.Xml.Linq;
 
 namespace fCraft {
     public static class Server {
+
         static string[] args = new string[0]; // saved to allow restarting with same params
-
-        // player list
-        static Dictionary<int, Player> players = new Dictionary<int, Player>();
-        internal static Player[] playerList;
-        static object playerListLock = new object();
-
-        // session list
-        static List<Session> sessions = new List<Session>();
-        static object sessionLock = new object();
-
-        // world list
-        public static SortedDictionary<string, World> worlds = new SortedDictionary<string, World>();
-        public static object worldListLock = new object();
-        public const string WorldListFileName = "worlds.xml";
-        public static World mainWorld;
-
-        // networking
-        static TcpListener listener;
-        public static IPAddress IP;
+        public static DateTime serverStart;
+        public static bool shuttingDown;
 
         public static int maxUploadSpeed,   // set by Config.ApplyConfig
                           packetsPerSecond, // set by Config.ApplyConfig
@@ -43,11 +27,18 @@ namespace fCraft {
                           MaxBlockUpdatesPerTick = 60000; // used when there are no players in a world
         internal static float ticksPerSecond;
 
-        const int MaxPortAttempts = 20;
 
+        // networking
+        static TcpListener listener;
+        public static IPAddress IP;
+
+        const int MaxPortAttempts = 20;
         public static int Port;
+
         public static string URL;
 
+
+        #region Initialization
 
         /// <summary>
         /// Reads command-line switches and sets up paths and logging.
@@ -161,9 +152,6 @@ namespace fCraft {
             GenerateSalt();
             if( !Config.Save( true ) ) return false;
 
-            // start the task thread
-            BackgroundTasks.Start();
-
             // load player DB
             PlayerDB.Load();
             IPBanList.Load();
@@ -237,58 +225,70 @@ namespace fCraft {
             }
 
             // list loaded worlds
-            string line = "All available worlds: ";
+            StringBuilder line = new StringBuilder("All available worlds: ");
             bool firstPrintedWorld = true;
             foreach( string worldName in Server.worlds.Keys ) {
                 if( !firstPrintedWorld ) {
-                    line += ", ";
+                    line.Append( ", " );
                 }
-                line += worldName;
+                line.Append( worldName );
                 firstPrintedWorld = false;
             }
-            Logger.Log( line, LogType.SystemActivity );
+            Logger.Log( line.ToString(), LogType.SystemActivity );
             Logger.Log( "Main world: {0}; default rank: {1}", LogType.SystemActivity,
                         mainWorld.name, RankList.DefaultRank.Name );
 
-            // Check for incoming connections 4 times per second
-            AddTask( CheckConnections, CheckConnectionsInterval );
 
-            // Check for idle people every 30 seconds
-            AddTask( CheckIdles, 30000 );
 
-            // Monitor CPU usage every 60 seconds
-            AddTask( MonitorProcessorUsage, CPUMonitorInterval );
+            // Check for incoming connections (every 250ms)
+            Scheduler.AddTask( CheckConnections ).RunForever( CheckConnectionsInterval );
 
-            AddTask( SavePlayerDB, PlayerDB.SaveInterval, null, 15000 );
+            // Check for idles (every 30s)
+            Scheduler.AddTask( CheckIdles ).RunForever( CheckIdlesInterval );
+
+            // Monitor CPU usage (every 30s)
+            Scheduler.AddTask( MonitorProcessorUsage ).RunForever( MonitorProcessorUsageInterval );
+
+            // Save PlayerDB in the background (every 60s)
+            Scheduler.AddBackgroundTask( PlayerDB.SaveTask ).RunForever( PlayerDB.SaveInterval, TimeSpan.FromSeconds( 15 ) );
 
             // Write out initial (empty) playerlist cache
             UpdatePlayerList();
 
+
+
             // apply AutoRank
             if( Config.GetBool( ConfigKey.AutoRankEnabled ) ) {
-                AddTask( AutoRankTick, AutoRankTickInterval, null, 30000 );
+                AutoRank.Task = Scheduler.AddBackgroundTask( AutoRank.TaskCallback );
             }
 
             // Announcements
             if( Config.GetInt( ConfigKey.AnnouncementInterval ) > 0 ) {
-                AddTask( ShowRandomAnnouncement, Config.GetInt( ConfigKey.AnnouncementInterval ) * 60000 );
+                Scheduler.AddTask( ShowRandomAnnouncement ).RunForever( TimeSpan.FromMinutes( Config.GetInt( ConfigKey.AnnouncementInterval ) ) );
             }
 
-            AddTask( DoGC, GCInterval, null, 45000 );
+            Scheduler.AddTask( DoGC ).RunForever( GCInterval, TimeSpan.FromSeconds( 45 ) );
 
             // start the main loop - server is now connectible
-            mainThread = new Thread( MainLoop );
-            mainThread.Start();
+            Scheduler.Start();
 
             Heartbeat.Start();
 
             if( Config.GetBool( ConfigKey.IRCBot ) ) IRC.Start();
+
+            Scheduler.AddTask( delegate( Scheduler.Task task ) {
+                Logger.Log( "I got scheduled!", LogType.SystemActivity );
+            } ).RunForever( TimeSpan.FromMilliseconds(500) );
 
             // fire OnStart event
             if( OnStart != null ) OnStart();
             return true;
         }
 
+        #endregion
+
+
+        #region Shutdown
 
         // shuts down the server and aborts threads
         // NOTE: Do not call from any of the usual threads (main, heartbeat, tasks).
@@ -314,14 +314,6 @@ namespace fCraft {
                     }
                 }
 
-                // kill the main thread
-                if( mainThread != null && mainThread.IsAlive ) {
-                    mainThread.Join( 5000 );
-                    if( mainThread.IsAlive ) {
-                        mainThread.Abort(); // temporary kludge until i find a real cause
-                    }
-                }
-
                 // stop accepting new players
                 if( listener != null ) {
                     listener.Stop();
@@ -334,9 +326,6 @@ namespace fCraft {
                 // kill IRC bot
                 IRC.Disconnect();
 
-                // kill background tasks
-                BackgroundTasks.Shutdown();
-
                 lock( worldListLock ) {
                     // unload all worlds (includes saving)
                     foreach( World world in worlds.Values ) {
@@ -346,6 +335,8 @@ namespace fCraft {
 
                 if( PlayerDB.isLoaded ) PlayerDB.Save();
                 if( IPBanList.isLoaded ) IPBanList.Save();
+
+                Scheduler.Shutdown();
 
                 if( OnShutdownEnd != null ) OnShutdownEnd();
 #if DEBUG
@@ -384,7 +375,15 @@ namespace fCraft {
             } );
         }
 
+        #endregion
+
+
         #region Worlds
+
+        public static SortedDictionary<string, World> worlds = new SortedDictionary<string, World>();
+        public static object worldListLock = new object();
+        public const string WorldListFileName = "worlds.xml";
+        public static World mainWorld;
 
         #region World List Saving/Loading
 
@@ -476,7 +475,7 @@ namespace fCraft {
             }
 
             if( (temp = root.Attribute( "main" )) != null ) {
-                mainWorld = FindWorld( temp.Value );
+                mainWorld = FindWorldExact( temp.Value );
                 // if specified main world does not exist, use first-defined world
                 if( mainWorld == null && firstWorld != null ) {
                     Logger.Log( "The specified main world \"{0}\" does not exist. " +
@@ -553,9 +552,9 @@ namespace fCraft {
         #endregion
 
         public static World AddWorld( string name, Map map, bool neverUnload ) {
+            if( !Player.IsValidName( name ) ) return null;
             lock( worldListLock ) {
                 if( worlds.ContainsKey( name ) ) return null;
-                if( !Player.IsValidName( name ) ) return null;
                 World newWorld = new World( name );
                 newWorld.neverUnload = neverUnload;
 
@@ -565,35 +564,23 @@ namespace fCraft {
                     if( !neverUnload ) {
                         newWorld.UnloadMap();// UnloadMap also saves the map
                     } else {
-                        newWorld.SaveMap( null );
+                        newWorld.SaveMap();
                     }
 
                 } else {
                     // generate default map
                     if( neverUnload ) newWorld.LoadMap();
                 }
-                worlds.Add( name.ToLower(), newWorld );
 
                 newWorld.UpdatePlayerList();
 
-                newWorld.updateTaskId = AddTask( UpdateBlocks, Config.GetInt( ConfigKey.TickInterval ), newWorld );
-
-                if( Config.GetInt( ConfigKey.SaveInterval ) > 0 ) {
-                    int saveInterval = Config.GetInt( ConfigKey.SaveInterval ) * 1000;
-                    newWorld.saveTaskId = AddTask( SaveMap, saveInterval, newWorld, saveInterval );
-                }
-
-                if( Config.GetInt( ConfigKey.BackupInterval ) > 0 ) {
-                    int backupInterval = Config.GetInt( ConfigKey.BackupInterval ) * 1000 * 60;
-                    newWorld.backupTaskId = AddTask( AutoBackup, backupInterval, newWorld, (Config.GetBool( ConfigKey.BackupOnStartup ) ? 0 : backupInterval) );
-                }
+                worlds.Add( name.ToLower(), newWorld );
 
                 return newWorld;
             }
         }
 
-
-        public static World FindWorld( string name ) {
+        public static World FindWorldExact( string name ) {
             if( name == null ) return null;
             lock( worldListLock ) {
                 if( worlds.ContainsKey( name.ToLower() ) ) {
@@ -644,7 +631,7 @@ namespace fCraft {
 
         public static bool RemoveWorld( string name ) {
             lock( worldListLock ) {
-                World worldToDelete = FindWorld( name );
+                World worldToDelete = FindWorldExact( name );
                 if( worldToDelete == null || worldToDelete == mainWorld ) {
                     return false;
                 } else {
@@ -653,15 +640,10 @@ namespace fCraft {
                     foreach( Player player in worldPlayerList ) {
                         player.session.JoinWorld( mainWorld, null );
                     }
-                    worldToDelete.SaveMap( null );
-                    lock( taskListLock ) {
-                        tasks.Remove( worldToDelete.updateTaskId );
-                        // If saveTaskId or backupTaskId were not defined, Remove does nothing
-                        // because default value for saveTaskId and backupTaskId is -1
-                        tasks.Remove( worldToDelete.saveTaskId );
-                        tasks.Remove( worldToDelete.backupTaskId );
-                        UpdateTaskListCache();
-                    }
+
+                    worldToDelete.StopTasks();
+                    worldToDelete.SaveMap();
+
                     worlds.Remove( name.ToLower() );
                     SaveWorldList();
                     return true;
@@ -673,8 +655,8 @@ namespace fCraft {
         // Note: no autocompletion
         public static bool RenameWorld( string oldName, string newName ) {
             lock( worldListLock ) {
-                World oldWorld = FindWorld( oldName );
-                World newWorld = FindWorld( newName );
+                World oldWorld = FindWorldExact( oldName );
+                World newWorld = FindWorldExact( newName );
                 if( oldWorld == null || (newWorld != null && newWorld != oldWorld) ) return false;
                 worlds.Remove( oldName.ToLower() );
                 oldWorld.name = newName;
@@ -686,7 +668,7 @@ namespace fCraft {
 
         public static bool ReplaceWorld( string name, World newWorld ) {
             lock( worldListLock ) {
-                World oldWorld = FindWorld( name );
+                World oldWorld = FindWorldExact( name );
                 if( oldWorld == null ) return false;
 
                 newWorld.name = oldWorld.name;
@@ -699,34 +681,13 @@ namespace fCraft {
 
                 // swap worlds
                 worlds[name.ToLower()] = newWorld;
-                lock( taskListLock ) {
-                    // removes tasks associated with the old world
-                    tasks.Remove( oldWorld.updateTaskId );
-                    tasks.Remove( oldWorld.saveTaskId );
-                    tasks.Remove( oldWorld.backupTaskId );
 
-                    // if the new world was previously associated with some tasks, remove the old one, and reregister
-                    tasks.Remove( newWorld.updateTaskId );
-                    tasks.Remove( newWorld.saveTaskId );
-                    tasks.Remove( newWorld.backupTaskId );
+                oldWorld.StopTasks();
+                newWorld.StopTasks();
 
-                    UpdateTaskListCache();
-                }
-
-                // adds tasks to the new world
-                newWorld.updateTaskId = AddTask( UpdateBlocks, Config.GetInt( ConfigKey.TickInterval ), newWorld );
-
-                if( Config.GetInt( ConfigKey.SaveInterval ) > 0 ) {
-                    int saveInterval = Config.GetInt( ConfigKey.SaveInterval ) * 1000;
-                    newWorld.saveTaskId = AddTask( SaveMap, saveInterval, newWorld, saveInterval );
-                }
-
-                if( Config.GetInt( ConfigKey.BackupInterval ) > 0 ) {
-                    int backupInterval = Config.GetInt( ConfigKey.BackupInterval ) * 1000 * 60;
-                    newWorld.backupTaskId = AddTask( AutoBackup, backupInterval, newWorld, (Config.GetBool( ConfigKey.BackupOnStartup ) ? 0 : backupInterval) );
-                }
-                return true;
+                newWorld.StartTasks();
             }
+            return true;
         }
 
 
@@ -951,62 +912,12 @@ namespace fCraft {
         #endregion
 
 
-        #region Scheduler
-
-        /// <summary>
-        /// Represents the state of a scheduled task, for Server.MainLoop
-        /// </summary>
-        sealed class ScheduledTask {
-            public DateTime nextTime;
-            public int interval;
-            public TaskCallback callback;
-            public object param;
-            public bool enabled = true;
-        }
-
-        static int taskIdCounter;
-        static Dictionary<int, ScheduledTask> tasks = new Dictionary<int, ScheduledTask>();
-        static ScheduledTask[] taskList;
-        static Thread mainThread;
-        public static DateTime serverStart;
-        public static bool shuttingDown;
-        static object taskListLock = new object();
-
-        internal static void MainLoop() {
-#if !DEBUG
-            try {
-#endif
-                ScheduledTask[] taskCache;
-                ScheduledTask task;
-                while( !shuttingDown ) {
-                    taskCache = taskList;
-                    for( int i = 0; i < taskCache.Length; i++ ) {
-                        task = taskCache[i];
-                        if( task.enabled && task.nextTime < DateTime.UtcNow ) {
-#if DEBUG
-                        task.callback( task.param );
-#else
-                            try {
-                                task.callback( task.param );
-                            } catch( Exception ex ) {
-                                Logger.LogAndReportCrash( "Exception was thrown by a scheduled task", "fCraft", ex );
-                            }
-#endif
-                            task.nextTime += TimeSpan.FromMilliseconds( task.interval );
-                        }
-                    }
-                    Thread.Sleep( 1 );
-                }
-#if !DEBUG
-            } catch( Exception ex ) {
-                Logger.LogAndReportCrash( "Fatal error in fCraft.Server main loop", "fCraft", ex );
-            }
-#endif
-        }
+        #region Scheduled Tasks
 
         // checks for incoming connections
-        const int CheckConnectionsInterval = 250;
-        internal static void CheckConnections( object param ) {
+        static readonly TimeSpan CheckConnectionsInterval = TimeSpan.FromMilliseconds( 250 );
+
+        internal static void CheckConnections( Scheduler.Task param ) {
             if( listener.Pending() ) {
                 try {
                     Session newSession = new Session( listener.AcceptTcpClient() );
@@ -1017,38 +928,9 @@ namespace fCraft {
             }
         }
 
-        const int AutoRankTickInterval = 60000; // 60 seconds
-        static void AutoRankTick( object param ) {
-            BackgroundTasks.Add( (TaskCallback)delegate( object innerParam ) {
-                AutoRankCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );
-            }, null );
-        }
 
-        static void AutoBackup( object param ) {
-            World world = (World)param;
-            if( world.map == null ) return;
-            world.map.SaveBackup( world.GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-ddTHH-mm}.fcm", world.name, DateTime.Now ), true );
-        }
-
-        static void SaveMap( object param ) {
-            World world = (World)param;
-            if( world.map == null ) return;
-            if( world.map.changedSinceSave ) {
-                BackgroundTasks.Add( world.SaveMap, null );
-            }
-        }
-
-        static void SavePlayerDB( object param ) {
-            BackgroundTasks.Add( (TaskCallback)delegate( object innerParam ) {
-                PlayerDB.Save();
-            }, null );
-        }
-
-        static void UpdateBlocks( object param ) {
-            World world = (World)param;
-            if( world.map == null ) return;
-            world.map.ProcessUpdates();
-        }
+        // checks for idle players
+        static readonly TimeSpan CheckIdlesInterval = TimeSpan.FromSeconds( 30 );
 
         static void CheckIdles( object param ) {
             Player[] tempPlayerList = playerList;
@@ -1065,58 +947,22 @@ namespace fCraft {
             }
         }
 
-        const int GCInterval = 60000;
+
+        // collects garbage (forced collection is necessary under Mono)
+        static readonly TimeSpan GCInterval = TimeSpan.FromSeconds( 60 );
+
         static void DoGC( object param ) {
             if( GCRequested ) {
                 GCRequested = false;
-                BackgroundTasks.Add( (TaskCallback)delegate( object innerParam ) {
-                    GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-                    Logger.Log( "Server.DoGC: Collected on schedule.", LogType.Debug );
-                }, null );
+                GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
+                Logger.Log( "Server.DoGC: Collected on schedule.", LogType.Debug );
             }
         }
 
 
-        internal static int AddTask( TaskCallback task, int interval ) {
-            return AddTask( task, interval, null, 0 );
-        }
-
-        internal static int AddTask( TaskCallback task, int interval, object param ) {
-            return AddTask( task, interval, param, 0 );
-        }
-
-        internal static int AddTask( TaskCallback task, int interval, object param, int delay ) {
-            ScheduledTask newTask = new ScheduledTask();
-            newTask.nextTime = DateTime.UtcNow.AddMilliseconds( delay );
-            newTask.callback = task;
-            newTask.interval = interval;
-            newTask.param = param;
-            lock( taskListLock ) {
-                tasks.Add( ++taskIdCounter, newTask );
-                UpdateTaskListCache();
-            }
-            return taskIdCounter;
-        }
-
-        internal static void TaskToggle( int id, bool enabled ) {
-            tasks[id].nextTime = DateTime.UtcNow;
-            tasks[id].enabled = enabled;
-            UpdateTaskListCache();
-        }
-
-        static void UpdateTaskListCache() {
-            List<ScheduledTask> tempTaskList = new List<ScheduledTask>();
-            lock( taskListLock ) {
-                foreach( ScheduledTask task in tasks.Values ) {
-                    if( task.enabled ) {
-                        tempTaskList.Add( task );
-                    }
-                }
-            }
-            taskList = tempTaskList.ToArray();
-        }
-
+        // shows announcements
         public const string AnnouncementsFile = "announcements.txt";
+
         static void ShowRandomAnnouncement( object param ) {
             if( File.Exists( AnnouncementsFile ) ) {
                 string[] lines = File.ReadAllLines( AnnouncementsFile );
@@ -1133,9 +979,12 @@ namespace fCraft {
         }
 
 
+        // measures CPU usage
         static TimeSpan oldCPUTime = new TimeSpan( 0 );
         public static float CPUUsageTotal, CPUUsageLastMinute;
         const int CPUMonitorInterval = 60000; // 1 minute
+        static readonly TimeSpan MonitorProcessorUsageInterval = TimeSpan.FromSeconds( 30 );
+
         public static void MonitorProcessorUsage( object param ) {
             TimeSpan newCPUTime = Process.GetCurrentProcess().TotalProcessorTime;
             CPUUsageLastMinute = (float)((newCPUTime - oldCPUTime).TotalMilliseconds / (Environment.ProcessorCount * CPUMonitorInterval));
@@ -1315,6 +1164,16 @@ namespace fCraft {
 
 
         #region PlayerList
+
+        // player list
+        static Dictionary<int, Player> players = new Dictionary<int, Player>();
+        internal static Player[] playerList;
+        static object playerListLock = new object();
+
+        // session list
+        static List<Session> sessions = new List<Session>();
+        static object sessionLock = new object();
+
 
         public static void KickGhostsAndRegisterSession( Session newSession ) {
             List<Session> sessionsToKick = new List<Session>();

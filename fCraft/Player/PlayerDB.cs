@@ -13,7 +13,7 @@ namespace fCraft {
         static StringTree tree = new StringTree();
         static List<PlayerInfo> list = new List<PlayerInfo>();
         public static PlayerInfo[] listCache;
-        public const int SaveInterval = 60000; // 60s
+        public static readonly TimeSpan SaveInterval = TimeSpan.FromSeconds( 60 );
 
         static int MaxID = 255;
 
@@ -52,8 +52,6 @@ namespace fCraft {
         #region Saving/Loading
 
         public static void Load() {
-
-
 
             if( File.Exists( DBFileName ) ) {
                 Stopwatch sw = Stopwatch.StartNew();
@@ -106,6 +104,10 @@ namespace fCraft {
             isLoaded = true;
         }
 
+
+        public static void SaveTask( Scheduler.Task task ) {
+            Save();
+        }
 
         public static void Save() {
             Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count() );
