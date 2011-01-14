@@ -12,9 +12,20 @@ namespace fCraft {
         static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
         public static Scheduler.Task Task;
 
-        public static void SetAutoRankSetting( bool autoEnabled ) {
-            Task.Enabled = autoEnabled;
+
+        public static void CheckAutoRankSetting() {
+            if( Config.GetBool( ConfigKey.AutoRankEnabled ) ) {
+                if( Task == null ) {
+                    Task = Scheduler.AddBackgroundTask( TaskCallback );
+                    Task.RunForever( TickInterval );
+                } else if( Task.IsStopped ) {
+                    Task.RunForever( TickInterval );
+                }
+            } else if( Task != null && !Task.IsStopped ) {
+                Task.Stop();
+            }
         }
+
 
         public static void TaskCallback( Scheduler.Task task){
             AutoRankCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );

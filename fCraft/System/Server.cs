@@ -252,22 +252,19 @@ namespace fCraft {
             // Save PlayerDB in the background (every 60s)
             Scheduler.AddBackgroundTask( PlayerDB.SaveTask ).RunForever( PlayerDB.SaveInterval, TimeSpan.FromSeconds( 15 ) );
 
-            // Write out initial (empty) playerlist cache
-            UpdatePlayerList();
-
-
-
             // apply AutoRank
-            if( Config.GetBool( ConfigKey.AutoRankEnabled ) ) {
-                AutoRank.Task = Scheduler.AddBackgroundTask( AutoRank.TaskCallback );
-            }
+            AutoRank.CheckAutoRankSetting();
 
             // Announcements
             if( Config.GetInt( ConfigKey.AnnouncementInterval ) > 0 ) {
                 Scheduler.AddTask( ShowRandomAnnouncement ).RunForever( TimeSpan.FromMinutes( Config.GetInt( ConfigKey.AnnouncementInterval ) ) );
             }
 
+            // garbage collection
             Scheduler.AddTask( DoGC ).RunForever( GCInterval, TimeSpan.FromSeconds( 45 ) );
+
+            // Write out initial (empty) playerlist cache
+            UpdatePlayerList();
 
             // start the main loop - server is now connectible
             Scheduler.Start();
