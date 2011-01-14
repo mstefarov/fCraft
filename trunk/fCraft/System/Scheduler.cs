@@ -33,7 +33,7 @@ namespace fCraft {
 
                 for( int i = 0; i < taskListCache.Length; i++ ) {
                     Task task = taskListCache[i];
-                    if( !task.IsFinished && task.NextTime <= ticksNow ) {
+                    if( !task.IsStopped && task.NextTime <= ticksNow ) {
 
                         if( task.IsRecurring && task.AdjustForExecutionTime ) {
                             task.NextTime = ticksNow;
@@ -44,21 +44,23 @@ namespace fCraft {
                                 backgroundTasks.Enqueue( task );
                             }
                         } else {
-                            task.State = SchedulerTaskState.Running;
+                            task.IsExecuting = true;
 #if DEBUG
                             task.Callback( task );
+                            task.IsExecuting = false;
 #else
                             try {
                                 task.Callback( task );
                             } catch( Exception ex ) {
                                 Logger.LogAndReportCrash( "Exception thrown by ScheduledTask callback", "fCraft", ex );
+                            } finally {
+                                task.IsExecuting = false;
                             }
 #endif
                         }
 
                         if( !task.IsRecurring || task.MaxRepeats == 1 ) {
-                            task.IsFinished = true;
-                            task.State = SchedulerTaskState.Finished;
+                            task.IsStopped = true;
                             continue;
                         }
                         task.MaxRepeats--;
@@ -66,7 +68,6 @@ namespace fCraft {
                         ticksNow = DateTime.UtcNow;
                         if( !task.AdjustForExecutionTime ) {
                             task.NextTime = ticksNow.Add( task.Interval );
-                            task.State = SchedulerTaskState.Waiting;
                         }
                     }
                 }
@@ -93,9 +94,9 @@ namespace fCraft {
         public static void AddTask( Task task ) {
             lock( taskListLock ) {
                 Logger.Log( "Scheduler.AddTask: Added {0}", LogType.Debug, task );
+                task.IsStopped = false;
                 tasks.Add( task );
-                task.State = SchedulerTaskState.Waiting;
-                taskList = tasks.ToArray();
+                UpdateCache();
             }
         }
 
@@ -105,9 +106,9 @@ namespace fCraft {
             List<Task> deletionList = new List<Task>();
             lock( taskListLock ) {
                 foreach( Task task in tasks ) {
-                    if( task.IsFinished ) {
+                    if( task.IsStopped ) {
                         deletionList.Add( task );
-                    } else if( task.Enabled ) {
+                    } else {
                         newList.Add( task );
                     }
                 }
@@ -158,34 +159,19 @@ namespace fCraft {
                 IsBackground = _isBackground;
             }
 
-            bool _enabled = true;
-            public bool Enabled {
-                get { return _enabled; }
-                set {
-                    if( _enabled == value ) {
-                        return;
-                    } else {
-                        _enabled = value;
-                        if( _enabled ) {
-                            UpdateCache();
-                        }
-                    }
-                }
-            }
-
             public DateTime NextTime;
             public TimeSpan Delay = TimeSpan.Zero;
 
             public bool IsRecurring = false;
             public bool IsBackground = false;
-            public bool IsFinished = false;
+            public bool IsStopped = false;
+            public bool IsExecuting = false;
             public bool AdjustForExecutionTime = false;
             public TimeSpan Interval = TimeSpan.FromMinutes( 1 );
             public int MaxRepeats = -1;
 
             public SchedulerCallback Callback;
             public object UserState;
-            public SchedulerTaskState State = SchedulerTaskState.NotAdded;
 
 
             #region Run Once
@@ -276,7 +262,7 @@ namespace fCraft {
 
 
             public Task Stop() {
-                IsFinished = true;
+                IsStopped = true;
                 return this;
             }
 
@@ -310,13 +296,4 @@ namespace fCraft {
 
 
     public delegate void SchedulerCallback( Scheduler.Task task );
-
-
-    public enum SchedulerTaskState {
-        NotAdded,
-        Waiting,
-        Running,
-        Disabled,
-        Finished
-    }
 }

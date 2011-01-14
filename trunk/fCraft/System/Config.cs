@@ -809,6 +809,8 @@ namespace fCraft {
                     Logger.Log( "Maps are stored at: {0}", LogType.SystemActivity, Paths.MapPath );
                 }
             }
+
+            AutoRank.CheckAutoRankSetting();
         }
 
 
