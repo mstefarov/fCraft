@@ -87,6 +87,7 @@ namespace fCraft {
         LowLatencyMode,
         SubmitCrashReports,
         MaxUndo,
+        ConsoleName,
 
         AutoRankEnabled,
         HeartbeatEnabled

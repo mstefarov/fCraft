@@ -9,7 +9,7 @@ namespace fCraft {
     /// </summary>
     sealed class StringTree {
         StringNode root;
-        int count;
+        public int Count { private set; get; }
 
         public const byte MULTI = 37, EMPTY=38;
 
@@ -19,8 +19,11 @@ namespace fCraft {
         }
 
 
-        // Get PlayerInfo for a specific name.
-        //     Returns null if name not found.
+        /// <summary>
+        /// Get PlayerInfo for an exact name (no autocompletion)
+        /// </summary>
+        /// <param name="name">Full player name</param>
+        /// <returns>PlayerInfo object, if found. Null if not found.</returns>
         public PlayerInfo Get( string name ) {
             StringNode temp = root;
             int code;
@@ -34,9 +37,12 @@ namespace fCraft {
         }
 
 
-        // Searches for players starting with namePart.
-        //     Returns false if more than one name matched.
-        //     Returns true and sets info to null if no names matched.
+        /// <summary>
+        /// Searches for players starting with namePart. Autocompletes.
+        /// </summary>
+        /// <param name="namePart">Partial or full player name</param>
+        /// <param name="limit">Limit on the number of player names to return</param>
+        /// <returns>List of matches (if there are no matches, length is zero)</returns>
         public List<PlayerInfo> GetMultiple( string namePart, int limit ) {
             List<PlayerInfo> results = new List<PlayerInfo>();
             StringNode temp = root;
@@ -69,9 +75,12 @@ namespace fCraft {
         }
 
 
-        // Searches for players starting with namePart.
-        //     Returns false if more than one name matched.
-        //     Returns true and sets info to null if no names matched.
+        /// <summary>
+        /// Searches for player names starting with namePart, returning just one or none of the matches.
+        /// </summary>
+        /// <param name="namePart">Partial or full player name</param>
+        /// <param name="info">PlayerInfo to output (will be set to null if no single match was found)</param>
+        /// <returns>true if one or zero matches were found, false if multiple matches were found</returns>
         public bool Get( string namePart, out PlayerInfo info ) {
             StringNode temp = root;
             int code;
@@ -97,7 +106,12 @@ namespace fCraft {
         }
 
 
-        // Adds a name to the tree.
+        /// <summary>
+        /// Adds a new player name to the trie.
+        /// </summary>
+        /// <param name="name">Full name (used as a key)</param>
+        /// <param name="payload">PlayerInfo associated with the name</param>
+        /// <returns>Returns false if an entry for this player already exists.</returns>
         public bool Add( string name, PlayerInfo payload ) {
             StringNode temp = root;
             int code;
@@ -116,14 +130,8 @@ namespace fCraft {
             if( temp.payload != null )
                 return false;
             temp.payload = payload;
-            count++;
+            Count++;
             return true;
-        }
-
-
-        // Returns the total number of leaves in the tree.
-        public int Count() {
-            return count;
         }
 
 

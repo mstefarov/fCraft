@@ -165,7 +165,7 @@ namespace fCraft {
             public bool IsBackground = false;
             public bool IsStopped = false;
             public bool IsExecuting = false;
-            public bool AdjustForExecutionTime = false;
+            public bool AdjustForExecutionTime = true;
             public TimeSpan Interval = TimeSpan.FromMinutes( 1 );
             public int MaxRepeats = -1;
 

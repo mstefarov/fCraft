@@ -5,7 +5,10 @@ using System.Text;
 
 
 namespace fCraft {
-    // Basic packet, essentially a byte array
+
+    /// <summary>
+    /// Basic struct, just a wrapper for a byte array
+    /// </summary>
     public struct Packet {
         public byte[] data;
         public Packet( int length ) {
@@ -14,6 +17,9 @@ namespace fCraft {
     }
 
 
+    /// <summary>
+    /// Minecraft protocol's opcodes for client-to-server (incoming) packets
+    /// </summary>
     public enum InputCode {
         Handshake = 0,
         Ping = 1,
@@ -23,6 +29,9 @@ namespace fCraft {
     };
 
 
+    /// <summary>
+    /// Minecraft protocol's opcodes for server-to-client (outgoing) packets
+    /// </summary>
     public enum OutputCode {
         Handshake = 0,
         Ping = 1,

@@ -23,12 +23,11 @@ namespace fCraft {
             CommandList.RegisterCommand( cdMe );
             CommandList.RegisterCommand( cdRoll );
 
-            CommandList.RegisterCommand( cdWorldInfo );
             CommandList.RegisterCommand( cdInfo );
             CommandList.RegisterCommand( cdBanInfo );
             CommandList.RegisterCommand( cdRankInfo );
 
-            CommandList.RegisterCommand( cdGetVersion );
+            CommandList.RegisterCommand( cdVersion );
             CommandList.RegisterCommand( cdRules );
             CommandList.RegisterCommand( cdHelp );
 
@@ -52,9 +51,12 @@ namespace fCraft {
             hidden = true,
             handler = delegate( Player player, Command cmd ) {
                 Scheduler.PrintTasks( player );
+                Scheduler.PrintTasks( Player.Console );
             }
         };
 
+
+        #region Ignore
 
         static CommandDescriptor cdIgnore = new CommandDescriptor {
             name = "ignore",
@@ -138,321 +140,10 @@ namespace fCraft {
             }
         }
 
-
-        static CommandDescriptor cdMe = new CommandDescriptor {
-            name = "me",
-            consoleSafe = true,
-            usage = "/me Message",
-            help = "Sends IRC-style action message prefixed with your name.",
-            handler = Me
-        };
-
-        internal static void Me( Player player, Command cmd ) {
-            if( player.IsMuted() ) {
-                player.MutedMessage();
-                return;
-            }
-
-            string msg = cmd.NextAll().Trim();
-            if( msg != null ) {
-                player.info.linesWritten++;
-                string message = String.Format( "{0}*{1} {2}", Color.Me, player.name, msg );
-                Server.SendToAll( message );
-                IRC.SendChannelMessage( message );
-            }
-        }
+        #endregion
 
 
-
-        static CommandDescriptor cdRoll = new CommandDescriptor {
-            name = "roll",
-            consoleSafe = true,
-            help = "Gives random number between 1 and 100.&N" +
-                   "&H/roll MaxNumber&N" +
-                   "Gives number between 1 and max.&N" +
-                   "&H/roll MinNumber MaxNumber&N" +
-                   "Gives number between min and max.",
-            handler = Roll
-        };
-
-        internal static void Roll( Player player, Command cmd ) {
-            if( player.IsMuted() ) {
-                player.MutedMessage();
-                return;
-            }
-
-            Random rand = new Random();
-            int min = 1, max = 100, num, t1, t2;
-            if( cmd.NextInt( out t1 ) ) {
-                if( cmd.NextInt( out t2 ) ) {
-                    if( t2 < t1 ) {
-                        min = t2;
-                        max = t1;
-                    } else {
-                        min = t1;
-                        max = t2;
-                    }
-                } else if( t1 >= 1 ) {
-                    max = t1;
-                }
-            }
-            num = rand.Next( min, max + 1 );
-            Server.SendToAll( "{0}{1} rolled {2} ({3}...{4})",
-                              player.GetClassyName(), Color.Silver, num, min, max );
-        }
-
-
-
-        static CommandDescriptor cdMeasure = new CommandDescriptor {
-            name = "measure",
-            help = "Shows information about a selection: width/length/height and volume.",
-            handler = Measure
-        };
-
-        internal static void Measure( Player player, Command cmd ) {
-            player.SetCallback( 2, MeasureCallback, null );
-            player.Message( "Measure: Select the area to be measured" );
-        }
-
-        internal static void MeasureCallback( Player player, Position[] marks, object tag ) {
-            BoundingBox box = new BoundingBox( marks[0], marks[1] );
-            player.Message( "Measure: {0} x {1} wide, {2} tall, {3} blocks.",
-                            box.GetWidthX(),
-                            box.GetWidthY(),
-                            box.GetHeight(),
-                            box.GetVolume() );
-            player.Message( "Measure: Located between ({0},{1},{2}) and ({3},{4},{5}).",
-                            box.xMin,
-                            box.yMin,
-                            box.hMin,
-                            box.xMax,
-                            box.yMax,
-                            box.hMax );
-        }
-
-
-
-        static CommandDescriptor cdWorldInfo = new CommandDescriptor {
-            name = "winfo",
-            aliases = new string[] { "mapinfo" },
-            consoleSafe = true,
-            usage = "/winfo [WorldName]",
-            help = "Shows information about a world: player count, map dimensions, permissions, etc." +
-                   "If no WorldName is given, shows info for current world.",
-            handler = WorldInfo
-        };
-
-        internal static void WorldInfo( Player player, Command cmd ) {
-            string worldName = cmd.Next();
-            if( worldName == null ) {
-                if( player.world == null ) {
-                    player.Message( "Please specify a world name when calling /winfo form console." );
-                    return;
-                } else {
-                    worldName = player.world.name;
-                }
-            }
-
-            World world = Server.FindWorldOrPrintMatches( player, worldName );
-            if( world == null ) return;
-
-            player.Message( "World {0}&S has {1} player(s) on.",
-                            world.GetClassyName(),
-                            world.playerList.Length );
-
-            // If map is not currently loaded, grab its header from disk
-            Map map = world.map;
-            if( map == null ) {
-                map = Map.LoadHeaderOnly( world.GetMapName() );
-            }
-            if( map == null ) {
-                player.Message( "Map information could not be loaded." );
-            } else {
-                player.Message( "Map dimensions are {0} x {1} x {2}",
-                                map.widthX, map.widthY, map.height );
-            }
-
-            // Print access/build limits
-            world.accessSecurity.PrintDescription( player, world, "world", "accessed" );
-            world.buildSecurity.PrintDescription( player, world, "world", "modified" );
-
-            // Print lock/unlock information
-            if( world.isLocked ) {
-                player.Message( "{0}&S was locked {1:0}min ago by {2}",
-                                world.GetClassyName(),
-                                DateTime.UtcNow.Subtract( world.lockedDate ).TotalMinutes,
-                                world.lockedBy );
-            } else if( world.unlockedBy != null ) {
-                player.Message( "{0}&S was unlocked {1:0}min ago by {2}",
-                                world.GetClassyName(),
-                                DateTime.UtcNow.Subtract( world.lockedDate ).TotalMinutes,
-                                world.lockedBy );
-            }
-        }
-
-
-
-        static CommandDescriptor cdPlayers = new CommandDescriptor {
-            name = "players",
-            consoleSafe = true,
-            usage = "/players [WorldName]",
-            help = "Lists all players on the server (in all worlds). " +
-                   "If a WorldName is given, only lists players on that one world.",
-            handler = Players
-        };
-
-        internal static void Players( Player player, Command cmd ) {
-            Player[] players = Server.playerList;
-            if( players.Length > 0 ) {
-
-                StringBuilder sb = new StringBuilder();
-
-                bool first = true;
-                int count = 0;
-                foreach( Player p in players ) {
-                    if( !player.CanSee( p ) ) continue;
-                    if( !first ) sb.Append( ", " );
-                    sb.Append( p.GetClassyName() );
-                    first = false;
-                    count++;
-                }
-                if( count > 0 ) {
-                    player.Message( "There are {0} players online: {1}", count, sb );
-                } else {
-                    player.Message( "There are no players online." );
-                }
-            } else {
-                player.Message( "There are no players online." );
-            }
-        }
-
-
-
-        static CommandDescriptor cdGetVersion = new CommandDescriptor {
-            name = "version",
-            consoleSafe = true,
-            help = "Shows server software name and version.",
-            handler = GetVersion
-        };
-
-        internal static void GetVersion( Player player, Command cmd ) {
-            player.Message( "fCraft custom server {0}", Updater.GetVersionString() );
-        }
-
-
-
-        static CommandDescriptor cdWhere = new CommandDescriptor {
-            name = "where",
-            aliases = new string[] { "compass" },
-            permissions = new Permission[] { Permission.ViewOthersInfo },
-            consoleSafe = true,
-            usage = "/where [PlayerName]",
-            help = "Shows information about the location and orientation of a player. " +
-                   "If no name is given, shows player's own info.",
-            handler = Where
-        };
-
-        static string compass = "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . " +
-                                "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . ";
-
-        internal static void Where( Player player, Command cmd ) {
-            int offset;
-            string name = cmd.Next();
-
-            Player target = player;
-
-            if( name != null ) {
-                target = Server.FindPlayerOrPrintMatches( player, name, false );
-                if( target == null ) return;
-                player.Message( "Coordinates of player {0}&S (on world {1}&S):",
-                                target.GetClassyName(),
-                                target.world.GetClassyName() );
-            } else if( player.world == null ) {
-                player.Message( "When called form console, &H/where&S requires a player name." );
-                return;
-            }
-
-            offset = (int)(target.pos.r / 255f * 64f) + 32;
-
-            player.Message( "{0}({1},{2},{3}) - {4}[{5}{6}{7}{4}{8}]",
-                            Color.Silver,
-                            target.pos.x / 32,
-                            target.pos.y / 32,
-                            target.pos.h / 32,
-                            Color.White,
-                            compass.Substring( offset - 12, 11 ),
-                            Color.Red,
-                            compass.Substring( offset - 1, 3 ),
-                            compass.Substring( offset + 2, 11 ) );
-        }
-
-
-
-        static CommandDescriptor cdHelp = new CommandDescriptor {
-            name = "help",
-            consoleSafe = true,
-            usage = "/help [CommandName]",
-            help = "Derp.",
-            handler = Help
-        };
-
-        const string HelpPrefix = "&S    ";
-        internal static void Help( Player player, Command cmd ) {
-            string commandName = cmd.Next();
-
-            if( commandName == "commands" ) {
-                if( cmd.Next() != null ) {
-                    player.MessagePrefixed( "&S    ", "List of available commands:&N{0}", CommandList.GetCommandList( player, true ) );
-                } else {
-                    player.MessagePrefixed( "&S    ", "List of all commands:&N{0}", CommandList.GetCommandList( player, false ) );
-                }
-
-            } else if( commandName != null ) {
-                CommandDescriptor descriptor = CommandList.GetDescriptor( commandName );
-                if( descriptor == null ) {
-                    player.Message( "Unknown command: \"{0}\"", commandName );
-                    return;
-                }
-                StringBuilder sb = new StringBuilder( Color.Help );
-                sb.Append( descriptor.usage ).Append( "&N" );
-
-                if( descriptor.aliases != null ) {
-                    sb.Append( "Aliases: &H" );
-                    bool first = true;
-                    foreach( string alias in descriptor.aliases ) {
-                        if( !first ) {
-                            sb.Append( "&S, &H" );
-                        }
-                        sb.Append( alias );
-                        first = false;
-                    }
-                    sb.Append( "&N" );
-                }
-
-                if( descriptor.helpHandler != null ) {
-                    sb.Append( descriptor.helpHandler( player ) );
-                } else {
-                    sb.Append( descriptor.help );
-                }
-
-                player.MessagePrefixed( HelpPrefix, sb.ToString() );
-
-                if( descriptor.permissions != null && descriptor.permissions.Length > 0 ) {
-                    player.NoAccessMessage( descriptor.permissions );
-                }
-
-            } else {
-                player.Message( "To see a list of all commands, write &H/help commands" );
-                player.Message( "To see detailed help for a command, write &H/help CommandName" );
-                if( player != Player.Console ) {
-                    player.Message( "To see your stats, write &H/info" );
-                }
-                player.Message( "To list available worlds, write &H/worlds" );
-                player.Message( "To send private messages, write &H@PlayerName Message" );
-                player.Message( "To message all players of a rank, write &H@@Rank Message" );
-            }
-        }
-
+        #region Infos (/info, /rinfo, /baninfo, /sinfo)
 
         static CommandDescriptor cdInfo = new CommandDescriptor {
             name = "info",
@@ -828,6 +519,71 @@ namespace fCraft {
 
 
 
+        static CommandDescriptor cdServerInfo = new CommandDescriptor {
+            name = "sinfo",
+            consoleSafe = true,
+            help = "Shows server stats",
+            handler = ServerInfo
+        };
+
+        internal static void ServerInfo( Player player, Command cmd ) {
+            System.Diagnostics.Process.GetCurrentProcess().Refresh();
+            player.Message( "Servers stats: Up for {0:0.0} hours, using {1:0} MB of memory",
+                            DateTime.Now.Subtract( Server.serverStart ).TotalHours,
+                            (System.Diagnostics.Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
+
+            player.Message( "Averaging {0:0.0}% CPU in last minute, {1:0.0}% CPU overall.",
+                            Server.CPUUsageLastMinute * 100,
+                            Server.CPUUsageTotal * 100 );
+
+            player.Message( "    There are {0} players in the database.",
+                            PlayerDB.CountTotalPlayers() );
+            player.Message( "    Of those, {0} are banned, and {1} are IP-banned.",
+                            PlayerDB.CountBannedPlayers(),
+                            IPBanList.CountBans() );
+
+            // count players that are not hidden from this player
+            Player[] players = Server.playerList;
+            int count = 0;
+            foreach( Player p in players ) {
+                if( !player.CanSee( p ) ) continue;
+                count++;
+            }
+
+            player.Message( "    {0} worlds available ({1} loaded), {2} players online.",
+                            Server.worlds.Count,
+                            Server.CountLoadedWorlds(),
+                            count );
+        }
+
+        #endregion
+
+
+        static CommandDescriptor cdMe = new CommandDescriptor {
+            name = "me",
+            consoleSafe = true,
+            usage = "/me Message",
+            help = "Sends IRC-style action message prefixed with your name.",
+            handler = Me
+        };
+
+        internal static void Me( Player player, Command cmd ) {
+            if( player.IsMuted() ) {
+                player.MutedMessage();
+                return;
+            }
+
+            string msg = cmd.NextAll().Trim();
+            if( msg != null ) {
+                player.info.linesWritten++;
+                string message = String.Format( "{0}*{1} {2}", Color.Me, player.name, msg );
+                Server.SendToAll( message );
+                IRC.SendChannelMessage( message );
+            }
+        }
+
+
+
         static CommandDescriptor cdRanks = new CommandDescriptor {
             name = "ranks",
             aliases = new string[] { "classes" },
@@ -876,41 +632,233 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdServerInfo = new CommandDescriptor {
-            name = "sinfo",
+        static CommandDescriptor cdRoll = new CommandDescriptor {
+            name = "roll",
             consoleSafe = true,
-            help = "Shows server stats",
-            handler = ServerInfo
+            help = "Gives random number between 1 and 100.&N" +
+                   "&H/roll MaxNumber&N" +
+                   "Gives number between 1 and max.&N" +
+                   "&H/roll MinNumber MaxNumber&N" +
+                   "Gives number between min and max.",
+            handler = Roll
         };
 
-        internal static void ServerInfo( Player player, Command cmd ) {
-            System.Diagnostics.Process.GetCurrentProcess().Refresh();
-            player.Message( "Servers stats: Up for {0:0.0} hours, using {1:0} MB of memory",
-                            DateTime.Now.Subtract( Server.serverStart ).TotalHours,
-                            (System.Diagnostics.Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
-
-            player.Message( "Averaging {0:0.0}% CPU in last minute, {1:0.0}% CPU overall.",
-                            Server.CPUUsageLastMinute * 100,
-                            Server.CPUUsageTotal * 100 );
-
-            player.Message( "    There are {0} players in the database.",
-                            PlayerDB.CountTotalPlayers() );
-            player.Message( "    Of those, {0} are banned, and {1} are IP-banned.",
-                            PlayerDB.CountBannedPlayers(),
-                            IPBanList.CountBans() );
-
-            // count players that are not hidden from this player
-            Player[] players = Server.playerList;
-            int count = 0;
-            foreach( Player p in players ) {
-                if( !player.CanSee( p ) ) continue;
-                count++;
+        internal static void Roll( Player player, Command cmd ) {
+            if( player.IsMuted() ) {
+                player.MutedMessage();
+                return;
             }
 
-            player.Message( "    {0} worlds available ({1} loaded), {2} players online.",
-                            Server.worlds.Count,
-                            Server.CountLoadedWorlds(),
-                            count );
+            Random rand = new Random();
+            int min = 1, max = 100, num, t1, t2;
+            if( cmd.NextInt( out t1 ) ) {
+                if( cmd.NextInt( out t2 ) ) {
+                    if( t2 < t1 ) {
+                        min = t2;
+                        max = t1;
+                    } else {
+                        min = t1;
+                        max = t2;
+                    }
+                } else if( t1 >= 1 ) {
+                    max = t1;
+                }
+            }
+            num = rand.Next( min, max + 1 );
+            Server.SendToAll( "{0}{1} rolled {2} ({3}...{4})",
+                              player.GetClassyName(), Color.Silver, num, min, max );
+        }
+
+
+
+        static CommandDescriptor cdMeasure = new CommandDescriptor {
+            name = "measure",
+            help = "Shows information about a selection: width/length/height and volume.",
+            handler = Measure
+        };
+
+        internal static void Measure( Player player, Command cmd ) {
+            player.SetCallback( 2, MeasureCallback, null );
+            player.Message( "Measure: Select the area to be measured" );
+        }
+
+        internal static void MeasureCallback( Player player, Position[] marks, object tag ) {
+            BoundingBox box = new BoundingBox( marks[0], marks[1] );
+            player.Message( "Measure: {0} x {1} wide, {2} tall, {3} blocks.",
+                            box.GetWidthX(),
+                            box.GetWidthY(),
+                            box.GetHeight(),
+                            box.GetVolume() );
+            player.Message( "Measure: Located between ({0},{1},{2}) and ({3},{4},{5}).",
+                            box.xMin,
+                            box.yMin,
+                            box.hMin,
+                            box.xMax,
+                            box.yMax,
+                            box.hMax );
+        }
+
+
+
+        static CommandDescriptor cdPlayers = new CommandDescriptor {
+            name = "players",
+            consoleSafe = true,
+            usage = "/players [WorldName]",
+            help = "Lists all players on the server (in all worlds). " +
+                   "If a WorldName is given, only lists players on that one world.",
+            handler = Players
+        };
+
+        internal static void Players( Player player, Command cmd ) {
+            Player[] players = Server.playerList;
+            if( players.Length > 0 ) {
+
+                StringBuilder sb = new StringBuilder();
+
+                bool first = true;
+                int count = 0;
+                foreach( Player p in players ) {
+                    if( !player.CanSee( p ) ) continue;
+                    if( !first ) sb.Append( ", " );
+                    sb.Append( p.GetClassyName() );
+                    first = false;
+                    count++;
+                }
+                if( count > 0 ) {
+                    player.Message( "There are {0} players online: {1}", count, sb );
+                } else {
+                    player.Message( "There are no players online." );
+                }
+            } else {
+                player.Message( "There are no players online." );
+            }
+        }
+
+
+
+        static CommandDescriptor cdVersion = new CommandDescriptor {
+            name = "version",
+            consoleSafe = true,
+            help = "Shows server software name and version.",
+            handler = Version
+        };
+
+        internal static void Version( Player player, Command cmd ) {
+            player.Message( "fCraft custom server {0}", Updater.GetVersionString() );
+        }
+
+
+
+        static CommandDescriptor cdWhere = new CommandDescriptor {
+            name = "where",
+            aliases = new string[] { "compass" },
+            permissions = new Permission[] { Permission.ViewOthersInfo },
+            consoleSafe = true,
+            usage = "/where [PlayerName]",
+            help = "Shows information about the location and orientation of a player. " +
+                   "If no name is given, shows player's own info.",
+            handler = Where
+        };
+
+        static string compass = "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . " +
+                                "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . ";
+
+        internal static void Where( Player player, Command cmd ) {
+            int offset;
+            string name = cmd.Next();
+
+            Player target = player;
+
+            if( name != null ) {
+                target = Server.FindPlayerOrPrintMatches( player, name, false );
+                if( target == null ) return;
+                player.Message( "Coordinates of player {0}&S (on world {1}&S):",
+                                target.GetClassyName(),
+                                target.world.GetClassyName() );
+            } else if( player.world == null ) {
+                player.Message( "When called form console, &H/where&S requires a player name." );
+                return;
+            }
+
+            offset = (int)(target.pos.r / 255f * 64f) + 32;
+
+            player.Message( "{0}({1},{2},{3}) - {4}[{5}{6}{7}{4}{8}]",
+                            Color.Silver,
+                            target.pos.x / 32,
+                            target.pos.y / 32,
+                            target.pos.h / 32,
+                            Color.White,
+                            compass.Substring( offset - 12, 11 ),
+                            Color.Red,
+                            compass.Substring( offset - 1, 3 ),
+                            compass.Substring( offset + 2, 11 ) );
+        }
+
+
+
+        static CommandDescriptor cdHelp = new CommandDescriptor {
+            name = "help",
+            consoleSafe = true,
+            usage = "/help [CommandName]",
+            help = "Derp.",
+            handler = Help
+        };
+
+        const string HelpPrefix = "&S    ";
+        internal static void Help( Player player, Command cmd ) {
+            string commandName = cmd.Next();
+
+            if( commandName == "commands" ) {
+                if( cmd.Next() != null ) {
+                    player.MessagePrefixed( "&S    ", "List of available commands:&N{0}", CommandList.GetCommandList( player, true ) );
+                } else {
+                    player.MessagePrefixed( "&S    ", "List of all commands:&N{0}", CommandList.GetCommandList( player, false ) );
+                }
+
+            } else if( commandName != null ) {
+                CommandDescriptor descriptor = CommandList.GetDescriptor( commandName );
+                if( descriptor == null ) {
+                    player.Message( "Unknown command: \"{0}\"", commandName );
+                    return;
+                }
+                StringBuilder sb = new StringBuilder( Color.Help );
+                sb.Append( descriptor.usage ).Append( "&N" );
+
+                if( descriptor.aliases != null ) {
+                    sb.Append( "Aliases: &H" );
+                    bool first = true;
+                    foreach( string alias in descriptor.aliases ) {
+                        if( !first ) {
+                            sb.Append( "&S, &H" );
+                        }
+                        sb.Append( alias );
+                        first = false;
+                    }
+                    sb.Append( "&N" );
+                }
+
+                if( descriptor.helpHandler != null ) {
+                    sb.Append( descriptor.helpHandler( player ) );
+                } else {
+                    sb.Append( descriptor.help );
+                }
+
+                player.MessagePrefixed( HelpPrefix, sb.ToString() );
+
+                if( descriptor.permissions != null && descriptor.permissions.Length > 0 ) {
+                    player.NoAccessMessage( descriptor.permissions );
+                }
+
+            } else {
+                player.Message( "To see a list of all commands, write &H/help commands" );
+                player.Message( "To see detailed help for a command, write &H/help CommandName" );
+                if( player != Player.Console ) {
+                    player.Message( "To see your stats, write &H/info" );
+                }
+                player.Message( "To list available worlds, write &H/worlds" );
+                player.Message( "To send private messages, write &H@PlayerName Message" );
+                player.Message( "To message all players of a rank, write &H@@Rank Message" );
+            }
         }
     }
 }

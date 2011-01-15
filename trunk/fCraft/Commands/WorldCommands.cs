@@ -13,6 +13,8 @@ namespace fCraft {
         internal static void Init() {
             CommandList.RegisterCommand( cdJoin );
 
+            CommandList.RegisterCommand( cdWorldInfo );
+
             CommandList.RegisterCommand( cdWorldSave );
             CommandList.RegisterCommand( cdWorldMain );
             CommandList.RegisterCommand( cdWorldAccess );
@@ -32,6 +34,65 @@ namespace fCraft {
             CommandList.RegisterCommand( cdLockAll );
             CommandList.RegisterCommand( cdUnlock );
             CommandList.RegisterCommand( cdUnlockAll );
+        }
+
+
+        static CommandDescriptor cdWorldInfo = new CommandDescriptor {
+            name = "winfo",
+            aliases = new string[] { "mapinfo" },
+            consoleSafe = true,
+            usage = "/winfo [WorldName]",
+            help = "Shows information about a world: player count, map dimensions, permissions, etc." +
+                   "If no WorldName is given, shows info for current world.",
+            handler = WorldInfo
+        };
+
+        internal static void WorldInfo( Player player, Command cmd ) {
+            string worldName = cmd.Next();
+            if( worldName == null ) {
+                if( player.world == null ) {
+                    player.Message( "Please specify a world name when calling /winfo form console." );
+                    return;
+                } else {
+                    worldName = player.world.name;
+                }
+            }
+
+            World world = Server.FindWorldOrPrintMatches( player, worldName );
+            if( world == null ) return;
+
+            player.Message( "World {0}&S has {1} player(s) on.",
+                            world.GetClassyName(),
+                            world.playerList.Length );
+
+            // If map is not currently loaded, grab its header from disk
+            Map map = world.map;
+            if( map == null ) {
+                map = Map.LoadHeaderOnly( world.GetMapName() );
+            }
+            if( map == null ) {
+                player.Message( "Map information could not be loaded." );
+            } else {
+                player.Message( "Map dimensions are {0} x {1} x {2}",
+                                map.widthX, map.widthY, map.height );
+            }
+
+            // Print access/build limits
+            world.accessSecurity.PrintDescription( player, world, "world", "accessed" );
+            world.buildSecurity.PrintDescription( player, world, "world", "modified" );
+
+            // Print lock/unlock information
+            if( world.isLocked ) {
+                player.Message( "{0}&S was locked {1:0}min ago by {2}",
+                                world.GetClassyName(),
+                                DateTime.UtcNow.Subtract( world.lockedDate ).TotalMinutes,
+                                world.lockedBy );
+            } else if( world.unlockedBy != null ) {
+                player.Message( "{0}&S was unlocked {1:0}min ago by {2}",
+                                world.GetClassyName(),
+                                DateTime.UtcNow.Subtract( world.lockedDate ).TotalMinutes,
+                                world.lockedBy );
+            }
         }
 
 
@@ -876,8 +937,8 @@ namespace fCraft {
             help = "If WorldName parameter is not given, replaces the current world's map with the specified map. The old map is overwritten. " +
                    "If the world with the specified name exists, its map is replaced with the specified map file. " +
                    "Otherwise, a new world is created using the given name and map file. " +
-                   "Supported formats: fCraft (fcm), MCSharp/MCZall (lvl), vanilla (server_level.dat), MinerCPP/LuaCraft (dat), " +
-                   "JTE (gz), indev (mclevel). Note: infinite maps NOT supported.",
+                   "Supported formats: fCraft (.fcm), MCSharp/MCZall/MCLawl (lvl), D3 (.map), vanilla (.dat), MinerCPP/LuaCraft (.dat), " +
+                   "JTE (.gz), indev (.mclevel), iCraft/Myne.",
             handler = WorldLoad
         };
 

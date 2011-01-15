@@ -300,6 +300,8 @@ namespace ConfigTool {
 
             xMaxUndo.Checked = Config.GetInt( ConfigKey.MaxUndo ) > 0;
             nMaxUndo.Value = Config.GetInt( ConfigKey.MaxUndo );
+
+            tConsoleName.Text = Config.GetString( ConfigKey.ConsoleName );
         }
 
 
@@ -455,6 +457,8 @@ namespace ConfigTool {
 
             if( xMaxUndo.Checked ) Config.SetValue( ConfigKey.MaxUndo, Convert.ToInt32( nMaxUndo.Value ) );
             else Config.SetValue( ConfigKey.MaxUndo, 0 );
+
+            Config.SetValue( ConfigKey.ConsoleName, tConsoleName.Text );
 
             SaveWorldList();
         }
