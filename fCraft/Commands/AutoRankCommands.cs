@@ -549,15 +549,22 @@ namespace fCraft {
             PlayerInfo info;
             string playerName = cmd.Next();
 
-            if( PlayerDB.FindPlayerInfo( playerName, out info ) ) {
+            if( playerName == null ) {
+                cdAutoRankTest.PrintUsage( player );
+                return;
+            }
+
+            if( !PlayerDB.FindPlayerInfo( playerName, out info ) ) {
+                player.Message( "More than one player found matching \"{0}\"", playerName );
+            } else if( info == null ) {
+                player.NoPlayerMessage( playerName );
+            } else {
                 Rank result = AutoRank.Check( info );
                 if( result == null ) {
                     player.Message( "{0} is {1}, and not qualified.", player.GetClassyName(), player.info.rank.GetClassyName() );
                 } else {
                     player.Message( "{0} is {1}, and qualified for {2}", player.GetClassyName(), player.info.rank.GetClassyName(), result.GetClassyName() );
                 }
-            } else {
-                player.NoPlayerMessage( playerName );
             }
         }
 

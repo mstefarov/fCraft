@@ -203,8 +203,7 @@ namespace fCraft {
 
         public static bool FindPlayerInfo( string name, out PlayerInfo info ) {
             if( name == null ) {
-                info = null;
-                return false;
+                throw new ArgumentNullException( "name" );
             }
 
             lock( locker ) {

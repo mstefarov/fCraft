@@ -63,13 +63,17 @@ namespace fCraft {
         /// <summary> Gets color name for hex color code. </summary>
         /// <param name="code">Hexadecimal color code (between '0' and 'f')</param>
         /// <returns>Lowercase color name</returns>
-        /// <exception cref="System.ArgumentException">Thrown when code is not hexadecimal</exception>
         public static string GetName( char code ) {
             code = Char.ToLower( code );
             if( IsValidColorCode( code ) ) {
                 return colorNames[code];
             } else {
-                return colorNames[Parse( code )[1]];
+                string color = Parse( code );
+                if( color == null ) {
+                    return null;
+                } else {
+                    return colorNames[color[1]];
+                }
             }
         }
 
@@ -89,7 +93,7 @@ namespace fCraft {
                     case 'm': return Color.Me;
                     case 'i': return Color.IRC;
                     default:
-                        throw new ArgumentException( "Expected a hexadecimal color code.", "code" );
+                        return null;
                 }
             }
         }
@@ -106,24 +110,22 @@ namespace fCraft {
         /// <summary> Gets color name for a numeric color code. </summary>
         /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
         /// <returns> Lowercase color name </returns>
-        /// <exception cref="System.ArgumentOutOfRangeException"> Thrown when color code is not between 0 and 15 </exception>
         public static string GetName( int index ) {
             if( index >= 0 && index <= 15 ) {
                 return colorNames.Values[index];
             } else {
-                throw new ArgumentOutOfRangeException( "index", "Expected an ordinal numeric color code, between 0 and 15" );
+                return null;
             }
         }
 
         /// <summary> Parses a numeric color code to a string readable by Minecraft clients </summary>
         /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
         /// <returns> Two-character color string, readable by Minecraft client </returns>
-        /// <exception cref="System.ArgumentOutOfRangeException"> Thrown when color code is not between 0 and 15 </exception>
         public static string Parse( int index ) {
             if( index >= 0 && index <= 15 ) {
                 return "&" + colorNames.Keys[index];
             } else {
-                throw new ArgumentOutOfRangeException( "index", "Expected an ordinal numeric color code, between 0 and 15" );
+                return null;
             }
         }
 
@@ -131,11 +133,9 @@ namespace fCraft {
         /// <summary> Parses a string to a format readable by Minecraft clients. Can accept color names, colorcodes </summary>
         /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
         /// <returns> Two-character color string, readable by Minecraft client </returns>
-        /// <exception cref="System.ArgumentNullException"> Thrown when color is null </exception>
-        /// <exception cref="System.ArgumentException"> Thrown when color cannot be parsed </exception>
         public static string Parse( string color ) {
             if( color == null ) {
-                throw new ArgumentNullException( "color" );
+                return null;
             }
             color = color.ToLower();
             if( color.Length == 2 && color[0] == '&' && IsValidColorCode( color[1] ) ) {
@@ -145,7 +145,7 @@ namespace fCraft {
             } else if( color.Length == 1 ) {
                 return Parse( color[0] );
             } else {
-                throw new ArgumentException( "Could not parse color.", "color" );
+                return null;
             }
         }
 
