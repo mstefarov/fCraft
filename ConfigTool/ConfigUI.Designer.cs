@@ -25,7 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -262,6 +262,8 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
+            this.tConsoleName = new System.Windows.Forms.TextBox();
+            this.lConsoleName = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -1075,8 +1077,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 334 );
             this.dgvWorlds.TabIndex = 1;
@@ -1219,11 +1221,11 @@
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
             // 
-            // xPreventSecurityCircumvention
+            // xAllowSecurityCircumvention
             // 
             this.xAllowSecurityCircumvention.AutoSize = true;
             this.xAllowSecurityCircumvention.Location = new System.Drawing.Point( 9, 403 );
-            this.xAllowSecurityCircumvention.Name = "xPreventSecurityCircumvention";
+            this.xAllowSecurityCircumvention.Name = "xAllowSecurityCircumvention";
             this.xAllowSecurityCircumvention.Size = new System.Drawing.Size( 271, 19 );
             this.xAllowSecurityCircumvention.TabIndex = 27;
             this.xAllowSecurityCircumvention.Text = "Allow removing own access/build restrictions.";
@@ -2676,6 +2678,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add( this.lConsoleName );
+            this.groupBox1.Controls.Add( this.tConsoleName );
             this.groupBox1.Controls.Add( this.nMaxUndo );
             this.groupBox1.Controls.Add( this.lMaxUndoUnits );
             this.groupBox1.Controls.Add( this.xMaxUndo );
@@ -3020,6 +3024,22 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // tConsoleName
+            // 
+            this.tConsoleName.Location = new System.Drawing.Point( 226, 238 );
+            this.tConsoleName.Name = "tConsoleName";
+            this.tConsoleName.Size = new System.Drawing.Size( 149, 21 );
+            this.tConsoleName.TabIndex = 44;
+            // 
+            // lConsoleName
+            // 
+            this.lConsoleName.AutoSize = true;
+            this.lConsoleName.Location = new System.Drawing.Point( 6, 241 );
+            this.lConsoleName.Name = "lConsoleName";
+            this.lConsoleName.Size = new System.Drawing.Size( 214, 15 );
+            this.lConsoleName.TabIndex = 45;
+            this.lConsoleName.Text = "Name of the \"Console\" pseudo-player:";
+            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -3345,5 +3365,7 @@
         private System.Windows.Forms.CheckBox xMapPath;
         private System.Windows.Forms.TextBox tMapPath;
         private System.Windows.Forms.CheckBox xAllowSecurityCircumvention;
+        private System.Windows.Forms.Label lConsoleName;
+        private System.Windows.Forms.TextBox tConsoleName;
     }
 }

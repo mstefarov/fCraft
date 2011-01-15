@@ -91,6 +91,8 @@ namespace fCraft {
      * 
      * 127 - r368 - Removed PreventSecurityCircumvention key
      *              Added per-rank AllowSecurityCircumvention setting instead
+     *              
+     * 128 - r379 - Added ConsoleName
      * 
      */
 
@@ -98,7 +100,7 @@ namespace fCraft {
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 127;
+        public const int ConfigVersion = 128;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig";
         static Dictionary<ConfigKey, string> settings = new Dictionary<ConfigKey, string>();
@@ -251,6 +253,8 @@ namespace fCraft {
             SetValue( ConfigKey.MaxUndo, 2000000 );
             SetValue( ConfigKey.AutoRankEnabled, false );
             SetValue( ConfigKey.HeartbeatEnabled, true );
+
+            SetValue( ConfigKey.ConsoleName, "(console)" );
         }
 
         #endregion

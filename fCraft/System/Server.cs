@@ -142,7 +142,7 @@ namespace fCraft {
             if( Updater.IsBroken ) {
                 Logger.Log( "This build has been marked as BROKEN. " +
                             "Do not use except for debugging purposes. " +
-                            "Latest non-broken version is {0}.", LogType.Warning,
+                            "Latest non-broken build is {0}.", LogType.Warning,
                             Updater.LatestNonBroken );
             }
 
@@ -180,7 +180,7 @@ namespace fCraft {
                             "that are started from the same directory.", LogType.Warning );
             }
 
-            Player.Console = new Player( null, "(console)" );
+            Player.Console = new Player( null, Config.GetString( ConfigKey.ConsoleName ) );
 
 
             // try to load the world list
@@ -239,7 +239,6 @@ namespace fCraft {
                         mainWorld.name, RankList.DefaultRank.Name );
 
 
-
             // Check for incoming connections (every 250ms)
             Scheduler.AddTask( CheckConnections ).RunForever( CheckConnectionsInterval );
 
@@ -251,9 +250,6 @@ namespace fCraft {
 
             // Save PlayerDB in the background (every 60s)
             Scheduler.AddBackgroundTask( PlayerDB.SaveTask ).RunForever( PlayerDB.SaveInterval, TimeSpan.FromSeconds( 15 ) );
-
-            // apply AutoRank
-            AutoRank.CheckAutoRankSetting();
 
             // Announcements
             if( Config.GetInt( ConfigKey.AnnouncementInterval ) > 0 ) {
@@ -312,9 +308,6 @@ namespace fCraft {
                     listener.Stop();
                     listener = null;
                 }
-
-                // kill the heartbeat
-                Heartbeat.Shutdown();
 
                 // kill IRC bot
                 IRC.Disconnect();

@@ -96,7 +96,7 @@ namespace fCraft {
                 list.TrimExcess();
                 sw.Stop();
                 Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records) in {1}ms.", LogType.Debug,
-                            tree.Count(), sw.ElapsedMilliseconds );
+                            tree.Count, sw.ElapsedMilliseconds );
             } else {
                 Logger.Log( "PlayerDB.Load: No player DB file found.", LogType.Warning );
             }
@@ -110,7 +110,7 @@ namespace fCraft {
         }
 
         public static void Save() {
-            Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count() );
+            Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count );
             string tempDBFileName = DBFileName + ".temp";
             string backupDBFileName = DBFileName + ".backup";
 

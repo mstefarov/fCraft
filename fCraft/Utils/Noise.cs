@@ -130,7 +130,7 @@ namespace fCraft {
                     p11 = InterpolateSpline( points[0, 3], points[1, 3], points[2, 3], points[3, 3], xFloat );
                     return InterpolateSpline( p00, p01, p10, p11, yFloat );
                 default:
-                    throw new ArgumentException("interpolationMode", "Unknown interpolation mode");
+                    throw new ArgumentException( "interpolationMode", "Unknown interpolation mode" );
             }
         }
 
@@ -163,6 +163,7 @@ namespace fCraft {
         public static void Normalize( float[,] map ) {
             Normalize( map, 0, 1 );
         }
+
 
         public static void Normalize( float[,] map, float low, float high ) {
             float min = float.MaxValue, max = float.MinValue;
@@ -275,11 +276,11 @@ namespace fCraft {
                     if( (x < 2) || (y < 2) || (x > heightmap.GetLength( 0 ) - 3) || (y > heightmap.GetLength( 1 ) - 3) ) {
                         output[x, y] = heightmap[x, y];
                     } else {
-                        output[x, y] = (heightmap[x - 2, y - 2] + heightmap[x - 1, y - 2] * 4 + heightmap[x, y - 2] * 7 + heightmap[x + 1, y - 2] * 4 +heightmap[x + 2, y - 2] +
-                                        heightmap[x - 1, y - 1] * 4 + heightmap[x - 1, y - 1] * 16 + heightmap[x, y - 1] * 26 + heightmap[x + 1, y - 1] * 16 + heightmap[x + 2, y - 1]*4 +
-                                        heightmap[x - 2, y] * 7 + heightmap[x - 1, y] * 26 + heightmap[x, y] * 41 + heightmap[x + 1, y] * 26 +heightmap[x + 2, y]*7 +
-                                        heightmap[x - 2, y + 1] * 4 + heightmap[x - 1, y + 1] * 16 + heightmap[x, y + 1] * 26 + heightmap[x + 1, y + 1] * 16 + heightmap[x + 2, y + 1]*4 +
-                                        heightmap[x - 2, y + 2] + heightmap[x - 1, y + 2] * 4 + heightmap[x, y + 2] * 7 + heightmap[x + 1, y + 2] * 4 +heightmap[x + 2, y + 2]) * divisor;
+                        output[x, y] = (heightmap[x - 2, y - 2] + heightmap[x - 1, y - 2] * 4 + heightmap[x, y - 2] * 7 + heightmap[x + 1, y - 2] * 4 + heightmap[x + 2, y - 2] +
+                                        heightmap[x - 1, y - 1] * 4 + heightmap[x - 1, y - 1] * 16 + heightmap[x, y - 1] * 26 + heightmap[x + 1, y - 1] * 16 + heightmap[x + 2, y - 1] * 4 +
+                                        heightmap[x - 2, y] * 7 + heightmap[x - 1, y] * 26 + heightmap[x, y] * 41 + heightmap[x + 1, y] * 26 + heightmap[x + 2, y] * 7 +
+                                        heightmap[x - 2, y + 1] * 4 + heightmap[x - 1, y + 1] * 16 + heightmap[x, y + 1] * 26 + heightmap[x + 1, y + 1] * 16 + heightmap[x + 2, y + 1] * 4 +
+                                        heightmap[x - 2, y + 2] + heightmap[x - 1, y + 2] * 4 + heightmap[x, y + 2] * 7 + heightmap[x + 1, y + 2] * 4 + heightmap[x + 2, y + 2]) * divisor;
                     }
                 }
             }

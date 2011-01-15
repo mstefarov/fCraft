@@ -24,7 +24,6 @@ namespace fCraft {
         public static void Start() {
             thread = new Thread( HeartbeatHandler );
             thread.IsBackground = true;
-
             thread.Start();
         }
 
@@ -97,13 +96,6 @@ namespace fCraft {
                     }
                 }
                 Thread.Sleep( HeartbeatDelay );
-            }
-        }
-
-
-        public static void Shutdown() {
-            if( thread != null && thread.IsAlive ) {
-                thread.Abort();
             }
         }
     }
