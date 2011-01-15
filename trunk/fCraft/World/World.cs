@@ -77,9 +77,10 @@ namespace fCraft {
         }
 
 
-        public void UnloadMap() {
+        public void UnloadMap( bool doubleCheckPendingUnload ) {
             Map thisMap = map;
             lock( mapLock ) {
+                if( doubleCheckPendingUnload && !pendingUnload ) return;
                 SaveMap();
                 map = null;
                 pendingUnload = false;
@@ -149,12 +150,6 @@ namespace fCraft {
 
         public bool AcceptPlayer( Player player, bool announce ) {
             lock( playerListLock ) {
-                /*if( thread == null ) {
-                    waiter.Reset();
-                    thread = new Thread( WorldLoop );
-                    waiter.WaitOne(); // wait for map to load
-                }*/
-
 
                 // load the map, if it's not yet loaded
                 lock( mapLock ) {
