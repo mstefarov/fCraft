@@ -698,21 +698,21 @@ namespace fCraft {
         }
 
         public void SetBlock( int x, int y, int h, byte type ) {
-            if( h < height && x < widthX && y < widthY && x >= 0 && y >= 0 && h >= 0 && type < 50 ){
+            if( h < height && x < widthX && y < widthY && x >= 0 && y >= 0 && h >= 0 && type < 50 ) {
                 blocks[Index( x, y, h )] = type;
                 changedSinceSave = true;
             }
         }
 
         public void SetBlock( Vector3i vec, Block type ) {
-            if( vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && (byte)type < 50 ){
+            if( vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && (byte)type < 50 ) {
                 blocks[Index( vec.x, vec.z, vec.y )] = (byte)type;
                 changedSinceSave = true;
             }
         }
 
         public void SetBlock( Vector3i vec, byte type ) {
-            if( vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && type < 50 ){
+            if( vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && type < 50 ) {
                 blocks[Index( vec.x, vec.z, vec.y )] = type;
                 changedSinceSave = true;
             }
@@ -773,7 +773,9 @@ namespace fCraft {
 
         public void ProcessUpdates() {
             if( world.isLocked ) {
-                if( world.pendingUnload ) world.UnloadMap();
+                if( world.pendingUnload ) {
+                    world.UnloadMap( true );
+                }
                 return;
             }
 
@@ -804,7 +806,7 @@ namespace fCraft {
             }
 
             if( packetsSent == 0 && world.pendingUnload ) {
-                world.UnloadMap();
+                world.UnloadMap( true );
             }
         }
 

@@ -225,7 +225,7 @@ namespace fCraft {
             }
 
             // list loaded worlds
-            StringBuilder line = new StringBuilder("All available worlds: ");
+            StringBuilder line = new StringBuilder( "All available worlds: " );
             bool firstPrintedWorld = true;
             foreach( string worldName in Server.worlds.Keys ) {
                 if( !firstPrintedWorld ) {
@@ -555,7 +555,7 @@ namespace fCraft {
                     // if a map is given
                     newWorld.map = map;
                     if( !neverUnload ) {
-                        newWorld.UnloadMap();// UnloadMap also saves the map
+                        newWorld.UnloadMap( false );// UnloadMap also saves the map
                     } else {
                         newWorld.SaveMap();
                     }
@@ -1368,7 +1368,7 @@ namespace fCraft {
         }
 
         public static Player FindPlayerExact( PlayerInfo info ) {
-            if( info==null || !info.online ) return null;
+            if( info == null || !info.online ) return null;
             else return FindPlayerExact( info.name );
         }
 

@@ -209,14 +209,14 @@ namespace fCraft {
 
                                 // special handling for frozen players
                                 if( player.info.isFrozen ) {
-                                    if( distSquared > antiSpeedMaxDistanceSquared*2 ) {
+                                    if( distSquared > antiSpeedMaxDistanceSquared * 2 ) {
                                         // TODO: figure out why this is so jittery
                                         SendNow( PacketWriter.MakeSelfTeleport( player.pos ) );
                                     }
                                     newPos.x = player.pos.x;
                                     newPos.y = player.pos.y;
                                     newPos.h = player.pos.h;
-                                    
+
                                     // recalculate deltas
                                     delta = new Position {
                                         x = (short)(newPos.x - oldPos.x),
@@ -228,7 +228,7 @@ namespace fCraft {
                                     posChanged = delta.x != 0 || delta.y != 0 || delta.h != 0;
                                     distSquared = delta.x * delta.x + delta.y * delta.y + delta.h * delta.h;
 
-                                // speedhack detection
+                                    // speedhack detection
                                 } else if( !player.Can( Permission.UseSpeedHack ) ) {
                                     if( DetectMovementPacketSpam( newPos ) ) {
                                         continue;
@@ -307,7 +307,7 @@ namespace fCraft {
                                     Server.SendToAll( "{0}&W was kicked for attempted hacking (0x05).", player.GetClassyName() );
                                     KickNow( "Hacking detected: illegal SetTile packet." );
                                     return;
-                                }else if(!player.world.map.InBounds( x, y, h )){
+                                } else if( !player.world.map.InBounds( x, y, h ) ) {
                                     continue;
                                 } else {
                                     if( player.PlaceBlock( x, y, h, mode == 1, (Block)type ) ) return;
@@ -520,7 +520,7 @@ namespace fCraft {
                     switch( Config.GetString( ConfigKey.VerifyNames ) ) {
                         case "Always":
                             player.info.ProcessFailedLogin( player );
-                            Logger.Log( "{0} IP matched previous records for that name. "+
+                            Logger.Log( "{0} IP matched previous records for that name. " +
                                         "Player was kicked anyway because VerifyNames is set to Always.", LogType.SuspiciousActivity,
                                         standardMessage );
                             KickNow( "Could not verify player name!" );
@@ -558,7 +558,7 @@ namespace fCraft {
 
             // check if player is muted
             if( player.info.mutedUntil > DateTime.UtcNow ) {
-                int secondsLeft = (int)player.info.mutedUntil.Subtract(DateTime.UtcNow).TotalSeconds;
+                int secondsLeft = (int)player.info.mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds;
                 player.Message( "&WYou were previously muted by {0}, {1} seconds left.",
                                 player.info.mutedBy, secondsLeft );
                 Server.SendToAllExcept( "&WPlayer {0}&W was previously muted by {1}&W, {2} seconds left.", player,
@@ -644,7 +644,7 @@ namespace fCraft {
                 return false;
             }
 
-            if( !player.CanJoin(newWorld) ) {
+            if( !player.CanJoin( newWorld ) ) {
                 Logger.Log( "Session.JoinWorldNow: Access limits prevented {0} from joining {1}.", LogType.Error,
                             player.name, newWorld.name );
                 return false;
