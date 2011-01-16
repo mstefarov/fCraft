@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using fCraft;
+using Mcc;
 
 
 namespace ConfigTool {
@@ -533,14 +534,14 @@ namespace ConfigTool {
 
         static void ShowMapDetails( TextBox textBox, string fileName ) {
 
-            Mcc.MapFormat format = Mcc.MapFormat.Unknown;
+            MapFormat format = MapFormat.Unknown;
             try {
                 if( File.Exists( fileName ) ) {
                     using( Stream stream = File.OpenRead( fileName ) ) {
-                        format = Mcc.MapUtility.Identify( stream, fileName );
+                        format = MapUtility.Identify( stream, fileName );
                     }
                 } else {
-                    format = Mcc.MapUtility.Identify( null, fileName );
+                    format = MapUtility.Identify( null, fileName );
                 }
             } catch( Exception ) { }
 

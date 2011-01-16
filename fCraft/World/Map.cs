@@ -235,33 +235,25 @@ namespace fCraft {
         }
 
 
+        /// <summary>
+        /// Loads map dimensions from specified file.
+        /// </summary>
+        /// <param name="fileName">FULL file name, including path and extension.</param>
+        /// <returns>Map object on success, or null on failure.</returns>
         public static Map LoadHeaderOnly( string fileName ) {
             try {
-                if( !File.Exists( fileName ) ) {
-                    if( File.Exists( fileName + ".fcm" ) ) {
-                        fileName += ".fcm";
-                    } else if( File.Exists( Path.Combine( Paths.MapPath, fileName ) ) ) {
-                        fileName = Path.Combine( Paths.MapPath, fileName );
-                    } else if( File.Exists( Path.Combine( Paths.MapPath, fileName + ".fcm" ) ) ) {
-                        fileName = Path.Combine( Paths.MapPath, fileName + ".fcm" );
-                    } else {
-                        Logger.Log( "Map.LoadHeaderOnly: File \"{0}\" not found.", LogType.Error, fileName );
-                        return null;
-                    }
-                }
-
                 Map map = new Map();
                 using( FileStream fs = File.OpenRead( fileName ) ) {
                     BinaryReader reader = new BinaryReader( fs );
 
                     uint id = reader.ReadUInt32();
 
-                    if( id == Mcc.MapFCMv2.Identifier ) {
+                    if( id == MapFCMv2.Identifier ) {
                         map.widthX = reader.ReadInt16();
                         map.widthY = reader.ReadInt16();
                         map.height = reader.ReadInt16();
 
-                    } else if( id == Mcc.MapFCMv3.Identifier && reader.ReadByte() == Mcc.MapFCMv3.Revision ) {
+                    } else if( id == MapFCMv3.Identifier && reader.ReadByte() == MapFCMv3.Revision ) {
                         map.widthX = reader.ReadInt16();
                         map.height = reader.ReadInt16();
                         map.widthY = reader.ReadInt16();
@@ -272,7 +264,8 @@ namespace fCraft {
                 }
                 return map;
             } catch( Exception ex ) {
-                Logger.Log( "Map.LoadHeaderOnly: Error occured while trying to parse header of " + fileName + ": " + ex, LogType.Error );
+                Logger.Log( "Map.LoadHeaderOnly: Error occured while trying to parse header of {0}: {1}", LogType.Error,
+                            fileName, ex );
                 return null;
             }
         }
