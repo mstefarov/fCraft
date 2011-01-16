@@ -797,7 +797,7 @@ namespace fCraft {
             return ASCIIEncoding.ASCII.GetString( reader.ReadBytes( 64 ) ).Trim();
         }
 
-        internal void ClearBlockUpdateQueue() {
+        public void ClearBlockUpdateQueue() {
             Packet temp = new Packet();
             while( outputQueue.Dequeue( ref temp ) ) { }
         }

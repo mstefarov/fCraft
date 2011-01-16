@@ -38,7 +38,7 @@ namespace fCraft {
     /// <summary>
     /// IRC control class. 
     /// </summary>
-    static class IRC {
+    public static class IRC {
 
         /// <summary>
         /// Class represents an IRC connection/thread.
@@ -856,7 +856,7 @@ namespace fCraft {
     }
 
 
-    enum IRCReplyCode {
+    public enum IRCReplyCode {
         Null = 000,
         Welcome = 001,
         YourHost = 002,
@@ -999,7 +999,7 @@ namespace fCraft {
     }
 
 
-    enum IRCMessageType {
+    public enum IRCMessageType {
         Ping,
         Info,
         Login,

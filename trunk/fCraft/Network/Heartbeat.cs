@@ -8,6 +8,9 @@ using System.Threading;
 
 
 namespace fCraft {
+    /// <summary>
+    /// Static class responsible for sending heartbeats.
+    /// </summary>
     public static class Heartbeat {
         const int HeartbeatDelay = 20000,
                   HeartbeatTimeout = 10000;
@@ -16,11 +19,17 @@ namespace fCraft {
         const string HeartbeatDataFileName = "heartbeatdata.txt";
 
 
+        /// <summary>
+        /// Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate
+        /// </summary>
         internal static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
             return new IPEndPoint( Server.IP, 0 );
         }
 
 
+        /// <summary>
+        /// Starts the heartbeat thread. The thread will be shut down automatically when the process exits.
+        /// </summary>
         public static void Start() {
             thread = new Thread( HeartbeatHandler );
             thread.IsBackground = true;
@@ -79,6 +88,7 @@ namespace fCraft {
                     }
 
                 } else {
+                    // If heartbeats are disabled, the data is written to a text file (heartbeatdata.txt)
                     string tempFile = HeartbeatDataFileName + ".tmp";
                     File.WriteAllLines( tempFile, new string[]{
                         Server.Salt,
