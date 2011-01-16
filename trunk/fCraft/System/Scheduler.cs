@@ -35,7 +35,7 @@ namespace fCraft {
                     if( !task.IsStopped && task.NextTime <= ticksNow ) {
 
                         if( task.IsRecurring && task.AdjustForExecutionTime ) {
-                            task.NextTime = ticksNow;
+                            task.NextTime = ticksNow + task.Interval;
                         }
 
                         if( task.IsBackground ) {
