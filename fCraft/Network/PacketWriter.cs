@@ -8,7 +8,7 @@ using System.Text;
 
 namespace fCraft {
     // Protocol encoder for outgoing packets
-    sealed class PacketWriter : BinaryWriter {
+    public sealed class PacketWriter : BinaryWriter {
 
         public PacketWriter( Stream stream ) : base( stream ) { }
 

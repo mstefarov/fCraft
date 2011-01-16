@@ -51,7 +51,7 @@ namespace fCraft {
 
         #region Saving/Loading
 
-        public static void Load() {
+        internal static void Load() {
 
             if( File.Exists( DBFileName ) ) {
                 Stopwatch sw = Stopwatch.StartNew();
@@ -105,11 +105,11 @@ namespace fCraft {
         }
 
 
-        public static void SaveTask( Scheduler.Task task ) {
+        internal static void SaveTask( Scheduler.Task task ) {
             Save();
         }
 
-        public static void Save() {
+        internal static void Save() {
             Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count );
             string tempDBFileName = DBFileName + ".temp";
             string backupDBFileName = DBFileName + ".backup";
