@@ -28,7 +28,7 @@ namespace fCraft {
         }
 
         public static void AddRank( Rank rank ) {
-            // check for duplicate class names
+            // check for duplicate rank names
             if( RanksByName.ContainsKey( rank.Name.ToLower() ) ) {
                 throw new Rank.RankDefinitionException( "Duplicate definition for rank \"{0}\" (by Name) was ignored.", rank.Name );
             }

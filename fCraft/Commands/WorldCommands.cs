@@ -250,7 +250,7 @@ namespace fCraft {
             string fullFileName = Path.Combine( Paths.MapPath, fileName );
 
             if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
-                player.Message( "You are now allowed to access files outside the map folder." );
+                player.Message( "You cannot access files outside the map folder." );
                 return;
             }
 
@@ -697,7 +697,7 @@ namespace fCraft {
                                                 world.buildSecurity.minRank.GetClassyName(),
                                                 world.GetClassyName() );
                                 continue;
-                                // TODO: RankTooHigh
+                            // TODO: RankTooHigh
                             case SecurityCheckResult.BlackListed:
                                 player.Message( "&WYou cannot remove yourself from the build blacklist of {0}",
                                                 world.GetClassyName() );
@@ -864,7 +864,7 @@ namespace fCraft {
                                               player.GetClassyName(), world.GetClassyName() );
                         } else {
                             Server.SendToAll( "{0}&S allowed only {1}+&S to build in world {2}",
-                                              player.GetClassyName(), world.buildSecurity.minRank.GetClassyName(), world.GetClassyName());
+                                              player.GetClassyName(), world.buildSecurity.minRank.GetClassyName(), world.GetClassyName() );
                         }
                         Logger.Log( "{0} set build rank for world {1} to {2}+", LogType.UserActivity,
                                     player.name, world.name, world.buildSecurity.minRank.Name );
@@ -977,7 +977,7 @@ namespace fCraft {
             }
 
             if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
-                player.Message( "You are now allowed to access files outside the map folder." );
+                player.Message( "You cannot to access files outside the map folder." );
                 return;
             }
 
@@ -1032,7 +1032,7 @@ namespace fCraft {
 
                     } else {
                         string targetFileName = Path.Combine( Paths.MapPath, worldName + ".fcm" );
-                        if( worldName != fileName && File.Exists( targetFileName ) && File.Exists( fullFileName ) ) {
+                        if( !Paths.Compare( targetFileName, fullFileName ) && File.Exists( targetFileName ) && File.Exists( fullFileName ) ) {
                             if( Paths.Compare( targetFileName, fullFileName ) && !cmd.confirmed ) {
                                 player.AskForConfirmation( cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
                                                            Path.GetFileName( targetFileName ), Path.GetFileName( fullFileName ) );
@@ -1040,7 +1040,7 @@ namespace fCraft {
                             }
                         }
 
-                        Map map = Map.Load( player.world, fileName );
+                        Map map = Map.Load( player.world, fullFileName );
                         if( map == null ) {
                             player.MessageNow( "Could not load specified file." );
                             return;
@@ -1229,22 +1229,31 @@ namespace fCraft {
             }
 
             string fileName = cmd.Next();
-            if( fileName != null && !fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
-                fileName += ".fcm";
-            } else if( player.world == null ) {
-                player.Message( "When used from console, /gen requires FileName." );
-                cdGenerate.PrintUsage( player );
-                return;
-            }
+            string fullFileName = null;
 
-            if( fileName == null && !cmd.confirmed ) {
-                player.AskForConfirmation( cmd, "About to replace THIS MAP with a generated map." );
-                return;
-            }
-
-            if( fileName != null && !Paths.Contains( Paths.MapPath, fileName ) ) {
-                player.Message( "You are now allowed to access files outside the map folder." );
-                return;
+            if( fileName == null ) {
+                if( player.world == null ) {
+                    player.Message( "When used from console, /gen requires FileName." );
+                    cdGenerate.PrintUsage( player );
+                    return;
+                }
+                if( !cmd.confirmed ) {
+                    player.AskForConfirmation( cmd, "Replace this world's map with a generated one?" );
+                    return;
+                }
+            } else {
+                if( !fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
+                    fileName += ".fcm";
+                }
+                fullFileName = Path.Combine( Paths.MapPath, fileName );
+                if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
+                    player.Message( "You cannot access files outside the map folder." );
+                    return;
+                }
+                if( !cmd.confirmed && File.Exists( fullFileName ) ) {
+                    player.AskForConfirmation( cmd, "The mapfile \"{0}\" already exists. Overwrite?", fileName );
+                    return;
+                }
             }
 
             Map map = null;
@@ -1312,7 +1321,6 @@ namespace fCraft {
 
             if( map != null ) {
                 if( fileName != null ) {
-                    string fullFileName = Path.Combine( Paths.MapPath, fileName );
                     if( map.Save( fullFileName ) ) {
                         player.MessageNow( "Generation done. Saved to {0}", fileName );
                     } else {

@@ -248,7 +248,7 @@ namespace fCraft {
                     string rankName = message.Substring( 2, message.IndexOf( ' ' ) - 2 );
                     Rank rank = RankList.FindRank( rankName );
                     if( rank != null ) {
-                        Logger.Log( "{0} to class {1}: {2}", LogType.RankChat,
+                        Logger.Log( "{0} to rank {1}: {2}", LogType.RankChat,
                                     name, rank.Name, message );
                         string formattedMessage = String.Format( "{0}({1}{2}){3}{4}: {5}",
                                                                  rank.Color,
@@ -262,7 +262,7 @@ namespace fCraft {
                             Message( formattedMessage );
                         }
                     } else {
-                        Message( "No class found matching \"{0}\"", rankName );
+                        Message( "No rank found matching \"{0}\"", rankName );
                     }
                     break;
 
@@ -361,7 +361,7 @@ namespace fCraft {
         internal void AskForConfirmation( Command cmd, string message, params object[] args ) {
             commandToConfirm = cmd;
             commandToConfirmDate = DateTime.UtcNow;
-            Message( message + " Type &H/ok&S to continue.", args );
+            Message( "{0} Type &H/ok&S to continue.", String.Format( message, args ) );
             commandToConfirm.Rewind();
         }
 

@@ -485,7 +485,7 @@ namespace fCraft {
                 if( (rank = RankList.ParseRank( temp.Value )) != null ) {
                     return rank;
                 } else {
-                    Logger.Log( "Server.ParseWorldListXML: Could not parse the specified {0} class for world \"{1}\": \"{2}\". No access limit was set.", LogType.Error,
+                    Logger.Log( "Server.ParseWorldListXML: Could not parse the specified {0} rank for world \"{1}\": \"{2}\". No {0} limit was set.", LogType.Error,
                                 fieldType,
                                 world.name,
                                 temp.Value );

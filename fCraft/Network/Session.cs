@@ -623,7 +623,7 @@ namespace fCraft {
                     player.Message( "Welcome to {0}", Config.GetString( ConfigKey.ServerName ) );
                 }
 
-                player.Message( "Your player class is {0}&S. Type &H/help&S for help.",
+                player.Message( "Your rank is {0}&S. Type &H/help&S for help.",
                                 player.info.rank.GetClassyName() );
             }
             return true;

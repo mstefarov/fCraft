@@ -24,10 +24,12 @@ namespace ConfigTool {
                 return _map;
             }
             set {
-                bOK.Invoke( (MethodInvoker)delegate() {
-                    bOK.Enabled = (value != null);
-                    lCreateMap.Visible = !bOK.Enabled;
-                } );
+                try {
+                    bOK.Invoke( (MethodInvoker)delegate() {
+                        bOK.Enabled = (value != null);
+                        lCreateMap.Visible = !bOK.Enabled;
+                    } );
+                } catch( ObjectDisposedException ) { }
                 _map = value;
             }
         }
@@ -151,6 +153,7 @@ namespace ConfigTool {
         void StartLoadingMap() {
             map = null;
             tStatus1.Text = "Loading " + new FileInfo( fileToLoad ).Name;
+            tStatus2.Text = "";
             progressBar.Visible = true;
             progressBar.Style = ProgressBarStyle.Marquee;
             bwLoader.RunWorkerAsync();
@@ -534,72 +537,59 @@ namespace ConfigTool {
 
         static void ShowMapDetails( TextBox textBox, string fileName ) {
 
-            MapFormat format = MapFormat.Unknown;
-            try {
-                if( File.Exists( fileName ) ) {
-                    using( Stream stream = File.OpenRead( fileName ) ) {
-                        format = MapUtility.Identify( stream, fileName );
-                    }
-                } else {
-                    format = MapUtility.Identify( null, fileName );
-                }
-            } catch( Exception ) { }
+            DateTime creationTime, modificationTime;
+            long fileSize = 0;
 
             if( File.Exists( fileName ) ) {
-                Map loadedMap = Map.LoadHeaderOnly( fileName );
                 FileInfo existingMapFileInfo = new FileInfo( fileName );
+                creationTime = existingMapFileInfo.CreationTime;
+                modificationTime = existingMapFileInfo.LastWriteTime;
+                fileSize = existingMapFileInfo.Length;
+            } else if( Directory.Exists( fileName ) ) {
+                DirectoryInfo dirInfo = new DirectoryInfo( fileName );
+                creationTime = dirInfo.CreationTime;
+                modificationTime = dirInfo.LastWriteTime;
+                foreach( FileInfo finfo in dirInfo.GetFiles() ) {
+                    fileSize += finfo.Length;
+                }
+            } else {
+                textBox.Text = "File or directory \"" + fileName + "\" does not exist.";
+                return;
+            }
 
+            MapFormat format = MapUtility.Identify( fileName );
+            Map loadedMap = Map.LoadHeaderOnly( fileName );
 
-                if( loadedMap != null ) {
-                    textBox.Text = String.Format(
-@"      File: {0}
+            if( loadedMap != null ) {
+                textBox.Text = String.Format(
+@"  Location: {0}
     Format: {1}
   Filesize: {2} KB
    Created: {3}
   Modified: {4}
 Dimensions: {5}×{6}×{7}
     Blocks: {8}",
-                    fileName,
-                    format,
-                    (existingMapFileInfo.Length / 1024),
-                    existingMapFileInfo.CreationTime.ToLongDateString(),
-                    existingMapFileInfo.LastWriteTime.ToLongDateString(),
-                    loadedMap.widthX,
-                    loadedMap.widthY,
-                    loadedMap.height,
-                    loadedMap.widthX * loadedMap.widthY * loadedMap.height );
-                } else {
-                    textBox.Text = String.Format(
-@"      File: {0}
-    Format: {1}
-  Filesize: {2} KB
-   Created: {3}
-  Modified: {4}",
-                    fileName,
-                    format,
-                    (existingMapFileInfo.Length / 1024),
-                    existingMapFileInfo.CreationTime.ToLongDateString(),
-                    existingMapFileInfo.LastWriteTime.ToLongDateString() );
-                }
-            } else if( Directory.Exists( fileName ) ) {
-                DirectoryInfo dirInfo = new DirectoryInfo( fileName );
-                long totalSize = 0;
-                foreach( FileInfo finfo in dirInfo.GetFiles() ) {
-                    totalSize += finfo.Length;
-                }
-                textBox.Text = String.Format(
-@"    Folder: {0}
-    Format: {1}
-  Filesize: {2} KB
-   Created: {3}
-  Modified: {4}",
-                    dirInfo.Name,
-                    format,
-                    (totalSize / 1024),
-                    dirInfo.CreationTime.ToLongDateString(),
-                    dirInfo.LastWriteTime.ToLongDateString() );
+                fileName,
+                format,
+                (fileSize / 1024),
+                creationTime.ToLongDateString(),
+                modificationTime.ToLongDateString(),
+                loadedMap.widthX,
+                loadedMap.widthY,
+                loadedMap.height,
+                loadedMap.widthX * loadedMap.widthY * loadedMap.height );
             } else {
-                textBox.Text = "File \"" + fileName + "\" does not exist.";
+                textBox.Text = String.Format(
+@"  Location: {0}
+    Format: {1}
+  Filesize: {2} KB
+   Created: {3}
+  Modified: {4}",
+                fileName,
+                format,
+                (fileSize / 1024),
+                creationTime.ToLongDateString(),
+                modificationTime.ToLongDateString() );
             }
         }
 

@@ -558,7 +558,7 @@ namespace fCraft {
                             return true;
                         } else {
                             Log( "Config.SetValue: {0} could not be parsed. " +
-                                 "It should be either blank (indicating \"use lowest rank\") or set to a valid class name. " +
+                                 "It should be either blank (indicating \"use lowest rank\") or set to a valid rank name. " +
                                  "{0} was reset to default (lowest rank).", LogType.Warning, key );
                             return false;
                         }
@@ -795,7 +795,7 @@ namespace fCraft {
             Server.packetsPerSecond = GetInt( ConfigKey.BlockUpdateThrottling );
             Server.ticksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
 
-            // class to patrol
+            // rank to patrol
             if( RankList.ParseRank( settings[ConfigKey.PatrolledRank] ) != null ) {
                 World.rankToPatrol = RankList.ParseRank( settings[ConfigKey.PatrolledRank] );
             } else {

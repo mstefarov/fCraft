@@ -153,7 +153,7 @@ namespace fCraft {
             usage = "/zadd ZoneName RankName",
             help = "Create a zone that overrides build permissions. " +
                    "This can be used to restrict access to an area (by setting RankName to a high rank) " +
-                   "or to designate a guest area (by setting RankName to a class that normally can't build).",
+                   "or to designate a guest area (by lowering RankName).",
             handler = ZoneAdd
         };
 
@@ -203,7 +203,7 @@ namespace fCraft {
 
                 string rankName = cmd.Next();
                 if( rankName == null ) {
-                    player.Message( "No class was specified. See &H/help zone" );
+                    player.Message( "No rank was specified. See &H/help zone" );
                     return;
                 }
                 Rank minRank = RankList.ParseRank( rankName );

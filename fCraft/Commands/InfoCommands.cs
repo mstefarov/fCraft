@@ -495,7 +495,7 @@ namespace fCraft {
             if( rank != null ) {
                 bool first = true;
                 StringBuilder sb = new StringBuilder();
-                sb.AppendFormat( "Players of class {0}&S can do the following: ",
+                sb.AppendFormat( "Players of rank {0}&S can do the following: ",
                                  rank.GetClassyName() );
                 for( int i = 0; i < rank.Permissions.Length; i++ ) {
                     if( rank.Permissions[i] ) {
