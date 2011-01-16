@@ -515,7 +515,7 @@ namespace fCraft {
         }
 
         internal static void PlayerDisconnectedHandler( Session session ) {
-            if( session.hasRegistered ) return; // ignore unregistered players
+            if( !session.hasRegistered ) return; // ignore unregistered players
             string message = String.Format( "{0}&S* {1}&S left the server.",
                                             Color.IRCBold,
                                             session.player.GetClassyName() );
