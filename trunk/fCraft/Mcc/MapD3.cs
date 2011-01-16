@@ -3,7 +3,7 @@
 //   *  Tyler Kennedy <tk@tkte.ch>
 //   *  Matvei Stefarov <fragmer@gmail.com>
 // 
-//  Copyright (c) 2010, Tyler Kennedy & Matvei Stefarov
+//  Copyright (c) 2010-2011, Tyler Kennedy & Matvei Stefarov
 // 
 //  All rights reserved.
 // 
@@ -40,23 +40,11 @@ using fCraft;
 
 namespace Mcc {
     public sealed class MapD3 : IMapConverter {
-
-        const byte HeaderConstant1 = 232, HeaderConstant2 = 3;
-
-        public bool ClaimsFileName( string fileName ) {
-            return fileName.EndsWith( ".map", StringComparison.OrdinalIgnoreCase );
-        }
-
-        public MapFormat Format {
-            get { return MapFormat.D3; }
-        }
-
-        public string ServerName {
-            get { return "D3"; }
-        }
-
+        const byte HeaderConstant1 = 232,
+                   HeaderConstant2 = 3;
 
         static byte[] mapping = new byte[256];
+
         static MapD3() {
             // 0-49 default
             mapping[50] = (byte)Block.TNT;          // Torch
@@ -118,11 +106,67 @@ namespace Mcc {
         }
 
 
-        public Map Load( Stream mapStream, string fileName ) {
-            // Reset the seeker to the front of the stream
-            // This should probably be done differently.
-            mapStream.Seek( 0, SeekOrigin.Begin );
+        public string ServerName {
+            get { return "D3"; }
+        }
 
+
+        public MapFormatType FormatType {
+            get { return MapFormatType.SingleFile; }
+        }
+
+
+        public MapFormat Format {
+            get { return MapFormat.D3; }
+        }
+
+
+        public bool ClaimsName( string fileName ) {
+            return fileName.EndsWith( ".map", StringComparison.OrdinalIgnoreCase );
+        }
+
+
+        public bool Claims( string fileName ) {
+            try {
+                using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                    using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
+                        BinaryReader bs = new BinaryReader( gs );
+                        return (bs.ReadByte() == HeaderConstant1 && bs.ReadByte() == HeaderConstant2);
+                    }
+                }
+            } catch( Exception ) {
+                return false;
+            }
+        }
+
+
+        public Map LoadHeader( string fileName ) {
+            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                // Setup a GZipStream to decompress and read the map file
+                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
+                BinaryReader bs = new BinaryReader( gs );
+                Map map = new Map();
+
+                if( bs.ReadByte() != HeaderConstant1 ) {
+                    throw new MapFormatException( "Incorrect D3 map header." );
+                }
+                if( bs.ReadByte() != HeaderConstant2 ) {
+                    throw new MapFormatException( "Incorrect D3 map header." );
+                }
+
+                bs.ReadBytes( 2 );
+
+                // Read in the map dimesions
+                map.widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                map.widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                map.height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                return map;
+            }
+        }
+
+
+        public Map Load( string fileName ) {
+            using(FileStream mapStream = File.OpenRead(fileName)){
             // Setup a GZipStream to decompress and read the map file
             GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
             BinaryReader bs = new BinaryReader( gs );
@@ -159,43 +203,33 @@ namespace Mcc {
             }
 
             return map;
-        }
-
-
-        public bool Save( Map mapToSave, Stream mapStream ) {
-            using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress, true ) ) {
-                BinaryWriter bs = new BinaryWriter( gs );
-
-                // Write the magic number
-                bs.Write( (byte)HeaderConstant1 );
-                bs.Write( (byte)HeaderConstant2 );
-                bs.Write( (byte)0 );
-                bs.Write( (byte)0 );
-
-                // Write the map dimensions
-                bs.Write( IPAddress.NetworkToHostOrder( mapToSave.widthX ) );
-                bs.Write( IPAddress.NetworkToHostOrder( mapToSave.widthY ) );
-                bs.Write( IPAddress.NetworkToHostOrder( mapToSave.height ) );
-
-                // Write the map data
-                bs.Write( mapToSave.blocks, 0, mapToSave.blocks.Length );
-
-                bs.Close();
-            }
-            return true;
-        }
-
-
-        public bool Claims( Stream mapStream, string fileName ) {
-            try {
-                mapStream.Seek( 0, SeekOrigin.Begin );
-                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-                BinaryReader bs = new BinaryReader( gs );
-                return (bs.ReadByte() == HeaderConstant1 && bs.ReadByte() == HeaderConstant2);
-            } catch( Exception ) {
-                return false;
             }
         }
 
+
+        public bool Save( Map mapToSave, string fileName ) {
+            using( FileStream mapStream = File.Create( fileName ) ) {
+                using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress ) ) {
+                    BinaryWriter bs = new BinaryWriter( gs );
+
+                    // Write the magic number
+                    bs.Write( (byte)HeaderConstant1 );
+                    bs.Write( (byte)HeaderConstant2 );
+                    bs.Write( (byte)0 );
+                    bs.Write( (byte)0 );
+
+                    // Write the map dimensions
+                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.widthX ) );
+                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.widthY ) );
+                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.height ) );
+
+                    // Write the map data
+                    bs.Write( mapToSave.blocks, 0, mapToSave.blocks.Length );
+
+                    bs.Close();
+                    return true;
+                }
+            }
+        }
     }
 }

@@ -396,18 +396,22 @@ namespace fCraft {
                 Player target = Server.FindPlayerOrPrintMatches( player, name, false );
                 if( target == null ) return;
 
+                DateTime previousKickDate = target.info.lastKickDate;
+                string previousKickedBy = target.info.lastKickBy;
+                string previousKickReason = target.info.lastKickReason;
+
                 if( DoKick( player, target, msg, false ) ) {
-                    if( target.info.timesKicked > 0 ) {
+                    if( target.info.timesKicked > 1 ) {
                         player.Message( "Warning: {0}&S has been kicked {1} times before.",
-                                        target.GetClassyName(), target.info.timesKicked );
-                        if( target.info.lastKickDate != DateTime.MinValue ) {
+                                        target.GetClassyName(), target.info.timesKicked - 1 );
+                        if( previousKickDate != DateTime.MinValue ) {
                             player.Message( "Most recent kick was {0} ago, by {1}.",
-                                            DateTime.Now.Subtract( target.info.lastKickDate ).ToCompactString(),
-                                            target.info.lastKickBy );
+                                            DateTime.Now.Subtract( previousKickDate ).ToCompactString(),
+                                            previousKickedBy );
                         }
-                        if( target.info.lastKickReason.Length > 0 ) {
+                        if( !String.IsNullOrEmpty( previousKickReason ) ) {
                             player.Message( "Most recent kick reason was: {0}",
-                                            target.info.lastKickReason );
+                                            previousKickReason );
                         }
                     }
                 }
@@ -598,7 +602,7 @@ namespace fCraft {
                     // change admincrete deletion permission
                     target.Send( PacketWriter.MakeSetPermission( target ) );
 
-                    // inform the player of the class change
+                    // inform the player of the rank change
                     target.Message( "You have been {0} to {1}&S by {2}",
                                     verb,
                                     newRank.GetClassyName(),
@@ -944,7 +948,7 @@ namespace fCraft {
             permissions = new Permission[] { Permission.ReloadConfig },
             consoleSafe = true,
             help = "Reloads most of server's configuration file. " +
-                   "NOTE: THIS COMMAND IS EXPERIMENTAL! Excludes class changes and IRC bot settings. " +
+                   "NOTE: THIS COMMAND IS EXPERIMENTAL! Excludes rank changes and IRC bot settings. " +
                    "Server has to be restarted to change those.",
             handler = ReloadConfig
         };

@@ -134,10 +134,8 @@ namespace fCraft {
             string tempFileName = fileName + ".temp";
 
             try {
-                using( FileStream fs = File.OpenWrite( tempFileName ) ) {
-                    changedSinceSave = false;
-                    MapUtility.TrySaving( this, fs, MapFormat.FCMv3 );
-                }
+                changedSinceSave = false;
+                    MapUtility.TrySaving( this, tempFileName, MapFormat.FCMv3 );
 
             } catch( IOException ex ) {
                 changedSinceSave = true;
@@ -199,11 +197,7 @@ namespace fCraft {
                 // try to append ".fcm" and/or prepend "maps/"
                 if( File.Exists( fileName + ".fcm" ) ) {
                     fileName += ".fcm";
-                } else if( File.Exists( Path.Combine( Paths.MapPath, fileName ) ) || Directory.Exists( Path.Combine( Paths.MapPath, fileName ) ) ) {
-                    fileName = Path.Combine( Paths.MapPath, fileName );
-                } else if( File.Exists( Path.Combine( Paths.MapPath, fileName + ".fcm" ) ) ) {
-                    fileName = Path.Combine( Paths.MapPath, fileName + ".fcm" );
-                } else {
+                }else{
                     Logger.Log( "Map.Load: Could not find the specified file: {0}", LogType.Error, fileName );
                     return null;
                 }
@@ -242,27 +236,7 @@ namespace fCraft {
         /// <returns>Map object on success, or null on failure.</returns>
         public static Map LoadHeaderOnly( string fileName ) {
             try {
-                Map map = new Map();
-                using( FileStream fs = File.OpenRead( fileName ) ) {
-                    BinaryReader reader = new BinaryReader( fs );
-
-                    uint id = reader.ReadUInt32();
-
-                    if( id == MapFCMv2.Identifier ) {
-                        map.widthX = reader.ReadInt16();
-                        map.widthY = reader.ReadInt16();
-                        map.height = reader.ReadInt16();
-
-                    } else if( id == MapFCMv3.Identifier && reader.ReadByte() == MapFCMv3.Revision ) {
-                        map.widthX = reader.ReadInt16();
-                        map.height = reader.ReadInt16();
-                        map.widthY = reader.ReadInt16();
-
-                    } else {
-                        return null;
-                    }
-                }
-                return map;
+                return MapUtility.LoadHeader( fileName );
             } catch( Exception ex ) {
                 Logger.Log( "Map.LoadHeaderOnly: Error occured while trying to parse header of {0}: {1}", LogType.Error,
                             fileName, ex );

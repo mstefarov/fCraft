@@ -3,7 +3,7 @@
 //   *  Tyler Kennedy <tk@tkte.ch>
 //   *  Matvei Stefarov <fragmer@gmail.com>
 // 
-//  Copyright (c) 2010, Tyler Kennedy & Matvei Stefarov
+//  Copyright (c) 2010-2011, Tyler Kennedy & Matvei Stefarov
 // 
 //  All rights reserved.
 // 
@@ -61,69 +61,134 @@ namespace Mcc {
         }
 
 
-        public static MapFormat Identify( Stream mapStream, string fileName ) {
-            foreach( IMapConverter Converter in AvailableConverters.Values ) {
-                if( Converter.Claims( mapStream, fileName ) )
-                    return Converter.Format;
-                mapStream.Seek( 0, SeekOrigin.Begin );
+        public static MapFormat Identify( string fileName ) {
+            MapFormatType targetType = MapFormatType.SingleFile;
+            if( !File.Exists( fileName ) ) {
+                if( Directory.Exists( fileName ) ) {
+                    targetType = MapFormatType.Directory;
+                } else {
+                    throw new FileNotFoundException();
+                }
             }
+
+            List<IMapConverter> fallbackConverters = new List<IMapConverter>();
+            foreach( IMapConverter Converter in AvailableConverters.Values ) {
+                try {
+                    if( Converter.FormatType == targetType && Converter.ClaimsName( fileName ) ) {
+                        if( Converter.Claims( fileName ) ) {
+                            return Converter.Format;
+                        }
+                    } else {
+                        fallbackConverters.Add( Converter );
+                    }
+                } catch( Exception ) { }
+            }
+
+            foreach( IMapConverter Converter in fallbackConverters ) {
+                try {
+                    if( Converter.Claims( fileName ) ) {
+                        return Converter.Format;
+                    }
+                } catch( Exception ) { }
+            }
+
             return MapFormat.Unknown;
         }
 
 
 
         public static Map TryLoading( string fileName ) {
-            if( File.Exists( fileName ) ) {
-                using( Stream mapStream = File.OpenRead( fileName ) ) {
-                    string shortFileName = new FileInfo( fileName ).Name;
-                    // first try all converters for the file extension
-                    foreach( IMapConverter Converter in AvailableConverters.Values ) {
-                        if( Converter.ClaimsFileName( shortFileName ) && Converter.Claims( mapStream, fileName ) ) {
-                            mapStream.Seek( 0, SeekOrigin.Begin );
-                            Map result = Converter.Load( mapStream, fileName );
-                            if( Converter is MapFCMv3 ) {// TEMP
-                                result.EnableOwnershipTracking( ReservedPlayerID.None );// TEMP
-                            } else {// TEMP
-                                result.EnableOwnershipTracking( ReservedPlayerID.Unknown );// TEMP
-                            }// TEMP
-                            return result;
-                        }
-                        mapStream.Seek( 0, SeekOrigin.Begin );
-                    }
-                    // then try the rest
-                    foreach( IMapConverter Converter in AvailableConverters.Values ) {
-                        if( !Converter.ClaimsFileName( shortFileName ) && Converter.Claims( mapStream, fileName ) ) {
-                            mapStream.Seek( 0, SeekOrigin.Begin );
-                            Map result = Converter.Load( mapStream, fileName );
-                            if( Converter is MapFCMv3 ) {// TEMP
-                                result.EnableOwnershipTracking( ReservedPlayerID.None );// TEMP
-                            } else {// TEMP
-                                result.EnableOwnershipTracking( ReservedPlayerID.Unknown );// TEMP
-                            }// TEMP
-                            return result;
-                        }
-                        mapStream.Seek( 0, SeekOrigin.Begin );
-                    }
+            MapFormatType targetType = MapFormatType.SingleFile;
+            if( !File.Exists( fileName ) ) {
+                if( Directory.Exists( fileName ) ) {
+                    targetType = MapFormatType.Directory;
+                } else {
+                    throw new FileNotFoundException();
                 }
-                // if all else fails
-                throw new MapFormatException( "Unknown map format for loading." );
-
-            } else if( Directory.Exists( fileName ) ) {
-                Map result = AvailableConverters[MapFormat.Myne].Load( null, fileName );
-                result.EnableOwnershipTracking( ReservedPlayerID.Unknown );// TEMP
-                return result;
-
-            } else {
-                throw new FileNotFoundException();
             }
+
+            List<IMapConverter> fallbackConverters = new List<IMapConverter>();
+
+            // first try all converters for the file extension
+            foreach( IMapConverter converter in AvailableConverters.Values ) {
+                bool claims = false;
+                try {
+                    claims = (converter.FormatType == targetType) &&
+                             converter.ClaimsName( fileName ) &&
+                             converter.Claims( fileName );
+                } catch( Exception ) { }
+                if( claims ) {
+                    Map result = converter.Load( fileName );
+                    if( converter is MapFCMv3 ) {// TEMP
+                        result.EnableOwnershipTracking( ReservedPlayerID.None );// TEMP
+                    } else {// TEMP
+                        result.EnableOwnershipTracking( ReservedPlayerID.Unknown );// TEMP
+                    }// TEMP
+                    return result;
+                } else {
+                    fallbackConverters.Add( converter );
+                }
+            }
+
+            foreach( IMapConverter converter in fallbackConverters ) {
+                Map result = converter.Load( fileName );
+                if( converter is MapFCMv3 ) {// TEMP
+                    result.EnableOwnershipTracking( ReservedPlayerID.None );// TEMP
+                } else {// TEMP
+                    result.EnableOwnershipTracking( ReservedPlayerID.Unknown );// TEMP
+                }// TEMP
+                return result;
+            }
+
+            return null;
         }
 
 
-        public static bool TrySaving( Map mapToSave, Stream mapStream, MapFormat format ) {
+        public static bool TrySaving( Map mapToSave, string fileName, MapFormat format ) {
             if( AvailableConverters.ContainsKey( format ) ) {
-                return AvailableConverters[format].Save( mapToSave, mapStream );
+                return AvailableConverters[format].Save( mapToSave, fileName );
             }
             throw new MapFormatException( "Unknown map format for saving." );
+        }
+
+
+        public static Map LoadHeader( string fileName ) {
+
+            MapFormatType targetType = MapFormatType.SingleFile;
+            if( !File.Exists( fileName ) ) {
+                if( Directory.Exists( fileName ) ) {
+                    targetType = MapFormatType.Directory;
+                } else {
+                    throw new FileNotFoundException();
+                }
+            }
+
+            List<IMapConverter> fallbackConverters = new List<IMapConverter>();
+
+            // first try all converters for the file extension
+            foreach( IMapConverter converter in AvailableConverters.Values ) {
+                bool claims = false;
+                try {
+                    claims = (converter.FormatType == targetType) &&
+                             converter.ClaimsName( fileName ) &&
+                             converter.Claims( fileName );
+                } catch( Exception ) { }
+                if( claims ) {
+                    try {
+                        return converter.LoadHeader( fileName );
+                    } catch( NotImplementedException ) { }
+                } else {
+                    fallbackConverters.Add( converter );
+                }
+            }
+
+            foreach( IMapConverter converter in fallbackConverters ) {
+                try {
+                    return converter.LoadHeader( fileName );
+                } catch( NotImplementedException ) { }
+            }
+
+            return null;
         }
     }
 }

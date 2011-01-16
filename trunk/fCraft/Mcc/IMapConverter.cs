@@ -3,7 +3,7 @@
 //   *  Tyler Kennedy <tk@tkte.ch>
 //   *  Matvei Stefarov <fragmer@gmail.com>
 // 
-//  Copyright (c) 2010, Tyler Kennedy & Matvei Stefarov
+//  Copyright (c) 2010-2011, Tyler Kennedy & Matvei Stefarov
 // 
 //  All rights reserved.
 // 
@@ -31,21 +31,60 @@
 //  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-using System.IO;
 using fCraft;
 
 
 namespace Mcc {
     public interface IMapConverter {
+        /// <summary>
+        /// Returns name(s) of the server that uses this format.
+        /// </summary>
         string ServerName { get; }
+        
+
+        /// <summary>
+        /// Returns the format type (file-based or directory-based).
+        /// </summary>
+        MapFormatType FormatType { get; }
+
+
+        /// <summary>
+        /// Returns the format name.
+        /// </summary>
         MapFormat Format { get; }
 
-        bool ClaimsFileName( string fileName );
 
-        bool Claims( Stream mapStream, string fileName );
+        /// <summary>
+        /// Returns true if the filename (or directory name) matches this format's expectations.
+        /// </summary>
+        bool ClaimsName( string path );
 
-        Map Load( Stream mapStream, string fileName );
 
-        bool Save( Map mapToSave, Stream mapStream );
+        /// <summary>
+        /// Allows validating the map format while using minimal resources.
+        /// </summary>
+        /// <returns>Returns true if specified file/directory is valid for this format.</returns>
+        bool Claims( string path );
+
+
+        /// <summary>
+        /// Attempts to load map dimensions from specified location.
+        /// </summary>
+        /// <returns>Map object on success, or null on failure.</returns>
+        Map LoadHeader( string path );
+
+
+        /// <summary>
+        /// Fully loads map from specified location.
+        /// </summary>
+        /// <returns>Map object on success, or null on failure.</returns>
+        Map Load( string path );
+
+
+        /// <summary>
+        /// Saves given map at the given location.
+        /// </summary>
+        /// <returns>true if saving succeeded.</returns>
+        bool Save( Map mapToSave, string path );
     }
 }

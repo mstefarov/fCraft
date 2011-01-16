@@ -3,7 +3,7 @@
 //   *  Tyler Kennedy <tk@tkte.ch>
 //   *  Matvei Stefarov <fragmer@gmail.com>
 // 
-//  Copyright (c) 2010, Tyler Kennedy & Matvei Stefarov
+//  Copyright (c) 2010-2011, Tyler Kennedy & Matvei Stefarov
 // 
 //  All rights reserved.
 // 

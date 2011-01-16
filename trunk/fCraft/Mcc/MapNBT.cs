@@ -3,7 +3,7 @@
 //   *  Tyler Kennedy <tk@tkte.ch>
 //   *  Matvei Stefarov <fragmer@gmail.com>
 // 
-//  Copyright (c) 2010, Tyler Kennedy & Matvei Stefarov
+//  Copyright (c) 2010-2011, Tyler Kennedy & Matvei Stefarov
 // 
 //  All rights reserved.
 // 
@@ -39,60 +39,76 @@ using fCraft;
 
 namespace Mcc {
     public sealed class MapNBT : IMapConverter {
-        public bool ClaimsFileName( string fileName ) {
-            return fileName.EndsWith( ".mclevel", StringComparison.OrdinalIgnoreCase );
-        }
-
-        public MapFormat Format {
-            get { return MapFormat.NBT; }
-        }
 
         public string ServerName {
             get { return "InDev"; }
         }
 
 
-        public Map Load( Stream mapStream, string fileName ) {
-            GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-            NBTag tag = NBTag.ReadStream( gs );
-
-            Map map = new Map();
-
-            NBTag mapTag = tag["Map"];
-            map.widthX = mapTag["Width"].GetShort();
-            map.height = mapTag["Height"].GetShort();
-            map.widthY = mapTag["Length"].GetShort();
-
-            if( !map.ValidateHeader() ) {
-                throw new MapFormatException( "MapNBT.Load: One or more of the map dimensions are invalid." );
-            }
-
-            map.blocks = mapTag["Blocks"].GetBytes();
-
-            map.spawn.x = mapTag["Spawn"][0].GetShort();
-            map.spawn.h = mapTag["Spawn"][1].GetShort();
-            map.spawn.y = mapTag["Spawn"][2].GetShort();
-            map.spawn.r = 0;
-            map.spawn.l = 0;
-
-            return map;
+        public MapFormatType FormatType {
+            get { return MapFormatType.SingleFile; }
         }
 
 
-        public bool Save( Map mapToSave, Stream mapStream ) {
-            throw new NotImplementedException();
+        public MapFormat Format {
+            get { return MapFormat.NBT; }
         }
 
 
-        public bool Claims( Stream mapStream, string fileName ) {
+        public bool ClaimsName( string fileName ) {
+            return fileName.EndsWith( ".mclevel", StringComparison.OrdinalIgnoreCase );
+        }
+
+
+        public bool Claims( string fileName ) {
             try {
-                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-                BinaryReader bs = new BinaryReader( gs );
-                return (bs.ReadByte() == 10 && NBTag.ReadString( bs ) == "MinecraftLevel");
-            } catch ( Exception ) {
+                using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                    GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
+                    BinaryReader bs = new BinaryReader( gs );
+                    return (bs.ReadByte() == 10 && NBTag.ReadString( bs ) == "MinecraftLevel");
+                }
+            } catch( Exception ) {
                 return false;
             }
         }
 
+
+        public Map LoadHeader( string fileName ) {
+            throw new NotImplementedException();
+        }
+
+
+        public Map Load( string fileName ) {
+            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
+                NBTag tag = NBTag.ReadStream( gs );
+
+                Map map = new Map();
+
+                NBTag mapTag = tag["Map"];
+                map.widthX = mapTag["Width"].GetShort();
+                map.height = mapTag["Height"].GetShort();
+                map.widthY = mapTag["Length"].GetShort();
+
+                if( !map.ValidateHeader() ) {
+                    throw new MapFormatException( "MapNBT.Load: One or more of the map dimensions are invalid." );
+                }
+
+                map.blocks = mapTag["Blocks"].GetBytes();
+
+                map.spawn.x = mapTag["Spawn"][0].GetShort();
+                map.spawn.h = mapTag["Spawn"][1].GetShort();
+                map.spawn.y = mapTag["Spawn"][2].GetShort();
+                map.spawn.r = 0;
+                map.spawn.l = 0;
+
+                return map;
+            }
+        }
+
+
+        public bool Save( Map mapToSave, string fileName ) {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -3,7 +3,7 @@
 //   *  Tyler Kennedy <tk@tkte.ch>
 //   *  Matvei Stefarov <fragmer@gmail.com>
 // 
-//  Copyright (c) 2010, Tyler Kennedy & Matvei Stefarov
+//  Copyright (c) 2010-2011, Tyler Kennedy & Matvei Stefarov
 // 
 //  All rights reserved.
 // 
@@ -39,20 +39,9 @@ using fCraft;
 
 namespace Mcc {
     public sealed class MapMCSharp : IMapConverter {
-        public bool ClaimsFileName( string fileName ) {
-            return fileName.EndsWith( ".lvl", StringComparison.OrdinalIgnoreCase );
-        }
-
-        public MapFormat Format {
-            get { return MapFormat.MCSharp; }
-        }
-
-        public string ServerName {
-            get { return "MCSharp/MCZall/MCLawl"; }
-        }
-
 
         static byte[] mapping = new byte[256];
+
         static MapMCSharp() {
             mapping[100] = (byte)Block.Glass;
             mapping[101] = (byte)Block.Obsidian;
@@ -69,101 +58,146 @@ namespace Mcc {
             // all others default to 0/air
         }
 
-        public Map Load( Stream mapStream, string fileName ) {
-            // Reset the seeker to the front of the stream
-            // This should probably be done differently.
-            mapStream.Seek( 0, SeekOrigin.Begin );
 
-            // Setup a GZipStream to decompress and read the map file
-            GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-            BinaryReader bs = new BinaryReader( gs );
-
-            Map map = new Map();
-
-            // Read in the magic number
-            if ( bs.ReadUInt16() != 0x752 ) {
-                throw new FormatException();
-            }
-
-            // Read in the map dimesions
-            map.widthX = bs.ReadInt16();
-            map.widthY = bs.ReadInt16();
-            map.height = bs.ReadInt16();
-
-            if( !map.ValidateHeader() ) {
-                throw new MapFormatException( "MapFCMv3.Load: One or more of the map dimensions are invalid." );
-            }
-
-            // Read in the spawn location
-            map.spawn.x = (short)(bs.ReadInt16() * 32);
-            map.spawn.h = (short)(bs.ReadInt16() * 32);
-            map.spawn.y = (short)(bs.ReadInt16() * 32);
-
-            // Read in the spawn orientation
-            map.spawn.r = bs.ReadByte();
-            map.spawn.l = bs.ReadByte();
-
-            // Skip over the VisitPermission and BuildPermission bytes
-            bs.ReadByte();
-            bs.ReadByte();
-
-            // Read in the map data
-            map.blocks = bs.ReadBytes( map.GetBlockCount() );
-
-            for( int i = 0; i < map.blocks.Length; i++ ) {
-                if( map.blocks[i] > 49 ) {
-                    map.blocks[i] = mapping[map.blocks[i]];
-                }
-            }
-
-            return map;
+        public string ServerName {
+            get { return "MCSharp/MCZall/MCLawl"; }
         }
 
 
-        public bool Save( Map mapToSave, Stream mapStream ) {
-            using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress, true ) ) {
-                BinaryWriter bs = new BinaryWriter( gs );
-
-                // Write the magic number
-                bs.Write( (ushort)0x752 );
-
-                // Write the map dimensions
-                bs.Write( mapToSave.widthX );
-                bs.Write( mapToSave.height );
-                bs.Write( mapToSave.widthY );
-
-                // Write the spawn location
-                bs.Write( mapToSave.spawn.x/32 );
-                bs.Write( mapToSave.spawn.h / 32 );
-                bs.Write( mapToSave.spawn.y / 32 );
-
-                //Write the spawn orientation
-                bs.Write( mapToSave.spawn.r );
-                bs.Write( mapToSave.spawn.l );
-
-                // Write the VistPermission and BuildPermission bytes
-                bs.Write( (byte)0 );
-                bs.Write( (byte)0 );
-
-                // Write the map data
-                bs.Write( mapToSave.blocks, 0, mapToSave.blocks.Length );
-
-                bs.Close();
-            }
-            return true;
+        public MapFormatType FormatType {
+            get { return MapFormatType.SingleFile; }
         }
 
 
-        public bool Claims( Stream mapStream, string fileName ) {
+        public MapFormat Format {
+            get { return MapFormat.MCSharp; }
+        }
+
+
+        public bool ClaimsName( string fileName ) {
+            return fileName.EndsWith( ".lvl", StringComparison.OrdinalIgnoreCase );
+        }
+
+
+        public bool Claims( string fileName ) {
             try {
-                mapStream.Seek( 0, SeekOrigin.Begin );
-                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-                BinaryReader bs = new BinaryReader( gs );
-                return (bs.ReadUInt16() == 0x752);
+                using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                    mapStream.Seek( 0, SeekOrigin.Begin );
+                    GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
+                    BinaryReader bs = new BinaryReader( gs );
+                    return (bs.ReadUInt16() == 0x752);
+                }
             } catch( Exception ) {
                 return false;
             }
         }
 
+
+        public Map LoadHeader( string fileName ) {
+            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
+                    BinaryReader bs = new BinaryReader( gs );
+
+                    Map map = new Map();
+
+                    // Read in the magic number
+                    if( bs.ReadUInt16() != 0x752 ) {
+                        throw new FormatException();
+                    }
+
+                    // Read in the map dimesions
+                    map.widthX = bs.ReadInt16();
+                    map.widthY = bs.ReadInt16();
+                    map.height = bs.ReadInt16();
+
+                    return map;
+                }
+            }
+        }
+
+
+        public Map Load( string fileName ) {
+            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
+                    BinaryReader bs = new BinaryReader( gs );
+
+                    Map map = new Map();
+
+                    // Read in the magic number
+                    if( bs.ReadUInt16() != 0x752 ) {
+                        throw new FormatException();
+                    }
+
+                    // Read in the map dimesions
+                    map.widthX = bs.ReadInt16();
+                    map.widthY = bs.ReadInt16();
+                    map.height = bs.ReadInt16();
+
+                    if( !map.ValidateHeader() ) {
+                        throw new MapFormatException( "MapFCMv3.Load: One or more of the map dimensions are invalid." );
+                    }
+
+                    // Read in the spawn location
+                    map.spawn.x = (short)(bs.ReadInt16() * 32);
+                    map.spawn.h = (short)(bs.ReadInt16() * 32);
+                    map.spawn.y = (short)(bs.ReadInt16() * 32);
+
+                    // Read in the spawn orientation
+                    map.spawn.r = bs.ReadByte();
+                    map.spawn.l = bs.ReadByte();
+
+                    // Skip over the VisitPermission and BuildPermission bytes
+                    bs.ReadByte();
+                    bs.ReadByte();
+
+                    // Read in the map data
+                    map.blocks = bs.ReadBytes( map.GetBlockCount() );
+
+                    for( int i = 0; i < map.blocks.Length; i++ ) {
+                        if( map.blocks[i] > 49 ) {
+                            map.blocks[i] = mapping[map.blocks[i]];
+                        }
+                    }
+
+                    return map;
+                }
+            }
+        }
+
+
+        public bool Save( Map mapToSave, string fileName ) {
+            using( FileStream mapStream = File.Create( fileName ) ) {
+                using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress ) ) {
+                    BinaryWriter bs = new BinaryWriter( gs );
+
+                    // Write the magic number
+                    bs.Write( (ushort)0x752 );
+
+                    // Write the map dimensions
+                    bs.Write( mapToSave.widthX );
+                    bs.Write( mapToSave.height );
+                    bs.Write( mapToSave.widthY );
+
+                    // Write the spawn location
+                    bs.Write( mapToSave.spawn.x / 32 );
+                    bs.Write( mapToSave.spawn.h / 32 );
+                    bs.Write( mapToSave.spawn.y / 32 );
+
+                    //Write the spawn orientation
+                    bs.Write( mapToSave.spawn.r );
+                    bs.Write( mapToSave.spawn.l );
+
+                    // Write the VistPermission and BuildPermission bytes
+                    bs.Write( (byte)0 );
+                    bs.Write( (byte)0 );
+
+                    // Write the map data
+                    bs.Write( mapToSave.blocks, 0, mapToSave.blocks.Length );
+
+                    bs.Close();
+                }
+                return true;
+            }
+        }
     }
 }

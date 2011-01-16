@@ -3,7 +3,7 @@
 //   *  Tyler Kennedy <tk@tkte.ch>
 //   *  Matvei Stefarov <fragmer@gmail.com>
 // 
-//  Copyright (c) 2010, Tyler Kennedy & Matvei Stefarov
+//  Copyright (c) 2010-2011, Tyler Kennedy & Matvei Stefarov
 // 
 //  All rights reserved.
 // 
@@ -42,41 +42,65 @@ using fCraft;
 namespace Mcc {
     public sealed class MapMyne : IMapConverter {
 
-        public bool ClaimsFileName( string fileName ) {
-            return false;
-        }
+        const string BlockStoreFileName = "blocks.gz";
+        const string MetaDataFileName = "world.meta";
 
-        public MapFormat Format {
-            get { return MapFormat.Myne; }
-        }
 
         public string ServerName {
             get { return "Myne/MyneCraft/HyveBuild/iCraft"; }
         }
 
 
+        public MapFormatType FormatType {
+            get { return MapFormatType.Directory; }
+        }
 
-        public Map Load( Stream inputStream, string dirName ) {
-            DirectoryInfo dirInfo = new DirectoryInfo( dirName );
 
-            string dataFileName = dirInfo.FullName + "/blocks.gz";
-            string metaFileName = dirInfo.FullName + "/world.meta";
+        public MapFormat Format {
+            get { return MapFormat.Myne; }
+        }
 
-            if( !File.Exists( dataFileName ) || !File.Exists( metaFileName ) ) {
+
+        public bool ClaimsName( string dirName ) {
+            return Directory.Exists( dirName ) &&
+                   File.Exists( Path.Combine( dirName, BlockStoreFileName ) ) &&
+                   File.Exists( Path.Combine( dirName, MetaDataFileName ) );
+        }
+
+
+        public bool Claims( string dirName ) {
+            return ClaimsName( dirName );
+        }
+
+
+        public Map LoadHeader( string dirName ) {
+            string fullMetaDataFileName = Path.Combine( dirName, MetaDataFileName );
+            Map map = new Map();
+            using( Stream metaStream = File.OpenRead( fullMetaDataFileName ) ) {
+                LoadMeta( map, metaStream );
+            }
+            return map;
+        }
+
+
+        public Map Load( string dirName ) {
+            string fullBlockStoreFileName = Path.Combine( dirName, BlockStoreFileName );
+            string fullMetaDataFileName = Path.Combine( dirName, MetaDataFileName );
+
+            if( !File.Exists( fullBlockStoreFileName ) || !File.Exists( fullMetaDataFileName ) ) {
                 throw new FileNotFoundException( "When loading myne maps, both .gz and .meta files are required." );
             }
 
             Map map = new Map();
-            using( Stream metaStream = File.OpenRead( metaFileName ) ) {
+            using( Stream metaStream = File.OpenRead( fullMetaDataFileName ) ) {
                 LoadMeta( map, metaStream );
             }
-            using( Stream dataStream = File.OpenRead( dataFileName ) ) {
+            using( Stream dataStream = File.OpenRead( fullBlockStoreFileName ) ) {
                 LoadBlocks( map, dataStream );
             }
 
             return map;
         }
-
 
 
         void LoadBlocks( Map map, Stream mapStream ) {
@@ -125,19 +149,11 @@ namespace Mcc {
         }
 
 
-        public bool Save( Map mapToSave, Stream mapStream ) {
+        public bool Save( Map mapToSave, string fileName ) {
             throw new NotImplementedException();
         }
-
-
-        public bool Claims( Stream inputStream, string fileName ) {
-            if( Directory.Exists( fileName ) ) {
-                return true;
-            } else {
-                return false;
-            }
-        }
     }
+
 
     class INIFile {
         public string separator = "=";

@@ -118,6 +118,10 @@
             this.bBrowseTemplate = new System.Windows.Forms.Button();
             this.bSaveTemplate = new System.Windows.Forms.Button();
             this.gMapSize = new System.Windows.Forms.GroupBox();
+            this.nMaxDepthVariation = new System.Windows.Forms.NumericUpDown();
+            this.nMaxHeightVariation = new System.Windows.Forms.NumericUpDown();
+            this.lMaxHeightVariationUnits = new System.Windows.Forms.Label();
+            this.lMaxDepthVariationUnits = new System.Windows.Forms.Label();
             this.xWaterLevel = new System.Windows.Forms.CheckBox();
             this.nWaterLevel = new System.Windows.Forms.NumericUpDown();
             this.lWaterLevelLabel = new System.Windows.Forms.Label();
@@ -188,10 +192,6 @@
             this.lMapFileOptions = new System.Windows.Forms.Label();
             this.lCreateMap = new System.Windows.Forms.Label();
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
-            this.nMaxDepthVariation = new System.Windows.Forms.NumericUpDown();
-            this.nMaxHeightVariation = new System.Windows.Forms.NumericUpDown();
-            this.lMaxHeightVariationUnits = new System.Windows.Forms.Label();
-            this.lMaxDepthVariationUnits = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
@@ -216,6 +216,8 @@
             this.gGenOptions.SuspendLayout();
             this.gTemplates.SuspendLayout();
             this.gMapSize.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxDepthVariation)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxHeightVariation)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWaterLevel)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxDepth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxHeight)).BeginInit();
@@ -243,8 +245,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nBeachHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nBeachExtent)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxDepthVariation)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxHeightVariation)).BeginInit();
             this.SuspendLayout();
             // 
             // lX2
@@ -875,12 +875,15 @@
             // 
             // tExistingMapInfo
             // 
+            this.tExistingMapInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.tExistingMapInfo.Font = new System.Drawing.Font( "Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.tExistingMapInfo.Location = new System.Drawing.Point( 6, 6 );
             this.tExistingMapInfo.Multiline = true;
             this.tExistingMapInfo.Name = "tExistingMapInfo";
             this.tExistingMapInfo.ReadOnly = true;
-            this.tExistingMapInfo.Size = new System.Drawing.Size( 373, 100 );
+            this.tExistingMapInfo.Size = new System.Drawing.Size( 373, 412 );
             this.tExistingMapInfo.TabIndex = 0;
             // 
             // tabLoad
@@ -970,12 +973,15 @@
             // 
             // tLoadFileInfo
             // 
+            this.tLoadFileInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.tLoadFileInfo.Font = new System.Drawing.Font( "Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.tLoadFileInfo.Location = new System.Drawing.Point( 3, 198 );
             this.tLoadFileInfo.Multiline = true;
             this.tLoadFileInfo.Name = "tLoadFileInfo";
             this.tLoadFileInfo.ReadOnly = true;
-            this.tLoadFileInfo.Size = new System.Drawing.Size( 379, 100 );
+            this.tLoadFileInfo.Size = new System.Drawing.Size( 379, 220 );
             this.tLoadFileInfo.TabIndex = 2;
             // 
             // tabCopy
@@ -1383,6 +1389,53 @@
             this.gMapSize.TabIndex = 9;
             this.gMapSize.TabStop = false;
             this.gMapSize.Text = "Dimensions";
+            // 
+            // nMaxDepthVariation
+            // 
+            this.nMaxDepthVariation.Location = new System.Drawing.Point( 167, 78 );
+            this.nMaxDepthVariation.Maximum = new decimal( new int[] {
+            2032,
+            0,
+            0,
+            0} );
+            this.nMaxDepthVariation.Name = "nMaxDepthVariation";
+            this.nMaxDepthVariation.Size = new System.Drawing.Size( 54, 20 );
+            this.nMaxDepthVariation.TabIndex = 50;
+            // 
+            // nMaxHeightVariation
+            // 
+            this.nMaxHeightVariation.Location = new System.Drawing.Point( 167, 52 );
+            this.nMaxHeightVariation.Maximum = new decimal( new int[] {
+            2032,
+            0,
+            0,
+            0} );
+            this.nMaxHeightVariation.Name = "nMaxHeightVariation";
+            this.nMaxHeightVariation.Size = new System.Drawing.Size( 54, 20 );
+            this.nMaxHeightVariation.TabIndex = 49;
+            this.nMaxHeightVariation.Value = new decimal( new int[] {
+            4,
+            0,
+            0,
+            0} );
+            // 
+            // lMaxHeightVariationUnits
+            // 
+            this.lMaxHeightVariationUnits.AutoSize = true;
+            this.lMaxHeightVariationUnits.Location = new System.Drawing.Point( 227, 54 );
+            this.lMaxHeightVariationUnits.Name = "lMaxHeightVariationUnits";
+            this.lMaxHeightVariationUnits.Size = new System.Drawing.Size( 38, 13 );
+            this.lMaxHeightVariationUnits.TabIndex = 51;
+            this.lMaxHeightVariationUnits.Text = "blocks";
+            // 
+            // lMaxDepthVariationUnits
+            // 
+            this.lMaxDepthVariationUnits.AutoSize = true;
+            this.lMaxDepthVariationUnits.Location = new System.Drawing.Point( 227, 80 );
+            this.lMaxDepthVariationUnits.Name = "lMaxDepthVariationUnits";
+            this.lMaxDepthVariationUnits.Size = new System.Drawing.Size( 38, 13 );
+            this.lMaxDepthVariationUnits.TabIndex = 52;
+            this.lMaxDepthVariationUnits.Text = "blocks";
             // 
             // xWaterLevel
             // 
@@ -2250,53 +2303,6 @@
             // 
             this.folderBrowser.Description = "Find the folder where your Myne / MyneCraft / Hydebuild / iCraft map is located.";
             // 
-            // nMaxDepthVariation
-            // 
-            this.nMaxDepthVariation.Location = new System.Drawing.Point( 167, 78 );
-            this.nMaxDepthVariation.Maximum = new decimal( new int[] {
-            2032,
-            0,
-            0,
-            0} );
-            this.nMaxDepthVariation.Name = "nMaxDepthVariation";
-            this.nMaxDepthVariation.Size = new System.Drawing.Size( 54, 20 );
-            this.nMaxDepthVariation.TabIndex = 50;
-            // 
-            // nMaxHeightVariation
-            // 
-            this.nMaxHeightVariation.Location = new System.Drawing.Point( 167, 52 );
-            this.nMaxHeightVariation.Maximum = new decimal( new int[] {
-            2032,
-            0,
-            0,
-            0} );
-            this.nMaxHeightVariation.Name = "nMaxHeightVariation";
-            this.nMaxHeightVariation.Size = new System.Drawing.Size( 54, 20 );
-            this.nMaxHeightVariation.TabIndex = 49;
-            this.nMaxHeightVariation.Value = new decimal( new int[] {
-            4,
-            0,
-            0,
-            0} );
-            // 
-            // lMaxHeightVariationUnits
-            // 
-            this.lMaxHeightVariationUnits.AutoSize = true;
-            this.lMaxHeightVariationUnits.Location = new System.Drawing.Point( 227, 54 );
-            this.lMaxHeightVariationUnits.Name = "lMaxHeightVariationUnits";
-            this.lMaxHeightVariationUnits.Size = new System.Drawing.Size( 38, 13 );
-            this.lMaxHeightVariationUnits.TabIndex = 51;
-            this.lMaxHeightVariationUnits.Text = "blocks";
-            // 
-            // lMaxDepthVariationUnits
-            // 
-            this.lMaxDepthVariationUnits.AutoSize = true;
-            this.lMaxDepthVariationUnits.Location = new System.Drawing.Point( 227, 80 );
-            this.lMaxDepthVariationUnits.Name = "lMaxDepthVariationUnits";
-            this.lMaxDepthVariationUnits.Size = new System.Drawing.Size( 38, 13 );
-            this.lMaxDepthVariationUnits.TabIndex = 52;
-            this.lMaxDepthVariationUnits.Text = "blocks";
-            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -2359,6 +2365,8 @@
             this.gTemplates.PerformLayout();
             this.gMapSize.ResumeLayout( false );
             this.gMapSize.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxDepthVariation)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxHeightVariation)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWaterLevel)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxDepth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxHeight)).EndInit();
@@ -2393,8 +2401,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nBeachHeight)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nBeachExtent)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxDepthVariation)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxHeightVariation)).EndInit();
             this.ResumeLayout( false );
             this.PerformLayout();
 

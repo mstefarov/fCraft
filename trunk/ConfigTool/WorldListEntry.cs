@@ -52,17 +52,18 @@ namespace ConfigTool {
                 Backup = World.BackupEnum[5];
             }
 
+            // TODO: Support parsing SecurityController
             if( (temp = el.Attribute( "access" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
                 accessRank = RankList.ParseRank( temp.Value );
                 if( accessRank == null ) {
-                    Logger.Log( "WorldListEntity: Unrecognized class specified for \"access\" permission. Permission reset to default (everyone).", LogType.Warning );
+                    Logger.Log( "WorldListEntity: Unrecognized rank specified for \"access\" permission. Permission reset to default (everyone).", LogType.Warning );
                 }
             }
 
             if( (temp = el.Attribute( "build" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
                 buildRank = RankList.ParseRank( temp.Value );
                 if( buildRank == null ) {
-                    Logger.Log( "WorldListEntity: Unrecognized class specified for \"build\" permission. Permission reset to default (everyone).", LogType.Warning );
+                    Logger.Log( "WorldListEntity: Unrecognized rank specified for \"build\" permission. Permission reset to default (everyone).", LogType.Warning );
                 }
             }
         }

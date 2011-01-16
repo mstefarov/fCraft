@@ -3,7 +3,7 @@
 //   *  Tyler Kennedy <tk@tkte.ch>
 //   *  Matvei Stefarov <fragmer@gmail.com>
 // 
-//  Copyright (c) 2010, Tyler Kennedy & Matvei Stefarov
+//  Copyright (c) 2010-2011, Tyler Kennedy & Matvei Stefarov
 // 
 //  All rights reserved.
 // 
@@ -41,20 +41,8 @@ using fCraft;
 namespace Mcc {
     public sealed class MapDAT : IMapConverter {
 
-        public bool ClaimsFileName( string fileName ) {
-            return fileName.EndsWith( ".dat", StringComparison.OrdinalIgnoreCase ) ||
-                   fileName.EndsWith( ".mine", StringComparison.OrdinalIgnoreCase );
-        }
-
-        public MapFormat Format {
-            get { return MapFormat.Creative; }
-        }
-
-        public string ServerName {
-            get { return "Vanilla"; }
-        }
-
         static byte[] mapping = new byte[256];
+
         static MapDAT() {
             mapping[50] = (byte)Block.Air;      // torch
             mapping[51] = (byte)Block.Lava;     // fire
@@ -101,140 +89,168 @@ namespace Mcc {
             // all others default to 0/air
         }
 
-        public Map Load( Stream mapStream, string fileName ) {
-            byte[] temp = new byte[8];
-            Map map = new Map();
-            byte[] data;
-            int length;
 
-            try {
-                mapStream.Seek( -4, SeekOrigin.End );
-                mapStream.Read( temp, 0, sizeof( int ) );
-                mapStream.Seek( 0, SeekOrigin.Begin );
-                length = BitConverter.ToInt32( temp, 0 );
-                data = new byte[length];
-                using( GZipStream reader = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
-                    reader.Read( data, 0, length );
-                }
-
-                for( int i = 0; i < length - 1; i++ ) {
-                    if( data[i] == 0xAC && data[i + 1] == 0xED ) {
-
-                        // bypassing the header crap
-                        int pointer = i + 6;
-                        Array.Copy( data, pointer, temp, 0, sizeof( short ) );
-                        pointer += IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
-                        pointer += 13;
-
-                        int headerEnd = 0;
-                        // find the end of serialization listing
-                        for( headerEnd = pointer; headerEnd < data.Length - 1; headerEnd++ ) {
-                            if( data[headerEnd] == 0x78 && data[headerEnd + 1] == 0x70 ) {
-                                headerEnd += 2;
-                                break;
-                            }
-                        }
-
-                        // start parsing serialization listing
-                        int offset = 0;
-                        while( pointer < headerEnd ) {
-                            if( data[pointer] == 'Z' ) offset++;
-                            else if( data[pointer] == 'I' || data[pointer] == 'F' ) offset += 4;
-                            else if( data[pointer] == 'J' ) offset += 8;
-
-                            pointer += 1;
-                            Array.Copy( data, pointer, temp, 0, sizeof( short ) );
-                            short skip = IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
-                            pointer += 2;
-
-                            // look for relevant variables
-                            Array.Copy( data, headerEnd + offset - 4, temp, 0, sizeof( int ) );
-                            if( MemCmp( data, pointer, "width" ) ) {
-                                map.widthX = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
-                            } else if( MemCmp( data, pointer, "depth" ) ) {
-                                map.height = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
-                            } else if( MemCmp( data, pointer, "height" ) ) {
-                                map.widthY = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
-                            } else if( MemCmp( data, pointer, "xSpawn" ) ) {
-                                map.spawn.x = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
-                            } else if( MemCmp( data, pointer, "ySpawn" ) ) {
-                                map.spawn.h = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
-                            } else if( MemCmp( data, pointer, "zSpawn" ) ) {
-                                map.spawn.y = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
-                            }
-
-                            pointer += skip;
-                        }
-
-                        if( !map.ValidateHeader() ) {
-                            throw new MapFormatException( "MapDAT.Load: One or more of the map dimensions are invalid." );
-                        }
-
-                        // find the start of the block array
-                        bool foundBlockArray = false;
-                        offset = Array.IndexOf<byte>( data, 0x00, headerEnd );
-                        while( offset != -1 && offset < data.Length - 2 ) {
-                            if( data[offset] == 0x00 && data[offset + 1] == 0x78 && data[offset + 2] == 0x70 ) {
-                                foundBlockArray = true;
-                                pointer = offset + 7;
-                            }
-                            offset = Array.IndexOf<byte>( data, 0x00, offset + 1 );
-                        }
-
-                        // copy the block array... or fail
-                        if( foundBlockArray ) {
-                            map.CopyBlocks( data, pointer );
-                            for( int j = 0; j < map.blocks.Length; j++ ) {
-                                if( map.blocks[j] > 49 ) {
-                                    map.blocks[j] = mapping[map.blocks[j]];
-                                }
-                            }
-                        } else {
-                            throw new MapFormatException( "Could not locate block array." );
-                        }
-                        break;
-                    }
-                }
-
-            } catch( Exception ex ) {
-                Logger.Log( "Conversion failed: {0}", LogType.Error, ex.Message );
-                Logger.Log( ex.StackTrace, LogType.Debug );
-                return null;
-            }
-
-            return map;
+        public string ServerName {
+            get { return "Creative/Vanilla"; }
         }
 
 
-        public bool Save( Map mapToSave, Stream mapStream ) {
+        public MapFormatType FormatType {
+            get { return MapFormatType.SingleFile; }
+        }
+
+
+        public MapFormat Format {
+            get { return MapFormat.Creative; }
+        }
+
+
+        public bool ClaimsName( string fileName ) {
+            return fileName.EndsWith( ".dat", StringComparison.OrdinalIgnoreCase ) ||
+                   fileName.EndsWith( ".mine", StringComparison.OrdinalIgnoreCase );
+        }
+
+
+        public bool Claims( string fileName ) {
+            try {
+                using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                    byte[] temp = new byte[8];
+                    byte[] data;
+                    int length;
+                    mapStream.Seek( -4, SeekOrigin.End );
+                    mapStream.Read( temp, 0, sizeof( int ) );
+                    mapStream.Seek( 0, SeekOrigin.Begin );
+                    length = BitConverter.ToInt32( temp, 0 );
+                    data = new byte[length];
+                    using( GZipStream reader = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
+                        reader.Read( data, 0, length );
+                    }
+
+                    for( int i = 0; i < length - 1; i++ ) {
+                        if( data[i] == 0xAC && data[i + 1] == 0xED ) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            } catch( Exception ) {
+                return false;
+            }
+        }
+
+
+        public Map LoadHeader( string fileName ) {
             throw new NotImplementedException();
         }
 
 
-        public bool Claims( Stream mapStream, string fileName ) {
-            try {
+        public Map Load( string fileName ) {
+            using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 byte[] temp = new byte[8];
+                Map map = new Map();
                 byte[] data;
                 int length;
-                mapStream.Seek( -4, SeekOrigin.End );
-                mapStream.Read( temp, 0, sizeof( int ) );
-                mapStream.Seek( 0, SeekOrigin.Begin );
-                length = BitConverter.ToInt32( temp, 0 );
-                data = new byte[length];
-                using( GZipStream reader = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
-                    reader.Read( data, 0, length );
-                }
 
-                for( int i = 0; i < length - 1; i++ ) {
-                    if( data[i] == 0xAC && data[i + 1] == 0xED ) {
-                        return true;
+                try {
+                    mapStream.Seek( -4, SeekOrigin.End );
+                    mapStream.Read( temp, 0, sizeof( int ) );
+                    mapStream.Seek( 0, SeekOrigin.Begin );
+                    length = BitConverter.ToInt32( temp, 0 );
+                    data = new byte[length];
+                    using( GZipStream reader = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
+                        reader.Read( data, 0, length );
                     }
-                }
-                return false;
 
-            } catch( Exception ) {
-                return false;
+                    for( int i = 0; i < length - 1; i++ ) {
+                        if( data[i] == 0xAC && data[i + 1] == 0xED ) {
+
+                            // bypassing the header crap
+                            int pointer = i + 6;
+                            Array.Copy( data, pointer, temp, 0, sizeof( short ) );
+                            pointer += IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
+                            pointer += 13;
+
+                            int headerEnd = 0;
+                            // find the end of serialization listing
+                            for( headerEnd = pointer; headerEnd < data.Length - 1; headerEnd++ ) {
+                                if( data[headerEnd] == 0x78 && data[headerEnd + 1] == 0x70 ) {
+                                    headerEnd += 2;
+                                    break;
+                                }
+                            }
+
+                            // start parsing serialization listing
+                            int offset = 0;
+                            while( pointer < headerEnd ) {
+                                if( data[pointer] == 'Z' ) offset++;
+                                else if( data[pointer] == 'I' || data[pointer] == 'F' ) offset += 4;
+                                else if( data[pointer] == 'J' ) offset += 8;
+
+                                pointer += 1;
+                                Array.Copy( data, pointer, temp, 0, sizeof( short ) );
+                                short skip = IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
+                                pointer += 2;
+
+                                // look for relevant variables
+                                Array.Copy( data, headerEnd + offset - 4, temp, 0, sizeof( int ) );
+                                if( MemCmp( data, pointer, "width" ) ) {
+                                    map.widthX = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
+                                } else if( MemCmp( data, pointer, "depth" ) ) {
+                                    map.height = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
+                                } else if( MemCmp( data, pointer, "height" ) ) {
+                                    map.widthY = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
+                                } else if( MemCmp( data, pointer, "xSpawn" ) ) {
+                                    map.spawn.x = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                                } else if( MemCmp( data, pointer, "ySpawn" ) ) {
+                                    map.spawn.h = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                                } else if( MemCmp( data, pointer, "zSpawn" ) ) {
+                                    map.spawn.y = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                                }
+
+                                pointer += skip;
+                            }
+
+                            if( !map.ValidateHeader() ) {
+                                throw new MapFormatException( "MapDAT.Load: One or more of the map dimensions are invalid." );
+                            }
+
+                            // find the start of the block array
+                            bool foundBlockArray = false;
+                            offset = Array.IndexOf<byte>( data, 0x00, headerEnd );
+                            while( offset != -1 && offset < data.Length - 2 ) {
+                                if( data[offset] == 0x00 && data[offset + 1] == 0x78 && data[offset + 2] == 0x70 ) {
+                                    foundBlockArray = true;
+                                    pointer = offset + 7;
+                                }
+                                offset = Array.IndexOf<byte>( data, 0x00, offset + 1 );
+                            }
+
+                            // copy the block array... or fail
+                            if( foundBlockArray ) {
+                                map.CopyBlocks( data, pointer );
+                                for( int j = 0; j < map.blocks.Length; j++ ) {
+                                    if( map.blocks[j] > 49 ) {
+                                        map.blocks[j] = mapping[map.blocks[j]];
+                                    }
+                                }
+                            } else {
+                                throw new MapFormatException( "Could not locate block array." );
+                            }
+                            break;
+                        }
+                    }
+                    return map;
+
+                } catch( Exception ex ) {
+                    Logger.Log( "Conversion failed: {0}", LogType.Error, ex );
+                    return null;
+                }
             }
+        }
+
+
+        public bool Save( Map mapToSave, string fileName ) {
+            throw new NotImplementedException();
         }
 
 

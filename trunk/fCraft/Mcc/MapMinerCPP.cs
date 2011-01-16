@@ -3,7 +3,7 @@
 //   *  Tyler Kennedy <tk@tkte.ch>
 //   *  Matvei Stefarov <fragmer@gmail.com>
 // 
-//  Copyright (c) 2010, Tyler Kennedy & Matvei Stefarov
+//  Copyright (c) 2010-2011, Tyler Kennedy & Matvei Stefarov
 // 
 //  All rights reserved.
 // 
@@ -41,118 +41,142 @@ using fCraft;
 namespace Mcc {
     public sealed class MapMinerCPP : IMapConverter {
 
-        public bool ClaimsFileName( string fileName ) {
-            return fileName.EndsWith( ".dat", StringComparison.OrdinalIgnoreCase );
-        }
-
-        public MapFormat Format {
-            get { return MapFormat.MinerCPP; }
-        }
-
         public string ServerName {
             get { return "MinerCPP/LuaCraft"; }
         }
 
 
-        public Map Load( Stream mapStream, string fileName ) {
-            // Reset the seeker to the front of the stream
-            // This should probably be done differently.
-            mapStream.Seek( 0, SeekOrigin.Begin );
-
-            Map map = new Map();
-
-            // Setup a GZipStream to decompress and read the map file
-            using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
-                BinaryReader bs = new BinaryReader( gs );
-
-                // Read in the magic number
-                if ( bs.ReadByte() != 0xbe || bs.ReadByte() != 0xee || bs.ReadByte() != 0xef ) {
-                    throw new FormatException( "MinerCPP map header is incorrect." );
-                }
-
-                // Read in the map dimesions
-                // Saved in big endian for who-know-what reason.
-                // XYZ(?)
-                map.widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                map.height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                map.widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-
-                if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "MapFCMv3.Load: One or more of the map dimensions are invalid." );
-                }
-
-                // Read in the spawn location
-                // XYZ(?)
-                map.spawn.x = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                map.spawn.h = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                map.spawn.y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-
-                // Read in the spawn orientation
-                map.spawn.r = bs.ReadByte();
-                map.spawn.l = bs.ReadByte();
-
-                // Skip over the block count, totally useless
-                bs.ReadInt32();
-
-                // Read in the map data
-                map.blocks = bs.ReadBytes( map.GetBlockCount() );
-            }
-
-            return map;
+        public MapFormatType FormatType {
+            get { return MapFormatType.SingleFile; }
         }
 
 
-        public bool Save( Map mapToSave, Stream mapStream ) {
-            using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress, true ) ) {
-                BinaryWriter bs = new BinaryWriter( gs );
-
-                // Write out the magic number
-                bs.Write( new byte[] { 0xbe, 0xee, 0xef } );
-
-                // Save the map dimensions
-                // XYZ(?)
-                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.widthX ) );
-                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.height ) );
-                bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.widthY ) );
-
-                // Save the spawn location
-                bs.Write( IPAddress.HostToNetworkOrder( mapToSave.spawn.x ) );
-                bs.Write( IPAddress.HostToNetworkOrder( mapToSave.spawn.h ) );
-                bs.Write( IPAddress.HostToNetworkOrder( mapToSave.spawn.y ) );
-
-                // Save the spawn orientation
-                bs.Write( mapToSave.spawn.r );
-                bs.Write( mapToSave.spawn.l );
-
-                // Write out the block count (which is totally useless, can't stress that enough.)
-                bs.Write( IPAddress.HostToNetworkOrder( mapToSave.blocks.Length ) );
-
-                // Write out the map data
-                bs.Write( mapToSave.blocks );
-
-                // Make sure the output gets flushed, fixes a bug in mono where the destructor doesn't flush
-                // on its own
-                bs.Close();
-            }
-
-            return true;
+        public MapFormat Format {
+            get { return MapFormat.MinerCPP; }
         }
 
 
-        public bool Claims( Stream mapStream, string fileName ) {
+        public bool ClaimsName( string fileName ) {
+            return fileName.EndsWith( ".dat", StringComparison.OrdinalIgnoreCase );
+        }
+
+
+        public bool Claims( string fileName ) {
             try {
-                mapStream.Seek( 0, SeekOrigin.Begin );
-                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-                BinaryReader bs = new BinaryReader( gs );
-                if ( bs.ReadByte() == 0xbe && bs.ReadByte() == 0xee && bs.ReadByte() == 0xef ) {
-                    return true;
+                using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                    using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
+                        BinaryReader bs = new BinaryReader( gs );
+                        return (bs.ReadByte() == 0xbe && bs.ReadByte() == 0xee && bs.ReadByte() == 0xef);
+                    }
                 }
-            } catch ( Exception ) {
+            } catch( Exception ) {
                 return false;
             }
+        }
 
-            return false;
 
+        public Map LoadHeader( string fileName ) {
+            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                Map map = new Map();
+
+                // Setup a GZipStream to decompress and read the map file
+                using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
+                    BinaryReader bs = new BinaryReader( gs );
+
+                    // Read in the magic number
+                    if( bs.ReadByte() != 0xbe || bs.ReadByte() != 0xee || bs.ReadByte() != 0xef ) {
+                        throw new FormatException( "MinerCPP map header is incorrect." );
+                    }
+
+                    // Read in the map dimesions
+                    // Saved in big endian for who-know-what reason.
+                    // XYZ(?)
+                    map.widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    map.height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    map.widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    return map;
+                }
+            }
+        }
+
+
+        public Map Load( string fileName ) {
+            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                Map map = new Map();
+
+                // Setup a GZipStream to decompress and read the map file
+                using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
+                    BinaryReader bs = new BinaryReader( gs );
+
+                    // Read in the magic number
+                    if( bs.ReadByte() != 0xbe || bs.ReadByte() != 0xee || bs.ReadByte() != 0xef ) {
+                        throw new FormatException( "MinerCPP map header is incorrect." );
+                    }
+
+                    // Read in the map dimesions
+                    // Saved in big endian for who-know-what reason.
+                    // XYZ(?)
+                    map.widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    map.height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    map.widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+
+                    if( !map.ValidateHeader() ) {
+                        throw new MapFormatException( "MapFCMv3.Load: One or more of the map dimensions are invalid." );
+                    }
+
+                    // Read in the spawn location
+                    // XYZ(?)
+                    map.spawn.x = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    map.spawn.h = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    map.spawn.y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+
+                    // Read in the spawn orientation
+                    map.spawn.r = bs.ReadByte();
+                    map.spawn.l = bs.ReadByte();
+
+                    // Skip over the block count, totally useless
+                    bs.ReadInt32();
+
+                    // Read in the map data
+                    map.blocks = bs.ReadBytes( map.GetBlockCount() );
+                }
+
+                return map;
+            }
+        }
+
+
+        public bool Save( Map mapToSave, string fileName ) {
+            using( FileStream mapStream = File.Create( fileName ) ) {
+                using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress ) ) {
+                    BinaryWriter bs = new BinaryWriter( gs );
+
+                    // Write out the magic number
+                    bs.Write( new byte[] { 0xbe, 0xee, 0xef } );
+
+                    // Save the map dimensions
+                    // XYZ(?)
+                    bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.widthX ) );
+                    bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.height ) );
+                    bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.widthY ) );
+
+                    // Save the spawn location
+                    bs.Write( IPAddress.HostToNetworkOrder( mapToSave.spawn.x ) );
+                    bs.Write( IPAddress.HostToNetworkOrder( mapToSave.spawn.h ) );
+                    bs.Write( IPAddress.HostToNetworkOrder( mapToSave.spawn.y ) );
+
+                    // Save the spawn orientation
+                    bs.Write( mapToSave.spawn.r );
+                    bs.Write( mapToSave.spawn.l );
+
+                    // Write out the block count (which is totally useless, can't stress that enough.)
+                    bs.Write( IPAddress.HostToNetworkOrder( mapToSave.blocks.Length ) );
+
+                    // Write out the map data
+                    bs.Write( mapToSave.blocks );
+                    return true;
+                }
+            }
         }
     }
 }
