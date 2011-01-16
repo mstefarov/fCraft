@@ -68,7 +68,7 @@ namespace fCraft {
             // If map is not currently loaded, grab its header from disk
             Map map = world.map;
             if( map == null ) {
-                map = Map.LoadHeaderOnly( world.GetMapName() );
+                map = Map.LoadHeaderOnly( Path.Combine( Paths.MapPath, world.GetMapName() ) );
             }
             if( map == null ) {
                 player.Message( "Map information could not be loaded." );
@@ -248,6 +248,11 @@ namespace fCraft {
                 fileName += ".fcm";
             }
             string fullFileName = Path.Combine( Paths.MapPath, fileName );
+
+            if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
+                player.Message( "You are now allowed to access files outside the map folder." );
+                return;
+            }
 
             if( File.Exists( fullFileName ) ) {
                 FileInfo targetFile = new FileInfo( fullFileName );
@@ -936,7 +941,7 @@ namespace fCraft {
             usage = "/wload FileName [WorldName]",
             help = "If WorldName parameter is not given, replaces the current world's map with the specified map. The old map is overwritten. " +
                    "If the world with the specified name exists, its map is replaced with the specified map file. " +
-                   "Otherwise, a new world is created using the given name and map file. " +
+                   "Otherwise, a new world is created using the given name and map file. NOTE: For security reasons, you may only load files from the map folder. " +
                    "Supported formats: fCraft (.fcm), MCSharp/MCZall/MCLawl (lvl), D3 (.map), vanilla (.dat), MinerCPP/LuaCraft (.dat), " +
                    "JTE (.gz), indev (.mclevel), iCraft/Myne.",
             handler = WorldLoad
@@ -959,19 +964,21 @@ namespace fCraft {
 
             player.MessageNow( "Loading {0}...", fileName );
 
-            if( !File.Exists( fileName ) && !Directory.Exists( fileName ) ) {
-                if( File.Exists( Path.Combine( Paths.MapPath, fileName ) ) ) {
-                    fileName = Path.Combine( Paths.MapPath, fileName );
-                } else if( File.Exists( fileName + ".fcm" ) ) {
-                    fileName += ".fcm";
-                } else if( File.Exists( Path.Combine( Paths.MapPath, fileName + ".fcm" ) ) ) {
-                    fileName = Path.Combine( Paths.MapPath, fileName + ".fcm" );
-                } else if( Directory.Exists( Path.Combine( Paths.MapPath, fileName ) ) ) {
-                    fileName = Path.Combine( Paths.MapPath, fileName );
-                } else {
-                    player.Message( "File/directory not found: {0}", fileName );
-                    return;
-                }
+            string fullFileName;
+
+            if( File.Exists( Path.Combine( Paths.MapPath, fileName ) ) || Directory.Exists( Path.Combine( Paths.MapPath, fileName ) ) ) {
+                fullFileName = Path.Combine( Paths.MapPath, fileName );
+            } else if( File.Exists( Path.Combine( Paths.MapPath, fileName + ".fcm" ) ) ) {
+                fileName += ".fcm";
+                fullFileName = Path.Combine( Paths.MapPath, fileName );
+            } else {
+                player.Message( "File/directory not found: {0}", fileName );
+                return;
+            }
+
+            if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
+                player.Message( "You are now allowed to access files outside the map folder." );
+                return;
             }
 
             if( worldName == null ) {
@@ -979,7 +986,7 @@ namespace fCraft {
                     player.AskForConfirmation( cmd, "About to replace THIS MAP with \"{0}\".", fileName );
                     return;
                 }
-                Map map = Map.Load( player.world, fileName );
+                Map map = Map.Load( player.world, fullFileName );
                 if( map == null ) {
                     player.MessageNow( "Could not load specified file." );
                     return;
@@ -1009,8 +1016,7 @@ namespace fCraft {
                             return;
                         }
 
-
-                        Map map = Map.Load( player.world, fileName );
+                        Map map = Map.Load( player.world, fullFileName );
                         if( map == null ) {
                             player.MessageNow( "Could not load specified file." );
                             return;
@@ -1022,19 +1028,15 @@ namespace fCraft {
                                                player.GetClassyName(), world.GetClassyName() );
                         player.MessageNow( "New map for the world {0}&S has been loaded.", world.GetClassyName() );
                         Logger.Log( "{0} loaded new map for world \"{1}\" from {2}", LogType.UserActivity,
-                                    player.name, world.name, fileName );
+                                    player.name, world.name, fullFileName );
 
                     } else {
                         string targetFileName = Path.Combine( Paths.MapPath, worldName + ".fcm" );
-                        if( worldName != fileName && File.Exists( targetFileName ) && File.Exists( fileName ) ) {
-                            FileInfo targetFile = new FileInfo( targetFileName );
-                            FileInfo sourceFile = new FileInfo( fileName );
-                            if( !targetFile.FullName.Equals( sourceFile.FullName, StringComparison.OrdinalIgnoreCase ) ) {
-                                if( !cmd.confirmed ) {
-                                    player.AskForConfirmation( cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
-                                                               targetFile.Name, sourceFile.Name );
-                                    return;
-                                }
+                        if( worldName != fileName && File.Exists( targetFileName ) && File.Exists( fullFileName ) ) {
+                            if( Paths.Compare( targetFileName, fullFileName ) && !cmd.confirmed ) {
+                                player.AskForConfirmation( cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
+                                                           Path.GetFileName( targetFileName ), Path.GetFileName( fullFileName ) );
+                                return;
                             }
                         }
 
@@ -1237,6 +1239,11 @@ namespace fCraft {
 
             if( fileName == null && !cmd.confirmed ) {
                 player.AskForConfirmation( cmd, "About to replace THIS MAP with a generated map." );
+                return;
+            }
+
+            if( fileName != null && !Paths.Contains( Paths.MapPath, fileName ) ) {
+                player.Message( "You are now allowed to access files outside the map folder." );
                 return;
             }
 
