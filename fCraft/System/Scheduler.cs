@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using System.Linq;
 
 
 namespace fCraft {
@@ -30,7 +31,7 @@ namespace fCraft {
                 DateTime ticksNow = DateTime.UtcNow;
                 Task[] taskListCache = taskList;
 
-                for( int i = 0; i < taskListCache.Length; i++ ) {
+                for( int i = 0; i < taskListCache.Length && !Server.shuttingDown; i++ ) {
                     Task task = taskListCache[i];
                     if( !task.IsStopped && task.NextTime <= ticksNow ) {
 
@@ -129,8 +130,17 @@ namespace fCraft {
             return new Task( _callback, true );
         }
 
+        public static void BeginShutdown() {
+            lock( taskListLock ) {
+                foreach( Task activeTask in tasks ) {
+                    activeTask.Stop();
+                }
+                tasks.Clear();
+                taskList = tasks.ToArray();
+            }
+        }
 
-        public static void Shutdown() {
+        public static void EndShutdown() {
             if( schedulerThread.IsAlive ) {
                 schedulerThread.Join();
             }

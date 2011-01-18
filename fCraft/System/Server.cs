@@ -289,6 +289,7 @@ namespace fCraft {
             try {
 #endif
                 shuttingDown = true;
+                Scheduler.BeginShutdown();
                 if( OnShutdownBegin != null ) OnShutdownBegin();
 
                 Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
@@ -322,7 +323,7 @@ namespace fCraft {
                 if( PlayerDB.isLoaded ) PlayerDB.Save();
                 if( IPBanList.isLoaded ) IPBanList.Save();
 
-                Scheduler.Shutdown();
+                Scheduler.EndShutdown();
 
                 if( OnShutdownEnd != null ) OnShutdownEnd();
 #if DEBUG
@@ -1047,9 +1048,9 @@ namespace fCraft {
                 Process[] processList = Process.GetProcesses();
 
                 foreach( Process process in processList ) {
-                    if( process.ProcessName.ToLower() == "fcraftui" ||
-                        process.ProcessName.ToLower() == "configtool" ||
-                        process.ProcessName.ToLower() == "fcraftconsole" ) {
+                    if( process.ProcessName.StartsWith( "fcraftui", StringComparison.OrdinalIgnoreCase ) ||
+                        process.ProcessName.StartsWith( "configtool", StringComparison.OrdinalIgnoreCase ) ||
+                        process.ProcessName.StartsWith( "fcraftconsole", StringComparison.OrdinalIgnoreCase ) ) {
                         if( process.Id != Process.GetCurrentProcess().Id ) {
                             Logger.Log( "Another fCraft process detected running: {0}", LogType.Warning, process.ProcessName );
                             return true;

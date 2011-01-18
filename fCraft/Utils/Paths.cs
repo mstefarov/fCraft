@@ -99,14 +99,14 @@ namespace fCraft {
         /// Returns true if paths or filenames reference the same location (accounts for all the filesystem quirks).
         /// </summary>
         public static bool Compare( string p1, string p2 ) {
-            return String.Equals( Path.GetFullPath( p1 ).TrimEnd( Path.PathSeparator ),
-                                  Path.GetFullPath( p2 ).TrimEnd( Path.PathSeparator ),
+            return String.Equals( Path.GetFullPath( p1 ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar ),
+                                  Path.GetFullPath( p2 ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar ),
                                   StringComparison.Ordinal );
         }
 
         public static bool Contains( string parentPath, string childPath ) {
-            string fullParentPath = Path.GetFullPath( parentPath ).TrimEnd( Path.PathSeparator );
-            string fullChildPath = Path.GetFullPath( childPath ).TrimEnd( Path.PathSeparator );
+            string fullParentPath = Path.GetFullPath( parentPath ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar );
+            string fullChildPath = Path.GetFullPath( childPath ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar );
             return fullChildPath.StartsWith( fullParentPath, StringComparison.Ordinal );
         }
     }
