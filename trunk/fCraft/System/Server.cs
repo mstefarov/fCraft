@@ -289,8 +289,9 @@ namespace fCraft {
             try {
 #endif
                 shuttingDown = true;
-                Scheduler.BeginShutdown();
                 if( OnShutdownBegin != null ) OnShutdownBegin();
+
+                Scheduler.BeginShutdown();
 
                 Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
                             reason );
@@ -303,6 +304,8 @@ namespace fCraft {
                         player.session.Kick( "Server shutting down (" + reason + Color.White + ")" );
                     }
                 }
+
+                Scheduler.EndShutdown();
 
                 // stop accepting new players
                 if( listener != null ) {
@@ -323,7 +326,6 @@ namespace fCraft {
                 if( PlayerDB.isLoaded ) PlayerDB.Save();
                 if( IPBanList.isLoaded ) IPBanList.Save();
 
-                Scheduler.EndShutdown();
 
                 if( OnShutdownEnd != null ) OnShutdownEnd();
 #if DEBUG
