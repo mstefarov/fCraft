@@ -244,7 +244,11 @@ namespace fCraft {
                 fileName = p2;
             }
 
-            if( !fileName.ToLower().EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
+            // normalize the path
+            fileName = fileName.Replace( Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar );
+            if( fileName.EndsWith( "/" ) && fileName.EndsWith( @"\" ) ) {
+                fileName += world.name + ".fcm";
+            }else if( !fileName.ToLower().EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
                 fileName += ".fcm";
             }
             string fullFileName = Path.Combine( Paths.MapPath, fileName );
@@ -254,6 +258,7 @@ namespace fCraft {
                 return;
             }
 
+            // Ask for confirmation if overwriting
             if( File.Exists( fullFileName ) ) {
                 FileInfo targetFile = new FileInfo( fullFileName );
                 FileInfo sourceFile = new FileInfo( world.GetMapName() );
@@ -265,6 +270,11 @@ namespace fCraft {
                 }
             }
 
+            // Create the target directory if it does not exist
+            string dirName = fullFileName.Substring( 0, fullFileName.LastIndexOf( Path.DirectorySeparatorChar ) );
+            if( !Directory.Exists( dirName ) ) {
+                Directory.CreateDirectory( dirName );
+            }
 
             player.MessageNow( "Saving map to {0}", fileName );
 
@@ -1242,6 +1252,7 @@ namespace fCraft {
                     return;
                 }
             } else {
+                fileName = fileName.Replace( Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar );
                 if( !fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
                     fileName += ".fcm";
                 }
@@ -1249,6 +1260,10 @@ namespace fCraft {
                 if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
                     player.Message( "You cannot access files outside the map folder." );
                     return;
+                }
+                string dirName = fullFileName.Substring( 0, fullFileName.LastIndexOf( Path.DirectorySeparatorChar ) );
+                if( !Directory.Exists( dirName ) ) {
+                    Directory.CreateDirectory( dirName );
                 }
                 if( !cmd.confirmed && File.Exists( fullFileName ) ) {
                     player.AskForConfirmation( cmd, "The mapfile \"{0}\" already exists. Overwrite?", fileName );

@@ -294,6 +294,7 @@ namespace fCraft {
 
                             // Set tile
                             case InputCode.SetTile:
+                                if( player.world == null || player.world.map == null ) continue;
                                 player.ResetIdleTimer();
                                 x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
                                 h = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
