@@ -20,7 +20,7 @@ namespace fCraft {
         // Queue of block updates. Updates are applied by ProcessUpdates()
         ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
 
-        object metaLock = new object(); // TODO: use for reading/writing. Metadata is not currently thread-safe.
+        object metaLock = new object();
 
         // used to skip backups/saves if no changes were made
         public bool changedSinceSave,
@@ -288,7 +288,9 @@ namespace fCraft {
 
         public string GetMeta( string group, string key ) {
             try {
-                return metadata[group][key];
+                lock( metaLock ) {
+                    return metadata[group][key];
+                }
             } catch( KeyNotFoundException ) {
                 return null;
             }
@@ -301,10 +303,12 @@ namespace fCraft {
 
 
         public void SetMeta( string group, string key, string value ) {
-            if( !metadata.ContainsKey( group ) ) {
-                metadata[group] = new Dictionary<string, string>();
+            lock( metaLock ) {
+                if( !metadata.ContainsKey( group ) ) {
+                    metadata[group] = new Dictionary<string, string>();
+                }
+                metadata[group][key] = value;
             }
-            metadata[group][key] = value;
             changedSinceSave = true;
         }
 

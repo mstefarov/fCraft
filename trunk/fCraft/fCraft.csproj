@@ -64,6 +64,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DrawOperationState.cs" />
     <Compile Include="Player\AutoRank.cs" />
     <Compile Include="Commands\AdminCommands.cs" />
     <Compile Include="Commands\AutoRankCommands.cs" />
