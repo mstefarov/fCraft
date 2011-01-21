@@ -175,7 +175,11 @@ namespace fCraftUI {
 #if !DEBUG
                 try {
 #endif
+                if( line.Equals( "/clear", StringComparison.OrdinalIgnoreCase ) ) {
+                    logBox.Clear();
+                } else {
                     Player.Console.ParseMessage( line, true );
+                }
 #if !DEBUG
                 } catch( Exception ex ) {
                     Logger.LogConsole( "Error occured while trying to execute last console command: " );

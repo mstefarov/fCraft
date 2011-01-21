@@ -8,6 +8,9 @@ using fCraft;
 
 
 namespace Mcc {
+    /// <summary>
+    /// fCraft map format converter, for format version #3 (2011)
+    /// </summary>
     class MapFCMv3 : IMapConverter {
         public const int Identifier = 0x0FC2AF40;
         public const byte Revision = 13;
@@ -96,11 +99,10 @@ namespace Mcc {
                 // read UUID
                 map.GUID = new Guid( reader.ReadBytes( 16 ) );
 
-                // read data layer index
-                int layerCount = reader.ReadByte();
 
                 // read the index
-                List<Map.DataLayer> layers = new List<Map.DataLayer>();
+                int layerCount = reader.ReadByte();
+                List<Map.DataLayer> layers = new List<Map.DataLayer>( layerCount );
                 for( int i = 0; i < layerCount; i++ ) {
                     Map.DataLayer layer = new Map.DataLayer();
                     layer.Type = (Map.DataLayerType)reader.ReadByte();

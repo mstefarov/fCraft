@@ -919,7 +919,7 @@ namespace fCraft {
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,
                             player.name );
             } else {
-                Player[] infos = player.world.FindPlayers( player, playerName ); // TODO: search only on player's own world
+                Player[] infos = player.world.FindPlayers( player, playerName );
                 if( infos.Length == 1 ) {
                     Player target = infos[0];
                     target.Send( PacketWriter.MakeAddEntity( 255, target.GetListName(), player.pos ) );

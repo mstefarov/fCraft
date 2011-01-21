@@ -96,67 +96,6 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdWorldHide = new CommandDescriptor {
-            name = "whide",
-            consoleSafe = true,
-            permissions = new Permission[] { Permission.ManageWorlds },
-            usage = "/whide WorldName",
-            help = "Hides the specified world from the &H/worlds&S list. " +
-                   "Hidden worlds can be seen by typing &H/worlds all",
-            handler = WorldHide
-        };
-
-        internal static void WorldHide( Player player, Command cmd ) {
-            string worldName = cmd.Next();
-            if( worldName == null ) {
-                cdWorldAccess.PrintUsage( player );
-                return;
-            }
-
-            World world = Server.FindWorldOrPrintMatches( player, worldName );
-            if( world == null ) return;
-
-            if( world.isHidden ) {
-                player.Message( "World \"{0}&S\" is already hidden.", world.GetClassyName() );
-            } else {
-                player.Message( "World \"{0}&S\" is now hidden.", world.GetClassyName() );
-                world.isHidden = true;
-                Server.SaveWorldList();
-            }
-        }
-
-
-
-        static CommandDescriptor cdWorldUnhide = new CommandDescriptor {
-            name = "wunhide",
-            consoleSafe = true,
-            permissions = new Permission[] { Permission.ManageWorlds },
-            usage = "/wunhide WorldName",
-            help = "Unhides the specified world from the &H/worlds&S list. " +
-                   "Hidden worlds can be listed by typing &H/worlds all",
-            handler = WorldUnhide
-        };
-
-        internal static void WorldUnhide( Player player, Command cmd ) {
-            string worldName = cmd.Next();
-            if( worldName == null ) {
-                cdWorldAccess.PrintUsage( player );
-                return;
-            }
-
-            World world = Server.FindWorldOrPrintMatches( player, worldName );
-            if( world == null ) return;
-
-            if( world.isHidden ) {
-                player.Message( "World \"{0}&S\" is no longer hidden.", world.GetClassyName() );
-                world.isHidden = false;
-                Server.SaveWorldList();
-            } else {
-                player.Message( "World \"{0}&S\" is not hidden.", world.GetClassyName() );
-            }
-        }
-
-
 
         static CommandDescriptor cdJoin = new CommandDescriptor {
             name = "join",
@@ -349,7 +288,7 @@ namespace fCraft {
         internal static void WorldMain( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
-                cdWorldMain.PrintUsage( player );
+                player.Message( "Main world is {0}", Server.mainWorld.GetClassyName() );
                 return;
             }
 
@@ -1180,6 +1119,71 @@ namespace fCraft {
 
         #endregion
 
+
+        #region Hide / Unhide
+
+        static CommandDescriptor cdWorldHide = new CommandDescriptor {
+            name = "whide",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.ManageWorlds },
+            usage = "/whide WorldName",
+            help = "Hides the specified world from the &H/worlds&S list. " +
+                   "Hidden worlds can be seen by typing &H/worlds all",
+            handler = WorldHide
+        };
+
+        internal static void WorldHide( Player player, Command cmd ) {
+            string worldName = cmd.Next();
+            if( worldName == null ) {
+                cdWorldAccess.PrintUsage( player );
+                return;
+            }
+
+            World world = Server.FindWorldOrPrintMatches( player, worldName );
+            if( world == null ) return;
+
+            if( world.isHidden ) {
+                player.Message( "World \"{0}&S\" is already hidden.", world.GetClassyName() );
+            } else {
+                player.Message( "World \"{0}&S\" is now hidden.", world.GetClassyName() );
+                world.isHidden = true;
+                Server.SaveWorldList();
+            }
+        }
+
+
+
+        static CommandDescriptor cdWorldUnhide = new CommandDescriptor {
+            name = "wunhide",
+            consoleSafe = true,
+            permissions = new Permission[] { Permission.ManageWorlds },
+            usage = "/wunhide WorldName",
+            help = "Unhides the specified world from the &H/worlds&S list. " +
+                   "Hidden worlds can be listed by typing &H/worlds all",
+            handler = WorldUnhide
+        };
+
+        internal static void WorldUnhide( Player player, Command cmd ) {
+            string worldName = cmd.Next();
+            if( worldName == null ) {
+                cdWorldAccess.PrintUsage( player );
+                return;
+            }
+
+            World world = Server.FindWorldOrPrintMatches( player, worldName );
+            if( world == null ) return;
+
+            if( world.isHidden ) {
+                player.Message( "World \"{0}&S\" is no longer hidden.", world.GetClassyName() );
+                world.isHidden = false;
+                Server.SaveWorldList();
+            } else {
+                player.Message( "World \"{0}&S\" is not hidden.", world.GetClassyName() );
+            }
+        }
+
+        #endregion
+
         #region Generation
 
 
@@ -1352,7 +1356,7 @@ namespace fCraft {
 
         #endregion
 
-        #region Locking
+        #region Lock / Unlock
 
         static CommandDescriptor cdLock = new CommandDescriptor {
             name = "lock",

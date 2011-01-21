@@ -63,7 +63,12 @@ namespace fCraftConsole {
                         Console.WriteLine( "** Server is now ready. Type /shutdown to exit safely. **" );
 
                         while( true ) {
-                            Player.Console.ParseMessage( Console.ReadLine(), true );
+                            string cmd = Console.ReadLine();
+                            if( cmd.Equals( "/clear", StringComparison.OrdinalIgnoreCase ) ) {
+                                Console.Clear();
+                            } else {
+                                Player.Console.ParseMessage( cmd, true );
+                            }
                         }
 
                     } else {
