@@ -36,7 +36,11 @@ namespace fCraft {
 
             // if all else fails, fall back to lowest class
             if( controller.minRank == null ) {
-                controller.minRank = world.buildSecurity.minRank;
+                if( world != null ) {
+                    controller.minRank = world.buildSecurity.minRank;
+                } else {
+                    controller.minRank = RankList.LowestRank;
+                }
                 Logger.Log( "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to default ({1}).", LogType.Error,
                             header[7], controller.minRank.Name );
             }
