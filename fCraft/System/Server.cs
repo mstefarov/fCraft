@@ -74,7 +74,6 @@ namespace fCraft {
                 throw new Exception( "Could not set the working path." );
             }
 
-            Console.WriteLine( "Working directory: {0}", Directory.GetCurrentDirectory() );
 
             // set log path
             if( parsedArgs.ContainsKey( "logpath" ) && Paths.TestDirectory( parsedArgs["logpath"], true ) ) {
@@ -128,6 +127,13 @@ namespace fCraft {
                     }
                 }
             }
+
+#if DEBUG
+            Logger.Log( "Working directory: {0}", LogType.Debug, Directory.GetCurrentDirectory() );
+            Logger.Log( "Log path: {0}", LogType.Debug, Path.GetFullPath( Paths.LogPath ) );
+            Logger.Log( "Map path: {0}", LogType.Debug, Path.GetFullPath( Paths.MapPath ) );
+            Logger.Log( "Config path: {0}", LogType.Debug, Path.GetFullPath( Paths.ConfigFileName ) );
+#endif
         }
 
 
