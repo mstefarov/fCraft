@@ -135,7 +135,9 @@ namespace fCraft {
 
             try {
                 changedSinceSave = false;
-                    MapUtility.TrySaving( this, tempFileName, MapFormat.FCMv3 );
+                if( !MapUtility.TrySaving( this, tempFileName, MapFormat.FCMv3 ) ) {
+                    changedSinceSave = true;
+                }
 
             } catch( IOException ex ) {
                 changedSinceSave = true;
@@ -150,6 +152,7 @@ namespace fCraft {
                 else File.Move( tempFileName, fileName );
                 Logger.Log( "Saved map successfully to {0}", LogType.SystemActivity,
                             fileName );
+                changedSinceBackup = true;
 
             } catch( Exception ex ) {
                 changedSinceSave = true;
@@ -647,7 +650,6 @@ namespace fCraft {
                     newZoneList[i++] = zone;
                 }
                 zoneList = newZoneList;
-                changedSinceSave = true;
             }
         }
 
