@@ -135,9 +135,9 @@ namespace fCraft {
                 }
 
                 if( changesWereMade ) {
-                    player.world.map.changedSinceSave = true;
                     zone.editedBy = player.info;
                     zone.editedDate = DateTime.Now;
+                    player.world.map.changedSinceSave = true;
                 } else {
                     player.Message( "No changes were made to the zone." );
                 }
