@@ -32,10 +32,10 @@ namespace fCraft {
     /// </summary>
     public static class Updater {
         public static int Version = 500;
-        public static int Revision = 389;
+        public static int Revision = 390;
         public static bool IsDev = true,
                            IsBroken = false;
-        public static string LatestNonBroken = "0.500_r389_dev";
+        public static string LatestNonBroken = "0.500_r390_dev";
 
         const string UpdateURL = "http://fcraft.fragmer.net/version.log";
 
@@ -92,5 +92,14 @@ namespace fCraft {
                                   (IsDev ? "_dev" : ""),
                                   (IsBroken ? "_broken" : "") );
         }
+    }
+
+
+    public enum AutoUpdaterMode {
+        Disabled,
+        Notify,
+        NotifyDeferred,
+        Auto,
+        AutoDeferred
     }
 }
