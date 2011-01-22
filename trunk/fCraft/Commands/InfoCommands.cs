@@ -43,9 +43,8 @@ namespace fCraft {
             CommandList.RegisterCommand( cdTaskDebug );
         }
 
-
         static CommandDescriptor cdTaskDebug = new CommandDescriptor {
-            name = "td",
+            name = "taskdebug",
             consoleSafe = true,
             help = "",
             hidden = true,

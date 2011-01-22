@@ -93,11 +93,22 @@ namespace fCraft {
 
         public static void AddTask( Task task ) {
             lock( taskListLock ) {
-                Logger.Log( "Scheduler.AddTask: Added {0}", LogType.Debug, task );
                 task.IsStopped = false;
-                tasks.Add( task );
-                UpdateCache();
+                if( tasks.Add( task ) ) {
+                    UpdateCache();
+                }
+                Logger.Log( "Scheduler.AddTask: Added {0}", LogType.Debug, task );
             }
+        }
+
+
+        public static Task AddTask( SchedulerCallback _callback ) {
+            return new Task( _callback, false );
+        }
+
+
+        public static Task AddBackgroundTask( SchedulerCallback _callback ) {
+            return new Task( _callback, true );
         }
 
 
@@ -120,15 +131,6 @@ namespace fCraft {
             taskList = newList.ToArray();
         }
 
-
-        public static Task AddTask( SchedulerCallback _callback ) {
-            return new Task( _callback, false );
-        }
-
-
-        public static Task AddBackgroundTask( SchedulerCallback _callback ) {
-            return new Task( _callback, true );
-        }
 
         public static void BeginShutdown() {
             lock( taskListLock ) {
@@ -269,6 +271,41 @@ namespace fCraft {
 
             #endregion
 
+
+            #region Run Manual
+
+            static TimeSpan CloseEnoughToForever = TimeSpan.FromDays( 36525 ); // >100 years
+            public Task RunManual() {
+                Delay = TimeSpan.Zero;
+                IsRecurring = true;
+                NextTime = DateTime.UtcNow;
+                MaxRepeats = -1;
+                Interval = CloseEnoughToForever;
+                Scheduler.AddTask( this );
+                return this;
+            }
+
+            public Task RunManual( TimeSpan _delay ) {
+                Delay = _delay;
+                IsRecurring = true;
+                NextTime = DateTime.UtcNow.Add( Delay );
+                MaxRepeats = -1;
+                Interval = CloseEnoughToForever;
+                Scheduler.AddTask( this );
+                return this;
+            }
+
+            public Task RunManual( DateTime _time ) {
+                Delay = _time.Subtract( DateTime.UtcNow );
+                IsRecurring = true;
+                NextTime = _time;
+                MaxRepeats = -1;
+                Interval = CloseEnoughToForever;
+                Scheduler.AddTask( this );
+                return this;
+            }
+
+            #endregion
 
             public Task Stop() {
                 IsStopped = true;
