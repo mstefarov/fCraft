@@ -118,26 +118,14 @@ namespace Mcc {
                              converter.Claims( fileName );
                 } catch( Exception ) { }
                 if( claims ) {
-                    Map result = converter.Load( fileName );
-                    if( converter is MapFCMv3 ) {// TEMP
-                        result.EnableOwnershipTracking( ReservedPlayerID.None );// TEMP
-                    } else {// TEMP
-                        result.EnableOwnershipTracking( ReservedPlayerID.Unknown );// TEMP
-                    }// TEMP
-                    return result;
+                    return converter.Load( fileName );
                 } else {
                     fallbackConverters.Add( converter );
                 }
             }
 
             foreach( IMapConverter converter in fallbackConverters ) {
-                Map result = converter.Load( fileName );
-                if( converter is MapFCMv3 ) {// TEMP
-                    result.EnableOwnershipTracking( ReservedPlayerID.None );// TEMP
-                } else {// TEMP
-                    result.EnableOwnershipTracking( ReservedPlayerID.Unknown );// TEMP
-                }// TEMP
-                return result;
+                return converter.Load( fileName );
             }
 
             return null;

@@ -454,7 +454,6 @@ namespace fCraft {
                 outMap.widthX = map.widthX;
                 outMap.widthY = map.widthY;
                 outMap.height = map.height;
-                outMap.EnableOwnershipTracking( ReservedPlayerID.None );
 
                 Forester treeGen = new Forester( new Forester.ForesterArgs {
                     inMap = map,

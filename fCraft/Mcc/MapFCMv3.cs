@@ -147,6 +147,7 @@ namespace Mcc {
                         map.ReadLayer( layers[i], ds );
                     }
                 }
+                map.changedSinceSave = false;
                 return map;
             }
         }

@@ -143,10 +143,10 @@ namespace fCraft {
         }
 
         public static void EndShutdown() {
-            if( schedulerThread.IsAlive ) {
+            if( schedulerThread != null && schedulerThread.IsAlive ) {
                 schedulerThread.Join();
             }
-            if( backgroundThread.IsAlive ) {
+            if( backgroundThread != null && backgroundThread.IsAlive ) {
                 backgroundThread.Join();
             }
         }

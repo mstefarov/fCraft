@@ -15,7 +15,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdWater );
             CommandList.RegisterCommand( cdLava );
             CommandList.RegisterCommand( cdBind );
-            CommandList.RegisterCommand( cdWhoDid );
+            //CommandList.RegisterCommand( cdWhoDid );
         }
 
 
@@ -182,6 +182,7 @@ namespace fCraft {
         }
 
 
+        // DISABLED
         static CommandDescriptor cdWhoDid = new CommandDescriptor {
             name = "whodid",
             help = "Checks who last modified a block.",
