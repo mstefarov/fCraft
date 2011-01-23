@@ -23,8 +23,9 @@ namespace fCraft {
         object metaLock = new object();
 
         // used to skip backups/saves if no changes were made
-        public bool changedSinceSave,
-                    changedSinceBackup;
+        public bool changedSinceSave { get; set; }
+        public bool changedSinceBackup { get; set; }
+
         public short[,] shadows;
 
         // FCMv3 additions
@@ -42,27 +43,6 @@ namespace fCraft {
         Dictionary<string, ushort> PlayerIDs;
         Dictionary<ushort, string> PlayerNames;
         internal ushort[] blockOwnership;
-
-
-        // temporarily hardcoded to be on at all times
-        [Obsolete( "Will be removed in 0.500 final" )]
-        public void EnableOwnershipTracking( ReservedPlayerID initialState ) {
-            if( blockOwnership == null ) {
-                blockOwnership = new ushort[blocks.Length];
-                if( initialState != ReservedPlayerID.None ) {
-                    for( int i = 0; i < blockOwnership.Length; i++ ) {
-                        blockOwnership[i] = (ushort)initialState;
-                    }
-                }
-            }
-            if( PlayerIDs == null ) {
-                PlayerIDs = new Dictionary<string, ushort>();
-            }
-            if( PlayerNames == null ) {
-                PlayerNames = new Dictionary<ushort, string>();
-            }
-            changedSinceSave = true;
-        }
 
 
         [CLSCompliant( false )]
@@ -124,7 +104,6 @@ namespace fCraft {
 
             blocks = new byte[blockCount];
             blocks.Initialize();
-            EnableOwnershipTracking( ReservedPlayerID.None );//TEMP
         }
 
 
@@ -888,6 +867,8 @@ namespace fCraft {
                 } );
             }
 
+            return layers; // TODO: Implement the rest of the layers
+            
             byte[] blockUndoCache = blockUndo;
             if( blockUndoCache != null ) {
                 layers.Add( new DataLayer {
@@ -942,17 +923,17 @@ namespace fCraft {
             return layers;
         }
 
-        internal void ReadLayer( DataLayer layer, Stream stream ) {
-
+        internal void ReadLayer( DataLayer layer, DeflateStream stream ) {
             switch( layer.Type ) {
                 case DataLayerType.Blocks:
                     blocks = new byte[layer.ElementCount];
                     stream.Read( blocks, 0, blocks.Length );
                     break;
-
+                    
                 case DataLayerType.BlockUndo:
                     blockUndo = new byte[layer.ElementCount];
                     stream.Read( blockUndo, 0, blockUndo.Length );
+                    blockUndo=null;
                     break;
 
                 case DataLayerType.BlockOwnership: {
@@ -961,6 +942,7 @@ namespace fCraft {
                         for( int i = 0; i < layer.ElementCount; i++ ) {
                             blockOwnership[i] = reader.ReadUInt16();
                         }
+                    blockOwnership=null;
                     } break;
 
                 case DataLayerType.BlockTimestamps: {
@@ -969,32 +951,33 @@ namespace fCraft {
                         for( int i = 0; i < layer.ElementCount; i++ ) {
                             blockTimestamps[i] = reader.ReadUInt32();
                         }
+                    blockTimestamps=null;
                     } break;
 
                 case DataLayerType.BlockChangeFlags:
                     blockChangeFlags = new byte[layer.ElementCount];
                     stream.Read( blockChangeFlags, 0, blockChangeFlags.Length );
+                    blockChangeFlags = null;
                     break;
 
                 case DataLayerType.PlayerIDs: {
-                        PlayerIDs = new Dictionary<string, ushort>();
-                        PlayerNames = new Dictionary<ushort, string>();
+                        //PlayerIDs = new Dictionary<string, ushort>();
+                        //PlayerNames = new Dictionary<ushort, string>();
                         BinaryReader reader = new BinaryReader( stream );
-                        MaxPlayerID = 256;
+                        //MaxPlayerID = 256;
                         for( int i = 0; i < layer.ElementCount; i++ ) {
                             int length = reader.ReadByte();
                             byte[] stringData = reader.ReadBytes( length );
-                            string name = ASCIIEncoding.ASCII.GetString( stringData );
-                            PlayerNames[MaxPlayerID] = name;
-                            PlayerIDs[name] = MaxPlayerID;
-                            MaxPlayerID++;
+                            //string name = ASCIIEncoding.ASCII.GetString( stringData );
+                            //PlayerNames[MaxPlayerID] = name;
+                            //PlayerIDs[name] = MaxPlayerID;
+                            //MaxPlayerID++;
                         }
                     } break;
 
                 default:
-                    // skip
                     Logger.Log( "Map.ReadLayer: Skipping unknown layer ({0})", LogType.Warning, layer.Type );
-                    stream.Seek( layer.CompressedLength, SeekOrigin.Current );
+                    stream.BaseStream.Seek( layer.CompressedLength, SeekOrigin.Current );
                     break;
             }
         }

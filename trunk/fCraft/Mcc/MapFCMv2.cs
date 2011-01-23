@@ -152,6 +152,7 @@ namespace Mcc {
                 using( GZipStream decompressor = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
                     decompressor.Read( map.blocks, 0, map.blocks.Length );
                 }
+                map.changedSinceSave = false;
 
                 return map;
             }

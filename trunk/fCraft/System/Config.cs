@@ -94,6 +94,11 @@ namespace fCraft {
      *              
      * 128 - r379 - Added ConsoleName
      * 
+     * 129 - r392 - Changed AutomaticUpdates enum:
+     *                  "Disabled" -> AutoUpdaterMode.Disabled
+     *                  "Notify" -> AutoUpdaterMode.NotifyDeferred
+     *                  "Prompt" -> AutoUpdaterMode.Notify
+     *                  "Auto" -> AutoUpdaterMode.AutoDeferred
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,

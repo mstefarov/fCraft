@@ -530,7 +530,7 @@ namespace fCraft {
                 saveTask = Scheduler.AddTask( SaveTask );
                 saveTask.RunForever( this,
                                      TimeSpan.FromSeconds( Config.GetInt( ConfigKey.SaveInterval ) ),
-                                     TimeSpan.Zero );
+                                     TimeSpan.FromSeconds( Config.GetInt( ConfigKey.SaveInterval ) ) );
             }
 
             if( Config.GetInt( ConfigKey.BackupInterval ) > 0 ) {
