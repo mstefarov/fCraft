@@ -14,7 +14,7 @@ namespace fCraft {
     public static class Heartbeat {
         const int HeartbeatDelay = 20000,
                   HeartbeatTimeout = 10000;
-        const string URL = "http://minecraft.net/heartbeat.jsp";
+        const string URL = "http://www.minecraft.net/heartbeat.jsp";
         const string HeartbeatDataFileName = "heartbeatdata.txt";
 
 
