@@ -745,7 +745,7 @@ namespace fCraft {
         }
 
 
-        const string PaidCheckURL = "http://minecraft.net/haspaid.jsp?user=";
+        const string PaidCheckURL = "http://www.minecraft.net/haspaid.jsp?user=";
         const int PaidCheckTimeout = 5000;
 
         public static bool CheckPaidStatus( string name ) {
