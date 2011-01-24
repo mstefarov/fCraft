@@ -586,7 +586,7 @@ namespace fCraft {
             string propertyName = cmd.Next();
             string valName = cmd.NextAll();
 
-            if( valName == null ) {
+            if( targetName == null || propertyName == null ) {
                 cdSetInfo.PrintUsage( player );
                 return;
             }
