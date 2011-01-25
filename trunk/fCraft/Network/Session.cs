@@ -68,7 +68,8 @@ namespace fCraft {
             reader = new BinaryReader( client.GetStream() );
             writer = new PacketWriter( client.GetStream() );
 
-            Logger.Log( "Server.CheckConnections: Incoming connection from " + GetIP().ToString(), LogType.Debug );
+            Logger.Log( "Session.Start: Incoming connection from {0}", LogType.Debug,
+                        GetIP().ToString() );
 
             ioThread = new Thread( IoLoop );
             ioThread.IsBackground = true;

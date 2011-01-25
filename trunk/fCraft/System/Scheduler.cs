@@ -97,7 +97,9 @@ namespace fCraft {
                 if( tasks.Add( task ) ) {
                     UpdateCache();
                 }
+#if DEBUG
                 Logger.Log( "Scheduler.AddTask: Added {0}", LogType.Debug, task );
+#endif
             }
         }
 
@@ -125,7 +127,9 @@ namespace fCraft {
                 }
                 foreach( Task task in deletionList ) {
                     tasks.Remove( task );
+#if DEBUG
                     Logger.Log( "Scheduler.UpdateCache: Removed {0}", LogType.Debug, task );
+#endif
                 }
             }
             taskList = newList.ToArray();
