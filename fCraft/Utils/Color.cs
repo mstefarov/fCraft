@@ -77,7 +77,11 @@ namespace fCraft {
             }
         }
 
-
+        /// <summary> Parses a string to a format readable by Minecraft clients. 
+        /// an accept color names and color codes (with or without the ampersand). </summary>
+        /// <param name="code"> Color code character </param>
+        /// <returns> Two-character color string, readable by Minecraft client.
+        /// If input is null or cannot be parsed, returns null. </returns>
         public static string Parse( char code ) {
             code = Char.ToLower( code );
             if( IsValidColorCode( code ) ) {
@@ -101,15 +105,28 @@ namespace fCraft {
 
         /// <summary> Gets color name for a string representation of a color. </summary>
         /// <param name="color"> Any parsable string representation of a color. </param>
-        /// <returns> Lowercase color name </returns>
+        /// <returns> Lowercase color name.
+        /// If input is an empty string, returns empty string.
+        /// If input is null or cannot be parsed, returns null. </returns>
         public static string GetName( string color ) {
-            return GetName( Parse( color )[1] );
+            if( color == null ) {
+                return null;
+            } else if( color.Length == 0 ) {
+                return "";
+            } else {
+                string parsedColor = Parse( color );
+                if( parsedColor == null ) {
+                    return null;
+                } else {
+                    return GetName( parsedColor[1] );
+                }
+            }
         }
 
 
         /// <summary> Gets color name for a numeric color code. </summary>
         /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
-        /// <returns> Lowercase color name </returns>
+        /// <returns> Lowercase color name. If input is out of range, returns null. </returns>
         public static string GetName( int index ) {
             if( index >= 0 && index <= 15 ) {
                 return colorNames.Values[index];
@@ -120,7 +137,8 @@ namespace fCraft {
 
         /// <summary> Parses a numeric color code to a string readable by Minecraft clients </summary>
         /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
-        /// <returns> Two-character color string, readable by Minecraft client </returns>
+        /// <returns> Two-character color string, readable by Minecraft client.
+        /// If input cannot be parsed, returns null. </returns>
         public static string Parse( int index ) {
             if( index >= 0 && index <= 15 ) {
                 return "&" + colorNames.Keys[index];
@@ -130,9 +148,12 @@ namespace fCraft {
         }
 
 
-        /// <summary> Parses a string to a format readable by Minecraft clients. Can accept color names, colorcodes </summary>
+        /// <summary> Parses a string to a format readable by Minecraft clients. 
+        /// an accept color names and color codes (with or without the ampersand). </summary>
         /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
-        /// <returns> Two-character color string, readable by Minecraft client </returns>
+        /// <returns> Two-character color string, readable by Minecraft client.
+        /// If input is an empty string, returns empty string.
+        /// If input is null or cannot be parsed, returns null. </returns>
         public static string Parse( string color ) {
             if( color == null ) {
                 return null;
@@ -144,6 +165,8 @@ namespace fCraft {
                 return "&" + colorNames.Keys[colorNames.IndexOfValue( color )];
             } else if( color.Length == 1 ) {
                 return Parse( color[0] );
+            } else if( color.Length == 0 ) {
+                return "";
             } else {
                 return null;
             }
