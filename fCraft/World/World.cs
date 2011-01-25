@@ -159,7 +159,7 @@ namespace fCraft {
                     }
 
                     if( Config.GetBool( ConfigKey.BackupOnJoin ) ) {
-                        map.SaveBackup( GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-dd HH-mm}_{2}.fcm",
+                        map.SaveBackup( GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm",
                                                                      name, DateTime.Now, player.name ), true );
                     }
                 }
@@ -552,7 +552,7 @@ namespace fCraft {
         void BackupTask( Scheduler.Task task ) {
             Map tempMap = map;
             if( tempMap != null ) {
-                tempMap.SaveBackup( GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-ddTHH-mm}.fcm", name, DateTime.Now ), true );
+                tempMap.SaveBackup( GetMapName(), String.Format( "backups/{0}_{1:yyyy-MM-dd_HH-mm}.fcm", name, DateTime.Now ), true );
             }
         }
 

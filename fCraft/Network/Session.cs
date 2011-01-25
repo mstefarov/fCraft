@@ -470,20 +470,7 @@ namespace fCraft {
                 return false;
             }
 
-            // check if other banned players logged in from this IP
-            List<PlayerInfo> bannedPlayerNames = new List<PlayerInfo>();
-            foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( GetIP(), 25 ) ) {
-                if( playerFromSameIP.banned ) {
-                    bannedPlayerNames.Add( playerFromSameIP );
-                }
-            }
-            if( bannedPlayerNames.Count > 0 ) {
-                string logString = String.Format( "&WPlayer {0}&W logged in from an IP previously used by banned players: {1}",
-                                                  player.GetClassyName(),
-                                                  PlayerInfo.PlayerInfoArrayToString( bannedPlayerNames.ToArray() ) );
-                Server.SendToAll( logString );
-                Logger.Log( logString, LogType.SuspiciousActivity );
-            }
+            bool showVerifyNamesWarning = false;
 
             // verify name
             if( !Server.VerifyName( player.name, verificationCode, Server.Salt ) &&
@@ -513,8 +500,7 @@ namespace fCraft {
                                         "Player was allowed in anyway because VerifyNames is set to Never.", LogType.SuspiciousActivity,
                                         standardMessage );
                             player.Message( "&WYour name could not be verified." );
-                            Server.SendToAllExcept( "&WName and IP of {0}&W are unverified!", player,
-                                                    player.GetClassyName() );
+                            showVerifyNamesWarning = true;
                             break;
                     }
 
@@ -558,15 +544,6 @@ namespace fCraft {
             // check if another player with the same name is on
             Server.KickGhostsAndRegisterSession( this );
 
-            // check if player is muted
-            if( player.info.mutedUntil > DateTime.UtcNow ) {
-                int secondsLeft = (int)player.info.mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds;
-                player.Message( "&WYou were previously muted by {0}, {1} seconds left.",
-                                player.info.mutedBy, secondsLeft );
-                Server.SendToAllExcept( "&WPlayer {0}&W was previously muted by {1}&W, {2} seconds left.", player,
-                                        player.GetClassyName(), player.info.mutedBy, secondsLeft );
-            }
-
             if( Config.GetBool( ConfigKey.LimitOneConnectionPerIP ) ) {
                 // note: FindPlayers only counts REGISTERED players
                 List<Player> potentialClones = Server.FindPlayers( GetIP() );
@@ -602,12 +579,44 @@ namespace fCraft {
             }
 
             bool firstTime = (player.info.timesVisited == 1);
-            if( JoinWorldNow( Server.mainWorld, true ) ) {
-                Server.SendToAllExcept( Server.MakePlayerConnectedMessage( player, firstTime, Server.mainWorld ), player );
-            } else {
+            if( !JoinWorldNow( Server.mainWorld, true ) ) {
                 Logger.Log( "Failed to load main world ({0}) for connecting player {1} (from {2})", LogType.Error,
                             Server.mainWorld.name, player.name, GetIP() );
                 return false;
+            }
+
+            // ==== Beyond this point, player has a world ====
+
+            if( showVerifyNamesWarning ) {
+                Server.SendToAllExcept( "&WName and IP of {0}&W are unverified!", player,
+                                        player.GetClassyName() );
+            }
+
+            // Check if other banned players logged in from this IP
+            List<PlayerInfo> bannedPlayerNames = new List<PlayerInfo>();
+            foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( GetIP(), 25 ) ) {
+                if( playerFromSameIP.banned ) {
+                    bannedPlayerNames.Add( playerFromSameIP );
+                }
+            }
+            if( bannedPlayerNames.Count > 0 ) {
+                string logString = String.Format( "&WPlayer {0}&W logged in from an IP previously used by banned players: {1}",
+                                                  player.GetClassyName(),
+                                                  PlayerInfo.PlayerInfoArrayToString( bannedPlayerNames.ToArray() ) );
+                Server.SendToAll( logString );
+                Logger.Log( logString, LogType.SuspiciousActivity );
+            }
+
+            // Announce join
+            Server.SendToAllExcept( Server.MakePlayerConnectedMessage( player, firstTime, Server.mainWorld ), player );
+
+            // check if player is still muted
+            if( player.info.mutedUntil > DateTime.UtcNow ) {
+                int secondsLeft = (int)player.info.mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds;
+                player.Message( "&WYou were previously muted by {0}, {1} seconds left.",
+                                player.info.mutedBy, secondsLeft );
+                Server.SendToAllExcept( "&WPlayer {0}&W was previously muted by {1}&W, {2} seconds left.", player,
+                                        player.GetClassyName(), player.info.mutedBy, secondsLeft );
             }
 
             // Welcome message
