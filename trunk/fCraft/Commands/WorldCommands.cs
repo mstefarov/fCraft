@@ -191,7 +191,10 @@ namespace fCraft {
                 fileName += ".fcm";
             }
             string fullFileName = Path.Combine( Paths.MapPath, fileName );
-
+            if( !Paths.IsValidPath( fullFileName ) ) {
+                player.Message( "Invalid filename." );
+                return;
+            }
             if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
                 player.Message( "You cannot access files outside the map folder." );
                 return;
@@ -924,7 +927,10 @@ namespace fCraft {
                 player.Message( "File/directory not found: {0}", fileName );
                 return;
             }
-
+            if( !Paths.IsValidPath( fullFileName ) ) {
+                player.Message( "Invalid filename." );
+                return;
+            }
             if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
                 player.Message( "You cannot to access files outside the map folder." );
                 return;
@@ -1261,6 +1267,10 @@ namespace fCraft {
                     fileName += ".fcm";
                 }
                 fullFileName = Path.Combine( Paths.MapPath, fileName );
+                if( !Paths.IsValidPath( fullFileName ) ) {
+                    player.Message( "Invalid filename." );
+                    return;
+                }
                 if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
                     player.Message( "You cannot access files outside the map folder." );
                     return;

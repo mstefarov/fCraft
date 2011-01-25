@@ -104,6 +104,17 @@ namespace fCraft {
                                   StringComparison.Ordinal );
         }
 
+        public static bool IsValidPath( string path ) {
+            try {
+                new FileInfo( path );
+                return true;
+            } catch( ArgumentException ) {
+            } catch( PathTooLongException ) {
+            } catch( NotSupportedException ) {
+            }
+            return false;
+        }
+
         public static bool Contains( string parentPath, string childPath ) {
             string fullParentPath = Path.GetFullPath( parentPath ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar );
             string fullChildPath = Path.GetFullPath( childPath ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar );
