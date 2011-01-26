@@ -38,11 +38,13 @@ namespace fCraft {
         public const int fullPositionUpdateIntervalDefault = 20;
         public static int fullPositionUpdateInterval = fullPositionUpdateIntervalDefault;
         bool skippedLastMovementPacket = false;
+        int skipMovementThreshold = 64,
+            skipRotationThresholdSquared = 1500;
 
         // anti-speedhack vars
         int speedHackDetectionCounter;
         const int antiSpeedMaxJumpDelta = 25; // 16 for normal client, 25 for WoM
-        const int antiSpeedMaxDistanceSquared = 144; // 12 * 12
+        const int antiSpeedMaxDistanceSquared = 144; // 16 * 16
         const int antiSpeedMaxPacketCount = 200;
         const int antiSpeedMaxPacketInterval = 5;
         const int socketTimeout = 10000;
@@ -208,10 +210,10 @@ namespace fCraft {
                                 // if player is pushed around, or /bring is used, rotation does not change (and timer should not reset)
                                 if( rotChanged ) player.ResetIdleTimer();
 
-                                // special handling for frozen players
                                 if( player.info.isFrozen ) {
-                                    if( distSquared > antiSpeedMaxDistanceSquared * 2 ) {
-                                        // TODO: figure out why this is so jittery
+                                    // special handling for frozen players
+                                    if( delta.x * delta.x + delta.y * delta.y > antiSpeedMaxDistanceSquared ||
+                                        Math.Abs( delta.h ) > 32 ) {
                                         SendNow( PacketWriter.MakeSelfTeleport( player.pos ) );
                                     }
                                     newPos.x = player.pos.x;
@@ -219,23 +221,18 @@ namespace fCraft {
                                     newPos.h = player.pos.h;
 
                                     // recalculate deltas
-                                    delta = new Position {
-                                        x = (short)(newPos.x - oldPos.x),
-                                        y = (short)(newPos.y - oldPos.y),
-                                        h = (short)(newPos.h - oldPos.h),
-                                        r = (byte)Math.Abs( newPos.r - oldPos.r ),
-                                        l = (byte)Math.Abs( newPos.l - oldPos.l )
-                                    };
-                                    posChanged = delta.x != 0 || delta.y != 0 || delta.h != 0;
+                                    delta.x = 0;
+                                    delta.y = 0;
+                                    delta.h = 0;
+                                    posChanged = false;
                                     distSquared = delta.x * delta.x + delta.y * delta.y + delta.h * delta.h;
 
-                                    // speedhack detection
                                 } else if( !player.Can( Permission.UseSpeedHack ) ) {
+                                    // speedhack detection
                                     if( DetectMovementPacketSpam( newPos ) ) {
                                         continue;
 
-                                    } else if( (distSquared - delta.h * delta.h > antiSpeedMaxDistanceSquared ||
-                                                    delta.h > antiSpeedMaxJumpDelta) &&
+                                    } else if( (distSquared - delta.h * delta.h > antiSpeedMaxDistanceSquared || delta.h > antiSpeedMaxJumpDelta) &&
                                                speedHackDetectionCounter >= 0 ) {
 
                                         if( speedHackDetectionCounter == 0 ) {
@@ -253,7 +250,10 @@ namespace fCraft {
                                 }
 
                                 // movement optimization
-                                if( distSquared < 64 && (delta.r * delta.r + delta.l * delta.l) < 4096 && !skippedLastMovementPacket ) {
+                                if( distSquared < skipMovementThreshold &&
+                                    (delta.r * delta.r + delta.l * delta.l) < skipRotationThresholdSquared &&
+                                    !skippedLastMovementPacket ) {
+
                                     skippedLastMovementPacket = true;
                                     continue;
                                 }
@@ -340,14 +340,7 @@ namespace fCraft {
 
 
         void DenyMovement( Position newPos ) {
-            Position avgPosition = new Position();
-            avgPosition.Set( (player.lastValidPosition.x * 3 + newPos.x) / 4 + 1,
-                             (player.lastValidPosition.y * 3 + newPos.y) / 4 + 1,
-                             (player.lastValidPosition.h * 3 + newPos.h) / 4 + 1,
-                             player.lastValidPosition.r,
-                             player.lastValidPosition.l );
-
-            SendNow( PacketWriter.MakeSelfTeleport( avgPosition ) );
+            SendNow( PacketWriter.MakeSelfTeleport( player.lastValidPosition ) );
             if( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {
                 player.Message( "&WYou are not allowed to speedhack." );
                 antiSpeedLastNotification = DateTime.UtcNow;
