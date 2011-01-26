@@ -1284,6 +1284,7 @@ namespace fCraft {
                 return;
             }
 
+            // bringing someone to another player (instead of to self)
             string toName = cmd.Next();
             Player toPlayer = player;
             if( toName != null ) {
@@ -1295,13 +1296,14 @@ namespace fCraft {
             if( target == null ) return;
 
             if( target.world == toPlayer.world ) {
+                // teleport within the same world
+                target.Send( PacketWriter.MakeSelfTeleport( toPlayer.pos ) );
                 if( target.info.isFrozen ) {
                     target.pos = toPlayer.pos;
-                } else {
-                    target.Send( PacketWriter.MakeSelfTeleport( toPlayer.pos ) );
                 }
 
             } else {
+                // teleport to a different world
                 switch( toPlayer.world.accessSecurity.CheckDetailed( target.info ) ) {
                     case SecurityCheckResult.Allowed:
                     case SecurityCheckResult.WhiteListed:
@@ -1342,10 +1344,10 @@ namespace fCraft {
 
             if( target == player ) {
                 target = player.world.GetNextPatrolTarget();
-            }
-            if( target == player ) {
-                player.Message( "Patrol: No one to patrol in this world (except yourself)." );
-                return;
+                if( target == player ) {
+                    player.Message( "Patrol: No one to patrol in this world (except yourself)." );
+                    return;
+                }
             }
 
             player.Message( "Patrol: Teleporting to {0}", target.GetClassyName() );
