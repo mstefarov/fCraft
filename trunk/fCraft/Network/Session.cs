@@ -807,21 +807,22 @@ namespace fCraft {
         }
 
 
-
-
         string ReadString() {
             return ASCIIEncoding.ASCII.GetString( reader.ReadBytes( 64 ) ).Trim();
         }
+
 
         public void ClearBlockUpdateQueue() {
             Packet temp = new Packet();
             while( outputQueue.Dequeue( ref temp ) ) { }
         }
 
+
         public void ClearPriorityOutputQueue() {
             Packet tempPacket = new Packet();
             while( priorityOutputQueue.Dequeue( ref tempPacket ) ) ;
         }
+
 
         bool DetectMovementPacketSpam( Position newPos ) {
             if( antiSpeedPacketLog.Count >= antiSpeedMaxPacketCount ) {
