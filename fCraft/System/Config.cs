@@ -142,6 +142,7 @@ namespace fCraft {
         /// </summary>
         public static void LoadDefaults() {
             LoadDefaultsGeneral();
+            LoadDefaultsChat();
             LoadDefaultsWorlds();
             LoadDefaultsSecurity();
             LoadDefaultsSavingAndBackup();
@@ -160,12 +161,10 @@ namespace fCraft {
             SetValue( ConfigKey.Port, 25565 );
             SetValue( ConfigKey.IP, IPAddress.Any );
             SetValue( ConfigKey.UploadBandwidth, 100 );
+            SetValue( ConfigKey.AnnouncementInterval, 0 );
+        }
 
-            SetValue( ConfigKey.ShowJoinedWorldMessages, true );
-            SetValue( ConfigKey.RankColorsInWorldNames, true );
-            SetValue( ConfigKey.RankColorsInChat, true );
-            SetValue( ConfigKey.RankPrefixesInChat, false );
-            SetValue( ConfigKey.RankPrefixesInList, false );
+        public static void LoadDefaultsChat() {
             SetValue( ConfigKey.SystemMessageColor, Color.GetName( Color.SysDefault ) );
             SetValue( ConfigKey.HelpColor, Color.GetName( Color.HelpDefault ) );
             SetValue( ConfigKey.SayColor, Color.GetName( Color.SayDefault ) );
@@ -173,7 +172,11 @@ namespace fCraft {
             SetValue( ConfigKey.PrivateMessageColor, Color.GetName( Color.PMDefault ) );
             SetValue( ConfigKey.MeColor, Color.GetName( Color.MeDefault ) );
             SetValue( ConfigKey.WarningColor, Color.GetName( Color.WarningDefault ) );
-            SetValue( ConfigKey.AnnouncementInterval, 0 );
+            SetValue( ConfigKey.ShowJoinedWorldMessages, true );
+            SetValue( ConfigKey.RankColorsInWorldNames, true );
+            SetValue( ConfigKey.RankColorsInChat, true );
+            SetValue( ConfigKey.RankPrefixesInChat, false );
+            SetValue( ConfigKey.RankPrefixesInList, false );
         }
 
         public static void LoadDefaultsWorlds() {

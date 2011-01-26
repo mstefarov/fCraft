@@ -25,7 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -78,7 +78,6 @@
             this.xListPrefixes = new System.Windows.Forms.CheckBox();
             this.xChatPrefixes = new System.Windows.Forms.CheckBox();
             this.xRankColors = new System.Windows.Forms.CheckBox();
-            this.chatPreview = new ConfigTool.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.bMapPath = new System.Windows.Forms.Button();
             this.xMapPath = new System.Windows.Forms.CheckBox();
@@ -236,6 +235,8 @@
             this.cIRCList = new System.Windows.Forms.ComboBox();
             this.tabAdvanced = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.lConsoleName = new System.Windows.Forms.Label();
+            this.tConsoleName = new System.Windows.Forms.TextBox();
             this.nMaxUndo = new System.Windows.Forms.NumericUpDown();
             this.lMaxUndoUnits = new System.Windows.Forms.Label();
             this.xMaxUndo = new System.Windows.Forms.CheckBox();
@@ -262,8 +263,7 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.tConsoleName = new System.Windows.Forms.TextBox();
-            this.lConsoleName = new System.Windows.Forms.Label();
+            this.chatPreview = new ConfigTool.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -386,6 +386,7 @@
             // 
             // nAnnouncements
             // 
+            this.nAnnouncements.Enabled = false;
             this.nAnnouncements.Location = new System.Drawing.Point( 210, 25 );
             this.nAnnouncements.Maximum = new decimal( new int[] {
             60,
@@ -427,6 +428,7 @@
             // bAnnouncements
             // 
             this.bAnnouncements.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bAnnouncements.Enabled = false;
             this.bAnnouncements.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.bAnnouncements.Location = new System.Drawing.Point( 301, 20 );
             this.bAnnouncements.Name = "bAnnouncements";
@@ -923,13 +925,6 @@
             this.xRankColors.Text = "Show rank colors.";
             this.xRankColors.UseVisualStyleBackColor = true;
             // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 189 );
-            this.chatPreview.TabIndex = 2;
-            // 
             // tabWorlds
             // 
             this.tabWorlds.Controls.Add( this.bMapPath );
@@ -1077,8 +1072,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 334 );
             this.dgvWorlds.TabIndex = 1;
@@ -2697,10 +2692,26 @@
             this.groupBox1.Controls.Add( this.xNoPartialPositionUpdates );
             this.groupBox1.Location = new System.Drawing.Point( 8, 148 );
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size( 638, 297 );
+            this.groupBox1.Size = new System.Drawing.Size( 638, 271 );
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Miscellaneous";
+            // 
+            // lConsoleName
+            // 
+            this.lConsoleName.AutoSize = true;
+            this.lConsoleName.Location = new System.Drawing.Point( 6, 241 );
+            this.lConsoleName.Name = "lConsoleName";
+            this.lConsoleName.Size = new System.Drawing.Size( 214, 15 );
+            this.lConsoleName.TabIndex = 45;
+            this.lConsoleName.Text = "Name of the \"Console\" pseudo-player:";
+            // 
+            // tConsoleName
+            // 
+            this.tConsoleName.Location = new System.Drawing.Point( 226, 238 );
+            this.tConsoleName.Name = "tConsoleName";
+            this.tConsoleName.Size = new System.Drawing.Size( 149, 21 );
+            this.tConsoleName.TabIndex = 44;
             // 
             // nMaxUndo
             // 
@@ -2947,7 +2958,7 @@
             "Fully automatic"} );
             this.cUpdater.Location = new System.Drawing.Point( 148, 97 );
             this.cUpdater.Name = "cUpdater";
-            this.cUpdater.Size = new System.Drawing.Size( 150, 23 );
+            this.cUpdater.Size = new System.Drawing.Size( 245, 23 );
             this.cUpdater.TabIndex = 1;
             // 
             // lUpdater
@@ -3024,21 +3035,12 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // tConsoleName
+            // chatPreview
             // 
-            this.tConsoleName.Location = new System.Drawing.Point( 226, 238 );
-            this.tConsoleName.Name = "tConsoleName";
-            this.tConsoleName.Size = new System.Drawing.Size( 149, 21 );
-            this.tConsoleName.TabIndex = 44;
-            // 
-            // lConsoleName
-            // 
-            this.lConsoleName.AutoSize = true;
-            this.lConsoleName.Location = new System.Drawing.Point( 6, 241 );
-            this.lConsoleName.Name = "lConsoleName";
-            this.lConsoleName.Size = new System.Drawing.Size( 214, 15 );
-            this.lConsoleName.TabIndex = 45;
-            this.lConsoleName.Text = "Name of the \"Console\" pseudo-player:";
+            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 637, 189 );
+            this.chatPreview.TabIndex = 2;
             // 
             // ConfigUI
             // 
