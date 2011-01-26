@@ -245,6 +245,16 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             }
         }
 
+        private void bMapPath_Click( object sender, EventArgs e ) {
+            FolderBrowserDialog dialog = new FolderBrowserDialog {
+                SelectedPath = tMapPath.Text,
+                Description = "Select a directory to save map files to"
+            };
+            if( dialog.ShowDialog() == DialogResult.OK ) {
+                tMapPath.Text = dialog.SelectedPath;
+            }
+        }
+
         #endregion
 
         #region Security
@@ -1115,6 +1125,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 Config.ResetRanks();
 
                 ApplyTabGeneral();
+                ApplyTabChat();
                 ApplyTabWorlds(); // also reloads world list
                 ApplyTabRanks();
                 ApplyTabSecurity();
@@ -1132,10 +1143,15 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                         Config.LoadDefaultsGeneral();
                         ApplyTabGeneral();
                         break;
-                    case 1:// Worlds
+                    case 1: // Chat
+                        Config.LoadDefaultsChat();
+                        ApplyTabChat();
+                        break;
+                    case 2:// Worlds
+                        Config.LoadDefaultsWorlds();
                         ApplyTabWorlds(); // also reloads world list
                         break;
-                    case 2:// Ranks
+                    case 3:// Ranks
                         Config.ResetRanks();
                         ApplyTabWorlds();
                         ApplyTabRanks();
@@ -1143,23 +1159,23 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                         patrolledRank = null;
                         RebuildRankList();
                         break;
-                    case 3:// Security
+                    case 4:// Security
                         Config.LoadDefaultsSecurity();
                         ApplyTabSecurity();
                         break;
-                    case 4:// Saving and Backup
+                    case 5:// Saving and Backup
                         Config.LoadDefaultsSavingAndBackup();
                         ApplyTabSavingAndBackup();
                         break;
-                    case 5:// Logging
+                    case 6:// Logging
                         Config.LoadDefaultsLogging();
                         ApplyTabLogging();
                         break;
-                    case 6:// IRC
+                    case 7:// IRC
                         Config.LoadDefaultsIRC();
                         ApplyTabIRC();
                         break;
-                    case 7:// Advanced
+                    case 8:// Advanced
                         Config.LoadDefaultsAdvanced();
                         ApplyTabAdvanced();
                         break;
@@ -1349,14 +1365,5 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             }
         }
 
-        private void bMapPath_Click( object sender, EventArgs e ) {
-            FolderBrowserDialog dialog = new FolderBrowserDialog {
-                SelectedPath = tMapPath.Text,
-                Description = "Select a directory to save map files to"
-            };
-            if( dialog.ShowDialog() == DialogResult.OK ) {
-                tMapPath.Text = dialog.SelectedPath;
-            }
-        }
     }
 }

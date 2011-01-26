@@ -31,6 +31,7 @@ namespace ConfigTool {
             }
 
             ApplyTabGeneral();
+            ApplyTabChat();
             ApplyTabWorlds(); // also reloads world list
             ApplyTabRanks();
             ApplyTabSecurity();
@@ -103,6 +104,12 @@ namespace ConfigTool {
             }
             tIP.Text = Config.GetString( ConfigKey.IP );
 
+            xAnnouncements.Checked = (Config.GetInt( ConfigKey.AnnouncementInterval ) > 0);
+            nAnnouncements.Value = Config.GetInt( ConfigKey.AnnouncementInterval );
+        }
+
+
+        void ApplyTabChat() {
             xRankColors.Checked = Config.GetBool( ConfigKey.RankColorsInChat );
             xChatPrefixes.Checked = Config.GetBool( ConfigKey.RankPrefixesInChat );
             xListPrefixes.Checked = Config.GetBool( ConfigKey.RankPrefixesInList );
@@ -136,9 +143,6 @@ namespace ConfigTool {
             colorMe = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.MeColor ) );
             ApplyColor( bColorMe, colorMe );
             fCraft.Color.Me = fCraft.Color.Parse( colorMe );
-
-            xAnnouncements.Checked = (Config.GetInt( ConfigKey.AnnouncementInterval ) > 0);
-            nAnnouncements.Value = Config.GetInt( ConfigKey.AnnouncementInterval );
         }
 
 

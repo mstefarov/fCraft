@@ -629,13 +629,18 @@ namespace fCraft {
                 }
             } else {
                 if( firstTime ) {
-                    player.Message( "Welcome back to {0}", Config.GetString( ConfigKey.ServerName ) );
-                } else {
                     player.Message( "Welcome to {0}", Config.GetString( ConfigKey.ServerName ) );
+                } else {
+                    player.Message( "Welcome back to {0}", Config.GetString( ConfigKey.ServerName ) );
                 }
 
                 player.Message( "Your rank is {0}&S. Type &H/help&S for help.",
                                 player.info.rank.GetClassyName() );
+            }
+
+            if( PlayerDB.CountTotalPlayers() == 1 && player.info.rank != RankList.HighestRank ) {
+                player.Message( "Type &H/rank {0} {1}&S in console to promote yourself",
+                                player.name, RankList.HighestRank.Name );
             }
             return true;
         }
