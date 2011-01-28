@@ -1219,6 +1219,7 @@ namespace fCraft {
                         player.id = i;
                         players[i] = player;
                         UpdatePlayerList();
+                        player.session.hasRegistered = true;
                         return true;
                     }
                 }
@@ -1233,28 +1234,23 @@ namespace fCraft {
                 throw new ArgumentNullException( "player", "Server.UnregisterPlayer: player cannot be null." );
             }
 
-            lock( worldListLock ) {
-                lock( playerListLock ) {
-                    if( players.ContainsKey( player.id ) ) {
-                        SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
-                        Logger.Log( "{0} left the server.", LogType.UserActivity,
-                                    player.name );
-                        if( player.session.hasRegistered ) {
-                            SendToAll( "&SPlayer {0}&S left the server.", player.GetClassyName() );
+            lock( playerListLock ) {
+                if( player.session.hasRegistered ) {
+                    SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
+                    Logger.Log( "{0} left the server.", LogType.UserActivity,
+                                player.name );
+                    SendToAll( "&SPlayer {0}&S left the server.", player.GetClassyName() );
 
-                            // better safe than sorry: go through ALL worlds looking for leftover players
-                            foreach( World world in worlds.Values ) {
-                                world.ReleasePlayer( player );
-                            }
-                            players.Remove( player.id );
-                            UpdatePlayerList();
+                    lock( worldListLock ) {
+                        // better safe than sorry: go through ALL worlds looking for leftover players
+                        foreach( World world in worlds.Values ) {
+                            world.ReleasePlayer( player );
                         }
-
-                        if( player.info != null ) player.info.ProcessLogout( player );
-                    } else {
-                        Logger.Log( "Server.UnregisterPlayer: Trying to unregister a non-existent player.",
-                                    LogType.Warning );
                     }
+                    players.Remove( player.id );
+                    UpdatePlayerList();
+
+                    if( player.info != null ) player.info.ProcessLogout( player );
                 }
             }
         }

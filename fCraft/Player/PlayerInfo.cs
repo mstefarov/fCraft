@@ -88,6 +88,8 @@ namespace fCraft {
             lastIP = player.session.GetIP();
             rank = RankList.DefaultRank;
             firstLoginDate = DateTime.Now;
+            lastSeen = DateTime.Now;
+            lastLoginDate = DateTime.Now;
             ID = PlayerDB.GetNextID();
         }
 
@@ -187,6 +189,13 @@ namespace fCraft {
                     IRCPassword = Unescape( fields[42] );
                     // fields[43] is "online", and is ignored
                 }
+            }
+
+            if( lastSeen < firstLoginDate ) {
+                lastSeen = firstLoginDate;
+            }
+            if( lastLoginDate < firstLoginDate ){
+                lastLoginDate = firstLoginDate;
             }
         }
 

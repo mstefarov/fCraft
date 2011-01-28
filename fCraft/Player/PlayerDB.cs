@@ -119,13 +119,13 @@ namespace fCraft {
             using( FileStream fs = new FileStream( tempDBFileName, FileMode.Create, FileAccess.Write, FileShare.None, 64 * 1024 ) ) {
                 using( StreamWriter writer = new StreamWriter( fs ) ) {
                     writer.WriteLine( MaxID + Header );
-                    foreach( PlayerInfo entry in listCopy ) {
-                        writer.WriteLine( entry.Serialize() );
+                    for( int i=0; i<listCopy.Length; i++){
+                        writer.WriteLine( listCopy[i].Serialize() );
                     }
                 }
             }
             try {
-                if( File.Exists( DBFileName ) ) File.Replace( tempDBFileName, DBFileName, backupDBFileName, true );
+                if( File.Exists( DBFileName ) ) File.Replace( tempDBFileName, DBFileName + ".gz", backupDBFileName, true );
                 else File.Move( tempDBFileName, DBFileName );
             } catch( Exception ex ) {
                 Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );

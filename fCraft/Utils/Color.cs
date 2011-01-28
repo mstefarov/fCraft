@@ -233,32 +233,33 @@ namespace fCraft {
 
         public static string SubstituteSpecialColors( string input ) {
             StringBuilder sb = new StringBuilder( input );
-
-            sb.Replace( "&s", Color.Sys );
-            sb.Replace( "&S", Color.Sys );
-
-            sb.Replace( "&y", Color.Say );
-            sb.Replace( "&Y", Color.Say );
-
-            sb.Replace( "&p", Color.PM );
-            sb.Replace( "&P", Color.PM );
-
-            sb.Replace( "&r", Color.Announcement );
-            sb.Replace( "&R", Color.Announcement );
-
-            sb.Replace( "&h", Color.Help );
-            sb.Replace( "&H", Color.Help );
-
-            sb.Replace( "&w", Color.Warning );
-            sb.Replace( "&W", Color.Warning );
-
-            sb.Replace( "&m", Color.Me );
-            sb.Replace( "&M", Color.Me );
-
-            sb.Replace( "&i", Color.IRC );
-            sb.Replace( "&I", Color.IRC );
-
+            for( int i = sb.Length - 1; i > 0; i-- ) {
+                if( sb[i - 1] == '&' ) {
+                    switch( Char.ToLower( sb[i] ) ) {
+                        case 's': sb[i] = Color.Sys[1]; break;
+                        case 'y': sb[i] = Color.Say[1]; break;
+                        case 'p': sb[i] = Color.PM[1]; break;
+                        case 'r': sb[i] = Color.Announcement[1]; break;
+                        case 'h': sb[i] = Color.Help[1]; break;
+                        case 'w': sb[i] = Color.Warning[1]; break;
+                        case 'm': sb[i] = Color.Me[1]; break;
+                        case 'i': sb[i] = Color.IRC[1]; break;
+                        default:
+                            if( IsValidColorCode( sb[i] ) ) {
+                                continue;
+                            } else {
+                                sb.Remove( i - 1, 1 );
+                            }
+                            break;
+                    }
+                }
+            }
             return sb.ToString();
+        }
+
+
+        public static string StripColorCodes( string input ) {
+            return input.Replace( "&", "" );
         }
 
 

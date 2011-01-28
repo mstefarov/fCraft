@@ -225,7 +225,8 @@ namespace fCraft {
                                     return;
                                 }
                             }
-                            processedMessage = nonPrintableChars.Replace( processedMessage, "" ).Trim();
+                            processedMessage = nonPrintableChars.Replace( processedMessage, "" );
+                            processedMessage = Color.StripColorCodes( processedMessage ).Trim();
                             if( processedMessage.Length > 0 ) {
                                 if( Config.GetBool( ConfigKey.IRCBotForwardFromIRC ) ) {
                                     if( msg.Type == IRCMessageType.ChannelAction ) {
@@ -278,7 +279,7 @@ namespace fCraft {
                             case IRCReplyCode.ErrorNicknameInUse:
                             case IRCReplyCode.ErrorNicknameCollision:
                                 Logger.Log( "Error: Nickname \"{0}\" is already in use. Trying \"{0}_\"", LogType.IRC,
-                                            msg.ReplyCode, msg.Channel );
+                                            actualBotNick, msg.Channel );
                                 actualBotNick += "_";
                                 Send( IRCCommands.Nick( actualBotNick ) );
                                 break;
@@ -340,10 +341,10 @@ namespace fCraft {
                     if( reader != null ) reader.Close();
                 } catch( ObjectDisposedException ) { }
                 try {
-                    if( writer != null ) reader.Close();
+                    if( writer != null ) writer.Close();
                 } catch( ObjectDisposedException ) { }
                 try {
-                    if( client != null ) reader.Close();
+                    if( client != null ) client.Close();
                 } catch( ObjectDisposedException ) { }
             }
         }
