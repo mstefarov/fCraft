@@ -311,6 +311,7 @@ namespace fCraft {
 
             #endregion
 
+
             public Task Stop() {
                 IsStopped = true;
                 return this;

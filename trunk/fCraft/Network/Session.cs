@@ -558,7 +558,6 @@ namespace fCraft {
                 return false;
             }
             player.info.ProcessLogin( player );
-            hasRegistered = true;
 
             // ==== Beyond this point, player is considered authenticated/registered ====
 
