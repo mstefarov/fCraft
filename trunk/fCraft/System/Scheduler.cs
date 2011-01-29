@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Linq;
 
+//#define DEBUG_SCHEDULER
 
 namespace fCraft {
     public static class Scheduler {
@@ -97,7 +98,7 @@ namespace fCraft {
                 if( tasks.Add( task ) ) {
                     UpdateCache();
                 }
-#if DEBUG
+#if DEBUG_SCHEDULER
                 Logger.Log( "Scheduler.AddTask: Added {0}", LogType.Debug, task );
 #endif
             }

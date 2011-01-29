@@ -32,6 +32,8 @@ using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Threading;
 
+//#define DEBUG_IRC
+
 
 namespace fCraft {
 
@@ -187,7 +189,7 @@ namespace fCraft {
             void HandleMessage( string message ) {
 
                 IRCMessage msg = MessageParser( message, actualBotNick );
-#if DEBUG
+#if DEBUG_IRC
                 Logger.Log( "[{0}]: {1}", LogType.IRC,
                             msg.Type, msg.RawMessage );
 #endif

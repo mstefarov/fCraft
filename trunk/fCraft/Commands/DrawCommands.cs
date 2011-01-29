@@ -17,6 +17,8 @@ namespace fCraft {
             CuboidHollow,
             CuboidWireframe,
             Ellipsoid,
+            Sphere,
+            Sphere2,
             Replace,
             ReplaceNot,
             Line
@@ -73,6 +75,8 @@ namespace fCraft {
             CommandList.RegisterCommand( cdCuboidHollow );
             CommandList.RegisterCommand( cdCuboidWireframe );
             CommandList.RegisterCommand( cdEllipsoid );
+            CommandList.RegisterCommand( cdSphere );
+            CommandList.RegisterCommand( cdSphere2 );
             CommandList.RegisterCommand( cdReplace );
             CommandList.RegisterCommand( cdReplaceNot );
             CommandList.RegisterCommand( cdLine );
@@ -144,7 +148,7 @@ namespace fCraft {
 
         static CommandDescriptor cdEllipsoid = new CommandDescriptor {
             name = "ellipsoid",
-            aliases = new string[] { "e", "ell", "spheroid" },
+            aliases = new string[] { "e", "ell" },
             permissions = new Permission[] { Permission.Draw },
             usage = "/ellipsoid [BlockName]",
             help = "Allows to fill a sphere-like area (ellipsoid) with blocks. " +
@@ -154,6 +158,40 @@ namespace fCraft {
 
         internal static void Ellipsoid( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Ellipsoid );
+        }
+
+
+
+        static CommandDescriptor cdSphere = new CommandDescriptor {
+            name = "sphere",
+            aliases = new string[] { "sp", "spheroid" },
+            permissions = new Permission[] { Permission.Draw },
+            usage = "/sphere [BlockName]",
+            help = "Allows to fill a sphere-shaped area with blocks. " +
+                   "First mark is the center of the sphere, second mark is the edge of the area of the sphere." +
+                   "If BlockType is omitted, uses the block that player is holding.",
+            handler = Sphere
+        };
+
+        internal static void Sphere( Player player, Command cmd ) {
+            Draw( player, cmd, DrawMode.Sphere );
+        }
+
+
+
+        static CommandDescriptor cdSphere2 = new CommandDescriptor {
+            name = "sphere2",
+            aliases = new string[] { "sp2", "spheroid2" },
+            permissions = new Permission[] { Permission.Draw },
+            usage = "/sphere2 [BlockName]",
+            help = "Allows to fill a sphere-shaped area with blocks. " +
+                   "First mark is the center of the sphere, second mark defines the radius." +
+                   "If BlockType is omitted, uses the block that player is holding.",
+            handler = Sphere2
+        };
+
+        internal static void Sphere2( Player player, Command cmd ) {
+            Draw( player, cmd, DrawMode.Sphere2 );
         }
 
 
@@ -268,6 +306,16 @@ namespace fCraft {
 
                 case DrawMode.Ellipsoid:
                     player.selectionCallback = EllipsoidCallback;
+                    player.selectionArgs = (byte)block;
+                    break;
+
+                case DrawMode.Sphere:
+                    player.selectionCallback = SphereCallback;
+                    player.selectionArgs = (byte)block;
+                    break;
+
+                case DrawMode.Sphere2:
+                    player.selectionCallback = Sphere2Callback;
                     player.selectionArgs = (byte)block;
                     break;
 
@@ -700,6 +748,44 @@ namespace fCraft {
             player.undoBuffer.TrimExcess();
             Server.RequestGC();
         }
+
+
+
+        internal static void SphereCallback( Player player, Position[] marks, object tag ) {
+
+            int bigdiff = Math.Abs( Math.Max( (Math.Max( Math.Max( marks[0].x, marks[1].x ) - Math.Min( marks[0].x, marks[1].x ),
+                                               Math.Max( marks[0].y, marks[1].y ) - Math.Min( marks[0].y, marks[1].y ) )),
+                                               Math.Max( marks[0].h, marks[1].h ) - Math.Min( marks[0].h, marks[1].h ) ) );
+
+            marks[1].x = (short)(marks[0].x - bigdiff);
+            marks[1].y = (short)(marks[0].y - bigdiff);
+            marks[1].h = (short)(marks[0].h - bigdiff);
+
+            marks[0].x = (short)(marks[0].x + bigdiff);
+            marks[0].y = (short)(marks[0].y + bigdiff);
+            marks[0].h = (short)(marks[0].h + bigdiff);
+
+            EllipsoidCallback( player, marks, tag );
+        }
+
+
+        internal static void Sphere2Callback( Player player, Position[] marks, object tag ) {
+
+            double radius = Math.Sqrt( (marks[0].x - marks[1].x) * (marks[0].x - marks[1].x) +
+                                       (marks[0].y - marks[1].y) * (marks[0].y - marks[1].y) +
+                                       (marks[0].h - marks[1].h) * (marks[0].h - marks[1].h) );
+
+            marks[1].x = (short)Math.Round( marks[0].x - radius );
+            marks[1].y = (short)Math.Round( marks[0].y - radius );
+            marks[1].h = (short)Math.Round( marks[0].h - radius );
+
+            marks[0].x = (short)Math.Round( marks[0].x + radius );
+            marks[0].y = (short)Math.Round( marks[0].y + radius );
+            marks[0].h = (short)Math.Round( marks[0].h + radius );
+
+            EllipsoidCallback( player, marks, tag );
+        }
+
 
         internal static void EllipsoidCallback( Player player, Position[] marks, object tag ) {
             byte drawBlock = (byte)tag;
