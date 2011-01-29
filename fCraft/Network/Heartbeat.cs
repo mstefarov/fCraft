@@ -103,7 +103,7 @@ namespace fCraft {
                         newURL = responseReader.ReadLine();
                     }
                 }
-                if( newURL != Server.URL ) {
+                if( newURL.Trim().Length > 32 && newURL != Server.URL ) {
                     Server.URL = newURL;
                     Server.FireURLChangeEvent( Server.URL );
                 }
