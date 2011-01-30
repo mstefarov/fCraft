@@ -1239,7 +1239,9 @@ namespace fCraft {
                     SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
                     Logger.Log( "{0} left the server.", LogType.UserActivity,
                                 player.name );
-                    SendToAll( "&SPlayer {0}&S left the server.", player.GetClassyName() );
+                    if( Config.GetBool( ConfigKey.ShowConnectionMessages ) ) {
+                        SendToAll( "&SPlayer {0}&S left the server.", player.GetClassyName() );
+                    }
 
                     lock( worldListLock ) {
                         // better safe than sorry: go through ALL worlds looking for leftover players

@@ -600,7 +600,10 @@ namespace fCraft {
             }
 
             // Announce join
-            Server.SendToAllExcept( Server.MakePlayerConnectedMessage( player, firstTime, Server.mainWorld ), player );
+
+            if( Config.GetBool( ConfigKey.ShowConnectionMessages ) ) {
+                Server.SendToAllExcept( Server.MakePlayerConnectedMessage( player, firstTime, Server.mainWorld ), player );
+            }
 
             // check if player is still muted
             if( player.info.mutedUntil > DateTime.UtcNow ) {
@@ -609,6 +612,17 @@ namespace fCraft {
                                 player.info.mutedBy, secondsLeft );
                 Server.SendToAllExcept( "&WPlayer {0}&W was previously muted by {1}&W, {2} seconds left.", player,
                                         player.GetClassyName(), player.info.mutedBy, secondsLeft );
+            }
+
+            // check if player is still frozen
+            if( player.info.isFrozen ) {
+                player.Message( "&WYou were previously frozen {0} ago by {1}",
+                                DateTime.Now.Subtract( player.info.frozenOn ).ToMiniString(),
+                                player.info.frozenBy );
+                Server.SendToAllExcept( "&WPlayer {0}&W was previously frozen {0} ago by {1}.", player,
+                                        player.GetClassyName(),
+                                        DateTime.Now.Subtract( player.info.frozenOn ).ToMiniString(),
+                                        player.info.frozenBy );
             }
 
             // Welcome message

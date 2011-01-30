@@ -22,6 +22,7 @@ namespace fCraft {
         RankColorsInWorldNames,
         RankPrefixesInChat,
         RankPrefixesInList,
+        ShowConnectionMessages,
         ShowJoinedWorldMessages,
         SystemMessageColor,
         HelpColor,
