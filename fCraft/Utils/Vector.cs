@@ -15,22 +15,22 @@ namespace fCraft {
         }
 
         public static bool operator >( Vector3i a, Vector3i b ) {
-            return a.GetLength() > b.GetLength();
+            return a.x * a.x + a.z * a.z + a.y * a.y > b.x * b.x + b.z * b.z + b.y * b.y;
         }
         public static bool operator <( Vector3i a, Vector3i b ) {
-            return a.GetLength() < b.GetLength();
+            return a.x * a.x + a.z * a.z + a.y * a.y < b.x * b.x + b.z * b.z + b.y * b.y;
         }
         public static bool operator >=( Vector3i a, Vector3i b ) {
-            return a.GetLength() >= b.GetLength();
+            return a.x * a.x + a.z * a.z + a.y * a.y >= b.x * b.x + b.z * b.z + b.y * b.y;
         }
         public static bool operator <=( Vector3i a, Vector3i b ) {
-            return a.GetLength() <= b.GetLength();
+            return a.x * a.x + a.z * a.z + a.y * a.y <= b.x * b.x + b.z * b.z + b.y * b.y;
         }
         public static bool operator ==( Vector3i a, Vector3i b ) {
-            return a.GetLength() == b.GetLength();
+            return a.x * a.x + a.z * a.z + a.y * a.y == b.x * b.x + b.z * b.z + b.y * b.y;
         }
         public static bool operator !=( Vector3i a, Vector3i b ) {
-            return a.GetLength() != b.GetLength();
+            return a.x * a.x + a.z * a.z + a.y * a.y != b.x * b.x + b.z * b.z + b.y * b.y;
         }
         public static Vector3i operator +( Vector3i a, Vector3i b ) {
             return new Vector3i( a.x + b.x, a.z + b.z, a.y + b.y );
@@ -116,23 +116,24 @@ namespace fCraft {
         }
 
         public static bool operator >( Vector3f a, Vector3f b ) {
-            return a.GetLength() > b.GetLength();
+            return a.x * a.x + a.h * a.h + a.y * a.y > b.x * b.x + b.h * b.h + b.y * b.y;
         }
         public static bool operator <( Vector3f a, Vector3f b ) {
-            return a.GetLength() < b.GetLength();
+            return a.x * a.x + a.h * a.h + a.y * a.y < b.x * b.x + b.h * b.h + b.y * b.y;
         }
         public static bool operator >=( Vector3f a, Vector3f b ) {
-            return a.GetLength() >= b.GetLength();
+            return a.x * a.x + a.h * a.h + a.y * a.y >= b.x * b.x + b.h * b.h + b.y * b.y;
         }
         public static bool operator <=( Vector3f a, Vector3f b ) {
-            return a.GetLength() <= b.GetLength();
+            return a.x * a.x + a.h * a.h + a.y * a.y <= b.x * b.x + b.h * b.h + b.y * b.y;
         }
         public static bool operator ==( Vector3f a, Vector3f b ) {
-            return a.GetLength() == b.GetLength();
+            return a.x * a.x + a.h * a.h + a.y * a.y == b.x * b.x + b.h * b.h + b.y * b.y;
         }
         public static bool operator !=( Vector3f a, Vector3f b ) {
-            return a.GetLength() != b.GetLength();
+            return a.x * a.x + a.h * a.h + a.y * a.y != b.x * b.x + b.h * b.h + b.y * b.y;
         }
+
         public static Vector3f operator +( Vector3f a, Vector3f b ) {
             return new Vector3f( a.x + b.x, a.y + b.y, a.h + b.h );
         }
