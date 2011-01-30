@@ -94,18 +94,14 @@ namespace fCraft {
      *              
      * 128 - r379 - Added ConsoleName
      * 
-     * 129 - r392 - Changed AutomaticUpdates enum:
-     *                  "Disabled" -> AutoUpdaterMode.Disabled
-     *                  "Notify" -> AutoUpdaterMode.NotifyDeferred
-     *                  "Prompt" -> AutoUpdaterMode.Notify
-     *                  "Auto" -> AutoUpdaterMode.AutoDeferred
+     * 129 - r405 - Added ShowConnectedMessages
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 128;
+        public const int ConfigVersion = 129;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig";
         static Dictionary<ConfigKey, string> settings = new Dictionary<ConfigKey, string>();

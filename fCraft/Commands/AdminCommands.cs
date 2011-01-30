@@ -844,7 +844,9 @@ namespace fCraft {
             Server.SendToBlind( PacketWriter.MakeRemoveEntity( player.id ), player );
 
             if( !silent ) {
-                Server.SendToBlind( String.Format( "&SPlayer {0}&S left the server.", player.GetClassyName() ), player );
+                if( Config.GetBool( ConfigKey.ShowConnectionMessages ) ) {
+                    Server.SendToBlind( String.Format( "&SPlayer {0}&S left the server.", player.GetClassyName() ), player );
+                }
                 if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
                     IRC.PlayerDisconnectedHandler( player.session );
                 }
@@ -884,7 +886,9 @@ namespace fCraft {
             player.world.SendToBlind( PacketWriter.MakeAddEntity( player, player.pos ), player );
 
             if( !silent ) {
-                Server.SendToBlind( Server.MakePlayerConnectedMessage( player, false, player.world ), player );
+                if( Config.GetBool( ConfigKey.ShowConnectionMessages ) ) {
+                    Server.SendToBlind( Server.MakePlayerConnectedMessage( player, false, player.world ), player );
+                }
                 if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
                     bool temp = false;
                     IRC.PlayerConnectedHandler( player.session, ref temp );

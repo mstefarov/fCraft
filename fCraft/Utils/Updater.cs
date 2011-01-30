@@ -32,10 +32,10 @@ namespace fCraft {
     /// </summary>
     public static class Updater {
         public static int Version = 501;
-        public static int Revision = 403;
+        public static int Revision = 405;
         public static bool IsDev = false,
                            IsBroken = false;
-        public static string LatestNonBroken = "0.501_r403";
+        public static string LatestNonBroken = "0.501_r405";
 
         const string UpdateURL = "http://fcraft.fragmer.net/version.log";
 
