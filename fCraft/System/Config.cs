@@ -173,6 +173,7 @@ namespace fCraft {
             SetValue( ConfigKey.MeColor, Color.GetName( Color.MeDefault ) );
             SetValue( ConfigKey.WarningColor, Color.GetName( Color.WarningDefault ) );
             SetValue( ConfigKey.ShowJoinedWorldMessages, true );
+            SetValue( ConfigKey.ShowConnectionMessages, true );
             SetValue( ConfigKey.RankColorsInWorldNames, true );
             SetValue( ConfigKey.RankColorsInChat, true );
             SetValue( ConfigKey.RankPrefixesInChat, false );
@@ -607,6 +608,7 @@ namespace fCraft {
                 case ConfigKey.RankPrefixesInList:
                 case ConfigKey.RankColorsInWorldNames:
                 case ConfigKey.ShowJoinedWorldMessages:
+                case ConfigKey.ShowConnectionMessages:
                 case ConfigKey.SaveOnShutdown:
                 case ConfigKey.BackupOnStartup:
                 case ConfigKey.BackupOnJoin:
