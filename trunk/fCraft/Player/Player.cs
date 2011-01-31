@@ -103,21 +103,6 @@ namespace fCraft {
         const int confirmationTimeout = 60;
 
 
-        public void Mute( string by, int seconds ) {
-            info.mutedUntil = DateTime.UtcNow.AddSeconds( seconds );
-            info.mutedBy = by;
-        }
-
-        public void Unmute() {
-            info.mutedUntil = DateTime.UtcNow;
-        }
-
-
-        public bool IsMuted() {
-            return DateTime.UtcNow < info.mutedUntil;
-        }
-
-
         public void MutedMessage() {
             Message( "You are muted for another {0:0} seconds.",
                      info.mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
@@ -151,7 +136,7 @@ namespace fCraft {
                 case MessageType.Chat:
                     if( !Can( Permission.Chat ) ) return;
 
-                    if( IsMuted() ) {
+                    if( info.IsMuted() ) {
                         MutedMessage();
                         return;
                     }
@@ -183,7 +168,7 @@ namespace fCraft {
                 case MessageType.PrivateChat:
                     if( !Can( Permission.Chat ) ) return;
 
-                    if( IsMuted() ) {
+                    if( info.IsMuted() ) {
                         MutedMessage();
                         return;
                     }
@@ -209,7 +194,7 @@ namespace fCraft {
 
                     if( allPlayers.Length == 1 ) {
                         Player target = allPlayers[0];
-                        if( target.IsIgnored( info ) ) {
+                        if( target.IsIgnoring( info ) ) {
                             if( CanSee( target ) ) {
                                 MessageNow( "&WCannot PM {0}&W: you are ignored.", target.GetClassyName() );
                             }
@@ -238,7 +223,7 @@ namespace fCraft {
                 case MessageType.RankChat:
                     if( !Can( Permission.Chat ) ) return;
 
-                    if( IsMuted() ) {
+                    if( info.IsMuted() ) {
                         MutedMessage();
                         return;
                     }
@@ -387,7 +372,7 @@ namespace fCraft {
         HashSet<PlayerInfo> ignoreList = new HashSet<PlayerInfo>();
         object ignoreLock = new object();
 
-        public bool IsIgnored( PlayerInfo other ) {
+        public bool IsIgnoring( PlayerInfo other ) {
             lock( ignoreLock ) {
                 return ignoreList.Contains( other );
             }

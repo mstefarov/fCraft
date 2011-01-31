@@ -391,7 +391,7 @@ namespace fCraft {
         internal static void Kick( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name != null ) {
-                string msg = cmd.NextAll();
+                string reason = cmd.NextAll();
 
                 Player target = Server.FindPlayerOrPrintMatches( player, name, false );
                 if( target == null ) return;
@@ -400,7 +400,7 @@ namespace fCraft {
                 string previousKickedBy = target.info.lastKickBy;
                 string previousKickReason = target.info.lastKickReason;
 
-                if( DoKick( player, target, msg, false ) ) {
+                if( DoKick( player, target, reason, false ) ) {
                     if( target.info.timesKicked > 1 ) {
                         player.Message( "Warning: {0}&S has been kicked {1} times before.",
                                         target.GetClassyName(), target.info.timesKicked - 1 );
@@ -1056,11 +1056,9 @@ namespace fCraft {
             if( target == null ) return;
 
             if( player.info.rank.CanFreeze( target.info.rank ) ) {
-                if( !target.info.isFrozen ) {
+                if( target.info.Freeze( player.name ) ) {
                     Server.SendToAll( "{0}&S has been frozen by {1}",
                                       target.GetClassyName(), player.GetClassyName() );
-                    target.info.isFrozen = true;
-                    target.info.frozenBy = player.name;
                 } else {
                     player.Message( "{0}&S is already frozen.", target.GetClassyName() );
                 }
@@ -1094,9 +1092,8 @@ namespace fCraft {
             if( target == null ) return;
 
             if( player.info.rank.CanFreeze( target.info.rank ) ) {
-                if( target.info.isFrozen ) {
+                if( target.info.Unfreeze() ) {
                     Server.SendToAll( "{0}&S is no longer frozen.", target.GetClassyName() );
-                    target.info.isFrozen = false;
                 } else {
                     player.Message( "{0}&S is currently not frozen.", target.GetClassyName() );
                 }
@@ -1123,7 +1120,7 @@ namespace fCraft {
         };
 
         internal static void Say( Player player, Command cmd ) {
-            if( player.IsMuted() ) {
+            if( player.info.IsMuted() ) {
                 player.MutedMessage();
                 return;
             }
@@ -1152,7 +1149,7 @@ namespace fCraft {
         };
 
         internal static void StaffChat( Player player, Command cmd ) {
-            if( player.IsMuted() ) {
+            if( player.info.IsMuted() ) {
                 player.MutedMessage();
                 return;
             }
@@ -1168,9 +1165,13 @@ namespace fCraft {
 
             if( plist.Length > 0 ) player.info.linesWritten++;
 
-            for( int i = 0; i < plist.Length; i++ ) {
-                if( (plist[i].Can( Permission.ReadStaffChat ) || plist[i] == player) && !plist[i].IsIgnored( player.info ) ) {
-                    plist[i].Message( "{0}(staff){1}{0}: {2}", Color.PM, player.GetClassyName(), cmd.NextAll() );
+            string message = cmd.NextAll();
+            if( message != null && message.Trim().Length > 0 ) {
+                message = message.Trim();
+                for( int i = 0; i < plist.Length; i++ ) {
+                    if( (plist[i].Can( Permission.ReadStaffChat ) || plist[i] == player) && !plist[i].IsIgnoring( player.info ) ) {
+                        plist[i].Message( "{0}(staff){1}{0}: {2}", Color.PM, player.GetClassyName(), message );
+                    }
                 }
             }
         }
@@ -1380,7 +1381,7 @@ namespace fCraft {
                 Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
                 if( target == null ) return;
 
-                target.Mute( player.name, seconds );
+                target.info.Mute( player.name, seconds );
                 target.Message( "You were muted by {0}&S for {1} sec", player.GetClassyName(), seconds );
                 Server.SendToAllExcept( "&SPlayer {0}&S was muted by {1}&S for {2} sec", target,
                                         target.GetClassyName(), player.GetClassyName(), seconds );
@@ -1410,7 +1411,7 @@ namespace fCraft {
                 if( target == null ) return;
 
                 if( target.info.mutedUntil >= DateTime.UtcNow ) {
-                    target.Unmute();
+                    target.info.Unmute();
                     target.Message( "You were unmuted by {0}", player.GetClassyName() );
                     Server.SendToAllExcept( "&SPlayer {0}&S was unmuted by {1}", target,
                                             target.GetClassyName(), player.GetClassyName() );

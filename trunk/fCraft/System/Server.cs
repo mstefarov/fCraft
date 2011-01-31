@@ -756,7 +756,7 @@ namespace fCraft {
             foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
                 Player[] tempList = playerList;
                 for( int i = 0; i < tempList.Length; i++ ) {
-                    if( tempList[i] != except && !tempList[i].IsIgnored( origin.info ) ) {
+                    if( tempList[i] != except && !tempList[i].IsIgnoring( origin.info ) ) {
                         tempList[i].Send( p );
                     }
                 }
@@ -817,7 +817,7 @@ namespace fCraft {
             foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
                 Player[] tempList = playerList;
                 for( int i = 0; i < tempList.Length; i++ ) {
-                    if( tempList[i].info.rank == rank && !tempList[i].IsIgnored( origin.info ) ) {
+                    if( tempList[i].info.rank == rank && !tempList[i].IsIgnoring( origin.info ) ) {
                         tempList[i].Send( packet );
                     }
                 }
