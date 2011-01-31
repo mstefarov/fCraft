@@ -11,8 +11,10 @@ namespace fCraft {
         public const int MinFieldCount = 24,
                          ExpectedFieldCount = 44;
 
-        public string name;
+        public string name { get; private set; }
+
         public IPAddress lastIP = IPAddress.None;
+
         public Rank rank;
         public DateTime rankChangeDate = DateTime.MinValue;
         public string rankChangedBy = "";
@@ -64,6 +66,7 @@ namespace fCraft {
 
         public bool online;
         public LeaveReason leaveReason; // TODO
+        public bool banExempt = false;
 
 
         #region Constructors and Serialization
@@ -396,8 +399,12 @@ namespace fCraft {
             Interlocked.Increment( ref kickedBy.info.timesKickedOthers );
             lastKickDate = DateTime.Now;
             lastKickBy = kickedBy.name;
-            if( reason != null ) lastKickReason = reason;
-            else lastKickReason = "";
+            if( reason != null ) {
+                lastKickReason = reason;
+            } else {
+                lastKickReason = "";
+            }
+            Unfreeze();
         }
 
         #endregion
@@ -443,6 +450,43 @@ namespace fCraft {
                 first = false;
             }
             return sb.ToString();
+        }
+
+        #endregion
+
+
+        #region Actions
+
+        public void Mute( string by, int seconds ) {
+            mutedUntil = DateTime.UtcNow.AddSeconds( seconds );
+            mutedBy = by;
+        }
+
+        public void Unmute() {
+            mutedUntil = DateTime.UtcNow;
+        }
+
+        public bool IsMuted() {
+            return DateTime.UtcNow < mutedUntil;
+        }
+
+        public bool Freeze( string by ) {
+            if( !isFrozen ) {
+                isFrozen = true;
+                frozenBy = by;
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public bool Unfreeze() {
+            if( isFrozen ) {
+                isFrozen = false;
+                return true;
+            } else {
+                return false;
+            }
         }
 
         #endregion

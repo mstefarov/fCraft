@@ -100,7 +100,7 @@ namespace fCraft {
             try {
                 using( WebResponse response = request.EndGetResponse( result ) ) {
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                        newURL = responseReader.ReadLine();
+                        newURL = responseReader.ReadToEnd().Trim();
                     }
                 }
                 if( newURL.Trim().Length > 32 && newURL != Server.URL ) {

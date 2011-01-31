@@ -228,23 +228,23 @@ namespace fCraft {
 
 
         internal bool ValidateHeader() {
-            if( !IsValidDimension( height ) ) {
-                Logger.Log( "Map.ReadHeader: Invalid dimension specified for widthX: {0}.", LogType.Error, widthX );
+            if( !IsValidDimension( widthX ) ) {
+                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for widthX: {0}.", LogType.Error, widthX );
                 return false;
             }
 
             if( !IsValidDimension( widthY ) ) {
-                Logger.Log( "Map.ReadHeader: Invalid dimension specified for widthY: {0}.", LogType.Error, widthY );
+                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for widthY: {0}.", LogType.Error, widthY );
                 return false;
             }
 
             if( !IsValidDimension( height ) ) {
-                Logger.Log( "Map.ReadHeader: Invalid dimension specified for height: {0}.", LogType.Error, height );
+                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for height: {0}.", LogType.Error, height );
                 return false;
             }
 
             if( spawn.x > widthX * 32 || spawn.y > widthY * 32 || spawn.h > height * 32 || spawn.x < 0 || spawn.y < 0 || spawn.h < 0 ) {
-                Logger.Log( "Map.ReadHeader: Spawn coordinates are outside the valid range! Using center of the map instead.",
+                Logger.Log( "Map.ValidateHeader: Spawn coordinates are outside the valid range! Using center of the map instead.",
                             LogType.Warning );
                 ResetSpawn();
             }

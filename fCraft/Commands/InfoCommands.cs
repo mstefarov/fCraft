@@ -567,15 +567,15 @@ namespace fCraft {
         };
 
         internal static void Me( Player player, Command cmd ) {
-            if( player.IsMuted() ) {
+            if( player.info.IsMuted() ) {
                 player.MutedMessage();
                 return;
             }
 
-            string msg = cmd.NextAll().Trim();
-            if( msg != null ) {
+            string msg = cmd.NextAll();
+            if( msg != null && msg.Trim().Length > 0 ) {
                 player.info.linesWritten++;
-                string message = String.Format( "{0}*{1} {2}", Color.Me, player.name, msg );
+                string message = String.Format( "{0}*{1} {2}", Color.Me, player.name, msg.Trim() );
                 Server.SendToAll( message );
                 IRC.SendChannelMessage( message );
             }
@@ -643,7 +643,7 @@ namespace fCraft {
         };
 
         internal static void Roll( Player player, Command cmd ) {
-            if( player.IsMuted() ) {
+            if( player.info.IsMuted() ) {
                 player.MutedMessage();
                 return;
             }

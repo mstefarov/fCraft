@@ -619,7 +619,7 @@ namespace fCraft {
                 player.Message( "&WYou were previously frozen {0} ago by {1}",
                                 DateTime.Now.Subtract( player.info.frozenOn ).ToMiniString(),
                                 player.info.frozenBy );
-                Server.SendToAllExcept( "&WPlayer {0}&W was previously frozen {0} ago by {1}.", player,
+                Server.SendToAllExcept( "&WPlayer {0}&W was previously frozen {1} ago by {2}.", player,
                                         player.GetClassyName(),
                                         DateTime.Now.Subtract( player.info.frozenOn ).ToMiniString(),
                                         player.info.frozenBy );
