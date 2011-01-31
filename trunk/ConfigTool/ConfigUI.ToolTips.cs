@@ -398,8 +398,8 @@ Affected commands:
 loading/saving maps, change per-world permissions, and using the map generator.
 Affected commands:
     /wload
+    /wunload
     /wrename
-    /wremove
     /wmain
     /waccess and /wbuild
     /wflush

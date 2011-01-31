@@ -308,9 +308,14 @@ namespace fCraft {
                 return;
             }
 
-            if( player.world.map.FindZone( zoneName ) != null ) {
+            Zone zone = player.world.map.FindZone( zoneName );
+            if( zone != null ) {
+                if( !zone.controller.Check( player.info ) && !player.info.rank.AllowSecurityCircumvention ) {
+                    player.Message( "You are not allowed to remove zone {0}.", zone.GetClassyName() );
+                    return;
+                }
                 if( !cmd.confirmed ) {
-                    player.AskForConfirmation( cmd, "You are about to remove \"{0}\" zone.", zoneName );
+                    player.AskForConfirmation( cmd, "You are about to remove zone {0}.", zone.GetClassyName() );
                     return;
                 }
 

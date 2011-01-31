@@ -1031,7 +1031,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
             } else if( !RankList.CanRenameRank( selectedRank, newName ) ) {
                 MessageBox.Show( "There is already another rank named \"" + newName + "\".\n" +
-                                 "Duplicate rank names are now allowed." );
+                                 "Duplicate rank names are not allowed." );
                 tRankName.ForeColor = Color.Red;
                 e.Cancel = true;
 

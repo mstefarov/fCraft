@@ -22,7 +22,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdWorlds );
             CommandList.RegisterCommand( cdWorldLoad );
             CommandList.RegisterCommand( cdWorldRename );
-            CommandList.RegisterCommand( cdWorldRemove );
+            CommandList.RegisterCommand( cdWorldUnload );
             CommandList.RegisterCommand( cdWorldFlush );
 
             CommandList.RegisterCommand( cdWorldHide );
@@ -1079,21 +1079,21 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdWorldRemove = new CommandDescriptor {
-            name = "wremove",
-            aliases = new string[] { "wdelete" },
+        static CommandDescriptor cdWorldUnload = new CommandDescriptor {
+            name = "wunload",
+            aliases = new string[] { "wremove", "wdelete" },
             consoleSafe = true,
             permissions = new Permission[] { Permission.ManageWorlds },
-            usage = "/wremove WorldName",
+            usage = "/wunload WorldName",
             help = "Removes the specified world from the world list, and moves all players from it to the main world. " +
                    "The main world itself cannot be removed with this command. You will need to delete the map file manually.",
-            handler = WorldRemove
+            handler = WorldUnload
         };
 
-        internal static void WorldRemove( Player player, Command cmd ) {
+        internal static void WorldUnload( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
-                cdWorldRemove.PrintUsage( player );
+                cdWorldUnload.PrintUsage( player );
                 return;
             }
 
