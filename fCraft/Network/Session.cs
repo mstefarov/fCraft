@@ -44,7 +44,7 @@ namespace fCraft {
         // anti-speedhack vars
         int speedHackDetectionCounter;
         const int antiSpeedMaxJumpDelta = 25; // 16 for normal client, 25 for WoM
-        const int antiSpeedMaxDistanceSquared = 144; // 16 * 16
+        const int antiSpeedMaxDistanceSquared = 1024; // 32 * 32
         const int antiSpeedMaxPacketCount = 200;
         const int antiSpeedMaxPacketInterval = 5;
         const int socketTimeout = 10000;
@@ -189,7 +189,6 @@ namespace fCraft {
                                 };
 
                                 Position oldPos = player.pos;
-                                bool posChanged, rotChanged;
 
                                 // calculate difference between old and new positions
                                 Position delta = new Position {
@@ -199,8 +198,8 @@ namespace fCraft {
                                     r = (byte)Math.Abs( newPos.r - oldPos.r ),
                                     l = (byte)Math.Abs( newPos.l - oldPos.l )
                                 };
-                                posChanged = (delta.x != 0) || (delta.y != 0) || (delta.h != 0);
-                                rotChanged = (delta.r != 0) || (delta.l != 0);
+                                bool posChanged = (delta.x != 0) || (delta.y != 0) || (delta.h != 0);
+                                bool rotChanged = (delta.r != 0) || (delta.l != 0);
                                 int distSquared = delta.x * delta.x + delta.y * delta.y + delta.h * delta.h;
 
                                 // skip everything if player hasn't moved
@@ -213,7 +212,7 @@ namespace fCraft {
                                 if( player.info.isFrozen ) {
                                     // special handling for frozen players
                                     if( delta.x * delta.x + delta.y * delta.y > antiSpeedMaxDistanceSquared ||
-                                        Math.Abs( delta.h ) > 32 ) {
+                                        Math.Abs( delta.h ) > 40 ) {
                                         SendNow( PacketWriter.MakeSelfTeleport( player.pos ) );
                                     }
                                     newPos.x = player.pos.x;
@@ -286,8 +285,9 @@ namespace fCraft {
                                 }
 
                                 fullPositionUpdateCounter++;
-                                if( fullPositionUpdateCounter >= fullPositionUpdateInterval )
+                                if( fullPositionUpdateCounter >= fullPositionUpdateInterval ) {
                                     fullPositionUpdateCounter = 0;
+                                }
 
                                 player.pos = newPos;
                                 player.world.SendToSeeing( packet, player );

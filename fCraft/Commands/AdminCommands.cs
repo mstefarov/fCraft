@@ -1304,6 +1304,7 @@ namespace fCraft {
                 target.Send( PacketWriter.MakeSelfTeleport( toPlayer.pos ) );
                 if( target.info.isFrozen ) {
                     target.pos = toPlayer.pos;
+                    target.world.SendToSeeing( PacketWriter.MakeTeleport( target.id, target.pos ), target );
                 }
 
             } else {

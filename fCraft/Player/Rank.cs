@@ -126,7 +126,7 @@ namespace fCraft {
                         AntiGriefBlocks = value;
 
                     } else {
-                        Logger.Log( "Rank({0}): Values for antiGriefBlocks in not within valid range (0-1000). Assuming default ({1}).", LogType.Warning,
+                        Logger.Log( "Rank({0}): Value for antiGriefBlocks is not within valid range (0-1000). Assuming default ({1}).", LogType.Warning,
                                     Name, AntiGriefBlocks );
                     }
                 } else {
@@ -139,7 +139,7 @@ namespace fCraft {
                     if( value >= 0 && value < 100 ) {
                         AntiGriefSeconds = value;
                     } else {
-                        Logger.Log( "Rank({0}): Values for antiGriefSeconds in not within valid range (0-100). Assuming default ({1}).", LogType.Warning,
+                        Logger.Log( "Rank({0}): Value for antiGriefSeconds is not within valid range (0-100). Assuming default ({1}).", LogType.Warning,
                                     Name, AntiGriefSeconds );
                     }
                 } else {
@@ -155,7 +155,7 @@ namespace fCraft {
                     if( value >= 0 && value < 100000000 ) {
                         DrawLimit = value;
                     } else {
-                        Logger.Log( "Rank({0}): Values for drawLimit in not within valid range (0-100000000). Assuming default ({1}).", LogType.Warning,
+                        Logger.Log( "Rank({0}): Value for drawLimit is not within valid range (0-100000000). Assuming default ({1}).", LogType.Warning,
                                     Name, DrawLimit );
                     }
                 } else {

@@ -125,7 +125,7 @@ namespace fCraft {
                 }
             }
             try {
-                if( File.Exists( DBFileName ) ) File.Replace( tempDBFileName, DBFileName + ".gz", backupDBFileName, true );
+                if( File.Exists( DBFileName ) ) File.Replace( tempDBFileName, DBFileName, backupDBFileName, true );
                 else File.Move( tempDBFileName, DBFileName );
             } catch( Exception ex ) {
                 Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );
