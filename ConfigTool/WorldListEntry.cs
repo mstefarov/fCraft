@@ -5,6 +5,10 @@ using fCraft;
 
 
 namespace ConfigTool {
+    /// <summary>
+    /// A wrapper for per-World metadata, designed to be usable with SortableBindingList.
+    /// All these properties map directly to the UI controls.
+    /// </summary>
     sealed class WorldListEntry {
         public const string DefaultRankOption = "(everyone)";
         Map cachedMapHeader;
@@ -53,20 +57,26 @@ namespace ConfigTool {
             }
 
             // TODO: Support parsing SecurityController
-            if( (temp = el.Attribute( "access" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
-                accessRank = RankList.ParseRank( temp.Value );
-                if( accessRank == null ) {
+
+            if( el.Element( "accessSecurity" ) != null ) {
+                accessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
+            }else if( (temp = el.Attribute( "access" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
+                accessSecurity.minRank = RankList.ParseRank( temp.Value );
+                if( accessSecurity.minRank == null ) {
                     Logger.Log( "WorldListEntity: Unrecognized rank specified for \"access\" permission. Permission reset to default (everyone).", LogType.Warning );
                 }
             }
 
-            if( (temp = el.Attribute( "build" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
-                buildRank = RankList.ParseRank( temp.Value );
-                if( buildRank == null ) {
+            if( el.Element( "buildSecurity" ) != null ) {
+                buildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
+            }else if( (temp = el.Attribute( "build" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
+                buildSecurity.minRank = RankList.ParseRank( temp.Value );
+                if( buildSecurity.minRank == null ) {
                     Logger.Log( "WorldListEntity: Unrecognized rank specified for \"build\" permission. Permission reset to default (everyone).", LogType.Warning );
                 }
             }
         }
+
 
         internal string name;
         public string Name {
@@ -109,12 +119,12 @@ namespace ConfigTool {
 
         public bool Hidden { get; set; }
 
+        SecurityController accessSecurity = new SecurityController();
         string accessRankString;
-        internal Rank accessRank;
         public string AccessPermission {
             get {
-                if( accessRank != null ) {
-                    return accessRank.ToComboBoxOption();
+                if( accessSecurity.minRank != null ) {
+                    return accessSecurity.minRank.ToComboBoxOption();
                 } else {
                     return DefaultRankOption;
                 }
@@ -122,21 +132,21 @@ namespace ConfigTool {
             set {
                 foreach( Rank rank in RankList.Ranks ) {
                     if( rank.ToComboBoxOption() == value ) {
-                        accessRank = rank;
+                        accessSecurity.minRank = rank;
                         accessRankString = rank.ToString();
                         return;
                     }
                 }
-                accessRank = null;
+                accessSecurity.minRank = null;
             }
         }
-
+        
+        SecurityController buildSecurity = new SecurityController();
         string buildRankString;
-        internal Rank buildRank;
         public string BuildPermission {
             get {
-                if( buildRank != null ) {
-                    return buildRank.ToComboBoxOption();
+                if( buildSecurity.minRank != null ) {
+                    return buildSecurity.minRank.ToComboBoxOption();
                 } else {
                     return DefaultRankOption;
                 }
@@ -144,12 +154,12 @@ namespace ConfigTool {
             set {
                 foreach( Rank rank in RankList.Ranks ) {
                     if( rank.ToComboBoxOption() == value ) {
-                        buildRank = rank;
+                        buildSecurity.minRank = rank;
                         buildRankString = rank.ToString();
                         return;
                     }
                 }
-                buildRank = null;
+                buildSecurity.minRank = null;
             }
         }
 
@@ -160,14 +170,14 @@ namespace ConfigTool {
             element.Add( new XAttribute( "name", Name ) );
             element.Add( new XAttribute( "hidden", Hidden ) );
             element.Add( new XAttribute( "backup", Backup ) );
-            if( accessRank != null ) element.Add( new XAttribute( "access", accessRank ) );
-            if( buildRank != null ) element.Add( new XAttribute( "build", buildRank ) );
+            element.Add( accessSecurity.Serialize("accessSecurity") );
+            element.Add( buildSecurity.Serialize( "buildSecurity" ) );
             return element;
         }
 
         public void ReparseRanks() {
-            accessRank = RankList.ParseRank( accessRankString );
-            buildRank = RankList.ParseRank( buildRankString );
+            accessSecurity.minRank = RankList.ParseRank( accessRankString );
+            buildSecurity.minRank = RankList.ParseRank( buildRankString );
         }
     }
 }

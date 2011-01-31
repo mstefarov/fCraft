@@ -405,11 +405,11 @@ namespace fCraft {
                 Logger.Log( "World creation failed. Shutting down.", LogType.FatalError );
                 return false;
             } else {
-                if( mainWorld.accessSecurity.minRank != RankList.LowestRank ) {
+                if( mainWorld.accessSecurity.HasRestrictions() ) {
                     Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
                                 "Access permission for \"{0}\" has been reset.", LogType.Warning,
                                  mainWorld.name );
-                    mainWorld.accessSecurity.minRank = RankList.LowestRank;
+                    mainWorld.accessSecurity.Reset();
                 }
                 if( !mainWorld.neverUnload ) {
                     mainWorld.neverUnload = true;

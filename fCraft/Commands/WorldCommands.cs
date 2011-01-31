@@ -315,13 +315,8 @@ namespace fCraft {
                 }
 
             } else {
-                if( world.accessSecurity.minRank != RankList.LowestRank ) {
-                    world.accessSecurity.minRank = RankList.LowestRank;
-                    PlayerInfo[] excludedPlayers = world.accessSecurity.exceptionList.excluded;
-                    foreach( PlayerInfo excludedPlayer in excludedPlayers ) {
-                        world.accessSecurity.Include( excludedPlayer );
-                        Logger.Log( "Player {0} was removed from the access blacklist on world {1} (wmain).", LogType.SystemActivity );
-                    }
+                if( world.accessSecurity.HasRestrictions() ) {
+                    world.accessSecurity.Reset();
                     player.Message( "The main world cannot have access restrictions. " +
                                     "All access restrictions were removed from world {0}",
                                     world.GetClassyName() );
