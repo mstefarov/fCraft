@@ -1,3 +1,13 @@
+0.502
+ Fix: Adjusted for yet another change in the way minecraft.net replies to
+ heartbeats (should fix all heartbeat issues for now).
+ Fix: Added a check to /zremove to prevent players from deleting zones to gain access to areas from which they're barred.
+ Change: Renamed /wremove to /wunload for consistency. "/wremove" is still usable as an alias.
+ Fix: Fixed being able to use /me or /staff to write empty messages.
+ Fix: Fixed frozen players not getting defrosted when kicked.
+ Fix: Formatting fixes in "___ was previously frozen" message
+ Fix: Fixed a mini-bug in Map.ValidateHeader()
+
 0.501
  Feature: Added /sphere and /sphere2, based on code contributed by SystemX17.
  Feature: Added new config setting: ShowConnectedMessages (default: true)
