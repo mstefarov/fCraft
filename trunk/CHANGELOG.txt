@@ -1,3 +1,15 @@
+0.501
+ Feature: Added /sphere and /sphere2, based on code contributed by SystemX17.
+ Feature: Added new config setting: ShowConnectedMessages (default: true)
+ Feature: Added a notification for players who logged in frozen.
+ Fix: Fixed frozen players twitching.
+ Fix: Fixed IRC bot not stripping color codes in messages relayed from IRC to the game.
+ Fix: Fixed lastSeen and lastLoginDate not being set for first-time players who failed to log in (e.g. IP-banned).
+ Fix: Fixed /bring not working properly on frozen players.
+ Fix: Fixed a case where it was possible to add access restrictions to main map.
+ Fix: Fixed per-world whitelists/blacklists being lost when editing worlds.xml via ConfigTool.
+ Fix: Fixed AutoRankAll showing wrong number of players promoted/demoted (just a formatting bug, no promotions were affected)
+
 0.500
  Commands: Added /line drawing command, kindly contributed by SystemX17
  Commands: Added /restart command, to restart the server remotely (NOTE: does not work for fCraftWinService yet)
