@@ -261,7 +261,7 @@ namespace fCraft {
                             "Note that large draw commands can consume a lot of RAM.", LogType.Warning );
                 return false;
 
-            }else if( ex is TypeLoadException && ex.Message.Contains("ZLibStream")){
+            } else if( ex is TypeLoadException && ex.Message.Contains( "ZLibStream" ) ) {
                 Logger.Log( "Note that ZLibStream is obsolete since fCraft 0.498. Use GZipStream instead.", LogType.Warning );
                 return false;
 

@@ -465,7 +465,7 @@ namespace fCraft {
                 }
             }
             sw.Stop();
-            player.Message( "AutoRankAll: Worked for {0}ms, {0} players promoted, {1} demoted.", sw.ElapsedMilliseconds, promoted, demoted );
+            player.Message( "AutoRankAll: Worked for {0}ms, {1} players promoted, {2} demoted.", sw.ElapsedMilliseconds, promoted, demoted );
         }
 
         static CommandDescriptor cdMassRank = new CommandDescriptor {
