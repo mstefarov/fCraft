@@ -736,11 +736,11 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 // Update world permissions
                 string worldUpdates = "";
                 foreach( WorldListEntry world in worlds ) {
-                    if( world.accessRank == deletedRank ) {
+                    if( world.AccessPermission == deletedRank.ToComboBoxOption() ) {
                         world.AccessPermission = replacementRank.ToComboBoxOption();
                         worldUpdates += " - " + world.name + ": access permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
-                    if( world.buildRank == deletedRank ) {
+                    if( world.BuildPermission == deletedRank.ToComboBoxOption() ) {
                         world.BuildPermission = replacementRank.ToComboBoxOption();
                         worldUpdates += " - " + world.name + ": build permission changed to " + replacementRank.Name + Environment.NewLine;
                     }

@@ -40,7 +40,7 @@ namespace fCraft {
 
         public PlayerListCollection exceptionList { get; private set; }
 
-        private Rank _minRank, _maxRank;
+        private Rank _minRank;//, _maxRank;
 
         public Rank minRank {
             get { return _minRank; }
@@ -217,6 +217,31 @@ namespace fCraft {
 
             message.Append( '.' );
             player.Message( message.ToString() );
+        }
+
+        public void ClearIncludedList() {
+            lock( playerPermissionListLock ) {
+                includedPlayers.Clear();
+                UpdatePlayerListCache();
+            }
+        }
+
+        public void ClearExcludedList() {
+            lock( playerPermissionListLock ) {
+                excludedPlayers.Clear();
+                UpdatePlayerListCache();
+            }
+        }
+
+        public bool HasRestrictions() {
+            return minRank > RankList.LowestRank ||
+                   exceptionList.excluded.Length > 0;
+        }
+
+        public void Reset() {
+            minRank = RankList.LowestRank;
+            ClearIncludedList();
+            ClearExcludedList();
         }
     }
 }
