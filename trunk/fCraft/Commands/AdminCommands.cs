@@ -211,10 +211,8 @@ namespace fCraft {
                                     Server.SendToAllExcept( "&WBan reason: {0}", target,
                                                             reason );
                                 }
-                                target.session.Kick( "Banned by " + player.GetClassyName() + Color.White + ": " + reason );
-                            } else {
-                                target.session.Kick( "Banned by " + player.GetClassyName() );
                             }
+                            DoKick( player, target, reason, false );
 
                             if( !banIP ) {
                                 PlayerInfo[] alts = PlayerDB.FindPlayers( target.info.lastIP );
@@ -366,7 +364,7 @@ namespace fCraft {
                         }
                     }
                     foreach( Player other in Server.FindPlayers( address ) ) {
-                        DoKick( player, other, "Banned by " + player.GetClassyName(), true );
+                        DoKick( player, other, reason, true );
                     }
                 }
             }

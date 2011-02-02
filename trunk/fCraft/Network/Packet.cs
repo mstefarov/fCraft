@@ -7,8 +7,13 @@ namespace fCraft {
     /// </summary>
     public struct Packet {
         public byte[] data;
+
         public Packet( int length ) {
             data = new byte[length];
+        }
+
+        public OutputCode OpCode {
+            get { return (OutputCode)data[0]; }
         }
     }
 

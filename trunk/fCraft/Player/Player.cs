@@ -38,7 +38,8 @@ namespace fCraft {
         public object locker = new object();
 
         public bool isPainting,
-                    isHidden;
+                    isHidden,
+                    isDeaf;
         internal World world;
         internal DateTime idleTimer = DateTime.UtcNow; // used for afk kicks
 
