@@ -344,7 +344,7 @@ namespace fCraft {
         }
 
 
-        internal void AskForConfirmation( Command cmd, string message, params object[] args ) {
+        public void AskForConfirmation( Command cmd, string message, params object[] args ) {
             commandToConfirm = cmd;
             commandToConfirmDate = DateTime.UtcNow;
             Message( "{0} Type &H/ok&S to continue.", String.Format( message, args ) );
@@ -352,7 +352,7 @@ namespace fCraft {
         }
 
 
-        internal void NoAccessMessage( params Permission[] permissions ) {
+        public void NoAccessMessage( params Permission[] permissions ) {
             Rank reqRank = RankList.GetMinRankWithPermission( permissions );
             if( reqRank == null ) {
                 Message( "This command is disabled on the server." );
@@ -363,7 +363,7 @@ namespace fCraft {
         }
 
 
-        internal void NoRankMessage( string rankName ) {
+        public void NoRankMessage( string rankName ) {
             Message( "Unrecognized rank \"{0}\"", rankName );
         }
 
@@ -676,10 +676,10 @@ namespace fCraft {
 
         internal Queue<BlockUpdate> undoBuffer = new Queue<BlockUpdate>();
 
-        internal SelectionCallback selectionCallback;
-        internal Queue<Position> selectionMarks = new Queue<Position>();
-        internal int selectionMarkCount,
-                     selectionMarksExpected;
+        public SelectionCallback selectionCallback;
+        public Queue<Position> selectionMarks = new Queue<Position>();
+        public int selectionMarkCount,
+                   selectionMarksExpected;
         internal object selectionArgs; // can be used for 'block' or 'zone' or whatever
 
         internal DrawCommands.CopyInformation copyInformation;

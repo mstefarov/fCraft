@@ -23,6 +23,7 @@ namespace fCraft {
         RankPrefixesInChat,
         RankPrefixesInList,
         ShowConnectionMessages,
+        ShowBannedConnectionMessages,
         ShowJoinedWorldMessages,
         SystemMessageColor,
         HelpColor,

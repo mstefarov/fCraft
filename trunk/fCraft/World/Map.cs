@@ -11,7 +11,7 @@ using Mcc;
 namespace fCraft {
     public sealed class Map {
 
-        internal World world;
+        public World world;
         public int widthX, widthY, height;
         public Position spawn;
 
@@ -34,8 +34,8 @@ namespace fCraft {
         public Guid GUID = Guid.NewGuid();
 
         // block data
-        internal byte[] blocks;
-        internal byte[] blockUndo;
+        public byte[] blocks;
+        internal byte[] blockUndo; // currently unused
 
         // block ownership
         object playerIDLock = new object();
@@ -707,12 +707,12 @@ namespace fCraft {
         }
 
 
-        internal void QueueUpdate( BlockUpdate update ) {
+        public void QueueUpdate( BlockUpdate update ) {
             updates.Enqueue( update );
         }
 
 
-        internal void ClearUpdateQueue() {
+        public void ClearUpdateQueue() {
             BlockUpdate temp = new BlockUpdate();
             while( updates.Dequeue( ref temp ) ) ;
         }

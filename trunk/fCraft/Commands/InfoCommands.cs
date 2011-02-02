@@ -248,16 +248,10 @@ namespace fCraft {
                                         info.GetClassyName(),
                                         info.lastIP );
                     }
-                } else if( DateTime.Now.Subtract( info.lastSeen ).TotalDays < 2 ) {
-                    player.Message( "About {0}&S: Last seen {1:F1} hours ago from {2}",
-                                    info.GetClassyName(),
-                                    DateTime.Now.Subtract( info.lastSeen ).TotalHours,
-                                    info.lastIP );
-
                 } else {
-                    player.Message( "About {0}&S: Last seen {1:F1} days ago from {2}",
+                    player.Message( "About {0}&S: Last seen {1} ago from {2}",
                                     info.name,
-                                    DateTime.Now.Subtract( info.lastSeen ).TotalDays,
+                                    DateTime.Now.Subtract( info.lastSeen ).ToMiniString(),
                                     info.lastIP );
                 }
                 // Show login information
@@ -339,17 +333,10 @@ namespace fCraft {
             if( info.timesKicked > 0 ) {
                 if( info.lastKickDate != DateTime.MinValue ) {
                     TimeSpan timeSinceLastKick = DateTime.Now.Subtract( info.lastKickDate );
-                    if( timeSinceLastKick.TotalDays < 2 ) {
-                        player.Message( "  Got kicked {0} times. Last kick {1:F1} hours ago by {2}",
-                                        info.timesKicked,
-                                        timeSinceLastKick.TotalHours,
-                                        info.lastKickBy );
-                    } else {
-                        player.Message( "  Got kicked {0} times. Last kick {1:F1} days ago by {2}",
-                                        info.timesKicked,
-                                        timeSinceLastKick.TotalDays,
-                                        info.lastKickBy );
-                    }
+                    player.Message( "  Got kicked {0} times. Last kick {1} ago by {2}",
+                                    info.timesKicked,
+                                    timeSinceLastKick.ToMiniString(),
+                                    info.lastKickBy );
                     if( info.lastKickReason.Length > 0 ) {
                         player.Message( "  Last kick reason: {0}", info.lastKickReason );
                     }
@@ -566,7 +553,7 @@ namespace fCraft {
                             IPBanList.CountBans() );
 
             // count players that are not hidden from this player
-            Player[] players = Server.playerList;
+            Player[] players = Server.PlayerList;
             int count = 0;
             foreach( Player p in players ) {
                 if( !player.CanSee( p ) ) continue;
@@ -733,7 +720,7 @@ namespace fCraft {
         };
 
         internal static void Players( Player player, Command cmd ) {
-            Player[] players = Server.playerList;
+            Player[] players = Server.PlayerList;
             if( players.Length > 0 ) {
 
                 StringBuilder sb = new StringBuilder();

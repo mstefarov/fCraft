@@ -473,6 +473,7 @@ namespace fCraft {
         public bool Freeze( string by ) {
             if( !isFrozen ) {
                 isFrozen = true;
+                frozenOn = DateTime.Now;
                 frozenBy = by;
                 return true;
             } else {

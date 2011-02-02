@@ -32,7 +32,7 @@ namespace fCraft {
     /// </summary>
     public static class Updater {
         public static int Version = 503;
-        public static int Revision = 412;
+        public static int Revision = 413;
         public static bool IsDev = true,
                            IsBroken = false;
         public static string LatestNonBroken = "0.502_r411";
