@@ -95,6 +95,8 @@ namespace fCraft {
      * 128 - r379 - Added ConsoleName
      * 
      * 129 - r405 - Added ShowConnectedMessages
+     * 
+     * 130 - r413 - Added ShowBannedConnectionMessages
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -170,6 +172,7 @@ namespace fCraft {
             SetValue( ConfigKey.WarningColor, Color.GetName( Color.WarningDefault ) );
             SetValue( ConfigKey.ShowJoinedWorldMessages, true );
             SetValue( ConfigKey.ShowConnectionMessages, true );
+            SetValue( ConfigKey.ShowBannedConnectionMessages, true );
             SetValue( ConfigKey.RankColorsInWorldNames, true );
             SetValue( ConfigKey.RankColorsInChat, true );
             SetValue( ConfigKey.RankPrefixesInChat, false );

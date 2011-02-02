@@ -404,7 +404,7 @@ namespace fCraft {
                                         target.GetClassyName(), target.info.timesKicked - 1 );
                         if( previousKickDate != DateTime.MinValue ) {
                             player.Message( "Most recent kick was {0} ago, by {1}.",
-                                            DateTime.Now.Subtract( previousKickDate ).ToCompactString(),
+                                            DateTime.Now.Subtract( previousKickDate ).ToMiniString(),
                                             previousKickedBy );
                         }
                         if( !String.IsNullOrEmpty( previousKickReason ) ) {
@@ -1159,7 +1159,7 @@ namespace fCraft {
             }
 
 
-            Player[] plist = Server.playerList;
+            Player[] plist = Server.PlayerList;
 
             if( plist.Length > 0 ) player.info.linesWritten++;
 

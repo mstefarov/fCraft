@@ -444,10 +444,13 @@ namespace fCraft {
                 player.info.ProcessFailedLogin( player );
                 Logger.Log( "Banned player {0} tried to log in.", LogType.SuspiciousActivity,
                             player.name );
-                Server.SendToAll( "&SBanned player {0}&S tried to log in.", player.GetClassyName() );
-                string bannedMessage = String.Format( "You were banned {0:0} days ago by {1}",
-                                                      DateTime.Now.Subtract( player.info.banDate ).TotalDays,
-                                                      player.info.bannedBy );
+                if( Config.GetBool( ConfigKey.ShowBannedConnectionMessages ) ) {
+                    Server.SendToAll( "&SBanned player {0}&S tried to log in.", player.GetClassyName() );
+                }
+                string bannedMessage = String.Format( "Banned {0} ago by {1}: {2}",
+                                                      DateTime.Now.Subtract( player.info.banDate ).ToMiniString(),
+                                                      player.info.bannedBy,
+                                                      player.info.banReason );
                 KickNow( bannedMessage );
                 return false;
             }
@@ -457,12 +460,15 @@ namespace fCraft {
             if( IPBanInfo != null ) {
                 player.info.ProcessFailedLogin( player );
                 IPBanInfo.ProcessAttempt( player );
-                Server.SendToAll( "{0}&S tried to log in from a banned IP.", player.GetClassyName() );
+                if( Config.GetBool( ConfigKey.ShowBannedConnectionMessages ) ) {
+                    Server.SendToAll( "{0}&S tried to log in from a banned IP.", player.GetClassyName() );
+                }
                 Logger.Log( "{0} tried to log in from a banned IP.", LogType.SuspiciousActivity,
                             player.name );
-                string bannedMessage = String.Format( "Your IP was banned by {0:0} days ago by {1}",
-                                                      DateTime.Now.Subtract( IPBanInfo.banDate ).TotalDays,
-                                                      IPBanInfo.bannedBy );
+                string bannedMessage = String.Format( "IP-banned {0} ago by {1}: {2}",
+                                                      DateTime.Now.Subtract( IPBanInfo.banDate ).ToMiniString(),
+                                                      IPBanInfo.bannedBy,
+                                                      IPBanInfo.banReason );
                 KickNow( bannedMessage );
                 return false;
             }
@@ -558,7 +564,7 @@ namespace fCraft {
 
             // Register player for future block updates
             if( !Server.RegisterPlayer( player ) ) {
-                KickNow( "Sorry, server is full (" + Server.playerList.Length + "/" + Config.GetInt( ConfigKey.MaxPlayers ) + ")" );
+                KickNow( "Sorry, server is full (" + Server.PlayerList.Length + "/" + Config.GetInt( ConfigKey.MaxPlayers ) + ")" );
                 return false;
             }
             player.info.ProcessLogin( player );
@@ -569,9 +575,11 @@ namespace fCraft {
             writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), Config.GetString( ConfigKey.MOTD ) ) );
 
             // AutoRank
-            Rank newRank = AutoRank.Check( player.info );
-            if( newRank != null ) {
-                AdminCommands.DoChangeRank( Player.Console, player.info, player, newRank, "~AutoRank", false, true );
+            if( Config.GetBool( ConfigKey.AutoRankEnabled ) ) {
+                Rank newRank = AutoRank.Check( player.info );
+                if( newRank != null ) {
+                    AdminCommands.DoChangeRank( Player.Console, player.info, player, newRank, "~AutoRank", false, true );
+                }
             }
 
             bool firstTime = (player.info.timesVisited == 1);
@@ -604,9 +612,8 @@ namespace fCraft {
             }
 
             // Announce join
-
             if( Config.GetBool( ConfigKey.ShowConnectionMessages ) ) {
-                Server.SendToAllExcept( Server.MakePlayerConnectedMessage( player, firstTime, Server.mainWorld ), player );
+                Server.SendToAllExcept( Server.MakePlayerConnectedMessage( player, firstTime, player.world ), player );
             }
 
             // check if player is still muted
@@ -620,13 +627,21 @@ namespace fCraft {
 
             // check if player is still frozen
             if( player.info.isFrozen ) {
-                player.Message( "&WYou were previously frozen {0} ago by {1}",
-                                DateTime.Now.Subtract( player.info.frozenOn ).ToMiniString(),
-                                player.info.frozenBy );
-                Server.SendToAllExcept( "&WPlayer {0}&W was previously frozen {1} ago by {2}.", player,
-                                        player.GetClassyName(),
-                                        DateTime.Now.Subtract( player.info.frozenOn ).ToMiniString(),
-                                        player.info.frozenBy );
+                if( player.info.frozenOn != DateTime.MinValue ) {
+                    player.Message( "&WYou were previously frozen {0} ago by {1}",
+                                    DateTime.Now.Subtract( player.info.frozenOn ).ToMiniString(),
+                                    player.info.frozenBy );
+                    Server.SendToAllExcept( "&WPlayer {0}&W was previously frozen {1} ago by {2}.", player,
+                                            player.GetClassyName(),
+                                            DateTime.Now.Subtract( player.info.frozenOn ).ToMiniString(),
+                                            player.info.frozenBy );
+                } else {
+                    player.Message( "&WYou were previously frozen by {0}",
+                                    player.info.frozenBy );
+                    Server.SendToAllExcept( "&WPlayer {0}&W was previously frozen by {1}.", player,
+                                            player.GetClassyName(),
+                                            player.info.frozenBy );
+                }
             }
 
             // Welcome message

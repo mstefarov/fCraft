@@ -83,14 +83,14 @@ namespace fCraft {
 
             // Print lock/unlock information
             if( world.isLocked ) {
-                player.Message( "{0}&S was locked {1:0}min ago by {2}",
+                player.Message( "{0}&S was locked {1} ago by {2}",
                                 world.GetClassyName(),
-                                DateTime.UtcNow.Subtract( world.lockedDate ).TotalMinutes,
+                                DateTime.UtcNow.Subtract( world.lockedDate ).ToMiniString(),
                                 world.lockedBy );
             } else if( world.unlockedBy != null ) {
-                player.Message( "{0}&S was unlocked {1:0}min ago by {2}",
+                player.Message( "{0}&S was unlocked {1} ago by {2}",
                                 world.GetClassyName(),
-                                DateTime.UtcNow.Subtract( world.lockedDate ).TotalMinutes,
+                                DateTime.UtcNow.Subtract( world.lockedDate ).ToMiniString(),
                                 world.lockedBy );
             }
         }
