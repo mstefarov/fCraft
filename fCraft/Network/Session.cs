@@ -126,9 +126,13 @@ namespace fCraft {
                     while( canSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
                         if( !priorityOutputQueue.Dequeue( ref packet ) )
                             if( !outputQueue.Dequeue( ref packet ) ) break;
+
+                        if( player.isDeaf && packet.OpCode == OutputCode.Message ) continue;
+
                         writer.Write( packet.data );
                         packetsSent++;
-                        if( packet.data[0] == (byte)OutputCode.Disconnect ) {
+
+                        if( packet.OpCode == OutputCode.Disconnect ) {
                             writer.Flush();
                             Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
                                         player.name );

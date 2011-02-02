@@ -17,6 +17,7 @@ namespace fCraft {
 
         // Register help commands
         internal static void Init() {
+            CommandList.RegisterCommand( cdDeafen );
             CommandList.RegisterCommand( cdIgnore );
             CommandList.RegisterCommand( cdUnignore );
 
@@ -40,8 +41,31 @@ namespace fCraft {
 
             CommandList.RegisterCommand( cdMeasure );
 
-            CommandList.RegisterCommand( cdTaskDebug );
+            //CommandList.RegisterCommand( cdTaskDebug );
         }
+
+
+        static CommandDescriptor cdDeafen = new CommandDescriptor {
+            name = "deafen",
+            aliases = new string[] { "deaf" },
+            help = "Blocks all chat messages from being sent to you.",
+            handler = Deafen
+        };
+
+        internal static void Deafen( Player player, Command cmd ) {
+            bool newDeafened = !player.isDeaf;
+            player.isDeaf = false;
+            if( newDeafened ) {
+                player.Message( "Deafened mode: ON" );
+                player.Message( "You will not see any messages until you type &H/deafen&S again." );
+            } else {
+                player.Message( "Deafened mode: OFF" );
+            }
+            player.isDeaf = newDeafened;
+        }
+
+
+
 
         static CommandDescriptor cdTaskDebug = new CommandDescriptor {
             name = "taskdebug",
@@ -771,13 +795,15 @@ namespace fCraft {
             if( name != null ) {
                 target = Server.FindPlayerOrPrintMatches( player, name, false );
                 if( target == null ) return;
-                player.Message( "Coordinates of player {0}&S (on world {1}&S):",
-                                target.GetClassyName(),
-                                target.world.GetClassyName() );
             } else if( player.world == null ) {
                 player.Message( "When called form console, &H/where&S requires a player name." );
                 return;
             }
+
+            player.Message( "Player {0}&S is on world {1}&S:",
+                            target.GetClassyName(),
+                            target.world.GetClassyName() );
+
 
             offset = (int)(target.pos.r / 255f * 64f) + 32;
 
