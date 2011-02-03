@@ -325,7 +325,7 @@ namespace fCraft {
                     Server.SendToAll( "&W{0} was unbanned by {1}",
                                       address, player.GetClassyName() );
                     if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
-                        Server.SendToAll( "&WUnban reason: ", reason );
+                        Server.SendToAll( "&WUnban reason: {0}", reason );
                     }
                 } else {
                     player.Message( "{0} is not currently banned.", address );
