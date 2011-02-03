@@ -38,7 +38,7 @@ namespace fCraft {
         }
 
         public static string User( string username, int usermode, string realname ) {
-            return "USER " + username + " " + usermode.ToString() + " * :" + realname;
+            return "USER " + username + " " + usermode + " * :" + realname;
         }
 
         public static string Oper( string name, string password ) {

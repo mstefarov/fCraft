@@ -3,12 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-
 namespace fCraft {
 
     public sealed class World : IClassy {
 
-        public static string[] BackupEnum = new string[] {
+        public static string[] BackupEnum = new[] {
             "Never", "5 Minutes", "10 Minutes", "15 Minutes", "20 Minutes",
             "30 Minutes", "45 Minutes", "1 Hour", "2 Hours", "3 Hours",
             "4 Hours", "6 Hours", "8 Hours", "12 Hours", "24 Hours"

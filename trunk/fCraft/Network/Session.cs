@@ -7,7 +7,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-
 namespace fCraft {
     public sealed class Session {
         public Player player;
@@ -16,7 +15,7 @@ namespace fCraft {
         public bool canReceive = true,
                     canSend = true,
                     canQueue = true,
-                    hasRegistered = false;
+                    hasRegistered;
 
         object joinWorldLock = new object();
 
@@ -37,7 +36,7 @@ namespace fCraft {
         int fullPositionUpdateCounter;
         public const int fullPositionUpdateIntervalDefault = 20;
         public static int fullPositionUpdateInterval = fullPositionUpdateIntervalDefault;
-        bool skippedLastMovementPacket = false;
+        bool skippedLastMovementPacket;
         int skipMovementThreshold = 64,
             skipRotationThresholdSquared = 1500;
 
@@ -833,7 +832,7 @@ namespace fCraft {
 
 
         string ReadString() {
-            return ASCIIEncoding.ASCII.GetString( reader.ReadBytes( 64 ) ).Trim();
+            return Encoding.ASCII.GetString( reader.ReadBytes( 64 ) ).Trim();
         }
 
 

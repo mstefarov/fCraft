@@ -37,7 +37,6 @@ using System.IO.Compression;
 using System.Net;
 using fCraft;
 
-
 namespace Mcc {
     public sealed class MapD3 : IMapConverter {
         const byte HeaderConstant1 = 232,
@@ -213,8 +212,8 @@ namespace Mcc {
                     BinaryWriter bs = new BinaryWriter( gs );
 
                     // Write the magic number
-                    bs.Write( (byte)HeaderConstant1 );
-                    bs.Write( (byte)HeaderConstant2 );
+                    bs.Write( HeaderConstant1 );
+                    bs.Write( HeaderConstant2 );
                     bs.Write( (byte)0 );
                     bs.Write( (byte)0 );
 

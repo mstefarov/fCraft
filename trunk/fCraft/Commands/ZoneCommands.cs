@@ -1,7 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 
-
 namespace fCraft {
     /// <summary>
     /// Contains commands related to zone management.
@@ -19,7 +18,7 @@ namespace fCraft {
 
         static CommandDescriptor cdZoneEdit = new CommandDescriptor {
             name = "zedit",
-            permissions = new Permission[] { Permission.ManageZones },
+            permissions = new[] { Permission.ManageZones },
             usage = "/zedit ZoneName [RankName] [+IncludedName] [-ExcludedName]",
             help = "Allows editing the zone permissions after creation. " +
                    "You can change the rank restrictions, and include or exclude individual players.",
@@ -148,8 +147,8 @@ namespace fCraft {
 
         static CommandDescriptor cdZoneAdd = new CommandDescriptor {
             name = "zadd",
-            aliases = new string[] { "zone" },
-            permissions = new Permission[] { Permission.ManageZones },
+            aliases = new[] { "zone" },
+            permissions = new[] { Permission.ManageZones },
             usage = "/zadd ZoneName RankName",
             help = "Create a zone that overrides build permissions. " +
                    "This can be used to restrict access to an area (by setting RankName to a high rank) " +
@@ -294,8 +293,8 @@ namespace fCraft {
 
         static CommandDescriptor cdZoneRemove = new CommandDescriptor {
             name = "zremove",
-            aliases = new string[] { "zdelete" },
-            permissions = new Permission[] { Permission.ManageZones },
+            aliases = new[] { "zdelete" },
+            permissions = new[] { Permission.ManageZones },
             usage = "/zremove ZoneName",
             help = "Removes a zone with the specified name from the map.",
             handler = ZoneRemove

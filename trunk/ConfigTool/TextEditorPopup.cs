@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 
-
 namespace ConfigTool {
     public sealed partial class TextEditorPopup : Form {
 

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 
-
 namespace fCraft {
     /// <summary>
     /// Most commands for server moderation - kick, ban, rank change, etc - are here.
@@ -64,7 +63,7 @@ namespace fCraft {
         static CommandDescriptor cdBan = new CommandDescriptor {
             name = "ban",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Ban },
+            permissions = new[] { Permission.Ban },
             usage = "/ban PlayerName [Reason]",
             help = "Bans a specified player by name. Note: Does NOT ban IP. " +
                    "Any text after the player name will be saved as a memo. ",
@@ -80,7 +79,7 @@ namespace fCraft {
         static CommandDescriptor cdBanIP = new CommandDescriptor {
             name = "banip",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Ban, Permission.BanIP },
+            permissions = new[] { Permission.Ban, Permission.BanIP },
             usage = "/banip PlayerName|IPAddress [Reason]",
             help = "Bans the player's name and IP. If player is not online, last known IP associated with the name is used. " +
                    "You can also type in the IP address directly. " +
@@ -97,7 +96,7 @@ namespace fCraft {
         static CommandDescriptor cdBanAll = new CommandDescriptor {
             name = "banall",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
+            permissions = new[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
             usage = "/banall PlayerName|IPAddress [Reason]",
             help = "Bans the player's name, IP, and all other names associated with the IP. " +
                    "If player is not online, last known IP associated with the name is used. " +
@@ -115,7 +114,7 @@ namespace fCraft {
         static CommandDescriptor cdUnban = new CommandDescriptor {
             name = "unban",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Ban },
+            permissions = new[] { Permission.Ban },
             usage = "/unban PlayerName [Reason]",
             help = "Removes ban for a specified player. Does NOT remove associated IP bans. " +
                    "Any text after the player name will be saved as a memo. ",
@@ -131,7 +130,7 @@ namespace fCraft {
         static CommandDescriptor cdUnbanIP = new CommandDescriptor {
             name = "unbanip",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Ban, Permission.BanIP },
+            permissions = new[] { Permission.Ban, Permission.BanIP },
             usage = "/unbanip PlayerName|IPaddress [Reason]",
             help = "Removes ban for a specified player's name and last known IP. " +
                    "You can also type in the IP address directly. " +
@@ -148,7 +147,7 @@ namespace fCraft {
         static CommandDescriptor cdUnbanAll = new CommandDescriptor {
             name = "unbanall",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
+            permissions = new[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
             usage = "/unbanall PlayerName|IPaddress [Reason]",
             help = "Removes ban for a specified player's name, last known IP, and all other names associated with the IP. " +
                    "You can also type in the IP address directly. " +
@@ -377,9 +376,9 @@ namespace fCraft {
 
         static CommandDescriptor cdKick = new CommandDescriptor {
             name = "kick",
-            aliases = new string[] { "k" },
+            aliases = new[] { "k" },
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Kick },
+            permissions = new[] { Permission.Kick },
             usage = "/kick PlayerName [Reason]",
             help = "Kicks the specified player from the server. " +
                    "Optional kick reason/message is shown to the kicked player and logged.",
@@ -458,7 +457,7 @@ namespace fCraft {
 
         static CommandDescriptor cdChangeRank = new CommandDescriptor {
             name = "rank",
-            aliases = new string[] { "user", "promote", "demote" },
+            aliases = new[] { "user", "promote", "demote" },
             consoleSafe = true,
             usage = "/user PlayerName RankName [Reason]",
             help = "Changes the rank of a player to a specified rank. " +
@@ -665,7 +664,7 @@ namespace fCraft {
 
         static CommandDescriptor cdImportBans = new CommandDescriptor {
             name = "importbans",
-            permissions = new Permission[] { Permission.Import, Permission.Ban },
+            permissions = new[] { Permission.Import, Permission.Ban },
             usage = "/importbans SoftwareName File",
             help = "Imports ban list from formats used by other servers. " +
                    "Currently only MCSharp/MCZall files are supported.",
@@ -733,7 +732,7 @@ namespace fCraft {
 
         static CommandDescriptor cdImportRanks = new CommandDescriptor {
             name = "importranks",
-            permissions = new Permission[] { Permission.Import, Permission.Promote, Permission.Demote },
+            permissions = new[] { Permission.Import, Permission.Promote, Permission.Demote },
             usage = "/importranks SoftwareName File RankToAssign",
             help = "Imports player list from formats used by other servers. " +
                    "All players listed in the specified file are added to PlayerDB with the specified rank. " +
@@ -811,7 +810,7 @@ namespace fCraft {
 
         static CommandDescriptor cdHide = new CommandDescriptor {
             name = "hide",
-            permissions = new Permission[] { Permission.Hide },
+            permissions = new[] { Permission.Hide },
             usage = "/hide [silent]",
             help = "Enables invisible mode. It looks to other players like you left the server, " +
                    "but you can still do anything - chat, build, delete, type commands - as usual. " +
@@ -858,7 +857,7 @@ namespace fCraft {
 
         static CommandDescriptor cdUnhide = new CommandDescriptor {
             name = "unhide",
-            permissions = new Permission[] { Permission.Hide },
+            permissions = new[] { Permission.Hide },
             usage = "/unhide [silent]",
             help = "Disables the &H/hide&S invisible mode. " +
                    "It looks to other players like you just joined the server.",
@@ -904,7 +903,7 @@ namespace fCraft {
 
         static CommandDescriptor cdSetSpawn = new CommandDescriptor {
             name = "setspawn",
-            permissions = new Permission[] { Permission.SetSpawn },
+            permissions = new[] { Permission.SetSpawn },
             help = "Assigns your current location to be the spawn point of the map/world. " +
                    "If an optional PlayerName param is given, the spawn point of only that player is changed instead.",
             usage = "/setspawn [PlayerName]",
@@ -947,7 +946,7 @@ namespace fCraft {
 
         static CommandDescriptor cdReloadConfig = new CommandDescriptor {
             name = "reloadconfig",
-            permissions = new Permission[] { Permission.ReloadConfig },
+            permissions = new[] { Permission.ReloadConfig },
             consoleSafe = true,
             help = "Reloads most of server's configuration file. " +
                    "NOTE: THIS COMMAND IS EXPERIMENTAL! Excludes rank changes and IRC bot settings. " +
@@ -967,7 +966,7 @@ namespace fCraft {
 
         static CommandDescriptor cdShutdown = new CommandDescriptor {
             name = "shutdown",
-            permissions = new Permission[] { Permission.ShutdownServer },
+            permissions = new[] { Permission.ShutdownServer },
             consoleSafe = true,
             help = "Shuts down the server remotely. " +
                    "The default delay before shutdown is 5 seconds (can be changed by specifying a custom number of seconds). " +
@@ -997,7 +996,7 @@ namespace fCraft {
 
         static CommandDescriptor cdRestart = new CommandDescriptor {
             name = "restart",
-            permissions = new Permission[] { Permission.ShutdownServer },
+            permissions = new[] { Permission.ShutdownServer },
             consoleSafe = true,
             help = "Restarts the server remotely. " +
                    "The default delay before restart is 5 seconds (can be changed by specifying a custom number of seconds). " +
@@ -1034,8 +1033,8 @@ namespace fCraft {
         static CommandDescriptor cdFreeze = new CommandDescriptor {
             name = "freeze",
             consoleSafe = true,
-            aliases = new string[] { "f" },
-            permissions = new Permission[] { Permission.Freeze },
+            aliases = new[] { "f" },
+            permissions = new[] { Permission.Freeze },
             usage = "/freeze PlayerName",
             help = "Freezes the specified player in place. " +
                    "This is usually effective, but not hacking-proof. " +
@@ -1071,9 +1070,9 @@ namespace fCraft {
 
         static CommandDescriptor cdUnfreeze = new CommandDescriptor {
             name = "unfreeze",
-            aliases = new string[] { "uf" },
+            aliases = new[] { "uf" },
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Freeze },
+            permissions = new[] { Permission.Freeze },
             usage = "/unfreeze PlayerName",
             help = "Releases the player from a frozen state. See &H/help freeze&S for more information.",
             handler = Unfreeze
@@ -1110,7 +1109,7 @@ namespace fCraft {
         static CommandDescriptor cdSay = new CommandDescriptor {
             name = "say",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Say },
+            permissions = new[] { Permission.Say },
             usage = "/say Message",
             help = "Shows a message in special color, without the player name prefix. " +
                    "Can be used for making announcements.",
@@ -1181,7 +1180,7 @@ namespace fCraft {
 
         static CommandDescriptor cdTP = new CommandDescriptor {
             name = "tp",
-            aliases = new string[] { "spawn" },
+            aliases = new[] { "spawn" },
             usage = "/tp [PlayerName]&S or &H/tp X Y Z",
             help = "Teleports you to a specified player's location. " +
                    "If no name is given, teleports you to map spawn. " +
@@ -1272,8 +1271,8 @@ namespace fCraft {
 
         static CommandDescriptor cdBring = new CommandDescriptor {
             name = "bring",
-            aliases = new string[] { "summon", "fetch" },
-            permissions = new Permission[] { Permission.Bring },
+            aliases = new[] { "summon", "fetch" },
+            permissions = new[] { Permission.Bring },
             usage = "/bring PlayerName [ToPlayer]",
             help = "Teleports another player to your location. " +
                    "If the optional second parameter is given, teleports player to another player.",
@@ -1333,8 +1332,8 @@ namespace fCraft {
 
         static CommandDescriptor cdPatrol = new CommandDescriptor {
             name = "patrol",
-            aliases = new string[] { "pat" },
-            permissions = new Permission[] { Permission.Patrol },
+            aliases = new[] { "pat" },
+            permissions = new[] { Permission.Patrol },
             help = "Teleports you to the next player in need of checking.",
             handler = Patrol
         };
@@ -1366,7 +1365,7 @@ namespace fCraft {
         static CommandDescriptor cdMute = new CommandDescriptor {
             name = "mute",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Mute },
+            permissions = new[] { Permission.Mute },
             help = "Mutes a player for a specified number of seconds.",
             usage = "/mute PlayerName Seconds",
             handler = Mute
@@ -1395,7 +1394,7 @@ namespace fCraft {
         static CommandDescriptor cdUnmute = new CommandDescriptor {
             name = "unmute",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.Mute },
+            permissions = new[] { Permission.Mute },
             help = "Unmutes a player.",
             usage = "/unmute PlayerName",
             handler = Unmute

@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using fCraft;
 
-
 namespace fCraftUI {
 
     public sealed partial class MainForm : Form {
@@ -160,7 +159,7 @@ namespace fCraftUI {
 
         void OnServerShutdown() {
             try {
-                Invoke( (MethodInvoker)delegate() {
+                Invoke( (MethodInvoker)delegate {
                     shutdownComplete = true;
                     Application.Exit();
                 } );

@@ -41,7 +41,7 @@ namespace fCraft {
 
         public IRCMessage( string _from, string _nick, string _ident, string _host, string _channel, string _message, string _rawmessage, IRCMessageType _type, IRCReplyCode _replycode ) {
             RawMessage = _rawmessage;
-            RawMessageArray = _rawmessage.Split( new char[] { ' ' } );
+            RawMessageArray = _rawmessage.Split( new[] { ' ' } );
             Type = _type;
             ReplyCode = _replycode;
             From = _from;
@@ -52,7 +52,7 @@ namespace fCraft {
             if( _message != null ) {
                 // message is optional
                 Message = _message;
-                MessageArray = _message.Split( new char[] { ' ' } );
+                MessageArray = _message.Split( new[] { ' ' } );
             }
         }
     }

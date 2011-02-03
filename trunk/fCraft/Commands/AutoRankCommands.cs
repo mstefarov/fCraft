@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
-
 namespace fCraft {
     /// <summary>
     /// Several yet-undocumented commands, mostly related to AutoRank.
@@ -25,7 +24,7 @@ namespace fCraft {
             name = "dumpstats",
             consoleSafe = true,
             hidden = true,
-            permissions = new Permission[] { Permission.Import },
+            permissions = new[] { Permission.Import },
             help = "Writes out a number of statistics about the server. " +
                    "Only non-banned players active in the last 30 days are counted.",
             usage = "/dumpstats FileName",
@@ -419,7 +418,7 @@ namespace fCraft {
             name = "autorankall",
             consoleSafe = true,
             hidden = true,
-            permissions = new Permission[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
+            permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
             help = "If AutoRank is disabled, it can still be called manually using this command.",
             usage = "/autorankall [silent] [FromRank]",
             handler = AutoRankAll
@@ -472,7 +471,7 @@ namespace fCraft {
             name = "massrank",
             hidden = true,
             consoleSafe = true,
-            permissions = new Permission[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
+            permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
             help = "",
             usage = "/massrank FromRank ToRank [silent]",
             handler = MassRank
@@ -526,7 +525,7 @@ namespace fCraft {
             name = "autorankreload",
             consoleSafe = true,
             hidden = true,
-            permissions = new Permission[] { Permission.EditPlayerDB },
+            permissions = new[] { Permission.EditPlayerDB },
             help = "",
             handler = AutoRankReload
         };
@@ -539,7 +538,7 @@ namespace fCraft {
         static CommandDescriptor cdAutoRankTest = new CommandDescriptor {
             name = "autoranktest",
             consoleSafe = true,
-            permissions = new Permission[] { Permission.ViewOthersInfo },
+            permissions = new[] { Permission.ViewOthersInfo },
             help = "",
             usage = "/autoranktest PlayerName",
             handler = AutoRankTest
@@ -573,7 +572,7 @@ namespace fCraft {
             name = "setinfo",
             consoleSafe = true,
             hidden = true,
-            permissions = new Permission[] { Permission.EditPlayerDB },
+            permissions = new[] { Permission.EditPlayerDB },
             help = "Allows direct editing of player information. Editable properties: " +
                    "TimesKicked, PreviousRank, TotalTime, RankChangeType, " +
                    "BanReason, UnbanReason, RankChangeReason, LastKickReason",

@@ -1,7 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System.Threading;
 
-
 namespace fCraft {
     /// <summary>
     /// A lightweight queue implementation with lock-free/concurrent operations.
@@ -11,7 +10,6 @@ namespace fCraft {
         sealed class Node {
             public T value;
             public Pointer next;
-            public Node() { }
         }
 
         struct Pointer {

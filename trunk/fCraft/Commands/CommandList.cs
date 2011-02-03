@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-
 namespace fCraft {
     /// <summary>
     /// Type of message sent by the player. Set by CommandList.GetMessageType

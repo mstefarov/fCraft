@@ -23,7 +23,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-
+using fCraftUpdater.Properties;
 
 namespace fCraftUpdater {
     static class Program {
@@ -34,7 +34,7 @@ namespace fCraftUpdater {
             int pid;
             // extract updater
             Console.WriteLine( "Preparing to extract..." );
-            File.WriteAllBytes( ExtractorFile, fCraftUpdater.Properties.Resources.Extractor );
+            File.WriteAllBytes( ExtractorFile, Resources.Extractor );
 
             // wait for fCraft to close, if needed
             if( args.Length == 1 && Int32.TryParse( args[0], out pid ) ) {

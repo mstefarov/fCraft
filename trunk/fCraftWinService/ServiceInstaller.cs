@@ -3,9 +3,8 @@ using System.ComponentModel;
 using System.Configuration.Install;
 using System.ServiceProcess;
 
-
 namespace fCraftWinService {
-    [RunInstallerAttribute( true )]
+    [RunInstaller( true )]
     public class fCraftWinServiceInstaller : Installer {
         private ServiceInstaller serviceInstaller;
         private ServiceProcessInstaller serviceProcessInstaller;

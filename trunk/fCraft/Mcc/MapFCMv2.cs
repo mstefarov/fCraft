@@ -37,7 +37,6 @@ using System.IO.Compression;
 using System.Text;
 using fCraft;
 
-
 namespace Mcc {
     /// <summary>
     /// fCraft map format converter, for format version #2 (2010)
@@ -127,7 +126,7 @@ namespace Mcc {
                 map.spawn.l = reader.ReadByte();
 
                 // Read the metadata
-                int metaSize = (int)reader.ReadUInt16();
+                int metaSize = reader.ReadUInt16();
 
                 for( int i = 0; i < metaSize; i++ ) {
                     string key = ReadLengthPrefixedString( reader );
@@ -167,7 +166,7 @@ namespace Mcc {
         static string ReadLengthPrefixedString( BinaryReader reader ) {
             int length = reader.ReadInt32();
             byte[] stringData = reader.ReadBytes( length );
-            return ASCIIEncoding.ASCII.GetString( stringData );
+            return Encoding.ASCII.GetString( stringData );
         }
     }
 }

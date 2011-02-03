@@ -1,11 +1,11 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-
 
 namespace fCraft {
     /// <summary>
@@ -47,7 +47,7 @@ namespace fCraft {
 
         static CommandDescriptor cdDeafen = new CommandDescriptor {
             name = "deafen",
-            aliases = new string[] { "deaf" },
+            aliases = new[] { "deaf" },
             help = "Blocks all chat messages from being sent to you.",
             handler = Deafen
         };
@@ -98,7 +98,7 @@ namespace fCraft {
                     if( infos.Length == 1 ) {
                         targetInfo = infos[0];
                     } else if( infos.Length > 1 ) {
-                        player.ManyMatchesMessage( "player", (IClassy[])infos );
+                        player.ManyMatchesMessage( "player", infos );
                         return;
                     } else {
                         player.NoPlayerMessage( name );
@@ -143,7 +143,7 @@ namespace fCraft {
                     if( infos.Length == 1 ) {
                         targetInfo = infos[0];
                     } else if( infos.Length > 1 ) {
-                        player.ManyMatchesMessage( "player", (IClassy[])infos );
+                        player.ManyMatchesMessage( "player", infos );
                         return;
                     } else {
                         player.NoPlayerMessage( name );
@@ -170,7 +170,7 @@ namespace fCraft {
 
         static CommandDescriptor cdInfo = new CommandDescriptor {
             name = "info",
-            aliases = new string[] { "pinfo" },
+            aliases = new[] { "pinfo" },
             consoleSafe = true,
             usage = "/info [PlayerName]",
             help = "Displays some information and stats about the player. " +
@@ -209,14 +209,14 @@ namespace fCraft {
                     player.NoPlayerMessage( name );
                     return;
                 } else {
-                    infos = new PlayerInfo[] { tempInfo };
+                    infos = new[] { tempInfo };
                 }
             }
 
             if( infos.Length == 1 ) {
                 PrintPlayerInfo( player, infos[0] );
             } else if( infos.Length > 1 ) {
-                player.ManyMatchesMessage( "player", (IClassy[])infos );
+                player.ManyMatchesMessage( "player", infos );
                 if( infos.Length == PlayerDB.NumberOfMatchesToPrint ) {
                     player.Message( "NOTE: Only first {0} matches are shown.", PlayerDB.NumberOfMatchesToPrint );
                 }
@@ -481,7 +481,7 @@ namespace fCraft {
 
         static CommandDescriptor cdRankInfo = new CommandDescriptor {
             name = "rankinfo",
-            aliases = new string[] { "class", "rinfo", "cinfo" },
+            aliases = new[] { "class", "rinfo", "cinfo" },
             consoleSafe = true,
             usage = "/rinfo RankName",
             help = "Shows a list of permissions granted to a rank. To see a list of all ranks, use &H/ranks",
@@ -537,10 +537,10 @@ namespace fCraft {
         };
 
         internal static void ServerInfo( Player player, Command cmd ) {
-            System.Diagnostics.Process.GetCurrentProcess().Refresh();
+            Process.GetCurrentProcess().Refresh();
             player.Message( "Servers stats: Up for {0:0.0} hours, using {1:0} MB of memory",
                             DateTime.Now.Subtract( Server.serverStart ).TotalHours,
-                            (System.Diagnostics.Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
+                            (Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
 
             player.Message( "Averaging {0:0.0}% CPU in last minute, {1:0.0}% CPU overall.",
                             Server.CPUUsageLastMinute * 100,
@@ -596,7 +596,7 @@ namespace fCraft {
 
         static CommandDescriptor cdRanks = new CommandDescriptor {
             name = "ranks",
-            aliases = new string[] { "classes" },
+            aliases = new[] { "classes" },
             consoleSafe = true,
             help = "Shows a list of all defined ranks.",
             handler = Ranks
@@ -761,8 +761,8 @@ namespace fCraft {
 
         static CommandDescriptor cdWhere = new CommandDescriptor {
             name = "where",
-            aliases = new string[] { "compass" },
-            permissions = new Permission[] { Permission.ViewOthersInfo },
+            aliases = new[] { "compass" },
+            permissions = new[] { Permission.ViewOthersInfo },
             consoleSafe = true,
             usage = "/where [PlayerName]",
             help = "Shows information about the location and orientation of a player. " +

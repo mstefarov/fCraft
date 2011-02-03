@@ -13,7 +13,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
 
-
 namespace fCraft {
     public static class Server {
 
@@ -233,7 +232,7 @@ namespace fCraft {
             // list loaded worlds
             StringBuilder line = new StringBuilder( "All available worlds: " );
             bool firstPrintedWorld = true;
-            foreach( string worldName in Server.worlds.Keys ) {
+            foreach( string worldName in worlds.Keys ) {
                 if( !firstPrintedWorld ) {
                     line.Append( ", " );
                 }
@@ -358,7 +357,7 @@ namespace fCraft {
             new Thread( delegate( object obj ) {
                 ShutdownParams param = (ShutdownParams)obj;
                 Thread.Sleep( param.Delay * 1000 );
-                Server.Shutdown( param.Reason );
+                Shutdown( param.Reason );
                 if( param.Restart ) {
                     Process.Start( Process.GetCurrentProcess().MainModule.FileName, String.Join( " ", args ) );
                 }
@@ -879,7 +878,7 @@ namespace fCraft {
                 for( int i = 0; i < list.Length; i++ ) {
                     list[i] = playerListCache[i].info.rank.Name + " - " + playerListCache[i].name;
                 }
-                Array.Sort<string>( list );
+                Array.Sort( list );
                 OnPlayerListChanged( list );
             }
         }
@@ -998,7 +997,7 @@ namespace fCraft {
 
         #region Utilities
 
-        static bool GCRequested = false;
+        static bool GCRequested;
         public static void RequestGC() {
             GCRequested = true;
         }
@@ -1278,7 +1277,7 @@ namespace fCraft {
                 foreach( Player player in players.Values ) {
                     newPlayerList[i++] = player;
                 }
-                PlayerList = newPlayerList.OrderBy( player => player.name ).ToArray<Player>();
+                PlayerList = newPlayerList.OrderBy( player => player.name ).ToArray();
             }
             FirePlayerListChangedEvent();
         }

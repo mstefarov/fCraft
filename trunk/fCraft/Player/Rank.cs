@@ -2,7 +2,6 @@
 using System;
 using System.Xml.Linq;
 
-
 namespace fCraft {
     /// <summary>
     /// Interface that provides a method for printing an object's name beautified with Minecraft color codes.
@@ -62,7 +61,7 @@ namespace fCraft {
             if( attr == null ) {
                 throw new RankDefinitionException( "Rank definition with no name was ignored." );
 
-            } else if( !Rank.IsValidRankName( attr.Value.Trim() ) ) {
+            } else if( !IsValidRankName( attr.Value.Trim() ) ) {
                 throw new RankDefinitionException( "Invalid name specified for rank \"{0}\". "+
                                                    "Rank names can only contain letters, digits, and underscores. " +
                                                    "Rank definition was ignored.", Name );
@@ -79,7 +78,7 @@ namespace fCraft {
                 Logger.Log( "Rank({0}): Issued a new unique ID.", LogType.Warning, Name );
                 ID = RankList.GenerateID();
 
-            } else if( !Rank.IsValidID( attr.Value.Trim() ) ) {
+            } else if( !IsValidID( attr.Value.Trim() ) ) {
                 throw new RankDefinitionException( "Invalid ID specified for rank \"{0}\". "+
                                                    "ID must be alphanumeric, and exactly 16 characters long. "+
                                                    "Rank definition was ignored.", Name );
@@ -109,7 +108,7 @@ namespace fCraft {
 
             // Prefix (optional)
             if( (attr = el.Attribute( "prefix" )) != null ) {
-                if( Rank.IsValidPrefix( attr.Value ) ) {
+                if( IsValidPrefix( attr.Value ) ) {
                     Prefix = attr.Value;
                 } else {
                     Logger.Log( "Rank({0}): Invalid prefix format. Expecting 1 character.", LogType.Warning, Name );

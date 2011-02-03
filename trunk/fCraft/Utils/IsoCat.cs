@@ -25,7 +25,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
-
+using fCraft.Properties;
 
 namespace fCraft {
 
@@ -51,7 +51,7 @@ namespace fCraft {
 
         static IsoCat() {
 
-            using( Bitmap tilesBmp = fCraft.Properties.Resources.Tileset ) {
+            using( Bitmap tilesBmp = Resources.Tileset ) {
                 tileX = tilesBmp.Width / 50;
                 tileY = tilesBmp.Height;
                 tileStride = tileX * tileY * 4;
@@ -73,7 +73,7 @@ namespace fCraft {
                 }
             }
 
-            using( Bitmap stilesBmp = fCraft.Properties.Resources.TilesetShadowed ) {
+            using( Bitmap stilesBmp = Resources.TilesetShadowed ) {
 
                 stiles = new byte[50 * tileStride];
 
@@ -154,7 +154,7 @@ namespace fCraft {
         }
 
         byte* bp, ctp;
-        public unsafe Bitmap Draw( ref Rectangle cropRectangle, BackgroundWorker worker ) {
+        public Bitmap Draw( ref Rectangle cropRectangle, BackgroundWorker worker ) {
             int blockRight, blockLeft, blockUp;
             try {
                 fixed( byte* bpx = map.blocks ) {
@@ -296,7 +296,7 @@ namespace fCraft {
         }
 
 
-        unsafe void BlendTile() {
+         void BlendTile() {
             int pos = (x + (rot == 1 || rot == 3 ? offsetY : offsetX)) * isoX + (y + (rot == 1 || rot == 3 ? offsetX : offsetY)) * isoY + h * isoH + isoOffset;
             if( block > 49 ) return;
             int tileOffset = block * tileStride;
@@ -326,7 +326,7 @@ namespace fCraft {
         int FA, SA, DA;
         int blendDivisor, mh34;
         // inspired by http://www.devmaster.net/wiki/Alpha_blending
-        unsafe void BlendPixel( int imageOffset, int tileOffset ) {
+         void BlendPixel( int imageOffset, int tileOffset ) {
             if( ctp[tileOffset + 3] == 0 ) return;
 
             tA = ctp[tileOffset + 3];

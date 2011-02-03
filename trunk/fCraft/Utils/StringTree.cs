@@ -1,7 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System.Collections.Generic;
 
-
 namespace fCraft {
     /// <summary>
     /// Specialized data structure for partial-matching of large sparse sets of words.
@@ -147,7 +146,7 @@ namespace fCraft {
         }
 
         sealed class StringNode {
-            public byte tag = StringTree.EMPTY;
+            public byte tag = EMPTY;
             public StringNode[] children = new StringNode[37];
             public PlayerInfo payload;
         }

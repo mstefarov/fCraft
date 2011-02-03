@@ -4,7 +4,6 @@ using System.IO;
 using System.Reflection;
 using System.Security;
 
-
 namespace fCraft {
     public static class Paths {
 
@@ -88,7 +87,7 @@ namespace fCraft {
         public static string ConfigFileName { get; set; }
 
 
-        internal static bool IgnoreMapPathConfigKey = false;
+        internal static bool IgnoreMapPathConfigKey;
 
         public static bool IsDefaultMapPath( string path ) {
             return String.IsNullOrEmpty( path ) || Compare( MapPathDefault, path );

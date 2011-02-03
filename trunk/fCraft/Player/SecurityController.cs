@@ -2,9 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
 using System.Text;
-
+using System.Xml.Linq;
 
 namespace fCraft {
 
@@ -191,7 +190,7 @@ namespace fCraft {
         #endregion
 
         public void PrintDescription( Player player, IClassy world, string noun, string verb ) {
-            SecurityController.PlayerListCollection list = exceptionList;
+            PlayerListCollection list = exceptionList;
 
             noun = Char.ToUpper( noun[0] ) + noun.Substring( 1 ); // capitalize first letter
 

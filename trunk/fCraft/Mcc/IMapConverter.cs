@@ -33,7 +33,6 @@
 // 
 using fCraft;
 
-
 namespace Mcc {
     public interface IMapConverter {
         /// <summary>

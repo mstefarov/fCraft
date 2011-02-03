@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Drawing.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-
+using ConfigTool.Properties;
 
 namespace ConfigTool {
     partial class ChatPreview : UserControl {
@@ -23,11 +23,11 @@ namespace ConfigTool {
 
         unsafe static ChatPreview() {
             fonts = new PrivateFontCollection();
-            fixed( byte* fontPointer = ConfigTool.Properties.Resources.MinecraftFont ) {
-                fonts.AddMemoryFont( (IntPtr)fontPointer, ConfigTool.Properties.Resources.MinecraftFont.Length );
+            fixed( byte* fontPointer = Resources.MinecraftFont ) {
+                fonts.AddMemoryFont( (IntPtr)fontPointer, Resources.MinecraftFont.Length );
             }
             font = new Font( fonts.Families[0], 12, FontStyle.Regular );
-            colorPairs = new ColorPair[]{
+            colorPairs = new[]{
                 new ColorPair(0,0,0,0,0,0),
                 new ColorPair(0,0,191,0,0,47),
                 new ColorPair(0,191,0,0,47,0),
@@ -107,7 +107,7 @@ namespace ConfigTool {
 
 
         protected override void OnPaint( PaintEventArgs e ) {
-            e.Graphics.DrawImageUnscaledAndClipped( ConfigTool.Properties.Resources.ChatBackground, e.ClipRectangle );
+            e.Graphics.DrawImageUnscaledAndClipped( Resources.ChatBackground, e.ClipRectangle );
 
             e.Graphics.TextRenderingHint = TextRenderingHint.SingleBitPerPixel;
 

@@ -26,7 +26,6 @@ using System.IO;
 using System.Text;
 using fCraft;
 
-
 namespace fCraftConsole {
 
     static class Program {
@@ -112,7 +111,7 @@ namespace fCraftConsole {
         }
 
         static void SetURL( string URL ) {
-            File.WriteAllText( "externalurl.txt", URL, ASCIIEncoding.ASCII );
+            File.WriteAllText( "externalurl.txt", URL, Encoding.ASCII );
             Console.WriteLine( "** URL: {0} **", URL );
             Console.WriteLine( "URL is also saved to file externalurl.txt" );
         }

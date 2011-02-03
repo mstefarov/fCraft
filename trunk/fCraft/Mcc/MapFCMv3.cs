@@ -6,7 +6,6 @@ using System.IO.Compression;
 using System.Text;
 using fCraft;
 
-
 namespace Mcc {
     /// <summary>
     /// fCraft map format converter, for format version #3 (2011)
@@ -205,11 +204,11 @@ namespace Mcc {
                 writer.BaseStream.Seek( indexOffset, SeekOrigin.Begin );
                 for( int i = 0; i < layers.Count; i++ ) {
                     writer.Write( (byte)layers[i].Type );
-                    writer.Write( (long)layers[i].Offset ); // written later
-                    writer.Write( (int)layers[i].CompressedLength );  // written later
-                    writer.Write( (int)layers[i].GeneralPurposeField );
-                    writer.Write( (int)layers[i].ElementSize );  // -1 for PlayerIDs
-                    writer.Write( (int)layers[i].ElementCount ); // to be written later for PlayerIDs
+                    writer.Write( layers[i].Offset ); // written later
+                    writer.Write( layers[i].CompressedLength );  // written later
+                    writer.Write( layers[i].GeneralPurposeField );
+                    writer.Write( layers[i].ElementSize );  // -1 for PlayerIDs
+                    writer.Write( layers[i].ElementCount ); // to be written later for PlayerIDs
                 }
                 writer.Write( metaCount );
 
@@ -221,12 +220,12 @@ namespace Mcc {
         public static string ReadLengthPrefixedString( BinaryReader reader ) {
             int length = reader.ReadUInt16();
             byte[] stringData = reader.ReadBytes( length );
-            return ASCIIEncoding.ASCII.GetString( stringData );
+            return Encoding.ASCII.GetString( stringData );
         }
 
 
         public static void WriteLengthPrefixedString( BinaryWriter writer, string s ) {
-            byte[] stringData = ASCIIEncoding.ASCII.GetBytes( s );
+            byte[] stringData = Encoding.ASCII.GetBytes( s );
             writer.Write( (ushort)stringData.Length );
             writer.Write( stringData );
         }

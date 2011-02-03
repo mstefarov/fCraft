@@ -2,7 +2,6 @@
 using System;
 using System.Xml.Linq;
 
-
 namespace fCraft {
 
     public sealed class MapGeneratorArgs {
@@ -16,27 +15,27 @@ namespace fCraft {
                      maxHeight = 20,
                      maxDepth = 12,
                      maxHeightVariation = 4,
-                     maxDepthVariation = 0;
+                     maxDepthVariation;
 
         public bool  addWater = true,
-                     customWaterLevel = false,
-                     matchWaterCoverage = false;
+                     customWaterLevel,
+                     matchWaterCoverage;
         public int   waterLevel = 48;
         public float waterCoverage = .5f;
 
-        public bool  useBias = false,
-                     delayBias = false;
-        public float bias = 0;
-        public int   raisedCorners = 0,
-                     loweredCorners = 0,
-                     midPoint = 0;
+        public bool  useBias,
+                     delayBias;
+        public float bias;
+        public int   raisedCorners,
+                     loweredCorners,
+                     midPoint;
 
         public int   detailScale = 7,
                      featureScale = 1;
         public float roughness = .5f;
-        public bool  layeredHeightmap = false,
-                     marbledHeightmap = false,
-                     invertHeightmap = false;
+        public bool  layeredHeightmap,
+                     marbledHeightmap,
+                     invertHeightmap;
         public float aboveFuncExponent = 1,
                      belowFuncExponent = 1;
 
@@ -46,14 +45,14 @@ namespace fCraft {
                      treeHeightMin = 5,
                      treeHeightMax = 7;
 
-        public bool  addCaves = false,
-                     addOre = false,
-                     addCaveWater = false,
-                     addCaveLava = false;
+        public bool  addCaves,
+                     addOre,
+                     addCaveWater,
+                     addCaveLava;
         public float caveDensity = 2,
                      caveSize = 1;
 
-        public bool  addSnow = false;
+        public bool  addSnow;
         public int   snowAltitude = 70,
                      snowTransition = 7;
 
@@ -61,7 +60,7 @@ namespace fCraft {
                      cliffSmoothing = true;
         public float cliffThreshold = 1;
 
-        public bool  addBeaches = false;
+        public bool  addBeaches;
         public int   beachExtent = 6,
                      beachHeight = 2;
 

@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
-
+using System.Xml.Linq;
 
 namespace fCraft {
 
@@ -95,7 +95,7 @@ namespace fCraft {
         public ProgressChangedEventHandler ProgressCallback;
 
 
-        int progressTotalEstimate = 0, progressRunningTotal = 0;
+        int progressTotalEstimate, progressRunningTotal;
 
 
         void EstimateComplexity() {
@@ -126,7 +126,7 @@ namespace fCraft {
 
         void ReportProgress( int relativeIncrease, string message ) {
             if( ProgressCallback != null ) {
-                ProgressCallback( this, new ProgressChangedEventArgs( (int)(100 * progressRunningTotal / progressTotalEstimate), message ) );
+                ProgressCallback( this, new ProgressChangedEventArgs( (100 * progressRunningTotal / progressTotalEstimate), message ) );
             }
             progressRunningTotal += relativeIncrease;
         }
@@ -160,7 +160,7 @@ namespace fCraft {
 
                 // make a blendmap
                 blendmap = new float[args.dimX, args.dimY];
-                int blendmapDetailSize = (int)Math.Log( (double)Math.Max( args.dimX, args.dimY ), 2 ) - 2;
+                int blendmapDetailSize = (int)Math.Log( Math.Max( args.dimX, args.dimY ), 2 ) - 2;
                 new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoiseMap( blendmap, 3, blendmapDetailSize, 0.5f, 0, 0 );
                 Noise.Normalize( blendmap );
                 float cliffSteepness = Math.Max( args.dimX, args.dimY ) / 6f;
@@ -254,7 +254,7 @@ namespace fCraft {
             // Calculate above/below water multipliers
             float aboveWaterMultiplier = 0;
             if( desiredWaterLevel != 1 ) {
-                aboveWaterMultiplier = (float)(args.maxHeight / (1 - desiredWaterLevel));
+                aboveWaterMultiplier = (args.maxHeight / (1 - desiredWaterLevel));
             }
 
 
@@ -327,7 +327,7 @@ namespace fCraft {
             if( args.maxHeightVariation != 0 || args.maxDepthVariation != 0 ) {
                 ReportProgress( 5, "Heightmap Processing: Randomizing" );
                 altmap = new float[map.widthX, map.widthY];
-                int blendmapDetailSize = (int)Math.Log( (double)Math.Max( args.dimX, args.dimY ), 2 ) - 2;
+                int blendmapDetailSize = (int)Math.Log( Math.Max( args.dimX, args.dimY ), 2 ) - 2;
                 new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoiseMap( altmap, 3, blendmapDetailSize, 0.5f, 0, 0 );
                 Noise.Normalize( altmap, -1, 1 );
             }
@@ -474,7 +474,7 @@ namespace fCraft {
 
             map.SetMeta( "_Origin", "GeneratorName", "fCraft" );
             map.SetMeta( "_Origin", "GeneratorVersion", Updater.GetVersionString() );
-            map.SetMeta( "_Origin", "GeneratorParams", args.Serialize().ToString( System.Xml.Linq.SaveOptions.DisableFormatting ) );
+            map.SetMeta( "_Origin", "GeneratorParams", args.Serialize().ToString( SaveOptions.DisableFormatting ) );
             return map;
         }
 
@@ -523,7 +523,7 @@ namespace fCraft {
                             int index = x + j3 + map.widthX * map.widthY * (map.height - 1 - (h + k3)) + map.widthX * (y + l3);
 
                             if( map.blocks[index] == bedrockType ) {
-                                map.blocks[index] = (byte)fillingType;
+                                map.blocks[index] = fillingType;
                             }
                             if( (fillingType == 10 || fillingType == 11 || fillingType == 8 || fillingType == 9) &&
                                 h + k3 < startH ) {
@@ -548,17 +548,17 @@ namespace fCraft {
             double thirteenOverK = 1 / (double)k;
 
             for( int i2 = 0; i2 < i1; i2++ ) {
-                int j2 = j1 + (int)(.5 * (rand.NextDouble() - .5) * (double)map.widthX);
-                int k2 = k1 + (int)(.5 * (rand.NextDouble() - .5) * (double)map.height);
-                int l2 = l1 + (int)(.5 * (rand.NextDouble() - .5) * (double)map.widthY);
+                int j2 = j1 + (int)(.5 * (rand.NextDouble() - .5) * map.widthX);
+                int k2 = k1 + (int)(.5 * (rand.NextDouble() - .5) * map.height);
+                int l2 = l1 + (int)(.5 * (rand.NextDouble() - .5) * map.widthY);
                 for( int l3 = 0; l3 < k; l3++ ) {
                     int diameter = (int)(maxDiameter * rand.NextDouble() * map.widthX);
                     if( diameter < 1 ) diameter = 2;
                     int radius = diameter / 2;
                     if( radius == 0 ) radius = 1;
-                    int i3 = (int)((1 - thirteenOverK) * (double)j1 + thirteenOverK * (double)j2 + (double)(l * radius) * (rand.NextDouble() - .5));
-                    int j3 = (int)((1 - thirteenOverK) * (double)k1 + thirteenOverK * (double)k2 + (double)(l * radius) * (rand.NextDouble() - .5));
-                    int k3 = (int)((1 - thirteenOverK) * (double)l1 + thirteenOverK * (double)l2 + (double)(l * radius) * (rand.NextDouble() - .5));
+                    int i3 = (int)((1 - thirteenOverK) * j1 + thirteenOverK * j2 + (l * radius) * (rand.NextDouble() - .5));
+                    int j3 = (int)((1 - thirteenOverK) * k1 + thirteenOverK * k2 + (l * radius) * (rand.NextDouble() - .5));
+                    int k3 = (int)((1 - thirteenOverK) * l1 + thirteenOverK * l2 + (l * radius) * (rand.NextDouble() - .5));
                     for( int k4 = 0; k4 < diameter; k4++ ) {
                         for( int l4 = 0; l4 < diameter; l4++ ) {
                             for( int i5 = 0; i5 < diameter; i5++ ) {

@@ -5,7 +5,6 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-
 namespace fCraft {
     // Protocol encoder for outgoing packets
     public sealed class PacketWriter : BinaryWriter {
@@ -50,16 +49,16 @@ namespace fCraft {
             Write( OutputCode.LevelChunk );
             Write( (short)chunkSize );
             Write( chunk, 0, 1024 );
-            Write( (byte)progress );
+            Write( progress );
         }
 
         public void WriteAddEntity( byte id, Player player, Position pos ) {
             Write( OutputCode.AddEntity );
             Write( id );
             Write( player.GetListName() );
-            Write( (short)pos.x );
-            Write( (short)pos.h );
-            Write( (short)pos.y );
+            Write( pos.x );
+            Write( pos.h );
+            Write( pos.y );
             Write( pos.r );
             Write( pos.l );
         }
@@ -67,9 +66,9 @@ namespace fCraft {
         public void WriteTeleport( byte id, Position pos ) {
             Write( OutputCode.Teleport );
             Write( id );
-            Write( (short)pos.x );
-            Write( (short)pos.h );
-            Write( (short)pos.y );
+            Write( pos.x );
+            Write( pos.h );
+            Write( pos.y );
             Write( pos.r );
             Write( pos.l );
         }
@@ -82,10 +81,10 @@ namespace fCraft {
         internal static Packet MakeHandshake( Player player, string serverName, string MOTD ) {
             Packet packet = new Packet( 131 );
             packet.data[0] = (byte)OutputCode.Handshake;
-            packet.data[1] = (byte)Config.ProtocolVersion;
+            packet.data[1] = Config.ProtocolVersion;
             Encoding.ASCII.GetBytes( serverName.PadRight( 64 ), 0, 64, packet.data, 2 );
             Encoding.ASCII.GetBytes( MOTD.PadRight( 64 ), 0, 64, packet.data, 66 );
-            packet.data[130] = (byte)player.GetOPPacketCode();
+            packet.data[130] = player.GetOPPacketCode();
             return packet;
         }
 
@@ -212,7 +211,7 @@ namespace fCraft {
 
         #endregion
 
-        internal static string[] splitter = new string[] { "&N" };
+        internal static string[] splitter = new[] { "&N" };
         internal static IEnumerable<Packet> MakeWrappedMessage( string prefix, string text, bool appendPrefixToFirstLine ) {
             if( appendPrefixToFirstLine ) text = prefix + text;
 

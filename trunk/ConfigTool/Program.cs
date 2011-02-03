@@ -24,7 +24,6 @@ using System;
 using System.Windows.Forms;
 using fCraft;
 
-
 namespace ConfigTool {
     static class Program {
         [STAThread]

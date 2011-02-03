@@ -5,7 +5,6 @@ using System.IO;
 using System.Net;
 using System.Net.Cache;
 
-
 namespace fCraft {
     public struct UpdaterResult {
         public UpdaterResult( int version ) {
@@ -34,7 +33,7 @@ namespace fCraft {
         public static int Version = 503;
         public static int Revision = 413;
         public static bool IsDev = true,
-                           IsBroken = false;
+                           IsBroken;
         public static string LatestNonBroken = "0.502_r411";
 
         const string UpdateURL = "http://fcraft.fragmer.net/version.log";
@@ -44,7 +43,7 @@ namespace fCraft {
             if( Config.GetString( ConfigKey.AutomaticUpdates ) == "Disabled" ) return result;
             Logger.Log( "Checking for fCraft updates...", LogType.SystemActivity );
             try {
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create( UpdateURL );
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create( UpdateURL );
 
                 request.Method = "GET";
                 request.UserAgent = "fCraft";
@@ -62,7 +61,7 @@ namespace fCraft {
                             int logVersion = Int32.Parse( line );
                             if( logVersion <= Version ) break;
                             else if( result.NewVersionNumber < logVersion ) result.NewVersionNumber = logVersion;
-                            result.ChangeLog += logVersion.ToString() + ":" + Environment.NewLine;
+                            result.ChangeLog += logVersion + ":" + Environment.NewLine;
                             line = reader.ReadLine();
                             while( line.StartsWith( " " ) ) {
                                 result.ChangeLog += line + Environment.NewLine;
