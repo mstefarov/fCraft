@@ -1,11 +1,14 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Net; // for CheckPaidStatus
-using System.Net.Cache; // for CheckPaidStatus
-using System.IO; // for CheckPaidStatus
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Cache;
+using System.Text;
+// for CheckPaidStatus
+        // for CheckPaidStatus
+        // for CheckPaidStatus
 
 
 namespace fCraft {
@@ -24,7 +27,7 @@ namespace fCraft {
     /// Object representing a connected player.
     /// </summary>
     public sealed class Player : IClassy {
-        public static bool relayAllUpdates = false;
+        public static bool relayAllUpdates;
 
         public string name; // always same as PlayerInfo.name
         // use Player.GetClassyName() to get the colorful version
@@ -156,7 +159,7 @@ namespace fCraft {
                         message = message.Substring( 1 );
                     }
 
-                    Server.SendToAllExceptIgnored( this, "{0}{1}: {2}", Player.Console,
+                    Server.SendToAllExceptIgnored( this, "{0}{1}: {2}", Console,
                                                    GetClassyName(), Color.White, message );
                     break;
 

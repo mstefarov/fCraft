@@ -11,7 +11,6 @@ using System.Windows.Forms;
 using fCraft;
 using Color = System.Drawing.Color;
 
-
 namespace ConfigTool {
     public sealed partial class ConfigUI : Form {
         static ConfigUI instance;
@@ -339,7 +338,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             public bool NonEnglish;
         }
 
-        static IRCNetwork[] IRCNetworks = new IRCNetwork[]{
+        static IRCNetwork[] IRCNetworks = new[]{
             new IRCNetwork("FreeNode", "chat.freenode.net"),
             new IRCNetwork("QuakeNet", "irc.quakenet.org"),
             new IRCNetwork("IRCnet", "irc.belwue.de"),

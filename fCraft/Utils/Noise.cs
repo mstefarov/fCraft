@@ -1,7 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 
-
 namespace fCraft {
 
     public enum NoiseInterpolationMode {
@@ -57,7 +56,7 @@ namespace fCraft {
             a1 = v0 - v1 - a0;
             a2 = v2 - v0;
             a3 = v1;
-            return (float)(a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3);
+            return (a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3);
         }
 
 
@@ -68,7 +67,7 @@ namespace fCraft {
             a1 = v0 - 2.5f * v1 + 2 * v2 - 0.5f * v3;
             a2 = -0.5f * v0 + 0.5f * v2;
             a3 = v1;
-            return (float)(a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3);
+            return (a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3);
         }
 
 

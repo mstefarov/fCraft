@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 
-
 namespace ConfigTool {
 
-    [Serializable()]
+    [Serializable]
     // SortableBindingList by Tim Van Wassenhove, http://www.timvw.be/presenting-the-sortablebindinglistt/
     public class SortableBindingList<T> : BindingList<T> {
         private bool _isSorted;
         private ListSortDirection _dir = ListSortDirection.Ascending;
 
-        [NonSerialized()]
-        private PropertyDescriptor _sort = null;
+        [NonSerialized]
+        private PropertyDescriptor _sort;
 
         #region BindingList<T> Public Sorting API
         public void Sort() {
@@ -81,7 +80,7 @@ namespace ConfigTool {
         #endregion
 
         #region PropertyComparer<TKey>
-        internal class PropertyComparer<TKey> : System.Collections.Generic.IComparer<TKey> {
+        internal class PropertyComparer<TKey> : IComparer<TKey> {
             /*
             * The following code contains code implemented by Rockford Lhotka:
             * //msdn.microsoft.com/library/default.asp?url=/library/en-us/dnadvnet/html/vbnet01272004.asp" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnadvnet/html/vbnet01272004.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnadvnet/html/vbnet01272004.asp

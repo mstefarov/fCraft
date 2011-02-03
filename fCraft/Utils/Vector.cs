@@ -1,7 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 
-
 namespace fCraft {
     
     /// <summary>
@@ -147,7 +146,7 @@ namespace fCraft {
             return new Vector3f( a.x - scalar, a.y - scalar, a.h - scalar );
         }
         public static Vector3f operator *( Vector3f a, float scalar ) {
-            return new Vector3f( (float)(a.x * scalar), (float)(a.y * scalar), (float)(a.h * scalar) );
+            return new Vector3f( (a.x * scalar), (a.y * scalar), (a.h * scalar) );
         }
         public static Vector3f operator /( Vector3f a, double scalar ) {
             return new Vector3f( (float)(a.x / scalar), (float)(a.y / scalar), (float)(a.h / scalar) );

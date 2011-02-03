@@ -6,8 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Xml.Linq;
-using System.Reflection;
-
 
 namespace fCraft {
 
@@ -352,7 +350,7 @@ namespace fCraft {
             string[] keyNames = Enum.GetNames( typeof( ConfigKey ) );
             foreach( XElement element in config.Elements() ) {
                 string key = element.Name.ToString().ToLower();
-                if( keyNames.Contains<string>( key, StringComparer.OrdinalIgnoreCase ) ) {
+                if( keyNames.Contains( key, StringComparer.OrdinalIgnoreCase ) ) {
                     // known key
                     SetValue( (ConfigKey)Enum.Parse( typeof( ConfigKey ), key, true ), element.Value );
 

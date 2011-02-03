@@ -1,10 +1,10 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.ComponentModel;
-using System.Windows.Forms;
+using System.Diagnostics;
 using System.Net;
+using System.Windows.Forms;
 using fCraft;
-
 
 namespace fCraftUI {
     public sealed partial class UpdateWindow : Form {
@@ -54,7 +54,7 @@ namespace fCraftUI {
 
 
         private void bApply_Click( object sender, EventArgs e ) {
-            System.Diagnostics.Process.Start( UpdaterFile, System.Diagnostics.Process.GetCurrentProcess().Id.ToString() );
+            Process.Start( UpdaterFile, Process.GetCurrentProcess().Id.ToString() );
             Application.Exit();
         }
 

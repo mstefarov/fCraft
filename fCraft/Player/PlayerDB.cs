@@ -7,7 +7,6 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-
 namespace fCraft {
     public static class PlayerDB {
         static StringTree tree = new StringTree();

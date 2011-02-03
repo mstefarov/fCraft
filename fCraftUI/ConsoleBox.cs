@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using fCraft;
 
-
 namespace fCraftUI {
     sealed class ConsoleBox : TextBox {
         const int WM_KEYDOWN = 0x100;

@@ -2,10 +2,10 @@
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Net;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using fCraft;
-
 
 namespace ConfigTool {
     // This section handles transfer of settings from Config to the specific UI controls, and vice versa.
@@ -97,7 +97,7 @@ namespace ConfigTool {
             nPort.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.Port ) );
             nUploadBandwidth.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.UploadBandwidth ) );
 
-            if( Config.GetString( ConfigKey.IP ) == System.Net.IPAddress.Any.ToString() ) {
+            if( Config.GetString( ConfigKey.IP ) == IPAddress.Any.ToString() ) {
                 tIP.Enabled = false;
             } else {
                 xIP.Checked = true;
@@ -116,33 +116,33 @@ namespace ConfigTool {
             xRankColorsInWorldNames.Checked = Config.GetBool( ConfigKey.RankColorsInWorldNames );
             xShowJoinedWorldMessages.Checked = Config.GetBool( ConfigKey.ShowJoinedWorldMessages );
 
-            colorSys = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.SystemMessageColor ) );
+            colorSys = Color.ParseToIndex( Config.GetString( ConfigKey.SystemMessageColor ) );
             ApplyColor( bColorSys, colorSys );
-            fCraft.Color.Sys = fCraft.Color.Parse( colorSys );
+            Color.Sys = Color.Parse( colorSys );
 
-            colorHelp = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.HelpColor ) );
+            colorHelp = Color.ParseToIndex( Config.GetString( ConfigKey.HelpColor ) );
             ApplyColor( bColorHelp, colorHelp );
-            fCraft.Color.Help = fCraft.Color.Parse( colorHelp );
+            Color.Help = Color.Parse( colorHelp );
 
-            colorSay = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.SayColor ) );
+            colorSay = Color.ParseToIndex( Config.GetString( ConfigKey.SayColor ) );
             ApplyColor( bColorSay, colorSay );
-            fCraft.Color.Say = fCraft.Color.Parse( colorSay );
+            Color.Say = Color.Parse( colorSay );
 
-            colorAnnouncement = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.AnnouncementColor ) );
+            colorAnnouncement = Color.ParseToIndex( Config.GetString( ConfigKey.AnnouncementColor ) );
             ApplyColor( bColorAnnouncement, colorAnnouncement );
-            fCraft.Color.Announcement = fCraft.Color.Parse( colorAnnouncement );
+            Color.Announcement = Color.Parse( colorAnnouncement );
 
-            colorPM = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.PrivateMessageColor ) );
+            colorPM = Color.ParseToIndex( Config.GetString( ConfigKey.PrivateMessageColor ) );
             ApplyColor( bColorPM, colorPM );
-            fCraft.Color.PM = fCraft.Color.Parse( colorPM );
+            Color.PM = Color.Parse( colorPM );
 
-            colorWarning = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.WarningColor ) );
+            colorWarning = Color.ParseToIndex( Config.GetString( ConfigKey.WarningColor ) );
             ApplyColor( bColorWarning, colorWarning );
-            fCraft.Color.Warning = fCraft.Color.Parse( colorWarning );
+            Color.Warning = Color.Parse( colorWarning );
 
-            colorMe = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.MeColor ) );
+            colorMe = Color.ParseToIndex( Config.GetString( ConfigKey.MeColor ) );
             ApplyColor( bColorMe, colorMe );
-            fCraft.Color.Me = fCraft.Color.Parse( colorMe );
+            Color.Me = Color.Parse( colorMe );
         }
 
 
@@ -281,9 +281,9 @@ namespace ConfigTool {
             xIRCBotForwardFromServer.Checked = Config.GetBool( ConfigKey.IRCBotForwardFromServer );
 
 
-            colorIRC = fCraft.Color.ParseToIndex( Config.GetString( ConfigKey.IRCMessageColor ) );
+            colorIRC = Color.ParseToIndex( Config.GetString( ConfigKey.IRCMessageColor ) );
             ApplyColor( bColorIRC, colorIRC );
-            fCraft.Color.IRC = fCraft.Color.Parse( colorIRC );
+            Color.IRC = Color.Parse( colorIRC );
 
             xIRCUseColor.Checked = Config.GetBool( ConfigKey.IRCUseColor );
             xIRCBotAnnounceServerEvents.Checked = Config.GetBool( ConfigKey.IRCBotAnnounceServerEvents );
@@ -310,7 +310,7 @@ namespace ConfigTool {
 
 
         static void ApplyEnum( ComboBox box, ConfigKey key, int def, params string[] options ) {
-            int index = Array.IndexOf<string>( options, Config.GetString( key ) );
+            int index = Array.IndexOf( options, Config.GetString( key ) );
             if( index != -1 ) {
                 box.SelectedIndex = index;
             } else {
@@ -344,13 +344,13 @@ namespace ConfigTool {
 
 
             // Chat
-            Config.SetValue( ConfigKey.SystemMessageColor, fCraft.Color.GetName( colorSys ) );
-            Config.SetValue( ConfigKey.HelpColor, fCraft.Color.GetName( colorHelp ) );
-            Config.SetValue( ConfigKey.SayColor, fCraft.Color.GetName( colorSay ) );
-            Config.SetValue( ConfigKey.AnnouncementColor, fCraft.Color.GetName( colorAnnouncement ) );
-            Config.SetValue( ConfigKey.PrivateMessageColor, fCraft.Color.GetName( colorPM ) );
-            Config.SetValue( ConfigKey.WarningColor, fCraft.Color.GetName( colorWarning ) );
-            Config.SetValue( ConfigKey.MeColor, fCraft.Color.GetName( colorMe ) );
+            Config.SetValue( ConfigKey.SystemMessageColor, Color.GetName( colorSys ) );
+            Config.SetValue( ConfigKey.HelpColor, Color.GetName( colorHelp ) );
+            Config.SetValue( ConfigKey.SayColor, Color.GetName( colorSay ) );
+            Config.SetValue( ConfigKey.AnnouncementColor, Color.GetName( colorAnnouncement ) );
+            Config.SetValue( ConfigKey.PrivateMessageColor, Color.GetName( colorPM ) );
+            Config.SetValue( ConfigKey.WarningColor, Color.GetName( colorWarning ) );
+            Config.SetValue( ConfigKey.MeColor, Color.GetName( colorMe ) );
             Config.SetValue( ConfigKey.ShowJoinedWorldMessages, xShowJoinedWorldMessages.Checked );
             Config.SetValue( ConfigKey.RankColorsInWorldNames, xRankColorsInWorldNames.Checked );
             Config.SetValue( ConfigKey.RankColorsInChat, xRankColors.Checked );
@@ -442,7 +442,7 @@ namespace ConfigTool {
             Config.SetValue( ConfigKey.IRCBotForwardFromIRC, xIRCBotForwardFromIRC.Checked );
             Config.SetValue( ConfigKey.IRCBotForwardFromServer, xIRCBotForwardFromServer.Checked );
 
-            Config.SetValue( ConfigKey.IRCMessageColor, fCraft.Color.GetName( colorIRC ) );
+            Config.SetValue( ConfigKey.IRCMessageColor, Color.GetName( colorIRC ) );
             Config.SetValue( ConfigKey.IRCUseColor, xIRCUseColor.Checked );
 
 

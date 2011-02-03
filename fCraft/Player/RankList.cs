@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-
 namespace fCraft {
     public static class RankList {
         public static Dictionary<string, Rank> RanksByName { get; private set; }

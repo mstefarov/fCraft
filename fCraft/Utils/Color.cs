@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-
 namespace fCraft {
 
     /// <summary>
@@ -88,14 +87,14 @@ namespace fCraft {
                 return "&" + code;
             } else {
                 switch( code ) {
-                    case 's': return Color.Sys;
-                    case 'y': return Color.Say;
-                    case 'p': return Color.PM;
-                    case 'r': return Color.Announcement;
-                    case 'h': return Color.Help;
-                    case 'w': return Color.Warning;
-                    case 'm': return Color.Me;
-                    case 'i': return Color.IRC;
+                    case 's': return Sys;
+                    case 'y': return Say;
+                    case 'p': return PM;
+                    case 'r': return Announcement;
+                    case 'h': return Help;
+                    case 'w': return Warning;
+                    case 'm': return Me;
+                    case 'i': return IRC;
                     default:
                         return null;
                 }
@@ -180,14 +179,14 @@ namespace fCraft {
                     return colorNames.IndexOfKey( color[1] );
                 } else {
                     switch( color ) {
-                        case "&s": return colorNames.IndexOfKey( Color.Sys[1] );
-                        case "&y": return colorNames.IndexOfKey( Color.Say[1] );
-                        case "&p": return colorNames.IndexOfKey( Color.PM[1] );
-                        case "&r": return colorNames.IndexOfKey( Color.Announcement[1] );
-                        case "&h": return colorNames.IndexOfKey( Color.Help[1] );
-                        case "&w": return colorNames.IndexOfKey( Color.Warning[1] );
-                        case "&m": return colorNames.IndexOfKey( Color.Me[1] );
-                        case "&i": return colorNames.IndexOfKey( Color.IRC[1] );
+                        case "&s": return colorNames.IndexOfKey( Sys[1] );
+                        case "&y": return colorNames.IndexOfKey( Say[1] );
+                        case "&p": return colorNames.IndexOfKey( PM[1] );
+                        case "&r": return colorNames.IndexOfKey( Announcement[1] );
+                        case "&h": return colorNames.IndexOfKey( Help[1] );
+                        case "&w": return colorNames.IndexOfKey( Warning[1] );
+                        case "&m": return colorNames.IndexOfKey( Me[1] );
+                        case "&i": return colorNames.IndexOfKey( IRC[1] );
                         default: return 15;
                     }
                 }
@@ -236,14 +235,14 @@ namespace fCraft {
             for( int i = sb.Length - 1; i > 0; i-- ) {
                 if( sb[i - 1] == '&' ) {
                     switch( Char.ToLower( sb[i] ) ) {
-                        case 's': sb[i] = Color.Sys[1]; break;
-                        case 'y': sb[i] = Color.Say[1]; break;
-                        case 'p': sb[i] = Color.PM[1]; break;
-                        case 'r': sb[i] = Color.Announcement[1]; break;
-                        case 'h': sb[i] = Color.Help[1]; break;
-                        case 'w': sb[i] = Color.Warning[1]; break;
-                        case 'm': sb[i] = Color.Me[1]; break;
-                        case 'i': sb[i] = Color.IRC[1]; break;
+                        case 's': sb[i] = Sys[1]; break;
+                        case 'y': sb[i] = Say[1]; break;
+                        case 'p': sb[i] = PM[1]; break;
+                        case 'r': sb[i] = Announcement[1]; break;
+                        case 'h': sb[i] = Help[1]; break;
+                        case 'w': sb[i] = Warning[1]; break;
+                        case 'm': sb[i] = Me[1]; break;
+                        case 'i': sb[i] = IRC[1]; break;
                         default:
                             if( IsValidColorCode( sb[i] ) ) {
                                 continue;

@@ -1,9 +1,9 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Linq;
 
 //#define DEBUG_SCHEDULER
 
@@ -194,10 +194,10 @@ namespace fCraft {
             public DateTime NextTime;
             public TimeSpan Delay = TimeSpan.Zero;
 
-            public bool IsRecurring = false;
-            public bool IsBackground = false;
-            public bool IsStopped = false;
-            public bool IsExecuting = false;
+            public bool IsRecurring;
+            public bool IsBackground;
+            public bool IsStopped;
+            public bool IsExecuting;
             public bool AdjustForExecutionTime = true;
             public TimeSpan Interval = TimeSpan.FromMinutes( 1 );
             public int MaxRepeats = -1;
@@ -211,7 +211,7 @@ namespace fCraft {
             public Task RunOnce() {
                 NextTime = DateTime.UtcNow.Add( Delay );
                 IsRecurring = false;
-                Scheduler.AddTask( this );
+                AddTask( this );
                 return this;
             }
 
@@ -226,7 +226,7 @@ namespace fCraft {
                 Delay = time.Subtract( DateTime.UtcNow );
                 NextTime = time;
                 IsRecurring = false;
-                Scheduler.AddTask( this );
+                AddTask( this );
                 return this;
             }
 
@@ -250,7 +250,7 @@ namespace fCraft {
             Task RunForever() {
                 IsRecurring = true;
                 NextTime = DateTime.UtcNow.Add( Delay );
-                Scheduler.AddTask( this );
+                AddTask( this );
                 return this;
             }
 
@@ -302,7 +302,7 @@ namespace fCraft {
                 NextTime = DateTime.UtcNow;
                 MaxRepeats = -1;
                 Interval = CloseEnoughToForever;
-                Scheduler.AddTask( this );
+                AddTask( this );
                 return this;
             }
 
@@ -312,7 +312,7 @@ namespace fCraft {
                 NextTime = DateTime.UtcNow.Add( Delay );
                 MaxRepeats = -1;
                 Interval = CloseEnoughToForever;
-                Scheduler.AddTask( this );
+                AddTask( this );
                 return this;
             }
 
@@ -322,7 +322,7 @@ namespace fCraft {
                 NextTime = _time;
                 MaxRepeats = -1;
                 Interval = CloseEnoughToForever;
-                Scheduler.AddTask( this );
+                AddTask( this );
                 return this;
             }
 

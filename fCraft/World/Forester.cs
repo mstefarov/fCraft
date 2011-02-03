@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-
 namespace fCraft {
 
     /// <summary>
@@ -56,8 +55,6 @@ namespace fCraft {
             public Vector3i pos;
             public int height = 1;
             public ForesterArgs args;
-
-            public Tree() { }
 
             public virtual void Prepare() { }
 
@@ -173,7 +170,7 @@ namespace fCraft {
             }
 
             public virtual float ShapeFunc( int y ) {
-                if( args.rand.NextDouble() < 100f / (float)Sqr( height ) && y < trunkHeight ) {
+                if( args.rand.NextDouble() < 100f / Sqr( height ) && y < trunkHeight ) {
                     return height * .12f;
                 } else {
                     return -1;
@@ -213,8 +210,8 @@ namespace fCraft {
                     coord[primidx] = primloc;
                     coord[secidx1] = secloc1;
                     coord[secidx2] = secloc2;
-                    float primdist = (float)Math.Abs( delta[primidx] );
-                    float radius = endSize + (startSize - endSize) * Math.Abs( delta[primidx] - primoffset ) / (float)primdist;
+                    float primdist = Math.Abs( delta[primidx] );
+                    float radius = endSize + (startSize - endSize) * Math.Abs( delta[primidx] - primoffset ) / primdist;
 
                     CrossSection( coord, radius, primidx, args.bTrunk );
                 }
@@ -232,7 +229,7 @@ namespace fCraft {
 
             void MakeBranches() {
                 int topy = pos[1] + (int)(trunkHeight + .5);
-                float endrad = trunkRadius * (1 - trunkHeight / (float)height);
+                float endrad = trunkRadius * (1 - trunkHeight / height);
                 if( endrad < 1 ) endrad = 1;
 
                 foreach( Vector3i coord in foliageCoords ) {
@@ -258,7 +255,7 @@ namespace fCraft {
                     }
 
                     float startsize = (float)(basesize * (1 + args.rand.NextDouble()) *
-                                              .618 * Math.Pow( dist / (float)height, .618 ));
+                                              .618 * Math.Pow( dist / height, .618 ));
                     float rndr = (float)(Math.Sqrt( args.rand.NextDouble() ) * basesize * .618);
                     float rndang = (float)(args.rand.NextDouble() * 2 * Math.PI);
                     int rndx = (int)(rndr * Math.Sin( rndang ) + .5);
@@ -358,7 +355,7 @@ namespace fCraft {
                 int x = pos[0];
                 int z = pos[2];
                 float midrad = trunkRadius * .8f;
-                float endrad = trunkRadius * (1 - trunkHeight / (float)height);
+                float endrad = trunkRadius * (1 - trunkHeight / height);
 
                 if( endrad < 1 ) endrad = 1;
                 if( midrad < endrad ) midrad = endrad;
@@ -420,7 +417,7 @@ namespace fCraft {
                 branchDensity = (args.BRANCHDENSITY / args.FOLIAGEDENSITY);
 
                 int ystart = pos[1];
-                int yend = (int)(pos[1] + height);
+                int yend = (pos[1] + height);
                 int num_of_clusters_per_y = (int)(1.5 + Sqr( args.FOLIAGEDENSITY * height / 19f ));
                 if( num_of_clusters_per_y < 1 ) num_of_clusters_per_y = 1;
 
@@ -445,7 +442,7 @@ namespace fCraft {
             public override void Prepare() {
                 base.Prepare();
                 branchSlope = .382f;
-                foliageShape = new float[] { 2, 3, 3, 2.5f, 1.6f };
+                foliageShape = new[] { 2, 3, 3, 2.5f, 1.6f };
                 trunkRadius *= .8f;
                 trunkHeight = args.TRUNKHEIGHT * height;
             }
@@ -478,7 +475,7 @@ namespace fCraft {
             public override void Prepare() {
                 base.Prepare();
                 branchSlope = .15f;
-                foliageShape = new float[] { 3, 2.6f, 2, 1 };
+                foliageShape = new[] { 3, 2.6f, 2, 1 };
                 trunkRadius *= .618f;
                 trunkHeight = height;
             }
@@ -498,7 +495,7 @@ namespace fCraft {
 
         class RainforestTree : ProceduralTree {
             public override void Prepare() {
-                foliageShape = new float[] { 3.4f, 2.6f };
+                foliageShape = new[] { 3.4f, 2.6f };
                 base.Prepare();
                 branchSlope = 1;
                 trunkRadius *= .382f;
@@ -740,16 +737,16 @@ namespace fCraft {
             TreeShape[] shape_choices;
             switch( args.SHAPE ) {
                 case TreeShape.Stickly:
-                    shape_choices = new TreeShape[]{ TreeShape.Normal,
+                    shape_choices = new[]{ TreeShape.Normal,
                                                      TreeShape.Bamboo,
                                                      TreeShape.Palm};
                     break;
                 case TreeShape.Procedural:
-                    shape_choices = new TreeShape[]{ TreeShape.Round,
+                    shape_choices = new[]{ TreeShape.Round,
                                                      TreeShape.Cone };
                     break;
                 default:
-                    shape_choices = new TreeShape[] { args.SHAPE };
+                    shape_choices = new[] { args.SHAPE };
                     break;
             }
 

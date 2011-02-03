@@ -3,7 +3,6 @@ using System.IO;
 using System.Xml.Linq;
 using fCraft;
 
-
 namespace ConfigTool {
     /// <summary>
     /// A wrapper for per-World metadata, designed to be usable with SortableBindingList.
@@ -47,7 +46,7 @@ namespace ConfigTool {
             }
 
             if( (temp = el.Attribute( "backup" )) != null && !String.IsNullOrEmpty( temp.Value ) ) { // TODO: Make per-world backup settings actually work
-                if( Array.IndexOf<string>( World.BackupEnum, temp.Value ) != -1 ) {
+                if( Array.IndexOf( World.BackupEnum, temp.Value ) != -1 ) {
                     Backup = temp.Value;
                 } else {
                     throw new FormatException( "WorldListEntity: Cannot parse XML: Invalid value for \"backup\" attribute." );

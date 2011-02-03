@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 
-
 namespace fCraft {
     public static class IPBanList {
 

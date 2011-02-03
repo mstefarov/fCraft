@@ -1,9 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-
 
 namespace ConfigTool {
     internal sealed partial class ColorPicker : Form {
@@ -35,22 +33,22 @@ namespace ConfigTool {
             color = oldColor;
             StartPosition = FormStartPosition.CenterParent;
 
-            b0.Click += delegate( Object o, EventArgs a ) { color = 0; Close(); };
-            b1.Click += delegate( Object o, EventArgs a ) { color = 1; Close(); };
-            b2.Click += delegate( Object o, EventArgs a ) { color = 2; Close(); };
-            b3.Click += delegate( Object o, EventArgs a ) { color = 3; Close(); };
-            b4.Click += delegate( Object o, EventArgs a ) { color = 4; Close(); };
-            b5.Click += delegate( Object o, EventArgs a ) { color = 5; Close(); };
-            b6.Click += delegate( Object o, EventArgs a ) { color = 6; Close(); };
-            b7.Click += delegate( Object o, EventArgs a ) { color = 7; Close(); };
-            b8.Click += delegate( Object o, EventArgs a ) { color = 8; Close(); };
-            b9.Click += delegate( Object o, EventArgs a ) { color = 9; Close(); };
-            ba.Click += delegate( Object o, EventArgs a ) { color = 10; Close(); };
-            bb.Click += delegate( Object o, EventArgs a ) { color = 11; Close(); };
-            bc.Click += delegate( Object o, EventArgs a ) { color = 12; Close(); };
-            bd.Click += delegate( Object o, EventArgs a ) { color = 13; Close(); };
-            be.Click += delegate( Object o, EventArgs a ) { color = 14; Close(); };
-            bf.Click += delegate( Object o, EventArgs a ) { color = 15; Close(); };
+            b0.Click += delegate { color = 0; Close(); };
+            b1.Click += delegate { color = 1; Close(); };
+            b2.Click += delegate { color = 2; Close(); };
+            b3.Click += delegate { color = 3; Close(); };
+            b4.Click += delegate { color = 4; Close(); };
+            b5.Click += delegate { color = 5; Close(); };
+            b6.Click += delegate { color = 6; Close(); };
+            b7.Click += delegate { color = 7; Close(); };
+            b8.Click += delegate { color = 8; Close(); };
+            b9.Click += delegate { color = 9; Close(); };
+            ba.Click += delegate { color = 10; Close(); };
+            bb.Click += delegate { color = 11; Close(); };
+            bc.Click += delegate { color = 12; Close(); };
+            bd.Click += delegate { color = 13; Close(); };
+            be.Click += delegate { color = 14; Close(); };
+            bf.Click += delegate { color = 15; Close(); };
         }
 
         internal struct ColorPair {

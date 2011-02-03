@@ -7,7 +7,6 @@ using System.Net;
 using System.Text;
 using Mcc;
 
-
 namespace fCraft {
     public sealed class Map {
 
@@ -854,8 +853,8 @@ namespace fCraft {
         #region FCMv3
 
         // todo: layerLock object of some sort
-        internal List<Map.DataLayer> PrepareLayers() {
-            List<Map.DataLayer> layers = new List<DataLayer>();
+        internal List<DataLayer> PrepareLayers() {
+            List<DataLayer> layers = new List<DataLayer>();
 
             byte[] blocksCache = blocks;
             if( blocksCache != null ) {
@@ -1012,7 +1011,7 @@ namespace fCraft {
                         BinaryWriter bw = new BinaryWriter( stream );
                         Dictionary<string, ushort> IDs = (Dictionary<string, ushort>)layer.Data;
                         foreach( string name in IDs.Keys ) {//todo: thread safety
-                            byte[] stringData = ASCIIEncoding.ASCII.GetBytes( name );
+                            byte[] stringData = Encoding.ASCII.GetBytes( name );
                             bw.Write( (byte)stringData.Length );
                             bw.Write( stringData );
                         }

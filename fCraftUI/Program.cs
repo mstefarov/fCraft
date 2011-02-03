@@ -24,7 +24,6 @@ using System;
 using System.Windows.Forms;
 using fCraft;
 
-
 namespace fCraftUI {
     static class Program {
 

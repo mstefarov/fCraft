@@ -9,7 +9,7 @@ using System.Threading;
 using System.Windows.Forms;
 using fCraft;
 using Mcc;
-
+using Color = System.Drawing.Color;
 
 namespace ConfigTool {
     sealed partial class AddWorldPopup : Form {
@@ -25,7 +25,7 @@ namespace ConfigTool {
             }
             set {
                 try {
-                    bOK.Invoke( (MethodInvoker)delegate() {
+                    bOK.Invoke( (MethodInvoker)delegate {
                         bOK.Enabled = (value != null);
                         lCreateMap.Visible = !bOK.Enabled;
                     } );
@@ -365,7 +365,7 @@ namespace ConfigTool {
                 (originalWorldName != null && tName.Text.ToLower() == originalWorldName.ToLower())) ) {
                 tName.ForeColor = SystemColors.ControlText;
             } else {
-                tName.ForeColor = System.Drawing.Color.Red;
+                tName.ForeColor = Color.Red;
                 e.Cancel = true;
             }
         }
@@ -837,7 +837,7 @@ Dimensions: {5}×{6}×{7}
 
         static float TrackBarToExponent( TrackBar bar ) {
             if( bar.Value >= bar.Maximum / 2 ) {
-                float normalized = (bar.Value - bar.Maximum / 2f) / (float)(bar.Maximum / 2f);
+                float normalized = (bar.Value - bar.Maximum / 2f) / (bar.Maximum / 2f);
                 return 1 + normalized * normalized * 3;
             } else {
                 float normalized = (bar.Value / (bar.Maximum / 2f));

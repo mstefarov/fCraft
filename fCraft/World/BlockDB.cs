@@ -1,7 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 
-
 namespace fCraft {
     /// <summary>
     /// Flags that indicate what action resulted in block changing (currently unused, and subject to change).

@@ -37,7 +37,6 @@ using System.IO.Compression;
 using System.Net;
 using fCraft;
 
-
 namespace Mcc {
     public sealed class MapMinerCPP : IMapConverter {
 

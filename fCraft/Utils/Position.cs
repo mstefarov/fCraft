@@ -1,7 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 
-
 namespace fCraft {
 
     /// <summary>
@@ -51,8 +50,8 @@ namespace fCraft {
         // adjust for bugs in position-reporting in Minecraft client
         public Position GetFixed() {
             return new Position {
-                x = (short)(x),
-                y = (short)(y),
+                x = (x),
+                y = (y),
                 h = (short)(h - 22),
                 r = r,
                 l = l

@@ -36,7 +36,6 @@ using System.IO;
 using System.IO.Compression;
 using fCraft;
 
-
 namespace Mcc {
     public sealed class MapNBT : IMapConverter {
 

@@ -39,7 +39,6 @@ using System.IO.Compression;
 using System.Net;
 using System.Text;
 
-
 namespace Mcc {
     public enum NBTType : byte {
         End,
@@ -83,7 +82,7 @@ namespace Mcc {
         public NBTag Append( NBTag tag ) {
             if( this is NBTCompound ) {
                 tag.Parent = this;
-                ((NBTCompound)this)[tag.Name] = tag;
+                (this)[tag.Name] = tag;
                 return tag;
             } else {
                 return null;
@@ -140,7 +139,7 @@ namespace Mcc {
         }
         public NBTag Remove( string name ) {
             if( this is NBTCompound ) {
-                NBTag tag = ((NBTCompound)this)[name];
+                NBTag tag = (this)[name];
                 ((NBTCompound)this).Tags.Remove( name );
                 return tag;
             } else {
@@ -149,7 +148,7 @@ namespace Mcc {
         }
         public NBTag Remove() {
             if( this.Parent != null && this.Parent is NBTCompound ) {
-                ((NBTCompound)this.Parent).Remove( this.Name );
+                (this.Parent).Remove( this.Name );
                 return this;
             } else {
                 throw new NotSupportedException( "Cannot Remove() - no parent tag." );
@@ -203,7 +202,7 @@ namespace Mcc {
                     return new NBTag( NBTType.Bytes, name, reader.ReadBytes( bytesLength ), _parent );
 
                 case NBTType.String:
-                    return new NBTag( NBTType.String, name, (object)ReadString( reader ), _parent );
+                    return new NBTag( NBTType.String, name, ReadString( reader ), _parent );
 
 
                 case NBTType.List:
@@ -253,7 +252,7 @@ namespace Mcc {
             NBTag tag = this;
             while( tag.Parent != null ) {
                 tag = tag.Parent;
-                fullName = tag.ToString() + "." + fullName;
+                fullName = tag + "." + fullName;
             }
             return fullName;
         }
@@ -269,7 +268,7 @@ namespace Mcc {
         }
 
         public override string ToString() {
-            return Type.ToString() + " " + Name;
+            return Type + " " + Name;
         }
 
         public string ToString( bool recursive ) {

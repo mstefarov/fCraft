@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Text;
 
-
 namespace System.IO.Compression {
     /// <summary>
     /// Unique class for compression/decompression file. Represents a Zip file.
@@ -56,9 +55,9 @@ namespace System.IO.Compression {
 
         #region Public fields
         /// <summary>True if UTF8 encoding for filename and comments, false if default (CP 437)</summary>
-        public bool EncodeUTF8 = false;
+        public bool EncodeUTF8;
         /// <summary>Force deflate algotithm even if it inflates the stored file. Off by default.</summary>
-        public bool ForceDeflating = false;
+        public bool ForceDeflating;
         #endregion
 
         #region Private fields
@@ -71,13 +70,13 @@ namespace System.IO.Compression {
         // General comment
         private string Comment = "";
         // Central dir image
-        private byte[] CentralDirImage = null;
+        private byte[] CentralDirImage;
         // Existing files in zip
-        private ushort ExistingFiles = 0;
+        private ushort ExistingFiles;
         // File access for Open method
         private FileAccess Access;
         // Static CRC32 Table
-        private static UInt32[] CrcTable = null;
+        private static UInt32[] CrcTable;
         // Default filename encoder
         private static Encoding DefaultEncoding = Encoding.GetEncoding( 437 );
         #endregion
@@ -134,7 +133,7 @@ namespace System.IO.Compression {
         /// <param name="_access">File access mode as used in FileStream constructor</param>
         /// <returns>A valid ZipStorer object</returns>
         public static ZipStorer Open( string _filename, FileAccess _access ) {
-            Stream stream = (Stream)new FileStream( _filename, FileMode.Open, _access == FileAccess.Read ? FileAccess.Read : FileAccess.ReadWrite );
+            Stream stream = new FileStream( _filename, FileMode.Open, _access == FileAccess.Read ? FileAccess.Read : FileAccess.ReadWrite );
 
             ZipStorer zip = Open( stream, _access );
             zip.FileName = _filename;
@@ -159,7 +158,7 @@ namespace System.IO.Compression {
             if( zip.ReadFileInfo() )
                 return zip;
 
-            throw new System.IO.InvalidDataException();
+            throw new InvalidDataException();
         }
         /// <summary>
         /// Add full contents of a file into the Zip storage
@@ -307,7 +306,7 @@ namespace System.IO.Compression {
         /// <remarks>Unique compression methods are Store and Deflate</remarks>
         public bool ExtractFile( ZipFileEntry _zfe, string _filename ) {
             // Make sure the parent directory exist
-            string path = System.IO.Path.GetDirectoryName( _filename );
+            string path = Path.GetDirectoryName( _filename );
 
             if( !Directory.Exists( path ) )
                 Directory.CreateDirectory( path );
@@ -387,7 +386,7 @@ namespace System.IO.Compression {
             string tempEntryName = Path.GetTempFileName();
 
             try {
-                ZipStorer tempZip = ZipStorer.Create( tempZipName, string.Empty );
+                ZipStorer tempZip = Create( tempZipName, string.Empty );
 
                 foreach( ZipFileEntry zfe in fullList ) {
                     if( !_zfes.Contains( zfe ) ) {
@@ -402,7 +401,7 @@ namespace System.IO.Compression {
                 if( File.Exists( _zip.FileName ) ) File.Replace( tempZipName, _zip.FileName, null, true );
                 else File.Move( tempZipName, _zip.FileName );
 
-                _zip = ZipStorer.Open( _zip.FileName, _zip.Access );
+                _zip = Open( _zip.FileName, _zip.Access );
             } catch {
                 return false;
             } finally {
@@ -560,7 +559,7 @@ namespace System.IO.Compression {
                     outStream.Write( buffer, 0, bytesRead );
 
                     for( uint i = 0; i < bytesRead; i++ ) {
-                        _zfe.Crc32 = ZipStorer.CrcTable[(_zfe.Crc32 ^ buffer[i]) & 0xFF] ^ (_zfe.Crc32 >> 8);
+                        _zfe.Crc32 = CrcTable[(_zfe.Crc32 ^ buffer[i]) & 0xFF] ^ (_zfe.Crc32 >> 8);
                     }
                 }
             } while( bytesRead == buffer.Length );

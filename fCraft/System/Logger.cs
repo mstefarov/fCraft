@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-
 
 namespace fCraft {
 
@@ -160,11 +160,11 @@ namespace fCraft {
 
             if( !CheckForCommonErrors( exception ) ) return;
 
-            Logger.Log( "{0}: {1}", LogType.FatalError, message, exception );
+            Log( "{0}: {1}", LogType.FatalError, message, exception );
 
             lock( crashReportLock ) {
                 if( DateTime.UtcNow.Subtract( lastCrashReport ).TotalSeconds < MinCrashReportInterval ) {
-                    Logger.Log( "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent.", LogType.Warning );
+                    Log( "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent.", LogType.Warning );
                     return;
                 }
                 lastCrashReport = DateTime.UtcNow;
@@ -177,10 +177,10 @@ namespace fCraft {
                     sb.Append( "&runtime=" ).Append( Uri.EscapeDataString( Environment.Version + " / " + RuntimeEnvironment.GetSystemVersion() ) );
                     sb.Append( "&os=" ).Append( Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString );
                     if( exception != null ) {
-                        if( exception is System.Reflection.TargetInvocationException ) {
-                            exception = ((System.Reflection.TargetInvocationException)exception).InnerException;
+                        if( exception is TargetInvocationException ) {
+                            exception = (exception).InnerException;
                         } else if( exception is TypeInitializationException ) {
-                            exception = ((TypeInitializationException)exception).InnerException;
+                            exception = (exception).InnerException;
                         }
                         sb.Append( "&exceptiontype=" ).Append( Uri.EscapeDataString( exception.GetType().ToString() ) );
                         sb.Append( "&exceptionmessage=" ).Append( Uri.EscapeDataString( exception.Message ) );
@@ -216,10 +216,10 @@ namespace fCraft {
                     }
 
                     request.Abort();
-                    Logger.Log( "Crash report submitted.", LogType.SystemActivity );
+                    Log( "Crash report submitted.", LogType.SystemActivity );
 
                 } catch( Exception ex ) {
-                    Logger.Log( "Logger.SubmitCrashReport: {0}", LogType.Warning, ex.Message );
+                    Log( "Logger.SubmitCrashReport: {0}", LogType.Warning, ex.Message );
                 }
             }
         }
@@ -227,13 +227,13 @@ namespace fCraft {
 
         public static void LogFatalError( string message ) {
             string crashMessage = String.Format( "{0}{1}{2}{1}{1}",
-                                                 DateTime.Now.ToString(),
+                                                 DateTime.Now,
                                                  Environment.NewLine,
                                                  message );
             try {
                 File.AppendAllText( CrashLogFileName, crashMessage );
             } catch( Exception ex ) {
-                Logger.Log( "Cannot save crash report to \"{0}\": {1}", LogType.Error,
+                Log( "Cannot save crash report to \"{0}\": {1}", LogType.Error,
                             CrashLogFileName, ex );
             }
         }
@@ -242,27 +242,27 @@ namespace fCraft {
         // Returns true if a crash report should be submitted for this type of errors.
         public static bool CheckForCommonErrors( Exception ex ) {
             if( ex.Message.Contains( "System.Xml.Linq" ) ) {
-                Logger.Log( "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
+                Log( "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
                             "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).", LogType.Warning );
                 return false;
 
             } else if( ex.Message.Equals( "libMonoPosixHelper.so", StringComparison.OrdinalIgnoreCase ) ) {
-                Logger.Log( "fCraft could not locate Mono's compression functionality. " +
+                Log( "fCraft could not locate Mono's compression functionality. " +
                             "Please make sure that you have zlib and libmono-posix-2.0-cil or equivalent package installed.", LogType.Warning );
                 return false;
 
             } else if( ex is UnauthorizedAccessException ) {
-                Logger.Log( "fCraft was blocked from accessing a file or resource. " +
+                Log( "fCraft was blocked from accessing a file or resource. " +
                             "Make sure that correct permissions are set for the fCraft files, folders, and processes.", LogType.Warning );
                 return false;
 
             } else if( ex is OutOfMemoryException ) {
-                Logger.Log( "fCraft ran out of memory. Make sure there is enough RAM to run. " +
+                Log( "fCraft ran out of memory. Make sure there is enough RAM to run. " +
                             "Note that large draw commands can consume a lot of RAM.", LogType.Warning );
                 return false;
 
             } else if( ex is TypeLoadException && ex.Message.Contains( "ZLibStream" ) ) {
-                Logger.Log( "Note that ZLibStream is obsolete since fCraft 0.498. Use GZipStream instead.", LogType.Warning );
+                Log( "Note that ZLibStream is obsolete since fCraft 0.498. Use GZipStream instead.", LogType.Warning );
                 return false;
 
             } else {

@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-
 namespace fCraft {
     public static class AutoRank {
 
@@ -366,7 +365,7 @@ namespace fCraft {
         protected ConditionSet( XElement el )
             : this() {
             foreach( XElement cel in el.Elements() ) {
-                Add( Condition.Parse( cel ) );
+                Add( Parse( cel ) );
             }
         }
 

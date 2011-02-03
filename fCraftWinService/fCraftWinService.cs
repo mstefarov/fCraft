@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using fCraft;
 
-
 namespace fCraftWinService {
     class fCraftWinService : ServiceBase {
         public const string Name = "fCraftWinService";
@@ -44,7 +43,7 @@ namespace fCraftWinService {
         }
 
         static void SetURL( string URL ) {
-            File.WriteAllText( "externalurl.txt", URL, ASCIIEncoding.ASCII );
+            File.WriteAllText( "externalurl.txt", URL, Encoding.ASCII );
             Console.WriteLine( "** " + URL + " **" );
         }
     }

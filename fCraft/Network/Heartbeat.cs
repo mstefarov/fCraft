@@ -4,8 +4,6 @@ using System.IO;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
-using System.Threading;
-
 
 namespace fCraft {
     /// <summary>
@@ -60,7 +58,7 @@ namespace fCraft {
             } else {
                 // If heartbeats are disabled, the data is written to a text file (heartbeatdata.txt)
                 string tempFile = HeartbeatDataFileName + ".tmp";
-                File.WriteAllLines( tempFile, new string[]{
+                File.WriteAllLines( tempFile, new[]{
                                         Server.Salt,
                                         Server.IP.ToString(),
                                         Server.Port.ToString(),

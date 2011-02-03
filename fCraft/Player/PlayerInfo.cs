@@ -4,7 +4,6 @@ using System.Net;
 using System.Text;
 using System.Threading;
 
-
 namespace fCraft {
     public sealed class PlayerInfo : IClassy {
 
@@ -19,7 +18,7 @@ namespace fCraft {
         public DateTime rankChangeDate = DateTime.MinValue;
         public string rankChangedBy = "";
 
-        public bool banned = false;
+        public bool banned;
         public DateTime banDate = DateTime.MinValue;
         public string bannedBy = "";
         public DateTime unbanDate = DateTime.MinValue;
@@ -39,7 +38,7 @@ namespace fCraft {
         public int timesVisited;
         public int linesWritten;
 
-        public Rank previousRank = null;
+        public Rank previousRank;
         public string rankChangeReason = "";
         public int timesKicked;
         public int timesKickedOthers;
@@ -56,7 +55,7 @@ namespace fCraft {
 
         // TODO: start tracking
         public DateTime bannedUntil = DateTime.MinValue;
-        public bool isFrozen = false;
+        public bool isFrozen;
         public string frozenBy = "";
         public DateTime frozenOn = DateTime.MinValue;
         public DateTime mutedUntil = DateTime.MinValue;
@@ -66,7 +65,7 @@ namespace fCraft {
 
         public bool online;
         public LeaveReason leaveReason; // TODO
-        public bool banExempt = false;
+        public bool banExempt;
 
 
         #region Constructors and Serialization

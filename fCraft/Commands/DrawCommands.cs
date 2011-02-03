@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 
-
 namespace fCraft {
     /// <summary>
     /// Commands for drawing commands - cuboid, ellipsoid, etc. Also copy/paste commands.
@@ -99,8 +98,8 @@ namespace fCraft {
 
         static CommandDescriptor cdCuboid = new CommandDescriptor {
             name = "cuboid",
-            aliases = new string[] { "blb", "c", "cub", "z" },
-            permissions = new Permission[] { Permission.Draw },
+            aliases = new[] { "blb", "c", "cub", "z" },
+            permissions = new[] { Permission.Draw },
             usage = "/cuboid [BlockName]",
             help = "Allows to fill a rectangular area (cuboid) with blocks. " +
                    "If BlockType is omitted, uses the block that player is holding.",
@@ -115,8 +114,8 @@ namespace fCraft {
 
         static CommandDescriptor cdCuboidHollow = new CommandDescriptor {
             name = "cubh",
-            aliases = new string[] { "cuboidh", "cubh", "ch", "h", "bhb" },
-            permissions = new Permission[] { Permission.Draw },
+            aliases = new[] { "cuboidh", "cubh", "ch", "h", "bhb" },
+            permissions = new[] { Permission.Draw },
             usage = "/cuboidh [OuterBlockName [InnerBlockName]]",
             help = "Allows to box a rectangular area (cuboid) with blocks. " +
                    "If OuterBlockName is omitted, uses the block that player is holding. " +
@@ -132,8 +131,8 @@ namespace fCraft {
 
         static CommandDescriptor cdCuboidWireframe = new CommandDescriptor {
             name = "cubw",
-            aliases = new string[] { "cw", "cuboidw", "bfb" },
-            permissions = new Permission[] { Permission.Draw },
+            aliases = new[] { "cw", "cuboidw", "bfb" },
+            permissions = new[] { Permission.Draw },
             usage = "/cuboidw [BlockName]",
             help = "Draws a wireframe box around selected area. " +
                    "If BlockType is omitted, uses the block that player is holding.",
@@ -148,8 +147,8 @@ namespace fCraft {
 
         static CommandDescriptor cdEllipsoid = new CommandDescriptor {
             name = "ellipsoid",
-            aliases = new string[] { "e", "ell" },
-            permissions = new Permission[] { Permission.Draw },
+            aliases = new[] { "e", "ell" },
+            permissions = new[] { Permission.Draw },
             usage = "/ellipsoid [BlockName]",
             help = "Allows to fill a sphere-like area (ellipsoid) with blocks. " +
                    "If BlockType is omitted, uses the block that player is holding.",
@@ -164,8 +163,8 @@ namespace fCraft {
 
         static CommandDescriptor cdSphere = new CommandDescriptor {
             name = "sphere",
-            aliases = new string[] { "sp", "spheroid" },
-            permissions = new Permission[] { Permission.Draw },
+            aliases = new[] { "sp", "spheroid" },
+            permissions = new[] { Permission.Draw },
             usage = "/sphere [BlockName]",
             help = "Allows to fill a sphere-shaped area with blocks. " +
                    "First mark is the center of the sphere, second mark is the edge of the area of the sphere." +
@@ -181,8 +180,8 @@ namespace fCraft {
 
         static CommandDescriptor cdSphere2 = new CommandDescriptor {
             name = "sphere2",
-            aliases = new string[] { "sp2", "spheroid2" },
-            permissions = new Permission[] { Permission.Draw },
+            aliases = new[] { "sp2", "spheroid2" },
+            permissions = new[] { Permission.Draw },
             usage = "/sphere2 [BlockName]",
             help = "Allows to fill a sphere-shaped area with blocks. " +
                    "First mark is the center of the sphere, second mark defines the radius." +
@@ -198,8 +197,8 @@ namespace fCraft {
 
         static CommandDescriptor cdReplace = new CommandDescriptor {
             name = "replace",
-            aliases = new string[] { "r" },
-            permissions = new Permission[] { Permission.Draw },
+            aliases = new[] { "r" },
+            permissions = new[] { Permission.Draw },
             usage = "/replace BlockToReplace [AnotherOne, ...] ReplacementBlock",
             help = "Replaces all blocks of specified type(s) in an area.",
             handler = Replace
@@ -212,8 +211,8 @@ namespace fCraft {
 
         static CommandDescriptor cdReplaceNot = new CommandDescriptor {
             name = "replacenot",
-            aliases = new string[] { "rn" },
-            permissions = new Permission[] { Permission.Draw },
+            aliases = new[] { "rn" },
+            permissions = new[] { Permission.Draw },
             usage = "/replacenot (ExcludedBlock [AnotherOne]) ReplacementBlock",
             help = "Replaces all blocks EXCEPT specified type(s) in an area.",
             handler = ReplaceNot
@@ -226,8 +225,8 @@ namespace fCraft {
 
         static CommandDescriptor cdLine = new CommandDescriptor {
             name = "line",
-            aliases = new string[] { "ln" },
-            permissions = new Permission[] { Permission.Draw },
+            aliases = new[] { "ln" },
+            permissions = new[] { Permission.Draw },
             usage = "/line [BlockName]",
             help = "Draws a line between two points with blocks. " +
                    "If BlockType is omitted, uses the block that player is holding.",
@@ -344,7 +343,7 @@ namespace fCraft {
                         };
                         string affectedString = "";
                         foreach( Block affectedBlock in affectedTypes ) {
-                            affectedString += ", " + affectedBlock.ToString();
+                            affectedString += ", " + affectedBlock;
                         }
                         if( mode == DrawMode.ReplaceNot ) {
                             player.MessageNow( "ReplaceNot: Ready to replace everything EXCEPT ({0}) with {1}", affectedString.Substring( 2 ), replacementType );
@@ -390,8 +389,8 @@ namespace fCraft {
 
         static CommandDescriptor cdUndo = new CommandDescriptor {
             name = "undo",
-            permissions = new Permission[] { Permission.Draw },
-            aliases = new string[] { "redo" },
+            permissions = new[] { Permission.Draw },
+            aliases = new[] { "redo" },
             help = "Selectively removes changes from your last drawing command. " +
                    "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
             handler = Undo
@@ -736,7 +735,7 @@ namespace fCraft {
 
             string affectedString = "";
             for( int i = 0; i < specialTypeCount; i++ ) {
-                affectedString += ", " + ((Block)specialTypes[i]).ToString();
+                affectedString += ", " + ((Block)specialTypes[i]);
             }
             player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} replaced {1} blocks {2} ({3}) with {4} (on world {5})", LogType.UserActivity,
@@ -968,7 +967,7 @@ namespace fCraft {
 
         static CommandDescriptor cdCopy = new CommandDescriptor {
             name = "copy",
-            permissions = new Permission[] { Permission.CopyAndPaste },
+            permissions = new[] { Permission.CopyAndPaste },
             help = "Copy blocks for pasting. " +
                    "Used together with &H/paste&S and &H/pastenot&S commands. " +
                    "Note that pasting starts at the same corner that you started &H/copy&S from.",
@@ -1027,7 +1026,7 @@ namespace fCraft {
 
         static CommandDescriptor cdCut = new CommandDescriptor {
             name = "cut",
-            permissions = new Permission[] { Permission.CopyAndPaste },
+            permissions = new[] { Permission.CopyAndPaste },
             help = "Copies and removes blocks for pasting. Unless a different block type is specified, the area is filled with air. " +
                    "Used together with &H/paste&S and &H/pastenot&S commands. " +
                    "Note that pasting starts at the same corner that you started &H/cut&S from.",
@@ -1108,7 +1107,7 @@ namespace fCraft {
 
         static CommandDescriptor cdPasteNot = new CommandDescriptor {
             name = "pastenot",
-            permissions = new Permission[] { Permission.CopyAndPaste },
+            permissions = new[] { Permission.CopyAndPaste },
             help = "Paste previously copied blocks, excluding specified block type(s). " +
                    "Used together with &H/copy&S command. " +
                    "Note that pasting starts at the same corner that you started &H/copy&S from. ",
@@ -1141,7 +1140,7 @@ namespace fCraft {
                 };
                 string includedString = "";
                 foreach( Block block in excludedTypes ) {
-                    includedString += ", " + block.ToString();
+                    includedString += ", " + block;
                 }
                 player.MessageNow( "Ready to paste all EXCEPT {0}", includedString.Substring( 2 ) );
             } else {
@@ -1157,7 +1156,7 @@ namespace fCraft {
 
         static CommandDescriptor cdPaste = new CommandDescriptor {
             name = "paste",
-            permissions = new Permission[] { Permission.CopyAndPaste },
+            permissions = new[] { Permission.CopyAndPaste },
             help = "Pastes previously copied blocks. Used together with &H/copy&S command. " +
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
                    "Note that pasting starts at the same corner that you started &H/copy&S from.",
@@ -1190,11 +1189,11 @@ namespace fCraft {
                 };
                 string includedString = "";
                 foreach( Block block in includedTypes ) {
-                    includedString += ", " + block.ToString();
+                    includedString += ", " + block;
                 }
                 player.MessageNow( "Ready to paste ONLY {0}", includedString.Substring( 2 ) );
             } else {
-                args = new PasteArgs() {
+                args = new PasteArgs {
                     types = new Block[0]
                 };
             }
@@ -1279,8 +1278,8 @@ namespace fCraft {
 
         static CommandDescriptor cdMirror = new CommandDescriptor {
             name = "mirror",
-            aliases = new string[] { "flip" },
-            permissions = new Permission[] { Permission.CopyAndPaste },
+            aliases = new[] { "flip" },
+            permissions = new[] { Permission.CopyAndPaste },
             help = "Flips copied blocks along specified axis/axes. " +
                    "The axes are: X = horizontal (east-west), Y = horizontal (north-south), Z = vertical. " +
                    "You can mirror more than one axis at a time, e.g. &H/copymirror X Y&S.",
@@ -1390,7 +1389,7 @@ namespace fCraft {
 
         static CommandDescriptor cdRotate = new CommandDescriptor {
             name = "rotate",
-            permissions = new Permission[] { Permission.CopyAndPaste },
+            permissions = new[] { Permission.CopyAndPaste },
             help = "Rotates copied blocks around specifies axis/axes. If no axis is given, rotates around Z (vertical).",
             usage = "/rotate (-90|90|180|270) (X|Y|Z)",
             handler = Rotate
@@ -1460,7 +1459,7 @@ namespace fCraft {
 
 
             // construct the rotation matrix
-            int[,] matrix = new int[,]{
+            int[,] matrix = new[,]{
                 {1,0,0},
                 {0,1,0},
                 {0,0,1}
@@ -1530,7 +1529,7 @@ namespace fCraft {
 
         static CommandDescriptor cdMark = new CommandDescriptor {
             name = "mark",
-            aliases = new string[] { "m" },
+            aliases = new[] { "m" },
             help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. " +
                    "You can mark in places where making blocks is difficult (e.g. mid-air).",
             handler = Mark

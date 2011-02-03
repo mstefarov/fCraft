@@ -2,7 +2,6 @@
 using System.Windows.Forms;
 using fCraft;
 
-
 namespace ConfigTool {
     public sealed partial class ConfigUI : Form {
 

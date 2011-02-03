@@ -3,7 +3,6 @@ using System;
 using System.Text;
 using System.Xml.Linq;
 
-
 namespace fCraft {
 
     public sealed class Zone : IClassy {

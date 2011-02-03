@@ -412,7 +412,7 @@ namespace fCraft {
             if( threadCount == 1 ) {
                 IRCThread thread = new IRCThread();
                 if( thread.Start( botNick, true ) ) {
-                    threads = new IRCThread[] { thread };
+                    threads = new[] { thread };
                 }
             } else {
 
@@ -772,7 +772,7 @@ namespace fCraft {
                 line = rawline;
             }
 
-            linear = line.Split( new char[] { ' ' } );
+            linear = line.Split( new[] { ' ' } );
 
             // conform to RFC 2812
             from = linear[0];

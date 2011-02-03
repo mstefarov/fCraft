@@ -36,11 +36,10 @@ using System.Collections.Generic;
 using System.IO;
 using fCraft;
 
-
 namespace Mcc {
 
     public sealed class MapFormatException : Exception {
-        public MapFormatException() : base() { }
+        public MapFormatException() { }
         public MapFormatException( string message ) : base( message ) { }
     }
 

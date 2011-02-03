@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
-
 namespace AutoLauncher {
     class Program {
         const int Tick = 600000;
@@ -38,7 +37,7 @@ namespace AutoLauncher {
                         Console.WriteLine( "{0} Server UP, uptime {1:0.0}h: {2}% avg CPU",
                                             DateTime.Now,
                                             DateTime.Now.Subtract( startTimer ).TotalHours,
-                                            (newCPUTime - oldCPUTime).TotalMilliseconds / (System.Environment.ProcessorCount * Tick) );
+                                            (newCPUTime - oldCPUTime).TotalMilliseconds / (Environment.ProcessorCount * Tick) );
                         oldCPUTime = newCPUTime;
                     } catch( Exception ) { }
                     p.WaitForExit( Tick );

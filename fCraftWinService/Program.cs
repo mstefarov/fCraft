@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 using System.ServiceProcess;
 using System.Text;
 
-
 namespace fCraftWinService {
     class Program {
 
