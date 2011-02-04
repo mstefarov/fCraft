@@ -1,3 +1,14 @@
+0.503
+ Feature: Added /deafen command. It temporarily blocks all incoming messages (makes you go "deaf"), to allow taking screenshots, recording videos, or just playing without the wall of text.
+ Feature: Added ShowBannedConnectionMessages config key (default: true). When disabled, no "banned player tried to log in" messages are shown.
+ Fix: Fixed PlayerInfo.frozenOn not being set.
+ Fix: Fixed kick messages for players affected by /banall
+ Fix: Fixed /unbanall reason not being shown.
+ Fix: /where now shows what world you are on.
+ Fix: Fixed a couple minor bugs in /waccess and /wbuild.
+ Fix: Fixed a NullReferenceException in SecurityController constructor.
+ Fix: Made several tweaks to improve the first-run experience.
+
 0.502
  Fix: Adjusted for yet another change in the way minecraft.net replies to
  heartbeats (should fix all heartbeat issues for now).
