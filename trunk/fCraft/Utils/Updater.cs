@@ -85,7 +85,7 @@ namespace fCraft {
         }
 
         public static string GetVersionString() {
-            return String.Format( "{0:0.000}_r{1}{2}{3}",
+            return String.Format( "{0}_r{1}{2}{3}",
                                   Decimal.Divide( Version, 1000 ).ToString( "0.000", CultureInfo.InvariantCulture ),
                                   Revision,
                                   (IsDev ? "_dev" : ""),

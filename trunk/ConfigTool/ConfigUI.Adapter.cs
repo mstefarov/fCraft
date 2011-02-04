@@ -7,10 +7,12 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using fCraft;
 
+
 namespace ConfigTool {
     // This section handles transfer of settings from Config to the specific UI controls, and vice versa.
     // Effectively, it's an adapter between Config's and ConfigUI's representations of the settings
-    public sealed partial class ConfigUI : Form {
+    partial class ConfigUI {
+
         #region Loading & Applying Config
 
         void LoadConfig( object sender, EventArgs args ) {
@@ -52,37 +54,38 @@ namespace ConfigTool {
 
         void LoadWorldList() {
             worlds.Clear();
-            if( File.Exists( "worlds.xml" ) ) {
-                try {
-                    XDocument doc = XDocument.Load( "worlds.xml" );
-                    XElement root = doc.Root;
+            if( !File.Exists( "worlds.xml" ) ) return;
 
-                    string errorLog = "";
-                    foreach( XElement el in root.Elements( "World" ) ) {
-                        try {
-                            worlds.Add( new WorldListEntry( el ) );
-                        } catch( Exception ex ) {
-                            errorLog += ex + Environment.NewLine;
-                        }
-                    }
-                    if( errorLog.Length > 0 ) {
-                        MessageBox.Show( "Some errors occured while loading the world list:" + Environment.NewLine + errorLog, "Warning" );
-                    }
+            try {
+                XDocument doc = XDocument.Load( "worlds.xml" );
+                XElement root = doc.Root;
 
-                    FillWorldList();
-                    XAttribute mainWorldAttr = root.Attribute( "main" );
-                    if( mainWorldAttr != null ) {
-                        foreach( WorldListEntry world in worlds ) {
-                            if( world.name.ToLower() == mainWorldAttr.Value.ToLower() ) {
-                                cMainWorld.SelectedItem = world.name;
-                                break;
-                            }
-                        }
+                string errorLog = "";
+                foreach( XElement el in root.Elements( "World" ) ) {
+                    try {
+                        worlds.Add( new WorldListEntry( el ) );
+                    } catch( Exception ex ) {
+                        errorLog += ex + Environment.NewLine;
                     }
-
-                } catch( Exception ex ) {
-                    MessageBox.Show( "Error occured while loading the world list: " + Environment.NewLine + ex, "Warning" );
                 }
+                if( errorLog.Length > 0 ) {
+                    MessageBox.Show(
+                        "Some errors occured while loading the world list:" + Environment.NewLine + errorLog, "Warning" );
+                }
+
+                FillWorldList();
+                XAttribute mainWorldAttr = root.Attribute( "main" );
+                if( mainWorldAttr != null ) {
+                    foreach( WorldListEntry world in worlds ) {
+                        if( world.name.ToLower() == mainWorldAttr.Value.ToLower() ) {
+                            cMainWorld.SelectedItem = world.name;
+                            break;
+                        }
+                    }
+                }
+
+            } catch( Exception ex ) {
+                MessageBox.Show( "Error occured while loading the world list: " + Environment.NewLine + ex, "Warning" );
             }
         }
 
@@ -494,5 +497,6 @@ namespace ConfigTool {
         }
 
         #endregion
+
     }
 }

@@ -13,13 +13,6 @@ namespace fCraft {
 
     public sealed class Rank : IClassy {
 
-        public sealed class RankDefinitionException : Exception {
-            public RankDefinitionException( string message ) : base( message ) { }
-            public RankDefinitionException( string message, params string[] args ) :
-                base( String.Format( message, args ) ) { }
-        }
-
-
         public string Name { get; set; }
 
         public byte legacyNumericRank;
@@ -117,7 +110,7 @@ namespace fCraft {
 
 
             // AntiGrief block limit (assuming unlimited if not given)
-            int value = 0;
+            int value;
             if( (el.Attribute( "antiGriefBlocks" ) != null) && (el.Attribute( "antiGriefSeconds" ) != null) ) {
                 attr = el.Attribute( "antiGriefBlocks" );
                 if( Int32.TryParse( attr.Value, out value ) ) {
@@ -316,12 +309,9 @@ namespace fCraft {
         public string[] PermissionLimitStrings;
 
         public Rank GetLimit( Permission permission ) {
-            if( PermissionLimits[(int)permission] == null ) {
-                return this;
-            } else {
-                return PermissionLimits[(int)permission];
-            }
+            return PermissionLimits[(int)permission] ?? this;
         }
+
 
         public void SetLimit( Permission permission, Rank limit ) {
             PermissionLimits[(int)permission] = limit;
@@ -400,12 +390,18 @@ namespace fCraft {
         internal bool ParsePermissionLimits() {
             bool ok = true;
             for( int i = 0; i < PermissionLimits.Length; i++ ) {
-                if( PermissionLimitStrings[i] != null ) {
-                    SetLimit( (Permission)i, RankList.ParseRank( PermissionLimitStrings[i] ) );
-                    ok &= (GetLimit((Permission)i) != null);
-                }
+                if( PermissionLimitStrings[i] == null ) continue;
+                SetLimit( (Permission)i, RankList.ParseRank( PermissionLimitStrings[i] ) );
+                ok &= (GetLimit((Permission)i) != null);
             }
             return ok;
         }
+    }
+
+
+    public sealed class RankDefinitionException : Exception {
+        public RankDefinitionException( string message ) : base( message ) { }
+        public RankDefinitionException( string message, params string[] args ) :
+            base( String.Format( message, args ) ) { }
     }
 }

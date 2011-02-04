@@ -9,13 +9,14 @@ using fCraft;
 namespace fCraftUI {
     public sealed partial class UpdateWindow : Form {
         UpdaterResult update;
-        static string UpdaterFile = "Updater.exe";
+        const string UpdaterFile = "Updater.exe";
         WebClient downloader = new WebClient();
         MainForm parent;
         bool auto;
 
         public UpdateWindow( UpdaterResult _update, MainForm _parent, bool _auto ) {
             InitializeComponent();
+            StartPosition = FormStartPosition.CenterParent;
             parent = _parent;
             update = _update;
             auto = _auto;

@@ -71,8 +71,8 @@ namespace fCraft {
                 stat.PreviousRank.Add( rank2, 0 );
             }
 
-            infos = infos.Where( ( info ) => (DateTime.Now.Subtract( info.lastLoginDate ).TotalDays < 30) ).ToArray();
-            infos = infos.Where( ( info ) => (!info.banned) ).ToArray();
+            infos = infos.Where( info => (DateTime.Now.Subtract( info.lastLoginDate ).TotalDays < 30) ).ToArray();
+            infos = infos.Where( info => (!info.banned) ).ToArray();
 
             for( int i = 0; i < infos.Length; i++ ) {
                 stat.TimeSinceFirstLogin += DateTime.Now.Subtract( infos[i].firstLoginDate );
@@ -93,37 +93,37 @@ namespace fCraft {
             stat.BlocksChanged = stat.BlocksDeleted + stat.BlocksBuilt;
 
 
-            stat.TimeSinceFirstLoginMedian = DateTime.Now.Subtract( infos.OrderByDescending( ( info ) => info.firstLoginDate )
+            stat.TimeSinceFirstLoginMedian = DateTime.Now.Subtract( infos.OrderByDescending( info => info.firstLoginDate )
                                                     .ElementAt( infos.Length / 2 ).firstLoginDate );
-            stat.TimeSinceLastLoginMedian = DateTime.Now.Subtract( infos.OrderByDescending( ( info ) => info.lastLoginDate )
+            stat.TimeSinceLastLoginMedian = DateTime.Now.Subtract( infos.OrderByDescending( info => info.lastLoginDate )
                                                     .ElementAt( infos.Length / 2 ).lastLoginDate );
-            stat.TotalTimeMedian = infos.OrderByDescending( ( info ) => info.totalTime ).ElementAt( infos.Length / 2 ).totalTime;
-            stat.BlocksBuiltMedian = infos.OrderByDescending( ( info ) => info.blocksBuilt ).ElementAt( infos.Length / 2 ).blocksBuilt;
-            stat.BlocksDeletedMedian = infos.OrderByDescending( ( info ) => info.blocksDeleted ).ElementAt( infos.Length / 2 ).blocksDeleted;
-            PlayerInfo medianBlocksChangedPlayerInfo = infos.OrderByDescending( ( info ) => (info.blocksDeleted + info.blocksBuilt) ).ElementAt( infos.Length / 2 );
+            stat.TotalTimeMedian = infos.OrderByDescending( info => info.totalTime ).ElementAt( infos.Length / 2 ).totalTime;
+            stat.BlocksBuiltMedian = infos.OrderByDescending( info => info.blocksBuilt ).ElementAt( infos.Length / 2 ).blocksBuilt;
+            stat.BlocksDeletedMedian = infos.OrderByDescending( info => info.blocksDeleted ).ElementAt( infos.Length / 2 ).blocksDeleted;
+            PlayerInfo medianBlocksChangedPlayerInfo = infos.OrderByDescending( info => (info.blocksDeleted + info.blocksBuilt) ).ElementAt( infos.Length / 2 );
             stat.BlocksChangedMedian = medianBlocksChangedPlayerInfo.blocksDeleted + medianBlocksChangedPlayerInfo.blocksBuilt;
-            PlayerInfo medianBlockRatioPlayerInfo = infos.OrderByDescending( ( info ) => (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )) )
+            PlayerInfo medianBlockRatioPlayerInfo = infos.OrderByDescending( info => (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )) )
                                                     .ElementAt( infos.Length / 2 );
             stat.BlockRatioMedian = medianBlockRatioPlayerInfo.blocksBuilt / (double)Math.Max( medianBlockRatioPlayerInfo.blocksDeleted, 1 );
-            stat.TimesVisitedMedian = infos.OrderByDescending( ( info ) => info.timesVisited ).ElementAt( infos.Length / 2 ).timesVisited;
-            stat.MessagesWrittenMedian = infos.OrderByDescending( ( info ) => info.linesWritten ).ElementAt( infos.Length / 2 ).linesWritten;
-            stat.TimesKickedMedian = infos.OrderByDescending( ( info ) => info.timesKicked ).ElementAt( infos.Length / 2 ).timesKicked;
-            stat.TimesKickedOthersMedian = infos.OrderByDescending( ( info ) => info.timesKickedOthers ).ElementAt( infos.Length / 2 ).timesKickedOthers;
-            stat.TimesBannedOthersMedian = infos.OrderByDescending( ( info ) => info.timesBannedOthers ).ElementAt( infos.Length / 2 ).timesBannedOthers;
+            stat.TimesVisitedMedian = infos.OrderByDescending( info => info.timesVisited ).ElementAt( infos.Length / 2 ).timesVisited;
+            stat.MessagesWrittenMedian = infos.OrderByDescending( info => info.linesWritten ).ElementAt( infos.Length / 2 ).linesWritten;
+            stat.TimesKickedMedian = infos.OrderByDescending( info => info.timesKicked ).ElementAt( infos.Length / 2 ).timesKicked;
+            stat.TimesKickedOthersMedian = infos.OrderByDescending( info => info.timesKickedOthers ).ElementAt( infos.Length / 2 ).timesKickedOthers;
+            stat.TimesBannedOthersMedian = infos.OrderByDescending( info => info.timesBannedOthers ).ElementAt( infos.Length / 2 ).timesBannedOthers;
 
 
-            stat.TopTimeSinceFirstLogin = infos.OrderBy( ( info ) => info.firstLoginDate ).ToArray();
-            stat.TopTimeSinceLastLogin = infos.OrderBy( ( info ) => info.lastLoginDate ).ToArray();
-            stat.TopTotalTime = infos.OrderByDescending( ( info ) => info.totalTime ).ToArray();
-            stat.TopBlocksBuilt = infos.OrderByDescending( ( info ) => info.blocksBuilt ).ToArray();
-            stat.TopBlocksDeleted = infos.OrderByDescending( ( info ) => info.blocksDeleted ).ToArray();
-            stat.TopBlocksChanged = infos.OrderByDescending( ( info ) => (info.blocksDeleted + info.blocksBuilt) ).ToArray();
-            stat.TopBlockRatio = infos.OrderByDescending( ( info ) => (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )) ).ToArray();
-            stat.TopTimesVisited = infos.OrderByDescending( ( info ) => info.timesVisited ).ToArray();
-            stat.TopMessagesWritten = infos.OrderByDescending( ( info ) => info.linesWritten ).ToArray();
-            stat.TopTimesKicked = infos.OrderByDescending( ( info ) => info.timesKicked ).ToArray();
-            stat.TopTimesKickedOthers = infos.OrderByDescending( ( info ) => info.timesKickedOthers ).ToArray();
-            stat.TopTimesBannedOthers = infos.OrderByDescending( ( info ) => info.timesBannedOthers ).ToArray();
+            stat.TopTimeSinceFirstLogin = infos.OrderBy( info => info.firstLoginDate ).ToArray();
+            stat.TopTimeSinceLastLogin = infos.OrderBy( info => info.lastLoginDate ).ToArray();
+            stat.TopTotalTime = infos.OrderByDescending( info => info.totalTime ).ToArray();
+            stat.TopBlocksBuilt = infos.OrderByDescending( info => info.blocksBuilt ).ToArray();
+            stat.TopBlocksDeleted = infos.OrderByDescending( info => info.blocksDeleted ).ToArray();
+            stat.TopBlocksChanged = infos.OrderByDescending( info => (info.blocksDeleted + info.blocksBuilt) ).ToArray();
+            stat.TopBlockRatio = infos.OrderByDescending( info => (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )) ).ToArray();
+            stat.TopTimesVisited = infos.OrderByDescending( info => info.timesVisited ).ToArray();
+            stat.TopMessagesWritten = infos.OrderByDescending( info => info.linesWritten ).ToArray();
+            stat.TopTimesKicked = infos.OrderByDescending( info => info.timesKicked ).ToArray();
+            stat.TopTimesKickedOthers = infos.OrderByDescending( info => info.timesKickedOthers ).ToArray();
+            stat.TopTimesBannedOthers = infos.OrderByDescending( info => info.timesBannedOthers ).ToArray();
 
 
             writer.WriteLine( "{0}: {1} players, {2} banned", groupName, infos.Length, stat.Banned );

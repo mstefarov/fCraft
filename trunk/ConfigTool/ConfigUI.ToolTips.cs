@@ -1,9 +1,10 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Windows.Forms;
 using fCraft;
 
 namespace ConfigTool {
-    public sealed partial class ConfigUI : Form {
+    partial class ConfigUI {
 
         void FillToolTipsGeneral() {
 

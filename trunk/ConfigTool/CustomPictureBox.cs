@@ -1,4 +1,5 @@
-﻿using System.Drawing.Drawing2D;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace ConfigTool {

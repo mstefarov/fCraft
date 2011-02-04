@@ -220,9 +220,9 @@ namespace fCraft {
                 int offset;
 
                 // find left bound (xMin)
-                for( int x = 0; cont && x < imageWidth; x++ ) {
+                for( x = 0; cont && x < imageWidth; x++ ) {
                     offset = x * 4 + 3;
-                    for( int y = 0; y < imageHeight; y++ ) {
+                    for( y = 0; y < imageHeight; y++ ) {
                         if( image[offset] > 0 ) {
                             xMin = x;
                             cont = false;
@@ -236,9 +236,9 @@ namespace fCraft {
 
                 // find top bound (yMin)
                 cont = true;
-                for( int y = 0; cont && y < imageHeight; y++ ) {
+                for( y = 0; cont && y < imageHeight; y++ ) {
                     offset = imageStride * y + xMin * 4 + 3;
-                    for( int x = xMin; x < imageWidth; x++ ) {
+                    for( x = xMin; x < imageWidth; x++ ) {
                         if( image[offset] > 0 ) {
                             yMin = y;
                             cont = false;
@@ -252,9 +252,9 @@ namespace fCraft {
 
                 // find right bound (xMax)
                 cont = true;
-                for( int x = imageWidth - 1; cont && x >= xMin; x-- ) {
+                for( x = imageWidth - 1; cont && x >= xMin; x-- ) {
                     offset = x * 4 + 3 + yMin * imageStride;
-                    for( int y = yMin; y < imageHeight; y++ ) {
+                    for( y = yMin; y < imageHeight; y++ ) {
                         if( image[offset] > 0 ) {
                             xMax = x + 1;
                             cont = false;
@@ -268,9 +268,9 @@ namespace fCraft {
 
                 // find bottom bound (yMax)
                 cont = true;
-                for( int y = imageHeight - 1; cont && y >= yMin; y-- ) {
+                for( y = imageHeight - 1; cont && y >= yMin; y-- ) {
                     offset = imageStride * y + 3 + xMin * 4;
-                    for( int x = xMin; x < xMax; x++ ) {
+                    for( x = xMin; x < xMax; x++ ) {
                         if( image[offset] > 0 ) {
                             yMax = y + 1;
                             cont = false;
@@ -290,7 +290,7 @@ namespace fCraft {
                 if( worker.CancellationPending && imageBmp != null ) {
                     try {
                         imageBmp.Dispose();
-                    } catch { }
+                    } catch(ObjectDisposedException) { }
                 }
             }
         }

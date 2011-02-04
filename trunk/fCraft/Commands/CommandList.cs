@@ -60,7 +60,7 @@ namespace fCraft {
 
 
         public static void RegisterCommand( CommandDescriptor command ) {
-            if( command.name == null || command.name.Length < 1 || command.name.Length > 16 ) {
+            if( string.IsNullOrEmpty( command.name ) || command.name.Length > 16 ) {
                 throw new CommandRegistrationException( "All commands need a name, between 1 and 16 alphanumeric characters long." );
             }
 
@@ -146,7 +146,7 @@ namespace fCraft {
 
         // Determines the type of message (Command, RankChat, PrivateChat, Chat, Confirmation, or Invalid)
         internal static MessageType GetMessageType( string message ) {
-            if( message == null || message.Length == 0 ) return MessageType.Invalid;
+            if( string.IsNullOrEmpty( message ) ) return MessageType.Invalid;
             if( message.Equals( "/ok", StringComparison.OrdinalIgnoreCase ) ) return MessageType.Confirmation;
             if( message[0] == '/' ) {
                 if( message.Length > 1 && message[1] == '/' ) return MessageType.Chat;

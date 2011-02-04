@@ -187,7 +187,7 @@
             this.xBackupOnJoin = new System.Windows.Forms.CheckBox();
             this.tabLogging = new System.Windows.Forms.TabPage();
             this.gLogFile = new System.Windows.Forms.GroupBox();
-            this.label2 = new System.Windows.Forms.Label();
+            this.lLogFileOptionsDescription = new System.Windows.Forms.Label();
             this.xLogLimit = new System.Windows.Forms.CheckBox();
             this.vLogFileOptions = new System.Windows.Forms.ListView();
             this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
@@ -196,7 +196,7 @@
             this.cLogMode = new System.Windows.Forms.ComboBox();
             this.lLogMode = new System.Windows.Forms.Label();
             this.gConsole = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lLogConsoleOptionsDescription = new System.Windows.Forms.Label();
             this.vConsoleOptions = new System.Windows.Forms.ListView();
             this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
             this.tabIRC = new System.Windows.Forms.TabPage();
@@ -263,6 +263,7 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
+            this.lConsoleNameHint = new System.Windows.Forms.Label();
             this.chatPreview = new ConfigTool.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
@@ -2131,7 +2132,7 @@
             // 
             // gLogFile
             // 
-            this.gLogFile.Controls.Add( this.label2 );
+            this.gLogFile.Controls.Add( this.lLogFileOptionsDescription );
             this.gLogFile.Controls.Add( this.xLogLimit );
             this.gLogFile.Controls.Add( this.vLogFileOptions );
             this.gLogFile.Controls.Add( this.lLogLimitUnits );
@@ -2145,14 +2146,14 @@
             this.gLogFile.TabStop = false;
             this.gLogFile.Text = "Log File";
             // 
-            // label2
+            // lLogFileOptionsDescription
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point( 27, 22 );
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size( 212, 30 );
-            this.label2.TabIndex = 9;
-            this.label2.Text = "Types of messages that will be written\r\nto the log file on disk.";
+            this.lLogFileOptionsDescription.AutoSize = true;
+            this.lLogFileOptionsDescription.Location = new System.Drawing.Point( 27, 22 );
+            this.lLogFileOptionsDescription.Name = "lLogFileOptionsDescription";
+            this.lLogFileOptionsDescription.Size = new System.Drawing.Size( 212, 30 );
+            this.lLogFileOptionsDescription.TabIndex = 9;
+            this.lLogFileOptionsDescription.Text = "Types of messages that will be written\r\nto the log file on disk.";
             // 
             // xLogLimit
             // 
@@ -2232,7 +2233,7 @@
             // 
             // gConsole
             // 
-            this.gConsole.Controls.Add( this.label1 );
+            this.gConsole.Controls.Add( this.lLogConsoleOptionsDescription );
             this.gConsole.Controls.Add( this.vConsoleOptions );
             this.gConsole.Location = new System.Drawing.Point( 8, 13 );
             this.gConsole.Name = "gConsole";
@@ -2241,14 +2242,14 @@
             this.gConsole.TabStop = false;
             this.gConsole.Text = "Console";
             // 
-            // label1
+            // lLogConsoleOptionsDescription
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point( 9, 21 );
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size( 212, 30 );
-            this.label1.TabIndex = 8;
-            this.label1.Text = "Types of messages that will be written\r\ndirectly to console.";
+            this.lLogConsoleOptionsDescription.AutoSize = true;
+            this.lLogConsoleOptionsDescription.Location = new System.Drawing.Point( 9, 21 );
+            this.lLogConsoleOptionsDescription.Name = "lLogConsoleOptionsDescription";
+            this.lLogConsoleOptionsDescription.Size = new System.Drawing.Size( 212, 30 );
+            this.lLogConsoleOptionsDescription.TabIndex = 8;
+            this.lLogConsoleOptionsDescription.Text = "Types of messages that will be written\r\ndirectly to console.";
             // 
             // vConsoleOptions
             // 
@@ -2673,6 +2674,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add( this.lConsoleNameHint );
             this.groupBox1.Controls.Add( this.lConsoleName );
             this.groupBox1.Controls.Add( this.tConsoleName );
             this.groupBox1.Controls.Add( this.nMaxUndo );
@@ -2692,7 +2694,7 @@
             this.groupBox1.Controls.Add( this.xNoPartialPositionUpdates );
             this.groupBox1.Location = new System.Drawing.Point( 8, 148 );
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size( 638, 271 );
+            this.groupBox1.Size = new System.Drawing.Size( 638, 287 );
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Miscellaneous";
@@ -2710,7 +2712,7 @@
             // 
             this.tConsoleName.Location = new System.Drawing.Point( 226, 238 );
             this.tConsoleName.Name = "tConsoleName";
-            this.tConsoleName.Size = new System.Drawing.Size( 149, 21 );
+            this.tConsoleName.Size = new System.Drawing.Size( 167, 21 );
             this.tConsoleName.TabIndex = 44;
             // 
             // nMaxUndo
@@ -3035,6 +3037,16 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // lConsoleNameHint
+            // 
+            this.lConsoleNameHint.AutoSize = true;
+            this.lConsoleNameHint.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.lConsoleNameHint.Location = new System.Drawing.Point( 223, 262 );
+            this.lConsoleNameHint.Name = "lConsoleNameHint";
+            this.lConsoleNameHint.Size = new System.Drawing.Size( 274, 13 );
+            this.lConsoleNameHint.TabIndex = 46;
+            this.lConsoleNameHint.Text = "Hint: You may include any characters (even colorcodes).";
+            // 
             // chatPreview
             // 
             this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
@@ -3358,8 +3370,8 @@
         private System.Windows.Forms.Button bColorWarning;
         private System.Windows.Forms.Label lColorMe;
         private System.Windows.Forms.Button bColorMe;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lLogFileOptionsDescription;
+        private System.Windows.Forms.Label lLogConsoleOptionsDescription;
         private System.Windows.Forms.CheckBox xIRCBotAnnounceServerEvents;
         private System.Windows.Forms.CheckBox xIRCUseColor;
         private System.Windows.Forms.CheckBox xPaidPlayersOnly;
@@ -3369,5 +3381,6 @@
         private System.Windows.Forms.CheckBox xAllowSecurityCircumvention;
         private System.Windows.Forms.Label lConsoleName;
         private System.Windows.Forms.TextBox tConsoleName;
+        private System.Windows.Forms.Label lConsoleNameHint;
     }
 }

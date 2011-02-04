@@ -103,11 +103,7 @@ namespace fCraft {
                 lastIP = IPAddress.None;
             }
 
-            rank = RankList.ParseRank( fields[2] );
-            if( rank == null ) {
-                rank = RankList.DefaultRank;
-                //Logger.Log( "PlayerInfo: Could not parse class for player {0}. Setting to default ({1}).", LogType.Error, name, rank.Name );
-            }
+            rank = RankList.ParseRank( fields[2] ) ?? RankList.DefaultRank;
             if( fields[3] != "-" && !String.IsNullOrEmpty( fields[3] ) ) rankChangeDate = DateTime.Parse( fields[3] ); // LEGACY
             rankChangedBy = fields[4];
             if( rankChangedBy == "-" ) rankChangedBy = "";
@@ -398,11 +394,7 @@ namespace fCraft {
             Interlocked.Increment( ref kickedBy.info.timesKickedOthers );
             lastKickDate = DateTime.Now;
             lastKickBy = kickedBy.name;
-            if( reason != null ) {
-                lastKickReason = reason;
-            } else {
-                lastKickReason = "";
-            }
+            lastKickReason = reason ?? "";
             Unfreeze();
         }
 

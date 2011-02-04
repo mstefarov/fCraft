@@ -25,7 +25,7 @@ namespace fCraft {
 
 
         public static float InterpolateLinear( float v0, float v1, float x ) {
-            return v0 * (1 - x) + v1 * x;
+            return v0 * ( 1 - x ) + v1 * x;
         }
 
         public static float InterpolateLinear( float v00, float v01, float v10, float v11, float x, float y ) {
@@ -36,8 +36,8 @@ namespace fCraft {
 
 
         public static float InterpolateCosine( float v0, float v1, float x ) {
-            double f = (1 - Math.Cos( x * Math.PI )) * .5;
-            return (float)(v0 * (1 - f) + v1 * f);
+            double f = ( 1 - Math.Cos( x * Math.PI ) ) * .5;
+            return (float)( v0 * ( 1 - f ) + v1 * f );
         }
 
         public static float InterpolateCosine( float v00, float v01, float v10, float v11, float x, float y ) {
@@ -50,31 +50,29 @@ namespace fCraft {
         // Cubic and Catmull-Rom Spline interpolation methods by Paul Bourke
         // http://local.wasp.uwa.edu.au/~pbourke/miscellaneous/interpolation/
         public static float InterpolateCubic( float v0, float v1, float v2, float v3, float mu ) {
-            float a0, a1, a2, a3, mu2;
-            mu2 = mu * mu;
-            a0 = v3 - v2 - v0 + v1;
-            a1 = v0 - v1 - a0;
-            a2 = v2 - v0;
-            a3 = v1;
-            return (a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3);
+            float mu2 = mu * mu;
+            float a0 = v3 - v2 - v0 + v1;
+            float a1 = v0 - v1 - a0;
+            float a2 = v2 - v0;
+            float a3 = v1;
+            return ( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
         }
 
 
         public static float InterpolateSpline( float v0, float v1, float v2, float v3, float mu ) {
-            float a0, a1, a2, a3, mu2;
-            mu2 = mu * mu;
-            a0 = -0.5f * v0 + 1.5f * v1 - 1.5f * v2 + 0.5f * v3;
-            a1 = v0 - 2.5f * v1 + 2 * v2 - 0.5f * v3;
-            a2 = -0.5f * v0 + 0.5f * v2;
-            a3 = v1;
-            return (a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3);
+            float mu2 = mu * mu;
+            float a0 = -0.5f * v0 + 1.5f * v1 - 1.5f * v2 + 0.5f * v3;
+            float a1 = v0 - 2.5f * v1 + 2 * v2 - 0.5f * v3;
+            float a2 = -0.5f * v0 + 0.5f * v2;
+            float a3 = v1;
+            return ( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
         }
 
 
         public float StaticNoise( int x, int y ) {
             int n = seed + x + y * short.MaxValue;
-            n = (n << 13) ^ n;
-            return (float)(1.0 - ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7FFFFFFF) / 1073741824d);
+            n = ( n << 13 ) ^ n;
+            return (float)( 1.0 - ( ( n * ( n * n * 15731 + 789221 ) + 1376312589 ) & 0x7FFFFFFF ) / 1073741824d );
         }
 
 
@@ -173,8 +171,8 @@ namespace fCraft {
                 }
             }
 
-            float multiplier = (high - low) / (max - min);
-            float constant = -min * (high - low) / (max - min) + low;
+            float multiplier = ( high - low ) / ( max - min );
+            float constant = -min * ( high - low ) / ( max - min ) + low;
 
             for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = map.GetLength( 1 ) - 1; y >= 0; y-- ) {
@@ -198,7 +196,7 @@ namespace fCraft {
         public static void Blend( float[,] map1, float[,] map2, float[,] blendMap ) {
             for( int x = map1.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = map1.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    map1[x, y] = map1[x, y] * blendMap[x, y] + map2[x, y] * (1 - blendMap[x, y]);
+                    map1[x, y] = map1[x, y] * blendMap[x, y] + map2[x, y] * ( 1 - blendMap[x, y] );
                 }
             }
         }
@@ -221,10 +219,10 @@ namespace fCraft {
 
             for( int x = offsetX - 1; x >= 0; x-- ) {
                 for( int y = offsetY - 1; y >= 0; y-- ) {
-                    heightmap[x, y] += InterpolateCosine( c00, (c00 + c01) / 2, (c00 + c10) / 2, midpoint, x * maxX, y * maxY );
-                    heightmap[x + offsetX, y] += InterpolateCosine( (c00 + c10) / 2, midpoint, c10, (c11 + c10) / 2, x * maxX, y * maxY );
-                    heightmap[x, y + offsetY] += InterpolateCosine( (c00 + c01) / 2, c01, midpoint, (c01 + c11) / 2, x * maxX, y * maxY );
-                    heightmap[x + offsetX, y + offsetY] += InterpolateCosine( midpoint, (c01 + c11) / 2, (c11 + c10) / 2, c11, x * maxX, y * maxY );
+                    heightmap[x, y] += InterpolateCosine( c00, ( c00 + c01 ) / 2, ( c00 + c10 ) / 2, midpoint, x * maxX, y * maxY );
+                    heightmap[x + offsetX, y] += InterpolateCosine( ( c00 + c10 ) / 2, midpoint, c10, ( c11 + c10 ) / 2, x * maxX, y * maxY );
+                    heightmap[x, y + offsetY] += InterpolateCosine( ( c00 + c01 ) / 2, c01, midpoint, ( c01 + c11 ) / 2, x * maxX, y * maxY );
+                    heightmap[x + offsetX, y + offsetY] += InterpolateCosine( midpoint, ( c01 + c11 ) / 2, ( c11 + c10 ) / 2, c11, x * maxX, y * maxY );
                 }
             }
         }
@@ -248,17 +246,17 @@ namespace fCraft {
         }
 
 
+        const float boxBlurDivisor = 1 / 23f;
         public static float[,] BoxBlur( float[,] heightmap ) {
-            float divisor = 1 / 23f;
             float[,] output = new float[heightmap.GetLength( 0 ), heightmap.GetLength( 1 )];
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( (x == 0) || (y == 0) || (x == heightmap.GetLength( 0 ) - 1) || (y == heightmap.GetLength( 1 ) - 1) ) {
+                    if( ( x == 0 ) || ( y == 0 ) || ( x == heightmap.GetLength( 0 ) - 1 ) || ( y == heightmap.GetLength( 1 ) - 1 ) ) {
                         output[x, y] = heightmap[x, y];
                     } else {
-                        output[x, y] = (heightmap[x - 1, y - 1] * 2 + heightmap[x - 1, y] * 3 + heightmap[x - 1, y + 1] * 2 +
+                        output[x, y] = ( heightmap[x - 1, y - 1] * 2 + heightmap[x - 1, y] * 3 + heightmap[x - 1, y + 1] * 2 +
                                         heightmap[x, y - 1] * 3 + heightmap[x, y] * 3 + heightmap[x, y + 1] * 3 +
-                                        heightmap[x + 1, y - 1] * 2 + heightmap[x + 1, y] * 3 + heightmap[x + 1, y + 1] * 2) * divisor;
+                                        heightmap[x + 1, y - 1] * 2 + heightmap[x + 1, y] * 3 + heightmap[x + 1, y + 1] * 2 ) * boxBlurDivisor;
                     }
                 }
             }
@@ -266,20 +264,19 @@ namespace fCraft {
         }
 
 
-
+        const float gaussianBlurDivisor = 1 / 273f;
         public static float[,] GaussianBlur5x5( float[,] heightmap ) {
-            float divisor = 1 / 273f;
             float[,] output = new float[heightmap.GetLength( 0 ), heightmap.GetLength( 1 )];
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( (x < 2) || (y < 2) || (x > heightmap.GetLength( 0 ) - 3) || (y > heightmap.GetLength( 1 ) - 3) ) {
+                    if( ( x < 2 ) || ( y < 2 ) || ( x > heightmap.GetLength( 0 ) - 3 ) || ( y > heightmap.GetLength( 1 ) - 3 ) ) {
                         output[x, y] = heightmap[x, y];
                     } else {
-                        output[x, y] = (heightmap[x - 2, y - 2] + heightmap[x - 1, y - 2] * 4 + heightmap[x, y - 2] * 7 + heightmap[x + 1, y - 2] * 4 + heightmap[x + 2, y - 2] +
+                        output[x, y] = ( heightmap[x - 2, y - 2] + heightmap[x - 1, y - 2] * 4 + heightmap[x, y - 2] * 7 + heightmap[x + 1, y - 2] * 4 + heightmap[x + 2, y - 2] +
                                         heightmap[x - 1, y - 1] * 4 + heightmap[x - 1, y - 1] * 16 + heightmap[x, y - 1] * 26 + heightmap[x + 1, y - 1] * 16 + heightmap[x + 2, y - 1] * 4 +
                                         heightmap[x - 2, y] * 7 + heightmap[x - 1, y] * 26 + heightmap[x, y] * 41 + heightmap[x + 1, y] * 26 + heightmap[x + 2, y] * 7 +
                                         heightmap[x - 2, y + 1] * 4 + heightmap[x - 1, y + 1] * 16 + heightmap[x, y + 1] * 26 + heightmap[x + 1, y + 1] * 16 + heightmap[x + 2, y + 1] * 4 +
-                                        heightmap[x - 2, y + 2] + heightmap[x - 1, y + 2] * 4 + heightmap[x, y + 2] * 7 + heightmap[x + 1, y + 2] * 4 + heightmap[x + 2, y + 2]) * divisor;
+                                        heightmap[x - 2, y + 2] + heightmap[x - 1, y + 2] * 4 + heightmap[x, y + 2] * 7 + heightmap[x + 1, y + 2] * 4 + heightmap[x + 2, y + 2] ) * gaussianBlurDivisor;
                     }
                 }
             }
@@ -292,17 +289,17 @@ namespace fCraft {
 
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( (x == 0) || (y == 0) || (x == heightmap.GetLength( 0 ) - 1) || (y == heightmap.GetLength( 1 ) - 1) ) {
+                    if( ( x == 0 ) || ( y == 0 ) || ( x == heightmap.GetLength( 0 ) - 1 ) || ( y == heightmap.GetLength( 1 ) - 1 ) ) {
                         output[x, y] = 0;
                     } else {
-                        output[x, y] = (Math.Abs( heightmap[x, y - 1] - heightmap[x, y] ) * 3 +
+                        output[x, y] = ( Math.Abs( heightmap[x, y - 1] - heightmap[x, y] ) * 3 +
                                         Math.Abs( heightmap[x, y + 1] - heightmap[x, y] ) * 3 +
                                         Math.Abs( heightmap[x - 1, y] - heightmap[x, y] ) * 3 +
                                         Math.Abs( heightmap[x + 1, y] - heightmap[x, y] ) * 3 +
                                         Math.Abs( heightmap[x - 1, y - 1] - heightmap[x, y] ) * 2 +
                                         Math.Abs( heightmap[x + 1, y - 1] - heightmap[x, y] ) * 2 +
                                         Math.Abs( heightmap[x - 1, y + 1] - heightmap[x, y] ) * 2 +
-                                        Math.Abs( heightmap[x + 1, y + 1] - heightmap[x, y] ) * 2) / 20f;
+                                        Math.Abs( heightmap[x + 1, y + 1] - heightmap[x, y] ) * 2 ) / 20f;
                     }
                 }
             }

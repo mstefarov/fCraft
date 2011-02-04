@@ -52,7 +52,7 @@ namespace Mcc {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 BinaryReader reader = new BinaryReader( mapStream );
                 if( reader.ReadInt32() != Identifier || reader.ReadByte() != Revision ) {
-                    throw new FormatException();
+                    throw new MapFormatException();
                 }
 
                 Map map = new Map();
@@ -71,7 +71,7 @@ namespace Mcc {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 BinaryReader reader = new BinaryReader( mapStream );
                 if( reader.ReadInt32() != Identifier || reader.ReadByte() != Revision ) {
-                    throw new FormatException();
+                    throw new MapFormatException();
                 }
 
                 Map map = new Map();
@@ -103,13 +103,14 @@ namespace Mcc {
                 int layerCount = reader.ReadByte();
                 List<Map.DataLayer> layers = new List<Map.DataLayer>( layerCount );
                 for( int i = 0; i < layerCount; i++ ) {
-                    Map.DataLayer layer = new Map.DataLayer();
-                    layer.Type = (Map.DataLayerType)reader.ReadByte();
-                    layer.Offset = reader.ReadInt64();
-                    layer.CompressedLength = reader.ReadInt32();
-                    layer.GeneralPurposeField = reader.ReadInt32();
-                    layer.ElementSize = reader.ReadInt32();
-                    layer.ElementCount = reader.ReadInt32();
+                    Map.DataLayer layer = new Map.DataLayer {
+                        Type = (Map.DataLayerType)reader.ReadByte(),
+                        Offset = reader.ReadInt64(),
+                        CompressedLength = reader.ReadInt32(),
+                        GeneralPurposeField = reader.ReadInt32(),
+                        ElementSize = reader.ReadInt32(),
+                        ElementCount = reader.ReadInt32()
+                    };
                     layers.Add( layer );
                 }
 

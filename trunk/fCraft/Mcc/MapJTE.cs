@@ -112,7 +112,7 @@ namespace Mcc {
                 Map map = new Map();
 
                 byte version = bs.ReadByte();
-                if( version != 1 && version != 2 ) throw new FormatException();
+                if( version != 1 && version != 2 ) throw new MapFormatException();
 
                 // Read in the spawn orientation
                 mapStream.Seek( 8, SeekOrigin.Current );
@@ -136,7 +136,7 @@ namespace Mcc {
                 Map map = new Map();
 
                 byte version = bs.ReadByte();
-                if( version != 1 && version != 2 ) throw new FormatException();
+                if( version != 1 && version != 2 ) throw new MapFormatException();
 
                 // Read in the spawn location
                 map.spawn.x = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);

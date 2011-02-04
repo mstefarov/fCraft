@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Text;
 using Mcc;
@@ -72,14 +73,13 @@ namespace fCraft {
         public string FindPlayerName( ushort id ) {
             if( id < 256 ) {
                 return ((ReservedPlayerID)id).ToString();
-            } else {
-                lock( playerIDLock ) {
-                    if( PlayerNames.ContainsKey( id ) ) {
-                        return PlayerNames[id];
-                    }
-                }
-                return ReservedPlayerID.Unknown.ToString();
             }
+            lock( playerIDLock ) {
+                if( PlayerNames.ContainsKey( id ) ) {
+                    return PlayerNames[id];
+                }
+            }
+            return ReservedPlayerID.Unknown.ToString();
         }
 
 
@@ -453,11 +453,7 @@ namespace fCraft {
 
         internal static Block GetBlockByName( string block ) {
             block = block.ToLower();
-            if( blockNames.ContainsKey( block ) ) {
-                return blockNames[block];
-            } else {
-                return Block.Undefined;
-            }
+            return blockNames.ContainsKey( block ) ? blockNames[block] : Block.Undefined;
         }
 
 
@@ -812,13 +808,10 @@ namespace fCraft {
 
             if( Config.GetInt( ConfigKey.MaxBackupSize ) > 0 ) {
                 while( true ) {
-                    long Size = 0;
                     FileInfo[] fis = d.GetFiles();
-                    foreach( FileInfo fi in fis ) {
-                        Size += fi.Length;
-                    }
+                    long size = fis.Sum( fi => fi.Length );
 
-                    if( Size / 1024 / 1024 > Config.GetInt( ConfigKey.MaxBackupSize ) ) {
+                    if( size / 1024 / 1024 > Config.GetInt( ConfigKey.MaxBackupSize ) ) {
                         FileInfo info = backupList[backupList.Count - 1];
                         backupList.RemoveAt( backupList.Count - 1 );
                         try {

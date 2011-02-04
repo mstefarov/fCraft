@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 
 namespace fCraft {
@@ -9,10 +10,9 @@ namespace fCraft {
     /// Most commands for server moderation - kick, ban, rank change, etc - are here.
     /// </summary>
     static class AdminCommands {
+        const string banCommonHelp = "Ban information can be viewed with &H/baninfo";
 
         internal static void Init() {
-            string banCommonHelp = "Ban information can be viewed with &H/baninfo";
-
             cdBan.help += banCommonHelp;
             cdBanIP.help += banCommonHelp;
             cdBanAll.help += banCommonHelp;
@@ -160,6 +160,7 @@ namespace fCraft {
         }
 
 
+
         internal static void DoBan( Player player, string nameOrIP, string reason, bool banIP, bool banAll, bool unban ) {
             if( nameOrIP == null ) {
                 player.Message( "Please specify player name or IP to ban." );
@@ -175,7 +176,7 @@ namespace fCraft {
                 info = PlayerDB.FindPlayerInfoExact( nameOrIP );
             }
 
-            if( Config.GetBool( ConfigKey.RequireBanReason ) && (reason == null || reason.Length == 0) ) {
+            if( Config.GetBool( ConfigKey.RequireBanReason ) && string.IsNullOrEmpty( reason ) ) {
                 player.Message( "Please specify a ban/unban reason." );
                 // freeze the target player to prevent further damage
                 if( !unban && target != null && player.Can( Permission.Freeze ) && player.info.rank.CanBan( target.info.rank ) ) {
@@ -197,7 +198,7 @@ namespace fCraft {
                 // check permissions
                 if( player.info.rank.CanBan( target.info.rank ) ) {
                     address = target.info.lastIP;
-                    if( banIP ) DoIPBan( player, address, reason, target.name, banAll, unban );
+                    if( banIP ) DoIPBan( player, address, reason, target.name, banAll, false );
                     if( !banAll ) {
                         if( target.info.ProcessBan( player, reason ) ) {
                             Server.FirePlayerBannedEvent( target.info, player, reason );
@@ -205,7 +206,7 @@ namespace fCraft {
                                         target.info.name, player.name );
                             Server.SendToAllExcept( "{0}&W was banned by {1}", target,
                                                     target.GetClassyName(), player.GetClassyName() );
-                            if( reason != null && reason.Length > 0 ) {
+                            if( !string.IsNullOrEmpty( reason ) ) {
                                 if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) ) {
                                     Server.SendToAllExcept( "&WBan reason: {0}", target,
                                                             reason );
@@ -215,16 +216,12 @@ namespace fCraft {
 
                             if( !banIP ) {
                                 PlayerInfo[] alts = PlayerDB.FindPlayers( target.info.lastIP );
-                                List<PlayerInfo> bannedAlts = new List<PlayerInfo>();
-                                for( int i = 0; i < alts.Length; i++ ) {
-                                    if( alts[i].banned && alts[i] != target.info ) {
-                                        bannedAlts.Add( alts[i] );
-                                    }
-                                }
-                                if( bannedAlts.Count > 0 ) {
-                                    player.Message( "Warning: {0}&S shares IP with other banned players: {1}&S. Consider adding an IP-ban.",
-                                                    target.GetClassyName(),
-                                                    PlayerInfo.PlayerInfoArrayToString( bannedAlts.ToArray() ) );
+                                PlayerInfo[] bannedAlts = alts.Where( t => (t.banned && t != target.info) ).ToArray();
+                                if( bannedAlts.Length > 0 ) {
+                                    player.Message(
+                                        "Warning: {0}&S shares IP with other banned players: {1}&S. Consider adding an IP-ban.",
+                                        target.GetClassyName(),
+                                        PlayerInfo.PlayerInfoArrayToString( bannedAlts ) );
                                 }
                             }
 
@@ -252,7 +249,7 @@ namespace fCraft {
                                             info.name, player.name );
                                 Server.SendToAll( "{0}&W (offline) was unbanned by {1}",
                                                   info.GetClassyName(), player.GetClassyName() );
-                                if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
+                                if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && !string.IsNullOrEmpty( reason ) ) {
                                     Server.SendToAll( "&WUnban reason: {0}", reason );
                                 }
                             } else {
@@ -265,7 +262,7 @@ namespace fCraft {
                                             info.name, player.name );
                                 Server.SendToAll( "{0}&W (offline) was banned by {1}",
                                                   info.GetClassyName(), player.GetClassyName() );
-                                if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
+                                if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && !string.IsNullOrEmpty( reason ) ) {
                                     Server.SendToAll( "&WBan reason: {0}", reason );
                                 }
                             } else {
@@ -301,7 +298,7 @@ namespace fCraft {
                     Server.SendToAll( "{0}&W (unrecognized) was banned by {1}",
                                       info.GetClassyName(), player.GetClassyName() );
 
-                    if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
+                    if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && !string.IsNullOrEmpty( reason ) ) {
                         Server.SendToAll( "&WBan reason: {0}", reason );
                     }
                 }
@@ -323,7 +320,7 @@ namespace fCraft {
                     player.Message( "{0} has been removed from the IP ban list.", address );
                     Server.SendToAll( "&W{0} was unbanned by {1}",
                                       address, player.GetClassyName() );
-                    if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
+                    if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && !string.IsNullOrEmpty( reason ) ) {
                         Server.SendToAll( "&WUnban reason: {0}", reason );
                     }
                 } else {
@@ -345,7 +342,7 @@ namespace fCraft {
                 if( IPBanList.Add( new IPBanInfo( address, playerName, player.name, reason ) ) ) {
                     Server.SendToAll( "&W{0} was banned by {1}",
                                       address, player.GetClassyName() );
-                    if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && reason != null && reason.Length > 0 ) {
+                    if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && !string.IsNullOrEmpty( reason ) ) {
                         Server.SendToAll( "&WBan reason: {0}", reason );
                     }
 
@@ -417,6 +414,7 @@ namespace fCraft {
             }
         }
 
+
         internal static bool DoKick( Player player, Player target, string reason, bool silent ) {
             if( player == target ) {
                 player.Message( "You cannot kick yourself." );
@@ -434,7 +432,7 @@ namespace fCraft {
                     target.info.ProcessKick( player, reason );
                     Server.FirePlayerKickedEvent( target, player, reason );
                 }
-                if( reason != null && reason.Length > 0 ) {
+                if( !string.IsNullOrEmpty( reason ) ) {
                     if( !silent && Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) ) {
                         Server.SendToAll( "&WKick reason: {0}", reason );
                     }
@@ -547,7 +545,7 @@ namespace fCraft {
                 return;
             }
 
-            if( Config.GetBool( ConfigKey.RequireRankChangeReason ) && (reason == null || reason.Length == 0) ) {
+            if( Config.GetBool( ConfigKey.RequireRankChangeReason ) && string.IsNullOrEmpty( reason ) ) {
                 if( promote ) {
                     player.Message( "&WPlease specify a promotion reason." );
                 } else {
@@ -792,10 +790,8 @@ namespace fCraft {
 
             string reason = "(import from " + serverName + ")";
             foreach( string name in names ) {
-                PlayerInfo info = PlayerDB.FindPlayerInfoExact( name );
-                if( info == null ) {
-                    info = PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
-                }
+                PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
+                                  PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
                 Player target = Server.FindPlayerExact( info.name );
                 DoChangeRank( player, info, target, targetRank, reason, silent, false );
             }
@@ -964,6 +960,8 @@ namespace fCraft {
             }
         }
 
+
+
         static CommandDescriptor cdShutdown = new CommandDescriptor {
             name = "shutdown",
             permissions = new[] { Permission.ShutdownServer },
@@ -994,6 +992,8 @@ namespace fCraft {
             }
         }
 
+
+
         static CommandDescriptor cdRestart = new CommandDescriptor {
             name = "restart",
             permissions = new[] { Permission.ShutdownServer },
@@ -1023,7 +1023,6 @@ namespace fCraft {
                 Server.InitiateShutdown( reason, delay, true, true );
             }
         }
-
 
         #endregion
 
@@ -1135,6 +1134,7 @@ namespace fCraft {
                 player.NoAccessMessage( Permission.Say );
             }
         }
+
 
 
         static CommandDescriptor cdStaffChat = new CommandDescriptor {
@@ -1268,7 +1268,6 @@ namespace fCraft {
 
 
 
-
         static CommandDescriptor cdBring = new CommandDescriptor {
             name = "bring",
             aliases = new[] { "summon", "fetch" },
@@ -1391,6 +1390,7 @@ namespace fCraft {
         }
 
 
+
         static CommandDescriptor cdUnmute = new CommandDescriptor {
             name = "unmute",
             consoleSafe = true,
@@ -1422,6 +1422,7 @@ namespace fCraft {
                 cdUnmute.PrintUsage( player );
             }
         }
+
         #endregion
     }
 }

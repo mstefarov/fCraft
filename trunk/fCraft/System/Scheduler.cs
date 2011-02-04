@@ -12,8 +12,8 @@ namespace fCraft {
         static HashSet<Task> tasks = new HashSet<Task>();
         static Queue<Task> backgroundTasks = new Queue<Task>();
         static Task[] taskList;
-        static object taskListLock = new object(),
-                      backgroundTaskListLock = new object();
+        static readonly object taskListLock = new object(),
+                               backgroundTaskListLock = new object();
 
         static Thread schedulerThread;
         static Thread backgroundThread;
@@ -34,42 +34,40 @@ namespace fCraft {
 
                 for( int i = 0; i < taskListCache.Length && !Server.shuttingDown; i++ ) {
                     Task task = taskListCache[i];
-                    if( !task.IsStopped && task.NextTime <= ticksNow ) {
+                    if( task.IsStopped || task.NextTime > ticksNow ) continue;
+                    if( task.IsRecurring && task.AdjustForExecutionTime ) {
+                        task.NextTime = ticksNow + task.Interval;
+                    }
 
-                        if( task.IsRecurring && task.AdjustForExecutionTime ) {
-                            task.NextTime = ticksNow + task.Interval;
+                    if( task.IsBackground ) {
+                        lock( backgroundTaskListLock ) {
+                            backgroundTasks.Enqueue( task );
                         }
-
-                        if( task.IsBackground ) {
-                            lock( backgroundTaskListLock ) {
-                                backgroundTasks.Enqueue( task );
-                            }
-                        } else {
-                            task.IsExecuting = true;
+                    } else {
+                        task.IsExecuting = true;
 #if DEBUG
                             task.Callback( task );
                             task.IsExecuting = false;
 #else
-                            try {
-                                task.Callback( task );
-                            } catch( Exception ex ) {
-                                Logger.LogAndReportCrash( "Exception thrown by ScheduledTask callback", "fCraft", ex );
-                            } finally {
-                                task.IsExecuting = false;
-                            }
+                        try {
+                            task.Callback( task );
+                        } catch( Exception ex ) {
+                            Logger.LogAndReportCrash( "Exception thrown by ScheduledTask callback", "fCraft", ex );
+                        } finally {
+                            task.IsExecuting = false;
+                        }
 #endif
-                        }
+                    }
 
-                        if( !task.IsRecurring || task.MaxRepeats == 1 ) {
-                            task.IsStopped = true;
-                            continue;
-                        }
-                        task.MaxRepeats--;
+                    if( !task.IsRecurring || task.MaxRepeats == 1 ) {
+                        task.IsStopped = true;
+                        continue;
+                    }
+                    task.MaxRepeats--;
 
-                        ticksNow = DateTime.UtcNow;
-                        if( !task.AdjustForExecutionTime ) {
-                            task.NextTime = ticksNow.Add( task.Interval );
-                        }
+                    ticksNow = DateTime.UtcNow;
+                    if( !task.AdjustForExecutionTime ) {
+                        task.NextTime = ticksNow.Add( task.Interval );
                     }
                 }
 
@@ -336,7 +334,7 @@ namespace fCraft {
 
 
             public override string ToString() {
-                StringBuilder sb = new StringBuilder("Task(");
+                StringBuilder sb = new StringBuilder( "Task(" );
 
                 if( Callback.Target != null ) {
                     sb.Append( Callback.Target ).Append( "::" );

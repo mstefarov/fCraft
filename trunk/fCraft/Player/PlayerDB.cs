@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -11,34 +12,36 @@ namespace fCraft {
     public static class PlayerDB {
         static StringTree tree = new StringTree();
         static List<PlayerInfo> list = new List<PlayerInfo>();
-        public static PlayerInfo[] listCache;
+        public static PlayerInfo[] PlayerInfoList { get; private set; }
         public static readonly TimeSpan SaveInterval = TimeSpan.FromSeconds( 60 );
 
         static int MaxID = 255;
 
         public const int NumberOfMatchesToPrint = 20;
 
-
         public const string DBFileName = "PlayerDB.txt",
-                            Header = " fCraft PlayerDB | Row format: " +
-                                     "playerName,lastIP,rank,rankChangeDate,rankChangeBy," +
-                                     "banStatus,banDate,bannedBy,unbanDate,unbannedBy," +
-                                     "firstLoginDate,lastLoginDate,lastFailedLoginDate," +
-                                     "lastFailedLoginIP,failedLoginCount,totalTimeOnServer," +
-                                     "blocksBuilt,blocksDeleted,timesVisited," +
-                                     "linesWritten,UNUSED,UNUSED,previousRank,rankChangeReason," +
-                                     "timesKicked,timesKickedOthers,timesBannedOthers,UID,rankChangeType," +
-                                     "lastKickDate,LastSeen,BlocksDrawn,lastKickBy,lastKickReason," +
-                                     "bannedUntil,loggedOutFrozen,frozenBy,"+
-                                     "mutedUntil,mutedBy,IRCPassword,online,leaveReason";
+                            TempDBFileName = DBFileName + ".temp",
+                            BackupDBFileName = DBFileName + ".backup";
+
+        const string Header = " fCraft PlayerDB | Row format: " +
+                              "playerName,lastIP,rank,rankChangeDate,rankChangeBy," +
+                              "banStatus,banDate,bannedBy,unbanDate,unbannedBy," +
+                              "firstLoginDate,lastLoginDate,lastFailedLoginDate," +
+                              "lastFailedLoginIP,failedLoginCount,totalTimeOnServer," +
+                              "blocksBuilt,blocksDeleted,timesVisited," +
+                              "linesWritten,UNUSED,UNUSED,previousRank,rankChangeReason," +
+                              "timesKicked,timesKickedOthers,timesBannedOthers,UID,rankChangeType," +
+                              "lastKickDate,LastSeen,BlocksDrawn,lastKickBy,lastKickReason," +
+                              "bannedUntil,loggedOutFrozen,frozenBy,"+
+                              "mutedUntil,mutedBy,IRCPassword,online,leaveReason";
 
 
-        static object locker = new object();
-        public static bool isLoaded;
+        static readonly object locker = new object();
+        public static bool IsLoaded { get; private set; }
 
 
-        public static PlayerInfo AddFakeEntry( string name, RankChangeType _rankChangeType ) {
-            PlayerInfo info = new PlayerInfo( name, RankList.DefaultRank, false, _rankChangeType );
+        public static PlayerInfo AddFakeEntry( string name, RankChangeType rankChangeType ) {
+            PlayerInfo info = new PlayerInfo( name, RankList.DefaultRank, false, rankChangeType );
             lock( locker ) {
                 list.Add( info );
                 tree.Add( info.name, info );
@@ -57,10 +60,10 @@ namespace fCraft {
                 using( StreamReader reader = File.OpenText( DBFileName ) ) {
 
                     string header = reader.ReadLine(); // header
-                    int maxIDField;
 
                     lock( locker ) {
                         // first number of the header is MaxID
+                        int maxIDField;
                         if( Int32.TryParse( header.Split( ' ' )[0], out maxIDField ) ) {
                             if( maxIDField >= 255 ) {// IDs start at 256
                                 MaxID = maxIDField;
@@ -100,7 +103,7 @@ namespace fCraft {
                 Logger.Log( "PlayerDB.Load: No player DB file found.", LogType.Warning );
             }
             UpdateCache();
-            isLoaded = true;
+            IsLoaded = true;
         }
 
 
@@ -108,14 +111,14 @@ namespace fCraft {
             Save();
         }
 
+
         internal static void Save() {
             Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count );
-            string tempDBFileName = DBFileName + ".temp";
-            string backupDBFileName = DBFileName + ".backup";
+
 
             PlayerInfo[] listCopy = GetPlayerListCopy();
 
-            using( FileStream fs = new FileStream( tempDBFileName, FileMode.Create, FileAccess.Write, FileShare.None, 64 * 1024 ) ) {
+            using( FileStream fs = new FileStream( TempDBFileName, FileMode.Create, FileAccess.Write, FileShare.None, 64 * 1024 ) ) {
                 using( StreamWriter writer = new StreamWriter( fs ) ) {
                     writer.WriteLine( MaxID + Header );
                     for( int i=0; i<listCopy.Length; i++){
@@ -124,8 +127,8 @@ namespace fCraft {
                 }
             }
             try {
-                if( File.Exists( DBFileName ) ) File.Replace( tempDBFileName, DBFileName, backupDBFileName, true );
-                else File.Move( tempDBFileName, DBFileName );
+                if( File.Exists( DBFileName ) ) File.Replace( TempDBFileName, DBFileName, BackupDBFileName, true );
+                else File.Move( TempDBFileName, DBFileName );
             } catch( Exception ex ) {
                 Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );
             }
@@ -160,7 +163,7 @@ namespace fCraft {
         public static PlayerInfo[] FindPlayers( IPAddress address, int limit ) {
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
-            PlayerInfo[] cache = listCache;
+            PlayerInfo[] cache = PlayerInfoList;
             foreach( PlayerInfo info in cache ) {
                 if( info.lastIP.ToString() == address.ToString() ) {
                     result.Add( info );
@@ -179,7 +182,7 @@ namespace fCraft {
         public static PlayerInfo[] FindPlayers( Regex regex, int limit ) {
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
-            PlayerInfo[] cache = listCache;
+            PlayerInfo[] cache = PlayerInfoList;
             foreach( PlayerInfo info in cache ) {
                 if( regex.IsMatch( info.name ) ) {
                     result.Add( info );
@@ -199,12 +202,12 @@ namespace fCraft {
             return tree.GetMultiple( namePart, limit ).ToArray();
         }
 
-
+        /// <summary>Searches for player names starting with namePart, returning just one or none of the matches.</summary>
+        /// <param name="name">Partial or full player name</param>
+        /// <param name="info">PlayerInfo to output (will be set to null if no single match was found)</param>
+        /// <returns>true if one or zero matches were found, false if multiple matches were found</returns>
         public static bool FindPlayerInfo( string name, out PlayerInfo info ) {
-            if( name == null ) {
-                throw new ArgumentNullException( "name" );
-            }
-
+            if( name == null ) throw new ArgumentNullException( "name" );
             lock( locker ) {
                 return tree.Get( name, out info );
             }
@@ -212,7 +215,7 @@ namespace fCraft {
 
 
         public static PlayerInfo FindPlayerInfoExact( string name ) {
-            if( name == null ) return null;
+            if( name == null ) throw new ArgumentNullException( "name" );
             lock( locker ) {
                 return tree.Get( name );
             }
@@ -224,12 +227,8 @@ namespace fCraft {
         #region Stats
 
         public static int CountBannedPlayers() {
-            int banned = 0;
-            PlayerInfo[] cache = listCache;
-            for( int i=0; i<cache.Length; i++){
-                if( cache[i].banned ) banned++;
-            }
-            return banned;
+            PlayerInfo[] cache = PlayerInfoList;
+            return cache.Count( t => t.banned );
         }
 
 
@@ -239,12 +238,7 @@ namespace fCraft {
 
 
         public static int CountPlayersByRank( Rank pc ) {
-            int count = 0;
-            PlayerInfo[] cache = listCache;
-            for( int i = 0; i < cache.Length; i++ ) {
-                if( cache[i].rank == pc ) count++;
-            }
-            return count;
+            return PlayerInfoList.Count( t => t.rank == pc );
         }
 
         #endregion
@@ -271,27 +265,20 @@ namespace fCraft {
 
 
         public static PlayerInfo[] GetPlayerListCopy() {
-            return listCache;
+            return PlayerInfoList;
         }
 
 
         public static PlayerInfo[] GetPlayerListCopy( Rank pc ) {
-            List<PlayerInfo> tempList = new List<PlayerInfo>();
-            PlayerInfo[] cache = listCache;
-            foreach( PlayerInfo info in cache ) {
-                if( info.rank == pc ) {
-                    tempList.Add( info );
-                }
-            }
-            return tempList.ToArray();
+            PlayerInfo[] cache = PlayerInfoList;
+            return cache.Where( info => info.rank == pc ).ToArray();
         }
 
 
         static void UpdateCache() {
             lock( locker ) {
-                listCache = list.ToArray();
+                PlayerInfoList = list.ToArray();
             }
         }
-
     }
 }

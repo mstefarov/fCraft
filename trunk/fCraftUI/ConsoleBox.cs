@@ -12,48 +12,45 @@ namespace fCraftUI {
         int logPointer;
 
         protected override bool ProcessCmdKey( ref Message msg, Keys keyData ) {
-            if( keyData == Keys.Up ) {
-                if( msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_KEYDOWN ) {
-                    if( log.Count == 0 ) return true;
-                    if( logPointer > 0 ) {
-                        logPointer--;
+            switch( keyData ) {
+                case Keys.Up:
+                    if( msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_KEYDOWN ) {
+                        if( log.Count == 0 ) return true;
+                        if( logPointer > 0 ) {
+                            logPointer--;
+                        }
+                        Text = log[logPointer];
+                        SelectAll();
                     }
-                    Text = log[logPointer];
-                    SelectAll();
-                }
-                return true;
-
-            } else if( keyData == Keys.Down ) {
-                if( msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_KEYDOWN ) {
-                    if( log.Count == 0 ) return true;
-                    if( logPointer < log.Count - 1 ) {
-                        logPointer++;
+                    return true;
+                case Keys.Down:
+                    if( msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_KEYDOWN ) {
+                        if( log.Count == 0 ) return true;
+                        if( logPointer < log.Count - 1 ) {
+                            logPointer++;
+                        }
+                        Text = log[logPointer];
+                        SelectAll();
                     }
-                    Text = log[logPointer];
-                    SelectAll();
-                }
-                return true;
-
-            } else if( keyData == Keys.Enter ) {
-                if( msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_KEYDOWN ) {
-                    if( Text.Length > 0 ) {
-                        log.Add( Text );
-                        if( log.Count > 100 ) log.RemoveAt( 0 );
+                    return true;
+                case Keys.Enter:
+                    if( msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_KEYDOWN ) {
+                        if( Text.Length > 0 ) {
+                            log.Add( Text );
+                            if( log.Count > 100 ) log.RemoveAt( 0 );
+                            logPointer = log.Count;
+                        }
+                    }
+                    if( OnCommand != null ) OnCommand();
+                    return true;
+                case Keys.Escape:
+                    if( msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_KEYDOWN ) {
                         logPointer = log.Count;
+                        Text = "";
                     }
-                }
-                if( OnCommand != null ) OnCommand();
-                return true;
-
-            } else if( keyData == Keys.Escape ) {
-                if( msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_KEYDOWN ) {
-                    logPointer = log.Count;
-                    Text = "";
-                }
-                return base.ProcessCmdKey( ref msg, keyData );
-
-            } else {
-                return base.ProcessCmdKey( ref msg, keyData );
+                    return base.ProcessCmdKey( ref msg, keyData );
+                default:
+                    return base.ProcessCmdKey( ref msg, keyData );
             }
         }
     }

@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using fCraft;
 using Color = System.Drawing.Color;
 
+
 namespace ConfigTool {
     public sealed partial class ConfigUI : Form {
         static ConfigUI instance;
@@ -43,9 +44,7 @@ namespace ConfigTool {
             FillToolTipsAdvanced();
 
 
-            dgvWorlds.DataError += delegate( object sender, DataGridViewDataErrorEventArgs e ) {
-                MessageBox.Show( e.Exception.Message, "Data Error" );
-            };
+            dgvWorlds.DataError += ( sender, e ) => MessageBox.Show( e.Exception.Message, "Data Error" );
 
             nMaxPlayers.Maximum = Config.MaxPlayersSupported;
 
@@ -202,7 +201,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         private void dgvWorlds_SelectionChanged( object sender, EventArgs e ) {
-            bool oneRowSelected = (dgvWorlds.SelectedRows.Count == 1);
+            bool oneRowSelected = ( dgvWorlds.SelectedRows.Count == 1 );
             bWorldDelete.Enabled = oneRowSelected;
             bWorldEdit.Enabled = oneRowSelected;
         }
@@ -259,7 +258,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         #region Security
 
         private void cVerifyNames_SelectedIndexChanged( object sender, EventArgs e ) {
-            xAllowUnverifiedLAN.Enabled = (cVerifyNames.SelectedIndex != 0);
+            xAllowUnverifiedLAN.Enabled = ( cVerifyNames.SelectedIndex != 0 );
         }
 
         #endregion
@@ -424,7 +423,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void cIRCList_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cIRCList.SelectedIndex < 0 ) return;
             string selectedNetwork = (string)cIRCList.Items[cIRCList.SelectedIndex];
-            IRCNetwork network = IRCNetworks.First( ( _network ) => (_network.Name == selectedNetwork) );
+            IRCNetwork network = IRCNetworks.First( ( _network ) => ( _network.Name == selectedNetwork ) );
             tIRCBotNetwork.Text = network.Host;
             nIRCBotPort.Value = network.Port;
         }
@@ -507,12 +506,12 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             xKickIdle.Checked = rank.IdleKickTimer > 0;
             nKickIdle.Value = rank.IdleKickTimer;
             nKickIdle.Enabled = xKickIdle.Checked;
-            xAntiGrief.Checked = (rank.AntiGriefBlocks > 0 && rank.AntiGriefSeconds > 0);
+            xAntiGrief.Checked = ( rank.AntiGriefBlocks > 0 && rank.AntiGriefSeconds > 0 );
             nAntiGriefBlocks.Value = rank.AntiGriefBlocks;
             nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
             nAntiGriefSeconds.Value = rank.AntiGriefSeconds;
             nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
-            xDrawLimit.Checked = (rank.DrawLimit > 0);
+            xDrawLimit.Checked = ( rank.DrawLimit > 0 );
             nDrawLimit.Value = rank.DrawLimit;
             xAllowSecurityCircumvention.Checked = rank.AllowSecurityCircumvention;
 
@@ -540,8 +539,8 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             vPermissions.Enabled = true;
 
             bDeleteRank.Enabled = true;
-            bRaiseRank.Enabled = (selectedRank != RankList.HighestRank);
-            bLowerRank.Enabled = (selectedRank != RankList.LowestRank);
+            bRaiseRank.Enabled = ( selectedRank != RankList.HighestRank );
+            bLowerRank.Enabled = ( selectedRank != RankList.LowestRank );
         }
 
         void RebuildRankList() {
@@ -706,21 +705,21 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 Rank replacementRank = popup.substituteRank;
 
                 // Update default rank
-                Rank defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+                defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
                 if( defaultRank == deletedRank ) {
                     defaultRank = replacementRank;
                     messages += "DefaultRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
                 }
 
                 // Update defaultbuild rank
-                Rank defaultBuildRank = RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
+                defaultBuildRank = RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
                 if( defaultBuildRank == deletedRank ) {
                     defaultBuildRank = replacementRank;
                     messages += "DefaultBuildRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
                 }
 
                 // Update patrolled rank
-                Rank patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
+                patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
                 if( patrolledRank == deletedRank ) {
                     patrolledRank = replacementRank;
                     messages += "PatrolledRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
@@ -840,48 +839,43 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         private void xKickIdle_CheckedChanged( object sender, EventArgs e ) {
-            nKickIdle.Enabled = xKickIdle.Checked;
-            if( selectedRank != null ) {
-                if( xKickIdle.Checked ) {
-                    nKickIdle.Value = selectedRank.IdleKickTimer;
-                } else {
-                    nKickIdle.Value = 0;
-                    selectedRank.IdleKickTimer = 0;
-                }
+            if( selectedRank == null ) return;
+            if( xKickIdle.Checked ) {
+                nKickIdle.Value = selectedRank.IdleKickTimer;
+            } else {
+                nKickIdle.Value = 0;
+                selectedRank.IdleKickTimer = 0;
             }
+            nKickIdle.Enabled = xKickIdle.Checked;
         }
 
         private void xAntiGrief_CheckedChanged( object sender, EventArgs e ) {
-            nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
-            if( selectedRank != null ) {
-                if( xAntiGrief.Checked ) {
-                    nAntiGriefBlocks.Value = selectedRank.AntiGriefBlocks;
-                    nAntiGriefSeconds.Value = selectedRank.AntiGriefSeconds;
-                } else {
-                    nAntiGriefBlocks.Value = 0;
-                    selectedRank.AntiGriefBlocks = 0;
-                    nAntiGriefSeconds.Value = 0;
-                    selectedRank.AntiGriefSeconds = 0;
-                }
-                nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
-                nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
+            if( selectedRank == null ) return;
+            if( xAntiGrief.Checked ) {
+                nAntiGriefBlocks.Value = selectedRank.AntiGriefBlocks;
+                nAntiGriefSeconds.Value = selectedRank.AntiGriefSeconds;
+            } else {
+                nAntiGriefBlocks.Value = 0;
+                selectedRank.AntiGriefBlocks = 0;
+                nAntiGriefSeconds.Value = 0;
+                selectedRank.AntiGriefSeconds = 0;
             }
+            nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
+            nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
         }
 
         private void xDrawLimit_CheckedChanged( object sender, EventArgs e ) {
-            nDrawLimit.Enabled = xDrawLimit.Checked;
-            if( selectedRank != null ) {
-                if( xDrawLimit.Checked ) {
-                    nDrawLimit.Value = selectedRank.DrawLimit;
-                    double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
-                    lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed ); ;
-                } else {
-                    nDrawLimit.Value = 0;
-                    selectedRank.DrawLimit = 0;
-                    lDrawLimitUnits.Text = "blocks";
-                }
-                nDrawLimit.Enabled = xDrawLimit.Checked;
+            if( selectedRank == null ) return;
+            if( xDrawLimit.Checked ) {
+                nDrawLimit.Value = selectedRank.DrawLimit;
+                double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
+                lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed ); ;
+            } else {
+                nDrawLimit.Value = 0;
+                selectedRank.DrawLimit = 0;
+                lDrawLimitUnits.Text = "blocks";
             }
+            nDrawLimit.Enabled = xDrawLimit.Checked;
         }
 
         private void vPermissions_ItemChecked( object sender, ItemCheckedEventArgs e ) {
@@ -979,7 +973,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 case Permission.DeleteAdmincrete:
                     if( check ) vPermissions.Items[(int)Permission.Delete].Checked = true;
                     break;
-                    
+
                 case Permission.Build:
                     if( !check ) {
                         vPermissions.Items[(int)Permission.PlaceAdmincrete].Checked = false;
@@ -1058,27 +1052,25 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
 
         private void bRaiseRank_Click( object sender, EventArgs e ) {
-            if( selectedRank != null ) {
-                defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
-                defaultBuildRank = RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
-                patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
-                RankList.RaiseRank( selectedRank );
-                RebuildRankList();
-                rankNameList.Insert( selectedRank.Index + 1, selectedRank.ToComboBoxOption() );
-                rankNameList.RemoveAt( selectedRank.Index + 3 );
-            }
+            if( selectedRank == null ) return;
+            defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+            defaultBuildRank = RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
+            patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
+            RankList.RaiseRank( selectedRank );
+            RebuildRankList();
+            rankNameList.Insert( selectedRank.Index + 1, selectedRank.ToComboBoxOption() );
+            rankNameList.RemoveAt( selectedRank.Index + 3 );
         }
 
         private void bLowerRank_Click( object sender, EventArgs e ) {
-            if( selectedRank != null ) {
-                defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
-                defaultBuildRank = RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
-                patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
-                RankList.LowerRank( selectedRank );
-                RebuildRankList();
-                rankNameList.Insert( selectedRank.Index + 2, selectedRank.ToComboBoxOption() );
-                rankNameList.RemoveAt( selectedRank.Index );
-            }
+            if( selectedRank == null ) return;
+            defaultRank = RankList.FindRank( cDefaultRank.SelectedIndex - 1 );
+            defaultBuildRank = RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
+            patrolledRank = RankList.FindRank( cPatrolledRank.SelectedIndex - 1 );
+            RankList.LowerRank( selectedRank );
+            RebuildRankList();
+            rankNameList.Insert( selectedRank.Index + 2, selectedRank.ToComboBoxOption() );
+            rankNameList.RemoveAt( selectedRank.Index );
         }
 
         #endregion
@@ -1119,66 +1111,66 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         #region Reset
 
         private void bResetAll_Click( object sender, EventArgs e ) {
-            if( MessageBox.Show( "Are you sure you want to reset everything to defaults?", "Warning", MessageBoxButtons.OKCancel ) == DialogResult.OK ) {
-                Config.LoadDefaults();
-                Config.ResetRanks();
+            if( MessageBox.Show( "Are you sure you want to reset everything to defaults?", "Warning",
+                                 MessageBoxButtons.OKCancel ) != DialogResult.OK ) return;
+            Config.LoadDefaults();
+            Config.ResetRanks();
 
-                ApplyTabGeneral();
-                ApplyTabChat();
-                ApplyTabWorlds(); // also reloads world list
-                ApplyTabRanks();
-                ApplyTabSecurity();
-                ApplyTabSavingAndBackup();
-                ApplyTabLogging();
-                ApplyTabIRC();
-                ApplyTabAdvanced();
-            }
+            ApplyTabGeneral();
+            ApplyTabChat();
+            ApplyTabWorlds(); // also reloads world list
+            ApplyTabRanks();
+            ApplyTabSecurity();
+            ApplyTabSavingAndBackup();
+            ApplyTabLogging();
+            ApplyTabIRC();
+            ApplyTabAdvanced();
         }
 
         private void bResetTab_Click( object sender, EventArgs e ) {
-            if( MessageBox.Show( "Are you sure you want to reset this tab to defaults?", "Warning", MessageBoxButtons.OKCancel ) == DialogResult.OK ) {
-                switch( tabs.SelectedIndex ) {
-                    case 0:// General
-                        Config.LoadDefaultsGeneral();
-                        ApplyTabGeneral();
-                        break;
-                    case 1: // Chat
-                        Config.LoadDefaultsChat();
-                        ApplyTabChat();
-                        break;
-                    case 2:// Worlds
-                        Config.LoadDefaultsWorlds();
-                        ApplyTabWorlds(); // also reloads world list
-                        break;
-                    case 3:// Ranks
-                        Config.ResetRanks();
-                        ApplyTabWorlds();
-                        ApplyTabRanks();
-                        defaultRank = null;
-                        patrolledRank = null;
-                        RebuildRankList();
-                        break;
-                    case 4:// Security
-                        Config.LoadDefaultsSecurity();
-                        ApplyTabSecurity();
-                        break;
-                    case 5:// Saving and Backup
-                        Config.LoadDefaultsSavingAndBackup();
-                        ApplyTabSavingAndBackup();
-                        break;
-                    case 6:// Logging
-                        Config.LoadDefaultsLogging();
-                        ApplyTabLogging();
-                        break;
-                    case 7:// IRC
-                        Config.LoadDefaultsIRC();
-                        ApplyTabIRC();
-                        break;
-                    case 8:// Advanced
-                        Config.LoadDefaultsAdvanced();
-                        ApplyTabAdvanced();
-                        break;
-                }
+            if( MessageBox.Show( "Are you sure you want to reset this tab to defaults?", "Warning",
+                                 MessageBoxButtons.OKCancel ) != DialogResult.OK ) return;
+            switch( tabs.SelectedIndex ) {
+                case 0:// General
+                    Config.LoadDefaultsGeneral();
+                    ApplyTabGeneral();
+                    break;
+                case 1: // Chat
+                    Config.LoadDefaultsChat();
+                    ApplyTabChat();
+                    break;
+                case 2:// Worlds
+                    Config.LoadDefaultsWorlds();
+                    ApplyTabWorlds(); // also reloads world list
+                    break;
+                case 3:// Ranks
+                    Config.ResetRanks();
+                    ApplyTabWorlds();
+                    ApplyTabRanks();
+                    defaultRank = null;
+                    patrolledRank = null;
+                    RebuildRankList();
+                    break;
+                case 4:// Security
+                    Config.LoadDefaultsSecurity();
+                    ApplyTabSecurity();
+                    break;
+                case 5:// Saving and Backup
+                    Config.LoadDefaultsSavingAndBackup();
+                    ApplyTabSavingAndBackup();
+                    break;
+                case 6:// Logging
+                    Config.LoadDefaultsLogging();
+                    ApplyTabLogging();
+                    break;
+                case 7:// IRC
+                    Config.LoadDefaultsIRC();
+                    ApplyTabIRC();
+                    break;
+                case 8:// Advanced
+                    Config.LoadDefaultsAdvanced();
+                    ApplyTabAdvanced();
+                    break;
             }
         }
 
@@ -1194,15 +1186,15 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         void AddChangeHandler( Control c, EventHandler handler ) {
             if( c is CheckBox ) {
-                ((CheckBox)c).CheckedChanged += handler;
+                ( (CheckBox)c ).CheckedChanged += handler;
             } else if( c is ComboBox ) {
-                ((ComboBox)c).SelectedIndexChanged += handler;
+                ( (ComboBox)c ).SelectedIndexChanged += handler;
             } else if( c is ListView ) {
-                ((ListView)c).ItemChecked += (( o, e ) => handler( o, e ));
+                ( (ListView)c ).ItemChecked += ( ( o, e ) => handler( o, e ) );
             } else if( c is NumericUpDown ) {
-                ((NumericUpDown)c).ValueChanged += handler;
+                ( (NumericUpDown)c ).ValueChanged += handler;
             } else if( c is ListBox ) {
-                ((ListBox)c).SelectedIndexChanged += handler;
+                ( (ListBox)c ).SelectedIndexChanged += handler;
             } else if( c is TextBoxBase ) {
                 c.TextChanged += handler;
             } else if( c is ButtonBase ) {
@@ -1345,24 +1337,22 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         #endregion
 
         private void ConfigUI_FormClosing( object sender, FormClosingEventArgs e ) {
-            if( bApply.Enabled ) {
-                switch( MessageBox.Show( "Would you like to save the changes before exiting?", "Warning", MessageBoxButtons.YesNoCancel ) ) {
-                    case DialogResult.Yes:
-                        SaveConfig();
-                        if( Config.errors.Length > 0 ) {
-                            MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
-                        } else if( Config.Save( false ) ) {
-                            bApply.Enabled = false;
-                        } else {
-                            MessageBox.Show( Config.errors, "An error occured while trying to save:" );
-                        }
-                        return;
-                    case DialogResult.Cancel:
-                        e.Cancel = true;
-                        return;
-                }
+            if( !bApply.Enabled ) return;
+            switch( MessageBox.Show( "Would you like to save the changes before exiting?", "Warning", MessageBoxButtons.YesNoCancel ) ) {
+                case DialogResult.Yes:
+                    SaveConfig();
+                    if( Config.errors.Length > 0 ) {
+                        MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
+                    } else if( Config.Save( false ) ) {
+                        bApply.Enabled = false;
+                    } else {
+                        MessageBox.Show( Config.errors, "An error occured while trying to save:" );
+                    }
+                    return;
+                case DialogResult.Cancel:
+                    e.Cancel = true;
+                    return;
             }
         }
-
     }
 }

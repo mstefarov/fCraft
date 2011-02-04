@@ -19,7 +19,6 @@ namespace fCraft {
         }
 
 
-
         static CommandDescriptor cdSolid = new CommandDescriptor {
             name = "solid",
             aliases = new[] { "s" },
@@ -194,7 +193,6 @@ namespace fCraft {
             player.Message( "Click the block that you would like to test." );
         }
 
-
         internal static void WhoDidCallback( Player player, Position[] marks, object tag ) {
             Map map = (Map)tag;
             ushort ownership = map.blockOwnership[map.Index( marks[0].x, marks[0].y, marks[0].h )];
@@ -215,7 +213,7 @@ namespace fCraft {
                         player.Message( "Block at ({0},{1},{2}) edited by IRC Bot.",
                                         marks[0].x, marks[0].y, marks[0].h );
                         break;
-                        
+
                     case ReservedPlayerID.None:
                         player.Message( "Block at ({0},{1},{2}) was never touched.",
                                         marks[0].x, marks[0].y, marks[0].h );
@@ -231,7 +229,7 @@ namespace fCraft {
                                         marks[0].x, marks[0].y, marks[0].h );
                         break;
                 }
-            }else{
+            } else {
                 string name = map.FindPlayerName( ownership );
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name );
                 if( info == null ) {

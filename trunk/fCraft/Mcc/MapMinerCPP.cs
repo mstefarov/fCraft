@@ -84,7 +84,7 @@ namespace Mcc {
 
                     // Read in the magic number
                     if( bs.ReadByte() != 0xbe || bs.ReadByte() != 0xee || bs.ReadByte() != 0xef ) {
-                        throw new FormatException( "MinerCPP map header is incorrect." );
+                        throw new MapFormatException( "MinerCPP map header is incorrect." );
                     }
 
                     // Read in the map dimesions
@@ -109,7 +109,7 @@ namespace Mcc {
 
                     // Read in the magic number
                     if( bs.ReadByte() != 0xbe || bs.ReadByte() != 0xee || bs.ReadByte() != 0xef ) {
-                        throw new FormatException( "MinerCPP map header is incorrect." );
+                        throw new MapFormatException( "MinerCPP map header is incorrect." );
                     }
 
                     // Read in the map dimesions

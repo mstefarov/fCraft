@@ -48,8 +48,8 @@ namespace fCraftUI {
                                                 DateTime.Now.Subtract( update.ReleaseDate ).TotalDays ), LogType.ConsoleOutput );
                             StartServer();
                         } else {
-                            UpdateWindow updateWindow = new UpdateWindow( update, this, Config.GetString( ConfigKey.AutomaticUpdates ) == "Auto" );
-                            updateWindow.StartPosition = FormStartPosition.CenterParent;
+                            UpdateWindow updateWindow = new UpdateWindow( update, this,
+                                                                          Config.GetString( ConfigKey.AutomaticUpdates ) == "Auto" );
                             updateWindow.ShowDialog();
                         }
                     } else {
@@ -86,10 +86,9 @@ namespace fCraftUI {
         }
 
         void HandleShutDown( object sender, CancelEventArgs e ) {
-            if( !shutdownComplete ) {
-                e.Cancel = true;
-                Shutdown( "quit", true );
-            }
+            if( shutdownComplete ) return;
+            e.Cancel = true;
+            Shutdown( "quit", true );
         }
 
         void Shutdown( string reason, bool quit ) {
@@ -105,7 +104,7 @@ namespace fCraftUI {
         }
 
         delegate void LogDelegate( string message, LogType type );
-        delegate void SetURLDelegate( string URL );
+        delegate void SetUrlDelegate( string url );
         delegate void PlayerListUpdateDelegate( string[] items );
 
         public void Log( string message, LogType type ) {
@@ -131,7 +130,7 @@ namespace fCraftUI {
             try {
                 if( shutdownPending ) return;
                 if( urlDisplay.InvokeRequired ) {
-                    Invoke( (SetURLDelegate)SetURL, URL );
+                    Invoke( (SetUrlDelegate)SetURL, URL );
                 } else {
                     urlDisplay.Text = URL;
                     urlDisplay.Enabled = true;

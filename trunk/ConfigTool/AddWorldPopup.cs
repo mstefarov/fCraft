@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -11,12 +12,14 @@ using fCraft;
 using Mcc;
 using Color = System.Drawing.Color;
 
+
 namespace ConfigTool {
     sealed partial class AddWorldPopup : Form {
         BackgroundWorker bwLoader = new BackgroundWorker(),
                          bwGenerator = new BackgroundWorker(),
                          bwRenderer = new BackgroundWorker();
-        object redrawLock = new object();
+
+        readonly object redrawLock = new object();
 
         Map _map;
         Map map {
@@ -41,8 +44,8 @@ namespace ConfigTool {
         string originalWorldName;
         internal WorldListEntry world;
         List<WorldListEntry> copyOptionsList = new List<WorldListEntry>();
-
         Tabs tab;
+
 
         public AddWorldPopup( WorldListEntry _world ) {
             InitializeComponent();
@@ -92,6 +95,7 @@ namespace ConfigTool {
 
             Shown += LoadMap;
         }
+
 
         void LoadMap( object sender, EventArgs args ) {
             if( world == null ) {
@@ -173,7 +177,7 @@ namespace ConfigTool {
         }
 
         private void bBrowseFolder_Click( object sender, EventArgs e ) {
-            if( folderBrowser.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty(folderBrowser.SelectedPath) ) {
+            if( folderBrowser.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( folderBrowser.SelectedPath ) ) {
                 tFile.Text = "";
                 tFolder.Text = folderBrowser.SelectedPath;
                 tFolder.SelectAll();
@@ -208,6 +212,7 @@ namespace ConfigTool {
             }
         }
         #endregion Loading
+
 
         #region Preview
 
@@ -275,6 +280,7 @@ namespace ConfigTool {
         }
 
         #endregion
+
 
         #region Generation
 
@@ -349,6 +355,7 @@ namespace ConfigTool {
         }
 
         #endregion
+
 
         #region Input Handlers
         private void xFloodBarrier_CheckedChanged( object sender, EventArgs e ) {
@@ -480,6 +487,7 @@ namespace ConfigTool {
         }
         #endregion
 
+
         #region Tabs
         private void tabs_SelectedIndexChanged( object sender, EventArgs e ) {
             if( tabs.SelectedTab == tabExisting ) {
@@ -503,7 +511,7 @@ namespace ConfigTool {
                     StartLoadingMap();
                     return;
                 case Tabs.LoadFile:
-                    if( !String.IsNullOrEmpty(tFile.Text) ) {
+                    if( !String.IsNullOrEmpty( tFile.Text ) ) {
                         tFile.SelectAll();
                         fileToLoad = tFile.Text;
                         ShowMapDetails( tLoadFileInfo, fileToLoad );
@@ -629,7 +637,7 @@ Dimensions: {5}×{6}×{7}
         private void bSavePreview_Click( object sender, EventArgs e ) {
             try {
                 using( Image img = (Image)preview.Image.Clone() ) {
-                    if( savePreviewDialog.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty(savePreviewDialog.FileName) ) {
+                    if( savePreviewDialog.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( savePreviewDialog.FileName ) ) {
                         switch( savePreviewDialog.FilterIndex ) {
                             case 1:
                                 img.Save( savePreviewDialog.FileName, ImageFormat.Png ); break;
@@ -650,7 +658,7 @@ Dimensions: {5}×{6}×{7}
 
         OpenFileDialog browseTemplateDialog = new OpenFileDialog();
         private void bBrowseTemplate_Click( object sender, EventArgs e ) {
-            if( browseTemplateDialog.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty(browseTemplateDialog.FileName) ) {
+            if( browseTemplateDialog.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( browseTemplateDialog.FileName ) ) {
                 try {
                     generatorArgs = new MapGeneratorArgs( browseTemplateDialog.FileName );
                     LoadGeneratorArgs();
@@ -782,7 +790,7 @@ Dimensions: {5}×{6}×{7}
 
         SaveFileDialog saveTemplateDialog = new SaveFileDialog();
         private void bSaveTemplate_Click( object sender, EventArgs e ) {
-            if( saveTemplateDialog.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty(saveTemplateDialog.FileName) ) {
+            if( saveTemplateDialog.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( saveTemplateDialog.FileName ) ) {
                 try {
                     SaveGeneratorArgs();
                     generatorArgs.Save( saveTemplateDialog.FileName );

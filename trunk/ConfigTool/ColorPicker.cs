@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
+
 namespace ConfigTool {
     internal sealed partial class ColorPicker : Form {
         public static Dictionary<int, ColorPair> colors = new Dictionary<int, ColorPair>();
+        public int color;
+
 
         static ColorPicker() {
             colors.Add( 0, new ColorPair( Color.White, Color.Black ) );
@@ -26,7 +29,7 @@ namespace ConfigTool {
             colors.Add( 15, new ColorPair( Color.Black, Color.White ) );
         }
 
-        public int color;
+
         public ColorPicker( string title, int oldColor ) {
             InitializeComponent();
             Text = title;
@@ -50,6 +53,7 @@ namespace ConfigTool {
             be.Click += delegate { color = 14; Close(); };
             bf.Click += delegate { color = 15; Close(); };
         }
+
 
         internal struct ColorPair {
             public ColorPair( Color _foreground, Color _background ) {

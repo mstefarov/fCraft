@@ -185,14 +185,14 @@ namespace fCraft {
         }
 
         public ConditionIntRange( ConditionField _field, ComparisonOperation _comparison, int _value ) {
-            this.Field = _field;
-            this.Comparison = _comparison;
-            this.Value = _value;
+            Field = _field;
+            Comparison = _comparison;
+            Value = _value;
         }
 
         public override bool Eval( PlayerInfo info ) {
             long givenValue;
-            switch( this.Field ) {
+            switch( Field ) {
                 case ConditionField.TimeSinceFirstLogin:
                     givenValue = (int)DateTime.Now.Subtract( info.firstLoginDate ).TotalSeconds;
                     break;
@@ -236,7 +236,7 @@ namespace fCraft {
                     throw new ArgumentOutOfRangeException( "Field", "Unknown field type" );
             }
 
-            switch( this.Comparison ) {
+            switch( Comparison ) {
                 case ComparisonOperation.lt:
                     return (givenValue < Value);
                 case ComparisonOperation.lte:
@@ -277,7 +277,7 @@ namespace fCraft {
         public RankChangeType Type;
 
         public ConditionRankChangeType( RankChangeType _type ) {
-            this.Type = _type;
+            Type = _type;
         }
 
         public ConditionRankChangeType( XElement el ) {
@@ -290,7 +290,7 @@ namespace fCraft {
 
         public override XElement Serialize() {
             XElement el = new XElement( "ConditionRankChangeType" );
-            el.Add( new XAttribute( "val", this.Type.ToString() ) );
+            el.Add( new XAttribute( "val", Type.ToString() ) );
             return el;
         }
     }
@@ -302,8 +302,8 @@ namespace fCraft {
         public ComparisonOperation Comparison;
 
         public ConditionPreviousRank( Rank _rank, ComparisonOperation _comparison ) {
-            this.Rank = _rank;
-            this.Comparison = _comparison;
+            Rank = _rank;
+            Comparison = _comparison;
         }
 
         public ConditionPreviousRank( XElement el ) {
@@ -312,23 +312,20 @@ namespace fCraft {
         }
 
         public override bool Eval( PlayerInfo info ) {
-            Rank prevRank = info.previousRank;
-            if( prevRank == null ) {
-                prevRank = info.rank;
-            }
-            switch( this.Comparison ) {
+            Rank prevRank = info.previousRank ?? info.rank;
+            switch( Comparison ) {
                 case ComparisonOperation.lt:
-                    return (info.previousRank < this.Rank);
+                    return ( prevRank < Rank );
                 case ComparisonOperation.lte:
-                    return (info.previousRank <= this.Rank);
+                    return ( prevRank <= Rank );
                 case ComparisonOperation.gte:
-                    return (info.previousRank >= this.Rank);
+                    return ( prevRank >= Rank );
                 case ComparisonOperation.gt:
-                    return (info.previousRank > this.Rank);
+                    return ( prevRank > Rank );
                 case ComparisonOperation.eq:
-                    return (info.previousRank == this.Rank);
+                    return ( prevRank == Rank );
                 case ComparisonOperation.neq:
-                    return (info.previousRank != this.Rank);
+                    return ( prevRank != Rank );
                 default:
                     throw new ArgumentOutOfRangeException( "Comparison", "Unknown comparison type" );
             }
@@ -389,12 +386,9 @@ namespace fCraft {
         public ConditionAND( XElement el ) : base( el ) { }
 
         public override bool Eval( PlayerInfo info ) {
-            if( Conditions == null ) return true;
-            for( int i = 0; i < Conditions.Count; i++ ) {
-                if( !Conditions[i].Eval( info ) ) return false;
-            }
-            return true;
+            return Conditions == null || Conditions.All( t => t.Eval( info ) );
         }
+
 
         public override XElement Serialize() {
             XElement el = new XElement( "AND" );
@@ -412,12 +406,9 @@ namespace fCraft {
         public ConditionNAND( XElement el ) : base( el ) { }
 
         public override bool Eval( PlayerInfo info ) {
-            if( Conditions == null ) return true;
-            for( int i = 0; i < Conditions.Count; i++ ) {
-                if( !Conditions[i].Eval( info ) ) return true;
-            }
-            return false;
+            return Conditions == null || Conditions.Any( t => !t.Eval( info ) );
         }
+
 
         public override XElement Serialize() {
             XElement el = new XElement( "NAND" );
@@ -435,12 +426,9 @@ namespace fCraft {
         public ConditionOR( XElement el ) : base( el ) { }
 
         public override bool Eval( PlayerInfo info ) {
-            if( Conditions == null ) return true;
-            for( int i = 0; i < Conditions.Count; i++ ) {
-                if( Conditions[i].Eval( info ) ) return true;
-            }
-            return false;
+            return Conditions == null || Conditions.Any( t => t.Eval( info ) );
         }
+
 
         public override XElement Serialize() {
             XElement el = new XElement( "OR" );
@@ -458,12 +446,9 @@ namespace fCraft {
         public ConditionNOR( XElement el ) : base( el ) { }
 
         public override bool Eval( PlayerInfo info ) {
-            if( Conditions == null ) return true;
-            for( int i = 0; i < Conditions.Count; i++ ) {
-                if( Conditions[i].Eval( info ) ) return false;
-            }
-            return true;
+            return Conditions == null || Conditions.All( t => !t.Eval( info ) );
         }
+
 
         public override XElement Serialize() {
             XElement el = new XElement( "NOR" );

@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Windows.Forms;
 using fCraft;
 
@@ -19,14 +20,12 @@ namespace ConfigTool {
 
 
         private void cSubstitute_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( cSubstitute.SelectedIndex >= 0 ) {
-                foreach( Rank rank in RankList.Ranks ) {
-                    if( cSubstitute.SelectedItem.ToString() == rank.ToComboBoxOption() ) {
-                        substituteRank = rank;
-                        bDelete.Enabled = true;
-                        break;
-                    }
-                }
+            if( cSubstitute.SelectedIndex < 0 ) return;
+            foreach( Rank rank in RankList.Ranks ) {
+                if( cSubstitute.SelectedItem.ToString() != rank.ToComboBoxOption() ) continue;
+                substituteRank = rank;
+                bDelete.Enabled = true;
+                break;
             }
         }
     }
