@@ -61,7 +61,7 @@ namespace fCraft {
                     if( !player.info.rank.AllowSecurityCircumvention && player.info == info ) {
                         if( !zone.controller.Check( info ) ) {
                             player.Message( "You must be {0}+&S to add yourself to this zone's whitelist.",
-                                            zone.controller.minRank.GetClassyName() );
+                                            zone.controller.MinRank.GetClassyName() );
                             continue;
                         }
                     }
@@ -118,13 +118,13 @@ namespace fCraft {
                     if( minRank != null ) {
                         // prevent players from lowering rank so bypass protection
                         if( !player.info.rank.AllowSecurityCircumvention &&
-                            zone.controller.minRank > player.info.rank && minRank <= player.info.rank ) {
+                            zone.controller.MinRank > player.info.rank && minRank <= player.info.rank ) {
                             player.Message( "You are not allowed to lower the zone's rank." );
                             continue;
                         }
 
-                        if( zone.controller.minRank != minRank ) {
-                            zone.controller.minRank = minRank;
+                        if( zone.controller.MinRank != minRank ) {
+                            zone.controller.MinRank = minRank;
                             player.Message( "Permission for zone \"{0}\" changed to {1}+",
                                             zone.name,
                                             minRank.GetClassyName() );
@@ -179,10 +179,10 @@ namespace fCraft {
                 }
 
                 zone.name = info.name;
-                zone.controller.minRank = info.rank.NextRankUp ?? info.rank;
+                zone.controller.MinRank = info.rank.NextRankUp ?? info.rank;
                 zone.controller.Include( info );
                 player.Message( "Zone: Creating a {0}+&S zone for player {1}&S. Place a block or type /mark to use your location.",
-                                zone.controller.minRank.GetClassyName(), info.GetClassyName() );
+                                zone.controller.MinRank.GetClassyName(), info.GetClassyName() );
                 player.SetCallback( 2, ZoneAddCallback, zone );
 
             } else {
@@ -228,7 +228,7 @@ namespace fCraft {
                         }
                     }
 
-                    zone.controller.minRank = minRank;
+                    zone.controller.MinRank = minRank;
                     player.SetCallback( 2, ZoneAddCallback, zone );
                     player.Message( "Zone: Place a block or type /mark to use your location." );
 
@@ -339,7 +339,7 @@ namespace fCraft {
                 foreach( Zone zone in zones ) {
                     player.Message( "  {0} ({1}&S) - {2} x {3} x {4}",
                                     zone.name,
-                                    zone.controller.minRank.GetClassyName(),
+                                    zone.controller.MinRank.GetClassyName(),
                                     zone.bounds.GetWidthX(),
                                     zone.bounds.GetWidthY(),
                                     zone.bounds.GetHeight() );
@@ -375,7 +375,7 @@ namespace fCraft {
                             zone.name,
                             zone.bounds.GetWidthX(), zone.bounds.GetWidthY(), zone.bounds.GetHeight(),
                             zone.bounds.GetVolume(),
-                            zone.controller.minRank.GetClassyName() );
+                            zone.controller.MinRank.GetClassyName() );
 
             player.Message( "  Zone centre is at ({0},{1},{2}).",
                             (zone.bounds.xMin + zone.bounds.xMax) / 2,

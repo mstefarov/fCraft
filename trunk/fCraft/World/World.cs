@@ -36,8 +36,6 @@ namespace fCraft {
 
         public World( string _name ) {
             name = _name;
-            accessSecurity.minRank = RankList.LowestRank;
-            buildSecurity.minRank = RankList.LowestRank;
         }
 
 
@@ -113,8 +111,8 @@ namespace fCraft {
                     World newWorld = new World( name ) {
                         map = newMap,
                         neverUnload = neverUnload,
-                        accessSecurity = { minRank = accessSecurity.minRank },
-                        buildSecurity = { minRank = buildSecurity.minRank }
+                        accessSecurity = { MinRank = accessSecurity.MinRank },
+                        buildSecurity = { MinRank = buildSecurity.MinRank }
                     };
                     newMap.world = newWorld;
                     Server.ReplaceWorld( name, newWorld );
@@ -437,13 +435,13 @@ namespace fCraft {
             string displayedName = name;
             if( Config.GetBool( ConfigKey.RankColorsInWorldNames ) ) {
                 if( Config.GetBool( ConfigKey.RankPrefixesInChat ) ) {
-                    displayedName = buildSecurity.minRank.Prefix + displayedName;
+                    displayedName = buildSecurity.MinRank.Prefix + displayedName;
                 }
                 if( Config.GetBool( ConfigKey.RankColorsInChat ) ) {
-                    if( buildSecurity.minRank >= accessSecurity.minRank ) {
-                        displayedName = buildSecurity.minRank.Color + displayedName;
+                    if( buildSecurity.MinRank >= accessSecurity.MinRank ) {
+                        displayedName = buildSecurity.MinRank.Color + displayedName;
                     } else {
-                        displayedName = accessSecurity.minRank.Color + displayedName;
+                        displayedName = accessSecurity.MinRank.Color + displayedName;
                     }
                 }
             }

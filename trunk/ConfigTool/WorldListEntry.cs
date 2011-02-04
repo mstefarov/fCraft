@@ -60,19 +60,13 @@ namespace ConfigTool {
             if( el.Element( "accessSecurity" ) != null ) {
                 accessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
             }else if( (temp = el.Attribute( "access" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
-                accessSecurity.minRank = RankList.ParseRank( temp.Value );
-                if( accessSecurity.minRank == null ) {
-                    Logger.Log( "WorldListEntity: Unrecognized rank specified for \"access\" permission. Permission reset to default (everyone).", LogType.Warning );
-                }
+                accessSecurity.MinRank = RankList.ParseRank( temp.Value );
             }
 
             if( el.Element( "buildSecurity" ) != null ) {
                 buildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
             }else if( (temp = el.Attribute( "build" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
-                buildSecurity.minRank = RankList.ParseRank( temp.Value );
-                if( buildSecurity.minRank == null ) {
-                    Logger.Log( "WorldListEntity: Unrecognized rank specified for \"build\" permission. Permission reset to default (everyone).", LogType.Warning );
-                }
+                buildSecurity.MinRank = RankList.ParseRank( temp.Value );
             }
         }
 
@@ -122,21 +116,22 @@ namespace ConfigTool {
         string accessRankString;
         public string AccessPermission {
             get {
-                if( accessSecurity.minRank != null ) {
-                    return accessSecurity.minRank.ToComboBoxOption();
-                } else {
+                if( accessSecurity.NoRankRestriction ) {
                     return DefaultRankOption;
+                } else {
+                    return accessSecurity.MinRank.ToComboBoxOption();
                 }
             }
             set {
                 foreach( Rank rank in RankList.Ranks ) {
                     if( rank.ToComboBoxOption() == value ) {
-                        accessSecurity.minRank = rank;
+                        accessSecurity.MinRank = rank;
                         accessRankString = rank.ToString();
                         return;
                     }
                 }
-                accessSecurity.minRank = null;
+                accessSecurity.MinRank = null;
+                accessRankString = "";
             }
         }
         
@@ -144,21 +139,22 @@ namespace ConfigTool {
         string buildRankString;
         public string BuildPermission {
             get {
-                if( buildSecurity.minRank != null ) {
-                    return buildSecurity.minRank.ToComboBoxOption();
-                } else {
+                if( buildSecurity.NoRankRestriction ) {
                     return DefaultRankOption;
+                } else {
+                    return buildSecurity.MinRank.ToComboBoxOption();
                 }
             }
             set {
                 foreach( Rank rank in RankList.Ranks ) {
                     if( rank.ToComboBoxOption() == value ) {
-                        buildSecurity.minRank = rank;
+                        buildSecurity.MinRank = rank;
                         buildRankString = rank.ToString();
                         return;
                     }
                 }
-                buildSecurity.minRank = null;
+                buildSecurity.MinRank = null;
+                buildRankString = null;
             }
         }
 
@@ -175,8 +171,8 @@ namespace ConfigTool {
         }
 
         public void ReparseRanks() {
-            accessSecurity.minRank = RankList.ParseRank( accessRankString );
-            buildSecurity.minRank = RankList.ParseRank( buildRankString );
+            accessSecurity.MinRank = RankList.ParseRank( accessRankString );
+            buildSecurity.MinRank = RankList.ParseRank( buildRankString );
         }
     }
 }

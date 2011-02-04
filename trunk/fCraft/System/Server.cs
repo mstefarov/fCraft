@@ -467,13 +467,13 @@ namespace fCraft {
                         if( el.Element( "accessSecurity" ) != null ) {
                             world.accessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
                         } else {
-                            world.accessSecurity.minRank = LoadWorldRankRestriction( world, "access", el );
+                            world.accessSecurity.MinRank = LoadWorldRankRestriction( world, "access", el );
                         }
 
                         if( el.Element( "buildSecurity" ) != null ) {
                             world.buildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
                         } else {
-                            world.buildSecurity.minRank = LoadWorldRankRestriction( world, "build", el );
+                            world.buildSecurity.MinRank = LoadWorldRankRestriction( world, "build", el );
                         }
                     }
                 } catch( Exception ex ) {
@@ -526,8 +526,8 @@ namespace fCraft {
                     foreach( World world in worlds.Values ) {
                         temp = new XElement( "World" );
                         temp.Add( new XAttribute( "name", world.name ) );
-                        temp.Add( new XAttribute( "access", world.accessSecurity.minRank ) );
-                        temp.Add( new XAttribute( "build", world.buildSecurity.minRank ) );
+                        temp.Add( new XAttribute( "access", world.accessSecurity.MinRank ) ); // LEGACY
+                        temp.Add( new XAttribute( "build", world.buildSecurity.MinRank ) ); // LEGACY
                         temp.Add( world.accessSecurity.Serialize( "accessSecurity" ) );
                         temp.Add( world.buildSecurity.Serialize( "buildSecurity" ) );
                         if( world.neverUnload ) {
