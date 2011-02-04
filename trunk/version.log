@@ -1,5 +1,15 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2011-01-31
+2011-02-03
+503
+ Feature: Added /deafen command. It temporarily blocks all incoming messages (makes you go "deaf"), to allow taking screenshots, recording videos, or just playing without the wall of text.
+ Feature: Added ShowBannedConnectionMessages config key (default: true). When disabled, no "banned player tried to log in" messages are shown.
+ Fix: Fixed PlayerInfo.frozenOn not being set.
+ Fix: Fixed kick messages for players affected by /banall
+ Fix: Fixed /unbanall reason not being shown.
+ Fix: /where now shows what world you are on.
+ Fix: Fixed a couple minor bugs in /waccess and /wbuild.
+ Fix: Fixed a NullReferenceException in SecurityController constructor.
+ Fix: Made several tweaks to improve the first-run experience.
 502
  Fix: Adjusted for yet another change in the way minecraft.net replies to
  heartbeats (should fix all heartbeat issues for now).
@@ -247,72 +257,3 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fix: Per-rank permission checks for /freeze now apply as intended
  Fix: Fixed several improbable (but not impossible) threading deadlocks/crashes. Thanks to wootalyzer for catching these.
  Change: Added IRCThreads config key (default: 1, allowed range: 1-3)
-490
- Feature: Testing a new map compressor/decompressor: ZLibStream. It should provide 50-200% speed increase, smaller map sizes, lower bandwidth use, and faster map loading.
- Fix: Fixed /shutdown not waiting the right amount and mixing up seconds/milliseconds.
- Fix: Fixed "No world found with the name..." showing player's own name.
- Fix: Added a fail-safe exception handler to Player.WaitForKick() - a temporary fix.
- Change: Previous verification salt is now stored, to allow players to validate even right after the server restarts.
- Change: Restructured SVN. Stable code is now always in /trunk/
-487
- Feature: Added contextual help (tooltips) for all of ConfigTool. Help for "Add World" popup is coming in next version.
- Feature: Added rank limits for Freeze permission
- Fix: Fixed /mute being unusable from console.
- Change: Removed ViewOthersInfo requirement from /sinfo
- Change: Added ViewOthersInfo requirement to /where
- Change: Improvements to IRC tab layout in ConfigTool.
-486
- Quick fix for IRC Bot bug that made server unconnectable.
-485
- Feature: Added optional "delay" parameter to /shutdown (default: 5)
- Feature: World names can now be autocompleted for many commands (like /join and /lock)
- Fix: Fixed /unhide failing to reveal the player in certain situations.
- Fix: Fixed /setspawn being usable on players from other worlds.
- Fix: Fixed player names appearing white for all players.
- Fix: Fixed a recursion loop in NoWorldMessage()
- Fix: Fixed help entries for /setspawn and /shutdown
- Fix: Fixed potential crash in Server.Shutdown() if called after failed initialization/startup.
- Fix: Fixed potential deadlock/freeze in fCraftUI on shutdown.
- Change: Improved crash reporting for TargetInvokationException and TypeInitializerException errors.
- Change: All assemblies are now once again x86/x86_64/IA64 compatible.
- Change: Server.OnPlayerConnected event now supports cancellation.
-484
- Feature: Added a way for IRC bot to use registered nicknames.
- Feature: /banall-related kicks are now announced in chat.
- Feature: /setspawn now actually changes player's spawn. Also, an optional PlayerName param allows temporarily changing other players' spawn point.
- Feature: Several improvements to /info. Info now shows whether player's nick or IP was banned, and hides undefined information for players who haven't ever logged in.
- Fix: Fixed crash in ConfigTool if announcements were disabled.
- Fix: Fixed /banall not matching IPs properly, and not counting kicks towards PlayerInfo.
- Fix: Fixed ConfigUI not shutting down properly if Server.Init() or Server.Start() failed.
- Fix: Fixed Config.LoadLogOptions() always leaving Debug enabled.
- Fix: Added Process.GetCurrentProcess().Refresh() to ServerInfo to improve accuracy of /sinfo stat reporting.
- Fix: Improved /wsave and /wload path handling on non-Windows platforms.
- Fix: Replaced some potentially unsafe string concatenation in Player.Message() with proper formatting.
- Fix: Attempting a workaround for Mono memory leak in World.UnloadMap
- Fix: Fixed ranks from pre-0.480 configs being loaded in wrong order. Sorry!
- Change: Added a brief delay before reconnecting IRC bot after getting kicked from a channel. 
- Change: PlayerDB is now saved every 60 seconds (instead of every 30).
- Change: Removed unused IRCBotQuitMsg config key, and added IRCRegisteredNick, IRCNickServ, and IRCNickServMessage keys.
- Change: Added a popup with crash information to ConfigTool.
- Change: Made announcements disabled by default.
-483
- Feature: Myne/MyneCraft/Hyvebuild/iCraft maps can now be loaded from ConfigTool's "Add World" dialog.
- Fix: Fixed incorrect range checks for AnnouncementInterval and SaveInterval config keys (thanks to Shcaap for reporting).
- Fix: Fixed /hide showing a slightly different "player left" message compared to normal disconnect (thanks to Silverrock for reporting).
- Change: Added MC#-style "/z" alias for cuboid, by popular demand.
- Change: Hidden players can now receive PMs. The sender still gets the "No player found" message, but PMs are actually sent.
-482
- Feature: Added new command aliases: "f" for "freeze", and "pat" for "patrol".
- Fix: Fixed typos in mute-related messages.
- Fix: Added missing triggers for OnPlayerListChanged event.
- Fix: Fixed /reloadconfig not changing several variables (like colors).
- Fix: Fixed antigrief defaulting to 35/5 (instead of unmetered).
- Fix: Fixed heartbeat counting hidden players.
- Fix: Fixed a rare ObjectDisposedException crash on shutdown when running fCraftUI.
- Change: Added a more informative disconnect message to players connecting with Alpha client.
- Change: Improved the way player disconnects are handled to be more reliable, and to drop disconnected players sooner.
- Change: Improved the way PlayerDB saving is triggered. New schedule reduces overall disk use and reduces possible data loss in case of crashes.
-481
- Fixed a bug in Rank deserializer that set antiGriefBlock=antiGriefSeconds (messing up antigrief permissions).
- Fixed a few more references to "player class" terminology instead of "rank".
-

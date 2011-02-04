@@ -272,28 +272,30 @@ namespace fCraft {
             }
 
 
-            // Show alts
-            List<PlayerInfo> altNames = new List<PlayerInfo>();
-            int bannedAltCount = 0;
-            foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( info.lastIP, 25 ) ) {
-                if( playerFromSameIP != info ) {
-                    altNames.Add( playerFromSameIP );
-                    if( playerFromSameIP.banned ) {
-                        bannedAltCount++;
+            if( info.lastIP.ToString() == IPAddress.None.ToString() ) {
+                // Show alts
+                List<PlayerInfo> altNames = new List<PlayerInfo>();
+                int bannedAltCount = 0;
+                foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( info.lastIP, 25 ) ) {
+                    if( playerFromSameIP != info ) {
+                        altNames.Add( playerFromSameIP );
+                        if( playerFromSameIP.banned ) {
+                            bannedAltCount++;
+                        }
                     }
                 }
-            }
 
-            if( altNames.Count > 0 ) {
-                if( bannedAltCount > 0 ) {
-                    player.Message( "  {0} accounts ({1} banned) share this IP: {2}",
-                                    altNames.Count,
-                                    bannedAltCount,
-                                    PlayerInfo.PlayerInfoArrayToString( altNames.ToArray() ) );
-                } else {
-                    player.Message( "  {0} accounts share this IP: {1}",
-                                    altNames.Count,
-                                    PlayerInfo.PlayerInfoArrayToString( altNames.ToArray() ) );
+                if( altNames.Count > 0 ) {
+                    if( bannedAltCount > 0 ) {
+                        player.Message( "  {0} accounts ({1} banned) share this IP: {2}",
+                                        altNames.Count,
+                                        bannedAltCount,
+                                        PlayerInfo.PlayerInfoArrayToString( altNames.ToArray() ) );
+                    } else {
+                        player.Message( "  {0} accounts share this IP: {1}",
+                                        altNames.Count,
+                                        PlayerInfo.PlayerInfoArrayToString( altNames.ToArray() ) );
+                    }
                 }
             }
 
