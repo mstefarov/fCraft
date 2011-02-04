@@ -86,7 +86,7 @@ namespace Mcc {
 
                 // Read in the magic number
                 if( reader.ReadUInt32() != Identifier ) {
-                    throw new FormatException();
+                    throw new MapFormatException();
                 }
 
                 // Read in the map dimesions
@@ -108,7 +108,7 @@ namespace Mcc {
 
                 // Read in the magic number
                 if( reader.ReadUInt32() != Identifier ) {
-                    throw new FormatException();
+                    throw new MapFormatException();
                 }
 
                 // Read in the map dimesions

@@ -114,13 +114,11 @@ namespace Mcc {
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     byte[] temp = new byte[8];
-                    byte[] data;
-                    int length;
                     mapStream.Seek( -4, SeekOrigin.End );
                     mapStream.Read( temp, 0, sizeof( int ) );
                     mapStream.Seek( 0, SeekOrigin.Begin );
-                    length = BitConverter.ToInt32( temp, 0 );
-                    data = new byte[length];
+                    int length = BitConverter.ToInt32( temp, 0 );
+                    byte[] data = new byte[length];
                     using( GZipStream reader = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
                         reader.Read( data, 0, length );
                     }
@@ -169,7 +167,7 @@ namespace Mcc {
                             pointer += IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
                             pointer += 13;
 
-                            int headerEnd = 0;
+                            int headerEnd;
                             // find the end of serialization listing
                             for( headerEnd = pointer; headerEnd < data.Length - 1; headerEnd++ ) {
                                 if( data[headerEnd] == 0x78 && data[headerEnd + 1] == 0x70 ) {
@@ -181,9 +179,18 @@ namespace Mcc {
                             // start parsing serialization listing
                             int offset = 0;
                             while( pointer < headerEnd ) {
-                                if( data[pointer] == 'Z' ) offset++;
-                                else if( data[pointer] == 'I' || data[pointer] == 'F' ) offset += 4;
-                                else if( data[pointer] == 'J' ) offset += 8;
+                                switch( (char)data[pointer] ) {
+                                    case 'Z':
+                                        offset++;
+                                        break;
+                                    case 'F':
+                                    case 'I':
+                                        offset += 4;
+                                        break;
+                                    case 'J':
+                                        offset += 8;
+                                        break;
+                                }
 
                                 pointer += 1;
                                 Array.Copy( data, pointer, temp, 0, sizeof( short ) );

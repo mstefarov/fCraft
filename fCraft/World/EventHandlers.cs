@@ -3,7 +3,7 @@ using System.Net;
 
 namespace fCraft {
     public delegate void LogEventHandler( string message, LogType type );
-    public delegate void URLChangeEventHandler( string message );
+    public delegate void UrlChangeEventHandler( string message );
     public delegate void PlayerConnectedEventHandler( Session session, ref bool cancel );
     public delegate void PlayerDisconnectedEventHandler( Session session );
     public delegate void PlayerKickedEventHandler( Player player, Player kicker, string reason );

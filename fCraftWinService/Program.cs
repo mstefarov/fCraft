@@ -12,15 +12,15 @@ namespace fCraftWinService {
         /// <summary>  
         /// Function that return .net framnework installation path.  
         /// </summary>  
-        const int MAX_PATH = 256;
+        const int MaxPathLength = 256;
 
         [DllImport( "mscoree.dll", CharSet = CharSet.Unicode, ExactSpelling = true )]
         public static extern int GetCORSystemDirectory( StringBuilder buf, int cchBuf, ref int cchRequired );
 
         public static string GetNetFrameworkDirectory() {
-            StringBuilder buf = new StringBuilder( MAX_PATH, MAX_PATH );
-            int cch = MAX_PATH;
-            int hr = GetCORSystemDirectory( buf, MAX_PATH, ref cch );
+            StringBuilder buf = new StringBuilder( MaxPathLength, MaxPathLength );
+            int cch = MaxPathLength;
+            int hr = GetCORSystemDirectory( buf, MaxPathLength, ref cch );
             if( hr < 0 ) Marshal.ThrowExceptionForHR( hr );
             return buf.ToString();
         }
@@ -28,28 +28,28 @@ namespace fCraftWinService {
         static void Main( string[] args ) {
             if( args.Length == 1 ) {
                 Console.WriteLine( "Looking up .NET installation path..." );
-                string InstallUtilPath = Path.Combine( GetNetFrameworkDirectory(), "installutil.exe" );
-                if( !File.Exists( InstallUtilPath ) ) {
+                string installUtilPath = Path.Combine( GetNetFrameworkDirectory(), "installutil.exe" );
+                if( !File.Exists( installUtilPath ) ) {
                     Console.WriteLine( "ERROR: Could not locate installutil.exe (part of Microsoft .NET)" );
                     return;
                 }
 
-                string CurrentProcessPath = Process.GetCurrentProcess().Modules[0].FileName;
+                string currentProcessPath = Process.GetCurrentProcess().Modules[0].FileName;
 
                 switch( args[0].ToLower() ) {
                     case "install":
                         Console.WriteLine( "Installing the service..." );
                         Process.Start( new ProcessStartInfo {
-                            FileName = InstallUtilPath,
-                            Arguments = CurrentProcessPath
+                            FileName = installUtilPath,
+                            Arguments = currentProcessPath
                         } );
                         break;
 
                     case "uninstall":
                         Console.WriteLine( "Uninstalling the service..." );
                         Process.Start( new ProcessStartInfo {
-                            FileName = InstallUtilPath,
-                            Arguments = "-u " + CurrentProcessPath
+                            FileName = installUtilPath,
+                            Arguments = "-u " + currentProcessPath
                         } );
                         break;
 

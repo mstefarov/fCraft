@@ -115,7 +115,7 @@ namespace Mcc {
                     claims = (converter.FormatType == targetType) &&
                              converter.ClaimsName( fileName ) &&
                              converter.Claims( fileName );
-                } catch( Exception ) { }
+                } catch { }
                 if( claims ) {
                     return converter.Load( fileName );
                 } else {
@@ -124,7 +124,9 @@ namespace Mcc {
             }
 
             foreach( IMapConverter converter in fallbackConverters ) {
-                return converter.Load( fileName );
+                try {
+                    return converter.Load( fileName );
+                } catch {}
             }
 
             return null;

@@ -101,7 +101,7 @@ namespace Mcc {
 
                     // Read in the magic number
                     if( bs.ReadUInt16() != 0x752 ) {
-                        throw new FormatException();
+                        throw new MapFormatException();
                     }
 
                     // Read in the map dimesions
@@ -124,7 +124,7 @@ namespace Mcc {
 
                     // Read in the magic number
                     if( bs.ReadUInt16() != 0x752 ) {
-                        throw new FormatException();
+                        throw new MapFormatException();
                     }
 
                     // Read in the map dimesions

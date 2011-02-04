@@ -16,11 +16,6 @@ namespace fCraft {
             public long count;
             public Node ptr;
 
-            public Pointer( Pointer p ) {
-                ptr = p.ptr;
-                count = p.count;
-            }
-
             public Pointer( Node node, long c ) {
                 ptr = node;
                 count = c;
@@ -73,9 +68,7 @@ namespace fCraft {
                         // Tail is falling behind. try to advance it
                         CAS( ref Tail, tail, new Pointer( next.ptr, tail.count + 1 ) );
 
-                    } // endif
-                    else // No need to deal with tail
-                    {
+                    } else { // No need to deal with tail
                         // read value before CAS otherwise another deque might try to free the next node
                         t = next.ptr.value;
 
@@ -85,20 +78,20 @@ namespace fCraft {
                         }
                     }
 
-                } // endif
+                }
 
-            } // endloop
+            }
             Interlocked.Decrement( ref Length );
             // dispose of head.ptr
             return true;
         }
 
+
         public void Enqueue( T t ) {
             // Allocate a new node from the free list
-            Node node = new Node();
+            Node node = new Node { value = t };
 
             // copy enqueued value into node
-            node.value = t;
 
             // keep trying until Enqueue is done
             bool bEnqueueNotDone = true;

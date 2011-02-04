@@ -1,7 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace fCraft {
@@ -65,10 +65,7 @@ namespace fCraft {
                             world.playerList.Length );
 
             // If map is not currently loaded, grab its header from disk
-            Map map = world.map;
-            if( map == null ) {
-                map = Map.LoadHeaderOnly( Path.Combine( Paths.MapPath, world.GetMapName() ) );
-            }
+            Map map = world.map ?? Map.LoadHeaderOnly( Path.Combine( Paths.MapPath, world.GetMapName() ) );
             if( map == null ) {
                 player.Message( "Map information could not be loaded." );
             } else {
@@ -148,7 +145,6 @@ namespace fCraft {
 
         #region World Commands
 
-
         static CommandDescriptor cdWorldSave = new CommandDescriptor {
             name = "wsave",
             consoleSafe = true,
@@ -186,7 +182,7 @@ namespace fCraft {
             fileName = fileName.Replace( Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar );
             if( fileName.EndsWith( "/" ) && fileName.EndsWith( @"\" ) ) {
                 fileName += world.name + ".fcm";
-            }else if( !fileName.ToLower().EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
+            } else if( !fileName.ToLower().EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
                 fileName += ".fcm";
             }
             string fullFileName = Path.Combine( Paths.MapPath, fileName );
@@ -219,7 +215,7 @@ namespace fCraft {
 
             player.MessageNow( "Saving map to {0}", fileName );
 
-            string mapSavingError = "Map saving failed. See server logs for details.";
+            const string mapSavingErrorMessage = "Map saving failed. See server logs for details.";
             Map map = world.map;
             if( map == null ) {
                 if( File.Exists( world.GetMapName() ) ) {
@@ -227,19 +223,20 @@ namespace fCraft {
                         File.Copy( world.GetMapName(), fullFileName, true );
                     } catch( Exception ex ) {
                         Logger.Log( "StandardCommands.Save: Error occured while trying to copy an unloaded map: {0}", LogType.Error, ex );
-                        player.Message( mapSavingError );
+                        player.Message( mapSavingErrorMessage );
                     }
                 } else {
                     Logger.Log( "StandardCommands.Save: Map for world \"{0}\" is unloaded, and file does not exist.", LogType.Error, world.name );
-                    player.Message( mapSavingError );
+                    player.Message( mapSavingErrorMessage );
                 }
             } else if( map.Save( fullFileName ) ) {
                 player.Message( "Map saved succesfully." );
             } else {
                 Logger.Log( "StandardCommands.Save: Saving world \"{0}\" failed.", LogType.Error, world.name );
-                player.Message( mapSavingError );
+                player.Message( mapSavingErrorMessage );
             }
         }
+
 
 
         static CommandDescriptor cdWorldFlush = new CommandDescriptor {
@@ -276,6 +273,7 @@ namespace fCraft {
                 world.BeginFlushMapBuffer();
             }
         }
+
 
 
         static CommandDescriptor cdWorldMain = new CommandDescriptor {
@@ -334,6 +332,7 @@ namespace fCraft {
         }
 
 
+
         static CommandDescriptor cdWorldAccess = new CommandDescriptor {
             name = "waccess",
             consoleSafe = true,
@@ -363,22 +362,19 @@ namespace fCraft {
             if( world == null ) return;
 
 
-            string name;
+            string name = cmd.Next();
+            if( name == null ) {
+                world.accessSecurity.PrintDescription( player, world, "world", "accessed" );
+                return;
+            }
+            if( world == Server.mainWorld ) {
+                player.Message( "The main world cannot have access restrictions." );
+                return;
+            }
+
             bool changesWereMade = false;
             do {
-                name = cmd.Next();
-                if( name == null ) {
-                    world.accessSecurity.PrintDescription( player, world, "world", "accessed" );
-                    return;
-
-                } else if( world == Server.mainWorld ) {
-                    player.Message( "The main world cannot have access restrictions." );
-                    return;
-
-                } else if( name.Length < 2 ) {
-                    continue;
-                }
-
+                if( name.Length < 2 ) continue;
                 // Whitelisting individuals
                 if( name.StartsWith( "+" ) ) {
                     PlayerInfo info;
@@ -535,29 +531,19 @@ namespace fCraft {
                     } else {
                         // list players who are redundantly blacklisted
                         SecurityController.PlayerListCollection lists = world.accessSecurity.exceptionList;
-                        List<PlayerInfo> noLongerExcluded = new List<PlayerInfo>();
-                        foreach( PlayerInfo excludedPlayer in lists.excluded ) {
-                            if( excludedPlayer.rank >= rank ) {
-                                noLongerExcluded.Add( excludedPlayer );
-                            }
-                        }
-                        if( noLongerExcluded.Count > 0 ) {
+                        PlayerInfo[] noLongerExcluded = lists.excluded.Where( excludedPlayer => excludedPlayer.rank >= rank ).ToArray();
+                        if( noLongerExcluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be blacklisted to be barred from {0}&S: {1}",
                                             world.GetClassyName(),
-                                            PlayerInfo.PlayerInfoArrayToString( noLongerExcluded.ToArray() ) );
+                                            PlayerInfo.PlayerInfoArrayToString( noLongerExcluded ) );
                         }
 
                         // list players who are redundantly whitelisted
-                        List<PlayerInfo> noLongerIncluded = new List<PlayerInfo>();
-                        foreach( PlayerInfo includedPlayer in lists.included ) {
-                            if( includedPlayer.rank >= rank ) {
-                                noLongerExcluded.Add( includedPlayer );
-                            }
-                        }
-                        if( noLongerIncluded.Count > 0 ) {
+                        PlayerInfo[] noLongerIncluded = lists.included.Where( includedPlayer => includedPlayer.rank >= rank ).ToArray();
+                        if( noLongerIncluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be whitelisted to access {0}&S: {1}",
                                             world.GetClassyName(),
-                                            PlayerInfo.PlayerInfoArrayToString( noLongerIncluded.ToArray() ) );
+                                            PlayerInfo.PlayerInfoArrayToString( noLongerIncluded ) );
                         }
 
                         // apply changes
@@ -581,6 +567,7 @@ namespace fCraft {
                 Server.SaveWorldList();
             }
         }
+
 
 
         static CommandDescriptor cdWorldBuild = new CommandDescriptor {
@@ -612,18 +599,15 @@ namespace fCraft {
             if( world == null ) return;
 
 
-            string name;
+            string name = cmd.Next();
+            if( name == null ) {
+                world.buildSecurity.PrintDescription( player, world, "world", "modified" );
+                return;
+            }
+
             bool changesWereMade = false;
             do {
-                name = cmd.Next();
-                if( name == null ) {
-                    world.buildSecurity.PrintDescription( player, world, "world", "modified" );
-                    return;
-
-                } else if( name.Length < 2 ) {
-                    continue;
-                }
-
+                if( name.Length < 2 ) continue;
                 // Whitelisting individuals
                 if( name.StartsWith( "+" ) ) {
                     PlayerInfo info;
@@ -777,29 +761,19 @@ namespace fCraft {
                     } else {
                         // list players who are redundantly blacklisted
                         SecurityController.PlayerListCollection lists = world.buildSecurity.exceptionList;
-                        List<PlayerInfo> noLongerExcluded = new List<PlayerInfo>();
-                        foreach( PlayerInfo excludedPlayer in lists.excluded ) {
-                            if( excludedPlayer.rank >= rank ) {
-                                noLongerExcluded.Add( excludedPlayer );
-                            }
-                        }
-                        if( noLongerExcluded.Count > 0 ) {
+                        PlayerInfo[] noLongerExcluded = lists.excluded.Where( excludedPlayer => excludedPlayer.rank >= rank ).ToArray();
+                        if( noLongerExcluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be blacklisted on world {0}&S: {1}",
                                             world.GetClassyName(),
-                                            PlayerInfo.PlayerInfoArrayToString( noLongerExcluded.ToArray() ) );
+                                            PlayerInfo.PlayerInfoArrayToString( noLongerExcluded ) );
                         }
 
                         // list players who are redundantly whitelisted
-                        List<PlayerInfo> noLongerIncluded = new List<PlayerInfo>();
-                        foreach( PlayerInfo includedPlayer in lists.included ) {
-                            if( includedPlayer.rank >= rank ) {
-                                noLongerExcluded.Add( includedPlayer );
-                            }
-                        }
-                        if( noLongerIncluded.Count > 0 ) {
+                        PlayerInfo[] noLongerIncluded = lists.included.Where( includedPlayer => includedPlayer.rank >= rank ).ToArray();
+                        if( noLongerIncluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be whitelisted on world {0}&S: {1}",
                                             world.GetClassyName(),
-                                            PlayerInfo.PlayerInfoArrayToString( noLongerIncluded.ToArray() ) );
+                                            PlayerInfo.PlayerInfoArrayToString( noLongerIncluded ) );
                         }
 
                         // apply changes
@@ -824,6 +798,7 @@ namespace fCraft {
         }
 
 
+
         static CommandDescriptor cdWorlds = new CommandDescriptor {
             name = "worlds",
             consoleSafe = true,
@@ -840,14 +815,19 @@ namespace fCraft {
             bool listVisible = true,
                  listHidden = false;
             if( !String.IsNullOrEmpty( param ) ) {
-                if( param[0] == 'a' || param[0] == 'A' ) {
-                    listHidden = true;
-                } else if( param[0] == 'h' || param[0] == 'H' ) {
-                    listVisible = false;
-                    listHidden = true;
-                } else {
-                    cdWorlds.PrintUsage( player );
-                    return;
+                switch( param[0] ) {
+                    case 'A':
+                    case 'a':
+                        listHidden = true;
+                        break;
+                    case 'H':
+                    case 'h':
+                        listVisible = false;
+                        listHidden = true;
+                        break;
+                    default:
+                        cdWorlds.PrintUsage( player );
+                        return;
                 }
             }
 
@@ -871,7 +851,7 @@ namespace fCraft {
 
             if( listVisible && !listHidden ) {
                 player.MessagePrefixed( "&S   ", "There are " + count + " available worlds: " + sb );
-            } else if( listHidden && !listVisible ) {
+            } else if( !listVisible ) {
                 player.MessagePrefixed( "&S   ", "There are " + count + " hidden worlds: " + sb );
             } else {
                 player.MessagePrefixed( "&S   ", "There are " + count + " worlds total: " + sb );
@@ -1184,8 +1164,8 @@ namespace fCraft {
 
         #endregion
 
-        #region Generation
 
+        #region Generation
 
         static CommandDescriptor cdGenerate = new CommandDescriptor {
             name = "gen",
@@ -1279,8 +1259,6 @@ namespace fCraft {
                 }
             }
 
-            Map map = null;
-
             bool noTrees;
             if( themeName.Equals( "grass", StringComparison.OrdinalIgnoreCase ) ) {
                 theme = MapGenTheme.Forest;
@@ -1320,6 +1298,7 @@ namespace fCraft {
             args.theme = theme;
             args.addTrees = !noTrees;
 
+            Map map;
             try {
                 if( theme == MapGenTheme.Forest && noTrees ) {
                     player.MessageNow( "Generating Grass {0}...", template );
@@ -1342,23 +1321,20 @@ namespace fCraft {
                 return;
             }
 
-            if( map != null ) {
-                if( fileName != null ) {
-                    if( map.Save( fullFileName ) ) {
-                        player.MessageNow( "Generation done. Saved to {0}", fileName );
-                    } else {
-                        player.Message( "&WAn error occured while saving generated map to {0}", fileName );
-                    }
+            if( fileName != null ) {
+                if( map.Save( fullFileName ) ) {
+                    player.MessageNow( "Generation done. Saved to {0}", fileName );
                 } else {
-                    player.MessageNow( "Generation done. Changing map..." );
-                    player.world.ChangeMap( map );
+                    player.Message( "&WAn error occured while saving generated map to {0}", fileName );
                 }
             } else {
-                player.Message( "&WAn error occured while generating the map." );
+                player.MessageNow( "Generation done. Changing map..." );
+                player.world.ChangeMap( map );
             }
         }
 
         #endregion
+
 
         #region Lock / Unlock
 
@@ -1464,6 +1440,7 @@ namespace fCraft {
             }
             player.Message( "All worlds are now unlocked." );
         }
+
         #endregion
     }
 }

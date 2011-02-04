@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
+
 // for CheckPaidStatus
         // for CheckPaidStatus
         // for CheckPaidStatus
@@ -313,13 +314,7 @@ namespace fCraft {
 
         // Makes sure that there are no unprintable or illegal characters in the message
         public static bool CheckForIllegalChars( string message ) {
-            for( int i = 0; i < message.Length; i++ ) {
-                char ch = message[i];
-                if( ch < ' ' || ch == '&' || ch == '`' || ch == '^' || ch > '}' ) {
-                    return true;
-                }
-            }
-            return false;
+            return message.Any( ch => (ch < ' ' || ch == '&' || ch == '`' || ch == '^' || ch > '}') );
         }
 
 
@@ -374,7 +369,7 @@ namespace fCraft {
         #region Ignore
 
         HashSet<PlayerInfo> ignoreList = new HashSet<PlayerInfo>();
-        object ignoreLock = new object();
+        readonly object ignoreLock = new object();
 
         public bool IsIgnoring( PlayerInfo other ) {
             lock( ignoreLock ) {
@@ -603,11 +598,7 @@ namespace fCraft {
         #region Permission Checks
 
         public bool Can( params Permission[] permissions ) {
-            if( this == Console ) return true;
-            foreach( Permission permission in permissions ) {
-                if( !info.rank.Can( permission ) ) return false;
-            }
-            return true;
+            return (this == Console) || permissions.All( permission => info.rank.Can( permission ) );
         }
 
 
@@ -616,9 +607,8 @@ namespace fCraft {
         }
 
 
-        public bool CanJoin( World world ) {
-            if( this == Console ) return true;
-            return world.accessSecurity.Check( info );
+        public bool CanJoin( World worldToJoin ) {
+            return (this == Console) || worldToJoin.accessSecurity.Check( info );
         }
 
 
@@ -747,11 +737,7 @@ namespace fCraft {
                 using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
                     string paidStatusString = responseReader.ReadToEnd();
                     bool isPaid;
-                    if( Boolean.TryParse( paidStatusString, out isPaid ) && isPaid ) {
-                        return true;
-                    } else {
-                        return false;
-                    }
+                    return Boolean.TryParse( paidStatusString, out isPaid ) && isPaid;
                 }
             }
         }

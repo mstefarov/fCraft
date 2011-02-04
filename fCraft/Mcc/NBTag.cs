@@ -80,14 +80,14 @@ namespace Mcc {
 
         #region Shorthand Contructors
         public NBTag Append( NBTag tag ) {
-            if( this is NBTCompound ) {
-                tag.Parent = this;
-                (this)[tag.Name] = tag;
-                return tag;
-            } else {
+            if( !( this is NBTCompound ) ) {
                 return null;
             }
+            tag.Parent = this;
+            ( this )[tag.Name] = tag;
+            return tag;
         }
+
 
         public NBTag Append( string name, byte value ) {
             return Append( new NBTag( NBTType.Byte, name, value, this ) );
@@ -114,8 +114,7 @@ namespace Mcc {
             return Append( new NBTag( NBTType.String, name, value, this ) );
         }
         public NBTag Append( string name, params NBTag[] tags ) {
-            NBTCompound compound = new NBTCompound();
-            compound.Name = name;
+            NBTCompound compound = new NBTCompound { Name = name };
             foreach( NBTag tag in tags ) {
                 compound.Tags.Add( tag.Name, tag );
             }
@@ -147,8 +146,8 @@ namespace Mcc {
             }
         }
         public NBTag Remove() {
-            if( this.Parent != null && this.Parent is NBTCompound ) {
-                (this.Parent).Remove( this.Name );
+            if( Parent != null && Parent is NBTCompound ) {
+                Parent.Remove( Name );
                 return this;
             } else {
                 throw new NotSupportedException( "Cannot Remove() - no parent tag." );
@@ -206,11 +205,12 @@ namespace Mcc {
 
 
                 case NBTType.List:
-                    NBTList list = new NBTList();
-                    list.Type = NBTType.List;
-                    list.Name = name;
-                    list.Parent = _parent;
-                    list.ListType = (NBTType)reader.ReadByte();
+                    NBTList list = new NBTList {
+                        Type = NBTType.List,
+                        Name = name,
+                        Parent = _parent,
+                        ListType = (NBTType)reader.ReadByte()
+                    };
                     int listLength = IPAddress.NetworkToHostOrder( reader.ReadInt32() );
                     list.Tags = new NBTag[listLength];
                     for( int i = 0; i < listLength; i++ ) {
@@ -220,10 +220,11 @@ namespace Mcc {
 
                 case NBTType.Compound:
                     NBTag childTag;
-                    NBTCompound compound = new NBTCompound();
-                    compound.Type = NBTType.Compound;
-                    compound.Name = name;
-                    compound.Parent = _parent;
+                    NBTCompound compound = new NBTCompound {
+                        Type = NBTType.Compound,
+                        Name = name,
+                        Parent = _parent
+                    };
                     while( true ) {
                         childTag = ReadTag( reader, (NBTType)reader.ReadByte(), null, compound );
                         if( childTag.Type == NBTType.End ) break;
@@ -377,12 +378,9 @@ namespace Mcc {
         public void Set( object _payload ) { Payload = _payload; }
 
         object GetChild( string name, object defaultValue ) {
-            if( Contains( name ) ) {
-                return this[name].Payload;
-            } else {
-                return defaultValue;
-            }
+            return Contains( name ) ? this[name].Payload : defaultValue;
         }
+
 
         public byte Get( string name, byte defaultValue ) { return (byte)GetChild( name, defaultValue ); }
         public short Get( string name, short defaultValue ) { return (short)GetChild( name, defaultValue ); }

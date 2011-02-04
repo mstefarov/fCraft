@@ -29,11 +29,11 @@ namespace fCraft {
         public static void AddRank( Rank rank ) {
             // check for duplicate rank names
             if( RanksByName.ContainsKey( rank.Name.ToLower() ) ) {
-                throw new Rank.RankDefinitionException( "Duplicate definition for rank \"{0}\" (by Name) was ignored.", rank.Name );
+                throw new RankDefinitionException( "Duplicate definition for rank \"{0}\" (by Name) was ignored.", rank.Name );
             }
 
             if( RanksByID.ContainsKey( rank.ID ) ) {
-                throw new Rank.RankDefinitionException( "Duplicate definition for rank \"{0}\" (by ID) was ignored.", rank.Name );
+                throw new RankDefinitionException( "Duplicate definition for rank \"{0}\" (by ID) was ignored.", rank.Name );
             }
 
             Ranks.Add( rank );
@@ -70,16 +70,12 @@ namespace fCraft {
                         // avoid infinite loops due to recursive definitions
                         tries++;
                         if( tries > 100 ) {
-                            throw new FormatException( "Recursive legacy rank definition" );
+                            throw new RankDefinitionException( "Recursive legacy rank definition" );
                         }
                     }
                     // try to fall back to name-only
                     name = name.Substring( 0, name.IndexOf( '#' ) ).ToLower();
-                    if( RanksByName.ContainsKey( name ) ) {
-                        return RanksByName[name];
-                    } else {
-                        return null;
-                    }
+                    return RanksByName.ContainsKey( name ) ? RanksByName[name] : null;
                 }
 
             } else if( RanksByName.ContainsKey( name.ToLower() ) ) {
@@ -98,15 +94,14 @@ namespace fCraft {
 
             Rank result = null;
             foreach( string rankName in RanksByName.Keys ) {
-                if( rankName != null ) {
-                    if( rankName.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
-                        return RanksByName[rankName];
-                    } else if( rankName.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
-                        if( result == null ) {
-                            result = RanksByName[rankName];
-                        } else {
-                            return null;
-                        }
+                if( rankName.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
+                    return RanksByName[rankName];
+                }
+                if( rankName.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                    if( result == null ) {
+                        result = RanksByName[rankName];
+                    } else {
+                        return null;
                     }
                 }
             }
@@ -122,9 +117,9 @@ namespace fCraft {
         }
 
         public static int GetIndex( Rank rank ) {
-            if( rank == null ) return 0;
-            else return rank.Index + 1;
+            return ( rank == null ) ? 0 : ( rank.Index + 1 );
         }
+
 
         public static bool DeleteRank( Rank deletedRank, Rank replacementRank ) {
             bool rankLimitsChanged = false;
@@ -176,9 +171,11 @@ namespace fCraft {
 
 
         public static bool CanRenameRank( Rank rank, string newName ) {
-            if( rank.Name.Equals(newName, StringComparison.OrdinalIgnoreCase) ) return true;
-            if( RanksByName.ContainsKey( newName.ToLower() ) ) return false;
-            return true;
+            if( rank.Name.Equals( newName, StringComparison.OrdinalIgnoreCase ) ) {
+                return true;
+            } else {
+                return !RanksByName.ContainsKey( newName.ToLower() );
+            }
         }
 
         public static void RenameRank( Rank rank, string newName ) {
@@ -189,30 +186,27 @@ namespace fCraft {
 
 
         public static bool RaiseRank( Rank rank ) {
-            if( rank != Ranks.First() ) {
-                Rank nextRankUp = Ranks[rank.Index - 1];
-                Ranks[rank.Index - 1] = rank;
-                Ranks[rank.Index] = nextRankUp;
-                RebuildIndex();
-                return true;
-            } else {
+            if( rank == Ranks.First() ) {
                 return false;
             }
+            Rank nextRankUp = Ranks[rank.Index - 1];
+            Ranks[rank.Index - 1] = rank;
+            Ranks[rank.Index] = nextRankUp;
+            RebuildIndex();
+            return true;
         }
 
 
         public static bool LowerRank( Rank rank ) {
-            if( rank != Ranks.Last() ) {
-                Rank nextRankDown = Ranks[rank.Index + 1];
-                Ranks[rank.Index + 1] = rank;
-                Ranks[rank.Index] = nextRankDown;
-                RebuildIndex();
-                return true;
-            } else {
+            if( rank == Ranks.Last() ) {
                 return false;
             }
+            Rank nextRankDown = Ranks[rank.Index + 1];
+            Ranks[rank.Index + 1] = rank;
+            Ranks[rank.Index] = nextRankDown;
+            RebuildIndex();
+            return true;
         }
-
 
 
         public static void ParsePermissionLimits() {
@@ -225,9 +219,9 @@ namespace fCraft {
         }
 
         static Random rand = new Random();
+        const string IDChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         public static string GenerateID() {
             StringBuilder ID = new StringBuilder();
-            string IDChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             for( int i = 0; i < 16; i++ ) {
                 ID.Append( IDChars[rand.Next( 0, IDChars.Length )] );
             }
@@ -242,14 +236,10 @@ namespace fCraft {
 
         public static Rank GetMinRankWithPermission( params Permission[] permission ) {
             for( int r = Ranks.Count - 1; r >= 0; r-- ) {
-                bool can = true;
-                for( int p = 0; p < permission.Length; p++ ) {
-                    if( !Ranks[r].Can( permission[p] ) ) {
-                        can = false;
-                        break;
-                    }
+                int r1 = r;
+                if( permission.All( t => Ranks[r1].Can( t ) ) ) {
+                    return Ranks[r];
                 }
-                if( can ) return Ranks[r];
             }
             return null;
         }

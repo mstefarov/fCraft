@@ -55,6 +55,7 @@
       <DependentUpon>UpdateWindow.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="ClassDiagram1.cd" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

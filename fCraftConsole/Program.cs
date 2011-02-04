@@ -34,7 +34,7 @@ namespace fCraftConsole {
             Server.InitLibrary( args );
 
             Server.OnLog += Log;
-            Server.OnURLChanged += SetURL;
+            Server.OnURLChanged += SetUrl;
 
 #if !DEBUG
             try {
@@ -49,9 +49,7 @@ namespace fCraftConsole {
                     }
 
                     try {
-                        if( Process.GetCurrentProcess().PriorityClass != Config.GetProcessPriority() ) {
-                            Process.GetCurrentProcess().PriorityClass = Config.GetProcessPriority();
-                        }
+                        Process.GetCurrentProcess().PriorityClass = Config.GetProcessPriority();
                     } catch( Exception ) {
                         Logger.Log( "Program.Main: Could not set process priority, using defaults.", LogType.Warning );
                     }
@@ -110,9 +108,9 @@ namespace fCraftConsole {
             }
         }
 
-        static void SetURL( string URL ) {
-            File.WriteAllText( "externalurl.txt", URL, Encoding.ASCII );
-            Console.WriteLine( "** URL: {0} **", URL );
+        static void SetUrl( string newUrl ) {
+            File.WriteAllText( "externalurl.txt", newUrl, Encoding.ASCII );
+            Console.WriteLine( "** URL: {0} **", newUrl );
             Console.WriteLine( "URL is also saved to file externalurl.txt" );
         }
     }

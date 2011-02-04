@@ -35,6 +35,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using fCraft;
 
@@ -102,7 +103,7 @@ namespace Mcc {
         }
 
 
-        void LoadBlocks( Map map, Stream mapStream ) {
+        static void LoadBlocks( Map map, Stream mapStream ) {
             mapStream.Seek( 0, SeekOrigin.Begin );
 
             // Setup a GZipStream to decompress and read the map file
@@ -119,7 +120,7 @@ namespace Mcc {
         }
 
 
-        void LoadMeta( Map map, Stream stream ) {
+        static void LoadMeta( Map map, Stream stream ) {
             INIFile metaFile = new INIFile( stream );
             if( metaFile.IsEmpty() ) {
                 throw new Exception( "Metadata file is empty or incorrectly formatted." );
@@ -194,10 +195,7 @@ namespace Mcc {
 
         public bool Contains( string section, params string[] keys ) {
             if( contents.ContainsKey( section.ToLower() ) ) {
-                foreach( string key in keys ) {
-                    if( !contents[section.ToLower()].ContainsKey( key.ToLower() ) ) return false;
-                }
-                return true;
+                return keys.All( key => contents[section.ToLower()].ContainsKey( key.ToLower() ) );
             } else {
                 return false;
             }

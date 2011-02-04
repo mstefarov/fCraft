@@ -47,7 +47,7 @@ namespace fCraft {
                     Logger.Log( "Cannot write to specified directory ({0}: {1}).", LogType.Error,
                                 ex.GetType().ToString(), ex.Message );
                 } else {
-                    throw ex;
+                    throw;
                 }
             }
             return false;

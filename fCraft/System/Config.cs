@@ -397,9 +397,7 @@ namespace fCraft {
                 }
             }
 
-            XElement rankList = config.Element( "Ranks" );
-            if( rankList == null )
-                rankList = config.Element( "Classes" ); // LEGACY
+            XElement rankList = config.Element( "Ranks" ) ?? config.Element( "Classes" );
 
             if( rankList != null ) {
                 XElement[] rankDefinitionList = rankList.Elements( "Rank" ).ToArray();
@@ -409,7 +407,7 @@ namespace fCraft {
                 foreach( XElement rankDefinition in rankDefinitionList ) {
                     try {
                         RankList.AddRank( new Rank( rankDefinition ) );
-                    } catch( Rank.RankDefinitionException ex ) {
+                    } catch( RankDefinitionException ex ) {
                         Log( ex.Message, LogType.Error );
                     }
                 }
@@ -422,14 +420,7 @@ namespace fCraft {
                 } else if( version < ConfigVersion ) { // start LEGACY code
 
                     if( version < 103 ) { // speedhack permission
-                        bool foundRankWithSpeedHackPermission = false;
-                        foreach( Rank rank in RankList.RanksByID.Values ) {
-                            if( rank.Can( Permission.UseSpeedHack ) ) {
-                                foundRankWithSpeedHackPermission = true;
-                                break;
-                            }
-                        }
-                        if( !foundRankWithSpeedHackPermission ) {
+                        if( !RankList.RanksByID.Values.Any( rank => rank.Can( Permission.UseSpeedHack ) ) ) {
                             foreach( Rank rank in RankList.RanksByID.Values ) {
                                 rank.Permissions[(int)Permission.UseSpeedHack] = true;
                             }
@@ -766,7 +757,7 @@ namespace fCraft {
             if( GetBool( ConfigKey.NoPartialPositionUpdates ) ) {
                 Session.fullPositionUpdateInterval = 0;
             } else {
-                Session.fullPositionUpdateInterval = Session.fullPositionUpdateIntervalDefault;
+                Session.fullPositionUpdateInterval = Session.FullPositionUpdateIntervalDefault;
             }
 
             // chat colors
@@ -803,11 +794,7 @@ namespace fCraft {
             Server.ticksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
 
             // rank to patrol
-            if( RankList.ParseRank( settings[ConfigKey.PatrolledRank] ) != null ) {
-                World.rankToPatrol = RankList.ParseRank( settings[ConfigKey.PatrolledRank] );
-            } else {
-                World.rankToPatrol = RankList.LowestRank;
-            }
+            World.rankToPatrol = RankList.ParseRank( settings[ConfigKey.PatrolledRank] ) ?? RankList.LowestRank;
 
             // IRC delay
             IRC.SendDelay = GetInt( ConfigKey.IRCDelay );
@@ -835,7 +822,6 @@ namespace fCraft {
         static XElement DefineDefaultRanks() {
             XElement temp;
             XElement permissions = new XElement( "Ranks" );
-
 
             XElement owner = new XElement( "Rank" );
             owner.Add( new XAttribute( "id", RankList.GenerateID() ) );
@@ -903,7 +889,7 @@ namespace fCraft {
             permissions.Add( owner );
             try {
                 RankList.AddRank( new Rank( owner ) );
-            } catch( Rank.RankDefinitionException ex ) {
+            } catch( RankDefinitionException ex ) {
                 Log( ex.Message, LogType.Error );
             }
 
@@ -964,7 +950,7 @@ namespace fCraft {
             permissions.Add( op );
             try {
                 RankList.AddRank( new Rank( op ) );
-            } catch( Rank.RankDefinitionException ex ) {
+            } catch( RankDefinitionException ex ) {
                 Log( ex.Message, LogType.Error );
             }
 
@@ -1003,7 +989,7 @@ namespace fCraft {
             permissions.Add( regular );
             try {
                 RankList.AddRank( new Rank( regular ) );
-            } catch( Rank.RankDefinitionException ex ) {
+            } catch( RankDefinitionException ex ) {
                 Log( ex.Message, LogType.Error );
             }
 
@@ -1025,7 +1011,7 @@ namespace fCraft {
             permissions.Add( guest );
             try {
                 RankList.AddRank( new Rank( guest ) );
-            } catch( Rank.RankDefinitionException ex ) {
+            } catch( RankDefinitionException ex ) {
                 Log( ex.Message, LogType.Error );
             }
 

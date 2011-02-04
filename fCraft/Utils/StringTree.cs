@@ -7,15 +7,10 @@ namespace fCraft {
     /// Used as a searchable index of players for PlayerDB.
     /// </summary>
     sealed class StringTree {
-        StringNode root;
+        StringNode root = new StringNode();
         public int Count { private set; get; }
 
         public const byte MULTI = 37, EMPTY=38;
-
-
-        public StringTree() {
-            root = new StringNode();
-        }
 
 
         /// <summary>
@@ -25,9 +20,8 @@ namespace fCraft {
         /// <returns>PlayerInfo object, if found. Null if not found.</returns>
         public PlayerInfo Get( string name ) {
             StringNode temp = root;
-            int code;
             for( int i = 0; i < name.Length; i++ ) {
-                code = CharCode( name[i] );
+                int code = CharCode( name[i] );
                 if( temp.children[code] == null )
                     return null;
                 temp = temp.children[code];
@@ -45,46 +39,25 @@ namespace fCraft {
         public List<PlayerInfo> GetMultiple( string namePart, int limit ) {
             List<PlayerInfo> results = new List<PlayerInfo>();
             StringNode temp = root;
-            int code;
             for( int i = 0; i < namePart.Length; i++ ) {
-                code = CharCode( namePart[i] );
+                int code = CharCode( namePart[i] );
                 if( temp.children[code] == null )
                     return results;
                 temp = temp.children[code];
             }
-            GetAllChildren( temp, results, limit );
+            temp.GetAllChildren( results, limit );
             return results;
         }
 
-        bool GetAllChildren( StringNode node, List<PlayerInfo> list, int limit ) {
-            if( list.Count >= limit ) return false;
-            if(node.payload!=null){
-                list.Add(node.payload);
-            }
-            if( node.tag < MULTI ) {
-                if( !GetAllChildren( node.children[node.tag], list, limit ) ) return false;
-            } else if( node.tag == MULTI ) {
-                for( int i = 0; i < node.children.Length; i++ ) {
-                    if( node.children[i] != null ) {
-                        if( !GetAllChildren( node.children[i], list, limit ) ) return false;
-                    }
-                }
-            }
-            return true;
-        }
 
-
-        /// <summary>
-        /// Searches for player names starting with namePart, returning just one or none of the matches.
-        /// </summary>
+        /// <summary>Searches for player names starting with namePart, returning just one or none of the matches.</summary>
         /// <param name="namePart">Partial or full player name</param>
         /// <param name="info">PlayerInfo to output (will be set to null if no single match was found)</param>
         /// <returns>true if one or zero matches were found, false if multiple matches were found</returns>
         public bool Get( string namePart, out PlayerInfo info ) {
             StringNode temp = root;
-            int code;
             for( int i = 0; i < namePart.Length; i++ ) {
-                code = CharCode( namePart[i] );
+                int code = CharCode( namePart[i] );
                 if( temp.children[code] == null ) {
                     info = null;
                     return true; // early detection of no matches
@@ -113,9 +86,8 @@ namespace fCraft {
         /// <returns>Returns false if an entry for this player already exists.</returns>
         public bool Add( string name, PlayerInfo payload ) {
             StringNode temp = root;
-            int code;
             for( int i = 0; i < name.Length; i++ ) {
-                code = CharCode( name[i] );
+                int code = CharCode( name[i] );
                 if( temp.children[code] == null ) {
                     temp.children[code] = new StringNode();
                 }
@@ -149,6 +121,23 @@ namespace fCraft {
             public byte tag = EMPTY;
             public StringNode[] children = new StringNode[37];
             public PlayerInfo payload;
+
+            public bool GetAllChildren( List<PlayerInfo> list, int limit ) {
+                if( list.Count >= limit ) return false;
+                if( payload != null ) {
+                    list.Add( payload );
+                }
+                if( tag < MULTI ) {
+                    if( !children[tag].GetAllChildren( list, limit ) ) return false;
+                } else if( tag == MULTI ) {
+                    for( int i = 0; i < children.Length; i++ ) {
+                        if( children[i] != null ) {
+                            if( !children[i].GetAllChildren( list, limit ) ) return false;
+                        }
+                    }
+                }
+                return true;
+            }
         }
     }
 }

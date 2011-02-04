@@ -34,7 +34,7 @@ namespace fCraft {
         static HttpWebRequest request;
         static Scheduler.Task task;
 
-        static void Beat( Scheduler.Task task ) {
+        static void Beat( Scheduler.Task _task ) {
             if( Config.GetBool( ConfigKey.HeartbeatEnabled ) ) {
                 request = (HttpWebRequest)WebRequest.Create( URL );
                 request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
@@ -57,7 +57,7 @@ namespace fCraft {
                 request.BeginGetRequestStream( RequestCallback, formData );
             } else {
                 // If heartbeats are disabled, the data is written to a text file (heartbeatdata.txt)
-                string tempFile = HeartbeatDataFileName + ".tmp";
+                const string tempFile = HeartbeatDataFileName + ".tmp";
                 File.WriteAllLines( tempFile, new[]{
                                         Server.Salt,
                                         Server.IP.ToString(),
@@ -94,7 +94,7 @@ namespace fCraft {
         }
 
         static void ResponseCallback( IAsyncResult result ) {
-            string newURL = null;
+            string newURL;
             try {
                 using( WebResponse response = request.EndGetResponse( result ) ) {
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {

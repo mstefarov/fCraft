@@ -266,7 +266,7 @@ namespace fCraft {
                         y = (int)branchy
                     };
                     if( startsize < 1 ) startsize = 1;
-                    float endsize = 1;
+                    const float endsize = 1;
                     TaperedLimb( startcoord, coord, startsize, endsize );
                 }
             }
@@ -309,7 +309,7 @@ namespace fCraft {
                     float rootstartsize = (float)(rootbaseradius * .618 * Math.Abs( offset[1] ) / (height * .618));
 
                     if( rootstartsize < 1 ) rootstartsize = 1;
-                    float endsize = 1;
+                    const float endsize = 1;
 
                     if( args.ROOTS == RootMode.ToStone ||
                         args.ROOTS == RootMode.Hanging ) {
@@ -661,7 +661,7 @@ namespace fCraft {
             int existingtreenum = treelist.Count;
             int remainingtrees = args.TREECOUNT - existingtreenum;
 
-            int short_tree_fraction = 6;
+            const int short_tree_fraction = 6;
             int attempts = 0;
             for( int i = 0; i < remainingtrees && attempts < MaxTries; attempts++ ) {
                 float randomfac = (float)((Math.Sqrt( args.rand.NextDouble() ) * 1.618 - .618) * args.HEIGHTVARIATION + .5);
@@ -678,11 +678,11 @@ namespace fCraft {
                 xyz.y++;
 
                 bool displaced = false;
-                foreach( Tree othertree in treelist ) {
-                    Vector3i other_loc = othertree.pos;
-                    float otherheight = othertree.height;
-                    int tallx = other_loc[0];
-                    int tallz = other_loc[2];
+                foreach( Tree otherTree in treelist ) {
+                    Vector3i otherLoc = otherTree.pos;
+                    float otherheight = otherTree.height;
+                    int tallx = otherLoc[0];
+                    int tallz = otherLoc[2];
                     float dist = (float)Math.Sqrt( Sqr( tallx - xyz.x + .5 ) + Sqr( tallz - xyz.z + .5 ) );
                     float threshold = (otherheight + height) * .193f;
                     if( dist < threshold ) {

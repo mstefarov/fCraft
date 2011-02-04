@@ -122,7 +122,7 @@ namespace fCraft {
                         Logger.Log( "Cannot write to specified directory ({0}: {1}).", LogType.Error,
                                     ex.GetType().ToString(), ex.Message );
                     } else {
-                        throw ex;
+                        throw;
                     }
                 }
             }
@@ -331,7 +331,7 @@ namespace fCraft {
                     }
                 }
 
-                if( PlayerDB.isLoaded ) PlayerDB.Save();
+                if( PlayerDB.IsLoaded ) PlayerDB.Save();
                 if( IPBanList.isLoaded ) IPBanList.Save();
 
 
@@ -427,47 +427,51 @@ namespace fCraft {
             XDocument doc = XDocument.Load( WorldListFileName );
             XElement root = doc.Root;
             World firstWorld = null;
-            XAttribute temp = null;
+            XAttribute temp;
             string worldName;
 
             foreach( XElement el in root.Elements( "World" ) ) {
-                if( (temp = el.Attribute( "name" )) == null ) {
-                    Logger.Log( "Server.ParseWorldListXML: World tag with no name skipped.", LogType.Error );
-                    continue;
-                }
-                worldName = temp.Value;
-                if( !Player.IsValidName( worldName ) ) {
-                    Logger.Log( "Server.ParseWorldListXML: Invalid world name skipped: \"" + worldName + "\"", LogType.Error );
-                    continue;
-                }
+                try {
+                    if( (temp = el.Attribute( "name" )) == null ) {
+                        Logger.Log( "Server.ParseWorldListXML: World tag with no name skipped.", LogType.Error );
+                        continue;
+                    }
+                    worldName = temp.Value;
+                    if( !Player.IsValidName( worldName ) ) {
+                        Logger.Log( "Server.ParseWorldListXML: Invalid world name skipped: \"{0}\"", LogType.Error, worldName );
+                        continue;
+                    }
 
-                World world = AddWorld( worldName, null, (el.Attribute( "noUnload" ) != null) );
+                    World world = AddWorld( worldName, null, (el.Attribute( "noUnload" ) != null) );
 
-                if( world == null ) {
-                    Logger.Log( "Server.ParseWorldListXML: Error loading world \"" + worldName + "\"", LogType.Error );
-                } else {
-                    if( (temp = el.Attribute( "hidden" )) != null ) {
-                        if( !Boolean.TryParse( temp.Value, out world.isHidden ) ) {
-                            Logger.Log( "Server.ParseWorldListXML: Could not parse \"hidden\" attribute of world \"{0}\", " +
-                                        "assuming NOT hidden.", LogType.Warning,
-                                        worldName );
-                            world.isHidden = false;
+                    if( world == null ) {
+                        Logger.Log( "Server.ParseWorldListXML: Error loading world \"{0}\"", LogType.Error, worldName );
+                    } else {
+                        if( (temp = el.Attribute( "hidden" )) != null ) {
+                            if( !Boolean.TryParse( temp.Value, out world.isHidden ) ) {
+                                Logger.Log( "Server.ParseWorldListXML: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
+                                            LogType.Warning, worldName );
+                                world.isHidden = false;
+                            }
+                        }
+                        if( firstWorld == null ) firstWorld = world;
+                        Logger.Log( "Server.ParseWorldListXML: Loaded world \"{0}\"", LogType.Debug, worldName );
+
+                        if( el.Element( "accessSecurity" ) != null ) {
+                            world.accessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
+                        } else {
+                            world.accessSecurity.minRank = LoadWorldRankRestriction( world, "access", el );
+                        }
+
+                        if( el.Element( "buildSecurity" ) != null ) {
+                            world.buildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
+                        } else {
+                            world.buildSecurity.minRank = LoadWorldRankRestriction( world, "build", el );
                         }
                     }
-                    if( firstWorld == null ) firstWorld = world;
-                    Logger.Log( "Server.ParseWorldListXML: Loaded world \"{0}\"", LogType.Debug, worldName );
-
-                    if( el.Element( "accessSecurity" ) != null ) {
-                        world.accessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
-                    } else {
-                        world.accessSecurity.minRank = LoadWorldRankRestriction( world, "access", el );
-                    }
-
-                    if( el.Element( "buildSecurity" ) != null ) {
-                        world.buildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
-                    } else {
-                        world.buildSecurity.minRank = LoadWorldRankRestriction( world, "build", el );
-                    }
+                } catch( Exception ex ) {
+                    Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
+                                              "fCraft", ex );
                 }
             }
 
@@ -477,8 +481,7 @@ namespace fCraft {
                 if( mainWorld == null && firstWorld != null ) {
                     Logger.Log( "The specified main world \"{0}\" does not exist. " +
                                 "\"{1}\" was designated main instead. You can use /wmain to change it.",
-                                LogType.Warning,
-                                temp.Value, firstWorld.name );
+                                LogType.Warning, temp.Value, firstWorld.name );
                     mainWorld = firstWorld;
                 }
                 // if firstWorld was also null, LoadWorldList() should try creating a new mainWorld
@@ -491,28 +494,24 @@ namespace fCraft {
 
         static Rank LoadWorldRankRestriction( World world, string fieldType, XElement element ) {
             XAttribute temp;
-            Rank rank;
-            if( (temp = element.Attribute( fieldType )) != null ) {
-                if( (rank = RankList.ParseRank( temp.Value )) != null ) {
-                    return rank;
-                } else {
-                    Logger.Log( "Server.ParseWorldListXML: Could not parse the specified {0} rank for world \"{1}\": \"{2}\". No {0} limit was set.", LogType.Error,
-                                fieldType,
-                                world.name,
-                                temp.Value );
-                    return RankList.LowestRank;
-                }
-            } else {
+            if( ( temp = element.Attribute( fieldType ) ) == null ) {
                 return RankList.LowestRank;
             }
+            Rank rank;
+            if( ( rank = RankList.ParseRank( temp.Value ) ) != null ) {
+                return rank;
+            }
+            Logger.Log( "Server.ParseWorldListXML: Could not parse the specified {0} rank for world \"{1}\": \"{2}\". No {0} limit was set.",
+                        LogType.Error, fieldType, world.name, temp.Value );
+            return RankList.LowestRank;
         }
 
 
         public static void SaveWorldList() {
             // Save world list
             try {
-                string tempWorldListFile = WorldListFileName + ".tmp";
-                string backupWorldListFile = WorldListFileName + ".backup";
+                const string tempWorldListFile = WorldListFileName + ".tmp";
+                const string backupWorldListFile = WorldListFileName + ".backup";
                 XDocument doc = new XDocument();
                 XElement root = new XElement( "fCraftWorldList" );
                 XElement temp;
@@ -548,17 +547,16 @@ namespace fCraft {
 
         #endregion
 
-        public static World AddWorld( string name, Map map, bool neverUnload ) {
+        public static World AddWorld( string name, Map map, bool _neverUnload ) {
             if( !Player.IsValidName( name ) ) return null;
             lock( worldListLock ) {
                 if( worlds.ContainsKey( name ) ) return null;
-                World newWorld = new World( name );
-                newWorld.neverUnload = neverUnload;
+                World newWorld = new World( name ) { neverUnload = _neverUnload };
 
                 if( map != null ) {
                     // if a map is given
                     newWorld.map = map;
-                    if( !neverUnload ) {
+                    if( !_neverUnload ) {
                         newWorld.UnloadMap( false );// UnloadMap also saves the map
                     } else {
                         newWorld.SaveMap();
@@ -566,7 +564,7 @@ namespace fCraft {
 
                 } else {
                     // generate default map
-                    if( neverUnload ) newWorld.LoadMap();
+                    if( _neverUnload ) newWorld.LoadMap();
                 }
 
                 newWorld.UpdatePlayerList();
@@ -581,11 +579,7 @@ namespace fCraft {
         public static World FindWorldExact( string name ) {
             if( name == null ) return null;
             lock( worldListLock ) {
-                if( worlds.ContainsKey( name.ToLower() ) ) {
-                    return worlds[name.ToLower()];
-                } else {
-                    return null;
-                }
+                return worlds.ContainsKey( name.ToLower() ) ? worlds[name.ToLower()] : null;
             }
         }
 
@@ -614,15 +608,15 @@ namespace fCraft {
 
 
         public static World FindWorldOrPrintMatches( Player player, string worldName ) {
-            World[] worlds = FindWorlds( worldName );
-            if( worlds.Length == 0 ) {
+            World[] matches = FindWorlds( worldName );
+            if( matches.Length == 0 ) {
                 player.NoWorldMessage( worldName );
                 return null;
-            } else if( worlds.Length > 1 ) {
-                player.ManyMatchesMessage( "world", worlds );
+            } else if( matches.Length > 1 ) {
+                player.ManyMatchesMessage( "world", matches );
                 return null;
             } else {
-                return worlds[0];
+                return matches[0];
             }
         }
 
@@ -692,13 +686,9 @@ namespace fCraft {
 
 
         public static int CountLoadedWorlds() {
-            int counter = 0;
             lock( worldListLock ) {
-                foreach( World world in worlds.Values ) {
-                    if( world.map != null ) counter++;
-                }
+                return worlds.Values.Count( world => world.map != null );
             }
-            return counter;
         }
 
         #endregion
@@ -738,8 +728,8 @@ namespace fCraft {
 
         // Send a message to everyone (except a specified player)
         // Wraps String.Format() for easy formatting
-        public static void SendToAllExcept( string message, Player except, params object[] args ) {
-            if( args.Length > 0 ) message = String.Format( message, args );
+        public static void SendToAllExcept( string message, Player except, params object[] formatArgs ) {
+            if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
             if( except != Player.Console ) Logger.LogConsole( message );
             foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
                 SendToAll( p, except );
@@ -749,12 +739,12 @@ namespace fCraft {
 
         // Send a message to everyone
         // Wraps String.Format() for easy formatting
-        public static void SendToAll( string message, params object[] args ) {
-            SendToAllExcept( message, null, args );
+        public static void SendToAll( string message, params object[] formatArgs ) {
+            SendToAllExcept( message, null, formatArgs );
         }
 
-        public static void SendToAllExceptIgnored( Player origin, string message, Player except, params object[] args ) {
-            if( args.Length > 0 ) message = String.Format( message, args );
+        public static void SendToAllExceptIgnored( Player origin, string message, Player except, params object[] formatArgs ) {
+            if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
             foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
                 Player[] tempList = PlayerList;
                 for( int i = 0; i < tempList.Length; i++ ) {
@@ -837,7 +827,7 @@ namespace fCraft {
         public static event PlayerDisconnectedEventHandler OnPlayerDisconnected;
         public static event PlayerKickedEventHandler OnPlayerKicked;
         public static event PlayerRankChangedEventHandler OnRankChanged;
-        public static event URLChangeEventHandler OnURLChanged;
+        public static event UrlChangeEventHandler OnURLChanged;
         public static event SimpleEventHandler OnShutdownBegin;
         public static event SimpleEventHandler OnShutdownEnd;
         public static event PlayerChangedWorldEventHandler OnPlayerChangedWorld;
@@ -847,8 +837,8 @@ namespace fCraft {
         public static event PlayerBanStatusChangedEventHandler OnPlayerBanned;
         public static event PlayerBanStatusChangedEventHandler OnPlayerUnbanned;
 
-        internal static void FireURLChangeEvent( string URL ) {
-            if( OnURLChanged != null ) OnURLChanged( URL );
+        internal static void FireURLChangeEvent( string newUrl ) {
+            if( OnURLChanged != null ) OnURLChanged( newUrl );
         }
 
         internal static void FireLogEvent( string message, LogType type ) {
@@ -872,15 +862,14 @@ namespace fCraft {
         }
 
         internal static void FirePlayerListChangedEvent() {
-            if( OnPlayerListChanged != null ) {
-                Player[] playerListCache = PlayerList;
-                string[] list = new string[playerListCache.Length];
-                for( int i = 0; i < list.Length; i++ ) {
-                    list[i] = playerListCache[i].info.rank.Name + " - " + playerListCache[i].name;
-                }
-                Array.Sort( list );
-                OnPlayerListChanged( list );
+            if( OnPlayerListChanged == null ) return;
+            Player[] playerListCache = PlayerList;
+            string[] list = new string[playerListCache.Length];
+            for( int i = 0; i < list.Length; i++ ) {
+                list[i] = playerListCache[i].info.rank.Name + " - " + playerListCache[i].name;
             }
+            Array.Sort( list );
+            OnPlayerListChanged( list );
         }
 
         internal static bool FireSentMessageEvent( Player player, ref string message ) {
@@ -935,14 +924,13 @@ namespace fCraft {
         static void CheckIdles( object param ) {
             Player[] tempPlayerList = PlayerList;
             foreach( Player player in tempPlayerList ) {
-                if( player.info.rank.IdleKickTimer > 0 ) {
-                    if( DateTime.UtcNow.Subtract( player.idleTimer ).TotalMinutes >= player.info.rank.IdleKickTimer ) {
-                        SendToAllExcept( "{0}&S was kicked for being idle for {1} min", player,
-                                         player.GetClassyName(),
-                                         player.info.rank.IdleKickTimer.ToString() );
-                        AdminCommands.DoKick( Player.Console, player, "Idle for " + player.info.rank.IdleKickTimer + " minutes", true );
-                        player.ResetIdleTimer(); // to prevent kick from firing more than once
-                    }
+                if( player.info.rank.IdleKickTimer <= 0 ) continue;
+                if( DateTime.UtcNow.Subtract( player.idleTimer ).TotalMinutes >= player.info.rank.IdleKickTimer ) {
+                    SendToAllExcept( "{0}&S was kicked for being idle for {1} min", player,
+                                     player.GetClassyName(),
+                                     player.info.rank.IdleKickTimer.ToString() );
+                    AdminCommands.DoKick( Player.Console, player, "Idle for " + player.info.rank.IdleKickTimer + " minutes", true );
+                    player.ResetIdleTimer(); // to prevent kick from firing more than once
                 }
             }
         }
@@ -952,11 +940,10 @@ namespace fCraft {
         static readonly TimeSpan GCInterval = TimeSpan.FromSeconds( 60 );
 
         static void DoGC( object param ) {
-            if( GCRequested ) {
-                GCRequested = false;
-                GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-                Logger.Log( "Server.DoGC: Collected on schedule.", LogType.Debug );
-            }
+            if( !GCRequested ) return;
+            GCRequested = false;
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
+            Logger.Log( "Server.DoGC: Collected on schedule.", LogType.Debug );
         }
 
 
@@ -964,16 +951,15 @@ namespace fCraft {
         public const string AnnouncementsFile = "announcements.txt";
 
         static void ShowRandomAnnouncement( object param ) {
-            if( File.Exists( AnnouncementsFile ) ) {
-                string[] lines = File.ReadAllLines( AnnouncementsFile );
-                if( lines.Length == 0 ) return;
-                string line = lines[new Random().Next( 0, lines.Length )].Trim();
-                if( line.Length > 0 ) {
-                    if( line.StartsWith( "&" ) ) {
-                        SendToAll( "{0}", line );
-                    } else {
-                        SendToAll( "{0}{1}", Color.Announcement, line );
-                    }
+            if( !File.Exists( AnnouncementsFile ) ) return;
+            string[] lines = File.ReadAllLines( AnnouncementsFile );
+            if( lines.Length == 0 ) return;
+            string line = lines[new Random().Next( 0, lines.Length )].Trim();
+            if( line.Length > 0 ) {
+                if( line.StartsWith( "&" ) ) {
+                    SendToAll( "{0}", line );
+                } else {
+                    SendToAll( "{0}{1}", Color.Announcement, line );
                 }
             }
         }
@@ -1011,11 +997,11 @@ namespace fCraft {
         internal static string OldSalt = "";
 
 
+        const string saltChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.~";
         static void GenerateSalt() {
             // generate random salt
             Random rand = new Random();
             int saltLength = rand.Next( 12, 17 );
-            string saltChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.~";
             for( int i = 0; i < saltLength; i++ ) {
                 Salt += saltChars[rand.Next( 0, saltChars.Length - 1 )];
             }
@@ -1217,13 +1203,12 @@ namespace fCraft {
                     return false;
                 }
                 for( int i = 0; i < Config.MaxPlayersSupported; i++ ) {
-                    if( !players.ContainsKey( i ) ) {
-                        player.id = i;
-                        players[i] = player;
-                        UpdatePlayerList();
-                        player.session.hasRegistered = true;
-                        return true;
-                    }
+                    if( players.ContainsKey( i ) ) continue;
+                    player.id = i;
+                    players[i] = player;
+                    UpdatePlayerList();
+                    player.session.hasRegistered = true;
+                    return true;
                 }
                 return false;
             }
@@ -1237,25 +1222,25 @@ namespace fCraft {
             }
 
             lock( playerListLock ) {
-                if( player.session.hasRegistered ) {
-                    SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
-                    Logger.Log( "{0} left the server.", LogType.UserActivity,
-                                player.name );
-                    if( Config.GetBool( ConfigKey.ShowConnectionMessages ) ) {
-                        SendToAll( "&SPlayer {0}&S left the server.", player.GetClassyName() );
-                    }
+                if( !player.session.hasRegistered ) return;
 
-                    lock( worldListLock ) {
-                        // better safe than sorry: go through ALL worlds looking for leftover players
-                        foreach( World world in worlds.Values ) {
-                            world.ReleasePlayer( player );
-                        }
-                    }
-                    players.Remove( player.id );
-                    UpdatePlayerList();
-
-                    if( player.info != null ) player.info.ProcessLogout( player );
+                SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
+                Logger.Log( "{0} left the server.", LogType.UserActivity,
+                            player.name );
+                if( Config.GetBool( ConfigKey.ShowConnectionMessages ) ) {
+                    SendToAll( "&SPlayer {0}&S left the server.", player.GetClassyName() );
                 }
+
+                lock( worldListLock ) {
+                    // better safe than sorry: go through ALL worlds looking for leftover players
+                    foreach( World world in worlds.Values ) {
+                        world.ReleasePlayer( player );
+                    }
+                }
+                players.Remove( player.id );
+                UpdatePlayerList();
+
+                if( player.info != null ) player.info.ProcessLogout( player );
             }
         }
 
@@ -1283,29 +1268,37 @@ namespace fCraft {
         }
 
 
-        // Find player by name using autocompletion (IGNORES HIDDEN PERMISSIONS)
+        /// <summary>Finds a player by name, using autocompletion.
+        /// Count ALL players, including hidden ones.</summary>
+        /// <returns>An array of matches. List length of 0 means "no matches";
+        /// 1 is an exact match; over 1 for multiple matches.</returns>
         public static Player[] FindPlayers( string name ) {
             Player[] tempList = PlayerList;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null ) {
-                    if( tempList[i].name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
-                        results.Clear();
-                        results.Add( tempList[i] );
-                        break;
-                    } else if( tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
-                        results.Add( tempList[i] );
-                    }
+                if( tempList[i] == null ) continue;
+                if( tempList[i].name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
+                    results.Clear();
+                    results.Add( tempList[i] );
+                    break;
+                } else if( tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                    results.Add( tempList[i] );
                 }
             }
             return results.ToArray();
         }
 
 
-        // Find player by name using autocompletion (returns only whose whom player can see)
+        /// <summary>Finds a player by name, using autocompletion.
+        /// Does not count hidden players.</summary>
+        /// <param name="player">Player who initiated the search.
+        /// Used to determine whether others are hidden or not.</param>
+        /// <param name="name">Full or partial name of the search target.</param>
+        /// <returns>An array of matches. List length of 0 means "no matches";
+        /// 1 is an exact match; over 1 for multiple matches.</returns>
         public static Player[] FindPlayers( Player player, string name ) {
-            Player[] tempList = PlayerList;
             List<Player> results = new List<Player>();
+            Player[] tempList = PlayerList;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && player.CanSee( tempList[i] ) ) {
                     if( tempList[i].name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
@@ -1320,70 +1313,69 @@ namespace fCraft {
             return results.ToArray();
         }
 
-        // Find player by name using autocompletion (returns only whose whom player can see)
-        // Returns null and prints message if none or multiple players matched.
+
+        /// <summary>Find player by name using autocompletion (returns only whose whom player can see)
+        /// Returns null and prints message if none or multiple players matched.</summary>
+        /// <param name="player">Player who initiated the search. This is where messages are sent.</param>
+        /// <param name="playerName">Full or partial name of the search target.</param>
+        /// <param name="includeHidden">Whether to include hidden players in the search.</param>
+        /// <returns>Player object, or null if no player was found.</returns>
         public static Player FindPlayerOrPrintMatches( Player player, string playerName, bool includeHidden ) {
-            Player[] players;
+            Player[] matches;
             if( includeHidden ) {
-                players = FindPlayers( playerName );
+                matches = FindPlayers( playerName );
             } else {
-                players = FindPlayers( player, playerName );
+                matches = FindPlayers( player, playerName );
             }
 
-            if( players.Length == 0 ) {
+            if( matches.Length == 0 ) {
                 player.NoPlayerMessage( playerName );
                 return null;
 
-            } else if( players.Length > 1 ) {
-                player.ManyMatchesMessage( "player", players );
+            } else if( matches.Length > 1 ) {
+                player.ManyMatchesMessage( "player", matches );
                 return null;
 
             } else {
-                return players[0];
+                return matches[0];
             }
         }
 
 
-        // Find player by IP
-        public static List<Player> FindPlayers( IPAddress ip ) {
-            Player[] tempList = PlayerList;
-            List<Player> results = new List<Player>();
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i].session.GetIP().ToString() == ip.ToString() ) {
-                    results.Add( tempList[i] );
-                }
-            }
-            return results;
+        /// <summary>Finds any player(s) online from given IP address.</summary>
+        /// <returns>An array of matches. List length of 0 means "no matches";
+        /// 1 is an exact match; over 1 for multiple matches.</returns>
+        public static Player[] FindPlayers( IPAddress ip ) {
+            return PlayerList.Where( t => t != null &&
+                                          t.session.GetIP().ToString() == ip.ToString() ).ToArray();
         }
 
 
-        // Get player by name without autocompletion
+        /// <summary>Finds a player by name, without any kind of autocompletion.</summary>
+        /// <param name="name">Name of the player (case-insensitive).</param>
+        /// <returns>Player object, or null if player was not found.</returns>
         public static Player FindPlayerExact( string name ) {
-            name = name.ToLower();
-            Player[] tempList = PlayerList;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i].name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
-                    return tempList[i];
-                }
-            }
-            return null;
+            return PlayerList.FirstOrDefault( t => t != null &&
+                                                   t.name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
         }
 
+
+        /// <summary> Finds Player object associated with the given PlayerInfo object.</summary>
+        /// <returns>Player object, or null if player is offline.</returns>
         public static Player FindPlayerExact( PlayerInfo info ) {
-            if( info == null || !info.online ) return null;
-            else return FindPlayerExact( info.name );
+            if( info == null || !info.online ) {
+                return null;
+            } else {
+                return FindPlayerExact( info.name );
+            }
         }
+
 
         public static int GetPlayerCount( bool includeHiddenPlayers ) {
             if( includeHiddenPlayers ) {
                 return PlayerList.Length;
-            } else {
-                int count = 0;
-                Player[] playerListCache = PlayerList;
-                foreach( Player player in playerListCache ) {
-                    if( !player.isHidden ) count++;
-                }
-                return count;
+            } else {;
+                return PlayerList.Count( player => !player.isHidden );
             }
         }
 

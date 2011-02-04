@@ -110,12 +110,16 @@ namespace fCraft {
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message;
             if( logFileOptions[(int)type] ) {
                 string actualLogFileName;
-                if( split == LogSplittingType.SplitBySession ) {
-                    actualLogFileName = Path.Combine( Paths.LogPath, sessionStart + ".log" );
-                } else if( split == LogSplittingType.SplitByDay ) {
-                    actualLogFileName = Path.Combine( Paths.LogPath, DateTime.Now.ToString( ShortDateFormat ) + ".log" );
-                } else {
-                    actualLogFileName = Path.Combine( Paths.LogPath, DefaultLogFileName );
+                switch( split ) {
+                    case LogSplittingType.SplitBySession:
+                        actualLogFileName = Path.Combine( Paths.LogPath, sessionStart + ".log" );
+                        break;
+                    case LogSplittingType.SplitByDay:
+                        actualLogFileName = Path.Combine( Paths.LogPath, DateTime.Now.ToString( ShortDateFormat ) + ".log" );
+                        break;
+                    default:
+                        actualLogFileName = Path.Combine( Paths.LogPath, DefaultLogFileName );
+                        break;
                 }
                 try {
                     lock( locker ) {
@@ -151,7 +155,7 @@ namespace fCraft {
 
         #region Crash Handling
 
-        static object crashReportLock = new object(); // mutex to prevent simultaneous reports (messes up the timers/requests)
+        static readonly object crashReportLock = new object(); // mutex to prevent simultaneous reports (messes up the timers/requests)
         static DateTime lastCrashReport = DateTime.MinValue;
         const int MinCrashReportInterval = 61; // minimum interval between submitting crash reports, in seconds
 

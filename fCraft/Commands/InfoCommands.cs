@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -53,15 +54,14 @@ namespace fCraft {
         };
 
         internal static void Deafen( Player player, Command cmd ) {
-            bool newDeafened = !player.isDeaf;
-            player.isDeaf = false;
-            if( newDeafened ) {
-                player.Message( "Deafened mode: ON" );
-                player.Message( "You will not see any messages until you type &H/deafen&S again." );
+            if( !player.isDeaf ) {
+                player.MessageNow( "Deafened mode: ON" );
+                player.MessageNow( "You will not see any messages until you type &H/deafen&S again." );
+                player.isDeaf = true;
             } else {
-                player.Message( "Deafened mode: OFF" );
+                player.isDeaf = false;
+                player.MessageNow( "Deafened mode: OFF" );
             }
-            player.isDeaf = newDeafened;
         }
 
 
@@ -359,7 +359,7 @@ namespace fCraft {
                                     info.rank.GetClassyName(),
                                     info.rankChangedBy,
                                     info.rankChangeDate );
-                    if( info.rankChangeReason != null && info.rankChangeReason.Length > 0 ) {
+                    if( !string.IsNullOrEmpty( info.rankChangeReason ) ) {
                         player.Message( "  Promotion reason: {0}", info.rankChangeReason );
                     }
                 } else {
@@ -554,16 +554,12 @@ namespace fCraft {
 
             // count players that are not hidden from this player
             Player[] players = Server.PlayerList;
-            int count = 0;
-            foreach( Player p in players ) {
-                if( !player.CanSee( p ) ) continue;
-                count++;
-            }
+            int visiblePlayerCount = players.Count( player.CanSee );
 
             player.Message( "    {0} worlds available ({1} loaded), {2} players online.",
                             Server.worlds.Count,
                             Server.CountLoadedWorlds(),
-                            count );
+                            visiblePlayerCount );
         }
 
         #endregion
@@ -660,8 +656,9 @@ namespace fCraft {
             }
 
             Random rand = new Random();
-            int min = 1, max = 100, num, t1, t2;
+            int min = 1, max = 100, t1;
             if( cmd.NextInt( out t1 ) ) {
+                int t2;
                 if( cmd.NextInt( out t2 ) ) {
                     if( t2 < t1 ) {
                         min = t2;
@@ -674,7 +671,7 @@ namespace fCraft {
                     max = t1;
                 }
             }
-            num = rand.Next( min, max + 1 );
+            int num = rand.Next( min, max + 1 );
             Server.SendToAll( "{0}{1} rolled {2} ({3}...{4})",
                               player.GetClassyName(), Color.Silver, num, min, max );
         }
@@ -727,8 +724,7 @@ namespace fCraft {
 
                 bool first = true;
                 int count = 0;
-                foreach( Player p in players ) {
-                    if( !player.CanSee( p ) ) continue;
+                foreach( Player p in players.Where( player.CanSee ) ) {
                     if( !first ) sb.Append( ", " );
                     sb.Append( p.GetClassyName() );
                     first = false;
@@ -770,11 +766,10 @@ namespace fCraft {
             handler = Where
         };
 
-        static string compass = "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . " +
-                                "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . ";
+        const string compass = "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . " +
+                               "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . ";
 
         internal static void Where( Player player, Command cmd ) {
-            int offset;
             string name = cmd.Next();
 
             Player target = player;
@@ -792,7 +787,7 @@ namespace fCraft {
                             target.world.GetClassyName() );
 
 
-            offset = (int)(target.pos.r / 255f * 64f) + 32;
+            int offset = (int)(target.pos.r / 255f * 64f) + 32;
 
             player.Message( "{0}({1},{2},{3}) - {4}[{5}{6}{7}{4}{8}]",
                             Color.Silver,

@@ -11,7 +11,8 @@ namespace fCraftWinService {
         public const string Name = "fCraftWinService";
         public const string Description = "fCraft Minecraft Server";
 
-        static AutoResetEvent shutdownWaiter = new AutoResetEvent( false );
+        static readonly AutoResetEvent ShutdownWaiter = new AutoResetEvent( false );
+
 
         internal fCraftWinService() {
             ServiceName = Name;
@@ -20,10 +21,11 @@ namespace fCraftWinService {
             AutoLog = true;
         }
 
+
         protected override void OnStart( string[] args ) {
             Server.InitLibrary( args );
             Server.OnShutdownEnd += ShutdownEndHandler;
-            Server.OnURLChanged += SetURL;
+            Server.OnURLChanged += SetUrl;
             if( !Server.InitServer() || !Server.StartServer() ) {
                 throw new Exception( "Could not start fCraft." );
             }
@@ -31,20 +33,23 @@ namespace fCraftWinService {
             base.OnStart( args );
         }
 
+
         protected override void OnStop() {
             Logger.Log( "fCraftWinService.OnStop: Stopping.", LogType.SystemActivity );
             Server.InitiateShutdown( "Shutting down", 0, false, false );
-            shutdownWaiter.WaitOne();
+            ShutdownWaiter.WaitOne();
             base.OnStop();
         }
 
+
         static void ShutdownEndHandler() {
-            shutdownWaiter.Set();
+            ShutdownWaiter.Set();
         }
 
-        static void SetURL( string URL ) {
-            File.WriteAllText( "externalurl.txt", URL, Encoding.ASCII );
-            Console.WriteLine( "** " + URL + " **" );
+
+        static void SetUrl( string url ) {
+            File.WriteAllText( "externalurl.txt", url, Encoding.ASCII );
+            Console.WriteLine( "** " + url + " **" );
         }
     }
 }

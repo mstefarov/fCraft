@@ -66,14 +66,12 @@ namespace fCraft {
             code = Char.ToLower( code );
             if( IsValidColorCode( code ) ) {
                 return colorNames[code];
-            } else {
-                string color = Parse( code );
-                if( color == null ) {
-                    return null;
-                } else {
-                    return colorNames[color[1]];
-                }
             }
+            string color = Parse( code );
+            if( color == null ) {
+                return null;
+            }
+            return colorNames[color[1]];
         }
 
         /// <summary> Parses a string to a format readable by Minecraft clients. 

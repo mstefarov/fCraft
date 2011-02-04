@@ -16,6 +16,8 @@ namespace fCraft {
             CommandList.RegisterCommand( cdZoneInfo );
         }
 
+
+
         static CommandDescriptor cdZoneEdit = new CommandDescriptor {
             name = "zedit",
             permissions = new[] { Permission.ManageZones },
@@ -115,7 +117,7 @@ namespace fCraft {
 
                     if( minRank != null ) {
                         // prevent players from lowering rank so bypass protection
-                        if( !player.info.rank.AllowSecurityCircumvention && 
+                        if( !player.info.rank.AllowSecurityCircumvention &&
                             zone.controller.minRank > player.info.rank && minRank <= player.info.rank ) {
                             player.Message( "You are not allowed to lower the zone's rank." );
                             continue;
@@ -177,11 +179,7 @@ namespace fCraft {
                 }
 
                 zone.name = info.name;
-                if( info.rank.NextRankUp != null ) {
-                    zone.controller.minRank = info.rank.NextRankUp;
-                } else {
-                    zone.controller.minRank = info.rank;
-                }
+                zone.controller.minRank = info.rank.NextRankUp ?? info.rank;
                 zone.controller.Include( info );
                 player.Message( "Zone: Creating a {0}+&S zone for player {1}&S. Place a block or type /mark to use your location.",
                                 zone.controller.minRank.GetClassyName(), info.GetClassyName() );
@@ -272,7 +270,6 @@ namespace fCraft {
             player.Message( "Click the block that you would like to test." );
         }
 
-
         internal static void ZoneTestCallback( Player player, Position[] marks, object tag ) {
             Zone[] allowed, denied;
             if( player.world.map.TestZones( marks[0].x, marks[0].y, marks[0].h, player, out allowed, out denied ) ) {
@@ -360,7 +357,6 @@ namespace fCraft {
             usage = "/zinfo ZoneName",
             handler = ZoneInfo
         };
-
 
         internal static void ZoneInfo( Player player, Command cmd ) {
             string zoneName = cmd.Next();

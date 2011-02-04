@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -17,7 +18,7 @@ namespace fCraft {
                     canQueue = true,
                     hasRegistered;
 
-        object joinWorldLock = new object();
+        readonly object joinWorldLock = new object();
 
         Thread ioThread;
 
@@ -34,19 +35,21 @@ namespace fCraft {
 
         // movement optimization
         int fullPositionUpdateCounter;
-        public const int fullPositionUpdateIntervalDefault = 20;
-        public static int fullPositionUpdateInterval = fullPositionUpdateIntervalDefault;
+        public const int FullPositionUpdateIntervalDefault = 20;
+        public static int fullPositionUpdateInterval = FullPositionUpdateIntervalDefault;
         bool skippedLastMovementPacket;
-        int skipMovementThreshold = 64,
-            skipRotationThresholdSquared = 1500;
+        const int SkipMovementThreshold = 64,
+                  SkipRotationThresholdSquared = 1500;
 
         // anti-speedhack vars
         int speedHackDetectionCounter;
-        const int antiSpeedMaxJumpDelta = 25; // 16 for normal client, 25 for WoM
-        const int antiSpeedMaxDistanceSquared = 1024; // 32 * 32
-        const int antiSpeedMaxPacketCount = 200;
-        const int antiSpeedMaxPacketInterval = 5;
-        const int socketTimeout = 10000;
+        const int AntiSpeedMaxJumpDelta = 25, // 16 for normal client, 25 for WoM
+                  AntiSpeedMaxDistanceSquared = 1024, // 32 * 32
+                  AntiSpeedMaxPacketCount = 200,
+                  AntiSpeedMaxPacketInterval = 5;
+
+
+        const int SocketTimeout = 10000;
         Queue<DateTime> antiSpeedPacketLog = new Queue<DateTime>();
         DateTime antiSpeedLastNotification = DateTime.UtcNow;
 
@@ -60,8 +63,8 @@ namespace fCraft {
             priorityOutputQueue = new ConcurrentQueue<Packet>();
 
             client = _client;
-            client.SendTimeout = socketTimeout;
-            client.ReceiveTimeout = socketTimeout;
+            client.SendTimeout = SocketTimeout;
+            client.ReceiveTimeout = SocketTimeout;
         }
 
 
@@ -72,25 +75,20 @@ namespace fCraft {
             Logger.Log( "Session.Start: Incoming connection from {0}", LogType.Debug,
                         GetIP().ToString() );
 
-            ioThread = new Thread( IoLoop );
-            ioThread.IsBackground = true;
+            ioThread = new Thread( IoLoop ) { IsBackground = true };
             ioThread.Start();
         }
 
 
         void IoLoop() {
             try {
-                short x, y, h;
-                byte mode, type, opcode;
                 Packet packet = new Packet();
 
-                int pollInterval = 250;
+                const int pollInterval = 250;
                 int pollCounter = 0;
 
-                int pingInterval = 5;
+                const int pingInterval = 5;
                 int pingCounter = 0;
-
-                int packetsSent = 0;
 
                 // try to log the player in, otherwise die.
                 if( !LoginSequence() ) return;
@@ -101,12 +99,12 @@ namespace fCraft {
                 while( canSend ) {
                     Thread.Sleep( 1 );
 
-                    packetsSent = 0;
+                    int packetsSent = 0;
 
                     // detect player disconnect
                     if( pollCounter > pollInterval ) {
                         if( !client.Connected ||
-                            (client.Client.Poll( 1000, SelectMode.SelectRead ) && client.Client.Available == 0) ) {
+                            ( client.Client.Poll( 1000, SelectMode.SelectRead ) && client.Client.Available == 0 ) ) {
                             if( player != null ) {
                                 Logger.Log( "Session.IoLoop: Lost connection to player {0} ({1}).", LogType.Debug, player.name, GetIP() );
                             } else {
@@ -117,6 +115,7 @@ namespace fCraft {
                         if( pingCounter > pingInterval ) {
                             writer.WritePing();
                         }
+                        pingCounter++;
                         pollCounter = 0;
                     }
                     pollCounter++;
@@ -161,7 +160,7 @@ namespace fCraft {
 
                     // get input from player
                     while( canReceive && client.GetStream().DataAvailable ) {
-                        opcode = reader.ReadByte();
+                        byte opcode = reader.ReadByte();
                         switch( (InputCode)opcode ) {
 
                             // Message
@@ -195,14 +194,14 @@ namespace fCraft {
 
                                 // calculate difference between old and new positions
                                 Position delta = new Position {
-                                    x = (short)(newPos.x - oldPos.x),
-                                    y = (short)(newPos.y - oldPos.y),
-                                    h = (short)(newPos.h - oldPos.h),
+                                    x = (short)( newPos.x - oldPos.x ),
+                                    y = (short)( newPos.y - oldPos.y ),
+                                    h = (short)( newPos.h - oldPos.h ),
                                     r = (byte)Math.Abs( newPos.r - oldPos.r ),
                                     l = (byte)Math.Abs( newPos.l - oldPos.l )
                                 };
-                                bool posChanged = (delta.x != 0) || (delta.y != 0) || (delta.h != 0);
-                                bool rotChanged = (delta.r != 0) || (delta.l != 0);
+                                bool posChanged = ( delta.x != 0 ) || ( delta.y != 0 ) || ( delta.h != 0 );
+                                bool rotChanged = ( delta.r != 0 ) || ( delta.l != 0 );
                                 int distSquared = delta.x * delta.x + delta.y * delta.y + delta.h * delta.h;
 
                                 // skip everything if player hasn't moved
@@ -214,7 +213,7 @@ namespace fCraft {
 
                                 if( player.info.isFrozen ) {
                                     // special handling for frozen players
-                                    if( delta.x * delta.x + delta.y * delta.y > antiSpeedMaxDistanceSquared ||
+                                    if( delta.x * delta.x + delta.y * delta.y > AntiSpeedMaxDistanceSquared ||
                                         Math.Abs( delta.h ) > 40 ) {
                                         SendNow( PacketWriter.MakeSelfTeleport( player.pos ) );
                                     }
@@ -231,16 +230,16 @@ namespace fCraft {
 
                                 } else if( !player.Can( Permission.UseSpeedHack ) ) {
                                     // speedhack detection
-                                    if( DetectMovementPacketSpam( newPos ) ) {
+                                    if( DetectMovementPacketSpam() ) {
                                         continue;
 
-                                    } else if( (distSquared - delta.h * delta.h > antiSpeedMaxDistanceSquared || delta.h > antiSpeedMaxJumpDelta) &&
+                                    } else if( ( distSquared - delta.h * delta.h > AntiSpeedMaxDistanceSquared || delta.h > AntiSpeedMaxJumpDelta ) &&
                                                speedHackDetectionCounter >= 0 ) {
 
                                         if( speedHackDetectionCounter == 0 ) {
                                             player.lastValidPosition = player.pos;
                                         } else if( speedHackDetectionCounter > 1 ) {
-                                            DenyMovement( newPos );
+                                            DenyMovement();
                                             speedHackDetectionCounter = 0;
                                             continue;
                                         }
@@ -252,8 +251,8 @@ namespace fCraft {
                                 }
 
                                 // movement optimization
-                                if( distSquared < skipMovementThreshold &&
-                                    (delta.r * delta.r + delta.l * delta.l) < skipRotationThresholdSquared &&
+                                if( distSquared < SkipMovementThreshold &&
+                                    ( delta.r * delta.r + delta.l * delta.l ) < SkipRotationThresholdSquared &&
                                     !skippedLastMovementPacket ) {
 
                                     skippedLastMovementPacket = true;
@@ -300,11 +299,11 @@ namespace fCraft {
                             case InputCode.SetTile:
                                 if( player.world == null || player.world.map == null ) continue;
                                 player.ResetIdleTimer();
-                                x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-                                h = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-                                y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-                                mode = reader.ReadByte();
-                                type = reader.ReadByte();
+                                short x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
+                                short h = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
+                                short y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
+                                byte mode = reader.ReadByte();
+                                byte type = reader.ReadByte();
 
                                 if( type > 49 ) {
                                     Logger.Log( "{0} was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity,
@@ -342,7 +341,7 @@ namespace fCraft {
         }
 
 
-        void DenyMovement( Position newPos ) {
+        void DenyMovement() {
             SendNow( PacketWriter.MakeSelfTeleport( player.lastValidPosition ) );
             if( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {
                 player.Message( "&WYou are not allowed to speedhack." );
@@ -548,8 +547,8 @@ namespace fCraft {
 
             if( Config.GetBool( ConfigKey.LimitOneConnectionPerIP ) ) {
                 // note: FindPlayers only counts REGISTERED players
-                List<Player> potentialClones = Server.FindPlayers( GetIP() );
-                if( potentialClones.Count > 0 ) {
+                Player[] potentialClones = Server.FindPlayers( GetIP() );
+                if( potentialClones.Length > 0 ) {
                     player.info.ProcessFailedLogin( player );
                     Logger.Log( "Session.LoginSequence: Player {0} tried to log in from same IP ({1}) as {2}.", LogType.SuspiciousActivity,
                                 player.name, GetIP(), potentialClones[0].name );
@@ -581,7 +580,7 @@ namespace fCraft {
                 }
             }
 
-            bool firstTime = (player.info.timesVisited == 1);
+            bool firstTime = ( player.info.timesVisited == 1 );
             if( !JoinWorldNow( Server.mainWorld, true ) ) {
                 Logger.Log( "Failed to load main world ({0}) for connecting player {1} (from {2})", LogType.Error,
                             Server.mainWorld.name, player.name, GetIP() );
@@ -596,16 +595,11 @@ namespace fCraft {
             }
 
             // Check if other banned players logged in from this IP
-            List<PlayerInfo> bannedPlayerNames = new List<PlayerInfo>();
-            foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( GetIP(), 25 ) ) {
-                if( playerFromSameIP.banned ) {
-                    bannedPlayerNames.Add( playerFromSameIP );
-                }
-            }
-            if( bannedPlayerNames.Count > 0 ) {
+            PlayerInfo[] bannedPlayerNames = PlayerDB.FindPlayers( GetIP(), 25 ).Where( playerFromSameIP => playerFromSameIP.banned ).ToArray();
+            if( bannedPlayerNames.Length > 0 ) {
                 string logString = String.Format( "&WPlayer {0}&W logged in from an IP previously used by banned players: {1}",
                                                   player.GetClassyName(),
-                                                  PlayerInfo.PlayerInfoArrayToString( bannedPlayerNames.ToArray() ) );
+                                                  PlayerInfo.PlayerInfoArrayToString( bannedPlayerNames ) );
                 Server.SendToAll( logString );
                 Logger.Log( logString, LogType.SuspiciousActivity );
             }
@@ -765,7 +759,7 @@ namespace fCraft {
                     }
                 }
                 Array.Copy( blockData, bytesSent, buffer, 0, chunkSize );
-                byte progress = (byte)(100 * bytesSent / blockData.Length);
+                byte progress = (byte)( 100 * bytesSent / blockData.Length );
 
                 // write in chunks of 1024 bytes or less
                 writer.WriteLevelChunk( buffer, chunkSize, progress );
@@ -799,7 +793,7 @@ namespace fCraft {
 
 
         public IPAddress GetIP() {
-            return ((IPEndPoint)(client.Client.RemoteEndPoint)).Address;
+            return ( (IPEndPoint)( client.Client.RemoteEndPoint ) ).Address;
         }
 
 
@@ -848,12 +842,12 @@ namespace fCraft {
         }
 
 
-        bool DetectMovementPacketSpam( Position newPos ) {
-            if( antiSpeedPacketLog.Count >= antiSpeedMaxPacketCount ) {
+        bool DetectMovementPacketSpam() {
+            if( antiSpeedPacketLog.Count >= AntiSpeedMaxPacketCount ) {
                 DateTime oldestTime = antiSpeedPacketLog.Dequeue();
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
-                if( spamTimer < antiSpeedMaxPacketInterval ) {
-                    DenyMovement( newPos );
+                if( spamTimer < AntiSpeedMaxPacketInterval ) {
+                    DenyMovement();
                     return true;
                 }
             }

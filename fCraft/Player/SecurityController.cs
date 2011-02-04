@@ -63,7 +63,7 @@ namespace fCraft {
             }
         }*/
 
-        object playerPermissionListLock = new object();
+        readonly object playerPermissionListLock = new object();
 
         public void UpdatePlayerListCache() {
             lock( playerPermissionListLock ) {
@@ -112,33 +112,27 @@ namespace fCraft {
 
         public bool Check( PlayerInfo info ) {
             PlayerListCollection listCache = exceptionList;
-            for( int i = 0; i < listCache.excluded.Length; i++ ) {
-                if( info == listCache.excluded[i] ) return false;
+            if( listCache.excluded.Any( t => (info == t) ) ) {
+                return false;
             }
 
             if( info.rank >= minRank /*&& player.info.rank <= maxRank*/ ) return true; // TODO: implement maxrank
 
-            for( int i = 0; i < exceptionList.included.Length; i++ ) {
-                if( info == exceptionList.included[i] ) return true;
-            }
-
-            return false;
+            return exceptionList.included.Any( t => (info == t) );
         }
 
 
         public SecurityCheckResult CheckDetailed( PlayerInfo info ) {
             PlayerListCollection listCache = exceptionList;
-            for( int i = 0; i < listCache.excluded.Length; i++ ) {
-                if( info == listCache.excluded[i] )
-                    return SecurityCheckResult.BlackListed;
+            if( listCache.excluded.Any( t => info == t ) ) {
+                return SecurityCheckResult.BlackListed;
             }
 
             if( info.rank >= minRank /*&& player.info.rank <= maxRank*/ ) // TODO: implement maxrank
                 return SecurityCheckResult.Allowed;
 
-            for( int i = 0; i < listCache.included.Length; i++ ) {
-                if( info == listCache.included[i] )
-                    return SecurityCheckResult.WhiteListed;
+            if( listCache.included.Any( t => info == t ) ) {
+                return SecurityCheckResult.WhiteListed;
             }
 
             return SecurityCheckResult.RankTooLow;
@@ -151,7 +145,9 @@ namespace fCraft {
 
 
         public SecurityController( XElement root ) {
-            minRank = RankList.ParseRank( root.Element( "minRank" ).Value );
+            if( root.Element( "minRank" ) != null ) {
+                minRank = RankList.ParseRank( root.Element( "minRank" ).Value );
+            }
             //maxRank = RankList.ParseRank( root.Element( "maxRank" ).Value );
             foreach( XElement player in root.Elements( "included" ) ) {
                 if( !Player.IsValidName( player.Value ) ) continue;

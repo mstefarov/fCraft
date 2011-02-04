@@ -20,7 +20,7 @@ namespace fCraft {
                     reader.ReadLine(); // header
                     while( !reader.EndOfStream ) {
                         string[] fields = reader.ReadLine().Split( ',' );
-                        if( fields.Length == IPBanInfo.fieldCount ) {
+                        if( fields.Length == IPBanInfo.FieldCount ) {
                             try {
                                 IPBanInfo ban = new IPBanInfo( fields );
                                 if( ban.address == IPAddress.Any || ban.address == IPAddress.None ) {
@@ -33,6 +33,9 @@ namespace fCraft {
                             } catch( IOException ex ) {
                                 Logger.Log( "IPBanList.Load: Error while trying to read from file: {0}", LogType.Error, ex.Message );
                             }
+                        } else {
+                            Logger.Log( "IPBanList.Load: Corrupt record skipped ({0} fields instead of {1}): {2}", LogType.Error,
+                                        fields.Length, IPBanInfo.FieldCount, String.Join( ",", fields ) );
                         }
                     }
                 }
@@ -46,8 +49,8 @@ namespace fCraft {
 
         internal static void Save() {
             Logger.Log( "IPBanList.Save: Saving IP ban list ({0} records).", LogType.Debug, bans.Count );
-            string tempBanFileName = BanFileName + ".temp";
-            string backupBanFileName = BanFileName + ".backup";
+            const string tempBanFileName = BanFileName + ".temp";
+            const string backupBanFileName = BanFileName + ".backup";
 
             lock( locker ) {
                 using( StreamWriter writer = File.CreateText( tempBanFileName ) ) {
@@ -66,27 +69,25 @@ namespace fCraft {
         }
 
 
+        /// <summary>Adds a new IP Ban.</summary>
+        /// <param name="ban">Ban information</param>
+        /// <returns>true if ban was added, false if it was already on the list</returns>
         public static bool Add( IPBanInfo ban ) {
             lock( locker ) {
-                if( ban == null ) return true;
-                if( !bans.ContainsKey( ban.address.ToString() ) ) {
-                    bans.Add( ban.address.ToString(), ban );
-                    Save();
-                    return true;
-                } else {
-                    return false;
-                }
+                if( bans.ContainsKey( ban.address.ToString() ) ) return false;
+                bans.Add( ban.address.ToString(), ban );
+                Save();
+                return true;
             }
         }
 
 
         public static IPBanInfo Get( IPAddress address ) {
             lock( locker ) {
-                if( bans.ContainsKey( address.ToString() ) ) {
-                    return bans[address.ToString()];
-                } else {
+                if( !bans.ContainsKey( address.ToString() ) ) {
                     return null;
                 }
+                return bans[address.ToString()];
             }
         }
 
@@ -112,13 +113,13 @@ namespace fCraft {
 
 
     public sealed class IPBanInfo {
-        public const int fieldCount = 8;
+        public const int FieldCount = 8;
 
         public IPAddress address;
         public string bannedBy;
         public DateTime banDate;
         public string banReason;
-        public string playerName;
+        public string playerName = "";
 
         public short attempts;
         public string lastAttemptName;
@@ -130,14 +131,15 @@ namespace fCraft {
             bannedBy = fields[1];
             banDate = DateTime.Parse( fields[2] );
             banReason = PlayerInfo.Unescape( fields[3] );
-            if( fields[4] != "-" ) {
+            if( fields[4].Length < 2 ) {
                 playerName = fields[4];
             }
 
             attempts = Int16.Parse( fields[5] );
             lastAttemptName = fields[6];
-            if( fields[7] == "-" ) lastAttemptDate = DateTime.MinValue;
-            else lastAttemptDate = DateTime.Parse( fields[7] );
+            if( fields[7].Length < 2 ) {
+                lastAttemptDate = DateTime.Parse( fields[7] );
+            }
         }
 
 
@@ -145,21 +147,17 @@ namespace fCraft {
             address = _address;
             bannedBy = _bannedBy;
             banDate = DateTime.Now;
-            if( _banReason == null ) {
-                banReason = "";
-            } else {
+            if( _banReason != null ) {
                 banReason = _banReason;
             }
             playerName = _playerName;
-
-            //attempts = 0;
             lastAttemptName = _playerName;
             lastAttemptDate = DateTime.MinValue;
         }
 
 
         public string Serialize() {
-            string[] fields = new string[fieldCount];
+            string[] fields = new string[FieldCount];
 
             fields[0] = address.ToString();
             fields[1] = bannedBy;
@@ -168,8 +166,11 @@ namespace fCraft {
             fields[4] = playerName;
             fields[5] = attempts.ToString();
             fields[6] = lastAttemptName;
-            if( lastAttemptDate == DateTime.MinValue ) fields[7] = "-";
-            else fields[7] = lastAttemptDate.ToCompactString();
+            if( lastAttemptDate == DateTime.MinValue ) {
+                fields[7] = "";
+            } else {
+                fields[7] = lastAttemptDate.ToCompactString();
+            }
 
             return String.Join( ",", fields );
         }

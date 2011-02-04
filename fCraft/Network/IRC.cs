@@ -67,8 +67,7 @@ namespace fCraft {
                 responsibleForInputParsing = _parseInput;
                 try {
                     // start the machinery!
-                    thread = new Thread( IoThread );
-                    thread.IsBackground = true;
+                    thread = new Thread( IoThread ) { IsBackground = true };
                     thread.Start();
                     return true;
                 } catch( Exception ex ) {
@@ -78,17 +77,13 @@ namespace fCraft {
             }
 
 
-            public void Reconnect() {
-                reconnect = true;
-            }
-
-
             void Connect() {
                 // initialize the client
-                client = new TcpClient();
-                client.NoDelay = true;
-                client.ReceiveTimeout = Timeout;
-                client.SendTimeout = Timeout;
+                client = new TcpClient {
+                    NoDelay = true,
+                    ReceiveTimeout = Timeout,
+                    SendTimeout = Timeout
+                };
                 client.Client.SetSocketOption( SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1 );
 
                 // connect
@@ -307,7 +302,7 @@ namespace fCraft {
                         if( die ) {
                             Logger.Log( "Error: Disconnecting.", LogType.IRC );
                             reconnect = false;
-                            Disconnect();
+                            DisconnectThread();
                         }
 
                         return;
@@ -329,13 +324,13 @@ namespace fCraft {
             }
 
 
-            public void Disconnect() {
+            public void DisconnectThread() {
                 isReady = false;
                 AssignBotForInputParsing();
                 isConnected = false;
                 if( thread != null && thread.IsAlive ) {
                     thread.Join( 1000 );
-                    if( thread != null && thread.IsAlive ) {
+                    if( thread.IsAlive ) {
                         thread.Abort();
                     }
                 }
@@ -368,18 +363,18 @@ namespace fCraft {
 
         static void AssignBotForInputParsing() {
             bool needReassignment = false;
-            foreach( IRCThread thread in threads ) {
-                if( thread.responsibleForInputParsing && !thread.isReady ) {
-                    thread.responsibleForInputParsing = false;
+            for( int i = 0; i < threads.Length; i++ ) {
+                if( threads[i].responsibleForInputParsing && !threads[i].isReady ) {
+                    threads[i].responsibleForInputParsing = false;
                     needReassignment = true;
                 }
             }
             if( needReassignment ) {
-                foreach( IRCThread thread in threads ) {
-                    if( thread.isReady ) {
-                        thread.responsibleForInputParsing = true;
+                for( int i = 0; i < threads.Length; i++ ) {
+                    if( threads[i].isReady ) {
+                        threads[i].responsibleForInputParsing = true;
                         Logger.Log( "Bot \"{0}\" is now responsible for parsing input.", LogType.IRC,
-                                    thread.actualBotNick );
+                                    threads[i].actualBotNick );
                         return;
                     }
                 }
@@ -482,7 +477,7 @@ namespace fCraft {
         public static void Disconnect() {
             if( threads != null && threads.Length > 0 ) {
                 foreach( IRCThread thread in threads ) {
-                    thread.Disconnect();
+                    thread.DisconnectThread();
                 }
             }
         }
@@ -752,19 +747,12 @@ namespace fCraft {
 
         static IRCMessage MessageParser( string rawline, string actualBotNick ) {
             string line;
-            string[] linear;
-            string messagecode;
-            string from;
             string nick = null;
             string ident = null;
             string host = null;
             string channel = null;
             string message = null;
-            IRCMessageType type;
             IRCReplyCode replycode;
-            int exclamationpos;
-            int atpos;
-            int colonpos;
 
             if( rawline[0] == ':' ) {
                 line = rawline.Substring( 1 );
@@ -772,14 +760,14 @@ namespace fCraft {
                 line = rawline;
             }
 
-            linear = line.Split( new[] { ' ' } );
+            string[] linear = line.Split( new[] { ' ' } );
 
             // conform to RFC 2812
-            from = linear[0];
-            messagecode = linear[1];
-            exclamationpos = from.IndexOf( "!" );
-            atpos = from.IndexOf( "@" );
-            colonpos = line.IndexOf( " :" );
+            string from = linear[0];
+            string messagecode = linear[1];
+            int exclamationpos = from.IndexOf( "!" );
+            int atpos = from.IndexOf( "@" );
+            int colonpos = line.IndexOf( " :" );
             if( colonpos != -1 ) {
                 // we want the exact position of ":" not beginning from the space
                 colonpos += 1;
@@ -800,7 +788,7 @@ namespace fCraft {
             } catch( FormatException ) {
                 replycode = IRCReplyCode.Null;
             }
-            type = _GetMessageType( rawline, actualBotNick );
+            IRCMessageType type = _GetMessageType( rawline, actualBotNick );
             if( colonpos != -1 ) {
                 message = line.Substring( colonpos + 1 );
             }

@@ -28,9 +28,10 @@ namespace fCraft {
         public string lockedBy, unlockedBy;
         public DateTime lockedDate, unlockedDate;
 
-        internal object playerListLock = new object(),
-                        mapLock = new object(),
-                        lockLock = new object();
+        internal readonly object playerListLock = new object(),
+                                 mapLock = new object(),
+                                 lockLock = new object(),
+                                 patrolLock = new object();
 
 
         public World( string _name ) {
@@ -109,11 +110,12 @@ namespace fCraft {
             lock( playerListLock ) {
                 lock( mapLock ) {
                     map = null;
-                    World newWorld = new World( name );
-                    newWorld.map = newMap;
-                    newWorld.neverUnload = neverUnload;
-                    newWorld.accessSecurity.minRank = accessSecurity.minRank;
-                    newWorld.buildSecurity.minRank = buildSecurity.minRank;
+                    World newWorld = new World( name ) {
+                        map = newMap,
+                        neverUnload = neverUnload,
+                        accessSecurity = { minRank = accessSecurity.minRank },
+                        buildSecurity = { minRank = buildSecurity.minRank }
+                    };
                     newMap.world = newWorld;
                     Server.ReplaceWorld( name, newWorld );
                     foreach( Player player in playerList ) {
@@ -244,12 +246,12 @@ namespace fCraft {
 
 
         // Find player by name using autocompletion
-        public Player FindPlayer( string name ) {
-            if( name == null ) return null;
+        public Player FindPlayer( string playerName ) {
+            if( playerName == null ) return null;
             Player[] tempList = playerList;
             Player result = null;
             for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                if( tempList[i] != null && tempList[i].name.StartsWith( playerName, StringComparison.OrdinalIgnoreCase ) ) {
                     if( result == null ) {
                         result = tempList[i];
                     } else {
@@ -260,16 +262,16 @@ namespace fCraft {
             return result;
         }
 
-        public Player[] FindPlayers( Player player, string name ) {
+        public Player[] FindPlayers( Player player, string playerName ) {
             Player[] tempList = playerList;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && player.CanSee( tempList[i] ) ) {
-                    if( tempList[i].name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
+                    if( tempList[i].name.Equals( playerName, StringComparison.OrdinalIgnoreCase ) ) {
                         results.Clear();
                         results.Add( tempList[i] );
                         break;
-                    } else if( tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                    } else if( tempList[i].name.StartsWith( playerName, StringComparison.OrdinalIgnoreCase ) ) {
                         results.Add( tempList[i] );
                     }
                 }
@@ -278,11 +280,10 @@ namespace fCraft {
         }
 
         // Get player by name without autocompletion
-        public Player FindPlayerExact( string name ) {
-            name = name.ToLower();
+        public Player FindPlayerExact( string playerName ) {
             Player[] tempList = playerList;
             for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i].name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
+                if( tempList[i] != null && tempList[i].name.Equals( playerName, StringComparison.OrdinalIgnoreCase ) ) {
                     return tempList[i];
                 }
             }
@@ -451,7 +452,6 @@ namespace fCraft {
 
         #region Patrol
 
-        object patrolLock = new object();
         LinkedList<Player> patrolList = new LinkedList<Player>();
         internal static Rank rankToPatrol;
 

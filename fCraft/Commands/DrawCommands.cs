@@ -55,9 +55,9 @@ namespace fCraft {
 
 
         internal static void Init() {
-            string generalDrawingHelp = " Use &H/cancel&S to exit draw mode. " +
-                                        "Use &H/undo&S to undo the last draw operation. " +
-                                        "Use &H/lock&S to cancel drawing after it started.";
+            const string generalDrawingHelp = " Use &H/cancel&S to exit draw mode. " +
+                                              "Use &H/undo&S to undo the last draw operation. " +
+                                              "Use &H/lock&S to cancel drawing after it started.";
 
             cdCuboid.help += generalDrawingHelp;
             cdCuboidHollow.help += generalDrawingHelp;
@@ -209,6 +209,7 @@ namespace fCraft {
         }
 
 
+
         static CommandDescriptor cdReplaceNot = new CommandDescriptor {
             name = "replacenot",
             aliases = new[] { "rn" },
@@ -221,6 +222,7 @@ namespace fCraft {
         internal static void ReplaceNot( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.ReplaceNot );
         }
+
 
 
         static CommandDescriptor cdLine = new CommandDescriptor {
@@ -321,8 +323,7 @@ namespace fCraft {
                 case DrawMode.Replace:
                 case DrawMode.ReplaceNot:
 
-                    List<Block> affectedTypes = new List<Block>();
-                    affectedTypes.Add( block );
+                    List<Block> affectedTypes = new List<Block> { block };
                     Block affectedType;
                     while( cmd.NextBlockType( out affectedType ) ) {
                         if( affectedType != Block.Undefined ) {
@@ -378,13 +379,6 @@ namespace fCraft {
         }
 
 
-        #region Line
-
-
-
-        #endregion
-
-
         #region Undo / Redo
 
         static CommandDescriptor cdUndo = new CommandDescriptor {
@@ -431,7 +425,7 @@ namespace fCraft {
             if( !player.world.map.InBounds( x, y, h ) ) return;
             if( player.CanPlace( x, y, h, drawBlock ) != CanPlaceResult.Allowed ) return;
             byte block = player.world.map.GetBlock( x, y, h );
-            if( block == drawBlock  ) return;
+            if( block == drawBlock ) return;
 
             // this would've been an easy way to do block tracking for draw commands BUT
             // if i set "origin" to player, he will not receive the block update. I tried.
@@ -452,8 +446,8 @@ namespace fCraft {
             blocks++;
         }
 
-        #region Cuboid, CuboidHollow, CuboidWireframe
 
+        #region Cuboid, CuboidHollow, CuboidWireframe
 
         internal static void CuboidCallback( Player player, Position[] marks, object tag ) {
             byte drawBlock = (byte)tag;
@@ -680,14 +674,13 @@ namespace fCraft {
 
             bool cannotUndo = false;
             int blocks = 0;
-            byte block;
             for( int x = sx; x <= ex; x += DrawStride ) {
                 for( int y = sy; y <= ey; y += DrawStride ) {
                     for( int h = sh; h <= eh; h++ ) {
                         for( int y3 = 0; y3 < DrawStride && y + y3 <= ey; y3++ ) {
                             for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
 
-                                block = player.world.map.GetBlock( x + x3, y + y3, h );
+                                byte block = player.world.map.GetBlock( x + x3, y + y3, h );
 
                                 if( args.doExclude ) {
                                     bool skip = false;
@@ -747,7 +740,6 @@ namespace fCraft {
             player.undoBuffer.TrimExcess();
             Server.RequestGC();
         }
-
 
 
         internal static void SphereCallback( Player player, Position[] marks, object tag ) {
@@ -858,6 +850,7 @@ namespace fCraft {
             Server.RequestGC();
         }
 
+
         internal static void LineCallback( Player player, Position[] marks, object tag ) {
             byte drawBlock = (byte)tag;
             if( drawBlock == (byte)Block.Undefined ) {
@@ -959,7 +952,6 @@ namespace fCraft {
             Server.RequestGC();
         }
 
-
         #endregion
 
 
@@ -994,14 +986,13 @@ namespace fCraft {
                 return;
             }
 
-            CopyInformation copyInfo = new CopyInformation();
-
             // remember dimensions and orientation
-            copyInfo.widthX = marks[1].x - marks[0].x;
-            copyInfo.widthY = marks[1].y - marks[0].y;
-            copyInfo.height = marks[1].h - marks[0].h;
-
-            copyInfo.buffer = new byte[ex - sx + 1, ey - sy + 1, eh - sh + 1];
+            CopyInformation copyInfo = new CopyInformation {
+                widthX = marks[1].x - marks[0].x,
+                widthY = marks[1].y - marks[0].y,
+                height = marks[1].h - marks[0].h,
+                buffer = new byte[ex - sx + 1,ey - sy + 1,eh - sh + 1]
+            };
 
             for( int x = sx; x <= ex; x++ ) {
                 for( int y = sy; y <= ey; y++ ) {
@@ -1035,7 +1026,7 @@ namespace fCraft {
         };
 
         internal static void Cut( Player player, Command cmd ) {
-            Block fillBlock = Block.Air;
+            Block fillBlock;
             if( cmd.NextBlockType( out fillBlock ) ) {
                 if( fillBlock == Block.Undefined ) {
                     cmd.Rewind();
@@ -1066,14 +1057,13 @@ namespace fCraft {
                 return;
             }
 
-            CopyInformation copyInfo = new CopyInformation();
-
             // remember dimensions and orientation
-            copyInfo.widthX = marks[1].x - marks[0].x;
-            copyInfo.widthY = marks[1].y - marks[0].y;
-            copyInfo.height = marks[1].h - marks[0].h;
-
-            copyInfo.buffer = new byte[ex - sx + 1, ey - sy + 1, eh - sh + 1];
+            CopyInformation copyInfo = new CopyInformation {
+                widthX = marks[1].x - marks[0].x,
+                widthY = marks[1].y - marks[0].y,
+                height = marks[1].h - marks[0].h,
+                buffer = new byte[ex - sx + 1,ey - sy + 1,eh - sh + 1]
+            };
 
             player.undoBuffer.Clear();
             int blocks = 0;
