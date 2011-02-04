@@ -628,11 +628,12 @@ namespace fCraft {
 
                 if( !silent ) {
                     if( Config.GetBool( ConfigKey.AnnounceRankChanges ) ) {
-                        Server.SendToAll( String.Format( "&S{0} was {1} from {2}&S to {3}",
-                                                        targetInfo.name,
-                                                        verb,
-                                                        oldRank.GetClassyName(),
-                                                        newRank.GetClassyName() ) );
+                        Server.SendToAllExcept( "{0}&S {1} {2} from {3}&S to {4}", target,
+                                                player.GetClassyName(),
+                                                targetInfo.name,
+                                                verb,
+                                                oldRank.GetClassyName(),
+                                                newRank.GetClassyName() );
                     } else {
                         player.Message( "You {0} {1} from {2}&S to {3}",
                                         verb,

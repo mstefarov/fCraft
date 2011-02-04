@@ -394,12 +394,12 @@ namespace fCraft {
                 }
             } else {
                 Logger.Log( "Server.Start: No world list found. Creating default \"main\" world.", LogType.SystemActivity );
-                mainWorld = AddWorld( "main", null, true );
+                CreateDefaultMainWorld();
             }
 
             if( worlds.Count == 0 ) {
                 Logger.Log( "Server.Start: Could not load any of the specified worlds, or no worlds were specified. Creating default \"main\" world.", LogType.Error );
-                mainWorld = AddWorld( "main", null, true );
+                CreateDefaultMainWorld();
             }
 
             // if there is no default world still, die.
@@ -420,6 +420,13 @@ namespace fCraft {
             }
 
             return true;
+        }
+
+        static void CreateDefaultMainWorld( ) {
+            Map map = new Map( null, 64, 64, 64 );
+            MapGenerator.GenerateFlatgrass( map );
+            map.ResetSpawn();
+            mainWorld = AddWorld( "main", map, true );
         }
 
 
@@ -556,6 +563,7 @@ namespace fCraft {
                 if( map != null ) {
                     // if a map is given
                     newWorld.map = map;
+                    map.world = newWorld;
                     if( !_neverUnload ) {
                         newWorld.UnloadMap( false );// UnloadMap also saves the map
                     } else {
