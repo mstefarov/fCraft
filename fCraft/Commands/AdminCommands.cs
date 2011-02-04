@@ -1246,7 +1246,7 @@ namespace fCraft {
                                 player.Message( "Cannot teleport to {0}&S because world {1}&S requires {1}+&S to join.",
                                                 target.GetClassyName(),
                                                 target.world.GetClassyName(),
-                                                target.world.accessSecurity.minRank.GetClassyName() );
+                                                target.world.accessSecurity.MinRank.GetClassyName() );
                                 break;
                             // TODO: case PermissionType.RankTooHigh:
                         }
@@ -1321,7 +1321,7 @@ namespace fCraft {
                         player.Message( "Cannot bring {0}&S because world {1}&S requires {1}+&S to join.",
                                         target.GetClassyName(),
                                         toPlayer.world.GetClassyName(),
-                                        toPlayer.world.accessSecurity.minRank.GetClassyName() );
+                                        toPlayer.world.accessSecurity.MinRank.GetClassyName() );
                         break;
                     // TODO: case PermissionType.RankTooHigh:
                 }

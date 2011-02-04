@@ -31,18 +31,20 @@ namespace fCraft {
             bounds = new BoundingBox( Int32.Parse( header[1] ), Int32.Parse( header[2] ), Int32.Parse( header[3] ),
                                       Int32.Parse( header[4] ), Int32.Parse( header[5] ), Int32.Parse( header[6] ) );
 
-            controller.minRank = RankList.ParseRank( header[7] );
-
+            Rank buildRank = RankList.ParseRank( header[7] );
             // if all else fails, fall back to lowest class
-            if( controller.minRank == null ) {
+            if( buildRank == null ) {
                 if( world != null ) {
-                    controller.minRank = world.buildSecurity.minRank;
+                    controller.MinRank = world.buildSecurity.MinRank;
                 } else {
-                    controller.minRank = RankList.LowestRank;
+                    controller.MinRank = null;
                 }
                 Logger.Log( "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to default ({1}).", LogType.Error,
-                            header[7], controller.minRank.Name );
+                            header[7], controller.MinRank.Name );
+            } else {
+                controller.MinRank = buildRank;
             }
+
 
             // Part 2:
             foreach( string player in parts[1].Split( ' ' ) ) {
@@ -106,13 +108,13 @@ namespace fCraft {
 
             return String.Format( "{0},{1},{2},{3}",
                                   String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
-                                                 name, bounds.xMin, bounds.yMin, bounds.hMin, bounds.xMax, bounds.yMax, bounds.hMax, controller.minRank ),
+                                                 name, bounds.xMin, bounds.yMin, bounds.hMin, bounds.xMax, bounds.yMax, bounds.hMax, controller.MinRank ),
                                   includedList, excludedList, xheader );
         }
 
 
         public string GetClassyName() {
-            return controller.minRank.Color + name;
+            return controller.MinRank.Color + name;
         }
 
 

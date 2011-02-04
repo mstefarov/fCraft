@@ -39,31 +39,26 @@ namespace fCraft {
 
         public PlayerListCollection exceptionList { get; private set; }
 
-        private Rank _minRank;//, _maxRank;
-
-        public Rank minRank {
-            get { return _minRank; }
+        private Rank _minRank;
+        public Rank MinRank {
+            get {
+                if( _minRank != null ) {
+                    return _minRank;
+                } else {
+                    return RankList.LowestRank;
+                }
+            }
             set {
-                //if( value > _maxRank ) {
-                //    _maxRank = value;
-                //}
                 _minRank = value;
             }
         }
-
-        /*public Rank maxRank {
-            get {
-                return _maxRank;
-            }
-            set {
-                if( value < _minRank ) {
-                    _minRank = value;
-                }
-                _maxRank = value;
-            }
-        }*/
+        // TODO: maxRank;
+        public bool NoRankRestriction {
+            get { return (_minRank == null); }
+        }
 
         readonly object playerPermissionListLock = new object();
+
 
         public void UpdatePlayerListCache() {
             lock( playerPermissionListLock ) {
@@ -73,6 +68,7 @@ namespace fCraft {
                 };
             }
         }
+
 
         // returns the PREVIOUS state of the player
         public PermissionOverride Include( PlayerInfo info ) {
@@ -92,6 +88,7 @@ namespace fCraft {
             }
         }
 
+
         // returns the PREVIOUS state of the player
         public PermissionOverride Exclude( PlayerInfo info ) {
             lock( playerPermissionListLock ) {
@@ -110,13 +107,14 @@ namespace fCraft {
             }
         }
 
+
         public bool Check( PlayerInfo info ) {
             PlayerListCollection listCache = exceptionList;
             if( listCache.excluded.Any( t => (info == t) ) ) {
                 return false;
             }
 
-            if( info.rank >= minRank /*&& player.info.rank <= maxRank*/ ) return true; // TODO: implement maxrank
+            if( info.rank >= MinRank /*&& player.info.rank <= maxRank*/ ) return true; // TODO: implement maxrank
 
             return exceptionList.included.Any( t => (info == t) );
         }
@@ -128,7 +126,7 @@ namespace fCraft {
                 return SecurityCheckResult.BlackListed;
             }
 
-            if( info.rank >= minRank /*&& player.info.rank <= maxRank*/ ) // TODO: implement maxrank
+            if( info.rank >= MinRank /*&& player.info.rank <= maxRank*/ ) // TODO: implement maxrank
                 return SecurityCheckResult.Allowed;
 
             if( listCache.included.Any( t => info == t ) ) {
@@ -139,52 +137,6 @@ namespace fCraft {
         }
 
 
-        #region XML Serialization
-
-        public const string XmlRootElementName = "PermissionController";
-
-
-        public SecurityController( XElement root ) {
-            if( root.Element( "minRank" ) != null ) {
-                minRank = RankList.ParseRank( root.Element( "minRank" ).Value );
-            }
-            //maxRank = RankList.ParseRank( root.Element( "maxRank" ).Value );
-            foreach( XElement player in root.Elements( "included" ) ) {
-                if( !Player.IsValidName( player.Value ) ) continue;
-                PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
-                if( info != null ) Include( info );
-            }
-            foreach( XElement player in root.Elements( "excluded" ) ) {
-                if( !Player.IsValidName( player.Value ) ) continue;
-                PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
-                if( info != null ) Exclude( info );
-            }
-            UpdatePlayerListCache();
-        }
-
-        public XElement Serialize() {
-            return Serialize( XmlRootElementName );
-        }
-
-        public XElement Serialize( string tagName ) {
-            XElement root = new XElement( tagName );
-
-            if( minRank != null ) root.Add( new XElement( "minRank", minRank ) );
-            //if(maxRank!=null) root.Add( new XElement( "maxRank", maxRank ) );
-
-            lock( playerPermissionListLock ) {
-                foreach( string playerName in includedPlayers.Keys ) {
-                    root.Add( new XElement( "included", playerName ) );
-                }
-                foreach( string playerName in excludedPlayers.Keys ) {
-                    root.Add( new XElement( "excluded", playerName ) );
-                }
-            }
-            return root;
-        }
-
-        #endregion
-
         public void PrintDescription( Player player, IClassy world, string noun, string verb ) {
             PlayerListCollection list = exceptionList;
 
@@ -192,14 +144,14 @@ namespace fCraft {
 
             StringBuilder message = new StringBuilder();
 
-            if( minRank == RankList.LowestRank ) {
+            if( NoRankRestriction ) {
                 message.AppendFormat( "{0} {1}&S can be {2} by anyone",
                                       noun, world.GetClassyName(), verb );
 
             } else {
                 message.AppendFormat( "{0} {1}&S can only be {2} by {3}+&S",
                                       noun, world.GetClassyName(),
-                                      verb, minRank.GetClassyName() );
+                                      verb, MinRank.GetClassyName() );
             }
 
             if( list.included.Length > 0 ) {
@@ -214,29 +166,89 @@ namespace fCraft {
             player.Message( message.ToString() );
         }
 
-        public void ClearIncludedList() {
+
+        public bool HasRestrictions() {
+            return MinRank > RankList.LowestRank ||
+                   exceptionList.excluded.Length > 0;
+        }
+
+
+        #region XML Serialization
+
+        public const string XmlRootElementName = "PermissionController";
+
+
+        public SecurityController( XElement root ) {
+            if( root.Element( "minRank" ) != null ) {
+                _minRank = RankList.ParseRank( root.Element( "minRank" ).Value );
+            } else {
+                _minRank = null;
+            }
+
+            //maxRank = RankList.ParseRank( root.Element( "maxRank" ).Value );
+            foreach( XElement player in root.Elements( "included" ) ) {
+                if( !Player.IsValidName( player.Value ) ) continue;
+                PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
+                if( info != null ) Include( info );
+            }
+
+            foreach( XElement player in root.Elements( "excluded" ) ) {
+                if( !Player.IsValidName( player.Value ) ) continue;
+                PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
+                if( info != null ) Exclude( info );
+            }
+            UpdatePlayerListCache();
+        }
+
+        public XElement Serialize() {
+            return Serialize( XmlRootElementName );
+        }
+
+        public XElement Serialize( string tagName ) {
+            XElement root = new XElement( tagName );
+            if( !NoRankRestriction ) {
+                root.Add( new XElement( "minRank", MinRank ) );
+            }
+            //root.Add( new XElement( "maxRank", maxRank ) );
+
+            lock( playerPermissionListLock ) {
+                foreach( string playerName in includedPlayers.Keys ) {
+                    root.Add( new XElement( "included", playerName ) );
+                }
+                foreach( string playerName in excludedPlayers.Keys ) {
+                    root.Add( new XElement( "excluded", playerName ) );
+                }
+            }
+            return root;
+        }
+
+        #endregion
+
+
+        #region Resetting
+
+        public void ResetIncludedList() {
             lock( playerPermissionListLock ) {
                 includedPlayers.Clear();
                 UpdatePlayerListCache();
             }
         }
 
-        public void ClearExcludedList() {
+
+        public void ResetExcludedList() {
             lock( playerPermissionListLock ) {
                 excludedPlayers.Clear();
                 UpdatePlayerListCache();
             }
         }
 
-        public bool HasRestrictions() {
-            return minRank > RankList.LowestRank ||
-                   exceptionList.excluded.Length > 0;
-        }
 
         public void Reset() {
-            minRank = RankList.LowestRank;
-            ClearIncludedList();
-            ClearExcludedList();
+            MinRank = RankList.LowestRank;
+            ResetIncludedList();
+            ResetExcludedList();
         }
+
+        #endregion
     }
 }

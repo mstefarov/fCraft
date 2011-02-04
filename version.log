@@ -10,6 +10,7 @@ http://fcraft.fragmer.net/fCraftUpdater.exe
  Fix: Fixed a couple minor bugs in /waccess and /wbuild.
  Fix: Fixed a NullReferenceException in SecurityController constructor.
  Fix: Made several tweaks to improve the first-run experience.
+ Fix: Fixed "players from same IP" showing for PlayerDB entries with IPAddress.None.
 502
  Fix: Adjusted for yet another change in the way minecraft.net replies to
  heartbeats (should fix all heartbeat issues for now).
