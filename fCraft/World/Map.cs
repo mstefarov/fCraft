@@ -765,9 +765,9 @@ namespace fCraft {
         public void SaveBackup( string sourceName, string targetName, bool onlyIfChanged ) {
             if( onlyIfChanged && !changedSinceBackup && Config.GetBool( ConfigKey.BackupOnlyWhenChanged ) ) return;
 
-            if( !Directory.Exists( "backups" ) ) {
+            if( !Directory.Exists( Path.Combine(Paths.MapPath, "backups") ) ) {
                 try {
-                    Directory.CreateDirectory( "backups" );
+                    Directory.CreateDirectory( Path.Combine(Paths.MapPath, "backups") );
                 } catch( Exception ex ) {
                     Logger.Log( "Map.SaveBackup: Error occured while trying to create backup directory: {0}", LogType.Error,
                                 ex );
