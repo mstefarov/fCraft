@@ -14,7 +14,8 @@ namespace fCraft {
 
         public int BlocksChecked;
         public int BlocksUpdated;
-        public int BlocksTotal; // estimated
+        public int BlocksDenied;
+        public int BlocksTotalEstimate;
 
         public object UserState;
     }

@@ -421,9 +421,12 @@ namespace fCraft {
 
         #region Draw Callbacks
 
-        static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int h, ref int blocks, ref bool cannotUndo ) {
+        static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int h, ref int blocks, ref int blocksDenied, ref bool cannotUndo ) {
             if( !player.world.map.InBounds( x, y, h ) ) return;
-            if( player.CanPlace( x, y, h, drawBlock ) != CanPlaceResult.Allowed ) return;
+            if( player.CanPlace( x, y, h, drawBlock ) != CanPlaceResult.Allowed ) {
+                blocksDenied++;
+                return;
+            }
             byte block = player.world.map.GetBlock( x, y, h );
             if( block == drawBlock ) return;
 
@@ -444,6 +447,29 @@ namespace fCraft {
                 cannotUndo = true;
             }
             blocks++;
+        }
+
+
+        static void DrawingFinished( Player player, string verb, int blocks, int blocksDenied ) {
+            if( blocks == 0 ) {
+                if( blocksDenied > 0 ) {
+                    player.MessageNow( "No blocks could be {0} due to permission issues.", verb );
+                } else {
+                    player.MessageNow( "No blocks were {0}.", verb );
+                }
+            } else {
+                if( blocksDenied > 0 ) {
+                    player.MessageNow( "{0} {1} blocks ({2} blocks skipped due to permission issues)... " +
+                                       "The map is now being updated.", verb, blocks, blocksDenied );
+                } else {
+                    player.MessageNow( "{0} {1} blocks... The map is now being updated.", verb, blocks );
+                }
+            }
+            if( blocks > 0 ) {
+                player.info.ProcessDrawCommand( blocks );
+                player.undoBuffer.TrimExcess();
+                Server.RequestGC();
+            }
         }
 
 
@@ -473,7 +499,7 @@ namespace fCraft {
 
             player.undoBuffer.Clear();
 
-            int blocks = 0;
+            int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
 
             for( int x = sx; x <= ex; x += DrawStride ) {
@@ -481,21 +507,18 @@ namespace fCraft {
                     for( int h = sh; h <= eh; h++ ) {
                         for( int y3 = 0; y3 < DrawStride && y + y3 <= ey; y3++ ) {
                             for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
-                                DrawOneBlock( player, drawBlock, x + x3, y + y3, h, ref blocks, ref cannotUndo );
+                                DrawOneBlock( player, drawBlock, x + x3, y + y3, h, ref blocks, ref blocksDenied, ref cannotUndo );
                             }
                         }
                     }
                 }
             }
-            player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
-            player.info.ProcessDrawCommand( blocks );
+            DrawingFinished( player, "drawn", blocks, blocksDenied );
             Logger.Log( "{0} drew a cuboid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
                         player.name,
                         blocks,
                         (Block)drawBlock,
                         player.world.name );
-            player.undoBuffer.TrimExcess();
-            Server.RequestGC();
         }
 
 
@@ -532,25 +555,25 @@ namespace fCraft {
 
             player.undoBuffer.Clear();
 
-            int blocks = 0;
+            int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
 
             for( int x = sx; x <= ex; x++ ) {
                 for( int y = sy; y <= ey; y++ ) {
-                    DrawOneBlock( player, drawBlock, x, y, sh, ref blocks, ref cannotUndo );
-                    DrawOneBlock( player, drawBlock, x, y, eh, ref blocks, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, x, y, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, x, y, eh, ref blocks, ref blocksDenied, ref cannotUndo );
                 }
             }
             for( int x = sx; x <= ex; x++ ) {
                 for( int h = sh; h <= eh; h++ ) {
-                    DrawOneBlock( player, drawBlock, x, sy, h, ref blocks, ref cannotUndo );
-                    DrawOneBlock( player, drawBlock, x, ey, h, ref blocks, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, x, sy, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, x, ey, h, ref blocks, ref blocksDenied, ref cannotUndo );
                 }
             }
             for( int y = sy; y <= ey; y++ ) {
                 for( int h = sh; h <= eh; h++ ) {
-                    DrawOneBlock( player, drawBlock, sx, y, h, ref blocks, ref cannotUndo );
-                    DrawOneBlock( player, drawBlock, ex, y, h, ref blocks, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, sx, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, ex, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
                 }
             }
 
@@ -560,7 +583,7 @@ namespace fCraft {
                         for( int h = sh + 1; h < eh; h++ ) {
                             for( int y3 = 0; y3 < DrawStride && y + y3 < ey; y3++ ) {
                                 for( int x3 = 0; x3 < DrawStride && x + x3 < ex; x3++ ) {
-                                    DrawOneBlock( player, (byte)args.innerBlock, x + x3, y + y3, h, ref blocks, ref cannotUndo );
+                                    DrawOneBlock( player, (byte)args.innerBlock, x + x3, y + y3, h, ref blocks, ref blocksDenied, ref cannotUndo );
                                 }
                             }
                         }
@@ -568,15 +591,12 @@ namespace fCraft {
                 }
             }
 
-            player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
-            player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} drew a hollow cuboid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
                         player.name,
                         blocks,
                         (Block)drawBlock,
                         player.world.name );
-            player.undoBuffer.TrimExcess();
-            Server.RequestGC();
+            DrawingFinished( player, "drawn", blocks, blocksDenied );
         }
 
 
@@ -605,39 +625,36 @@ namespace fCraft {
 
             player.undoBuffer.Clear();
 
-            int blocks = 0;
+            int blocks = 0, blocksDenied=0;
             bool cannotUndo = false;
 
             for( int x = sx; x <= ex; x++ ) {
-                DrawOneBlock( player, drawBlock, x, sy, sh, ref blocks, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, x, sy, eh, ref blocks, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, x, ey, sh, ref blocks, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, x, ey, eh, ref blocks, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, x, sy, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, x, sy, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, x, ey, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, x, ey, eh, ref blocks, ref blocksDenied, ref cannotUndo );
             }
 
             for( int y = sy; y <= ey; y++ ) {
-                DrawOneBlock( player, drawBlock, sx, y, sh, ref blocks, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, sx, y, eh, ref blocks, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, ex, y, sh, ref blocks, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, ex, y, eh, ref blocks, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, sx, y, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, sx, y, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, ex, y, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, ex, y, eh, ref blocks, ref blocksDenied, ref cannotUndo );
             }
 
             for( int h = sh; h <= eh; h++ ) {
-                DrawOneBlock( player, drawBlock, sx, sy, h, ref blocks, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, ex, sy, h, ref blocks, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, sx, ey, h, ref blocks, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, ex, ey, h, ref blocks, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, sx, sy, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, ex, sy, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, sx, ey, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                DrawOneBlock( player, drawBlock, ex, ey, h, ref blocks, ref blocksDenied, ref cannotUndo );
             }
 
-            player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
-            player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} drew a wireframe cuboid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
                         player.name,
                         blocks,
                         (Block)drawBlock,
                         player.world.name );
-            player.undoBuffer.TrimExcess();
-            Server.RequestGC();
+            DrawingFinished( player, "drawn", blocks, blocksDenied );
         }
 
         #endregion
@@ -673,7 +690,7 @@ namespace fCraft {
             player.undoBuffer.Clear();
 
             bool cannotUndo = false;
-            int blocks = 0;
+            int blocks = 0, blocksDenied = 0;
             for( int x = sx; x <= ex; x += DrawStride ) {
                 for( int y = sy; y <= ey; y += DrawStride ) {
                     for( int h = sh; h <= eh; h++ ) {
@@ -702,8 +719,10 @@ namespace fCraft {
                                     if( skip ) continue;
                                 }
 
-                                if( block == (byte)Block.Admincrete && !player.Can( Permission.DeleteAdmincrete ) ) continue;
-                                if( player.CanPlace( x, y, h, replacementBlock ) != CanPlaceResult.Allowed ) continue;
+                                if( player.CanPlace( x + x3, y + y3, h, replacementBlock ) != CanPlaceResult.Allowed ) {
+                                    blocksDenied++;
+                                    continue;
+                                }
                                 player.world.map.QueueUpdate( new BlockUpdate( null, x + x3, y + y3, h, replacementBlock ) );
                                 if( blocks < MaxUndoCount ) {
                                     player.undoBuffer.Enqueue( new BlockUpdate( null, x + x3, y + y3, h, block ) );
@@ -724,21 +743,17 @@ namespace fCraft {
                 }
             }
 
-            player.MessageNow( "Replacing {0} blocks... The map is now being updated.", blocks );
-
             string affectedString = "";
             for( int i = 0; i < specialTypeCount; i++ ) {
                 affectedString += ", " + ((Block)specialTypes[i]);
             }
-            player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} replaced {1} blocks {2} ({3}) with {4} (on world {5})", LogType.UserActivity,
                         player.name, blocks,
                         (doExclude ? "except" : "of"),
                         affectedString.Substring( 2 ), (Block)replacementBlock,
                         player.world.name );
 
-            player.undoBuffer.TrimExcess();
-            Server.RequestGC();
+            DrawingFinished( player, "replaced", blocks, blocksDenied );
         }
 
 
@@ -817,7 +832,7 @@ namespace fCraft {
 
             player.undoBuffer.Clear();
 
-            int blocks = 0;
+            int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
 
             for( int x = sx; x <= ex; x += DrawStride ) {
@@ -833,21 +848,19 @@ namespace fCraft {
 
                                 // test if it's inside ellipse
                                 if( (dx * dx) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 <= 1 ) {
-                                    DrawOneBlock( player, drawBlock, x + x3, y + y3, h, ref blocks, ref cannotUndo );
+                                    DrawOneBlock( player, drawBlock, x + x3, y + y3, h, ref blocks, ref blocksDenied, ref cannotUndo );
                                 }
                             }
                         }
                     }
                 }
             }
-            player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
-            player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} drew an ellipsoid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
                         player.name,
                         blocks,
                         (Block)drawBlock,
                         player.world.name );
-            Server.RequestGC();
+            DrawingFinished( player, "drawn", blocks, blocksDenied );
         }
 
 
@@ -859,7 +872,7 @@ namespace fCraft {
 
             player.undoBuffer.Clear();
 
-            int blocks = 0;
+            int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
 
             // LINE CODE
@@ -883,14 +896,14 @@ namespace fCraft {
             dy2 = m << 1;
             dz2 = n << 1;
 
-            DrawOneBlock( player, drawBlock, x2, y2, z2, ref blocks, ref cannotUndo );
+            DrawOneBlock( player, drawBlock, x2, y2, z2, ref blocks, ref blocksDenied, ref cannotUndo );
 
             if( (l >= m) && (l >= n) ) {
 
                 err_1 = dy2 - l;
                 err_2 = dz2 - l;
                 for( i = 0; i < l; i++ ) {
-                    DrawOneBlock( player, drawBlock, pixel[0], pixel[1], pixel[2], ref blocks, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, pixel[0], pixel[1], pixel[2], ref blocks, ref blocksDenied, ref cannotUndo );
                     if( err_1 > 0 ) {
                         pixel[1] += y_inc;
                         err_1 -= dx2;
@@ -907,7 +920,7 @@ namespace fCraft {
                 err_1 = dx2 - m;
                 err_2 = dz2 - m;
                 for( i = 0; i < m; i++ ) {
-                    DrawOneBlock( player, drawBlock, pixel[0], pixel[1], pixel[2], ref blocks, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, pixel[0], pixel[1], pixel[2], ref blocks, ref blocksDenied, ref cannotUndo );
                     if( err_1 > 0 ) {
                         pixel[0] += x_inc;
                         err_1 -= dy2;
@@ -924,7 +937,7 @@ namespace fCraft {
                 err_1 = dy2 - n;
                 err_2 = dx2 - n;
                 for( i = 0; i < n; i++ ) {
-                    DrawOneBlock( player, drawBlock, pixel[0], pixel[1], pixel[2], ref blocks, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, pixel[0], pixel[1], pixel[2], ref blocks, ref blocksDenied, ref cannotUndo );
                     if( err_1 > 0 ) {
                         pixel[1] += y_inc;
                         err_1 -= dz2;
@@ -940,16 +953,12 @@ namespace fCraft {
             }
 
             // END LINE CODE
-
-            player.MessageNow( "Drawing {0} blocks... The map is now being updated.", blocks );
-            player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} drew a line containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
                         player.name,
                         blocks,
                         (Block)drawBlock,
                         player.world.name );
-            player.undoBuffer.TrimExcess();
-            Server.RequestGC();
+            DrawingFinished( player, "drawn", blocks, blocksDenied );
         }
 
         #endregion
@@ -1062,18 +1071,18 @@ namespace fCraft {
                 widthX = marks[1].x - marks[0].x,
                 widthY = marks[1].y - marks[0].y,
                 height = marks[1].h - marks[0].h,
-                buffer = new byte[ex - sx + 1,ey - sy + 1,eh - sh + 1]
+                buffer = new byte[ex - sx + 1, ey - sy + 1, eh - sh + 1]
             };
 
             player.undoBuffer.Clear();
-            int blocks = 0;
+            int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
 
             for( int x = sx; x <= ex; x++ ) {
                 for( int y = sy; y <= ey; y++ ) {
                     for( int h = sh; h <= eh; h++ ) {
                         copyInfo.buffer[x - sx, y - sy, h - sh] = player.world.map.GetBlock( x, y, h );
-                        DrawOneBlock( player, fillType, x, y, h, ref blocks, ref cannotUndo );
+                        DrawOneBlock( player, fillType, x, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
                     }
                 }
             }
@@ -1084,8 +1093,7 @@ namespace fCraft {
                                (copyInfo.height > 0 ? "bottom" : "top"),
                                (copyInfo.widthY > 0 ? "south" : "north"),
                                (copyInfo.widthX > 0 ? "west" : "east") );
-
-            player.info.ProcessDrawCommand( blocks );
+            ;
             Logger.Log( "{0} cut {1} blocks from {2}, replacing {3} blocks with {4}.", LogType.UserActivity,
                         player.name, volume, player.world.name, blocks, (Block)fillType );
 
@@ -1219,7 +1227,7 @@ namespace fCraft {
 
             player.undoBuffer.Clear();
 
-            int blocks = 0;
+            int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
             byte block;
 
@@ -1249,20 +1257,16 @@ namespace fCraft {
                                     }
                                     if( skip ) continue;
                                 }
-                                DrawOneBlock( player, block, x + x3, y + y3, h, ref blocks, ref cannotUndo );
+                                DrawOneBlock( player, block, x + x3, y + y3, h, ref blocks, ref blocksDenied, ref cannotUndo );
                             }
                         }
                     }
                 }
             }
 
-            player.MessageNow( "{0} blocks pasted. The map is now being updated...", blocks );
-
-            player.info.ProcessDrawCommand( blocks );
             Logger.Log( "{0} pasted {1} blocks to {2}.", LogType.UserActivity,
                         player.name, blocks, player.world.name );
-            player.undoBuffer.TrimExcess();
-            Server.RequestGC();
+            DrawingFinished( player, "pasted", blocks, blocksDenied );
         }
 
 
