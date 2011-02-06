@@ -1,5 +1,7 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
 2011-02-03
+504
+ Fixed a crash bug related to SecurityController.MinRank
 503
  Feature: Added /deafen command. It temporarily blocks all incoming messages (makes you go "deaf"), to allow taking screenshots, recording videos, or just playing without the wall of text.
  Feature: Added ShowBannedConnectionMessages config key (default: true). When disabled, no "banned player tried to log in" messages are shown.

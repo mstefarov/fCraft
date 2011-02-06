@@ -272,7 +272,7 @@ namespace fCraft {
             }
 
 
-            if( info.lastIP.ToString() == IPAddress.None.ToString() ) {
+            if( info.lastIP.ToString() != IPAddress.None.ToString() ) {
                 // Show alts
                 List<PlayerInfo> altNames = new List<PlayerInfo>();
                 int bannedAltCount = 0;
