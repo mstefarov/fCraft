@@ -1,11 +1,11 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+//#define DEBUG_SCHEDULER
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 
-//#define DEBUG_SCHEDULER
 
 namespace fCraft {
     public static class Scheduler {

@@ -1,3 +1,10 @@
+0.505
+ Feature: All draw commands now inform player if any blocks were skipped due to local permission issues (e.g. zones).
+ Fix: Fixed a regression that caused backups to be saved in the wrong path. Backups were being saved to ./backups/ instead of ./maps/backups/
+ Fix: Fixed a permission issue in /replace and /replacenot.
+ Fix: Fixed /info not displaying a list of players from same IP.
+ Fix: Addressed a security issue with salt generation.
+
 0.504
  Fixed a crash bug related to SecurityController.MinRank
 
@@ -13,14 +20,13 @@
  Fix: Made several tweaks to improve the first-run experience.
 
 0.502
- Fix: Adjusted for yet another change in the way minecraft.net replies to
- heartbeats (should fix all heartbeat issues for now).
+ Fix: Adjusted for yet another change in the way minecraft.net replies to heartbeats (should fix all heartbeat issues for now).
  Fix: Added a check to /zremove to prevent players from deleting zones to gain access to areas from which they're barred.
- Change: Renamed /wremove to /wunload for consistency. "/wremove" is still usable as an alias.
  Fix: Fixed being able to use /me or /staff to write empty messages.
  Fix: Fixed frozen players not getting defrosted when kicked.
  Fix: Formatting fixes in "___ was previously frozen" message
  Fix: Fixed a mini-bug in Map.ValidateHeader()
+ Change: Renamed /wremove to /wunload for consistency. "/wremove" is still usable as an alias.
 
 0.501
  Feature: Added /sphere and /sphere2, based on code contributed by SystemX17.

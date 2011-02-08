@@ -1,5 +1,11 @@
 http://fcraft.fragmer.net/fCraftUpdater.exe
-2011-02-03
+2011-02-08
+505
+ Feature: All draw commands now inform player if any blocks were skipped due to local permission issues (e.g. zones).
+ Fix: Fixed a regression that caused backups to be saved in the wrong path. Backups were being saved to ./backups/ instead of ./maps/backups/
+ Fix: Fixed a permission issue in /replace and /replacenot.
+ Fix: Fixed /info not displaying a list of players from same IP.
+ Fix: Addressed a security issue with salt generation.
 504
  Fixed a crash bug related to SecurityController.MinRank
 503
