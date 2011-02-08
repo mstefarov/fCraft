@@ -104,10 +104,13 @@ namespace fCraft {
             }
             UpdateCache();
             IsLoaded = true;
+
+            /*
             Stopwatch sw2 = Stopwatch.StartNew();
             int pruneable = CountPrunedPlayers();
             sw2.Stop();
             Logger.Log( "Prune: {0} found in {1} ms", LogType.SystemActivity, pruneable, sw2.ElapsedMilliseconds );
+             * */
         }
 
 
@@ -287,18 +290,35 @@ namespace fCraft {
 
 
         public static int CountPrunedPlayers() {
+            int i = 0;
             return PlayerInfoList.Count( delegate( PlayerInfo p ) {
-                if( p.banned || p.timesKicked != 0 || p.rank != RankList.DefaultRank ) {
-                    return false;
+                if( i % 100 == 0 ) {
+                    System.Diagnostics.Trace.WriteLine( i );
                 }
-                if( p.totalTime.TotalMinutes > 60 || DateTime.Now.Subtract(p.lastSeen).TotalDays < 30 ) {
-                    return false;
-                }
-                if( IPBanList.Get( p.lastIP ) != null ) {
-                    return false;
-                }
-                return true;
+                i++;
+                return PlayerIsInactive( p, false );
             } );
+        }
+
+
+        static bool PlayerIsInactive( PlayerInfo p, bool checkIP ) {
+            if( p.banned || p.isFrozen || p.IsMuted() || p.timesKicked != 0 || p.rank != RankList.DefaultRank ) {
+                return false;
+            }
+            if( p.totalTime.TotalMinutes > 60 || DateTime.Now.Subtract( p.lastSeen ).TotalDays < 30 ) {
+                return false;
+            }
+            if( IPBanList.Get( p.lastIP ) != null ) {
+                return false;
+            }
+            if(checkIP){
+                foreach( PlayerInfo other in FindPlayers(p.lastIP)){
+                    if( other != p && !PlayerIsInactive( other, false ) ) {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     }
 }

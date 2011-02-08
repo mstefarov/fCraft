@@ -40,11 +40,6 @@ namespace fCraft {
             RanksByName[rank.Name.ToLower()] = rank;
             RanksByID[rank.ID] = rank;
             RebuildIndex();
-
-            if( !Config.logToString ) {
-                Logger.Log( "RankList.AddRank: Added \"{0}\" to the rank list.", LogType.Debug,
-                            rank.Name );
-            }
         }
 
         // parse rank from serialized string (with ID) - for loading from files
