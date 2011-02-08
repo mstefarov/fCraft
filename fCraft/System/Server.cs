@@ -154,7 +154,7 @@ namespace fCraft {
             // try to load the config
             if( !Config.Load( false ) ) return false;
             Config.ApplyConfig();
-            GenerateSalt();
+            Salt = GenerateSalt();
             if( !Config.Save( true ) ) return false;
 
             // load player DB
@@ -1006,13 +1006,15 @@ namespace fCraft {
 
 
         const string saltChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.~";
-        static void GenerateSalt() {
+        static string GenerateSalt() {
             // generate random salt
+            StringBuilder sb = new StringBuilder();
             Random rand = new Random();
             int saltLength = rand.Next( 12, 17 );
             for( int i = 0; i < saltLength; i++ ) {
-                Salt += saltChars[rand.Next( 0, saltChars.Length - 1 )];
+                sb.Append( saltChars[rand.Next( 0, saltChars.Length - 1 )]);
             }
+            return sb.ToString();
         }
 
         public static bool VerifyName( string name, string hash, string salt ) {
