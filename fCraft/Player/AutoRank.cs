@@ -12,6 +12,7 @@ namespace fCraft {
         public static Scheduler.Task Task;
 
 
+
         public static void CheckAutoRankSetting() {
             if( Config.GetBool( ConfigKey.AutoRankEnabled ) ) {
                 if( Task == null ) {

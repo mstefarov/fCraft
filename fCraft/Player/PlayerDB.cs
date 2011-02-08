@@ -104,6 +104,10 @@ namespace fCraft {
             }
             UpdateCache();
             IsLoaded = true;
+            Stopwatch sw2 = Stopwatch.StartNew();
+            int pruneable = CountPrunedPlayers();
+            sw2.Stop();
+            Logger.Log( "Prune: {0} found in {1} ms", LogType.SystemActivity, pruneable, sw2.ElapsedMilliseconds );
         }
 
 
@@ -279,6 +283,22 @@ namespace fCraft {
             lock( locker ) {
                 PlayerInfoList = list.ToArray();
             }
+        }
+
+
+        public static int CountPrunedPlayers() {
+            return PlayerInfoList.Count( delegate( PlayerInfo p ) {
+                if( p.banned || p.timesKicked != 0 || p.rank != RankList.DefaultRank ) {
+                    return false;
+                }
+                if( p.totalTime.TotalMinutes > 60 || DateTime.Now.Subtract(p.lastSeen).TotalDays < 30 ) {
+                    return false;
+                }
+                if( IPBanList.Get( p.lastIP ) != null ) {
+                    return false;
+                }
+                return true;
+            } );
         }
     }
 }

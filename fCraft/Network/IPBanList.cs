@@ -28,10 +28,10 @@ namespace fCraft {
                                 } else {
                                     bans.Add( ban.address.ToString(), ban );
                                 }
-                            } catch( FormatException ex ) {
-                                Logger.Log( "IPBanList.Load: Could not parse a record: {0}", LogType.Error, ex.Message );
                             } catch( IOException ex ) {
                                 Logger.Log( "IPBanList.Load: Error while trying to read from file: {0}", LogType.Error, ex.Message );
+                            } catch( Exception ex ) {
+                                Logger.Log( "IPBanList.Load: Could not parse a record: {0}", LogType.Error, ex.Message );
                             }
                         } else {
                             Logger.Log( "IPBanList.Load: Corrupt record skipped ({0} fields instead of {1}): {2}", LogType.Error,
@@ -137,7 +137,7 @@ namespace fCraft {
 
             attempts = Int16.Parse( fields[5] );
             lastAttemptName = fields[6];
-            if( fields[7].Length < 2 ) {
+            if( fields[7].Length > 2 ) {
                 lastAttemptDate = DateTime.Parse( fields[7] );
             }
         }
