@@ -50,7 +50,6 @@ namespace fCraft {
         internal static void Save() {
             Logger.Log( "IPBanList.Save: Saving IP ban list ({0} records).", LogType.Debug, bans.Count );
             const string tempBanFileName = BanFileName + ".temp";
-            const string backupBanFileName = BanFileName + ".backup";
 
             lock( locker ) {
                 using( StreamWriter writer = File.CreateText( tempBanFileName ) ) {
@@ -61,7 +60,7 @@ namespace fCraft {
                 }
             }
             try {
-                if( File.Exists( BanFileName ) ) File.Replace( tempBanFileName, BanFileName, backupBanFileName, true );
+                if( File.Exists( BanFileName ) ) File.Replace( tempBanFileName, BanFileName, null, true );
                 else File.Move( tempBanFileName, BanFileName );
             } catch( Exception ex ) {
                 Logger.Log( "IPBanList.Save: An error occured while trying to save ban list file: " + ex, LogType.Error );

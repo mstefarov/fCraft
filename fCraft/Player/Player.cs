@@ -547,7 +547,7 @@ namespace fCraft {
 
 
         bool CheckBlockSpam() {
-            if( info.rank.AntiGriefBlocks == 0 && info.rank.AntiGriefSeconds == 0 ) return false;
+            if( info.rank.AntiGriefBlocks == 0 || info.rank.AntiGriefSeconds == 0 ) return false;
             if( spamBlockLog.Count >= info.rank.AntiGriefBlocks ) {
                 DateTime oldestTime = spamBlockLog.Dequeue();
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;

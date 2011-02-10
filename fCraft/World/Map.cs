@@ -178,7 +178,7 @@ namespace fCraft {
                 // try to append ".fcm" and/or prepend "maps/"
                 if( File.Exists( fileName + ".fcm" ) ) {
                     fileName += ".fcm";
-                }else{
+                } else {
                     Logger.Log( "Map.Load: Could not find the specified file: {0}", LogType.Error, fileName );
                     return null;
                 }
@@ -765,9 +765,9 @@ namespace fCraft {
         public void SaveBackup( string sourceName, string targetName, bool onlyIfChanged ) {
             if( onlyIfChanged && !changedSinceBackup && Config.GetBool( ConfigKey.BackupOnlyWhenChanged ) ) return;
 
-            if( !Directory.Exists( Path.Combine(Paths.MapPath, "backups") ) ) {
+            if( !Directory.Exists( Path.Combine( Paths.MapPath, "backups" ) ) ) {
                 try {
-                    Directory.CreateDirectory( Path.Combine(Paths.MapPath, "backups") );
+                    Directory.CreateDirectory( Path.Combine( Paths.MapPath, "backups" ) );
                 } catch( Exception ex ) {
                     Logger.Log( "Map.SaveBackup: Error occured while trying to create backup directory: {0}", LogType.Error,
                                 ex );
@@ -785,7 +785,7 @@ namespace fCraft {
                 return;
             }
 
-            DirectoryInfo d = new DirectoryInfo( "backups" );
+            DirectoryInfo d = new DirectoryInfo( Path.Combine( Paths.MapPath, "backups" ) );
             List<FileInfo> backupList = new List<FileInfo>( d.GetFiles( "*.fcm" ) );
             backupList.Sort( FileInfoComparer.instance );
 
@@ -860,7 +860,7 @@ namespace fCraft {
             }
 
             return layers; // TODO: Implement the rest of the layers
-            
+
             byte[] blockUndoCache = blockUndo;
             if( blockUndoCache != null ) {
                 layers.Add( new DataLayer {
@@ -921,11 +921,11 @@ namespace fCraft {
                     blocks = new byte[layer.ElementCount];
                     stream.Read( blocks, 0, blocks.Length );
                     break;
-                    
+
                 case DataLayerType.BlockUndo:
                     blockUndo = new byte[layer.ElementCount];
                     stream.Read( blockUndo, 0, blockUndo.Length );
-                    blockUndo=null;
+                    blockUndo = null;
                     break;
 
                 case DataLayerType.BlockOwnership: {
@@ -934,7 +934,7 @@ namespace fCraft {
                         for( int i = 0; i < layer.ElementCount; i++ ) {
                             blockOwnership[i] = reader.ReadUInt16();
                         }
-                    blockOwnership=null;
+                        blockOwnership = null;
                     } break;
 
                 case DataLayerType.BlockTimestamps: {
@@ -943,7 +943,7 @@ namespace fCraft {
                         for( int i = 0; i < layer.ElementCount; i++ ) {
                             blockTimestamps[i] = reader.ReadUInt32();
                         }
-                    blockTimestamps=null;
+                        blockTimestamps = null;
                     } break;
 
                 case DataLayerType.BlockChangeFlags:

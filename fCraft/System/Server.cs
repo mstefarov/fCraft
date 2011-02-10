@@ -514,11 +514,10 @@ namespace fCraft {
         }
 
 
+        const string WorldListTempFile = WorldListFileName + ".tmp";
         public static void SaveWorldList() {
             // Save world list
             try {
-                const string tempWorldListFile = WorldListFileName + ".tmp";
-                const string backupWorldListFile = WorldListFileName + ".backup";
                 XDocument doc = new XDocument();
                 XElement root = new XElement( "fCraftWorldList" );
                 XElement temp;
@@ -541,11 +540,11 @@ namespace fCraft {
                     root.Add( new XAttribute( "main", mainWorld.name ) );
                 }
                 doc.Add( root );
-                doc.Save( tempWorldListFile );
+                doc.Save( WorldListTempFile );
                 if( File.Exists( WorldListFileName ) ) {
-                    File.Replace( tempWorldListFile, WorldListFileName, backupWorldListFile );
+                    File.Replace( WorldListTempFile, WorldListFileName, null );
                 } else {
-                    File.Move( tempWorldListFile, WorldListFileName );
+                    File.Move( WorldListTempFile, WorldListFileName );
                 }
             } catch( Exception ex ) {
                 Logger.Log( "Server.SaveWorldList: An error occured while trying to save the world list: {0}", LogType.Error, ex );
@@ -1010,7 +1009,7 @@ namespace fCraft {
             // generate random salt
             StringBuilder sb = new StringBuilder();
             Random rand = new Random();
-            int saltLength = rand.Next( 12, 17 );
+            int saltLength = rand.Next( 16, 33 );
             for( int i = 0; i < saltLength; i++ ) {
                 sb.Append( saltChars[rand.Next( 0, saltChars.Length - 1 )]);
             }

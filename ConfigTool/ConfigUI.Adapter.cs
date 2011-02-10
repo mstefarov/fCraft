@@ -471,10 +471,9 @@ namespace ConfigTool {
         }
 
 
+        const string WorldListTempFileName = Server.WorldListFileName + ".tmp";
         void SaveWorldList() {
             try {
-                string tempWorldListFileName = Server.WorldListFileName + ".tmp";
-                string backupWorldListFileName = Server.WorldListFileName + ".backup";
                 XDocument doc = new XDocument();
                 XElement root = new XElement( "fCraftWorldList" );
                 foreach( WorldListEntry world in worlds ) {
@@ -484,8 +483,8 @@ namespace ConfigTool {
                     root.Add( new XAttribute( "main", cMainWorld.SelectedItem ) );
                 }
                 doc.Add( root );
-                doc.Save( tempWorldListFileName );
-                File.Replace( tempWorldListFileName, Server.WorldListFileName, backupWorldListFileName );
+                doc.Save( WorldListTempFileName );
+                File.Replace( WorldListTempFileName, Server.WorldListFileName, null, true );
             } catch( Exception ex ) {
                 MessageBox.Show( "An error occured while trying to save world list (worlds.xml):" + Environment.NewLine + ex );
             }
