@@ -20,8 +20,7 @@ namespace fCraft {
         public const int NumberOfMatchesToPrint = 20;
 
         public const string DBFileName = "PlayerDB.txt",
-                            TempDBFileName = DBFileName + ".temp",
-                            BackupDBFileName = DBFileName + ".backup";
+                            TempDBFileName = DBFileName + ".temp";
 
         const string Header = " fCraft PlayerDB | Row format: " +
                               "playerName,lastIP,rank,rankChangeDate,rankChangeBy," +
@@ -134,7 +133,7 @@ namespace fCraft {
                 }
             }
             try {
-                if( File.Exists( DBFileName ) ) File.Replace( TempDBFileName, DBFileName, BackupDBFileName, true );
+                if( File.Exists( DBFileName ) ) File.Replace( TempDBFileName, DBFileName, null, true );
                 else File.Move( TempDBFileName, DBFileName );
             } catch( Exception ex ) {
                 Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );

@@ -449,6 +449,7 @@ namespace fCraft {
 
 
         #region Saving
+
         public static bool Save( bool saveSalt ) {
             XDocument file = new XDocument();
 
@@ -501,12 +502,11 @@ namespace fCraft {
             file.Add( config );
             try {
                 // write out the changes
-                string tempConfigFileName = Paths.ConfigFileName + ".temp";
-                string backupFileName = Paths.ConfigFileName + ".backup";
-                file.Save( tempConfigFileName );
+                string configTempFileName = Paths.ConfigFileName + ".temp";
+                file.Save( configTempFileName );
 
-                if( File.Exists( Paths.ConfigFileName ) ) File.Replace( tempConfigFileName, Paths.ConfigFileName, backupFileName, true );
-                else File.Move( tempConfigFileName, Paths.ConfigFileName );
+                if( File.Exists( Paths.ConfigFileName ) ) File.Replace( configTempFileName, Paths.ConfigFileName, null, true );
+                else File.Move( configTempFileName, Paths.ConfigFileName );
 
                 return true;
             } catch( Exception ex ) {

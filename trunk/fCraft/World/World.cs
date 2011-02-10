@@ -551,8 +551,8 @@ namespace fCraft {
         void BackupTask( Scheduler.Task task ) {
             Map tempMap = map;
             if( tempMap != null ) {
-                tempMap.SaveBackup( Path.Combine( Paths.MapPath, GetMapName()),
-                                    Path.Combine( Paths.MapPath, String.Format( "backups/{0}_{1:yyyy-MM-dd_HH-mm}.fcm", name, DateTime.Now )),
+                tempMap.SaveBackup( Path.Combine( Paths.MapPath, GetMapName() ),
+                                    Path.Combine( Paths.MapPath, String.Format( "backups/{0}_{1:yyyy-MM-dd_HH-mm}.fcm", name, DateTime.Now ) ),
                                     true );
             }
         }
