@@ -155,7 +155,6 @@ namespace fCraft {
             if( !Config.Load( false ) ) return false;
             Config.ApplyConfig();
             Salt = GenerateSalt();
-            if( !Config.Save( true ) ) return false;
 
             // load player DB
             PlayerDB.Load();
@@ -167,11 +166,11 @@ namespace fCraft {
             // Init IRC
             IRC.Init();
 
-            if( OnInit != null ) OnInit();
-
             if( Config.GetBool( ConfigKey.AutoRankEnabled ) ) {
                 AutoRank.Init();
             }
+
+            if( OnInit != null ) OnInit();
 
             return true;
         }
@@ -542,7 +541,7 @@ namespace fCraft {
                 doc.Add( root );
                 doc.Save( WorldListTempFile );
                 if( File.Exists( WorldListFileName ) ) {
-                    File.Replace( WorldListTempFile, WorldListFileName, null );
+                    File.Replace( WorldListTempFile, WorldListFileName, null, true );
                 } else {
                     File.Move( WorldListTempFile, WorldListFileName );
                 }
@@ -997,11 +996,6 @@ namespace fCraft {
 
 
         public static string Salt { get; private set; }
-
-        // To keep server restarts as smooth as possible, fCreft stores the salt
-        // from the previous session in the config, and checks it if verification
-        // against the current salt fails.
-        internal static string OldSalt = "";
 
 
         const string saltChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.~";

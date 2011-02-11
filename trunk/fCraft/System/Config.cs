@@ -311,12 +311,6 @@ namespace fCraft {
                      "It is recommended that you run ConfigTool to make sure everything is in order.", LogType.Warning );
             }
 
-            // read salt
-            attr = config.Attribute( "salt" );
-            if( attr != null && attr.Value.Length > 0 ) {
-                Server.OldSalt = attr.Value;
-            }
-
             // read rank definitions
             if( !skipRankList ) {
                 LoadRankList( config, version, fromFile );
@@ -505,9 +499,11 @@ namespace fCraft {
                 string configTempFileName = Paths.ConfigFileName + ".temp";
                 file.Save( configTempFileName );
 
-                if( File.Exists( Paths.ConfigFileName ) ) File.Replace( configTempFileName, Paths.ConfigFileName, null, true );
-                else File.Move( configTempFileName, Paths.ConfigFileName );
-
+                if( File.Exists( Paths.ConfigFileName ) ) {
+                    File.Replace( configTempFileName, Paths.ConfigFileName, null, true );
+                } else {
+                    File.Move( configTempFileName, Paths.ConfigFileName );
+                }
                 return true;
             } catch( Exception ex ) {
                 Log( "Config.Load: Fatal error while saving config file {0}: {1}", LogType.FatalError,

@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
-// With contributions by Sean Dolan <seanldolan@gmail.com>
+// With contributions by Sean "SystemX17" Dolan (/line, /sphere)
+// With contributions by Conrad "Redshift" Morgan (/ellipsoidhollow)
 using System;
 using System.Collections.Generic;
 
@@ -16,8 +17,8 @@ namespace fCraft {
             CuboidHollow,
             CuboidWireframe,
             Ellipsoid,
+            EllipsoidHollow,
             Sphere,
-            Sphere2,
             Replace,
             ReplaceNot,
             Line
@@ -54,11 +55,11 @@ namespace fCraft {
         const int DrawStride = 16;
 
 
-        internal static void Init() {
-            const string generalDrawingHelp = " Use &H/cancel&S to exit draw mode. " +
-                                              "Use &H/undo&S to undo the last draw operation. " +
-                                              "Use &H/lock&S to cancel drawing after it started.";
+        const string generalDrawingHelp = " Use &H/cancel&S to exit draw mode. " +
+                                          "Use &H/undo&S to undo the last draw operation. " +
+                                          "Use &H/lock&S to cancel drawing after it started.";
 
+        internal static void Init() {
             cdCuboid.help += generalDrawingHelp;
             cdCuboidHollow.help += generalDrawingHelp;
             cdCuboidWireframe.help += generalDrawingHelp;
@@ -74,8 +75,8 @@ namespace fCraft {
             CommandList.RegisterCommand( cdCuboidHollow );
             CommandList.RegisterCommand( cdCuboidWireframe );
             CommandList.RegisterCommand( cdEllipsoid );
+            CommandList.RegisterCommand( cdEllipsoidHollow );
             CommandList.RegisterCommand( cdSphere );
-            CommandList.RegisterCommand( cdSphere2 );
             CommandList.RegisterCommand( cdReplace );
             CommandList.RegisterCommand( cdReplaceNot );
             CommandList.RegisterCommand( cdLine );
@@ -147,10 +148,10 @@ namespace fCraft {
 
         static CommandDescriptor cdEllipsoid = new CommandDescriptor {
             name = "ellipsoid",
-            aliases = new[] { "e", "ell" },
+            aliases = new[] { "e" },
             permissions = new[] { Permission.Draw },
             usage = "/ellipsoid [BlockName]",
-            help = "Allows to fill a sphere-like area (ellipsoid) with blocks. " +
+            help = "Fills a sphere-like (ellipsoidal) area with blocks. " +
                    "If BlockType is omitted, uses the block that player is holding.",
             handler = Ellipsoid
         };
@@ -160,6 +161,20 @@ namespace fCraft {
         }
 
 
+        static CommandDescriptor cdEllipsoidHollow = new CommandDescriptor {
+            name = "ellipsoidhollow",
+            aliases = new[] { "eh" },
+            permissions = new[] { Permission.Draw },
+            usage = "/ellipsoidhollow [BlockName]",
+            help = "Allows to fill a sphere-like (ellipsoidal) area with blocks. " +
+                   "If BlockType is omitted, uses the block that player is holding.",
+            handler = EllipsoidHollow
+        };
+
+        internal static void EllipsoidHollow( Player player, Command cmd ) {
+            Draw( player, cmd, DrawMode.EllipsoidHollow );
+        }
+
 
         static CommandDescriptor cdSphere = new CommandDescriptor {
             name = "sphere",
@@ -167,30 +182,13 @@ namespace fCraft {
             permissions = new[] { Permission.Draw },
             usage = "/sphere [BlockName]",
             help = "Allows to fill a sphere-shaped area with blocks. " +
-                   "First mark is the center of the sphere, second mark is the edge of the area of the sphere." +
+                   "First mark is the center of the sphere, second mark defines the radius." +
                    "If BlockType is omitted, uses the block that player is holding.",
             handler = Sphere
         };
 
         internal static void Sphere( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Sphere );
-        }
-
-
-
-        static CommandDescriptor cdSphere2 = new CommandDescriptor {
-            name = "sphere2",
-            aliases = new[] { "sp2", "spheroid2" },
-            permissions = new[] { Permission.Draw },
-            usage = "/sphere2 [BlockName]",
-            help = "Allows to fill a sphere-shaped area with blocks. " +
-                   "First mark is the center of the sphere, second mark defines the radius." +
-                   "If BlockType is omitted, uses the block that player is holding.",
-            handler = Sphere2
-        };
-
-        internal static void Sphere2( Player player, Command cmd ) {
-            Draw( player, cmd, DrawMode.Sphere2 );
         }
 
 
@@ -310,19 +308,18 @@ namespace fCraft {
                     player.selectionArgs = (byte)block;
                     break;
 
+                case DrawMode.EllipsoidHollow:
+                    player.selectionCallback = EllipsoidHollowCallback;
+                    player.selectionArgs = (byte)block;
+                    break;
+
                 case DrawMode.Sphere:
                     player.selectionCallback = SphereCallback;
                     player.selectionArgs = (byte)block;
                     break;
 
-                case DrawMode.Sphere2:
-                    player.selectionCallback = Sphere2Callback;
-                    player.selectionArgs = (byte)block;
-                    break;
-
                 case DrawMode.Replace:
                 case DrawMode.ReplaceNot:
-
                     List<Block> affectedTypes = new List<Block> { block };
                     Block affectedType;
                     while( cmd.NextBlockType( out affectedType ) ) {
@@ -757,25 +754,9 @@ namespace fCraft {
         }
 
 
+        #region Sphere, Ellipsoid, Hollow Ellipsoid
+
         internal static void SphereCallback( Player player, Position[] marks, object tag ) {
-
-            int bigdiff = Math.Abs( Math.Max( (Math.Max( Math.Max( marks[0].x, marks[1].x ) - Math.Min( marks[0].x, marks[1].x ),
-                                               Math.Max( marks[0].y, marks[1].y ) - Math.Min( marks[0].y, marks[1].y ) )),
-                                               Math.Max( marks[0].h, marks[1].h ) - Math.Min( marks[0].h, marks[1].h ) ) );
-
-            marks[1].x = (short)(marks[0].x - bigdiff);
-            marks[1].y = (short)(marks[0].y - bigdiff);
-            marks[1].h = (short)(marks[0].h - bigdiff);
-
-            marks[0].x = (short)(marks[0].x + bigdiff);
-            marks[0].y = (short)(marks[0].y + bigdiff);
-            marks[0].h = (short)(marks[0].h + bigdiff);
-
-            EllipsoidCallback( player, marks, tag );
-        }
-
-
-        internal static void Sphere2Callback( Player player, Position[] marks, object tag ) {
 
             double radius = Math.Sqrt( (marks[0].x - marks[1].x) * (marks[0].x - marks[1].x) +
                                        (marks[0].y - marks[1].y) * (marks[0].y - marks[1].y) +
@@ -862,6 +843,86 @@ namespace fCraft {
                         player.world.name );
             DrawingFinished( player, "drawn", blocks, blocksDenied );
         }
+
+
+        internal static void EllipsoidHollowCallback( Player player, Position[] marks, object tag ) {
+            byte drawBlock = (byte)tag;
+            if( drawBlock == (byte)Block.Undefined ) {
+                drawBlock = (byte)player.lastUsedBlockType;
+            }
+
+            // find start/end coordinates
+            int sx = Math.Min( marks[0].x, marks[1].x );
+            int ex = Math.Max( marks[0].x, marks[1].x );
+            int sy = Math.Min( marks[0].y, marks[1].y );
+            int ey = Math.Max( marks[0].y, marks[1].y );
+            int sh = Math.Min( marks[0].h, marks[1].h );
+            int eh = Math.Max( marks[0].h, marks[1].h );
+
+            // find axis lengths
+            double rx = (ex - sx + 1) / 2d;
+            double ry = (ey - sy + 1) / 2d;
+            double rh = (eh - sh + 1) / 2d;
+
+            double rx2 = 1 / (rx * rx);
+            double ry2 = 1 / (ry * ry);
+            double rh2 = 1 / (rh * rh);
+
+            // find center points
+            double cx = (ex + sx) / 2d;
+            double cy = (ey + sy) / 2d;
+            double ch = (eh + sh) / 2d;
+
+            // rougher estimation than the non-hollow form, a voxelized surface is a bit funky
+            int volume = (int)(4 / 3d * Math.PI * ((rx + .5) * (ry + .5) * (rh + .5) - (rx - .5) * (ry - .5) * (rh - .5)) * 0.85);
+            if( !player.CanDraw( volume ) ) {
+                player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                   player.info.rank.DrawLimit,
+                                   volume );
+                return;
+            }
+
+            player.undoBuffer.Clear();
+
+            int blocks = 0, blocksDenied = 0;
+            bool cannotUndo = false;
+
+            for( int x = sx; x <= ex; x++ ) {
+                for( int y = sy; y <= ey; y++ ) {
+                    for( int h = sh; h <= eh; h++ ) {
+
+                        double dx = (x - cx);
+                        double dy = (y - cy);
+                        double dh = (h - ch);
+
+                        if( (dx * dx) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 <= 1 ) {
+                            // we touched the surface
+                            // keep drilling until we hit an internal block
+                            do {
+                                DrawOneBlock( player, drawBlock, x, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                                DrawOneBlock( player, drawBlock, x, y, (int)(ch - dh), ref blocks, ref blocksDenied, ref cannotUndo );
+                                dh = (++h - ch);
+                            } while( h <= (int)ch &&
+                                    ((dx + 1) * (dx + 1) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 > 1 ||
+                                     (dx - 1) * (dx - 1) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 > 1 ||
+                                     (dx * dx) * rx2 + (dy + 1) * (dy + 1) * ry2 + (dh * dh) * rh2 > 1 ||
+                                     (dx * dx) * rx2 + (dy - 1) * (dy - 1) * ry2 + (dh * dh) * rh2 > 1 ||
+                                     (dx * dx) * rx2 + (dy * dy) * ry2 + (dh + 1) * (dh + 1) * rh2 > 1 ||
+                                     (dx * dx) * rx2 + (dy * dy) * ry2 + (dh - 1) * (dh - 1) * rh2 > 1) );
+                            break;
+                        }
+                    }
+                }
+            }
+            Logger.Log( "{0} drew a hollow ellipsoid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
+                        player.name,
+                        blocks,
+                        (Block)drawBlock,
+                        player.world.name );
+            DrawingFinished( player, "drawn", blocks, blocksDenied );
+        }
+
+        #endregion
 
 
         internal static void LineCallback( Player player, Position[] marks, object tag ) {
