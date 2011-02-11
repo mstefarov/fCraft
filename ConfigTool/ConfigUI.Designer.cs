@@ -235,6 +235,7 @@
             this.cIRCList = new System.Windows.Forms.ComboBox();
             this.tabAdvanced = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.lConsoleNameHint = new System.Windows.Forms.Label();
             this.lConsoleName = new System.Windows.Forms.Label();
             this.tConsoleName = new System.Windows.Forms.TextBox();
             this.nMaxUndo = new System.Windows.Forms.NumericUpDown();
@@ -263,7 +264,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.lConsoleNameHint = new System.Windows.Forms.Label();
             this.chatPreview = new ConfigTool.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
@@ -2699,6 +2699,16 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Miscellaneous";
             // 
+            // lConsoleNameHint
+            // 
+            this.lConsoleNameHint.AutoSize = true;
+            this.lConsoleNameHint.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.lConsoleNameHint.Location = new System.Drawing.Point( 223, 262 );
+            this.lConsoleNameHint.Name = "lConsoleNameHint";
+            this.lConsoleNameHint.Size = new System.Drawing.Size( 274, 13 );
+            this.lConsoleNameHint.TabIndex = 46;
+            this.lConsoleNameHint.Text = "Hint: You may include any characters (even colorcodes).";
+            // 
             // lConsoleName
             // 
             this.lConsoleName.AutoSize = true;
@@ -2750,6 +2760,8 @@
             // xMaxUndo
             // 
             this.xMaxUndo.AutoSize = true;
+            this.xMaxUndo.Checked = true;
+            this.xMaxUndo.CheckState = System.Windows.Forms.CheckState.Checked;
             this.xMaxUndo.Location = new System.Drawing.Point( 12, 136 );
             this.xMaxUndo.Name = "xMaxUndo";
             this.xMaxUndo.Size = new System.Drawing.Size( 291, 19 );
@@ -3036,16 +3048,6 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // lConsoleNameHint
-            // 
-            this.lConsoleNameHint.AutoSize = true;
-            this.lConsoleNameHint.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.lConsoleNameHint.Location = new System.Drawing.Point( 223, 262 );
-            this.lConsoleNameHint.Name = "lConsoleNameHint";
-            this.lConsoleNameHint.Size = new System.Drawing.Size( 274, 13 );
-            this.lConsoleNameHint.TabIndex = 46;
-            this.lConsoleNameHint.Text = "Hint: You may include any characters (even colorcodes).";
             // 
             // chatPreview
             // 

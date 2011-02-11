@@ -484,7 +484,11 @@ namespace ConfigTool {
                 }
                 doc.Add( root );
                 doc.Save( WorldListTempFileName );
-                File.Replace( WorldListTempFileName, Server.WorldListFileName, null, true );
+                if( File.Exists( Server.WorldListFileName ) ) {
+                    File.Replace( WorldListTempFileName, Server.WorldListFileName, null, true );
+                } else {
+                    File.Move( WorldListTempFileName, Server.WorldListFileName );
+                }
             } catch( Exception ex ) {
                 MessageBox.Show( "An error occured while trying to save world list (worlds.xml):" + Environment.NewLine + ex );
             }

@@ -133,8 +133,11 @@ namespace fCraft {
                 }
             }
             try {
-                if( File.Exists( DBFileName ) ) File.Replace( TempDBFileName, DBFileName, null, true );
-                else File.Move( TempDBFileName, DBFileName );
+                if( File.Exists( DBFileName ) ) {
+                    File.Replace( TempDBFileName, DBFileName, null, true );
+                } else {
+                    File.Move( TempDBFileName, DBFileName );
+                }
             } catch( Exception ex ) {
                 Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );
             }
