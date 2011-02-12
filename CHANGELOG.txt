@@ -1,3 +1,14 @@
+0.506
+ Feature: Added hollow ellipsoid drawing (/eh) and hollow sphere drawing (/sph), contributed by Conrad "Redshift" Morgan.
+ Fix: Fixed a regression in 0.503 that caused some IP ban records to be lost. I am terribly sorry!
+ Fix: Fixed a path-related error in Map.SaveBackup
+ Fix: Fixed a possible disconnect in Player.CheckBlockSpam is antigrief was not configured properly.
+ Fix: Fixed a bug in ConfigTool.SaveWorldList.
+ Fix: Fixed "Limit the number of blocks that can be undone" checkbox misbehaving (thanks to ven000m for bug report).
+ Change: By popular demand /sphere2 is now the default behavior of /sphere.
+ Change: Removed "oldSalt" check for name verification, to avoid having the server write to config.xml unnecessarily.
+ Change: Removed ".backup" file creation, by popular demand. It was kinda useless.
+
 0.505
  Feature: All draw commands now inform player if any blocks were skipped due to local permission issues (e.g. zones).
  Fix: Fixed a regression that caused backups to be saved in the wrong path. Backups were being saved to ./backups/ instead of ./maps/backups/

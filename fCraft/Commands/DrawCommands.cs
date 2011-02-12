@@ -19,6 +19,7 @@ namespace fCraft {
             Ellipsoid,
             EllipsoidHollow,
             Sphere,
+            SphereHollow,
             Replace,
             ReplaceNot,
             Line
@@ -64,6 +65,9 @@ namespace fCraft {
             cdCuboidHollow.help += generalDrawingHelp;
             cdCuboidWireframe.help += generalDrawingHelp;
             cdEllipsoid.help += generalDrawingHelp;
+            cdEllipsoidHollow.help += generalDrawingHelp;
+            cdSphere.help += generalDrawingHelp;
+            cdSphereHollow.help += generalDrawingHelp;
             cdLine.help += generalDrawingHelp;
             cdReplace.help += generalDrawingHelp;
             cdReplaceNot.help += generalDrawingHelp;
@@ -77,6 +81,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdEllipsoid );
             CommandList.RegisterCommand( cdEllipsoidHollow );
             CommandList.RegisterCommand( cdSphere );
+            CommandList.RegisterCommand( cdSphereHollow );
             CommandList.RegisterCommand( cdReplace );
             CommandList.RegisterCommand( cdReplaceNot );
             CommandList.RegisterCommand( cdLine );
@@ -115,7 +120,7 @@ namespace fCraft {
 
         static CommandDescriptor cdCuboidHollow = new CommandDescriptor {
             name = "cubh",
-            aliases = new[] { "cuboidh", "cubh", "ch", "h", "bhb" },
+            aliases = new[] { "cuboidh", "ch", "h", "bhb" },
             permissions = new[] { Permission.Draw },
             usage = "/cuboidh [OuterBlockName [InnerBlockName]]",
             help = "Allows to box a rectangular area (cuboid) with blocks. " +
@@ -132,7 +137,7 @@ namespace fCraft {
 
         static CommandDescriptor cdCuboidWireframe = new CommandDescriptor {
             name = "cubw",
-            aliases = new[] { "cw", "cuboidw", "bfb" },
+            aliases = new[] { "cuboidw", "cw", "bfb" },
             permissions = new[] { Permission.Draw },
             usage = "/cuboidw [BlockName]",
             help = "Draws a wireframe box around selected area. " +
@@ -162,10 +167,10 @@ namespace fCraft {
 
 
         static CommandDescriptor cdEllipsoidHollow = new CommandDescriptor {
-            name = "ellipsoidhollow",
+            name = "ellipsoidh",
             aliases = new[] { "eh" },
             permissions = new[] { Permission.Draw },
-            usage = "/ellipsoidhollow [BlockName]",
+            usage = "/ellipsoidh [BlockName]",
             help = "Allows to fill a sphere-like (ellipsoidal) area with blocks. " +
                    "If BlockType is omitted, uses the block that player is holding.",
             handler = EllipsoidHollow
@@ -181,7 +186,7 @@ namespace fCraft {
             aliases = new[] { "sp", "spheroid" },
             permissions = new[] { Permission.Draw },
             usage = "/sphere [BlockName]",
-            help = "Allows to fill a sphere-shaped area with blocks. " +
+            help = "Fills a spherical area with blocks. " +
                    "First mark is the center of the sphere, second mark defines the radius." +
                    "If BlockType is omitted, uses the block that player is holding.",
             handler = Sphere
@@ -191,6 +196,21 @@ namespace fCraft {
             Draw( player, cmd, DrawMode.Sphere );
         }
 
+
+        static CommandDescriptor cdSphereHollow = new CommandDescriptor {
+            name = "sphereh",
+            aliases = new[] { "sph" },
+            permissions = new[] { Permission.Draw },
+            usage = "/sphereh [BlockName]",
+            help = "Surrounds a spherical area with a shell of blocks. " +
+                   "First mark is the center of the sphere, second mark defines the radius." +
+                   "If BlockType is omitted, uses the block that player is holding.",
+            handler = SphereHollow
+        };
+
+        internal static void SphereHollow( Player player, Command cmd ) {
+            Draw( player, cmd, DrawMode.SphereHollow );
+        }
 
 
         static CommandDescriptor cdReplace = new CommandDescriptor {
@@ -275,10 +295,10 @@ namespace fCraft {
                 return;
             }
 
+            player.selectionArgs = (byte)block;
             switch( mode ) {
                 case DrawMode.Cuboid:
                     player.selectionCallback = CuboidCallback;
-                    player.selectionArgs = (byte)block;
                     break;
 
                 case DrawMode.CuboidHollow:
@@ -300,22 +320,22 @@ namespace fCraft {
 
                 case DrawMode.CuboidWireframe:
                     player.selectionCallback = CuboidWireframeCallback;
-                    player.selectionArgs = (byte)block;
                     break;
 
                 case DrawMode.Ellipsoid:
                     player.selectionCallback = EllipsoidCallback;
-                    player.selectionArgs = (byte)block;
                     break;
 
                 case DrawMode.EllipsoidHollow:
                     player.selectionCallback = EllipsoidHollowCallback;
-                    player.selectionArgs = (byte)block;
                     break;
 
                 case DrawMode.Sphere:
                     player.selectionCallback = SphereCallback;
-                    player.selectionArgs = (byte)block;
+                    break;
+
+                case DrawMode.SphereHollow:
+                    player.selectionCallback = SphereHollowCallback;
                     break;
 
                 case DrawMode.Replace:
@@ -358,11 +378,12 @@ namespace fCraft {
                         return;
                     }
                     break;
+
                 case DrawMode.Line:
                     player.selectionCallback = LineCallback;
-                    player.selectionArgs = (byte)block;
                     break;
             }
+
             player.selectionMarksExpected = 2;
             player.selectionMarkCount = 0;
             player.selectionMarks.Clear();
@@ -754,25 +775,7 @@ namespace fCraft {
         }
 
 
-        #region Sphere, Ellipsoid, Hollow Ellipsoid
-
-        internal static void SphereCallback( Player player, Position[] marks, object tag ) {
-
-            double radius = Math.Sqrt( (marks[0].x - marks[1].x) * (marks[0].x - marks[1].x) +
-                                       (marks[0].y - marks[1].y) * (marks[0].y - marks[1].y) +
-                                       (marks[0].h - marks[1].h) * (marks[0].h - marks[1].h) );
-
-            marks[1].x = (short)Math.Round( marks[0].x - radius );
-            marks[1].y = (short)Math.Round( marks[0].y - radius );
-            marks[1].h = (short)Math.Round( marks[0].h - radius );
-
-            marks[0].x = (short)Math.Round( marks[0].x + radius );
-            marks[0].y = (short)Math.Round( marks[0].y + radius );
-            marks[0].h = (short)Math.Round( marks[0].h + radius );
-
-            EllipsoidCallback( player, marks, tag );
-        }
-
+        #region Ellipsoid, Hollow Ellipsoid, Sphere, HollowSphere
 
         internal static void EllipsoidCallback( Player player, Position[] marks, object tag ) {
             byte drawBlock = (byte)tag;
@@ -920,6 +923,40 @@ namespace fCraft {
                         (Block)drawBlock,
                         player.world.name );
             DrawingFinished( player, "drawn", blocks, blocksDenied );
+        }
+
+
+        internal static void SphereCallback( Player player, Position[] marks, object tag ) {
+            double radius = Math.Sqrt( (marks[0].x - marks[1].x) * (marks[0].x - marks[1].x) +
+                                       (marks[0].y - marks[1].y) * (marks[0].y - marks[1].y) +
+                                       (marks[0].h - marks[1].h) * (marks[0].h - marks[1].h) );
+
+            marks[1].x = (short)Math.Round( marks[0].x - radius );
+            marks[1].y = (short)Math.Round( marks[0].y - radius );
+            marks[1].h = (short)Math.Round( marks[0].h - radius );
+
+            marks[0].x = (short)Math.Round( marks[0].x + radius );
+            marks[0].y = (short)Math.Round( marks[0].y + radius );
+            marks[0].h = (short)Math.Round( marks[0].h + radius );
+
+            EllipsoidCallback( player, marks, tag );
+        }
+
+
+        internal static void SphereHollowCallback( Player player, Position[] marks, object tag ) {
+            double radius = Math.Sqrt( (marks[0].x - marks[1].x) * (marks[0].x - marks[1].x) +
+                                       (marks[0].y - marks[1].y) * (marks[0].y - marks[1].y) +
+                                       (marks[0].h - marks[1].h) * (marks[0].h - marks[1].h) );
+
+            marks[1].x = (short)Math.Round( marks[0].x - radius );
+            marks[1].y = (short)Math.Round( marks[0].y - radius );
+            marks[1].h = (short)Math.Round( marks[0].h - radius );
+
+            marks[0].x = (short)Math.Round( marks[0].x + radius );
+            marks[0].y = (short)Math.Round( marks[0].y + radius );
+            marks[0].h = (short)Math.Round( marks[0].h + radius );
+
+            EllipsoidHollowCallback( player, marks, tag );
         }
 
         #endregion
