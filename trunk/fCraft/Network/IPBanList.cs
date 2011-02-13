@@ -9,15 +9,15 @@ namespace fCraft {
 
         static SortedDictionary<string, IPBanInfo> bans = new SortedDictionary<string, IPBanInfo>();
         const string BanFileName = "ipbans.txt",
-                     Header = "IP,bannedBy,banDate,banReason,playerName,attempts,lastAttemptName,lastAttemptDate";
+                     Header = "IP,bannedBy,banDate,banReason,playerName,attempts,lastAttemptName,lastAttemptDate ";
         static object locker = new object();
         public static bool isLoaded;
 
-
         internal static void Load() {
             if( File.Exists( BanFileName ) ) {
+                string headerText;
                 using( StreamReader reader = File.OpenText( BanFileName ) ) {
-                    reader.ReadLine(); // header
+                    headerText = reader.ReadLine(); // header
                     while( !reader.EndOfStream ) {
                         string[] fields = reader.ReadLine().Split( ',' );
                         if( fields.Length == IPBanInfo.FieldCount ) {
@@ -39,6 +39,12 @@ namespace fCraft {
                         }
                     }
                 }
+                if( !headerText.EndsWith( " " ) ) {
+                    Logger.Log( "IPBanList.Load: Attempting to recover IP bans...", LogType.SystemActivity );
+                    int oldBanCount = bans.Count;
+                    PlayerDB.RecoverIPBans();
+                    Logger.Log( "IPBanList.Load: {0} IP bans recovered.", LogType.SystemActivity, bans.Count - oldBanCount );
+                }
                 Logger.Log( "IPBanList.Load: Done loading IP ban list ({0} records).", LogType.Debug, bans.Count );
             } else {
                 Logger.Log( "IPBanList.Load: No IP ban file found.", LogType.Warning );
@@ -48,6 +54,7 @@ namespace fCraft {
 
 
         internal static void Save() {
+            if( !isLoaded ) return;
             Logger.Log( "IPBanList.Save: Saving IP ban list ({0} records).", LogType.Debug, bans.Count );
             const string tempBanFileName = BanFileName + ".temp";
 

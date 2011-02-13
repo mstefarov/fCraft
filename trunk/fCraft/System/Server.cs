@@ -148,7 +148,7 @@ namespace fCraft {
                 Logger.Log( "This build has been marked as BROKEN. " +
                             "Do not use except for debugging purposes. " +
                             "Latest non-broken build is {0}.", LogType.Warning,
-                            Updater.LatestNonBroken );
+                            Updater.LatestStable );
             }
 
             // try to load the config

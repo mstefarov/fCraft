@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace fCraft {
     public static class PlayerDB {
-        static StringTree tree = new StringTree();
+        static StringTree<PlayerInfo> tree = new StringTree<PlayerInfo>();
         static List<PlayerInfo> list = new List<PlayerInfo>();
         public static PlayerInfo[] PlayerInfoList { get; private set; }
         public static readonly TimeSpan SaveInterval = TimeSpan.FromSeconds( 60 );
@@ -31,7 +31,7 @@ namespace fCraft {
                               "linesWritten,UNUSED,UNUSED,previousRank,rankChangeReason," +
                               "timesKicked,timesKickedOthers,timesBannedOthers,UID,rankChangeType," +
                               "lastKickDate,LastSeen,BlocksDrawn,lastKickBy,lastKickReason," +
-                              "bannedUntil,loggedOutFrozen,frozenBy,"+
+                              "bannedUntil,loggedOutFrozen,frozenBy," +
                               "mutedUntil,mutedBy,IRCPassword,online,leaveReason";
 
 
@@ -103,13 +103,6 @@ namespace fCraft {
             }
             UpdateCache();
             IsLoaded = true;
-
-            /*
-            Stopwatch sw2 = Stopwatch.StartNew();
-            int pruneable = CountPrunedPlayers();
-            sw2.Stop();
-            Logger.Log( "Prune: {0} found in {1} ms", LogType.SystemActivity, pruneable, sw2.ElapsedMilliseconds );
-             * */
         }
 
 
@@ -121,13 +114,12 @@ namespace fCraft {
         internal static void Save() {
             Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, tree.Count );
 
-
             PlayerInfo[] listCopy = GetPlayerListCopy();
 
             using( FileStream fs = new FileStream( TempDBFileName, FileMode.Create, FileAccess.Write, FileShare.None, 64 * 1024 ) ) {
                 using( StreamWriter writer = new StreamWriter( fs ) ) {
                     writer.WriteLine( MaxID + Header );
-                    for( int i=0; i<listCopy.Length; i++){
+                    for( int i = 0; i < listCopy.Length; i++ ) {
                         writer.WriteLine( listCopy[i].Serialize() );
                     }
                 }
@@ -291,20 +283,60 @@ namespace fCraft {
         }
 
 
-        public static int CountPrunedPlayers() {
-            int i = 0;
-            return PlayerInfoList.Count( delegate( PlayerInfo p ) {
-                if( i % 100 == 0 ) {
-                    System.Diagnostics.Trace.WriteLine( i );
+        #region Experimental & Debug things
+
+        // TODO: figure out a good way of making this persistent. ReaderWriterLockSlim maybe? (If Mono is fixed)
+        static Dictionary<IPAddress, List<PlayerInfo>> playersByIP;
+
+
+        internal static int CountInactivePlayers() {
+            int count;
+            lock( locker ) {
+                playersByIP= new Dictionary<IPAddress, List<PlayerInfo>>();
+                PlayerInfo[] playerInfoListCache = PlayerInfoList;
+                for( int i = 0; i < playerInfoListCache.Length; i++ ) {
+                    if( !playersByIP.ContainsKey( playerInfoListCache[i].lastIP ) ) {
+                        playersByIP[playerInfoListCache[i].lastIP] = new List<PlayerInfo>();
+                    }
+                    playersByIP[playerInfoListCache[i].lastIP].Add( PlayerInfoList[i] );
                 }
-                i++;
-                return PlayerIsInactive( p, false );
-            } );
+                count = playerInfoListCache.Count( delegate( PlayerInfo p ) {
+                    return PlayerIsInactive( p, true );
+                } );
+                playersByIP = null;
+            }
+            return count;
+        }
+
+
+        internal static int RemoveInactivePlayers() {
+            int count = 0;
+            lock( locker ) {
+                playersByIP = new Dictionary<IPAddress, List<PlayerInfo>>();
+                PlayerInfo[] playerInfoListCache = PlayerInfoList;
+                for( int i = 0; i < playerInfoListCache.Length; i++ ) {
+                    if( !playersByIP.ContainsKey( playerInfoListCache[i].lastIP ) ) {
+                        playersByIP[playerInfoListCache[i].lastIP] = new List<PlayerInfo>();
+                    }
+                    playersByIP[playerInfoListCache[i].lastIP].Add( PlayerInfoList[i] );
+                }
+                foreach( PlayerInfo p in playerInfoListCache ) {
+                    if( PlayerIsInactive( p, true ) ) {
+                        tree.Remove( p.name );
+                        list.Remove( p );
+                        count++;
+                    }
+                }
+                list.TrimExcess();
+                UpdateCache();
+                playersByIP = null;
+            }
+            return count;
         }
 
 
         static bool PlayerIsInactive( PlayerInfo p, bool checkIP ) {
-            if( p.banned || p.isFrozen || p.IsMuted() || p.timesKicked != 0 || p.rank != RankList.DefaultRank ) {
+            if( p.banned || !String.IsNullOrEmpty( p.unbannedBy ) || p.isFrozen || p.IsMuted() || p.timesKicked != 0 || !String.IsNullOrEmpty( p.rankChangedBy ) ) {
                 return false;
             }
             if( p.totalTime.TotalMinutes > 60 || DateTime.Now.Subtract( p.lastSeen ).TotalDays < 30 ) {
@@ -313,8 +345,8 @@ namespace fCraft {
             if( IPBanList.Get( p.lastIP ) != null ) {
                 return false;
             }
-            if(checkIP){
-                foreach( PlayerInfo other in FindPlayers(p.lastIP)){
+            if( checkIP ) {
+                foreach( PlayerInfo other in playersByIP[p.lastIP] ) {
                     if( other != p && !PlayerIsInactive( other, false ) ) {
                         return false;
                     }
@@ -322,5 +354,20 @@ namespace fCraft {
             }
             return true;
         }
+
+
+        internal static void RecoverIPBans() {
+            PlayerInfo[] playerInfoListCache = PlayerInfoList;
+            for( int i = 0; i < playerInfoListCache.Length; i++ ) {
+                PlayerInfo p = playerInfoListCache[i];
+                if( p.banned && p.banReason.EndsWith( "~BanAll", StringComparison.OrdinalIgnoreCase ) && IPBanList.Get( p.lastIP ) == null ) {
+                    IPBanList.Add( new IPBanInfo( p.lastIP, p.name, p.bannedBy, p.banReason ) );
+                    Logger.Log( "PlayerDB.RecoverIPBans: Banned {0} by association with {1}. Banned by {2}. Reason: {3}", LogType.SystemActivity,
+                                p.lastIP, p.name, p.bannedBy, p.banReason );
+                }
+            }
+        }
+
+        #endregion
     }
 }

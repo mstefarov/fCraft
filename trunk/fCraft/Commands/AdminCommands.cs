@@ -55,6 +55,30 @@ namespace fCraft {
 
             CommandList.RegisterCommand( cdMute );
             CommandList.RegisterCommand( cdUnmute );
+
+            CommandList.RegisterCommand( cdPruneDB );
+        }
+
+        static CommandDescriptor cdPruneDB = new CommandDescriptor {
+            name = "prunedb",
+            consoleSafe = true,
+            hidden = true,
+            permissions = new[] { Permission.EditPlayerDB },
+            help = "Removes inactive players from the player database. Use with caution.",
+            handler = PruneDB
+        };
+
+        internal static void PruneDB( Player player, Command cmd ) {
+            if( !cmd.confirmed ) {
+                player.MessageNow( "PruneDB: Finding inactive players..." );
+                player.AskForConfirmation( cmd, "Remove {0} inactive players from the database?",
+                                           PlayerDB.CountInactivePlayers() );
+                return;
+            }
+            player.MessageNow( "PruneDB: Removing inactive players... (this may take a while)" );
+            Scheduler.AddBackgroundTask( delegate( Scheduler.Task task ) {
+                player.MessageNow( "PruneDB: Removed {0} inactive players!", PlayerDB.RemoveInactivePlayers() );
+            } ).RunOnce();
         }
 
 
@@ -630,8 +654,8 @@ namespace fCraft {
                     if( Config.GetBool( ConfigKey.AnnounceRankChanges ) ) {
                         Server.SendToAllExcept( "{0}&S {1} {2} from {3}&S to {4}", target,
                                                 player.GetClassyName(),
-                                                targetInfo.name,
                                                 verb,
+                                                targetInfo.name,
                                                 oldRank.GetClassyName(),
                                                 newRank.GetClassyName() );
                     } else {
@@ -1243,7 +1267,7 @@ namespace fCraft {
                                                 target.world.GetClassyName() );
                                 break;
                             case SecurityCheckResult.RankTooLow:
-                                player.Message( "Cannot teleport to {0}&S because world {1}&S requires {1}+&S to join.",
+                                player.Message( "Cannot teleport to {0}&S because world {1}&S requires {2}+&S to join.",
                                                 target.GetClassyName(),
                                                 target.world.GetClassyName(),
                                                 target.world.accessSecurity.MinRank.GetClassyName() );
@@ -1318,7 +1342,7 @@ namespace fCraft {
                                         toPlayer.world.GetClassyName() );
                         break;
                     case SecurityCheckResult.RankTooLow:
-                        player.Message( "Cannot bring {0}&S because world {1}&S requires {1}+&S to join.",
+                        player.Message( "Cannot bring {0}&S because world {1}&S requires {2}+&S to join.",
                                         target.GetClassyName(),
                                         toPlayer.world.GetClassyName(),
                                         toPlayer.world.accessSecurity.MinRank.GetClassyName() );

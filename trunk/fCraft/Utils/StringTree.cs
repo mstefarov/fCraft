@@ -1,29 +1,28 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System.Collections.Generic;
 
+
 namespace fCraft {
     /// <summary>
     /// Specialized data structure for partial-matching of large sparse sets of words.
     /// Used as a searchable index of players for PlayerDB.
     /// </summary>
-    sealed class StringTree {
+    public sealed class StringTree<T> {
         StringNode root = new StringNode();
         public int Count { private set; get; }
 
         public const byte MULTI = 37, EMPTY=38;
 
 
-        /// <summary>
-        /// Get PlayerInfo for an exact name (no autocompletion)
-        /// </summary>
-        /// <param name="name">Full player name</param>
-        /// <returns>PlayerInfo object, if found. Null if not found.</returns>
-        public PlayerInfo Get( string name ) {
+        /// <summary> Get payload for an exact name (no autocompletion) </summary>
+        /// <param name="name">Full name</param>
+        /// <returns>Payload object, if found. Null (or default) if not found.</returns>
+        public T Get( string name ) {
             StringNode temp = root;
             for( int i = 0; i < name.Length; i++ ) {
                 int code = CharCode( name[i] );
                 if( temp.children[code] == null )
-                    return null;
+                    return default(T);
                 temp = temp.children[code];
             }
             return temp.payload;
@@ -36,8 +35,8 @@ namespace fCraft {
         /// <param name="namePart">Partial or full player name</param>
         /// <param name="limit">Limit on the number of player names to return</param>
         /// <returns>List of matches (if there are no matches, length is zero)</returns>
-        public List<PlayerInfo> GetMultiple( string namePart, int limit ) {
-            List<PlayerInfo> results = new List<PlayerInfo>();
+        public List<T> GetMultiple( string namePart, int limit ) {
+            List<T> results = new List<T>();
             StringNode temp = root;
             for( int i = 0; i < namePart.Length; i++ ) {
                 int code = CharCode( namePart[i] );
@@ -50,16 +49,16 @@ namespace fCraft {
         }
 
 
-        /// <summary>Searches for player names starting with namePart, returning just one or none of the matches.</summary>
-        /// <param name="namePart">Partial or full player name</param>
-        /// <param name="info">PlayerInfo to output (will be set to null if no single match was found)</param>
+        /// <summary>Searches for payloads with names that start with namePart, returning just one or none of the matches.</summary>
+        /// <param name="namePart">Partial or full name</param>
+        /// <param name="info">Payload object to output (will be set to null/default(T) if no single match was found)</param>
         /// <returns>true if one or zero matches were found, false if multiple matches were found</returns>
-        public bool Get( string namePart, out PlayerInfo info ) {
+        public bool Get( string namePart, out T info ) {
             StringNode temp = root;
             for( int i = 0; i < namePart.Length; i++ ) {
                 int code = CharCode( namePart[i] );
                 if( temp.children[code] == null ) {
-                    info = null;
+                    info = default(T);
                     return true; // early detection of no matches
                 }
                 temp = temp.children[code];
@@ -69,7 +68,7 @@ namespace fCraft {
                 info = temp.payload;
                 return true; // exact match
             } else if( temp.tag == MULTI ) {
-                info = null;
+                info = default(T);
                 return false; // multiple matches
             }
             for( ; temp.tag < MULTI; temp = temp.children[temp.tag] ) ;
@@ -79,12 +78,12 @@ namespace fCraft {
 
 
         /// <summary>
-        /// Adds a new player name to the trie.
+        /// Adds a new object to the trie by name.
         /// </summary>
         /// <param name="name">Full name (used as a key)</param>
-        /// <param name="payload">PlayerInfo associated with the name</param>
-        /// <returns>Returns false if an entry for this player already exists.</returns>
-        public bool Add( string name, PlayerInfo payload ) {
+        /// <param name="payload">Object associated with the name.</param>
+        /// <returns>Returns false if an entry for this name already exists.</returns>
+        public bool Add( string name, T payload ) {
             StringNode temp = root;
             for( int i = 0; i < name.Length; i++ ) {
                 int code = CharCode( name[i] );
@@ -106,6 +105,19 @@ namespace fCraft {
         }
 
 
+        public bool Remove( string name ) {
+            StringNode temp = root;
+            for( int i = 0; i < name.Length; i++ ) {
+                int code = CharCode( name[i] );
+                if( temp.children[code] == null )
+                    return false;
+                temp = temp.children[code];
+            }
+            temp.payload = default( T );
+            return true;
+        }
+
+
         // Decodes ASCII into internal letter code.
         static int CharCode( char ch ) {
             if( ch >= 'a' && ch <= 'z' )
@@ -120,9 +132,9 @@ namespace fCraft {
         sealed class StringNode {
             public byte tag = EMPTY;
             public StringNode[] children = new StringNode[37];
-            public PlayerInfo payload;
+            public T payload;
 
-            public bool GetAllChildren( List<PlayerInfo> list, int limit ) {
+            public bool GetAllChildren( List<T> list, int limit ) {
                 if( list.Count >= limit ) return false;
                 if( payload != null ) {
                     list.Add( payload );
