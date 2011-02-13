@@ -199,7 +199,7 @@ namespace fCraft {
 
         static CommandDescriptor cdSphereHollow = new CommandDescriptor {
             name = "sphereh",
-            aliases = new[] { "sph" },
+            aliases = new[] { "sph", "hsphere" },
             permissions = new[] { Permission.Draw },
             usage = "/sphereh [BlockName]",
             help = "Surrounds a spherical area with a shell of blocks. " +
