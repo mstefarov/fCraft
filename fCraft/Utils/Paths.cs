@@ -86,6 +86,11 @@ namespace fCraft {
         /// </summary>
         public static string ConfigFileName { get; set; }
 
+        public static string BackupPath {
+            get {
+                return Path.Combine( MapPath, "backups" );
+            }
+        }
 
         internal static bool IgnoreMapPathConfigKey;
 

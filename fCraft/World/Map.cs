@@ -768,9 +768,9 @@ namespace fCraft {
         public void SaveBackup( string sourceName, string targetName, bool onlyIfChanged ) {
             if( onlyIfChanged && !changedSinceBackup && Config.GetBool( ConfigKey.BackupOnlyWhenChanged ) ) return;
 
-            if( !Directory.Exists( Path.Combine( Paths.MapPath, "backups" ) ) ) {
+            if( !Directory.Exists( Paths.BackupPath ) ) {
                 try {
-                    Directory.CreateDirectory( Path.Combine( Paths.MapPath, "backups" ) );
+                    Directory.CreateDirectory( Paths.BackupPath );
                 } catch( Exception ex ) {
                     Logger.Log( "Map.SaveBackup: Error occured while trying to create backup directory: {0}", LogType.Error,
                                 ex );
@@ -788,7 +788,7 @@ namespace fCraft {
                 return;
             }
 
-            DirectoryInfo d = new DirectoryInfo( Path.Combine( Paths.MapPath, "backups" ) );
+            DirectoryInfo d = new DirectoryInfo( Paths.BackupPath );
             List<FileInfo> backupList = new List<FileInfo>( d.GetFiles( "*.fcm" ) );
             backupList.Sort( FileInfoComparer.instance );
 
@@ -798,13 +798,13 @@ namespace fCraft {
                     backupList.RemoveAt( backupList.Count - 1 );
                     try {
                         File.Delete( info.FullName );
-                        Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
-                                    info.Name );
                     } catch( Exception ex ) {
                         Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}", LogType.Error,
-                                    info.Name, ex );
+                                    info.FullName, ex );
                         break;
                     }
+                    Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
+                                info.Name );
                 }
             }
 
@@ -819,13 +819,13 @@ namespace fCraft {
                         backupList.RemoveAt( backupList.Count - 1 );
                         try {
                             File.Delete( info.FullName );
-                            Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
-                                        info.Name );
                         } catch( Exception ex ) {
                             Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}", LogType.Error,
                                         info.Name, ex );
                             break;
                         }
+                        Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
+                                    info.Name );
                     } else {
                         break;
                     }

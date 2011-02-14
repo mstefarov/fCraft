@@ -700,8 +700,8 @@ namespace fCraft {
             int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
             if( !player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                player.info.rank.DrawLimit,
-                                volume );
+                                    player.info.rank.DrawLimit,
+                                    volume );
                 return;
             }
 
@@ -717,25 +717,14 @@ namespace fCraft {
 
                                 byte block = player.world.map.GetBlock( x + x3, y + y3, h );
 
-                                if( args.doExclude ) {
-                                    bool skip = false;
-                                    for( int i = 0; i < specialTypeCount; i++ ) {
-                                        if( block == specialTypes[i] ) {
-                                            skip = true;
-                                            break;
-                                        }
+                                bool skip = !args.doExclude;
+                                for( int i = 0; i < specialTypeCount; i++ ) {
+                                    if( block == specialTypes[i] ) {
+                                        skip = args.doExclude;
+                                        break;
                                     }
-                                    if( skip ) continue;
-                                } else {
-                                    bool skip = true;
-                                    for( int i = 0; i < specialTypeCount; i++ ) {
-                                        if( block == specialTypes[i] ) {
-                                            skip = false;
-                                            break;
-                                        }
-                                    }
-                                    if( skip ) continue;
                                 }
+                                if( skip ) continue;
 
                                 if( player.CanPlace( x + x3, y + y3, h, replacementBlock ) != CanPlaceResult.Allowed ) {
                                     blocksDenied++;
