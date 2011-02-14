@@ -768,9 +768,11 @@ namespace fCraft {
         public void SaveBackup( string sourceName, string targetName, bool onlyIfChanged ) {
             if( onlyIfChanged && !changedSinceBackup && Config.GetBool( ConfigKey.BackupOnlyWhenChanged ) ) return;
 
-            if( !Directory.Exists( Paths.BackupPath ) ) {
+            DirectoryInfo d = new DirectoryInfo( Paths.BackupPath );
+
+            if( !d.Exists ) {
                 try {
-                    Directory.CreateDirectory( Paths.BackupPath );
+                    d.Create();
                 } catch( Exception ex ) {
                     Logger.Log( "Map.SaveBackup: Error occured while trying to create backup directory: {0}", LogType.Error,
                                 ex );
@@ -788,7 +790,6 @@ namespace fCraft {
                 return;
             }
 
-            DirectoryInfo d = new DirectoryInfo( Paths.BackupPath );
             List<FileInfo> backupList = new List<FileInfo>( d.GetFiles( "*.fcm" ) );
             backupList.Sort( FileInfoComparer.instance );
 
