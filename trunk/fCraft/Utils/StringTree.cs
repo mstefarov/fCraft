@@ -9,7 +9,7 @@ namespace fCraft {
     /// </summary>
     public sealed class StringTree<T> {
         StringNode root = new StringNode();
-        public int Count { private set; get; }
+        public int Count { get; private set; }
 
         public const byte MULTI = 37, EMPTY=38;
 
@@ -114,6 +114,7 @@ namespace fCraft {
                 temp = temp.children[code];
             }
             temp.payload = default( T );
+            Count--;
             return true;
         }
 
