@@ -42,18 +42,104 @@ namespace Mcc {
         static byte[] mapping = new byte[256];
 
         static MapMCSharp() {
-            mapping[100] = (byte)Block.Glass;
-            mapping[101] = (byte)Block.Obsidian;
-            mapping[102] = (byte)Block.Brick;
-            mapping[103] = (byte)Block.Stone;
-            mapping[104] = (byte)Block.Rocks;
-            mapping[106] = (byte)Block.Water;
+            mapping[100] = (byte)Block.Glass;       // op_glass
+            mapping[101] = (byte)Block.Obsidian;    // opsidian
+            mapping[102] = (byte)Block.Brick;       // op_brick
+            mapping[103] = (byte)Block.Stone;       // op_stone
+            mapping[104] = (byte)Block.Rocks;       // op_cobblestone
+            mapping[105] = (byte)Block.Air;         // op_air
+            mapping[106] = (byte)Block.Water;       // op_water
 
-            mapping[110] = (byte)Block.Wood;
-            mapping[111] = (byte)Block.Log;
-            mapping[112] = (byte)Block.Lava;
-            mapping[113] = (byte)Block.Obsidian;
-            mapping[114] = (byte)Block.Glass;
+            mapping[110] = (byte)Block.Wood;        // wood_float
+            mapping[111] = (byte)Block.Log;         // door
+            mapping[112] = (byte)Block.Lava;        // lava_fast
+            mapping[113] = (byte)Block.Obsidian;    // door2
+            mapping[114] = (byte)Block.Glass;       // door3
+            mapping[115] = (byte)Block.Stone;       // door4
+            mapping[116] = (byte)Block.Leaves;      // door5
+            mapping[117] = (byte)Block.Sand;        // door6
+            mapping[118] = (byte)Block.Wood;        // door7
+            mapping[119] = (byte)Block.Green;       // door8
+            mapping[120] = (byte)Block.TNT;         // door9
+            mapping[121] = (byte)Block.Stair;       // door10
+
+            mapping[122] = (byte)Block.Log;         // tdoor
+            mapping[123] = (byte)Block.Obsidian;    // tdoor2
+            mapping[124] = (byte)Block.Glass;       // tdoor3
+            mapping[125] = (byte)Block.Stone;       // tdoor4
+            mapping[126] = (byte)Block.Leaves;      // tdoor5
+            mapping[127] = (byte)Block.Sand;        // tdoor6
+            mapping[128] = (byte)Block.Wood;        // tdoor7
+            mapping[129] = (byte)Block.Green;       // tdoor8
+
+            mapping[130] = (byte)Block.White;       // MsgWhite
+            mapping[131] = (byte)Block.Black;       // MsgBlack
+            mapping[132] = (byte)Block.Air;         // MsgAir
+            mapping[133] = (byte)Block.Water;       // MsgWater
+            mapping[134] = (byte)Block.Lava;        // MsgLava
+
+            mapping[135] = (byte)Block.TNT;         // tdoor9
+            mapping[136] = (byte)Block.Stair;       // tdoor10
+            mapping[137] = (byte)Block.Air;         // tdoor11
+            mapping[138] = (byte)Block.Water;       // tdoor12
+            mapping[139] = (byte)Block.Lava;        // tdoor13
+
+            mapping[140] = (byte)Block.Water;       // WaterDown
+            mapping[141] = (byte)Block.Lava;        // LavaDown
+            mapping[143] = (byte)Block.Aqua;        // WaterFaucet
+            mapping[144] = (byte)Block.Orange;      // LavaFaucet
+
+            mapping[145] = (byte)Block.Water;       // finiteWater
+            mapping[146] = (byte)Block.Lava;        // finiteLava
+            mapping[147] = (byte)Block.Cyan;        // finiteFaucet
+
+            mapping[148] = (byte)Block.Log;         // odoor1
+            mapping[149] = (byte)Block.Obsidian;    // odoor2
+            mapping[150] = (byte)Block.Glass;       // odoor3
+            mapping[151] = (byte)Block.Stone;       // odoor4
+            mapping[152] = (byte)Block.Leaves;      // odoor5
+            mapping[153] = (byte)Block.Sand;        // odoor6
+            mapping[154] = (byte)Block.Wood;        // odoor7
+            mapping[155] = (byte)Block.Green;       // odoor8
+            mapping[156] = (byte)Block.TNT;         // odoor9
+            mapping[157] = (byte)Block.Stair;       // odoor10
+            mapping[158] = (byte)Block.Lava;        // odoor11
+            mapping[159] = (byte)Block.Water;       // odoor12
+
+            mapping[160] = (byte)Block.Air;         // air_portal
+            mapping[161] = (byte)Block.Water;       // water_portal
+            mapping[162] = (byte)Block.Lava;        // lava_portal
+
+            mapping[164] = (byte)Block.Air;         // air_door
+            mapping[165] = (byte)Block.Air;         // air_switch
+            mapping[166] = (byte)Block.Water;       // water_door
+            mapping[167] = (byte)Block.Lava;        // lava_door
+
+            mapping[168] = (byte)Block.Air;         // odoor1_air
+            mapping[169] = (byte)Block.Air;         // odoor2_air
+            mapping[170] = (byte)Block.Air;         // odoor3_air
+            mapping[171] = (byte)Block.Air;         // odoor4_air
+            mapping[172] = (byte)Block.Air;         // odoor5_air
+            mapping[173] = (byte)Block.Air;         // odoor6_air
+            mapping[174] = (byte)Block.Air;         // odoor7_air
+
+            mapping[175] = (byte)Block.Cyan;        // blue_portal
+            mapping[176] = (byte)Block.Orange;      // orange_portal
+
+            mapping[177] = (byte)Block.Air;         // odoor8_air
+            mapping[178] = (byte)Block.Air;         // odoor9_air
+            mapping[179] = (byte)Block.Air;         // odoor10_air
+            mapping[180] = (byte)Block.Air;         // odoor11_air
+            mapping[181] = (byte)Block.Air;         // odoor12_air
+
+            mapping[182] = (byte)Block.TNT;         // smalltnt
+            mapping[183] = (byte)Block.TNT;         // bigtnt
+            mapping[184] = (byte)Block.Lava;        // tntexplosion
+            mapping[185] = (byte)Block.Lava;        // fire
+
+            mapping[187] = (byte)Block.Glass;       // rocketstart
+            mapping[188] = (byte)Block.Gold;        // rockethead
+            mapping[189] = (byte)Block.Steel;       // firework
             // all others default to 0/air
         }
 
