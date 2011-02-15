@@ -362,10 +362,13 @@ namespace fCraft {
 
             blockNames["greenyellow"] = Block.Lime;
             blockNames["yellowgreen"] = Block.Lime;
+            blockNames["lightgreen"] = Block.Lime;
             blockNames["springgreen"] = Block.Teal;
             blockNames["emerald"] = Block.Teal;
+            blockNames["lightpurple"] = Block.Violet;
             blockNames["purple"] = Block.Violet;
             blockNames["fuchsia"] = Block.Magenta;
+            blockNames["darkpink"] = Block.Pink;
             blockNames["cloth"] = Block.White;
             blockNames["cotton"] = Block.White;
             blockNames["grey"] = Block.Gray;
@@ -383,6 +386,7 @@ namespace fCraft {
             blockNames["brown_shroom"] = Block.BrownMushroom;
             blockNames["red_shroom"] = Block.RedMushroom;
 
+            blockNames["goldsolid"] = Block.Gold;
             blockNames["golden"] = Block.Gold;
             blockNames["copper"] = Block.Gold;
             blockNames["brass"] = Block.Gold;
@@ -391,34 +395,39 @@ namespace fCraft {
             blockNames["metal"] = Block.Steel;
             blockNames["silver"] = Block.Steel;
 
-            blockNames["halfstep"] = Block.Stair;
-            blockNames["halfblock"] = Block.Stair;
-            blockNames["step"] = Block.Stair;
-            blockNames["doublestep"] = Block.DoubleStair;
             blockNames["slab"] = Block.Stair;
             blockNames["slabs"] = Block.DoubleStair;
-            blockNames["stairs"] = Block.DoubleStair;
             blockNames["steps"] = Block.DoubleStair;
+            blockNames["stairs"] = Block.DoubleStair;
+            blockNames["doublestep"] = Block.DoubleStair;
+            blockNames["double_step"] = Block.DoubleStair;
             blockNames["double_stair"] = Block.DoubleStair;
+            blockNames["staircasefull"] = Block.DoubleStair;
+            blockNames["step"] = Block.Stair;
+            blockNames["halfstep"] = Block.Stair;
+            blockNames["halfblock"] = Block.Stair;
+            blockNames["staircasestep"] = Block.Stair;
 
             blockNames["bricks"] = Block.Brick;
             blockNames["explosive"] = Block.TNT;
             blockNames["dynamite"] = Block.TNT;
 
+            blockNames["book"] = Block.Books;
+            blockNames["shelf"] = Block.Books;
+            blockNames["shelves"] = Block.Books;
             blockNames["bookcase"] = Block.Books;
             blockNames["bookshelf"] = Block.Books;
             blockNames["bookshelves"] = Block.Books;
-            blockNames["shelf"] = Block.Books;
-            blockNames["shelves"] = Block.Books;
-            blockNames["book"] = Block.Books;
 
             blockNames["moss"] = Block.MossyRocks;
             blockNames["mossy"] = Block.MossyRocks;
+            blockNames["stonevine"] = Block.MossyRocks;
             blockNames["mossyrock"] = Block.MossyRocks;
             blockNames["mossystone"] = Block.MossyRocks;
             blockNames["mossystones"] = Block.MossyRocks;
             blockNames["mossycobblestone"] = Block.MossyRocks;
             blockNames["mossy_cobblestone"] = Block.MossyRocks;
+            blockNames["blockthathasgreypixelsonitmostlybutsomeareactuallygreen"] = Block.MossyRocks;
 
             blockNames["onyx"] = Block.Obsidian;
         }
