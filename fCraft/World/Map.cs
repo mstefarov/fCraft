@@ -12,7 +12,16 @@ namespace fCraft {
     public sealed class Map {
 
         public World world;
-        public int widthX, widthY, height;
+
+        /// <summary> Map width, in blocks. Equivalent to Notch's X (horizontal)</summary>
+        public int widthX;
+
+        /// <summary> Map length, in blocks. Equivalent to Notch's Z (horizontal)</summary>
+        public int widthY;
+
+        /// <summary> Map height, in blocks. Equivalent to Notch's Y (vertical)</summary>
+        public int height;
+
         public Position spawn;
 
         Dictionary<string, Dictionary<string, string>> metadata = new Dictionary<string, Dictionary<string, string>>();
