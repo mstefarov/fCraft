@@ -188,19 +188,19 @@ namespace fCraft {
 
         #region Events
 
-        public static event EventHandler<CommandRegisteringEventArgs> CommandRegistering;
+        public static event EventHandler<CommandRegistrationEventArgs> CommandRegistering;
 
-        public static event EventHandler<CommandRegisteredEventArgs> CommandRegistered;
+        public static event EventHandler<CommandRegistrationEventArgs> CommandRegistered;
 
-        public static event EventHandler<CommandCallingEventArgs> CommandCalling;
+        public static event EventHandler<CommandCallEventArgs> CommandCalling;
 
-        public static event EventHandler<CommandCalledEventArgs> CommandCalled;
+        public static event EventHandler<CommandCallEventArgs> CommandCalled;
 
 
         static bool RaiseCommandRegisteringEvent( CommandDescriptor descriptor ) {
             var h = CommandRegistering;
             if( h == null ) return false;
-            var e = new CommandRegisteringEventArgs( descriptor );
+            var e = new CommandRegistrationEventArgs( descriptor );
             h( null, e );
             return e.Cancel;
         }
@@ -208,14 +208,14 @@ namespace fCraft {
         static void RaiseCommandRegisteredEvent( CommandDescriptor descriptor ) {
             descriptor.RaiseRegisteredEvent();
             var h = CommandRegistered;
-            if( h != null ) h( null, new CommandRegisteredEventArgs( descriptor ) );
+            if( h != null ) h( null, new CommandRegistrationEventArgs( descriptor ) );
         }
 
         static bool RaiseCommandCallingEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
             if( descriptor.RaiseCallingEvent( cmd, player ) ) return true;
             var h = CommandCalling;
             if( h != null ) return false;
-            var e = new CommandCallingEventArgs( cmd, descriptor, player );
+            var e = new CommandCallEventArgs( cmd, descriptor, player );
             h( null, e );
             return e.Cancel;
         }
@@ -223,7 +223,7 @@ namespace fCraft {
         static void RaiseCommandCalledEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
             descriptor.RaiseCalledEvent( cmd, player );
             var h = CommandCalled;
-            if( h != null ) CommandCalled( null, new CommandCalledEventArgs( cmd, descriptor, player ) );
+            if( h != null ) CommandCalled( null, new CommandCallEventArgs( cmd, descriptor, player ) );
         }
 
         #endregion
@@ -232,42 +232,22 @@ namespace fCraft {
 
     #region EventArgs
 
-    public class CommandRegisteringEventArgs : EventArgs {
-        public CommandRegisteringEventArgs( CommandDescriptor _commandDescriptor ) {
+    public class CommandRegistrationEventArgs : EventArgs {
+        public CommandRegistrationEventArgs( CommandDescriptor _commandDescriptor ) {
             CommandDescriptor = _commandDescriptor;
         }
         public bool Cancel { get; set; }
-        public CommandDescriptor CommandDescriptor { get; set; }
-    }
-
-
-    public class CommandRegisteredEventArgs : EventArgs {
-        public CommandRegisteredEventArgs( CommandDescriptor _commandDescriptor ) {
-            CommandDescriptor = _commandDescriptor;
-        }
         public CommandDescriptor CommandDescriptor { get; private set; }
     }
 
 
-    public class CommandCallingEventArgs : EventArgs {
-        public CommandCallingEventArgs( Command _command, CommandDescriptor _commandDescriptor, Player _player ) {
+    public class CommandCallEventArgs : EventArgs {
+        public CommandCallEventArgs( Command _command, CommandDescriptor _commandDescriptor, Player _player ) {
             Command = _command;
             CommandDescriptor = _commandDescriptor;
             Player = _player;
         }
         public bool Cancel { get; set; }
-        public Command Command { get; set; }
-        public CommandDescriptor CommandDescriptor { get; set; }
-        public Player Player { get; set; }
-    }
-
-
-    public class CommandCalledEventArgs : EventArgs {
-        public CommandCalledEventArgs( Command _command, CommandDescriptor _commandDescriptor, Player _player ) {
-            Command = _command;
-            CommandDescriptor = _commandDescriptor;
-            Player = _player;
-        }
         public Command Command { get; private set; }
         public CommandDescriptor CommandDescriptor { get; private set; }
         public Player Player { get; private set; }

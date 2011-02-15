@@ -121,7 +121,7 @@ namespace fCraft {
                 if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < spamChatTimer ) {
                     muteWarnings++;
                     if( muteWarnings > Config.GetInt( ConfigKey.AntispamMaxWarnings ) ) {
-                        session.KickNow( "You were kicked for repeated spamming." );
+                        session.KickNow( "You were kicked for repeated spamming.", LeaveReason.MessageSpamKick );
                         Server.SendToAll( "&W{0} was kicked for repeated spamming.", GetClassyName() );
                     } else {
                         info.mutedUntil = DateTime.UtcNow.Add( autoMuteDuration );
@@ -552,7 +552,7 @@ namespace fCraft {
                 DateTime oldestTime = spamBlockLog.Dequeue();
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
                 if( spamTimer < info.rank.AntiGriefSeconds ) {
-                    session.KickNow( "You were kicked by antigrief system. Slow down." );
+                    session.KickNow( "You were kicked by antigrief system. Slow down.", LeaveReason.BlockSpamKick );
                     Server.SendToAll( "{0}&W was kicked for suspected griefing.", GetClassyName() );
                     Logger.Log( "{0} was kicked for block spam ({1} blocks in {2} seconds)", LogType.SuspiciousActivity,
                                 name, info.rank.AntiGriefBlocks, spamTimer );
