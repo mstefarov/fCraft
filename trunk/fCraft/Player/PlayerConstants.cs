@@ -3,29 +3,31 @@
 
 namespace fCraft {
     public enum LeaveReason {
-        Unknown = 0x00,
-        UserQuit = 0x01,
-        UserTimeout = 0x02,
-        UserReconnect = 0x03,
+        Unknown = 0x00,             // default
+        ClientQuit = 0x01,          // client exited
+        ClientTimeout = 0x02,       // client timed out
+        ClientReconnect = 0x03,     // client reconnected before old session timed out
 
-        Kick = 0x10,
-        AFKKick = 0x11,
-        InvalidMessageKick = 0x12,
-        InvalidSetTileKick = 0x13,
-        InvalidOpcodeKick = 0x14,
-        AntiBlockSpamKick = 0x15,
-        AntiMessageSpamKick = 0x16,
-        PacketSpamKick = 0x17,
+        Kick = 0x10,                // manual/misc kick
+        IdleKick = 0x11,            // afk kick
+        InvalidMessageKick = 0x12,  // invalid characters in message
+        InvalidSetTileKick = 0x13,  // invalid blocktype
+        InvalidOpcodeKick = 0x14,   // unknown opcode/packet
+        BlockSpamKick = 0x15,       // triggered antigrief / block spam
+        MessageSpamKick = 0x16,     // message spam (after warnings)
+        MovementSpamKick = 0x17,    // movement packet spam (if speedhacks are not allowed)
 
-        Ban = 0x20,
-        BanIP = 0x21,
-        BanAll = 0x22,
+        Ban = 0x20,                 // banned directly
+        BanIP = 0x21,               // banned indirectly by /banip
+        BanAll = 0x22,              // banned indirectly by /banall
 
-        SoftwareError = 0x30,
+        ServerError = 0x30,         // serverside error (uncaught exception)
+        ServerShutdown = 0x31,      // server is shutting down
+        ServerFull = 0x32,          // server is full
 
-        ServerShutdown = 0x40,
-        WrongProtocol = 0x41,
-        UnverifiedName = 0x42,
+        ProtocolViolation = 0x41,   // login failed due to protocol violation/mismatch
+        UnverifiedName = 0x42,      // login failed due to unverified player name
+        LoginFailed = 0x43,         // login denied for some other reason
     }
 
 

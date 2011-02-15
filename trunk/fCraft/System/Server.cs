@@ -14,7 +14,7 @@ using System.Threading;
 using System.Xml.Linq;
 
 namespace fCraft {
-    public static class Server {
+    public static partial class Server {
 
         static string[] args = new string[0]; // saved to allow restarting with same params
         public static DateTime serverStart;
@@ -305,7 +305,7 @@ namespace fCraft {
                     Player[] pListCached = PlayerList;
                     foreach( Player player in pListCached ) {
                         // NOTE: kick packet delivery here is not currently guaranteed
-                        player.session.Kick( "Server shutting down (" + reason + Color.White + ")" );
+                        player.session.Kick( "Server shutting down (" + reason + Color.White + ")", LeaveReason.ServerShutdown );
                     }
                 }
 
@@ -935,7 +935,7 @@ namespace fCraft {
                     SendToAllExcept( "{0}&S was kicked for being idle for {1} min", player,
                                      player.GetClassyName(),
                                      player.info.rank.IdleKickTimer.ToString() );
-                    AdminCommands.DoKick( Player.Console, player, "Idle for " + player.info.rank.IdleKickTimer + " minutes", true );
+                    AdminCommands.DoKick( Player.Console, player, "Idle for " + player.info.rank.IdleKickTimer + " minutes", true, LeaveReason.IdleKick );
                     player.ResetIdleTimer(); // to prevent kick from firing more than once
                 }
             }
@@ -1170,7 +1170,7 @@ namespace fCraft {
                 foreach( Session s in sessions ) {
                     if( s.player.name.Equals( newSession.player.name, StringComparison.OrdinalIgnoreCase ) ) {
                         sessionsToKick.Add( s );
-                        s.Kick( "Connected from elsewhere!" );
+                        s.Kick( "Connected from elsewhere!", LeaveReason.ClientReconnect );
                         Logger.Log( "Session.LoginSequence: Player {0} logged in. Ghost was kicked.", LogType.SuspiciousActivity,
                                     s.player.name );
                     }

@@ -236,7 +236,7 @@ namespace fCraft {
                                                             reason );
                                 }
                             }
-                            DoKick( player, target, reason, false );
+                            DoKick( player, target, reason, false, LeaveReason.Ban );
 
                             if( !banIP ) {
                                 PlayerInfo[] alts = PlayerDB.FindPlayers( target.info.lastIP );
@@ -384,7 +384,7 @@ namespace fCraft {
                         }
                     }
                     foreach( Player other in Server.FindPlayers( address ) ) {
-                        DoKick( player, other, reason, true );
+                        DoKick( player, other, reason, true, LeaveReason.BanAll );
                     }
                 }
             }
@@ -418,7 +418,7 @@ namespace fCraft {
                 string previousKickedBy = target.info.lastKickBy;
                 string previousKickReason = target.info.lastKickReason;
 
-                if( DoKick( player, target, reason, false ) ) {
+                if( DoKick( player, target, reason, false, LeaveReason.Kick ) ) {
                     if( target.info.timesKicked > 1 ) {
                         player.Message( "Warning: {0}&S has been kicked {1} times before.",
                                         target.GetClassyName(), target.info.timesKicked - 1 );
@@ -439,7 +439,7 @@ namespace fCraft {
         }
 
 
-        internal static bool DoKick( Player player, Player target, string reason, bool silent ) {
+        internal static bool DoKick( Player player, Player target, string reason, bool silent, LeaveReason leaveReason ) {
             if( player == target ) {
                 player.Message( "You cannot kick yourself." );
                 return false;
@@ -462,11 +462,11 @@ namespace fCraft {
                     }
                     Logger.Log( "{0} was kicked by {1}. Reason: {2}", LogType.UserActivity,
                                 target.name, player.name, reason );
-                    target.session.Kick( "Kicked by " + player.GetClassyName() + Color.White + ": " + reason );
+                    target.session.Kick( "Kicked by " + player.GetClassyName() + Color.White + ": " + reason, leaveReason );
                 } else {
                     Logger.Log( "{0} was kicked by {1}", LogType.UserActivity,
                                 target.name, player.name );
-                    target.session.Kick( "You were kicked by " + player.GetClassyName() );
+                    target.session.Kick( "You were kicked by " + player.GetClassyName(), leaveReason );
                 }
                 return true;
             }
