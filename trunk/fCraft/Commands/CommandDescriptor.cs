@@ -1,5 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
-
+using System;
 
 namespace fCraft {
 
@@ -31,6 +31,7 @@ namespace fCraft {
         public HelpHandler helpHandler;     // callback function to provide custom help (optional)
         public bool hidden;                 // hidden command does not show up in /help
 
+
         public void PrintUsage( Player player ) {
             if( usage != null ) {
                 player.Message( "Usage: &H{0}", usage );
@@ -38,5 +39,37 @@ namespace fCraft {
                 player.Message( "Usage: &H/{0}", name );
             }
         }
+
+
+        #region Events
+
+        public event EventHandler<CommandRegisteredEventArgs> Registered;
+
+        public event EventHandler<CommandCallingEventArgs> Calling;
+
+        public event EventHandler<CommandCalledEventArgs> Called;
+
+
+        internal void RaiseRegisteredEvent() {
+            var h = Registered;
+            if( h != null ) h( this, new CommandRegisteredEventArgs( this ) );
+        }
+
+
+        internal bool RaiseCallingEvent( Command cmd, Player player ) {
+            var h = Calling;
+            if( h == null ) return false;
+            var e = new CommandCallingEventArgs( cmd, this, player );
+            h( this.Calling, e );
+            return e.Cancel;
+        }
+
+
+        internal void RaiseCalledEvent( Command cmd, Player player ) {
+            var h = Called;
+            if( h != null ) h( this, new CommandCalledEventArgs( cmd, this, player ) );
+        }
+
+        #endregion
     }
 }

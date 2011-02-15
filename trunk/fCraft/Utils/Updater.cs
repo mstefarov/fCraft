@@ -30,8 +30,8 @@ namespace fCraft {
     /// Checks for updates, and keeps track of current version/revision.
     /// </summary>
     public static class Updater {
-        public static int Version = 507;
-        public static int Revision = 432;
+        public static int Version = 510;
+        public static int Revision = 433;
         public static bool IsDev = true,
                            IsBroken = false;
         public static string LatestStable = "0.506_r427";

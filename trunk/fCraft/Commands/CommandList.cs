@@ -16,6 +16,7 @@ namespace fCraft {
         Invalid
     }
 
+
     /// <summary>
     /// Static class that allows registration and parsing of all text commands.
     /// </summary>
@@ -59,45 +60,55 @@ namespace fCraft {
         }
 
 
-        public static void RegisterCommand( CommandDescriptor command ) {
-            if( string.IsNullOrEmpty( command.name ) || command.name.Length > 16 ) {
+        public static void RegisterCommand( CommandDescriptor descriptor ) {
+
+            if( string.IsNullOrEmpty( descriptor.name ) || descriptor.name.Length > 16 ) {
                 throw new CommandRegistrationException( "All commands need a name, between 1 and 16 alphanumeric characters long." );
             }
 
-            if( commands.ContainsKey( command.name ) ) {
-                throw new CommandRegistrationException( "A command with the name \"{0}\" is already registered.", command.name );
+            if( commands.ContainsKey( descriptor.name ) ) {
+                throw new CommandRegistrationException( "A command with the name \"{0}\" is already registered.", descriptor.name );
             }
 
-            if( command.handler == null ) {
-                throw new CommandRegistrationException( "All command descriptors are required to provide a handler delegate." );
+            if( descriptor.handler == null ) {
+                throw new CommandRegistrationException( "All command descriptors are required to provide a handler callback." );
             }
 
-            if( aliases.ContainsKey( command.name ) ) {
-                Logger.Log( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden.", LogType.Warning,
-                            command.name, aliases[command.name] );
-                aliases.Remove( command.name );
-            }
-
-
-            if( command.aliases != null ) {
-                foreach( string alias in command.aliases ) {
+            if( descriptor.aliases != null ) {
+                foreach( string alias in descriptor.aliases ) {
                     if( commands.ContainsKey( alias ) ) {
                         throw new CommandRegistrationException( "One of the aliases for \"{0}\" is using the name of an already-defined command." );
-                    } else if( aliases.ContainsKey( alias ) ) {
-                        Logger.Log( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden to resolve to \"{2}\" instead.",
-                                    LogType.Warning,
-                                    alias, aliases[alias], command.name );
-                    } else {
-                        aliases.Add( alias, command.name );
                     }
                 }
             }
 
-            commands.Add( command.name, command );
-
-            if( command.usage == null ) {
-                command.usage = "/" + command.name;
+            if( descriptor.usage == null ) {
+                descriptor.usage = "/" + descriptor.name;
             }
+
+            if( RaiseCommandRegisteringEvent( descriptor ) ) return;
+
+            if( aliases.ContainsKey( descriptor.name ) ) {
+                Logger.Log( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden.", LogType.Warning,
+                            descriptor.name, aliases[descriptor.name] );
+                aliases.Remove( descriptor.name );
+            }
+
+            if( descriptor.aliases != null ) {
+                foreach( string alias in descriptor.aliases ) {
+                    if( aliases.ContainsKey( alias ) ) {
+                        Logger.Log( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden to resolve to \"{2}\" instead.",
+                                    LogType.Warning,
+                                    alias, aliases[alias], descriptor.name );
+                    } else {
+                        aliases.Add( alias, descriptor.name );
+                    }
+                }
+            }
+
+            commands.Add( descriptor.name, descriptor );
+
+            RaiseCommandRegisteredEvent( descriptor );
         }
 
 
@@ -133,7 +144,13 @@ namespace fCraft {
             } else {
                 if( descriptor.permissions != null ) {
                     if( player.Can( descriptor.permissions ) ) {
+
+                        if( RaiseCommandCallingEvent( cmd, descriptor, player ) ) return;
+
                         descriptor.handler( player, cmd );
+
+                        RaiseCommandCalledEvent( cmd, descriptor, player );
+
                     } else {
                         player.NoAccessMessage( descriptor.permissions );
                     }
@@ -167,5 +184,94 @@ namespace fCraft {
             }
             return MessageType.Chat;
         }
+
+
+        #region Events
+
+        public static event EventHandler<CommandRegisteringEventArgs> CommandRegistering;
+
+        public static event EventHandler<CommandRegisteredEventArgs> CommandRegistered;
+
+        public static event EventHandler<CommandCallingEventArgs> CommandCalling;
+
+        public static event EventHandler<CommandCalledEventArgs> CommandCalled;
+
+
+        static bool RaiseCommandRegisteringEvent( CommandDescriptor descriptor ) {
+            var h = CommandRegistering;
+            if( h == null ) return false;
+            var e = new CommandRegisteringEventArgs( descriptor );
+            h( null, e );
+            return e.Cancel;
+        }
+
+        static void RaiseCommandRegisteredEvent( CommandDescriptor descriptor ) {
+            descriptor.RaiseRegisteredEvent();
+            var h = CommandRegistered;
+            if( h != null ) h( null, new CommandRegisteredEventArgs( descriptor ) );
+        }
+
+        static bool RaiseCommandCallingEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
+            if( descriptor.RaiseCallingEvent( cmd, player ) ) return true;
+            var h = CommandCalling;
+            if( h != null ) return false;
+            var e = new CommandCallingEventArgs( cmd, descriptor, player );
+            h( null, e );
+            return e.Cancel;
+        }
+
+        static void RaiseCommandCalledEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
+            descriptor.RaiseCalledEvent( cmd, player );
+            var h = CommandCalled;
+            if( h != null ) CommandCalled( null, new CommandCalledEventArgs( cmd, descriptor, player ) );
+        }
+
+        #endregion
     }
+
+
+    #region EventArgs
+
+    public class CommandRegisteringEventArgs : EventArgs {
+        public CommandRegisteringEventArgs( CommandDescriptor _commandDescriptor ) {
+            CommandDescriptor = _commandDescriptor;
+        }
+        public bool Cancel { get; set; }
+        public CommandDescriptor CommandDescriptor { get; set; }
+    }
+
+
+    public class CommandRegisteredEventArgs : EventArgs {
+        public CommandRegisteredEventArgs( CommandDescriptor _commandDescriptor ) {
+            CommandDescriptor = _commandDescriptor;
+        }
+        public CommandDescriptor CommandDescriptor { get; private set; }
+    }
+
+
+    public class CommandCallingEventArgs : EventArgs {
+        public CommandCallingEventArgs( Command _command, CommandDescriptor _commandDescriptor, Player _player ) {
+            Command = _command;
+            CommandDescriptor = _commandDescriptor;
+            Player = _player;
+        }
+        public bool Cancel { get; set; }
+        public Command Command { get; set; }
+        public CommandDescriptor CommandDescriptor { get; set; }
+        public Player Player { get; set; }
+    }
+
+
+    public class CommandCalledEventArgs : EventArgs {
+        public CommandCalledEventArgs( Command _command, CommandDescriptor _commandDescriptor, Player _player ) {
+            Command = _command;
+            CommandDescriptor = _commandDescriptor;
+            Player = _player;
+        }
+        public Command Command { get; private set; }
+        public CommandDescriptor CommandDescriptor { get; private set; }
+        public Player Player { get; private set; }
+    }
+
+    #endregion
 }
