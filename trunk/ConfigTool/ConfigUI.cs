@@ -822,6 +822,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         private void xAllowSecurityCircumvention_CheckedChanged( object sender, EventArgs e ) {
+            if( selectedRank == null ) return;
             selectedRank.AllowSecurityCircumvention = xAllowSecurityCircumvention.Checked;
         }
 
