@@ -755,4 +755,31 @@ namespace fCraft {
         ZoneDenied,
         RankDenied
     }
+
+
+    #region Events
+
+    public class PlayerConnectingEventArgs : EventArgs {
+        internal PlayerConnectingEventArgs( Session _session, string _playerName, bool _nameIsVerified ) {
+            Session = _session;
+            PlayerName = _playerName;
+            NameIsVerified = _nameIsVerified;
+        }
+
+        public Session Session { get; private set; }
+        public string PlayerName { get; private set; }
+        public bool NameIsVerified { get; private set; }
+        public bool Cancel { get; set; }
+    }
+
+
+    public class PlayerConnectedEventArgs : EventArgs {
+        internal PlayerConnectedEventArgs( Player _player ) {
+            Player = _player;
+        }
+
+        public Player Player { get; private set; }
+    }
+
+    #endregion
 }

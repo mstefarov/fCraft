@@ -238,27 +238,30 @@ namespace fCraft {
     #region EventArgs
 
     public class CommandRegisteredEventArgs : EventArgs {
-        public CommandRegisteredEventArgs( CommandDescriptor _commandDescriptor ) {
+        internal CommandRegisteredEventArgs( CommandDescriptor _commandDescriptor ) {
             CommandDescriptor = _commandDescriptor;
         }
+
         public CommandDescriptor CommandDescriptor { get; private set; }
     }
 
 
     public class CommandRegistringEventArgs : CommandRegisteredEventArgs {
-        public CommandRegistringEventArgs( CommandDescriptor _commandDescriptor )
+        internal CommandRegistringEventArgs( CommandDescriptor _commandDescriptor )
             : base( _commandDescriptor ) {
         }
+
         public bool Cancel { get; set; }
     }
 
 
     public class CommandCalledEventArgs : EventArgs {
-        public CommandCalledEventArgs( Command _command, CommandDescriptor _commandDescriptor, Player _player ) {
+        internal CommandCalledEventArgs( Command _command, CommandDescriptor _commandDescriptor, Player _player ) {
             Command = _command;
             CommandDescriptor = _commandDescriptor;
             Player = _player;
         }
+
         public Command Command { get; private set; }
         public CommandDescriptor CommandDescriptor { get; private set; }
         public Player Player { get; private set; }
@@ -266,9 +269,10 @@ namespace fCraft {
 
 
     public class CommandCallingEventArgs : CommandCalledEventArgs {
-        public CommandCallingEventArgs( Command _command, CommandDescriptor _commandDescriptor, Player _player ) :
+        internal CommandCallingEventArgs( Command _command, CommandDescriptor _commandDescriptor, Player _player ) :
             base( _command, _commandDescriptor, _player ) {
         }
+
         public bool Cancel { get; set; }
     }
 

@@ -17,17 +17,34 @@ namespace fCraft {
         MessageSpamKick = 0x16,     // message spam (after warnings)
         MovementSpamKick = 0x17,    // movement packet spam (if speedhacks are not allowed)
 
-        Ban = 0x20,                 // banned directly
-        BanIP = 0x21,               // banned indirectly by /banip
-        BanAll = 0x22,              // banned indirectly by /banall
+        /// <summary> Banned directly by name </summary>
+        Ban = 0x20,
 
-        ServerError = 0x30,         // serverside error (uncaught exception)
-        ServerShutdown = 0x31,      // server is shutting down
-        ServerFull = 0x32,          // server is full
+        /// <summary> Banned indirectly by /banip </summary>
+        BanIP = 0x21,
 
-        ProtocolViolation = 0x41,   // login failed due to protocol violation/mismatch
-        UnverifiedName = 0x42,      // login failed due to unverified player name
-        LoginFailed = 0x43,         // login denied for some other reason
+        /// <summary> Banned indirectly by /banall </summary>
+        BanAll = 0x22,
+
+
+        /// <summary> Server-side error (uncaught exception in session's thread) </summary>
+        ServerError = 0x30,
+
+        /// <summary> Server is shutting down </summary>
+        ServerShutdown = 0x31,
+
+        /// <summary> Server was full or became full </summary>
+        ServerFull = 0x32,
+
+
+        /// <summary> Login failed due to protocol violation/mismatch </summary>
+        ProtocolViolation = 0x41,
+
+        /// <summary> Login failed due to unverified player name </summary>
+        UnverifiedName = 0x42,
+
+        /// <summary> Login denied for some other reason </summary>
+        LoginFailed = 0x43,
     }
 
 
