@@ -156,6 +156,10 @@ namespace fCraft {
             Config.ApplyConfig();
             Salt = GenerateSalt();
 
+#if DEBUG_EVENTS
+            Logger.FindEvents();
+#endif
+
             // load player DB
             PlayerDB.Load();
             IPBanList.Load();

@@ -482,5 +482,9 @@ namespace fCraft {
         }
 
         #endregion
+
+        public override string ToString() {
+            return String.Format( "PlayerInfo({0},{1})", rank.Name, name );
+        }
     }
 }

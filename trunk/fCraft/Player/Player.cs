@@ -741,6 +741,10 @@ namespace fCraft {
                 }
             }
         }
+
+        public override string ToString() {
+            return String.Format( "Player({0})", info.name );
+        }
     }
 
 

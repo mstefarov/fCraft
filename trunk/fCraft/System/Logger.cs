@@ -1,12 +1,15 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Linq;
 
 namespace fCraft {
 
@@ -274,6 +277,98 @@ namespace fCraft {
             }
         }
 
+        #endregion
+
+
+        #region Event Tracing
+#if DEBUG_EVENTS
+
+        // list of events in this assembly
+        static private readonly Dictionary<int, EventInfo> eventsMap = new Dictionary<int, EventInfo>();
+
+
+        // adds hooks to all compliant events in current assembly
+        internal static void FindEvents() {
+
+            // create a dynamic type to hold our handler methods
+            AppDomain myDomain = AppDomain.CurrentDomain;
+            var asmName = new AssemblyName( "fCraftEventTracing" );
+            AssemblyBuilder myAsmBuilder = myDomain.DefineDynamicAssembly( asmName, AssemblyBuilderAccess.RunAndSave );
+            ModuleBuilder myModule = myAsmBuilder.DefineDynamicModule( "DynamicHandlersModule" );
+            TypeBuilder typeBuilder = myModule.DefineType( "EventHandlersContainer", TypeAttributes.Public );
+
+            int eventIndex = 0;
+            Assembly asm = Assembly.GetExecutingAssembly();
+            List<EventInfo> eventList = new List<EventInfo>();
+
+            // find all events in current assembly, and create a handler for each one
+            foreach( Type type in asm.GetTypes() ) {
+                foreach( EventInfo eventInfo in type.GetEvents() ) {
+                    if( eventInfo.EventHandlerType.FullName.StartsWith( typeof( EventHandler<> ).FullName ) ) {
+                        MethodInfo method = eventInfo.EventHandlerType.GetMethod( "Invoke" );
+                        var parameterTypes = method.GetParameters().Select( info => info.ParameterType ).ToArray();
+                        AddEventHook( typeBuilder, parameterTypes, method.ReturnType, eventIndex );
+                        eventList.Add( eventInfo );
+                        eventsMap.Add( eventIndex, eventInfo );
+                        eventIndex++;
+                    }
+                }
+            }
+
+            // hook up the handlers
+            Type handlerType = typeBuilder.CreateType();
+            for( int i = 0; i < eventList.Count; i++ ) {
+                MethodInfo notifier = handlerType.GetMethod( "EventHook" + i );
+                var handlerDelegate = Delegate.CreateDelegate( eventList[i].EventHandlerType, notifier );
+                try {
+                    eventList[i].AddEventHandler( null, handlerDelegate );
+                } catch( TargetException ) {
+                    // There's no way to tell if an event is static until you
+                    // try adding a handler with target=null.
+                    // If it wasn't static, TargetException is thrown
+                }
+            }
+        }
+
+
+        // create a static handler method that matches the given signature, and calls EventTraceNotifier
+        static void AddEventHook( TypeBuilder typeBuilder, Type[] methodParams, Type returnType, int eventIndex ) {
+            string methodName = "EventHook" + eventIndex;
+            MethodBuilder methodBuilder = typeBuilder.DefineMethod( methodName,
+                                                                    MethodAttributes.Public | MethodAttributes.Static,
+                                                                    returnType,
+                                                                    methodParams );
+
+            ILGenerator generator = methodBuilder.GetILGenerator();
+            generator.Emit( OpCodes.Ldc_I4, eventIndex );
+            generator.Emit( OpCodes.Ldarg_1 );
+            MethodInfo min = typeof( Logger ).GetMethod( "EventTraceNotifier" );
+            generator.EmitCall( OpCodes.Call, min, null );
+            generator.Emit( OpCodes.Ret );
+        }
+
+
+        // Invoked when events fire
+        public static void EventTraceNotifier( int eventIndex, EventArgs e ) {
+            var eventInfo = eventsMap[eventIndex];
+
+            StringBuilder sb = new StringBuilder();
+            bool first = true;
+            foreach( var prop in e.GetType().GetProperties() ) {
+                if( !first ) sb.Append( ", " );
+                if( prop.Name != prop.PropertyType.Name ) {
+                    sb.Append( prop.Name ).Append( '=' );
+                }
+                sb.Append( prop.GetValue( e, null ) );
+                first = false;
+            }
+
+            Log( "TraceEvent: {0}.{1}( {2} )", LogType.Debug,
+                 eventInfo.DeclaringType.Name, eventInfo.Name, sb.ToString() );
+
+        }
+
+#endif
         #endregion
     }
 }
