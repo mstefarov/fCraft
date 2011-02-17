@@ -98,5 +98,14 @@ namespace fCraft {
             offset = 1;
             Next();
         }
+
+
+        public override string ToString() {
+            if( confirmed ) {
+                return String.Format( "Command(\"{0}\",{1},confirmed)", message, offset );
+            } else {
+                return String.Format( "Command(\"{0}\",{1})", message, offset );
+            }
+        }
     }
 }

@@ -43,23 +43,24 @@ namespace fCraft {
 
         #region Events
 
-        public event EventHandler<CommandRegistrationEventArgs> Registered;
+        public event EventHandler<CommandRegisteredEventArgs> Registered;
 
-        public event EventHandler<CommandCallEventArgs> Calling;
+        public event EventHandler<CommandCallingEventArgs> Calling;
 
-        public event EventHandler<CommandCallEventArgs> Called;
+        public event EventHandler<CommandCalledEventArgs> Called;
 
 
         internal void RaiseRegisteredEvent() {
             var h = Registered;
-            if( h != null ) h( this, new CommandRegistrationEventArgs( this ) );
+            var e = new CommandRegisteredEventArgs( this );
+            if( h != null ) h( this, e );
         }
 
 
         internal bool RaiseCallingEvent( Command cmd, Player player ) {
             var h = Calling;
+            var e = new CommandCallingEventArgs( cmd, this, player );
             if( h == null ) return false;
-            var e = new CommandCallEventArgs( cmd, this, player );
             h( this.Calling, e );
             return e.Cancel;
         }
@@ -67,9 +68,15 @@ namespace fCraft {
 
         internal void RaiseCalledEvent( Command cmd, Player player ) {
             var h = Called;
-            if( h != null ) h( this, new CommandCallEventArgs( cmd, this, player ) );
+            var e = new CommandCalledEventArgs( cmd, this, player );
+            if( h != null ) h( this, e );
         }
 
         #endregion
+
+
+        public override string ToString() {
+            return String.Format( "CommandDescriptor({0})", name );
+        }
     }
 }

@@ -945,6 +945,14 @@ namespace fCraft {
         }
 
         #endregion
+
+        public override string ToString() {
+            if( player != null ) {
+                return String.Format( "Session({0}@{1})", player, GetIP() );
+            } else {
+                return String.Format( "Session({0})", GetIP() );
+            }
+        }
     }
 
 
