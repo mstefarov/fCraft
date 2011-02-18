@@ -19,8 +19,7 @@ namespace fCraft {
         internal static bool RaiseSessionConnectingEvent( IPAddress IP ) {
             var h = SessionConnecting;
             var e = new SessionConnectingEventArgs( IP );
-            if( h == null ) return false;
-            h( null, e );
+            if( h != null ) h( null, e );
             return e.Cancel;
         }
 

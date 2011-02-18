@@ -200,8 +200,7 @@ namespace fCraft {
         static bool RaiseCommandRegisteringEvent( CommandDescriptor descriptor ) {
             var h = CommandRegistering;
             var e = new CommandRegistringEventArgs( descriptor );
-            if( h == null ) return false;
-            h( null, e );
+            if( h != null ) h( null, e );
             return e.Cancel;
         }
 
@@ -218,8 +217,7 @@ namespace fCraft {
             if( descriptor.RaiseCallingEvent( cmd, player ) ) return true;
             var h = CommandCalling;
             var e = new CommandCallingEventArgs( cmd, descriptor, player );
-            if( h != null ) return false;
-            h( null, e );
+            if( h != null ) h( null, e );
             return e.Cancel;
         }
 
