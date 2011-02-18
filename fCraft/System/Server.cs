@@ -127,6 +127,10 @@ namespace fCraft {
                 }
             }
 
+#if DEBUG_EVENTS
+            Logger.FindEvents();
+#endif
+
 #if DEBUG
             Logger.Log( "Working directory: {0}", LogType.Debug, Directory.GetCurrentDirectory() );
             Logger.Log( "Log path: {0}", LogType.Debug, Path.GetFullPath( Paths.LogPath ) );
@@ -155,10 +159,6 @@ namespace fCraft {
             if( !Config.Load( false ) ) return false;
             Config.ApplyConfig();
             Salt = GenerateSalt();
-
-#if DEBUG_EVENTS
-            Logger.FindEvents();
-#endif
 
             // load player DB
             PlayerDB.Load();
