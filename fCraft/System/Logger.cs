@@ -304,7 +304,8 @@ namespace fCraft {
             // find all events in current assembly, and create a handler for each one
             foreach( Type type in asm.GetTypes() ) {
                 foreach( EventInfo eventInfo in type.GetEvents() ) {
-                    if( eventInfo.EventHandlerType.FullName.StartsWith( typeof( EventHandler<> ).FullName ) ) {
+                    if( eventInfo.EventHandlerType.FullName.StartsWith( typeof( EventHandler<> ).FullName ) ||
+                        eventInfo.EventHandlerType.FullName.StartsWith( typeof( EventHandler ).FullName ) ) {
                         MethodInfo method = eventInfo.EventHandlerType.GetMethod( "Invoke" );
                         var parameterTypes = method.GetParameters().Select( info => info.ParameterType ).ToArray();
                         AddEventHook( typeBuilder, parameterTypes, method.ReturnType, eventIndex );

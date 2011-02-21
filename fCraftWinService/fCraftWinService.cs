@@ -36,7 +36,7 @@ namespace fCraftWinService {
 
         protected override void OnStop() {
             Logger.Log( "fCraftWinService.OnStop: Stopping.", LogType.SystemActivity );
-            Server.InitiateShutdown( "Shutting down", 0, false, false );
+            Server.Shutdown( "Shutting down", 0, false, false );
             ShutdownWaiter.WaitOne();
             base.OnStop();
         }
