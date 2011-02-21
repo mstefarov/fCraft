@@ -78,7 +78,7 @@ namespace fCraft {
         /// </summary>
         /// <param name="block">Block type if parsable, otherwise Block.Undefined.</param>
         /// <returns>True if there was an argument to parse, false if there was nothing to parse.</returns>
-        [Obsolete("Will be removed in 0.500 final")]
+        [Obsolete]
         public bool NextBlockType( out Block block ) {
             block = Block.Undefined;
             string blockName = Next();

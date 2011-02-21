@@ -742,9 +742,34 @@ namespace fCraft {
             }
         }
 
+
         public override string ToString() {
             return String.Format( "Player({0})", info.name );
         }
+
+
+        #region Events
+
+        public event EventHandler<PlayerConnectedEventArgs> Connected;
+
+        public event EventHandler<PlayerEventArgs> Ready;
+
+
+        internal World RaisePlayerConnectedEvent( World _world ) {
+            var h = Connected;
+            if( h == null ) return _world;
+            var e = new PlayerConnectedEventArgs( this, _world );
+            h( this, e );
+            return e.StartingWorld;
+        }
+
+
+        internal void RaisePlayerReadyEvent() {
+            var h = Ready;
+            if( h != null ) h( this, new PlayerEventArgs( this ) );
+        }
+
+        #endregion
     }
 
 
@@ -759,26 +784,31 @@ namespace fCraft {
 
     #region Events
 
-    public class PlayerConnectingEventArgs : EventArgs {
-        internal PlayerConnectingEventArgs( Session _session, string _playerName, bool _nameIsVerified ) {
-            Session = _session;
-            PlayerName = _playerName;
-            NameIsVerified = _nameIsVerified;
-        }
-
-        public Session Session { get; private set; }
-        public string PlayerName { get; private set; }
-        public bool NameIsVerified { get; private set; }
-        public bool Cancel { get; set; }
-    }
-
-
-    public class PlayerConnectedEventArgs : EventArgs {
-        internal PlayerConnectedEventArgs( Player _player ) {
+    public class PlayerEventArgs : EventArgs {
+        internal PlayerEventArgs( Player _player ) {
             Player = _player;
         }
 
         public Player Player { get; private set; }
+    }
+
+
+    public class PlayerConnectingEventArgs : PlayerEventArgs {
+        internal PlayerConnectingEventArgs( Player _player )
+            : base( _player ) {
+        }
+
+        public bool Cancel { get; set; }
+    }
+
+
+    public class PlayerConnectedEventArgs : PlayerEventArgs {
+        internal PlayerConnectedEventArgs( Player _player, World _startingWorld )
+            : base( _player ) {
+            StartingWorld = _startingWorld;
+        }
+
+        public World StartingWorld { get; set; }
     }
 
     #endregion

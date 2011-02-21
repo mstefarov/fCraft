@@ -89,7 +89,9 @@ namespace fCraftConsole {
             Console.Title = String.Format( "fCraft {0} {1}", Updater.GetVersionString(), failureReason );
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine( "** {0} **", failureReason );
-            Server.Shutdown( failureReason );
+            Server.ShutdownNow( new ShutdownParams {
+                Reason = failureReason
+            } );
             Console.ReadLine();
             Console.ResetColor();
         }

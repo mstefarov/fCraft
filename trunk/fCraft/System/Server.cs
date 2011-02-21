@@ -141,6 +141,8 @@ namespace fCraft {
 
 
         public static bool InitServer() {
+            RaiseInitializingEvent( args );
+
             // warnings/disclaimers
             if( Updater.IsDev ) {
                 Logger.Log( "You are using an unreleased developer version of fCraft. " +
@@ -174,7 +176,9 @@ namespace fCraft {
                 AutoRank.Init();
             }
 
-            if( OnInit != null ) OnInit();
+            if( OnInit != null ) OnInit(); // LEGACY
+
+            RaiseEvent( Initialized );
 
             return true;
         }
@@ -182,6 +186,8 @@ namespace fCraft {
 
         public static bool StartServer() {
             serverStart = DateTime.Now;
+
+            RaiseEvent( Starting );
 
             if( CheckForFCraftProcesses() ) {
                 Logger.Log( "Please close all other fCraft processes (fCraftUI, fCraftConsole, or ConfigTool) " +
@@ -279,6 +285,8 @@ namespace fCraft {
 
             // fire OnStart event
             if( OnStart != null ) OnStart();
+
+            RaiseEvent( Started );
             return true;
         }
 
@@ -290,26 +298,27 @@ namespace fCraft {
         // shuts down the server and aborts threads
         // NOTE: Do not call from any of the usual threads (main, heartbeat, tasks).
         // Call from UI thread or a new separate thread only.
-        public static void Shutdown( string reason ) {
+        public static void ShutdownNow( ShutdownParams shutdownParams ) {
             if( shuttingDown ) return;
 #if DEBUG
 #else
             try {
 #endif
                 shuttingDown = true;
+                RaiseShutdownBeganEvent( shutdownParams );
                 if( OnShutdownBegin != null ) OnShutdownBegin();
 
                 Scheduler.BeginShutdown();
 
                 Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
-                            reason );
+                            shutdownParams.Reason );
 
                 // kick all players
                 if( PlayerList != null ) {
                     Player[] pListCached = PlayerList;
                     foreach( Player player in pListCached ) {
                         // NOTE: kick packet delivery here is not currently guaranteed
-                        player.session.Kick( "Server shutting down (" + reason + Color.White + ")", LeaveReason.ServerShutdown );
+                        player.session.Kick( "Server shutting down (" + shutdownParams.Reason + Color.White + ")", LeaveReason.ServerShutdown );
                     }
                 }
 
@@ -339,6 +348,7 @@ namespace fCraft {
 
 
                 if( OnShutdownEnd != null ) OnShutdownEnd();
+                RaiseShutdownEndedEvent( shutdownParams );
 #if DEBUG
 #else
             } catch( Exception ex ) {
@@ -348,19 +358,11 @@ namespace fCraft {
         }
 
 
-        class ShutdownParams {
-            public string Reason;
-            public int Delay;
-            public bool KillProcess;
-            public bool Restart;
-        }
-
-
-        public static void InitiateShutdown( string reason, int delay, bool killProcess, bool restart ) {
+        public static void Shutdown( string reason, int delay, bool killProcess, bool restart ) {
             new Thread( delegate( object obj ) {
                 ShutdownParams param = (ShutdownParams)obj;
                 Thread.Sleep( param.Delay * 1000 );
-                Shutdown( param.Reason );
+                ShutdownNow( param );
                 if( param.Restart ) {
                     Process.Start( Process.GetCurrentProcess().MainModule.FileName, String.Join( " ", args ) );
                 }
@@ -740,7 +742,7 @@ namespace fCraft {
         // Wraps String.Format() for easy formatting
         public static void SendToAllExcept( string message, Player except, params object[] formatArgs ) {
             if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
-            if( except != Player.Console ) Logger.LogConsole( message );
+            //if( except != Player.Console ) Logger.LogConsole( message );
             foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
                 SendToAll( p, except );
             }
@@ -831,21 +833,38 @@ namespace fCraft {
 
         #region Events
         // events
+
+        [Obsolete]
         public static event SimpleEventHandler OnInit;
+        [Obsolete]
         public static event SimpleEventHandler OnStart;
+        [Obsolete]
         public static event PlayerConnectedEventHandler OnPlayerConnected;
+        [Obsolete]
         public static event PlayerDisconnectedEventHandler OnPlayerDisconnected;
+        [Obsolete]
         public static event PlayerKickedEventHandler OnPlayerKicked;
+        [Obsolete]
         public static event PlayerRankChangedEventHandler OnRankChanged;
+        [Obsolete]
         public static event UrlChangeEventHandler OnURLChanged;
+        [Obsolete]
         public static event SimpleEventHandler OnShutdownBegin;
+        [Obsolete]
         public static event SimpleEventHandler OnShutdownEnd;
+        [Obsolete]
         public static event PlayerChangedWorldEventHandler OnPlayerChangedWorld;
+        [Obsolete]
         public static event LogEventHandler OnLog;
+        [Obsolete]
         public static event PlayerListChangedHandler OnPlayerListChanged;
+        [Obsolete]
         public static event PlayerSentMessageEventHandler OnPlayerSentMessage;
+        [Obsolete]
         public static event PlayerBanStatusChangedEventHandler OnPlayerBanned;
+        [Obsolete]
         public static event PlayerBanStatusChangedEventHandler OnPlayerUnbanned;
+
 
         internal static void FireURLChangeEvent( string newUrl ) {
             if( OnURLChanged != null ) OnURLChanged( newUrl );
@@ -1387,5 +1406,12 @@ namespace fCraft {
         }
 
         #endregion
+    }
+
+    public class ShutdownParams {
+        public string Reason;
+        public int Delay;
+        public bool KillProcess;
+        public bool Restart;
     }
 }

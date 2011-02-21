@@ -367,12 +367,19 @@ namespace fCraft {
         #endregion
 
         #region Events
+        [Obsolete]
         public event SimpleEventHandler OnLoaded;
+        [Obsolete]
         public event SimpleEventHandler OnUnloaded;
+        [Obsolete]
         public event PlayerJoinedWorldEventHandler OnPlayerJoined;
+        [Obsolete]
         public event PlayerTriedToJoinWorldEventHandler OnPlayerTriedToJoin;
+        [Obsolete]
         public event PlayerLeftWorldEventHandler OnPlayerLeft;
+        [Obsolete]
         public event PlayerChangedBlockEventHandler OnPlayerChangedBlock;
+        [Obsolete]
         public event PlayerSentMessageEventHandler OnPlayerSentMessage;
 
         public bool FireChangedBlockEvent( ref BlockUpdate update ) {
