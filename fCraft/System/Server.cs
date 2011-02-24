@@ -1022,11 +1022,16 @@ namespace fCraft {
 
 
         static string GenerateSalt() {
-            // generate random salt
             RandomNumberGenerator prng = RandomNumberGenerator.Create();
-            byte[] data = new byte[32];
-            prng.GetBytes( data );
-            return ASCIIEncoding.ASCII.GetString( data );
+            StringBuilder sb = new StringBuilder();
+            while( sb.Length < 32 ) {
+                byte[] oneChar = new byte[1];
+                prng.GetBytes( oneChar );
+                if( !Char.IsControl( (char)oneChar[0] ) ) {
+                    sb.Append( (char)oneChar[0] );
+                }
+            }
+            return sb.ToString();
         }
 
         public static bool VerifyName( string name, string hash, string salt ) {
