@@ -1021,16 +1021,12 @@ namespace fCraft {
         public static string Salt { get; private set; }
 
 
-        const string saltChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.~";
         static string GenerateSalt() {
             // generate random salt
-            StringBuilder sb = new StringBuilder();
-            Random rand = new Random();
-            int saltLength = rand.Next( 16, 33 );
-            for( int i = 0; i < saltLength; i++ ) {
-                sb.Append( saltChars[rand.Next( 0, saltChars.Length - 1 )]);
-            }
-            return sb.ToString();
+            RandomNumberGenerator prng = RandomNumberGenerator.Create();
+            byte[] data = new byte[32];
+            prng.GetBytes( data );
+            return ASCIIEncoding.ASCII.GetString( data );
         }
 
         public static bool VerifyName( string name, string hash, string salt ) {
