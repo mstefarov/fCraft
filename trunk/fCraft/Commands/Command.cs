@@ -74,23 +74,6 @@ namespace fCraft {
 
 
         /// <summary>
-        /// OBSOLETE. Returns the next command argument, parsed as an block type.
-        /// </summary>
-        /// <param name="block">Block type if parsable, otherwise Block.Undefined.</param>
-        /// <returns>True if there was an argument to parse, false if there was nothing to parse.</returns>
-        [Obsolete]
-        public bool NextBlockType( out Block block ) {
-            block = Block.Undefined;
-            string blockName = Next();
-            if( blockName == null ) {
-                return false;
-            }
-            block = Map.GetBlockByName( blockName );
-            return true;
-        }
-
-
-        /// <summary>
         /// Resets the argument offset.
         /// After calling Rewind, arguments can be read from the beginning again.
         /// </summary>

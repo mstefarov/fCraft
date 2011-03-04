@@ -158,7 +158,7 @@ namespace fCraft {
             }
 
             // try to load the config
-            if( !Config.Load( false ) ) return false;
+            if( !Config.Load( false, false ) ) return false;
             Config.ApplyConfig();
             Salt = GenerateSalt();
 
@@ -1022,10 +1022,10 @@ namespace fCraft {
 
 
         static string GenerateSalt() {
-            RandomNumberGenerator prng = RandomNumberGenerator.Create();
+            RandomNumberGenerator prng = RNGCryptoServiceProvider.Create();
             StringBuilder sb = new StringBuilder();
+            byte[] oneChar = new byte[1];
             while( sb.Length < 32 ) {
-                byte[] oneChar = new byte[1];
                 prng.GetBytes( oneChar );
                 if( !Char.IsControl( (char)oneChar[0] ) ) {
                     sb.Append( (char)oneChar[0] );
