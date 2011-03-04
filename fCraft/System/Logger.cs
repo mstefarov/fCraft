@@ -248,28 +248,33 @@ namespace fCraft {
         // Called by the Logger in case of serious errors to print troubleshooting advice.
         // Returns true if a crash report should be submitted for this type of errors.
         public static bool CheckForCommonErrors( Exception ex ) {
-            if( ex.Message.Contains( "System.Xml.Linq" ) ) {
+            if( ex is FileNotFoundException && (ex.Message.Contains( "System.Xml.Linq, Version=3.5" ) ||
+                                                ex.Message.Contains( "System.Core, Version=3.5" )) ) {
                 Log( "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
-                            "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).", LogType.Warning );
+                     "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).", LogType.Warning );
                 return false;
 
-            } else if( ex.Message.Equals( "libMonoPosixHelper.so", StringComparison.OrdinalIgnoreCase ) ) {
+            } else if( ex.Message == "libMonoPosixHelper.so" ) {
                 Log( "fCraft could not locate Mono's compression functionality. " +
-                            "Please make sure that you have zlib and libmono-posix-2.0-cil or equivalent package installed.", LogType.Warning );
+                     "Please make sure that you have zlib and libmono-posix-2.0-cil or equivalent package installed.", LogType.Warning );
                 return false;
 
             } else if( ex is UnauthorizedAccessException ) {
                 Log( "fCraft was blocked from accessing a file or resource. " +
-                            "Make sure that correct permissions are set for the fCraft files, folders, and processes.", LogType.Warning );
+                     "Make sure that correct permissions are set for the fCraft files, folders, and processes.", LogType.Warning );
                 return false;
 
             } else if( ex is OutOfMemoryException ) {
                 Log( "fCraft ran out of memory. Make sure there is enough RAM to run. " +
-                            "Note that large draw commands can consume a lot of RAM.", LogType.Warning );
+                     "Note that large draw commands can consume a lot of RAM.", LogType.Warning );
                 return false;
 
             } else if( ex is TypeLoadException && ex.Message.Contains( "ZLibStream" ) ) {
                 Log( "Note that ZLibStream is obsolete since fCraft 0.498. Use GZipStream instead.", LogType.Warning );
+                return false;
+
+            } else if( ex is SystemException && ex.Message == "Can't find current process" ) {
+                // Mono-specific bug in MonitorProcessorUsage()
                 return false;
 
             } else {
