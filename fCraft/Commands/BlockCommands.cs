@@ -133,17 +133,20 @@ namespace fCraft {
         };
 
         internal static void Bind( Player player, Command cmd ) {
-            Block originalBlock, replacementBlock;
-            if( !cmd.NextBlockType( out originalBlock ) ) {
+            string originalBlockName = cmd.Next();
+            if( originalBlockName==null ) {
                 player.Message( "All bindings have been reset." );
                 player.ResetAllBinds();
                 return;
-            } else if( originalBlock == Block.Undefined ) {
-                player.Message( "Bind: Unrecognized original block name." );
+            }
+            Block originalBlock = Map.GetBlockByName( originalBlockName );
+            if( originalBlock == Block.Undefined ) {
+                player.Message( "Bind: Unrecognized block name: {0}", originalBlockName );
                 return;
             }
 
-            if( !cmd.NextBlockType( out replacementBlock ) ) {
+            string replacementBlockName = cmd.Next();
+            if( replacementBlockName == null ) {
                 if( player.GetBind( originalBlock ) != originalBlock ) {
                     player.Message( "{0} is no longer bound to {1}",
                                     originalBlock,
@@ -153,8 +156,11 @@ namespace fCraft {
                     player.Message( "{0} is not bound to anything.",
                                     originalBlock );
                 }
-            } else if( replacementBlock == Block.Undefined ) {
-                player.Message( "Bind: Unrecognized replacement block name." );
+            }
+
+            Block replacementBlock = Map.GetBlockByName( replacementBlockName );
+            if( replacementBlock == Block.Undefined ) {
+                player.Message( "Bind: Unrecognized block name: {0}", replacementBlockName );
             } else {
                 Permission permission = Permission.Build;
                 switch( replacementBlock ) {

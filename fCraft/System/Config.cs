@@ -273,7 +273,7 @@ namespace fCraft {
         /// </summary>
         /// <param name="skipRankList">If true, skips over rank definitions.</param>
         /// <returns>True if loading succeeded.</returns>
-        public static bool Load( bool skipRankList ) {
+        public static bool Load( bool skipRankList, bool raiseReloadedEvent ) {
             // generate random salt
             bool fromFile = false;
 
@@ -361,6 +361,9 @@ namespace fCraft {
                     Log( "Unrecognized entry ignored: {0} = {1}", LogType.Debug, element.Name, element.Value );
                 }
             }
+
+            if( raiseReloadedEvent ) RaiseReloadedEvent();
+
             return true;
         }
 
@@ -663,8 +666,7 @@ namespace fCraft {
                     return ValidateInt( key, value, 0, Int32.MaxValue );
 
                 default:
-                    settings[key] = value;
-                    return true;
+                    return DoSetValue( key, value );
             }
         }
 
@@ -672,12 +674,12 @@ namespace fCraft {
             int temp;
             if( Int32.TryParse( value, out temp ) ) {
                 if( temp >= minRange && temp <= maxRange ) {
-                    settings[key] = temp.ToString();
+                    return DoSetValue( key, temp.ToString() );
                 } else {
                     Log( "Config.ValidateInt: Specified value for {0} is not within valid range ({1}...{2}). Using default ({3}).", LogType.Warning,
                          key, minRange, maxRange, settings[key] );
+                    return false;
                 }
-                return true;
 
             } else {
                 Log( "Config.ValidateInt: Specified value for {0} could not be parsed. Using default ({1}).", LogType.Warning,
@@ -689,8 +691,7 @@ namespace fCraft {
         static bool ValidateBool( ConfigKey key, string value ) {
             bool temp;
             if( Boolean.TryParse( value, out temp ) ) {
-                settings[key] = temp.ToString();
-                return true;
+                return DoSetValue( key, temp.ToString() );
 
             } else {
                 Log( "Config.ValidateBool: Specified value for {0} could not be parsed. Expected 'true' or 'false'. Using default ({1}).", LogType.Warning,
@@ -701,8 +702,7 @@ namespace fCraft {
 
         static bool ValidateColor( ConfigKey key, string value ) {
             if( Color.Parse( value ) != null ) {
-                settings[key] = value;
-                return true;
+                return DoSetValue( key, value );
 
             } else {
                 Log( "Config.ValidateColor: Specified value for {0} could not be parsed. Using default ({1}).", LogType.Warning,
@@ -724,22 +724,34 @@ namespace fCraft {
                 return true;
 
             } else {
-                settings[key] = value;
-                return true;
+                return DoSetValue( key, value );
             }
         }
 
         static bool ValidateEnum( ConfigKey key, string value, params string[] options ) {
             for( int i = 0; i < options.Length; i++ ) {
                 if( value.Equals( options[i], StringComparison.OrdinalIgnoreCase ) ) {
-                    settings[key] = options[i];
-                    return true;
+                    return DoSetValue( key, options[i] );
                 }
             }
             Log( "Config.SetValue: Invalid option specified for {0}. " +
                     "See documentation for the list of permitted options. Using default: {1}", LogType.Warning,
                     key, settings[key] );
             return false;
+        }
+
+        static bool DoSetValue( ConfigKey key, string newValue ) {
+            if( !settings.ContainsKey( key ) ) {
+                settings[key] = newValue;
+            } else {
+                string oldValue = settings[key];
+                if( oldValue != newValue ) {
+                    if( RaiseKeyChangingEvent( key, oldValue, ref newValue ) ) return false;
+                    settings[key] = newValue;
+                    RaiseKeyChangedEvent( key, oldValue, newValue );
+                }
+            }
+            return true;
         }
 
         #endregion
@@ -1044,5 +1056,65 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        #region Events
+
+        public static event EventHandler Reloaded;
+        public static event EventHandler<ConfigKeyChangingEventArgs> KeyChanging;
+        public static event EventHandler<ConfigKeyChangedEventArgs> KeyChanged;
+
+        static void RaiseReloadedEvent() {
+            var h = Reloaded;
+            if( h != null ) h( null, EventArgs.Empty );
+        }
+
+        static bool RaiseKeyChangingEvent( ConfigKey key, string oldValue, ref string newValue ) {
+            var h = KeyChanging;
+            if( h == null ) return false;
+            var e = new ConfigKeyChangingEventArgs( key, oldValue, newValue );
+            h( null, e );
+            newValue = e.NewValue;
+            return e.Cancel;
+        }
+
+        static void RaiseKeyChangedEvent( ConfigKey key, string oldValue, string newValue ) {
+            var h = KeyChanged;
+            if( h != null ) h( null, new ConfigKeyChangedEventArgs( key, oldValue, newValue ) );
+        }
+
+        #endregion
     }
+
+
+    #region EventArgs
+
+    public class ConfigKeyChangingEventArgs : EventArgs {
+        public ConfigKey Key { get; private set; }
+        public string OldValue { get; private set; }
+        public string NewValue { get; set; }
+        public bool Cancel { get; set; }
+
+        public ConfigKeyChangingEventArgs( ConfigKey _key, string _oldValue, string _newValue ) {
+            Key = _key;
+            OldValue = _oldValue;
+            NewValue = _newValue;
+            Cancel = false;
+        }
+    }
+
+
+    public class ConfigKeyChangedEventArgs : EventArgs {
+        public ConfigKey Key { get; private set; }
+        public string OldValue { get; private set; }
+        public string NewValue { get; private set; }
+
+        public ConfigKeyChangedEventArgs( ConfigKey _key, string _oldValue, string _newValue ) {
+            Key = _key;
+            OldValue = _oldValue;
+            NewValue = _newValue;
+        }
+    }
+
+    #endregion
 }

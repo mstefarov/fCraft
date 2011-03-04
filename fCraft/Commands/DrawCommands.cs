@@ -341,15 +341,27 @@ namespace fCraft {
                 case DrawMode.Replace:
                 case DrawMode.ReplaceNot:
                     List<Block> affectedTypes = new List<Block> { block };
-                    Block affectedType;
-                    while( cmd.NextBlockType( out affectedType ) ) {
+
+                    string affectedBlockName = cmd.Next();
+
+                    if( affectedBlockName == null ) {
+                        if( mode == DrawMode.ReplaceNot ) {
+                            cdReplaceNot.PrintUsage( player );
+                        } else {
+                            cdReplace.PrintUsage( player );
+                        }
+                        return;
+                    }
+
+                    do {
+                        Block affectedType = Map.GetBlockByName( affectedBlockName );
                         if( affectedType != Block.Undefined ) {
                             affectedTypes.Add( affectedType );
                         } else {
-                            player.MessageNow( "{0}: Unrecognized block type.", mode );
+                            player.MessageNow( "{0}: Unrecognized block type: {1}", mode, affectedBlockName );
                             return;
                         }
-                    }
+                    } while( (affectedBlockName = cmd.Next()) != null );
 
                     if( affectedTypes.Count > 1 ) {
                         Block replacementType = affectedTypes[affectedTypes.Count - 1];
@@ -369,13 +381,6 @@ namespace fCraft {
                             player.MessageNow( "Replace: Ready to replace ({0}) with {1}", affectedString.Substring( 2 ), replacementType );
                         }
                         player.selectionCallback = ReplaceCallback;
-                    } else {
-                        if( mode == DrawMode.ReplaceNot ) {
-                            cdReplaceNot.PrintUsage( player );
-                        } else {
-                            cdReplace.PrintUsage( player );
-                        }
-                        return;
                     }
                     break;
 
@@ -1122,15 +1127,14 @@ namespace fCraft {
         };
 
         internal static void Cut( Player player, Command cmd ) {
-            Block fillBlock;
-            if( cmd.NextBlockType( out fillBlock ) ) {
+            Block fillBlock = Block.Air;
+            string fillBlockName = cmd.Next();
+            if(fillBlockName!=null){
+                fillBlock = Map.GetBlockByName( fillBlockName );
                 if( fillBlock == Block.Undefined ) {
-                    cmd.Rewind();
-                    player.Message( "Cut: Unknown block type \"{0}\"", cmd.Next() );
+                    player.Message( "Cut: Unknown block type \"{0}\"", fillBlockName );
                     return;
                 }
-            } else {
-                fillBlock = Block.Air;
             }
             player.SetCallback( 2, CutCallback, fillBlock );
             player.MessageNow( "Cut: Place a block or type /mark to use your location." );
@@ -1207,15 +1211,19 @@ namespace fCraft {
             }
 
             PasteArgs args;
+
             List<Block> excludedTypes = new List<Block>();
-            Block excludedType;
-            while( cmd.NextBlockType( out excludedType ) ) {
-                if( excludedType != Block.Undefined ) {
-                    excludedTypes.Add( excludedType );
-                } else {
-                    player.MessageNow( "Paste: Unrecognized block type." );
-                    return;
-                }
+            string excludedBlockName = cmd.Next();
+            if( excludedBlockName != null ) {
+                do {
+                    Block excludedType = Map.GetBlockByName( excludedBlockName );
+                    if( excludedType != Block.Undefined ) {
+                        excludedTypes.Add( excludedType );
+                    } else {
+                        player.MessageNow( "PasteNot: Unrecognized block type: {0}", excludedBlockName );
+                        return;
+                    }
+                } while( (excludedBlockName = cmd.Next()) != null );
             }
 
             if( excludedTypes.Count > 0 ) {
@@ -1256,14 +1264,17 @@ namespace fCraft {
             }
 
             List<Block> includedTypes = new List<Block>();
-            Block includedType;
-            while( cmd.NextBlockType( out includedType ) ) {
-                if( includedType != Block.Undefined ) {
-                    includedTypes.Add( includedType );
-                } else {
-                    player.MessageNow( "Paste: Unrecognized block type." );
-                    return;
-                }
+            string includedBlockName = cmd.Next();
+            if( includedBlockName != null ) {
+                do {
+                    Block includedType = Map.GetBlockByName( includedBlockName );
+                    if( includedType != Block.Undefined ) {
+                        includedTypes.Add( includedType );
+                    } else {
+                        player.MessageNow( "PasteNot: Unrecognized block type: {0}", includedBlockName );
+                        return;
+                    }
+                } while( (includedBlockName = cmd.Next()) != null );
             }
 
             PasteArgs args;

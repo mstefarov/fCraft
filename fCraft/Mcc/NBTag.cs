@@ -61,7 +61,9 @@ namespace Mcc {
         public object Payload { get; set; }
         public NBTag Parent { get; set; }
 
+
         #region Constructors
+
         public NBTag() { }
 
         public NBTag( NBTType _type, NBTag _parent ) {
@@ -78,7 +80,9 @@ namespace Mcc {
 
         #endregion
 
+
         #region Shorthand Contructors
+
         public NBTag Append( NBTag tag ) {
             if( !( this is NBTCompound ) ) {
                 return null;
@@ -126,9 +130,12 @@ namespace Mcc {
             }
             return this;
         }
+
         #endregion
 
+
         #region Child Tag Manipulation
+
         public bool Contains( string name ) {
             if( this is NBTCompound ) {
                 return ((NBTCompound)this).Tags.ContainsKey( name );
@@ -136,6 +143,7 @@ namespace Mcc {
                 return false;
             }
         }
+
         public NBTag Remove( string name ) {
             if( this is NBTCompound ) {
                 NBTag tag = (this)[name];
@@ -145,6 +153,7 @@ namespace Mcc {
                 throw new NotSupportedException( "Can only Remove() from compound tags." );
             }
         }
+
         public NBTag Remove() {
             if( Parent != null && Parent is NBTCompound ) {
                 Parent.Remove( Name );
@@ -153,7 +162,9 @@ namespace Mcc {
                 throw new NotSupportedException( "Cannot Remove() - no parent tag." );
             }
         }
+
         #endregion
+
 
         #region Loading
 
@@ -279,9 +290,12 @@ namespace Mcc {
             }
             return output;
         }
+
         #endregion
 
+
         #region Saving
+
         public void WriteTag( string fileName ) {
             using( FileStream fs = File.OpenWrite( fileName ) ) {
                 using( GZipStream gs = new GZipStream( fs, CompressionMode.Compress ) ) {
@@ -289,14 +303,17 @@ namespace Mcc {
                 }
             }
         }
+
         public void WriteTag( Stream stream ) {
             using( BinaryWriter writer = new BinaryWriter( stream ) ) {
                 WriteTag( writer, true );
             }
         }
+
         public void WriteTag( BinaryWriter writer ) {
             WriteTag( writer, true );
         }
+
         public void WriteTag( BinaryWriter writer, bool writeType ) {
             if( writeType ) writer.Write( (byte)Type );
             if( Type == NBTType.End ) return;
@@ -358,14 +375,19 @@ namespace Mcc {
             }
         }
 
-        public static void WriteString( string str, BinaryWriter writer ) {
+        static void WriteString( string str, BinaryWriter writer ) {
             byte[] stringBytes = Encoding.UTF8.GetBytes( str );
             writer.Write( IPAddress.NetworkToHostOrder( (short)stringBytes.Length ) );
             writer.Write( stringBytes );
         }
+
         #endregion
 
+
         #region Accessors
+
+        public void Set( object _payload ) { Payload = _payload; }
+
         public byte GetByte() { return (byte)Payload; }
         public short GetShort() { return (short)Payload; }
         public int GetInt() { return (int)Payload; }
@@ -375,12 +397,10 @@ namespace Mcc {
         public byte[] GetBytes() { return (byte[])Payload; }
         public string GetString() { return (string)Payload; }
 
-        public void Set( object _payload ) { Payload = _payload; }
 
         object GetChild( string name, object defaultValue ) {
             return Contains( name ) ? this[name].Payload : defaultValue;
         }
-
 
         public byte Get( string name, byte defaultValue ) { return (byte)GetChild( name, defaultValue ); }
         public short Get( string name, short defaultValue ) { return (short)GetChild( name, defaultValue ); }
@@ -393,7 +413,9 @@ namespace Mcc {
 
         #endregion
 
+
         #region Indexers
+
         public NBTag this[int Index] {
             get {
                 if( this is NBTList ) {
@@ -427,9 +449,12 @@ namespace Mcc {
                 }
             }
         }
+
         #endregion
 
+
         #region Enumerators
+
         public IEnumerator<NBTag> GetEnumerator() {
             return new NBTEnumerator( this );
         }
@@ -476,6 +501,7 @@ namespace Mcc {
 
             public void Dispose() { }
         }
+
         #endregion
     }
 

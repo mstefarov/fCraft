@@ -199,8 +199,9 @@ namespace fCraft {
 
         static bool RaiseCommandRegisteringEvent( CommandDescriptor descriptor ) {
             var h = CommandRegistering;
+            if( h == null ) return false;
             var e = new CommandRegistringEventArgs( descriptor );
-            if( h != null ) h( null, e );
+            h( null, e );
             return e.Cancel;
         }
 
@@ -208,16 +209,16 @@ namespace fCraft {
         static void RaiseCommandRegisteredEvent( CommandDescriptor descriptor ) {
             descriptor.RaiseRegisteredEvent();
             var h = CommandRegistered;
-            var e = new CommandRegisteredEventArgs( descriptor );
-            if( h != null ) h( null, e );
+            if( h != null ) h( null, new CommandRegisteredEventArgs( descriptor ) );
         }
 
 
         static bool RaiseCommandCallingEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
             if( descriptor.RaiseCallingEvent( cmd, player ) ) return true;
             var h = CommandCalling;
+            if( h == null ) return false;
             var e = new CommandCallingEventArgs( cmd, descriptor, player );
-            if( h != null ) h( null, e );
+            h( null, e );
             return e.Cancel;
         }
 
@@ -225,8 +226,7 @@ namespace fCraft {
         static void RaiseCommandCalledEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
             descriptor.RaiseCalledEvent( cmd, player );
             var h = CommandCalled;
-            var e = new CommandCalledEventArgs( cmd, descriptor, player );
-            if( h != null ) CommandCalled( null, e );
+            if( h != null ) CommandCalled( null, new CommandCalledEventArgs( cmd, descriptor, player ) );
         }
 
         #endregion

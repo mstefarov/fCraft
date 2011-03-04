@@ -24,7 +24,7 @@ namespace ConfigTool {
                 MessageBox.Show( "World list (worlds.xml) was not found. Assuming 0 worlds." );
             }
 
-            if( Config.Load( false ) ) {
+            if( Config.Load( false, false ) ) {
                 if( Config.errors.Length > 0 ) {
                     MessageBox.Show( Config.errors, "Config loading warnings" );
                 }
