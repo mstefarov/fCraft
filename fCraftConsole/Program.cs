@@ -48,10 +48,12 @@ namespace fCraftConsole {
                                            DateTime.Now.Subtract( update.ReleaseDate ).TotalDays );
                     }
 
-                    try {
-                        Process.GetCurrentProcess().PriorityClass = Config.GetProcessPriority();
-                    } catch( Exception ) {
-                        Logger.Log( "Program.Main: Could not set process priority, using defaults.", LogType.Warning );
+                    if( !ConfigKey.ProcessPriority.IsEmpty() ) {
+                        try {
+                            Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
+                        } catch( Exception ) {
+                            Logger.Log( "Program.Main: Could not set process priority, using defaults.", LogType.Warning );
+                        }
                     }
 
                     if( Server.StartServer() ) {

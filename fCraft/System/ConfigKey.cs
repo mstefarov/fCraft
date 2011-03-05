@@ -62,7 +62,7 @@ namespace fCraft {
         LogMode,
         MaxLogs,
 
-        IRCBot,
+        IRCBotEnabled,
         IRCBotNick,
         IRCBotNetwork,
         IRCBotPort,
@@ -81,7 +81,8 @@ namespace fCraft {
         IRCUseColor,
 
         RelayAllBlockUpdates,
-        AutomaticUpdates,
+        UpdateMode,
+        UpdateAtStartup,
         NoPartialPositionUpdates,
         ProcessPriority,
         BlockUpdateThrottling,

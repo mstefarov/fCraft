@@ -479,10 +479,11 @@ namespace fCraft {
 
             // verify name
             if( !Server.VerifyName( player.name, verificationCode, Server.Salt ) ) {
+                NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();
 
                 string standardMessage = String.Format( "Session.LoginSequence: Could not verify player name for {0} ({1}).",
                                                         player.name, GetIP() );
-                if( GetIP().ToString() == "127.0.0.1" && Config.GetString( ConfigKey.VerifyNames ) != "Always" ) {
+                if( GetIP().ToString() == "127.0.0.1" && nameVerificationMode == NameVerificationMode.Always ) {
                     Logger.Log( "{0} Player was identified as connecting from localhost and allowed in.", LogType.SuspiciousActivity,
                                 standardMessage );
 
@@ -491,15 +492,15 @@ namespace fCraft {
                                 standardMessage );
 
                 } else if( player.info.timesVisited == 1 || player.info.lastIP.ToString() != GetIP().ToString() ) {
-                    switch( Config.GetString( ConfigKey.VerifyNames ) ) {
-                        case "Always":
-                        case "Balanced":
+                    switch( nameVerificationMode ) {
+                        case NameVerificationMode.Always:
+                        case NameVerificationMode.Balanced:
                             player.info.ProcessFailedLogin( player );
                             Logger.Log( "{0} IP did not match. Player was kicked.", LogType.SuspiciousActivity,
                                         standardMessage );
                             KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
                             return false;
-                        case "Never":
+                        case NameVerificationMode.Never:
                             Logger.Log( "{0} IP did not match. " +
                                         "Player was allowed in anyway because VerifyNames is set to Never.", LogType.SuspiciousActivity,
                                         standardMessage );
@@ -509,16 +510,16 @@ namespace fCraft {
                     }
 
                 } else {
-                    switch( Config.GetString( ConfigKey.VerifyNames ) ) {
-                        case "Always":
+                    switch( nameVerificationMode ) {
+                        case NameVerificationMode.Always:
                             player.info.ProcessFailedLogin( player );
                             Logger.Log( "{0} IP matched previous records for that name. " +
                                         "Player was kicked anyway because VerifyNames is set to Always.", LogType.SuspiciousActivity,
                                         standardMessage );
                             KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
                             return false;
-                        case "Balanced":
-                        case "Never":
+                        case NameVerificationMode.Balanced:
+                        case NameVerificationMode.Never:
                             Logger.Log( "{0} IP matched previous records for that name. Player was allowed in.", LogType.SuspiciousActivity,
                                         standardMessage );
                             break;

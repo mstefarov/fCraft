@@ -86,4 +86,11 @@ namespace fCraft {
         UnbanIP = 1,
         UnbanAll = 2
     }
+
+
+    public enum NameVerificationMode {
+        Never,
+        Balanced,
+        Always
+    }
 }

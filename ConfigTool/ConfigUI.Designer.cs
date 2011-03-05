@@ -264,7 +264,9 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
+            this.xUpdateAtStartup = new System.Windows.Forms.CheckBox();
             this.chatPreview = new ConfigTool.ChatPreview();
+            this.xShowConnectionMessages = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -864,6 +866,7 @@
             // 
             // gAppearence
             // 
+            this.gAppearence.Controls.Add( this.xShowConnectionMessages );
             this.gAppearence.Controls.Add( this.xShowJoinedWorldMessages );
             this.gAppearence.Controls.Add( this.xRankColorsInWorldNames );
             this.gAppearence.Controls.Add( this.xListPrefixes );
@@ -879,7 +882,7 @@
             // xShowJoinedWorldMessages
             // 
             this.xShowJoinedWorldMessages.AutoSize = true;
-            this.xShowJoinedWorldMessages.Location = new System.Drawing.Point( 365, 20 );
+            this.xShowJoinedWorldMessages.Location = new System.Drawing.Point( 325, 20 );
             this.xShowJoinedWorldMessages.Name = "xShowJoinedWorldMessages";
             this.xShowJoinedWorldMessages.Size = new System.Drawing.Size( 261, 19 );
             this.xShowJoinedWorldMessages.TabIndex = 3;
@@ -889,7 +892,7 @@
             // xRankColorsInWorldNames
             // 
             this.xRankColorsInWorldNames.AutoSize = true;
-            this.xRankColorsInWorldNames.Location = new System.Drawing.Point( 365, 45 );
+            this.xRankColorsInWorldNames.Location = new System.Drawing.Point( 325, 70 );
             this.xRankColorsInWorldNames.Name = "xRankColorsInWorldNames";
             this.xRankColorsInWorldNames.Size = new System.Drawing.Size( 243, 19 );
             this.xRankColorsInWorldNames.TabIndex = 4;
@@ -2692,9 +2695,9 @@
             this.groupBox1.Controls.Add( this.cProcessPriority );
             this.groupBox1.Controls.Add( this.lThrottling );
             this.groupBox1.Controls.Add( this.xNoPartialPositionUpdates );
-            this.groupBox1.Location = new System.Drawing.Point( 8, 148 );
+            this.groupBox1.Location = new System.Drawing.Point( 8, 150 );
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size( 638, 287 );
+            this.groupBox1.Size = new System.Drawing.Size( 638, 285 );
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Miscellaneous";
@@ -2930,13 +2933,14 @@
             // 
             // gCrashReport
             // 
+            this.gCrashReport.Controls.Add( this.xUpdateAtStartup );
             this.gCrashReport.Controls.Add( this.lCrashReportDisclaimer );
             this.gCrashReport.Controls.Add( this.xSubmitCrashReports );
             this.gCrashReport.Controls.Add( this.cUpdater );
             this.gCrashReport.Controls.Add( this.lUpdater );
             this.gCrashReport.Location = new System.Drawing.Point( 8, 13 );
             this.gCrashReport.Name = "gCrashReport";
-            this.gCrashReport.Size = new System.Drawing.Size( 638, 129 );
+            this.gCrashReport.Size = new System.Drawing.Size( 638, 131 );
             this.gCrashReport.TabIndex = 0;
             this.gCrashReport.TabStop = false;
             this.gCrashReport.Text = "Web connectivity";
@@ -2967,10 +2971,10 @@
             this.cUpdater.FormattingEnabled = true;
             this.cUpdater.Items.AddRange( new object[] {
             "Disabled",
-            "Notify of update availability",
+            "Notify about updates",
             "Download and prompt to install",
             "Fully automatic"} );
-            this.cUpdater.Location = new System.Drawing.Point( 148, 97 );
+            this.cUpdater.Location = new System.Drawing.Point( 148, 102 );
             this.cUpdater.Name = "cUpdater";
             this.cUpdater.Size = new System.Drawing.Size( 245, 23 );
             this.cUpdater.TabIndex = 1;
@@ -2978,7 +2982,7 @@
             // lUpdater
             // 
             this.lUpdater.AutoSize = true;
-            this.lUpdater.Location = new System.Drawing.Point( 6, 100 );
+            this.lUpdater.Location = new System.Drawing.Point( 6, 105 );
             this.lUpdater.Name = "lUpdater";
             this.lUpdater.Size = new System.Drawing.Size( 136, 15 );
             this.lUpdater.TabIndex = 38;
@@ -3049,12 +3053,32 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // xUpdateAtStartup
+            // 
+            this.xUpdateAtStartup.AutoSize = true;
+            this.xUpdateAtStartup.Location = new System.Drawing.Point( 407, 104 );
+            this.xUpdateAtStartup.Name = "xUpdateAtStartup";
+            this.xUpdateAtStartup.Size = new System.Drawing.Size( 183, 19 );
+            this.xUpdateAtStartup.TabIndex = 42;
+            this.xUpdateAtStartup.Text = "Check immediately at startup";
+            this.xUpdateAtStartup.UseVisualStyleBackColor = true;
+            // 
             // chatPreview
             // 
             this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
             this.chatPreview.Name = "chatPreview";
             this.chatPreview.Size = new System.Drawing.Size( 637, 189 );
             this.chatPreview.TabIndex = 2;
+            // 
+            // xShowConnectionMessages
+            // 
+            this.xShowConnectionMessages.AutoSize = true;
+            this.xShowConnectionMessages.Location = new System.Drawing.Point( 325, 45 );
+            this.xShowConnectionMessages.Name = "xShowConnectionMessages";
+            this.xShowConnectionMessages.Size = new System.Drawing.Size( 306, 19 );
+            this.xShowConnectionMessages.TabIndex = 5;
+            this.xShowConnectionMessages.Text = "Show a message when players join/leave SERVER.";
+            this.xShowConnectionMessages.UseVisualStyleBackColor = true;
             // 
             // ConfigUI
             // 
@@ -3384,5 +3408,7 @@
         private System.Windows.Forms.Label lConsoleName;
         private System.Windows.Forms.TextBox tConsoleName;
         private System.Windows.Forms.Label lConsoleNameHint;
+        private System.Windows.Forms.CheckBox xUpdateAtStartup;
+        private System.Windows.Forms.CheckBox xShowConnectionMessages;
     }
 }

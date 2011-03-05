@@ -8,19 +8,23 @@ namespace ConfigTool {
     /// A wrapper for per-World metadata, designed to be usable with SortableBindingList.
     /// All these properties map directly to the UI controls.
     /// </summary>
-    sealed class WorldListEntry {
+    sealed class WorldListEntry : ICloneable {
         public const string DefaultRankOption = "(everyone)";
         Map cachedMapHeader;
         internal bool loadingFailed;
 
         public WorldListEntry() { }
 
+        public object Clone() {
+            return new WorldListEntry( this );
+        }
+
         public WorldListEntry( WorldListEntry original ) {
             name = original.Name;
             Hidden = original.Hidden;
-            AccessPermission = original.AccessPermission;
-            BuildPermission = original.BuildPermission;
             Backup = original.Backup;
+            accessSecurity = new SecurityController( original.accessSecurity );
+            buildSecurity = new SecurityController( original.buildSecurity );
         }
 
         public WorldListEntry( XElement el ) {

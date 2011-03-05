@@ -23,15 +23,37 @@ namespace fCraft {
     }
 
 
-    public sealed class SecurityController {
-        public class PlayerListCollection {
+    public sealed class SecurityController : ICloneable {
+        public class PlayerListCollection : ICloneable {
+            public PlayerListCollection() { }
+            public PlayerListCollection( PlayerListCollection other ) {
+                included = (PlayerInfo[])other.included.Clone();
+                excluded = (PlayerInfo[])other.excluded.Clone();
+            }
             // keeping both lists on one object allows lock-free synchronization
             public PlayerInfo[] included;
             public PlayerInfo[] excluded;
+            public object Clone() {
+                return new PlayerListCollection( this );
+            }
         }
 
         public SecurityController() {
             UpdatePlayerListCache();
+        }
+
+        public SecurityController( SecurityController other ) {
+            if( other.NoRankRestriction ) {
+                MinRank = null;
+            } else {
+                MinRank = other.MinRank;
+            }
+            includedPlayers = new Dictionary<string, PlayerInfo>( other.includedPlayers );
+            excludedPlayers = new Dictionary<string, PlayerInfo>( other.excludedPlayers );
+        }
+
+        public object Clone() {
+            return new SecurityController( this );
         }
 
         Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();

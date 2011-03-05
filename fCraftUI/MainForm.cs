@@ -40,7 +40,7 @@ namespace fCraftUI {
                     Application.DoEvents();
 
                     if( update.UpdateAvailable ) {
-                        if( Config.GetString( ConfigKey.AutomaticUpdates ) == "Notify" ) {
+                        if( ConfigKey.UpdateMode.GetEnum<AutoUpdaterMode>() == AutoUpdaterMode.Notify ) {
                             Log( String.Format( Environment.NewLine +
                                                 "*** A new version of fCraft is available: v{0}, released {1:0} day(s) ago. ***" +
                                                 Environment.NewLine,
@@ -48,8 +48,8 @@ namespace fCraftUI {
                                                 DateTime.Now.Subtract( update.ReleaseDate ).TotalDays ), LogType.ConsoleOutput );
                             StartServer();
                         } else {
-                            UpdateWindow updateWindow = new UpdateWindow( update, this,
-                                                                          Config.GetString( ConfigKey.AutomaticUpdates ) == "Auto" );
+                            bool auto = (ConfigKey.UpdateMode.GetEnum<AutoUpdaterMode>() == AutoUpdaterMode.Auto);
+                            UpdateWindow updateWindow = new UpdateWindow( update, this, auto );
                             updateWindow.ShowDialog();
                         }
                     } else {
@@ -68,12 +68,12 @@ namespace fCraftUI {
 
 
         public void StartServer() {
-            try {
-                if( Process.GetCurrentProcess().PriorityClass != Config.GetProcessPriority() ) {
-                    Process.GetCurrentProcess().PriorityClass = Config.GetProcessPriority();
+            if( !ConfigKey.ProcessPriority.IsEmpty() ) {
+                try {
+                    Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
+                } catch( Exception ) {
+                    Logger.Log( "MainForm.StartServer: Could not set process priority, using defaults.", LogType.Warning );
                 }
-            } catch( Exception ) {
-                Logger.Log( "MainForm.StartServer: Could not set process priority, using defaults.", LogType.Warning );
             }
             if( Server.StartServer() ) {
                 if( !Config.GetBool( ConfigKey.HeartbeatEnabled ) ) {
@@ -173,11 +173,11 @@ namespace fCraftUI {
 #if !DEBUG
                 try {
 #endif
-                if( line.Equals( "/clear", StringComparison.OrdinalIgnoreCase ) ) {
-                    logBox.Clear();
-                } else {
-                    Player.Console.ParseMessage( line, true );
-                }
+                    if( line.Equals( "/clear", StringComparison.OrdinalIgnoreCase ) ) {
+                        logBox.Clear();
+                    } else {
+                        Player.Console.ParseMessage( line, true );
+                    }
 #if !DEBUG
                 } catch( Exception ex ) {
                     Logger.LogConsole( "Error occured while trying to execute last console command: " );
