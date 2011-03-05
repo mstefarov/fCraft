@@ -25,7 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -73,11 +73,13 @@
             this.bColorHelp = new System.Windows.Forms.Button();
             this.bColorSay = new System.Windows.Forms.Button();
             this.gAppearence = new System.Windows.Forms.GroupBox();
+            this.xShowConnectionMessages = new System.Windows.Forms.CheckBox();
             this.xShowJoinedWorldMessages = new System.Windows.Forms.CheckBox();
             this.xRankColorsInWorldNames = new System.Windows.Forms.CheckBox();
             this.xListPrefixes = new System.Windows.Forms.CheckBox();
             this.xChatPrefixes = new System.Windows.Forms.CheckBox();
             this.xRankColors = new System.Windows.Forms.CheckBox();
+            this.chatPreview = new ConfigTool.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.bMapPath = new System.Windows.Forms.Button();
             this.xMapPath = new System.Windows.Forms.CheckBox();
@@ -254,6 +256,7 @@
             this.lThrottling = new System.Windows.Forms.Label();
             this.xNoPartialPositionUpdates = new System.Windows.Forms.CheckBox();
             this.gCrashReport = new System.Windows.Forms.GroupBox();
+            this.xUpdateAtStartup = new System.Windows.Forms.CheckBox();
             this.lCrashReportDisclaimer = new System.Windows.Forms.Label();
             this.xSubmitCrashReports = new System.Windows.Forms.CheckBox();
             this.cUpdater = new System.Windows.Forms.ComboBox();
@@ -264,9 +267,8 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.xUpdateAtStartup = new System.Windows.Forms.CheckBox();
-            this.chatPreview = new ConfigTool.ChatPreview();
-            this.xShowConnectionMessages = new System.Windows.Forms.CheckBox();
+            this.cMuteLimit = new System.Windows.Forms.ComboBox();
+            this.lMuteLimit = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -336,7 +338,7 @@
             this.tabs.Location = new System.Drawing.Point( 12, 12 );
             this.tabs.Name = "tabs";
             this.tabs.SelectedIndex = 0;
-            this.tabs.Size = new System.Drawing.Size( 660, 476 );
+            this.tabs.Size = new System.Drawing.Size( 660, 506 );
             this.tabs.TabIndex = 0;
             // 
             // tabGeneral
@@ -879,6 +881,16 @@
             this.gAppearence.TabStop = false;
             this.gAppearence.Text = "Appearence Tweaks";
             // 
+            // xShowConnectionMessages
+            // 
+            this.xShowConnectionMessages.AutoSize = true;
+            this.xShowConnectionMessages.Location = new System.Drawing.Point( 325, 45 );
+            this.xShowConnectionMessages.Name = "xShowConnectionMessages";
+            this.xShowConnectionMessages.Size = new System.Drawing.Size( 306, 19 );
+            this.xShowConnectionMessages.TabIndex = 5;
+            this.xShowConnectionMessages.Text = "Show a message when players join/leave SERVER.";
+            this.xShowConnectionMessages.UseVisualStyleBackColor = true;
+            // 
             // xShowJoinedWorldMessages
             // 
             this.xShowJoinedWorldMessages.AutoSize = true;
@@ -928,6 +940,13 @@
             this.xRankColors.TabIndex = 0;
             this.xRankColors.Text = "Show rank colors.";
             this.xRankColors.UseVisualStyleBackColor = true;
+            // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 637, 189 );
+            this.chatPreview.TabIndex = 2;
             // 
             // tabWorlds
             // 
@@ -1076,8 +1095,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 334 );
             this.dgvWorlds.TabIndex = 1;
@@ -1141,7 +1160,7 @@
             this.tabRanks.Location = new System.Drawing.Point( 4, 24 );
             this.tabRanks.Name = "tabRanks";
             this.tabRanks.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabRanks.Size = new System.Drawing.Size( 652, 448 );
+            this.tabRanks.Size = new System.Drawing.Size( 652, 478 );
             this.tabRanks.TabIndex = 2;
             this.tabRanks.Text = "Ranks";
             this.tabRanks.UseVisualStyleBackColor = true;
@@ -1158,7 +1177,7 @@
             // bLowerRank
             // 
             this.bLowerRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bLowerRank.Location = new System.Drawing.Point( 84, 422 );
+            this.bLowerRank.Location = new System.Drawing.Point( 84, 452 );
             this.bLowerRank.Name = "bLowerRank";
             this.bLowerRank.Size = new System.Drawing.Size( 70, 23 );
             this.bLowerRank.TabIndex = 4;
@@ -1169,7 +1188,7 @@
             // bRaiseRank
             // 
             this.bRaiseRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bRaiseRank.Location = new System.Drawing.Point( 8, 422 );
+            this.bRaiseRank.Location = new System.Drawing.Point( 8, 452 );
             this.bRaiseRank.Name = "bRaiseRank";
             this.bRaiseRank.Size = new System.Drawing.Size( 70, 23 );
             this.bRaiseRank.TabIndex = 3;
@@ -1181,6 +1200,8 @@
             // 
             this.gRankOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gRankOptions.Controls.Add( this.cMuteLimit );
+            this.gRankOptions.Controls.Add( this.lMuteLimit );
             this.gRankOptions.Controls.Add( this.xAllowSecurityCircumvention );
             this.gRankOptions.Controls.Add( this.cFreezeLimit );
             this.gRankOptions.Controls.Add( this.lFreezeLimit );
@@ -1215,7 +1236,7 @@
             this.gRankOptions.Controls.Add( this.lRankName );
             this.gRankOptions.Location = new System.Drawing.Point( 160, 13 );
             this.gRankOptions.Name = "gRankOptions";
-            this.gRankOptions.Size = new System.Drawing.Size( 307, 432 );
+            this.gRankOptions.Size = new System.Drawing.Size( 307, 462 );
             this.gRankOptions.TabIndex = 5;
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
@@ -1223,7 +1244,7 @@
             // xAllowSecurityCircumvention
             // 
             this.xAllowSecurityCircumvention.AutoSize = true;
-            this.xAllowSecurityCircumvention.Location = new System.Drawing.Point( 9, 403 );
+            this.xAllowSecurityCircumvention.Location = new System.Drawing.Point( 9, 433 );
             this.xAllowSecurityCircumvention.Name = "xAllowSecurityCircumvention";
             this.xAllowSecurityCircumvention.Size = new System.Drawing.Size( 271, 19 );
             this.xAllowSecurityCircumvention.TabIndex = 27;
@@ -1272,7 +1293,7 @@
             // lAntiGrief1
             // 
             this.lAntiGrief1.AutoSize = true;
-            this.lAntiGrief1.Location = new System.Drawing.Point( 43, 340 );
+            this.lAntiGrief1.Location = new System.Drawing.Point( 43, 370 );
             this.lAntiGrief1.Name = "lAntiGrief1";
             this.lAntiGrief1.Size = new System.Drawing.Size( 47, 15 );
             this.lAntiGrief1.TabIndex = 22;
@@ -1281,7 +1302,7 @@
             // lAntiGrief3
             // 
             this.lAntiGrief3.AutoSize = true;
-            this.lAntiGrief3.Location = new System.Drawing.Point( 265, 340 );
+            this.lAntiGrief3.Location = new System.Drawing.Point( 265, 370 );
             this.lAntiGrief3.Name = "lAntiGrief3";
             this.lAntiGrief3.Size = new System.Drawing.Size( 26, 15 );
             this.lAntiGrief3.TabIndex = 21;
@@ -1289,7 +1310,7 @@
             // 
             // nAntiGriefSeconds
             // 
-            this.nAntiGriefSeconds.Location = new System.Drawing.Point( 214, 338 );
+            this.nAntiGriefSeconds.Location = new System.Drawing.Point( 214, 368 );
             this.nAntiGriefSeconds.Name = "nAntiGriefSeconds";
             this.nAntiGriefSeconds.Size = new System.Drawing.Size( 45, 21 );
             this.nAntiGriefSeconds.TabIndex = 14;
@@ -1308,7 +1329,7 @@
             // xDrawLimit
             // 
             this.xDrawLimit.AutoSize = true;
-            this.xDrawLimit.Location = new System.Drawing.Point( 9, 373 );
+            this.xDrawLimit.Location = new System.Drawing.Point( 9, 403 );
             this.xDrawLimit.Name = "xDrawLimit";
             this.xDrawLimit.Size = new System.Drawing.Size( 81, 19 );
             this.xDrawLimit.TabIndex = 15;
@@ -1319,7 +1340,7 @@
             // lDrawLimitUnits
             // 
             this.lDrawLimitUnits.AutoSize = true;
-            this.lDrawLimitUnits.Location = new System.Drawing.Point( 169, 374 );
+            this.lDrawLimitUnits.Location = new System.Drawing.Point( 169, 404 );
             this.lDrawLimitUnits.Name = "lDrawLimitUnits";
             this.lDrawLimitUnits.Size = new System.Drawing.Size( 42, 15 );
             this.lDrawLimitUnits.TabIndex = 8;
@@ -1328,7 +1349,7 @@
             // lKickIdleUnits
             // 
             this.lKickIdleUnits.AutoSize = true;
-            this.lKickIdleUnits.Location = new System.Drawing.Point( 178, 284 );
+            this.lKickIdleUnits.Location = new System.Drawing.Point( 178, 314 );
             this.lKickIdleUnits.Name = "lKickIdleUnits";
             this.lKickIdleUnits.Size = new System.Drawing.Size( 51, 15 );
             this.lKickIdleUnits.TabIndex = 19;
@@ -1341,7 +1362,7 @@
             0,
             0,
             0} );
-            this.nDrawLimit.Location = new System.Drawing.Point( 96, 372 );
+            this.nDrawLimit.Location = new System.Drawing.Point( 96, 402 );
             this.nDrawLimit.Maximum = new decimal( new int[] {
             100000000,
             0,
@@ -1354,7 +1375,7 @@
             // 
             // nKickIdle
             // 
-            this.nKickIdle.Location = new System.Drawing.Point( 113, 282 );
+            this.nKickIdle.Location = new System.Drawing.Point( 113, 312 );
             this.nKickIdle.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -1368,7 +1389,7 @@
             // xAntiGrief
             // 
             this.xAntiGrief.AutoSize = true;
-            this.xAntiGrief.Location = new System.Drawing.Point( 9, 313 );
+            this.xAntiGrief.Location = new System.Drawing.Point( 9, 343 );
             this.xAntiGrief.Name = "xAntiGrief";
             this.xAntiGrief.Size = new System.Drawing.Size( 213, 19 );
             this.xAntiGrief.TabIndex = 12;
@@ -1379,7 +1400,7 @@
             // lAntiGrief2
             // 
             this.lAntiGrief2.AutoSize = true;
-            this.lAntiGrief2.Location = new System.Drawing.Point( 153, 340 );
+            this.lAntiGrief2.Location = new System.Drawing.Point( 153, 370 );
             this.lAntiGrief2.Name = "lAntiGrief2";
             this.lAntiGrief2.Size = new System.Drawing.Size( 55, 15 );
             this.lAntiGrief2.TabIndex = 5;
@@ -1388,7 +1409,7 @@
             // xKickIdle
             // 
             this.xKickIdle.AutoSize = true;
-            this.xKickIdle.Location = new System.Drawing.Point( 9, 283 );
+            this.xKickIdle.Location = new System.Drawing.Point( 9, 313 );
             this.xKickIdle.Name = "xKickIdle";
             this.xKickIdle.Size = new System.Drawing.Size( 98, 19 );
             this.xKickIdle.TabIndex = 10;
@@ -1398,7 +1419,7 @@
             // 
             // nAntiGriefBlocks
             // 
-            this.nAntiGriefBlocks.Location = new System.Drawing.Point( 96, 338 );
+            this.nAntiGriefBlocks.Location = new System.Drawing.Point( 96, 368 );
             this.nAntiGriefBlocks.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -1412,7 +1433,7 @@
             // xReserveSlot
             // 
             this.xReserveSlot.AutoSize = true;
-            this.xReserveSlot.Location = new System.Drawing.Point( 9, 253 );
+            this.xReserveSlot.Location = new System.Drawing.Point( 9, 283 );
             this.xReserveSlot.Name = "xReserveSlot";
             this.xReserveSlot.Size = new System.Drawing.Size( 129, 19 );
             this.xReserveSlot.TabIndex = 9;
@@ -1565,7 +1586,7 @@
             this.vPermissions.Name = "vPermissions";
             this.vPermissions.ShowGroups = false;
             this.vPermissions.ShowItemToolTips = true;
-            this.vPermissions.Size = new System.Drawing.Size( 171, 417 );
+            this.vPermissions.Size = new System.Drawing.Size( 171, 447 );
             this.vPermissions.TabIndex = 6;
             this.vPermissions.UseCompatibleStateImageBehavior = false;
             this.vPermissions.View = System.Windows.Forms.View.Details;
@@ -1605,7 +1626,7 @@
             this.vRanks.ItemHeight = 15;
             this.vRanks.Location = new System.Drawing.Point( 8, 57 );
             this.vRanks.Name = "vRanks";
-            this.vRanks.Size = new System.Drawing.Size( 146, 359 );
+            this.vRanks.Size = new System.Drawing.Size( 146, 389 );
             this.vRanks.TabIndex = 0;
             this.vRanks.SelectedIndexChanged += new System.EventHandler( this.vRanks_SelectedIndexChanged );
             // 
@@ -2945,6 +2966,16 @@
             this.gCrashReport.TabStop = false;
             this.gCrashReport.Text = "Web connectivity";
             // 
+            // xUpdateAtStartup
+            // 
+            this.xUpdateAtStartup.AutoSize = true;
+            this.xUpdateAtStartup.Location = new System.Drawing.Point( 407, 104 );
+            this.xUpdateAtStartup.Name = "xUpdateAtStartup";
+            this.xUpdateAtStartup.Size = new System.Drawing.Size( 183, 19 );
+            this.xUpdateAtStartup.TabIndex = 42;
+            this.xUpdateAtStartup.Text = "Check immediately at startup";
+            this.xUpdateAtStartup.UseVisualStyleBackColor = true;
+            // 
             // lCrashReportDisclaimer
             // 
             this.lCrashReportDisclaimer.AutoSize = true;
@@ -2992,7 +3023,7 @@
             // 
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bOK.Location = new System.Drawing.Point( 360, 494 );
+            this.bOK.Location = new System.Drawing.Point( 360, 524 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 28 );
             this.bOK.TabIndex = 1;
@@ -3004,7 +3035,7 @@
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.bCancel.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bCancel.Location = new System.Drawing.Point( 466, 494 );
+            this.bCancel.Location = new System.Drawing.Point( 466, 524 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 28 );
             this.bCancel.TabIndex = 2;
@@ -3015,7 +3046,7 @@
             // 
             this.bResetTab.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bResetTab.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bResetTab.Location = new System.Drawing.Point( 132, 494 );
+            this.bResetTab.Location = new System.Drawing.Point( 132, 524 );
             this.bResetTab.Name = "bResetTab";
             this.bResetTab.Size = new System.Drawing.Size( 100, 28 );
             this.bResetTab.TabIndex = 5;
@@ -3027,7 +3058,7 @@
             // 
             this.bResetAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bResetAll.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bResetAll.Location = new System.Drawing.Point( 12, 494 );
+            this.bResetAll.Location = new System.Drawing.Point( 12, 524 );
             this.bResetAll.Name = "bResetAll";
             this.bResetAll.Size = new System.Drawing.Size( 114, 28 );
             this.bResetAll.TabIndex = 4;
@@ -3039,7 +3070,7 @@
             // 
             this.bApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bApply.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bApply.Location = new System.Drawing.Point( 572, 494 );
+            this.bApply.Location = new System.Drawing.Point( 572, 524 );
             this.bApply.Name = "bApply";
             this.bApply.Size = new System.Drawing.Size( 100, 28 );
             this.bApply.TabIndex = 3;
@@ -3053,38 +3084,30 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // xUpdateAtStartup
+            // cMuteLimit
             // 
-            this.xUpdateAtStartup.AutoSize = true;
-            this.xUpdateAtStartup.Location = new System.Drawing.Point( 407, 104 );
-            this.xUpdateAtStartup.Name = "xUpdateAtStartup";
-            this.xUpdateAtStartup.Size = new System.Drawing.Size( 183, 19 );
-            this.xUpdateAtStartup.TabIndex = 42;
-            this.xUpdateAtStartup.Text = "Check immediately at startup";
-            this.xUpdateAtStartup.UseVisualStyleBackColor = true;
+            this.cMuteLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cMuteLimit.FormattingEnabled = true;
+            this.cMuteLimit.Location = new System.Drawing.Point( 96, 251 );
+            this.cMuteLimit.Name = "cMuteLimit";
+            this.cMuteLimit.Size = new System.Drawing.Size( 180, 23 );
+            this.cMuteLimit.TabIndex = 28;
+            this.cMuteLimit.SelectedIndexChanged += new System.EventHandler( this.cMuteLimit_SelectedIndexChanged );
             // 
-            // chatPreview
+            // lMuteLimit
             // 
-            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 189 );
-            this.chatPreview.TabIndex = 2;
-            // 
-            // xShowConnectionMessages
-            // 
-            this.xShowConnectionMessages.AutoSize = true;
-            this.xShowConnectionMessages.Location = new System.Drawing.Point( 325, 45 );
-            this.xShowConnectionMessages.Name = "xShowConnectionMessages";
-            this.xShowConnectionMessages.Size = new System.Drawing.Size( 306, 19 );
-            this.xShowConnectionMessages.TabIndex = 5;
-            this.xShowConnectionMessages.Text = "Show a message when players join/leave SERVER.";
-            this.xShowConnectionMessages.UseVisualStyleBackColor = true;
+            this.lMuteLimit.AutoSize = true;
+            this.lMuteLimit.Location = new System.Drawing.Point( 29, 254 );
+            this.lMuteLimit.Name = "lMuteLimit";
+            this.lMuteLimit.Size = new System.Drawing.Size( 61, 15 );
+            this.lMuteLimit.TabIndex = 29;
+            this.lMuteLimit.Text = "Mute limit";
             // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 684, 534 );
+            this.ClientSize = new System.Drawing.Size( 684, 564 );
             this.Controls.Add( this.bApply );
             this.Controls.Add( this.bResetAll );
             this.Controls.Add( this.bResetTab );
@@ -3410,5 +3433,7 @@
         private System.Windows.Forms.Label lConsoleNameHint;
         private System.Windows.Forms.CheckBox xUpdateAtStartup;
         private System.Windows.Forms.CheckBox xShowConnectionMessages;
+        private System.Windows.Forms.ComboBox cMuteLimit;
+        private System.Windows.Forms.Label lMuteLimit;
     }
 }
