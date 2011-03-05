@@ -504,6 +504,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             cDemoteLimit.SelectedIndex = rank.GetLimitIndex( Permission.Demote );
             cMaxHideFrom.SelectedIndex = rank.GetLimitIndex( Permission.Hide );
             cFreezeLimit.SelectedIndex = rank.GetLimitIndex( Permission.Freeze );
+            cMuteLimit.SelectedIndex = rank.GetLimitIndex( Permission.Mute );
             xReserveSlot.Checked = rank.ReservedSlot;
             xKickIdle.Checked = rank.IdleKickTimer > 0;
             nKickIdle.Value = rank.IdleKickTimer;
@@ -532,6 +533,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             cDemoteLimit.Enabled = rank.Can( Permission.Demote );
             cMaxHideFrom.Enabled = rank.Can( Permission.Hide );
             cFreezeLimit.Enabled = rank.Can( Permission.Freeze );
+            cMuteLimit.Enabled = rank.Can( Permission.Mute );
             xDrawLimit.Enabled = rank.Can( Permission.Draw ) || rank.Can( Permission.CopyAndPaste );
             nDrawLimit.Enabled = xDrawLimit.Checked;
             xAllowSecurityCircumvention.Enabled = rank.Can( Permission.ManageWorlds ) || rank.Can( Permission.ManageZones );
@@ -568,6 +570,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             FillRankList( cDemoteLimit, "(own rank)" );
             FillRankList( cMaxHideFrom, "(own rank)" );
             FillRankList( cFreezeLimit, "(own rank)" );
+            FillRankList( cMuteLimit, "(own rank)" );
 
             if( selectedRank != null ) {
                 cKickLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Kick );
@@ -588,12 +591,13 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             bColorRank.Text = "";
             tPrefix.Text = "";
 
-            FillRankList( cPromoteLimit, "(own rank)" );
-            FillRankList( cDemoteLimit, "(own rank)" );
             FillRankList( cKickLimit, "(own rank)" );
             FillRankList( cBanLimit, "(own rank)" );
+            FillRankList( cPromoteLimit, "(own rank)" );
+            FillRankList( cDemoteLimit, "(own rank)" );
             FillRankList( cMaxHideFrom, "(own rank)" );
             FillRankList( cFreezeLimit, "(own rank)" );
+            FillRankList( cMuteLimit, "(own rank)" );
 
             cPromoteLimit.SelectedIndex = 0;
             cDemoteLimit.SelectedIndex = 0;
@@ -601,6 +605,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             cBanLimit.SelectedIndex = 0;
             cMaxHideFrom.SelectedIndex = 0;
             cFreezeLimit.SelectedIndex = 0;
+            cMuteLimit.SelectedIndex = 0;
 
             xReserveSlot.Checked = false;
             xKickIdle.Checked = false;
@@ -651,6 +656,10 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         private void cFreezeLimit_SelectedIndexChanged( object sender, EventArgs e ) {
             PermissionLimitChange( Permission.Freeze, cFreezeLimit );
+        }
+
+        private void cMuteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
+            PermissionLimitChange( Permission.Mute, cMuteLimit );
         }
 
         void PermissionLimitChange( Permission permission, ComboBox control ) {
@@ -940,6 +949,8 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                     cMaxHideFrom.Enabled = check; break;
                 case Permission.Freeze:
                     cFreezeLimit.Enabled = check; break;
+                case Permission.Mute:
+                    cMuteLimit.Enabled = check; break;
 
                 case Permission.Draw:
                 case Permission.CopyAndPaste:
@@ -1362,5 +1373,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                     return;
             }
         }
+
     }
 }

@@ -231,6 +231,11 @@ By default, players can only freeze players of same or lower rank.";
             toolTip.SetToolTip( lFreezeLimit, tipFreezeLimit );
             toolTip.SetToolTip( cFreezeLimit, tipFreezeLimit );
 
+            string tipMuteLimit =
+@"Limit on who can be muted by players of this rank.
+By default, players can only mute players of same or lower rank.";
+            toolTip.SetToolTip( lMuteLimit, tipMuteLimit );
+            toolTip.SetToolTip( cMuteLimit, tipMuteLimit );
 
 
             toolTip.SetToolTip( xReserveSlot,
