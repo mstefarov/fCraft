@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Windows.Forms;
@@ -47,7 +48,6 @@ namespace ConfigTool {
             AddChangeHandler( bResetAll, SomethingChanged );
 
             AddChangeHandler( tabChat, HandleTabChatChange );
-            UpdateChatPreview();
             bApply.Enabled = false;
         }
 
@@ -113,11 +113,12 @@ namespace ConfigTool {
 
 
         void ApplyTabChat() {
-            xRankColors.Checked = Config.GetBool( ConfigKey.RankColorsInChat );
-            xChatPrefixes.Checked = Config.GetBool( ConfigKey.RankPrefixesInChat );
-            xListPrefixes.Checked = Config.GetBool( ConfigKey.RankPrefixesInList );
-            xRankColorsInWorldNames.Checked = Config.GetBool( ConfigKey.RankColorsInWorldNames );
-            xShowJoinedWorldMessages.Checked = Config.GetBool( ConfigKey.ShowJoinedWorldMessages );
+            xRankColors.Checked = ConfigKey.RankColorsInChat.GetBool();
+            xChatPrefixes.Checked = ConfigKey.RankPrefixesInChat.GetBool();
+            xListPrefixes.Checked = ConfigKey.RankPrefixesInList.GetBool();
+            xRankColorsInWorldNames.Checked = ConfigKey.RankColorsInWorldNames.GetBool();
+            xShowJoinedWorldMessages.Checked = ConfigKey.ShowJoinedWorldMessages.GetBool();
+            xShowConnectionMessages.Checked = ConfigKey.ShowConnectionMessages.GetBool();
 
             colorSys = Color.ParseToIndex( Config.GetString( ConfigKey.SystemMessageColor ) );
             ApplyColor( bColorSys, colorSys );
@@ -146,6 +147,8 @@ namespace ConfigTool {
             colorMe = Color.ParseToIndex( Config.GetString( ConfigKey.MeColor ) );
             ApplyColor( bColorMe, colorMe );
             Color.Me = Color.Parse( colorMe );
+
+            UpdateChatPreview();
         }
 
 
@@ -200,7 +203,9 @@ namespace ConfigTool {
 
 
         void ApplyTabSecurity() {
-            ApplyEnum( cVerifyNames, ConfigKey.VerifyNames, 1, "Never", "Balanced", "Always" );
+
+            ApplyEnum( cVerifyNames, ConfigKey.VerifyNames, NameVerificationMode.Balanced );
+
             xLimitOneConnectionPerIP.Checked = Config.GetBool( ConfigKey.LimitOneConnectionPerIP );
             xAllowUnverifiedLAN.Checked = Config.GetBool( ConfigKey.AllowUnverifiedLAN );
 
@@ -253,7 +258,7 @@ namespace ConfigTool {
                 item.Checked = Logger.logFileOptions[item.Index];
             }
 
-            ApplyEnum( cLogMode, ConfigKey.LogMode, 0, "OneFile", "SplitBySession", "SplitByDay" );
+            ApplyEnum( cLogMode, ConfigKey.LogMode, LogSplittingType.OneFile );
 
             xLogLimit.Checked = Config.GetInt( ConfigKey.MaxLogs ) > 0;
             nLogLimit.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.MaxLogs ) );
@@ -262,7 +267,7 @@ namespace ConfigTool {
 
 
         void ApplyTabIRC() {
-            xIRC.Checked = Config.GetBool( ConfigKey.IRCBot );
+            xIRC.Checked = Config.GetBool( ConfigKey.IRCBotEnabled );
             gIRCNetwork.Enabled = xIRC.Checked;
             gIRCOptions.Enabled = xIRC.Checked;
 
@@ -298,8 +303,24 @@ namespace ConfigTool {
             xNoPartialPositionUpdates.Checked = Config.GetBool( ConfigKey.NoPartialPositionUpdates );
             nTickInterval.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.TickInterval ) );
 
-            ApplyEnum( cProcessPriority, ConfigKey.ProcessPriority, 0, "", "High", "AboveNormal", "Normal", "BelowNormal", "Low" );
-            ApplyEnum( cUpdater, ConfigKey.AutomaticUpdates, 2, "Disabled", "Notify", "Prompt", "Auto" );
+            if( ConfigKey.ProcessPriority.IsEmpty() ) {
+                cProcessPriority.SelectedIndex = 0; // Default
+            } else {
+                switch( ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>() ) {
+                    case ProcessPriorityClass.High:
+                        cProcessPriority.SelectedIndex = 1; break;
+                    case ProcessPriorityClass.AboveNormal:
+                        cProcessPriority.SelectedIndex = 2; break;
+                    case ProcessPriorityClass.Normal:
+                        cProcessPriority.SelectedIndex = 3; break;
+                    case ProcessPriorityClass.BelowNormal:
+                        cProcessPriority.SelectedIndex = 4; break;
+                    case ProcessPriorityClass.Idle:
+                        cProcessPriority.SelectedIndex = 5; break;
+                }
+            }
+
+            ApplyEnum( cUpdater, ConfigKey.UpdateMode, AutoUpdaterMode.Prompt );
 
             nThrottling.Value = Config.GetInt( ConfigKey.BlockUpdateThrottling );
             xLowLatencyMode.Checked = Config.GetBool( ConfigKey.LowLatencyMode );
@@ -312,12 +333,18 @@ namespace ConfigTool {
         }
 
 
-        static void ApplyEnum( ComboBox box, ConfigKey key, int def, params string[] options ) {
-            int index = Array.IndexOf( options, Config.GetString( key ) );
-            if( index != -1 ) {
-                box.SelectedIndex = index;
-            } else {
-                box.SelectedIndex = def;
+        static void ApplyEnum<TEnum>( ComboBox box, ConfigKey key, TEnum def ) where TEnum : struct {
+#if DEBUG
+            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required", "TEnum" );
+#endif
+            try {
+                if( key.IsEmpty() ) {
+                    box.SelectedIndex = (int)(object)def;
+                } else {
+                    box.SelectedIndex = (int)Enum.Parse( typeof( TEnum ), Config.GetString( key ), true );
+                }
+            } catch( ArgumentException ) {
+                box.SelectedIndex = (int)(object)def;
             }
         }
 
@@ -373,7 +400,7 @@ namespace ConfigTool {
 
 
             // Security
-            WriteEnum( cVerifyNames, ConfigKey.VerifyNames, "Never", "Balanced", "Always" );
+            WriteEnum<NameVerificationMode>( cVerifyNames, ConfigKey.VerifyNames );
             Config.SetValue( ConfigKey.LimitOneConnectionPerIP, xLimitOneConnectionPerIP.Checked );
             Config.SetValue( ConfigKey.AllowUnverifiedLAN, xAllowUnverifiedLAN.Checked );
 
@@ -414,7 +441,7 @@ namespace ConfigTool {
 
 
             // Logging
-            WriteEnum( cLogMode, ConfigKey.LogMode, "OneFile", "SplitBySession", "SplitByDay" );
+            WriteEnum<LogSplittingType>( cLogMode, ConfigKey.LogMode );
             if( xLogLimit.Checked ) Config.SetValue( ConfigKey.MaxLogs, nLogLimit.Value );
             else Config.SetValue( ConfigKey.MaxLogs, "0" );
             foreach( ListViewItem item in vConsoleOptions.Items ) {
@@ -426,7 +453,7 @@ namespace ConfigTool {
 
 
             // IRC
-            Config.SetValue( ConfigKey.IRCBot, xIRC.Checked );
+            Config.SetValue( ConfigKey.IRCBotEnabled, xIRC.Checked );
 
             Config.SetValue( ConfigKey.IRCBotNetwork, tIRCBotNetwork.Text );
             Config.SetValue( ConfigKey.IRCBotPort, nIRCBotPort.Value );
@@ -451,13 +478,27 @@ namespace ConfigTool {
 
             // advanced
             Config.SetValue( ConfigKey.SubmitCrashReports, xSubmitCrashReports.Checked );
-            WriteEnum( cUpdater, ConfigKey.AutomaticUpdates, "Disabled", "Notify", "Prompt", "Auto" );
+            WriteEnum<AutoUpdaterMode>( cUpdater, ConfigKey.UpdateMode );
 
             Config.SetValue( ConfigKey.RelayAllBlockUpdates, xRelayAllBlockUpdates.Checked );
             Config.SetValue( ConfigKey.NoPartialPositionUpdates, xNoPartialPositionUpdates.Checked );
             Config.SetValue( ConfigKey.TickInterval, Convert.ToInt32( nTickInterval.Value ) );
 
-            WriteEnum( cProcessPriority, ConfigKey.ProcessPriority, "", "High", "AboveNormal", "Normal", "BelowNormal", "Low" );
+            switch( cProcessPriority.SelectedIndex ) {
+                case 0:
+                    ConfigKey.ProcessPriority.ResetValue(); break;
+                case 1:
+                    ConfigKey.ProcessPriority.SetValue( ProcessPriorityClass.High ); break;
+                case 2:
+                    ConfigKey.ProcessPriority.SetValue( ProcessPriorityClass.AboveNormal ); break;
+                case 3:
+                    ConfigKey.ProcessPriority.SetValue( ProcessPriorityClass.Normal ); break;
+                case 4:
+                    ConfigKey.ProcessPriority.SetValue( ProcessPriorityClass.BelowNormal ); break;
+                case 5:
+                    ConfigKey.ProcessPriority.SetValue( ProcessPriorityClass.Idle ); break;
+            }
+
             Config.SetValue( ConfigKey.BlockUpdateThrottling, Convert.ToInt32( nThrottling.Value ) );
 
             Config.SetValue( ConfigKey.LowLatencyMode, xLowLatencyMode.Checked );
@@ -495,8 +536,17 @@ namespace ConfigTool {
         }
 
 
-        static void WriteEnum( ComboBox box, ConfigKey value, params string[] options ) {
-            Config.SetValue( value, options[box.SelectedIndex] );
+        static void WriteEnum<TEnum>( ComboBox box, ConfigKey key ) where TEnum : struct {
+#if DEBUG
+            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required", "TEnum" );
+#endif
+            try {
+                TEnum val = (TEnum)Enum.Parse( typeof( TEnum ), box.SelectedIndex.ToString(), true );
+                Config.SetValue( key, val );
+            } catch( ArgumentException ) {
+                Logger.Log( "ConfigUI.WriteEnum<{0}>: Could not parse value for {1}. Using default ({2}).", LogType.Error,
+                            typeof( TEnum ).Name, key, key.GetString() );
+            }
         }
 
         #endregion

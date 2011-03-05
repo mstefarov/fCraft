@@ -77,13 +77,20 @@ namespace fCraft {
     }
 
 
-    public class Criterion {
+    public class Criterion : ICloneable {
         public CriterionType Type { get; set; }
         public Rank FromRank { get; set; }
         public Rank ToRank { get; set; }
         public Condition Condition { get; set; }
 
         public Criterion() { }
+
+        public Criterion( Criterion other ) {
+            Type = other.Type;
+            FromRank = other.FromRank;
+            ToRank = other.ToRank;
+            Condition = other.Condition;
+        }
 
         public Criterion( CriterionType _type, Rank _fromRank, Rank _toRank, Condition _condition ) {
             Type = _type;
@@ -114,6 +121,10 @@ namespace fCraft {
             } else {
                 throw new FormatException( "At least one condition required." );
             }
+        }
+
+        public object Clone() {
+            return new Criterion( this );
         }
 
         public override string ToString() {

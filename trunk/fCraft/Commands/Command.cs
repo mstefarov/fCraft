@@ -5,17 +5,27 @@ namespace fCraft {
     /// <summary>
     /// Aids parsing chat commands and their arguments.
     /// </summary>
-    public sealed class Command {
+    public sealed class Command : ICloneable {
         int offset;
         string message;
         public string name; // lowercase name of the command
         public bool confirmed; // whether this command has been confirmed by the user (with /ok)
 
+        public Command( Command other ) {
+            offset = other.offset;
+            message = other.message;
+            name = other.name;
+            confirmed = other.confirmed;
+        }
 
         public Command( string _message ) {
             offset = 1;
             message = _message;
             name = Next().ToLower();
+        }
+
+        public object Clone() {
+            return new Command( this );
         }
 
 

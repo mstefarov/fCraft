@@ -31,16 +31,20 @@ namespace fCraft {
     /// </summary>
     public static class Updater {
         public static int Version = 510;
-        public static int Revision = 443;
+        public static int Revision = 444;
         public static bool IsDev = true,
-                           IsBroken = false;
+                           IsBroken = true;
         public static string LatestStable = "0.506_r427";
 
         const string UpdateURL = "http://fcraft.fragmer.net/version.log";
 
         public static UpdaterResult CheckForUpdates() {
             UpdaterResult result = new UpdaterResult( Version );
-            if( Config.GetString( ConfigKey.AutomaticUpdates ) == "Disabled" ) return result;
+            return result;
+            // TODO: fix the rest
+            AutoUpdaterMode mode = Config.GetEnum<AutoUpdaterMode>( ConfigKey.UpdateMode );
+            if(mode == AutoUpdaterMode.Disabled) return result;
+
             Logger.Log( "Checking for fCraft updates...", LogType.SystemActivity );
             try {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create( UpdateURL );
@@ -97,8 +101,7 @@ namespace fCraft {
     public enum AutoUpdaterMode {
         Disabled,
         Notify,
-        NotifyDeferred,
+        Prompt,
         Auto,
-        AutoDeferred
     }
 }

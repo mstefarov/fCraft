@@ -98,6 +98,15 @@ namespace ConfigTool {
 
 
         void LoadMap( object sender, EventArgs args ) {
+
+            // Fill in the "Copy existing world" combobox
+            foreach( WorldListEntry otherWorld in ConfigUI.worlds ) {
+                if( otherWorld != world ) {
+                    cWorld.Items.Add( otherWorld.name + " (" + otherWorld.Description + ")" );
+                    copyOptionsList.Add( otherWorld );
+                }
+            }
+
             if( world == null ) {
                 Text = "Adding a New World";
                 world = new WorldListEntry();
@@ -110,22 +119,14 @@ namespace ConfigTool {
                 cBackup.SelectedIndex = 5;
                 map = null;
             } else {
-                Text = "Editing World \"" + world.Name + "\"";
                 world = new WorldListEntry( world );
+                Text = "Editing World \"" + world.Name + "\"";
                 originalWorldName = world.Name;
                 tName.Text = world.Name;
                 cAccess.SelectedItem = world.AccessPermission;
                 cBuild.SelectedItem = world.BuildPermission;
                 cBackup.SelectedItem = world.Backup;
                 xHidden.Checked = world.Hidden;
-            }
-
-            // Fill in the "Copy existing world" combobox
-            foreach( WorldListEntry otherWorld in ConfigUI.worlds ) {
-                if( otherWorld != world ) {
-                    cWorld.Items.Add( otherWorld.name + " (" + otherWorld.Description + ")" );
-                    copyOptionsList.Add( otherWorld );
-                }
             }
 
             // Disable "copy" tab if there are no other worlds

@@ -384,7 +384,7 @@ namespace fCraft {
         static Regex nonPrintableChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled );
 
         public static void Init() {
-            if( !Config.GetBool( ConfigKey.IRCBot ) ) return;
+            if( !Config.GetBool( ConfigKey.IRCBotEnabled ) ) return;
 
             hostName = Config.GetString( ConfigKey.IRCBotNetwork );
             port = Config.GetInt( ConfigKey.IRCBotPort );

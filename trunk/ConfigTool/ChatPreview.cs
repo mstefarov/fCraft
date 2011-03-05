@@ -105,6 +105,7 @@ namespace ConfigTool {
                 }
             }
             segments = newSegments.ToArray();
+            Invalidate();
         }
 
 

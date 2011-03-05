@@ -157,6 +157,11 @@ namespace fCraft {
                             Updater.LatestStable );
             }
 
+
+#if DEBUG
+            Config.RunSelfTest();
+#endif
+
             // try to load the config
             if( !Config.Load( false, false ) ) return false;
             Config.ApplyConfig();
@@ -281,7 +286,7 @@ namespace fCraft {
 
             Heartbeat.Start();
 
-            if( Config.GetBool( ConfigKey.IRCBot ) ) IRC.Start();
+            if( Config.GetBool( ConfigKey.IRCBotEnabled ) ) IRC.Start();
 
             // fire OnStart event
             if( OnStart != null ) OnStart();
