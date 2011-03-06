@@ -1402,6 +1402,13 @@ namespace fCraft {
                 Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
                 if( target == null ) return;
 
+                if( !player.info.rank.CanMute( target.info.rank ) ) {
+                    player.Message( "You can only mute players ranked {0}&S or lower.",
+                                    player.info.rank.GetLimit( Permission.Mute ).GetClassyName() );
+                    player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.info.rank.GetClassyName() );
+                    return;
+                }
+
                 target.info.Mute( player.name, seconds );
                 target.Message( "You were muted by {0}&S for {1} sec", player.GetClassyName(), seconds );
                 Server.SendToAllExcept( "&SPlayer {0}&S was muted by {1}&S for {2} sec", target,
@@ -1431,6 +1438,13 @@ namespace fCraft {
 
                 Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
                 if( target == null ) return;
+
+                if( !player.info.rank.CanMute( target.info.rank ) ) {
+                    player.Message( "You can only unmute players ranked {0}&S or lower.",
+                                    player.info.rank.GetLimit( Permission.Mute ).GetClassyName() );
+                    player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.info.rank.GetClassyName() );
+                    return;
+                }
 
                 if( target.info.mutedUntil >= DateTime.UtcNow ) {
                     target.info.Unmute();

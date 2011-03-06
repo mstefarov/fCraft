@@ -298,6 +298,10 @@ namespace fCraft {
             return GetLimit( Permission.Freeze ) >= other;
         }
 
+        public bool CanMute( Rank other ) {
+            return GetLimit( Permission.Mute ) >= other;
+        }
+
         #endregion
 
         #region Permission Limits
