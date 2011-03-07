@@ -24,9 +24,13 @@
         /// </summary>
         private void InitializeComponent() {
             this.changelog = new System.Windows.Forms.TextBox();
+            this.lHeader = new System.Windows.Forms.Label();
+            this.bCancel = new System.Windows.Forms.Button();
+            this.bUpdateNow = new System.Windows.Forms.Button();
+            this.bUpdateLater = new System.Windows.Forms.Button();
             this.progress = new System.Windows.Forms.ProgressBar();
-            this.bApply = new System.Windows.Forms.Button();
-            this.title = new System.Windows.Forms.Label();
+            this.lProgress = new System.Windows.Forms.Label();
+            this.lVersion = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // changelog
@@ -35,53 +39,99 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.changelog.Font = new System.Drawing.Font( "Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.changelog.Location = new System.Drawing.Point( 12, 34 );
+            this.changelog.Location = new System.Drawing.Point( 12, 60 );
             this.changelog.Multiline = true;
             this.changelog.Name = "changelog";
             this.changelog.ReadOnly = true;
             this.changelog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.changelog.Size = new System.Drawing.Size( 559, 287 );
+            this.changelog.Size = new System.Drawing.Size( 560, 261 );
             this.changelog.TabIndex = 0;
             this.changelog.TabStop = false;
             // 
+            // lHeader
+            // 
+            this.lHeader.AutoSize = true;
+            this.lHeader.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.lHeader.Location = new System.Drawing.Point( 12, 9 );
+            this.lHeader.Name = "lHeader";
+            this.lHeader.Size = new System.Drawing.Size( 187, 13 );
+            this.lHeader.TabIndex = 4;
+            this.lHeader.Text = "An update to fCraft is available!";
+            // 
+            // bCancel
+            // 
+            this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.bCancel.Location = new System.Drawing.Point( 472, 327 );
+            this.bCancel.Name = "bCancel";
+            this.bCancel.Size = new System.Drawing.Size( 100, 23 );
+            this.bCancel.TabIndex = 6;
+            this.bCancel.Text = "Cancel";
+            this.bCancel.UseVisualStyleBackColor = true;
+            this.bCancel.Click += new System.EventHandler( this.bCancel_Click );
+            // 
+            // bUpdateNow
+            // 
+            this.bUpdateNow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bUpdateNow.Location = new System.Drawing.Point( 260, 327 );
+            this.bUpdateNow.Name = "bUpdateNow";
+            this.bUpdateNow.Size = new System.Drawing.Size( 100, 23 );
+            this.bUpdateNow.TabIndex = 7;
+            this.bUpdateNow.Text = "Restart Now";
+            this.bUpdateNow.UseVisualStyleBackColor = true;
+            this.bUpdateNow.Click += new System.EventHandler( this.bUpdateNow_Click );
+            // 
+            // bUpdateLater
+            // 
+            this.bUpdateLater.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bUpdateLater.Location = new System.Drawing.Point( 366, 327 );
+            this.bUpdateLater.Name = "bUpdateLater";
+            this.bUpdateLater.Size = new System.Drawing.Size( 100, 23 );
+            this.bUpdateLater.TabIndex = 8;
+            this.bUpdateLater.Text = "Update Later";
+            this.bUpdateLater.UseVisualStyleBackColor = true;
+            // 
             // progress
             // 
-            this.progress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            this.progress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.progress.Location = new System.Drawing.Point( 12, 327 );
+            this.progress.Location = new System.Drawing.Point( 432, 12 );
             this.progress.Name = "progress";
-            this.progress.Size = new System.Drawing.Size( 443, 23 );
+            this.progress.Size = new System.Drawing.Size( 140, 23 );
             this.progress.TabIndex = 1;
             // 
-            // bApply
+            // lProgress
             // 
-            this.bApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bApply.Enabled = false;
-            this.bApply.Location = new System.Drawing.Point( 461, 327 );
-            this.bApply.Name = "bApply";
-            this.bApply.Size = new System.Drawing.Size( 111, 23 );
-            this.bApply.TabIndex = 2;
-            this.bApply.Text = "Downloading";
-            this.bApply.UseVisualStyleBackColor = true;
-            this.bApply.Click += new System.EventHandler( this.bApply_Click );
+            this.lProgress.AutoSize = true;
+            this.lProgress.Location = new System.Drawing.Point( 429, 38 );
+            this.lProgress.Name = "lProgress";
+            this.lProgress.Size = new System.Drawing.Size( 100, 13 );
+            this.lProgress.TabIndex = 5;
+            this.lProgress.Text = "Downloading ({0}%)";
             // 
-            // title
+            // lVersion
             // 
-            this.title.AutoSize = true;
-            this.title.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.title.Location = new System.Drawing.Point( 12, 9 );
-            this.title.Name = "title";
-            this.title.Size = new System.Drawing.Size( 209, 13 );
-            this.title.TabIndex = 4;
-            this.title.Text = "A new version of fCraft is available.";
+            this.lVersion.AutoSize = true;
+            this.lVersion.Location = new System.Drawing.Point( 12, 25 );
+            this.lVersion.Name = "lVersion";
+            this.lVersion.Size = new System.Drawing.Size( 266, 26 );
+            this.lVersion.TabIndex = 9;
+            this.lVersion.Text = "Currently installed version: {0}\r\nNewest available version: {1} (released {2:0} d" +
+                "ays ago)";
             // 
             // UpdateWindow
             // 
+            this.AcceptButton = this.bUpdateNow;
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.bCancel;
             this.ClientSize = new System.Drawing.Size( 584, 362 );
-            this.Controls.Add( this.title );
-            this.Controls.Add( this.bApply );
+            this.Controls.Add( this.lVersion );
+            this.Controls.Add( this.bUpdateLater );
+            this.Controls.Add( this.bUpdateNow );
+            this.Controls.Add( this.bCancel );
+            this.Controls.Add( this.lProgress );
+            this.Controls.Add( this.lHeader );
             this.Controls.Add( this.progress );
             this.Controls.Add( this.changelog );
             this.MaximizeBox = false;
@@ -89,8 +139,8 @@
             this.Name = "UpdateWindow";
             this.ShowIcon = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "fCraft Updater";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler( this.UpdateWindow_FormClosed );
             this.ResumeLayout( false );
             this.PerformLayout();
 
@@ -99,8 +149,12 @@
         #endregion
 
         private System.Windows.Forms.TextBox changelog;
+        private System.Windows.Forms.Label lHeader;
+        private System.Windows.Forms.Button bCancel;
+        private System.Windows.Forms.Button bUpdateNow;
+        private System.Windows.Forms.Button bUpdateLater;
         private System.Windows.Forms.ProgressBar progress;
-        private System.Windows.Forms.Button bApply;
-        private System.Windows.Forms.Label title;
+        private System.Windows.Forms.Label lProgress;
+        private System.Windows.Forms.Label lVersion;
     }
 }

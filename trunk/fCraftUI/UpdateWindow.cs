@@ -16,15 +16,15 @@ namespace fCraftUI {
 
         public UpdateWindow( UpdaterResult _update, MainForm _parent, bool _auto ) {
             InitializeComponent();
-            StartPosition = FormStartPosition.CenterParent;
             parent = _parent;
             update = _update;
             auto = _auto;
             changelog.Text = update.ChangeLog;
-            title.Text = String.Format( "A new version is available: v{0}, released {1:0} day(s) ago.",
-                                        update.GetVersionString(),
-                                        DateTime.Now.Subtract( update.ReleaseDate ).TotalDays );
-            Shown += Download;
+            lVersion.Text = String.Format( lVersion.Text,
+                                           Updater.GetVersionString(),
+                                           update.GetVersionString(),
+                                           DateTime.Now.Subtract( update.ReleaseDate ).TotalDays);
+            //Shown += Download;
         }
 
 
@@ -37,7 +37,7 @@ namespace fCraftUI {
 
         void DownloadProgress( object sender, DownloadProgressChangedEventArgs e ) {
             progress.Value = e.ProgressPercentage;
-            bApply.Text = "Downloading (" + e.ProgressPercentage + "%)";
+            lProgress.Text = "Downloading (" + e.ProgressPercentage + "%)";
         }
 
 
@@ -48,8 +48,7 @@ namespace fCraftUI {
             } else if( auto ) {
                 bApply_Click( null, null );
             }else{
-                bApply.Text = "Apply Update";
-                bApply.Enabled = true;
+                bUpdateNow.Enabled = true;
             }
         }
 
@@ -59,10 +58,12 @@ namespace fCraftUI {
             Application.Exit();
         }
 
-        private void UpdateWindow_FormClosed( object sender, FormClosedEventArgs e ) {
-            if( e.CloseReason != CloseReason.ApplicationExitCall ) {
-                parent.StartServer();
-            }
+        private void bCancel_Click( object sender, EventArgs e ) {
+            Close();
+        }
+
+        private void bUpdateNow_Click( object sender, EventArgs e ) {
+            Application.Restart();
         }
     }
 }
