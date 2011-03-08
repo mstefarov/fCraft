@@ -36,7 +36,7 @@ namespace ConfigTool {
             try {
                 Application.Run( new ConfigUI( args ) );
             } catch( Exception ex ) {
-                Logger.LogAndReportCrash( "Error in ConfigTool", "ConfigTool", ex );
+                Logger.LogAndReportCrash( "Error in ConfigTool", "ConfigTool", ex, true );
                 MessageBox.Show( ex.ToString(), "fCraft ConfigTool has crashed" );
             }
 #endif

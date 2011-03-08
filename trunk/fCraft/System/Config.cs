@@ -316,8 +316,7 @@ namespace fCraft {
                         fromFile = true;
                     }
                 } catch( Exception ex ) {
-                    Log( "Config.Load: Fatal error while loading config file {0}: {1}", LogType.FatalError,
-                         Paths.ConfigFileName, ex );
+                    Logger.LogAndReportCrash( "Config failed to load", "fCraft", ex, true );
                     return false;
                 }
             } else {
@@ -534,8 +533,7 @@ namespace fCraft {
                 }
                 return true;
             } catch( Exception ex ) {
-                Log( "Config.Load: Fatal error while saving config file {0}: {1}", LogType.FatalError,
-                     Paths.ConfigFileName, ex );
+                Logger.LogAndReportCrash( "Config failed to save", "fCraft", ex, true );
                 return false;
             }
         }
@@ -602,7 +600,7 @@ namespace fCraft {
                 case ConfigKey.ShowJoinedWorldMessages:
                 case ConfigKey.SubmitCrashReports:
                 case ConfigKey.UpdateAtStartup:
-                    return typeof(bool);
+                    return typeof( bool );
 
                 case ConfigKey.AnnouncementColor:
                 case ConfigKey.HelpColor:

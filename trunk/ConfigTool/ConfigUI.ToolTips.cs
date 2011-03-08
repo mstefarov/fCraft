@@ -617,7 +617,7 @@ If exceeded, oldest backups will be deleted.";
 e.g. output of commands called from console.";
             vLogFileOptions.Items[(int)LogType.Debug].ToolTipText = "Technical information that may be useful to find bugs.";
             vLogFileOptions.Items[(int)LogType.Error].ToolTipText = "Major errors and problems.";
-            vLogFileOptions.Items[(int)LogType.FatalError].ToolTipText = "Errors that prevent server from starting or result in crashes.";
+            vLogFileOptions.Items[(int)LogType.SeriousError].ToolTipText = "Errors that prevent server from starting or result in crashes.";
             vLogFileOptions.Items[(int)LogType.GlobalChat].ToolTipText = "Normal chat messages written by players.";
             vLogFileOptions.Items[(int)LogType.IRC].ToolTipText =
 @"IRC-related status and error messages.

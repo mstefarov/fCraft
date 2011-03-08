@@ -22,20 +22,22 @@ namespace fCraftUI {
 
 
         void StartUp( object sender, EventArgs a ) {
+            Logger.Logged += OnLogged;
+            Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
+            Server.OnPlayerListChanged += UpdatePlayerList;
+            Server.ShutdownEnded += OnServerShutdownEnded;
+
             Server.InitLibrary( args );
 
             //new UpdateWindow( new UpdaterResult { ChangeLog = "changelog goes here", DownloadLink = "www.derp.com", NewVersionNumber = Updater.Version + 1, ReleaseDate = DateTime.Now.AddDays( -1337 ), UpdateAvailable = true }, this, false ).ShowDialog();
 
-            Server.OnLog += Log;
-            Server.OnURLChanged += SetURL;
-            Server.OnPlayerListChanged += UpdatePlayerList;
-            Server.OnShutdownEnd += OnServerShutdown;
 
 #if !DEBUG
             try {
 #endif
                 if( Server.InitServer() ) {
                     Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
+                    Application.DoEvents();
                     StartServer();
                     //Application.DoEvents();
                     //UpdaterResult update = Updater.CheckForUpdates();
@@ -62,7 +64,7 @@ namespace fCraftUI {
                 }
 #if !DEBUG
             } catch( Exception ex ) {
-                Logger.LogAndReportCrash( "Unhandled exception in fCraftUI.StartUp", "fCraftUI", ex );
+                Logger.LogAndReportCrash( "Unhandled exception in fCraftUI.StartUp", "fCraftUI", ex, true );
                 Shutdown( "error at startup", false );
             }
 #endif
@@ -109,13 +111,15 @@ namespace fCraftUI {
         delegate void SetUrlDelegate( string url );
         delegate void PlayerListUpdateDelegate( string[] items );
 
-        public void Log( string message, LogType type ) {
+        public void OnLogged( object sender, LogEventArgs e ) {
+            if( !e.WriteToConsole ) return;
             try {
                 if( shutdownComplete ) return;
                 if( logBox.InvokeRequired ) {
-                    Invoke( (LogDelegate)Log, message, type );
+                    Invoke( (EventHandler<LogEventArgs>)OnLogged,
+                            sender, e );
                 } else {
-                    logBox.AppendText( message + Environment.NewLine );
+                    logBox.AppendText( e.Message + Environment.NewLine );
                     if( logBox.Lines.Length > MaxLinesInLog ) {
                         logBox.Text = "----- cut off, see fCraft.log for complete log -----" +
                             Environment.NewLine +
@@ -128,13 +132,14 @@ namespace fCraftUI {
         }
 
 
-        public void SetURL( string URL ) {
+        public void OnHeartbeatUrlChanged( object sender, UrlChangedEventArgs e ) {
             try {
                 if( shutdownPending ) return;
                 if( urlDisplay.InvokeRequired ) {
-                    Invoke( (SetUrlDelegate)SetURL, URL );
+                    Invoke( (EventHandler<UrlChangedEventArgs>)OnHeartbeatUrlChanged,
+                            sender, e );
                 } else {
-                    urlDisplay.Text = URL;
+                    urlDisplay.Text = e.NewUrl;
                     urlDisplay.Enabled = true;
                     bPlay.Enabled = true;
                 }
@@ -158,9 +163,9 @@ namespace fCraftUI {
         }
 
 
-        void OnServerShutdown() {
+        void OnServerShutdownEnded(object sender, ShutdownEventArgs e) {
             try {
-                Invoke( (MethodInvoker)delegate {
+                Invoke( (Action)delegate {
                     shutdownComplete = true;
                     Application.Exit();
                 } );
@@ -184,7 +189,7 @@ namespace fCraftUI {
                 } catch( Exception ex ) {
                     Logger.LogConsole( "Error occured while trying to execute last console command: " );
                     Logger.LogConsole( ex.ToString() + ": " + ex.Message );
-                    Logger.LogAndReportCrash( "Exception executing command from console", "fCraftUI", ex );
+                    Logger.LogAndReportCrash( "Exception executing command from console", "fCraftUI", ex, false );
                 }
 #endif
             }

@@ -117,7 +117,12 @@ namespace Mcc {
                              converter.Claims( fileName );
                 } catch { }
                 if( claims ) {
-                    return converter.Load( fileName );
+                    try {
+                        return converter.Load( fileName );
+                    } catch( Exception ex ) {
+                        Logger.LogAndReportCrash( "Map failed to load", "Mcc", ex, false );
+                        return null;
+                    }
                 } else {
                     fallbackConverters.Add( converter );
                 }
@@ -135,7 +140,13 @@ namespace Mcc {
 
         public static bool TrySaving( Map mapToSave, string fileName, MapFormat format ) {
             if( AvailableConverters.ContainsKey( format ) ) {
-                return AvailableConverters[format].Save( mapToSave, fileName );
+                IMapConverter converter = AvailableConverters[format];
+                try {
+                    return converter.Save( mapToSave, fileName );
+                } catch( Exception ex ) {
+                    Logger.LogAndReportCrash( "Map failed to save", "Mcc", ex, false );
+                    return false;
+                }
             }
             throw new MapFormatException( "Unknown map format for saving." );
         }

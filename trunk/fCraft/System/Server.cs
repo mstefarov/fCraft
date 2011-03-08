@@ -42,6 +42,7 @@ namespace fCraft {
         /// <summary>
         /// Reads command-line switches and sets up paths and logging.
         /// This should be called before any other library function.
+        /// Note to frontend devs: Subscribe to log-related events before calling this.
         /// </summary>
         /// <param name="_args">string arguments passed to the frontend (if any)</param>
         public static void InitLibrary( string[] _args ) {
@@ -54,7 +55,9 @@ namespace fCraft {
                     string argKey = arg.Substring( 2, arg.IndexOf( '=' ) - 2 ).ToLower().Trim();
                     string argValue = arg.Substring( arg.IndexOf( '=' ) + 1 ).Trim();
                     parsedArgs.Add( argKey, argValue );
+#if DEBUG
                     Console.WriteLine( "{0} = {1}", argKey, argValue );
+#endif
                 }
             }
 
@@ -228,8 +231,8 @@ namespace fCraft {
 
             // if the port still cannot be opened after [maxPortAttempts] attemps, die.
             if( !portFound ) {
-                Logger.Log( "Could not start listening after {0} tries. Giving up!", LogType.FatalError,
-                            MaxPortAttempts );
+                Logger.LogAndReportCrash( "Could not start listening on any IP/port. Giving up after " + MaxPortAttempts + " tries.",
+                                          "fCraft", null, true );
                 return false;
             }
 
@@ -254,9 +257,9 @@ namespace fCraft {
                 firstPrintedWorld = false;
             }
             Logger.Log( line.ToString(), LogType.SystemActivity );
+
             Logger.Log( "Main world: {0}; default rank: {1}", LogType.SystemActivity,
                         mainWorld.name, RankList.DefaultRank.Name );
-
 
             // Check for incoming connections (every 250ms)
             Scheduler.AddTask( CheckConnections ).RunForever( CheckConnectionsInterval );
@@ -328,9 +331,9 @@ namespace fCraft {
                 }
 
                 // increase the chances of kick packets being delivered
-                Thread.Sleep( 1000 );
-
-                Scheduler.EndShutdown();
+                if( PlayerList.Length > 0 ) {
+                    Thread.Sleep( 1000 );
+                }
 
                 // stop accepting new players
                 if( listener != null ) {
@@ -348,16 +351,17 @@ namespace fCraft {
                     }
                 }
 
+                Scheduler.EndShutdown();
+
                 if( PlayerDB.IsLoaded ) PlayerDB.Save();
                 if( IPBanList.isLoaded ) IPBanList.Save();
-
 
                 if( OnShutdownEnd != null ) OnShutdownEnd();
                 RaiseShutdownEndedEvent( shutdownParams );
 #if DEBUG
 #else
             } catch( Exception ex ) {
-                Logger.LogAndReportCrash( "Error in Server.Shutdown", "fCraft", ex );
+                Logger.LogAndReportCrash( "Error in Server.Shutdown", "fCraft", ex, true );
             }
 #endif
         }
@@ -399,7 +403,7 @@ namespace fCraft {
                 try {
                     LoadWorldListXML();
                 } catch( Exception ex ) {
-                    Logger.Log( "An error occured while trying to parse the world list: {0}", LogType.FatalError, ex );
+                    Logger.LogAndReportCrash( "Error occured while trying to load the world list.", "fCraft", ex, true );
                     return false;
                 }
             } else {
@@ -414,7 +418,7 @@ namespace fCraft {
 
             // if there is no default world still, die.
             if( mainWorld == null ) {
-                Logger.Log( "World creation failed. Shutting down.", LogType.FatalError );
+                Logger.LogAndReportCrash( "Could not create any worlds", "fCraft", null, true );
                 return false;
             } else {
                 if( mainWorld.accessSecurity.HasRestrictions() ) {
@@ -432,7 +436,7 @@ namespace fCraft {
             return true;
         }
 
-        static void CreateDefaultMainWorld( ) {
+        static void CreateDefaultMainWorld() {
             Map map = new Map( null, 64, 64, 64 );
             MapGenerator.GenerateFlatgrass( map );
             map.ResetSpawn();
@@ -472,7 +476,6 @@ namespace fCraft {
                             }
                         }
                         if( firstWorld == null ) firstWorld = world;
-                        Logger.Log( "Server.ParseWorldListXML: Loaded world \"{0}\"", LogType.Debug, worldName );
 
                         if( el.Element( "accessSecurity" ) != null ) {
                             world.accessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
@@ -486,9 +489,25 @@ namespace fCraft {
                             world.buildSecurity.MinRank = LoadWorldRankRestriction( world, "build", el );
                         }
                     }
+
+
+                    if( File.Exists( world.GetMapName() ) ) {
+                        try {
+                            Map map = Mcc.MapUtility.LoadHeader( world.GetMapName() );
+                            if( map == null ) {
+                                throw new Exception();
+                            }
+                        } catch( Exception ex ) {
+                            Logger.Log( "Server.LoadWorldListXML: Could not load map file for world \"{0}\": {1}", LogType.Warning,
+                                        world.name, ex );
+                        }
+                    } else {
+                        Logger.Log( "Server.LoadWorldListXML: Map file for world \"{0}\" was not found.", LogType.Warning,
+                                    world.name );
+                    }
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
-                                              "fCraft", ex );
+                                              "fCraft", ex, false );
                 }
             }
 
@@ -511,11 +530,11 @@ namespace fCraft {
 
         static Rank LoadWorldRankRestriction( World world, string fieldType, XElement element ) {
             XAttribute temp;
-            if( ( temp = element.Attribute( fieldType ) ) == null ) {
+            if( (temp = element.Attribute( fieldType )) == null ) {
                 return RankList.LowestRank;
             }
             Rank rank;
-            if( ( rank = RankList.ParseRank( temp.Value ) ) != null ) {
+            if( (rank = RankList.ParseRank( temp.Value )) != null ) {
                 return rank;
             }
             Logger.Log( "Server.ParseWorldListXML: Could not parse the specified {0} rank for world \"{1}\": \"{2}\". No {0} limit was set.",
@@ -839,34 +858,48 @@ namespace fCraft {
         #region Events
         // events
 
-        [Obsolete]
+        [Obsolete( "Use Server.Initializing or Server.Initialized instead" )]
         public static event SimpleEventHandler OnInit;
-        [Obsolete]
+
+        [Obsolete( "Use Server.Starting or Server.Started instead" )]
         public static event SimpleEventHandler OnStart;
+
         [Obsolete]
         public static event PlayerConnectedEventHandler OnPlayerConnected;
+
         [Obsolete]
         public static event PlayerDisconnectedEventHandler OnPlayerDisconnected;
+
         [Obsolete]
         public static event PlayerKickedEventHandler OnPlayerKicked;
+
         [Obsolete]
         public static event PlayerRankChangedEventHandler OnRankChanged;
-        [Obsolete]
+
+        [Obsolete( "Use Heartbeat.UrlChanged instead" )]
         public static event UrlChangeEventHandler OnURLChanged;
+
         [Obsolete]
         public static event SimpleEventHandler OnShutdownBegin;
+
         [Obsolete]
         public static event SimpleEventHandler OnShutdownEnd;
+
         [Obsolete]
         public static event PlayerChangedWorldEventHandler OnPlayerChangedWorld;
-        [Obsolete]
+
+        [Obsolete( "Use Logger.Logged instead" )]
         public static event LogEventHandler OnLog;
+
         [Obsolete]
         public static event PlayerListChangedHandler OnPlayerListChanged;
+
         [Obsolete]
         public static event PlayerSentMessageEventHandler OnPlayerSentMessage;
+
         [Obsolete]
         public static event PlayerBanStatusChangedEventHandler OnPlayerBanned;
+
         [Obsolete]
         public static event PlayerBanStatusChangedEventHandler OnPlayerUnbanned;
 
@@ -1404,7 +1437,8 @@ namespace fCraft {
         public static int GetPlayerCount( bool includeHiddenPlayers ) {
             if( includeHiddenPlayers ) {
                 return PlayerList.Length;
-            } else {;
+            } else {
+                ;
                 return PlayerList.Count( player => !player.isHidden );
             }
         }

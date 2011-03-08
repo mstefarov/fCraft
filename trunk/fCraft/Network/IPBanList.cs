@@ -84,7 +84,9 @@ namespace fCraft {
         public static bool Add( IPBanInfo ban ) {
             lock( locker ) {
                 if( bans.ContainsKey( ban.address.ToString() ) ) return false;
+                if( RaiseAddingIPBanEvent( ban ) ) return false;
                 bans.Add( ban.address.ToString(), ban );
+                RaiseAddedIPBanEvent( ban );
                 Save();
                 return true;
             }
@@ -105,8 +107,13 @@ namespace fCraft {
         // Returns false if address was not banned (and is still not banned) or if address is null
         public static bool Remove( IPAddress address ) {
             lock( locker ) {
-                if( address == null ) return false;
+                if( address == null || !bans.ContainsKey( address.ToString() ) ) {
+                    return false;
+                }
+                IPBanInfo info = bans[address.ToString()];
+                if( RaiseRemovingIPBanEvent( info ) ) return false;
                 if( bans.Remove( address.ToString() ) ) {
+                    RaiseRemovedIPBanEvent( info );
                     Save();
                     return true;
                 } else {
@@ -118,6 +125,50 @@ namespace fCraft {
         public static int CountBans() {
             return bans.Count;
         }
+
+
+
+        #region Events
+
+        public static event EventHandler<IPBanCancellableEventArgs> AddingIPBan;
+
+
+        public static event EventHandler<IPBanEventArgs> AddedIPBan;
+
+
+        public static event EventHandler<IPBanCancellableEventArgs> RemovingIPBan;
+
+
+        public static event EventHandler<IPBanEventArgs> RemovedIPBan;
+
+
+        static bool RaiseAddingIPBanEvent( IPBanInfo _info ) {
+            var h = AddingIPBan;
+            if( h == null ) return false;
+            var e = new IPBanCancellableEventArgs( _info );
+            h( null, e );
+            return e.Cancel;
+        }
+
+        static void RaiseAddedIPBanEvent( IPBanInfo _info ) {
+            var h = AddedIPBan;
+            if( h != null ) h( null, new IPBanEventArgs( _info ) );
+        }
+
+        static bool RaiseRemovingIPBanEvent( IPBanInfo _info ) {
+            var h = RemovingIPBan;
+            if( h == null ) return false;
+            var e = new IPBanCancellableEventArgs( _info );
+            h( null, e );
+            return e.Cancel;
+        }
+
+        static void RaiseRemovedIPBanEvent( IPBanInfo _info ) {
+            var h = RemovedIPBan;
+            if( h != null ) h( null, new IPBanEventArgs( _info ) );
+        }
+
+        #endregion
     }
 
 
@@ -191,4 +242,23 @@ namespace fCraft {
             lastAttemptName = player.name;
         }
     }
+
+
+    #region EventArgs
+
+    public class IPBanEventArgs : EventArgs {
+        internal IPBanEventArgs( IPBanInfo _info ) {
+            BanInfo = _info;
+        }
+        public IPBanInfo BanInfo { get; private set; }
+    }
+
+    public class IPBanCancellableEventArgs : IPBanEventArgs {
+        internal IPBanCancellableEventArgs( IPBanInfo _info ) :
+            base( _info ) {
+        }
+        public bool Cancel { get; set; }
+    }
+
+    #endregion
 }

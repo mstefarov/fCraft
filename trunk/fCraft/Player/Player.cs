@@ -727,9 +727,12 @@ namespace fCraft {
         const string PaidCheckURL = "http://www.minecraft.net/haspaid.jsp?user=";
         const int PaidCheckTimeout = 5000;
 
+        static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
+            return new IPEndPoint( Server.IP, 0 );
+        }
         public static bool CheckPaidStatus( string name ) {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckURL + Uri.EscapeDataString( name ) );
-            request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( Heartbeat.BindIPEndPointCallback );
+            request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
             request.Timeout = PaidCheckTimeout;
             request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
 

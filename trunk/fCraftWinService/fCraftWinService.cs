@@ -24,8 +24,8 @@ namespace fCraftWinService {
 
         protected override void OnStart( string[] args ) {
             Server.InitLibrary( args );
-            Server.OnShutdownEnd += ShutdownEndHandler;
-            Server.OnURLChanged += SetUrl;
+            Server.ShutdownEnded += OnServerShutdownEnded;
+            Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
             if( !Server.InitServer() || !Server.StartServer() ) {
                 throw new Exception( "Could not start fCraft." );
             }
@@ -42,14 +42,14 @@ namespace fCraftWinService {
         }
 
 
-        static void ShutdownEndHandler() {
+        static void OnServerShutdownEnded( object sender, ShutdownEventArgs e) {
             ShutdownWaiter.Set();
         }
 
 
-        static void SetUrl( string url ) {
-            File.WriteAllText( "externalurl.txt", url, Encoding.ASCII );
-            Console.WriteLine( "** " + url + " **" );
+        static void OnHeartbeatUrlChanged( object sender, UrlChangedEventArgs e ) {
+            File.WriteAllText( "externalurl.txt", e.NewUrl, Encoding.ASCII );
+            Console.WriteLine( "** " + e.NewUrl + " **" );
         }
     }
 }

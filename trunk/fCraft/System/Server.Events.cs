@@ -19,9 +19,9 @@ namespace fCraft {
 
         public static event EventHandler Started;
 
-        public static event EventHandler<ServerShutdownEventArgs> ShutdownBegan;
+        public static event EventHandler<ShutdownEventArgs> ShutdownBegan;
 
-        public static event EventHandler<ServerShutdownEventArgs> ShutdownEnded;
+        public static event EventHandler<ShutdownEventArgs> ShutdownEnded;
 
 
         static void RaiseInitializingEvent( string[] _args ) {
@@ -35,12 +35,12 @@ namespace fCraft {
 
         static void RaiseShutdownBeganEvent( ShutdownParams _shutdownParams ) {
             var h = ShutdownBegan;
-            if( h != null ) h( null, new ServerShutdownEventArgs( _shutdownParams ) );
+            if( h != null ) h( null, new ShutdownEventArgs( _shutdownParams ) );
         }
 
         static void RaiseShutdownEndedEvent( ShutdownParams _shutdownParams ) {
             var h = ShutdownEnded;
-            if( h != null ) h( null, new ServerShutdownEventArgs( _shutdownParams ) );
+            if( h != null ) h( null, new ShutdownEventArgs( _shutdownParams ) );
         }
 
         #endregion
@@ -128,8 +128,8 @@ namespace fCraft {
     }
 
 
-    public class ServerShutdownEventArgs : EventArgs {
-        internal ServerShutdownEventArgs( ShutdownParams _params ) {
+    public class ShutdownEventArgs : EventArgs {
+        internal ShutdownEventArgs( ShutdownParams _params ) {
             ShutdownParams = _params;
         }
 
