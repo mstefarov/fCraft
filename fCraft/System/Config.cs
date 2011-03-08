@@ -261,6 +261,7 @@ namespace fCraft {
         public static void LoadDefaultsAdvanced() {
             SetValue( ConfigKey.RelayAllBlockUpdates, false );
             SetValue( ConfigKey.UpdateMode, AutoUpdaterMode.Prompt );
+            SetValue( ConfigKey.UpdateAtStartup, false );
             SetValue( ConfigKey.NoPartialPositionUpdates, false );
             SetValue( ConfigKey.ProcessPriority, "" );
             SetValue( ConfigKey.BlockUpdateThrottling, 2048 );
@@ -600,6 +601,7 @@ namespace fCraft {
                 case ConfigKey.ShowConnectionMessages:
                 case ConfigKey.ShowJoinedWorldMessages:
                 case ConfigKey.SubmitCrashReports:
+                case ConfigKey.UpdateAtStartup:
                     return typeof(bool);
 
                 case ConfigKey.AnnouncementColor:
@@ -785,6 +787,7 @@ namespace fCraft {
                 case ConfigKey.ShowConnectionMessages:
                 case ConfigKey.ShowJoinedWorldMessages:
                 case ConfigKey.SubmitCrashReports:
+                case ConfigKey.UpdateAtStartup:
                     return ValidateBool( key, value );
 
                 case ConfigKey.SystemMessageColor:

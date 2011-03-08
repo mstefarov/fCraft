@@ -44,7 +44,7 @@
             this.changelog.Name = "changelog";
             this.changelog.ReadOnly = true;
             this.changelog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.changelog.Size = new System.Drawing.Size( 560, 261 );
+            this.changelog.Size = new System.Drawing.Size( 476, 249 );
             this.changelog.TabIndex = 0;
             this.changelog.TabStop = false;
             // 
@@ -62,7 +62,7 @@
             // 
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.bCancel.Location = new System.Drawing.Point( 472, 327 );
+            this.bCancel.Location = new System.Drawing.Point( 388, 315 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 23 );
             this.bCancel.TabIndex = 6;
@@ -73,7 +73,7 @@
             // bUpdateNow
             // 
             this.bUpdateNow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bUpdateNow.Location = new System.Drawing.Point( 260, 327 );
+            this.bUpdateNow.Location = new System.Drawing.Point( 176, 315 );
             this.bUpdateNow.Name = "bUpdateNow";
             this.bUpdateNow.Size = new System.Drawing.Size( 100, 23 );
             this.bUpdateNow.TabIndex = 7;
@@ -84,7 +84,7 @@
             // bUpdateLater
             // 
             this.bUpdateLater.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bUpdateLater.Location = new System.Drawing.Point( 366, 327 );
+            this.bUpdateLater.Location = new System.Drawing.Point( 282, 315 );
             this.bUpdateLater.Name = "bUpdateLater";
             this.bUpdateLater.Size = new System.Drawing.Size( 100, 23 );
             this.bUpdateLater.TabIndex = 8;
@@ -93,17 +93,17 @@
             // 
             // progress
             // 
-            this.progress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.progress.Location = new System.Drawing.Point( 432, 12 );
+            this.progress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.progress.Location = new System.Drawing.Point( 388, 12 );
             this.progress.Name = "progress";
-            this.progress.Size = new System.Drawing.Size( 140, 23 );
+            this.progress.Size = new System.Drawing.Size( 100, 23 );
             this.progress.TabIndex = 1;
             // 
             // lProgress
             // 
+            this.lProgress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lProgress.AutoSize = true;
-            this.lProgress.Location = new System.Drawing.Point( 429, 38 );
+            this.lProgress.Location = new System.Drawing.Point( 385, 38 );
             this.lProgress.Name = "lProgress";
             this.lProgress.Size = new System.Drawing.Size( 100, 13 );
             this.lProgress.TabIndex = 5;
@@ -125,7 +125,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.bCancel;
-            this.ClientSize = new System.Drawing.Size( 584, 362 );
+            this.ClientSize = new System.Drawing.Size( 500, 350 );
             this.Controls.Add( this.lVersion );
             this.Controls.Add( this.bUpdateLater );
             this.Controls.Add( this.bUpdateNow );
