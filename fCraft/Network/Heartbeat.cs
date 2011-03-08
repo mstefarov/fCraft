@@ -15,7 +15,6 @@ namespace fCraft {
         const string URL = "http://www.minecraft.net/heartbeat.jsp";
         const string HeartbeatDataFileName = "heartbeatdata.txt";
 
-
         /// <summary>
         /// Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate
         /// </summary>
@@ -47,7 +46,7 @@ namespace fCraft {
                                                    Config.GetInt( ConfigKey.MaxPlayers ),
                                                    Config.GetBool( ConfigKey.IsPublic ),
                                                    Server.Port,
-                                                   Server.Salt,
+                                                   Uri.EscapeDataString(Server.Salt),
                                                    Config.ProtocolVersion,
                                                    Server.GetPlayerCount( false ) );
 
@@ -59,7 +58,6 @@ namespace fCraft {
                 // If heartbeats are disabled, the data is written to a text file (heartbeatdata.txt)
                 const string tempFile = HeartbeatDataFileName + ".tmp";
 
-                Encoding Latin1 = Encoding.GetEncoding( "Latin1" );
                 File.WriteAllLines( tempFile, new[]{
                                         Server.Salt,
                                         Server.IP.ToString(),
@@ -68,7 +66,7 @@ namespace fCraft {
                                         Config.GetString(ConfigKey.MaxPlayers),
                                         Config.GetString(ConfigKey.ServerName),
                                         Config.GetString(ConfigKey.IsPublic)
-                    }, Latin1 );
+                    }, Encoding.ASCII );
                 if( File.Exists( HeartbeatDataFileName ) ) {
                     File.Replace( tempFile, HeartbeatDataFileName, null, true );
                 } else {
