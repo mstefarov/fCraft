@@ -43,6 +43,7 @@ namespace fCraft {
             if( h != null ) h( null, new ShutdownEventArgs( _shutdownParams ) );
         }
 
+
         #endregion
 
 
@@ -116,6 +117,27 @@ namespace fCraft {
 
         #endregion
 
+
+        #region World-related
+
+        public static event EventHandler<MainWorldChangingEventArgs> MainWorldChanging;
+
+        public static event EventHandler<MainWorldChangedEventArgs> MainWorldChanged;
+
+        static bool RaiseMainWorldChangingEvent( World _old, World _new ) {
+            var h = MainWorldChanging;
+            if( h == null ) return false;
+            var e = new MainWorldChangingEventArgs( _old, _new );
+            h( null, e );
+            return e.Cancel;
+        }
+
+        static void RaiseMainWorldChangedEvent( World _old, World _new ) {
+            var h = MainWorldChanged;
+            if( h != null ) h( null, new MainWorldChangedEventArgs( _old, _new ) );
+        }
+
+        #endregion
     }
 
 
@@ -134,5 +156,19 @@ namespace fCraft {
         }
 
         public ShutdownParams ShutdownParams { get; private set; }
+    }
+
+    public class MainWorldChangedEventArgs : EventArgs {
+        internal MainWorldChangedEventArgs( World _old, World _new ) {
+            OldMainWorld = _old;
+            NewMainWorld = _new;
+        }
+        public World OldMainWorld { get; private set; }
+        public World NewMainWorld { get; private set; }
+    }
+
+    public class MainWorldChangingEventArgs : MainWorldChangedEventArgs {
+        internal MainWorldChangingEventArgs( World _old, World _new ) : base( _old, _new ) { }
+        public bool Cancel { get; set; }
     }
 }

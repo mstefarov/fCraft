@@ -259,7 +259,7 @@ namespace fCraft {
             Logger.Log( line.ToString(), LogType.SystemActivity );
 
             Logger.Log( "Main world: {0}; default rank: {1}", LogType.SystemActivity,
-                        mainWorld.name, RankList.DefaultRank.Name );
+                        MainWorld.name, RankList.DefaultRank.Name );
 
             // Check for incoming connections (every 250ms)
             Scheduler.AddTask( CheckConnections ).RunForever( CheckConnectionsInterval );
@@ -394,7 +394,27 @@ namespace fCraft {
         public static SortedDictionary<string, World> worlds = new SortedDictionary<string, World>();
         public static object worldListLock = new object();
         public const string WorldListFileName = "worlds.xml";
-        public static World mainWorld;
+
+        public static bool SetMainWorld( World newWorld ) {
+            if( RaiseMainWorldChangingEvent( MainWorld, newWorld ) ) return false;
+            World oldWorld;
+            lock( worldListLock ) {
+                lock( newWorld.mapLock ) {
+                    newWorld.neverUnload = true;
+                    if( newWorld.map == null ) {
+                        newWorld.LoadMap();
+                    }
+                }
+                oldWorld= MainWorld;
+                oldWorld.neverUnload = false;
+                MainWorld = newWorld;
+                SaveWorldList();
+            }
+            RaiseMainWorldChangedEvent( oldWorld, newWorld );
+            return true;
+        }
+
+        public static World MainWorld { get; private set; }
 
         #region World List Saving/Loading
 
@@ -417,19 +437,19 @@ namespace fCraft {
             }
 
             // if there is no default world still, die.
-            if( mainWorld == null ) {
+            if( MainWorld == null ) {
                 Logger.LogAndReportCrash( "Could not create any worlds", "fCraft", null, true );
                 return false;
             } else {
-                if( mainWorld.accessSecurity.HasRestrictions() ) {
+                if( MainWorld.accessSecurity.HasRestrictions() ) {
                     Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
                                 "Access permission for \"{0}\" has been reset.", LogType.Warning,
-                                 mainWorld.name );
-                    mainWorld.accessSecurity.Reset();
+                                 MainWorld.name );
+                    MainWorld.accessSecurity.Reset();
                 }
-                if( !mainWorld.neverUnload ) {
-                    mainWorld.neverUnload = true;
-                    mainWorld.LoadMap();
+                if( !MainWorld.neverUnload ) {
+                    MainWorld.neverUnload = true;
+                    MainWorld.LoadMap();
                 }
             }
 
@@ -440,7 +460,7 @@ namespace fCraft {
             Map map = new Map( null, 64, 64, 64 );
             MapGenerator.GenerateFlatgrass( map );
             map.ResetSpawn();
-            mainWorld = AddWorld( "main", map, true );
+            MainWorld = AddWorld( "main", map, true );
         }
 
 
@@ -512,18 +532,18 @@ namespace fCraft {
             }
 
             if( (temp = root.Attribute( "main" )) != null ) {
-                mainWorld = FindWorldExact( temp.Value );
+                MainWorld = FindWorldExact( temp.Value );
                 // if specified main world does not exist, use first-defined world
-                if( mainWorld == null && firstWorld != null ) {
+                if( MainWorld == null && firstWorld != null ) {
                     Logger.Log( "The specified main world \"{0}\" does not exist. " +
                                 "\"{1}\" was designated main instead. You can use /wmain to change it.",
                                 LogType.Warning, temp.Value, firstWorld.name );
-                    mainWorld = firstWorld;
+                    MainWorld = firstWorld;
                 }
                 // if firstWorld was also null, LoadWorldList() should try creating a new mainWorld
 
             } else {
-                mainWorld = firstWorld;
+                MainWorld = firstWorld;
             }
         }
 
@@ -566,7 +586,7 @@ namespace fCraft {
                         }
                         root.Add( temp );
                     }
-                    root.Add( new XAttribute( "main", mainWorld.name ) );
+                    root.Add( new XAttribute( "main", MainWorld.name ) );
                 }
                 doc.Add( root );
                 doc.Save( WorldListTempFile );
@@ -660,13 +680,13 @@ namespace fCraft {
         public static bool RemoveWorld( string name ) {
             lock( worldListLock ) {
                 World worldToDelete = FindWorldExact( name );
-                if( worldToDelete == null || worldToDelete == mainWorld ) {
+                if( worldToDelete == null || worldToDelete == MainWorld ) {
                     return false;
                 } else {
                     Player[] worldPlayerList = worldToDelete.playerList;
                     worldToDelete.SendToAll( "&SYou have been moved to the main world." );
                     foreach( Player player in worldPlayerList ) {
-                        player.session.JoinWorld( mainWorld, null );
+                        player.session.JoinWorld( MainWorld, null );
                     }
 
                     worldToDelete.StopTasks();
@@ -700,8 +720,8 @@ namespace fCraft {
                 if( oldWorld == null ) return false;
 
                 newWorld.name = oldWorld.name;
-                if( oldWorld == mainWorld ) {
-                    mainWorld = newWorld;
+                if( oldWorld == MainWorld ) {
+                    MainWorld = newWorld;
                 }
 
                 // initialize the player list cache

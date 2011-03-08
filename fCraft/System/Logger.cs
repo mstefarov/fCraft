@@ -33,7 +33,8 @@ namespace fCraft {
         ConsoleOutput,
 
         IRC,
-        Debug
+        Debug,
+        Trace
     }
 
 
@@ -134,7 +135,9 @@ namespace fCraft {
                 }
             }
 
-            RaiseLoggedEvent( message, line, type );
+            if( type != LogType.Trace ) {
+                RaiseLoggedEvent( message, line, type );
+            }
         }
 
 
@@ -361,7 +364,7 @@ namespace fCraft {
                 first = false;
             }
 
-            Log( "TraceEvent: {0}.{1}( {2} )", LogType.Debug,
+            Log( "TraceEvent: {0}.{1}( {2} )", LogType.Trace,
                  eventInfo.DeclaringType.Name, eventInfo.Name, sb.ToString() );
 
         }
