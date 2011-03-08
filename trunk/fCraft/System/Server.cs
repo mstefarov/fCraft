@@ -1032,7 +1032,7 @@ namespace fCraft {
             byte[] oneChar = new byte[1];
             while( sb.Length < 32 ) {
                 prng.GetBytes( oneChar );
-                if( oneChar[0] >= 33 && oneChar[0] <= 126 || oneChar[0] >= 161 ) {
+                if( oneChar[0] >= 33 && oneChar[0] <= 126 ) {
                     sb.Append( (char)oneChar[0] );
                 }
             }
@@ -1044,13 +1044,11 @@ namespace fCraft {
                 hash = "0" + hash;
             }
             MD5 hasher = MD5.Create();
-            byte[] data = hasher.ComputeHash( Encoding.ASCII.GetBytes( salt + name ) );
-            for( int i = 0; i < 16; i += 2 ) {
-                if( hash[i] + "" + hash[i + 1] != data[i / 2].ToString( "x2" ) ) {
-                    return false;
-                }
+            StringBuilder sb = new StringBuilder( 32 );
+            foreach( byte b in hasher.ComputeHash( Encoding.ASCII.GetBytes( salt + name ) ) ) {
+                sb.AppendFormat( "{0:x2}", b );
             }
-            return true;
+            return sb.ToString().Equals( hash, StringComparison.OrdinalIgnoreCase );
         }
 
 
