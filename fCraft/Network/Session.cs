@@ -82,7 +82,7 @@ namespace fCraft {
                 ioThread = new Thread( IoLoop ) { IsBackground = true };
                 ioThread.Start();
             } catch( Exception ex ) {
-                Logger.LogAndReportCrash( "Session failed to start", "fCraft", ex );
+                Logger.LogAndReportCrash( "Session failed to start", "fCraft", ex, false );
                 Disconnect();
             }
         }
@@ -189,7 +189,14 @@ namespace fCraft {
                                     KickNow( "Illegal characters in chat.", LeaveReason.InvalidMessageKick );
                                     return;
                                 } else {
-                                    player.ParseMessage( message, false );
+                                    try {
+                                        player.ParseMessage( message, false );
+                                    } catch( Exception ex ) {
+                                        Logger.LogAndReportCrash( "Error while parsing player's message", "fCraft", ex, false );
+                                        player.MessageNow( "&WAn error occured while trying to process your message. " +
+                                                           "Error details have been logged. " +
+                                                           "It is recommended that you reconnect to the server." );
+                                    }
                                 }
                                 break;
 
@@ -352,7 +359,7 @@ namespace fCraft {
 #if !DEBUG
             } catch( Exception ex ) {
                 leaveReason = LeaveReason.ServerError;
-                Logger.LogAndReportCrash( "Error in Session.IoLoop", "fCraft", ex );
+                Logger.LogAndReportCrash( "Error in Session.IoLoop", "fCraft", ex, false );
 #endif
             } finally {
                 canQueue = false;

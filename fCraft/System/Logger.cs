@@ -19,7 +19,7 @@ namespace fCraft {
         SystemActivity,
         Warning,
         Error,
-        FatalError,
+        SeriousError,
 
         UserActivity,
         UserCommand,
@@ -53,7 +53,6 @@ namespace fCraft {
         public static bool[] logFileOptions;
 
         const string DefaultLogFileName = "fCraft.log",
-                     CrashLogFileName = "fCraftCRASH.log",
                      CrashReportURL = "http://fragmer.net/fcraft/crashreport.php",
                      LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss",
                      ShortDateFormat = "yyyy'-'MM'-'dd";
@@ -105,10 +104,6 @@ namespace fCraft {
 
 
         public static void Log( string message, LogType type ) {
-            if( type == LogType.FatalError ) {
-                LogFatalError( message );
-            }
-
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message;
             if( logFileOptions[(int)type] ) {
                 string actualLogFileName;
@@ -132,17 +127,20 @@ namespace fCraft {
                         }
                     }
                 } catch( Exception ex ) {
-                    Server.FireLogEvent( "Logger.Log: " + ex, type );
+                    string errorMessage = "Logger.Log: " + ex;
+                    RaiseLoggedEvent( errorMessage,
+                                      DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + errorMessage,
+                                      LogType.Error );
                 }
             }
 
-            if( consoleOptions[(int)type] ) Server.FireLogEvent( line, type );
+            RaiseLoggedEvent( message, line, type );
         }
 
 
         public static string GetPrefix( LogType level ) {
             switch( level ) {
-                case LogType.FatalError:
+                case LogType.SeriousError:
                 case LogType.Error:
                     return "ERROR: ";
                 case LogType.Warning:
@@ -162,11 +160,19 @@ namespace fCraft {
         const int MinCrashReportInterval = 61; // minimum interval between submitting crash reports, in seconds
 
 
-        public static void LogAndReportCrash( string message, string assembly, Exception exception ) {
+        public static void LogAndReportCrash( string message, string assembly, Exception exception, bool shutdownImminent ) {
 
-            if( !CheckForCommonErrors( exception ) ) return;
+            bool submitCrashReport = ConfigKey.SubmitCrashReports.GetBool();
+            bool isCommon = CheckForCommonErrors( exception );
+            if( isCommon ) submitCrashReport = false;
 
-            Log( "{0}: {1}", LogType.FatalError, message, exception );
+            CrashEventArgs eventArgs = new CrashEventArgs( message, assembly, exception, submitCrashReport, isCommon, shutdownImminent );
+            RaiseCrashedEvent( eventArgs );
+
+            if( !eventArgs.IsCommonProblem ) {
+                Log( "{0}: {1}", LogType.SeriousError, message, exception );
+            }
+            if( !submitCrashReport ) return;
 
             lock( crashReportLock ) {
                 if( DateTime.UtcNow.Subtract( lastCrashReport ).TotalSeconds < MinCrashReportInterval ) {
@@ -230,19 +236,6 @@ namespace fCraft {
             }
         }
 
-
-        public static void LogFatalError( string message ) {
-            string crashMessage = String.Format( "{0}{1}{2}{1}{1}",
-                                                 DateTime.Now,
-                                                 Environment.NewLine,
-                                                 message );
-            try {
-                File.AppendAllText( CrashLogFileName, crashMessage );
-            } catch( Exception ex ) {
-                Log( "Cannot save crash report to \"{0}\": {1}", LogType.Error,
-                            CrashLogFileName, ex );
-            }
-        }
 
         // Called by the Logger in case of serious errors to print troubleshooting advice.
         // Returns true if a crash report should be submitted for this type of errors.
@@ -375,5 +368,70 @@ namespace fCraft {
 
 #endif
         #endregion
+
+
+        #region Events
+
+        public static event EventHandler<LogEventArgs> Logged;
+        
+        
+        public static event EventHandler<CrashEventArgs> Crashed;
+
+
+        static void RaiseLoggedEvent( string _rawMessage, string _line, LogType _logType ) {
+            if( consoleOptions[(int)_logType] ) {// LEGACY
+                Server.FireLogEvent( _line, _logType );
+            }
+            var h = Logged;
+            if( h != null ) h( null, new LogEventArgs( _rawMessage,
+                                                       _line,
+                                                       _logType,
+                                                       logFileOptions[(int)_logType],
+                                                       consoleOptions[(int)_logType] ) );
+        }
+
+        static void RaiseCrashedEvent( CrashEventArgs e ) {
+            var h = Crashed;
+            if( h != null ) h( null, e );
+        }
+
+        #endregion
     }
+
+
+    #region EventArgs
+
+    public class LogEventArgs : EventArgs {
+        internal LogEventArgs( string _rawMessage, string _message, LogType _messageType, bool _writeToFile, bool _writeToConsole ) {
+            RawMessage = _rawMessage;
+            Message = _message;
+            MessageType = _messageType;
+            WriteToFile = _writeToFile;
+            WriteToConsole = _writeToConsole;
+        }
+        public string RawMessage { get; private set; }
+        public string Message { get; private set; }
+        public LogType MessageType { get; private set; }
+        public bool WriteToFile { get; private set; }
+        public bool WriteToConsole { get; private set; }
+    }
+
+    public class CrashEventArgs : EventArgs {
+        internal CrashEventArgs( string _message, string _location, Exception _exception, bool _submitCrashReport, bool _isCommonProblem, bool _shutdownImminent ) {
+            Message = _message;
+            Location = _location;
+            Exception = _exception;
+            SubmitCrashReport = _submitCrashReport;
+            IsCommonProblem = _isCommonProblem;
+            ShutdownImminent = _shutdownImminent;
+        }
+        public string Message { get; private set; }
+        public string Location { get; private set; }
+        public Exception Exception { get; private set; }
+        public bool SubmitCrashReport { get; set; }
+        public bool IsCommonProblem { get; private set; }
+        public bool ShutdownImminent { get; private set; }
+    }
+
+    #endregion
 }

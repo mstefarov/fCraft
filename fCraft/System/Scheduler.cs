@@ -45,13 +45,13 @@ namespace fCraft {
                     } else {
                         task.IsExecuting = true;
 #if DEBUG
-                            task.Callback( task );
-                            task.IsExecuting = false;
+                        task.Callback( task );
+                        task.IsExecuting = false;
 #else
                         try {
                             task.Callback( task );
                         } catch( Exception ex ) {
-                            Logger.LogAndReportCrash( "Exception thrown by ScheduledTask callback", "fCraft", ex );
+                            Logger.LogAndReportCrash( "Exception thrown by ScheduledTask callback", "fCraft", ex, false );
                         } finally {
                             task.IsExecuting = false;
                         }
@@ -155,12 +155,16 @@ namespace fCraft {
         }
 
         public static void EndShutdown() {
-            if( schedulerThread != null && schedulerThread.IsAlive ) {
-                schedulerThread.Join();
-            }
-            if( backgroundThread != null && backgroundThread.IsAlive ) {
-                backgroundThread.Join();
-            }
+            try {
+                if( schedulerThread != null && schedulerThread.IsAlive ) {
+                    schedulerThread.Join();
+                }
+            } catch( ThreadStateException ) { }
+            try {
+                if( backgroundThread != null && backgroundThread.IsAlive ) {
+                    backgroundThread.Join();
+                }
+            } catch( ThreadStateException ) { }
         }
 
 

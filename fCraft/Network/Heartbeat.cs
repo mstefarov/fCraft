@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
+using System.Collections.Generic;
 
 namespace fCraft {
     /// <summary>
@@ -18,8 +19,8 @@ namespace fCraft {
         /// <summary>
         /// Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate
         /// </summary>
-        internal static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
-            return new IPEndPoint( Server.IP, 0 );
+        static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
+            return new IPEndPoint( data.ServerIP, 0 );
         }
 
 
@@ -32,8 +33,30 @@ namespace fCraft {
 
         static HttpWebRequest request;
         static Scheduler.Task task;
+        static HeartbeatData data;
+
+        public static bool LastHeartbeatFailed { get; private set; }
+
 
         static void Beat( Scheduler.Task _task ) {
+            if( Server.shuttingDown ) return;
+
+            data = new HeartbeatData {
+                IsPublic = ConfigKey.IsPublic.GetBool(),
+                MaxPlayers = ConfigKey.MaxPlayers.GetInt(),
+                PlayerCount = Server.GetPlayerCount( false ),
+                ServerIP = Server.IP,
+                Port = Server.Port,
+                ProtocolVersion = Config.ProtocolVersion,
+                Salt = Server.Salt,
+                ServerName = ConfigKey.ServerName.GetString()
+            };
+
+            if( RaiseHeartbeatSendingEvent( data ) ) {
+                RescheduleHeartbeat();
+                return;
+            }
+
             if( Config.GetBool( ConfigKey.HeartbeatEnabled ) ) {
                 request = (HttpWebRequest)WebRequest.Create( URL );
                 request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
@@ -41,16 +64,24 @@ namespace fCraft {
                 request.Timeout = HeartbeatTimeout;
                 request.ContentType = "application/x-www-form-urlencoded";
                 request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
-                string dataString = String.Format( "name={0}&max={1}&public={2}&port={3}&salt={4}&version={5}&users={6}",
-                                                   Uri.EscapeDataString( Config.GetString( ConfigKey.ServerName ) ),
-                                                   Config.GetInt( ConfigKey.MaxPlayers ),
-                                                   Config.GetBool( ConfigKey.IsPublic ),
-                                                   Server.Port,
-                                                   Uri.EscapeDataString(Server.Salt),
-                                                   Config.ProtocolVersion,
-                                                   Server.GetPlayerCount( false ) );
 
-                byte[] formData = Encoding.ASCII.GetBytes( dataString );
+                StringBuilder sb = new StringBuilder();
+                sb.AppendFormat( "public={0}&max={1}&users={2}&port={3}&version={4}&salt={5}&name={6}",
+                                 data.IsPublic,
+                                 data.MaxPlayers,
+                                 data.PlayerCount,
+                                 data.Port,
+                                 data.ProtocolVersion,
+                                 Uri.EscapeDataString( data.Salt ),
+                                 Uri.EscapeDataString( data.ServerName ) );
+
+                foreach( var pair in data.CustomData ) {
+                    sb.AppendFormat( "&{0}={1}",
+                                     Uri.EscapeDataString( pair.Key ),
+                                     Uri.EscapeDataString( pair.Value ) );
+                }
+
+                byte[] formData = Encoding.ASCII.GetBytes( sb.ToString() );
                 request.ContentLength = formData.Length;
 
                 request.BeginGetRequestStream( RequestCallback, formData );
@@ -72,11 +103,12 @@ namespace fCraft {
                 } else {
                     File.Move( tempFile, HeartbeatDataFileName );
                 }
-                task.RunManual( TimeSpan.FromMilliseconds( HeartbeatDelay * 2 ) );
+                RescheduleHeartbeat();
             }
         }
 
         static void RequestCallback( IAsyncResult result ) {
+            if( Server.shuttingDown ) return;
             try {
                 byte[] formData = result.AsyncState as byte[];
                 using( Stream requestStream = request.EndGetRequestStream( result ) ) {
@@ -84,36 +116,135 @@ namespace fCraft {
                 }
                 request.BeginGetResponse( ResponseCallback, null );
             } catch( Exception ex ) {
+                LastHeartbeatFailed = true;
                 if( ex is WebException || ex is IOException ) {
                     Logger.Log( "Heartbeat: Minecraft.net is probably down ({0})", LogType.Warning, ex.Message );
                 } else {
                     Logger.Log( "Heartbeat: {0}", LogType.Error, ex );
                 }
-                task.RunManual( TimeSpan.FromMilliseconds( HeartbeatDelay ) );
+                RescheduleHeartbeat();
             }
         }
 
         static void ResponseCallback( IAsyncResult result ) {
-            string newURL;
+            if( Server.shuttingDown ) return;
             try {
-                using( WebResponse response = request.EndGetResponse( result ) ) {
+                string responseText;
+                using( HttpWebResponse response = (HttpWebResponse)request.EndGetResponse( result ) ) {
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                        newURL = responseReader.ReadToEnd().Trim();
+                        responseText = responseReader.ReadToEnd();
                     }
+                    LastHeartbeatFailed = false;
+                    RaiseHeartbeatSentEvent( data, response, responseText );
                 }
-                if( newURL.Trim().Length > 32 && newURL != Server.URL ) {
-                    Server.URL = newURL;
+                string newUrl = responseText.Trim();
+                if( newUrl.Length > 32 && newUrl != Server.URL ) {
+                    string oldUrl = Server.URL;
+                    Server.URL = newUrl;
+                    RaiseUrlChangedEvent( oldUrl, newUrl );
                     Server.FireURLChangeEvent( Server.URL );
                 }
             } catch( Exception ex ) {
+                LastHeartbeatFailed = true;
                 if( ex is WebException || ex is IOException ) {
                     Logger.Log( "Heartbeat: Minecraft.net is probably down ({0})", LogType.Warning, ex.Message );
                 } else {
                     Logger.Log( "Heartbeat: {0}", LogType.Error, ex );
                 }
             } finally {
-                task.RunManual( TimeSpan.FromMilliseconds( HeartbeatDelay ) );
+                RescheduleHeartbeat();
             }
         }
+
+        static void RescheduleHeartbeat() {
+            task.RunManual( TimeSpan.FromMilliseconds( HeartbeatDelay ) );
+        }
+
+        #region Events
+
+        public static event EventHandler<HeartbeatSendingEventArgs> Sending;
+        public static event EventHandler<HeartbeatSentEventArgs> Sent;
+        public static event EventHandler<UrlChangedEventArgs> UrlChanged;
+
+        static bool RaiseHeartbeatSendingEvent( HeartbeatData _data ) {
+            var h = Sending;
+            if( h == null ) return false;
+            var e = new HeartbeatSendingEventArgs( _data );
+            h( null, e );
+            return e.Cancel;
+        }
+
+        static void RaiseHeartbeatSentEvent( HeartbeatData _data,
+                                             HttpWebResponse _response,
+                                             string _text ) {
+            var h = Sent;
+            if( h != null ) {
+                h( null, new HeartbeatSentEventArgs( _data,
+                                                    _response.Headers,
+                                                    _response.StatusCode,
+                                                    _text ) );
+            }
+        }
+
+        static void RaiseUrlChangedEvent( string _oldUrl, string _newUrl ) {
+            var h = UrlChanged;
+            if( h != null ) h( null, new UrlChangedEventArgs( _oldUrl, _newUrl ) );
+        }
+
+        #endregion
     }
+
+
+    public class HeartbeatData {
+        public HeartbeatData() {
+            CustomData = new Dictionary<string, string>();
+        }
+        public string Salt { get; set; }
+        public IPAddress ServerIP { get; set; }
+        public int Port { get; set; }
+        public int PlayerCount { get; set; }
+        public int MaxPlayers { get; set; }
+        public string ServerName { get; set; }
+        public bool IsPublic { get; set; }
+        public int ProtocolVersion { get; set; }
+        public Dictionary<string, string> CustomData { get; private set; }
+    }
+
+
+    #region EventArgs
+
+    public class HeartbeatSentEventArgs : EventArgs {
+        internal HeartbeatSentEventArgs( HeartbeatData _data,
+                                         WebHeaderCollection _headers,
+                                         HttpStatusCode _status, 
+                                         string _text ) {
+            HeartbeatData = _data;
+            ResponseHeaders = _headers;
+            ResponseStatusCode = _status;
+            ResponseText = _text;
+        }
+        public HeartbeatData HeartbeatData { get; private set; }
+        public WebHeaderCollection ResponseHeaders { get; private set; }
+        public HttpStatusCode ResponseStatusCode { get; private set; }
+        public string ResponseText { get; private set; }
+    }
+
+    public class HeartbeatSendingEventArgs : EventArgs {
+        internal HeartbeatSendingEventArgs( HeartbeatData _data ) {
+            HeartbeatData = _data;
+        }
+        public bool Cancel { get; set; }
+        public HeartbeatData HeartbeatData { get; private set; }
+    }
+
+    public class UrlChangedEventArgs : EventArgs {
+        internal UrlChangedEventArgs( string _oldUrl, string _newUrl ) {
+            OldUrl = _oldUrl;
+            NewUrl = _newUrl;
+        }
+        public string OldUrl { get; private set; }
+        public string NewUrl { get; private set; }
+    }
+
+    #endregion
 }

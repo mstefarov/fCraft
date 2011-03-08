@@ -49,6 +49,7 @@ namespace fCraft {
         static CommandDescriptor cdDeafen = new CommandDescriptor {
             name = "deafen",
             aliases = new[] { "deaf" },
+            consoleSafe = true,
             help = "Blocks all chat messages from being sent to you.",
             handler = Deafen
         };

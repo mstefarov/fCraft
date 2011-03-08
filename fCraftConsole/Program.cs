@@ -24,17 +24,20 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Runtime.InteropServices;
 using fCraft;
 
 namespace fCraftConsole {
 
     static class Program {
-
         static void Main( string[] args ) {
+            Logger.Logged += OnLogged;
+            Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
             Server.InitLibrary( args );
 
-            Server.OnLog += Log;
-            Server.OnURLChanged += SetUrl;
+            Server.ShutdownEnded += delegate( object sender, ShutdownEventArgs arg2 ) {
+                Console.WriteLine( "ShutdownEnded" );
+            };
 
 #if !DEBUG
             try {
@@ -61,12 +64,16 @@ namespace fCraftConsole {
                         Console.WriteLine( "** Running fCraft version {0}. **", Updater.GetVersionString() );
                         Console.WriteLine( "** Server is now ready. Type /shutdown to exit safely. **" );
 
-                        while( true ) {
+                        while( !Server.shuttingDown ) {
                             string cmd = Console.ReadLine();
                             if( cmd.Equals( "/clear", StringComparison.OrdinalIgnoreCase ) ) {
                                 Console.Clear();
                             } else {
-                                Player.Console.ParseMessage( cmd, true );
+                                try {
+                                    Player.Console.ParseMessage( cmd, true );
+                                } catch( Exception ex ) {
+                                    Logger.LogAndReportCrash( "Error while executing a command from console", "fCraftConsole", ex, false );
+                                }
                             }
                         }
 
@@ -79,7 +86,7 @@ namespace fCraftConsole {
 #if !DEBUG
             } catch( Exception ex ) {
                 ReportFailure( "CRASHED" );
-                Logger.LogAndReportCrash( "Unhandled exception in fCraftConsole", "fCraftConsole", ex );
+                Logger.LogAndReportCrash( "Unhandled exception in fCraftConsole", "fCraftConsole", ex, true );
             }
             Console.ReadLine();
             Console.ResetColor();
@@ -99,22 +106,24 @@ namespace fCraftConsole {
         }
 
 
-        static void Log( string message, LogType type ) {
-            switch( type ) {
+        static void OnLogged( object sender, LogEventArgs e ) {
+            if( !e.WriteToConsole ) return;
+            switch( e.MessageType ) {
                 case LogType.Error:
-                case LogType.FatalError:
+                case LogType.SeriousError:
                 case LogType.Warning:
-                    Console.Error.WriteLine( message );
+                    Console.Error.WriteLine( e.Message );
                     return;
                 default:
-                    Console.WriteLine( message );
+                    Console.WriteLine( e.Message );
                     return;
             }
         }
 
-        static void SetUrl( string newUrl ) {
-            File.WriteAllText( "externalurl.txt", newUrl, Encoding.ASCII );
-            Console.WriteLine( "** URL: {0} **", newUrl );
+
+        static void OnHeartbeatUrlChanged( object sender, UrlChangedEventArgs e ) {
+            File.WriteAllText( "externalurl.txt", e.NewUrl, Encoding.ASCII );
+            Console.WriteLine( "** URL: {0} **", e.NewUrl );
             Console.WriteLine( "URL is also saved to file externalurl.txt" );
         }
     }
