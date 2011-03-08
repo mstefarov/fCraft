@@ -232,7 +232,9 @@ namespace fCraft {
                 Logger.consoleOptions[i] = true;
             }
             Logger.consoleOptions[(int)LogType.ConsoleInput] = false;
-            //Logger.consoleOptions[(int)LogType.Debug] = false;
+#if !DEBUG
+            Logger.consoleOptions[(int)LogType.Debug] = false;
+#endif
             for( int i = 0; i < Logger.logFileOptions.Length; i++ ) {
                 Logger.logFileOptions[i] = true;
             }

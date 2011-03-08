@@ -631,6 +631,7 @@ Does not include IRC chatter (see IRCChat).";
             vLogFileOptions.Items[(int)LogType.Warning].ToolTipText = "Minor, recoverable errors and problems.";
 
             foreach( LogType type in Enum.GetValues( typeof( LogType ) ) ) {
+                if( type == LogType.Trace ) continue;
                 vConsoleOptions.Items[(int)type].ToolTipText = vLogFileOptions.Items[(int)type].ToolTipText;
             }
         }

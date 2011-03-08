@@ -466,7 +466,7 @@ namespace fCraft {
             }
 
             // check if player is banned
-            player = new Player( null, playerName, this, Server.mainWorld.map.spawn );
+            player = new Player( null, playerName, this, Server.MainWorld.map.spawn );
             if( player.info.banned ) {
                 player.info.ProcessFailedLogin( player );
                 Logger.Log( "Banned player {0} tried to log in.", LogType.SuspiciousActivity,
@@ -601,7 +601,7 @@ namespace fCraft {
             // ----==== Beyond this point, player is considered connected (authenticated and registered) ====----
 
 
-            World startingWorld = Server.RaisePlayerConnectedEvent( player, Server.mainWorld );
+            World startingWorld = Server.RaisePlayerConnectedEvent( player, Server.MainWorld );
 
             // Send server information
             writer.Write( PacketWriter.MakeHandshake( player, Config.GetString( ConfigKey.ServerName ), Config.GetString( ConfigKey.MOTD ) ) );

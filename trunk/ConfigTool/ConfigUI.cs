@@ -64,6 +64,7 @@ namespace ConfigTool {
             }
 
             foreach( LogType type in Enum.GetValues( typeof( LogType ) ) ) {
+                if( type == LogType.Trace ) continue;
                 ListViewItem item = new ListViewItem( type.ToString() );
                 item.Tag = type;
                 vLogFileOptions.Items.Add( item );

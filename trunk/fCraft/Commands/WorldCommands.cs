@@ -288,7 +288,7 @@ namespace fCraft {
         internal static void WorldMain( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
-                player.Message( "Main world is {0}", Server.mainWorld.GetClassyName() );
+                player.Message( "Main world is {0}", Server.MainWorld.GetClassyName() );
                 return;
             }
 
@@ -296,7 +296,7 @@ namespace fCraft {
             if( world == null ) {
                 return;
 
-            } else if( world == Server.mainWorld ) {
+            } else if( world == Server.MainWorld ) {
                 player.Message( "World {0}&S is already set as main.", world.GetClassyName() );
 
             } else if( !player.info.rank.AllowSecurityCircumvention && !player.CanJoin( world ) ) {
@@ -318,11 +318,11 @@ namespace fCraft {
                                     "All access restrictions were removed from world {0}",
                                     world.GetClassyName() );
                 }
-                world.neverUnload = true;
-                world.LoadMap();
-                Server.mainWorld.neverUnload = false;
-                Server.mainWorld = world;
-                Server.SaveWorldList();
+
+                if( !Server.SetMainWorld( world ) ) {
+                    player.Message( "Main world was not changed." );
+                    return;
+                }
 
                 Server.SendToAll( "{0}&S set {1}&S to be the main world.",
                                   player.GetClassyName(), world.GetClassyName() );
@@ -367,7 +367,7 @@ namespace fCraft {
                 world.accessSecurity.PrintDescription( player, world, "world", "accessed" );
                 return;
             }
-            if( world == Server.mainWorld ) {
+            if( world == Server.MainWorld ) {
                 player.Message( "The main world cannot have access restrictions." );
                 return;
             }
@@ -1080,7 +1080,7 @@ namespace fCraft {
                 World world = Server.FindWorldOrPrintMatches( player, worldName );
                 if( world == null ) return;
 
-                if( world == Server.mainWorld ) {
+                if( world == Server.MainWorld ) {
                     player.Message( "Deleting the main world is not allowed. Assign a new main first." );
                 } else if( Server.RemoveWorld( worldName ) ) {
                     Server.SendToAllExcept( "{0}&S removed {1}&S from the world list.", player,
