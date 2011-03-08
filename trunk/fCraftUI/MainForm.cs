@@ -24,6 +24,8 @@ namespace fCraftUI {
         void StartUp( object sender, EventArgs a ) {
             Server.InitLibrary( args );
 
+            //new UpdateWindow( new UpdaterResult { ChangeLog = "changelog goes here", DownloadLink = "www.derp.com", NewVersionNumber = Updater.Version + 1, ReleaseDate = DateTime.Now.AddDays( -1337 ), UpdateAvailable = true }, this, false ).ShowDialog();
+
             Server.OnLog += Log;
             Server.OnURLChanged += SetURL;
             Server.OnPlayerListChanged += UpdatePlayerList;
@@ -34,12 +36,12 @@ namespace fCraftUI {
 #endif
                 if( Server.InitServer() ) {
                     Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
+                    StartServer();
+                    //Application.DoEvents();
+                    //UpdaterResult update = Updater.CheckForUpdates();
+                    //Application.DoEvents();
 
-                    Application.DoEvents();
-                    UpdaterResult update = Updater.CheckForUpdates();
-                    Application.DoEvents();
-
-                    if( update.UpdateAvailable ) {
+                    /*if( update.UpdateAvailable ) {
                         if( ConfigKey.UpdateMode.GetEnum<AutoUpdaterMode>() == AutoUpdaterMode.Notify ) {
                             Log( String.Format( Environment.NewLine +
                                                 "*** A new version of fCraft is available: v{0}, released {1:0} day(s) ago. ***" +
@@ -54,7 +56,7 @@ namespace fCraftUI {
                         }
                     } else {
                         StartServer();
-                    }
+                    }*/
                 } else {
                     Shutdown( "failed to initialize", false );
                 }

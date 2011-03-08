@@ -58,6 +58,8 @@ namespace fCraft {
             } else {
                 // If heartbeats are disabled, the data is written to a text file (heartbeatdata.txt)
                 const string tempFile = HeartbeatDataFileName + ".tmp";
+
+                Encoding Latin1 = Encoding.GetEncoding( "Latin1" );
                 File.WriteAllLines( tempFile, new[]{
                                         Server.Salt,
                                         Server.IP.ToString(),
@@ -66,7 +68,7 @@ namespace fCraft {
                                         Config.GetString(ConfigKey.MaxPlayers),
                                         Config.GetString(ConfigKey.ServerName),
                                         Config.GetString(ConfigKey.IsPublic)
-                    } );
+                    }, Latin1 );
                 if( File.Exists( HeartbeatDataFileName ) ) {
                     File.Replace( tempFile, HeartbeatDataFileName, null, true );
                 } else {
