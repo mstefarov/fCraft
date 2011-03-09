@@ -135,7 +135,7 @@ namespace fCraft {
                 }
                 foreach( Task task in deletionList ) {
                     tasks.Remove( task );
-#if DEBUG
+#if DEBUG_SCHEDULER
                     Logger.Log( "Scheduler.UpdateCache: Removed {0}", LogType.Debug, task );
 #endif
                 }
