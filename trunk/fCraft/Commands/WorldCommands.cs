@@ -323,6 +323,7 @@ namespace fCraft {
                     player.Message( "Main world was not changed." );
                     return;
                 }
+                Server.SaveWorldList();
 
                 Server.SendToAll( "{0}&S set {1}&S to be the main world.",
                                   player.GetClassyName(), world.GetClassyName() );
@@ -835,17 +836,16 @@ namespace fCraft {
             bool first = true;
             int count = 0;
 
-            lock( Server.worldListLock ) {
-                foreach( World world in Server.worlds.Values ) {
-                    bool visible = player.CanJoin( world ) && !world.isHidden;
-                    if( (visible && listVisible) || (!visible && listHidden) ) {
-                        if( !first ) {
-                            sb.Append( ", " );
-                        }
-                        sb.Append( world.GetClassyName() );
-                        count++;
-                        first = false;
+            World[] worldListCache = Server.WorldList;
+            foreach( World world in worldListCache ) {
+                bool visible = player.CanJoin( world ) && !world.isHidden;
+                if( (visible && listVisible) || (!visible && listHidden) ) {
+                    if( !first ) {
+                        sb.Append( ", " );
                     }
+                    sb.Append( world.GetClassyName() );
+                    count++;
+                    first = false;
                 }
             }
 
@@ -888,7 +888,7 @@ namespace fCraft {
                 return;
             }
 
-            player.MessageNow( "Loading {0}...", fileName );
+            player.MessageNow( "Looking for \"{0}\"...", fileName );
 
             string fullFileName;
 
@@ -902,7 +902,7 @@ namespace fCraft {
                 return;
             }
             if( !Paths.IsValidPath( fullFileName ) ) {
-                player.Message( "Invalid filename." );
+                player.Message( "Invalid filename or path." );
                 return;
             }
             if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
@@ -941,7 +941,8 @@ namespace fCraft {
                     World world = Server.FindWorldExact( worldName );
                     if( world != null ) {
                         if( !cmd.confirmed ) {
-                            player.AskForConfirmation( cmd, "About to replace map for {0}&S with \"{1}\".", world.GetClassyName(), fileName );
+                            player.AskForConfirmation( cmd, "About to replace map for {0}&S with \"{1}\".",
+                                                       world.GetClassyName(), fileName );
                             return;
                         }
 
@@ -1076,22 +1077,21 @@ namespace fCraft {
                 return;
             }
 
-            lock( Server.worldListLock ) {
-                World world = Server.FindWorldOrPrintMatches( player, worldName );
-                if( world == null ) return;
+            World world = Server.FindWorldOrPrintMatches( player, worldName );
+            if( world == null ) return;
 
-                if( world == Server.MainWorld ) {
-                    player.Message( "Deleting the main world is not allowed. Assign a new main first." );
-                } else if( Server.RemoveWorld( worldName ) ) {
-                    Server.SendToAllExcept( "{0}&S removed {1}&S from the world list.", player,
-                                            player.GetClassyName(), world.GetClassyName() );
-                    player.Message( "Removed {0}&S from the world list. You can now delete the map file ({0}.fcm) manually.",
-                                    world.GetClassyName(), world.name );
-                    Logger.Log( "{0} removed \"{1}\" from the world list.", LogType.UserActivity,
-                                player.name, worldName );
-                } else {
-                    player.Message( "&WDeleting the world failed. See log for details." );
-                }
+            if( world == Server.MainWorld ) {
+                player.Message( "Deleting the main world is not allowed. Assign a new main first." );
+            } else if( Server.RemoveWorld( worldName ) ) {
+                Server.SaveWorldList();
+                Server.SendToAllExcept( "{0}&S removed {1}&S from the world list.", player,
+                                        player.GetClassyName(), world.GetClassyName() );
+                player.Message( "Removed {0}&S from the world list. You can now delete the map file ({0}.fcm) manually.",
+                                world.GetClassyName(), world.name );
+                Logger.Log( "{0} removed \"{1}\" from the world list.", LogType.UserActivity,
+                            player.name, worldName );
+            } else {
+                player.Message( "&WDeleting the world failed. See log for details." );
             }
 
             Server.RequestGC();
@@ -1382,10 +1382,9 @@ namespace fCraft {
         };
 
         internal static void LockAll( Player player, Command cmd ) {
-            lock( Server.worldListLock ) {
-                foreach( World world in Server.worlds.Values ) {
-                    world.Lock( player );
-                }
+            World[] worldListCache = Server.WorldList;
+            foreach( World world in worldListCache ) {
+                world.Lock( player );
             }
             player.Message( "All worlds are now locked." );
         }
@@ -1433,10 +1432,9 @@ namespace fCraft {
         };
 
         internal static void UnlockAll( Player player, Command cmd ) {
-            lock( Server.worldListLock ) {
-                foreach( World world in Server.worlds.Values ) {
-                    world.Unlock( player );
-                }
+            World[] worldListCache = Server.WorldList;
+            foreach( World world in worldListCache ) {
+                world.Unlock( player );
             }
             player.Message( "All worlds are now unlocked." );
         }

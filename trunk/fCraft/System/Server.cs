@@ -249,6 +249,7 @@ namespace fCraft {
             // list loaded worlds
             StringBuilder line = new StringBuilder( "All available worlds: " );
             bool firstPrintedWorld = true;
+            UpdateWorldList();
             foreach( string worldName in worlds.Keys ) {
                 if( !firstPrintedWorld ) {
                     line.Append( ", " );
@@ -391,8 +392,9 @@ namespace fCraft {
 
         #region Worlds
 
-        public static SortedDictionary<string, World> worlds = new SortedDictionary<string, World>();
-        public static object worldListLock = new object();
+        public static World[] WorldList { get; private set; }
+        static SortedDictionary<string, World> worlds = new SortedDictionary<string, World>();
+        internal static readonly object worldListLock = new object();
         public const string WorldListFileName = "worlds.xml";
 
         public static bool SetMainWorld( World newWorld ) {
@@ -408,13 +410,14 @@ namespace fCraft {
                 oldWorld= MainWorld;
                 oldWorld.neverUnload = false;
                 MainWorld = newWorld;
-                SaveWorldList();
             }
             RaiseMainWorldChangedEvent( oldWorld, newWorld );
             return true;
         }
 
+
         public static World MainWorld { get; private set; }
+
 
         #region World List Saving/Loading
 
@@ -570,24 +573,25 @@ namespace fCraft {
                 XDocument doc = new XDocument();
                 XElement root = new XElement( "fCraftWorldList" );
                 XElement temp;
-                lock( worldListLock ) {
-                    foreach( World world in worlds.Values ) {
-                        temp = new XElement( "World" );
-                        temp.Add( new XAttribute( "name", world.name ) );
-                        temp.Add( new XAttribute( "access", world.accessSecurity.MinRank ) ); // LEGACY
-                        temp.Add( new XAttribute( "build", world.buildSecurity.MinRank ) ); // LEGACY
-                        temp.Add( world.accessSecurity.Serialize( "accessSecurity" ) );
-                        temp.Add( world.buildSecurity.Serialize( "buildSecurity" ) );
-                        if( world.neverUnload ) {
-                            temp.Add( new XAttribute( "noUnload", true ) );
-                        }
-                        if( world.isHidden ) {
-                            temp.Add( new XAttribute( "hidden", true ) );
-                        }
-                        root.Add( temp );
+                World[] worldListCache = WorldList;
+
+                foreach( World world in worldListCache ) {
+                    temp = new XElement( "World" );
+                    temp.Add( new XAttribute( "name", world.name ) );
+                    temp.Add( new XAttribute( "access", world.accessSecurity.MinRank ) ); // LEGACY
+                    temp.Add( new XAttribute( "build", world.buildSecurity.MinRank ) ); // LEGACY
+                    temp.Add( world.accessSecurity.Serialize( "accessSecurity" ) );
+                    temp.Add( world.buildSecurity.Serialize( "buildSecurity" ) );
+                    if( world.neverUnload ) {
+                        temp.Add( new XAttribute( "noUnload", true ) );
                     }
-                    root.Add( new XAttribute( "main", MainWorld.name ) );
+                    if( world.isHidden ) {
+                        temp.Add( new XAttribute( "hidden", true ) );
+                    }
+                    root.Add( temp );
                 }
+                root.Add( new XAttribute( "main", MainWorld.name ) );
+
                 doc.Add( root );
                 doc.Save( WorldListTempFile );
                 if( File.Exists( WorldListFileName ) ) {
@@ -601,6 +605,7 @@ namespace fCraft {
         }
 
         #endregion
+
 
         public static World AddWorld( string name, Map map, bool _neverUnload ) {
             if( !Player.IsValidName( name ) ) return null;
@@ -627,35 +632,32 @@ namespace fCraft {
                 newWorld.StartTasks();
 
                 worlds.Add( name.ToLower(), newWorld );
+                UpdateWorldList();
 
                 return newWorld;
             }
         }
 
+
         public static World FindWorldExact( string name ) {
             if( name == null ) return null;
-            lock( worldListLock ) {
-                return worlds.ContainsKey( name.ToLower() ) ? worlds[name.ToLower()] : null;
-            }
+            return WorldList.FirstOrDefault( w => w.name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
         }
 
 
         public static World[] FindWorlds( string name ) {
             if( name == null ) return null;
-            World[] tempList;
-            lock( worldListLock ) {
-                tempList = worlds.Values.ToArray();
-            }
+            World[] worldListCache = WorldList;
 
             List<World> results = new List<World>();
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null ) {
-                    if( tempList[i].name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
+            for( int i = 0; i < worldListCache.Length; i++ ) {
+                if( worldListCache[i] != null ) {
+                    if( worldListCache[i].name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
                         results.Clear();
-                        results.Add( tempList[i] );
+                        results.Add( worldListCache[i] );
                         break;
-                    } else if( tempList[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
-                        results.Add( tempList[i] );
+                    } else if( worldListCache[i].name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                        results.Add( worldListCache[i] );
                     }
                 }
             }
@@ -664,12 +666,13 @@ namespace fCraft {
 
 
         public static World FindWorldOrPrintMatches( Player player, string worldName ) {
-            World[] matches = FindWorlds( worldName );
-            if( matches.Length == 0 ) {
+            List<World> matches = new List<World>( FindWorlds( worldName ) );
+            matches = RaiseSearchingForWorldEvent( player, worldName, null, matches );
+            if( matches.Count == 0 ) {
                 player.NoWorldMessage( worldName );
                 return null;
-            } else if( matches.Length > 1 ) {
-                player.ManyMatchesMessage( "world", matches );
+            } else if( matches.Count > 1 ) {
+                player.ManyMatchesMessage( "world", matches.ToArray() );
                 return null;
             } else {
                 return matches[0];
@@ -693,9 +696,9 @@ namespace fCraft {
                     worldToDelete.SaveMap();
 
                     worlds.Remove( name.ToLower() );
-                    SaveWorldList();
-                    return true;
                 }
+                UpdateWorldList();
+                return true;
             }
         }
 
@@ -709,6 +712,7 @@ namespace fCraft {
                 worlds.Remove( oldName.ToLower() );
                 oldWorld.name = newName;
                 worlds.Add( newName.ToLower(), oldWorld );
+                UpdateWorldList();
                 return true;
             }
         }
@@ -736,14 +740,20 @@ namespace fCraft {
                 Scheduler.UpdateCache();
 
                 newWorld.StartTasks();
+                UpdateWorldList();
+                return true;
             }
-            return true;
         }
 
 
         public static int CountLoadedWorlds() {
+            return WorldList.Count( world => (world.map != null) );
+        }
+
+
+        public static void UpdateWorldList() {
             lock( worldListLock ) {
-                return worlds.Values.Count( world => world.map != null );
+                WorldList = worlds.Values.ToArray();
             }
         }
 
@@ -1314,11 +1324,10 @@ namespace fCraft {
                     SendToAll( "&SPlayer {0}&S left the server.", player.GetClassyName() );
                 }
 
-                lock( worldListLock ) {
-                    // better safe than sorry: go through ALL worlds looking for leftover players
-                    foreach( World world in worlds.Values ) {
-                        world.ReleasePlayer( player );
-                    }
+                World[] worldListCache = WorldList;
+                // better safe than sorry: go through ALL worlds looking for leftover players
+                foreach( World world in worldListCache ) {
+                    world.ReleasePlayer( player );
                 }
                 players.Remove( player.id );
                 UpdatePlayerList();
