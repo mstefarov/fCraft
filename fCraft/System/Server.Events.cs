@@ -124,6 +124,8 @@ namespace fCraft {
 
         public static event EventHandler<MainWorldChangedEventArgs> MainWorldChanged;
 
+        public static event EventHandler<SearchingForWorldEventArgs> SearchingForWorld;
+
         static bool RaiseMainWorldChangingEvent( World _old, World _new ) {
             var h = MainWorldChanging;
             if( h == null ) return false;
@@ -135,6 +137,14 @@ namespace fCraft {
         static void RaiseMainWorldChangedEvent( World _old, World _new ) {
             var h = MainWorldChanged;
             if( h != null ) h( null, new MainWorldChangedEventArgs( _old, _new ) );
+        }
+
+        static List<World> RaiseSearchingForWorldEvent( Player _player, string _searchTerm, Command _command, List<World> _matches ) {
+            var h = SearchingForWorld;
+            if( h == null ) return _matches;
+            var e = new SearchingForWorldEventArgs( _player, _searchTerm, new Command( _command ), _matches );
+            h( null, e );
+            return e.Matches;
         }
 
         #endregion
@@ -170,5 +180,18 @@ namespace fCraft {
     public class MainWorldChangingEventArgs : MainWorldChangedEventArgs {
         internal MainWorldChangingEventArgs( World _old, World _new ) : base( _old, _new ) { }
         public bool Cancel { get; set; }
+    }
+
+    public class SearchingForWorldEventArgs : EventArgs {
+        internal SearchingForWorldEventArgs( Player _player, string _searchTerm, Command _command, List<World> _matches ) {
+            Player = _player;
+            SearchTerm = _searchTerm;
+            Command = _command;
+            Matches = _matches;
+        }
+        public Player Player { get; private set; }
+        public string SearchTerm { get; private set; }
+        public Command Command { get; private set; }
+        public List<World> Matches { get; set; }
     }
 }

@@ -560,7 +560,7 @@ namespace fCraft {
             int visiblePlayerCount = players.Count( player.CanSee );
 
             player.Message( "    {0} worlds available ({1} loaded), {2} players online.",
-                            Server.worlds.Count,
+                            Server.WorldList.Length,
                             Server.CountLoadedWorlds(),
                             visiblePlayerCount );
         }
