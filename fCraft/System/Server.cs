@@ -704,16 +704,40 @@ namespace fCraft {
 
 
         // Note: no autocompletion
-        public static bool RenameWorld( string oldName, string newName ) {
+        public static void RenameWorld( World world, string newName, bool moveMapFile ) {
+            if( !Player.IsValidName( newName ) ) {
+                throw new WorldOperationException( WorldOperationError.InvalidNewWorldName );
+            }
+            if( world == null ) {
+                throw new WorldOperationException( WorldOperationError.WorldNotFound );
+            }
+
+            string oldName = world.name;
+
             lock( worldListLock ) {
-                World oldWorld = FindWorldExact( oldName );
                 World newWorld = FindWorldExact( newName );
-                if( oldWorld == null || (newWorld != null && newWorld != oldWorld) ) return false;
-                worlds.Remove( oldName.ToLower() );
-                oldWorld.name = newName;
-                worlds.Add( newName.ToLower(), oldWorld );
+                if( newWorld != null && newWorld != world ) {
+                    throw new WorldOperationException( WorldOperationError.DuplicateWorldName );
+                }
+
+                worlds.Remove( world.name.ToLower() );
+                world.name = newName;
+                worlds.Add( newName.ToLower(), world );
                 UpdateWorldList();
-                return true;
+
+                if( moveMapFile ) {
+                    string oldFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
+                    string newFileName = Path.Combine( Paths.MapPath, newName + ".fcm" );
+                    try {
+                        if( File.Exists( newFileName ) ) {
+                            File.Replace( oldFileName, newFileName, null, true );
+                        } else {
+                            File.Move( oldFileName, newFileName );
+                        }
+                    } catch( Exception ex ) {
+                        throw new WorldOperationException( WorldOperationError.MapMoveError, null, ex );
+                    }
+                }
             }
         }
 
