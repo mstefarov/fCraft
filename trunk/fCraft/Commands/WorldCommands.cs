@@ -1017,44 +1017,37 @@ namespace fCraft {
                 return;
             }
 
-            lock( Server.worldListLock ) {
-                World oldWorld = Server.FindWorldOrPrintMatches( player, oldName );
-                if( oldWorld == null ) return;
+            World oldWorld = Server.FindWorldOrPrintMatches( player, oldName );
+            if( oldWorld == null ) return;
+            oldName = oldWorld.name;
 
-                World newWorld = Server.FindWorldExact( newName );
-
-                // the "oldWorld != newWorld" check allows changing capitalization without triggering "world already exists"
-                if( newWorld != null && oldWorld != newWorld ) {
-                    player.Message( "A world with the specified name already exists: {0}", newName );
-
-                } else {
-                    oldName = oldWorld.name;
-
-                    lock( oldWorld.mapLock ) {
-                        Server.RenameWorld( oldName, newName );
-
-                        // Move files
-                        string oldFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
-                        string newFileName = Path.Combine( Paths.MapPath, newName + ".fcm" );
-                        try {
-                            if( File.Exists( newFileName ) ) {
-                                File.Replace( oldFileName, newFileName, null, true );
-                            } else {
-                                File.Move( oldFileName, newFileName );
-                            }
-                        } catch( Exception ex ) {
-                            Logger.Log( "MapCommands.WorldRename: A file with the same name as renamed world may already exist, " +
-                                        "and an error occured while trying to use it: {0}", LogType.Error, ex );
-                        }
+            lock( oldWorld.mapLock ) {
+                try {
+                    Server.RenameWorld( oldWorld, newName, true );
+                } catch( WorldOperationException ex ) {
+                    switch( ex.Error ) {
+                        case WorldOperationError.DuplicateWorldName:
+                            player.MessageNow( "Rename: Another world named \"{0}\" already exists.", newName );
+                            return;
+                        case WorldOperationError.InvalidNewWorldName:
+                            player.MessageNow( "Rename: Invalid world name: \"{0}\"", newName );
+                            return;
+                        case WorldOperationError.MapMoveError:
+                            player.MessageNow( "Rename: World \"{0}\" was renamed to \"{1}\", but the map file could not be moved due to an error: {2}",
+                                                oldName, newName, ex.InnerException );
+                            return;
+                        default:
+                            player.MessageNow( "Unexpected error occured while renaming world \"{0}\"", oldWorld.name );
+                            return;
                     }
-
-                    Server.SaveWorldList();
-                    Server.SendToAll( "{0}&S renamed the world \"{1}\" to \"{2}\"",
-                                      player.GetClassyName(), oldName, newName );
-                    Logger.Log( "{0} renamed the world \"{1}\" to \"{2}\".", LogType.UserActivity,
-                                player.name, oldName, newName );
                 }
             }
+
+            Server.SaveWorldList();
+            Logger.Log( "{0} renamed the world \"{1}\" to \"{2}\".", LogType.UserActivity,
+                        player.name, oldName, newName );
+            Server.SendToAll( "{0}&S renamed the world \"{1}\" to \"{2}\"",
+                              player.GetClassyName(), oldName, newName );
         }
 
 
