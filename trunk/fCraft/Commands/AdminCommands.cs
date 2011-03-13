@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using fCraft.Events;
 
 namespace fCraft {
     /// <summary>
@@ -1282,6 +1283,10 @@ namespace fCraft {
                 } else {
                     // Try to guess if player typed "/tp" instead of "/join"
                     World[] worlds = Server.FindWorlds( name );
+                    SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, name, worlds.ToList(), true );
+                    Server.RaiseSearchingForWorldEvent( e );
+                    worlds = e.Matches.ToArray();
+
                     if( worlds.Length == 1 ) {
                         player.ParseMessage( "/join " + name, false );
                     } else {

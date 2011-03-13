@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Text;
+using fCraft.Events;
 
 namespace fCraft {
 
@@ -135,9 +136,7 @@ namespace fCraft {
                 }
             }
 
-            if( type != LogType.Trace ) {
-                RaiseLoggedEvent( message, line, type );
-            }
+            RaiseLoggedEvent( message, line, type );
         }
 
 
@@ -284,11 +283,30 @@ namespace fCraft {
 #if DEBUG_EVENTS
 
         // list of events in this assembly
-        static private readonly Dictionary<int, EventInfo> eventsMap = new Dictionary<int, EventInfo>();
+        static readonly Dictionary<int, EventInfo> eventsMap = new Dictionary<int, EventInfo>();
+
+
+        static List<string> eventWhitelist = new List<string>();
+        static List<string> eventBlacklist = new List<string>();
+        const string TraceWhitelistFile = "traceonly.txt",
+                     TraceBlacklistFile = "notrace.txt";
+        static bool useEventWhitelist, useEventBlacklist;
+
+        static void LoadTracingSettings() {
+            if( File.Exists( TraceWhitelistFile ) ) {
+                useEventWhitelist = true;
+                eventWhitelist.AddRange( File.ReadAllLines( TraceWhitelistFile ) );
+            }else if( File.Exists( TraceBlacklistFile ) ) {
+                useEventBlacklist = true;
+                eventBlacklist.AddRange( File.ReadAllLines( TraceBlacklistFile ) );
+            }
+        }
 
 
         // adds hooks to all compliant events in current assembly
-        internal static void FindEvents() {
+        internal static void PrepareEventTracing() {
+
+            LoadTracingSettings();
 
             // create a dynamic type to hold our handler methods
             AppDomain myDomain = AppDomain.CurrentDomain;
@@ -306,6 +324,10 @@ namespace fCraft {
                 foreach( EventInfo eventInfo in type.GetEvents() ) {
                     if( eventInfo.EventHandlerType.FullName.StartsWith( typeof( EventHandler<> ).FullName ) ||
                         eventInfo.EventHandlerType.FullName.StartsWith( typeof( EventHandler ).FullName ) ) {
+
+                        if( useEventWhitelist && !eventWhitelist.Contains( type.Name + "." + eventInfo.Name, StringComparer.OrdinalIgnoreCase ) ||
+                            useEventBlacklist && eventBlacklist.Contains( type.Name + "." + eventInfo.Name, StringComparer.OrdinalIgnoreCase ) ) continue;
+
                         MethodInfo method = eventInfo.EventHandlerType.GetMethod( "Invoke" );
                         var parameterTypes = method.GetParameters().Select( info => info.ParameterType ).ToArray();
                         AddEventHook( typeBuilder, parameterTypes, method.ReturnType, eventIndex );
@@ -351,6 +373,7 @@ namespace fCraft {
 
         // Invoked when events fire
         public static void EventTraceNotifier( int eventIndex, EventArgs e ) {
+            if( (e is LogEventArgs) && ((LogEventArgs)e).MessageType == LogType.Trace ) return;
             var eventInfo = eventsMap[eventIndex];
 
             StringBuilder sb = new StringBuilder();
@@ -400,9 +423,11 @@ namespace fCraft {
 
         #endregion
     }
+}
 
 
-    #region EventArgs
+#region EventArgs
+namespace fCraft.Events {
 
     public class LogEventArgs : EventArgs {
         internal LogEventArgs( string _rawMessage, string _message, LogType _messageType, bool _writeToFile, bool _writeToConsole ) {
@@ -418,6 +443,7 @@ namespace fCraft {
         public bool WriteToFile { get; private set; }
         public bool WriteToConsole { get; private set; }
     }
+
 
     public class CrashEventArgs : EventArgs {
         internal CrashEventArgs( string _message, string _location, Exception _exception, bool _submitCrashReport, bool _isCommonProblem, bool _shutdownImminent ) {
@@ -436,5 +462,5 @@ namespace fCraft {
         public bool ShutdownImminent { get; private set; }
     }
 
-    #endregion
 }
+#endregion

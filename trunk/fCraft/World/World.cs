@@ -7,6 +7,7 @@ namespace fCraft {
 
     public sealed class World : IClassy {
 
+        [Obsolete]
         public static string[] BackupEnum = new[] {
             "Never", "5 Minutes", "10 Minutes", "15 Minutes", "20 Minutes",
             "30 Minutes", "45 Minutes", "1 Hour", "2 Hours", "3 Hours",
@@ -133,6 +134,7 @@ namespace fCraft {
             }
         }
 
+
         public void EndFlushMapBuffer() {
             lock( playerListLock ) {
                 isFlushing = false;
@@ -142,6 +144,7 @@ namespace fCraft {
                 }
             }
         }
+
 
         #endregion
 
@@ -305,6 +308,7 @@ namespace fCraft {
 
         #endregion
 
+
         #region Communication
 
         public void SendToAll( Packet packet ) {
@@ -366,6 +370,7 @@ namespace fCraft {
 
         #endregion
 
+
         #region Events
         [Obsolete]
         public event SimpleEventHandler OnLoaded;
@@ -407,6 +412,7 @@ namespace fCraft {
         }
         #endregion
 
+
         public bool Lock( Player player ) {
             lock( lockLock ) {
                 if( isLocked ) {
@@ -424,6 +430,7 @@ namespace fCraft {
             }
         }
 
+
         public bool Unlock( Player player ) {
             lock( lockLock ) {
                 if( isLocked ) {
@@ -439,6 +446,7 @@ namespace fCraft {
                 }
             }
         }
+
 
         public string GetClassyName() {
             string displayedName = name;
@@ -456,6 +464,7 @@ namespace fCraft {
             }
             return displayedName;
         }
+
 
         #region Patrol
 
@@ -504,6 +513,7 @@ namespace fCraft {
         }
 
         #endregion
+
 
         #region Scheduled Tasks
 
@@ -572,42 +582,9 @@ namespace fCraft {
         }
 
         #endregion
-    }
 
-
-    public class WorldOperationException : Exception {
-        public WorldOperationException( WorldOperationError _errorType )
-            : base() {
-            Error = _errorType;
+        public override string ToString() {
+            return String.Format( "World({0})", name );
         }
-        public WorldOperationException( WorldOperationError _errorType, string _message )
-            : base( _message ) {
-            Error = _errorType;
-        }
-        public WorldOperationException( WorldOperationError _errorType, string _message, Exception _innerException ) :
-            base( _message, _innerException ) {
-            Error = _errorType;
-        }
-        public WorldOperationError Error { get; private set; }
-    }
-
-
-    public enum WorldOperationError {
-        NoChangeNeeded,
-        OtherError,
-
-        InvalidWorldName,
-        InvalidNewWorldName,
-        WorldNotFound,
-        DuplicateWorldName,
-
-        SecurityError,
-        CannotDoThatToMainWorld,
-
-        MapNotFound,
-        MapPathError,
-        MapLoadError,
-        MapSaveError,
-        MapMoveError
     }
 }

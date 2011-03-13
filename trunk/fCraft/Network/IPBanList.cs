@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using fCraft.Events;
 
 namespace fCraft {
     public static class IPBanList {
@@ -242,9 +243,11 @@ namespace fCraft {
             lastAttemptName = player.name;
         }
     }
+}
 
 
-    #region EventArgs
+#region EventArgs
+namespace fCraft.Events {
 
     public class IPBanEventArgs : EventArgs {
         internal IPBanEventArgs( IPBanInfo _info ) {
@@ -253,6 +256,7 @@ namespace fCraft {
         public IPBanInfo BanInfo { get; private set; }
     }
 
+
     public class IPBanCancellableEventArgs : IPBanEventArgs {
         internal IPBanCancellableEventArgs( IPBanInfo _info ) :
             base( _info ) {
@@ -260,5 +264,5 @@ namespace fCraft {
         public bool Cancel { get; set; }
     }
 
-    #endregion
 }
+#endregion

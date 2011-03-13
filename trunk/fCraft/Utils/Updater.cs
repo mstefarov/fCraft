@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
+using fCraft.Events;
 
 namespace fCraft {
     public struct UpdaterResult {
@@ -31,7 +32,7 @@ namespace fCraft {
     /// </summary>
     public static class Updater {
         public static int Version = 510;
-        public static int Revision = 456;
+        public static int Revision = 458;
         public static bool IsDev = true,
                            IsBroken = true;
         public static string LatestStable = "0.506_r427";
@@ -161,8 +162,10 @@ namespace fCraft {
         Auto,
     }
 
+}
 
-    #region EventArgs
+#region EventArgs
+namespace fCraft.Events {
 
     public class CheckingForUpdatesEventArgs : EventArgs {
         internal CheckingForUpdatesEventArgs( string _url ) {
@@ -190,5 +193,5 @@ namespace fCraft {
         public bool Cancel { get; set; }
     }
 
-    #endregion
 }
+#endregion

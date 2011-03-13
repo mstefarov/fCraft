@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using fCraft.Events;
 
 namespace fCraft {
     /// <summary>
@@ -144,18 +145,12 @@ namespace fCraft {
             } else {
                 if( descriptor.permissions != null ) {
                     if( player.Can( descriptor.permissions ) ) {
-
-                        if( RaiseCommandCallingEvent( cmd, descriptor, player ) ) return;
-
-                        descriptor.handler( player, cmd );
-
-                        RaiseCommandCalledEvent( cmd, descriptor, player );
-
+                        descriptor.Call( player, cmd, true );
                     } else {
                         player.NoAccessMessage( descriptor.permissions );
                     }
                 } else {
-                    descriptor.handler( player, cmd );
+                    descriptor.Call( player, cmd, true );
                 }
             }
         }
@@ -207,14 +202,12 @@ namespace fCraft {
 
 
         static void RaiseCommandRegisteredEvent( CommandDescriptor descriptor ) {
-            descriptor.RaiseRegisteredEvent();
             var h = CommandRegistered;
             if( h != null ) h( null, new CommandRegisteredEventArgs( descriptor ) );
         }
 
 
-        static bool RaiseCommandCallingEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
-            if( descriptor.RaiseCallingEvent( cmd, player ) ) return true;
+        internal static bool RaiseCommandCallingEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
             var h = CommandCalling;
             if( h == null ) return false;
             var e = new CommandCallingEventArgs( cmd, descriptor, player );
@@ -223,15 +216,17 @@ namespace fCraft {
         }
 
 
-        static void RaiseCommandCalledEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
-            descriptor.RaiseCalledEvent( cmd, player );
+        internal static void RaiseCommandCalledEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
             var h = CommandCalled;
             if( h != null ) CommandCalled( null, new CommandCalledEventArgs( cmd, descriptor, player ) );
         }
 
         #endregion
     }
+}
 
+
+namespace fCraft.Events {
 
     #region EventArgs
 
