@@ -26,6 +26,8 @@ using System.IO;
 using System.Text;
 using System.Runtime.InteropServices;
 using fCraft;
+using fCraft.Events;
+
 
 namespace fCraftConsole {
 

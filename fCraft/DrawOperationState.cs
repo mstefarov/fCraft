@@ -1,6 +1,8 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 
+// This class is currently unused.
+// I plan on replacing the current drawing architecture with this. - fragmer
 namespace fCraft {
     public class DrawOperationState {
         public PlayerInfo Player;

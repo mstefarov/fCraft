@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using fCraft.Events;
 
 namespace fCraft {
     /// <summary>
@@ -109,6 +110,11 @@ namespace fCraft {
             }
 
             World[] worlds = Server.FindWorlds( worldName );
+
+            SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, worldName, worlds.ToList(), true );
+            Server.RaiseSearchingForWorldEvent( e );
+            worlds = e.Matches.ToArray();
+
             if( worlds.Length > 1 ) {
                 player.ManyMatchesMessage( "world", worlds );
 
@@ -1023,24 +1029,26 @@ namespace fCraft {
 
             lock( oldWorld.mapLock ) {
                 try {
-                    Server.RenameWorld( oldWorld, newName, true );
-                } catch( WorldOperationException ex ) {
-                    switch( ex.Error ) {
-                        case WorldOperationError.NoChangeNeeded:
+                    oldWorld.RenameWorld( newName, true );
+                } catch( EnumException<WorldCmdError> ex ) {
+                    switch( ex.ErrorCode ) {
+                        case WorldCmdError.NoChangeNeeded:
                             player.MessageNow( "Rename: World is already named \"{0}\"", oldName );
                             return;
-                        case WorldOperationError.DuplicateWorldName:
+                        case WorldCmdError.DuplicateWorldName:
                             player.MessageNow( "Rename: Another world named \"{0}\" already exists.", newName );
                             return;
-                        case WorldOperationError.InvalidNewWorldName:
+                        case WorldCmdError.InvalidNewWorldName:
                             player.MessageNow( "Rename: Invalid world name: \"{0}\"", newName );
                             return;
-                        case WorldOperationError.MapMoveError:
+                        case WorldCmdError.MapMoveError:
                             player.MessageNow( "Rename: World \"{0}\" was renamed to \"{1}\", but the map file could not be moved due to an error: {2}",
                                                 oldName, newName, ex.InnerException );
                             return;
                         default:
                             player.MessageNow( "Unexpected error occured while renaming world \"{0}\"", oldName );
+                            Logger.Log( "WorldCommands.Rename: Unexpected error while renaming world {0} to {1}: {2}",
+                                        LogType.Error, oldWorld.name, newName, ex );
                             return;
                     }
                 }
@@ -1076,19 +1084,33 @@ namespace fCraft {
             World world = Server.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
 
-            if( world == Server.MainWorld ) {
-                player.Message( "Deleting the main world is not allowed. Assign a new main first." );
-            } else if( Server.RemoveWorld( worldName ) ) {
-                Server.SaveWorldList();
-                Server.SendToAllExcept( "{0}&S removed {1}&S from the world list.", player,
-                                        player.GetClassyName(), world.GetClassyName() );
-                player.Message( "Removed {0}&S from the world list. You can now delete the map file ({0}.fcm) manually.",
-                                world.GetClassyName(), world.name );
-                Logger.Log( "{0} removed \"{1}\" from the world list.", LogType.UserActivity,
-                            player.name, worldName );
-            } else {
-                player.Message( "&WDeleting the world failed. See log for details." );
+            try {
+                Server.RemoveWorld( world );
+            } catch( EnumException<WorldCmdError> ex ) {
+                switch( ex.ErrorCode ) {
+                    case WorldCmdError.CannotDoThatToMainWorld:
+                        player.MessageNow( " World \"{0}\" is designated as the main world. " +
+                                            "Assign a new main world before deleting this one.",
+                                            world.name );
+                        return;
+                    case WorldCmdError.WorldNotFound:
+                        player.MessageNow( "World \"{0}\" is already unloaded.", world.name );
+                        return;
+                    default:
+                        player.MessageNow( "Unexpected error occured while unloading world \"{0}\"", world.name );
+                        Logger.Log( "WorldCommands.WUnload: Unexpected error while unloading world {0}: {1}",
+                                    LogType.Error, world.name, ex );
+                        return;
+                }
             }
+
+            Server.SaveWorldList();
+            Server.SendToAllExcept( "{0}&S removed {1}&S from the world list.", player,
+                                    player.GetClassyName(), world.GetClassyName() );
+            player.Message( "Removed {0}&S from the world list. You can now delete the map file ({1}.fcm) manually.",
+                            world.GetClassyName(), world.name );
+            Logger.Log( "{0} removed \"{1}\" from the world list.", LogType.UserActivity,
+                        player.name, worldName );
 
             Server.RequestGC();
         }
@@ -1436,5 +1458,24 @@ namespace fCraft {
         }
 
         #endregion
+    }
+
+
+    public enum WorldCmdError {
+        NoChangeNeeded,
+
+        InvalidWorldName,
+        InvalidNewWorldName,
+        WorldNotFound,
+        DuplicateWorldName,
+
+        SecurityError,
+        CannotDoThatToMainWorld,
+
+        MapNotFound,
+        MapPathError,
+        MapLoadError,
+        MapSaveError,
+        MapMoveError
     }
 }

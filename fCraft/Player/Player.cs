@@ -6,11 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
-
-// for CheckPaidStatus
-        // for CheckPaidStatus
-        // for CheckPaidStatus
-
+using fCraft.Events;
 
 namespace fCraft {
     /// <summary>
@@ -749,30 +745,6 @@ namespace fCraft {
         public override string ToString() {
             return String.Format( "Player({0})", info.name );
         }
-
-
-        #region Events
-
-        public event EventHandler<PlayerConnectedEventArgs> Connected;
-
-        public event EventHandler<PlayerEventArgs> Ready;
-
-
-        internal World RaisePlayerConnectedEvent( World _world ) {
-            var h = Connected;
-            if( h == null ) return _world;
-            var e = new PlayerConnectedEventArgs( this, _world );
-            h( this, e );
-            return e.StartingWorld;
-        }
-
-
-        internal void RaisePlayerReadyEvent() {
-            var h = Ready;
-            if( h != null ) h( this, new PlayerEventArgs( this ) );
-        }
-
-        #endregion
     }
 
 
@@ -783,9 +755,10 @@ namespace fCraft {
         ZoneDenied,
         RankDenied
     }
+}
 
-
-    #region Events
+#region Events
+namespace fCraft.Events {
 
     public class PlayerEventArgs : EventArgs {
         internal PlayerEventArgs( Player _player ) {
@@ -814,5 +787,43 @@ namespace fCraft {
         public World StartingWorld { get; set; }
     }
 
-    #endregion
+
+    public class PlayerMovingEventArgs : PlayerEventArgs {
+        internal PlayerMovingEventArgs( Player _player, Position _newPos )
+            : base( _player ) {
+            NewPosition = _newPos;
+        }
+        public Position OldPosition {
+            get {
+                return Player.pos;
+            }
+        }
+        public Position NewPosition { get; set; }
+        public bool Cancel { get; set; }
+    }
+
+
+    public class PlayerMovedEventArgs : PlayerEventArgs {
+        internal PlayerMovedEventArgs( Player _player, Position _oldPos )
+            : base( _player ) {
+            OldPosition = _oldPos;
+        }
+
+        public Position OldPosition { get; private set; }
+        public Position NewPosition {
+            get {
+                return Player.pos;
+            }
+        }
+    }
+
+
+    public class PlayerDisconnectedEventArgs : PlayerEventArgs {
+        internal PlayerDisconnectedEventArgs( Player _player, LeaveReason _leaveReason )
+            : base( _player ) {
+            LeaveReason = _leaveReason;
+        }
+        public LeaveReason LeaveReason { get; private set; }
+    }
 }
+#endregion

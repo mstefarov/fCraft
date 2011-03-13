@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Xml.Linq;
+using fCraft.Events;
 
 namespace fCraft {
 
@@ -1268,9 +1269,11 @@ namespace fCraft {
 
         #endregion
     }
+}
 
 
-    #region EventArgs
+#region EventArgs
+namespace fCraft.Events {
 
     public class ConfigKeyChangingEventArgs : EventArgs {
         public ConfigKey Key { get; private set; }
@@ -1299,5 +1302,5 @@ namespace fCraft {
         }
     }
 
-    #endregion
 }
+#endregion

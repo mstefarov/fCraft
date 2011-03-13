@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.Diagnostics;
+using fCraft.Events;
 
 namespace fCraft {
     partial class Server {
@@ -89,6 +90,13 @@ namespace fCraft {
 
         public static event EventHandler<PlayerEventArgs> PlayerReady;
 
+        public static event EventHandler<PlayerMovingEventArgs> PlayerMoving;
+
+        public static event EventHandler<PlayerMovedEventArgs> PlayerMoved;
+
+        public static event EventHandler<PlayerDisconnectedEventArgs> PlayerDisconnected;
+
+
 
         internal static bool RaisePlayerConnectingEvent( Player _player ) {
             var h = PlayerConnecting;
@@ -100,7 +108,6 @@ namespace fCraft {
 
 
         internal static World RaisePlayerConnectedEvent( Player _player, World _world ) {
-            _world = _player.RaisePlayerConnectedEvent( _world );
             var h = PlayerConnected;
             if( h == null ) return _world;
             var e = new PlayerConnectedEventArgs( _player, _world );
@@ -110,9 +117,29 @@ namespace fCraft {
 
 
         internal static void RaisePlayerReadyEvent( Player _player ) {
-            _player.RaisePlayerReadyEvent();
             var h = PlayerReady;
             if( h != null ) h( null, new PlayerEventArgs( _player ) );
+        }
+
+
+        internal static bool RaisePlayerMovingEvent( Player _player, Position _newPos ) {
+            var h = PlayerMoving;
+            if( h == null ) return false;
+            var e = new PlayerMovingEventArgs( _player, _newPos );
+            h( null, e );
+            return e.Cancel;
+        }
+
+
+        internal static void RaisePlayerMovedEvent( Player _player, Position _oldPos ) {
+            var h = PlayerMoved;
+            if( h != null ) h( null, new PlayerMovedEventArgs( _player, _oldPos ) );
+        }
+
+
+        internal static void RaisePlayerDisconnectedEventArgs( Player _player, LeaveReason _leaveReason ) {
+            var h = PlayerDisconnected;
+            if( h != null ) h( null, new PlayerDisconnectedEventArgs( _player, _leaveReason ) );
         }
 
         #endregion
@@ -139,17 +166,16 @@ namespace fCraft {
             if( h != null ) h( null, new MainWorldChangedEventArgs( _old, _new ) );
         }
 
-        static List<World> RaiseSearchingForWorldEvent( Player _player, string _searchTerm, Command _command, List<World> _matches ) {
+        internal static void RaiseSearchingForWorldEvent( SearchingForWorldEventArgs e ) {
             var h = SearchingForWorld;
-            if( h == null ) return _matches;
-            var e = new SearchingForWorldEventArgs( _player, _searchTerm, new Command( _command ), _matches );
-            h( null, e );
-            return e.Matches;
+            if( h != null ) h( null, e );
         }
 
         #endregion
     }
+}
 
+namespace fCraft.Events {
 
     public class ServerInitializingEventArgs : EventArgs {
         internal ServerInitializingEventArgs( string[] _args ) {
@@ -168,6 +194,7 @@ namespace fCraft {
         public ShutdownParams ShutdownParams { get; private set; }
     }
 
+
     public class MainWorldChangedEventArgs : EventArgs {
         internal MainWorldChangedEventArgs( World _old, World _new ) {
             OldMainWorld = _old;
@@ -177,21 +204,23 @@ namespace fCraft {
         public World NewMainWorld { get; private set; }
     }
 
+
     public class MainWorldChangingEventArgs : MainWorldChangedEventArgs {
         internal MainWorldChangingEventArgs( World _old, World _new ) : base( _old, _new ) { }
         public bool Cancel { get; set; }
     }
 
+
     public class SearchingForWorldEventArgs : EventArgs {
-        internal SearchingForWorldEventArgs( Player _player, string _searchTerm, Command _command, List<World> _matches ) {
+        internal SearchingForWorldEventArgs( Player _player, string _searchTerm, List<World> _matches, bool _toJoin ) {
             Player = _player;
             SearchTerm = _searchTerm;
-            Command = _command;
             Matches = _matches;
+            ToJoin = _toJoin;
         }
         public Player Player { get; private set; }
         public string SearchTerm { get; private set; }
-        public Command Command { get; private set; }
         public List<World> Matches { get; set; }
+        public bool ToJoin { get; private set; }
     }
 }

@@ -5,6 +5,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using fCraft;
+using fCraft.Events;
 
 namespace fCraftWinService {
     class fCraftWinService : ServiceBase {

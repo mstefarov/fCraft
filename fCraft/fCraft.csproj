@@ -203,6 +203,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="System\Server.Events.cs" />
+    <Compile Include="Utils\EnumException.cs" />
     <None Include="Tileset.png" />
     <None Include="TilesetShadowed.png" />
   </ItemGroup>

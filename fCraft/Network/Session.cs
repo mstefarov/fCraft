@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using fCraft.Events;
 
 namespace fCraft {
     public sealed class Session {
@@ -281,6 +282,11 @@ namespace fCraft {
                                 }
                                 skippedLastMovementPacket = false;
 
+                                if( Server.RaisePlayerMovingEvent( player, newPos ) ) {
+                                    DenyMovement();
+                                    continue;
+                                }
+
                                 // create the movement packet
                                 if( delta.FitsIntoByte() && fullPositionUpdateCounter < fullPositionUpdateInterval ) {
                                     if( posChanged && rotChanged ) {
@@ -313,6 +319,7 @@ namespace fCraft {
                                 }
 
                                 player.pos = newPos;
+                                Server.RaisePlayerMovedEvent( player, oldPos );
                                 player.world.SendToSeeing( packet, player );
                                 break;
 
@@ -384,6 +391,7 @@ namespace fCraft {
 
             if( player != null ) {
                 Server.UnregisterPlayer( player );
+                Server.RaisePlayerDisconnectedEventArgs( player, leaveReason );
                 player = null;
             }
 
@@ -961,7 +969,7 @@ namespace fCraft {
         void RaiseDisconnectedEvent() {
             var h = Disconnected;
             if( h != null ) h( this, new SessionDisconnectedEventArgs( this, leaveReason ) );
-        }
+        }        
 
         #endregion
 
@@ -973,9 +981,11 @@ namespace fCraft {
             }
         }
     }
+}
 
 
-    #region EventHandlers
+#region EventArgs
+namespace fCraft.Events {
 
     public class SessionConnectingEventArgs : EventArgs {
         public SessionConnectingEventArgs( IPAddress _IP ) {
@@ -985,12 +995,14 @@ namespace fCraft {
         public IPAddress IP { get; private set; }
     }
 
+
     public class SessionConnectedEventArgs : EventArgs {
         public SessionConnectedEventArgs( Session _session ) {
             Session = _session;
         }
         public Session Session { get; private set; }
     }
+
 
     public class SessionDisconnectedEventArgs : EventArgs {
         public SessionDisconnectedEventArgs( Session _session, LeaveReason _leaveReason ) {
@@ -1001,5 +1013,5 @@ namespace fCraft {
         public LeaveReason LeaveReason { get; private set; }
     }
 
-    #endregion
 }
+#endregion

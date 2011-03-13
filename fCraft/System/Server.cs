@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
+using fCraft.Events;
 
 namespace fCraft {
     public static partial class Server {
@@ -131,7 +132,7 @@ namespace fCraft {
             }
 
 #if DEBUG_EVENTS
-            Logger.FindEvents();
+            Logger.PrepareEventTracing();
 #endif
 
 #if DEBUG
@@ -313,52 +314,52 @@ namespace fCraft {
 #else
             try {
 #endif
-                shuttingDown = true;
-                RaiseShutdownBeganEvent( shutdownParams );
-                if( OnShutdownBegin != null ) OnShutdownBegin();
+            shuttingDown = true;
+            RaiseShutdownBeganEvent( shutdownParams );
+            if( OnShutdownBegin != null ) OnShutdownBegin();
 
-                Scheduler.BeginShutdown();
+            Scheduler.BeginShutdown();
 
-                Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
-                            shutdownParams.Reason );
+            Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
+                        shutdownParams.Reason );
 
-                // kick all players
-                if( PlayerList != null ) {
-                    Player[] pListCached = PlayerList;
-                    foreach( Player player in pListCached ) {
-                        // NOTE: kick packet delivery here is not currently guaranteed
-                        player.session.Kick( "Server shutting down (" + shutdownParams.Reason + Color.White + ")", LeaveReason.ServerShutdown );
-                    }
+            // kick all players
+            if( PlayerList != null ) {
+                Player[] pListCached = PlayerList;
+                foreach( Player player in pListCached ) {
+                    // NOTE: kick packet delivery here is not currently guaranteed
+                    player.session.Kick( "Server shutting down (" + shutdownParams.Reason + Color.White + ")", LeaveReason.ServerShutdown );
                 }
+            }
 
-                // increase the chances of kick packets being delivered
-                if( PlayerList.Length > 0 ) {
-                    Thread.Sleep( 1000 );
+            // increase the chances of kick packets being delivered
+            if( PlayerList.Length > 0 ) {
+                Thread.Sleep( 1000 );
+            }
+
+            // stop accepting new players
+            if( listener != null ) {
+                listener.Stop();
+                listener = null;
+            }
+
+            // kill IRC bot
+            IRC.Disconnect();
+
+            lock( worldListLock ) {
+                // unload all worlds (includes saving)
+                foreach( World world in worlds.Values ) {
+                    world.Shutdown();
                 }
+            }
 
-                // stop accepting new players
-                if( listener != null ) {
-                    listener.Stop();
-                    listener = null;
-                }
+            Scheduler.EndShutdown();
 
-                // kill IRC bot
-                IRC.Disconnect();
+            if( PlayerDB.IsLoaded ) PlayerDB.Save();
+            if( IPBanList.isLoaded ) IPBanList.Save();
 
-                lock( worldListLock ) {
-                    // unload all worlds (includes saving)
-                    foreach( World world in worlds.Values ) {
-                        world.Shutdown();
-                    }
-                }
-
-                Scheduler.EndShutdown();
-
-                if( PlayerDB.IsLoaded ) PlayerDB.Save();
-                if( IPBanList.isLoaded ) IPBanList.Save();
-
-                if( OnShutdownEnd != null ) OnShutdownEnd();
-                RaiseShutdownEndedEvent( shutdownParams );
+            if( OnShutdownEnd != null ) OnShutdownEnd();
+            RaiseShutdownEndedEvent( shutdownParams );
 #if DEBUG
 #else
             } catch( Exception ex ) {
@@ -397,7 +398,7 @@ namespace fCraft {
         internal static readonly object worldListLock = new object();
         public const string WorldListFileName = "worlds.xml";
 
-        public static bool SetMainWorld( World newWorld ) {
+        public static bool SetMainWorld( this World newWorld ) {
             if( RaiseMainWorldChangingEvent( MainWorld, newWorld ) ) return false;
             World oldWorld;
             lock( worldListLock ) {
@@ -407,7 +408,7 @@ namespace fCraft {
                         newWorld.LoadMap();
                     }
                 }
-                oldWorld= MainWorld;
+                oldWorld = MainWorld;
                 oldWorld.neverUnload = false;
                 MainWorld = newWorld;
             }
@@ -667,7 +668,10 @@ namespace fCraft {
 
         public static World FindWorldOrPrintMatches( Player player, string worldName ) {
             List<World> matches = new List<World>( FindWorlds( worldName ) );
-            matches = RaiseSearchingForWorldEvent( player, worldName, null, matches );
+            SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, worldName, matches, false );
+            RaiseSearchingForWorldEvent( e );
+            matches = e.Matches;
+
             if( matches.Count == 0 ) {
                 player.NoWorldMessage( worldName );
                 return null;
@@ -680,47 +684,49 @@ namespace fCraft {
         }
 
 
-        public static bool RemoveWorld( string name ) {
+        public static void RemoveWorld( this World worldToDelete ) {
+            if( worldToDelete == null ) {
+                throw new ArgumentNullException( "worldToDelete" );
+            }
+
             lock( worldListLock ) {
-                World worldToDelete = FindWorldExact( name );
-                if( worldToDelete == null || worldToDelete == MainWorld ) {
-                    return false;
-                } else {
-                    Player[] worldPlayerList = worldToDelete.playerList;
-                    worldToDelete.SendToAll( "&SYou have been moved to the main world." );
-                    foreach( Player player in worldPlayerList ) {
-                        player.session.JoinWorld( MainWorld, null );
-                    }
-
-                    worldToDelete.StopTasks();
-                    worldToDelete.SaveMap();
-
-                    worlds.Remove( name.ToLower() );
+                if( worldToDelete == MainWorld ) {
+                    throw new EnumException<WorldCmdError>( WorldCmdError.CannotDoThatToMainWorld );
                 }
+
+                Player[] worldPlayerList = worldToDelete.playerList;
+                worldToDelete.SendToAll( "&SYou have been moved to the main world." );
+                foreach( Player player in worldPlayerList ) {
+                    player.session.JoinWorld( MainWorld, null );
+                }
+
+                worldToDelete.StopTasks();
+                worldToDelete.SaveMap();
+
+                worlds.Remove( worldToDelete.name.ToLower() );
                 UpdateWorldList();
-                return true;
             }
         }
 
 
         // Note: no autocompletion
-        public static void RenameWorld( World world, string newName, bool moveMapFile ) {
+        public static void RenameWorld( this World world, string newName, bool moveMapFile ) {
             if( !Player.IsValidName( newName ) ) {
-                throw new WorldOperationException( WorldOperationError.InvalidNewWorldName );
+                throw new EnumException<WorldCmdError>( WorldCmdError.InvalidNewWorldName );
             }
             if( world == null ) {
-                throw new WorldOperationException( WorldOperationError.WorldNotFound );
+                throw new EnumException<WorldCmdError>( WorldCmdError.WorldNotFound );
             }
 
             string oldName = world.name;
             if( oldName == newName ) {
-                throw new WorldOperationException( WorldOperationError.NoChangeNeeded );
+                throw new EnumException<WorldCmdError>( WorldCmdError.NoChangeNeeded );
             }
 
             lock( worldListLock ) {
                 World newWorld = FindWorldExact( newName );
                 if( newWorld != null && newWorld != world ) {
-                    throw new WorldOperationException( WorldOperationError.DuplicateWorldName );
+                    throw new EnumException<WorldCmdError>( WorldCmdError.DuplicateWorldName );
                 }
 
                 worlds.Remove( world.name.ToLower() );
@@ -740,7 +746,9 @@ namespace fCraft {
                             }
                         }
                     } catch( Exception ex ) {
-                        throw new WorldOperationException( WorldOperationError.MapMoveError, null, ex );
+                        throw new EnumException<WorldCmdError>( WorldCmdError.MapMoveError,
+                                                                "Unexpected error moving/renaming mapfile.",
+                                                                ex );
                     }
                 }
             }
@@ -914,7 +922,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Events
+        #region Obsolete Events
         // events
 
         [Obsolete( "Use Server.Initializing or Server.Initialized instead" )]
@@ -923,10 +931,10 @@ namespace fCraft {
         [Obsolete( "Use Server.Starting or Server.Started instead" )]
         public static event SimpleEventHandler OnStart;
 
-        [Obsolete]
+        [Obsolete( "Use Server.PlayerConnecting or Server.PlayerConnected instead" )]
         public static event PlayerConnectedEventHandler OnPlayerConnected;
 
-        [Obsolete]
+        [Obsolete( "Use Server.PlayerDisconnected instead" )]
         public static event PlayerDisconnectedEventHandler OnPlayerDisconnected;
 
         [Obsolete]
@@ -938,10 +946,10 @@ namespace fCraft {
         [Obsolete( "Use Heartbeat.UrlChanged instead" )]
         public static event UrlChangeEventHandler OnURLChanged;
 
-        [Obsolete]
+        [Obsolete( "Use Server.ShutdownBegan instead" )]
         public static event SimpleEventHandler OnShutdownBegin;
 
-        [Obsolete]
+        [Obsolete( "Use Server.ShutdownEnded instead" )]
         public static event SimpleEventHandler OnShutdownEnd;
 
         [Obsolete]

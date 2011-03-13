@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Cache;
 using System.Text;
 using System.Collections.Generic;
+using fCraft.Events;
 
 namespace fCraft {
     /// <summary>
@@ -209,9 +210,11 @@ namespace fCraft {
         public int ProtocolVersion { get; set; }
         public Dictionary<string, string> CustomData { get; private set; }
     }
+}
 
 
-    #region EventArgs
+#region EventArgs
+namespace fCraft.Events {
 
     public class HeartbeatSentEventArgs : EventArgs {
         internal HeartbeatSentEventArgs( HeartbeatData _data,
@@ -229,6 +232,7 @@ namespace fCraft {
         public string ResponseText { get; private set; }
     }
 
+
     public class HeartbeatSendingEventArgs : EventArgs {
         internal HeartbeatSendingEventArgs( HeartbeatData _data ) {
             HeartbeatData = _data;
@@ -236,6 +240,7 @@ namespace fCraft {
         public bool Cancel { get; set; }
         public HeartbeatData HeartbeatData { get; private set; }
     }
+
 
     public class UrlChangedEventArgs : EventArgs {
         internal UrlChangedEventArgs( string _oldUrl, string _newUrl ) {
@@ -246,5 +251,5 @@ namespace fCraft {
         public string NewUrl { get; private set; }
     }
 
-    #endregion
 }
+#endregion
