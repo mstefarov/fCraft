@@ -1026,6 +1026,9 @@ namespace fCraft {
                     Server.RenameWorld( oldWorld, newName, true );
                 } catch( WorldOperationException ex ) {
                     switch( ex.Error ) {
+                        case WorldOperationError.NoChangeNeeded:
+                            player.MessageNow( "Rename: World is already named \"{0}\"", oldName );
+                            return;
                         case WorldOperationError.DuplicateWorldName:
                             player.MessageNow( "Rename: Another world named \"{0}\" already exists.", newName );
                             return;
@@ -1037,7 +1040,7 @@ namespace fCraft {
                                                 oldName, newName, ex.InnerException );
                             return;
                         default:
-                            player.MessageNow( "Unexpected error occured while renaming world \"{0}\"", oldWorld.name );
+                            player.MessageNow( "Unexpected error occured while renaming world \"{0}\"", oldName );
                             return;
                     }
                 }

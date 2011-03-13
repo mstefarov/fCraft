@@ -713,6 +713,9 @@ namespace fCraft {
             }
 
             string oldName = world.name;
+            if( oldName == newName ) {
+                throw new WorldOperationException( WorldOperationError.NoChangeNeeded );
+            }
 
             lock( worldListLock ) {
                 World newWorld = FindWorldExact( newName );
@@ -726,13 +729,15 @@ namespace fCraft {
                 UpdateWorldList();
 
                 if( moveMapFile ) {
-                    string oldFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
-                    string newFileName = Path.Combine( Paths.MapPath, newName + ".fcm" );
+                    FileInfo oldFile = new FileInfo( Path.Combine( Paths.MapPath, oldName + ".fcm" ) );
+                    FileInfo newFile = new FileInfo( Path.Combine( Paths.MapPath, newName + ".fcm" ) );
                     try {
-                        if( File.Exists( newFileName ) ) {
-                            File.Replace( oldFileName, newFileName, null, true );
-                        } else {
-                            File.Move( oldFileName, newFileName );
+                        if( oldFile.Exists ) {
+                            if( newFile.Exists && !oldName.Equals( newName, StringComparison.OrdinalIgnoreCase ) ) {
+                                File.Replace( oldFile.FullName, newFile.FullName, null, true );
+                            } else {
+                                File.Move( oldFile.FullName, newFile.FullName );
+                            }
                         }
                     } catch( Exception ex ) {
                         throw new WorldOperationException( WorldOperationError.MapMoveError, null, ex );
