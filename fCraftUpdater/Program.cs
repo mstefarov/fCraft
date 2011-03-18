@@ -21,52 +21,89 @@
  *
  */
 using System;
-using System.Diagnostics;
+using System.Threading;
 using System.IO;
+using System.IO.Compression;
 using fCraftUpdater.Properties;
+using System.Reflection;
+using System.Diagnostics;
+
 
 namespace fCraftUpdater {
     static class Program {
-        static string ExtractorFile = "UpdateExtractor.exe";
-        static string[] fileList = { "fCraft.dll", "fCraftUI.exe", "ConfigTool.exe" };
 
         static void Main( string[] args ) {
-            int pid;
-            // extract updater
-            Console.WriteLine( "Preparing to extract..." );
-            File.WriteAllBytes( ExtractorFile, Resources.Extractor );
+            string restartTarget = null;
 
-            // wait for fCraft to close, if needed
-            if( args.Length == 1 && Int32.TryParse( args[0], out pid ) ) {
-                Console.WriteLine( "Waiting for fCraft to close..." );
-                try {
-                    Process.GetProcessById( pid ).WaitForExit();
-                } catch( Exception ex ) {
-                    Console.WriteLine( "Cound not locate fCraft process: " + ex.Message );
+            string defaultPath = Path.GetFullPath( Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location ) );
+            Directory.SetCurrentDirectory( defaultPath );
+
+            // parse args
+            foreach( string arg in args ) {
+                if( arg.StartsWith( "--path=" ) ) {
+                    Directory.SetCurrentDirectory( arg.Substring( arg.IndexOf( '=' ) + 1 ) );
+                } else if( arg.StartsWith( "--restart=" ) ) {
+                    restartTarget = arg.Substring( arg.IndexOf( '=' ) + 1 );
+                }
+            }
+            // TODO: parse all the paths, and pass them back to the restart callback
+
+
+
+            using( MemoryStream ms = new MemoryStream( Resources.Payload ) ) {
+                using( ZipStorer zs = ZipStorer.Open( ms, FileAccess.Read ) ) {
+
+                    // ensure that fcraft files are writable
+                    bool allPassed = false;
+                    do {
+                        allPassed = true;
+                        foreach( var entry in zs.ReadCentralDir() ) {
+                            try {
+                                FileInfo fi = new FileInfo( entry.FilenameInZip );
+                                if( !fi.Exists ) continue;
+                                using( var testStream = fi.OpenWrite() ) { }
+                            } catch( Exception ex ) {
+                                if( ex is IOException ) {
+                                    Console.WriteLine( "Waiting for fCraft-related applications to close..." );
+                                } else {
+                                    Console.WriteLine( "ERROR: could not write to {0}: {1} - {2}", entry.FilenameInZip, ex.GetType().Name, ex.Message );
+                                    Console.WriteLine();
+                                }
+                                allPassed = false;
+                                Thread.Sleep( 1000 );
+                                break;
+                            }
+                        }
+                    } while( !allPassed );
+
+                    // extract files
+                    foreach( var entry in zs.ReadCentralDir() ) {
+                        Console.WriteLine( "Extracting {0}", entry.FilenameInZip );
+                        try {
+                            using( FileStream fs = File.Create( entry.FilenameInZip ) ) {
+                                zs.ExtractFile( entry, fs );
+                            }
+                        } catch( Exception ex ) {
+                            Console.WriteLine( "    ERROR: {0} {1}", ex.GetType().Name, ex.Message );
+                        }
+                    }
                 }
             }
 
-            // ensure that fcraft files are writable
-            foreach( string file in fileList ) {
-                try {
-                    File.SetLastAccessTime( file, File.GetLastAccessTime( file ) );
-                } catch( Exception ex ) {
-                    Console.WriteLine( "Cound not write to " + file + ": " + ex.Message );
-                }
-            }
-
-            // extract files
-            Console.WriteLine( "Extracting..." );
-            Process extractionProcess = Process.Start( ExtractorFile );
-            extractionProcess.WaitForExit();
-
-            // clean up
-            try {
-                File.Delete( ExtractorFile );
-            } catch { }
             Console.WriteLine( "Done." );
+            Console.ReadLine();
 
-            Process.Start( "fCraftUI.exe" );
+            if( restartTarget != null ) {
+                switch( Environment.OSVersion.Platform ) {
+                    case PlatformID.MacOSX:
+                    case PlatformID.Unix:
+                        Process.Start( "mono " + restartTarget );
+                        break;
+                    default:
+                        Process.Start( restartTarget );
+                        break;
+                }
+            }
         }
     }
 }

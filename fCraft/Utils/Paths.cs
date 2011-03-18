@@ -26,8 +26,8 @@ namespace fCraft {
                     Directory.CreateDirectory( path );
                 }
                 DirectoryInfo info = new DirectoryInfo( path );
-                string randomFileName = Path.Combine( info.FullName, "fCraft_write_test_" + DateTime.UtcNow.Ticks );
                 if( checkForWriteAccess ) {
+                    string randomFileName = Path.Combine( info.FullName, "fCraft_write_test_" + DateTime.UtcNow.Ticks );
                     using( File.Create( randomFileName ) ) { }
                     File.Delete( randomFileName );
                 }

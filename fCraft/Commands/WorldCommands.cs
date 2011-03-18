@@ -868,6 +868,7 @@ namespace fCraft {
 
         static CommandDescriptor cdWorldLoad = new CommandDescriptor {
             name = "wload",
+            aliases = new[] { "wadd" },
             consoleSafe = true,
             permissions = new[] { Permission.ManageWorlds },
             usage = "/wload FileName [WorldName]",
