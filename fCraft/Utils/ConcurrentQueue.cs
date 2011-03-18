@@ -56,30 +56,28 @@ namespace fCraft {
                 Pointer next = head.ptr.next;
 
                 // Are head, tail, and next consistent?
-                if( head.count == Head.count && head.ptr == Head.ptr ) {
-                    // is tail falling behind
-                    if( head.ptr == tail.ptr ) {
-                        // is the queue empty?
-                        if( null == next.ptr ) {
-                            // queue is empty cannnot dequeue
-                            return false;
-                        }
+                if( head.count != Head.count || head.ptr != Head.ptr ) continue;
 
-                        // Tail is falling behind. try to advance it
-                        CAS( ref Tail, tail, new Pointer( next.ptr, tail.count + 1 ) );
-
-                    } else { // No need to deal with tail
-                        // read value before CAS otherwise another deque might try to free the next node
-                        t = next.ptr.value;
-
-                        // try to swing the head to the next node
-                        if( CAS( ref Head, head, new Pointer( next.ptr, head.count + 1 ) ) ) {
-                            bDequeNotDone = false;
-                        }
+                // is tail falling behind
+                if( head.ptr == tail.ptr ) {
+                    // is the queue empty?
+                    if( null == next.ptr ) {
+                        // queue is empty cannnot dequeue
+                        return false;
                     }
 
-                }
+                    // Tail is falling behind. try to advance it
+                    CAS( ref Tail, tail, new Pointer( next.ptr, tail.count + 1 ) );
 
+                } else { // No need to deal with tail
+                    // read value before CAS otherwise another deque might try to free the next node
+                    t = next.ptr.value;
+
+                    // try to swing the head to the next node
+                    if( CAS( ref Head, head, new Pointer( next.ptr, head.count + 1 ) ) ) {
+                        bDequeNotDone = false;
+                    }
+                }
             }
             Interlocked.Decrement( ref Length );
             // dispose of head.ptr

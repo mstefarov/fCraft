@@ -37,7 +37,7 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdWorldInfo = new CommandDescriptor {
+        static readonly CommandDescriptor cdWorldInfo = new CommandDescriptor {
             name = "winfo",
             aliases = new[] { "mapinfo" },
             consoleSafe = true,
@@ -71,7 +71,7 @@ namespace fCraft {
                 player.Message( "Map information could not be loaded." );
             } else {
                 player.Message( "Map dimensions are {0} x {1} x {2}",
-                                map.widthX, map.widthY, map.height );
+                                map.WidthX, map.WidthY, map.Height );
             }
 
             // Print access/build limits
@@ -94,7 +94,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdJoin = new CommandDescriptor {
+        static readonly CommandDescriptor cdJoin = new CommandDescriptor {
             name = "join",
             aliases = new[] { "j", "load", "l", "goto", "map" },
             usage = "/join WorldName",
@@ -151,7 +151,7 @@ namespace fCraft {
 
         #region World Commands
 
-        static CommandDescriptor cdWorldSave = new CommandDescriptor {
+        static readonly CommandDescriptor cdWorldSave = new CommandDescriptor {
             name = "wsave",
             consoleSafe = true,
             aliases = new[] { "save" },
@@ -245,7 +245,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdWorldFlush = new CommandDescriptor {
+        static readonly CommandDescriptor cdWorldFlush = new CommandDescriptor {
             name = "wflush",
             consoleSafe = true,
             permissions = new[] { Permission.ManageWorlds },
@@ -282,7 +282,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdWorldMain = new CommandDescriptor {
+        static readonly CommandDescriptor cdWorldMain = new CommandDescriptor {
             name = "wmain",
             consoleSafe = true,
             permissions = new[] { Permission.ManageWorlds },
@@ -325,7 +325,7 @@ namespace fCraft {
                                     world.GetClassyName() );
                 }
 
-                if( !Server.SetMainWorld( world ) ) {
+                if( !world.SetMainWorld() ) {
                     player.Message( "Main world was not changed." );
                     return;
                 }
@@ -340,7 +340,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdWorldAccess = new CommandDescriptor {
+        static readonly CommandDescriptor cdWorldAccess = new CommandDescriptor {
             name = "waccess",
             consoleSafe = true,
             permissions = new[] { Permission.ManageWorlds },
@@ -577,7 +577,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdWorldBuild = new CommandDescriptor {
+        static readonly CommandDescriptor cdWorldBuild = new CommandDescriptor {
             name = "wbuild",
             consoleSafe = true,
             permissions = new[] { Permission.ManageWorlds },
@@ -806,7 +806,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdWorlds = new CommandDescriptor {
+        static readonly CommandDescriptor cdWorlds = new CommandDescriptor {
             name = "worlds",
             consoleSafe = true,
             aliases = new[] { "maps", "levels" },
@@ -866,7 +866,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdWorldLoad = new CommandDescriptor {
+        static readonly CommandDescriptor cdWorldLoad = new CommandDescriptor {
             name = "wload",
             aliases = new[] { "wadd" },
             consoleSafe = true,
@@ -986,7 +986,7 @@ namespace fCraft {
                         // Adding a new world
                         World newWorld = Server.AddWorld( worldName, map, false );
                         if( newWorld != null ) {
-                            newWorld.buildSecurity.MinRank = RankList.ParseRank( Config.GetString( ConfigKey.DefaultBuildRank ) );
+                            newWorld.buildSecurity.MinRank = RankList.ParseRank( ConfigKey.DefaultBuildRank.GetString() );
                             Server.SendToAll( "{0}&S created a new world named {1}",
                                               player.GetClassyName(), newWorld.GetClassyName() );
                             Logger.Log( "{0} created a new world named \"{1}\" (loaded from \"{2}\")", LogType.UserActivity,
@@ -1007,7 +1007,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdWorldRename = new CommandDescriptor {
+        static readonly CommandDescriptor cdWorldRename = new CommandDescriptor {
             name = "wrename",
             consoleSafe = true,
             permissions = new[] { Permission.ManageWorlds },
@@ -1064,7 +1064,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdWorldUnload = new CommandDescriptor {
+        static readonly CommandDescriptor cdWorldUnload = new CommandDescriptor {
             name = "wunload",
             aliases = new[] { "wremove", "wdelete" },
             consoleSafe = true,
@@ -1086,7 +1086,7 @@ namespace fCraft {
             if( world == null ) return;
 
             try {
-                Server.RemoveWorld( world );
+                world.RemoveWorld();
             } catch( EnumException<WorldCmdError> ex ) {
                 switch( ex.ErrorCode ) {
                     case WorldCmdError.CannotDoThatToMainWorld:
@@ -1121,7 +1121,7 @@ namespace fCraft {
 
         #region Hide / Unhide
 
-        static CommandDescriptor cdWorldHide = new CommandDescriptor {
+        static readonly CommandDescriptor cdWorldHide = new CommandDescriptor {
             name = "whide",
             consoleSafe = true,
             permissions = new[] { Permission.ManageWorlds },
@@ -1152,7 +1152,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdWorldUnhide = new CommandDescriptor {
+        static readonly CommandDescriptor cdWorldUnhide = new CommandDescriptor {
             name = "wunhide",
             consoleSafe = true,
             permissions = new[] { Permission.ManageWorlds },
@@ -1186,7 +1186,7 @@ namespace fCraft {
 
         #region Generation
 
-        static CommandDescriptor cdGenerate = new CommandDescriptor {
+        static readonly CommandDescriptor cdGenerate = new CommandDescriptor {
             name = "gen",
             consoleSafe = true,
             permissions = new[] { Permission.ManageWorlds },
@@ -1217,9 +1217,9 @@ namespace fCraft {
             int wx, wy, height;
             if( !(cmd.NextInt( out wx ) && cmd.NextInt( out wy ) && cmd.NextInt( out height )) ) {
                 if( player.world != null ) {
-                    wx = player.world.map.widthX;
-                    wy = player.world.map.widthY;
-                    height = player.world.map.height;
+                    wx = player.world.map.WidthX;
+                    wy = player.world.map.WidthY;
+                    height = player.world.map.Height;
                 } else {
                     player.Message( "When used from console, /gen requires map dimensions." );
                     cdGenerate.PrintUsage( player );
@@ -1357,7 +1357,7 @@ namespace fCraft {
 
         #region Lock / Unlock
 
-        static CommandDescriptor cdLock = new CommandDescriptor {
+        static readonly CommandDescriptor cdLock = new CommandDescriptor {
             name = "lock",
             consoleSafe = true,
             permissions = new[] { Permission.Lock },
@@ -1392,7 +1392,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdLockAll = new CommandDescriptor {
+        static readonly CommandDescriptor cdLockAll = new CommandDescriptor {
             name = "lockall",
             consoleSafe = true,
             permissions = new[] { Permission.Lock },
@@ -1410,7 +1410,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdUnlock = new CommandDescriptor {
+        static readonly CommandDescriptor cdUnlock = new CommandDescriptor {
             name = "unlock",
             consoleSafe = true,
             permissions = new[] { Permission.Lock },
@@ -1442,7 +1442,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdUnlockAll = new CommandDescriptor {
+        static readonly CommandDescriptor cdUnlockAll = new CommandDescriptor {
             name = "unlockall",
             consoleSafe = true,
             permissions = new[] { Permission.Lock },

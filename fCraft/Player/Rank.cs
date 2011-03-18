@@ -382,10 +382,10 @@ namespace fCraft {
 
         public string GetClassyName() {
             string displayedName = Name;
-            if( Config.GetBool( ConfigKey.RankPrefixesInChat ) ) {
+            if( ConfigKey.RankPrefixesInChat.GetBool() ) {
                 displayedName = Prefix + displayedName;
             }
-            if( Config.GetBool( ConfigKey.RankColorsInChat ) ) {
+            if( ConfigKey.RankColorsInChat.GetBool() ) {
                 displayedName = Color + displayedName;
             }
             return displayedName;

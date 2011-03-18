@@ -39,7 +39,7 @@ namespace fCraft {
                             MeDefault = Purple,
                             WarningDefault = Red;
 
-        static SortedList<char, string> colorNames = new SortedList<char, string>{
+        static readonly SortedList<char, string> colorNames = new SortedList<char, string>{
             { '0', "black" },
             { '1', "navy" },
             { '2', "green" },
@@ -147,7 +147,7 @@ namespace fCraft {
 
         /// <summary> Parses a string to a format readable by Minecraft clients. 
         /// an accept color names and color codes (with or without the ampersand). </summary>
-        /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
+        /// <param name="color"> Ordinal numeric color code (between 0 and 15) </param>
         /// <returns> Two-character color string, readable by Minecraft client.
         /// If input is an empty string, returns empty string.
         /// If input is null or cannot be parsed, returns null. </returns>

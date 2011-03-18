@@ -13,13 +13,13 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
 using fCraft.Events;
+using fCraft.MapConversion;
+using ThreadState = System.Threading.ThreadState;
 
 namespace fCraft {
     public static partial class Server {
 
-        static string[] args = new string[0]; // saved to allow restarting with same params
         public static DateTime serverStart;
-        public static bool shuttingDown;
 
         public static int maxUploadSpeed,   // set by Config.ApplyConfig
                           packetsPerSecond, // set by Config.ApplyConfig
@@ -38,6 +38,24 @@ namespace fCraft {
         public static string URL;
 
 
+        #region Command-line args
+
+        static readonly Dictionary<ArgKey, string> Args = new Dictionary<ArgKey, string>();
+        public static string GetArg( ArgKey key ) {
+            if( Args.ContainsKey( key ) ) {
+                return Args[key];
+            } else {
+                return null;
+            }
+        }
+
+        public static bool HasArg( ArgKey key ) {
+            return Args.ContainsKey( key );
+        }
+
+        #endregion
+
+
         #region Initialization
 
         /// <summary>
@@ -47,17 +65,20 @@ namespace fCraft {
         /// </summary>
         /// <param name="_args">string arguments passed to the frontend (if any)</param>
         public static void InitLibrary( string[] _args ) {
-            args = _args;
 
             // try to parse arguments
-            Dictionary<string, string> parsedArgs = new Dictionary<string, string>();
-            foreach( string arg in args ) {
+            foreach( string arg in _args ) {
                 if( arg.StartsWith( "--" ) && arg.Contains( '=' ) ) {
-                    string argKey = arg.Substring( 2, arg.IndexOf( '=' ) - 2 ).ToLower().Trim();
+                    string argKeyName = arg.Substring( 2, arg.IndexOf( '=' ) - 2 ).ToLower().Trim();
                     string argValue = arg.Substring( arg.IndexOf( '=' ) + 1 ).Trim();
-                    parsedArgs.Add( argKey, argValue );
+                    try {
+                        ArgKey tryKey = (ArgKey)Enum.Parse( typeof( ArgKey ), argKeyName, true );
+                        Args.Add( tryKey, argValue );
+                    } catch( ArgumentException ) {
+                        Console.Error.WriteLine( "Unknown argument: {0}", arg );
+                    }
 #if DEBUG
-                    Console.WriteLine( "{0} = {1}", argKey, argValue );
+                    Console.WriteLine( "{0} = {1}", argKeyName, argValue );
 #endif
                 }
             }
@@ -67,8 +88,8 @@ namespace fCraft {
             Directory.SetCurrentDirectory( Paths.WorkingPath );
 
             // set custom working path (if specified)
-            if( parsedArgs.ContainsKey( "path" ) && Paths.TestDirectory( parsedArgs["path"], true ) ) {
-                Paths.WorkingPath = Path.GetFullPath( parsedArgs["path"] );
+            if( HasArg( ArgKey.Path ) && Paths.TestDirectory( GetArg( ArgKey.Path ), true ) ) {
+                Paths.WorkingPath = Path.GetFullPath( GetArg( ArgKey.Path ) );
                 Directory.SetCurrentDirectory( Paths.WorkingPath );
             } else if( Paths.TestDirectory( Paths.WorkingPathDefault, true ) ) {
                 Paths.WorkingPath = Path.GetFullPath( Paths.WorkingPathDefault );
@@ -79,8 +100,8 @@ namespace fCraft {
 
 
             // set log path
-            if( parsedArgs.ContainsKey( "logpath" ) && Paths.TestDirectory( parsedArgs["logpath"], true ) ) {
-                Paths.LogPath = Path.GetFullPath( parsedArgs["logpath"] );
+            if( HasArg( ArgKey.LogPath ) && Paths.TestDirectory( GetArg( ArgKey.LogPath ), true ) ) {
+                Paths.LogPath = Path.GetFullPath( GetArg( ArgKey.LogPath ) );
             } else if( Paths.TestDirectory( Paths.LogPathDefault, true ) ) {
                 Paths.LogPath = Path.GetFullPath( Paths.LogPathDefault );
             } else {
@@ -89,8 +110,8 @@ namespace fCraft {
 
 
             // set map path
-            if( parsedArgs.ContainsKey( "mappath" ) && Paths.TestDirectory( parsedArgs["mappath"], true ) ) {
-                Paths.MapPath = Path.GetFullPath( parsedArgs["mappath"] );
+            if( HasArg( ArgKey.MapPath ) && Paths.TestDirectory( GetArg( ArgKey.MapPath ), true ) ) {
+                Paths.MapPath = Path.GetFullPath( GetArg( ArgKey.MapPath ) );
                 Paths.IgnoreMapPathConfigKey = true;
             } else if( Paths.TestDirectory( Paths.MapPathDefault, true ) ) {
                 Paths.MapPath = Path.GetFullPath( Paths.MapPathDefault );
@@ -99,10 +120,13 @@ namespace fCraft {
             }
 
 
+
+
+
             // set config path
             Paths.ConfigFileName = Paths.ConfigFileNameDefault;
-            if( parsedArgs.ContainsKey( "config" ) ) {
-                string fileName = parsedArgs["config"];
+            if( HasArg( ArgKey.Config ) ) {
+                string fileName = GetArg( ArgKey.Config );
                 try {
                     if( File.Exists( fileName ) ) {
                         using( File.OpenWrite( fileName ) ) { }
@@ -145,7 +169,7 @@ namespace fCraft {
 
 
         public static bool InitServer() {
-            RaiseInitializingEvent( args );
+            RaiseInitializingEvent( Args );
 
             // warnings/disclaimers
             if( Updater.IsDev ) {
@@ -181,7 +205,7 @@ namespace fCraft {
             // Init IRC
             IRC.Init();
 
-            if( Config.GetBool( ConfigKey.AutoRankEnabled ) ) {
+            if( ConfigKey.AutoRankEnabled.GetBool() ) {
                 AutoRank.Init();
             }
 
@@ -203,7 +227,7 @@ namespace fCraft {
                             "that are started from the same directory.", LogType.Warning );
             }
 
-            Player.Console = new Player( null, Config.GetString( ConfigKey.ConsoleName ) );
+            Player.Console = new Player( null, ConfigKey.ConsoleName.GetString() );
 
 
             // try to load the world list
@@ -213,11 +237,12 @@ namespace fCraft {
             // open the port
             bool portFound = false;
             int attempts = 0;
-            Port = Config.GetInt( ConfigKey.Port );
+            Port = ConfigKey.Port.GetInt();
+            IP = IPAddress.Parse( ConfigKey.IP.GetString() );
 
             do {
                 try {
-                    listener = new TcpListener( IPAddress.Parse( Config.GetString( ConfigKey.IP ) ), Port );
+                    listener = new TcpListener( IP, Port );
                     listener.Start();
                     portFound = true;
 
@@ -276,8 +301,8 @@ namespace fCraft {
             Scheduler.AddBackgroundTask( PlayerDB.SaveTask ).RunForever( PlayerDB.SaveInterval, TimeSpan.FromSeconds( 15 ) );
 
             // Announcements
-            if( Config.GetInt( ConfigKey.AnnouncementInterval ) > 0 ) {
-                Scheduler.AddTask( ShowRandomAnnouncement ).RunForever( TimeSpan.FromMinutes( Config.GetInt( ConfigKey.AnnouncementInterval ) ) );
+            if( ConfigKey.AnnouncementInterval.GetInt() > 0 ) {
+                Scheduler.AddTask( ShowRandomAnnouncement ).RunForever( TimeSpan.FromMinutes( ConfigKey.AnnouncementInterval.GetInt() ) );
             }
 
             // garbage collection
@@ -291,7 +316,7 @@ namespace fCraft {
 
             Heartbeat.Start();
 
-            if( Config.GetBool( ConfigKey.IRCBotEnabled ) ) IRC.Start();
+            if( ConfigKey.IRCBotEnabled.GetBool() ) IRC.Start();
 
             // fire OnStart event
             if( OnStart != null ) OnStart();
@@ -305,61 +330,64 @@ namespace fCraft {
 
         #region Shutdown
 
+        internal static bool shuttingDown;
+        public static bool IsShuttingDown { get { return shuttingDown; } }
+
         // shuts down the server and aborts threads
         // NOTE: Do not call from any of the usual threads (main, heartbeat, tasks).
         // Call from UI thread or a new separate thread only.
         public static void ShutdownNow( ShutdownParams shutdownParams ) {
-            if( shuttingDown ) return;
+            if( shuttingDown ) return; // to avoid starting shutdown twice
+            shuttingDown = true;
 #if DEBUG
 #else
             try {
 #endif
-            shuttingDown = true;
-            RaiseShutdownBeganEvent( shutdownParams );
-            if( OnShutdownBegin != null ) OnShutdownBegin();
+                RaiseShutdownBeganEvent( shutdownParams );
+                if( OnShutdownBegin != null ) OnShutdownBegin();
 
-            Scheduler.BeginShutdown();
+                Scheduler.BeginShutdown();
 
-            Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
-                        shutdownParams.Reason );
+                Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
+                            shutdownParams.Reason );
 
-            // kick all players
-            if( PlayerList != null ) {
-                Player[] pListCached = PlayerList;
-                foreach( Player player in pListCached ) {
-                    // NOTE: kick packet delivery here is not currently guaranteed
-                    player.session.Kick( "Server shutting down (" + shutdownParams.Reason + Color.White + ")", LeaveReason.ServerShutdown );
+                // kick all players
+                if( PlayerList != null ) {
+                    Player[] pListCached = PlayerList;
+                    foreach( Player player in pListCached ) {
+                        // NOTE: kick packet delivery here is not currently guaranteed
+                        player.session.Kick( "Server shutting down (" + shutdownParams.Reason + Color.White + ")", LeaveReason.ServerShutdown );
+                    }
                 }
-            }
 
-            // increase the chances of kick packets being delivered
-            if( PlayerList.Length > 0 ) {
-                Thread.Sleep( 1000 );
-            }
-
-            // stop accepting new players
-            if( listener != null ) {
-                listener.Stop();
-                listener = null;
-            }
-
-            // kill IRC bot
-            IRC.Disconnect();
-
-            lock( worldListLock ) {
-                // unload all worlds (includes saving)
-                foreach( World world in worlds.Values ) {
-                    world.Shutdown();
+                // increase the chances of kick packets being delivered
+                if( PlayerList.Length > 0 ) {
+                    Thread.Sleep( 1000 );
                 }
-            }
 
-            Scheduler.EndShutdown();
+                // stop accepting new players
+                if( listener != null ) {
+                    listener.Stop();
+                    listener = null;
+                }
 
-            if( PlayerDB.IsLoaded ) PlayerDB.Save();
-            if( IPBanList.isLoaded ) IPBanList.Save();
+                // kill IRC bot
+                IRC.Disconnect();
 
-            if( OnShutdownEnd != null ) OnShutdownEnd();
-            RaiseShutdownEndedEvent( shutdownParams );
+                lock( worldListLock ) {
+                    // unload all worlds (includes saving)
+                    foreach( World world in worlds.Values ) {
+                        world.Shutdown();
+                    }
+                }
+
+                Scheduler.EndShutdown();
+
+                if( PlayerDB.IsLoaded ) PlayerDB.Save();
+                if( IPBanList.IsLoaded ) IPBanList.Save();
+
+                if( OnShutdownEnd != null ) OnShutdownEnd();
+                RaiseShutdownEndedEvent( shutdownParams );
 #if DEBUG
 #else
             } catch( Exception ex ) {
@@ -368,24 +396,51 @@ namespace fCraft {
 #endif
         }
 
+        static AutoResetEvent shutdownWaiter = new AutoResetEvent( false );
 
-        public static void Shutdown( string reason, int delay, bool killProcess, bool restart ) {
-            new Thread( delegate( object obj ) {
-                ShutdownParams param = (ShutdownParams)obj;
-                Thread.Sleep( param.Delay * 1000 );
-                ShutdownNow( param );
-                if( param.Restart ) {
-                    Process.Start( Process.GetCurrentProcess().MainModule.FileName, String.Join( " ", args ) );
-                }
-                if( param.KillProcess ) {
-                    Process.GetCurrentProcess().Kill();
-                }
-            } ).Start( new ShutdownParams {
+        static Thread shutdownThread;
+        public static void Shutdown( string reason, int delay, bool killProcess, bool restart, bool waitForShutdown ) {
+            if( !CancelShutdown() ) return;
+            shutdownThread = new Thread( ShutdownThread );
+            shutdownThread.Start( new ShutdownParams {
                 Reason = reason,
                 Delay = delay,
                 KillProcess = killProcess,
                 Restart = restart
             } );
+            if( waitForShutdown ) {
+                shutdownWaiter.WaitOne();
+            }
+        }
+
+        public static bool CancelShutdown() {
+            if( shutdownThread != null ) {
+                if( shuttingDown || shutdownThread.ThreadState != ThreadState.WaitSleepJoin ) {
+                    return false;
+                }
+                shutdownThread.Abort();
+                shutdownThread = null;
+            }
+            return true;
+        }
+
+
+        static void ShutdownThread( object obj ) {
+            ShutdownParams param = (ShutdownParams)obj;
+            Thread.Sleep( param.Delay * 1000 );
+            ShutdownNow( param );
+            shutdownWaiter.Set();
+            if( param.Restart ) {
+                StringBuilder argString = new StringBuilder();
+                foreach( var pair in Args ) {
+                    argString.AppendFormat( "--{0}={1}", pair.Key, pair.Value );
+                }
+                Console.WriteLine( "Restarting: {0} {1}", Process.GetCurrentProcess().MainModule.FileName, argString );
+                Process.Start( Process.GetCurrentProcess().MainModule.FileName, argString.ToString() );
+            }
+            if( param.KillProcess ) {
+                Process.GetCurrentProcess().Kill();
+            }
         }
 
         #endregion
@@ -517,7 +572,7 @@ namespace fCraft {
 
                     if( File.Exists( world.GetMapName() ) ) {
                         try {
-                            Map map = Mcc.MapUtility.LoadHeader( world.GetMapName() );
+                            Map map = MapUtility.LoadHeader( world.GetMapName() );
                             if( map == null ) {
                                 throw new Exception();
                             }
@@ -617,7 +672,7 @@ namespace fCraft {
                 if( map != null ) {
                     // if a map is given
                     newWorld.map = map;
-                    map.world = newWorld;
+                    map.World = newWorld;
                     if( !_neverUnload ) {
                         newWorld.UnloadMap( false );// UnloadMap also saves the map
                     } else {
@@ -1127,7 +1182,7 @@ namespace fCraft {
 
 
         static string GenerateSalt() {
-            RandomNumberGenerator prng = RNGCryptoServiceProvider.Create();
+            RandomNumberGenerator prng = RandomNumberGenerator.Create();
             StringBuilder sb = new StringBuilder();
             byte[] oneChar = new byte[1];
             while( sb.Length < 32 ) {
@@ -1192,7 +1247,7 @@ namespace fCraft {
         }
 
 
-        static Regex regexIP = new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b", RegexOptions.Compiled );
+        static readonly Regex regexIP = new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b", RegexOptions.Compiled );
         public static bool IsIP( string IPString ) {
             return regexIP.IsMatch( IPString );
         }
@@ -1282,13 +1337,13 @@ namespace fCraft {
         #region PlayerList
 
         // player list
-        static Dictionary<int, Player> players = new Dictionary<int, Player>();
+        static readonly Dictionary<int, Player> players = new Dictionary<int, Player>();
         public static Player[] PlayerList { get; private set; }
-        static object playerListLock = new object();
+        static readonly object playerListLock = new object();
 
         // session list
-        static List<Session> sessions = new List<Session>();
-        static object sessionLock = new object();
+        static readonly List<Session> sessions = new List<Session>();
+        static readonly object sessionLock = new object();
 
 
         public static void KickGhostsAndRegisterSession( Session newSession ) {
@@ -1328,7 +1383,7 @@ namespace fCraft {
         // Add a newly-logged-in player to the list, and notify existing players.
         public static bool RegisterPlayer( Player player ) {
             lock( playerListLock ) {
-                if( players.Count >= Config.GetInt( ConfigKey.MaxPlayers ) && !player.info.rank.ReservedSlot ||
+                if( players.Count >= ConfigKey.MaxPlayers.GetInt() && !player.info.rank.ReservedSlot ||
                     players.Count == Config.MaxPlayersSupported ) {
                     return false;
                 }
@@ -1357,7 +1412,7 @@ namespace fCraft {
                 SendToAll( PacketWriter.MakeRemoveEntity( player.id ) );
                 Logger.Log( "{0} left the server.", LogType.UserActivity,
                             player.name );
-                if( Config.GetBool( ConfigKey.ShowConnectionMessages ) ) {
+                if( ConfigKey.ShowConnectionMessages.GetBool() ) {
                     SendToAll( "&SPlayer {0}&S left the server.", player.GetClassyName() );
                 }
 
@@ -1512,10 +1567,23 @@ namespace fCraft {
         #endregion
     }
 
+
+    /// <summary> Describes the circumstances of server shutdown. </summary>
     public class ShutdownParams {
-        public string Reason;
-        public int Delay;
-        public bool KillProcess;
-        public bool Restart;
+        public string Reason { get; set; }
+        public int Delay { get; set; }
+        public bool KillProcess { get; set; }
+        public bool Restart { get; set; }
     }
+
+
+    /// <summary> Enumerates the recognized command-line switches/arguments. </summary>
+    public enum ArgKey {
+        Path,
+        LogPath,
+        MapPath,
+        Config,
+        NoRestart,
+        ExitOnCrash
+    };
 }

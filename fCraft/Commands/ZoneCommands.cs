@@ -18,7 +18,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdZoneEdit = new CommandDescriptor {
+        static readonly CommandDescriptor cdZoneEdit = new CommandDescriptor {
             name = "zedit",
             permissions = new[] { Permission.ManageZones },
             usage = "/zedit ZoneName [RankName] [+IncludedName] [-ExcludedName]",
@@ -138,7 +138,7 @@ namespace fCraft {
                 if( changesWereMade ) {
                     zone.editedBy = player.info;
                     zone.editedDate = DateTime.Now;
-                    player.world.map.changedSinceSave = true;
+                    player.world.map.ChangedSinceSave = true;
                 } else {
                     player.Message( "No changes were made to the zone." );
                 }
@@ -147,7 +147,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdZoneAdd = new CommandDescriptor {
+        static readonly CommandDescriptor cdZoneAdd = new CommandDescriptor {
             name = "zadd",
             aliases = new[] { "zone" },
             permissions = new[] { Permission.ManageZones },
@@ -256,7 +256,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdZoneTest = new CommandDescriptor {
+        static readonly CommandDescriptor cdZoneTest = new CommandDescriptor {
             name = "ztest",
             help = "Allows to test exactly which zones affect a particular block. Can be used to find and resolve zone overlaps.",
             handler = ZoneTest
@@ -288,7 +288,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdZoneRemove = new CommandDescriptor {
+        static readonly CommandDescriptor cdZoneRemove = new CommandDescriptor {
             name = "zremove",
             aliases = new[] { "zdelete" },
             permissions = new[] { Permission.ManageZones },
@@ -326,14 +326,14 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdZoneList = new CommandDescriptor {
+        static readonly CommandDescriptor cdZoneList = new CommandDescriptor {
             name = "zones",
             help = "Lists all zones defined on the current map/world.",
             handler = ZoneList
         };
 
         internal static void ZoneList( Player player, Command cmd ) {
-            Zone[] zones = player.world.map.zoneList;
+            Zone[] zones = player.world.map.ZoneList;
             if( zones.Length > 0 ) {
                 player.Message( "List of zones (see &H/zinfo ZoneName&S for details):" );
                 foreach( Zone zone in zones ) {
@@ -351,7 +351,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdZoneInfo = new CommandDescriptor {
+        static readonly CommandDescriptor cdZoneInfo = new CommandDescriptor {
             name = "zinfo",
             help = "Shows information about a zone",
             usage = "/zinfo ZoneName",

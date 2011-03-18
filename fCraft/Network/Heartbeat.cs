@@ -1,10 +1,10 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
-using System.Collections.Generic;
 using fCraft.Events;
 
 namespace fCraft {
@@ -58,7 +58,7 @@ namespace fCraft {
                 return;
             }
 
-            if( Config.GetBool( ConfigKey.HeartbeatEnabled ) ) {
+            if( ConfigKey.HeartbeatEnabled.GetBool() ) {
                 request = (HttpWebRequest)WebRequest.Create( URL );
                 request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
                 request.Method = "POST";
@@ -95,9 +95,9 @@ namespace fCraft {
                                         Server.IP.ToString(),
                                         Server.Port.ToString(),
                                         Server.GetPlayerCount(false).ToString(),
-                                        Config.GetString(ConfigKey.MaxPlayers),
-                                        Config.GetString(ConfigKey.ServerName),
-                                        Config.GetString(ConfigKey.IsPublic)
+                                        ConfigKey.MaxPlayers.GetString(),
+                                        ConfigKey.ServerName.GetString(),
+                                        ConfigKey.IsPublic.GetString()
                     }, Encoding.ASCII );
                 if( File.Exists( HeartbeatDataFileName ) ) {
                     File.Replace( tempFile, HeartbeatDataFileName, null, true );

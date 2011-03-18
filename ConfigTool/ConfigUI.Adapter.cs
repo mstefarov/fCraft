@@ -320,7 +320,7 @@ namespace ConfigTool {
                 }
             }
 
-            ApplyEnum( cUpdater, ConfigKey.UpdateMode, AutoUpdaterMode.Prompt );
+            ApplyEnum( cUpdater, ConfigKey.UpdateMode, UpdaterMode.Prompt );
 
             nThrottling.Value = Config.GetInt( ConfigKey.BlockUpdateThrottling );
             xLowLatencyMode.Checked = Config.GetBool( ConfigKey.LowLatencyMode );
@@ -478,7 +478,7 @@ namespace ConfigTool {
 
             // advanced
             Config.SetValue( ConfigKey.SubmitCrashReports, xSubmitCrashReports.Checked );
-            WriteEnum<AutoUpdaterMode>( cUpdater, ConfigKey.UpdateMode );
+            WriteEnum<UpdaterMode>( cUpdater, ConfigKey.UpdateMode );
 
             Config.SetValue( ConfigKey.RelayAllBlockUpdates, xRelayAllBlockUpdates.Checked );
             Config.SetValue( ConfigKey.NoPartialPositionUpdates, xNoPartialPositionUpdates.Checked );

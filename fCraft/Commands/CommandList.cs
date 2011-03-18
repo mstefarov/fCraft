@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using fCraft.Events;
 
@@ -22,8 +23,8 @@ namespace fCraft {
     /// Static class that allows registration and parsing of all text commands.
     /// </summary>
     public static class CommandList {
-        static SortedList<string, string> aliases = new SortedList<string, string>();
-        static SortedList<string, CommandDescriptor> commands = new SortedList<string, CommandDescriptor>();
+        static readonly SortedList<string, string> Aliases = new SortedList<string, string>();
+        static readonly SortedList<string, CommandDescriptor> Commands = new SortedList<string, CommandDescriptor>();
 
         public sealed class CommandRegistrationException : Exception {
             public CommandRegistrationException( string message ) : base( message ) { }
@@ -40,15 +41,15 @@ namespace fCraft {
             WorldCommands.Init();
             ZoneCommands.Init();
             AutoRankCommands.Init();
-            commands.TrimExcess();
-            aliases.TrimExcess();
+            Commands.TrimExcess();
+            Aliases.TrimExcess();
         }
 
 
         public static string GetCommandList( Player player, bool listAll ) {
             StringBuilder sb = new StringBuilder();
             bool first = true;
-            foreach( CommandDescriptor cmd in commands.Values ) {
+            foreach( CommandDescriptor cmd in Commands.Values ) {
                 if( listAll || !cmd.hidden && (cmd.permissions == null || player.Can( cmd.permissions )) ) {
                     if( !first ) {
                         sb.Append( ", " );
@@ -67,7 +68,7 @@ namespace fCraft {
                 throw new CommandRegistrationException( "All commands need a name, between 1 and 16 alphanumeric characters long." );
             }
 
-            if( commands.ContainsKey( descriptor.name ) ) {
+            if( Commands.ContainsKey( descriptor.name ) ) {
                 throw new CommandRegistrationException( "A command with the name \"{0}\" is already registered.", descriptor.name );
             }
 
@@ -76,10 +77,8 @@ namespace fCraft {
             }
 
             if( descriptor.aliases != null ) {
-                foreach( string alias in descriptor.aliases ) {
-                    if( commands.ContainsKey( alias ) ) {
-                        throw new CommandRegistrationException( "One of the aliases for \"{0}\" is using the name of an already-defined command." );
-                    }
+                if( descriptor.aliases.Any( alias => Commands.ContainsKey( alias ) ) ) {
+                    throw new CommandRegistrationException( "One of the aliases for \"{0}\" is using the name of an already-defined command." );
                 }
             }
 
@@ -89,25 +88,25 @@ namespace fCraft {
 
             if( RaiseCommandRegisteringEvent( descriptor ) ) return;
 
-            if( aliases.ContainsKey( descriptor.name ) ) {
+            if( Aliases.ContainsKey( descriptor.name ) ) {
                 Logger.Log( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden.", LogType.Warning,
-                            descriptor.name, aliases[descriptor.name] );
-                aliases.Remove( descriptor.name );
+                            descriptor.name, Aliases[descriptor.name] );
+                Aliases.Remove( descriptor.name );
             }
 
             if( descriptor.aliases != null ) {
                 foreach( string alias in descriptor.aliases ) {
-                    if( aliases.ContainsKey( alias ) ) {
+                    if( Aliases.ContainsKey( alias ) ) {
                         Logger.Log( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden to resolve to \"{2}\" instead.",
                                     LogType.Warning,
-                                    alias, aliases[alias], descriptor.name );
+                                    alias, Aliases[alias], descriptor.name );
                     } else {
-                        aliases.Add( alias, descriptor.name );
+                        Aliases.Add( alias, descriptor.name );
                     }
                 }
             }
 
-            commands.Add( descriptor.name, descriptor );
+            Commands.Add( descriptor.name, descriptor );
 
             RaiseCommandRegisteredEvent( descriptor );
         }
@@ -117,10 +116,10 @@ namespace fCraft {
         public static CommandDescriptor GetDescriptor( string commandName ) {
             if( commandName == null ) return null;
             commandName = commandName.ToLower();
-            if( commands.ContainsKey( commandName ) ) {
-                return commands[commandName];
-            } else if( aliases.ContainsKey( commandName ) ) {
-                return commands[aliases[commandName]];
+            if( Commands.ContainsKey( commandName ) ) {
+                return Commands[commandName];
+            } else if( Aliases.ContainsKey( commandName ) ) {
+                return Commands[Aliases[commandName]];
             } else {
                 return null;
             }

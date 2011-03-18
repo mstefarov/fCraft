@@ -9,7 +9,7 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using fCraft;
-using Mcc;
+using fCraft.MapConversion;
 using Color = System.Drawing.Color;
 
 
@@ -583,10 +583,10 @@ Dimensions: {5}×{6}×{7}
                 (fileSize / 1024),
                 creationTime.ToLongDateString(),
                 modificationTime.ToLongDateString(),
-                loadedMap.widthX,
-                loadedMap.widthY,
-                loadedMap.height,
-                loadedMap.widthX * loadedMap.widthY * loadedMap.height );
+                loadedMap.WidthX,
+                loadedMap.WidthY,
+                loadedMap.Height,
+                loadedMap.WidthX * loadedMap.WidthY * loadedMap.Height );
             } else {
                 textBox.Text = String.Format(
 @"  Location: {0}

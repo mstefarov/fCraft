@@ -46,7 +46,7 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdDeafen = new CommandDescriptor {
+        static readonly CommandDescriptor cdDeafen = new CommandDescriptor {
             name = "deafen",
             aliases = new[] { "deaf" },
             consoleSafe = true,
@@ -82,7 +82,7 @@ namespace fCraft {
 
         #region Ignore
 
-        static CommandDescriptor cdIgnore = new CommandDescriptor {
+        static readonly CommandDescriptor cdIgnore = new CommandDescriptor {
             name = "ignore",
             consoleSafe = true,
             usage = "/ignore PlayerName",
@@ -127,7 +127,7 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdUnignore = new CommandDescriptor {
+        static readonly CommandDescriptor cdUnignore = new CommandDescriptor {
             name = "unignore",
             consoleSafe = true,
             usage = "/unignore PlayerName",
@@ -169,7 +169,7 @@ namespace fCraft {
 
         #region Infos (/info, /rinfo, /baninfo, /sinfo)
 
-        static CommandDescriptor cdInfo = new CommandDescriptor {
+        static readonly CommandDescriptor cdInfo = new CommandDescriptor {
             name = "info",
             aliases = new[] { "pinfo" },
             consoleSafe = true,
@@ -179,7 +179,7 @@ namespace fCraft {
             handler = Info
         };
 
-        static Regex regexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
+        static readonly Regex regexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
         internal static void Info( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
@@ -394,7 +394,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdBanInfo = new CommandDescriptor {
+        static readonly CommandDescriptor cdBanInfo = new CommandDescriptor {
             name = "baninfo",
             consoleSafe = true,
             usage = "/baninfo [PlayerName|IPAddress]",
@@ -482,7 +482,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdRankInfo = new CommandDescriptor {
+        static readonly CommandDescriptor cdRankInfo = new CommandDescriptor {
             name = "rankinfo",
             aliases = new[] { "class", "rinfo", "cinfo" },
             consoleSafe = true,
@@ -532,7 +532,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdServerInfo = new CommandDescriptor {
+        static readonly CommandDescriptor cdServerInfo = new CommandDescriptor {
             name = "sinfo",
             consoleSafe = true,
             help = "Shows server stats",
@@ -568,7 +568,7 @@ namespace fCraft {
         #endregion
 
 
-        static CommandDescriptor cdMe = new CommandDescriptor {
+        static readonly CommandDescriptor cdMe = new CommandDescriptor {
             name = "me",
             consoleSafe = true,
             usage = "/me Message",
@@ -593,7 +593,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdRanks = new CommandDescriptor {
+        static readonly CommandDescriptor cdRanks = new CommandDescriptor {
             name = "ranks",
             aliases = new[] { "classes" },
             consoleSafe = true,
@@ -612,7 +612,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdRules = new CommandDescriptor {
+        static readonly CommandDescriptor cdRules = new CommandDescriptor {
             name = "rules",
             consoleSafe = true,
             help = "Shows a list of rules defined by server operator(s).",
@@ -641,7 +641,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdRoll = new CommandDescriptor {
+        static readonly CommandDescriptor cdRoll = new CommandDescriptor {
             name = "roll",
             consoleSafe = true,
             help = "Gives random number between 1 and 100.&N" +
@@ -681,7 +681,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdMeasure = new CommandDescriptor {
+        static readonly CommandDescriptor cdMeasure = new CommandDescriptor {
             name = "measure",
             help = "Shows information about a selection: width/length/height and volume.",
             handler = Measure
@@ -710,7 +710,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdPlayers = new CommandDescriptor {
+        static readonly CommandDescriptor cdPlayers = new CommandDescriptor {
             name = "players",
             consoleSafe = true,
             usage = "/players [WorldName]",
@@ -745,7 +745,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdVersion = new CommandDescriptor {
+        static readonly CommandDescriptor cdVersion = new CommandDescriptor {
             name = "version",
             consoleSafe = true,
             help = "Shows server software name and version.",
@@ -758,7 +758,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdWhere = new CommandDescriptor {
+        static readonly CommandDescriptor cdWhere = new CommandDescriptor {
             name = "where",
             aliases = new[] { "compass" },
             permissions = new[] { Permission.ViewOthersInfo },
@@ -769,7 +769,7 @@ namespace fCraft {
             handler = Where
         };
 
-        const string compass = "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . " +
+        const string Compass = "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . " +
                                "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . ";
 
         internal static void Where( Player player, Command cmd ) {
@@ -798,15 +798,15 @@ namespace fCraft {
                             target.pos.y / 32,
                             target.pos.h / 32,
                             Color.White,
-                            compass.Substring( offset - 12, 11 ),
+                            Compass.Substring( offset - 12, 11 ),
                             Color.Red,
-                            compass.Substring( offset - 1, 3 ),
-                            compass.Substring( offset + 2, 11 ) );
+                            Compass.Substring( offset - 1, 3 ),
+                            Compass.Substring( offset + 2, 11 ) );
         }
 
 
 
-        static CommandDescriptor cdHelp = new CommandDescriptor {
+        static readonly CommandDescriptor cdHelp = new CommandDescriptor {
             name = "help",
             consoleSafe = true,
             usage = "/help [CommandName]",

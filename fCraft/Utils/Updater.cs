@@ -48,8 +48,8 @@ namespace fCraft {
             UpdaterResult result = new UpdaterResult( Version );
             return result;
             // TODO: fix the rest
-            AutoUpdaterMode mode = Config.GetEnum<AutoUpdaterMode>( ConfigKey.UpdateMode );
-            if( mode == AutoUpdaterMode.Disabled ) return result;
+            UpdaterMode mode = ConfigKey.UpdateMode.GetEnum<UpdaterMode>();
+            if( mode == UpdaterMode.Disabled ) return result;
 
             string Url = UpdateURL;
             if( FireCheckingForUpdatesEvent( ref Url ) ) return result;
@@ -155,7 +155,7 @@ namespace fCraft {
     }
 
 
-    public enum AutoUpdaterMode {
+    public enum UpdaterMode {
         Disabled,
         Notify,
         Prompt,

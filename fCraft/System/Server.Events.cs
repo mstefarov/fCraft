@@ -1,10 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net;
-using System.Diagnostics;
 using fCraft.Events;
 
 namespace fCraft {
@@ -25,7 +22,7 @@ namespace fCraft {
         public static event EventHandler<ShutdownEventArgs> ShutdownEnded;
 
 
-        static void RaiseInitializingEvent( string[] _args ) {
+        static void RaiseInitializingEvent( Dictionary<ArgKey, string> _args ) {
             var h = Initializing;
             if( h != null ) h( null, new ServerInitializingEventArgs( _args ) );
         }
@@ -58,10 +55,10 @@ namespace fCraft {
         public static event EventHandler<SessionDisconnectedEventArgs> SessionDisconnected;
 
 
-        internal static bool RaiseSessionConnectingEvent( IPAddress IP ) {
+        internal static bool RaiseSessionConnectingEvent( IPAddress _IP ) {
             var h = SessionConnecting;
             if( h == null ) return false;
-            var e = new SessionConnectingEventArgs( IP );
+            var e = new SessionConnectingEventArgs( _IP );
             h( null, e );
             return e.Cancel;
         }
@@ -178,11 +175,11 @@ namespace fCraft {
 namespace fCraft.Events {
 
     public class ServerInitializingEventArgs : EventArgs {
-        internal ServerInitializingEventArgs( string[] _args ) {
+        internal ServerInitializingEventArgs( Dictionary<ArgKey, string> _args ) {
             Args = _args;
         }
 
-        public string[] Args { get; set; }
+        public Dictionary<ArgKey, string> Args { get; private set; }
     }
 
 

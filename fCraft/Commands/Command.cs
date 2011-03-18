@@ -7,7 +7,7 @@ namespace fCraft {
     /// </summary>
     public sealed class Command : ICloneable {
         int offset;
-        string message;
+        readonly string message;
         public string name; // lowercase name of the command
         public bool confirmed; // whether this command has been confirmed by the user (with /ok)
 

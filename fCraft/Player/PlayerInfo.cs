@@ -416,12 +416,12 @@ namespace fCraft {
         // implements IClassy interface
         public string GetClassyName() {
             StringBuilder sb = new StringBuilder();
-            if( Config.GetBool( ConfigKey.RankColorsInChat ) ) {
+            if( ConfigKey.RankColorsInChat.GetBool() ) {
                 if( name == "fragmer" ) return "&4f&cr&ea&ag&bm&9e&5r";
                 if( name == "Kirshi" ) return "&bKir&dshi";
                 sb.Append( rank.Color );
             }
-            if( Config.GetBool( ConfigKey.RankPrefixesInChat ) ) {
+            if( ConfigKey.RankPrefixesInChat.GetBool() ) {
                 sb.Append( rank.Prefix );
             }
             sb.Append( name );

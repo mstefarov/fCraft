@@ -5,14 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-
 namespace fCraft {
     public static class Scheduler {
-        static HashSet<Task> tasks = new HashSet<Task>();
-        static Queue<Task> backgroundTasks = new Queue<Task>();
+        static readonly HashSet<Task> Tasks = new HashSet<Task>();
+        static readonly Queue<Task> BackgroundTasks = new Queue<Task>();
         static Task[] taskList;
-        static readonly object taskListLock = new object(),
-                               backgroundTaskListLock = new object();
+        static readonly object TaskListLock = new object(),
+                               BackgroundTaskListLock = new object();
 
         static Thread schedulerThread;
         static Thread backgroundThread;
@@ -27,11 +26,11 @@ namespace fCraft {
 
 
         static void MainLoop() {
-            while( !Server.shuttingDown ) {
+            while( !Server.IsShuttingDown ) {
                 DateTime ticksNow = DateTime.UtcNow;
                 Task[] taskListCache = taskList;
 
-                for( int i = 0; i < taskListCache.Length && !Server.shuttingDown; i++ ) {
+                for( int i = 0; i < taskListCache.Length && !Server.IsShuttingDown; i++ ) {
                     Task task = taskListCache[i];
                     if( task.IsStopped || task.NextTime > ticksNow ) continue;
                     if( task.IsRecurring && task.AdjustForExecutionTime ) {
@@ -39,8 +38,8 @@ namespace fCraft {
                     }
 
                     if( task.IsBackground ) {
-                        lock( backgroundTaskListLock ) {
-                            backgroundTasks.Enqueue( task );
+                        lock( BackgroundTaskListLock ) {
+                            BackgroundTasks.Enqueue( task );
                         }
                     } else {
                         task.IsExecuting = true;
@@ -77,10 +76,10 @@ namespace fCraft {
 
         static void BackgroundLoop() {
             while( !Server.shuttingDown ) {
-                if( backgroundTasks.Count > 0 ) {
+                if( BackgroundTasks.Count > 0 ) {
                     Task task;
-                    lock( backgroundTaskListLock ) {
-                        task = backgroundTasks.Dequeue();
+                    lock( BackgroundTaskListLock ) {
+                        task = BackgroundTasks.Dequeue();
                     }
                     task.Callback( task );
                 }
@@ -90,9 +89,9 @@ namespace fCraft {
 
 
         public static void AddTask( Task task ) {
-            lock( taskListLock ) {
+            lock( TaskListLock ) {
                 task.IsStopped = false;
-                if( tasks.Add( task ) ) {
+                if( Tasks.Add( task ) ) {
                     UpdateCache();
                 }
 #if DEBUG_SCHEDULER
@@ -125,8 +124,8 @@ namespace fCraft {
         public static void UpdateCache() {
             List<Task> newList = new List<Task>();
             List<Task> deletionList = new List<Task>();
-            lock( taskListLock ) {
-                foreach( Task task in tasks ) {
+            lock( TaskListLock ) {
+                foreach( Task task in Tasks ) {
                     if( task.IsStopped ) {
                         deletionList.Add( task );
                     } else {
@@ -134,7 +133,7 @@ namespace fCraft {
                     }
                 }
                 foreach( Task task in deletionList ) {
-                    tasks.Remove( task );
+                    Tasks.Remove( task );
 #if DEBUG_SCHEDULER
                     Logger.Log( "Scheduler.UpdateCache: Removed {0}", LogType.Debug, task );
 #endif
@@ -145,12 +144,12 @@ namespace fCraft {
 
 
         public static void BeginShutdown() {
-            lock( taskListLock ) {
-                foreach( Task activeTask in tasks ) {
+            lock( TaskListLock ) {
+                foreach( Task activeTask in Tasks ) {
                     activeTask.Stop();
                 }
-                tasks.Clear();
-                taskList = tasks.ToArray();
+                Tasks.Clear();
+                taskList = Tasks.ToArray();
             }
         }
 
@@ -169,8 +168,8 @@ namespace fCraft {
 
 
         public static void PrintTasks( Player player ) {
-            lock( taskListLock ) {
-                foreach( Task task in tasks ) {
+            lock( TaskListLock ) {
+                foreach( Task task in Tasks ) {
                     player.Message( task.ToString() );
                 }
             }
@@ -296,7 +295,7 @@ namespace fCraft {
 
             #region Run Manual
 
-            static TimeSpan CloseEnoughToForever = TimeSpan.FromDays( 36525 ); // >100 years
+            static readonly TimeSpan CloseEnoughToForever = TimeSpan.FromDays( 36525 ); // >100 years
             public Task RunManual() {
                 Delay = TimeSpan.Zero;
                 IsRecurring = true;

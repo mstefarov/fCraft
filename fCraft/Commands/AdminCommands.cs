@@ -60,7 +60,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdPruneDB );
         }
 
-        static CommandDescriptor cdPruneDB = new CommandDescriptor {
+        static readonly CommandDescriptor cdPruneDB = new CommandDescriptor {
             name = "prunedb",
             consoleSafe = true,
             hidden = true,
@@ -77,7 +77,7 @@ namespace fCraft {
                 return;
             }
             player.MessageNow( "PruneDB: Removing inactive players... (this may take a while)" );
-            Scheduler.AddBackgroundTask( delegate( Scheduler.Task task ) {
+            Scheduler.AddBackgroundTask( delegate {
                 player.MessageNow( "PruneDB: Removed {0} inactive players!", PlayerDB.RemoveInactivePlayers() );
             } ).RunOnce();
         }
@@ -85,7 +85,7 @@ namespace fCraft {
 
         #region Ban
 
-        static CommandDescriptor cdBan = new CommandDescriptor {
+        static readonly CommandDescriptor cdBan = new CommandDescriptor {
             name = "ban",
             consoleSafe = true,
             permissions = new[] { Permission.Ban },
@@ -101,7 +101,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdBanIP = new CommandDescriptor {
+        static readonly CommandDescriptor cdBanIP = new CommandDescriptor {
             name = "banip",
             consoleSafe = true,
             permissions = new[] { Permission.Ban, Permission.BanIP },
@@ -118,7 +118,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdBanAll = new CommandDescriptor {
+        static readonly CommandDescriptor cdBanAll = new CommandDescriptor {
             name = "banall",
             consoleSafe = true,
             permissions = new[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
@@ -136,7 +136,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdUnban = new CommandDescriptor {
+        static readonly CommandDescriptor cdUnban = new CommandDescriptor {
             name = "unban",
             consoleSafe = true,
             permissions = new[] { Permission.Ban },
@@ -152,7 +152,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdUnbanIP = new CommandDescriptor {
+        static readonly CommandDescriptor cdUnbanIP = new CommandDescriptor {
             name = "unbanip",
             consoleSafe = true,
             permissions = new[] { Permission.Ban, Permission.BanIP },
@@ -169,7 +169,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdUnbanAll = new CommandDescriptor {
+        static readonly CommandDescriptor cdUnbanAll = new CommandDescriptor {
             name = "unbanall",
             consoleSafe = true,
             permissions = new[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
@@ -201,7 +201,7 @@ namespace fCraft {
                 info = PlayerDB.FindPlayerInfoExact( nameOrIP );
             }
 
-            if( Config.GetBool( ConfigKey.RequireBanReason ) && string.IsNullOrEmpty( reason ) ) {
+            if( ConfigKey.RequireBanReason.GetBool() && string.IsNullOrEmpty( reason ) ) {
                 player.Message( "Please specify a ban/unban reason." );
                 // freeze the target player to prevent further damage
                 if( !unban && target != null && player.Can( Permission.Freeze ) && player.info.rank.CanBan( target.info.rank ) ) {
@@ -232,7 +232,7 @@ namespace fCraft {
                             Server.SendToAllExcept( "{0}&W was banned by {1}", target,
                                                     target.GetClassyName(), player.GetClassyName() );
                             if( !string.IsNullOrEmpty( reason ) ) {
-                                if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) ) {
+                                if( ConfigKey.AnnounceKickAndBanReasons.GetBool() ) {
                                     Server.SendToAllExcept( "&WBan reason: {0}", target,
                                                             reason );
                                 }
@@ -274,7 +274,7 @@ namespace fCraft {
                                             info.name, player.name );
                                 Server.SendToAll( "{0}&W (offline) was unbanned by {1}",
                                                   info.GetClassyName(), player.GetClassyName() );
-                                if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && !string.IsNullOrEmpty( reason ) ) {
+                                if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
                                     Server.SendToAll( "&WUnban reason: {0}", reason );
                                 }
                             } else {
@@ -287,7 +287,7 @@ namespace fCraft {
                                             info.name, player.name );
                                 Server.SendToAll( "{0}&W (offline) was banned by {1}",
                                                   info.GetClassyName(), player.GetClassyName() );
-                                if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && !string.IsNullOrEmpty( reason ) ) {
+                                if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
                                     Server.SendToAll( "&WBan reason: {0}", reason );
                                 }
                             } else {
@@ -323,7 +323,7 @@ namespace fCraft {
                     Server.SendToAll( "{0}&W (unrecognized) was banned by {1}",
                                       info.GetClassyName(), player.GetClassyName() );
 
-                    if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && !string.IsNullOrEmpty( reason ) ) {
+                    if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
                         Server.SendToAll( "&WBan reason: {0}", reason );
                     }
                 }
@@ -345,7 +345,7 @@ namespace fCraft {
                     player.Message( "{0} has been removed from the IP ban list.", address );
                     Server.SendToAll( "&W{0} was unbanned by {1}",
                                       address, player.GetClassyName() );
-                    if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && !string.IsNullOrEmpty( reason ) ) {
+                    if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
                         Server.SendToAll( "&WUnban reason: {0}", reason );
                     }
                 } else {
@@ -367,7 +367,7 @@ namespace fCraft {
                 if( IPBanList.Add( new IPBanInfo( address, playerName, player.name, reason ) ) ) {
                     Server.SendToAll( "&W{0} was banned by {1}",
                                       address, player.GetClassyName() );
-                    if( Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) && !string.IsNullOrEmpty( reason ) ) {
+                    if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
                         Server.SendToAll( "&WBan reason: {0}", reason );
                     }
 
@@ -396,7 +396,7 @@ namespace fCraft {
 
         #region Kick
 
-        static CommandDescriptor cdKick = new CommandDescriptor {
+        static readonly CommandDescriptor cdKick = new CommandDescriptor {
             name = "kick",
             aliases = new[] { "k" },
             consoleSafe = true,
@@ -458,7 +458,7 @@ namespace fCraft {
                     Server.FirePlayerKickedEvent( target, player, reason );
                 }
                 if( !string.IsNullOrEmpty( reason ) ) {
-                    if( !silent && Config.GetBool( ConfigKey.AnnounceKickAndBanReasons ) ) {
+                    if( !silent && ConfigKey.AnnounceKickAndBanReasons.GetBool() ) {
                         Server.SendToAll( "&WKick reason: {0}", reason );
                     }
                     Logger.Log( "{0} was kicked by {1}. Reason: {2}", LogType.UserActivity,
@@ -478,7 +478,7 @@ namespace fCraft {
 
         #region Changing Rank (Promotion / Demotion)
 
-        static CommandDescriptor cdChangeRank = new CommandDescriptor {
+        static readonly CommandDescriptor cdChangeRank = new CommandDescriptor {
             name = "rank",
             aliases = new[] { "user", "promote", "demote" },
             consoleSafe = true,
@@ -570,7 +570,7 @@ namespace fCraft {
                 return;
             }
 
-            if( Config.GetBool( ConfigKey.RequireRankChangeReason ) && string.IsNullOrEmpty( reason ) ) {
+            if( ConfigKey.RequireRankChangeReason.GetBool() && string.IsNullOrEmpty( reason ) ) {
                 if( promote ) {
                     player.Message( "&WPlease specify a promotion reason." );
                 } else {
@@ -652,7 +652,7 @@ namespace fCraft {
                 }
 
                 if( !silent ) {
-                    if( Config.GetBool( ConfigKey.AnnounceRankChanges ) ) {
+                    if( ConfigKey.AnnounceRankChanges.GetBool() ) {
                         Server.SendToAllExcept( "{0}&S {1} {2} from {3}&S to {4}", target,
                                                 player.GetClassyName(),
                                                 verb,
@@ -669,15 +669,10 @@ namespace fCraft {
                 }
 
             } else {
-                if( promote ) {
-                    player.Message( "{0}&S is already same or lower rank than {1}",
-                                    targetInfo.GetClassyName(),
-                                    newRank.GetClassyName() );
-                } else {
-                    player.Message( "{0}&S is already same or higher rank than {1}",
-                                    targetInfo.GetClassyName(),
-                                    newRank.GetClassyName() );
-                }
+                player.Message( "{0}&S is already same or {1} rank than {2}",
+                                targetInfo.GetClassyName(),
+                                ( promote ? "higher" : "lower" ),
+                                newRank.GetClassyName() );
             }
         }
 
@@ -686,7 +681,7 @@ namespace fCraft {
 
         #region Importing
 
-        static CommandDescriptor cdImportBans = new CommandDescriptor {
+        static readonly CommandDescriptor cdImportBans = new CommandDescriptor {
             name = "importbans",
             permissions = new[] { Permission.Import, Permission.Ban },
             usage = "/importbans SoftwareName File",
@@ -754,7 +749,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdImportRanks = new CommandDescriptor {
+        static readonly CommandDescriptor cdImportRanks = new CommandDescriptor {
             name = "importranks",
             permissions = new[] { Permission.Import, Permission.Promote, Permission.Demote },
             usage = "/importranks SoftwareName File RankToAssign",
@@ -830,7 +825,7 @@ namespace fCraft {
 
         #region Hide
 
-        static CommandDescriptor cdHide = new CommandDescriptor {
+        static readonly CommandDescriptor cdHide = new CommandDescriptor {
             name = "hide",
             permissions = new[] { Permission.Hide },
             usage = "/hide [silent]",
@@ -863,10 +858,10 @@ namespace fCraft {
             Server.SendToBlind( PacketWriter.MakeRemoveEntity( player.id ), player );
 
             if( !silent ) {
-                if( Config.GetBool( ConfigKey.ShowConnectionMessages ) ) {
+                if( ConfigKey.ShowConnectionMessages.GetBool() ) {
                     Server.SendToBlind( String.Format( "&SPlayer {0}&S left the server.", player.GetClassyName() ), player );
                 }
-                if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
+                if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
                     IRC.PlayerDisconnectedHandler( player.session );
                 }
             }
@@ -877,7 +872,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdUnhide = new CommandDescriptor {
+        static readonly CommandDescriptor cdUnhide = new CommandDescriptor {
             name = "unhide",
             permissions = new[] { Permission.Hide },
             usage = "/unhide [silent]",
@@ -905,10 +900,10 @@ namespace fCraft {
             player.world.SendToBlind( PacketWriter.MakeAddEntity( player, player.pos ), player );
 
             if( !silent ) {
-                if( Config.GetBool( ConfigKey.ShowConnectionMessages ) ) {
+                if( ConfigKey.ShowConnectionMessages.GetBool() ) {
                     Server.SendToBlind( Server.MakePlayerConnectedMessage( player, false, player.world ), player );
                 }
-                if( Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins ) ) {
+                if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
                     bool temp = false;
                     IRC.PlayerConnectedHandler( player.session, ref temp );
                 }
@@ -923,7 +918,7 @@ namespace fCraft {
 
         #region Set Spawn
 
-        static CommandDescriptor cdSetSpawn = new CommandDescriptor {
+        static readonly CommandDescriptor cdSetSpawn = new CommandDescriptor {
             name = "setspawn",
             permissions = new[] { Permission.SetSpawn },
             help = "Assigns your current location to be the spawn point of the map/world. " +
@@ -936,7 +931,7 @@ namespace fCraft {
             string playerName = cmd.Next();
             if( playerName == null ) {
                 player.world.map.SetSpawn( player.pos );
-                player.Send( PacketWriter.MakeSelfTeleport( player.world.map.spawn ) );
+                player.Send( PacketWriter.MakeSelfTeleport( player.world.map.Spawn ) );
                 player.Send( PacketWriter.MakeAddEntity( 255, player.GetListName(), player.pos ) );
                 player.Message( "New spawn point saved." );
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,
@@ -966,7 +961,7 @@ namespace fCraft {
 
         #region ReloadConfig / Shutdown
 
-        static CommandDescriptor cdReloadConfig = new CommandDescriptor {
+        static readonly CommandDescriptor cdReloadConfig = new CommandDescriptor {
             name = "reloadconfig",
             permissions = new[] { Permission.ReloadConfig },
             consoleSafe = true,
@@ -988,14 +983,15 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdShutdown = new CommandDescriptor {
+        static readonly CommandDescriptor cdShutdown = new CommandDescriptor {
             name = "shutdown",
             permissions = new[] { Permission.ShutdownServer },
             consoleSafe = true,
             help = "Shuts down the server remotely. " +
                    "The default delay before shutdown is 5 seconds (can be changed by specifying a custom number of seconds). " +
-                   "A shutdown reason or message can be specified to be shown to players.",
-            usage = "/shutdown [Delay [Reason]]",
+                   "A shutdown reason or message can be specified to be shown to players. You can also cancel a shutdown-in-progress " +
+                   "by calling &H/shutdown abort",
+            usage = "/shutdown [Delay] [Reason]",
             handler = Shutdown
         };
 
@@ -1005,22 +1001,33 @@ namespace fCraft {
                 delay = 5;
                 cmd.Rewind();
             }
-            string reason = cmd.Next();
+            string reason = cmd.NextAll();
+
+            if( reason.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
+                if( Server.CancelShutdown() ) {
+                    Logger.Log( "Shutdown aborted by {0}.", LogType.UserActivity, player.name );
+                    Server.SendToAll( "&WShutdown aborted by {0}", player.GetClassyName() );
+                } else {
+                    player.MessageNow( "Cannot abort shutdown - too late." );
+                }
+                return;
+            }
 
             Server.SendToAll( "&WServer shutting down in {0} seconds.", delay );
 
-            if( reason == null ) {
+            if( String.IsNullOrEmpty(reason) ) {
                 Logger.Log( "{0} shut down the server.", LogType.UserActivity, player.name );
-                Server.Shutdown( player.GetClassyName(), delay, true, false );
+                Server.Shutdown( player.GetClassyName(), delay, true, false, false );
             } else {
+                Server.SendToAll( "&WShutdown reason: {0}", reason );
                 Logger.Log( "{0} shut down the server. Reason: {1}", LogType.UserActivity, player.name, reason );
-                Server.Shutdown( reason, delay, true, false );
+                Server.Shutdown( reason, delay, true, false, false );
             }
         }
 
 
 
-        static CommandDescriptor cdRestart = new CommandDescriptor {
+        static readonly CommandDescriptor cdRestart = new CommandDescriptor {
             name = "restart",
             permissions = new[] { Permission.ShutdownServer },
             consoleSafe = true,
@@ -1043,10 +1050,10 @@ namespace fCraft {
 
             if( reason == null ) {
                 Logger.Log( "{0} restarted the server.", LogType.UserActivity, player.name );
-                Server.Shutdown( player.GetClassyName(), delay, true, true );
+                Server.Shutdown( player.GetClassyName(), delay, true, true, false );
             } else {
                 Logger.Log( "{0} restarted the server. Reason: {1}", LogType.UserActivity, player.name, reason );
-                Server.Shutdown( reason, delay, true, true );
+                Server.Shutdown( reason, delay, true, true, false );
             }
         }
 
@@ -1055,7 +1062,7 @@ namespace fCraft {
 
         #region Freeze
 
-        static CommandDescriptor cdFreeze = new CommandDescriptor {
+        static readonly CommandDescriptor cdFreeze = new CommandDescriptor {
             name = "freeze",
             consoleSafe = true,
             aliases = new[] { "f" },
@@ -1093,7 +1100,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdUnfreeze = new CommandDescriptor {
+        static readonly CommandDescriptor cdUnfreeze = new CommandDescriptor {
             name = "unfreeze",
             aliases = new[] { "uf" },
             consoleSafe = true,
@@ -1131,7 +1138,7 @@ namespace fCraft {
 
         #region Say, StaffChat
 
-        static CommandDescriptor cdSay = new CommandDescriptor {
+        static readonly CommandDescriptor cdSay = new CommandDescriptor {
             name = "say",
             consoleSafe = true,
             permissions = new[] { Permission.Say },
@@ -1163,7 +1170,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdStaffChat = new CommandDescriptor {
+        static readonly CommandDescriptor cdStaffChat = new CommandDescriptor {
             name = "staff",
             consoleSafe = true,
             usage = "/staff Message",
@@ -1204,7 +1211,7 @@ namespace fCraft {
 
         #region Teleport / Bring / Patrol
 
-        static CommandDescriptor cdTP = new CommandDescriptor {
+        static readonly CommandDescriptor cdTP = new CommandDescriptor {
             name = "tp",
             aliases = new[] { "spawn" },
             usage = "/tp [PlayerName]&S or &H/tp X Y Z",
@@ -1218,7 +1225,7 @@ namespace fCraft {
             string name = cmd.Next();
 
             if( name == null ) {
-                player.Send( PacketWriter.MakeSelfTeleport( player.world.map.spawn ) );
+                player.Send( PacketWriter.MakeSelfTeleport( player.world.map.Spawn ) );
                 return;
             }
 
@@ -1298,7 +1305,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdBring = new CommandDescriptor {
+        static readonly CommandDescriptor cdBring = new CommandDescriptor {
             name = "bring",
             aliases = new[] { "summon", "fetch" },
             permissions = new[] { Permission.Bring },
@@ -1359,7 +1366,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdPatrol = new CommandDescriptor {
+        static readonly CommandDescriptor cdPatrol = new CommandDescriptor {
             name = "patrol",
             aliases = new[] { "pat" },
             permissions = new[] { Permission.Patrol },
@@ -1391,7 +1398,7 @@ namespace fCraft {
 
         #region Mute / Unmute
 
-        static CommandDescriptor cdMute = new CommandDescriptor {
+        static readonly CommandDescriptor cdMute = new CommandDescriptor {
             name = "mute",
             consoleSafe = true,
             permissions = new[] { Permission.Mute },
@@ -1428,7 +1435,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdUnmute = new CommandDescriptor {
+        static readonly CommandDescriptor cdUnmute = new CommandDescriptor {
             name = "unmute",
             consoleSafe = true,
             permissions = new[] { Permission.Mute },

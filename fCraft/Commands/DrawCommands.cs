@@ -56,24 +56,24 @@ namespace fCraft {
         const int DrawStride = 16;
 
 
-        const string generalDrawingHelp = " Use &H/cancel&S to exit draw mode. " +
+        const string GeneralDrawingHelp = " Use &H/cancel&S to exit draw mode. " +
                                           "Use &H/undo&S to undo the last draw operation. " +
                                           "Use &H/lock&S to cancel drawing after it started.";
 
         internal static void Init() {
-            cdCuboid.help += generalDrawingHelp;
-            cdCuboidHollow.help += generalDrawingHelp;
-            cdCuboidWireframe.help += generalDrawingHelp;
-            cdEllipsoid.help += generalDrawingHelp;
-            cdEllipsoidHollow.help += generalDrawingHelp;
-            cdSphere.help += generalDrawingHelp;
-            cdSphereHollow.help += generalDrawingHelp;
-            cdLine.help += generalDrawingHelp;
-            cdReplace.help += generalDrawingHelp;
-            cdReplaceNot.help += generalDrawingHelp;
-            cdCut.help += generalDrawingHelp;
-            cdPasteNot.help += generalDrawingHelp;
-            cdPaste.help += generalDrawingHelp;
+            cdCuboid.help += GeneralDrawingHelp;
+            cdCuboidHollow.help += GeneralDrawingHelp;
+            cdCuboidWireframe.help += GeneralDrawingHelp;
+            cdEllipsoid.help += GeneralDrawingHelp;
+            cdEllipsoidHollow.help += GeneralDrawingHelp;
+            cdSphere.help += GeneralDrawingHelp;
+            cdSphereHollow.help += GeneralDrawingHelp;
+            cdLine.help += GeneralDrawingHelp;
+            cdReplace.help += GeneralDrawingHelp;
+            cdReplaceNot.help += GeneralDrawingHelp;
+            cdCut.help += GeneralDrawingHelp;
+            cdPasteNot.help += GeneralDrawingHelp;
+            cdPaste.help += GeneralDrawingHelp;
 
             CommandList.RegisterCommand( cdCuboid );
             CommandList.RegisterCommand( cdCuboidHollow );
@@ -102,7 +102,7 @@ namespace fCraft {
 
         #region Command Descriptors
 
-        static CommandDescriptor cdCuboid = new CommandDescriptor {
+        static readonly CommandDescriptor cdCuboid = new CommandDescriptor {
             name = "cuboid",
             aliases = new[] { "blb", "c", "cub", "z" },
             permissions = new[] { Permission.Draw },
@@ -118,7 +118,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdCuboidHollow = new CommandDescriptor {
+        static readonly CommandDescriptor cdCuboidHollow = new CommandDescriptor {
             name = "cubh",
             aliases = new[] { "cuboidh", "ch", "h", "bhb" },
             permissions = new[] { Permission.Draw },
@@ -135,7 +135,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdCuboidWireframe = new CommandDescriptor {
+        static readonly CommandDescriptor cdCuboidWireframe = new CommandDescriptor {
             name = "cubw",
             aliases = new[] { "cuboidw", "cw", "bfb" },
             permissions = new[] { Permission.Draw },
@@ -151,7 +151,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdEllipsoid = new CommandDescriptor {
+        static readonly CommandDescriptor cdEllipsoid = new CommandDescriptor {
             name = "ellipsoid",
             aliases = new[] { "e" },
             permissions = new[] { Permission.Draw },
@@ -166,7 +166,7 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdEllipsoidHollow = new CommandDescriptor {
+        static readonly CommandDescriptor cdEllipsoidHollow = new CommandDescriptor {
             name = "ellipsoidh",
             aliases = new[] { "eh" },
             permissions = new[] { Permission.Draw },
@@ -181,7 +181,7 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdSphere = new CommandDescriptor {
+        static readonly CommandDescriptor cdSphere = new CommandDescriptor {
             name = "sphere",
             aliases = new[] { "sp", "spheroid" },
             permissions = new[] { Permission.Draw },
@@ -197,7 +197,7 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdSphereHollow = new CommandDescriptor {
+        static readonly CommandDescriptor cdSphereHollow = new CommandDescriptor {
             name = "sphereh",
             aliases = new[] { "sph", "hsphere" },
             permissions = new[] { Permission.Draw },
@@ -213,7 +213,7 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdReplace = new CommandDescriptor {
+        static readonly CommandDescriptor cdReplace = new CommandDescriptor {
             name = "replace",
             aliases = new[] { "r" },
             permissions = new[] { Permission.Draw },
@@ -228,7 +228,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdReplaceNot = new CommandDescriptor {
+        static readonly CommandDescriptor cdReplaceNot = new CommandDescriptor {
             name = "replacenot",
             aliases = new[] { "rn" },
             permissions = new[] { Permission.Draw },
@@ -243,7 +243,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdLine = new CommandDescriptor {
+        static readonly CommandDescriptor cdLine = new CommandDescriptor {
             name = "line",
             aliases = new[] { "ln" },
             permissions = new[] { Permission.Draw },
@@ -404,7 +404,7 @@ namespace fCraft {
 
         #region Undo / Redo
 
-        static CommandDescriptor cdUndo = new CommandDescriptor {
+        static readonly CommandDescriptor cdUndo = new CommandDescriptor {
             name = "undo",
             permissions = new[] { Permission.Draw },
             aliases = new[] { "redo" },
@@ -1058,7 +1058,7 @@ namespace fCraft {
 
         #region Copy and Paste
 
-        static CommandDescriptor cdCopy = new CommandDescriptor {
+        static readonly CommandDescriptor cdCopy = new CommandDescriptor {
             name = "copy",
             permissions = new[] { Permission.CopyAndPaste },
             help = "Copy blocks for pasting. " +
@@ -1116,7 +1116,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdCut = new CommandDescriptor {
+        static readonly CommandDescriptor cdCut = new CommandDescriptor {
             name = "cut",
             permissions = new[] { Permission.CopyAndPaste },
             help = "Copies and removes blocks for pasting. Unless a different block type is specified, the area is filled with air. " +
@@ -1194,7 +1194,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdPasteNot = new CommandDescriptor {
+        static readonly CommandDescriptor cdPasteNot = new CommandDescriptor {
             name = "pastenot",
             permissions = new[] { Permission.CopyAndPaste },
             help = "Paste previously copied blocks, excluding specified block type(s). " +
@@ -1247,7 +1247,7 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdPaste = new CommandDescriptor {
+        static readonly CommandDescriptor cdPaste = new CommandDescriptor {
             name = "paste",
             permissions = new[] { Permission.CopyAndPaste },
             help = "Pastes previously copied blocks. Used together with &H/copy&S command. " +
@@ -1313,13 +1313,13 @@ namespace fCraft {
 
             BoundingBox bounds = new BoundingBox( marks[0], info.widthX, info.widthY, info.height );
 
-            if( bounds.xMin < 0 || bounds.xMax > map.widthX - 1 ) {
+            if( bounds.xMin < 0 || bounds.xMax > map.WidthX - 1 ) {
                 player.MessageNow( "Warning: Not enough room horizontally (X), paste cut off." );
             }
-            if( bounds.yMin < 0 || bounds.yMax > map.widthY - 1 ) {
+            if( bounds.yMin < 0 || bounds.yMax > map.WidthY - 1 ) {
                 player.MessageNow( "Warning: Not enough room horizontally (Y), paste cut off." );
             }
-            if( bounds.hMin < 0 || bounds.hMax > map.height - 1 ) {
+            if( bounds.hMin < 0 || bounds.hMax > map.Height - 1 ) {
                 player.MessageNow( "Warning: Not enough room vertically, paste cut off." );
             }
 
@@ -1368,7 +1368,7 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdMirror = new CommandDescriptor {
+        static readonly CommandDescriptor cdMirror = new CommandDescriptor {
             name = "mirror",
             aliases = new[] { "flip" },
             permissions = new[] { Permission.CopyAndPaste },
@@ -1479,7 +1479,7 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdRotate = new CommandDescriptor {
+        static readonly CommandDescriptor cdRotate = new CommandDescriptor {
             name = "rotate",
             permissions = new[] { Permission.CopyAndPaste },
             help = "Rotates copied blocks around specifies axis/axes. If no axis is given, rotates around Z (vertical).",
@@ -1619,7 +1619,7 @@ namespace fCraft {
         #endregion
 
 
-        static CommandDescriptor cdMark = new CommandDescriptor {
+        static readonly CommandDescriptor cdMark = new CommandDescriptor {
             name = "mark",
             aliases = new[] { "m" },
             help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. " +
@@ -1629,9 +1629,9 @@ namespace fCraft {
 
         internal static void Mark( Player player, Command command ) {
             Position pos = new Position( (short)((player.pos.x - 1) / 32), (short)((player.pos.y - 1) / 32), (short)((player.pos.h - 1) / 32) );
-            pos.x = (short)Math.Min( player.world.map.widthX - 1, Math.Max( 0, (int)pos.x ) );
-            pos.y = (short)Math.Min( player.world.map.widthY - 1, Math.Max( 0, (int)pos.y ) );
-            pos.h = (short)Math.Min( player.world.map.height - 1, Math.Max( 0, (int)pos.h ) );
+            pos.x = (short)Math.Min( player.world.map.WidthX - 1, Math.Max( 0, (int)pos.x ) );
+            pos.y = (short)Math.Min( player.world.map.WidthY - 1, Math.Max( 0, (int)pos.y ) );
+            pos.h = (short)Math.Min( player.world.map.Height - 1, Math.Max( 0, (int)pos.h ) );
 
             if( player.selectionMarksExpected > 0 ) {
                 player.selectionMarks.Enqueue( pos );
@@ -1652,7 +1652,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdCancel = new CommandDescriptor {
+        static readonly CommandDescriptor cdCancel = new CommandDescriptor {
             name = "cancel",
             help = "Cancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. " +
                    "If you wish to stop a drawing in-progress, use &H/lock&S instead.",

@@ -2,11 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Text;
 using fCraft.Events;
@@ -60,8 +58,8 @@ namespace fCraft {
                      ShortDateFormat = "yyyy'-'MM'-'dd";
         public static LogSplittingType split = LogSplittingType.OneFile;
 
-        static string sessionStart = DateTime.Now.ToString( LongDateFormat );
-        static Queue<string> recentMessages = new Queue<string>();
+        static readonly string sessionStart = DateTime.Now.ToString( LongDateFormat );
+        static readonly Queue<string> recentMessages = new Queue<string>();
         const int MaxRecentMessages = 25;
 
 
@@ -399,8 +397,8 @@ namespace fCraft {
         #region Events
 
         public static event EventHandler<LogEventArgs> Logged;
-        
-        
+
+
         public static event EventHandler<CrashEventArgs> Crashed;
 
 

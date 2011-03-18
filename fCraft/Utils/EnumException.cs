@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace fCraft {
     class EnumException<T> : Exception
@@ -9,8 +6,7 @@ namespace fCraft {
 
         public T ErrorCode { get; private set; }
 
-        public EnumException( T _errorCode )
-            : base() {
+        public EnumException( T _errorCode ) {
             ErrorCode = _errorCode;
         }
 

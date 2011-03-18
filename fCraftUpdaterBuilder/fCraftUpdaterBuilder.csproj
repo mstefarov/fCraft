@@ -111,6 +111,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>$(TargetPath)</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

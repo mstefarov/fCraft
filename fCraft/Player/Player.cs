@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
-using fCraft.Events;
 
 namespace fCraft {
     /// <summary>
@@ -116,7 +115,7 @@ namespace fCraft {
                 DateTime oldestTime = spamChatLog.Dequeue();
                 if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < spamChatTimer ) {
                     muteWarnings++;
-                    if( muteWarnings > Config.GetInt( ConfigKey.AntispamMaxWarnings ) ) {
+                    if( muteWarnings > ConfigKey.AntispamMaxWarnings.GetInt() ) {
                         session.KickNow( "You were kicked for repeated spamming.", LeaveReason.MessageSpamKick );
                         Server.SendToAll( "&W{0} was kicked for repeated spamming.", GetClassyName() );
                     } else {
@@ -238,7 +237,7 @@ namespace fCraft {
                                     name, rank.Name, message );
                         string formattedMessage = String.Format( "{0}({1}{2}){3}{4}: {5}",
                                                                  rank.Color,
-                                                                 (Config.GetBool( ConfigKey.RankPrefixesInChat ) ? rank.Prefix : ""),
+                                                                 (ConfigKey.RankPrefixesInChat.GetBool() ? rank.Prefix : ""),
                                                                  rank.Name,
                                                                  Color.PM,
                                                                  name,
@@ -564,7 +563,7 @@ namespace fCraft {
 
         #region Binding
 
-        Block[] bindings = new Block[50];
+        readonly Block[] bindings = new Block[50];
 
         public void Bind( Block type, Block replacement ) {
             bindings[(byte)type] = replacement;
@@ -700,10 +699,10 @@ namespace fCraft {
         // gets name with all the optional fluff (color/prefix) for player list
         public string GetListName() {
             string displayedName = name;
-            if( Config.GetBool( ConfigKey.RankPrefixesInList ) ) {
+            if( ConfigKey.RankPrefixesInList.GetBool() ) {
                 displayedName = info.rank.Prefix + displayedName;
             }
-            if( Config.GetBool( ConfigKey.RankColorsInChat ) && info.rank.Color != Color.White ) {
+            if( ConfigKey.RankColorsInChat.GetBool() && info.rank.Color != Color.White ) {
                 displayedName = info.rank.Color + displayedName;
             }
             return displayedName;
@@ -720,14 +719,14 @@ namespace fCraft {
         }
 
 
-        const string PaidCheckURL = "http://www.minecraft.net/haspaid.jsp?user=";
+        const string PaidCheckUrl = "http://www.minecraft.net/haspaid.jsp?user=";
         const int PaidCheckTimeout = 5000;
 
         static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
             return new IPEndPoint( Server.IP, 0 );
         }
         public static bool CheckPaidStatus( string name ) {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckURL + Uri.EscapeDataString( name ) );
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckUrl + Uri.EscapeDataString( name ) );
             request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
             request.Timeout = PaidCheckTimeout;
             request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );

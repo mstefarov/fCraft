@@ -14,7 +14,7 @@ namespace fCraft {
 
 
         public static void CheckAutoRankSetting() {
-            if( Config.GetBool( ConfigKey.AutoRankEnabled ) ) {
+            if( ConfigKey.AutoRankEnabled.GetBool() ) {
                 if( Task == null ) {
                     Task = Scheduler.AddBackgroundTask( TaskCallback );
                     Task.RunForever( TickInterval );

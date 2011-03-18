@@ -20,7 +20,7 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdDumpStats = new CommandDescriptor {
+        static readonly CommandDescriptor cdDumpStats = new CommandDescriptor {
             name = "dumpstats",
             consoleSafe = true,
             hidden = true,
@@ -368,7 +368,8 @@ namespace fCraft {
             writer.WriteLine();
         }
 
-        class RankStats {
+
+        sealed class RankStats {
             public TimeSpan TimeSinceFirstLogin;
             public TimeSpan TimeSinceLastLogin;
             public TimeSpan TotalTime;
@@ -414,7 +415,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdAutoRankAll = new CommandDescriptor {
+        static readonly CommandDescriptor cdAutoRankAll = new CommandDescriptor {
             name = "autorankall",
             consoleSafe = true,
             hidden = true,
@@ -467,7 +468,7 @@ namespace fCraft {
             player.Message( "AutoRankAll: Worked for {0}ms, {1} players promoted, {2} demoted.", sw.ElapsedMilliseconds, promoted, demoted );
         }
 
-        static CommandDescriptor cdMassRank = new CommandDescriptor {
+        static readonly CommandDescriptor cdMassRank = new CommandDescriptor {
             name = "massrank",
             hidden = true,
             consoleSafe = true,
@@ -521,7 +522,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdAutoRankReload = new CommandDescriptor {
+        static readonly CommandDescriptor cdAutoRankReload = new CommandDescriptor {
             name = "autorankreload",
             consoleSafe = true,
             hidden = true,
@@ -535,7 +536,7 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdAutoRankTest = new CommandDescriptor {
+        static readonly CommandDescriptor cdAutoRankTest = new CommandDescriptor {
             name = "autoranktest",
             consoleSafe = true,
             permissions = new[] { Permission.ViewOthersInfo },
@@ -568,7 +569,7 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdSetInfo = new CommandDescriptor {
+        static readonly CommandDescriptor cdSetInfo = new CommandDescriptor {
             name = "setinfo",
             consoleSafe = true,
             hidden = true,
