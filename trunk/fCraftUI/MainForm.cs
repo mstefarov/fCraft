@@ -103,7 +103,7 @@ namespace fCraftUI {
 
             shutdownPending = true;
             Logger.Log( "---- Shutting Down: {0} ----", LogType.SystemActivity, reason );
-            Server.Shutdown( reason, 0, quit, false );
+            Server.Shutdown( reason, 0, quit, false, false );
             urlDisplay.Enabled = false;
             console.Enabled = false;
         }

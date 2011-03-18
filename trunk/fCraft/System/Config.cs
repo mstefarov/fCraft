@@ -96,23 +96,46 @@ namespace fCraft {
      * 129 - r405 - Added ShowConnectedMessages
      * 
      * 130 - r413 - Added ShowBannedConnectionMessages
+     * 
+     * 131 - r460 - Changed default for IRCNick from "fBot" to "MinecraftBot"
+     *              Relaxed range limits on many integer keys.
+     *              Renamed ProcessPriority value "Low" to "Idle", to match WinAPI 
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 129;
+        public const int ConfigVersion = 131;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig";
-        static Dictionary<ConfigKey, string> settings = new Dictionary<ConfigKey, string>();
-        static Dictionary<ConfigKey, string> defaults;
-        static Dictionary<string, ConfigKey> legacyConfigKeys = new Dictionary<string, ConfigKey>(); // LEGACY
-        static Dictionary<ConfigKey, KeyValuePair<string, string>> legacyConfigValues = new Dictionary<ConfigKey, KeyValuePair<string, string>>();
+
+        static readonly Dictionary<ConfigKey, string> settings = new Dictionary<ConfigKey, string>();
+        static readonly Dictionary<ConfigKey, ConfigKeyAttribute> keyMetadata = new Dictionary<ConfigKey, ConfigKeyAttribute>();
+        static readonly Dictionary<ConfigSection, ConfigKey[]> keySections = new Dictionary<ConfigSection, ConfigKey[]>();
+
+        static readonly Dictionary<string, ConfigKey> legacyConfigKeys = new Dictionary<string, ConfigKey>(); // LEGACY
+        static readonly Dictionary<ConfigKey, KeyValuePair<string, string>> legacyConfigValues = new Dictionary<ConfigKey, KeyValuePair<string, string>>();
+
 
         static Config() {
+            foreach( var keyField in typeof( ConfigKey ).GetFields() ) {
+                foreach( var attribute in (ConfigKeyAttribute[])keyField.GetCustomAttributes( typeof( ConfigKeyAttribute ), false ) ) {
+                    ConfigKey key = (ConfigKey)keyField.GetValue( null );
+                    attribute.Key = key;
+                    keyMetadata.Add( key, attribute );
+                }
+            }
+
+            foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {
+                ConfigSection sec = section;
+                keySections.Add( section, keyMetadata.Values.Where( att => (att.Section == sec) )
+                                                            .Select( att => att.Key )
+                                                            .ToArray() );
+            }
+
             LoadDefaults();
-            defaults = new Dictionary<ConfigKey, string>( settings );
 
             // These keys were renamed at some point. LEGACY
             legacyConfigKeys.Add( "DefaultClass".ToLower(), ConfigKey.DefaultRank );
@@ -150,145 +173,27 @@ namespace fCraft {
         /// Overwrites current settings with defaults
         /// </summary>
         public static void LoadDefaults() {
-            LoadDefaultsGeneral();
-            LoadDefaultsChat();
-            LoadDefaultsWorlds();
-            LoadDefaultsSecurity();
-            LoadDefaultsSavingAndBackup();
-            LoadDefaultsLogging();
-            LoadDefaultsIRC();
-            LoadDefaultsAdvanced();
-        }
-
-
-        public static void LoadDefaultsGeneral() {
-            SetValue( ConfigKey.ServerName, "Minecraft custom server (fCraft)" );
-            SetValue( ConfigKey.MOTD, "Welcome to the server!" );
-            SetValue( ConfigKey.MaxPlayers, 20 );
-            SetValue( ConfigKey.DefaultRank, "" ); // empty = lowest rank
-            SetValue( ConfigKey.IsPublic, false );
-            SetValue( ConfigKey.Port, 25565 );
-            SetValue( ConfigKey.IP, IPAddress.Any );
-            SetValue( ConfigKey.UploadBandwidth, 100 );
-            SetValue( ConfigKey.AnnouncementInterval, 0 );
-        }
-
-        public static void LoadDefaultsChat() {
-            SetValue( ConfigKey.SystemMessageColor, Color.GetName( Color.SysDefault ) );
-            SetValue( ConfigKey.HelpColor, Color.GetName( Color.HelpDefault ) );
-            SetValue( ConfigKey.SayColor, Color.GetName( Color.SayDefault ) );
-            SetValue( ConfigKey.AnnouncementColor, Color.GetName( Color.AnnouncementDefault ) );
-            SetValue( ConfigKey.PrivateMessageColor, Color.GetName( Color.PMDefault ) );
-            SetValue( ConfigKey.MeColor, Color.GetName( Color.MeDefault ) );
-            SetValue( ConfigKey.WarningColor, Color.GetName( Color.WarningDefault ) );
-            SetValue( ConfigKey.ShowJoinedWorldMessages, true );
-            SetValue( ConfigKey.ShowConnectionMessages, true );
-            SetValue( ConfigKey.ShowBannedConnectionMessages, true );
-            SetValue( ConfigKey.RankColorsInWorldNames, true );
-            SetValue( ConfigKey.RankColorsInChat, true );
-            SetValue( ConfigKey.RankPrefixesInChat, false );
-            SetValue( ConfigKey.RankPrefixesInList, false );
-        }
-
-        public static void LoadDefaultsWorlds() {
-            SetValue( ConfigKey.DefaultBuildRank, "" );
-            SetValue( ConfigKey.MapPath, "./maps" );
-        }
-
-        public static void LoadDefaultsSecurity() {
-            SetValue( ConfigKey.VerifyNames, NameVerificationMode.Balanced ); // can be "Always," "Balanced," or "Never"
-            SetValue( ConfigKey.LimitOneConnectionPerIP, false );
-            SetValue( ConfigKey.AllowUnverifiedLAN, false );
-
-            SetValue( ConfigKey.PatrolledRank, "" ); // empty = lowest rank
-
-            SetValue( ConfigKey.AntispamMessageCount, 4 );
-            SetValue( ConfigKey.AntispamInterval, 5 );
-            SetValue( ConfigKey.AntispamMuteDuration, 5 );
-            SetValue( ConfigKey.AntispamMaxWarnings, 2 );
-
-            SetValue( ConfigKey.RequireBanReason, false );
-            SetValue( ConfigKey.RequireRankChangeReason, false );
-            SetValue( ConfigKey.AnnounceKickAndBanReasons, true );
-            SetValue( ConfigKey.AnnounceRankChanges, true );
-
-            SetValue( ConfigKey.PaidPlayersOnly, false );
-        }
-
-        public static void LoadDefaultsSavingAndBackup() {
-            SetValue( ConfigKey.SaveOnShutdown, true );
-            SetValue( ConfigKey.SaveInterval, 60 );   // 0 = no auto save
-            SetValue( ConfigKey.BackupOnStartup, false );
-            SetValue( ConfigKey.BackupOnJoin, false );
-            SetValue( ConfigKey.BackupOnlyWhenChanged, true );
-            SetValue( ConfigKey.BackupInterval, 20 );   // 0 = no auto backup
-            SetValue( ConfigKey.MaxBackups, 100 );  // 0 = no backup file count limit
-            SetValue( ConfigKey.MaxBackupSize, 0 );    // 0 = no backup file size count limit
-        }
-
-        public static void LoadDefaultsLogging() {
-            SetValue( ConfigKey.LogMode, LogSplittingType.OneFile ); // can be: "OneFile", "SplitBySession", "SplitByDay"
-            SetValue( ConfigKey.MaxLogs, 0 );
-            for( int i = 0; i < Logger.consoleOptions.Length; i++ ) {
-                Logger.consoleOptions[i] = true;
-            }
-            Logger.consoleOptions[(int)LogType.ConsoleInput] = false;
-#if !DEBUG
-            Logger.consoleOptions[(int)LogType.Debug] = false;
-#endif
-            for( int i = 0; i < Logger.logFileOptions.Length; i++ ) {
-                Logger.logFileOptions[i] = true;
+            foreach( var pair in keyMetadata ) {
+                SetValue( pair.Key, pair.Value.DefaultValue );
             }
         }
 
-        public static void LoadDefaultsIRC() {
-            SetValue( ConfigKey.IRCBotEnabled, false ); // Bot is disabled by default
-            SetValue( ConfigKey.IRCBotNick, "fBot" );
-            SetValue( ConfigKey.IRCBotNetwork, "irc.esper.net" );
-            SetValue( ConfigKey.IRCBotPort, 6667 );
-            SetValue( ConfigKey.IRCBotChannels, "#changeme" ); // This can be multiple using csv
-            SetValue( ConfigKey.IRCBotAnnounceServerEvents, true );
-            SetValue( ConfigKey.IRCBotAnnounceIRCJoins, false );
-            SetValue( ConfigKey.IRCBotAnnounceServerJoins, false );
-            SetValue( ConfigKey.IRCBotForwardFromIRC, false ); // Disabled by default
-            SetValue( ConfigKey.IRCBotForwardFromServer, false ); // Disabled by default
-            SetValue( ConfigKey.IRCMessageColor, Color.GetName( Color.IRCDefault ) );
-            SetValue( ConfigKey.IRCDelay, 750 );
-            SetValue( ConfigKey.IRCRegisteredNick, false );
-            SetValue( ConfigKey.IRCNickServ, "NickServ" );
-            SetValue( ConfigKey.IRCNickServMessage, "IDENTIFY password" );
-            SetValue( ConfigKey.IRCThreads, 1 );
-            SetValue( ConfigKey.IRCUseColor, true );
-        }
-
-        public static void LoadDefaultsAdvanced() {
-            SetValue( ConfigKey.RelayAllBlockUpdates, false );
-            SetValue( ConfigKey.UpdateMode, AutoUpdaterMode.Prompt );
-            SetValue( ConfigKey.UpdateAtStartup, false );
-            SetValue( ConfigKey.NoPartialPositionUpdates, false );
-            SetValue( ConfigKey.ProcessPriority, "" );
-            SetValue( ConfigKey.BlockUpdateThrottling, 2048 );
-            SetValue( ConfigKey.TickInterval, 100 );
-            SetValue( ConfigKey.LowLatencyMode, false );
-            SetValue( ConfigKey.SubmitCrashReports, true );
-
-            SetValue( ConfigKey.MaxUndo, 2000000 );
-            SetValue( ConfigKey.AutoRankEnabled, false );
-            SetValue( ConfigKey.HeartbeatEnabled, true );
-
-            SetValue( ConfigKey.ConsoleName, "(console)" );
+        public static void LoadDefaults( ConfigSection section ) {
+            foreach( var key in keySections[section] ) {
+                SetValue( key, keyMetadata[key].DefaultValue );
+            }
         }
 
         public static bool IsDefault( this ConfigKey key ) {
-            return (settings[key] == defaults[key]);
+            return (keyMetadata[key].DefaultValue.ToString() == settings[key]);
         }
 
-        public static bool IsDefault( this ConfigKey key, string value ) {
-            return (value == defaults[key]);
+        public static bool IsDefault( this ConfigKey key, object value ) {
+            return (keyMetadata[key].DefaultValue.ToString() == value.ToString());
         }
 
-        public static string GetDefault( this ConfigKey key ) {
-            return defaults[key];
+        public static object GetDefault( this ConfigKey key ) {
+            return keyMetadata[key].DefaultValue;
         }
 
         #endregion
@@ -559,7 +464,7 @@ namespace fCraft {
         }
 
         public static TEnum GetEnum<TEnum>( this ConfigKey key ) where TEnum : struct {
-            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required", "T" );
+            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required", "TEnum" );
             return (TEnum)Enum.Parse( typeof( TEnum ), settings[key], true );
         }
 
@@ -568,108 +473,15 @@ namespace fCraft {
         }
 
         public static Type GetValueType( this ConfigKey key ) {
-            switch( key ) {
-                case ConfigKey.AllowUnverifiedLAN:
-                case ConfigKey.AnnounceKickAndBanReasons:
-                case ConfigKey.AnnounceRankChanges:
-                case ConfigKey.AutoRankEnabled:
-                case ConfigKey.BackupOnJoin:
-                case ConfigKey.BackupOnlyWhenChanged:
-                case ConfigKey.BackupOnStartup:
-                case ConfigKey.HeartbeatEnabled:
-                case ConfigKey.IRCBotEnabled:
-                case ConfigKey.IRCBotAnnounceIRCJoins:
-                case ConfigKey.IRCBotAnnounceServerEvents:
-                case ConfigKey.IRCBotAnnounceServerJoins:
-                case ConfigKey.IRCBotForwardFromIRC:
-                case ConfigKey.IRCBotForwardFromServer:
-                case ConfigKey.IRCRegisteredNick:
-                case ConfigKey.IRCUseColor:
-                case ConfigKey.IsPublic:
-                case ConfigKey.LimitOneConnectionPerIP:
-                case ConfigKey.LowLatencyMode:
-                case ConfigKey.NoPartialPositionUpdates:
-                case ConfigKey.PaidPlayersOnly:
-                case ConfigKey.RankColorsInChat:
-                case ConfigKey.RankColorsInWorldNames:
-                case ConfigKey.RankPrefixesInChat:
-                case ConfigKey.RankPrefixesInList:
-                case ConfigKey.RelayAllBlockUpdates:
-                case ConfigKey.RequireBanReason:
-                case ConfigKey.RequireRankChangeReason:
-                case ConfigKey.SaveOnShutdown:
-                case ConfigKey.ShowBannedConnectionMessages:
-                case ConfigKey.ShowConnectionMessages:
-                case ConfigKey.ShowJoinedWorldMessages:
-                case ConfigKey.SubmitCrashReports:
-                case ConfigKey.UpdateAtStartup:
-                    return typeof( bool );
+            return keyMetadata[key].ValueType;
+        }
 
-                case ConfigKey.AnnouncementColor:
-                case ConfigKey.HelpColor:
-                case ConfigKey.IRCMessageColor:
-                case ConfigKey.MeColor:
-                case ConfigKey.PrivateMessageColor:
-                case ConfigKey.SayColor:
-                case ConfigKey.SystemMessageColor:
-                case ConfigKey.WarningColor:
-                    return typeof( Color );
+        public static ConfigKeyAttribute GetMetadata( this ConfigKey key ) {
+            return keyMetadata[key];
+        }
 
-                case ConfigKey.AnnouncementInterval:
-                case ConfigKey.AntispamInterval:
-                case ConfigKey.AntispamMaxWarnings:
-                case ConfigKey.AntispamMessageCount:
-                case ConfigKey.AntispamMuteDuration:
-                case ConfigKey.BackupInterval:
-                case ConfigKey.BlockUpdateThrottling:
-                case ConfigKey.IRCBotPort:
-                case ConfigKey.IRCDelay:
-                case ConfigKey.IRCThreads:
-                case ConfigKey.MaxBackups:
-                case ConfigKey.MaxBackupSize:
-                case ConfigKey.MaxLogs:
-                case ConfigKey.MaxPlayers:
-                case ConfigKey.MaxUndo:
-                case ConfigKey.Port:
-                case ConfigKey.SaveInterval:
-                case ConfigKey.TickInterval:
-                case ConfigKey.UploadBandwidth:
-                    return typeof( int );
-
-                case ConfigKey.ConsoleName:
-                case ConfigKey.IRCBotChannels:
-                case ConfigKey.IRCBotNetwork:
-                case ConfigKey.IRCBotNick:
-                case ConfigKey.IRCNickServ:
-                case ConfigKey.IRCNickServMessage:
-                case ConfigKey.MapPath:
-                case ConfigKey.MOTD:
-                case ConfigKey.ServerName:
-                    return typeof( string );
-
-                case ConfigKey.DefaultBuildRank:
-                case ConfigKey.DefaultRank:
-                case ConfigKey.PatrolledRank:
-                    return typeof( Rank );
-
-                case ConfigKey.IP:
-                    return typeof( IPAddress );
-
-                case ConfigKey.LogMode:
-                    return typeof( LogSplittingType );
-
-                case ConfigKey.UpdateMode:
-                    return typeof( AutoUpdaterMode );
-
-                case ConfigKey.ProcessPriority:
-                    return typeof( ProcessPriorityClass );
-
-                case ConfigKey.VerifyNames:
-                    return typeof( NameVerificationMode );
-
-                default:
-                    throw new ArgumentOutOfRangeException( "key", key, "Unknown key" );
-            }
+        public static ConfigSection GetSection( this ConfigKey key ) {
+            return keyMetadata[key].Section;
         }
 
         #endregion
@@ -830,7 +642,7 @@ namespace fCraft {
                 case ConfigKey.ProcessPriority:
                     return ValidateEnum( key, value, "", "High", "AboveNormal", "Normal", "BelowNormal", "Low" );
                 case ConfigKey.UpdateMode:
-                    return ValidateEnum<AutoUpdaterMode>( key, value );
+                    return ValidateEnum<UpdaterMode>( key, value );
                 case ConfigKey.BlockUpdateThrottling:
                     return ValidateInt( key, value, 10, 100000 );
                 case ConfigKey.TickInterval:
@@ -958,9 +770,9 @@ namespace fCraft {
 
             Player.relayAllUpdates = GetBool( ConfigKey.RelayAllBlockUpdates );
             if( GetBool( ConfigKey.NoPartialPositionUpdates ) ) {
-                Session.fullPositionUpdateInterval = 0;
+                Session.FullPositionUpdateInterval = 0;
             } else {
-                Session.fullPositionUpdateInterval = Session.FullPositionUpdateIntervalDefault;
+                Session.FullPositionUpdateInterval = Session.FullPositionUpdateIntervalDefault;
             }
 
             // chat colors

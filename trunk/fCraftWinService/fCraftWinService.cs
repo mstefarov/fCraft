@@ -25,7 +25,6 @@ namespace fCraftWinService {
 
         protected override void OnStart( string[] args ) {
             Server.InitLibrary( args );
-            Server.ShutdownEnded += OnServerShutdownEnded;
             Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
             if( !Server.InitServer() || !Server.StartServer() ) {
                 throw new Exception( "Could not start fCraft." );
@@ -37,14 +36,8 @@ namespace fCraftWinService {
 
         protected override void OnStop() {
             Logger.Log( "fCraftWinService.OnStop: Stopping.", LogType.SystemActivity );
-            Server.Shutdown( "Shutting down", 0, false, false );
-            ShutdownWaiter.WaitOne();
+            Server.Shutdown( "Shutting down", 0, false, false, true );
             base.OnStop();
-        }
-
-
-        static void OnServerShutdownEnded( object sender, ShutdownEventArgs e) {
-            ShutdownWaiter.Set();
         }
 
 

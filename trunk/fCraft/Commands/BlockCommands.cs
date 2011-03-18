@@ -19,7 +19,7 @@ namespace fCraft {
         }
 
 
-        static CommandDescriptor cdSolid = new CommandDescriptor {
+        static readonly CommandDescriptor cdSolid = new CommandDescriptor {
             name = "solid",
             aliases = new[] { "s" },
             permissions = new[] { Permission.PlaceAdmincrete },
@@ -40,7 +40,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdPaint = new CommandDescriptor {
+        static readonly CommandDescriptor cdPaint = new CommandDescriptor {
             name = "paint",
             aliases = new[] { "p" },
             help = "Replaces a block instead of deleting it.",
@@ -58,7 +58,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdGrass = new CommandDescriptor {
+        static readonly CommandDescriptor cdGrass = new CommandDescriptor {
             name = "grass",
             aliases = new[] { "g" },
             permissions = new[] { Permission.PlaceGrass },
@@ -78,7 +78,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdWater = new CommandDescriptor {
+        static readonly CommandDescriptor cdWater = new CommandDescriptor {
             name = "water",
             aliases = new[] { "w" },
             permissions = new[] { Permission.PlaceWater },
@@ -102,7 +102,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdLava = new CommandDescriptor {
+        static readonly CommandDescriptor cdLava = new CommandDescriptor {
             name = "lava",
             permissions = new[] { Permission.PlaceLava },
             help = "Toggles the lava placement mode. When enabled, any red block you place is replaced with lava.",
@@ -121,7 +121,7 @@ namespace fCraft {
 
 
 
-        static CommandDescriptor cdBind = new CommandDescriptor {
+        static readonly CommandDescriptor cdBind = new CommandDescriptor {
             name = "bind",
             aliases = new[] { "b" },
             permissions = new[] { Permission.Build },

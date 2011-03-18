@@ -8,11 +8,11 @@ using fCraft.Events;
 namespace fCraft {
     public static class IPBanList {
 
-        static SortedDictionary<string, IPBanInfo> bans = new SortedDictionary<string, IPBanInfo>();
+        static readonly SortedDictionary<string, IPBanInfo> bans = new SortedDictionary<string, IPBanInfo>();
         const string BanFileName = "ipbans.txt",
                      Header = "IP,bannedBy,banDate,banReason,playerName,attempts,lastAttemptName,lastAttemptDate ";
-        static object locker = new object();
-        public static bool isLoaded;
+        static readonly object locker = new object();
+        public static bool IsLoaded { get; private set; }
 
         internal static void Load() {
             if( File.Exists( BanFileName ) ) {
@@ -50,12 +50,12 @@ namespace fCraft {
             } else {
                 Logger.Log( "IPBanList.Load: No IP ban file found.", LogType.Warning );
             }
-            isLoaded = true;
+            IsLoaded = true;
         }
 
 
         internal static void Save() {
-            if( !isLoaded ) return;
+            if( !IsLoaded ) return;
             Logger.Log( "IPBanList.Save: Saving IP ban list ({0} records).", LogType.Debug, bans.Count );
             const string tempBanFileName = BanFileName + ".temp";
 

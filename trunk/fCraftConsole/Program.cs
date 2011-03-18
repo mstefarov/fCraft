@@ -37,10 +37,6 @@ namespace fCraftConsole {
             Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
             Server.InitLibrary( args );
 
-            Server.ShutdownEnded += delegate( object sender, ShutdownEventArgs arg2 ) {
-                Console.WriteLine( "ShutdownEnded" );
-            };
-
 #if !DEBUG
             try {
 #endif
@@ -66,7 +62,7 @@ namespace fCraftConsole {
                         Console.WriteLine( "** Running fCraft version {0}. **", Updater.GetVersionString() );
                         Console.WriteLine( "** Server is now ready. Type /shutdown to exit safely. **" );
 
-                        while( !Server.shuttingDown ) {
+                        while( !Server.IsShuttingDown ) {
                             string cmd = Console.ReadLine();
                             if( cmd.Equals( "/clear", StringComparison.OrdinalIgnoreCase ) ) {
                                 Console.Clear();

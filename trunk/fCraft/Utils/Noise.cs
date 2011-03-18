@@ -14,13 +14,12 @@ namespace fCraft {
     /// Class for generating and filtering 2D noise, extensively used by MapGenerator.
     /// </summary>
     public sealed class Noise {
-
-        int seed;
-        NoiseInterpolationMode interpolationMode;
+        readonly int seed;
+        public NoiseInterpolationMode InterpolationMode;
 
         public Noise( int _seed, NoiseInterpolationMode _interpolationMode ) {
             seed = _seed;
-            interpolationMode = _interpolationMode;
+            InterpolationMode = _interpolationMode;
         }
 
 
@@ -86,7 +85,7 @@ namespace fCraft {
             float p00, p01, p10, p11;
             float[,] points;
 
-            switch( interpolationMode ) {
+            switch( InterpolationMode ) {
                 case NoiseInterpolationMode.Linear:
                     p00 = StaticNoise( xInt, yInt );
                     p01 = StaticNoise( xInt, yInt + 1 );
@@ -126,8 +125,9 @@ namespace fCraft {
                     p10 = InterpolateSpline( points[0, 2], points[1, 2], points[2, 2], points[3, 2], xFloat );
                     p11 = InterpolateSpline( points[0, 3], points[1, 3], points[2, 3], points[3, 3], xFloat );
                     return InterpolateSpline( p00, p01, p10, p11, yFloat );
+
                 default:
-                    throw new ArgumentException( "interpolationMode", "Unknown interpolation mode" );
+                    throw new ArgumentException( "Unknown interpolation mode", "interpolationMode" );
             }
         }
 

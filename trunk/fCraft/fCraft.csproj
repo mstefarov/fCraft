@@ -93,7 +93,7 @@
     <Compile Include="Commands\AdminCommands.cs" />
     <Compile Include="Commands\AutoRankCommands.cs" />
     <Compile Include="Commands\ZoneCommands.cs" />
-    <Compile Include="Mcc\MapFCMv3.cs" />
+    <Compile Include="MapConversion\MapFCMv3.cs" />
     <Compile Include="Player\SecurityController.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
@@ -105,18 +105,18 @@
     <Compile Include="Commands\BlockCommands.cs" />
     <Compile Include="Commands\CommandList.cs" />
     <Compile Include="Commands\InfoCommands.cs" />
-    <Compile Include="Mcc\MapD3.cs" />
-    <Compile Include="Mcc\MapMyne.cs" />
-    <Compile Include="Mcc\MapJTE.cs" />
-    <Compile Include="Mcc\IMapConverter.cs" />
-    <Compile Include="Mcc\MapDAT.cs" />
-    <Compile Include="Mcc\MapFCMv2.cs" />
-    <Compile Include="Mcc\MapFormat.cs" />
-    <Compile Include="Mcc\MapMCSharp.cs" />
-    <Compile Include="Mcc\MapMinerCPP.cs" />
-    <Compile Include="Mcc\MapNBT.cs" />
-    <Compile Include="Mcc\MapUtility.cs" />
-    <Compile Include="Mcc\NBTag.cs" />
+    <Compile Include="MapConversion\MapD3.cs" />
+    <Compile Include="MapConversion\MapMyne.cs" />
+    <Compile Include="MapConversion\MapJTE.cs" />
+    <Compile Include="MapConversion\IMapConverter.cs" />
+    <Compile Include="MapConversion\MapDAT.cs" />
+    <Compile Include="MapConversion\MapFCMv2.cs" />
+    <Compile Include="MapConversion\MapFormat.cs" />
+    <Compile Include="MapConversion\MapMCSharp.cs" />
+    <Compile Include="MapConversion\MapMinerCPP.cs" />
+    <Compile Include="MapConversion\MapNBT.cs" />
+    <Compile Include="MapConversion\MapUtility.cs" />
+    <Compile Include="MapConversion\NBTag.cs" />
     <Compile Include="Network\IRC.cs" />
     <Compile Include="Network\IPBanList.cs" />
     <Compile Include="Network\IRCCommands.cs" />
@@ -202,6 +202,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="System\ConfigKey.Metadata.cs" />
     <Compile Include="System\Server.Events.cs" />
     <Compile Include="Utils\EnumException.cs" />
     <None Include="Tileset.png" />

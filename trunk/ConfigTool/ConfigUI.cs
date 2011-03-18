@@ -1147,15 +1147,15 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                                  MessageBoxButtons.OKCancel ) != DialogResult.OK ) return;
             switch( tabs.SelectedIndex ) {
                 case 0:// General
-                    Config.LoadDefaultsGeneral();
+                    Config.LoadDefaults( ConfigSection.General );
                     ApplyTabGeneral();
                     break;
                 case 1: // Chat
-                    Config.LoadDefaultsChat();
+                    Config.LoadDefaults( ConfigSection.Chat );
                     ApplyTabChat();
                     break;
                 case 2:// Worlds
-                    Config.LoadDefaultsWorlds();
+                    Config.LoadDefaults( ConfigSection.Worlds );
                     ApplyTabWorlds(); // also reloads world list
                     break;
                 case 3:// Ranks
@@ -1167,23 +1167,23 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                     RebuildRankList();
                     break;
                 case 4:// Security
-                    Config.LoadDefaultsSecurity();
+                    Config.LoadDefaults( ConfigSection.Security );
                     ApplyTabSecurity();
                     break;
                 case 5:// Saving and Backup
-                    Config.LoadDefaultsSavingAndBackup();
+                    Config.LoadDefaults( ConfigSection.SavingAndBackup );
                     ApplyTabSavingAndBackup();
                     break;
                 case 6:// Logging
-                    Config.LoadDefaultsLogging();
+                    Config.LoadDefaults( ConfigSection.Logging );
                     ApplyTabLogging();
                     break;
                 case 7:// IRC
-                    Config.LoadDefaultsIRC();
+                    Config.LoadDefaults( ConfigSection.IRC );
                     ApplyTabIRC();
                     break;
                 case 8:// Advanced
-                    Config.LoadDefaultsAdvanced();
+                    Config.LoadDefaults( ConfigSection.Logging );
                     ApplyTabAdvanced();
                     break;
             }

@@ -92,9 +92,9 @@ namespace fCraft {
         internal static Packet MakeLevelEnd( Map map ) {
             Packet packet = new Packet( 7 );
             packet.data[0] = (byte)OutputCode.LevelEnd;
-            ToNetOrder( (short)map.widthX, packet.data, 1 );
-            ToNetOrder( (short)map.height, packet.data, 3 );
-            ToNetOrder( (short)map.widthY, packet.data, 5 );
+            ToNetOrder( (short)map.WidthX, packet.data, 1 );
+            ToNetOrder( (short)map.Height, packet.data, 3 );
+            ToNetOrder( (short)map.WidthY, packet.data, 5 );
             return packet;
         }
 

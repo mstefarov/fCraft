@@ -10,8 +10,8 @@ using System.Threading;
 
 namespace fCraft {
     public static class PlayerDB {
-        static StringTree<PlayerInfo> tree = new StringTree<PlayerInfo>();
-        static List<PlayerInfo> list = new List<PlayerInfo>();
+        static readonly StringTree<PlayerInfo> tree = new StringTree<PlayerInfo>();
+        static readonly List<PlayerInfo> list = new List<PlayerInfo>();
         public static PlayerInfo[] PlayerInfoList { get; private set; }
         public static readonly TimeSpan SaveInterval = TimeSpan.FromSeconds( 60 );
 
@@ -35,13 +35,13 @@ namespace fCraft {
                               "mutedUntil,mutedBy,IRCPassword,online,leaveReason";
 
 
-        static readonly object locker = new object();
+        static readonly object Locker = new object();
         public static bool IsLoaded { get; private set; }
 
 
         public static PlayerInfo AddFakeEntry( string name, RankChangeType rankChangeType ) {
             PlayerInfo info = new PlayerInfo( name, RankList.DefaultRank, false, rankChangeType );
-            lock( locker ) {
+            lock( Locker ) {
                 list.Add( info );
                 tree.Add( info.name, info );
                 UpdateCache();
@@ -60,7 +60,7 @@ namespace fCraft {
 
                     string header = reader.ReadLine(); // header
 
-                    lock( locker ) {
+                    lock( Locker ) {
                         // first number of the header is MaxID
                         int maxIDField;
                         if( Int32.TryParse( header.Split( ' ' )[0], out maxIDField ) ) {
@@ -144,7 +144,7 @@ namespace fCraft {
             if( player == null ) return null;
             PlayerInfo info;
 
-            lock( locker ) {
+            lock( Locker ) {
                 info = tree.Get( player.name );
                 if( info == null ) {
                     info = new PlayerInfo( player );
@@ -184,12 +184,10 @@ namespace fCraft {
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
             PlayerInfo[] cache = PlayerInfoList;
-            foreach( PlayerInfo info in cache ) {
-                if( regex.IsMatch( info.name ) ) {
-                    result.Add( info );
-                    count++;
-                    if( count >= limit ) return result.ToArray();
-                }
+            foreach( PlayerInfo info in cache.Where( info => regex.IsMatch( info.name ) ) ) {
+                result.Add( info );
+                count++;
+                if( count >= limit ) break;
             }
             return result.ToArray();
         }
@@ -209,7 +207,7 @@ namespace fCraft {
         /// <returns>true if one or zero matches were found, false if multiple matches were found</returns>
         public static bool FindPlayerInfo( string name, out PlayerInfo info ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            lock( locker ) {
+            lock( Locker ) {
                 return tree.Get( name, out info );
             }
         }
@@ -217,7 +215,7 @@ namespace fCraft {
 
         public static PlayerInfo FindPlayerInfoExact( string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            lock( locker ) {
+            lock( Locker ) {
                 return tree.Get( name );
             }
         }
@@ -252,7 +250,7 @@ namespace fCraft {
 
         public static int MassRankChange( Player player, Rank from, Rank to, bool silent ) {
             int affected = 0;
-            lock( locker ) {
+            lock( Locker ) {
                 foreach( PlayerInfo info in list ) {
                     if( info.rank == from ) {
                         Player target = Server.FindPlayerExact( info.name );
@@ -277,7 +275,7 @@ namespace fCraft {
 
 
         static void UpdateCache() {
-            lock( locker ) {
+            lock( Locker ) {
                 PlayerInfoList = list.ToArray();
             }
         }
@@ -291,7 +289,7 @@ namespace fCraft {
 
         internal static int CountInactivePlayers() {
             int count;
-            lock( locker ) {
+            lock( Locker ) {
                 playersByIP= new Dictionary<IPAddress, List<PlayerInfo>>();
                 PlayerInfo[] playerInfoListCache = PlayerInfoList;
                 for( int i = 0; i < playerInfoListCache.Length; i++ ) {
@@ -300,9 +298,7 @@ namespace fCraft {
                     }
                     playersByIP[playerInfoListCache[i].lastIP].Add( PlayerInfoList[i] );
                 }
-                count = playerInfoListCache.Count( delegate( PlayerInfo p ) {
-                    return PlayerIsInactive( p, true );
-                } );
+                count = playerInfoListCache.Count( p => PlayerIsInactive( p, true ) );
                 playersByIP = null;
             }
             return count;
@@ -311,7 +307,7 @@ namespace fCraft {
 
         internal static int RemoveInactivePlayers() {
             int count = 0;
-            lock( locker ) {
+            lock( Locker ) {
                 playersByIP = new Dictionary<IPAddress, List<PlayerInfo>>();
                 PlayerInfo[] playerInfoListCache = PlayerInfoList;
                 for( int i = 0; i < playerInfoListCache.Length; i++ ) {
@@ -320,12 +316,10 @@ namespace fCraft {
                     }
                     playersByIP[playerInfoListCache[i].lastIP].Add( PlayerInfoList[i] );
                 }
-                foreach( PlayerInfo p in playerInfoListCache ) {
-                    if( PlayerIsInactive( p, true ) ) {
-                        tree.Remove( p.name );
-                        list.Remove( p );
-                        count++;
-                    }
+                foreach( PlayerInfo p in playerInfoListCache.Where( p => PlayerIsInactive( p, true ) ) ) {
+                    tree.Remove( p.name );
+                    list.Remove( p );
+                    count++;
                 }
                 list.TrimExcess();
                 UpdateCache();
@@ -346,11 +340,7 @@ namespace fCraft {
                 return false;
             }
             if( checkIP ) {
-                foreach( PlayerInfo other in playersByIP[p.lastIP] ) {
-                    if( other != p && !PlayerIsInactive( other, false ) ) {
-                        return false;
-                    }
-                }
+                return playersByIP[p.lastIP].All( other => other == p || PlayerIsInactive( other, false ) );
             }
             return true;
         }

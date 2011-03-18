@@ -79,7 +79,7 @@ namespace fCraft {
         }
 
 
-        class NormalTree : StickTree {
+        sealed class NormalTree : StickTree {
             public override void MakeFoliage() {
                 int topy = pos[1] + height - 1;
                 int start = topy - 2;
@@ -107,7 +107,7 @@ namespace fCraft {
         }
 
 
-        class BambooTree : StickTree {
+        sealed class BambooTree : StickTree {
             public override void MakeFoliage() {
                 int start = pos[1];
                 int end = start + height + 1;
@@ -122,7 +122,7 @@ namespace fCraft {
         }
 
 
-        class PalmTree : StickTree {
+        sealed class PalmTree : StickTree {
             public override void MakeFoliage() {
                 int y = pos[1] + height;
                 for( int xoff = -2; xoff < 3; xoff++ ) {
@@ -471,7 +471,7 @@ namespace fCraft {
         }
 
 
-        class ConeTree : ProceduralTree {
+        sealed class ConeTree : ProceduralTree {
             public override void Prepare() {
                 base.Prepare();
                 branchSlope = .15f;
@@ -493,7 +493,7 @@ namespace fCraft {
         }
 
 
-        class RainforestTree : ProceduralTree {
+        sealed class RainforestTree : ProceduralTree {
             public override void Prepare() {
                 foliageShape = new[] { 3.4f, 2.6f };
                 base.Prepare();
@@ -521,7 +521,7 @@ namespace fCraft {
         }
 
 
-        class MangroveTree : RoundTree {
+        sealed class MangroveTree : RoundTree {
             public override void Prepare() {
                 base.Prepare();
                 branchSlope = 1;
@@ -594,9 +594,9 @@ namespace fCraft {
         void FindTrees( List<Tree> treelist ) {
             int treeheight = args.HEIGHT;
 
-            for( int x = 0; x < args.inMap.widthX; x++ ) {
-                for( int z = 0; z < args.inMap.widthY; z++ ) {
-                    int y = args.inMap.height - 1;
+            for( int x = 0; x < args.inMap.WidthX; x++ ) {
+                for( int z = 0; z < args.inMap.WidthY; z++ ) {
+                    int y = args.inMap.Height - 1;
                     while( true ) {
                         int foliagetop = args.inMap.SearchColumn( x, z, args.bFoliage, y );
                         if( foliagetop < 0 ) break;
@@ -645,12 +645,12 @@ namespace fCraft {
 
         Vector3i RandomTreeLoc( int height ) {
             int padding = (int)(height / 3f + 1);
-            int mindim = Math.Min( args.inMap.widthX, args.inMap.widthY );
+            int mindim = Math.Min( args.inMap.WidthX, args.inMap.WidthY );
             if( padding > mindim / 2.2 ) {
                 padding = (int)(mindim / 2.2);
             }
-            int x = args.rand.Next( padding, args.inMap.widthX - padding - 1 );
-            int z = args.rand.Next( padding, args.inMap.widthY - padding - 1 );
+            int x = args.rand.Next( padding, args.inMap.WidthX - padding - 1 );
+            int z = args.rand.Next( padding, args.inMap.WidthY - padding - 1 );
             int y = args.inMap.SearchColumn( x, z, args.PLANTON );
             return new Vector3i( x, z, y );
         }
@@ -709,13 +709,13 @@ namespace fCraft {
                 int height = args.rand.Next( treeheight - args.HEIGHTVARIATION,
                                              treeheight + args.HEIGHTVARIATION + 1 );
                 int padding = (int)(height / 3f + 1);
-                int mindim = Math.Min( args.inMap.widthX, args.inMap.widthY );
+                int mindim = Math.Min( args.inMap.WidthX, args.inMap.WidthY );
                 if( padding > mindim / 2.2 ) {
                     padding = (int)(mindim / 2.2);
                 }
-                int x = args.rand.Next( padding, args.inMap.widthX - padding - 1 );
-                int z = args.rand.Next( padding, args.inMap.widthY - padding - 1 );
-                int top = args.inMap.height - 1;
+                int x = args.rand.Next( padding, args.inMap.WidthX - padding - 1 );
+                int z = args.rand.Next( padding, args.inMap.WidthY - padding - 1 );
+                int top = args.inMap.Height - 1;
 
                 int y = top - DistanceToBlock( args.inMap, new Vector3f( x, z, top ), new Vector3f( 0, 0, -1 ), Block.Air, true );
                 int dist = DistanceToBlock( args.inMap, new Vector3f( x, z, y ), new Vector3f( 0, 0, -1 ), Block.Water, true );
@@ -776,14 +776,14 @@ namespace fCraft {
                         newtree = new MangroveTree();
                         break;
                     default:
-                        throw new ArgumentException("newshape", "Unknown tree shape type");
+                        throw new ArgumentException("Unknown tree shape type");
                 }
                 newtree.Copy( treelist[i] );
 
                 if( args.MAPHEIGHTLIMIT ) {
                     int height = newtree.height;
                     int ybase = newtree.pos[1];
-                    int mapheight = args.inMap.height;
+                    int mapheight = args.inMap.Height;
                     int foliageheight;
                     if( args.SHAPE == TreeShape.Rainforest ) {
                         foliageheight = 2;

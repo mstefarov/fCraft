@@ -42,7 +42,7 @@ namespace fCraft {
 
         // Prepare for shutdown
         public void Shutdown() {
-            if( Config.GetBool( ConfigKey.SaveOnShutdown ) ) {
+            if( ConfigKey.SaveOnShutdown.GetBool() ) {
                 SaveMap();
             }
         }
@@ -85,8 +85,8 @@ namespace fCraft {
                 pendingUnload = false;
                 if( OnUnloaded != null ) OnUnloaded();
             }
-            thisMap.world = null;
-            thisMap.blocks = null;
+            thisMap.World = null;
+            thisMap.Blocks = null;
             Server.RequestGC();
         }
 
@@ -115,7 +115,7 @@ namespace fCraft {
                         accessSecurity = { MinRank = accessSecurity.MinRank },
                         buildSecurity = { MinRank = buildSecurity.MinRank }
                     };
-                    newMap.world = newWorld;
+                    newMap.World = newWorld;
                     Server.ReplaceWorld( name, newWorld );
                     foreach( Player player in playerList ) {
                         SendToAll( PacketWriter.MakeRemoveEntity( player.id ), player );
@@ -160,7 +160,7 @@ namespace fCraft {
                         LoadMap();
                     }
 
-                    if( Config.GetBool( ConfigKey.BackupOnJoin ) ) {
+                    if( ConfigKey.BackupOnJoin.GetBool() ) {
                         map.SaveBackup( Path.Combine( Paths.MapPath, GetMapName() ),
                                         Path.Combine( Paths.BackupPath, String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm",
                                                                                        name, DateTime.Now, player.name ) ),
@@ -181,7 +181,7 @@ namespace fCraft {
                 // Reveal newcommer to existing players
                 SendToSeeing( PacketWriter.MakeAddEntity( player, player.pos ), player );
 
-                if( announce && Config.GetBool( ConfigKey.ShowJoinedWorldMessages ) ) {
+                if( announce && ConfigKey.ShowJoinedWorldMessages.GetBool() ) {
                     string message = String.Format( "&SPlayer {0}&S joined {1}", player.GetClassyName(), GetClassyName() );
                     foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
                         Server.SendToSeeing( packet, player );
@@ -450,11 +450,11 @@ namespace fCraft {
 
         public string GetClassyName() {
             string displayedName = name;
-            if( Config.GetBool( ConfigKey.RankColorsInWorldNames ) ) {
-                if( Config.GetBool( ConfigKey.RankPrefixesInChat ) ) {
+            if( ConfigKey.RankColorsInWorldNames.GetBool() ) {
+                if( ConfigKey.RankPrefixesInChat.GetBool() ) {
                     displayedName = buildSecurity.MinRank.Prefix + displayedName;
                 }
-                if( Config.GetBool( ConfigKey.RankColorsInChat ) ) {
+                if( ConfigKey.RankColorsInChat.GetBool() ) {
                     if( buildSecurity.MinRank >= accessSecurity.MinRank ) {
                         displayedName = buildSecurity.MinRank.Color + displayedName;
                     } else {
@@ -539,22 +539,22 @@ namespace fCraft {
         public void StartTasks() {
             updateTask = Scheduler.AddTask( UpdateTask );
             updateTask.RunForever( this,
-                                   TimeSpan.FromMilliseconds( Config.GetInt( ConfigKey.TickInterval ) ),
+                                   TimeSpan.FromMilliseconds( ConfigKey.TickInterval.GetInt() ),
                                    TimeSpan.Zero );
 
-            if( Config.GetInt( ConfigKey.SaveInterval ) > 0 ) {
+            if( ConfigKey.SaveInterval.GetInt() > 0 ) {
                 saveTask = Scheduler.AddTask( SaveTask );
                 saveTask.RunForever( this,
-                                     TimeSpan.FromSeconds( Config.GetInt( ConfigKey.SaveInterval ) ),
-                                     TimeSpan.FromSeconds( Config.GetInt( ConfigKey.SaveInterval ) ) );
+                                     TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ),
+                                     TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ) );
             }
 
-            if( Config.GetInt( ConfigKey.BackupInterval ) > 0 ) {
+            if( ConfigKey.BackupInterval.GetInt() > 0 ) {
                 backupTask = Scheduler.AddTask( BackupTask );
-                TimeSpan interval = TimeSpan.FromMinutes( Config.GetInt( ConfigKey.BackupInterval ) );
+                TimeSpan interval = TimeSpan.FromMinutes( ConfigKey.BackupInterval.GetInt() );
                 backupTask.RunForever( this,
                                        interval,
-                                       (Config.GetBool( ConfigKey.BackupOnStartup ) ? TimeSpan.Zero : interval) );
+                                       (ConfigKey.BackupOnStartup.GetBool() ? TimeSpan.Zero : interval) );
             }
         }
 
@@ -576,7 +576,7 @@ namespace fCraft {
 
         void SaveTask( Scheduler.Task task ) {
             Map tempMap = map;
-            if( tempMap != null && tempMap.changedSinceSave ) {
+            if( tempMap != null && tempMap.ChangedSinceSave ) {
                 SaveMap();
             }
         }

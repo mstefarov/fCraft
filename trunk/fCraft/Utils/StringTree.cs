@@ -1,17 +1,16 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System.Collections.Generic;
 
-
 namespace fCraft {
     /// <summary>
     /// Specialized data structure for partial-matching of large sparse sets of words.
     /// Used as a searchable index of players for PlayerDB.
     /// </summary>
-    public sealed class StringTree<T> {
-        StringNode root = new StringNode();
+    public sealed class StringTree<T> where T : class {
+        readonly StringNode root = new StringNode();
         public int Count { get; private set; }
 
-        public const byte MULTI = 37, EMPTY=38;
+        public const byte Multi = 37, Empty=38;
 
 
         /// <summary> Get payload for an exact name (no autocompletion) </summary>
@@ -67,11 +66,11 @@ namespace fCraft {
             if( temp.payload != null ) {
                 info = temp.payload;
                 return true; // exact match
-            } else if( temp.tag == MULTI ) {
+            } else if( temp.tag == Multi ) {
                 info = default(T);
                 return false; // multiple matches
             }
-            for( ; temp.tag < MULTI; temp = temp.children[temp.tag] ) ;
+            for( ; temp.tag < Multi; temp = temp.children[temp.tag] ) ;
             info = temp.payload;
             return true; // one autocompleted match
         }
@@ -90,10 +89,10 @@ namespace fCraft {
                 if( temp.children[code] == null ) {
                     temp.children[code] = new StringNode();
                 }
-                if( temp.tag == EMPTY ) {
+                if( temp.tag == Empty ) {
                     temp.tag = (byte)code;
                 } else {
-                    temp.tag = MULTI;
+                    temp.tag = Multi;
                 }
                 temp = temp.children[code];
             }
@@ -131,7 +130,7 @@ namespace fCraft {
         }
 
         sealed class StringNode {
-            public byte tag = EMPTY;
+            public byte tag = Empty;
             public StringNode[] children = new StringNode[37];
             public T payload;
 
@@ -140,9 +139,9 @@ namespace fCraft {
                 if( payload != null ) {
                     list.Add( payload );
                 }
-                if( tag < MULTI ) {
+                if( tag < Multi ) {
                     if( !children[tag].GetAllChildren( list, limit ) ) return false;
-                } else if( tag == MULTI ) {
+                } else if( tag == Multi ) {
                     for( int i = 0; i < children.Length; i++ ) {
                         if( children[i] != null ) {
                             if( !children[i].GetAllChildren( list, limit ) ) return false;

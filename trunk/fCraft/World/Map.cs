@@ -6,48 +6,48 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text;
-using Mcc;
+using fCraft.MapConversion;
 
 namespace fCraft {
     public sealed class Map {
 
-        public World world;
+        public World World;
 
         /// <summary> Map width, in blocks. Equivalent to Notch's X (horizontal)</summary>
-        public int widthX;
+        public int WidthX;
 
         /// <summary> Map length, in blocks. Equivalent to Notch's Z (horizontal)</summary>
-        public int widthY;
+        public int WidthY;
 
         /// <summary> Map height, in blocks. Equivalent to Notch's Y (vertical)</summary>
-        public int height;
+        public int Height;
 
-        public Position spawn;
+        public Position Spawn;
 
-        Dictionary<string, Dictionary<string, string>> metadata = new Dictionary<string, Dictionary<string, string>>();
+        readonly Dictionary<string, Dictionary<string, string>> metadata = new Dictionary<string, Dictionary<string, string>>();
 
         // Queue of block updates. Updates are applied by ProcessUpdates()
-        ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
+        readonly ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
 
-        object metaLock = new object();
+        readonly object metaLock = new object();
 
         // used to skip backups/saves if no changes were made
-        public bool changedSinceSave { get; set; }
-        public bool changedSinceBackup { get; set; }
+        public bool ChangedSinceSave { get; internal set; }
+        public bool ChangedSinceBackup { get; internal set; }
 
-        public short[,] shadows;
+        public short[,] Shadows;
 
         // FCMv3 additions
         public DateTime DateModified = DateTime.UtcNow;
         public DateTime DateCreated = DateTime.UtcNow;
-        public Guid GUID = Guid.NewGuid();
+        public Guid Guid = Guid.NewGuid();
 
         // block data
-        public byte[] blocks;
+        public byte[] Blocks;
         internal byte[] blockUndo; // currently unused
 
         // block ownership
-        object playerIDLock = new object();
+        readonly object playerIDLock = new object();
         ushort MaxPlayerID = 256;
         Dictionary<string, ushort> PlayerIDs;
         Dictionary<ushort, string> PlayerNames;
@@ -72,7 +72,7 @@ namespace fCraft {
                 id = MaxPlayerID++;
                 PlayerIDs[name] = id;
                 PlayerNames[id] = name;
-                changedSinceSave = true;
+                ChangedSinceSave = true;
             }
             return id;
         }
@@ -97,21 +97,24 @@ namespace fCraft {
         internal uint[] blockTimestamps;
 
 
-        internal Map() { }
+        internal Map() {
+            UpdateZoneCache();
+        }
 
 
         // creates an empty new world of specified dimensions
-        public Map( World _world, int _widthX, int _widthY, int _height ) {
-            world = _world;
+        public Map( World _world, int _widthX, int _widthY, int _height )
+            : this() {
+            World = _world;
 
-            widthX = _widthX;
-            widthY = _widthY;
-            height = _height;
+            WidthX = _widthX;
+            WidthY = _widthY;
+            Height = _height;
 
-            int blockCount = widthX * widthY * height;
+            int blockCount = WidthX * WidthY * Height;
 
-            blocks = new byte[blockCount];
-            blocks.Initialize();
+            Blocks = new byte[blockCount];
+            Blocks.Initialize();
         }
 
 
@@ -121,13 +124,13 @@ namespace fCraft {
             string tempFileName = fileName + ".temp";
 
             try {
-                changedSinceSave = false;
+                ChangedSinceSave = false;
                 if( !MapUtility.TrySaving( this, tempFileName, MapFormat.FCMv3 ) ) {
-                    changedSinceSave = true;
+                    ChangedSinceSave = true;
                 }
 
             } catch( IOException ex ) {
-                changedSinceSave = true;
+                ChangedSinceSave = true;
                 Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
                                tempFileName, ex.Message );
                 try { File.Delete( tempFileName ); } catch { }
@@ -142,10 +145,10 @@ namespace fCraft {
                 }
                 Logger.Log( "Saved map successfully to {0}", LogType.SystemActivity,
                             fileName );
-                changedSinceBackup = true;
+                ChangedSinceBackup = true;
 
             } catch( Exception ex ) {
-                changedSinceSave = true;
+                ChangedSinceSave = true;
                 Logger.Log( "Error trying to replace file \"{0}\": {1}", LogType.Error,
                             fileName, ex );
                 try { File.Delete( tempFileName ); } catch { }
@@ -204,7 +207,7 @@ namespace fCraft {
                     Logger.Log( "MapDAT.Load: Some unknown block types were replaced with air.", LogType.Warning );
                 }
 
-                map.world = _world;
+                map.World = _world;
                 return map;
 
             } catch( EndOfStreamException ex ) {
@@ -239,22 +242,22 @@ namespace fCraft {
 
 
         internal bool ValidateHeader() {
-            if( !IsValidDimension( widthX ) ) {
-                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for widthX: {0}.", LogType.Error, widthX );
+            if( !IsValidDimension( WidthX ) ) {
+                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for widthX: {0}.", LogType.Error, WidthX );
                 return false;
             }
 
-            if( !IsValidDimension( widthY ) ) {
-                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for widthY: {0}.", LogType.Error, widthY );
+            if( !IsValidDimension( WidthY ) ) {
+                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for widthY: {0}.", LogType.Error, WidthY );
                 return false;
             }
 
-            if( !IsValidDimension( height ) ) {
-                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for height: {0}.", LogType.Error, height );
+            if( !IsValidDimension( Height ) ) {
+                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for height: {0}.", LogType.Error, Height );
                 return false;
             }
 
-            if( spawn.x > widthX * 32 || spawn.y > widthY * 32 || spawn.h > height * 32 || spawn.x < 0 || spawn.y < 0 || spawn.h < 0 ) {
+            if( Spawn.x > WidthX * 32 || Spawn.y > WidthY * 32 || Spawn.h > Height * 32 || Spawn.x < 0 || Spawn.y < 0 || Spawn.h < 0 ) {
                 Logger.Log( "Map.ValidateHeader: Spawn coordinates are outside the valid range! Using center of the map instead.",
                             LogType.Warning );
                 ResetSpawn();
@@ -302,7 +305,7 @@ namespace fCraft {
                 }
                 metadata[group][key] = value;
             }
-            changedSinceSave = true;
+            ChangedSinceSave = true;
         }
 
         #endregion
@@ -310,7 +313,7 @@ namespace fCraft {
 
         #region Utilities
 
-        static Dictionary<string, Block> blockNames = new Dictionary<string, Block>();
+        static readonly Dictionary<string, Block> blockNames = new Dictionary<string, Block>();
 
         static Map() {
             foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
@@ -434,24 +437,24 @@ namespace fCraft {
 
 
         public void SetSpawn( Position newSpawn ) {
-            spawn = newSpawn;
-            changedSinceSave = true;
+            Spawn = newSpawn;
+            ChangedSinceSave = true;
         }
 
 
         public void ResetSpawn() {
-            spawn.Set( widthX * 16, widthY * 16, height * 32, 0, 0 );
-            changedSinceSave = true;
+            Spawn.Set( WidthX * 16, WidthY * 16, Height * 32, 0, 0 );
+            ChangedSinceSave = true;
         }
 
 
         public void CalculateShadows() {
-            if( shadows != null ) return;
+            if( Shadows != null ) return;
 
-            shadows = new short[widthX, widthY];
-            for( int x = 0; x < widthX; x++ ) {
-                for( int y = 0; y < widthY; y++ ) {
-                    for( short h = (short)(height - 1); h >= 0; h-- ) {
+            Shadows = new short[WidthX, WidthY];
+            for( int x = 0; x < WidthX; x++ ) {
+                for( int y = 0; y < WidthY; y++ ) {
+                    for( short h = (short)(Height - 1); h >= 0; h-- ) {
                         switch( GetBlock( x, y, h ) ) {
                             case (byte)Block.Air:
                             case (byte)Block.Leaves:
@@ -462,7 +465,7 @@ namespace fCraft {
                             case (byte)Block.BrownMushroom:
                                 continue;
                             default:
-                                shadows[x, y] = h;
+                                Shadows[x, y] = h;
                                 break;
                         }
                         break;
@@ -479,22 +482,22 @@ namespace fCraft {
 
 
         internal void CopyBlocks( byte[] source, int offset ) {
-            blocks = new byte[widthX * widthY * height];
-            Array.Copy( source, offset, blocks, 0, blocks.Length );
-            changedSinceSave = true;
+            Blocks = new byte[WidthX * WidthY * Height];
+            Array.Copy( source, offset, Blocks, 0, Blocks.Length );
+            ChangedSinceSave = true;
         }
 
 
         internal bool ValidateBlockTypes( bool returnOnErrors ) {
             bool foundUnknownTypes = false;
-            for( int i = 0; i < blocks.Length; i++ ) {
-                if( (blocks[i]) > 49 ) {
+            for( int i = 0; i < Blocks.Length; i++ ) {
+                if( (Blocks[i]) > 49 ) {
                     if( returnOnErrors ) return false;
-                    blocks[i] = 0;
+                    Blocks[i] = 0;
                     foundUnknownTypes = true;
                 }
             }
-            if( foundUnknownTypes ) changedSinceSave = true;
+            if( foundUnknownTypes ) ChangedSinceSave = true;
             return !foundUnknownTypes;
         }
 
@@ -508,33 +511,33 @@ namespace fCraft {
             using( GZipStream compressor = new GZipStream( stream, CompressionMode.Compress ) ) {
                 if( prependBlockCount ) {
                     // convert block count to big-endian
-                    int convertedBlockCount = IPAddress.HostToNetworkOrder( blocks.Length );
+                    int convertedBlockCount = IPAddress.HostToNetworkOrder( Blocks.Length );
                     // write block count to gzip stream
                     compressor.Write( BitConverter.GetBytes( convertedBlockCount ), 0, sizeof( int ) );
                 }
-                compressor.Write( blocks, 0, blocks.Length );
+                compressor.Write( Blocks, 0, Blocks.Length );
             }
         }
 
 
         public void MakeFloodBarrier() {
-            for( int x = 0; x < widthX; x++ ) {
-                for( int y = 0; y < widthY; y++ ) {
+            for( int x = 0; x < WidthX; x++ ) {
+                for( int y = 0; y < WidthY; y++ ) {
                     SetBlock( x, y, 0, Block.Admincrete );
                 }
             }
 
-            for( int x = 0; x < widthX; x++ ) {
-                for( int h = 0; h < height / 2; h++ ) {
+            for( int x = 0; x < WidthX; x++ ) {
+                for( int h = 0; h < Height / 2; h++ ) {
                     SetBlock( x, 0, h, Block.Admincrete );
-                    SetBlock( x, widthY - 1, h, Block.Admincrete );
+                    SetBlock( x, WidthY - 1, h, Block.Admincrete );
                 }
             }
 
-            for( int y = 0; y < widthY; y++ ) {
-                for( int h = 0; h < height / 2; h++ ) {
+            for( int y = 0; y < WidthY; y++ ) {
+                for( int h = 0; h < Height / 2; h++ ) {
                     SetBlock( 0, y, h, Block.Admincrete );
-                    SetBlock( widthX - 1, y, h, Block.Admincrete );
+                    SetBlock( WidthX - 1, y, h, Block.Admincrete );
                 }
             }
         }
@@ -544,7 +547,7 @@ namespace fCraft {
         /// Returns the block count (volume) of the map.
         /// </summary>
         public int GetBlockCount() {
-            return widthX * widthY * height;
+            return WidthX * WidthY * Height;
         }
 
         #endregion
@@ -552,16 +555,16 @@ namespace fCraft {
 
         #region Zones
 
-        object zoneLock = new object(); // zone list (only needed when using "zones" dictionary, not "zoneList" cached array)
-        Dictionary<string, Zone> zones = new Dictionary<string, Zone>();
-        public Zone[] zoneList = new Zone[0];
+        readonly object zoneLock = new object(); // zone list (only needed when using "zones" dictionary, not "zoneList" cached array)
+        readonly Dictionary<string, Zone> zones = new Dictionary<string, Zone>();
+        public Zone[] ZoneList { get; private set; }
 
 
         public bool AddZone( Zone z ) {
             lock( zoneLock ) {
                 if( zones.ContainsKey( z.name.ToLower() ) ) return false;
                 zones.Add( z.name.ToLower(), z );
-                changedSinceSave = true;
+                ChangedSinceSave = true;
                 UpdateZoneCache();
             }
             return true;
@@ -572,7 +575,7 @@ namespace fCraft {
             lock( zoneLock ) {
                 if( !zones.ContainsKey( z.ToLower() ) ) return false;
                 zones.Remove( z.ToLower() );
-                changedSinceSave = true;
+                ChangedSinceSave = true;
                 UpdateZoneCache();
             }
             return true;
@@ -581,7 +584,7 @@ namespace fCraft {
 
         public PermissionOverride CheckZones( int x, int y, int h, Player player ) {
             PermissionOverride result = PermissionOverride.None;
-            Zone[] zoneListCache = zoneList;
+            Zone[] zoneListCache = ZoneList;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
                 if( zoneListCache[i].bounds.Contains( x, y, h ) ) {
                     if( zoneListCache[i].controller.Check( player.info ) ) {
@@ -596,7 +599,7 @@ namespace fCraft {
 
 
         public Zone FindDeniedZone( int x, int y, int h, Player player ) {
-            Zone[] zoneListCache = zoneList;
+            Zone[] zoneListCache = ZoneList;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
                 if( zoneListCache[i].bounds.Contains( x, y, h ) && !zoneListCache[i].controller.Check( player.info ) ) {
                     return zoneListCache[i];
@@ -610,7 +613,7 @@ namespace fCraft {
             List<Zone> allowed = new List<Zone>(), denied = new List<Zone>();
             bool found = false;
 
-            Zone[] zoneListCache = zoneList;
+            Zone[] zoneListCache = ZoneList;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
                 if( zoneListCache[i].bounds.Contains( x, y, h ) ) {
                     found = true;
@@ -644,7 +647,7 @@ namespace fCraft {
                 foreach( Zone zone in zones.Values ) {
                     newZoneList[i++] = zone;
                 }
-                zoneList = newZoneList;
+                ZoneList = newZoneList;
             }
         }
 
@@ -654,63 +657,63 @@ namespace fCraft {
         #region Block Updates & Simulation
 
         public int Index( int x, int y, int h ) {
-            return (h * widthY + y) * widthX + x;
+            return (h * WidthY + y) * WidthX + x;
         }
 
 
         public void SetBlock( int x, int y, int h, Block type ) {
-            if( x < widthX && y < widthY && h < height && x >= 0 && y >= 0 && h >= 0 ) {
-                blocks[Index( x, y, h )] = (byte)type;
-                changedSinceSave = true;
+            if( x < WidthX && y < WidthY && h < Height && x >= 0 && y >= 0 && h >= 0 ) {
+                Blocks[Index( x, y, h )] = (byte)type;
+                ChangedSinceSave = true;
             }
         }
 
         public void SetBlock( int x, int y, int h, byte type ) {
-            if( h < height && x < widthX && y < widthY && x >= 0 && y >= 0 && h >= 0 && type < 50 ) {
-                blocks[Index( x, y, h )] = type;
-                changedSinceSave = true;
+            if( h < Height && x < WidthX && y < WidthY && x >= 0 && y >= 0 && h >= 0 && type < 50 ) {
+                Blocks[Index( x, y, h )] = type;
+                ChangedSinceSave = true;
             }
         }
 
         public void SetBlock( Vector3i vec, Block type ) {
-            if( vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && (byte)type < 50 ) {
-                blocks[Index( vec.x, vec.z, vec.y )] = (byte)type;
-                changedSinceSave = true;
+            if( vec.x < WidthX && vec.z < WidthY && vec.y < Height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && (byte)type < 50 ) {
+                Blocks[Index( vec.x, vec.z, vec.y )] = (byte)type;
+                ChangedSinceSave = true;
             }
         }
 
         public void SetBlock( Vector3i vec, byte type ) {
-            if( vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && type < 50 ) {
-                blocks[Index( vec.x, vec.z, vec.y )] = type;
-                changedSinceSave = true;
+            if( vec.x < WidthX && vec.z < WidthY && vec.y < Height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && type < 50 ) {
+                Blocks[Index( vec.x, vec.z, vec.y )] = type;
+                ChangedSinceSave = true;
             }
         }
 
 
         public byte GetBlock( int x, int y, int h ) {
-            if( x < widthX && y < widthY && h < height && x >= 0 && y >= 0 && h >= 0 )
-                return blocks[Index( x, y, h )];
+            if( x < WidthX && y < WidthY && h < Height && x >= 0 && y >= 0 && h >= 0 )
+                return Blocks[Index( x, y, h )];
             return 0;
         }
 
         public byte GetBlock( Vector3i vec ) {
-            if( vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 )
-                return blocks[Index( vec.x, vec.z, vec.y )];
+            if( vec.x < WidthX && vec.z < WidthY && vec.y < Height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 )
+                return Blocks[Index( vec.x, vec.z, vec.y )];
             return 0;
         }
 
 
         public bool InBounds( int x, int y, int h ) {
-            return x < widthX && y < widthY && h < height && x >= 0 && y >= 0 && h >= 0;
+            return x < WidthX && y < WidthY && h < Height && x >= 0 && y >= 0 && h >= 0;
         }
 
         public bool InBounds( Vector3i vec ) {
-            return vec.x < widthX && vec.z < widthY && vec.y < height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0;
+            return vec.x < WidthX && vec.z < WidthY && vec.y < Height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0;
         }
 
 
         public int SearchColumn( int x, int y, Block id ) {
-            return SearchColumn( x, y, id, height - 1 );
+            return SearchColumn( x, y, id, Height - 1 );
         }
 
         public int SearchColumn( int x, int y, Block id, int startH ) {
@@ -740,29 +743,29 @@ namespace fCraft {
 
 
         public void ProcessUpdates() {
-            if( world.isLocked ) {
-                if( world.pendingUnload ) {
-                    world.UnloadMap( true );
+            if( World.isLocked ) {
+                if( World.pendingUnload ) {
+                    World.UnloadMap( true );
                 }
                 return;
             }
 
             int packetsSent = 0;
-            int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate( world );
+            int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate( World );
             BlockUpdate update = new BlockUpdate();
             while( packetsSent < maxPacketsPerUpdate ) {
                 if( !updates.Dequeue( ref update ) ) {
-                    if( world.isFlushing ) {
-                        world.EndFlushMapBuffer();
+                    if( World.isFlushing ) {
+                        World.EndFlushMapBuffer();
                     }
                     break;
                 }
-                changedSinceSave = true;
+                ChangedSinceSave = true;
                 if( !InBounds( update.x, update.y, update.h ) ) continue;
                 int blockIndex = Index( update.x, update.y, update.h );
-                blocks[blockIndex] = update.type; // TODO: investigate IndexOutOfRangeException here
+                Blocks[blockIndex] = update.type; // TODO: investigate IndexOutOfRangeException here
 
-                if( !world.isFlushing ) world.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin );
+                if( !World.isFlushing ) World.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin );
                 if( update.origin != null && blockOwnership != null ) {
                     // TODO: ensure safety in case player leaves the world (and localPlayerID changes) before everything is processed
                     if( update.origin.localPlayerID == (ushort)ReservedPlayerID.None ) {
@@ -773,8 +776,8 @@ namespace fCraft {
                 packetsSent++;
             }
 
-            if( packetsSent == 0 && world.pendingUnload ) {
-                world.UnloadMap( true );
+            if( packetsSent == 0 && World.pendingUnload ) {
+                World.UnloadMap( true );
             }
         }
 
@@ -784,7 +787,7 @@ namespace fCraft {
         #region Backup
 
         public void SaveBackup( string sourceName, string targetName, bool onlyIfChanged ) {
-            if( onlyIfChanged && !changedSinceBackup && Config.GetBool( ConfigKey.BackupOnlyWhenChanged ) ) return;
+            if( onlyIfChanged && !ChangedSinceBackup && ConfigKey.BackupOnlyWhenChanged.GetBool() ) return;
 
             DirectoryInfo d = new DirectoryInfo( Paths.BackupPath );
 
@@ -799,10 +802,10 @@ namespace fCraft {
             }
 
             try {
-                changedSinceBackup = false;
+                ChangedSinceBackup = false;
                 File.Copy( sourceName, targetName, true );
             } catch( Exception ex ) {
-                changedSinceBackup = true;
+                ChangedSinceBackup = true;
                 Logger.Log( "Map.SaveBackup: Error occured while trying to save backup to \"{0}\": {1}", LogType.Error,
                             targetName, ex );
                 return;
@@ -811,8 +814,8 @@ namespace fCraft {
             List<FileInfo> backupList = new List<FileInfo>( d.GetFiles( "*.fcm" ) );
             backupList.Sort( FileInfoComparer.instance );
 
-            if( Config.GetInt( ConfigKey.MaxBackups ) > 0 ) {
-                while( backupList.Count > Config.GetInt( ConfigKey.MaxBackups ) ) {
+            if( ConfigKey.MaxBackups.GetInt() > 0 ) {
+                while( backupList.Count > ConfigKey.MaxBackups.GetInt() ) {
                     FileInfo info = backupList[backupList.Count - 1];
                     backupList.RemoveAt( backupList.Count - 1 );
                     try {
@@ -828,12 +831,12 @@ namespace fCraft {
             }
 
 
-            if( Config.GetInt( ConfigKey.MaxBackupSize ) > 0 ) {
+            if( ConfigKey.MaxBackupSize.GetInt() > 0 ) {
                 while( true ) {
                     FileInfo[] fis = d.GetFiles();
                     long size = fis.Sum( fi => fi.Length );
 
-                    if( size / 1024 / 1024 > Config.GetInt( ConfigKey.MaxBackupSize ) ) {
+                    if( size / 1024 / 1024 > ConfigKey.MaxBackupSize.GetInt() ) {
                         FileInfo info = backupList[backupList.Count - 1];
                         backupList.RemoveAt( backupList.Count - 1 );
                         try {
@@ -856,7 +859,7 @@ namespace fCraft {
 
 
         sealed class FileInfoComparer : IComparer<FileInfo> {
-            public static FileInfoComparer instance = new FileInfoComparer();
+            public static readonly FileInfoComparer instance = new FileInfoComparer();
             public int Compare( FileInfo x, FileInfo y ) {
                 return -x.CreationTime.CompareTo( y.CreationTime );
             }
@@ -871,7 +874,7 @@ namespace fCraft {
         internal List<DataLayer> PrepareLayers() {
             List<DataLayer> layers = new List<DataLayer>();
 
-            byte[] blocksCache = blocks;
+            byte[] blocksCache = Blocks;
             if( blocksCache != null ) {
                 layers.Add( new DataLayer {
                     Type = DataLayerType.Blocks,
@@ -940,8 +943,8 @@ namespace fCraft {
         internal void ReadLayer( DataLayer layer, DeflateStream stream ) {
             switch( layer.Type ) {
                 case DataLayerType.Blocks:
-                    blocks = new byte[layer.ElementCount];
-                    stream.Read( blocks, 0, blocks.Length );
+                    Blocks = new byte[layer.ElementCount];
+                    stream.Read( Blocks, 0, Blocks.Length );
                     break;
 
                 case DataLayerType.BlockUndo:
