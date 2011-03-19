@@ -101,23 +101,23 @@ namespace fCraft {
         }
 
 
-        public static Task AddTask( SchedulerCallback _callback ) {
-            return new Task( _callback, false );
+        public static Task AddTask( SchedulerCallback callback ) {
+            return new Task( callback, false );
         }
 
 
-        public static Task AddBackgroundTask( SchedulerCallback _callback ) {
-            return new Task( _callback, true );
+        public static Task AddBackgroundTask( SchedulerCallback callback ) {
+            return new Task( callback, true );
         }
 
 
-        public static Task AddTask( SchedulerCallback _callback, object _userState ) {
-            return new Task( _callback, false, _userState );
+        public static Task AddTask( SchedulerCallback callback, object userState ) {
+            return new Task( callback, false, userState );
         }
 
 
-        public static Task AddBackgroundTask( SchedulerCallback _callback, object _userState ) {
-            return new Task( _callback, true, _userState );
+        public static Task AddBackgroundTask( SchedulerCallback callback, object userState ) {
+            return new Task( callback, true, userState );
         }
 
 
@@ -180,15 +180,15 @@ namespace fCraft {
 
             public Task() { }
 
-            public Task( SchedulerCallback _callback, bool _isBackground ) {
-                Callback = _callback;
-                IsBackground = _isBackground;
+            public Task( SchedulerCallback callback, bool isBackground ) {
+                Callback = callback;
+                IsBackground = isBackground;
             }
 
-            public Task( SchedulerCallback _callback, bool _isBackground, object _userState ) {
-                Callback = _callback;
-                IsBackground = _isBackground;
-                UserState = _userState;
+            public Task( SchedulerCallback callback, bool isBackground, object userState ) {
+                Callback = callback;
+                IsBackground = isBackground;
+                UserState = userState;
             }
 
             public DateTime NextTime;

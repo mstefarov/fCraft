@@ -111,12 +111,12 @@ namespace fCraft {
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig";
 
-        static readonly Dictionary<ConfigKey, string> settings = new Dictionary<ConfigKey, string>();
-        static readonly Dictionary<ConfigKey, ConfigKeyAttribute> keyMetadata = new Dictionary<ConfigKey, ConfigKeyAttribute>();
-        static readonly Dictionary<ConfigSection, ConfigKey[]> keySections = new Dictionary<ConfigSection, ConfigKey[]>();
+        static readonly Dictionary<ConfigKey, string> Settings = new Dictionary<ConfigKey, string>();
+        static readonly Dictionary<ConfigKey, ConfigKeyAttribute> KeyMetadata = new Dictionary<ConfigKey, ConfigKeyAttribute>();
+        static readonly Dictionary<ConfigSection, ConfigKey[]> KeySections = new Dictionary<ConfigSection, ConfigKey[]>();
 
-        static readonly Dictionary<string, ConfigKey> legacyConfigKeys = new Dictionary<string, ConfigKey>(); // LEGACY
-        static readonly Dictionary<ConfigKey, KeyValuePair<string, string>> legacyConfigValues = new Dictionary<ConfigKey, KeyValuePair<string, string>>();
+        static readonly Dictionary<string, ConfigKey> LegacyConfigKeys = new Dictionary<string, ConfigKey>(); // LEGACY
+        static readonly Dictionary<ConfigKey, KeyValuePair<string, string>> LegacyConfigValues = new Dictionary<ConfigKey, KeyValuePair<string, string>>();
 
 
         static Config() {
@@ -124,13 +124,13 @@ namespace fCraft {
                 foreach( var attribute in (ConfigKeyAttribute[])keyField.GetCustomAttributes( typeof( ConfigKeyAttribute ), false ) ) {
                     ConfigKey key = (ConfigKey)keyField.GetValue( null );
                     attribute.Key = key;
-                    keyMetadata.Add( key, attribute );
+                    KeyMetadata.Add( key, attribute );
                 }
             }
 
             foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {
                 ConfigSection sec = section;
-                keySections.Add( section, keyMetadata.Values.Where( att => (att.Section == sec) )
+                KeySections.Add( section, KeyMetadata.Values.Where( att => (att.Section == sec) )
                                                             .Select( att => att.Key )
                                                             .ToArray() );
             }
@@ -138,29 +138,29 @@ namespace fCraft {
             LoadDefaults();
 
             // These keys were renamed at some point. LEGACY
-            legacyConfigKeys.Add( "DefaultClass".ToLower(), ConfigKey.DefaultRank );
-            legacyConfigKeys.Add( "ClassColorsInChat".ToLower(), ConfigKey.RankColorsInChat );
-            legacyConfigKeys.Add( "ClassColorsInWorldNames".ToLower(), ConfigKey.RankColorsInWorldNames );
-            legacyConfigKeys.Add( "ClassPrefixesInChat".ToLower(), ConfigKey.RankPrefixesInChat );
-            legacyConfigKeys.Add( "ClassPrefixesInList".ToLower(), ConfigKey.RankPrefixesInList );
-            legacyConfigKeys.Add( "PatrolledClass".ToLower(), ConfigKey.PatrolledRank );
-            legacyConfigKeys.Add( "RequireClassChangeReason".ToLower(), ConfigKey.RequireRankChangeReason );
-            legacyConfigKeys.Add( "AnnounceClassChanges".ToLower(), ConfigKey.AnnounceRankChanges );
-            legacyConfigKeys.Add( "SendRedundantBlockUpdates".ToLower(), ConfigKey.RelayAllBlockUpdates );
-            legacyConfigKeys.Add( "AutomaticUpdates".ToLower(), ConfigKey.UpdateMode );
-            legacyConfigKeys.Add( "IRCBot".ToLower(), ConfigKey.IRCBotEnabled );
+            LegacyConfigKeys.Add( "DefaultClass".ToLower(), ConfigKey.DefaultRank );
+            LegacyConfigKeys.Add( "ClassColorsInChat".ToLower(), ConfigKey.RankColorsInChat );
+            LegacyConfigKeys.Add( "ClassColorsInWorldNames".ToLower(), ConfigKey.RankColorsInWorldNames );
+            LegacyConfigKeys.Add( "ClassPrefixesInChat".ToLower(), ConfigKey.RankPrefixesInChat );
+            LegacyConfigKeys.Add( "ClassPrefixesInList".ToLower(), ConfigKey.RankPrefixesInList );
+            LegacyConfigKeys.Add( "PatrolledClass".ToLower(), ConfigKey.PatrolledRank );
+            LegacyConfigKeys.Add( "RequireClassChangeReason".ToLower(), ConfigKey.RequireRankChangeReason );
+            LegacyConfigKeys.Add( "AnnounceClassChanges".ToLower(), ConfigKey.AnnounceRankChanges );
+            LegacyConfigKeys.Add( "SendRedundantBlockUpdates".ToLower(), ConfigKey.RelayAllBlockUpdates );
+            LegacyConfigKeys.Add( "AutomaticUpdates".ToLower(), ConfigKey.UpdateMode );
+            LegacyConfigKeys.Add( "IRCBot".ToLower(), ConfigKey.IRCBotEnabled );
 
             // These values have been renamed at some point. LEGACY
-            legacyConfigValues.Add( ConfigKey.ProcessPriority, new KeyValuePair<string, string>( "Low", ProcessPriorityClass.Idle.ToString() ) );
+            LegacyConfigValues.Add( ConfigKey.ProcessPriority, new KeyValuePair<string, string>( "Low", ProcessPriorityClass.Idle.ToString() ) );
         }
 
         internal static void RunSelfTest() {
             // TESTS - ensure that all defaults are initialized
             foreach( ConfigKey key in Enum.GetValues( typeof( ConfigKey ) ) ) {
-                if( !settings.ContainsKey( key ) ) {
+                if( !Settings.ContainsKey( key ) ) {
                     throw new Exception( "One of the ConfigKey keys is missing a default: " + key );
                 }
-                if( settings[key] == null ) {
+                if( Settings[key] == null ) {
                     throw new Exception( "One of the ConfigKey kets is null: " + key );
                 }
                 GetValueType( key );
@@ -173,27 +173,27 @@ namespace fCraft {
         /// Overwrites current settings with defaults
         /// </summary>
         public static void LoadDefaults() {
-            foreach( var pair in keyMetadata ) {
+            foreach( var pair in KeyMetadata ) {
                 SetValue( pair.Key, pair.Value.DefaultValue );
             }
         }
 
         public static void LoadDefaults( ConfigSection section ) {
-            foreach( var key in keySections[section] ) {
-                SetValue( key, keyMetadata[key].DefaultValue );
+            foreach( var key in KeySections[section] ) {
+                SetValue( key, KeyMetadata[key].DefaultValue );
             }
         }
 
         public static bool IsDefault( this ConfigKey key ) {
-            return (keyMetadata[key].DefaultValue.ToString() == settings[key]);
+            return (KeyMetadata[key].DefaultValue.ToString() == Settings[key]);
         }
 
         public static bool IsDefault( this ConfigKey key, object value ) {
-            return (keyMetadata[key].DefaultValue.ToString() == value.ToString());
+            return (KeyMetadata[key].DefaultValue.ToString() == value.ToString());
         }
 
         public static object GetDefault( this ConfigKey key ) {
-            return keyMetadata[key].DefaultValue;
+            return KeyMetadata[key].DefaultValue;
         }
 
         #endregion
@@ -280,9 +280,9 @@ namespace fCraft {
                     // known key
                     SetValue( (ConfigKey)Enum.Parse( typeof( ConfigKey ), key, true ), element.Value );
 
-                } else if( legacyConfigKeys.ContainsKey( key ) ) { // LEGACY
+                } else if( LegacyConfigKeys.ContainsKey( key ) ) { // LEGACY
                     // renamed/legacy key
-                    SetValue( legacyConfigKeys[key], element.Value );
+                    SetValue( LegacyConfigKeys[key], element.Value );
 
                 } else if( key != "consoleoptions" &&
                            key != "logfileoptions" &&
@@ -389,7 +389,7 @@ namespace fCraft {
             }
 
             // save general settings
-            foreach( KeyValuePair<ConfigKey, string> pair in settings ) {
+            foreach( KeyValuePair<ConfigKey, string> pair in Settings ) {
                 config.Add( new XElement( pair.Key.ToString(), pair.Value ) );
             }
 
@@ -452,36 +452,36 @@ namespace fCraft {
         #region Getters
 
         public static bool IsEmpty( this ConfigKey key ) {
-            return !settings.ContainsKey( key ) || String.IsNullOrEmpty( settings[key] );
+            return !Settings.ContainsKey( key ) || String.IsNullOrEmpty( Settings[key] );
         }
 
         public static string GetString( this ConfigKey key ) {
-            return settings[key];
+            return Settings[key];
         }
 
         public static int GetInt( this ConfigKey key ) {
-            return Int32.Parse( settings[key] );
+            return Int32.Parse( Settings[key] );
         }
 
         public static TEnum GetEnum<TEnum>( this ConfigKey key ) where TEnum : struct {
             if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required", "TEnum" );
-            return (TEnum)Enum.Parse( typeof( TEnum ), settings[key], true );
+            return (TEnum)Enum.Parse( typeof( TEnum ), Settings[key], true );
         }
 
         public static bool GetBool( this ConfigKey key ) {
-            return Boolean.Parse( settings[key] );
+            return Boolean.Parse( Settings[key] );
         }
 
         public static Type GetValueType( this ConfigKey key ) {
-            return keyMetadata[key].ValueType;
+            return KeyMetadata[key].ValueType;
         }
 
         public static ConfigKeyAttribute GetMetadata( this ConfigKey key ) {
-            return keyMetadata[key];
+            return KeyMetadata[key];
         }
 
         public static ConfigSection GetSection( this ConfigKey key ) {
-            return keyMetadata[key].Section;
+            return KeyMetadata[key].Section;
         }
 
         #endregion
@@ -501,8 +501,8 @@ namespace fCraft {
             string value = _value.ToString();
 
             // LEGACY
-            if( legacyConfigValues.ContainsKey( key ) ) {
-                foreach( var pair in legacyConfigValues.Values ) {
+            if( LegacyConfigValues.ContainsKey( key ) ) {
+                foreach( var pair in LegacyConfigValues.Values ) {
                     if( pair.Key.Equals( value, StringComparison.OrdinalIgnoreCase ) ) {
                         value = pair.Value;
                         break;
@@ -523,13 +523,13 @@ namespace fCraft {
                 case ConfigKey.PatrolledRank:
                     if( value.Length > 0 ) {
                         if( RankList.ParseRank( value ) != null ) {
-                            settings[key] = RankList.ParseRank( value ).Name;
+                            Settings[key] = RankList.ParseRank( value ).Name;
                             return true;
-                        } else if( settings.ContainsKey( key ) && !String.IsNullOrEmpty( settings[key] ) ) {
+                        } else if( Settings.ContainsKey( key ) && !String.IsNullOrEmpty( Settings[key] ) ) {
                             Log( "Config.SetValue: {0} could not be parsed. " +
                                  "It should be either blank (indicating \"use lowest rank\") or set to a valid rank name. " +
                                  "Using default ({1}).", LogType.Warning,
-                                 key, RankList.ParseRank( settings[key] ).Name );
+                                 key, RankList.ParseRank( Settings[key] ).Name );
                             return false;
                         } else {
                             Log( "Config.SetValue: {0} could not be parsed. " +
@@ -539,7 +539,7 @@ namespace fCraft {
                             return false;
                         }
                     } else {
-                        settings[key] = "";
+                        Settings[key] = "";
                         return true;
                     }
 
@@ -551,7 +551,7 @@ namespace fCraft {
                 case ConfigKey.IP:
                     IPAddress tempIP;
                     if( IPAddress.TryParse( value, out tempIP ) && tempIP.ToString() != IPAddress.Broadcast.ToString() ) {
-                        settings[key] = value;
+                        Settings[key] = value;
                         return true;
                     } else {
                         return false;
@@ -670,13 +670,13 @@ namespace fCraft {
                     return DoSetValue( key, temp.ToString() );
                 } else {
                     Log( "Config.ValidateInt: Specified value for {0} is not within valid range ({1}...{2}). Using default ({3}).", LogType.Warning,
-                         key, minRange, maxRange, settings[key] );
+                         key, minRange, maxRange, Settings[key] );
                     return false;
                 }
 
             } else {
                 Log( "Config.ValidateInt: Specified value for {0} could not be parsed. Using default ({1}).", LogType.Warning,
-                     key, settings[key] );
+                     key, Settings[key] );
                 return false;
             }
         }
@@ -688,7 +688,7 @@ namespace fCraft {
 
             } else {
                 Log( "Config.ValidateBool: Specified value for {0} could not be parsed. Expected 'true' or 'false'. Using default ({1}).", LogType.Warning,
-                     key, settings[key] );
+                     key, Settings[key] );
                 return false;
             }
         }
@@ -699,7 +699,7 @@ namespace fCraft {
 
             } else {
                 Log( "Config.ValidateColor: Specified value for {0} could not be parsed. Using default ({1}).", LogType.Warning,
-                     key, settings[key] );
+                     key, Settings[key] );
                 return false;
             }
         }
@@ -707,13 +707,13 @@ namespace fCraft {
         static bool ValidateString( ConfigKey key, string value, int minLength, int maxLength ) {
             if( value.Length < minLength ) {
                 Log( "Config.ValidateString: Specified value for {0} is too short (expected length: {1}...{2}). Using default ({3}).", LogType.Warning,
-                     key, minLength, maxLength, settings[key] );
+                     key, minLength, maxLength, Settings[key] );
                 return false;
 
             } else if( value.Length > maxLength ) {
-                settings[key] = value.Substring( 0, maxLength );
+                Settings[key] = value.Substring( 0, maxLength );
                 Log( "Config.ValidateString: Specified value for {0} is too long (expected length: {1}...{2}). The value has been truncated to \"{3}\".", LogType.Warning,
-                     key, minLength, maxLength, settings[key] );
+                     key, minLength, maxLength, Settings[key] );
                 return true;
 
             } else {
@@ -729,7 +729,7 @@ namespace fCraft {
             }
             Log( "Config.ValidateEnum: Invalid option specified for {0}. " +
                  "See documentation for the list of permitted options. Using default: {1}", LogType.Warning,
-                 key, settings[key] );
+                 key, Settings[key] );
             return false;
         }
 
@@ -742,19 +742,19 @@ namespace fCraft {
             } catch( ArgumentException ) {
                 Log( "Config.ValidateEnum: Invalid option specified for {0}. " +
                      "See documentation for the list of permitted options. Using default: {1}", LogType.Warning,
-                     key, settings[key] );
+                     key, Settings[key] );
                 return false;
             }
         }
 
         static bool DoSetValue( ConfigKey key, string newValue ) {
-            if( !settings.ContainsKey( key ) ) {
-                settings[key] = newValue;
+            if( !Settings.ContainsKey( key ) ) {
+                Settings[key] = newValue;
             } else {
-                string oldValue = settings[key];
+                string oldValue = Settings[key];
                 if( oldValue != newValue ) {
                     if( RaiseKeyChangingEvent( key, oldValue, ref newValue ) ) return false;
-                    settings[key] = newValue;
+                    Settings[key] = newValue;
                     RaiseKeyChangedEvent( key, oldValue, newValue );
                 }
             }
@@ -765,7 +765,7 @@ namespace fCraft {
 
 
         internal static void ApplyConfig() {
-            Logger.SplittingType = (LogSplittingType)Enum.Parse( typeof( LogSplittingType ), settings[ConfigKey.LogMode], true );
+            Logger.SplittingType = (LogSplittingType)Enum.Parse( typeof( LogSplittingType ), Settings[ConfigKey.LogMode], true );
             Logger.MarkLogStart();
 
             Player.RelayAllUpdates = GetBool( ConfigKey.RelayAllBlockUpdates );
@@ -776,19 +776,19 @@ namespace fCraft {
             }
 
             // chat colors
-            Color.Sys = Color.Parse( settings[ConfigKey.SystemMessageColor] );
-            Color.Say = Color.Parse( settings[ConfigKey.SayColor] );
-            Color.Help = Color.Parse( settings[ConfigKey.HelpColor] );
-            Color.Announcement = Color.Parse( settings[ConfigKey.AnnouncementColor] );
-            Color.PM = Color.Parse( settings[ConfigKey.PrivateMessageColor] );
-            Color.IRC = Color.Parse( settings[ConfigKey.IRCMessageColor] );
-            Color.Me = Color.Parse( settings[ConfigKey.MeColor] );
-            Color.Warning = Color.Parse( settings[ConfigKey.WarningColor] );
+            Color.Sys = Color.Parse( Settings[ConfigKey.SystemMessageColor] );
+            Color.Say = Color.Parse( Settings[ConfigKey.SayColor] );
+            Color.Help = Color.Parse( Settings[ConfigKey.HelpColor] );
+            Color.Announcement = Color.Parse( Settings[ConfigKey.AnnouncementColor] );
+            Color.PM = Color.Parse( Settings[ConfigKey.PrivateMessageColor] );
+            Color.IRC = Color.Parse( Settings[ConfigKey.IRCMessageColor] );
+            Color.Me = Color.Parse( Settings[ConfigKey.MeColor] );
+            Color.Warning = Color.Parse( Settings[ConfigKey.WarningColor] );
 
             // default class
-            if( !String.IsNullOrEmpty( settings[ConfigKey.DefaultRank] ) ) {
-                if( RankList.ParseRank( settings[ConfigKey.DefaultRank] ) != null ) {
-                    RankList.DefaultRank = RankList.ParseRank( settings[ConfigKey.DefaultRank] );
+            if( !String.IsNullOrEmpty( Settings[ConfigKey.DefaultRank] ) ) {
+                if( RankList.ParseRank( Settings[ConfigKey.DefaultRank] ) != null ) {
+                    RankList.DefaultRank = RankList.ParseRank( Settings[ConfigKey.DefaultRank] );
                 } else {
                     RankList.DefaultRank = RankList.LowestRank;
                     Log( "Config.ApplyConfig: Could not parse DefaultRank; assuming that the lowest rank ({0}) is the default.",
@@ -809,7 +809,7 @@ namespace fCraft {
             Server.TicksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
 
             // rank to patrol
-            World.rankToPatrol = RankList.ParseRank( settings[ConfigKey.PatrolledRank] ) ?? RankList.LowestRank;
+            World.rankToPatrol = RankList.ParseRank( Settings[ConfigKey.PatrolledRank] ) ?? RankList.LowestRank;
 
             // IRC delay
             IRC.SendDelay = GetInt( ConfigKey.IRCDelay );

@@ -22,9 +22,9 @@ namespace fCraft {
         public static event EventHandler<ShutdownEventArgs> ShutdownEnded;
 
 
-        static void RaiseInitializingEvent( Dictionary<ArgKey, string> _args ) {
+        static void RaiseInitializingEvent( Dictionary<ArgKey, string> initializationArgs ) {
             var h = Initializing;
-            if( h != null ) h( null, new ServerInitializingEventArgs( _args ) );
+            if( h != null ) h( null, new ServerInitializingEventArgs( initializationArgs ) );
         }
 
         static void RaiseEvent( EventHandler h ) {
@@ -150,17 +150,17 @@ namespace fCraft {
 
         public static event EventHandler<SearchingForWorldEventArgs> SearchingForWorld;
 
-        static bool RaiseMainWorldChangingEvent( World _old, World _new ) {
+        static bool RaiseMainWorldChangingEvent( World oldWorld, World newWorld ) {
             var h = MainWorldChanging;
             if( h == null ) return false;
-            var e = new MainWorldChangingEventArgs( _old, _new );
+            var e = new MainWorldChangingEventArgs( oldWorld, newWorld );
             h( null, e );
             return e.Cancel;
         }
 
-        static void RaiseMainWorldChangedEvent( World _old, World _new ) {
+        static void RaiseMainWorldChangedEvent( World oldWorld, World newWorld ) {
             var h = MainWorldChanged;
-            if( h != null ) h( null, new MainWorldChangedEventArgs( _old, _new ) );
+            if( h != null ) h( null, new MainWorldChangedEventArgs( oldWorld, newWorld ) );
         }
 
         internal static void RaiseSearchingForWorldEvent( SearchingForWorldEventArgs e ) {
