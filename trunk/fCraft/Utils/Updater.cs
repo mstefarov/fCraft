@@ -37,10 +37,10 @@ namespace fCraft {
                            IsBroken = true;
         public static string LatestStable = "0.506_r427";
 
-        public static string UpdateURL { get; set; }
+        public static string UpdateUrl { get; set; }
 
         static Updater(){
-            UpdateURL = "http://fcraft.fragmer.net/version.log";
+            UpdateUrl = "http://fcraft.fragmer.net/version.log";
         }
 
 
@@ -51,12 +51,12 @@ namespace fCraft {
             UpdaterMode mode = ConfigKey.UpdateMode.GetEnum<UpdaterMode>();
             if( mode == UpdaterMode.Disabled ) return result;
 
-            string Url = UpdateURL;
-            if( FireCheckingForUpdatesEvent( ref Url ) ) return result;
+            string url = UpdateUrl;
+            if( FireCheckingForUpdatesEvent( ref url ) ) return result;
 
             Logger.Log( "Checking for fCraft updates...", LogType.SystemActivity );
             try {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create( Url );
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create( url );
 
                 request.Method = "GET";
                 request.UserAgent = "fCraft";
@@ -94,7 +94,7 @@ namespace fCraft {
                 Logger.Log( "An error occured while trying to check for updates: {0}: {1}", LogType.Error,
                                ex.GetType().ToString(), ex.Message );
             }
-            FireCheckedForUpdatesEvent( UpdateURL, result );
+            FireCheckedForUpdatesEvent( UpdateUrl, result );
             return result;
         }
 

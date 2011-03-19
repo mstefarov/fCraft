@@ -6,18 +6,18 @@ namespace fCraft {
 
         public T ErrorCode { get; private set; }
 
-        public EnumException( T _errorCode ) {
-            ErrorCode = _errorCode;
+        public EnumException( T errorCode ) {
+            ErrorCode = errorCode;
         }
 
-        public EnumException( T _errorCode, string _message )
-            : base( _message ) {
-            ErrorCode = _errorCode;
+        public EnumException( T errorCode, string message )
+            : base( message ) {
+            ErrorCode = errorCode;
         }
 
-        public EnumException( T _errorCode, string _message, Exception _innerException )
-            : base( _message, _innerException ) {
-            ErrorCode = _errorCode;
+        public EnumException( T errorCode, string message, Exception innerException )
+            : base( message, innerException ) {
+            ErrorCode = errorCode;
         }
 
     }

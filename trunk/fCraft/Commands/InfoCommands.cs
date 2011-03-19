@@ -47,20 +47,20 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdDeafen = new CommandDescriptor {
-            name = "deafen",
-            aliases = new[] { "deaf" },
-            consoleSafe = true,
-            help = "Blocks all chat messages from being sent to you.",
-            handler = Deafen
+            Name = "deafen",
+            Aliases = new[] { "deaf" },
+            ConsoleSafe = true,
+            Help = "Blocks all chat messages from being sent to you.",
+            Handler = Deafen
         };
 
         internal static void Deafen( Player player, Command cmd ) {
-            if( !player.isDeaf ) {
+            if( !player.IsDeaf ) {
                 player.MessageNow( "Deafened mode: ON" );
                 player.MessageNow( "You will not see any messages until you type &H/deafen&S again." );
-                player.isDeaf = true;
+                player.IsDeaf = true;
             } else {
-                player.isDeaf = false;
+                player.IsDeaf = false;
                 player.MessageNow( "Deafened mode: OFF" );
             }
         }
@@ -69,11 +69,11 @@ namespace fCraft {
 
 
         static CommandDescriptor cdTaskDebug = new CommandDescriptor {
-            name = "taskdebug",
-            consoleSafe = true,
-            help = "",
-            hidden = true,
-            handler = delegate( Player player, Command cmd ) {
+            Name = "taskdebug",
+            ConsoleSafe = true,
+            Help = "",
+            Hidden = true,
+            Handler = delegate( Player player, Command cmd ) {
                 Scheduler.PrintTasks( player );
                 Scheduler.PrintTasks( Player.Console );
             }
@@ -83,11 +83,11 @@ namespace fCraft {
         #region Ignore
 
         static readonly CommandDescriptor cdIgnore = new CommandDescriptor {
-            name = "ignore",
-            consoleSafe = true,
-            usage = "/ignore PlayerName",
-            help = "Temporarily blocks the other player from messaging you.",
-            handler = Ignore
+            Name = "ignore",
+            ConsoleSafe = true,
+            Usage = "/ignore PlayerName",
+            Help = "Temporarily blocks the other player from messaging you.",
+            Handler = Ignore
         };
 
         internal static void Ignore( Player player, Command cmd ) {
@@ -128,11 +128,11 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdUnignore = new CommandDescriptor {
-            name = "unignore",
-            consoleSafe = true,
-            usage = "/unignore PlayerName",
-            help = "Unblocks the other player from messaging you.",
-            handler = Unignore
+            Name = "unignore",
+            ConsoleSafe = true,
+            Usage = "/unignore PlayerName",
+            Help = "Unblocks the other player from messaging you.",
+            Handler = Unignore
         };
 
         internal static void Unignore( Player player, Command cmd ) {
@@ -170,20 +170,20 @@ namespace fCraft {
         #region Infos (/info, /rinfo, /baninfo, /sinfo)
 
         static readonly CommandDescriptor cdInfo = new CommandDescriptor {
-            name = "info",
-            aliases = new[] { "pinfo" },
-            consoleSafe = true,
-            usage = "/info [PlayerName]",
-            help = "Displays some information and stats about the player. " +
+            Name = "info",
+            Aliases = new[] { "pinfo" },
+            ConsoleSafe = true,
+            Usage = "/info [PlayerName]",
+            Help = "Displays some information and stats about the player. " +
                    "If no name is given, shows your own stats.",
-            handler = Info
+            Handler = Info
         };
 
         static readonly Regex regexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
         internal static void Info( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
-                name = player.name;
+                name = player.Name;
             } else if( !player.Can( Permission.ViewOthersInfo ) ) {
                 player.NoAccessMessage( Permission.ViewOthersInfo );
                 return;
@@ -228,59 +228,59 @@ namespace fCraft {
 
 
         public static void PrintPlayerInfo( Player player, PlayerInfo info ) {
-            Player target = Server.FindPlayerExact( info.name );
+            Player target = Server.FindPlayerExact( info.Name );
 
             // hide online status when hidden
             if( target != null && !player.CanSee( target ) ) {
                 target = null;
             }
 
-            if( info.lastIP.ToString() == IPAddress.None.ToString() ) {
+            if( info.LastIP.ToString() == IPAddress.None.ToString() ) {
                 player.Message( "About {0}&S: Never seen before.", info.GetClassyName() );
 
             } else {
                 if( target != null ) {
-                    if( target.isHidden ) {
+                    if( target.IsHidden ) {
                         player.Message( "About {0}&S: HIDDEN. Online from {1}",
                                         info.GetClassyName(),
-                                        info.lastIP );
+                                        info.LastIP );
                     } else {
                         player.Message( "About {0}&S: Online now from {1}",
                                         info.GetClassyName(),
-                                        info.lastIP );
+                                        info.LastIP );
                     }
                 } else {
                     player.Message( "About {0}&S: Last seen {1} ago from {2}",
-                                    info.name,
-                                    DateTime.Now.Subtract( info.lastSeen ).ToMiniString(),
-                                    info.lastIP );
+                                    info.Name,
+                                    DateTime.Now.Subtract( info.LastSeen ).ToMiniString(),
+                                    info.LastIP );
                 }
                 // Show login information
                 player.Message( "  Logged in {0} time(s) since {1:d MMM yyyy}.",
-                                info.timesVisited,
-                                info.firstLoginDate );
+                                info.TimesVisited,
+                                info.FirstLoginDate );
             }
 
 
             // Show ban information
-            IPBanInfo ipBan = IPBanList.Get( info.lastIP );
-            if( ipBan != null && info.banned ) {
+            IPBanInfo ipBan = IPBanList.Get( info.LastIP );
+            if( ipBan != null && info.Banned ) {
                 player.Message( "  Both name and IP are {0}BANNED&S. See &H/baninfo", Color.Red );
             } else if( ipBan != null ) {
                 player.Message( "  IP is {0}BANNED&S (but nick isn't). See &H/baninfo", Color.Red );
-            } else if( info.banned ) {
+            } else if( info.Banned ) {
                 player.Message( "  Nick is {0}BANNED&S (but IP isn't). See &H/baninfo", Color.Red );
             }
 
 
-            if( info.lastIP.ToString() != IPAddress.None.ToString() ) {
+            if( info.LastIP.ToString() != IPAddress.None.ToString() ) {
                 // Show alts
                 List<PlayerInfo> altNames = new List<PlayerInfo>();
                 int bannedAltCount = 0;
-                foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( info.lastIP, 25 ) ) {
+                foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( info.LastIP, 25 ) ) {
                     if( playerFromSameIP != info ) {
                         altNames.Add( playerFromSameIP );
-                        if( playerFromSameIP.banned ) {
+                        if( playerFromSameIP.Banned ) {
                             bannedAltCount++;
                         }
                     }
@@ -302,89 +302,89 @@ namespace fCraft {
 
 
             // Stats
-            if( info.blocksDrawn > 500000000 ) {
+            if( info.BlocksDrawn > 500000000 ) {
                 player.Message( "  Built {0} and deleted {1} blocks, drew {2}M blocks, wrote {3} messages.",
-                                info.blocksBuilt,
-                                info.blocksDeleted,
-                                info.blocksDrawn / 1000000,
-                                info.linesWritten );
-            } else if( info.blocksDrawn > 500000 ) {
+                                info.BlocksBuilt,
+                                info.BlocksDeleted,
+                                info.BlocksDrawn / 1000000,
+                                info.LinesWritten );
+            } else if( info.BlocksDrawn > 500000 ) {
                 player.Message( "  Built {0} and deleted {1} blocks, drew {2}K blocks, wrote {3} messages.",
-                                info.blocksBuilt,
-                                info.blocksDeleted,
-                                info.blocksDrawn / 1000,
-                                info.linesWritten );
-            } else if( info.blocksDrawn > 0 ) {
+                                info.BlocksBuilt,
+                                info.BlocksDeleted,
+                                info.BlocksDrawn / 1000,
+                                info.LinesWritten );
+            } else if( info.BlocksDrawn > 0 ) {
                 player.Message( "  Built {0} and deleted {1} blocks, drew {2} blocks, wrote {3} messages.",
-                                info.blocksBuilt,
-                                info.blocksDeleted,
-                                info.blocksDrawn,
-                                info.linesWritten );
+                                info.BlocksBuilt,
+                                info.BlocksDeleted,
+                                info.BlocksDrawn,
+                                info.LinesWritten );
             } else {
                 player.Message( "  Built {0} and deleted {1} blocks, wrote {2} messages.",
-                                info.blocksBuilt,
-                                info.blocksDeleted,
-                                info.linesWritten );
+                                info.BlocksBuilt,
+                                info.BlocksDeleted,
+                                info.LinesWritten );
             }
 
 
             // More stats
-            if( info.timesBannedOthers > 0 || info.timesKickedOthers > 0 ) {
-                player.Message( "  Kicked {0} and banned {1} players.", info.timesKickedOthers, info.timesBannedOthers );
+            if( info.TimesBannedOthers > 0 || info.TimesKickedOthers > 0 ) {
+                player.Message( "  Kicked {0} and banned {1} players.", info.TimesKickedOthers, info.TimesBannedOthers );
             }
 
-            if( info.timesKicked > 0 ) {
-                if( info.lastKickDate != DateTime.MinValue ) {
-                    TimeSpan timeSinceLastKick = DateTime.Now.Subtract( info.lastKickDate );
+            if( info.TimesKicked > 0 ) {
+                if( info.LastKickDate != DateTime.MinValue ) {
+                    TimeSpan timeSinceLastKick = DateTime.Now.Subtract( info.LastKickDate );
                     player.Message( "  Got kicked {0} times. Last kick {1} ago by {2}",
-                                    info.timesKicked,
+                                    info.TimesKicked,
                                     timeSinceLastKick.ToMiniString(),
-                                    info.lastKickBy );
-                    if( info.lastKickReason.Length > 0 ) {
-                        player.Message( "  Last kick reason: {0}", info.lastKickReason );
+                                    info.LastKickBy );
+                    if( info.LastKickReason.Length > 0 ) {
+                        player.Message( "  Last kick reason: {0}", info.LastKickReason );
                     }
                 } else {
-                    player.Message( "  Got kicked {0} times", info.timesKicked );
+                    player.Message( "  Got kicked {0} times", info.TimesKicked );
                 }
             }
 
 
             // Promotion/demotion
-            if( !String.IsNullOrEmpty( info.rankChangedBy ) ) {
-                if( info.previousRank == null ) {
+            if( !String.IsNullOrEmpty( info.RankChangedBy ) ) {
+                if( info.PreviousRank == null ) {
                     player.Message( "  Promoted to {0}&S by {1} on {2:d MMM yyyy}.",
-                                    info.rank.GetClassyName(),
-                                    info.rankChangedBy,
-                                    info.rankChangeDate );
-                } else if( info.previousRank < info.rank ) {
+                                    info.Rank.GetClassyName(),
+                                    info.RankChangedBy,
+                                    info.RankChangeDate );
+                } else if( info.PreviousRank < info.Rank ) {
                     player.Message( "  Promoted from {0}&S to {1}&S by {2} on {3:d MMM yyyy}.",
-                                    info.previousRank.GetClassyName(),
-                                    info.rank.GetClassyName(),
-                                    info.rankChangedBy,
-                                    info.rankChangeDate );
-                    if( !string.IsNullOrEmpty( info.rankChangeReason ) ) {
-                        player.Message( "  Promotion reason: {0}", info.rankChangeReason );
+                                    info.PreviousRank.GetClassyName(),
+                                    info.Rank.GetClassyName(),
+                                    info.RankChangedBy,
+                                    info.RankChangeDate );
+                    if( !string.IsNullOrEmpty( info.RankChangeReason ) ) {
+                        player.Message( "  Promotion reason: {0}", info.RankChangeReason );
                     }
                 } else {
                     player.Message( "  Demoted from {0}&S to {1}&S by {2} on {3:d MMM yyyy}.",
-                                    info.previousRank.GetClassyName(),
-                                    info.rank.GetClassyName(),
-                                    info.rankChangedBy,
-                                    info.rankChangeDate );
-                    if( info.rankChangeReason.Length > 0 ) {
-                        player.Message( "  Demotion reason: {0}", info.rankChangeReason );
+                                    info.PreviousRank.GetClassyName(),
+                                    info.Rank.GetClassyName(),
+                                    info.RankChangedBy,
+                                    info.RankChangeDate );
+                    if( info.RankChangeReason.Length > 0 ) {
+                        player.Message( "  Demotion reason: {0}", info.RankChangeReason );
                     }
                 }
             } else {
                 player.Message( "  Rank is {0}&S (default).",
-                                info.rank.GetClassyName() );
+                                info.Rank.GetClassyName() );
             }
 
-            if( info.lastIP.ToString() != IPAddress.None.ToString() ) {
+            if( info.LastIP.ToString() != IPAddress.None.ToString() ) {
                 // Time on the server
-                TimeSpan totalTime = info.totalTime;
+                TimeSpan totalTime = info.TotalTime;
                 if( target != null ) {
-                    totalTime = totalTime.Add( DateTime.Now.Subtract( info.lastLoginDate ) );
+                    totalTime = totalTime.Add( DateTime.Now.Subtract( info.LastLoginDate ) );
                 }
                 player.Message( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
                                 totalTime.TotalHours,
@@ -395,19 +395,19 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdBanInfo = new CommandDescriptor {
-            name = "baninfo",
-            consoleSafe = true,
-            usage = "/baninfo [PlayerName|IPAddress]",
-            help = "Prints information about past and present bans/unbans associated with the PlayerName or IP. " +
+            Name = "baninfo",
+            ConsoleSafe = true,
+            Usage = "/baninfo [PlayerName|IPAddress]",
+            Help = "Prints information about past and present bans/unbans associated with the PlayerName or IP. " +
                    "If no name is given, this prints your own ban info.",
-            handler = BanInfo
+            Handler = BanInfo
         };
 
         internal static void BanInfo( Player player, Command cmd ) {
             string name = cmd.Next();
             IPAddress address;
             if( name == null ) {
-                name = player.name;
+                name = player.Name;
             } else if( !player.Can( Permission.ViewOthersInfo ) ) {
                 player.NoAccessMessage( Permission.ViewOthersInfo );
                 return;
@@ -442,33 +442,33 @@ namespace fCraft {
                 if( !PlayerDB.FindPlayerInfo( name, out info ) ) {
                     player.Message( "More than one player found matching \"{0}\"", name );
                 } else if( info != null ) {
-                    if( info.banned ) {
+                    if( info.Banned ) {
                         player.Message( "Player {0}&S is &WBANNED", info.GetClassyName() );
                     } else {
                         player.Message( "Player {0}&S is NOT banned.", info.GetClassyName() );
                     }
-                    if( !String.IsNullOrEmpty( info.bannedBy ) ) {
+                    if( !String.IsNullOrEmpty( info.BannedBy ) ) {
                         player.Message( "  Last ban by {0} on {1:dd MMM yyyy}.",
-                                        info.bannedBy,
-                                        info.banDate );
-                        if( info.banReason.Length > 0 ) {
-                            player.Message( "  Last ban reason: {0}", info.banReason );
+                                        info.BannedBy,
+                                        info.BanDate );
+                        if( info.BanReason.Length > 0 ) {
+                            player.Message( "  Last ban reason: {0}", info.BanReason );
                         }
                     }
-                    if( !String.IsNullOrEmpty( info.unbannedBy ) ) {
+                    if( !String.IsNullOrEmpty( info.UnbannedBy ) ) {
                         player.Message( "  Unbanned by {0} on {1:dd MMM yyyy}.",
-                                        info.unbannedBy,
-                                        info.unbanDate );
-                        if( info.unbanReason.Length > 0 ) {
-                            player.Message( "  Last unban reason: {0}", info.unbanReason );
+                                        info.UnbannedBy,
+                                        info.UnbanDate );
+                        if( info.UnbanReason.Length > 0 ) {
+                            player.Message( "  Last unban reason: {0}", info.UnbanReason );
                         }
                     }
-                    if( info.banDate != DateTime.MinValue ) {
+                    if( info.BanDate != DateTime.MinValue ) {
                         TimeSpan banDuration;
-                        if( info.banned ) {
-                            banDuration = DateTime.Now.Subtract( info.banDate );
+                        if( info.Banned ) {
+                            banDuration = DateTime.Now.Subtract( info.BanDate );
                         } else {
-                            banDuration = info.unbanDate.Subtract( info.banDate );
+                            banDuration = info.UnbanDate.Subtract( info.BanDate );
                         }
                         player.Message( "  Last ban duration: {0} days and {1:F1} hours.",
                                         (int)banDuration.TotalDays,
@@ -483,12 +483,12 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdRankInfo = new CommandDescriptor {
-            name = "rankinfo",
-            aliases = new[] { "class", "rinfo", "cinfo" },
-            consoleSafe = true,
-            usage = "/rinfo RankName",
-            help = "Shows a list of permissions granted to a rank. To see a list of all ranks, use &H/ranks",
-            handler = RankInfo
+            Name = "rankinfo",
+            Aliases = new[] { "class", "rinfo", "cinfo" },
+            ConsoleSafe = true,
+            Usage = "/rinfo RankName",
+            Help = "Shows a list of permissions granted to a rank. To see a list of all ranks, use &H/ranks",
+            Handler = RankInfo
         };
 
         // Shows general information about a particular rank.
@@ -497,7 +497,7 @@ namespace fCraft {
 
             string rankName = cmd.Next();
             if( rankName == null ) {
-                rank = player.info.rank;
+                rank = player.Info.Rank;
             } else {
                 rank = RankList.FindRank( rankName );
                 if( rank == null ) {
@@ -533,16 +533,16 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdServerInfo = new CommandDescriptor {
-            name = "sinfo",
-            consoleSafe = true,
-            help = "Shows server stats",
-            handler = ServerInfo
+            Name = "sinfo",
+            ConsoleSafe = true,
+            Help = "Shows server stats",
+            Handler = ServerInfo
         };
 
         internal static void ServerInfo( Player player, Command cmd ) {
             Process.GetCurrentProcess().Refresh();
             player.Message( "Servers stats: Up for {0:0.0} hours, using {1:0} MB of memory",
-                            DateTime.Now.Subtract( Server.serverStart ).TotalHours,
+                            DateTime.Now.Subtract( Server.ServerStart ).TotalHours,
                             (Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
 
             player.Message( "Averaging {0:0.0}% CPU in last minute, {1:0.0}% CPU overall.",
@@ -569,23 +569,23 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdMe = new CommandDescriptor {
-            name = "me",
-            consoleSafe = true,
-            usage = "/me Message",
-            help = "Sends IRC-style action message prefixed with your name.",
-            handler = Me
+            Name = "me",
+            ConsoleSafe = true,
+            Usage = "/me Message",
+            Help = "Sends IRC-style action message prefixed with your name.",
+            Handler = Me
         };
 
         internal static void Me( Player player, Command cmd ) {
-            if( player.info.IsMuted() ) {
+            if( player.Info.IsMuted() ) {
                 player.MutedMessage();
                 return;
             }
 
             string msg = cmd.NextAll();
             if( msg != null && msg.Trim().Length > 0 ) {
-                player.info.linesWritten++;
-                string message = String.Format( "{0}*{1} {2}", Color.Me, player.name, msg.Trim() );
+                player.Info.LinesWritten++;
+                string message = String.Format( "{0}*{1} {2}", Color.Me, player.Name, msg.Trim() );
                 Server.SendToAll( message );
                 IRC.SendChannelMessage( message );
             }
@@ -594,15 +594,15 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdRanks = new CommandDescriptor {
-            name = "ranks",
-            aliases = new[] { "classes" },
-            consoleSafe = true,
-            help = "Shows a list of all defined ranks.",
-            handler = Ranks
+            Name = "ranks",
+            Aliases = new[] { "classes" },
+            ConsoleSafe = true,
+            Help = "Shows a list of all defined ranks.",
+            Handler = Ranks
         };
 
         internal static void Ranks( Player player, Command cmd ) {
-            player.Message( "Below is a list of ranks. For detail see &H{0}", cdRankInfo.usage );
+            player.Message( "Below is a list of ranks. For detail see &H{0}", cdRankInfo.Usage );
             foreach( Rank rank in RankList.Ranks ) {
                 player.Message( "&S    {0}  ({1} players)",
                                 rank.GetClassyName(),
@@ -613,10 +613,10 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdRules = new CommandDescriptor {
-            name = "rules",
-            consoleSafe = true,
-            help = "Shows a list of rules defined by server operator(s).",
-            handler = Rules
+            Name = "rules",
+            ConsoleSafe = true,
+            Help = "Shows a list of rules defined by server operator(s).",
+            Handler = Rules
         };
 
         const string RulesFile = "rules.txt";
@@ -642,18 +642,18 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdRoll = new CommandDescriptor {
-            name = "roll",
-            consoleSafe = true,
-            help = "Gives random number between 1 and 100.&N" +
+            Name = "roll",
+            ConsoleSafe = true,
+            Help = "Gives random number between 1 and 100.&N" +
                    "&H/roll MaxNumber&N" +
                    "Gives number between 1 and max.&N" +
                    "&H/roll MinNumber MaxNumber&N" +
                    "Gives number between min and max.",
-            handler = Roll
+            Handler = Roll
         };
 
         internal static void Roll( Player player, Command cmd ) {
-            if( player.info.IsMuted() ) {
+            if( player.Info.IsMuted() ) {
                 player.MutedMessage();
                 return;
             }
@@ -682,9 +682,9 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdMeasure = new CommandDescriptor {
-            name = "measure",
-            help = "Shows information about a selection: width/length/height and volume.",
-            handler = Measure
+            Name = "measure",
+            Help = "Shows information about a selection: width/length/height and volume.",
+            Handler = Measure
         };
 
         internal static void Measure( Player player, Command cmd ) {
@@ -711,12 +711,12 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdPlayers = new CommandDescriptor {
-            name = "players",
-            consoleSafe = true,
-            usage = "/players [WorldName]",
-            help = "Lists all players on the server (in all worlds). " +
+            Name = "players",
+            ConsoleSafe = true,
+            Usage = "/players [WorldName]",
+            Help = "Lists all players on the server (in all worlds). " +
                    "If a WorldName is given, only lists players on that one world.",
-            handler = Players
+            Handler = Players
         };
 
         internal static void Players( Player player, Command cmd ) {
@@ -746,10 +746,10 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdVersion = new CommandDescriptor {
-            name = "version",
-            consoleSafe = true,
-            help = "Shows server software name and version.",
-            handler = Version
+            Name = "version",
+            ConsoleSafe = true,
+            Help = "Shows server software name and version.",
+            Handler = Version
         };
 
         internal static void Version( Player player, Command cmd ) {
@@ -759,14 +759,14 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdWhere = new CommandDescriptor {
-            name = "where",
-            aliases = new[] { "compass" },
-            permissions = new[] { Permission.ViewOthersInfo },
-            consoleSafe = true,
-            usage = "/where [PlayerName]",
-            help = "Shows information about the location and orientation of a player. " +
+            Name = "where",
+            Aliases = new[] { "compass" },
+            Permissions = new[] { Permission.ViewOthersInfo },
+            ConsoleSafe = true,
+            Usage = "/where [PlayerName]",
+            Help = "Shows information about the location and orientation of a player. " +
                    "If no name is given, shows player's own info.",
-            handler = Where
+            Handler = Where
         };
 
         const string Compass = "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . " +
@@ -780,23 +780,23 @@ namespace fCraft {
             if( name != null ) {
                 target = Server.FindPlayerOrPrintMatches( player, name, false );
                 if( target == null ) return;
-            } else if( player.world == null ) {
+            } else if( player.World == null ) {
                 player.Message( "When called form console, &H/where&S requires a player name." );
                 return;
             }
 
             player.Message( "Player {0}&S is on world {1}&S:",
                             target.GetClassyName(),
-                            target.world.GetClassyName() );
+                            target.World.GetClassyName() );
 
 
-            int offset = (int)(target.pos.r / 255f * 64f) + 32;
+            int offset = (int)(target.Position.R / 255f * 64f) + 32;
 
             player.Message( "{0}({1},{2},{3}) - {4}[{5}{6}{7}{4}{8}]",
                             Color.Silver,
-                            target.pos.x / 32,
-                            target.pos.y / 32,
-                            target.pos.h / 32,
+                            target.Position.X / 32,
+                            target.Position.Y / 32,
+                            target.Position.H / 32,
                             Color.White,
                             Compass.Substring( offset - 12, 11 ),
                             Color.Red,
@@ -807,11 +807,11 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdHelp = new CommandDescriptor {
-            name = "help",
-            consoleSafe = true,
-            usage = "/help [CommandName]",
-            help = "Derp.",
-            handler = Help
+            Name = "help",
+            ConsoleSafe = true,
+            Usage = "/help [CommandName]",
+            Help = "Derp.",
+            Handler = Help
         };
 
         const string HelpPrefix = "&S    ";
@@ -832,12 +832,12 @@ namespace fCraft {
                     return;
                 }
                 StringBuilder sb = new StringBuilder( Color.Help );
-                sb.Append( descriptor.usage ).Append( "&N" );
+                sb.Append( descriptor.Usage ).Append( "&N" );
 
-                if( descriptor.aliases != null ) {
+                if( descriptor.Aliases != null ) {
                     sb.Append( "Aliases: &H" );
                     bool first = true;
-                    foreach( string alias in descriptor.aliases ) {
+                    foreach( string alias in descriptor.Aliases ) {
                         if( !first ) {
                             sb.Append( "&S, &H" );
                         }
@@ -847,16 +847,16 @@ namespace fCraft {
                     sb.Append( "&N" );
                 }
 
-                if( descriptor.helpHandler != null ) {
-                    sb.Append( descriptor.helpHandler( player ) );
+                if( descriptor.HelpHandler != null ) {
+                    sb.Append( descriptor.HelpHandler( player ) );
                 } else {
-                    sb.Append( descriptor.help );
+                    sb.Append( descriptor.Help );
                 }
 
                 player.MessagePrefixed( HelpPrefix, sb.ToString() );
 
-                if( descriptor.permissions != null && descriptor.permissions.Length > 0 ) {
-                    player.NoAccessMessage( descriptor.permissions );
+                if( descriptor.Permissions != null && descriptor.Permissions.Length > 0 ) {
+                    player.NoAccessMessage( descriptor.Permissions );
                 }
 
             } else {

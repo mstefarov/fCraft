@@ -252,10 +252,10 @@ namespace ConfigTool {
 
         void ApplyTabLogging() {
             foreach( ListViewItem item in vConsoleOptions.Items ) {
-                item.Checked = Logger.consoleOptions[item.Index];
+                item.Checked = Logger.ConsoleOptions[item.Index];
             }
             foreach( ListViewItem item in vLogFileOptions.Items ) {
-                item.Checked = Logger.logFileOptions[item.Index];
+                item.Checked = Logger.LogFileOptions[item.Index];
             }
 
             ApplyEnum( cLogMode, ConfigKey.LogMode, LogSplittingType.OneFile );
@@ -445,10 +445,10 @@ namespace ConfigTool {
             if( xLogLimit.Checked ) Config.SetValue( ConfigKey.MaxLogs, nLogLimit.Value );
             else Config.SetValue( ConfigKey.MaxLogs, "0" );
             foreach( ListViewItem item in vConsoleOptions.Items ) {
-                Logger.consoleOptions[item.Index] = item.Checked;
+                Logger.ConsoleOptions[item.Index] = item.Checked;
             }
             foreach( ListViewItem item in vLogFileOptions.Items ) {
-                Logger.logFileOptions[item.Index] = item.Checked;
+                Logger.LogFileOptions[item.Index] = item.Checked;
             }
 
 

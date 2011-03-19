@@ -75,7 +75,7 @@ namespace fCraft {
 
 
         static void BackgroundLoop() {
-            while( !Server.shuttingDown ) {
+            while( !Server.IsShuttingDown ) {
                 if( BackgroundTasks.Count > 0 ) {
                     Task task;
                     lock( BackgroundTaskListLock ) {

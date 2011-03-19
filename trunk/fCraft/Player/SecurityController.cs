@@ -27,12 +27,12 @@ namespace fCraft {
         public class PlayerListCollection : ICloneable {
             public PlayerListCollection() { }
             public PlayerListCollection( PlayerListCollection other ) {
-                included = (PlayerInfo[])other.included.Clone();
-                excluded = (PlayerInfo[])other.excluded.Clone();
+                Included = (PlayerInfo[])other.Included.Clone();
+                Excluded = (PlayerInfo[])other.Excluded.Clone();
             }
             // keeping both lists on one object allows lock-free synchronization
-            public PlayerInfo[] included;
-            public PlayerInfo[] excluded;
+            public PlayerInfo[] Included;
+            public PlayerInfo[] Excluded;
             public object Clone() {
                 return new PlayerListCollection( this );
             }
@@ -56,27 +56,28 @@ namespace fCraft {
             return new SecurityController( this );
         }
 
-        Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
-        Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
 
-        public PlayerListCollection exceptionList { get; private set; }
+        readonly Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
+        readonly Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
 
-        private Rank _minRank;
+        public PlayerListCollection ExceptionList { get; private set; }
+
+        private Rank minRank;
         public Rank MinRank {
             get {
-                if( _minRank != null ) {
-                    return _minRank;
+                if( minRank != null ) {
+                    return minRank;
                 } else {
                     return RankList.LowestRank;
                 }
             }
             set {
-                _minRank = value;
+                minRank = value;
             }
         }
         // TODO: maxRank;
         public bool NoRankRestriction {
-            get { return (_minRank == null); }
+            get { return (minRank == null); }
         }
 
         readonly object playerPermissionListLock = new object();
@@ -84,9 +85,9 @@ namespace fCraft {
 
         public void UpdatePlayerListCache() {
             lock( playerPermissionListLock ) {
-                exceptionList = new PlayerListCollection {
-                    included = includedPlayers.Values.ToArray(),
-                    excluded = excludedPlayers.Values.ToArray()
+                ExceptionList = new PlayerListCollection {
+                    Included = includedPlayers.Values.ToArray(),
+                    Excluded = excludedPlayers.Values.ToArray()
                 };
             }
         }
@@ -99,11 +100,11 @@ namespace fCraft {
                     UpdatePlayerListCache();
                     return PermissionOverride.Allow;
                 } else if( excludedPlayers.ContainsValue( info ) ) {
-                    excludedPlayers.Remove( info.name.ToLower() );
+                    excludedPlayers.Remove( info.Name.ToLower() );
                     UpdatePlayerListCache();
                     return PermissionOverride.Deny;
                 } else {
-                    includedPlayers.Add( info.name.ToLower(), info );
+                    includedPlayers.Add( info.Name.ToLower(), info );
                     UpdatePlayerListCache();
                     return PermissionOverride.None;
                 }
@@ -118,11 +119,11 @@ namespace fCraft {
                     UpdatePlayerListCache();
                     return PermissionOverride.Deny;
                 } else if( includedPlayers.ContainsValue( info ) ) {
-                    includedPlayers.Remove( info.name.ToLower() );
+                    includedPlayers.Remove( info.Name.ToLower() );
                     UpdatePlayerListCache();
                     return PermissionOverride.Allow;
                 } else {
-                    excludedPlayers.Add( info.name.ToLower(), info );
+                    excludedPlayers.Add( info.Name.ToLower(), info );
                     UpdatePlayerListCache();
                     return PermissionOverride.None;
                 }
@@ -131,27 +132,27 @@ namespace fCraft {
 
 
         public bool Check( PlayerInfo info ) {
-            PlayerListCollection listCache = exceptionList;
-            if( listCache.excluded.Any( t => (info == t) ) ) {
+            PlayerListCollection listCache = ExceptionList;
+            if( listCache.Excluded.Any( t => (info == t) ) ) {
                 return false;
             }
 
-            if( info.rank >= MinRank /*&& player.info.rank <= maxRank*/ ) return true; // TODO: implement maxrank
+            if( info.Rank >= MinRank /*&& player.info.rank <= maxRank*/ ) return true; // TODO: implement maxrank
 
-            return exceptionList.included.Any( t => (info == t) );
+            return ExceptionList.Included.Any( t => (info == t) );
         }
 
 
         public SecurityCheckResult CheckDetailed( PlayerInfo info ) {
-            PlayerListCollection listCache = exceptionList;
-            if( listCache.excluded.Any( t => info == t ) ) {
+            PlayerListCollection listCache = ExceptionList;
+            if( listCache.Excluded.Any( t => info == t ) ) {
                 return SecurityCheckResult.BlackListed;
             }
 
-            if( info.rank >= MinRank /*&& player.info.rank <= maxRank*/ ) // TODO: implement maxrank
+            if( info.Rank >= MinRank /*&& player.info.rank <= maxRank*/ ) // TODO: implement maxrank
                 return SecurityCheckResult.Allowed;
 
-            if( listCache.included.Any( t => info == t ) ) {
+            if( listCache.Included.Any( t => info == t ) ) {
                 return SecurityCheckResult.WhiteListed;
             }
 
@@ -160,7 +161,7 @@ namespace fCraft {
 
 
         public void PrintDescription( Player player, IClassy world, string noun, string verb ) {
-            PlayerListCollection list = exceptionList;
+            PlayerListCollection list = ExceptionList;
 
             noun = Char.ToUpper( noun[0] ) + noun.Substring( 1 ); // capitalize first letter
 
@@ -176,12 +177,12 @@ namespace fCraft {
                                       verb, MinRank.GetClassyName() );
             }
 
-            if( list.included.Length > 0 ) {
-                message.AppendFormat( " and {0}&S", PlayerInfo.PlayerInfoArrayToString( list.included ) );
+            if( list.Included.Length > 0 ) {
+                message.AppendFormat( " and {0}&S", PlayerInfo.PlayerInfoArrayToString( list.Included ) );
             }
 
-            if( list.excluded.Length > 0 ) {
-                message.AppendFormat( ", except {0}", PlayerInfo.PlayerInfoArrayToString( list.excluded ) );
+            if( list.Excluded.Length > 0 ) {
+                message.AppendFormat( ", except {0}", PlayerInfo.PlayerInfoArrayToString( list.Excluded ) );
             }
 
             message.Append( '.' );
@@ -191,7 +192,7 @@ namespace fCraft {
 
         public bool HasRestrictions() {
             return MinRank > RankList.LowestRank ||
-                   exceptionList.excluded.Length > 0;
+                   ExceptionList.Excluded.Length > 0;
         }
 
 
@@ -202,9 +203,9 @@ namespace fCraft {
 
         public SecurityController( XElement root ) {
             if( root.Element( "minRank" ) != null ) {
-                _minRank = RankList.ParseRank( root.Element( "minRank" ).Value );
+                minRank = RankList.ParseRank( root.Element( "minRank" ).Value );
             } else {
-                _minRank = null;
+                minRank = null;
             }
 
             //maxRank = RankList.ParseRank( root.Element( "maxRank" ).Value );

@@ -23,104 +23,101 @@ namespace fCraft {
     /// Object representing a connected player.
     /// </summary>
     public sealed class Player : IClassy {
-        public static bool relayAllUpdates;
+        public static bool RelayAllUpdates;
 
-        public string name; // always same as PlayerInfo.name
+        public string Name; // always same as PlayerInfo.name
         // use Player.GetClassyName() to get the colorful version
 
-        internal Session session;
-        public PlayerInfo info;
+        internal Session Session;
+        public PlayerInfo Info;
 
-        public Position pos,
-                        lastValidPosition; // used in speedhack detection
+        public Position Position,
+                        LastValidPosition; // used in speedhack detection
 
-        public object locker = new object();
-
-        public bool isPainting,
-                    isHidden,
-                    isDeaf;
-        internal World world;
-        internal DateTime idleTimer = DateTime.UtcNow; // used for afk kicks
+        public bool IsPainting,
+                    IsHidden,
+                    IsDeaf;
+        internal World World;
+        internal DateTime IdleTimer = DateTime.UtcNow; // used for afk kicks
 
         // the godly pseudo-player for commands called from the server console
         public static Player Console;
 
         // confirmation
-        public Command commandToConfirm;
-        public DateTime commandToConfirmDate;
+        public Command CommandToConfirm;
+        public DateTime CommandToConfirmDate;
 
         // for block tracking
-        [CLSCompliant( false )]
-        public ushort localPlayerID = (ushort)ReservedPlayerID.None; // map-specific PlayerID
+        public ushort LocalPlayerID = (ushort)ReservedPlayerID.None; // map-specific PlayerID
         // if no ID is assigned, set to ReservedPlayerID.None
 
-        public int id = -1; // global PlayerID (currently unused)
+        public int ID = -1; // global PlayerID (currently unused)
 
 
 
         // This constructor is used to create dummy players (such as Console and /dummy)
         // It will soon be replaced by a generic Entity class
-        internal Player( World _world, string _name ) {
-            world = _world;
-            name = _name;
-            info = new PlayerInfo( _name, RankList.HighestRank, true, RankChangeType.AutoPromoted );
-            spamBlockLog = new Queue<DateTime>( info.rank.AntiGriefBlocks );
+        internal Player( World world, string name ) {
+            World = world;
+            Name = name;
+            Info = new PlayerInfo( name, RankList.HighestRank, true, RankChangeType.AutoPromoted );
+            spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             ResetAllBinds();
         }
 
 
         // Normal constructor
-        internal Player( World _world, string _name, Session _session, Position _pos ) {
-            world = _world;
-            name = _name;
-            session = _session;
-            pos = _pos;
-            info = PlayerDB.FindOrCreateInfoForPlayer( this );
-            spamBlockLog = new Queue<DateTime>( info.rank.AntiGriefBlocks );
+        internal Player( World world, string name, Session session, Position position ) {
+            World = world;
+            Name = name;
+            Session = session;
+            Position = position;
+            Info = PlayerDB.FindOrCreateInfoForPlayer( this );
+            spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             ResetAllBinds();
         }
 
 
         // safe wrapper for session.Send
         public void Send( Packet packet ) {
-            if( session != null ) session.Send( packet );
+            if( Session != null ) Session.Send( packet );
         }
 
         public void SendDelayed( Packet packet ) {
-            if( session != null ) session.SendDelayed( packet );
+            if( Session != null ) Session.SendDelayed( packet );
         }
 
 
         #region Messaging
 
-        public static int spamChatCount = 3;
-        public static int spamChatTimer = 4;
-        Queue<DateTime> spamChatLog = new Queue<DateTime>( spamChatCount );
+        public static int SpamChatCount = 3;
+        public static int SpamChatTimer = 4;
+        readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( SpamChatCount );
 
         int muteWarnings;
-        public static TimeSpan autoMuteDuration = TimeSpan.FromSeconds( 5 );
+        public static TimeSpan AutoMuteDuration = TimeSpan.FromSeconds( 5 );
 
-        const int confirmationTimeout = 60;
+        const int ConfirmationTimeout = 60;
 
 
         public void MutedMessage() {
             Message( "You are muted for another {0:0} seconds.",
-                     info.mutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+                     Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
         }
 
 
         bool DetectChatSpam() {
             if( this == Console ) return false;
-            if( spamChatLog.Count >= spamChatCount ) {
+            if( spamChatLog.Count >= SpamChatCount ) {
                 DateTime oldestTime = spamChatLog.Dequeue();
-                if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < spamChatTimer ) {
+                if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < SpamChatTimer ) {
                     muteWarnings++;
                     if( muteWarnings > ConfigKey.AntispamMaxWarnings.GetInt() ) {
-                        session.KickNow( "You were kicked for repeated spamming.", LeaveReason.MessageSpamKick );
+                        Session.KickNow( "You were kicked for repeated spamming.", LeaveReason.MessageSpamKick );
                         Server.SendToAll( "&W{0} was kicked for repeated spamming.", GetClassyName() );
                     } else {
-                        info.mutedUntil = DateTime.UtcNow.Add( autoMuteDuration );
-                        Message( "You have been muted for {0} seconds. Slow down.", autoMuteDuration.TotalSeconds );
+                        Info.MutedUntil = DateTime.UtcNow.Add( AutoMuteDuration );
+                        Message( "You have been muted for {0} seconds. Slow down.", AutoMuteDuration.TotalSeconds );
                     }
                     return true;
                 }
@@ -136,19 +133,19 @@ namespace fCraft {
                 case MessageType.Chat:
                     if( !Can( Permission.Chat ) ) return;
 
-                    if( info.IsMuted() ) {
+                    if( Info.IsMuted() ) {
                         MutedMessage();
                         return;
                     }
 
                     if( DetectChatSpam() ) return;
 
-                    if( world != null && !world.FireSentMessageEvent( this, ref message ) ||
+                    if( World != null && !World.FireSentMessageEvent( this, ref message ) ||
                         !Server.FireSentMessageEvent( this, ref message ) ) return;
 
-                    info.linesWritten++;
+                    Info.LinesWritten++;
 
-                    Logger.Log( "{0}: {1}", LogType.GlobalChat, name, message );
+                    Logger.Log( "{0}: {1}", LogType.GlobalChat, Name, message );
 
                     // Escaped slash removed AFTER logging, to avoid confusion with real commands
                     if( message.StartsWith( "//" ) ) {
@@ -161,14 +158,14 @@ namespace fCraft {
 
                 case MessageType.Command:
                     Logger.Log( "{0}: {1}", LogType.UserCommand,
-                                name, message );
+                                Name, message );
                     CommandList.ParseCommand( this, message, fromConsole );
                     break;
 
                 case MessageType.PrivateChat:
                     if( !Can( Permission.Chat ) ) return;
 
-                    if( info.IsMuted() ) {
+                    if( Info.IsMuted() ) {
                         MutedMessage();
                         return;
                     }
@@ -194,18 +191,18 @@ namespace fCraft {
 
                     if( allPlayers.Length == 1 ) {
                         Player target = allPlayers[0];
-                        if( target.IsIgnoring( info ) ) {
+                        if( target.IsIgnoring( Info ) ) {
                             if( CanSee( target ) ) {
                                 MessageNow( "&WCannot PM {0}&W: you are ignored.", target.GetClassyName() );
                             }
                         } else {
                             Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
-                                        name, target.name, messageText );
+                                        Name, target.Name, messageText );
                             target.Message( "{0}from {1}: {2}",
-                                                 Color.PM, name, messageText );
+                                                 Color.PM, Name, messageText );
                             if( CanSee( target ) ) {
                                 Message( "{0}to {1}: {2}",
-                                         Color.PM, target.name, messageText );
+                                         Color.PM, target.Name, messageText );
 
                             } else {
                                 NoPlayerMessage( otherPlayerName );
@@ -223,7 +220,7 @@ namespace fCraft {
                 case MessageType.RankChat:
                     if( !Can( Permission.Chat ) ) return;
 
-                    if( info.IsMuted() ) {
+                    if( Info.IsMuted() ) {
                         MutedMessage();
                         return;
                     }
@@ -234,16 +231,16 @@ namespace fCraft {
                     Rank rank = RankList.FindRank( rankName );
                     if( rank != null ) {
                         Logger.Log( "{0} to rank {1}: {2}", LogType.RankChat,
-                                    name, rank.Name, message );
+                                    Name, rank.Name, message );
                         string formattedMessage = String.Format( "{0}({1}{2}){3}{4}: {5}",
                                                                  rank.Color,
                                                                  (ConfigKey.RankPrefixesInChat.GetBool() ? rank.Prefix : ""),
                                                                  rank.Name,
                                                                  Color.PM,
-                                                                 name,
+                                                                 Name,
                                                                  message.Substring( message.IndexOf( ' ' ) + 1 ) );
                         Server.SendToRank( this, formattedMessage, rank );
-                        if( info.rank != rank ) {
+                        if( Info.Rank != rank ) {
                             Message( formattedMessage );
                         }
                     } else {
@@ -252,11 +249,11 @@ namespace fCraft {
                     break;
 
                 case MessageType.Confirmation:
-                    if( commandToConfirm != null ) {
-                        if( DateTime.UtcNow.Subtract( commandToConfirmDate ).TotalSeconds < confirmationTimeout ) {
-                            commandToConfirm.confirmed = true;
-                            CommandList.ParseCommand( this, commandToConfirm, fromConsole );
-                            commandToConfirm = null;
+                    if( CommandToConfirm != null ) {
+                        if( DateTime.UtcNow.Subtract( CommandToConfirmDate ).TotalSeconds < ConfirmationTimeout ) {
+                            CommandToConfirm.Confirmed = true;
+                            CommandList.ParseCommand( this, CommandToConfirm, fromConsole );
+                            CommandToConfirm = null;
                         } else {
                             MessageNow( "Confirmation timed out. Enter the command again." );
                         }
@@ -268,12 +265,12 @@ namespace fCraft {
         }
 
 
-        public void Message( string _message ) {
-            MessagePrefixed( ">", _message );
+        public void Message( string message ) {
+            MessagePrefixed( ">", message );
         }
 
-        public void Message( string _message, params object[] args ) {
-            MessagePrefixed( ">", String.Format( _message, args ) );
+        public void Message( string message, params object[] args ) {
+            MessagePrefixed( ">", String.Format( message, args ) );
         }
 
 
@@ -283,7 +280,7 @@ namespace fCraft {
                 Logger.LogConsole( message );
             } else {
                 foreach( Packet p in PacketWriter.MakeWrappedMessage( prefix, Color.Sys + message, false ) ) {
-                    session.Send( p );
+                    Session.Send( p );
                 }
             }
         }
@@ -297,11 +294,11 @@ namespace fCraft {
         // Sends a message directly (synchronously). Should only be used from Session.IoThread
         public void MessageNow( string message, params object[] args ) {
             message = String.Format( message, args );
-            if( session == null ) {
+            if( Session == null ) {
                 Logger.LogConsole( message );
             } else {
                 foreach( Packet p in PacketWriter.MakeWrappedMessage( ">", Color.Sys + message, false ) ) {
-                    session.Send( p );
+                    Session.Send( p );
                 }
             }
         }
@@ -338,10 +335,10 @@ namespace fCraft {
 
 
         public void AskForConfirmation( Command cmd, string message, params object[] args ) {
-            commandToConfirm = cmd;
-            commandToConfirmDate = DateTime.UtcNow;
+            CommandToConfirm = cmd;
+            CommandToConfirmDate = DateTime.UtcNow;
             Message( "{0} Type &H/ok&S to continue.", String.Format( message, args ) );
-            commandToConfirm.Rewind();
+            CommandToConfirm.Rewind();
         }
 
 
@@ -363,7 +360,7 @@ namespace fCraft {
 
         #region Ignore
 
-        HashSet<PlayerInfo> ignoreList = new HashSet<PlayerInfo>();
+        readonly HashSet<PlayerInfo> ignoreList = new HashSet<PlayerInfo>();
         readonly object ignoreLock = new object();
 
         public bool IsIgnoring( PlayerInfo other ) {
@@ -420,15 +417,15 @@ namespace fCraft {
             lastUsedBlockType = type;
 
             // check if player is frozen or too far away to legitimately place a block
-            if( info.isFrozen ||
-                Math.Abs( x * 32 - pos.x ) > maxRange ||
-                Math.Abs( y * 32 - pos.y ) > maxRange ||
-                Math.Abs( h * 32 - pos.h ) > maxRange ) {
+            if( Info.IsFrozen ||
+                Math.Abs( x * 32 - Position.X ) > maxRange ||
+                Math.Abs( y * 32 - Position.Y ) > maxRange ||
+                Math.Abs( h * 32 - Position.H ) > maxRange ) {
                 SendBlockNow( x, y, h );
                 return false;
             }
 
-            if( world.isLocked ) {
+            if( World.IsLocked ) {
                 SendBlockNow( x, y, h );
                 Message( "This map is currently locked (read-only)." );
                 return false;
@@ -437,8 +434,8 @@ namespace fCraft {
             if( CheckBlockSpam() ) return true;
 
             // bindings
-            bool requiresUpdate = (type != bindings[(byte)type] || isPainting);
-            if( !buildMode && !isPainting ) {
+            bool requiresUpdate = (type != bindings[(byte)type] || IsPainting);
+            if( !buildMode && !IsPainting ) {
                 type = Block.Air;
             }
             type = bindings[(byte)type];
@@ -459,7 +456,7 @@ namespace fCraft {
             }
 
             CanPlaceResult canPlaceResult;
-            if( type == Block.Stair && h > 0 && world.map.GetBlock( x, y, h - 1 ) == (byte)Block.Stair ) {
+            if( type == Block.Stair && h > 0 && World.Map.GetBlock( x, y, h - 1 ) == (byte)Block.Stair ) {
                 // stair stacking
                 canPlaceResult = CanPlace( x, y, h - 1, (byte)Block.DoubleStair );
             } else {
@@ -471,30 +468,30 @@ namespace fCraft {
             switch( canPlaceResult ) {
                 case CanPlaceResult.Allowed:
                     BlockUpdate blockUpdate;
-                    if( type == Block.Stair && h > 0 && world.map.GetBlock( x, y, h - 1 ) == (byte)Block.Stair ) {
+                    if( type == Block.Stair && h > 0 && World.Map.GetBlock( x, y, h - 1 ) == (byte)Block.Stair ) {
                         // handle stair stacking
                         blockUpdate = new BlockUpdate( this, x, y, h - 1, (byte)Block.DoubleStair );
-                        if( !world.FireChangedBlockEvent( ref blockUpdate ) ) {
+                        if( !World.FireChangedBlockEvent( ref blockUpdate ) ) {
                             SendBlockNow( x, y, h );
                             return false;
                         }
-                        info.ProcessBlockPlaced( (byte)Block.DoubleStair );
-                        world.map.QueueUpdate( blockUpdate );
-                        session.SendNow( PacketWriter.MakeSetBlock( x, y, h - 1, (byte)Block.DoubleStair ) );
+                        Info.ProcessBlockPlaced( (byte)Block.DoubleStair );
+                        World.Map.QueueUpdate( blockUpdate );
+                        Session.SendNow( PacketWriter.MakeSetBlock( x, y, h - 1, (byte)Block.DoubleStair ) );
                         SendBlockNow( x, y, h );
                         break;
 
                     } else {
                         // handle normal blocks
                         blockUpdate = new BlockUpdate( this, x, y, h, (byte)type );
-                        if( !world.FireChangedBlockEvent( ref blockUpdate ) ) {
+                        if( !World.FireChangedBlockEvent( ref blockUpdate ) ) {
                             SendBlockNow( x, y, h );
                             return false;
                         }
-                        info.ProcessBlockPlaced( (byte)type );
-                        world.map.QueueUpdate( blockUpdate );
-                        if( requiresUpdate || relayAllUpdates ) {
-                            session.SendNow( PacketWriter.MakeSetBlock( x, y, h, (byte)type ) );
+                        Info.ProcessBlockPlaced( (byte)type );
+                        World.Map.QueueUpdate( blockUpdate );
+                        if( requiresUpdate || RelayAllUpdates ) {
+                            Session.SendNow( PacketWriter.MakeSetBlock( x, y, h, (byte)type ) );
                         }
                     }
                     break;
@@ -510,7 +507,7 @@ namespace fCraft {
                     break;
 
                 case CanPlaceResult.WorldDenied:
-                    switch( world.buildSecurity.CheckDetailed( info ) ) {
+                    switch( World.BuildSecurity.CheckDetailed( Info ) ) {
                         case SecurityCheckResult.RankTooLow:
                         case SecurityCheckResult.RankTooHigh:
                             Message( "&WYour rank is not allowed to build in this world." );
@@ -523,9 +520,9 @@ namespace fCraft {
                     break;
 
                 case CanPlaceResult.ZoneDenied:
-                    Zone deniedZone = world.map.FindDeniedZone( x, y, h, this );
+                    Zone deniedZone = World.Map.FindDeniedZone( x, y, h, this );
                     if( deniedZone != null ) {
-                        Message( "&WYou are not allowed to build in zone \"{0}\".", deniedZone.name );
+                        Message( "&WYou are not allowed to build in zone \"{0}\".", deniedZone.Name );
                     } else {
                         Message( "&WYou are not allowed to build here." );
                     }
@@ -537,20 +534,20 @@ namespace fCraft {
 
 
         void SendBlockNow( short x, short y, short h ) {
-            session.SendNow( PacketWriter.MakeSetBlock( x, y, h, world.map.GetBlock( x, y, h ) ) );
+            Session.SendNow( PacketWriter.MakeSetBlock( x, y, h, World.Map.GetBlock( x, y, h ) ) );
         }
 
 
         bool CheckBlockSpam() {
-            if( info.rank.AntiGriefBlocks == 0 || info.rank.AntiGriefSeconds == 0 ) return false;
-            if( spamBlockLog.Count >= info.rank.AntiGriefBlocks ) {
+            if( Info.Rank.AntiGriefBlocks == 0 || Info.Rank.AntiGriefSeconds == 0 ) return false;
+            if( spamBlockLog.Count >= Info.Rank.AntiGriefBlocks ) {
                 DateTime oldestTime = spamBlockLog.Dequeue();
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
-                if( spamTimer < info.rank.AntiGriefSeconds ) {
-                    session.KickNow( "You were kicked by antigrief system. Slow down.", LeaveReason.BlockSpamKick );
+                if( spamTimer < Info.Rank.AntiGriefSeconds ) {
+                    Session.KickNow( "You were kicked by antigrief system. Slow down.", LeaveReason.BlockSpamKick );
                     Server.SendToAll( "{0}&W was kicked for suspected griefing.", GetClassyName() );
                     Logger.Log( "{0} was kicked for block spam ({1} blocks in {2} seconds)", LogType.SuspiciousActivity,
-                                name, info.rank.AntiGriefBlocks, spamTimer );
+                                Name, Info.Rank.AntiGriefBlocks, spamTimer );
                     return true;
                 }
             }
@@ -593,17 +590,17 @@ namespace fCraft {
         #region Permission Checks
 
         public bool Can( params Permission[] permissions ) {
-            return (this == Console) || permissions.All( permission => info.rank.Can( permission ) );
+            return (this == Console) || permissions.All( permission => Info.Rank.Can( permission ) );
         }
 
 
         public bool CanDraw( int volume ) {
-            return (this == Console) || (info.rank.DrawLimit == 0) || (volume <= info.rank.DrawLimit);
+            return (this == Console) || (Info.Rank.DrawLimit == 0) || (volume <= Info.Rank.DrawLimit);
         }
 
 
         public bool CanJoin( World worldToJoin ) {
-            return (this == Console) || worldToJoin.accessSecurity.Check( info );
+            return (this == Console) || worldToJoin.AccessSecurity.Check( Info );
         }
 
 
@@ -618,11 +615,11 @@ namespace fCraft {
             }
 
             // check deleting admincrete
-            byte block = world.map.GetBlock( x, y, h );
+            byte block = World.Map.GetBlock( x, y, h );
             if( block == (byte)Block.Admincrete && !Can( Permission.DeleteAdmincrete ) ) return CanPlaceResult.BlocktypeDenied;
 
             // check zones & world permissions
-            PermissionOverride zoneCheckResult = world.map.CheckZones( x, y, h, this );
+            PermissionOverride zoneCheckResult = World.Map.CheckZones( x, y, h, this );
             if( zoneCheckResult == PermissionOverride.Allow ) {
                 return CanPlaceResult.Allowed;
             } else if( zoneCheckResult == PermissionOverride.Deny ) {
@@ -630,7 +627,7 @@ namespace fCraft {
             }
 
             // Check world permissions
-            switch( world.buildSecurity.CheckDetailed( info ) ) {
+            switch( World.BuildSecurity.CheckDetailed( Info ) ) {
                 case SecurityCheckResult.Allowed:
                     // Check rank permissions
                     if( (Can( Permission.Build ) || drawBlock == (byte)Block.Air) &&
@@ -654,7 +651,7 @@ namespace fCraft {
 
         public bool CanSee( Player other ) {
             if( this == Console ) return true;
-            return !other.isHidden || info.rank.CanSee( other.info.rank );
+            return !other.IsHidden || Info.Rank.CanSee( other.Info.Rank );
         }
 
         #endregion
@@ -698,24 +695,24 @@ namespace fCraft {
 
         // gets name with all the optional fluff (color/prefix) for player list
         public string GetListName() {
-            string displayedName = name;
+            string displayedName = Name;
             if( ConfigKey.RankPrefixesInList.GetBool() ) {
-                displayedName = info.rank.Prefix + displayedName;
+                displayedName = Info.Rank.Prefix + displayedName;
             }
-            if( ConfigKey.RankColorsInChat.GetBool() && info.rank.Color != Color.White ) {
-                displayedName = info.rank.Color + displayedName;
+            if( ConfigKey.RankColorsInChat.GetBool() && Info.Rank.Color != Color.White ) {
+                displayedName = Info.Rank.Color + displayedName;
             }
             return displayedName;
         }
 
 
         public string GetClassyName() {
-            return info.GetClassyName();
+            return Info.GetClassyName();
         }
 
 
         internal void ResetIdleTimer() {
-            idleTimer = DateTime.UtcNow;
+            IdleTimer = DateTime.UtcNow;
         }
 
 
@@ -742,7 +739,7 @@ namespace fCraft {
 
 
         public override string ToString() {
-            return String.Format( "Player({0})", info.name );
+            return String.Format( "Player({0})", Info.Name );
         }
     }
 
@@ -794,7 +791,7 @@ namespace fCraft.Events {
         }
         public Position OldPosition {
             get {
-                return Player.pos;
+                return Player.Position;
             }
         }
         public Position NewPosition { get; set; }
@@ -811,7 +808,7 @@ namespace fCraft.Events {
         public Position OldPosition { get; private set; }
         public Position NewPosition {
             get {
-                return Player.pos;
+                return Player.Position;
             }
         }
     }

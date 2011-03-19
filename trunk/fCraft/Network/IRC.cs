@@ -53,7 +53,7 @@ namespace fCraft {
             StreamWriter writer;
             Thread thread;
             bool isConnected;
-            public bool isReady;
+            public bool IsReady;
             bool reconnect;
             public bool ResponsibleForInputParsing;
             public string ActualBotNick;
@@ -61,9 +61,9 @@ namespace fCraft {
             readonly ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
 
 
-            public bool Start( string _botNick, bool _parseInput ) {
+            public bool Start( string _botNick, bool parseInput ) {
                 ActualBotNick = _botNick;
-                ResponsibleForInputParsing = _parseInput;
+                ResponsibleForInputParsing = parseInput;
                 try {
                     // start the machinery!
                     thread = new Thread( IoThread ) { IsBackground = true };
@@ -197,7 +197,7 @@ namespace fCraft {
                         foreach( string channel in channelNames ) {
                             Send( IRCCommands.Join( channel ) );
                         }
-                        isReady = true;
+                        IsReady = true;
                         AssignBotForInputParsing(); // bot should be ready to receive input after joining
                         return;
 
@@ -324,7 +324,7 @@ namespace fCraft {
 
 
             public void DisconnectThread() {
-                isReady = false;
+                IsReady = false;
                 AssignBotForInputParsing();
                 isConnected = false;
                 if( thread != null && thread.IsAlive ) {
@@ -363,14 +363,14 @@ namespace fCraft {
         static void AssignBotForInputParsing() {
             bool needReassignment = false;
             for( int i = 0; i < threads.Length; i++ ) {
-                if( threads[i].ResponsibleForInputParsing && !threads[i].isReady ) {
+                if( threads[i].ResponsibleForInputParsing && !threads[i].IsReady ) {
                     threads[i].ResponsibleForInputParsing = false;
                     needReassignment = true;
                 }
             }
             if( needReassignment ) {
                 for( int i = 0; i < threads.Length; i++ ) {
-                    if( threads[i].isReady ) {
+                    if( threads[i].IsReady ) {
                         threads[i].ResponsibleForInputParsing = true;
                         Logger.Log( "Bot \"{0}\" is now responsible for parsing input.", LogType.IRC,
                                     threads[i].ActualBotNick );
@@ -502,24 +502,24 @@ namespace fCraft {
         internal static void PlayerConnectedHandler( Session session, ref bool cancel ) {
             string message = String.Format( "\u0001ACTION {0}&S* {1}&S connected.\u0001",
                                             Color.IRCBold,
-                                            session.player.GetClassyName() );
+                                            session.Player.GetClassyName() );
             if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
                 SendChannelMessage( message );
             }
         }
 
         internal static void PlayerDisconnectedHandler( Session session ) {
-            if( !session.hasRegistered ) return; // ignore unregistered players
+            if( !session.HasRegistered ) return; // ignore unregistered players
             string message = String.Format( "{0}&S* {1}&S left the server.",
                                             Color.IRCBold,
-                                            session.player.GetClassyName() );
-            if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() && session.player != null ) {
+                                            session.Player.GetClassyName() );
+            if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() && session.Player != null ) {
                 SendAction( message );
             }
         }
 
         internal static void PlayerKickedHandler( Player player, Player kicker, string reason ) {
-            PlayerSomethingMessage( kicker, "kicked", player.info, reason );
+            PlayerSomethingMessage( kicker, "kicked", player.Info, reason );
         }
 
         internal static void PlayerBannedHandler( PlayerInfo player, Player banner, string reason ) {
@@ -557,17 +557,17 @@ namespace fCraft {
 
         #region Parsing
 
-        static IRCReplyCode[] _ReplyCodes = (IRCReplyCode[])Enum.GetValues( typeof( IRCReplyCode ) );
+        static readonly IRCReplyCode[] ReplyCodes = (IRCReplyCode[])Enum.GetValues( typeof( IRCReplyCode ) );
 
 
-        static IRCMessageType _GetMessageType( string rawline, string actualBotNick ) {
+        static IRCMessageType GetMessageType( string rawline, string actualBotNick ) {
             Match found = ReplyCodeRegex.Match( rawline );
             if( found.Success ) {
                 string code = found.Groups[1].Value;
                 IRCReplyCode replycode = (IRCReplyCode)int.Parse( code );
 
                 // check if this replycode is known in the RFC
-                if( Array.IndexOf( _ReplyCodes, replycode ) == -1 ) {
+                if( Array.IndexOf( ReplyCodes, replycode ) == -1 ) {
                     return IRCMessageType.Unknown;
                 }
 
@@ -733,11 +733,7 @@ namespace fCraft {
             }
 
             found = KillRegex.Match( rawline );
-            if( found.Success ) {
-                return IRCMessageType.Kill;
-            }
-
-            return IRCMessageType.Unknown;
+            return found.Success ? IRCMessageType.Kill : IRCMessageType.Unknown;
         }
 
 
@@ -784,7 +780,7 @@ namespace fCraft {
             } catch( FormatException ) {
                 replycode = IRCReplyCode.Null;
             }
-            IRCMessageType type = _GetMessageType( rawline, actualBotNick );
+            IRCMessageType type = GetMessageType( rawline, actualBotNick );
             if( colonpos != -1 ) {
                 message = line.Substring( colonpos + 1 );
             }

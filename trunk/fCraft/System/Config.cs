@@ -251,24 +251,24 @@ namespace fCraft {
             // read log options for console
             XElement consoleOptions = config.Element( "ConsoleOptions" );
             if( consoleOptions != null ) {
-                LoadLogOptions( consoleOptions, Logger.consoleOptions );
+                LoadLogOptions( consoleOptions, Logger.ConsoleOptions );
             } else {
                 if( fromFile ) Log( "Config.Load: using default console options.", LogType.Warning );
-                for( int i = 0; i < Logger.consoleOptions.Length; i++ ) {
-                    Logger.consoleOptions[i] = true;
+                for( int i = 0; i < Logger.ConsoleOptions.Length; i++ ) {
+                    Logger.ConsoleOptions[i] = true;
                 }
-                Logger.consoleOptions[(int)LogType.ConsoleInput] = false;
-                Logger.consoleOptions[(int)LogType.Debug] = false;
+                Logger.ConsoleOptions[(int)LogType.ConsoleInput] = false;
+                Logger.ConsoleOptions[(int)LogType.Debug] = false;
             }
 
             // read log options for logfile
             XElement logFileOptions = config.Element( "LogFileOptions" );
             if( logFileOptions != null ) {
-                LoadLogOptions( logFileOptions, Logger.logFileOptions );
+                LoadLogOptions( logFileOptions, Logger.LogFileOptions );
             } else {
                 if( fromFile ) Log( "Config.Load: using default log file options.", LogType.Warning );
-                for( int i = 0; i < Logger.logFileOptions.Length; i++ ) {
-                    Logger.logFileOptions[i] = true;
+                for( int i = 0; i < Logger.LogFileOptions.Length; i++ ) {
+                    Logger.LogFileOptions[i] = true;
                 }
             }
 
@@ -395,8 +395,8 @@ namespace fCraft {
 
             // save console options
             XElement consoleOptions = new XElement( "ConsoleOptions" );
-            for( int i = 0; i < Logger.consoleOptions.Length; i++ ) {
-                if( Logger.consoleOptions[i] ) {
+            for( int i = 0; i < Logger.ConsoleOptions.Length; i++ ) {
+                if( Logger.ConsoleOptions[i] ) {
                     consoleOptions.Add( new XElement( ((LogType)i).ToString() ) );
                 }
             }
@@ -404,8 +404,8 @@ namespace fCraft {
 
             // save logfile options
             XElement logFileOptions = new XElement( "LogFileOptions" );
-            for( int i = 0; i < Logger.logFileOptions.Length; i++ ) {
-                if( Logger.logFileOptions[i] ) {
+            for( int i = 0; i < Logger.LogFileOptions.Length; i++ ) {
+                if( Logger.LogFileOptions[i] ) {
                     logFileOptions.Add( new XElement( ((LogType)i).ToString() ) );
                 }
             }
@@ -765,10 +765,10 @@ namespace fCraft {
 
 
         internal static void ApplyConfig() {
-            Logger.split = (LogSplittingType)Enum.Parse( typeof( LogSplittingType ), settings[ConfigKey.LogMode], true );
+            Logger.SplittingType = (LogSplittingType)Enum.Parse( typeof( LogSplittingType ), settings[ConfigKey.LogMode], true );
             Logger.MarkLogStart();
 
-            Player.relayAllUpdates = GetBool( ConfigKey.RelayAllBlockUpdates );
+            Player.RelayAllUpdates = GetBool( ConfigKey.RelayAllBlockUpdates );
             if( GetBool( ConfigKey.NoPartialPositionUpdates ) ) {
                 Session.FullPositionUpdateInterval = 0;
             } else {
@@ -799,14 +799,14 @@ namespace fCraft {
             }
 
             // antispam
-            Player.spamChatCount = GetInt( ConfigKey.AntispamMessageCount );
-            Player.spamChatTimer = GetInt( ConfigKey.AntispamInterval );
-            Player.autoMuteDuration = TimeSpan.FromSeconds( GetInt( ConfigKey.AntispamMuteDuration ) );
+            Player.SpamChatCount = GetInt( ConfigKey.AntispamMessageCount );
+            Player.SpamChatTimer = GetInt( ConfigKey.AntispamInterval );
+            Player.AutoMuteDuration = TimeSpan.FromSeconds( GetInt( ConfigKey.AntispamMuteDuration ) );
 
             // scheduler settings
-            Server.maxUploadSpeed = GetInt( ConfigKey.UploadBandwidth );
-            Server.packetsPerSecond = GetInt( ConfigKey.BlockUpdateThrottling );
-            Server.ticksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
+            Server.MaxUploadSpeed = GetInt( ConfigKey.UploadBandwidth );
+            Server.PacketsPerSecond = GetInt( ConfigKey.BlockUpdateThrottling );
+            Server.TicksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
 
             // rank to patrol
             World.rankToPatrol = RankList.ParseRank( settings[ConfigKey.PatrolledRank] ) ?? RankList.LowestRank;

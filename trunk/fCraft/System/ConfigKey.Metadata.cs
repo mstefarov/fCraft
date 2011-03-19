@@ -8,10 +8,10 @@ namespace fCraft {
 
     [AttributeUsage( AttributeTargets.Field )]
     public class ConfigKeyAttribute : Attribute {
-        public ConfigKeyAttribute( Type _type, object _defaultValue, ConfigSection _section ) {
-            ValueType = _type;
-            DefaultValue = _defaultValue;
-            Section = _section;
+        public ConfigKeyAttribute( Type valueType, object defaultValue, ConfigSection section ) {
+            ValueType = valueType;
+            DefaultValue = defaultValue;
+            Section = section;
             NotBlank = false;
         }
         public Type ValueType { get; protected set; }
@@ -36,8 +36,8 @@ namespace fCraft {
 
     public class StringKeyAttribute : ConfigKeyAttribute {
         public const int NoLengthRestriction = -1;
-        public StringKeyAttribute( object _defaultValue, ConfigSection _section )
-            : base( typeof( string ), _defaultValue, _section ) {
+        public StringKeyAttribute( object defaultValue, ConfigSection section )
+            : base( typeof( string ), defaultValue, section ) {
             MinLength = NoLengthRestriction;
             MaxLength = NoLengthRestriction;
             Regex = null;
@@ -60,8 +60,8 @@ namespace fCraft {
 
 
     public class IntKeyAttribute : ConfigKeyAttribute {
-        public IntKeyAttribute( int _defaultValue, ConfigSection _section )
-            : base( typeof( int ), _defaultValue, _section ) {
+        public IntKeyAttribute( int defaultValue, ConfigSection section )
+            : base( typeof( int ), defaultValue, section ) {
             MinValue = int.MinValue;
             MaxValue = int.MaxValue;
             PowerOfTwo = false;

@@ -7,17 +7,31 @@ namespace fCraft {
 
     public sealed class Zone : IClassy {
 
-        public BoundingBox bounds;
-        public SecurityController controller = new SecurityController();
+        public BoundingBox Bounds { get; private set; }
+        public SecurityController Controller = new SecurityController();
 
-        public string name;
+        public string Name;
 
         public SecurityController.PlayerListCollection GetPlayerList() {
-            return controller.exceptionList;
+            return Controller.ExceptionList;
         }
 
-        public DateTime createdDate, editedDate;
-        public PlayerInfo createdBy, editedBy;
+        public DateTime CreatedDate { get; private set; }
+        public DateTime EditedDate { get; private set; }
+        public PlayerInfo CreatedBy { get; private set; }
+        public PlayerInfo EditedBy { get; private set; }
+
+
+        public void Create( BoundingBox bounds, PlayerInfo createdBy ) {
+            CreatedDate = DateTime.UtcNow;
+            Bounds = bounds;
+            CreatedBy = createdBy;
+        }
+
+        public void Edit( PlayerInfo editedBy ) {
+            EditedDate = DateTime.UtcNow;
+            EditedBy = editedBy;
+        }
 
 
         public Zone() { }
@@ -27,22 +41,22 @@ namespace fCraft {
             string[] parts = raw.Split( ',' );
 
             string[] header = parts[0].Split( ' ' );
-            name = header[0];
-            bounds = new BoundingBox( Int32.Parse( header[1] ), Int32.Parse( header[2] ), Int32.Parse( header[3] ),
+            Name = header[0];
+            Bounds = new BoundingBox( Int32.Parse( header[1] ), Int32.Parse( header[2] ), Int32.Parse( header[3] ),
                                       Int32.Parse( header[4] ), Int32.Parse( header[5] ), Int32.Parse( header[6] ) );
 
             Rank buildRank = RankList.ParseRank( header[7] );
             // if all else fails, fall back to lowest class
             if( buildRank == null ) {
                 if( world != null ) {
-                    controller.MinRank = world.buildSecurity.MinRank;
+                    Controller.MinRank = world.BuildSecurity.MinRank;
                 } else {
-                    controller.MinRank = null;
+                    Controller.MinRank = null;
                 }
                 Logger.Log( "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to default ({1}).", LogType.Error,
-                            header[7], controller.MinRank.Name );
+                            header[7], Controller.MinRank.Name );
             } else {
-                controller.MinRank = buildRank;
+                Controller.MinRank = buildRank;
             }
 
 
@@ -51,7 +65,7 @@ namespace fCraft {
                 if( !Player.IsValidName( player ) ) continue;
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( player );
                 if( info == null ) continue; // player name not found in the DB (discarded)
-                controller.Include( info );
+                Controller.Include( info );
             }
 
             // Part 3: excluded list
@@ -59,62 +73,62 @@ namespace fCraft {
                 if( !Player.IsValidName( player ) ) continue;
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( player );
                 if( info == null ) continue; // player name not found in the DB (discarded)
-                controller.Exclude( info );
+                Controller.Exclude( info );
             }
 
-            controller.UpdatePlayerListCache();
+            Controller.UpdatePlayerListCache();
 
             // Part 4: extended header
             if( parts.Length > 3 ) {
                 string[] xheader = parts[3].Split( ' ' );
-                createdBy = PlayerDB.FindPlayerInfoExact( xheader[0] );
-                if( createdBy != null ) createdDate = DateTime.Parse( xheader[1] );
-                editedBy = PlayerDB.FindPlayerInfoExact( xheader[2] );
-                if( editedBy != null ) editedDate = DateTime.Parse( xheader[3] );
+                CreatedBy = PlayerDB.FindPlayerInfoExact( xheader[0] );
+                if( CreatedBy != null ) CreatedDate = DateTime.Parse( xheader[1] );
+                EditedBy = PlayerDB.FindPlayerInfoExact( xheader[2] );
+                if( EditedBy != null ) EditedDate = DateTime.Parse( xheader[3] );
             }
         }
 
 
         public string SerializeFCMv2() {
             string xheader;
-            if( createdBy != null ) {
-                xheader = createdBy.name + " " + createdDate.ToCompactString() + " ";
+            if( CreatedBy != null ) {
+                xheader = CreatedBy.Name + " " + CreatedDate.ToCompactString() + " ";
             } else {
                 xheader = "- - ";
             }
 
-            if( editedBy != null ) {
-                xheader += editedBy.name + " " + editedDate.ToCompactString();
+            if( EditedBy != null ) {
+                xheader += EditedBy.Name + " " + EditedDate.ToCompactString();
             } else {
                 xheader += "- -";
             }
 
-            SecurityController.PlayerListCollection list = controller.exceptionList;
+            SecurityController.PlayerListCollection list = Controller.ExceptionList;
             StringBuilder includedList = new StringBuilder();
             bool firstWord = true;
-            foreach( PlayerInfo info in list.included ) {
+            foreach( PlayerInfo info in list.Included ) {
                 if( firstWord ) includedList.Append( ' ' );
-                includedList.Append( info.name );
+                includedList.Append( info.Name );
                 firstWord = false;
             }
 
             firstWord = true;
             StringBuilder excludedList = new StringBuilder();
-            foreach( PlayerInfo info in list.excluded ) {
+            foreach( PlayerInfo info in list.Excluded ) {
                 if( firstWord ) excludedList.Append( ' ' );
-                excludedList.Append( info.name );
+                excludedList.Append( info.Name );
                 firstWord = false;
             }
 
             return String.Format( "{0},{1},{2},{3}",
                                   String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
-                                                 name, bounds.xMin, bounds.yMin, bounds.hMin, bounds.xMax, bounds.yMax, bounds.hMax, controller.MinRank ),
+                                                 Name, Bounds.xMin, Bounds.yMin, Bounds.hMin, Bounds.xMax, Bounds.yMax, Bounds.hMax, Controller.MinRank ),
                                   includedList, excludedList, xheader );
         }
 
 
         public string GetClassyName() {
-            return controller.MinRank.Color + name;
+            return Controller.MinRank.Color + Name;
         }
 
 
@@ -123,45 +137,45 @@ namespace fCraft {
         const string XmlRootElementName = "Zone";
 
         public Zone( XElement root ) {
-            name = root.Element( "name" ).Value;
+            Name = root.Element( "name" ).Value;
 
             if( root.Element( "created" ) != null ) {
                 XElement created = root.Element( "created" );
-                createdBy = PlayerDB.FindPlayerInfoExact( created.Attribute( "by" ).Value );
-                createdDate = DateTime.Parse( created.Attribute( "on" ).Value );
+                CreatedBy = PlayerDB.FindPlayerInfoExact( created.Attribute( "by" ).Value );
+                CreatedDate = DateTime.Parse( created.Attribute( "on" ).Value );
             }
 
             if( root.Element( "edited" ) != null ) {
                 XElement edited = root.Element( "edited" );
-                editedBy = PlayerDB.FindPlayerInfoExact( edited.Attribute( "by" ).Value );
-                editedDate = DateTime.Parse( edited.Attribute( "on" ).Value );
+                EditedBy = PlayerDB.FindPlayerInfoExact( edited.Attribute( "by" ).Value );
+                EditedDate = DateTime.Parse( edited.Attribute( "on" ).Value );
             }
 
-            bounds = new BoundingBox( root.Element( BoundingBox.XmlRootElementName ) );
-            controller = new SecurityController( root.Element( XmlRootElementName ) );
+            Bounds = new BoundingBox( root.Element( BoundingBox.XmlRootElementName ) );
+            Controller = new SecurityController( root.Element( XmlRootElementName ) );
         }
 
 
         public XElement Serialize() {
             XElement root = new XElement( XmlRootElementName );
-            root.Add( new XElement( "name", name ) );
+            root.Add( new XElement( "name", Name ) );
 
-            if( createdBy != null ) {
+            if( CreatedBy != null ) {
                 XElement created = new XElement( "created" );
-                created.Add( new XAttribute( "by", createdBy.name ) );
-                created.Add( new XAttribute( "on", createdDate.ToCompactString()));
+                created.Add( new XAttribute( "by", CreatedBy.Name ) );
+                created.Add( new XAttribute( "on", CreatedDate.ToCompactString()));
                 root.Add( created );
             }
 
-            if( editedBy != null ) {
+            if( EditedBy != null ) {
                 XElement edited = new XElement( "edited" );
-                edited.Add( new XAttribute( "by", editedBy.name ) );
-                edited.Add( new XAttribute( "on", editedDate.ToCompactString() ) );
+                edited.Add( new XAttribute( "by", EditedBy.Name ) );
+                edited.Add( new XAttribute( "on", EditedDate.ToCompactString() ) );
                 root.Add( edited );
             }
 
-            root.Add( bounds.Serialize() );
-            root.Add( controller.Serialize() );
+            root.Add( Bounds.Serialize() );
+            root.Add( Controller.Serialize() );
             return root;
         }
 

@@ -54,7 +54,7 @@ namespace fCraftUpdater {
                 using( ZipStorer zs = ZipStorer.Open( ms, FileAccess.Read ) ) {
 
                     // ensure that fcraft files are writable
-                    bool allPassed = false;
+                    bool allPassed;
                     do {
                         allPassed = true;
                         foreach( var entry in zs.ReadCentralDir() ) {

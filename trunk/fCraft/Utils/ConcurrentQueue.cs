@@ -8,31 +8,30 @@ namespace fCraft {
     /// <typeparam name="T">Payload type</typeparam>
     public sealed class ConcurrentQueue<T> {
         sealed class Node {
-            public T value;
-            public Pointer next;
+            public T Value;
+            public Pointer Next;
         }
 
         struct Pointer {
-            public long count;
-            public Node ptr;
+            public long Count;
+            public Node Ptr;
 
             public Pointer( Node node, long c ) {
-                ptr = node;
-                count = c;
+                Ptr = node;
+                Count = c;
             }
         }
-        Pointer Head;
-        Pointer Tail;
+        Pointer head, tail;
         public int Length;
 
         public ConcurrentQueue() {
             Node node = new Node();
-            Head.ptr = Tail.ptr = node;
+            head.Ptr = tail.Ptr = node;
         }
 
-        static bool CAS( ref Pointer destination, Pointer compared, Pointer exchange ) {
-            if( compared.ptr == Interlocked.CompareExchange( ref destination.ptr, exchange.ptr, compared.ptr ) ) {
-                Interlocked.Exchange( ref destination.count, exchange.count );
+        static bool CompareAndSwap( ref Pointer destination, Pointer compared, Pointer exchange ) {
+            if( compared.Ptr == Interlocked.CompareExchange( ref destination.Ptr, exchange.Ptr, compared.Ptr ) ) {
+                Interlocked.Exchange( ref destination.Count, exchange.Count );
                 return true;
             }
 
@@ -41,40 +40,40 @@ namespace fCraft {
 
 
         public bool Dequeue( ref T t ) {
-            Pointer head;
+            Pointer tempHead;
 
             // Keep trying until deque is done
             bool bDequeNotDone = true;
             while( bDequeNotDone ) {
                 // read head
-                head = Head;
+                tempHead = head;
 
                 // read tail
-                Pointer tail = Tail;
+                Pointer tempTail = tail;
 
                 // read next
-                Pointer next = head.ptr.next;
+                Pointer next = tempHead.Ptr.Next;
 
                 // Are head, tail, and next consistent?
-                if( head.count != Head.count || head.ptr != Head.ptr ) continue;
+                if( tempHead.Count != head.Count || tempHead.Ptr != head.Ptr ) continue;
 
                 // is tail falling behind
-                if( head.ptr == tail.ptr ) {
+                if( tempHead.Ptr == tempTail.Ptr ) {
                     // is the queue empty?
-                    if( null == next.ptr ) {
+                    if( null == next.Ptr ) {
                         // queue is empty cannnot dequeue
                         return false;
                     }
 
                     // Tail is falling behind. try to advance it
-                    CAS( ref Tail, tail, new Pointer( next.ptr, tail.count + 1 ) );
+                    CompareAndSwap( ref tail, tempTail, new Pointer( next.Ptr, tempTail.Count + 1 ) );
 
                 } else { // No need to deal with tail
                     // read value before CAS otherwise another deque might try to free the next node
-                    t = next.ptr.value;
+                    t = next.Ptr.Value;
 
                     // try to swing the head to the next node
-                    if( CAS( ref Head, head, new Pointer( next.ptr, head.count + 1 ) ) ) {
+                    if( CompareAndSwap( ref head, tempHead, new Pointer( next.Ptr, tempHead.Count + 1 ) ) ) {
                         bDequeNotDone = false;
                     }
                 }
@@ -87,7 +86,7 @@ namespace fCraft {
 
         public void Enqueue( T t ) {
             // Allocate a new node from the free list
-            Node node = new Node { value = t };
+            Node node = new Node { Value = t };
 
             // copy enqueued value into node
 
@@ -96,16 +95,16 @@ namespace fCraft {
 
             while( bEnqueueNotDone ) {
                 // read Tail.ptr and Tail.count together
-                Pointer tail = Tail;
+                Pointer tempTail = tail;
 
                 // read next ptr and next count together
-                Pointer next = tail.ptr.next;
+                Pointer next = tempTail.Ptr.Next;
 
                 // are tail and next consistent
-                if( tail.count == Tail.count && tail.ptr == Tail.ptr ) {
+                if( tempTail.Count == tail.Count && tempTail.Ptr == tail.Ptr ) {
                     // was tail pointing to the last node?
-                    if( null == next.ptr ) {
-                        if( CAS( ref tail.ptr.next, next, new Pointer( node, next.count + 1 ) ) ) {
+                    if( null == next.Ptr ) {
+                        if( CompareAndSwap( ref tempTail.Ptr.Next, next, new Pointer( node, next.Count + 1 ) ) ) {
                             bEnqueueNotDone = false;
                         } // endif
 
@@ -113,7 +112,7 @@ namespace fCraft {
                     else // tail was not pointing to last node
                     {
                         // try to swing Tail to the next node
-                        CAS( ref Tail, tail, new Pointer( next.ptr, tail.count + 1 ) );
+                        CompareAndSwap( ref tail, tempTail, new Pointer( next.Ptr, tempTail.Count + 1 ) );
                     }
 
                 } // endif

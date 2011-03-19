@@ -48,27 +48,27 @@ namespace fCraft {
     /// Central logging class. Logs to file, relays messages to the frontend, submits crash reports.
     /// </summary>
     public static class Logger {
-        static object locker = new object();
-        public static bool[] consoleOptions;
-        public static bool[] logFileOptions;
+        static readonly object LogLock = new object();
+        public static bool[] ConsoleOptions;
+        public static bool[] LogFileOptions;
 
         const string DefaultLogFileName = "fCraft.log",
-                     CrashReportURL = "http://fragmer.net/fcraft/crashreport.php",
+                     CrashReportUrl = "http://fragmer.net/fcraft/crashreport.php",
                      LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss",
                      ShortDateFormat = "yyyy'-'MM'-'dd";
-        public static LogSplittingType split = LogSplittingType.OneFile;
+        public static LogSplittingType SplittingType = LogSplittingType.OneFile;
 
-        static readonly string sessionStart = DateTime.Now.ToString( LongDateFormat );
-        static readonly Queue<string> recentMessages = new Queue<string>();
+        static readonly string SessionStart = DateTime.Now.ToString( LongDateFormat );
+        static readonly Queue<string> RecentMessages = new Queue<string>();
         const int MaxRecentMessages = 25;
 
 
         static Logger() {
-            consoleOptions = new bool[Enum.GetNames( typeof( LogType ) ).Length];
-            logFileOptions = new bool[consoleOptions.Length];
-            for( int i = 0; i < consoleOptions.Length; i++ ) {
-                consoleOptions[i] = true;
-                logFileOptions[i] = true;
+            ConsoleOptions = new bool[Enum.GetNames( typeof( LogType ) ).Length];
+            LogFileOptions = new bool[ConsoleOptions.Length];
+            for( int i = 0; i < ConsoleOptions.Length; i++ ) {
+                ConsoleOptions[i] = true;
+                LogFileOptions[i] = true;
             }
 
             MarkLogStart();
@@ -105,11 +105,11 @@ namespace fCraft {
 
         public static void Log( string message, LogType type ) {
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message;
-            if( logFileOptions[(int)type] ) {
+            if( LogFileOptions[(int)type] ) {
                 string actualLogFileName;
-                switch( split ) {
+                switch( SplittingType ) {
                     case LogSplittingType.SplitBySession:
-                        actualLogFileName = Path.Combine( Paths.LogPath, sessionStart + ".log" );
+                        actualLogFileName = Path.Combine( Paths.LogPath, SessionStart + ".log" );
                         break;
                     case LogSplittingType.SplitByDay:
                         actualLogFileName = Path.Combine( Paths.LogPath, DateTime.Now.ToString( ShortDateFormat ) + ".log" );
@@ -119,11 +119,11 @@ namespace fCraft {
                         break;
                 }
                 try {
-                    lock( locker ) {
+                    lock( LogLock ) {
                         File.AppendAllText( actualLogFileName, line + Environment.NewLine );
-                        recentMessages.Enqueue( line );
-                        while( recentMessages.Count > MaxRecentMessages ) {
-                            recentMessages.Dequeue();
+                        RecentMessages.Enqueue( line );
+                        while( RecentMessages.Count > MaxRecentMessages ) {
+                            RecentMessages.Dequeue();
                         }
                     }
                 } catch( Exception ex ) {
@@ -207,14 +207,14 @@ namespace fCraft {
                     }
 
                     string[] lastFewLines;
-                    lock( locker ) {
-                        lastFewLines = recentMessages.ToArray();
+                    lock( LogLock ) {
+                        lastFewLines = RecentMessages.ToArray();
                     }
                     sb.Append( "&log=" ).Append( Uri.EscapeDataString( String.Join( Environment.NewLine, lastFewLines ) ) );
 
                     byte[] formData = Encoding.ASCII.GetBytes( sb.ToString() );
 
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create( CrashReportURL );
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create( CrashReportUrl );
                     ServicePointManager.Expect100Continue = false;
                     request.Method = "POST";
                     request.Timeout = 15000; // 15s timeout
@@ -403,15 +403,15 @@ namespace fCraft {
 
 
         static void RaiseLoggedEvent( string _rawMessage, string _line, LogType _logType ) {
-            if( consoleOptions[(int)_logType] ) {// LEGACY
+            if( ConsoleOptions[(int)_logType] ) {// LEGACY
                 Server.FireLogEvent( _line, _logType );
             }
             var h = Logged;
             if( h != null ) h( null, new LogEventArgs( _rawMessage,
                                                        _line,
                                                        _logType,
-                                                       logFileOptions[(int)_logType],
-                                                       consoleOptions[(int)_logType] ) );
+                                                       LogFileOptions[(int)_logType],
+                                                       ConsoleOptions[(int)_logType] ) );
         }
 
         static void RaiseCrashedEvent( CrashEventArgs e ) {

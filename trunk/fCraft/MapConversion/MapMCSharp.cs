@@ -247,13 +247,13 @@ namespace fCraft.MapConversion {
                     }
 
                     // Read in the spawn location
-                    map.Spawn.x = (short)(bs.ReadInt16() * 32);
-                    map.Spawn.h = (short)(bs.ReadInt16() * 32);
-                    map.Spawn.y = (short)(bs.ReadInt16() * 32);
+                    map.Spawn.X = (short)(bs.ReadInt16() * 32);
+                    map.Spawn.H = (short)(bs.ReadInt16() * 32);
+                    map.Spawn.Y = (short)(bs.ReadInt16() * 32);
 
                     // Read in the spawn orientation
-                    map.Spawn.r = bs.ReadByte();
-                    map.Spawn.l = bs.ReadByte();
+                    map.Spawn.R = bs.ReadByte();
+                    map.Spawn.L = bs.ReadByte();
 
                     // Skip over the VisitPermission and BuildPermission bytes
                     bs.ReadByte();
@@ -288,13 +288,13 @@ namespace fCraft.MapConversion {
                     bs.Write( mapToSave.WidthY );
 
                     // Write the spawn location
-                    bs.Write( mapToSave.Spawn.x / 32 );
-                    bs.Write( mapToSave.Spawn.h / 32 );
-                    bs.Write( mapToSave.Spawn.y / 32 );
+                    bs.Write( mapToSave.Spawn.X / 32 );
+                    bs.Write( mapToSave.Spawn.H / 32 );
+                    bs.Write( mapToSave.Spawn.Y / 32 );
 
                     //Write the spawn orientation
-                    bs.Write( mapToSave.Spawn.r );
-                    bs.Write( mapToSave.Spawn.l );
+                    bs.Write( mapToSave.Spawn.R );
+                    bs.Write( mapToSave.Spawn.L );
 
                     // Write the VistPermission and BuildPermission bytes
                     bs.Write( (byte)0 );

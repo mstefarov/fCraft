@@ -54,7 +54,6 @@ namespace fCraft {
         internal ushort[] blockOwnership;
 
 
-        [CLSCompliant( false )]
         public ushort FindPlayerID( string name ) {
             lock( playerIDLock ) {
                 if( PlayerIDs.ContainsKey( name ) ) {
@@ -65,7 +64,6 @@ namespace fCraft {
         }
 
 
-        [CLSCompliant( false )]
         public ushort AssignPlayerID( string name ) {
             ushort id;
             lock( playerIDLock ) {
@@ -78,7 +76,6 @@ namespace fCraft {
         }
 
 
-        [CLSCompliant( false )]
         public string FindPlayerName( ushort id ) {
             if( id < 256 ) {
                 return ((ReservedPlayerID)id).ToString();
@@ -93,8 +90,8 @@ namespace fCraft {
 
 
         // more block metadata
-        internal byte[] blockChangeFlags;
-        internal uint[] blockTimestamps;
+        internal byte[] BlockChangeFlags;
+        internal uint[] BlockTimestamps;
 
 
         internal Map() {
@@ -174,7 +171,7 @@ namespace fCraft {
             lock( zoneLock ) {
                 foreach( Zone zone in zones.Values ) {
                     MapFCMv3.WriteLengthPrefixedString( writer, "zones" );
-                    MapFCMv3.WriteLengthPrefixedString( writer, zone.name );
+                    MapFCMv3.WriteLengthPrefixedString( writer, zone.Name );
                     MapFCMv3.WriteLengthPrefixedString( writer, zone.SerializeFCMv2() );
                     metaCount++;
                 }
@@ -257,7 +254,7 @@ namespace fCraft {
                 return false;
             }
 
-            if( Spawn.x > WidthX * 32 || Spawn.y > WidthY * 32 || Spawn.h > Height * 32 || Spawn.x < 0 || Spawn.y < 0 || Spawn.h < 0 ) {
+            if( Spawn.X > WidthX * 32 || Spawn.Y > WidthY * 32 || Spawn.H > Height * 32 || Spawn.X < 0 || Spawn.Y < 0 || Spawn.H < 0 ) {
                 Logger.Log( "Map.ValidateHeader: Spawn coordinates are outside the valid range! Using center of the map instead.",
                             LogType.Warning );
                 ResetSpawn();
@@ -562,8 +559,8 @@ namespace fCraft {
 
         public bool AddZone( Zone z ) {
             lock( zoneLock ) {
-                if( zones.ContainsKey( z.name.ToLower() ) ) return false;
-                zones.Add( z.name.ToLower(), z );
+                if( zones.ContainsKey( z.Name.ToLower() ) ) return false;
+                zones.Add( z.Name.ToLower(), z );
                 ChangedSinceSave = true;
                 UpdateZoneCache();
             }
@@ -586,8 +583,8 @@ namespace fCraft {
             PermissionOverride result = PermissionOverride.None;
             Zone[] zoneListCache = ZoneList;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].bounds.Contains( x, y, h ) ) {
-                    if( zoneListCache[i].controller.Check( player.info ) ) {
+                if( zoneListCache[i].Bounds.Contains( x, y, h ) ) {
+                    if( zoneListCache[i].Controller.Check( player.Info ) ) {
                         result = PermissionOverride.Allow;
                     } else {
                         return PermissionOverride.Deny;
@@ -601,7 +598,7 @@ namespace fCraft {
         public Zone FindDeniedZone( int x, int y, int h, Player player ) {
             Zone[] zoneListCache = ZoneList;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].bounds.Contains( x, y, h ) && !zoneListCache[i].controller.Check( player.info ) ) {
+                if( zoneListCache[i].Bounds.Contains( x, y, h ) && !zoneListCache[i].Controller.Check( player.Info ) ) {
                     return zoneListCache[i];
                 }
             }
@@ -615,9 +612,9 @@ namespace fCraft {
 
             Zone[] zoneListCache = ZoneList;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].bounds.Contains( x, y, h ) ) {
+                if( zoneListCache[i].Bounds.Contains( x, y, h ) ) {
                     found = true;
-                    if( zoneListCache[i].controller.Check( player.info ) ) {
+                    if( zoneListCache[i].Controller.Check( player.Info ) ) {
                         allowed.Add( zoneListCache[i] );
                     } else {
                         denied.Add( zoneListCache[i] );
@@ -676,15 +673,15 @@ namespace fCraft {
         }
 
         public void SetBlock( Vector3i vec, Block type ) {
-            if( vec.x < WidthX && vec.z < WidthY && vec.y < Height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && (byte)type < 50 ) {
-                Blocks[Index( vec.x, vec.z, vec.y )] = (byte)type;
+            if( vec.X < WidthX && vec.Z < WidthY && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0 && (byte)type < 50 ) {
+                Blocks[Index( vec.X, vec.Z, vec.Y )] = (byte)type;
                 ChangedSinceSave = true;
             }
         }
 
         public void SetBlock( Vector3i vec, byte type ) {
-            if( vec.x < WidthX && vec.z < WidthY && vec.y < Height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 && type < 50 ) {
-                Blocks[Index( vec.x, vec.z, vec.y )] = type;
+            if( vec.X < WidthX && vec.Z < WidthY && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0 && type < 50 ) {
+                Blocks[Index( vec.X, vec.Z, vec.Y )] = type;
                 ChangedSinceSave = true;
             }
         }
@@ -697,8 +694,8 @@ namespace fCraft {
         }
 
         public byte GetBlock( Vector3i vec ) {
-            if( vec.x < WidthX && vec.z < WidthY && vec.y < Height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0 )
-                return Blocks[Index( vec.x, vec.z, vec.y )];
+            if( vec.X < WidthX && vec.Z < WidthY && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0 )
+                return Blocks[Index( vec.X, vec.Z, vec.Y )];
             return 0;
         }
 
@@ -708,7 +705,7 @@ namespace fCraft {
         }
 
         public bool InBounds( Vector3i vec ) {
-            return vec.x < WidthX && vec.z < WidthY && vec.y < Height && vec.x >= 0 && vec.z >= 0 && vec.y >= 0;
+            return vec.X < WidthX && vec.Z < WidthY && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0;
         }
 
 
@@ -743,8 +740,8 @@ namespace fCraft {
 
 
         public void ProcessUpdates() {
-            if( World.isLocked ) {
-                if( World.pendingUnload ) {
+            if( World.IsLocked ) {
+                if( World.PendingUnload ) {
                     World.UnloadMap( true );
                 }
                 return;
@@ -755,28 +752,28 @@ namespace fCraft {
             BlockUpdate update = new BlockUpdate();
             while( packetsSent < maxPacketsPerUpdate ) {
                 if( !updates.Dequeue( ref update ) ) {
-                    if( World.isFlushing ) {
+                    if( World.IsFlushing ) {
                         World.EndFlushMapBuffer();
                     }
                     break;
                 }
                 ChangedSinceSave = true;
-                if( !InBounds( update.x, update.y, update.h ) ) continue;
-                int blockIndex = Index( update.x, update.y, update.h );
-                Blocks[blockIndex] = update.type; // TODO: investigate IndexOutOfRangeException here
+                if( !InBounds( update.X, update.Y, update.H ) ) continue;
+                int blockIndex = Index( update.X, update.Y, update.H );
+                Blocks[blockIndex] = update.BlockType; // TODO: investigate IndexOutOfRangeException here
 
-                if( !World.isFlushing ) World.SendToAllDelayed( PacketWriter.MakeSetBlock( update.x, update.y, update.h, update.type ), update.origin );
-                if( update.origin != null && blockOwnership != null ) {
+                if( !World.IsFlushing ) World.SendToAllDelayed( PacketWriter.MakeSetBlock( update.X, update.Y, update.H, update.BlockType ), update.Origin );
+                if( update.Origin != null && blockOwnership != null ) {
                     // TODO: ensure safety in case player leaves the world (and localPlayerID changes) before everything is processed
-                    if( update.origin.localPlayerID == (ushort)ReservedPlayerID.None ) {
-                        update.origin.localPlayerID = AssignPlayerID( update.origin.name );
+                    if( update.Origin.LocalPlayerID == (ushort)ReservedPlayerID.None ) {
+                        update.Origin.LocalPlayerID = AssignPlayerID( update.Origin.Name );
                     }
-                    blockOwnership[blockIndex] = update.origin.localPlayerID;
+                    blockOwnership[blockIndex] = update.Origin.LocalPlayerID;
                 }
                 packetsSent++;
             }
 
-            if( packetsSent == 0 && World.pendingUnload ) {
+            if( packetsSent == 0 && World.PendingUnload ) {
                 World.UnloadMap( true );
             }
         }
@@ -906,7 +903,7 @@ namespace fCraft {
                 } );
             }
 
-            uint[] blockTimestampsCache = blockTimestamps;
+            uint[] blockTimestampsCache = BlockTimestamps;
             if( blockTimestampsCache != null ) {
                 layers.Add( new DataLayer {
                     Type = DataLayerType.BlockTimestamps,
@@ -916,7 +913,7 @@ namespace fCraft {
                 } );
             }
 
-            byte[] blockChangeFlagsCache = blockChangeFlags;
+            byte[] blockChangeFlagsCache = BlockChangeFlags;
             if( blockChangeFlagsCache != null ) {
                 layers.Add( new DataLayer {
                     Type = DataLayerType.BlockChangeFlags,
@@ -963,18 +960,18 @@ namespace fCraft {
                     } break;
 
                 case DataLayerType.BlockTimestamps: {
-                        blockTimestamps = new uint[layer.ElementCount];
+                        BlockTimestamps = new uint[layer.ElementCount];
                         BinaryReader reader = new BinaryReader( stream );
                         for( int i = 0; i < layer.ElementCount; i++ ) {
-                            blockTimestamps[i] = reader.ReadUInt32();
+                            BlockTimestamps[i] = reader.ReadUInt32();
                         }
-                        blockTimestamps = null;
+                        BlockTimestamps = null;
                     } break;
 
                 case DataLayerType.BlockChangeFlags:
-                    blockChangeFlags = new byte[layer.ElementCount];
-                    stream.Read( blockChangeFlags, 0, blockChangeFlags.Length );
-                    blockChangeFlags = null;
+                    BlockChangeFlags = new byte[layer.ElementCount];
+                    stream.Read( BlockChangeFlags, 0, BlockChangeFlags.Length );
+                    BlockChangeFlags = null;
                     break;
 
                 case DataLayerType.PlayerIDs: {

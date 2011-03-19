@@ -6,14 +6,14 @@ namespace fCraft {
     /// Basic struct, just a wrapper for a byte array
     /// </summary>
     public struct Packet {
-        public byte[] data;
+        public byte[] Data;
 
         public Packet( int length ) {
-            data = new byte[length];
+            Data = new byte[length];
         }
 
         public OutputCode OpCode {
-            get { return (OutputCode)data[0]; }
+            get { return (OutputCode)Data[0]; }
         }
     }
 

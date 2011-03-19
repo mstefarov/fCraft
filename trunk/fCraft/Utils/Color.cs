@@ -39,7 +39,7 @@ namespace fCraft {
                             MeDefault = Purple,
                             WarningDefault = Red;
 
-        static readonly SortedList<char, string> colorNames = new SortedList<char, string>{
+        static readonly SortedList<char, string> ColorNames = new SortedList<char, string>{
             { '0', "black" },
             { '1', "navy" },
             { '2', "green" },
@@ -65,13 +65,13 @@ namespace fCraft {
         public static string GetName( char code ) {
             code = Char.ToLower( code );
             if( IsValidColorCode( code ) ) {
-                return colorNames[code];
+                return ColorNames[code];
             }
             string color = Parse( code );
             if( color == null ) {
                 return null;
             }
-            return colorNames[color[1]];
+            return ColorNames[color[1]];
         }
 
         /// <summary> Parses a string to a format readable by Minecraft clients. 
@@ -126,7 +126,7 @@ namespace fCraft {
         /// <returns> Lowercase color name. If input is out of range, returns null. </returns>
         public static string GetName( int index ) {
             if( index >= 0 && index <= 15 ) {
-                return colorNames.Values[index];
+                return ColorNames.Values[index];
             } else {
                 return null;
             }
@@ -138,7 +138,7 @@ namespace fCraft {
         /// If input cannot be parsed, returns null. </returns>
         public static string Parse( int index ) {
             if( index >= 0 && index <= 15 ) {
-                return "&" + colorNames.Keys[index];
+                return "&" + ColorNames.Keys[index];
             } else {
                 return null;
             }
@@ -156,14 +156,21 @@ namespace fCraft {
                 return null;
             }
             color = color.ToLower();
-            if( color.Length == 2 && color[0] == '&' && IsValidColorCode( color[1] ) ) {
-                return color;
-            } else if( colorNames.ContainsValue( color ) ) {
-                return "&" + colorNames.Keys[colorNames.IndexOfValue( color )];
-            } else if( color.Length == 1 ) {
-                return Parse( color[0] );
-            } else if( color.Length == 0 ) {
-                return "";
+            switch( color.Length ) {
+                case 2:
+                    if( color[0] == '&' && IsValidColorCode( color[1] ) ) {
+                        return color;
+                    }
+                    break;
+
+                case 1:
+                    return Parse( color[0] );
+
+                case 0:
+                    return "";
+            }
+            if( ColorNames.ContainsValue( color ) ) {
+                return "&" + ColorNames.Keys[ColorNames.IndexOfValue( color )];
             } else {
                 return null;
             }
@@ -173,23 +180,23 @@ namespace fCraft {
         public static int ParseToIndex( string color ) {
             color = color.ToLower();
             if( color.Length == 2 && color[0] == '&' ) {
-                if( colorNames.ContainsKey( color[1] ) ) {
-                    return colorNames.IndexOfKey( color[1] );
+                if( ColorNames.ContainsKey( color[1] ) ) {
+                    return ColorNames.IndexOfKey( color[1] );
                 } else {
                     switch( color ) {
-                        case "&s": return colorNames.IndexOfKey( Sys[1] );
-                        case "&y": return colorNames.IndexOfKey( Say[1] );
-                        case "&p": return colorNames.IndexOfKey( PM[1] );
-                        case "&r": return colorNames.IndexOfKey( Announcement[1] );
-                        case "&h": return colorNames.IndexOfKey( Help[1] );
-                        case "&w": return colorNames.IndexOfKey( Warning[1] );
-                        case "&m": return colorNames.IndexOfKey( Me[1] );
-                        case "&i": return colorNames.IndexOfKey( IRC[1] );
+                        case "&s": return ColorNames.IndexOfKey( Sys[1] );
+                        case "&y": return ColorNames.IndexOfKey( Say[1] );
+                        case "&p": return ColorNames.IndexOfKey( PM[1] );
+                        case "&r": return ColorNames.IndexOfKey( Announcement[1] );
+                        case "&h": return ColorNames.IndexOfKey( Help[1] );
+                        case "&w": return ColorNames.IndexOfKey( Warning[1] );
+                        case "&m": return ColorNames.IndexOfKey( Me[1] );
+                        case "&i": return ColorNames.IndexOfKey( IRC[1] );
                         default: return 15;
                     }
                 }
-            } else if( colorNames.ContainsValue( color ) ) {
-                return colorNames.IndexOfValue( color );
+            } else if( ColorNames.ContainsValue( color ) ) {
+                return ColorNames.IndexOfValue( color );
             } else {
                 return 15; // white
             }

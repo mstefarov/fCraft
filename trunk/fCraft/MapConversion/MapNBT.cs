@@ -94,11 +94,11 @@ namespace fCraft.MapConversion {
 
                 map.Blocks = mapTag["Blocks"].GetBytes();
 
-                map.Spawn.x = mapTag["Spawn"][0].GetShort();
-                map.Spawn.h = mapTag["Spawn"][1].GetShort();
-                map.Spawn.y = mapTag["Spawn"][2].GetShort();
-                map.Spawn.r = 0;
-                map.Spawn.l = 0;
+                map.Spawn.X = mapTag["Spawn"][0].GetShort();
+                map.Spawn.H = mapTag["Spawn"][1].GetShort();
+                map.Spawn.Y = mapTag["Spawn"][2].GetShort();
+                map.Spawn.R = 0;
+                map.Spawn.L = 0;
 
                 return map;
             }

@@ -11,11 +11,11 @@ namespace fCraft {
         public int xMin, yMin, hMin, xMax, yMax, hMax;
 
         public BoundingBox( Position p1, Position p2 ) :
-            this( p1.x, p1.y, p1.h, p2.x, p2.y, p2.h ) {
+            this( p1.X, p1.Y, p1.H, p2.X, p2.Y, p2.H ) {
         }
 
         public BoundingBox( Position pos, int widthX, int widthY, int height ) :
-            this( pos.x, pos.y, pos.h, pos.x + widthX, pos.y + widthY, pos.h + height ) {
+            this( pos.X, pos.Y, pos.H, pos.X + widthX, pos.Y + widthY, pos.H + height ) {
         }
 
         public BoundingBox( int x1, int y1, int h1, int x2, int y2, int h2 ) {

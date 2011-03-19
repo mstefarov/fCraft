@@ -43,7 +43,7 @@ namespace fCraft {
 
         public static Rank Check( PlayerInfo info ) {
             foreach( Criterion c in criteria ) {
-                if( c.FromRank == info.rank && !info.banned && c.Condition.Eval( info ) ) {
+                if( c.FromRank == info.Rank && !info.Banned && c.Condition.Eval( info ) ) {
                     return c.ToRank;
                 }
             }
@@ -206,43 +206,43 @@ namespace fCraft {
             long givenValue;
             switch( Field ) {
                 case ConditionField.TimeSinceFirstLogin:
-                    givenValue = (int)DateTime.Now.Subtract( info.firstLoginDate ).TotalSeconds;
+                    givenValue = (int)DateTime.Now.Subtract( info.FirstLoginDate ).TotalSeconds;
                     break;
                 case ConditionField.TimeSinceLastLogin:
-                    givenValue = (int)DateTime.Now.Subtract( info.lastLoginDate ).TotalSeconds;
+                    givenValue = (int)DateTime.Now.Subtract( info.LastLoginDate ).TotalSeconds;
                     break;
                 case ConditionField.LastSeen:
-                    givenValue = (int)DateTime.Now.Subtract( info.lastSeen ).TotalSeconds;
+                    givenValue = (int)DateTime.Now.Subtract( info.LastSeen ).TotalSeconds;
                     break;
                 case ConditionField.BlocksBuilt:
-                    givenValue = info.blocksBuilt;
+                    givenValue = info.BlocksBuilt;
                     break;
                 case ConditionField.BlocksDeleted:
-                    givenValue = info.blocksDeleted;
+                    givenValue = info.BlocksDeleted;
                     break;
                 case ConditionField.BlocksChanged:
-                    givenValue = info.blocksBuilt + info.blocksDeleted;
+                    givenValue = info.BlocksBuilt + info.BlocksDeleted;
                     break;
                 case ConditionField.BlocksDrawn:
-                    givenValue = info.blocksDrawn;
+                    givenValue = info.BlocksDrawn;
                     break;
                 case ConditionField.TimesVisited:
-                    givenValue = info.timesVisited;
+                    givenValue = info.TimesVisited;
                     break;
                 case ConditionField.MessagesWritten:
-                    givenValue = info.linesWritten;
+                    givenValue = info.LinesWritten;
                     break;
                 case ConditionField.TimesKicked:
-                    givenValue = info.timesKicked;
+                    givenValue = info.TimesKicked;
                     break;
                 case ConditionField.TotalTime:
-                    givenValue = (int)info.totalTime.TotalSeconds;
+                    givenValue = (int)info.TotalTime.TotalSeconds;
                     break;
                 case ConditionField.TimeSinceRankChange:
-                    givenValue = (int)DateTime.Now.Subtract( info.rankChangeDate ).TotalSeconds;
+                    givenValue = (int)DateTime.Now.Subtract( info.RankChangeDate ).TotalSeconds;
                     break;
                 case ConditionField.TimeSinceLastKick:
-                    givenValue = (int)DateTime.Now.Subtract( info.lastKickDate ).TotalSeconds;
+                    givenValue = (int)DateTime.Now.Subtract( info.LastKickDate ).TotalSeconds;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException( "Field", "Unknown field type" );
@@ -297,7 +297,7 @@ namespace fCraft {
         }
 
         public override bool Eval( PlayerInfo info ) {
-            return (info.rankChangeType == Type);
+            return (info.RankChangeType == Type);
         }
 
         public override XElement Serialize() {
@@ -314,6 +314,9 @@ namespace fCraft {
         public ComparisonOperation Comparison;
 
         public ConditionPreviousRank( Rank _rank, ComparisonOperation _comparison ) {
+            if( !Enum.IsDefined( typeof( ComparisonOperation ), _comparison ) ) {
+                throw new ArgumentOutOfRangeException( "_comparison", "Unknown comparison type" );
+            }
             Rank = _rank;
             Comparison = _comparison;
         }
@@ -324,7 +327,7 @@ namespace fCraft {
         }
 
         public override bool Eval( PlayerInfo info ) {
-            Rank prevRank = info.previousRank ?? info.rank;
+            Rank prevRank = info.PreviousRank ?? info.Rank;
             switch( Comparison ) {
                 case ComparisonOperation.lt:
                     return ( prevRank < Rank );
@@ -339,7 +342,7 @@ namespace fCraft {
                 case ComparisonOperation.neq:
                     return ( prevRank != Rank );
                 default:
-                    throw new ArgumentOutOfRangeException( "Comparison", "Unknown comparison type" );
+                    throw new ArgumentOutOfRangeException();
             }
         }
 

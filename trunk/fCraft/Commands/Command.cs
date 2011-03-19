@@ -8,20 +8,20 @@ namespace fCraft {
     public sealed class Command : ICloneable {
         int offset;
         readonly string message;
-        public string name; // lowercase name of the command
-        public bool confirmed; // whether this command has been confirmed by the user (with /ok)
+        public string Name { get; private set; } // lowercase name of the command
+        public bool Confirmed; // whether this command has been confirmed by the user (with /ok)
 
         public Command( Command other ) {
             offset = other.offset;
             message = other.message;
-            name = other.name;
-            confirmed = other.confirmed;
+            Name = other.Name;
+            Confirmed = other.Confirmed;
         }
 
-        public Command( string _message ) {
+        public Command( string rawMessage ) {
             offset = 1;
-            message = _message;
-            name = Next().ToLower();
+            message = rawMessage;
+            Name = Next().ToLower();
         }
 
         public object Clone() {
@@ -94,7 +94,7 @@ namespace fCraft {
 
 
         public override string ToString() {
-            if( confirmed ) {
+            if( Confirmed ) {
                 return String.Format( "Command(\"{0}\",{1},confirmed)", message, offset );
             } else {
                 return String.Format( "Command(\"{0}\",{1})", message, offset );

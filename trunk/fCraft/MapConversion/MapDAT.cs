@@ -39,51 +39,51 @@ using System.Net;
 namespace fCraft.MapConversion {
     public sealed class MapDAT : IMapConverter {
 
-        static byte[] mapping = new byte[256];
+        static readonly byte[] Mapping = new byte[256];
 
         static MapDAT() {
-            mapping[50] = (byte)Block.Air;      // torch
-            mapping[51] = (byte)Block.Lava;     // fire
-            mapping[52] = (byte)Block.Glass;    // spawner
-            mapping[53] = (byte)Block.Stair;    // wood stairs
-            mapping[54] = (byte)Block.Wood;     // chest
-            mapping[55] = (byte)Block.Air;      // redstone wire
-            mapping[56] = (byte)Block.IronOre;  // diamond ore
-            mapping[57] = (byte)Block.Aqua;     // diamond block
-            mapping[58] = (byte)Block.Log;      // workbench
-            mapping[59] = (byte)Block.Leaves;   // crops
-            mapping[60] = (byte)Block.Dirt;     // soil
-            mapping[61] = (byte)Block.Stone;    // furnace
-            mapping[62] = (byte)Block.Stone;    // burning furnance
-            mapping[63] = (byte)Block.Air;      // sign post
-            mapping[64] = (byte)Block.Air;      // wooden door
-            mapping[65] = (byte)Block.Air;      // ladder
-            mapping[66] = (byte)Block.Air;      // rails
-            mapping[67] = (byte)Block.Stair;    // cobblestone stairs
-            mapping[68] = (byte)Block.Air;      // wall sign
-            mapping[69] = (byte)Block.Air;      // lever
-            mapping[70] = (byte)Block.Air;      // pressure plate
-            mapping[71] = (byte)Block.Air;      // iron door
-            mapping[72] = (byte)Block.Air;      // wooden pressure plate
-            mapping[73] = (byte)Block.IronOre;  // redstone ore
-            mapping[74] = (byte)Block.IronOre;  // glowing redstone ore
-            mapping[75] = (byte)Block.Air;      // redstone torch (off)
-            mapping[76] = (byte)Block.Air;      // redstone torch (on)
-            mapping[77] = (byte)Block.Air;      // stone button
-            mapping[78] = (byte)Block.Air;      // snow
-            mapping[79] = (byte)Block.Glass;    // ice
-            mapping[80] = (byte)Block.White;    // snow block
-            mapping[81] = (byte)Block.Leaves;   // cactus
-            mapping[82] = (byte)Block.Gray;     // clay
-            mapping[83] = (byte)Block.Leaves;   // reed
-            mapping[84] = (byte)Block.Log;      // jukebox
-            mapping[85] = (byte)Block.Wood;     // fence
-            mapping[86] = (byte)Block.Orange;   // pumpkin
-            mapping[87] = (byte)Block.Dirt;     // netherstone
-            mapping[88] = (byte)Block.Gravel;   // slow sand
-            mapping[89] = (byte)Block.Sand;     // lightstone
-            mapping[90] = (byte)Block.Violet;   // portal
-            mapping[91] = (byte)Block.Orange;   // jack-o-lantern
+            Mapping[50] = (byte)Block.Air;      // torch
+            Mapping[51] = (byte)Block.Lava;     // fire
+            Mapping[52] = (byte)Block.Glass;    // spawner
+            Mapping[53] = (byte)Block.Stair;    // wood stairs
+            Mapping[54] = (byte)Block.Wood;     // chest
+            Mapping[55] = (byte)Block.Air;      // redstone wire
+            Mapping[56] = (byte)Block.IronOre;  // diamond ore
+            Mapping[57] = (byte)Block.Aqua;     // diamond block
+            Mapping[58] = (byte)Block.Log;      // workbench
+            Mapping[59] = (byte)Block.Leaves;   // crops
+            Mapping[60] = (byte)Block.Dirt;     // soil
+            Mapping[61] = (byte)Block.Stone;    // furnace
+            Mapping[62] = (byte)Block.Stone;    // burning furnance
+            Mapping[63] = (byte)Block.Air;      // sign post
+            Mapping[64] = (byte)Block.Air;      // wooden door
+            Mapping[65] = (byte)Block.Air;      // ladder
+            Mapping[66] = (byte)Block.Air;      // rails
+            Mapping[67] = (byte)Block.Stair;    // cobblestone stairs
+            Mapping[68] = (byte)Block.Air;      // wall sign
+            Mapping[69] = (byte)Block.Air;      // lever
+            Mapping[70] = (byte)Block.Air;      // pressure plate
+            Mapping[71] = (byte)Block.Air;      // iron door
+            Mapping[72] = (byte)Block.Air;      // wooden pressure plate
+            Mapping[73] = (byte)Block.IronOre;  // redstone ore
+            Mapping[74] = (byte)Block.IronOre;  // glowing redstone ore
+            Mapping[75] = (byte)Block.Air;      // redstone torch (off)
+            Mapping[76] = (byte)Block.Air;      // redstone torch (on)
+            Mapping[77] = (byte)Block.Air;      // stone button
+            Mapping[78] = (byte)Block.Air;      // snow
+            Mapping[79] = (byte)Block.Glass;    // ice
+            Mapping[80] = (byte)Block.White;    // snow block
+            Mapping[81] = (byte)Block.Leaves;   // cactus
+            Mapping[82] = (byte)Block.Gray;     // clay
+            Mapping[83] = (byte)Block.Leaves;   // reed
+            Mapping[84] = (byte)Block.Log;      // jukebox
+            Mapping[85] = (byte)Block.Wood;     // fence
+            Mapping[86] = (byte)Block.Orange;   // pumpkin
+            Mapping[87] = (byte)Block.Dirt;     // netherstone
+            Mapping[88] = (byte)Block.Gravel;   // slow sand
+            Mapping[89] = (byte)Block.Sand;     // lightstone
+            Mapping[90] = (byte)Block.Violet;   // portal
+            Mapping[91] = (byte)Block.Orange;   // jack-o-lantern
             // all others default to 0/air
         }
 
@@ -145,104 +145,102 @@ namespace fCraft.MapConversion {
                 byte[] temp = new byte[8];
                 Map map = new Map();
                 byte[] data;
-                int length;
 
                 try {
                     mapStream.Seek( -4, SeekOrigin.End );
                     mapStream.Read( temp, 0, sizeof( int ) );
                     mapStream.Seek( 0, SeekOrigin.Begin );
-                    length = BitConverter.ToInt32( temp, 0 );
+                    int length = BitConverter.ToInt32( temp, 0 );
                     data = new byte[length];
                     using( GZipStream reader = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
                         reader.Read( data, 0, length );
                     }
 
                     for( int i = 0; i < length - 1; i++ ) {
-                        if( data[i] == 0xAC && data[i + 1] == 0xED ) {
+                        if( data[i] != 0xAC || data[i + 1] != 0xED ) continue;
 
-                            // bypassing the header crap
-                            int pointer = i + 6;
-                            Array.Copy( data, pointer, temp, 0, sizeof( short ) );
-                            pointer += IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
-                            pointer += 13;
+                        // bypassing the header crap
+                        int pointer = i + 6;
+                        Array.Copy( data, pointer, temp, 0, sizeof( short ) );
+                        pointer += IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
+                        pointer += 13;
 
-                            int headerEnd;
-                            // find the end of serialization listing
-                            for( headerEnd = pointer; headerEnd < data.Length - 1; headerEnd++ ) {
-                                if( data[headerEnd] == 0x78 && data[headerEnd + 1] == 0x70 ) {
-                                    headerEnd += 2;
-                                    break;
-                                }
+                        int headerEnd;
+                        // find the end of serialization listing
+                        for( headerEnd = pointer; headerEnd < data.Length - 1; headerEnd++ ) {
+                            if( data[headerEnd] == 0x78 && data[headerEnd + 1] == 0x70 ) {
+                                headerEnd += 2;
+                                break;
                             }
-
-                            // start parsing serialization listing
-                            int offset = 0;
-                            while( pointer < headerEnd ) {
-                                switch( (char)data[pointer] ) {
-                                    case 'Z':
-                                        offset++;
-                                        break;
-                                    case 'F':
-                                    case 'I':
-                                        offset += 4;
-                                        break;
-                                    case 'J':
-                                        offset += 8;
-                                        break;
-                                }
-
-                                pointer += 1;
-                                Array.Copy( data, pointer, temp, 0, sizeof( short ) );
-                                short skip = IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
-                                pointer += 2;
-
-                                // look for relevant variables
-                                Array.Copy( data, headerEnd + offset - 4, temp, 0, sizeof( int ) );
-                                if( MemCmp( data, pointer, "width" ) ) {
-                                    map.WidthX = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
-                                } else if( MemCmp( data, pointer, "depth" ) ) {
-                                    map.Height = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
-                                } else if( MemCmp( data, pointer, "height" ) ) {
-                                    map.WidthY = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
-                                } else if( MemCmp( data, pointer, "xSpawn" ) ) {
-                                    map.Spawn.x = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
-                                } else if( MemCmp( data, pointer, "ySpawn" ) ) {
-                                    map.Spawn.h = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
-                                } else if( MemCmp( data, pointer, "zSpawn" ) ) {
-                                    map.Spawn.y = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
-                                }
-
-                                pointer += skip;
-                            }
-
-                            if( !map.ValidateHeader() ) {
-                                throw new MapFormatException( "MapDAT.Load: One or more of the map dimensions are invalid." );
-                            }
-
-                            // find the start of the block array
-                            bool foundBlockArray = false;
-                            offset = Array.IndexOf<byte>( data, 0x00, headerEnd );
-                            while( offset != -1 && offset < data.Length - 2 ) {
-                                if( data[offset] == 0x00 && data[offset + 1] == 0x78 && data[offset + 2] == 0x70 ) {
-                                    foundBlockArray = true;
-                                    pointer = offset + 7;
-                                }
-                                offset = Array.IndexOf<byte>( data, 0x00, offset + 1 );
-                            }
-
-                            // copy the block array... or fail
-                            if( foundBlockArray ) {
-                                map.CopyBlocks( data, pointer );
-                                for( int j = 0; j < map.Blocks.Length; j++ ) {
-                                    if( map.Blocks[j] > 49 ) {
-                                        map.Blocks[j] = mapping[map.Blocks[j]];
-                                    }
-                                }
-                            } else {
-                                throw new MapFormatException( "Could not locate block array." );
-                            }
-                            break;
                         }
+
+                        // start parsing serialization listing
+                        int offset = 0;
+                        while( pointer < headerEnd ) {
+                            switch( (char)data[pointer] ) {
+                                case 'Z':
+                                    offset++;
+                                    break;
+                                case 'F':
+                                case 'I':
+                                    offset += 4;
+                                    break;
+                                case 'J':
+                                    offset += 8;
+                                    break;
+                            }
+
+                            pointer += 1;
+                            Array.Copy( data, pointer, temp, 0, sizeof( short ) );
+                            short skip = IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
+                            pointer += 2;
+
+                            // look for relevant variables
+                            Array.Copy( data, headerEnd + offset - 4, temp, 0, sizeof( int ) );
+                            if( MemCmp( data, pointer, "width" ) ) {
+                                map.WidthX = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
+                            } else if( MemCmp( data, pointer, "depth" ) ) {
+                                map.Height = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
+                            } else if( MemCmp( data, pointer, "height" ) ) {
+                                map.WidthY = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
+                            } else if( MemCmp( data, pointer, "xSpawn" ) ) {
+                                map.Spawn.X = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                            } else if( MemCmp( data, pointer, "ySpawn" ) ) {
+                                map.Spawn.H = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                            } else if( MemCmp( data, pointer, "zSpawn" ) ) {
+                                map.Spawn.Y = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                            }
+
+                            pointer += skip;
+                        }
+
+                        if( !map.ValidateHeader() ) {
+                            throw new MapFormatException( "MapDAT.Load: One or more of the map dimensions are invalid." );
+                        }
+
+                        // find the start of the block array
+                        bool foundBlockArray = false;
+                        offset = Array.IndexOf<byte>( data, 0x00, headerEnd );
+                        while( offset != -1 && offset < data.Length - 2 ) {
+                            if( data[offset] == 0x00 && data[offset + 1] == 0x78 && data[offset + 2] == 0x70 ) {
+                                foundBlockArray = true;
+                                pointer = offset + 7;
+                            }
+                            offset = Array.IndexOf<byte>( data, 0x00, offset + 1 );
+                        }
+
+                        // copy the block array... or fail
+                        if( foundBlockArray ) {
+                            map.CopyBlocks( data, pointer );
+                            for( int j = 0; j < map.Blocks.Length; j++ ) {
+                                if( map.Blocks[j] > 49 ) {
+                                    map.Blocks[j] = Mapping[map.Blocks[j]];
+                                }
+                            }
+                        } else {
+                            throw new MapFormatException( "Could not locate block array." );
+                        }
+                        break;
                     }
                     return map;
 
