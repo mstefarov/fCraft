@@ -138,12 +138,12 @@ namespace fCraft {
 
         class ProceduralTree : Tree {
 
-            public float trunkRadius { get; set; }
-            public float branchSlope { get; set; }
-            public float trunkHeight { get; set; }
-            public float branchDensity { get; set; }
-            public float[] foliageShape { get; set; }
-            public Vector3i[] foliageCoords { get; set; }
+            public float TrunkRadius { get; set; }
+            public float BranchSlope { get; set; }
+            public float TrunkHeight { get; set; }
+            public float BranchDensity { get; set; }
+            public float[] FoliageShape { get; set; }
+            public Vector3i[] FoliageCoords { get; set; }
 
 
             void CrossSection( Vector3i center, float radius, int diraxis, Block matidx ) {
@@ -170,7 +170,7 @@ namespace fCraft {
             }
 
             public virtual float ShapeFunc( int y ) {
-                if( Args.Rand.NextDouble() < 100f / Sqr( Height ) && y < trunkHeight ) {
+                if( Args.Rand.NextDouble() < 100f / Sqr( Height ) && y < TrunkHeight ) {
                     return Height * .12f;
                 } else {
                     return -1;
@@ -179,7 +179,7 @@ namespace fCraft {
 
             void FoliageCluster( Vector3i center ) {
                 int y = center[1];
-                foreach( float i in foliageShape ) {
+                foreach( float i in FoliageShape ) {
                     CrossSection( new Vector3i( center[0], center[2], y ), i, 1, Args.FoliageBlock );
                     y++;
                 }
@@ -219,28 +219,28 @@ namespace fCraft {
             }
 
             public override void MakeFoliage() {
-                foreach( Vector3i coord in foliageCoords ) {
+                foreach( Vector3i coord in FoliageCoords ) {
                     FoliageCluster( coord );
                 }
-                foreach( Vector3i coord in foliageCoords ) {
+                foreach( Vector3i coord in FoliageCoords ) {
                     Args.OutMap.SetBlock( coord, Args.FoliageBlock );
                 }
             }
 
             void MakeBranches() {
-                int topy = Pos[1] + (int)(trunkHeight + .5);
-                float endrad = trunkRadius * (1 - trunkHeight / Height);
+                int topy = Pos[1] + (int)(TrunkHeight + .5);
+                float endrad = TrunkRadius * (1 - TrunkHeight / Height);
                 if( endrad < 1 ) endrad = 1;
 
-                foreach( Vector3i coord in foliageCoords ) {
+                foreach( Vector3i coord in FoliageCoords ) {
                     float dist = (float)Math.Sqrt( Sqr( coord.X - Pos.X ) + Sqr( coord.Z - Pos.Z ) );
                     float ydist = coord[1] - Pos[1];
-                    float value = (branchDensity * 220 * Height) / Cub( ydist + dist );
+                    float value = (BranchDensity * 220 * Height) / Cub( ydist + dist );
 
                     if( value < Args.Rand.NextDouble() ) continue;
 
                     int posy = coord[1];
-                    float slope = (float)(branchSlope + (.5 - Args.Rand.NextDouble()) * .16);
+                    float slope = (float)(BranchSlope + (.5 - Args.Rand.NextDouble()) * .16);
 
                     float branchy, basesize;
                     if( coord[1] - dist * slope > topy ) {
@@ -250,8 +250,8 @@ namespace fCraft {
                         basesize = endrad;
                     } else {
                         branchy = posy - dist * slope;
-                        basesize = endrad + (trunkRadius - endrad) *
-                                   (topy - branchy) / trunkHeight;
+                        basesize = endrad + (TrunkRadius - endrad) *
+                                   (topy - branchy) / TrunkHeight;
                     }
 
                     float startsize = (float)(basesize * (1 + Args.Rand.NextDouble()) *
@@ -278,10 +278,10 @@ namespace fCraft {
 
             void MakeRoots( RootBase[] rootbases ) {
                 if( rootbases.Length == 0 ) return;
-                foreach( Vector3i coord in foliageCoords ) {
+                foreach( Vector3i coord in FoliageCoords ) {
                     float dist = (float)Math.Sqrt( Sqr( coord[0] - Pos[0] ) + Sqr( coord[2] - Pos[2] ) );
                     float ydist = coord[1] - Pos[1];
-                    float value = (branchDensity * 220 * Height) / Cub( ydist + dist );
+                    float value = (BranchDensity * 220 * Height) / Cub( ydist + dist );
                     if( value < Args.Rand.NextDouble() ) continue;
 
                     RootBase rootbase = rootbases[Args.Rand.Next( 0, rootbases.Length )];
@@ -349,13 +349,13 @@ namespace fCraft {
 
             public override void MakeTrunk() {
                 int starty = Pos[1];
-                int midy = (int)(Pos[1] + trunkHeight * .382);
-                int topy = (int)(Pos[1] + trunkHeight + .5);
+                int midy = (int)(Pos[1] + TrunkHeight * .382);
+                int topy = (int)(Pos[1] + TrunkHeight + .5);
 
                 int x = Pos[0];
                 int z = Pos[2];
-                float midrad = trunkRadius * .8f;
-                float endrad = trunkRadius * (1 - trunkHeight / Height);
+                float midrad = TrunkRadius * .8f;
+                float endrad = TrunkRadius * (1 - TrunkHeight / Height);
 
                 if( endrad < 1 ) endrad = 1;
                 if( midrad < endrad ) midrad = endrad;
@@ -363,18 +363,18 @@ namespace fCraft {
                 float startrad;
                 List<RootBase> rootbases = new List<RootBase>();
                 if( Args.Rootbuttresses || Args.Shape == TreeShape.Mangrove ) {
-                    startrad = trunkRadius * .8f;
+                    startrad = TrunkRadius * .8f;
                     rootbases.Add( new RootBase {
                         x = x,
                         z = z,
                         radius = startrad
                     } );
-                    float buttress_radius = trunkRadius * .382f;
-                    float posradius = trunkRadius;
+                    float buttress_radius = TrunkRadius * .382f;
+                    float posradius = TrunkRadius;
                     if( Args.Shape == TreeShape.Mangrove ) {
                         posradius *= 2.618f;
                     }
-                    int num_of_buttresss = (int)(Math.Sqrt( trunkRadius ) + 3.5);
+                    int num_of_buttresss = (int)(Math.Sqrt( TrunkRadius ) + 3.5);
                     for( int i = 0; i < num_of_buttresss; i++ ) {
                         float rndang = (float)(Args.Rand.NextDouble() * 2 * Math.PI);
                         float thisposradius = (float)(posradius * (.9 + Args.Rand.NextDouble() * .2));
@@ -393,7 +393,7 @@ namespace fCraft {
                         } );
                     }
                 } else {
-                    startrad = trunkRadius;
+                    startrad = TrunkRadius;
                     rootbases.Add( new RootBase {
                         x = x,
                         z = z,
@@ -410,11 +410,11 @@ namespace fCraft {
 
             public override void Prepare() {
                 base.Prepare();
-                trunkRadius = (float)Math.Sqrt( Height * Args.Trunkthickness );
-                if( trunkRadius < 1 ) trunkRadius = 1;
+                TrunkRadius = (float)Math.Sqrt( Height * Args.Trunkthickness );
+                if( TrunkRadius < 1 ) TrunkRadius = 1;
 
-                trunkHeight = Height * .618f;
-                branchDensity = (Args.Branchdensity / Args.Foliagedensity);
+                TrunkHeight = Height * .618f;
+                BranchDensity = (Args.Branchdensity / Args.Foliagedensity);
 
                 int ystart = Pos[1];
                 int yend = (Pos[1] + Height);
@@ -433,7 +433,7 @@ namespace fCraft {
                         _foliageCoords.Add( new Vector3i( x, z, y ) );
                     }
                 }
-                foliageCoords = _foliageCoords.ToArray();
+                FoliageCoords = _foliageCoords.ToArray();
             }
         }
 
@@ -441,10 +441,10 @@ namespace fCraft {
         class RoundTree : ProceduralTree {
             public override void Prepare() {
                 base.Prepare();
-                branchSlope = .382f;
-                foliageShape = new[] { 2, 3, 3, 2.5f, 1.6f };
-                trunkRadius *= .8f;
-                trunkHeight = Args.Trunkheight * Height;
+                BranchSlope = .382f;
+                FoliageShape = new[] { 2, 3, 3, 2.5f, 1.6f };
+                TrunkRadius *= .8f;
+                TrunkHeight = Args.Trunkheight * Height;
             }
 
             public override float ShapeFunc( int y ) {
@@ -474,10 +474,10 @@ namespace fCraft {
         sealed class ConeTree : ProceduralTree {
             public override void Prepare() {
                 base.Prepare();
-                branchSlope = .15f;
-                foliageShape = new[] { 3, 2.6f, 2, 1 };
-                trunkRadius *= .618f;
-                trunkHeight = Height;
+                BranchSlope = .15f;
+                FoliageShape = new[] { 3, 2.6f, 2, 1 };
+                TrunkRadius *= .618f;
+                TrunkHeight = Height;
             }
 
             public override float ShapeFunc( int y ) {
@@ -495,11 +495,11 @@ namespace fCraft {
 
         sealed class RainforestTree : ProceduralTree {
             public override void Prepare() {
-                foliageShape = new[] { 3.4f, 2.6f };
+                FoliageShape = new[] { 3.4f, 2.6f };
                 base.Prepare();
-                branchSlope = 1;
-                trunkRadius *= .382f;
-                trunkHeight = Height * .9f;
+                BranchSlope = 1;
+                TrunkRadius *= .382f;
+                TrunkHeight = Height * .9f;
             }
 
             public override float ShapeFunc( int y ) {
@@ -524,8 +524,8 @@ namespace fCraft {
         sealed class MangroveTree : RoundTree {
             public override void Prepare() {
                 base.Prepare();
-                branchSlope = 1;
-                trunkRadius *= .618f;
+                BranchSlope = 1;
+                TrunkRadius *= .618f;
             }
 
             public override float ShapeFunc( int y ) {

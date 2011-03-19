@@ -44,20 +44,20 @@ namespace fCraft {
 
         // block data
         public byte[] Blocks;
-        internal byte[] blockUndo; // currently unused
+        internal byte[] BlockUndo; // currently unused
 
         // block ownership
         readonly object playerIDLock = new object();
-        ushort MaxPlayerID = 256;
-        Dictionary<string, ushort> PlayerIDs;
-        Dictionary<ushort, string> PlayerNames;
-        internal ushort[] blockOwnership;
+        ushort maxPlayerID = 256;
+        readonly Dictionary<string, ushort> playerIDs = new Dictionary<string, ushort>();
+        readonly Dictionary<ushort, string> playerNames = new Dictionary<ushort, string>();
+        internal ushort[] BlockOwnership;
 
 
         public ushort FindPlayerID( string name ) {
             lock( playerIDLock ) {
-                if( PlayerIDs.ContainsKey( name ) ) {
-                    return PlayerIDs[name];
+                if( playerIDs.ContainsKey( name ) ) {
+                    return playerIDs[name];
                 }
             }
             return (ushort)ReservedPlayerID.None;
@@ -67,9 +67,9 @@ namespace fCraft {
         public ushort AssignPlayerID( string name ) {
             ushort id;
             lock( playerIDLock ) {
-                id = MaxPlayerID++;
-                PlayerIDs[name] = id;
-                PlayerNames[id] = name;
+                id = maxPlayerID++;
+                playerIDs[name] = id;
+                playerNames[id] = name;
                 ChangedSinceSave = true;
             }
             return id;
@@ -81,8 +81,8 @@ namespace fCraft {
                 return ((ReservedPlayerID)id).ToString();
             }
             lock( playerIDLock ) {
-                if( PlayerNames.ContainsKey( id ) ) {
-                    return PlayerNames[id];
+                if( playerNames.ContainsKey( id ) ) {
+                    return playerNames[id];
                 }
             }
             return ReservedPlayerID.Unknown.ToString();
@@ -100,13 +100,13 @@ namespace fCraft {
 
 
         // creates an empty new world of specified dimensions
-        public Map( World _world, int _widthX, int _widthY, int _height )
+        public Map( World world, int widthX, int widthY, int height )
             : this() {
-            World = _world;
+            World = world;
 
-            WidthX = _widthX;
-            WidthY = _widthY;
-            Height = _height;
+            WidthX = widthX;
+            WidthY = widthY;
+            Height = height;
 
             int blockCount = WidthX * WidthY * Height;
 
@@ -763,12 +763,12 @@ namespace fCraft {
                 Blocks[blockIndex] = update.BlockType; // TODO: investigate IndexOutOfRangeException here
 
                 if( !World.IsFlushing ) World.SendToAllDelayed( PacketWriter.MakeSetBlock( update.X, update.Y, update.H, update.BlockType ), update.Origin );
-                if( update.Origin != null && blockOwnership != null ) {
+                if( update.Origin != null && BlockOwnership != null ) {
                     // TODO: ensure safety in case player leaves the world (and localPlayerID changes) before everything is processed
                     if( update.Origin.LocalPlayerID == (ushort)ReservedPlayerID.None ) {
                         update.Origin.LocalPlayerID = AssignPlayerID( update.Origin.Name );
                     }
-                    blockOwnership[blockIndex] = update.Origin.LocalPlayerID;
+                    BlockOwnership[blockIndex] = update.Origin.LocalPlayerID;
                 }
                 packetsSent++;
             }
@@ -883,7 +883,7 @@ namespace fCraft {
 
             return layers; // TODO: Implement the rest of the layers
 
-            byte[] blockUndoCache = blockUndo;
+            byte[] blockUndoCache = BlockUndo;
             if( blockUndoCache != null ) {
                 layers.Add( new DataLayer {
                     Type = DataLayerType.BlockUndo,
@@ -893,7 +893,7 @@ namespace fCraft {
                 } );
             }
 
-            ushort[] blockOwnershipCache = blockOwnership;
+            ushort[] blockOwnershipCache = BlockOwnership;
             if( blockOwnershipCache != null ) {
                 layers.Add( new DataLayer {
                     Type = DataLayerType.BlockOwnership,
@@ -923,8 +923,8 @@ namespace fCraft {
                 } );
             }
 
-            Dictionary<string, ushort> PlayerIDsCache = PlayerIDs;
-            if( PlayerIDsCache != null && PlayerNames != null ) {
+            Dictionary<string, ushort> PlayerIDsCache = playerIDs;
+            if( PlayerIDsCache != null && playerNames != null ) {
                 lock( playerIDLock ) {
                     layers.Add( new DataLayer {
                         Type = DataLayerType.PlayerIDs,
@@ -945,18 +945,18 @@ namespace fCraft {
                     break;
 
                 case DataLayerType.BlockUndo:
-                    blockUndo = new byte[layer.ElementCount];
-                    stream.Read( blockUndo, 0, blockUndo.Length );
-                    blockUndo = null;
+                    BlockUndo = new byte[layer.ElementCount];
+                    stream.Read( BlockUndo, 0, BlockUndo.Length );
+                    BlockUndo = null;
                     break;
 
                 case DataLayerType.BlockOwnership: {
-                        blockOwnership = new ushort[layer.ElementCount];
+                        BlockOwnership = new ushort[layer.ElementCount];
                         BinaryReader reader = new BinaryReader( stream );
                         for( int i = 0; i < layer.ElementCount; i++ ) {
-                            blockOwnership[i] = reader.ReadUInt16();
+                            BlockOwnership[i] = reader.ReadUInt16();
                         }
-                        blockOwnership = null;
+                        BlockOwnership = null;
                     } break;
 
                 case DataLayerType.BlockTimestamps: {

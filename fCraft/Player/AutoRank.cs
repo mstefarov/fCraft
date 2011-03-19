@@ -92,11 +92,11 @@ namespace fCraft {
             Condition = other.Condition;
         }
 
-        public Criterion( CriterionType _type, Rank _fromRank, Rank _toRank, Condition _condition ) {
-            Type = _type;
-            FromRank = _fromRank;
-            ToRank = _toRank;
-            Condition = _condition;
+        public Criterion( CriterionType type, Rank fromRank, Rank toRank, Condition condition ) {
+            Type = type;
+            FromRank = fromRank;
+            ToRank = toRank;
+            Condition = condition;
         }
 
         public Criterion( XElement el ) {

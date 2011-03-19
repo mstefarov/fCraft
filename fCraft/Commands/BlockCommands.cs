@@ -201,7 +201,7 @@ namespace fCraft {
 
         internal static void WhoDidCallback( Player player, Position[] marks, object tag ) {
             Map map = (Map)tag;
-            ushort ownership = map.blockOwnership[map.Index( marks[0].X, marks[0].Y, marks[0].H )];
+            ushort ownership = map.BlockOwnership[map.Index( marks[0].X, marks[0].Y, marks[0].H )];
             if( ownership < 256 ) {
                 switch( (ReservedPlayerID)ownership ) {
 

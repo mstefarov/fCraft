@@ -79,10 +79,10 @@ namespace fCraft {
             }
         }
 
-        public Vector3i( int _x, int _y, int _h ) {
-            X = _x;
-            Z = _y;
-            Y = _h;
+        public Vector3i( int x, int y, int h ) {
+            X = x;
+            Z = y;
+            Y = h;
         }
         public Vector3i( Vector3i other ) {
             X = other.X;
@@ -90,9 +90,9 @@ namespace fCraft {
             Y = other.Y;
         }
         public Vector3i( Vector3f other ) {
-            X = (int)other.x;
-            Z = (int)other.y;
-            Y = (int)other.h;
+            X = (int)other.X;
+            Z = (int)other.Y;
+            Y = (int)other.H;
         }
 
         public int GetLargestComponent() {
@@ -108,98 +108,98 @@ namespace fCraft {
     /// Floating-point (float) 3D vector, used by Forester
     /// </summary>
     public struct Vector3f {
-        public float x, y, h;
+        public float X, Y, H;
 
         public float GetLength() {
-            return (float)Math.Sqrt( x * x + y * y + h * h );
+            return (float)Math.Sqrt( X * X + Y * Y + H * H );
         }
 
         public static bool operator >( Vector3f a, Vector3f b ) {
-            return a.x * a.x + a.h * a.h + a.y * a.y > b.x * b.x + b.h * b.h + b.y * b.y;
+            return a.X * a.X + a.H * a.H + a.Y * a.Y > b.X * b.X + b.H * b.H + b.Y * b.Y;
         }
         public static bool operator <( Vector3f a, Vector3f b ) {
-            return a.x * a.x + a.h * a.h + a.y * a.y < b.x * b.x + b.h * b.h + b.y * b.y;
+            return a.X * a.X + a.H * a.H + a.Y * a.Y < b.X * b.X + b.H * b.H + b.Y * b.Y;
         }
         public static bool operator >=( Vector3f a, Vector3f b ) {
-            return a.x * a.x + a.h * a.h + a.y * a.y >= b.x * b.x + b.h * b.h + b.y * b.y;
+            return a.X * a.X + a.H * a.H + a.Y * a.Y >= b.X * b.X + b.H * b.H + b.Y * b.Y;
         }
         public static bool operator <=( Vector3f a, Vector3f b ) {
-            return a.x * a.x + a.h * a.h + a.y * a.y <= b.x * b.x + b.h * b.h + b.y * b.y;
+            return a.X * a.X + a.H * a.H + a.Y * a.Y <= b.X * b.X + b.H * b.H + b.Y * b.Y;
         }
         public static bool operator ==( Vector3f a, Vector3f b ) {
-            return a.x * a.x + a.h * a.h + a.y * a.y == b.x * b.x + b.h * b.h + b.y * b.y;
+            return a.X * a.X + a.H * a.H + a.Y * a.Y == b.X * b.X + b.H * b.H + b.Y * b.Y;
         }
         public static bool operator !=( Vector3f a, Vector3f b ) {
-            return a.x * a.x + a.h * a.h + a.y * a.y != b.x * b.x + b.h * b.h + b.y * b.y;
+            return a.X * a.X + a.H * a.H + a.Y * a.Y != b.X * b.X + b.H * b.H + b.Y * b.Y;
         }
 
         public static Vector3f operator +( Vector3f a, Vector3f b ) {
-            return new Vector3f( a.x + b.x, a.y + b.y, a.h + b.h );
+            return new Vector3f( a.X + b.X, a.Y + b.Y, a.H + b.H );
         }
         public static Vector3f operator +( Vector3f a, float scalar ) {
-            return new Vector3f( a.x + scalar, a.y + scalar, a.h + scalar );
+            return new Vector3f( a.X + scalar, a.Y + scalar, a.H + scalar );
         }
         public static Vector3f operator -( Vector3f a, Vector3f b ) {
-            return new Vector3f( a.x - b.x, a.y - b.y, a.h - b.h );
+            return new Vector3f( a.X - b.X, a.Y - b.Y, a.H - b.H );
         }
         public static Vector3f operator -( Vector3f a, float scalar ) {
-            return new Vector3f( a.x - scalar, a.y - scalar, a.h - scalar );
+            return new Vector3f( a.X - scalar, a.Y - scalar, a.H - scalar );
         }
         public static Vector3f operator *( Vector3f a, float scalar ) {
-            return new Vector3f( (a.x * scalar), (a.y * scalar), (a.h * scalar) );
+            return new Vector3f( (a.X * scalar), (a.Y * scalar), (a.H * scalar) );
         }
         public static Vector3f operator /( Vector3f a, double scalar ) {
-            return new Vector3f( (float)(a.x / scalar), (float)(a.y / scalar), (float)(a.h / scalar) );
+            return new Vector3f( (float)(a.X / scalar), (float)(a.Y / scalar), (float)(a.H / scalar) );
         }
 
         public static Vector3f operator +( Vector3i a, Vector3f b ) {
-            return new Vector3f( a.X + b.x, a.Z + b.y, a.Y + b.h );
+            return new Vector3f( a.X + b.X, a.Z + b.Y, a.Y + b.H );
         }
         public static Vector3f operator +( Vector3f a, Vector3i b ) {
-            return new Vector3f( a.x + b.X, a.y + b.Z, a.h + b.Y );
+            return new Vector3f( a.X + b.X, a.Y + b.Z, a.H + b.Y );
         }
         public static Vector3f operator -( Vector3i a, Vector3f b ) {
-            return new Vector3f( a.X - b.x, a.Z - b.y, a.Y - b.h );
+            return new Vector3f( a.X - b.X, a.Z - b.Y, a.Y - b.H );
         }
         public static Vector3f operator -( Vector3f a, Vector3i b ) {
-            return new Vector3f( a.x - b.X, a.y - b.Z, a.h - b.Y );
+            return new Vector3f( a.X - b.X, a.Y - b.Z, a.H - b.Y );
         }
 
         public float this[int i] {
             get {
                 switch( i ) {
-                    case 0: return x;
-                    case 1: return h;
-                    default: return y;
+                    case 0: return X;
+                    case 1: return H;
+                    default: return Y;
                 }
             }
             set {
                 switch( i ) {
-                    case 0: x = value; return;
-                    case 1: h = value; return;
-                    default: y = value; return;
+                    case 0: X = value; return;
+                    case 1: H = value; return;
+                    default: Y = value; return;
                 }
             }
         }
 
-        public Vector3f( float _x, float _y, float _h ) {
-            x = _x;
-            y = _y;
-            h = _h;
+        public Vector3f( float x, float y, float h ) {
+            X = x;
+            Y = y;
+            H = h;
         }
         public Vector3f( Vector3f other ) {
-            x = other.x;
-            y = other.y;
-            h = other.h;
+            X = other.X;
+            Y = other.Y;
+            H = other.H;
         }
         public Vector3f( Vector3i other ) {
-            x = other.X;
-            y = other.Z;
-            h = other.Y;
+            X = other.X;
+            Y = other.Z;
+            H = other.Y;
         }
 
         public override int GetHashCode() {
-            return (int)(x + y * 1625 + h * 2642245);
+            return (int)(X + Y * 1625 + H * 2642245);
         }
 
         public override bool Equals( object obj ) {

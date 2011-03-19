@@ -155,8 +155,8 @@ namespace fCraft.MapConversion {
 
 
     class INIFile {
-        public string separator = "=";
-        Dictionary<string, Dictionary<string, string>> contents = new Dictionary<string, Dictionary<string, string>>();
+        public const string Separator = "=";
+        readonly Dictionary<string, Dictionary<string, string>> contents = new Dictionary<string, Dictionary<string, string>>();
 
         public string this[string section, string key] {
             get {
@@ -180,9 +180,9 @@ namespace fCraft.MapConversion {
                     string sectionName = line.Substring( 1, line.IndexOf( ']' ) - 1 ).Trim().ToLower();
                     section = new Dictionary<string, string>();
                     contents.Add( sectionName, section );
-                } else if( line.Contains( separator ) && section != null ) {
-                    string keyName = line.Substring( 0, line.IndexOf( separator ) ).TrimEnd().ToLower();
-                    string valueName = line.Substring( line.IndexOf( separator ) + 1 ).TrimStart();
+                } else if( line.Contains( Separator ) && section != null ) {
+                    string keyName = line.Substring( 0, line.IndexOf( Separator ) ).TrimEnd().ToLower();
+                    string valueName = line.Substring( line.IndexOf( Separator ) + 1 ).TrimStart();
                     section.Add( keyName, valueName );
                 }
             }

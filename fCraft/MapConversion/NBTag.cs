@@ -66,16 +66,16 @@ namespace fCraft.MapConversion {
 
         public NBTag() { }
 
-        public NBTag( NBTType _type, NBTag _parent ) {
-            Type = _type;
-            Parent = _parent;
+        public NBTag( NBTType type, NBTag parent ) {
+            Type = type;
+            Parent = parent;
         }
 
-        public NBTag( NBTType _type, string _name, object _payload, NBTag _parent ) {
-            Type = _type;
-            Name = _name;
-            Payload = _payload;
-            Parent = _parent;
+        public NBTag( NBTType type, string name, object payload, NBTag parent ) {
+            Type = type;
+            Name = name;
+            Payload = payload;
+            Parent = parent;
         }
 
         #endregion
