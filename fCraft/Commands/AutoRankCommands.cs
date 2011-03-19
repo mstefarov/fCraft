@@ -21,14 +21,14 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdDumpStats = new CommandDescriptor {
-            name = "dumpstats",
-            consoleSafe = true,
-            hidden = true,
-            permissions = new[] { Permission.Import },
-            help = "Writes out a number of statistics about the server. " +
+            Name = "dumpstats",
+            ConsoleSafe = true,
+            Hidden = true,
+            Permissions = new[] { Permission.Import },
+            Help = "Writes out a number of statistics about the server. " +
                    "Only non-banned players active in the last 30 days are counted.",
-            usage = "/dumpstats FileName",
-            handler = DumpStats
+            Usage = "/dumpstats FileName",
+            Handler = DumpStats
         };
 
         const int TopPlayersToList = 3;
@@ -64,66 +64,66 @@ namespace fCraft {
             }
         }
 
-        static void DumpPlayerGroupStats( StreamWriter writer, PlayerInfo[] infos, string groupName ) {
+        static void DumpPlayerGroupStats( TextWriter writer, PlayerInfo[] infos, string groupName ) {
 
             RankStats stat = new RankStats();
             foreach( Rank rank2 in RankList.Ranks ) {
                 stat.PreviousRank.Add( rank2, 0 );
             }
 
-            infos = infos.Where( info => (DateTime.Now.Subtract( info.lastLoginDate ).TotalDays < 30) ).ToArray();
-            infos = infos.Where( info => (!info.banned) ).ToArray();
+            infos = infos.Where( info => (DateTime.Now.Subtract( info.LastLoginDate ).TotalDays < 30) ).ToArray();
+            infos = infos.Where( info => (!info.Banned) ).ToArray();
 
             for( int i = 0; i < infos.Length; i++ ) {
-                stat.TimeSinceFirstLogin += DateTime.Now.Subtract( infos[i].firstLoginDate );
-                stat.TimeSinceLastLogin += DateTime.Now.Subtract( infos[i].lastLoginDate );
-                stat.TotalTime += infos[i].totalTime;
-                stat.BlocksBuilt += infos[i].blocksBuilt;
-                stat.BlocksDeleted += infos[i].blocksDeleted;
-                stat.TimesVisited += infos[i].timesVisited;
-                stat.MessagesWritten += infos[i].linesWritten;
-                stat.TimesKicked += infos[i].timesKicked;
-                stat.TimesKickedOthers += infos[i].timesKickedOthers;
-                stat.TimesBannedOthers += infos[i].timesBannedOthers;
-                if( infos[i].banned ) stat.Banned++;
-                if( infos[i].previousRank != null ) stat.PreviousRank[infos[i].previousRank]++;
+                stat.TimeSinceFirstLogin += DateTime.Now.Subtract( infos[i].FirstLoginDate );
+                stat.TimeSinceLastLogin += DateTime.Now.Subtract( infos[i].LastLoginDate );
+                stat.TotalTime += infos[i].TotalTime;
+                stat.BlocksBuilt += infos[i].BlocksBuilt;
+                stat.BlocksDeleted += infos[i].BlocksDeleted;
+                stat.TimesVisited += infos[i].TimesVisited;
+                stat.MessagesWritten += infos[i].LinesWritten;
+                stat.TimesKicked += infos[i].TimesKicked;
+                stat.TimesKickedOthers += infos[i].TimesKickedOthers;
+                stat.TimesBannedOthers += infos[i].TimesBannedOthers;
+                if( infos[i].Banned ) stat.Banned++;
+                if( infos[i].PreviousRank != null ) stat.PreviousRank[infos[i].PreviousRank]++;
             }
 
             stat.BlockRatio = stat.BlocksBuilt / (double)Math.Max( stat.BlocksDeleted, 1 );
             stat.BlocksChanged = stat.BlocksDeleted + stat.BlocksBuilt;
 
 
-            stat.TimeSinceFirstLoginMedian = DateTime.Now.Subtract( infos.OrderByDescending( info => info.firstLoginDate )
-                                                    .ElementAt( infos.Length / 2 ).firstLoginDate );
-            stat.TimeSinceLastLoginMedian = DateTime.Now.Subtract( infos.OrderByDescending( info => info.lastLoginDate )
-                                                    .ElementAt( infos.Length / 2 ).lastLoginDate );
-            stat.TotalTimeMedian = infos.OrderByDescending( info => info.totalTime ).ElementAt( infos.Length / 2 ).totalTime;
-            stat.BlocksBuiltMedian = infos.OrderByDescending( info => info.blocksBuilt ).ElementAt( infos.Length / 2 ).blocksBuilt;
-            stat.BlocksDeletedMedian = infos.OrderByDescending( info => info.blocksDeleted ).ElementAt( infos.Length / 2 ).blocksDeleted;
-            PlayerInfo medianBlocksChangedPlayerInfo = infos.OrderByDescending( info => (info.blocksDeleted + info.blocksBuilt) ).ElementAt( infos.Length / 2 );
-            stat.BlocksChangedMedian = medianBlocksChangedPlayerInfo.blocksDeleted + medianBlocksChangedPlayerInfo.blocksBuilt;
-            PlayerInfo medianBlockRatioPlayerInfo = infos.OrderByDescending( info => (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )) )
+            stat.TimeSinceFirstLoginMedian = DateTime.Now.Subtract( infos.OrderByDescending( info => info.FirstLoginDate )
+                                                    .ElementAt( infos.Length / 2 ).FirstLoginDate );
+            stat.TimeSinceLastLoginMedian = DateTime.Now.Subtract( infos.OrderByDescending( info => info.LastLoginDate )
+                                                    .ElementAt( infos.Length / 2 ).LastLoginDate );
+            stat.TotalTimeMedian = infos.OrderByDescending( info => info.TotalTime ).ElementAt( infos.Length / 2 ).TotalTime;
+            stat.BlocksBuiltMedian = infos.OrderByDescending( info => info.BlocksBuilt ).ElementAt( infos.Length / 2 ).BlocksBuilt;
+            stat.BlocksDeletedMedian = infos.OrderByDescending( info => info.BlocksDeleted ).ElementAt( infos.Length / 2 ).BlocksDeleted;
+            PlayerInfo medianBlocksChangedPlayerInfo = infos.OrderByDescending( info => (info.BlocksDeleted + info.BlocksBuilt) ).ElementAt( infos.Length / 2 );
+            stat.BlocksChangedMedian = medianBlocksChangedPlayerInfo.BlocksDeleted + medianBlocksChangedPlayerInfo.BlocksBuilt;
+            PlayerInfo medianBlockRatioPlayerInfo = infos.OrderByDescending( info => (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )) )
                                                     .ElementAt( infos.Length / 2 );
-            stat.BlockRatioMedian = medianBlockRatioPlayerInfo.blocksBuilt / (double)Math.Max( medianBlockRatioPlayerInfo.blocksDeleted, 1 );
-            stat.TimesVisitedMedian = infos.OrderByDescending( info => info.timesVisited ).ElementAt( infos.Length / 2 ).timesVisited;
-            stat.MessagesWrittenMedian = infos.OrderByDescending( info => info.linesWritten ).ElementAt( infos.Length / 2 ).linesWritten;
-            stat.TimesKickedMedian = infos.OrderByDescending( info => info.timesKicked ).ElementAt( infos.Length / 2 ).timesKicked;
-            stat.TimesKickedOthersMedian = infos.OrderByDescending( info => info.timesKickedOthers ).ElementAt( infos.Length / 2 ).timesKickedOthers;
-            stat.TimesBannedOthersMedian = infos.OrderByDescending( info => info.timesBannedOthers ).ElementAt( infos.Length / 2 ).timesBannedOthers;
+            stat.BlockRatioMedian = medianBlockRatioPlayerInfo.BlocksBuilt / (double)Math.Max( medianBlockRatioPlayerInfo.BlocksDeleted, 1 );
+            stat.TimesVisitedMedian = infos.OrderByDescending( info => info.TimesVisited ).ElementAt( infos.Length / 2 ).TimesVisited;
+            stat.MessagesWrittenMedian = infos.OrderByDescending( info => info.LinesWritten ).ElementAt( infos.Length / 2 ).LinesWritten;
+            stat.TimesKickedMedian = infos.OrderByDescending( info => info.TimesKicked ).ElementAt( infos.Length / 2 ).TimesKicked;
+            stat.TimesKickedOthersMedian = infos.OrderByDescending( info => info.TimesKickedOthers ).ElementAt( infos.Length / 2 ).TimesKickedOthers;
+            stat.TimesBannedOthersMedian = infos.OrderByDescending( info => info.TimesBannedOthers ).ElementAt( infos.Length / 2 ).TimesBannedOthers;
 
 
-            stat.TopTimeSinceFirstLogin = infos.OrderBy( info => info.firstLoginDate ).ToArray();
-            stat.TopTimeSinceLastLogin = infos.OrderBy( info => info.lastLoginDate ).ToArray();
-            stat.TopTotalTime = infos.OrderByDescending( info => info.totalTime ).ToArray();
-            stat.TopBlocksBuilt = infos.OrderByDescending( info => info.blocksBuilt ).ToArray();
-            stat.TopBlocksDeleted = infos.OrderByDescending( info => info.blocksDeleted ).ToArray();
-            stat.TopBlocksChanged = infos.OrderByDescending( info => (info.blocksDeleted + info.blocksBuilt) ).ToArray();
-            stat.TopBlockRatio = infos.OrderByDescending( info => (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )) ).ToArray();
-            stat.TopTimesVisited = infos.OrderByDescending( info => info.timesVisited ).ToArray();
-            stat.TopMessagesWritten = infos.OrderByDescending( info => info.linesWritten ).ToArray();
-            stat.TopTimesKicked = infos.OrderByDescending( info => info.timesKicked ).ToArray();
-            stat.TopTimesKickedOthers = infos.OrderByDescending( info => info.timesKickedOthers ).ToArray();
-            stat.TopTimesBannedOthers = infos.OrderByDescending( info => info.timesBannedOthers ).ToArray();
+            stat.TopTimeSinceFirstLogin = infos.OrderBy( info => info.FirstLoginDate ).ToArray();
+            stat.TopTimeSinceLastLogin = infos.OrderBy( info => info.LastLoginDate ).ToArray();
+            stat.TopTotalTime = infos.OrderByDescending( info => info.TotalTime ).ToArray();
+            stat.TopBlocksBuilt = infos.OrderByDescending( info => info.BlocksBuilt ).ToArray();
+            stat.TopBlocksDeleted = infos.OrderByDescending( info => info.BlocksDeleted ).ToArray();
+            stat.TopBlocksChanged = infos.OrderByDescending( info => (info.BlocksDeleted + info.BlocksBuilt) ).ToArray();
+            stat.TopBlockRatio = infos.OrderByDescending( info => (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )) ).ToArray();
+            stat.TopTimesVisited = infos.OrderByDescending( info => info.TimesVisited ).ToArray();
+            stat.TopMessagesWritten = infos.OrderByDescending( info => info.LinesWritten ).ToArray();
+            stat.TopTimesKicked = infos.OrderByDescending( info => info.TimesKicked ).ToArray();
+            stat.TopTimesKickedOthers = infos.OrderByDescending( info => info.TimesKickedOthers ).ToArray();
+            stat.TopTimesBannedOthers = infos.OrderByDescending( info => info.TimesBannedOthers ).ToArray();
 
 
             writer.WriteLine( "{0}: {1} players, {2} banned", groupName, infos.Length, stat.Banned );
@@ -133,15 +133,15 @@ namespace fCraft {
                               stat.TimeSinceFirstLogin.ToCompactString() );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.firstLoginDate ).ToCompactString(), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.FirstLoginDate ).ToCompactString(), info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.firstLoginDate ).ToCompactString(), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.FirstLoginDate ).ToCompactString(), info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin ) {
-                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.firstLoginDate ).ToCompactString(), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.FirstLoginDate ).ToCompactString(), info.Name );
                 }
             }
             writer.WriteLine();
@@ -153,15 +153,15 @@ namespace fCraft {
                               stat.TimeSinceLastLogin.ToCompactString() );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimeSinceLastLogin.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.lastLoginDate ).ToCompactString(), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.LastLoginDate ).ToCompactString(), info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopTimeSinceLastLogin.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.lastLoginDate ).ToCompactString(), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.LastLoginDate ).ToCompactString(), info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopTimeSinceLastLogin ) {
-                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.lastLoginDate ).ToCompactString(), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", DateTime.Now.Subtract( info.LastLoginDate ).ToCompactString(), info.Name );
                 }
             }
             writer.WriteLine();
@@ -173,15 +173,15 @@ namespace fCraft {
                               stat.TotalTime.ToCompactString() );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTotalTime.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.totalTime.ToCompactString(), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TotalTime.ToCompactString(), info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopTotalTime.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.totalTime.ToCompactString(), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TotalTime.ToCompactString(), info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopTotalTime ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.totalTime.ToCompactString(), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TotalTime.ToCompactString(), info.Name );
                 }
             }
             writer.WriteLine();
@@ -194,15 +194,15 @@ namespace fCraft {
                               stat.BlocksBuilt );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopBlocksBuilt.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.blocksBuilt, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.BlocksBuilt, info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopBlocksBuilt.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.blocksBuilt, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.BlocksBuilt, info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopBlocksBuilt ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.blocksBuilt, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.BlocksBuilt, info.Name );
                 }
             }
             writer.WriteLine();
@@ -214,15 +214,15 @@ namespace fCraft {
                               stat.BlocksDeleted );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopBlocksDeleted.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.blocksDeleted, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.BlocksDeleted, info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopBlocksDeleted.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.blocksDeleted, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.BlocksDeleted, info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopBlocksDeleted ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.blocksDeleted, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.BlocksDeleted, info.Name );
                 }
             }
             writer.WriteLine();
@@ -235,15 +235,15 @@ namespace fCraft {
                               stat.BlocksChanged );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopBlocksChanged.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", (info.blocksDeleted + info.blocksBuilt), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", (info.BlocksDeleted + info.BlocksBuilt), info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopBlocksChanged.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", (info.blocksDeleted + info.blocksBuilt), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", (info.BlocksDeleted + info.BlocksBuilt), info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopBlocksChanged ) {
-                    writer.WriteLine( "        {0,20}  {1}", (info.blocksDeleted + info.blocksBuilt), info.name );
+                    writer.WriteLine( "        {0,20}  {1}", (info.BlocksDeleted + info.BlocksBuilt), info.Name );
                 }
             }
             writer.WriteLine();
@@ -254,15 +254,15 @@ namespace fCraft {
                               stat.BlockRatioMedian );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopBlockRatio.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20:0.000}  {1}", (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )), info.name );
+                    writer.WriteLine( "        {0,20:0.000}  {1}", (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )), info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopBlockRatio.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20:0.000}  {1}", (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )), info.name );
+                    writer.WriteLine( "        {0,20:0.000}  {1}", (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )), info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopBlockRatio ) {
-                    writer.WriteLine( "        {0,20:0.000}  {1}", (info.blocksBuilt / (double)Math.Max( info.blocksDeleted, 1 )), info.name );
+                    writer.WriteLine( "        {0,20:0.000}  {1}", (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )), info.Name );
                 }
             }
             writer.WriteLine();
@@ -274,15 +274,15 @@ namespace fCraft {
                               stat.TimesVisited );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimesVisited.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.timesVisited, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimesVisited, info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopTimesVisited.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.timesVisited, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimesVisited, info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopTimesVisited ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.timesVisited, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimesVisited, info.Name );
                 }
             }
             writer.WriteLine();
@@ -294,15 +294,15 @@ namespace fCraft {
                               stat.MessagesWritten );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopMessagesWritten.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.linesWritten, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.LinesWritten, info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopMessagesWritten.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.linesWritten, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.LinesWritten, info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopMessagesWritten ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.linesWritten, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.LinesWritten, info.Name );
                 }
             }
             writer.WriteLine();
@@ -314,15 +314,15 @@ namespace fCraft {
                               stat.TimesKicked );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimesKicked.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.timesKicked, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimesKicked, info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopTimesKicked.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.timesKicked, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimesKicked, info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopTimesKicked ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.timesKicked, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimesKicked, info.Name );
                 }
             }
             writer.WriteLine();
@@ -334,15 +334,15 @@ namespace fCraft {
                               stat.TimesKickedOthers );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimesKickedOthers.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.timesKickedOthers, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimesKickedOthers, info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopTimesKickedOthers.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.timesKickedOthers, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimesKickedOthers, info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopTimesKickedOthers ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.timesKickedOthers, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimesKickedOthers, info.Name );
                 }
             }
             writer.WriteLine();
@@ -354,15 +354,15 @@ namespace fCraft {
                               stat.TimesBannedOthers );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimesBannedOthers.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.timesBannedOthers, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimesBannedOthers, info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopTimesBannedOthers.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.timesBannedOthers, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimesBannedOthers, info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopTimesBannedOthers ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.timesBannedOthers, info.name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimesBannedOthers, info.Name );
                 }
             }
             writer.WriteLine();
@@ -416,13 +416,13 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdAutoRankAll = new CommandDescriptor {
-            name = "autorankall",
-            consoleSafe = true,
-            hidden = true,
-            permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
-            help = "If AutoRank is disabled, it can still be called manually using this command.",
-            usage = "/autorankall [silent] [FromRank]",
-            handler = AutoRankAll
+            Name = "autorankall",
+            ConsoleSafe = true,
+            Hidden = true,
+            Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
+            Help = "If AutoRank is disabled, it can still be called manually using this command.",
+            Usage = "/autorankall [silent] [FromRank]",
+            Handler = AutoRankAll
         };
 
         internal static void AutoRankAll( Player player, Command cmd ) {
@@ -455,10 +455,10 @@ namespace fCraft {
             for( int i = 0; i < list.Length; i++ ) {
                 Rank newRank = AutoRank.Check( list[i] );
                 if( newRank != null ) {
-                    Player target = Server.FindPlayerExact( list[i].name );
-                    if( newRank > list[i].rank ) {
+                    Player target = Server.FindPlayerExact( list[i].Name );
+                    if( newRank > list[i].Rank ) {
                         promoted++;
-                    } else if( newRank < list[i].rank ) {
+                    } else if( newRank < list[i].Rank ) {
                         demoted++;
                     }
                     AdminCommands.DoChangeRank( player, list[i], target, newRank, message, silent, true );
@@ -469,13 +469,13 @@ namespace fCraft {
         }
 
         static readonly CommandDescriptor cdMassRank = new CommandDescriptor {
-            name = "massrank",
-            hidden = true,
-            consoleSafe = true,
-            permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
-            help = "",
-            usage = "/massrank FromRank ToRank [silent]",
-            handler = MassRank
+            Name = "massrank",
+            Hidden = true,
+            ConsoleSafe = true,
+            Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
+            Help = "",
+            Usage = "/massrank FromRank ToRank [silent]",
+            Handler = MassRank
         };
 
         internal static void MassRank( Player player, Command cmd ) {
@@ -508,7 +508,7 @@ namespace fCraft {
             string verb = (fromRank > toRank ? "demot" : "promot");
 
 
-            if( !cmd.confirmed ) {
+            if( !cmd.Confirmed ) {
                 player.AskForConfirmation( cmd, "About to {0}e {1} players.", verb, playerCount );
                 return;
             }
@@ -523,12 +523,12 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdAutoRankReload = new CommandDescriptor {
-            name = "autorankreload",
-            consoleSafe = true,
-            hidden = true,
-            permissions = new[] { Permission.EditPlayerDB },
-            help = "",
-            handler = AutoRankReload
+            Name = "autorankreload",
+            ConsoleSafe = true,
+            Hidden = true,
+            Permissions = new[] { Permission.EditPlayerDB },
+            Help = "",
+            Handler = AutoRankReload
         };
 
         internal static void AutoRankReload( Player player, Command cmd ) {
@@ -537,12 +537,12 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdAutoRankTest = new CommandDescriptor {
-            name = "autoranktest",
-            consoleSafe = true,
-            permissions = new[] { Permission.ViewOthersInfo },
-            help = "",
-            usage = "/autoranktest PlayerName",
-            handler = AutoRankTest
+            Name = "autoranktest",
+            ConsoleSafe = true,
+            Permissions = new[] { Permission.ViewOthersInfo },
+            Help = "",
+            Usage = "/autoranktest PlayerName",
+            Handler = AutoRankTest
         };
 
         internal static void AutoRankTest( Player player, Command cmd ) {
@@ -561,24 +561,24 @@ namespace fCraft {
             } else {
                 Rank result = AutoRank.Check( info );
                 if( result == null ) {
-                    player.Message( "{0} is {1}, and not qualified.", player.GetClassyName(), player.info.rank.GetClassyName() );
+                    player.Message( "{0} is {1}, and not qualified.", player.GetClassyName(), player.Info.Rank.GetClassyName() );
                 } else {
-                    player.Message( "{0} is {1}, and qualified for {2}", player.GetClassyName(), player.info.rank.GetClassyName(), result.GetClassyName() );
+                    player.Message( "{0} is {1}, and qualified for {2}", player.GetClassyName(), player.Info.Rank.GetClassyName(), result.GetClassyName() );
                 }
             }
         }
 
 
         static readonly CommandDescriptor cdSetInfo = new CommandDescriptor {
-            name = "setinfo",
-            consoleSafe = true,
-            hidden = true,
-            permissions = new[] { Permission.EditPlayerDB },
-            help = "Allows direct editing of player information. Editable properties: " +
+            Name = "setinfo",
+            ConsoleSafe = true,
+            Hidden = true,
+            Permissions = new[] { Permission.EditPlayerDB },
+            Help = "Allows direct editing of player information. Editable properties: " +
                    "TimesKicked, PreviousRank, TotalTime, RankChangeType, " +
                    "BanReason, UnbanReason, RankChangeReason, LastKickReason",
-            usage = "/setinfo PlayerName Key Value",
-            handler = SetInfo
+            Usage = "/setinfo PlayerName Key Value",
+            Handler = SetInfo
         };
 
         internal static void SetInfo( Player player, Command cmd ) {
@@ -599,13 +599,13 @@ namespace fCraft {
             } else {
                 switch( propertyName.ToLower() ) {
                     case "timeskicked":
-                        int oldTimesKicked = info.timesKicked;
+                        int oldTimesKicked = info.TimesKicked;
                         if( ValidateInt( valName, 0, 1000 ) ) {
-                            info.timesKicked = Int32.Parse( valName );
+                            info.TimesKicked = Int32.Parse( valName );
                             player.Message( "TimesKicked for {0}&S changed from {1} to {2}",
                                             info.GetClassyName(),
                                             oldTimesKicked,
-                                            info.timesKicked );
+                                            info.TimesKicked );
                         } else {
                             player.Message( "Value not in valid range (0...1000)" );
                         }
@@ -613,13 +613,13 @@ namespace fCraft {
 
                     case "previousrank":
                         Rank newPreviousRank = RankList.ParseRank( valName );
-                        Rank oldPreviousRank = info.previousRank;
+                        Rank oldPreviousRank = info.PreviousRank;
                         if( newPreviousRank != null ) {
-                            info.previousRank = newPreviousRank;
+                            info.PreviousRank = newPreviousRank;
                             player.Message( "PreviousRank for {0}&S changed from {1}&S to {2}",
                                             info.GetClassyName(),
                                             oldPreviousRank.GetClassyName(),
-                                            info.previousRank.GetClassyName() );
+                                            info.PreviousRank.GetClassyName() );
                         } else {
                             player.NoRankMessage( valName );
                         }
@@ -627,27 +627,27 @@ namespace fCraft {
 
                     case "totaltime":
                         TimeSpan newTotalTime;
-                        TimeSpan oldTotalTime = info.totalTime;
+                        TimeSpan oldTotalTime = info.TotalTime;
                         if( TimeSpan.TryParse( valName, out newTotalTime ) ) {
-                            info.totalTime = newTotalTime;
+                            info.TotalTime = newTotalTime;
                             player.Message( "TotalTime for {0}&S changed from {1} to {2}",
                                             info.GetClassyName(),
                                             oldTotalTime.ToCompactString(),
-                                            info.totalTime.ToCompactString() );
+                                            info.TotalTime.ToCompactString() );
                         } else {
                             player.Message( "Could not parse time. Expected format: Days.HH:MM:SS" );
                         }
                         return;
 
                     case "rankchangetype":
-                        RankChangeType oldType = info.rankChangeType;
+                        RankChangeType oldType = info.RankChangeType;
                         foreach( string val in Enum.GetNames( typeof( RankChangeType ) ) ) {
                             if( val.Equals( valName, StringComparison.OrdinalIgnoreCase ) ) {
-                                info.rankChangeType = (RankChangeType)Enum.Parse( typeof( RankChangeType ), valName, true );
+                                info.RankChangeType = (RankChangeType)Enum.Parse( typeof( RankChangeType ), valName, true );
                                 player.Message( "RankChangeType for {0}&S changed from {1} to {2}",
                                                 info.GetClassyName(),
                                                 oldType,
-                                                info.rankChangeType );
+                                                info.RankChangeType );
                                 return;
                             }
                         }
@@ -656,39 +656,39 @@ namespace fCraft {
                         return;
 
                     case "banreason":
-                        string oldBanReason = info.banReason;
-                        info.banReason = valName;
+                        string oldBanReason = info.BanReason;
+                        info.BanReason = valName;
                         player.Message( "BanReason for {0}&S changed from \"{1}\" to \"{2}\"",
                                         info.GetClassyName(),
                                         oldBanReason,
-                                        info.banReason );
+                                        info.BanReason );
                         return;
 
                     case "unbanreason":
-                        string oldUnbanReason = info.unbanReason;
-                        info.unbanReason = valName;
+                        string oldUnbanReason = info.UnbanReason;
+                        info.UnbanReason = valName;
                         player.Message( "UnbanReason for {0}&S changed from \"{1}\" to \"{2}\"",
                                         info.GetClassyName(),
                                         oldUnbanReason,
-                                        info.unbanReason );
+                                        info.UnbanReason );
                         return;
 
                     case "rankchangereason":
-                        string oldRankChangeReason = info.rankChangeReason;
-                        info.rankChangeReason = valName;
+                        string oldRankChangeReason = info.RankChangeReason;
+                        info.RankChangeReason = valName;
                         player.Message( "RankChangeReason for {0}&S changed from \"{1}\" to \"{2}\"",
                                         info.GetClassyName(),
                                         oldRankChangeReason,
-                                        info.rankChangeReason );
+                                        info.RankChangeReason );
                         return;
 
                     case "lastkickreason":
-                        string oldLastKickReason = info.lastKickReason;
-                        info.lastKickReason = valName;
+                        string oldLastKickReason = info.LastKickReason;
+                        info.LastKickReason = valName;
                         player.Message( "LastKickReason for {0}&S changed from \"{1}\" to \"{2}\"",
                                         info.GetClassyName(),
                                         oldLastKickReason,
-                                        info.lastKickReason );
+                                        info.LastKickReason );
                         return;
 
                     default:

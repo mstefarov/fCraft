@@ -86,11 +86,11 @@ namespace fCraft.MapConversion {
                 }
 
                 // read spawn
-                map.Spawn.x = (short)reader.ReadInt32();
-                map.Spawn.h = (short)reader.ReadInt32();
-                map.Spawn.y = (short)reader.ReadInt32();
-                map.Spawn.r = reader.ReadByte();
-                map.Spawn.l = reader.ReadByte();
+                map.Spawn.X = (short)reader.ReadInt32();
+                map.Spawn.H = (short)reader.ReadInt32();
+                map.Spawn.Y = (short)reader.ReadInt32();
+                map.Spawn.R = reader.ReadByte();
+                map.Spawn.L = reader.ReadByte();
 
                 // read modification/creation times
                 map.DateModified = TimestampToDateTime( reader.ReadUInt32() );
@@ -165,12 +165,12 @@ namespace fCraft.MapConversion {
                 writer.Write( (short)mapToSave.Height );
                 writer.Write( (short)mapToSave.WidthY );
 
-                writer.Write( (int)mapToSave.Spawn.x );
-                writer.Write( (int)mapToSave.Spawn.h );
-                writer.Write( (int)mapToSave.Spawn.y );
+                writer.Write( (int)mapToSave.Spawn.X );
+                writer.Write( (int)mapToSave.Spawn.H );
+                writer.Write( (int)mapToSave.Spawn.Y );
 
-                writer.Write( mapToSave.Spawn.r );
-                writer.Write( mapToSave.Spawn.l );
+                writer.Write( mapToSave.Spawn.R );
+                writer.Write( mapToSave.Spawn.L );
 
                 mapToSave.DateModified = DateTime.UtcNow;
                 writer.Write( DateTimeToTimestamp( mapToSave.DateModified ) );

@@ -31,14 +31,14 @@ namespace fCraft {
             if( h != null ) h( null, EventArgs.Empty );
         }
 
-        static void RaiseShutdownBeganEvent( ShutdownParams _shutdownParams ) {
+        static void RaiseShutdownBeganEvent( ShutdownParams shutdownParams ) {
             var h = ShutdownBegan;
-            if( h != null ) h( null, new ShutdownEventArgs( _shutdownParams ) );
+            if( h != null ) h( null, new ShutdownEventArgs( shutdownParams ) );
         }
 
-        static void RaiseShutdownEndedEvent( ShutdownParams _shutdownParams ) {
+        static void RaiseShutdownEndedEvent( ShutdownParams shutdownParams ) {
             var h = ShutdownEnded;
-            if( h != null ) h( null, new ShutdownEventArgs( _shutdownParams ) );
+            if( h != null ) h( null, new ShutdownEventArgs( shutdownParams ) );
         }
 
 
@@ -55,10 +55,10 @@ namespace fCraft {
         public static event EventHandler<SessionDisconnectedEventArgs> SessionDisconnected;
 
 
-        internal static bool RaiseSessionConnectingEvent( IPAddress _IP ) {
+        internal static bool RaiseSessionConnectingEvent( IPAddress ip ) {
             var h = SessionConnecting;
             if( h == null ) return false;
-            var e = new SessionConnectingEventArgs( _IP );
+            var e = new SessionConnectingEventArgs( ip );
             h( null, e );
             return e.Cancel;
         }

@@ -50,11 +50,11 @@ namespace fCraft {
             StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( CommandDescriptor cmd in Commands.Values ) {
-                if( listAll || !cmd.hidden && (cmd.permissions == null || player.Can( cmd.permissions )) ) {
+                if( listAll || !cmd.Hidden && (cmd.Permissions == null || player.Can( cmd.Permissions )) ) {
                     if( !first ) {
                         sb.Append( ", " );
                     }
-                    sb.Append( cmd.name );
+                    sb.Append( cmd.Name );
                     first = false;
                 }
             }
@@ -64,49 +64,49 @@ namespace fCraft {
 
         public static void RegisterCommand( CommandDescriptor descriptor ) {
 
-            if( string.IsNullOrEmpty( descriptor.name ) || descriptor.name.Length > 16 ) {
+            if( string.IsNullOrEmpty( descriptor.Name ) || descriptor.Name.Length > 16 ) {
                 throw new CommandRegistrationException( "All commands need a name, between 1 and 16 alphanumeric characters long." );
             }
 
-            if( Commands.ContainsKey( descriptor.name ) ) {
-                throw new CommandRegistrationException( "A command with the name \"{0}\" is already registered.", descriptor.name );
+            if( Commands.ContainsKey( descriptor.Name ) ) {
+                throw new CommandRegistrationException( "A command with the name \"{0}\" is already registered.", descriptor.Name );
             }
 
-            if( descriptor.handler == null ) {
+            if( descriptor.Handler == null ) {
                 throw new CommandRegistrationException( "All command descriptors are required to provide a handler callback." );
             }
 
-            if( descriptor.aliases != null ) {
-                if( descriptor.aliases.Any( alias => Commands.ContainsKey( alias ) ) ) {
+            if( descriptor.Aliases != null ) {
+                if( descriptor.Aliases.Any( alias => Commands.ContainsKey( alias ) ) ) {
                     throw new CommandRegistrationException( "One of the aliases for \"{0}\" is using the name of an already-defined command." );
                 }
             }
 
-            if( descriptor.usage == null ) {
-                descriptor.usage = "/" + descriptor.name;
+            if( descriptor.Usage == null ) {
+                descriptor.Usage = "/" + descriptor.Name;
             }
 
             if( RaiseCommandRegisteringEvent( descriptor ) ) return;
 
-            if( Aliases.ContainsKey( descriptor.name ) ) {
+            if( Aliases.ContainsKey( descriptor.Name ) ) {
                 Logger.Log( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden.", LogType.Warning,
-                            descriptor.name, Aliases[descriptor.name] );
-                Aliases.Remove( descriptor.name );
+                            descriptor.Name, Aliases[descriptor.Name] );
+                Aliases.Remove( descriptor.Name );
             }
 
-            if( descriptor.aliases != null ) {
-                foreach( string alias in descriptor.aliases ) {
+            if( descriptor.Aliases != null ) {
+                foreach( string alias in descriptor.Aliases ) {
                     if( Aliases.ContainsKey( alias ) ) {
                         Logger.Log( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden to resolve to \"{2}\" instead.",
                                     LogType.Warning,
-                                    alias, Aliases[alias], descriptor.name );
+                                    alias, Aliases[alias], descriptor.Name );
                     } else {
-                        Aliases.Add( alias, descriptor.name );
+                        Aliases.Add( alias, descriptor.Name );
                     }
                 }
             }
 
-            Commands.Add( descriptor.name, descriptor );
+            Commands.Add( descriptor.Name, descriptor );
 
             RaiseCommandRegisteredEvent( descriptor );
         }
@@ -132,21 +132,21 @@ namespace fCraft {
         }
 
         internal static void ParseCommand( Player player, Command cmd, bool fromConsole ) {
-            CommandDescriptor descriptor = GetDescriptor( cmd.name );
+            CommandDescriptor descriptor = GetDescriptor( cmd.Name );
 
             if( descriptor == null ) {
-                player.Message( "Unknown command \"{0}\". See &H/help commands", cmd.name );
+                player.Message( "Unknown command \"{0}\". See &H/help commands", cmd.Name );
                 return;
             }
 
-            if( !descriptor.consoleSafe && fromConsole ) {
+            if( !descriptor.ConsoleSafe && fromConsole ) {
                 player.Message( "You cannot use this command from console." );
             } else {
-                if( descriptor.permissions != null ) {
-                    if( player.Can( descriptor.permissions ) ) {
+                if( descriptor.Permissions != null ) {
+                    if( player.Can( descriptor.Permissions ) ) {
                         descriptor.Call( player, cmd, true );
                     } else {
-                        player.NoAccessMessage( descriptor.permissions );
+                        player.NoAccessMessage( descriptor.Permissions );
                     }
                 } else {
                     descriptor.Call( player, cmd, true );
@@ -159,22 +159,23 @@ namespace fCraft {
         internal static MessageType GetMessageType( string message ) {
             if( string.IsNullOrEmpty( message ) ) return MessageType.Invalid;
             if( message.Equals( "/ok", StringComparison.OrdinalIgnoreCase ) ) return MessageType.Confirmation;
-            if( message[0] == '/' ) {
-                if( message.Length > 1 && message[1] == '/' ) return MessageType.Chat;
-                if( message.Length < 2 || message[1] == ' ' ) return MessageType.Invalid;
-                return MessageType.Command;
-            } else if( message[0] == '@' ) {
-                if( message.Length < 4 || message.IndexOf( ' ' ) < 0 ||
-                    (message[1] == ' ' && message.IndexOf( ' ', 2 ) == -1) ) {
-                    return MessageType.Invalid;
-                }
-                if( message[1] == '@' ) {
-                    if( message.Length < 5 || message[2] == ' ' ) {
+            switch( message[0] ) {
+                case '/':
+                    if( message.Length > 1 && message[1] == '/' ) return MessageType.Chat;
+                    if( message.Length < 2 || message[1] == ' ' ) return MessageType.Invalid;
+                    return MessageType.Command;
+                case '@':
+                    if( message.Length < 4 || message.IndexOf( ' ' ) < 0 ||
+                        (message[1] == ' ' && message.IndexOf( ' ', 2 ) == -1) ) {
                         return MessageType.Invalid;
                     }
-                    return MessageType.RankChat;
-                }
-                return MessageType.PrivateChat;
+                    if( message[1] == '@' ) {
+                        if( message.Length < 5 || message[2] == ' ' ) {
+                            return MessageType.Invalid;
+                        }
+                        return MessageType.RankChat;
+                    }
+                    return MessageType.PrivateChat;
             }
             return MessageType.Chat;
         }

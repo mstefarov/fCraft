@@ -41,7 +41,6 @@ namespace fCraft.MapConversion {
     /// fCraft map format converter, for format version #2 (2010)
     /// </summary>
     public sealed class MapFCMv2 : IMapConverter {
-        [CLSCompliant( false )]
         public const uint Identifier = 0xfc000002;
 
         public string ServerName {
@@ -116,13 +115,13 @@ namespace fCraft.MapConversion {
                 map.Height = reader.ReadInt16();
 
                 // Read in the spawn location
-                map.Spawn.x = reader.ReadInt16();
-                map.Spawn.y = reader.ReadInt16();
-                map.Spawn.h = reader.ReadInt16();
+                map.Spawn.X = reader.ReadInt16();
+                map.Spawn.Y = reader.ReadInt16();
+                map.Spawn.H = reader.ReadInt16();
 
                 // Read in the spawn orientation
-                map.Spawn.r = reader.ReadByte();
-                map.Spawn.l = reader.ReadByte();
+                map.Spawn.R = reader.ReadByte();
+                map.Spawn.L = reader.ReadByte();
 
                 // Read the metadata
                 int metaSize = reader.ReadUInt16();

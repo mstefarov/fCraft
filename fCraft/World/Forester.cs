@@ -16,45 +16,45 @@ namespace fCraft {
 
         // TODO: Add a UI to ConfigTool.AddWorldPopup to set these
         public class ForesterArgs {
-            public Operation OPERATION = Operation.Replant;
-            public int TREECOUNT = 15; // 0 = no limit if op=conserve/replant
-            public TreeShape SHAPE = TreeShape.Procedural;
-            public int HEIGHT = 25;
-            public int HEIGHTVARIATION = 15;
-            public bool WOOD = true;
-            public float TRUNKTHICKNESS = 1;
-            public float TRUNKHEIGHT = .7f;
-            public float BRANCHDENSITY = 1;
-            public RootMode ROOTS = RootMode.Normal;
-            public bool ROOTBUTTRESSES = true;
-            public bool FOLIAGE = true;
-            public float FOLIAGEDENSITY = 1;
-            public bool MAPHEIGHTLIMIT = true;
-            public Block PLANTON = Block.Grass;
-            public Random rand;
-            public Map inMap;
-            public Map outMap;
+            public ForesterOperation Operation = ForesterOperation.Replant;
+            public int Treecount = 15; // 0 = no limit if op=conserve/replant
+            public TreeShape Shape = TreeShape.Procedural;
+            public int Height = 25;
+            public int Heightvariation = 15;
+            public bool Wood = true;
+            public float Trunkthickness = 1;
+            public float Trunkheight = .7f;
+            public float Branchdensity = 1;
+            public RootMode Roots = RootMode.Normal;
+            public bool Rootbuttresses = true;
+            public bool Foliage = true;
+            public float Foliagedensity = 1;
+            public bool Mapheightlimit = true;
+            public Block Planton = Block.Grass;
+            public Random Rand;
+            public Map InMap;
+            public Map OutMap;
 
-            public Block bGroundSurface = Block.Grass;
-            public Block bTrunk = Block.Log;
-            public Block bFoliage = Block.Leaves;
+            public Block GroundSurfaceBlock = Block.Grass;
+            public Block TrunkBlock = Block.Log;
+            public Block FoliageBlock = Block.Leaves;
 
             public void Validate() {
-                if( TREECOUNT < 0 ) TREECOUNT = 0;
-                if( HEIGHT < 1 ) HEIGHT = 1;
-                if( HEIGHTVARIATION > HEIGHT ) HEIGHTVARIATION = HEIGHT;
-                if( TRUNKTHICKNESS < 0 ) TRUNKTHICKNESS = 0;
-                if( TRUNKHEIGHT < 0 ) TRUNKHEIGHT = 0;
-                if( FOLIAGEDENSITY < 0 ) FOLIAGEDENSITY = 0;
-                if( BRANCHDENSITY < 0 ) BRANCHDENSITY = 0;
+                if( Treecount < 0 ) Treecount = 0;
+                if( Height < 1 ) Height = 1;
+                if( Heightvariation > Height ) Heightvariation = Height;
+                if( Trunkthickness < 0 ) Trunkthickness = 0;
+                if( Trunkheight < 0 ) Trunkheight = 0;
+                if( Foliagedensity < 0 ) Foliagedensity = 0;
+                if( Branchdensity < 0 ) Branchdensity = 0;
             }
         }
 
 
         class Tree {
-            public Vector3i pos;
-            public int height = 1;
-            public ForesterArgs args;
+            public Vector3i Pos;
+            public int Height = 1;
+            public ForesterArgs Args;
 
             public virtual void Prepare() { }
 
@@ -63,17 +63,17 @@ namespace fCraft {
             public virtual void MakeFoliage() { }
 
             public void Copy( Tree other ) {
-                args = other.args;
-                pos = other.pos;
-                height = other.height;
+                Args = other.Args;
+                Pos = other.Pos;
+                Height = other.Height;
             }
         }
 
 
         class StickTree : Tree {
             public override void MakeTrunk() {
-                for( int i = 0; i < height; i++ ) {
-                    args.outMap.SetBlock( pos.x, pos.z, pos.y + i, args.bTrunk );
+                for( int i = 0; i < Height; i++ ) {
+                    Args.OutMap.SetBlock( Pos.X, Pos.Z, Pos.Y + i, Args.TrunkBlock );
                 }
             }
         }
@@ -81,7 +81,7 @@ namespace fCraft {
 
         sealed class NormalTree : StickTree {
             public override void MakeFoliage() {
-                int topy = pos[1] + height - 1;
+                int topy = Pos[1] + Height - 1;
                 int start = topy - 2;
                 int end = topy + 2;
 
@@ -94,12 +94,12 @@ namespace fCraft {
                     }
                     for( int xoff = -rad; xoff < rad + 1; xoff++ ) {
                         for( int zoff = -rad; zoff < rad + 1; zoff++ ) {
-                            if( args.rand.NextDouble() > .618 &&
+                            if( Args.Rand.NextDouble() > .618 &&
                                 Math.Abs( xoff ) == Math.Abs( zoff ) &&
                                 Math.Abs( xoff ) == rad ) {
                                 continue;
                             }
-                            args.outMap.SetBlock( pos[0] + xoff, pos[2] + zoff, y, args.bFoliage );
+                            Args.OutMap.SetBlock( Pos[0] + xoff, Pos[2] + zoff, y, Args.FoliageBlock );
                         }
                     }
                 }
@@ -109,13 +109,13 @@ namespace fCraft {
 
         sealed class BambooTree : StickTree {
             public override void MakeFoliage() {
-                int start = pos[1];
-                int end = start + height + 1;
+                int start = Pos[1];
+                int end = start + Height + 1;
                 for( int y = start; y < end; y++ ) {
                     for( int i = 0; i < 2; i++ ) {
-                        int xoff = args.rand.Next( 0, 2 ) * 2 - 1;
-                        int zoff = args.rand.Next( 0, 2 ) * 2 - 1;
-                        args.outMap.SetBlock( pos[0] + xoff, pos[2] + zoff, y, args.bFoliage );
+                        int xoff = Args.Rand.Next( 0, 2 ) * 2 - 1;
+                        int zoff = Args.Rand.Next( 0, 2 ) * 2 - 1;
+                        Args.OutMap.SetBlock( Pos[0] + xoff, Pos[2] + zoff, y, Args.FoliageBlock );
                     }
                 }
             }
@@ -124,11 +124,11 @@ namespace fCraft {
 
         sealed class PalmTree : StickTree {
             public override void MakeFoliage() {
-                int y = pos[1] + height;
+                int y = Pos[1] + Height;
                 for( int xoff = -2; xoff < 3; xoff++ ) {
                     for( int zoff = -2; zoff < 3; zoff++ ) {
                         if( Math.Abs( xoff ) == Math.Abs( zoff ) ) {
-                            args.outMap.SetBlock( pos[0] + xoff, pos[2] + zoff, y, args.bFoliage );
+                            Args.OutMap.SetBlock( Pos[0] + xoff, Pos[2] + zoff, y, Args.FoliageBlock );
                         }
                     }
                 }
@@ -164,14 +164,14 @@ namespace fCraft {
                         coord[diraxis] = pri;
                         coord[secidx1] = sec1;
                         coord[secidx2] = sec2;
-                        args.outMap.SetBlock( coord, matidx );
+                        Args.OutMap.SetBlock( coord, matidx );
                     }
                 }
             }
 
             public virtual float ShapeFunc( int y ) {
-                if( args.rand.NextDouble() < 100f / Sqr( height ) && y < trunkHeight ) {
-                    return height * .12f;
+                if( Args.Rand.NextDouble() < 100f / Sqr( Height ) && y < trunkHeight ) {
+                    return Height * .12f;
                 } else {
                     return -1;
                 }
@@ -180,7 +180,7 @@ namespace fCraft {
             void FoliageCluster( Vector3i center ) {
                 int y = center[1];
                 foreach( float i in foliageShape ) {
-                    CrossSection( new Vector3i( center[0], center[2], y ), i, 1, args.bFoliage );
+                    CrossSection( new Vector3i( center[0], center[2], y ), i, 1, Args.FoliageBlock );
                     y++;
                 }
             }
@@ -213,7 +213,7 @@ namespace fCraft {
                     float primdist = Math.Abs( delta[primidx] );
                     float radius = endSize + (startSize - endSize) * Math.Abs( delta[primidx] - primoffset ) / primdist;
 
-                    CrossSection( coord, radius, primidx, args.bTrunk );
+                    CrossSection( coord, radius, primidx, Args.TrunkBlock );
                 }
                 return true;
             }
@@ -223,29 +223,29 @@ namespace fCraft {
                     FoliageCluster( coord );
                 }
                 foreach( Vector3i coord in foliageCoords ) {
-                    args.outMap.SetBlock( coord, args.bFoliage );
+                    Args.OutMap.SetBlock( coord, Args.FoliageBlock );
                 }
             }
 
             void MakeBranches() {
-                int topy = pos[1] + (int)(trunkHeight + .5);
-                float endrad = trunkRadius * (1 - trunkHeight / height);
+                int topy = Pos[1] + (int)(trunkHeight + .5);
+                float endrad = trunkRadius * (1 - trunkHeight / Height);
                 if( endrad < 1 ) endrad = 1;
 
                 foreach( Vector3i coord in foliageCoords ) {
-                    float dist = (float)Math.Sqrt( Sqr( coord.x - pos.x ) + Sqr( coord.z - pos.z ) );
-                    float ydist = coord[1] - pos[1];
-                    float value = (branchDensity * 220 * height) / Cub( ydist + dist );
+                    float dist = (float)Math.Sqrt( Sqr( coord.X - Pos.X ) + Sqr( coord.Z - Pos.Z ) );
+                    float ydist = coord[1] - Pos[1];
+                    float value = (branchDensity * 220 * Height) / Cub( ydist + dist );
 
-                    if( value < args.rand.NextDouble() ) continue;
+                    if( value < Args.Rand.NextDouble() ) continue;
 
                     int posy = coord[1];
-                    float slope = (float)(branchSlope + (.5 - args.rand.NextDouble()) * .16);
+                    float slope = (float)(branchSlope + (.5 - Args.Rand.NextDouble()) * .16);
 
                     float branchy, basesize;
                     if( coord[1] - dist * slope > topy ) {
-                        float threshold = 1 / (float)height;
-                        if( args.rand.NextDouble() < threshold ) continue;
+                        float threshold = 1 / (float)Height;
+                        if( Args.Rand.NextDouble() < threshold ) continue;
                         branchy = topy;
                         basesize = endrad;
                     } else {
@@ -254,16 +254,16 @@ namespace fCraft {
                                    (topy - branchy) / trunkHeight;
                     }
 
-                    float startsize = (float)(basesize * (1 + args.rand.NextDouble()) *
-                                              .618 * Math.Pow( dist / height, .618 ));
-                    float rndr = (float)(Math.Sqrt( args.rand.NextDouble() ) * basesize * .618);
-                    float rndang = (float)(args.rand.NextDouble() * 2 * Math.PI);
+                    float startsize = (float)(basesize * (1 + Args.Rand.NextDouble()) *
+                                              .618 * Math.Pow( dist / Height, .618 ));
+                    float rndr = (float)(Math.Sqrt( Args.Rand.NextDouble() ) * basesize * .618);
+                    float rndang = (float)(Args.Rand.NextDouble() * 2 * Math.PI);
                     int rndx = (int)(rndr * Math.Sin( rndang ) + .5);
                     int rndz = (int)(rndr * Math.Cos( rndang ) + .5);
                     Vector3i startcoord = new Vector3i {
-                        x = pos[0] + rndx,
-                        z = pos[2] + rndz,
-                        y = (int)branchy
+                        X = Pos[0] + rndx,
+                        Z = Pos[2] + rndz,
+                        Y = (int)branchy
                     };
                     if( startsize < 1 ) startsize = 1;
                     const float endsize = 1;
@@ -279,61 +279,61 @@ namespace fCraft {
             void MakeRoots( RootBase[] rootbases ) {
                 if( rootbases.Length == 0 ) return;
                 foreach( Vector3i coord in foliageCoords ) {
-                    float dist = (float)Math.Sqrt( Sqr( coord[0] - pos[0] ) + Sqr( coord[2] - pos[2] ) );
-                    float ydist = coord[1] - pos[1];
-                    float value = (branchDensity * 220 * height) / Cub( ydist + dist );
-                    if( value < args.rand.NextDouble() ) continue;
+                    float dist = (float)Math.Sqrt( Sqr( coord[0] - Pos[0] ) + Sqr( coord[2] - Pos[2] ) );
+                    float ydist = coord[1] - Pos[1];
+                    float value = (branchDensity * 220 * Height) / Cub( ydist + dist );
+                    if( value < Args.Rand.NextDouble() ) continue;
 
-                    RootBase rootbase = rootbases[args.rand.Next( 0, rootbases.Length )];
+                    RootBase rootbase = rootbases[Args.Rand.Next( 0, rootbases.Length )];
                     int rootx = rootbase.x;
                     int rootz = rootbase.z;
                     float rootbaseradius = rootbase.radius;
 
-                    float rndr = (float)(Math.Sqrt( args.rand.NextDouble() ) * rootbaseradius * .618);
-                    float rndang = (float)(args.rand.NextDouble() * 2 * Math.PI);
+                    float rndr = (float)(Math.Sqrt( Args.Rand.NextDouble() ) * rootbaseradius * .618);
+                    float rndang = (float)(Args.Rand.NextDouble() * 2 * Math.PI);
                     int rndx = (int)(rndr * Math.Sin( rndang ) + .5);
                     int rndz = (int)(rndr * Math.Cos( rndang ) + .5);
-                    int rndy = (int)(args.rand.NextDouble() * rootbaseradius * .5);
+                    int rndy = (int)(Args.Rand.NextDouble() * rootbaseradius * .5);
                     Vector3i startcoord = new Vector3i {
-                        x = rootx + rndx,
-                        z = rootz + rndz,
-                        y = pos[1] + rndy
+                        X = rootx + rndx,
+                        Z = rootz + rndz,
+                        Y = Pos[1] + rndy
                     };
                     Vector3f offset = new Vector3f( startcoord - coord );
 
-                    if( args.SHAPE == TreeShape.Mangrove ) {
+                    if( Args.Shape == TreeShape.Mangrove ) {
                         offset = offset * 1.618f - 1.5f;
                     }
 
                     Vector3i endcoord = startcoord + new Vector3i( offset );
-                    float rootstartsize = (float)(rootbaseradius * .618 * Math.Abs( offset[1] ) / (height * .618));
+                    float rootstartsize = (float)(rootbaseradius * .618 * Math.Abs( offset[1] ) / (Height * .618));
 
                     if( rootstartsize < 1 ) rootstartsize = 1;
                     const float endsize = 1;
 
-                    if( args.ROOTS == RootMode.ToStone ||
-                        args.ROOTS == RootMode.Hanging ) {
+                    if( Args.Roots == RootMode.ToStone ||
+                        Args.Roots == RootMode.Hanging ) {
                         float offlength = offset.GetLength();
                         if( offlength < 1 ) continue;
                         float rootmid = endsize;
                         Vector3f vec = offset / offlength;
 
                         Block searchIndex = Block.Air;
-                        if( args.ROOTS == RootMode.ToStone ) {
+                        if( Args.Roots == RootMode.ToStone ) {
                             searchIndex = Block.Stone;
-                        } else if( args.ROOTS == RootMode.Hanging ) {
+                        } else if( Args.Roots == RootMode.Hanging ) {
                             searchIndex = Block.Air;
                         }
 
-                        int startdist = (int)(args.rand.NextDouble() * 6 * Math.Sqrt( rootstartsize ) + 2.8);
+                        int startdist = (int)(Args.Rand.NextDouble() * 6 * Math.Sqrt( rootstartsize ) + 2.8);
                         Vector3i searchstart = new Vector3i( startcoord + vec * startdist );
 
-                        dist = startdist + DistanceToBlock( args.inMap, new Vector3f( searchstart ), vec, searchIndex );
+                        dist = startdist + DistanceToBlock( Args.InMap, new Vector3f( searchstart ), vec, searchIndex );
 
                         if( dist < offlength ) {
                             rootmid += (rootstartsize - endsize) * (1 - dist / offlength);
                             endcoord = new Vector3i( startcoord + vec * dist );
-                            if( args.ROOTS == RootMode.Hanging ) {
+                            if( Args.Roots == RootMode.Hanging ) {
                                 float remaining_dist = offlength - dist;
                                 Vector3i bottomcord = endcoord;
                                 bottomcord[1] -= (int)remaining_dist;
@@ -348,21 +348,21 @@ namespace fCraft {
             }
 
             public override void MakeTrunk() {
-                int starty = pos[1];
-                int midy = (int)(pos[1] + trunkHeight * .382);
-                int topy = (int)(pos[1] + trunkHeight + .5);
+                int starty = Pos[1];
+                int midy = (int)(Pos[1] + trunkHeight * .382);
+                int topy = (int)(Pos[1] + trunkHeight + .5);
 
-                int x = pos[0];
-                int z = pos[2];
+                int x = Pos[0];
+                int z = Pos[2];
                 float midrad = trunkRadius * .8f;
-                float endrad = trunkRadius * (1 - trunkHeight / height);
+                float endrad = trunkRadius * (1 - trunkHeight / Height);
 
                 if( endrad < 1 ) endrad = 1;
                 if( midrad < endrad ) midrad = endrad;
 
                 float startrad;
                 List<RootBase> rootbases = new List<RootBase>();
-                if( args.ROOTBUTTRESSES || args.SHAPE == TreeShape.Mangrove ) {
+                if( Args.Rootbuttresses || Args.Shape == TreeShape.Mangrove ) {
                     startrad = trunkRadius * .8f;
                     rootbases.Add( new RootBase {
                         x = x,
@@ -371,17 +371,17 @@ namespace fCraft {
                     } );
                     float buttress_radius = trunkRadius * .382f;
                     float posradius = trunkRadius;
-                    if( args.SHAPE == TreeShape.Mangrove ) {
+                    if( Args.Shape == TreeShape.Mangrove ) {
                         posradius *= 2.618f;
                     }
                     int num_of_buttresss = (int)(Math.Sqrt( trunkRadius ) + 3.5);
                     for( int i = 0; i < num_of_buttresss; i++ ) {
-                        float rndang = (float)(args.rand.NextDouble() * 2 * Math.PI);
-                        float thisposradius = (float)(posradius * (.9 + args.rand.NextDouble() * .2));
+                        float rndang = (float)(Args.Rand.NextDouble() * 2 * Math.PI);
+                        float thisposradius = (float)(posradius * (.9 + Args.Rand.NextDouble() * .2));
                         int thisx = x + (int)(thisposradius * Math.Sin( rndang ));
                         int thisz = z + (int)(thisposradius * Math.Cos( rndang ));
 
-                        float thisbuttressradius = (float)(buttress_radius * (.618 + args.rand.NextDouble()));
+                        float thisbuttressradius = (float)(buttress_radius * (.618 + Args.Rand.NextDouble()));
                         if( thisbuttressradius < 1 ) thisbuttressradius = 1;
 
                         TaperedLimb( new Vector3i( thisx, thisz, starty ), new Vector3i( x, z, midy ),
@@ -403,22 +403,22 @@ namespace fCraft {
                 TaperedLimb( new Vector3i( x, z, starty ), new Vector3i( x, z, midy ), startrad, midrad );
                 TaperedLimb( new Vector3i( x, z, midy ), new Vector3i( x, z, topy ), midrad, endrad );
                 MakeBranches();
-                if( args.ROOTS != RootMode.None ) {
+                if( Args.Roots != RootMode.None ) {
                     MakeRoots( rootbases.ToArray() );
                 }
             }
 
             public override void Prepare() {
                 base.Prepare();
-                trunkRadius = (float)Math.Sqrt( height * args.TRUNKTHICKNESS );
+                trunkRadius = (float)Math.Sqrt( Height * Args.Trunkthickness );
                 if( trunkRadius < 1 ) trunkRadius = 1;
 
-                trunkHeight = height * .618f;
-                branchDensity = (args.BRANCHDENSITY / args.FOLIAGEDENSITY);
+                trunkHeight = Height * .618f;
+                branchDensity = (Args.Branchdensity / Args.Foliagedensity);
 
-                int ystart = pos[1];
-                int yend = (pos[1] + height);
-                int num_of_clusters_per_y = (int)(1.5 + Sqr( args.FOLIAGEDENSITY * height / 19f ));
+                int ystart = Pos[1];
+                int yend = (Pos[1] + Height);
+                int num_of_clusters_per_y = (int)(1.5 + Sqr( Args.Foliagedensity * Height / 19f ));
                 if( num_of_clusters_per_y < 1 ) num_of_clusters_per_y = 1;
 
                 List<Vector3i> _foliageCoords = new List<Vector3i>();
@@ -426,10 +426,10 @@ namespace fCraft {
                     for( int i = 0; i < num_of_clusters_per_y; i++ ) {
                         float shapefac = ShapeFunc( y - ystart );
                         if( shapefac < 0 ) continue;
-                        float r = (float)((Math.Sqrt( args.rand.NextDouble() ) + .328) * shapefac);
-                        float theta = (float)(args.rand.NextDouble() * 2 * Math.PI);
-                        int x = (int)(r * Math.Sin( theta )) + pos[0];
-                        int z = (int)(r * Math.Cos( theta )) + pos[2];
+                        float r = (float)((Math.Sqrt( Args.Rand.NextDouble() ) + .328) * shapefac);
+                        float theta = (float)(Args.Rand.NextDouble() * 2 * Math.PI);
+                        int x = (int)(r * Math.Sin( theta )) + Pos[0];
+                        int z = (int)(r * Math.Cos( theta )) + Pos[2];
                         _foliageCoords.Add( new Vector3i( x, z, y ) );
                     }
                 }
@@ -444,19 +444,19 @@ namespace fCraft {
                 branchSlope = .382f;
                 foliageShape = new[] { 2, 3, 3, 2.5f, 1.6f };
                 trunkRadius *= .8f;
-                trunkHeight = args.TRUNKHEIGHT * height;
+                trunkHeight = Args.Trunkheight * Height;
             }
 
             public override float ShapeFunc( int y ) {
                 float twigs = base.ShapeFunc( y );
                 if( twigs >= 0 ) return twigs;
 
-                if( y < height * (.282 + .1 * Math.Sqrt( args.rand.NextDouble() )) ) {
+                if( y < Height * (.282 + .1 * Math.Sqrt( Args.Rand.NextDouble() )) ) {
                     return -1;
                 }
 
-                float radius = height / 2f;
-                float adj = height / 2f - y;
+                float radius = Height / 2f;
+                float adj = Height / 2f - y;
                 float dist;
                 if( adj == 0 ) {
                     dist = radius;
@@ -477,16 +477,16 @@ namespace fCraft {
                 branchSlope = .15f;
                 foliageShape = new[] { 3, 2.6f, 2, 1 };
                 trunkRadius *= .618f;
-                trunkHeight = height;
+                trunkHeight = Height;
             }
 
             public override float ShapeFunc( int y ) {
                 float twigs = base.ShapeFunc( y );
                 if( twigs >= 0 ) return twigs;
-                if( y < height * (.25 + .05 * Math.Sqrt( args.rand.NextDouble() )) ) {
+                if( y < Height * (.25 + .05 * Math.Sqrt( Args.Rand.NextDouble() )) ) {
                     return -1;
                 }
-                float radius = (height - y) * .382f;
+                float radius = (Height - y) * .382f;
                 if( radius < 0 ) radius = 0;
                 return radius;
             }
@@ -499,22 +499,22 @@ namespace fCraft {
                 base.Prepare();
                 branchSlope = 1;
                 trunkRadius *= .382f;
-                trunkHeight = height * .9f;
+                trunkHeight = Height * .9f;
             }
 
             public override float ShapeFunc( int y ) {
-                if( y < height * .8 ) {
-                    if( args.HEIGHT < height ) {
+                if( y < Height * .8 ) {
+                    if( Args.Height < Height ) {
                         float twigs = base.ShapeFunc( y );
-                        if( twigs >= 0 && args.rand.NextDouble() < .05 ) {
+                        if( twigs >= 0 && Args.Rand.NextDouble() < .05 ) {
                             return twigs;
                         }
                     }
                     return -1;
                 } else {
-                    float width = height * .382f;
-                    float topdist = (height - y) / (height * .2f);
-                    float dist = (float)(width * (.618 + topdist) * (.618 + args.rand.NextDouble()) * .382);
+                    float width = Height * .382f;
+                    float topdist = (Height - y) / (Height * .2f);
+                    float dist = (float)(width * (.618 + topdist) * (.618 + Args.Rand.NextDouble()) * .382);
                     return dist;
                 }
             }
@@ -537,7 +537,7 @@ namespace fCraft {
         }
 
 
-        public enum Operation {
+        public enum ForesterOperation {
             ClearCut,
             Conserve,
             Replant,
@@ -592,30 +592,30 @@ namespace fCraft {
         }
 
         void FindTrees( List<Tree> treelist ) {
-            int treeheight = args.HEIGHT;
+            int treeheight = args.Height;
 
-            for( int x = 0; x < args.inMap.WidthX; x++ ) {
-                for( int z = 0; z < args.inMap.WidthY; z++ ) {
-                    int y = args.inMap.Height - 1;
+            for( int x = 0; x < args.InMap.WidthX; x++ ) {
+                for( int z = 0; z < args.InMap.WidthY; z++ ) {
+                    int y = args.InMap.Height - 1;
                     while( true ) {
-                        int foliagetop = args.inMap.SearchColumn( x, z, args.bFoliage, y );
+                        int foliagetop = args.InMap.SearchColumn( x, z, args.FoliageBlock, y );
                         if( foliagetop < 0 ) break;
                         y = foliagetop;
                         Vector3i trunktop = new Vector3i( x, z, y - 1 );
-                        int height = DistanceToBlock( args.inMap, new Vector3f( trunktop ), new Vector3f( 0, 0, -1 ), args.bTrunk, true );
+                        int height = DistanceToBlock( args.InMap, new Vector3f( trunktop ), new Vector3f( 0, 0, -1 ), args.TrunkBlock, true );
                         if( height == 0 ) {
                             y--;
                             continue;
                         }
                         y -= height;
-                        if( args.HEIGHT > 0 ) {
-                            height = args.rand.Next( treeheight - args.HEIGHTVARIATION,
-                                                     treeheight + args.HEIGHTVARIATION + 1 );
+                        if( args.Height > 0 ) {
+                            height = args.Rand.Next( treeheight - args.Heightvariation,
+                                                     treeheight + args.Heightvariation + 1 );
                         }
                         treelist.Add( new Tree {
-                            args = args,
-                            pos = new Vector3i( x, z, y ),
-                            height = height
+                            Args = args,
+                            Pos = new Vector3i( x, z, y ),
+                            Height = height
                         } );
                         y--;
                     }
@@ -624,47 +624,47 @@ namespace fCraft {
         }
 
         void PlantTrees( List<Tree> treelist ) {
-            int treeheight = args.HEIGHT;
+            int treeheight = args.Height;
 
             int attempts = 0;
-            while( treelist.Count < args.TREECOUNT && attempts < MaxTries ) {
+            while( treelist.Count < args.Treecount && attempts < MaxTries ) {
                 attempts++;
-                int height = args.rand.Next( treeheight - args.HEIGHTVARIATION,
-                                             treeheight + args.HEIGHTVARIATION + 1 );
+                int height = args.Rand.Next( treeheight - args.Heightvariation,
+                                             treeheight + args.Heightvariation + 1 );
 
                 Vector3i treeLoc = RandomTreeLoc( height );
-                if( treeLoc.y < 0 ) continue;
-                else treeLoc.y++;
+                if( treeLoc.Y < 0 ) continue;
+                else treeLoc.Y++;
                 treelist.Add( new Tree {
-                    args = args,
-                    height = height,
-                    pos = treeLoc
+                    Args = args,
+                    Height = height,
+                    Pos = treeLoc
                 } );
             }
         }
 
         Vector3i RandomTreeLoc( int height ) {
             int padding = (int)(height / 3f + 1);
-            int mindim = Math.Min( args.inMap.WidthX, args.inMap.WidthY );
+            int mindim = Math.Min( args.InMap.WidthX, args.InMap.WidthY );
             if( padding > mindim / 2.2 ) {
                 padding = (int)(mindim / 2.2);
             }
-            int x = args.rand.Next( padding, args.inMap.WidthX - padding - 1 );
-            int z = args.rand.Next( padding, args.inMap.WidthY - padding - 1 );
-            int y = args.inMap.SearchColumn( x, z, args.PLANTON );
+            int x = args.Rand.Next( padding, args.InMap.WidthX - padding - 1 );
+            int z = args.Rand.Next( padding, args.InMap.WidthY - padding - 1 );
+            int y = args.InMap.SearchColumn( x, z, args.Planton );
             return new Vector3i( x, z, y );
         }
 
         void PlantRainForestTrees( List<Tree> treelist ) {
-            int treeheight = args.HEIGHT;
+            int treeheight = args.Height;
 
             int existingtreenum = treelist.Count;
-            int remainingtrees = args.TREECOUNT - existingtreenum;
+            int remainingtrees = args.Treecount - existingtreenum;
 
             const int short_tree_fraction = 6;
             int attempts = 0;
             for( int i = 0; i < remainingtrees && attempts < MaxTries; attempts++ ) {
-                float randomfac = (float)((Math.Sqrt( args.rand.NextDouble() ) * 1.618 - .618) * args.HEIGHTVARIATION + .5);
+                float randomfac = (float)((Math.Sqrt( args.Rand.NextDouble() ) * 1.618 - .618) * args.Heightvariation + .5);
 
                 int height;
                 if( i % short_tree_fraction == 0 ) {
@@ -673,17 +673,17 @@ namespace fCraft {
                     height = (int)(treeheight - randomfac);
                 }
                 Vector3i xyz = RandomTreeLoc( height );
-                if( xyz.y < 0 ) continue;
+                if( xyz.Y < 0 ) continue;
 
-                xyz.y++;
+                xyz.Y++;
 
                 bool displaced = false;
                 foreach( Tree otherTree in treelist ) {
-                    Vector3i otherLoc = otherTree.pos;
-                    float otherheight = otherTree.height;
+                    Vector3i otherLoc = otherTree.Pos;
+                    float otherheight = otherTree.Height;
                     int tallx = otherLoc[0];
                     int tallz = otherLoc[2];
-                    float dist = (float)Math.Sqrt( Sqr( tallx - xyz.x + .5 ) + Sqr( tallz - xyz.z + .5 ) );
+                    float dist = (float)Math.Sqrt( Sqr( tallx - xyz.X + .5 ) + Sqr( tallz - xyz.Z + .5 ) );
                     float threshold = (otherheight + height) * .193f;
                     if( dist < threshold ) {
                         displaced = true;
@@ -692,33 +692,33 @@ namespace fCraft {
                 }
                 if( displaced ) continue;
                 treelist.Add( new RainforestTree {
-                    args = args,
-                    pos = xyz,
-                    height = height
+                    Args = args,
+                    Pos = xyz,
+                    Height = height
                 } );
                 i++;
             }
         }
 
         void PlantMangroves( List<Tree> treelist ) {
-            int treeheight = args.HEIGHT;
+            int treeheight = args.Height;
 
             int attempts = 0;
-            while( treelist.Count < args.TREECOUNT && attempts < MaxTries ) {
+            while( treelist.Count < args.Treecount && attempts < MaxTries ) {
                 attempts++;
-                int height = args.rand.Next( treeheight - args.HEIGHTVARIATION,
-                                             treeheight + args.HEIGHTVARIATION + 1 );
+                int height = args.Rand.Next( treeheight - args.Heightvariation,
+                                             treeheight + args.Heightvariation + 1 );
                 int padding = (int)(height / 3f + 1);
-                int mindim = Math.Min( args.inMap.WidthX, args.inMap.WidthY );
+                int mindim = Math.Min( args.InMap.WidthX, args.InMap.WidthY );
                 if( padding > mindim / 2.2 ) {
                     padding = (int)(mindim / 2.2);
                 }
-                int x = args.rand.Next( padding, args.inMap.WidthX - padding - 1 );
-                int z = args.rand.Next( padding, args.inMap.WidthY - padding - 1 );
-                int top = args.inMap.Height - 1;
+                int x = args.Rand.Next( padding, args.InMap.WidthX - padding - 1 );
+                int z = args.Rand.Next( padding, args.InMap.WidthY - padding - 1 );
+                int top = args.InMap.Height - 1;
 
-                int y = top - DistanceToBlock( args.inMap, new Vector3f( x, z, top ), new Vector3f( 0, 0, -1 ), Block.Air, true );
-                int dist = DistanceToBlock( args.inMap, new Vector3f( x, z, y ), new Vector3f( 0, 0, -1 ), Block.Water, true );
+                int y = top - DistanceToBlock( args.InMap, new Vector3f( x, z, top ), new Vector3f( 0, 0, -1 ), Block.Air, true );
+                int dist = DistanceToBlock( args.InMap, new Vector3f( x, z, y ), new Vector3f( 0, 0, -1 ), Block.Water, true );
 
                 if( dist > height * .618 || dist == 0 ) {
                     continue;
@@ -726,16 +726,16 @@ namespace fCraft {
 
                 y += (int)Math.Sqrt( height - dist ) + 2;
                 treelist.Add( new Tree {
-                    args = args,
-                    height = height,
-                    pos = new Vector3i( x, z, y )
+                    Args = args,
+                    Height = height,
+                    Pos = new Vector3i( x, z, y )
                 } );
             }
         }
 
         void ProcessTrees( List<Tree> treelist ) {
             TreeShape[] shape_choices;
-            switch( args.SHAPE ) {
+            switch( args.Shape ) {
                 case TreeShape.Stickly:
                     shape_choices = new[]{ TreeShape.Normal,
                                                      TreeShape.Bamboo,
@@ -746,12 +746,12 @@ namespace fCraft {
                                                      TreeShape.Cone };
                     break;
                 default:
-                    shape_choices = new[] { args.SHAPE };
+                    shape_choices = new[] { args.Shape };
                     break;
             }
 
             for( int i = 0; i < treelist.Count; i++ ) {
-                TreeShape newshape = shape_choices[args.rand.Next( 0, shape_choices.Length )];
+                TreeShape newshape = shape_choices[args.Rand.Next( 0, shape_choices.Length )];
                 Tree newtree;
                 switch( newshape ) {
                     case TreeShape.Normal:
@@ -780,22 +780,22 @@ namespace fCraft {
                 }
                 newtree.Copy( treelist[i] );
 
-                if( args.MAPHEIGHTLIMIT ) {
-                    int height = newtree.height;
-                    int ybase = newtree.pos[1];
-                    int mapheight = args.inMap.Height;
+                if( args.Mapheightlimit ) {
+                    int height = newtree.Height;
+                    int ybase = newtree.Pos[1];
+                    int mapheight = args.InMap.Height;
                     int foliageheight;
-                    if( args.SHAPE == TreeShape.Rainforest ) {
+                    if( args.Shape == TreeShape.Rainforest ) {
                         foliageheight = 2;
                     } else {
                         foliageheight = 4;
                     }
                     if( ybase + height + foliageheight > mapheight ) {
-                        newtree.height = mapheight - ybase - foliageheight;
+                        newtree.Height = mapheight - ybase - foliageheight;
                     }
                 }
 
-                if( newtree.height < 1 ) newtree.height = 1;
+                if( newtree.Height < 1 ) newtree.Height = 1;
                 newtree.Prepare();
                 treelist[i] = newtree;
             }
@@ -804,16 +804,16 @@ namespace fCraft {
         public void Generate() {
             List<Tree> treelist = new List<Tree>();
 
-            if( args.OPERATION == Operation.Conserve ) {
+            if( args.Operation == ForesterOperation.Conserve ) {
                 FindTrees( treelist );
             }
 
-            if( args.TREECOUNT > 0 && treelist.Count > args.TREECOUNT ) {
-                treelist = treelist.Take( args.TREECOUNT ).ToList();
+            if( args.Treecount > 0 && treelist.Count > args.Treecount ) {
+                treelist = treelist.Take( args.Treecount ).ToList();
             }
 
-            if( args.OPERATION == Operation.Replant || args.OPERATION == Operation.Add ) {
-                switch( args.SHAPE ) {
+            if( args.Operation == ForesterOperation.Replant || args.Operation == ForesterOperation.Add ) {
+                switch( args.Shape ) {
                     case TreeShape.Rainforest:
                         PlantRainForestTrees( treelist );
                         break;
@@ -826,14 +826,14 @@ namespace fCraft {
                 }
             }
 
-            if( args.OPERATION != Operation.ClearCut ) {
+            if( args.Operation != ForesterOperation.ClearCut ) {
                 ProcessTrees( treelist );
-                if( args.FOLIAGE ) {
+                if( args.Foliage ) {
                     foreach( Tree tree in treelist ) {
                         tree.MakeFoliage();
                     }
                 }
-                if( args.WOOD ) {
+                if( args.Wood ) {
                     foreach( Tree tree in treelist ) {
                         tree.MakeTrunk();
                     }

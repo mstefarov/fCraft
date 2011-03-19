@@ -7,16 +7,16 @@ namespace fCraft {
     /// Contains information about the block coordinates, type, and change's origin.
     /// </summary>
     public struct BlockUpdate {
-        public Player origin; // Used for stat tracking. Can be null (to avoid crediting any stats at all).
-        public short x, y, h;
-        public byte type; 
+        public Player Origin; // Used for stat tracking. Can be null (to avoid crediting any stats at all).
+        public short X, Y, H;
+        public byte BlockType; 
 
-        public BlockUpdate( Player _origin, int _x, int _y, int _h, byte _type ) {
-            origin = _origin;
-            x = (short)_x;
-            y = (short)_y;
-            h = (short)_h;
-            type = _type;
+        public BlockUpdate( Player origin, int x, int y, int h, byte blockType ) {
+            Origin = origin;
+            X = (short)x;
+            Y = (short)y;
+            H = (short)h;
+            BlockType = blockType;
         }
     }
 }

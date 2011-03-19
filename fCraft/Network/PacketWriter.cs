@@ -29,7 +29,7 @@ namespace fCraft {
         }
 
         public void Write( Packet packet ) {
-            Write( packet.data );
+            Write( packet.Data );
         }
 
 
@@ -56,21 +56,21 @@ namespace fCraft {
             Write( OutputCode.AddEntity );
             Write( id );
             Write( player.GetListName() );
-            Write( pos.x );
-            Write( pos.h );
-            Write( pos.y );
-            Write( pos.r );
-            Write( pos.l );
+            Write( pos.X );
+            Write( pos.H );
+            Write( pos.Y );
+            Write( pos.R );
+            Write( pos.L );
         }
 
         public void WriteTeleport( byte id, Position pos ) {
             Write( OutputCode.Teleport );
             Write( id );
-            Write( pos.x );
-            Write( pos.h );
-            Write( pos.y );
-            Write( pos.r );
-            Write( pos.l );
+            Write( pos.X );
+            Write( pos.H );
+            Write( pos.Y );
+            Write( pos.R );
+            Write( pos.L );
         }
         #endregion
 
@@ -80,71 +80,71 @@ namespace fCraft {
 
         internal static Packet MakeHandshake( Player player, string serverName, string MOTD ) {
             Packet packet = new Packet( 131 );
-            packet.data[0] = (byte)OutputCode.Handshake;
-            packet.data[1] = Config.ProtocolVersion;
-            Encoding.ASCII.GetBytes( serverName.PadRight( 64 ), 0, 64, packet.data, 2 );
-            Encoding.ASCII.GetBytes( MOTD.PadRight( 64 ), 0, 64, packet.data, 66 );
-            packet.data[130] = player.GetOPPacketCode();
+            packet.Data[0] = (byte)OutputCode.Handshake;
+            packet.Data[1] = Config.ProtocolVersion;
+            Encoding.ASCII.GetBytes( serverName.PadRight( 64 ), 0, 64, packet.Data, 2 );
+            Encoding.ASCII.GetBytes( MOTD.PadRight( 64 ), 0, 64, packet.Data, 66 );
+            packet.Data[130] = player.GetOPPacketCode();
             return packet;
         }
 
 
         internal static Packet MakeLevelEnd( Map map ) {
             Packet packet = new Packet( 7 );
-            packet.data[0] = (byte)OutputCode.LevelEnd;
-            ToNetOrder( (short)map.WidthX, packet.data, 1 );
-            ToNetOrder( (short)map.Height, packet.data, 3 );
-            ToNetOrder( (short)map.WidthY, packet.data, 5 );
+            packet.Data[0] = (byte)OutputCode.LevelEnd;
+            ToNetOrder( (short)map.WidthX, packet.Data, 1 );
+            ToNetOrder( (short)map.Height, packet.Data, 3 );
+            ToNetOrder( (short)map.WidthY, packet.Data, 5 );
             return packet;
         }
 
         internal static Packet MakeMessage( string message ) {
             Packet packet = new Packet( 66 );
-            packet.data[0] = (byte)OutputCode.Message;
-            packet.data[1] = 0;
-            Encoding.ASCII.GetBytes( message.PadRight( 64 ), 0, 64, packet.data, 2 );
+            packet.Data[0] = (byte)OutputCode.Message;
+            packet.Data[1] = 0;
+            Encoding.ASCII.GetBytes( message.PadRight( 64 ), 0, 64, packet.Data, 2 );
             return packet;
         }
 
         internal static Packet MakeAddEntity( Player player, Position pos ) {
-            return MakeAddEntity( player.id, player.GetListName(), pos );
+            return MakeAddEntity( player.ID, player.GetListName(), pos );
         }
         internal static Packet MakeAddEntity( int id, string name, Position pos ) {
             Packet packet = new Packet( 74 );
-            packet.data[0] = (byte)OutputCode.AddEntity;
-            packet.data[1] = (byte)id;
-            Encoding.ASCII.GetBytes( name.PadRight( 64 ), 0, 64, packet.data, 2 );
-            ToNetOrder( pos.x, packet.data, 66 );
-            ToNetOrder( pos.h, packet.data, 68 );
-            ToNetOrder( pos.y, packet.data, 70 );
-            packet.data[72] = pos.r;
-            packet.data[73] = pos.l;
+            packet.Data[0] = (byte)OutputCode.AddEntity;
+            packet.Data[1] = (byte)id;
+            Encoding.ASCII.GetBytes( name.PadRight( 64 ), 0, 64, packet.Data, 2 );
+            ToNetOrder( pos.X, packet.Data, 66 );
+            ToNetOrder( pos.H, packet.Data, 68 );
+            ToNetOrder( pos.Y, packet.Data, 70 );
+            packet.Data[72] = pos.R;
+            packet.Data[73] = pos.L;
             return packet;
         }
 
         internal static Packet MakeDisconnect( string reason ) {
             Packet packet = new Packet( 65 );
-            packet.data[0] = (byte)OutputCode.Disconnect;
-            Encoding.ASCII.GetBytes( reason.PadRight( 64 ), 0, 64, packet.data, 1 );
+            packet.Data[0] = (byte)OutputCode.Disconnect;
+            Encoding.ASCII.GetBytes( reason.PadRight( 64 ), 0, 64, packet.Data, 1 );
             return packet;
         }
 
         internal static Packet MakeRemoveEntity( int id ) {
             Packet packet = new Packet( 2 );
-            packet.data[0] = (byte)OutputCode.RemoveEntity;
-            packet.data[1] = (byte)id;
+            packet.Data[0] = (byte)OutputCode.RemoveEntity;
+            packet.Data[1] = (byte)id;
             return packet;
         }
 
         internal static Packet MakeTeleport( int id, Position pos ) {
             Packet packet = new Packet( 10 );
-            packet.data[0] = (byte)OutputCode.Teleport;
-            packet.data[1] = (byte)id;
-            ToNetOrder( pos.x, packet.data, 2 );
-            ToNetOrder( pos.h, packet.data, 4 );
-            ToNetOrder( pos.y, packet.data, 6 );
-            packet.data[8] = pos.r;
-            packet.data[9] = pos.l;
+            packet.Data[0] = (byte)OutputCode.Teleport;
+            packet.Data[1] = (byte)id;
+            ToNetOrder( pos.X, packet.Data, 2 );
+            ToNetOrder( pos.H, packet.Data, 4 );
+            ToNetOrder( pos.Y, packet.Data, 6 );
+            packet.Data[8] = pos.R;
+            packet.Data[9] = pos.L;
             return packet;
         }
 
@@ -154,49 +154,49 @@ namespace fCraft {
 
         internal static Packet MakeMoveRotate( int id, Position pos ) {
             Packet packet = new Packet( 7 );
-            packet.data[0] = (byte)OutputCode.MoveRotate;
-            packet.data[1] = (byte)id;
-            packet.data[2] = (byte)(pos.x & 0xFF);
-            packet.data[3] = (byte)(pos.h & 0xFF);
-            packet.data[4] = (byte)(pos.y & 0xFF);
-            packet.data[5] = pos.r;
-            packet.data[6] = pos.l;
+            packet.Data[0] = (byte)OutputCode.MoveRotate;
+            packet.Data[1] = (byte)id;
+            packet.Data[2] = (byte)(pos.X & 0xFF);
+            packet.Data[3] = (byte)(pos.H & 0xFF);
+            packet.Data[4] = (byte)(pos.Y & 0xFF);
+            packet.Data[5] = pos.R;
+            packet.Data[6] = pos.L;
             return packet;
         }
 
         internal static Packet MakeMove( int id, Position pos ) {
             Packet packet = new Packet( 5 );
-            packet.data[0] = (byte)OutputCode.Move;
-            packet.data[1] = (byte)id;
-            packet.data[2] = (byte)pos.x;
-            packet.data[3] = (byte)pos.h;
-            packet.data[4] = (byte)pos.y;
+            packet.Data[0] = (byte)OutputCode.Move;
+            packet.Data[1] = (byte)id;
+            packet.Data[2] = (byte)pos.X;
+            packet.Data[3] = (byte)pos.H;
+            packet.Data[4] = (byte)pos.Y;
             return packet;
         }
 
         internal static Packet MakeRotate( int id, Position pos ) {
             Packet packet = new Packet( 4 );
-            packet.data[0] = (byte)OutputCode.Rotate;
-            packet.data[1] = (byte)id;
-            packet.data[2] = pos.r;
-            packet.data[3] = pos.l;
+            packet.Data[0] = (byte)OutputCode.Rotate;
+            packet.Data[1] = (byte)id;
+            packet.Data[2] = pos.R;
+            packet.Data[3] = pos.L;
             return packet;
         }
 
         internal static Packet MakeSetBlock( int x, int y, int h, byte type ) {
             Packet packet = new Packet( 8 );
-            packet.data[0] = (byte)OutputCode.SetTile;
-            ToNetOrder( x, packet.data, 1 );
-            ToNetOrder( h, packet.data, 3 );
-            ToNetOrder( y, packet.data, 5 );
-            packet.data[7] = type;
+            packet.Data[0] = (byte)OutputCode.SetTile;
+            ToNetOrder( x, packet.Data, 1 );
+            ToNetOrder( h, packet.Data, 3 );
+            ToNetOrder( y, packet.Data, 5 );
+            packet.Data[7] = type;
             return packet;
         }
 
         internal static Packet MakeSetPermission( Player player ) {
             Packet packet = new Packet( 2 );
-            packet.data[0] = (byte)OutputCode.SetPermission;
-            packet.data[1] = player.GetOPPacketCode();
+            packet.Data[0] = (byte)OutputCode.SetPermission;
+            packet.Data[1] = player.GetOPPacketCode();
             return packet;
         }
 

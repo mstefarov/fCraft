@@ -39,20 +39,20 @@ namespace fCraft {
         public IRCMessageType Type;
         public IRCReplyCode ReplyCode;
 
-        public IRCMessage( string _from, string _nick, string _ident, string _host, string _channel, string _message, string _rawmessage, IRCMessageType _type, IRCReplyCode _replycode ) {
-            RawMessage = _rawmessage;
-            RawMessageArray = _rawmessage.Split( new[] { ' ' } );
-            Type = _type;
+        public IRCMessage( string from, string nick, string ident, string host, string channel, string message, string rawMessage, IRCMessageType type, IRCReplyCode _replycode ) {
+            RawMessage = rawMessage;
+            RawMessageArray = rawMessage.Split( new[] { ' ' } );
+            Type = type;
             ReplyCode = _replycode;
-            From = _from;
-            Nick = _nick;
-            Ident = _ident;
-            Host = _host;
-            Channel = _channel;
-            if( _message != null ) {
+            From = from;
+            Nick = nick;
+            Ident = ident;
+            Host = host;
+            Channel = channel;
+            if( message != null ) {
                 // message is optional
-                Message = _message;
-                MessageArray = _message.Split( new[] { ' ' } );
+                Message = message;
+                MessageArray = message.Split( new[] { ' ' } );
             }
         }
     }

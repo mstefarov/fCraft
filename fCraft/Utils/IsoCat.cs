@@ -99,9 +99,9 @@ namespace fCraft {
         byte block;
         IsoCatMode mode;
         int[] chunkCoords = new int[6];
-        Map map;
-        Bitmap imageBmp;
-        BitmapData imageData;
+        readonly Map map;
+        readonly Bitmap imageBmp;
+        readonly BitmapData imageData;
 
         int dimX, dimY, dimX1, dimY1, dimX2, dimY2;
         int offsetX, offsetY, rot;

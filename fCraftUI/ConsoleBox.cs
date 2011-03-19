@@ -8,7 +8,7 @@ namespace fCraftUI {
         const int WM_KEYDOWN = 0x100;
         const int WM_SYSKEYDOWN = 0x104;
         public SimpleEventHandler OnCommand;
-        List<string> log = new List<string>();
+        readonly List<string> log = new List<string>();
         int logPointer;
 
         protected override bool ProcessCmdKey( ref Message msg, Keys keyData ) {

@@ -8,53 +8,53 @@ namespace fCraft {
     /// Note that, as a struct, Position objects are COPIED when assigned or passed as an argument.
     /// </summary>
     public struct Position {
-        public short x, y, h;
-        public byte r, l;
+        public short X, Y, H;
+        public byte R, L;
 
-        public Position( short _x, short _y, short _h ) {
-            x = _x;
-            y = _y;
-            h = _h;
-            r = 0;
-            l = 0;
+        public Position( short x, short y, short h ) {
+            X = x;
+            Y = y;
+            H = h;
+            R = 0;
+            L = 0;
         }
 
-        public void Set( short _x, short _y, short _h, byte _r, byte _l ) {
-            x = _x;
-            y = _y;
-            h = _h;
-            r = _r;
-            l = _l;
+        public void Set( short x, short y, short h, byte r, byte l ) {
+            X = x;
+            Y = y;
+            H = h;
+            R = r;
+            L = l;
         }
 
 
-        public void Set( int _x, int _y, int _h, byte _r, byte _l ) {
-            x = (short)_x;
-            y = (short)_y;
-            h = (short)_h;
-            r = _r;
-            l = _l;
+        public void Set( int x, int y, int h, int r, int l ) {
+            X = (short)x;
+            Y = (short)y;
+            H = (short)h;
+            R = (byte)r;
+            L = (byte)l;
         }
 
 
         public bool FitsIntoByte() {
-            return x >= SByte.MinValue && x <= SByte.MaxValue &&
-                   y >= SByte.MinValue && y <= SByte.MaxValue &&
-                   h >= SByte.MinValue && h <= SByte.MaxValue;
+            return X >= SByte.MinValue && X <= SByte.MaxValue &&
+                   Y >= SByte.MinValue && Y <= SByte.MaxValue &&
+                   H >= SByte.MinValue && H <= SByte.MaxValue;
         }
 
         public bool IsZero() {
-            return x == 0 && y == 0 && h == 0 && r == 0 && l == 0;
+            return X == 0 && Y == 0 && H == 0 && R == 0 && L == 0;
         }
 
         // adjust for bugs in position-reporting in Minecraft client
         public Position GetFixed() {
             return new Position {
-                x = (x),
-                y = (y),
-                h = (short)(h - 22),
-                r = r,
-                l = l
+                X = (X),
+                Y = (Y),
+                H = (short)(H - 22),
+                R = R,
+                L = L
             };
         }
     }

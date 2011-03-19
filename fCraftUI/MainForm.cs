@@ -11,7 +11,7 @@ namespace fCraftUI {
     public sealed partial class MainForm : Form {
         bool shutdownPending, shutdownComplete;
         const int MaxLinesInLog = 2000;
-        string[] args;
+        readonly string[] args;
 
         public MainForm( string[] _args ) {
             args = _args;
@@ -37,7 +37,7 @@ namespace fCraftUI {
             try {
 #endif
                 if( Server.InitServer() ) {
-                    Text = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
+                    Text = "fCraft " + Updater.GetVersionString() + " - " + ConfigKey.ServerName.GetString();
                     Application.DoEvents();
                     StartServer();
                     //Application.DoEvents();
@@ -81,7 +81,7 @@ namespace fCraftUI {
                 }
             }
             if( Server.StartServer() ) {
-                if( !Config.GetBool( ConfigKey.HeartbeatEnabled ) ) {
+                if( !ConfigKey.HeartbeatEnabled.GetBool() ) {
                     urlDisplay.Text = "Heartbeat disabled. See externalurl.txt";
                 }
                 console.Enabled = true;
@@ -108,8 +108,6 @@ namespace fCraftUI {
             console.Enabled = false;
         }
 
-        delegate void LogDelegate( string message, LogType type );
-        delegate void SetUrlDelegate( string url );
         delegate void PlayerListUpdateDelegate( string[] items );
 
         public void OnLogged( object sender, LogEventArgs e ) {
@@ -189,7 +187,7 @@ namespace fCraftUI {
 #if !DEBUG
                 } catch( Exception ex ) {
                     Logger.LogConsole( "Error occured while trying to execute last console command: " );
-                    Logger.LogConsole( ex.ToString() + ": " + ex.Message );
+                    Logger.LogConsole( ex.GetType().Name + ": " + ex.Message );
                     Logger.LogAndReportCrash( "Exception executing command from console", "fCraftUI", ex, false );
                 }
 #endif

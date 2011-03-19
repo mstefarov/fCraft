@@ -10,7 +10,7 @@ namespace fCraftUI {
     public sealed partial class UpdateWindow : Form {
         UpdaterResult update;
         const string UpdaterFile = "Updater.exe";
-        WebClient downloader = new WebClient();
+        readonly WebClient downloader = new WebClient();
         MainForm parent;
         bool auto;
 

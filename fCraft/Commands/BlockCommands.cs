@@ -20,12 +20,12 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdSolid = new CommandDescriptor {
-            name = "solid",
-            aliases = new[] { "s" },
-            permissions = new[] { Permission.PlaceAdmincrete },
-            usage = "/solid &Sor&H /s",
-            help = "Toggles the admincrete placement mode. When enabled, any stone block you place is replaced with admincrete.",
-            handler = Solid
+            Name = "solid",
+            Aliases = new[] { "s" },
+            Permissions = new[] { Permission.PlaceAdmincrete },
+            Usage = "/solid &Sor&H /s",
+            Help = "Toggles the admincrete placement mode. When enabled, any stone block you place is replaced with admincrete.",
+            Handler = Solid
         };
 
         internal static void Solid( Player player, Command cmd ) {
@@ -41,15 +41,15 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdPaint = new CommandDescriptor {
-            name = "paint",
-            aliases = new[] { "p" },
-            help = "Replaces a block instead of deleting it.",
-            handler = Paint
+            Name = "paint",
+            Aliases = new[] { "p" },
+            Help = "Replaces a block instead of deleting it.",
+            Handler = Paint
         };
 
         internal static void Paint( Player player, Command cmd ) {
-            player.isPainting = !player.isPainting;
-            if( player.isPainting ) {
+            player.IsPainting = !player.IsPainting;
+            if( player.IsPainting ) {
                 player.Message( "Replacement mode: ON" );
             } else {
                 player.Message( "Replacement mode: OFF" );
@@ -59,11 +59,11 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdGrass = new CommandDescriptor {
-            name = "grass",
-            aliases = new[] { "g" },
-            permissions = new[] { Permission.PlaceGrass },
-            help = "Toggles the grass placement mode. When enabled, any dirt block you place is replaced with a grass block.",
-            handler = Grass
+            Name = "grass",
+            Aliases = new[] { "g" },
+            Permissions = new[] { Permission.PlaceGrass },
+            Help = "Toggles the grass placement mode. When enabled, any dirt block you place is replaced with a grass block.",
+            Handler = Grass
         };
 
         internal static void Grass( Player player, Command cmd ) {
@@ -79,11 +79,11 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdWater = new CommandDescriptor {
-            name = "water",
-            aliases = new[] { "w" },
-            permissions = new[] { Permission.PlaceWater },
-            help = "Toggles the water placement mode. When enabled, any blue or cyan block you place is replaced with water.",
-            handler = Water
+            Name = "water",
+            Aliases = new[] { "w" },
+            Permissions = new[] { Permission.PlaceWater },
+            Help = "Toggles the water placement mode. When enabled, any blue or cyan block you place is replaced with water.",
+            Handler = Water
         };
 
         internal static void Water( Player player, Command cmd ) {
@@ -103,10 +103,10 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdLava = new CommandDescriptor {
-            name = "lava",
-            permissions = new[] { Permission.PlaceLava },
-            help = "Toggles the lava placement mode. When enabled, any red block you place is replaced with lava.",
-            handler = Lava
+            Name = "lava",
+            Permissions = new[] { Permission.PlaceLava },
+            Help = "Toggles the lava placement mode. When enabled, any red block you place is replaced with lava.",
+            Handler = Lava
         };
 
         internal static void Lava( Player player, Command cmd ) {
@@ -122,14 +122,14 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor cdBind = new CommandDescriptor {
-            name = "bind",
-            aliases = new[] { "b" },
-            permissions = new[] { Permission.Build },
-            help = "Assigns one blocktype to another. " +
+            Name = "bind",
+            Aliases = new[] { "b" },
+            Permissions = new[] { Permission.Build },
+            Help = "Assigns one blocktype to another. " +
                    "Allows to build blocktypes that are not normally buildable directly: admincrete, lava, water, grass, double step. " +
                    "Calling &H/bind BlockType&S without second parameter resets the binding. If used with no params, ALL bindings are reset.",
-            usage = "/bind OriginalBlockType ReplacementBlockType",
-            handler = Bind
+            Usage = "/bind OriginalBlockType ReplacementBlockType",
+            Handler = Bind
         };
 
         internal static void Bind( Player player, Command cmd ) {
@@ -189,50 +189,50 @@ namespace fCraft {
 
         // DISABLED
         static CommandDescriptor cdWhoDid = new CommandDescriptor {
-            name = "whodid",
-            help = "Checks who last modified a block.",
-            handler = WhoDid
+            Name = "whodid",
+            Help = "Checks who last modified a block.",
+            Handler = WhoDid
         };
 
         static void WhoDid( Player player, Command cmd ) {
-            player.SetCallback( 1, WhoDidCallback, player.world.map );
+            player.SetCallback( 1, WhoDidCallback, player.World.Map );
             player.Message( "Click the block that you would like to test." );
         }
 
         internal static void WhoDidCallback( Player player, Position[] marks, object tag ) {
             Map map = (Map)tag;
-            ushort ownership = map.blockOwnership[map.Index( marks[0].x, marks[0].y, marks[0].h )];
+            ushort ownership = map.blockOwnership[map.Index( marks[0].X, marks[0].Y, marks[0].H )];
             if( ownership < 256 ) {
                 switch( (ReservedPlayerID)ownership ) {
 
                     case ReservedPlayerID.Automatic:
                         player.Message( "Block at ({0},{1},{2}) edited automatically.",
-                                        marks[0].x, marks[0].y, marks[0].h );
+                                        marks[0].X, marks[0].Y, marks[0].H );
                         break;
 
                     case ReservedPlayerID.Console:
                         player.Message( "Block at ({0},{1},{2}) edited by {0}.",
-                                        marks[0].x, marks[0].y, marks[0].h, Player.Console.GetClassyName() );
+                                        marks[0].X, marks[0].Y, marks[0].H, Player.Console.GetClassyName() );
                         break;
 
                     case ReservedPlayerID.IRCBot:
                         player.Message( "Block at ({0},{1},{2}) edited by IRC Bot.",
-                                        marks[0].x, marks[0].y, marks[0].h );
+                                        marks[0].X, marks[0].Y, marks[0].H );
                         break;
 
                     case ReservedPlayerID.None:
                         player.Message( "Block at ({0},{1},{2}) was never touched.",
-                                        marks[0].x, marks[0].y, marks[0].h );
+                                        marks[0].X, marks[0].Y, marks[0].H );
                         break;
 
                     case ReservedPlayerID.Physics:
                         player.Message( "Block at ({0},{1},{2}) was modified by physics.",
-                                        marks[0].x, marks[0].y, marks[0].h );
+                                        marks[0].X, marks[0].Y, marks[0].H );
                         break;
 
                     default: // includes "Unknown"
                         player.Message( "No information available for block at ({0},{1},{2}).",
-                                        marks[0].x, marks[0].y, marks[0].h );
+                                        marks[0].X, marks[0].Y, marks[0].H );
                         break;
                 }
             } else {
@@ -240,10 +240,10 @@ namespace fCraft {
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name );
                 if( info == null ) {
                     player.Message( "Block at ({0},{1},{2}) edited by \"{3}\" (unrecognized)",
-                                    marks[0].x, marks[0].y, marks[0].h, name );
+                                    marks[0].X, marks[0].Y, marks[0].H, name );
                 } else {
                     player.Message( "Block at ({0},{1},{2}) edited by {3}",
-                                    marks[0].x, marks[0].y, marks[0].h, info.GetClassyName() );
+                                    marks[0].X, marks[0].Y, marks[0].H, info.GetClassyName() );
                 }
             }
         }

@@ -24,7 +24,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Runtime.InteropServices;
 using fCraft;
 using fCraft.Events;
 
@@ -58,7 +57,7 @@ namespace fCraftConsole {
                     }
 
                     if( Server.StartServer() ) {
-                        Console.Title = "fCraft " + Updater.GetVersionString() + " - " + Config.GetString( ConfigKey.ServerName );
+                        Console.Title = "fCraft " + Updater.GetVersionString() + " - " + ConfigKey.ServerName.GetString();
                         Console.WriteLine( "** Running fCraft version {0}. **", Updater.GetVersionString() );
                         Console.WriteLine( "** Server is now ready. Type /shutdown to exit safely. **" );
 

@@ -671,121 +671,121 @@ Dimensions: {5}×{6}×{7}
         }
 
         void LoadGeneratorArgs() {
-            nHeight.Value = generatorArgs.dimH;
-            nWidthX.Value = generatorArgs.dimX;
-            nWidthY.Value = generatorArgs.dimY;
+            nHeight.Value = generatorArgs.Height;
+            nWidthX.Value = generatorArgs.WidthX;
+            nWidthY.Value = generatorArgs.WidthY;
 
-            sDetailScale.Value = generatorArgs.detailScale;
-            sFeatureScale.Value = generatorArgs.featureScale;
+            sDetailScale.Value = generatorArgs.DetailScale;
+            sFeatureScale.Value = generatorArgs.FeatureScale;
 
-            xLayeredHeightmap.Checked = generatorArgs.layeredHeightmap;
-            xMarbledMode.Checked = generatorArgs.marbledHeightmap;
-            xMatchWaterCoverage.Checked = generatorArgs.matchWaterCoverage;
-            xInvert.Checked = generatorArgs.invertHeightmap;
+            xLayeredHeightmap.Checked = generatorArgs.LayeredHeightmap;
+            xMarbledMode.Checked = generatorArgs.MarbledHeightmap;
+            xMatchWaterCoverage.Checked = generatorArgs.MatchWaterCoverage;
+            xInvert.Checked = generatorArgs.InvertHeightmap;
 
-            nMaxDepth.Value = generatorArgs.maxDepth;
-            nMaxHeight.Value = generatorArgs.maxHeight;
-            xAddTrees.Checked = generatorArgs.addTrees;
-            sRoughness.Value = (int)(generatorArgs.roughness * 100);
-            nSeed.Value = generatorArgs.seed;
-            xWater.Checked = generatorArgs.addWater;
+            nMaxDepth.Value = generatorArgs.MaxDepth;
+            nMaxHeight.Value = generatorArgs.MaxHeight;
+            xAddTrees.Checked = generatorArgs.AddTrees;
+            sRoughness.Value = (int)(generatorArgs.Roughness * 100);
+            nSeed.Value = generatorArgs.Seed;
+            xWater.Checked = generatorArgs.AddWater;
 
-            if( generatorArgs.useBias ) sBias.Value = (int)(generatorArgs.bias * 100);
+            if( generatorArgs.UseBias ) sBias.Value = (int)(generatorArgs.Bias * 100);
             else sBias.Value = 0;
-            xDelayBias.Checked = generatorArgs.delayBias;
+            xDelayBias.Checked = generatorArgs.DelayBias;
 
-            sWaterCoverage.Value = (int)(100 * generatorArgs.waterCoverage);
-            cMidpoint.SelectedIndex = generatorArgs.midPoint + 1;
-            nRaisedCorners.Value = generatorArgs.raisedCorners;
-            nLoweredCorners.Value = generatorArgs.loweredCorners;
+            sWaterCoverage.Value = (int)(100 * generatorArgs.WaterCoverage);
+            cMidpoint.SelectedIndex = generatorArgs.MidPoint + 1;
+            nRaisedCorners.Value = generatorArgs.RaisedCorners;
+            nLoweredCorners.Value = generatorArgs.LoweredCorners;
 
-            cTheme.SelectedIndex = (int)generatorArgs.theme;
-            nTreeHeight.Value = (generatorArgs.treeHeightMax + generatorArgs.treeHeightMin) / 2;
-            nTreeHeightVariation.Value = (generatorArgs.treeHeightMax - generatorArgs.treeHeightMin) / 2;
-            nTreeSpacing.Value = (generatorArgs.treeSpacingMax + generatorArgs.treeSpacingMin) / 2;
-            nTreeSpacingVariation.Value = (generatorArgs.treeSpacingMax - generatorArgs.treeSpacingMin) / 2;
+            cTheme.SelectedIndex = (int)generatorArgs.Theme;
+            nTreeHeight.Value = (generatorArgs.TreeHeightMax + generatorArgs.TreeHeightMin) / 2;
+            nTreeHeightVariation.Value = (generatorArgs.TreeHeightMax - generatorArgs.TreeHeightMin) / 2;
+            nTreeSpacing.Value = (generatorArgs.TreeSpacingMax + generatorArgs.TreeSpacingMin) / 2;
+            nTreeSpacingVariation.Value = (generatorArgs.TreeSpacingMax - generatorArgs.TreeSpacingMin) / 2;
 
-            xCaves.Checked = generatorArgs.addCaves;
-            xCaveLava.Checked = generatorArgs.addCaveLava;
-            xCaveWater.Checked = generatorArgs.addCaveWater;
-            xOre.Checked = generatorArgs.addOre;
-            sCaveDensity.Value = (int)(generatorArgs.caveDensity * 100);
-            sCaveSize.Value = (int)(generatorArgs.caveSize * 100);
+            xCaves.Checked = generatorArgs.AddCaves;
+            xCaveLava.Checked = generatorArgs.AddCaveLava;
+            xCaveWater.Checked = generatorArgs.AddCaveWater;
+            xOre.Checked = generatorArgs.AddOre;
+            sCaveDensity.Value = (int)(generatorArgs.CaveDensity * 100);
+            sCaveSize.Value = (int)(generatorArgs.CaveSize * 100);
 
-            xWaterLevel.Checked = generatorArgs.customWaterLevel;
-            nWaterLevel.Maximum = generatorArgs.dimH;
-            nWaterLevel.Value = Math.Min( generatorArgs.waterLevel, generatorArgs.dimH );
+            xWaterLevel.Checked = generatorArgs.CustomWaterLevel;
+            nWaterLevel.Maximum = generatorArgs.Height;
+            nWaterLevel.Value = Math.Min( generatorArgs.WaterLevel, generatorArgs.Height );
 
-            xAddSnow.Checked = generatorArgs.addSnow;
+            xAddSnow.Checked = generatorArgs.AddSnow;
 
-            nSnowAltitude.Value = generatorArgs.snowAltitude - (generatorArgs.customWaterLevel ? generatorArgs.waterLevel : generatorArgs.dimH / 2);
-            nSnowTransition.Value = generatorArgs.snowTransition;
+            nSnowAltitude.Value = generatorArgs.SnowAltitude - (generatorArgs.CustomWaterLevel ? generatorArgs.WaterLevel : generatorArgs.Height / 2);
+            nSnowTransition.Value = generatorArgs.SnowTransition;
 
-            xAddCliffs.Checked = generatorArgs.addCliffs;
-            sCliffThreshold.Value = (int)(generatorArgs.cliffThreshold * 100);
-            xCliffSmoothing.Checked = generatorArgs.cliffSmoothing;
+            xAddCliffs.Checked = generatorArgs.AddCliffs;
+            sCliffThreshold.Value = (int)(generatorArgs.CliffThreshold * 100);
+            xCliffSmoothing.Checked = generatorArgs.CliffSmoothing;
 
-            xAddBeaches.Checked = generatorArgs.addBeaches;
-            nBeachExtent.Value = generatorArgs.beachExtent;
-            nBeachHeight.Value = generatorArgs.beachHeight;
+            xAddBeaches.Checked = generatorArgs.AddBeaches;
+            nBeachExtent.Value = generatorArgs.BeachExtent;
+            nBeachHeight.Value = generatorArgs.BeachHeight;
 
-            sAboveFunc.Value = ExponentToTrackBar( sAboveFunc, generatorArgs.aboveFuncExponent );
-            sBelowFunc.Value = ExponentToTrackBar( sBelowFunc, generatorArgs.belowFuncExponent );
+            sAboveFunc.Value = ExponentToTrackBar( sAboveFunc, generatorArgs.AboveFuncExponent );
+            sBelowFunc.Value = ExponentToTrackBar( sBelowFunc, generatorArgs.BelowFuncExponent );
 
-            nMaxHeightVariation.Value = generatorArgs.maxHeightVariation;
-            nMaxDepthVariation.Value = generatorArgs.maxDepthVariation;
+            nMaxHeightVariation.Value = generatorArgs.MaxHeightVariation;
+            nMaxDepthVariation.Value = generatorArgs.MaxDepthVariation;
         }
 
         void SaveGeneratorArgs() {
             generatorArgs = new MapGeneratorArgs {
-                detailScale = sDetailScale.Value,
-                featureScale = sFeatureScale.Value,
-                dimH = (int)nHeight.Value,
-                dimX = (int)nWidthX.Value,
-                dimY = (int)nWidthY.Value,
-                layeredHeightmap = xLayeredHeightmap.Checked,
-                marbledHeightmap = xMarbledMode.Checked,
-                matchWaterCoverage = xMatchWaterCoverage.Checked,
-                maxDepth = (int)nMaxDepth.Value,
-                maxHeight = (int)nMaxHeight.Value,
-                addTrees = xAddTrees.Checked,
-                roughness = sRoughness.Value / 100f,
-                seed = (int)nSeed.Value,
-                theme = (MapGenTheme)cTheme.SelectedIndex,
-                treeHeightMax = (int)(nTreeHeight.Value + nTreeHeightVariation.Value),
-                treeHeightMin = (int)(nTreeHeight.Value - nTreeHeightVariation.Value),
-                treeSpacingMax = (int)(nTreeSpacing.Value + nTreeSpacingVariation.Value),
-                treeSpacingMin = (int)(nTreeSpacing.Value - nTreeSpacingVariation.Value),
-                useBias = (sBias.Value != 0),
-                delayBias = xDelayBias.Checked,
-                waterCoverage = sWaterCoverage.Value / 100f,
-                bias = sBias.Value / 100f,
-                midPoint = cMidpoint.SelectedIndex - 1,
-                raisedCorners = (int)nRaisedCorners.Value,
-                loweredCorners = (int)nLoweredCorners.Value,
-                invertHeightmap = xInvert.Checked,
-                addWater = xWater.Checked,
-                addCaves = xCaves.Checked,
-                addOre = xOre.Checked,
-                addCaveLava = xCaveLava.Checked,
-                addCaveWater = xCaveWater.Checked,
-                caveDensity = sCaveDensity.Value / 100f,
-                caveSize = sCaveSize.Value / 100f,
-                customWaterLevel = xWaterLevel.Checked,
-                waterLevel = (int)(xWaterLevel.Checked ? nWaterLevel.Value : nHeight.Value / 2),
-                addSnow = xAddSnow.Checked,
-                snowTransition = (int)nSnowTransition.Value,
-                snowAltitude = (int)(nSnowAltitude.Value + (xWaterLevel.Checked ? nWaterLevel.Value : nHeight.Value / 2)),
-                addCliffs = xAddCliffs.Checked,
-                cliffThreshold = sCliffThreshold.Value / 100f,
-                cliffSmoothing = xCliffSmoothing.Checked,
-                addBeaches = xAddBeaches.Checked,
-                beachExtent = (int)nBeachExtent.Value,
-                beachHeight = (int)nBeachHeight.Value,
-                aboveFuncExponent = TrackBarToExponent( sAboveFunc ),
-                belowFuncExponent = TrackBarToExponent( sBelowFunc ),
-                maxHeightVariation = (int)nMaxHeightVariation.Value,
-                maxDepthVariation = (int)nMaxDepthVariation.Value
+                DetailScale = sDetailScale.Value,
+                FeatureScale = sFeatureScale.Value,
+                Height = (int)nHeight.Value,
+                WidthX = (int)nWidthX.Value,
+                WidthY = (int)nWidthY.Value,
+                LayeredHeightmap = xLayeredHeightmap.Checked,
+                MarbledHeightmap = xMarbledMode.Checked,
+                MatchWaterCoverage = xMatchWaterCoverage.Checked,
+                MaxDepth = (int)nMaxDepth.Value,
+                MaxHeight = (int)nMaxHeight.Value,
+                AddTrees = xAddTrees.Checked,
+                Roughness = sRoughness.Value / 100f,
+                Seed = (int)nSeed.Value,
+                Theme = (MapGenTheme)cTheme.SelectedIndex,
+                TreeHeightMax = (int)(nTreeHeight.Value + nTreeHeightVariation.Value),
+                TreeHeightMin = (int)(nTreeHeight.Value - nTreeHeightVariation.Value),
+                TreeSpacingMax = (int)(nTreeSpacing.Value + nTreeSpacingVariation.Value),
+                TreeSpacingMin = (int)(nTreeSpacing.Value - nTreeSpacingVariation.Value),
+                UseBias = (sBias.Value != 0),
+                DelayBias = xDelayBias.Checked,
+                WaterCoverage = sWaterCoverage.Value / 100f,
+                Bias = sBias.Value / 100f,
+                MidPoint = cMidpoint.SelectedIndex - 1,
+                RaisedCorners = (int)nRaisedCorners.Value,
+                LoweredCorners = (int)nLoweredCorners.Value,
+                InvertHeightmap = xInvert.Checked,
+                AddWater = xWater.Checked,
+                AddCaves = xCaves.Checked,
+                AddOre = xOre.Checked,
+                AddCaveLava = xCaveLava.Checked,
+                AddCaveWater = xCaveWater.Checked,
+                CaveDensity = sCaveDensity.Value / 100f,
+                CaveSize = sCaveSize.Value / 100f,
+                CustomWaterLevel = xWaterLevel.Checked,
+                WaterLevel = (int)(xWaterLevel.Checked ? nWaterLevel.Value : nHeight.Value / 2),
+                AddSnow = xAddSnow.Checked,
+                SnowTransition = (int)nSnowTransition.Value,
+                SnowAltitude = (int)(nSnowAltitude.Value + (xWaterLevel.Checked ? nWaterLevel.Value : nHeight.Value / 2)),
+                AddCliffs = xAddCliffs.Checked,
+                CliffThreshold = sCliffThreshold.Value / 100f,
+                CliffSmoothing = xCliffSmoothing.Checked,
+                AddBeaches = xAddBeaches.Checked,
+                BeachExtent = (int)nBeachExtent.Value,
+                BeachHeight = (int)nBeachHeight.Value,
+                AboveFuncExponent = TrackBarToExponent( sAboveFunc ),
+                BelowFuncExponent = TrackBarToExponent( sBelowFunc ),
+                MaxHeightVariation = (int)nMaxHeightVariation.Value,
+                MaxDepthVariation = (int)nMaxDepthVariation.Value
             };
         }
 

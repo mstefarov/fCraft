@@ -124,13 +124,13 @@ namespace fCraft.MapConversion {
 
                     // Read in the spawn location
                     // XYZ(?)
-                    map.Spawn.x = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                    map.Spawn.h = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                    map.Spawn.y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    map.Spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    map.Spawn.H = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    map.Spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
 
                     // Read in the spawn orientation
-                    map.Spawn.r = bs.ReadByte();
-                    map.Spawn.l = bs.ReadByte();
+                    map.Spawn.R = bs.ReadByte();
+                    map.Spawn.L = bs.ReadByte();
 
                     // Skip over the block count, totally useless
                     bs.ReadInt32();
@@ -159,13 +159,13 @@ namespace fCraft.MapConversion {
                     bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.WidthY ) );
 
                     // Save the spawn location
-                    bs.Write( IPAddress.HostToNetworkOrder( mapToSave.Spawn.x ) );
-                    bs.Write( IPAddress.HostToNetworkOrder( mapToSave.Spawn.h ) );
-                    bs.Write( IPAddress.HostToNetworkOrder( mapToSave.Spawn.y ) );
+                    bs.Write( IPAddress.HostToNetworkOrder( mapToSave.Spawn.X ) );
+                    bs.Write( IPAddress.HostToNetworkOrder( mapToSave.Spawn.H ) );
+                    bs.Write( IPAddress.HostToNetworkOrder( mapToSave.Spawn.Y ) );
 
                     // Save the spawn orientation
-                    bs.Write( mapToSave.Spawn.r );
-                    bs.Write( mapToSave.Spawn.l );
+                    bs.Write( mapToSave.Spawn.R );
+                    bs.Write( mapToSave.Spawn.L );
 
                     // Write out the block count (which is totally useless, can't stress that enough.)
                     bs.Write( IPAddress.HostToNetworkOrder( mapToSave.Blocks.Length ) );

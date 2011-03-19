@@ -40,7 +40,7 @@ namespace fCraft {
 
 
         static void Beat( Scheduler.Task _task ) {
-            if( Server.shuttingDown ) return;
+            if( Server.IsShuttingDown ) return;
 
             data = new HeartbeatData {
                 IsPublic = ConfigKey.IsPublic.GetBool(),
@@ -109,9 +109,9 @@ namespace fCraft {
         }
 
         static void RequestCallback( IAsyncResult result ) {
-            if( Server.shuttingDown ) return;
+            if( Server.IsShuttingDown ) return;
             try {
-                byte[] formData = result.AsyncState as byte[];
+                byte[] formData = (byte[])result.AsyncState;
                 using( Stream requestStream = request.EndGetRequestStream( result ) ) {
                     requestStream.Write( formData, 0, formData.Length );
                 }
@@ -128,7 +128,7 @@ namespace fCraft {
         }
 
         static void ResponseCallback( IAsyncResult result ) {
-            if( Server.shuttingDown ) return;
+            if( Server.IsShuttingDown ) return;
             try {
                 string responseText;
                 using( HttpWebResponse response = (HttpWebResponse)request.EndGetResponse( result ) ) {
@@ -139,11 +139,11 @@ namespace fCraft {
                     RaiseHeartbeatSentEvent( data, response, responseText );
                 }
                 string newUrl = responseText.Trim();
-                if( newUrl.Length > 32 && newUrl != Server.URL ) {
-                    string oldUrl = Server.URL;
-                    Server.URL = newUrl;
+                if( newUrl.Length > 32 && newUrl != Server.Url ) {
+                    string oldUrl = Server.Url;
+                    Server.Url = newUrl;
                     RaiseUrlChangedEvent( oldUrl, newUrl );
-                    Server.FireURLChangeEvent( Server.URL );
+                    Server.FireURLChangeEvent( Server.Url );
                 }
             } catch( Exception ex ) {
                 LastHeartbeatFailed = true;

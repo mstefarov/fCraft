@@ -21,34 +21,34 @@ namespace fCraft {
     /// Describes a chat command handler. Defined properties and usage/help information, and specifies a callback.
     /// </summary>
     public sealed class CommandDescriptor {
-        public string name;                 // main name
-        public string[] aliases;            // list of aliases
-        public bool consoleSafe;            // if true, command can be called from console (defaults to false)
-        public Permission[] permissions;    // list of required permissions
-        public string usage;                // short help
-        public string help;                 // full help
-        public CommandHandler handler;      // callback function to execute the command
-        public HelpHandler helpHandler;     // callback function to provide custom help (optional)
-        public bool hidden;                 // hidden command does not show up in /help
+        public string Name;                 // main name
+        public string[] Aliases;            // list of aliases
+        public bool ConsoleSafe;            // if true, command can be called from console (defaults to false)
+        public Permission[] Permissions;    // list of required permissions
+        public string Usage;                // short help
+        public string Help;                 // full help
+        public CommandHandler Handler;      // callback function to execute the command
+        public HelpHandler HelpHandler;     // callback function to provide custom help (optional)
+        public bool Hidden;                 // hidden command does not show up in /help
 
 
         public void PrintUsage( Player player ) {
-            if( usage != null ) {
-                player.Message( "Usage: &H{0}", usage );
+            if( Usage != null ) {
+                player.Message( "Usage: &H{0}", Usage );
             } else {
-                player.Message( "Usage: &H/{0}", name );
+                player.Message( "Usage: &H/{0}", Name );
             }
         }
 
         public bool Call( Player player, Command cmd, bool raiseEvent ) {
             if( raiseEvent && CommandList.RaiseCommandCallingEvent( cmd, this, player ) ) return false;
-            handler( player, cmd );
+            Handler( player, cmd );
             if( raiseEvent ) CommandList.RaiseCommandCalledEvent( cmd, this, player );
             return true;
         }
 
         public override string ToString() {
-            return String.Format( "CommandDescriptor({0})", name );
+            return String.Format( "CommandDescriptor({0})", Name );
         }
     }
 }

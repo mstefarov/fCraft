@@ -8,10 +8,10 @@ using fCraft.Events;
 namespace fCraft {
     public static class IPBanList {
 
-        static readonly SortedDictionary<string, IPBanInfo> bans = new SortedDictionary<string, IPBanInfo>();
+        static readonly SortedDictionary<string, IPBanInfo> Bans = new SortedDictionary<string, IPBanInfo>();
         const string BanFileName = "ipbans.txt",
                      Header = "IP,bannedBy,banDate,banReason,playerName,attempts,lastAttemptName,lastAttemptDate ";
-        static readonly object locker = new object();
+        static readonly object BanListLock = new object();
         public static bool IsLoaded { get; private set; }
 
         internal static void Load() {
@@ -27,7 +27,7 @@ namespace fCraft {
                                 if( ban.address == IPAddress.Any || ban.address == IPAddress.None ) {
                                     Logger.Log( "IPBanList.Load: Invalid IP address skipped.", LogType.Warning );
                                 } else {
-                                    bans.Add( ban.address.ToString(), ban );
+                                    Bans.Add( ban.address.ToString(), ban );
                                 }
                             } catch( IOException ex ) {
                                 Logger.Log( "IPBanList.Load: Error while trying to read from file: {0}", LogType.Error, ex.Message );
@@ -42,11 +42,11 @@ namespace fCraft {
                 }
                 if( !headerText.EndsWith( " " ) ) {
                     Logger.Log( "IPBanList.Load: Attempting to recover IP bans...", LogType.SystemActivity );
-                    int oldBanCount = bans.Count;
+                    int oldBanCount = Bans.Count;
                     PlayerDB.RecoverIPBans();
-                    Logger.Log( "IPBanList.Load: {0} IP bans recovered.", LogType.SystemActivity, bans.Count - oldBanCount );
+                    Logger.Log( "IPBanList.Load: {0} IP bans recovered.", LogType.SystemActivity, Bans.Count - oldBanCount );
                 }
-                Logger.Log( "IPBanList.Load: Done loading IP ban list ({0} records).", LogType.Debug, bans.Count );
+                Logger.Log( "IPBanList.Load: Done loading IP ban list ({0} records).", LogType.Debug, Bans.Count );
             } else {
                 Logger.Log( "IPBanList.Load: No IP ban file found.", LogType.Warning );
             }
@@ -56,13 +56,13 @@ namespace fCraft {
 
         internal static void Save() {
             if( !IsLoaded ) return;
-            Logger.Log( "IPBanList.Save: Saving IP ban list ({0} records).", LogType.Debug, bans.Count );
+            Logger.Log( "IPBanList.Save: Saving IP ban list ({0} records).", LogType.Debug, Bans.Count );
             const string tempBanFileName = BanFileName + ".temp";
 
-            lock( locker ) {
+            lock( BanListLock ) {
                 using( StreamWriter writer = File.CreateText( tempBanFileName ) ) {
                     writer.WriteLine( Header );
-                    foreach( IPBanInfo entry in bans.Values ) {
+                    foreach( IPBanInfo entry in Bans.Values ) {
                         writer.WriteLine( entry.Serialize() );
                     }
                 }
@@ -83,10 +83,10 @@ namespace fCraft {
         /// <param name="ban">Ban information</param>
         /// <returns>true if ban was added, false if it was already on the list</returns>
         public static bool Add( IPBanInfo ban ) {
-            lock( locker ) {
-                if( bans.ContainsKey( ban.address.ToString() ) ) return false;
+            lock( BanListLock ) {
+                if( Bans.ContainsKey( ban.address.ToString() ) ) return false;
                 if( RaiseAddingIPBanEvent( ban ) ) return false;
-                bans.Add( ban.address.ToString(), ban );
+                Bans.Add( ban.address.ToString(), ban );
                 RaiseAddedIPBanEvent( ban );
                 Save();
                 return true;
@@ -95,11 +95,11 @@ namespace fCraft {
 
 
         public static IPBanInfo Get( IPAddress address ) {
-            lock( locker ) {
-                if( !bans.ContainsKey( address.ToString() ) ) {
+            lock( BanListLock ) {
+                if( !Bans.ContainsKey( address.ToString() ) ) {
                     return null;
                 }
-                return bans[address.ToString()];
+                return Bans[address.ToString()];
             }
         }
 
@@ -107,13 +107,13 @@ namespace fCraft {
         // Returns true if address was banned (and was unbanned)
         // Returns false if address was not banned (and is still not banned) or if address is null
         public static bool Remove( IPAddress address ) {
-            lock( locker ) {
-                if( address == null || !bans.ContainsKey( address.ToString() ) ) {
+            lock( BanListLock ) {
+                if( address == null || !Bans.ContainsKey( address.ToString() ) ) {
                     return false;
                 }
-                IPBanInfo info = bans[address.ToString()];
+                IPBanInfo info = Bans[address.ToString()];
                 if( RaiseRemovingIPBanEvent( info ) ) return false;
-                if( bans.Remove( address.ToString() ) ) {
+                if( Bans.Remove( address.ToString() ) ) {
                     RaiseRemovedIPBanEvent( info );
                     Save();
                     return true;
@@ -124,7 +124,7 @@ namespace fCraft {
         }
 
         public static int CountBans() {
-            return bans.Count;
+            return Bans.Count;
         }
 
 
@@ -240,7 +240,7 @@ namespace fCraft {
         public void ProcessAttempt( Player player ) {
             attempts++;
             lastAttemptDate = DateTime.Now;
-            lastAttemptName = player.name;
+            lastAttemptName = player.Name;
         }
     }
 }
