@@ -1,6 +1,4 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
-using System.Net;
-
 namespace fCraft {
     public delegate void LogEventHandler( string message, LogType type );
     public delegate void UrlChangeEventHandler( string message );
@@ -17,9 +15,7 @@ namespace fCraft {
     public delegate void PlayerSentMessageEventHandler( Player player, World world, ref string message, ref bool cancel );
 
     public delegate void PlayerRankChangedEventHandler( PlayerInfo target, Player changer, Rank oldRank, Rank newRank, string reason, ref bool cancel );
-    public delegate void PlayerFrozenEventHandler( PlayerInfo target, Player freezer );
     public delegate void PlayerBanStatusChangedEventHandler( PlayerInfo target, Player banner, string reason );
-    public delegate void IPBanStatusChangedEventHandler( IPAddress target, Player banner, string reason, Player association );
 
     /// <summary>
     /// Simple event without parameters.

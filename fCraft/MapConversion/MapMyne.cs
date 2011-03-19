@@ -154,7 +154,7 @@ namespace fCraft.MapConversion {
     }
 
 
-    class INIFile {
+    sealed class INIFile {
         public const string Separator = "=";
         readonly Dictionary<string, Dictionary<string, string>> contents = new Dictionary<string, Dictionary<string, string>>();
 

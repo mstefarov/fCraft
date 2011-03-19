@@ -24,10 +24,10 @@ namespace fCraft {
                         if( fields.Length == IPBanInfo.FieldCount ) {
                             try {
                                 IPBanInfo ban = new IPBanInfo( fields );
-                                if( ban.address == IPAddress.Any || ban.address == IPAddress.None ) {
+                                if( ban.Address == IPAddress.Any || ban.Address == IPAddress.None ) {
                                     Logger.Log( "IPBanList.Load: Invalid IP address skipped.", LogType.Warning );
                                 } else {
-                                    Bans.Add( ban.address.ToString(), ban );
+                                    Bans.Add( ban.Address.ToString(), ban );
                                 }
                             } catch( IOException ex ) {
                                 Logger.Log( "IPBanList.Load: Error while trying to read from file: {0}", LogType.Error, ex.Message );
@@ -84,9 +84,9 @@ namespace fCraft {
         /// <returns>true if ban was added, false if it was already on the list</returns>
         public static bool Add( IPBanInfo ban ) {
             lock( BanListLock ) {
-                if( Bans.ContainsKey( ban.address.ToString() ) ) return false;
+                if( Bans.ContainsKey( ban.Address.ToString() ) ) return false;
                 if( RaiseAddingIPBanEvent( ban ) ) return false;
-                Bans.Add( ban.address.ToString(), ban );
+                Bans.Add( ban.Address.ToString(), ban );
                 RaiseAddedIPBanEvent( ban );
                 Save();
                 return true;
@@ -143,30 +143,30 @@ namespace fCraft {
         public static event EventHandler<IPBanEventArgs> RemovedIPBan;
 
 
-        static bool RaiseAddingIPBanEvent( IPBanInfo _info ) {
+        static bool RaiseAddingIPBanEvent( IPBanInfo info ) {
             var h = AddingIPBan;
             if( h == null ) return false;
-            var e = new IPBanCancellableEventArgs( _info );
+            var e = new IPBanCancellableEventArgs( info );
             h( null, e );
             return e.Cancel;
         }
 
-        static void RaiseAddedIPBanEvent( IPBanInfo _info ) {
+        static void RaiseAddedIPBanEvent( IPBanInfo info ) {
             var h = AddedIPBan;
-            if( h != null ) h( null, new IPBanEventArgs( _info ) );
+            if( h != null ) h( null, new IPBanEventArgs( info ) );
         }
 
-        static bool RaiseRemovingIPBanEvent( IPBanInfo _info ) {
+        static bool RaiseRemovingIPBanEvent( IPBanInfo info ) {
             var h = RemovingIPBan;
             if( h == null ) return false;
-            var e = new IPBanCancellableEventArgs( _info );
+            var e = new IPBanCancellableEventArgs( info );
             h( null, e );
             return e.Cancel;
         }
 
-        static void RaiseRemovedIPBanEvent( IPBanInfo _info ) {
+        static void RaiseRemovedIPBanEvent( IPBanInfo info ) {
             var h = RemovedIPBan;
-            if( h != null ) h( null, new IPBanEventArgs( _info ) );
+            if( h != null ) h( null, new IPBanEventArgs( info ) );
         }
 
         #endregion
@@ -176,61 +176,61 @@ namespace fCraft {
     public sealed class IPBanInfo {
         public const int FieldCount = 8;
 
-        public IPAddress address;
-        public string bannedBy;
-        public DateTime banDate;
-        public string banReason;
-        public string playerName = "";
+        public readonly IPAddress Address;
+        public string BannedBy;
+        public DateTime BanDate;
+        public string BanReason;
+        public string PlayerName = "";
 
-        public short attempts;
-        public string lastAttemptName;
-        public DateTime lastAttemptDate;
+        public short Attempts;
+        public string LastAttemptName;
+        public DateTime LastAttemptDate;
 
 
         public IPBanInfo( string[] fields ) {
-            address = IPAddress.Parse( fields[0] );
-            bannedBy = fields[1];
-            banDate = DateTime.Parse( fields[2] );
-            banReason = PlayerInfo.Unescape( fields[3] );
+            Address = IPAddress.Parse( fields[0] );
+            BannedBy = fields[1];
+            BanDate = DateTime.Parse( fields[2] );
+            BanReason = PlayerInfo.Unescape( fields[3] );
             if( fields[4].Length < 2 ) {
-                playerName = fields[4];
+                PlayerName = fields[4];
             }
 
-            attempts = Int16.Parse( fields[5] );
-            lastAttemptName = fields[6];
+            Attempts = Int16.Parse( fields[5] );
+            LastAttemptName = fields[6];
             if( fields[7].Length > 2 ) {
-                lastAttemptDate = DateTime.Parse( fields[7] );
+                LastAttemptDate = DateTime.Parse( fields[7] );
             }
         }
 
 
-        public IPBanInfo( IPAddress _address, string _playerName, string _bannedBy, string _banReason ) {
-            address = _address;
-            bannedBy = _bannedBy;
-            banDate = DateTime.Now;
-            if( _banReason != null ) {
-                banReason = _banReason;
+        public IPBanInfo( IPAddress address, string playerName, string bannedBy, string banReason ) {
+            Address = address;
+            BannedBy = bannedBy;
+            BanDate = DateTime.Now;
+            if( banReason != null ) {
+                BanReason = banReason;
             }
-            playerName = _playerName;
-            lastAttemptName = _playerName;
-            lastAttemptDate = DateTime.MinValue;
+            PlayerName = playerName;
+            LastAttemptName = playerName;
+            LastAttemptDate = DateTime.MinValue;
         }
 
 
         public string Serialize() {
             string[] fields = new string[FieldCount];
 
-            fields[0] = address.ToString();
-            fields[1] = bannedBy;
-            fields[2] = banDate.ToCompactString();
-            fields[3] = PlayerInfo.Escape( banReason );
-            fields[4] = playerName;
-            fields[5] = attempts.ToString();
-            fields[6] = lastAttemptName;
-            if( lastAttemptDate == DateTime.MinValue ) {
+            fields[0] = Address.ToString();
+            fields[1] = BannedBy;
+            fields[2] = BanDate.ToCompactString();
+            fields[3] = PlayerInfo.Escape( BanReason );
+            fields[4] = PlayerName;
+            fields[5] = Attempts.ToString();
+            fields[6] = LastAttemptName;
+            if( LastAttemptDate == DateTime.MinValue ) {
                 fields[7] = "";
             } else {
-                fields[7] = lastAttemptDate.ToCompactString();
+                fields[7] = LastAttemptDate.ToCompactString();
             }
 
             return String.Join( ",", fields );
@@ -238,9 +238,9 @@ namespace fCraft {
 
 
         public void ProcessAttempt( Player player ) {
-            attempts++;
-            lastAttemptDate = DateTime.Now;
-            lastAttemptName = player.Name;
+            Attempts++;
+            LastAttemptDate = DateTime.Now;
+            LastAttemptName = player.Name;
         }
     }
 }
@@ -250,16 +250,16 @@ namespace fCraft {
 namespace fCraft.Events {
 
     public class IPBanEventArgs : EventArgs {
-        internal IPBanEventArgs( IPBanInfo _info ) {
-            BanInfo = _info;
+        internal IPBanEventArgs( IPBanInfo info ) {
+            BanInfo = info;
         }
         public IPBanInfo BanInfo { get; private set; }
     }
 
 
-    public class IPBanCancellableEventArgs : IPBanEventArgs {
-        internal IPBanCancellableEventArgs( IPBanInfo _info ) :
-            base( _info ) {
+    public sealed class IPBanCancellableEventArgs : IPBanEventArgs {
+        internal IPBanCancellableEventArgs( IPBanInfo info ) :
+            base( info ) {
         }
         public bool Cancel { get; set; }
     }

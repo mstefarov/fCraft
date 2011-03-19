@@ -10,7 +10,8 @@ namespace fCraft {
         readonly StringNode root = new StringNode();
         public int Count { get; private set; }
 
-        public const byte Multi = 37, Empty=38;
+        const byte Multi = 37,
+                   Empty = 38;
 
 
         /// <summary> Get payload for an exact name (no autocompletion) </summary>
@@ -20,11 +21,11 @@ namespace fCraft {
             StringNode temp = root;
             for( int i = 0; i < name.Length; i++ ) {
                 int code = CharCode( name[i] );
-                if( temp.children[code] == null )
+                if( temp.Children[code] == null )
                     return default(T);
-                temp = temp.children[code];
+                temp = temp.Children[code];
             }
-            return temp.payload;
+            return temp.Payload;
         }
 
 
@@ -39,9 +40,9 @@ namespace fCraft {
             StringNode temp = root;
             for( int i = 0; i < namePart.Length; i++ ) {
                 int code = CharCode( namePart[i] );
-                if( temp.children[code] == null )
+                if( temp.Children[code] == null )
                     return results;
-                temp = temp.children[code];
+                temp = temp.Children[code];
             }
             temp.GetAllChildren( results, limit );
             return results;
@@ -56,22 +57,22 @@ namespace fCraft {
             StringNode temp = root;
             for( int i = 0; i < namePart.Length; i++ ) {
                 int code = CharCode( namePart[i] );
-                if( temp.children[code] == null ) {
+                if( temp.Children[code] == null ) {
                     info = default(T);
                     return true; // early detection of no matches
                 }
-                temp = temp.children[code];
+                temp = temp.Children[code];
             }
 
-            if( temp.payload != null ) {
-                info = temp.payload;
+            if( temp.Payload != null ) {
+                info = temp.Payload;
                 return true; // exact match
-            } else if( temp.tag == Multi ) {
+            } else if( temp.Tag == Multi ) {
                 info = default(T);
                 return false; // multiple matches
             }
-            for( ; temp.tag < Multi; temp = temp.children[temp.tag] ) ;
-            info = temp.payload;
+            for( ; temp.Tag < Multi; temp = temp.Children[temp.Tag] ) ;
+            info = temp.Payload;
             return true; // one autocompleted match
         }
 
@@ -86,19 +87,19 @@ namespace fCraft {
             StringNode temp = root;
             for( int i = 0; i < name.Length; i++ ) {
                 int code = CharCode( name[i] );
-                if( temp.children[code] == null ) {
-                    temp.children[code] = new StringNode();
+                if( temp.Children[code] == null ) {
+                    temp.Children[code] = new StringNode();
                 }
-                if( temp.tag == Empty ) {
-                    temp.tag = (byte)code;
+                if( temp.Tag == Empty ) {
+                    temp.Tag = (byte)code;
                 } else {
-                    temp.tag = Multi;
+                    temp.Tag = Multi;
                 }
-                temp = temp.children[code];
+                temp = temp.Children[code];
             }
-            if( temp.payload != null )
+            if( temp.Payload != null )
                 return false;
-            temp.payload = payload;
+            temp.Payload = payload;
             Count++;
             return true;
         }
@@ -108,11 +109,11 @@ namespace fCraft {
             StringNode temp = root;
             for( int i = 0; i < name.Length; i++ ) {
                 int code = CharCode( name[i] );
-                if( temp.children[code] == null )
+                if( temp.Children[code] == null )
                     return false;
-                temp = temp.children[code];
+                temp = temp.Children[code];
             }
-            temp.payload = default( T );
+            temp.Payload = default( T );
             Count--;
             return true;
         }
@@ -130,21 +131,21 @@ namespace fCraft {
         }
 
         sealed class StringNode {
-            public byte tag = Empty;
-            public StringNode[] children = new StringNode[37];
-            public T payload;
+            public byte Tag = Empty;
+            public readonly StringNode[] Children = new StringNode[37];
+            public T Payload;
 
-            public bool GetAllChildren( List<T> list, int limit ) {
+            public bool GetAllChildren( ICollection<T> list, int limit ) {
                 if( list.Count >= limit ) return false;
-                if( payload != null ) {
-                    list.Add( payload );
+                if( Payload != null ) {
+                    list.Add( Payload );
                 }
-                if( tag < Multi ) {
-                    if( !children[tag].GetAllChildren( list, limit ) ) return false;
-                } else if( tag == Multi ) {
-                    for( int i = 0; i < children.Length; i++ ) {
-                        if( children[i] != null ) {
-                            if( !children[i].GetAllChildren( list, limit ) ) return false;
+                if( Tag < Multi ) {
+                    if( !Children[Tag].GetAllChildren( list, limit ) ) return false;
+                } else if( Tag == Multi ) {
+                    for( int i = 0; i < Children.Length; i++ ) {
+                        if( Children[i] != null ) {
+                            if( !Children[i].GetAllChildren( list, limit ) ) return false;
                         }
                     }
                 }

@@ -71,16 +71,16 @@ namespace fCraft {
         #region Constructors and Serialization
 
         // fabricate info for an unrecognized player
-        public PlayerInfo( string _name, Rank _rank, bool setLoginDate, RankChangeType _rankChangeType ) {
-            Name = _name;
-            Rank = _rank;
+        public PlayerInfo( string name, Rank rank, bool setLoginDate, RankChangeType rankChangeType ) {
+            Name = name;
+            Rank = rank;
             if( setLoginDate ) {
                 FirstLoginDate = DateTime.Now;
                 LastLoginDate = FirstLoginDate;
                 LastSeen = FirstLoginDate;
                 TimesVisited = 1;
             }
-            RankChangeType = _rankChangeType;
+            RankChangeType = rankChangeType;
         }
 
 
@@ -338,13 +338,13 @@ namespace fCraft {
         }
 
 
-        public bool ProcessBan( Player _bannedBy, string _banReason ) {
+        public bool ProcessBan( Player bannedBy, string banReason ) {
             if( !Banned ) {
                 Banned = true;
-                BannedBy = _bannedBy.Name;
+                BannedBy = bannedBy.Name;
                 BanDate = DateTime.Now;
-                BanReason = _banReason;
-                Interlocked.Increment( ref _bannedBy.Info.TimesBannedOthers );
+                BanReason = banReason;
+                Interlocked.Increment( ref bannedBy.Info.TimesBannedOthers );
                 return true;
             } else {
                 return false;
@@ -352,12 +352,12 @@ namespace fCraft {
         }
 
 
-        public bool ProcessUnban( string _unbannedBy, string _unbanReason ) {
+        public bool ProcessUnban( string unbannedBy, string unbanReason ) {
             if( Banned ) {
                 Banned = false;
-                UnbannedBy = _unbannedBy;
+                UnbannedBy = unbannedBy;
                 UnbanDate = DateTime.Now;
-                UnbanReason = _unbanReason;
+                UnbanReason = unbanReason;
                 return true;
             } else {
                 return false;
@@ -384,8 +384,8 @@ namespace fCraft {
         }
 
 
-        public void ProcessDrawCommand( int _blocksDrawn ) {
-            Interlocked.Add( ref BlocksDrawn, _blocksDrawn );
+        public void ProcessDrawCommand( int blocksDrawn ) {
+            Interlocked.Add( ref BlocksDrawn, blocksDrawn );
         }
 
 

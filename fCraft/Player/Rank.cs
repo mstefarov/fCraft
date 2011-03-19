@@ -15,7 +15,7 @@ namespace fCraft {
 
         public string Name { get; set; }
 
-        public byte legacyNumericRank;
+        public byte LegacyNumericRank;
 
         public string Color { get; set; }
 
@@ -84,7 +84,7 @@ namespace fCraft {
 
             // Rank
             if( (attr = el.Attribute( "rank" )) != null  ) {
-                Byte.TryParse( attr.Value, out legacyNumericRank );
+                Byte.TryParse( attr.Value, out LegacyNumericRank );
             }
 
 

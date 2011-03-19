@@ -262,10 +262,10 @@ namespace fCraft {
         };
 
         static void ZoneTest( Player player, Command cmd ) {
-            player.selectionMarksExpected = 1;
-            player.selectionMarks.Clear();
-            player.selectionMarkCount = 0;
-            player.selectionCallback = ZoneTestCallback;
+            player.SelectionMarksExpected = 1;
+            player.SelectionMarks.Clear();
+            player.SelectionMarkCount = 0;
+            player.SelectionCallback = ZoneTestCallback;
             player.Message( "Click the block that you would like to test." );
         }
 

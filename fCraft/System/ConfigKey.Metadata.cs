@@ -8,7 +8,7 @@ namespace fCraft {
 
     [AttributeUsage( AttributeTargets.Field )]
     public class ConfigKeyAttribute : Attribute {
-        public ConfigKeyAttribute( Type valueType, object defaultValue, ConfigSection section ) {
+        protected ConfigKeyAttribute( Type valueType, object defaultValue, ConfigSection section ) {
             ValueType = valueType;
             DefaultValue = defaultValue;
             Section = section;
@@ -20,6 +20,7 @@ namespace fCraft {
         public bool NotBlank { get; set; }
         public ConfigKey Key { get; set; }
 
+
         public virtual bool Validate( string value ) {
             if( NotBlank && String.IsNullOrEmpty( value ) ) {
                 return false;
@@ -27,14 +28,10 @@ namespace fCraft {
                 return true;
             }
         }
-
-        public virtual string GetErrorMessageFor( string value ) {
-            return null;
-        }
     }
 
 
-    public class StringKeyAttribute : ConfigKeyAttribute {
+    public sealed class StringKeyAttribute : ConfigKeyAttribute {
         public const int NoLengthRestriction = -1;
         public StringKeyAttribute( object defaultValue, ConfigSection section )
             : base( typeof( string ), defaultValue, section ) {
@@ -46,6 +43,7 @@ namespace fCraft {
         public int MaxLength { get; set; }
         public Regex Regex { get; set; }
         public bool RestrictedChars { get; set; }
+
 
         public override bool Validate( string value ) {
             if( !base.Validate( value ) ) return false;
@@ -59,7 +57,7 @@ namespace fCraft {
     }
 
 
-    public class IntKeyAttribute : ConfigKeyAttribute {
+    public sealed class IntKeyAttribute : ConfigKeyAttribute {
         public IntKeyAttribute( int defaultValue, ConfigSection section )
             : base( typeof( int ), defaultValue, section ) {
             MinValue = int.MinValue;
@@ -76,45 +74,47 @@ namespace fCraft {
         public int[] ValidValues { get; set; }
         public int[] InvalidValues { get; set; }
 
-        public override bool Validate( string _value ) {
-            if( !base.Validate( _value ) ) return false;
-            int value;
-            if( !Int32.TryParse( _value, out value ) ) return false;
-            if( MinValue != int.MinValue && value < MinValue ) return false;
-            if( MaxValue != int.MaxValue && value > MaxValue ) return false;
-            if( MultipleOf != 0 && (value % MultipleOf != 0) ) return false;
+
+        public override bool Validate( string value ) {
+            if( !base.Validate( value ) ) return false;
+            int parsedValue;
+            if( !Int32.TryParse( value, out parsedValue ) ) return false;
+            if( MinValue != int.MinValue && parsedValue < MinValue ) return false;
+            if( MaxValue != int.MaxValue && parsedValue > MaxValue ) return false;
+            if( MultipleOf != 0 && (parsedValue % MultipleOf != 0) ) return false;
             if( PowerOfTwo ) {
                 bool found = false;
                 for( int i = 0; i < 31; i++ ) {
-                    if( value == (1 << i) ) {
+                    if( parsedValue == (1 << i) ) {
                         found = true;
                         break;
                     }
                 }
-                if( !found && value != 0 ) return false;
+                if( !found && parsedValue != 0 ) return false;
             }
             if( ValidValues != null ) {
-                if( !ValidValues.Any( t => value == t ) ) return false;
+                if( !ValidValues.Any( t => parsedValue == t ) ) return false;
             }
             if( InvalidValues != null ) {
-                return InvalidValues.All( t => value != t );
+                return InvalidValues.All( t => parsedValue != t );
             }
             return true;
         }
     }
 
 
-    public class RankKeyAttribute : ConfigKeyAttribute {
-        public RankKeyAttribute( BlankValueMeaning _blankMeaning, ConfigSection _section )
-            : base( typeof( Rank ), "", _section ) {
+    public sealed class RankKeyAttribute : ConfigKeyAttribute {
+        public RankKeyAttribute( BlankValueMeaning blankMeaning, ConfigSection section )
+            : base( typeof( Rank ), "", section ) {
             CanBeLowest = true;
             CanBeHighest = true;
-            BlankMeaning = _blankMeaning;
+            BlankMeaning = blankMeaning;
             NotBlank = false;
         }
         public bool CanBeLowest { get; set; }
         public bool CanBeHighest { get; set; }
         public BlankValueMeaning BlankMeaning { get; set; }
+
 
         public override bool Validate( string value ) {
             Rank rank;
@@ -150,10 +150,11 @@ namespace fCraft {
     }
 
 
-    public class BoolKeyAttribute : ConfigKeyAttribute {
-        public BoolKeyAttribute( bool _defaultValue, ConfigSection _section )
-            : base( typeof( bool ), _defaultValue, _section ) {
+    public sealed class BoolKeyAttribute : ConfigKeyAttribute {
+        public BoolKeyAttribute( bool defaultValue, ConfigSection section )
+            : base( typeof( bool ), defaultValue, section ) {
         }
+
 
         public override bool Validate( string value ) {
             if( !base.Validate( value ) ) return false;
@@ -163,10 +164,10 @@ namespace fCraft {
     }
 
 
-    public class IPKeyAttribute : ConfigKeyAttribute {
-        public IPKeyAttribute( BlankValueMeaning _defaultMeaning, ConfigSection _section )
-            : base( typeof( IPAddress ), "", _section ) {
-            BlankMeaning = _defaultMeaning;
+    public sealed class IPKeyAttribute : ConfigKeyAttribute {
+        public IPKeyAttribute( BlankValueMeaning defaultMeaning, ConfigSection section )
+            : base( typeof( IPAddress ), "", section ) {
+            BlankMeaning = defaultMeaning;
             switch( BlankMeaning ) {
                 case BlankValueMeaning.Any:
                     DefaultValue = IPAddress.Any;
@@ -185,6 +186,7 @@ namespace fCraft {
         public bool NotLAN { get; set; }
         public bool NotLoopback { get; set; }
         public BlankValueMeaning BlankMeaning { get; set; }
+
 
         public override bool Validate( string value ) {
             if( !base.Validate( value ) ) return false;
@@ -205,25 +207,26 @@ namespace fCraft {
     }
 
 
-    public class ColorKeyAttribute : ConfigKeyAttribute {
-        public ColorKeyAttribute( string _defaultColor, ConfigSection _section )
-            : base( typeof( string ), _defaultColor, _section ) {
+    public sealed class ColorKeyAttribute : ConfigKeyAttribute {
+        public ColorKeyAttribute( string defaultColor, ConfigSection section )
+            : base( typeof( string ), defaultColor, section ) {
             NotBlank = false;
         }
 
+
         public override bool Validate( string value ) {
             if( !base.Validate( value ) ) return false;
-            if( Color.Parse( value ) == null ) return false;
-            return true;
+            return Color.Parse( value ) != null;
         }
     }
 
 
-    public class EnumKeyAttribute : ConfigKeyAttribute {
-        public EnumKeyAttribute( object _defaultValue, ConfigSection _section )
-            : base( null, _defaultValue, _section ) {
-            ValueType = _defaultValue.GetType();
+    public sealed class EnumKeyAttribute : ConfigKeyAttribute {
+        public EnumKeyAttribute( object defaultValue, ConfigSection section )
+            : base( null, defaultValue, section ) {
+            ValueType = defaultValue.GetType();
         }
+
 
         public override bool Validate( string value ) {
             if( String.IsNullOrEmpty( value ) ) {

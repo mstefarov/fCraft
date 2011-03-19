@@ -35,7 +35,8 @@ namespace fCraft {
         /// </summary>
         /// <returns>Next argument (string), or null if there are no more arguments</returns>
         public string Next() {
-            for( int t, j; offset < message.Length; offset++ ) {
+            for( ; offset < message.Length; offset++ ) {
+                int t, j;
                 if( message[offset] == '"' ) {
                     j = offset + 1;
                     for( ; j < message.Length && message[j] != '"'; j++ ) ;

@@ -24,7 +24,7 @@ namespace fCraft {
 
 
     public sealed class SecurityController : ICloneable {
-        public class PlayerListCollection : ICloneable {
+        public sealed class PlayerListCollection : ICloneable {
             public PlayerListCollection() { }
             public PlayerListCollection( PlayerListCollection other ) {
                 Included = (PlayerInfo[])other.Included.Clone();

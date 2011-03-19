@@ -89,7 +89,7 @@ namespace fCraft {
 
         public static void LogConsole( string message ) {
             if( message.Contains( "&N" ) ) {
-                foreach( string line in message.Split( PacketWriter.splitter, StringSplitOptions.RemoveEmptyEntries ) ) {
+                foreach( string line in message.Split( PacketWriter.NewlineSplitter, StringSplitOptions.RemoveEmptyEntries ) ) {
                     LogConsole( line );
                 }
                 return;
@@ -155,7 +155,7 @@ namespace fCraft {
 
         #region Crash Handling
 
-        static readonly object crashReportLock = new object(); // mutex to prevent simultaneous reports (messes up the timers/requests)
+        static readonly object CrashReportLock = new object(); // mutex to prevent simultaneous reports (messes up the timers/requests)
         static DateTime lastCrashReport = DateTime.MinValue;
         const int MinCrashReportInterval = 61; // minimum interval between submitting crash reports, in seconds
 
@@ -174,7 +174,7 @@ namespace fCraft {
             }
             if( !submitCrashReport ) return;
 
-            lock( crashReportLock ) {
+            lock( CrashReportLock ) {
                 if( DateTime.UtcNow.Subtract( lastCrashReport ).TotalSeconds < MinCrashReportInterval ) {
                     Log( "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent.", LogType.Warning );
                     return;
@@ -402,16 +402,16 @@ namespace fCraft {
         public static event EventHandler<CrashEventArgs> Crashed;
 
 
-        static void RaiseLoggedEvent( string _rawMessage, string _line, LogType _logType ) {
-            if( ConsoleOptions[(int)_logType] ) {// LEGACY
-                Server.FireLogEvent( _line, _logType );
+        static void RaiseLoggedEvent( string rawMessage, string line, LogType logType ) {
+            if( ConsoleOptions[(int)logType] ) {// LEGACY
+                Server.FireLogEvent( line, logType );
             }
             var h = Logged;
-            if( h != null ) h( null, new LogEventArgs( _rawMessage,
-                                                       _line,
-                                                       _logType,
-                                                       LogFileOptions[(int)_logType],
-                                                       ConsoleOptions[(int)_logType] ) );
+            if( h != null ) h( null, new LogEventArgs( rawMessage,
+                                                       line,
+                                                       logType,
+                                                       LogFileOptions[(int)logType],
+                                                       ConsoleOptions[(int)logType] ) );
         }
 
         static void RaiseCrashedEvent( CrashEventArgs e ) {
@@ -427,13 +427,13 @@ namespace fCraft {
 #region EventArgs
 namespace fCraft.Events {
 
-    public class LogEventArgs : EventArgs {
-        internal LogEventArgs( string _rawMessage, string _message, LogType _messageType, bool _writeToFile, bool _writeToConsole ) {
-            RawMessage = _rawMessage;
-            Message = _message;
-            MessageType = _messageType;
-            WriteToFile = _writeToFile;
-            WriteToConsole = _writeToConsole;
+    public sealed class LogEventArgs : EventArgs {
+        internal LogEventArgs( string rawMessage, string message, LogType messageType, bool writeToFile, bool writeToConsole ) {
+            RawMessage = rawMessage;
+            Message = message;
+            MessageType = messageType;
+            WriteToFile = writeToFile;
+            WriteToConsole = writeToConsole;
         }
         public string RawMessage { get; private set; }
         public string Message { get; private set; }
@@ -443,14 +443,14 @@ namespace fCraft.Events {
     }
 
 
-    public class CrashEventArgs : EventArgs {
-        internal CrashEventArgs( string _message, string _location, Exception _exception, bool _submitCrashReport, bool _isCommonProblem, bool _shutdownImminent ) {
-            Message = _message;
-            Location = _location;
-            Exception = _exception;
-            SubmitCrashReport = _submitCrashReport;
-            IsCommonProblem = _isCommonProblem;
-            ShutdownImminent = _shutdownImminent;
+    public sealed class CrashEventArgs : EventArgs {
+        internal CrashEventArgs( string message, string location, Exception exception, bool submitCrashReport, bool isCommonProblem, bool shutdownImminent ) {
+            Message = message;
+            Location = location;
+            Exception = exception;
+            SubmitCrashReport = submitCrashReport;
+            IsCommonProblem = isCommonProblem;
+            ShutdownImminent = shutdownImminent;
         }
         public string Message { get; private set; }
         public string Location { get; private set; }

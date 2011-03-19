@@ -213,18 +213,18 @@ namespace fCraft {
             }
         }
 
-        static Random rand = new Random();
+        static readonly Random rand = new Random();
         const string IDChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         public static string GenerateID() {
-            StringBuilder ID = new StringBuilder();
+            StringBuilder id = new StringBuilder();
             for( int i = 0; i < 16; i++ ) {
-                ID.Append( IDChars[rand.Next( 0, IDChars.Length )] );
+                id.Append( IDChars[rand.Next( 0, IDChars.Length )] );
             }
-            return ID.ToString();
+            return id.ToString();
         }
 
         internal static void SortRanksByLegacyNumericRank() {
-            Ranks = Ranks.OrderBy( rank => -rank.legacyNumericRank ).ToList();
+            Ranks = Ranks.OrderBy( rank => -rank.LegacyNumericRank ).ToList();
             RebuildIndex();
         }
 

@@ -493,12 +493,12 @@ namespace fCraft {
             return key.SetValue( key.GetDefault() );
         }
 
-        public static bool SetValue( this ConfigKey key, object _value ) {
-            if( _value == null ) {
-                throw new ArgumentNullException( "_value", "ConfigKey values cannot be null. Use an empty string to indicate unset value." );
+        public static bool SetValue( this ConfigKey key, object rawValue ) {
+            if( rawValue == null ) {
+                throw new ArgumentNullException( "rawValue", "ConfigKey values cannot be null. Use an empty string to indicate unset value." );
             }
 
-            string value = _value.ToString();
+            string value = rawValue.ToString();
 
             // LEGACY
             if( LegacyConfigValues.ContainsKey( key ) ) {
@@ -509,6 +509,13 @@ namespace fCraft {
                     }
                 }
             }
+
+            /*if( KeyMetadata[key].Validate( value ) ) {
+                return DoSetValue( key, value );
+            } else {
+                return false;
+            }*/
+
 
             switch( key ) {
                 case ConfigKey.ServerName:
@@ -809,7 +816,7 @@ namespace fCraft {
             Server.TicksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
 
             // rank to patrol
-            World.rankToPatrol = RankList.ParseRank( Settings[ConfigKey.PatrolledRank] ) ?? RankList.LowestRank;
+            World.RankToPatrol = RankList.ParseRank( Settings[ConfigKey.PatrolledRank] ) ?? RankList.LowestRank;
 
             // IRC delay
             IRC.SendDelay = GetInt( ConfigKey.IRCDelay );
@@ -835,7 +842,6 @@ namespace fCraft {
 
 
         static XElement DefineDefaultRanks() {
-            XElement temp;
             XElement permissions = new XElement( "Ranks" );
 
             XElement owner = new XElement( "Rank" );
@@ -864,7 +870,7 @@ namespace fCraft {
 
             owner.Add( new XElement( Permission.Say.ToString() ) );
             owner.Add( new XElement( Permission.ReadStaffChat.ToString() ) );
-            temp = new XElement( Permission.Kick.ToString() );
+            XElement temp = new XElement( Permission.Kick.ToString() );
             temp.Add( new XAttribute( "max", "owner" ) );
             owner.Add( temp );
             temp = new XElement( Permission.Ban.ToString() );
@@ -1087,30 +1093,30 @@ namespace fCraft {
 #region EventArgs
 namespace fCraft.Events {
 
-    public class ConfigKeyChangingEventArgs : EventArgs {
+    public sealed class ConfigKeyChangingEventArgs : EventArgs {
         public ConfigKey Key { get; private set; }
         public string OldValue { get; private set; }
         public string NewValue { get; set; }
         public bool Cancel { get; set; }
 
-        public ConfigKeyChangingEventArgs( ConfigKey _key, string _oldValue, string _newValue ) {
-            Key = _key;
-            OldValue = _oldValue;
-            NewValue = _newValue;
+        public ConfigKeyChangingEventArgs( ConfigKey key, string oldValue, string newValue ) {
+            Key = key;
+            OldValue = oldValue;
+            NewValue = newValue;
             Cancel = false;
         }
     }
 
 
-    public class ConfigKeyChangedEventArgs : EventArgs {
+    public sealed class ConfigKeyChangedEventArgs : EventArgs {
         public ConfigKey Key { get; private set; }
         public string OldValue { get; private set; }
         public string NewValue { get; private set; }
 
-        public ConfigKeyChangedEventArgs( ConfigKey _key, string _oldValue, string _newValue ) {
-            Key = _key;
-            OldValue = _oldValue;
-            NewValue = _newValue;
+        public ConfigKeyChangedEventArgs( ConfigKey key, string oldValue, string newValue ) {
+            Key = key;
+            OldValue = oldValue;
+            NewValue = newValue;
         }
     }
 

@@ -31,11 +31,12 @@ namespace fCraft {
     /// Checks for updates, and keeps track of current version/revision.
     /// </summary>
     public static class Updater {
-        public static int Version = 510;
-        public static int Revision = 459;
-        public static bool IsDev = true,
-                           IsBroken = true;
-        public static string LatestStable = "0.506_r427";
+        public const int Version = 510,
+                         Revision = 465;
+        public const bool IsDev = true,
+                          IsBroken = true;
+
+        public const string LatestStable = "0.506_r427";
 
         public static string UpdateUrl { get; set; }
 
@@ -131,9 +132,9 @@ namespace fCraft {
         }
 
 
-        static void FireCheckedForUpdatesEvent( string _url, UpdaterResult _result ) {
+        static void FireCheckedForUpdatesEvent( string url, UpdaterResult result ) {
             var h = CheckedForUpdates;
-            if( h != null ) h( null, new CheckedForUpdatesEventArgs( _url, _result ) );
+            if( h != null ) h( null, new CheckedForUpdatesEventArgs( url, result ) );
         }
 
 
@@ -167,26 +168,26 @@ namespace fCraft {
 #region EventArgs
 namespace fCraft.Events {
 
-    public class CheckingForUpdatesEventArgs : EventArgs {
-        internal CheckingForUpdatesEventArgs( string _url ) {
-            Url = _url;
+    public sealed class CheckingForUpdatesEventArgs : EventArgs {
+        internal CheckingForUpdatesEventArgs( string url ) {
+            Url = url;
         }
         public string Url { get; set; }
         public bool Cancel { get; set; }
     }
 
 
-    public class CheckedForUpdatesEventArgs : EventArgs {
-        internal CheckedForUpdatesEventArgs( string _url, UpdaterResult _result ) {
-            Url = _url;
-            Result = _result;
+    public sealed class CheckedForUpdatesEventArgs : EventArgs {
+        internal CheckedForUpdatesEventArgs( string url, UpdaterResult result ) {
+            Url = url;
+            Result = result;
         }
         public string Url { get; private set; }
         public UpdaterResult Result { get; private set; }
     }
 
 
-    public class BeforeUpdateRestartEventArgs : EventArgs {
+    public sealed class BeforeUpdateRestartEventArgs : EventArgs {
         internal BeforeUpdateRestartEventArgs() {
             Cancel = false;
         }

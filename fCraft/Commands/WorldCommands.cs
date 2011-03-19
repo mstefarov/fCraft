@@ -87,8 +87,8 @@ namespace fCraft {
             } else if( world.UnlockedBy != null ) {
                 player.Message( "{0}&S was unlocked {1} ago by {2}",
                                 world.GetClassyName(),
-                                DateTime.UtcNow.Subtract( world.LockedDate ).ToMiniString(),
-                                world.LockedBy );
+                                DateTime.UtcNow.Subtract( world.UnlockedDate ).ToMiniString(),
+                                world.UnlockedBy );
             }
         }
 
@@ -944,7 +944,7 @@ namespace fCraft {
                     return;
                 }
 
-                lock( Server.worldListLock ) {
+                lock( Server.WorldListLock ) {
                     World world = Server.FindWorldExact( worldName );
                     if( world != null ) {
                         if( !cmd.Confirmed ) {

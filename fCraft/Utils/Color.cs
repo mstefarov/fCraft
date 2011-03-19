@@ -215,7 +215,7 @@ namespace fCraft {
 
         #region IRC Colors
 
-        static Dictionary<string, IRCColor> MinecraftToIRCColors = new Dictionary<string, IRCColor> {
+        static readonly Dictionary<string, IRCColor> MinecraftToIRCColors = new Dictionary<string, IRCColor> {
             { White, IRCColor.White },
             { Black, IRCColor.Black },
             { Navy, IRCColor.Navy },
