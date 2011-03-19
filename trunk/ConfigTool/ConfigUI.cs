@@ -684,7 +684,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             Rank rank = new Rank();
             rank.ID = RankList.GenerateID();
             rank.Name = "rank" + number;
-            rank.legacyNumericRank = 0;
+            rank.LegacyNumericRank = 0;
             rank.Prefix = "";
             rank.ReservedSlot = false;
             rank.Color = "";

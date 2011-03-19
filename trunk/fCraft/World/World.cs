@@ -16,7 +16,7 @@ namespace fCraft {
 
         public Map Map;
         public string Name;
-        public SortedDictionary<int, Player> Players = new SortedDictionary<int, Player>();
+        readonly SortedDictionary<int, Player> players = new SortedDictionary<int, Player>();
         public Player[] PlayerList;
         public bool IsLocked,
                     IsHidden,
@@ -29,10 +29,11 @@ namespace fCraft {
         public string LockedBy, UnlockedBy;
         public DateTime LockedDate, UnlockedDate;
 
-        internal readonly object PlayerListLock = new object(),
-                                 MapLock = new object(),
-                                 LockLock = new object(),
-                                 PatrolLock = new object();
+        readonly object playerListLock = new object(),
+                        lockLock = new object(),
+                        patrolLock = new object();
+
+        internal readonly object MapLock = new object();
 
 
         public World( string name ) {
@@ -106,7 +107,7 @@ namespace fCraft {
 
 
         public void ChangeMap( Map newMap ) {
-            lock( PlayerListLock ) {
+            lock( playerListLock ) {
                 lock( MapLock ) {
                     Map = null;
                     World newWorld = new World( Name ) {
@@ -136,7 +137,7 @@ namespace fCraft {
 
 
         public void EndFlushMapBuffer() {
-            lock( PlayerListLock ) {
+            lock( playerListLock ) {
                 IsFlushing = false;
                 SendToAll( "&WMap flushed. Reloading..." );
                 foreach( Player player in PlayerList ) {
@@ -151,7 +152,7 @@ namespace fCraft {
         #region PlayerList
 
         public bool AcceptPlayer( Player player, bool announce ) {
-            lock( PlayerListLock ) {
+            lock( playerListLock ) {
 
                 // load the map, if it's not yet loaded
                 lock( MapLock ) {
@@ -169,11 +170,11 @@ namespace fCraft {
                 }
 
                 // add player to the list
-                if( Players.ContainsKey( player.ID ) ) {
+                if( players.ContainsKey( player.ID ) ) {
                     Logger.Log( "World.AcceptPlayer: Trying to accept a player that's already registered (duplicate player id).", LogType.Error );
                     return false;
                 }
-                Players.Add( player.ID, player );
+                players.Add( player.ID, player );
                 UpdatePlayerList();
 
                 AddPlayerForPatrol( player );
@@ -207,19 +208,19 @@ namespace fCraft {
 
 
         public bool ReleasePlayer( Player player ) {
-            lock( PlayerListLock ) {
-                if( !Players.Remove( player.ID ) ) {
+            lock( playerListLock ) {
+                if( !players.Remove( player.ID ) ) {
                     return false;
                 }
 
                 RemovePlayerFromPatrol( player );
 
                 // clear drawing status
-                player.undoBuffer.Clear();
-                player.undoBuffer.TrimExcess();
-                player.selectionMarksExpected = 0;
-                player.selectionMarks.Clear();
-                player.selectionMarkCount = 0;
+                player.UndoBuffer.Clear();
+                player.UndoBuffer.TrimExcess();
+                player.SelectionMarksExpected = 0;
+                player.SelectionMarks.Clear();
+                player.SelectionMarkCount = 0;
 
                 // update player list
                 UpdatePlayerList();
@@ -228,7 +229,7 @@ namespace fCraft {
 
                 // unload map (if needed)
                 lock( MapLock ) {
-                    if( Players.Count == 0 && !NeverUnload ) {
+                    if( players.Count == 0 && !NeverUnload ) {
                         PendingUnload = true;
                     }
                 }
@@ -296,10 +297,10 @@ namespace fCraft {
 
         // Cache the player list to an array (players -> playerList)
         public void UpdatePlayerList() {
-            lock( PlayerListLock ) {
-                Player[] newPlayerList = new Player[Players.Count];
+            lock( playerListLock ) {
+                Player[] newPlayerList = new Player[players.Count];
                 int i = 0;
-                foreach( Player player in Players.Values ) {
+                foreach( Player player in players.Values ) {
                     newPlayerList[i++] = player;
                 }
                 PlayerList = newPlayerList;
@@ -414,7 +415,7 @@ namespace fCraft {
 
 
         public bool Lock( Player player ) {
-            lock( LockLock ) {
+            lock( lockLock ) {
                 if( IsLocked ) {
                     return false;
                 } else {
@@ -432,7 +433,7 @@ namespace fCraft {
 
 
         public bool Unlock( Player player ) {
-            lock( LockLock ) {
+            lock( lockLock ) {
                 if( IsLocked ) {
                     UnlockedBy = player.Name;
                     UnlockedDate = DateTime.UtcNow;
@@ -468,11 +469,11 @@ namespace fCraft {
 
         #region Patrol
 
-        LinkedList<Player> patrolList = new LinkedList<Player>();
-        internal static Rank rankToPatrol;
+        readonly LinkedList<Player> patrolList = new LinkedList<Player>();
+        internal static Rank RankToPatrol;
 
         public Player GetNextPatrolTarget() {
-            lock( PatrolLock ) {
+            lock( patrolLock ) {
                 if( patrolList.Count == 0 ) {
                     return null;
                 } else {
@@ -485,7 +486,7 @@ namespace fCraft {
         }
 
         void RemovePlayerFromPatrol( Player player ) {
-            lock( PatrolLock ) {
+            lock( patrolLock ) {
                 if( patrolList.Contains( player ) ) {
                     patrolList.Remove( player );
                 }
@@ -493,20 +494,20 @@ namespace fCraft {
         }
 
         void AddPlayerForPatrol( Player player ) {
-            if( player.Info.Rank <= rankToPatrol ) {
-                lock( PatrolLock ) {
+            if( player.Info.Rank <= RankToPatrol ) {
+                lock( patrolLock ) {
                     patrolList.AddLast( player );
                 }
             }
         }
 
         internal void CheckIfPlayerIsStillPatrollable( Player player ) {
-            lock( PatrolLock ) {
+            lock( patrolLock ) {
                 if( patrolList.Contains( player ) ) {
-                    if( player.Info.Rank > rankToPatrol ) {
+                    if( player.Info.Rank > RankToPatrol ) {
                         RemovePlayerFromPatrol( player );
                     }
-                } else if( player.Info.Rank <= rankToPatrol ) {
+                } else if( player.Info.Rank <= RankToPatrol ) {
                     AddPlayerForPatrol( player );
                 }
             }
@@ -517,9 +518,8 @@ namespace fCraft {
 
         #region Scheduled Tasks
 
-        public Scheduler.Task updateTask,
-                              saveTask,
-                              backupTask;
+        Scheduler.Task updateTask, saveTask, backupTask;
+
 
         public void StopTasks() {
             if( updateTask != null ) {

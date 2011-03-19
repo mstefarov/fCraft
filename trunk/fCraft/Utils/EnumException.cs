@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace fCraft {
-    class EnumException<T> : Exception
+    sealed class EnumException<T> : Exception
         where T : struct, IComparable, IFormattable, IConvertible {
 
         public T ErrorCode { get; private set; }

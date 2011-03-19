@@ -582,11 +582,9 @@ namespace fCraft {
 
             RankChangeType changeType;
             if( newRank >= targetInfo.Rank ) {
-                if( automatic ) changeType = RankChangeType.AutoPromoted;
-                else changeType = RankChangeType.Promoted;
+                changeType = (automatic ? RankChangeType.AutoPromoted : RankChangeType.Promoted);
             } else {
-                if( automatic ) changeType = RankChangeType.AutoDemoted;
-                else changeType = RankChangeType.Demoted;
+                changeType = (automatic ? RankChangeType.AutoDemoted : RankChangeType.Demoted);
             }
 
             string verb = (promote ? "promoted" : "demoted");

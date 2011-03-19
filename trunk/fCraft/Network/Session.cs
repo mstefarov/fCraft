@@ -19,7 +19,7 @@ namespace fCraft {
                     HasRegistered;
 
         readonly object joinWorldLock = new object();
-        LeaveReason leaveReason = LeaveReason.Unknown;
+        public LeaveReason LeaveReason { get; set; }
 
         Thread ioThread;
 
@@ -58,6 +58,7 @@ namespace fCraft {
 
 
         public Session( TcpClient _client ) {
+            LeaveReason = LeaveReason.Unknown;
             OutputQueue = new ConcurrentQueue<Packet>();
             PriorityOutputQueue = new ConcurrentQueue<Packet>();
 
@@ -118,7 +119,7 @@ namespace fCraft {
                             } else {
                                 Logger.Log( "Session.IoLoop: Lost connection to unidentified player at {0}.", LogType.Debug, GetIP() );
                             }
-                            leaveReason = LeaveReason.ClientQuit;
+                            LeaveReason = LeaveReason.ClientQuit;
                             return;
                         }
                         if( pingCounter > pingInterval ) {
@@ -143,7 +144,7 @@ namespace fCraft {
                             writer.Flush();
                             Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
                                         Player.Name );
-                            if( leaveReason == LeaveReason.Unknown ) leaveReason = LeaveReason.Kick;
+                            if( LeaveReason == LeaveReason.Unknown ) LeaveReason = LeaveReason.Kick;
                             return;
                         }
                     }
@@ -159,7 +160,7 @@ namespace fCraft {
                                         writer.Flush();
                                         Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
                                                     Player.Name );
-                                        if( leaveReason == LeaveReason.Unknown ) leaveReason = LeaveReason.Kick;
+                                        if( LeaveReason == LeaveReason.Unknown ) LeaveReason = LeaveReason.Kick;
                                         return;
                                     }
                                 }
@@ -353,15 +354,15 @@ namespace fCraft {
                 }
 
             } catch( IOException ex ) {
-                leaveReason = LeaveReason.ClientQuit;
+                LeaveReason = LeaveReason.ClientQuit;
                 Logger.Log( "Session.IoLoop: {0}", LogType.Debug, ex.Message );
 
             } catch( SocketException ex ) {
-                leaveReason = LeaveReason.ClientQuit;
+                LeaveReason = LeaveReason.ClientQuit;
                 Logger.Log( "Session.IoLoop: {0}", LogType.Debug, ex.Message );
 #if !DEBUG
             } catch( Exception ex ) {
-                leaveReason = LeaveReason.ServerError;
+                LeaveReason = LeaveReason.ServerError;
                 Logger.LogAndReportCrash( "Error in Session.IoLoop", "fCraft", ex, false );
 #endif
             } finally {
@@ -383,11 +384,11 @@ namespace fCraft {
 
         public void Disconnect() {
             Server.UnregisterSession( this );
-            Server.RaiseSessionDisconnectedEvent( this, leaveReason );
+            Server.RaiseSessionDisconnectedEvent( this, LeaveReason );
 
             if( Player != null ) {
                 Server.UnregisterPlayer( Player );
-                Server.RaisePlayerDisconnectedEventArgs( Player, leaveReason );
+                Server.RaisePlayerDisconnectedEventArgs( Player, LeaveReason );
                 Player = null;
             }
 
@@ -549,9 +550,9 @@ namespace fCraft {
                 Logger.Log( "{0} tried to log in from a banned IP.", LogType.SuspiciousActivity,
                             Player.Name );
                 string bannedMessage = String.Format( "IP-banned {0} ago by {1}: {2}",
-                                                      DateTime.Now.Subtract( ipBanInfo.banDate ).ToMiniString(),
-                                                      ipBanInfo.bannedBy,
-                                                      ipBanInfo.banReason );
+                                                      DateTime.Now.Subtract( ipBanInfo.BanDate ).ToMiniString(),
+                                                      ipBanInfo.BannedBy,
+                                                      ipBanInfo.BanReason );
                 KickNow( bannedMessage, LeaveReason.LoginFailed );
                 return false;
             }
@@ -906,8 +907,8 @@ namespace fCraft {
         /// Kick (asynchronous). Immediately blocks all client input, but waits
         /// until client thread sends the kick packet.
         /// </summary>
-        public void Kick( string message, LeaveReason _leaveReason ) {
-            leaveReason = _leaveReason;
+        public void Kick( string message, LeaveReason leaveReason ) {
+            LeaveReason = leaveReason;
 
             CanReceive = false;
             CanQueue = false;
@@ -925,8 +926,8 @@ namespace fCraft {
         /// Kick (synchronous). Immediately sends the kick packet.
         /// Can only be used from IoThread (this is not thread-safe).
         /// </summary>
-        public void KickNow( string message, LeaveReason _leaveReason ) {
-            leaveReason = _leaveReason;
+        public void KickNow( string message, LeaveReason leaveReason ) {
+            LeaveReason = leaveReason;
 
             CanQueue = false;
             CanReceive = false;
@@ -965,27 +966,27 @@ namespace fCraft {
 #region EventArgs
 namespace fCraft.Events {
 
-    public class SessionConnectingEventArgs : EventArgs {
-        public SessionConnectingEventArgs( IPAddress _IP ) {
-            IP = _IP;
+    public sealed class SessionConnectingEventArgs : EventArgs {
+        public SessionConnectingEventArgs( IPAddress ip ) {
+            IP = ip;
         }
         public bool Cancel { get; set; }
         public IPAddress IP { get; private set; }
     }
 
 
-    public class SessionConnectedEventArgs : EventArgs {
-        public SessionConnectedEventArgs( Session _session ) {
-            Session = _session;
+    public sealed class SessionConnectedEventArgs : EventArgs {
+        public SessionConnectedEventArgs( Session session ) {
+            Session = session;
         }
         public Session Session { get; private set; }
     }
 
 
-    public class SessionDisconnectedEventArgs : EventArgs {
-        public SessionDisconnectedEventArgs( Session _session, LeaveReason _leaveReason ) {
-            Session = _session;
-            LeaveReason = _leaveReason;
+    public sealed class SessionDisconnectedEventArgs : EventArgs {
+        public SessionDisconnectedEventArgs( Session session, LeaveReason leaveReason ) {
+            Session = session;
+            LeaveReason = leaveReason;
         }
         public Session Session { get; private set; }
         public LeaveReason LeaveReason { get; private set; }

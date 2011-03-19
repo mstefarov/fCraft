@@ -9,7 +9,7 @@ namespace fCraft.MapConversion {
     /// <summary>
     /// fCraft map format converter, for format version #3 (2011)
     /// </summary>
-    class MapFCMv3 : IMapConverter {
+    sealed class MapFCMv3 : IMapConverter {
         public const int Identifier = 0x0FC2AF40;
         public const byte Revision = 13;
 

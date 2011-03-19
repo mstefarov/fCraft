@@ -95,48 +95,48 @@ namespace fCraft {
 
 
 
-        internal static bool RaisePlayerConnectingEvent( Player _player ) {
+        internal static bool RaisePlayerConnectingEvent( Player player ) {
             var h = PlayerConnecting;
             if( h == null ) return false;
-            var e = new PlayerConnectingEventArgs( _player );
+            var e = new PlayerConnectingEventArgs( player );
             h( null, e );
             return e.Cancel;
         }
 
 
-        internal static World RaisePlayerConnectedEvent( Player _player, World _world ) {
+        internal static World RaisePlayerConnectedEvent( Player player, World world ) {
             var h = PlayerConnected;
-            if( h == null ) return _world;
-            var e = new PlayerConnectedEventArgs( _player, _world );
+            if( h == null ) return world;
+            var e = new PlayerConnectedEventArgs( player, world );
             h( null, e );
             return e.StartingWorld;
         }
 
 
-        internal static void RaisePlayerReadyEvent( Player _player ) {
+        internal static void RaisePlayerReadyEvent( Player player ) {
             var h = PlayerReady;
-            if( h != null ) h( null, new PlayerEventArgs( _player ) );
+            if( h != null ) h( null, new PlayerEventArgs( player ) );
         }
 
 
-        internal static bool RaisePlayerMovingEvent( Player _player, Position _newPos ) {
+        internal static bool RaisePlayerMovingEvent( Player player, Position newPos ) {
             var h = PlayerMoving;
             if( h == null ) return false;
-            var e = new PlayerMovingEventArgs( _player, _newPos );
+            var e = new PlayerMovingEventArgs( player, newPos );
             h( null, e );
             return e.Cancel;
         }
 
 
-        internal static void RaisePlayerMovedEvent( Player _player, Position _oldPos ) {
+        internal static void RaisePlayerMovedEvent( Player player, Position oldPos ) {
             var h = PlayerMoved;
-            if( h != null ) h( null, new PlayerMovedEventArgs( _player, _oldPos ) );
+            if( h != null ) h( null, new PlayerMovedEventArgs( player, oldPos ) );
         }
 
 
-        internal static void RaisePlayerDisconnectedEventArgs( Player _player, LeaveReason _leaveReason ) {
+        internal static void RaisePlayerDisconnectedEventArgs( Player player, LeaveReason leaveReason ) {
             var h = PlayerDisconnected;
-            if( h != null ) h( null, new PlayerDisconnectedEventArgs( _player, _leaveReason ) );
+            if( h != null ) h( null, new PlayerDisconnectedEventArgs( player, leaveReason ) );
         }
 
         #endregion
@@ -174,18 +174,18 @@ namespace fCraft {
 
 namespace fCraft.Events {
 
-    public class ServerInitializingEventArgs : EventArgs {
-        internal ServerInitializingEventArgs( Dictionary<ArgKey, string> _args ) {
-            Args = _args;
+    public sealed class ServerInitializingEventArgs : EventArgs {
+        internal ServerInitializingEventArgs( Dictionary<ArgKey, string> args ) {
+            Args = args;
         }
 
         public Dictionary<ArgKey, string> Args { get; private set; }
     }
 
 
-    public class ShutdownEventArgs : EventArgs {
-        internal ShutdownEventArgs( ShutdownParams _params ) {
-            ShutdownParams = _params;
+    public sealed class ShutdownEventArgs : EventArgs {
+        internal ShutdownEventArgs( ShutdownParams shutdownParams ) {
+            ShutdownParams = shutdownParams;
         }
 
         public ShutdownParams ShutdownParams { get; private set; }
@@ -193,27 +193,27 @@ namespace fCraft.Events {
 
 
     public class MainWorldChangedEventArgs : EventArgs {
-        internal MainWorldChangedEventArgs( World _old, World _new ) {
-            OldMainWorld = _old;
-            NewMainWorld = _new;
+        internal MainWorldChangedEventArgs( World oldWorld, World newWorld ) {
+            OldMainWorld = oldWorld;
+            NewMainWorld = newWorld;
         }
         public World OldMainWorld { get; private set; }
         public World NewMainWorld { get; private set; }
     }
 
 
-    public class MainWorldChangingEventArgs : MainWorldChangedEventArgs {
-        internal MainWorldChangingEventArgs( World _old, World _new ) : base( _old, _new ) { }
+    public sealed class MainWorldChangingEventArgs : MainWorldChangedEventArgs {
+        internal MainWorldChangingEventArgs( World oldWorld, World newWorld ) : base( oldWorld, newWorld ) { }
         public bool Cancel { get; set; }
     }
 
 
-    public class SearchingForWorldEventArgs : EventArgs {
-        internal SearchingForWorldEventArgs( Player _player, string _searchTerm, List<World> _matches, bool _toJoin ) {
-            Player = _player;
-            SearchTerm = _searchTerm;
-            Matches = _matches;
-            ToJoin = _toJoin;
+    public sealed class SearchingForWorldEventArgs : EventArgs {
+        internal SearchingForWorldEventArgs( Player player, string searchTerm, List<World> matches, bool toJoin ) {
+            Player = player;
+            SearchTerm = searchTerm;
+            Matches = matches;
+            ToJoin = toJoin;
         }
         public Player Player { get; private set; }
         public string SearchTerm { get; private set; }

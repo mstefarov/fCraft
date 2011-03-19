@@ -61,8 +61,8 @@ namespace fCraft {
             readonly ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
 
 
-            public bool Start( string _botNick, bool parseInput ) {
-                ActualBotNick = _botNick;
+            public bool Start( string botNick, bool parseInput ) {
+                ActualBotNick = botNick;
                 ResponsibleForInputParsing = parseInput;
                 try {
                     // start the machinery!

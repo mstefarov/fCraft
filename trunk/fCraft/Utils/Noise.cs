@@ -14,12 +14,12 @@ namespace fCraft {
     /// Class for generating and filtering 2D noise, extensively used by MapGenerator.
     /// </summary>
     public sealed class Noise {
-        readonly int seed;
+        public readonly int Seed;
         public NoiseInterpolationMode InterpolationMode;
 
-        public Noise( int _seed, NoiseInterpolationMode _interpolationMode ) {
-            seed = _seed;
-            InterpolationMode = _interpolationMode;
+        public Noise( int seed, NoiseInterpolationMode interpolationMode ) {
+            Seed = seed;
+            InterpolationMode = interpolationMode;
         }
 
 
@@ -69,7 +69,7 @@ namespace fCraft {
 
 
         public float StaticNoise( int x, int y ) {
-            int n = seed + x + y * short.MaxValue;
+            int n = Seed + x + y * short.MaxValue;
             n = ( n << 13 ) ^ n;
             return (float)( 1.0 - ( ( n * ( n * n * 15731 + 789221 ) + 1376312589 ) & 0x7FFFFFFF ) / 1073741824d );
         }
@@ -127,7 +127,7 @@ namespace fCraft {
                     return InterpolateSpline( p00, p01, p10, p11, yFloat );
 
                 default:
-                    throw new ArgumentException( "Unknown interpolation mode", "interpolationMode" );
+                    throw new ArgumentException();
             }
         }
 
@@ -246,7 +246,7 @@ namespace fCraft {
         }
 
 
-        const float boxBlurDivisor = 1 / 23f;
+        const float BoxBlurDivisor = 1 / 23f;
         public static float[,] BoxBlur( float[,] heightmap ) {
             float[,] output = new float[heightmap.GetLength( 0 ), heightmap.GetLength( 1 )];
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
@@ -256,7 +256,7 @@ namespace fCraft {
                     } else {
                         output[x, y] = ( heightmap[x - 1, y - 1] * 2 + heightmap[x - 1, y] * 3 + heightmap[x - 1, y + 1] * 2 +
                                         heightmap[x, y - 1] * 3 + heightmap[x, y] * 3 + heightmap[x, y + 1] * 3 +
-                                        heightmap[x + 1, y - 1] * 2 + heightmap[x + 1, y] * 3 + heightmap[x + 1, y + 1] * 2 ) * boxBlurDivisor;
+                                        heightmap[x + 1, y - 1] * 2 + heightmap[x + 1, y] * 3 + heightmap[x + 1, y + 1] * 2 ) * BoxBlurDivisor;
                     }
                 }
             }
@@ -264,7 +264,7 @@ namespace fCraft {
         }
 
 
-        const float gaussianBlurDivisor = 1 / 273f;
+        const float GaussianBlurDivisor = 1 / 273f;
         public static float[,] GaussianBlur5x5( float[,] heightmap ) {
             float[,] output = new float[heightmap.GetLength( 0 ), heightmap.GetLength( 1 )];
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
@@ -276,7 +276,7 @@ namespace fCraft {
                                         heightmap[x - 1, y - 1] * 4 + heightmap[x - 1, y - 1] * 16 + heightmap[x, y - 1] * 26 + heightmap[x + 1, y - 1] * 16 + heightmap[x + 2, y - 1] * 4 +
                                         heightmap[x - 2, y] * 7 + heightmap[x - 1, y] * 26 + heightmap[x, y] * 41 + heightmap[x + 1, y] * 26 + heightmap[x + 2, y] * 7 +
                                         heightmap[x - 2, y + 1] * 4 + heightmap[x - 1, y + 1] * 16 + heightmap[x, y + 1] * 26 + heightmap[x + 1, y + 1] * 16 + heightmap[x + 2, y + 1] * 4 +
-                                        heightmap[x - 2, y + 2] + heightmap[x - 1, y + 2] * 4 + heightmap[x, y + 2] * 7 + heightmap[x + 1, y + 2] * 4 + heightmap[x + 2, y + 2] ) * gaussianBlurDivisor;
+                                        heightmap[x - 2, y + 2] + heightmap[x - 1, y + 2] * 4 + heightmap[x, y + 2] * 7 + heightmap[x + 1, y + 2] * 4 + heightmap[x + 2, y + 2] ) * GaussianBlurDivisor;
                     }
                 }
             }

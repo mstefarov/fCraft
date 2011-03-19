@@ -179,7 +179,7 @@ namespace fCraft {
             Handler = Info
         };
 
-        static readonly Regex regexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
+        static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
         internal static void Info( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
@@ -189,15 +189,15 @@ namespace fCraft {
                 return;
             }
 
-            IPAddress IP;
+            IPAddress ip;
             PlayerInfo[] infos;
-            if( Server.IsIP( name ) && IPAddress.TryParse( name, out IP ) ) {
+            if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
                 // find players by IP
-                infos = PlayerDB.FindPlayers( IP, PlayerDB.NumberOfMatchesToPrint );
+                infos = PlayerDB.FindPlayers( ip, PlayerDB.NumberOfMatchesToPrint );
 
             } else if( name.Contains( "*" ) || name.Contains( "." ) ) {
                 // find players by regex/wildcard
-                string regexString = "^" + regexNonNameChars.Replace( name, "" ).Replace( "*", ".*" ) + "$";
+                string regexString = "^" + RegexNonNameChars.Replace( name, "" ).Replace( "*", ".*" ) + "$";
                 Regex regex = new Regex( regexString, RegexOptions.IgnoreCase | RegexOptions.Compiled );
                 infos = PlayerDB.FindPlayers( regex, PlayerDB.NumberOfMatchesToPrint );
 
@@ -417,21 +417,21 @@ namespace fCraft {
                 IPBanInfo info = IPBanList.Get( address );
                 if( info != null ) {
                     player.Message( "{0} was banned by {1} on {2:dd MMM yyyy}.",
-                                    info.address,
-                                    info.bannedBy,
-                                    info.banDate );
-                    if( !String.IsNullOrEmpty( info.playerName ) ) {
+                                    info.Address,
+                                    info.BannedBy,
+                                    info.BanDate );
+                    if( !String.IsNullOrEmpty( info.PlayerName ) ) {
                         player.Message( "  IP ban was banned by association with {0}",
-                                        info.playerName );
+                                        info.PlayerName );
                     }
-                    if( info.attempts > 0 ) {
-                        player.Message( "  There have been {0} attempts to log in, most recently", info.attempts );
+                    if( info.Attempts > 0 ) {
+                        player.Message( "  There have been {0} attempts to log in, most recently", info.Attempts );
                         player.Message( "  on {0:dd MMM yyyy} by {1}.",
-                                        info.lastAttemptDate,
-                                        info.lastAttemptName );
+                                        info.LastAttemptDate,
+                                        info.LastAttemptName );
                     }
-                    if( info.banReason.Length > 0 ) {
-                        player.Message( "  Ban reason: {0}", info.banReason );
+                    if( info.BanReason.Length > 0 ) {
+                        player.Message( "  Ban reason: {0}", info.BanReason );
                     }
                 } else {
                     player.Message( "{0} is currently NOT banned.", address );

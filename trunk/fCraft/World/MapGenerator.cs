@@ -406,11 +406,7 @@ namespace fCraft {
                             map.SetBlock( x, y, level, bCliff );
                         } else {
                             if( slope < args.CliffThreshold ) {
-                                if( snow ) {
-                                    map.SetBlock( x, y, level, Block.White );
-                                } else {
-                                    map.SetBlock( x, y, level, bGroundSurface );
-                                }
+                                map.SetBlock( x, y, level, (snow ? Block.White : bGroundSurface) );
                             } else {
                                 map.SetBlock( x, y, level, bCliff );
                             }
@@ -461,7 +457,7 @@ namespace fCraft {
                     InMap = map,
                     OutMap = outMap,
                     Rand = rand,
-                    Treecount = (int)( map.WidthX * map.WidthY * 4 / ( 1024f * ( args.TreeSpacingMax + args.TreeSpacingMin ) / 2 ) ),
+                    TreeCount = (int)( map.WidthX * map.WidthY * 4 / ( 1024f * ( args.TreeSpacingMax + args.TreeSpacingMin ) / 2 ) ),
                     Operation = Forester.ForesterOperation.Add,
                     GroundSurfaceBlock = bGroundSurface
                 } );
@@ -698,29 +694,29 @@ namespace fCraft {
 
 
         public void GenerateTrees( Map map ) {
-            int MinHeight = args.TreeHeightMin;
-            int MaxHeight = args.TreeHeightMax;
-            int MinTrunkPadding = args.TreeSpacingMin;
-            int MaxTrunkPadding = args.TreeSpacingMax;
-            const int TopLayers = 2;
-            const double Odds = 0.618;
+            int minHeight = args.TreeHeightMin;
+            int maxHeight = args.TreeHeightMax;
+            int minTrunkPadding = args.TreeSpacingMin;
+            int maxTrunkPadding = args.TreeSpacingMax;
+            const int topLayers = 2;
+            const double odds = 0.618;
 
             Random rn = new Random();
             int nx, ny, nz, nh;
 
             map.CalculateShadows();
 
-            for( int x = 0; x < map.WidthX; x += rn.Next( MinTrunkPadding, MaxTrunkPadding + 1 ) ) {
-                for( int y = 0; y < map.WidthY; y += rn.Next( MinTrunkPadding, MaxTrunkPadding + 1 ) ) {
-                    nx = x + rn.Next( -( MinTrunkPadding / 2 ), ( MaxTrunkPadding / 2 ) + 1 );
-                    ny = y + rn.Next( -( MinTrunkPadding / 2 ), ( MaxTrunkPadding / 2 ) + 1 );
+            for( int x = 0; x < map.WidthX; x += rn.Next( minTrunkPadding, maxTrunkPadding + 1 ) ) {
+                for( int y = 0; y < map.WidthY; y += rn.Next( minTrunkPadding, maxTrunkPadding + 1 ) ) {
+                    nx = x + rn.Next( -( minTrunkPadding / 2 ), ( maxTrunkPadding / 2 ) + 1 );
+                    ny = y + rn.Next( -( minTrunkPadding / 2 ), ( maxTrunkPadding / 2 ) + 1 );
                     if( nx < 0 || nx >= map.WidthX || ny < 0 || ny >= map.WidthY ) continue;
                     nz = map.Shadows[nx, ny];
 
                     if( ( map.GetBlock( nx, ny, nz ) == (byte)bGroundSurface ) && slopemap[nx, ny] < .5 ) {
                         // Pick a random height for the tree between Min and Max,
                         // discarding this tree if it would breach the top of the map
-                        if( ( nh = rn.Next( MinHeight, MaxHeight + 1 ) ) + nz + nh / 2 > map.Height )
+                        if( ( nh = rn.Next( minHeight, maxHeight + 1 ) ) + nz + nh / 2 > map.Height )
                             continue;
 
                         // Generate the trunk of the tree
@@ -729,12 +725,12 @@ namespace fCraft {
 
                         for( int i = -1; i < nh / 2; i++ ) {
                             // Should we draw thin (2x2) or thicker (4x4) foliage
-                            int radius = ( i >= ( nh / 2 ) - TopLayers ) ? 1 : 2;
+                            int radius = ( i >= ( nh / 2 ) - topLayers ) ? 1 : 2;
                             // Draw the foliage
                             for( int xoff = -radius; xoff < radius + 1; xoff++ ) {
                                 for( int yoff = -radius; yoff < radius + 1; yoff++ ) {
                                     // Drop random leaves from the edges
-                                    if( rn.NextDouble() > Odds && Math.Abs( xoff ) == Math.Abs( yoff ) && Math.Abs( xoff ) == radius )
+                                    if( rn.NextDouble() > odds && Math.Abs( xoff ) == Math.Abs( yoff ) && Math.Abs( xoff ) == radius )
                                         continue;
                                     // By default only replace an existing block if its air
                                     if( map.GetBlock( nx + xoff, ny + yoff, nz + nh + i ) == (byte)Block.Air )

@@ -184,7 +184,7 @@ namespace fCraft {
 
         #region Loading
 
-        public static Map Load( World _world, string fileName ) {
+        public static Map Load( World world, string fileName ) {
             // locate the file
             if( !File.Exists( fileName ) && !Directory.Exists( fileName ) ) {
                 // try to append ".fcm" and/or prepend "maps/"
@@ -204,7 +204,7 @@ namespace fCraft {
                     Logger.Log( "MapDAT.Load: Some unknown block types were replaced with air.", LogType.Warning );
                 }
 
-                map.World = _world;
+                map.World = world;
                 return map;
 
             } catch( EndOfStreamException ex ) {
@@ -310,126 +310,126 @@ namespace fCraft {
 
         #region Utilities
 
-        static readonly Dictionary<string, Block> blockNames = new Dictionary<string, Block>();
+        static readonly Dictionary<string, Block> BlockNames = new Dictionary<string, Block>();
 
         static Map() {
             foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
                 if( block != Block.Undefined ) {
-                    blockNames.Add( block.ToString().ToLower(), block );
+                    BlockNames.Add( block.ToString().ToLower(), block );
                 }
             }
 
             // alternative names for some blocks
-            blockNames["none"] = Block.Air;
-            blockNames["aire"] = Block.Air; // common typo
-            blockNames["nothing"] = Block.Air;
-            blockNames["empty"] = Block.Air;
-            blockNames["delete"] = Block.Air;
-            blockNames["erase"] = Block.Air;
+            BlockNames["none"] = Block.Air;
+            BlockNames["aire"] = Block.Air; // common typo
+            BlockNames["nothing"] = Block.Air;
+            BlockNames["empty"] = Block.Air;
+            BlockNames["delete"] = Block.Air;
+            BlockNames["erase"] = Block.Air;
 
-            blockNames["cement"] = Block.Stone;
-            blockNames["concrete"] = Block.Stone;
+            BlockNames["cement"] = Block.Stone;
+            BlockNames["concrete"] = Block.Stone;
 
-            blockNames["gras"] = Block.Grass; // common typo
+            BlockNames["gras"] = Block.Grass; // common typo
 
-            blockNames["soil"] = Block.Dirt;
-            blockNames["stones"] = Block.Rocks;
-            blockNames["cobblestone"] = Block.Rocks;
-            blockNames["plank"] = Block.Wood;
-            blockNames["planks"] = Block.Wood;
-            blockNames["board"] = Block.Wood;
-            blockNames["boards"] = Block.Wood;
-            blockNames["tree"] = Block.Plant;
-            blockNames["sappling"] = Block.Plant;
-            blockNames["adminium"] = Block.Admincrete;
-            blockNames["opcrete"] = Block.Admincrete;
-            blockNames["solid"] = Block.Admincrete;
-            blockNames["bedrock"] = Block.Admincrete;
-            blockNames["gold_ore"] = Block.GoldOre;
-            blockNames["iron_ore"] = Block.IronOre;
-            blockNames["ore"] = Block.IronOre;
-            blockNames["coals"] = Block.Coal;
-            blockNames["coalore"] = Block.Coal;
-            blockNames["blackore"] = Block.Coal;
+            BlockNames["soil"] = Block.Dirt;
+            BlockNames["stones"] = Block.Rocks;
+            BlockNames["cobblestone"] = Block.Rocks;
+            BlockNames["plank"] = Block.Wood;
+            BlockNames["planks"] = Block.Wood;
+            BlockNames["board"] = Block.Wood;
+            BlockNames["boards"] = Block.Wood;
+            BlockNames["tree"] = Block.Plant;
+            BlockNames["sappling"] = Block.Plant;
+            BlockNames["adminium"] = Block.Admincrete;
+            BlockNames["opcrete"] = Block.Admincrete;
+            BlockNames["solid"] = Block.Admincrete;
+            BlockNames["bedrock"] = Block.Admincrete;
+            BlockNames["gold_ore"] = Block.GoldOre;
+            BlockNames["iron_ore"] = Block.IronOre;
+            BlockNames["ore"] = Block.IronOre;
+            BlockNames["coals"] = Block.Coal;
+            BlockNames["coalore"] = Block.Coal;
+            BlockNames["blackore"] = Block.Coal;
 
-            blockNames["trunk"] = Block.Log;
-            blockNames["stump"] = Block.Log;
-            blockNames["treestump"] = Block.Log;
-            blockNames["treetrunk"] = Block.Log;
+            BlockNames["trunk"] = Block.Log;
+            BlockNames["stump"] = Block.Log;
+            BlockNames["treestump"] = Block.Log;
+            BlockNames["treetrunk"] = Block.Log;
 
-            blockNames["leaf"] = Block.Leaves;
-            blockNames["foliage"] = Block.Leaves;
+            BlockNames["leaf"] = Block.Leaves;
+            BlockNames["foliage"] = Block.Leaves;
 
-            blockNames["greenyellow"] = Block.Lime;
-            blockNames["yellowgreen"] = Block.Lime;
-            blockNames["lightgreen"] = Block.Lime;
-            blockNames["springgreen"] = Block.Teal;
-            blockNames["emerald"] = Block.Teal;
-            blockNames["lightpurple"] = Block.Violet;
-            blockNames["purple"] = Block.Violet;
-            blockNames["fuchsia"] = Block.Magenta;
-            blockNames["darkpink"] = Block.Pink;
-            blockNames["cloth"] = Block.White;
-            blockNames["cotton"] = Block.White;
-            blockNames["grey"] = Block.Gray;
-            blockNames["lightgray"] = Block.Gray;
-            blockNames["lightgrey"] = Block.Gray;
-            blockNames["darkgray"] = Block.Black;
-            blockNames["darkgrey"] = Block.Black;
+            BlockNames["greenyellow"] = Block.Lime;
+            BlockNames["yellowgreen"] = Block.Lime;
+            BlockNames["lightgreen"] = Block.Lime;
+            BlockNames["springgreen"] = Block.Teal;
+            BlockNames["emerald"] = Block.Teal;
+            BlockNames["lightpurple"] = Block.Violet;
+            BlockNames["purple"] = Block.Violet;
+            BlockNames["fuchsia"] = Block.Magenta;
+            BlockNames["darkpink"] = Block.Pink;
+            BlockNames["cloth"] = Block.White;
+            BlockNames["cotton"] = Block.White;
+            BlockNames["grey"] = Block.Gray;
+            BlockNames["lightgray"] = Block.Gray;
+            BlockNames["lightgrey"] = Block.Gray;
+            BlockNames["darkgray"] = Block.Black;
+            BlockNames["darkgrey"] = Block.Black;
 
-            blockNames["yellow_flower"] = Block.YellowFlower;
-            blockNames["flower"] = Block.YellowFlower;
-            blockNames["red_flower"] = Block.RedFlower;
+            BlockNames["yellow_flower"] = Block.YellowFlower;
+            BlockNames["flower"] = Block.YellowFlower;
+            BlockNames["red_flower"] = Block.RedFlower;
 
-            blockNames["mushroom"] = Block.BrownMushroom;
-            blockNames["shroom"] = Block.BrownMushroom;
-            blockNames["brown_shroom"] = Block.BrownMushroom;
-            blockNames["red_shroom"] = Block.RedMushroom;
+            BlockNames["mushroom"] = Block.BrownMushroom;
+            BlockNames["shroom"] = Block.BrownMushroom;
+            BlockNames["brown_shroom"] = Block.BrownMushroom;
+            BlockNames["red_shroom"] = Block.RedMushroom;
 
-            blockNames["goldsolid"] = Block.Gold;
-            blockNames["golden"] = Block.Gold;
-            blockNames["copper"] = Block.Gold;
-            blockNames["brass"] = Block.Gold;
+            BlockNames["goldsolid"] = Block.Gold;
+            BlockNames["golden"] = Block.Gold;
+            BlockNames["copper"] = Block.Gold;
+            BlockNames["brass"] = Block.Gold;
 
-            blockNames["iron"] = Block.Steel;
-            blockNames["metal"] = Block.Steel;
-            blockNames["silver"] = Block.Steel;
+            BlockNames["iron"] = Block.Steel;
+            BlockNames["metal"] = Block.Steel;
+            BlockNames["silver"] = Block.Steel;
 
-            blockNames["slab"] = Block.Stair;
-            blockNames["slabs"] = Block.DoubleStair;
-            blockNames["steps"] = Block.DoubleStair;
-            blockNames["stairs"] = Block.DoubleStair;
-            blockNames["doublestep"] = Block.DoubleStair;
-            blockNames["double_step"] = Block.DoubleStair;
-            blockNames["double_stair"] = Block.DoubleStair;
-            blockNames["staircasefull"] = Block.DoubleStair;
-            blockNames["step"] = Block.Stair;
-            blockNames["halfstep"] = Block.Stair;
-            blockNames["halfblock"] = Block.Stair;
-            blockNames["staircasestep"] = Block.Stair;
+            BlockNames["slab"] = Block.Stair;
+            BlockNames["slabs"] = Block.DoubleStair;
+            BlockNames["steps"] = Block.DoubleStair;
+            BlockNames["stairs"] = Block.DoubleStair;
+            BlockNames["doublestep"] = Block.DoubleStair;
+            BlockNames["double_step"] = Block.DoubleStair;
+            BlockNames["double_stair"] = Block.DoubleStair;
+            BlockNames["staircasefull"] = Block.DoubleStair;
+            BlockNames["step"] = Block.Stair;
+            BlockNames["halfstep"] = Block.Stair;
+            BlockNames["halfblock"] = Block.Stair;
+            BlockNames["staircasestep"] = Block.Stair;
 
-            blockNames["bricks"] = Block.Brick;
-            blockNames["explosive"] = Block.TNT;
-            blockNames["dynamite"] = Block.TNT;
+            BlockNames["bricks"] = Block.Brick;
+            BlockNames["explosive"] = Block.TNT;
+            BlockNames["dynamite"] = Block.TNT;
 
-            blockNames["book"] = Block.Books;
-            blockNames["shelf"] = Block.Books;
-            blockNames["shelves"] = Block.Books;
-            blockNames["bookcase"] = Block.Books;
-            blockNames["bookshelf"] = Block.Books;
-            blockNames["bookshelves"] = Block.Books;
+            BlockNames["book"] = Block.Books;
+            BlockNames["shelf"] = Block.Books;
+            BlockNames["shelves"] = Block.Books;
+            BlockNames["bookcase"] = Block.Books;
+            BlockNames["bookshelf"] = Block.Books;
+            BlockNames["bookshelves"] = Block.Books;
 
-            blockNames["moss"] = Block.MossyRocks;
-            blockNames["mossy"] = Block.MossyRocks;
-            blockNames["stonevine"] = Block.MossyRocks;
-            blockNames["mossyrock"] = Block.MossyRocks;
-            blockNames["mossystone"] = Block.MossyRocks;
-            blockNames["mossystones"] = Block.MossyRocks;
-            blockNames["mossycobblestone"] = Block.MossyRocks;
-            blockNames["mossy_cobblestone"] = Block.MossyRocks;
-            blockNames["blockthathasgreypixelsonitmostlybutsomeareactuallygreen"] = Block.MossyRocks;
+            BlockNames["moss"] = Block.MossyRocks;
+            BlockNames["mossy"] = Block.MossyRocks;
+            BlockNames["stonevine"] = Block.MossyRocks;
+            BlockNames["mossyrock"] = Block.MossyRocks;
+            BlockNames["mossystone"] = Block.MossyRocks;
+            BlockNames["mossystones"] = Block.MossyRocks;
+            BlockNames["mossycobblestone"] = Block.MossyRocks;
+            BlockNames["mossy_cobblestone"] = Block.MossyRocks;
+            BlockNames["blockthathasgreypixelsonitmostlybutsomeareactuallygreen"] = Block.MossyRocks;
 
-            blockNames["onyx"] = Block.Obsidian;
+            BlockNames["onyx"] = Block.Obsidian;
         }
 
 
@@ -474,7 +474,7 @@ namespace fCraft {
 
         internal static Block GetBlockByName( string block ) {
             block = block.ToLower();
-            return blockNames.ContainsKey( block ) ? blockNames[block] : Block.Undefined;
+            return BlockNames.ContainsKey( block ) ? BlockNames[block] : Block.Undefined;
         }
 
 
@@ -809,7 +809,7 @@ namespace fCraft {
             }
 
             List<FileInfo> backupList = new List<FileInfo>( d.GetFiles( "*.fcm" ) );
-            backupList.Sort( FileInfoComparer.instance );
+            backupList.Sort( FileInfoComparer.Instance );
 
             if( ConfigKey.MaxBackups.GetInt() > 0 ) {
                 while( backupList.Count > ConfigKey.MaxBackups.GetInt() ) {
@@ -856,7 +856,7 @@ namespace fCraft {
 
 
         sealed class FileInfoComparer : IComparer<FileInfo> {
-            public static readonly FileInfoComparer instance = new FileInfoComparer();
+            public static readonly FileInfoComparer Instance = new FileInfoComparer();
             public int Compare( FileInfo x, FileInfo y ) {
                 return -x.CreationTime.CompareTo( y.CreationTime );
             }
@@ -923,14 +923,14 @@ namespace fCraft {
                 } );
             }
 
-            Dictionary<string, ushort> PlayerIDsCache = playerIDs;
-            if( PlayerIDsCache != null && playerNames != null ) {
+            Dictionary<string, ushort> playerIDsCache = playerIDs;
+            if( playerIDsCache != null && playerNames != null ) {
                 lock( playerIDLock ) {
                     layers.Add( new DataLayer {
                         Type = DataLayerType.PlayerIDs,
-                        Data = new Dictionary<string, ushort>( PlayerIDsCache ), // locked copy is needed to avoid threading issues
+                        Data = new Dictionary<string, ushort>( playerIDsCache ), // locked copy is needed to avoid threading issues
                         ElementSize = -1, // variable
-                        ElementCount = PlayerIDsCache.Count
+                        ElementCount = playerIDsCache.Count
                     } );
                 }
             }
@@ -1058,7 +1058,7 @@ namespace fCraft {
             }
         }
 
-        public class DataLayer {
+        public sealed class DataLayer {
             public DataLayerType Type;         // see "DataLayerType" below
             public int GeneralPurposeField;   // 32 bits that can be used in implementation-specific ways
             public int ElementSize;           // size of each data element (if elements are variable-size, set this to 1)

@@ -6,7 +6,7 @@ namespace fCraft {
     /// Basic struct, just a wrapper for a byte array
     /// </summary>
     public struct Packet {
-        public byte[] Data;
+        public readonly byte[] Data;
 
         public Packet( int length ) {
             Data = new byte[length];

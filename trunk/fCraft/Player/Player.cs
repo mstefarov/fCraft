@@ -305,7 +305,7 @@ namespace fCraft {
 
 
         // Makes sure that there are no unprintable or illegal characters in the message
-        public static bool CheckForIllegalChars( string message ) {
+        public static bool CheckForIllegalChars( IEnumerable<char> message ) {
             return message.Any( ch => (ch < ' ' || ch == '&' || ch == '`' || ch == '^' || ch > '}') );
         }
 
@@ -320,7 +320,7 @@ namespace fCraft {
         }
 
 
-        internal void ManyMatchesMessage( string itemType, IClassy[] names ) {
+        internal void ManyMatchesMessage( string itemType, IEnumerable<IClassy> names ) {
             bool first = true;
             StringBuilder list = new StringBuilder();
             foreach( IClassy item in names ) {
@@ -405,22 +405,22 @@ namespace fCraft {
         #region Placing Blocks
 
         // grief/spam detection
-        Queue<DateTime> spamBlockLog;
-        internal Block lastUsedBlockType;
-        const int maxRange = 6 * 32;
+        readonly Queue<DateTime> spamBlockLog;
+        internal Block LastUsedBlockType;
+        const int MaxRange = 6 * 32;
 
         /// <summary>
         /// Handles manually-placed/deleted blocks. Returns true if player's action should result in a kick.
         /// </summary>
         public bool PlaceBlock( short x, short y, short h, bool buildMode, Block type ) {
 
-            lastUsedBlockType = type;
+            LastUsedBlockType = type;
 
             // check if player is frozen or too far away to legitimately place a block
             if( Info.IsFrozen ||
-                Math.Abs( x * 32 - Position.X ) > maxRange ||
-                Math.Abs( y * 32 - Position.Y ) > maxRange ||
-                Math.Abs( h * 32 - Position.H ) > maxRange ) {
+                Math.Abs( x * 32 - Position.X ) > MaxRange ||
+                Math.Abs( y * 32 - Position.Y ) > MaxRange ||
+                Math.Abs( h * 32 - Position.H ) > MaxRange ) {
                 SendBlockNow( x, y, h );
                 return false;
             }
@@ -441,16 +441,16 @@ namespace fCraft {
             type = bindings[(byte)type];
 
             // selection handling
-            if( selectionMarksExpected > 0 ) {
+            if( SelectionMarksExpected > 0 ) {
                 SendBlockNow( x, y, h );
-                selectionMarks.Enqueue( new Position( x, y, h ) );
-                selectionMarkCount++;
-                if( selectionMarkCount >= selectionMarksExpected ) {
-                    selectionMarksExpected = 0;
-                    selectionCallback( this, selectionMarks.ToArray(), selectionArgs );
+                SelectionMarks.Enqueue( new Position( x, y, h ) );
+                SelectionMarkCount++;
+                if( SelectionMarkCount >= SelectionMarksExpected ) {
+                    SelectionMarksExpected = 0;
+                    SelectionCallback( this, SelectionMarks.ToArray(), SelectionArgs );
                 } else {
                     Message( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
-                             selectionMarkCount, x, y, h, selectionMarkCount + 1 );
+                             SelectionMarkCount, x, y, h, SelectionMarkCount + 1 );
                 }
                 return false;
             }
@@ -645,7 +645,7 @@ namespace fCraft {
 
 
         // Determines what OP-code to send to the player. It only matters for deleting admincrete.
-        public byte GetOPPacketCode() {
+        public byte GetOpPacketCode() {
             return (byte)(Can( Permission.DeleteAdmincrete ) ? 100 : 0);
         }
 
@@ -659,22 +659,22 @@ namespace fCraft {
 
         #region Drawing, Selection, and Undo
 
-        internal Queue<BlockUpdate> undoBuffer = new Queue<BlockUpdate>();
+        internal Queue<BlockUpdate> UndoBuffer = new Queue<BlockUpdate>();
 
-        public SelectionCallback selectionCallback;
-        public Queue<Position> selectionMarks = new Queue<Position>();
-        public int selectionMarkCount,
-                   selectionMarksExpected;
-        internal object selectionArgs; // can be used for 'block' or 'zone' or whatever
+        public SelectionCallback SelectionCallback;
+        public readonly Queue<Position> SelectionMarks = new Queue<Position>();
+        public int SelectionMarkCount,
+                   SelectionMarksExpected;
+        internal object SelectionArgs; // can be used for 'block' or 'zone' or whatever
 
-        internal DrawCommands.CopyInformation copyInformation;
+        internal DrawCommands.CopyInformation CopyInformation;
 
         public void SetCallback( int marksExpected, SelectionCallback callback, object args ) {
-            selectionArgs = args;
-            selectionMarksExpected = marksExpected;
-            selectionMarks.Clear();
-            selectionMarkCount = 0;
-            selectionCallback = callback;
+            SelectionArgs = args;
+            SelectionMarksExpected = marksExpected;
+            SelectionMarks.Clear();
+            SelectionMarkCount = 0;
+            SelectionCallback = callback;
         }
 
         #endregion
@@ -757,37 +757,37 @@ namespace fCraft {
 namespace fCraft.Events {
 
     public class PlayerEventArgs : EventArgs {
-        internal PlayerEventArgs( Player _player ) {
-            Player = _player;
+        internal PlayerEventArgs( Player player ) {
+            Player = player;
         }
 
         public Player Player { get; private set; }
     }
 
 
-    public class PlayerConnectingEventArgs : PlayerEventArgs {
-        internal PlayerConnectingEventArgs( Player _player )
-            : base( _player ) {
+    public sealed class PlayerConnectingEventArgs : PlayerEventArgs {
+        internal PlayerConnectingEventArgs( Player player )
+            : base( player ) {
         }
 
         public bool Cancel { get; set; }
     }
 
 
-    public class PlayerConnectedEventArgs : PlayerEventArgs {
-        internal PlayerConnectedEventArgs( Player _player, World _startingWorld )
-            : base( _player ) {
-            StartingWorld = _startingWorld;
+    public sealed class PlayerConnectedEventArgs : PlayerEventArgs {
+        internal PlayerConnectedEventArgs( Player player, World startingWorld )
+            : base( player ) {
+            StartingWorld = startingWorld;
         }
 
         public World StartingWorld { get; set; }
     }
 
 
-    public class PlayerMovingEventArgs : PlayerEventArgs {
-        internal PlayerMovingEventArgs( Player _player, Position _newPos )
-            : base( _player ) {
-            NewPosition = _newPos;
+    public sealed class PlayerMovingEventArgs : PlayerEventArgs {
+        internal PlayerMovingEventArgs( Player player, Position newPos )
+            : base( player ) {
+            NewPosition = newPos;
         }
         public Position OldPosition {
             get {
@@ -799,10 +799,10 @@ namespace fCraft.Events {
     }
 
 
-    public class PlayerMovedEventArgs : PlayerEventArgs {
-        internal PlayerMovedEventArgs( Player _player, Position _oldPos )
-            : base( _player ) {
-            OldPosition = _oldPos;
+    public sealed class PlayerMovedEventArgs : PlayerEventArgs {
+        internal PlayerMovedEventArgs( Player player, Position oldPos )
+            : base( player ) {
+            OldPosition = oldPos;
         }
 
         public Position OldPosition { get; private set; }
@@ -814,10 +814,10 @@ namespace fCraft.Events {
     }
 
 
-    public class PlayerDisconnectedEventArgs : PlayerEventArgs {
-        internal PlayerDisconnectedEventArgs( Player _player, LeaveReason _leaveReason )
-            : base( _player ) {
-            LeaveReason = _leaveReason;
+    public sealed class PlayerDisconnectedEventArgs : PlayerEventArgs {
+        internal PlayerDisconnectedEventArgs( Player player, LeaveReason leaveReason )
+            : base( player ) {
+            LeaveReason = leaveReason;
         }
         public LeaveReason LeaveReason { get; private set; }
     }

@@ -9,20 +9,19 @@ namespace fCraft {
     public static class AutoRank {
 
         static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
-        public static Scheduler.Task Task;
-
+        static Scheduler.Task task;
 
 
         public static void CheckAutoRankSetting() {
             if( ConfigKey.AutoRankEnabled.GetBool() ) {
-                if( Task == null ) {
-                    Task = Scheduler.AddBackgroundTask( TaskCallback );
-                    Task.RunForever( TickInterval );
-                } else if( Task.IsStopped ) {
-                    Task.RunForever( TickInterval );
+                if( task == null ) {
+                    task = Scheduler.AddBackgroundTask( TaskCallback );
+                    task.RunForever( TickInterval );
+                } else if( task.IsStopped ) {
+                    task.RunForever( TickInterval );
                 }
-            } else if( Task != null && !Task.IsStopped ) {
-                Task.Stop();
+            } else if( task != null && !task.IsStopped ) {
+                task.Stop();
             }
         }
 
@@ -77,7 +76,7 @@ namespace fCraft {
     }
 
 
-    public class Criterion : ICloneable {
+    public sealed class Criterion : ICloneable {
         public CriterionType Type { get; set; }
         public Rank FromRank { get; set; }
         public Rank ToRank { get; set; }
@@ -196,10 +195,10 @@ namespace fCraft {
             }
         }
 
-        public ConditionIntRange( ConditionField _field, ComparisonOperation _comparison, int _value ) {
-            Field = _field;
-            Comparison = _comparison;
-            Value = _value;
+        public ConditionIntRange( ConditionField field, ComparisonOperation comparison, int value ) {
+            Field = field;
+            Comparison = comparison;
+            Value = value;
         }
 
         public override bool Eval( PlayerInfo info ) {
@@ -288,8 +287,8 @@ namespace fCraft {
     public sealed class ConditionRankChangeType : Condition {
         public RankChangeType Type;
 
-        public ConditionRankChangeType( RankChangeType _type ) {
-            Type = _type;
+        public ConditionRankChangeType( RankChangeType type ) {
+            Type = type;
         }
 
         public ConditionRankChangeType( XElement el ) {
@@ -313,12 +312,12 @@ namespace fCraft {
         public Rank Rank;
         public ComparisonOperation Comparison;
 
-        public ConditionPreviousRank( Rank _rank, ComparisonOperation _comparison ) {
-            if( !Enum.IsDefined( typeof( ComparisonOperation ), _comparison ) ) {
-                throw new ArgumentOutOfRangeException( "_comparison", "Unknown comparison type" );
+        public ConditionPreviousRank( Rank rank, ComparisonOperation comparison ) {
+            if( !Enum.IsDefined( typeof( ComparisonOperation ), comparison ) ) {
+                throw new ArgumentOutOfRangeException( "comparison", "Unknown comparison type" );
             }
-            Rank = _rank;
-            Comparison = _comparison;
+            Rank = rank;
+            Comparison = comparison;
         }
 
         public ConditionPreviousRank( XElement el ) {
@@ -365,13 +364,10 @@ namespace fCraft {
             Conditions = new List<Condition>();
         }
 
-        public List<Condition> Conditions {
-            get;
-            private set;
-        }
+        public List<Condition> Conditions { get; private set; }
 
-        protected ConditionSet( IEnumerable<Condition> _conditions ) {
-            Conditions = _conditions.ToList();
+        protected ConditionSet( IEnumerable<Condition> conditions ) {
+            Conditions = conditions.ToList();
         }
 
         protected ConditionSet( XElement el )

@@ -84,7 +84,7 @@ namespace fCraft {
             packet.Data[1] = Config.ProtocolVersion;
             Encoding.ASCII.GetBytes( serverName.PadRight( 64 ), 0, 64, packet.Data, 2 );
             Encoding.ASCII.GetBytes( MOTD.PadRight( 64 ), 0, 64, packet.Data, 66 );
-            packet.Data[130] = player.GetOPPacketCode();
+            packet.Data[130] = player.GetOpPacketCode();
             return packet;
         }
 
@@ -196,7 +196,7 @@ namespace fCraft {
         internal static Packet MakeSetPermission( Player player ) {
             Packet packet = new Packet( 2 );
             packet.Data[0] = (byte)OutputCode.SetPermission;
-            packet.Data[1] = player.GetOPPacketCode();
+            packet.Data[1] = player.GetOpPacketCode();
             return packet;
         }
 
@@ -211,14 +211,14 @@ namespace fCraft {
 
         #endregion
 
-        internal static string[] splitter = new[] { "&N" };
+        internal static readonly string[] NewlineSplitter = new[] { "&N" };
         internal static IEnumerable<Packet> MakeWrappedMessage( string prefix, string text, bool appendPrefixToFirstLine ) {
             if( appendPrefixToFirstLine ) text = prefix + text;
 
             /* STEP 1: Split by lines */
             if( text.Contains( "&N" ) ) {
                 bool first = true;
-                foreach( string subline in text.Split( splitter, StringSplitOptions.None ) ) {
+                foreach( string subline in text.Split( NewlineSplitter, StringSplitOptions.None ) ) {
                     foreach( Packet p in MakeWrappedMessage( prefix, subline, !first ) ) {
                         yield return p;
                     }

@@ -93,40 +93,43 @@ namespace fCraft {
         }
 
 
-        byte* image;
-        int imageWidth, imageHeight;
         int x, y, h;
         byte block;
-        IsoCatMode mode;
-        int[] chunkCoords = new int[6];
-        readonly Map map;
+        readonly int[] chunkCoords = new int[6];
+
+        readonly byte* image;
         readonly Bitmap imageBmp;
         readonly BitmapData imageData;
+        int imageWidth, imageHeight;
 
         int dimX, dimY, dimX1, dimY1, dimX2, dimY2;
-        int offsetX, offsetY, rot;
+        int offsetX, offsetY;
         int isoOffset, isoX, isoY, isoH;
-
         int imageStride;
 
-        public IsoCat( Map _map, IsoCatMode _mode, int _rot ) {
-            rot = _rot;
-            mode = _mode;
-            map = _map;
+        public readonly int Rot;
+        public readonly IsoCatMode Mode;
+        public readonly Map Map;
 
-            dimX = map.WidthX;
-            dimY = map.WidthY;
-            offsetY = Math.Max( 0, map.WidthX - map.WidthY );
-            offsetX = Math.Max( 0, map.WidthY - map.WidthX );
+
+        public IsoCat( Map map, IsoCatMode mode, int rot ) {
+            Rot = rot;
+            Mode = mode;
+            Map = map;
+
+            dimX = Map.WidthX;
+            dimY = Map.WidthY;
+            offsetY = Math.Max( 0, Map.WidthX - Map.WidthY );
+            offsetX = Math.Max( 0, Map.WidthY - Map.WidthX );
             dimX2 = dimX / 2 - 1;
             dimY2 = dimY / 2 - 1;
             dimX1 = dimX - 1;
             dimY1 = dimY - 1;
 
-            blendDivisor = 255 * map.Height;
+            blendDivisor = 255 * Map.Height;
 
-            imageWidth = tileX * Math.Max( dimX, dimY ) + tileY / 2 * map.Height + tileX * 2;
-            imageHeight = tileY / 2 * map.Height + maxTileDim / 2 * Math.Max( Math.Max( dimX, dimY ), map.Height ) + tileY * 2;
+            imageWidth = tileX * Math.Max( dimX, dimY ) + tileY / 2 * Map.Height + tileX * 2;
+            imageHeight = tileY / 2 * Map.Height + maxTileDim / 2 * Math.Max( Math.Max( dimX, dimY ), Map.Height ) + tileY * 2;
 
             imageBmp = new Bitmap( imageWidth, imageHeight, PixelFormat.Format32bppArgb );
             imageData = imageBmp.LockBits( new Rectangle( 0, 0, imageBmp.Width, imageBmp.Height ),
@@ -136,12 +139,12 @@ namespace fCraft {
             image = (byte*)imageData.Scan0;
             imageStride = imageData.Stride;
 
-            isoOffset = (map.Height * tileY / 2 * imageStride + imageStride / 2 + tileX * 2);
+            isoOffset = (Map.Height * tileY / 2 * imageStride + imageStride / 2 + tileX * 2);
             isoX = (tileX / 4 * imageStride + tileX * 2);
             isoY = (tileY / 4 * imageStride - tileY * 2);
             isoH = (-tileY / 2 * imageStride);
 
-            mh34 = map.Height * 3 / 4;
+            mh34 = Map.Height * 3 / 4;
         }
 
         public void SetChunk( int x1, int y1, int z1, int x2, int y2, int z2 ) {
@@ -156,28 +159,28 @@ namespace fCraft {
         byte* bp, ctp;
         public Bitmap Draw( ref Rectangle cropRectangle, BackgroundWorker worker ) {
             try {
-                fixed( byte* bpx = map.Blocks ) {
+                fixed( byte* bpx = Map.Blocks ) {
                     fixed( byte* tp = tiles ) {
                         fixed( byte* stp = stiles ) {
                             bp = bpx;
-                            while( h < map.Height ) {
+                            while( h < Map.Height ) {
                                 block = GetBlock( x, y, h );
                                 if( block != 0 ) {
 
-                                    switch( rot ) {
-                                        case 0: ctp = (h >= map.Shadows[x, y] ? tp : stp); break;
-                                        case 1: ctp = (h >= map.Shadows[dimX1 - y, x] ? tp : stp); break;
-                                        case 2: ctp = (h >= map.Shadows[dimX1 - x, dimY1 - y] ? tp : stp); break;
-                                        case 3: ctp = (h >= map.Shadows[y, dimY1 - x] ? tp : stp); break;
+                                    switch( Rot ) {
+                                        case 0: ctp = (h >= Map.Shadows[x, y] ? tp : stp); break;
+                                        case 1: ctp = (h >= Map.Shadows[dimX1 - y, x] ? tp : stp); break;
+                                        case 2: ctp = (h >= Map.Shadows[dimX1 - x, dimY1 - y] ? tp : stp); break;
+                                        case 3: ctp = (h >= Map.Shadows[y, dimY1 - x] ? tp : stp); break;
                                     }
 
                                     int blockRight, blockLeft, blockUp;
 
-                                    if( x != (rot == 1 || rot == 3 ? dimY1 : dimX1) ) blockRight = GetBlock( x + 1, y, h );
+                                    if( x != (Rot == 1 || Rot == 3 ? dimY1 : dimX1) ) blockRight = GetBlock( x + 1, y, h );
                                     else blockRight = 0;
-                                    if( y != (rot == 1 || rot == 3 ? dimX1 : dimY1) ) blockLeft = GetBlock( x, y + 1, h );
+                                    if( y != (Rot == 1 || Rot == 3 ? dimX1 : dimY1) ) blockLeft = GetBlock( x, y + 1, h );
                                     else blockLeft = 0;
-                                    if( h != map.Height - 1 ) blockUp = GetBlock( x, y, h + 1 );
+                                    if( h != Map.Height - 1 ) blockUp = GetBlock( x, y, h + 1 );
                                     else blockUp = 0;
 
                                     if( blockUp == 0 || blockLeft == 0 || blockRight == 0 || // air
@@ -199,16 +202,16 @@ namespace fCraft {
                                 }
 
                                 x++;
-                                if( x == (rot == 1 || rot == 3 ? dimY : dimX) ) {
+                                if( x == (Rot == 1 || Rot == 3 ? dimY : dimX) ) {
                                     y++;
                                     x = 0;
                                 }
-                                if( y == (rot == 1 || rot == 3 ? dimX : dimY) ) {
+                                if( y == (Rot == 1 || Rot == 3 ? dimX : dimY) ) {
                                     h++;
                                     y = 0;
                                     if( h % 4 == 0 ) {
                                         if( worker.CancellationPending ) return null;
-                                        worker.ReportProgress( (h * 100) / map.Height );
+                                        worker.ReportProgress( (h * 100) / Map.Height );
                                     }
                                 }
                             }
@@ -298,7 +301,7 @@ namespace fCraft {
 
 
          void BlendTile() {
-            int pos = (x + (rot == 1 || rot == 3 ? offsetY : offsetX)) * isoX + (y + (rot == 1 || rot == 3 ? offsetX : offsetY)) * isoY + h * isoH + isoOffset;
+            int pos = (x + (Rot == 1 || Rot == 3 ? offsetY : offsetX)) * isoX + (y + (Rot == 1 || Rot == 3 ? offsetX : offsetY)) * isoY + h * isoH + isoOffset;
             if( block > 49 ) return;
             int tileOffset = block * tileStride;
             BlendPixel( pos, tileOffset );
@@ -322,45 +325,48 @@ namespace fCraft {
             //BlendPixel( pos + 12, tileOffset + 60 ); // bottom right block, always blank in current tileset
         }
 
-
-        byte tA;
-        int FA, SA, DA;
         int blendDivisor, mh34;
+
+
         // inspired by http://www.devmaster.net/wiki/Alpha_blending
-         void BlendPixel( int imageOffset, int tileOffset ) {
+        void BlendPixel( int imageOffset, int tileOffset ) {
+            int sourceAlpha;
             if( ctp[tileOffset + 3] == 0 ) return;
 
-            tA = ctp[tileOffset + 3];
+            byte tA = ctp[tileOffset + 3];
 
             // Get final alpha channel.
-            FA = tA + ((255 - tA) * image[imageOffset + 3]) / 255;
+            int finalAlpha = tA + ((255 - tA) * image[imageOffset + 3]) / 255;
 
             // Get percentage (out of 256) of source alpha compared to final alpha
-            if( FA == 0 ) SA = 0;
-            else SA = tA * 255 / FA;
-
-            // Destination percentage is just the additive inverse.
-            DA = 255 - SA;
-
-            if( h < (map.Height >> 1) ) {
-                int shadow = (h >> 1) + mh34;
-                image[imageOffset] = (byte)((ctp[tileOffset] * SA * shadow + image[imageOffset] * DA * map.Height) / blendDivisor);
-                image[imageOffset + 1] = (byte)((ctp[tileOffset + 1] * SA * shadow + image[imageOffset + 1] * DA * map.Height) / blendDivisor);
-                image[imageOffset + 2] = (byte)((ctp[tileOffset + 2] * SA * shadow + image[imageOffset + 2] * DA * map.Height) / blendDivisor);
+            if( finalAlpha == 0 ) {
+                sourceAlpha = 0;
             } else {
-                int shadow = (h - (map.Height >> 1)) * 64;
-                image[imageOffset] = (byte)Math.Min( 255, (ctp[tileOffset] * SA + shadow + image[imageOffset] * DA) / 255 );
-                image[imageOffset + 1] = (byte)Math.Min( 255, (ctp[tileOffset + 1] * SA + shadow + image[imageOffset + 1] * DA) / 255 );
-                image[imageOffset + 2] = (byte)Math.Min( 255, (ctp[tileOffset + 2] * SA + shadow + image[imageOffset + 2] * DA) / 255 );
+                sourceAlpha = tA * 255 / finalAlpha;
             }
 
-            image[imageOffset + 3] = (byte)FA;
+            // Destination percentage is just the additive inverse.
+            int destAlpha = 255 - sourceAlpha;
+
+            if( h < (Map.Height >> 1) ) {
+                int shadow = (h >> 1) + mh34;
+                image[imageOffset] = (byte)((ctp[tileOffset] * sourceAlpha * shadow + image[imageOffset] * destAlpha * Map.Height) / blendDivisor);
+                image[imageOffset + 1] = (byte)((ctp[tileOffset + 1] * sourceAlpha * shadow + image[imageOffset + 1] * destAlpha * Map.Height) / blendDivisor);
+                image[imageOffset + 2] = (byte)((ctp[tileOffset + 2] * sourceAlpha * shadow + image[imageOffset + 2] * destAlpha * Map.Height) / blendDivisor);
+            } else {
+                int shadow = (h - (Map.Height >> 1)) * 64;
+                image[imageOffset] = (byte)Math.Min( 255, (ctp[tileOffset] * sourceAlpha + shadow + image[imageOffset] * destAlpha) / 255 );
+                image[imageOffset + 1] = (byte)Math.Min( 255, (ctp[tileOffset + 1] * sourceAlpha + shadow + image[imageOffset + 1] * destAlpha) / 255 );
+                image[imageOffset + 2] = (byte)Math.Min( 255, (ctp[tileOffset + 2] * sourceAlpha + shadow + image[imageOffset + 2] * destAlpha) / 255 );
+            }
+
+            image[imageOffset + 3] = (byte)finalAlpha;
         }
 
         byte GetBlock( int xx, int yy, int hh ) {
             int realx;
             int realy;
-            switch( rot ) {
+            switch( Rot ) {
                 case 0:
                     realx = xx;
                     realy = yy;
@@ -380,13 +386,13 @@ namespace fCraft {
             }
             int pos = (hh * dimY + realy) * dimX + realx;
 
-            if( mode == IsoCatMode.Normal ) {
+            if( Mode == IsoCatMode.Normal ) {
                 return bp[pos];
-            } else if( mode == IsoCatMode.Peeled && (xx == (rot == 1 || rot == 3 ? dimY1 : dimX1) || yy == (rot == 1 || rot == 3 ? dimX1 : dimY1) || hh == map.Height - 1) ) {
+            } else if( Mode == IsoCatMode.Peeled && (xx == (Rot == 1 || Rot == 3 ? dimY1 : dimX1) || yy == (Rot == 1 || Rot == 3 ? dimX1 : dimY1) || hh == Map.Height - 1) ) {
                 return 0;
-            } else if( mode == IsoCatMode.Cut && xx > (rot == 1 || rot == 3 ? dimY2 : dimX2) && yy > (rot == 1 || rot == 3 ? dimX2 : dimY2) ) {
+            } else if( Mode == IsoCatMode.Cut && xx > (Rot == 1 || Rot == 3 ? dimY2 : dimX2) && yy > (Rot == 1 || Rot == 3 ? dimX2 : dimY2) ) {
                 return 0;
-            } else if( mode == IsoCatMode.Chunk && (realx < chunkCoords[0] || realy < chunkCoords[1] || hh < chunkCoords[2] || realx > chunkCoords[3] || realy > chunkCoords[4] || hh > chunkCoords[5]) ) {
+            } else if( Mode == IsoCatMode.Chunk && (realx < chunkCoords[0] || realy < chunkCoords[1] || hh < chunkCoords[2] || realx > chunkCoords[3] || realy > chunkCoords[4] || hh > chunkCoords[5]) ) {
                 return 0;
             }
 

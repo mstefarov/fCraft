@@ -14,8 +14,13 @@ namespace fCraft {
     public static class Heartbeat {
         const int HeartbeatDelay = 20000,
                   HeartbeatTimeout = 10000;
-        const string URL = "http://www.minecraft.net/heartbeat.jsp";
+        public static string PrimaryUrl { get; set; }
         const string HeartbeatDataFileName = "heartbeatdata.txt";
+
+        static Heartbeat() {
+            PrimaryUrl = "http://www.minecraft.net/heartbeat.jsp";
+        }
+
 
         /// <summary>
         /// Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate
@@ -59,7 +64,7 @@ namespace fCraft {
             }
 
             if( ConfigKey.HeartbeatEnabled.GetBool() ) {
-                request = (HttpWebRequest)WebRequest.Create( URL );
+                request = (HttpWebRequest)WebRequest.Create( PrimaryUrl );
                 request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
                 request.Method = "POST";
                 request.Timeout = HeartbeatTimeout;
@@ -143,7 +148,7 @@ namespace fCraft {
                     string oldUrl = Server.Url;
                     Server.Url = newUrl;
                     RaiseUrlChangedEvent( oldUrl, newUrl );
-                    Server.FireURLChangeEvent( Server.Url );
+                    Server.FireUrlChangeEvent( Server.Url );
                 }
             } catch( Exception ex ) {
                 LastHeartbeatFailed = true;
@@ -167,36 +172,36 @@ namespace fCraft {
         public static event EventHandler<HeartbeatSentEventArgs> Sent;
         public static event EventHandler<UrlChangedEventArgs> UrlChanged;
 
-        static bool RaiseHeartbeatSendingEvent( HeartbeatData _data ) {
+        static bool RaiseHeartbeatSendingEvent( HeartbeatData heartbeatData ) {
             var h = Sending;
             if( h == null ) return false;
-            var e = new HeartbeatSendingEventArgs( _data );
+            var e = new HeartbeatSendingEventArgs( heartbeatData );
             h( null, e );
             return e.Cancel;
         }
 
-        static void RaiseHeartbeatSentEvent( HeartbeatData _data,
-                                             HttpWebResponse _response,
-                                             string _text ) {
+        static void RaiseHeartbeatSentEvent( HeartbeatData heartbeatData,
+                                             HttpWebResponse response,
+                                             string text ) {
             var h = Sent;
             if( h != null ) {
-                h( null, new HeartbeatSentEventArgs( _data,
-                                                    _response.Headers,
-                                                    _response.StatusCode,
-                                                    _text ) );
+                h( null, new HeartbeatSentEventArgs( heartbeatData,
+                                                     response.Headers,
+                                                     response.StatusCode,
+                                                     text ) );
             }
         }
 
-        static void RaiseUrlChangedEvent( string _oldUrl, string _newUrl ) {
+        static void RaiseUrlChangedEvent( string oldUrl, string newUrl ) {
             var h = UrlChanged;
-            if( h != null ) h( null, new UrlChangedEventArgs( _oldUrl, _newUrl ) );
+            if( h != null ) h( null, new UrlChangedEventArgs( oldUrl, newUrl ) );
         }
 
         #endregion
     }
 
 
-    public class HeartbeatData {
+    public sealed class HeartbeatData {
         public HeartbeatData() {
             CustomData = new Dictionary<string, string>();
         }
@@ -216,15 +221,15 @@ namespace fCraft {
 #region EventArgs
 namespace fCraft.Events {
 
-    public class HeartbeatSentEventArgs : EventArgs {
-        internal HeartbeatSentEventArgs( HeartbeatData _data,
-                                         WebHeaderCollection _headers,
-                                         HttpStatusCode _status, 
-                                         string _text ) {
-            HeartbeatData = _data;
-            ResponseHeaders = _headers;
-            ResponseStatusCode = _status;
-            ResponseText = _text;
+    public sealed class HeartbeatSentEventArgs : EventArgs {
+        internal HeartbeatSentEventArgs( HeartbeatData heartbeatData,
+                                         WebHeaderCollection headers,
+                                         HttpStatusCode status, 
+                                         string text ) {
+            HeartbeatData = heartbeatData;
+            ResponseHeaders = headers;
+            ResponseStatusCode = status;
+            ResponseText = text;
         }
         public HeartbeatData HeartbeatData { get; private set; }
         public WebHeaderCollection ResponseHeaders { get; private set; }
@@ -233,19 +238,19 @@ namespace fCraft.Events {
     }
 
 
-    public class HeartbeatSendingEventArgs : EventArgs {
-        internal HeartbeatSendingEventArgs( HeartbeatData _data ) {
-            HeartbeatData = _data;
+    public sealed class HeartbeatSendingEventArgs : EventArgs {
+        internal HeartbeatSendingEventArgs( HeartbeatData data ) {
+            HeartbeatData = data;
         }
         public bool Cancel { get; set; }
         public HeartbeatData HeartbeatData { get; private set; }
     }
 
 
-    public class UrlChangedEventArgs : EventArgs {
-        internal UrlChangedEventArgs( string _oldUrl, string _newUrl ) {
-            OldUrl = _oldUrl;
-            NewUrl = _newUrl;
+    public sealed class UrlChangedEventArgs : EventArgs {
+        internal UrlChangedEventArgs( string oldUrl, string newUrl ) {
+            OldUrl = oldUrl;
+            NewUrl = newUrl;
         }
         public string OldUrl { get; private set; }
         public string NewUrl { get; private set; }

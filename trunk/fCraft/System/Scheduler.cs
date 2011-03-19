@@ -176,7 +176,7 @@ namespace fCraft {
         }
 
 
-        public class Task {
+        public sealed class Task {
 
             public Task() { }
 
@@ -216,8 +216,8 @@ namespace fCraft {
             }
 
 
-            public Task RunOnce( TimeSpan _delay ) {
-                Delay = _delay;
+            public Task RunOnce( TimeSpan delay ) {
+                Delay = delay;
                 return RunOnce();
             }
 
@@ -231,14 +231,14 @@ namespace fCraft {
             }
 
 
-            public Task RunOnce( object _userState, TimeSpan _delay ) {
-                UserState = _userState;
-                return RunOnce( _delay );
+            public Task RunOnce( object userState, TimeSpan delay ) {
+                UserState = userState;
+                return RunOnce( delay );
             }
 
 
-            public Task RunOnce( object _userState, DateTime time ) {
-                UserState = _userState;
+            public Task RunOnce( object userState, DateTime time ) {
+                UserState = userState;
                 return RunOnce( time );
             }
 
@@ -255,22 +255,22 @@ namespace fCraft {
             }
 
 
-            public Task RunForever( TimeSpan _interval ) {
-                Interval = _interval;
+            public Task RunForever( TimeSpan interval ) {
+                Interval = interval;
                 return RunForever();
             }
 
 
-            public Task RunForever( TimeSpan _interval, TimeSpan _delay ) {
-                Interval = _interval;
-                Delay = _delay;
+            public Task RunForever( TimeSpan interval, TimeSpan delay ) {
+                Interval = interval;
+                Delay = delay;
                 return RunForever();
             }
 
 
-            public Task RunForever( object _userState, TimeSpan _interval, TimeSpan _delay ) {
-                UserState = _userState;
-                return RunForever( _interval, _delay );
+            public Task RunForever( object userState, TimeSpan interval, TimeSpan delay ) {
+                UserState = userState;
+                return RunForever( interval, delay );
             }
 
             #endregion
@@ -278,16 +278,16 @@ namespace fCraft {
 
             #region Run Repeating
 
-            public Task RunRepeating( TimeSpan _delay, TimeSpan _interval, int _times ) {
-                MaxRepeats = _times;
-                return RunForever( _interval, _delay );
+            public Task RunRepeating( TimeSpan delay, TimeSpan interval, int times ) {
+                MaxRepeats = times;
+                return RunForever( interval, delay );
             }
 
 
-            public Task RunRepeating( object _userState, TimeSpan _delay, TimeSpan _interval, int _times ) {
-                UserState = _userState;
-                MaxRepeats = _times;
-                return RunForever( _interval, _delay );
+            public Task RunRepeating( object userState, TimeSpan delay, TimeSpan interval, int times ) {
+                UserState = userState;
+                MaxRepeats = times;
+                return RunForever( interval, delay );
             }
 
             #endregion
@@ -306,8 +306,8 @@ namespace fCraft {
                 return this;
             }
 
-            public Task RunManual( TimeSpan _delay ) {
-                Delay = _delay;
+            public Task RunManual( TimeSpan delay ) {
+                Delay = delay;
                 IsRecurring = true;
                 NextTime = DateTime.UtcNow.Add( Delay );
                 MaxRepeats = -1;
@@ -316,10 +316,10 @@ namespace fCraft {
                 return this;
             }
 
-            public Task RunManual( DateTime _time ) {
-                Delay = _time.Subtract( DateTime.UtcNow );
+            public Task RunManual( DateTime time ) {
+                Delay = time.Subtract( DateTime.UtcNow );
                 IsRecurring = true;
-                NextTime = _time;
+                NextTime = time;
                 MaxRepeats = -1;
                 Interval = CloseEnoughToForever;
                 AddTask( this );

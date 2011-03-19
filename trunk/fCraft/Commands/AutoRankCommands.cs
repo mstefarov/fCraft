@@ -383,7 +383,7 @@ namespace fCraft {
             public long TimesKickedOthers;
             public long TimesBannedOthers;
             public int Banned;
-            public Dictionary<Rank, int> PreviousRank = new Dictionary<Rank, int>();
+            public readonly Dictionary<Rank, int> PreviousRank = new Dictionary<Rank, int>();
 
             public TimeSpan TimeSinceFirstLoginMedian;
             public TimeSpan TimeSinceLastLoginMedian;
