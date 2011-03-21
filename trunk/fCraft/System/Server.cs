@@ -79,7 +79,7 @@ namespace fCraft {
                     Console.Error.WriteLine( "Unknown argument: {0}", arg );
                 }
 #if DEBUG
-                    Console.WriteLine( "{0} = {1}", argKeyName, argValue );
+                Console.WriteLine( "{0} = {1}", argKeyName, argValue );
 #endif
             }
 
@@ -1239,6 +1239,16 @@ namespace fCraft {
                 Logger.Log( "Server.CheckForFCraftProcesses: {0}", LogType.Debug, ex );
                 return false;
             }
+        }
+
+        static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1 );
+
+        public static long DateTimeToTimestamp( DateTime timestamp ) {
+            return (long)(timestamp - UnixEpoch).TotalSeconds;
+        }
+
+        public static DateTime TimestampToDateTime( long timestamp ) {
+            return UnixEpoch.AddSeconds( timestamp );
         }
 
 

@@ -1,9 +1,13 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Globalization;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
+using System.Xml;
+using System.Xml.Linq;
+using System.Linq;
 using fCraft.Events;
 
 namespace fCraft {
@@ -27,12 +31,56 @@ namespace fCraft {
     }
 
 
+    public class XUpdateResult {
+        internal XUpdateResult( XRelease[] releases, string downloadUrl ) {
+            LatestRelease = releases.OrderByDescending( r => r.ReleaseDate ).First();
+            History = releases;
+            DownloadUrl = downloadUrl;
+        }
+        public XRelease LatestRelease { get; private set; }
+        public string DownloadUrl { get; private set; }
+        public XRelease[] History { get; private set; }
+
+        public class XRelease {
+            internal XRelease( int version, int revision, DateTime releaseDate, string summary, string[] changeLog ) {
+                Version = version;
+                Revision = revision;
+                ReleaseDate = releaseDate;
+                Summary = summary;
+                ChangeLog = changeLog;
+            }
+
+            public int Version { get; private set; }
+
+            public int Revision { get; private set; }
+
+            public DateTime ReleaseDate { get; private set; }
+
+            public TimeSpan Age {
+                get {
+                    return DateTime.UtcNow.Subtract( ReleaseDate );
+                }
+            }
+
+            public string VersionString {
+                get {
+                    return Decimal.Divide( Version, 1000 ).ToString( "0.000" );
+                }
+            }
+
+            public string Summary { get; private set; }
+
+            public string[] ChangeLog { get; private set; }
+        }
+    }
+
+
     /// <summary>
     /// Checks for updates, and keeps track of current version/revision.
     /// </summary>
     public static class Updater {
         public const int Version = 510,
-                         Revision = 466;
+                         Revision = 467;
         public const bool IsDev = true,
                           IsBroken = true;
 
@@ -40,7 +88,7 @@ namespace fCraft {
 
         public static string UpdateUrl { get; set; }
 
-        static Updater(){
+        static Updater() {
             UpdateUrl = "http://fcraft.fragmer.net/version.log";
         }
 
@@ -122,11 +170,11 @@ namespace fCraft {
         public static event EventHandler AfterUpdateRestart;
 
 
-        static bool FireCheckingForUpdatesEvent(ref string updateUrl) {
+        static bool FireCheckingForUpdatesEvent( ref string updateUrl ) {
             var h = CheckingForUpdates;
             if( h == null ) return false;
             var e = new CheckingForUpdatesEventArgs( updateUrl );
-            h( null,e );
+            h( null, e );
             updateUrl = e.Url;
             return e.Cancel;
         }
@@ -153,6 +201,26 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        public static XUpdateResult ParseUpdateLog( string rawText ) {
+            using( XmlTextReader reader = new XmlTextReader( rawText ) ) {
+                XDocument doc = XDocument.Load( reader );
+                XElement root = doc.Root;
+                string url = root.Attribute( "url" ).Value;
+                var releases = new List<XUpdateResult.XRelease>();
+                foreach( XElement el in root.Elements( "Release" ) ) {
+                    releases.Add( new XUpdateResult.XRelease(
+                        Int32.Parse( el.Attribute( "v" ).Value ),
+                        Int32.Parse( el.Attribute( "r" ).Value ),
+                        Server.TimestampToDateTime( Int64.Parse( el.Attribute( "date" ).Value ) ),
+                        el.Element( "Summary" ).Value,
+                        el.Element( "ChangeLog" ).Value.Split( new[] { '\n' } )
+                    ) );
+                }
+                return new XUpdateResult( releases.ToArray(), url );
+            }
+        }
     }
 
 

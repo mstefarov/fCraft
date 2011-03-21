@@ -250,7 +250,8 @@ namespace fCraft {
 
             } else if( ex.Message == "libMonoPosixHelper.so" ) {
                 Log( "fCraft could not locate Mono's compression functionality. " +
-                     "Please make sure that you have zlib and libmono-posix-2.0-cil or equivalent package installed.", LogType.Warning );
+                     "Please make sure that you have zlib (sometimes called \"libz\") installed. " +
+                     "Some versions of Mono may also require \"libmono-posix-2.0-cil\" package to be installed.", LogType.Warning );
                 return false;
 
             } else if( ex is UnauthorizedAccessException ) {

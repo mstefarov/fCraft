@@ -167,14 +167,18 @@ namespace fCraft {
                     case BlankValueMeaning.LowestRank:
                         rank = RankList.LowestRank;
                         break;
+                    case BlankValueMeaning.Invalid:
+                        throw new FormatException( "Value may not be blank." );
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException( "Invalid value of BlankMeaning." );
                 }
+                if( rank == null ) return;
             } else {
                 rank = RankList.ParseRank( value );
-            }
-            if( rank == null ) {
-                throw new FormatException( "Value cannot be parsed as a rank." );
+                if( rank == null ) {
+                    throw new FormatException( "Value cannot be parsed as a rank." );
+                }
             }
             if( !CanBeLowest && rank == RankList.LowestRank ) {
                 throw new FormatException( "Value may not be the lowest rank." );
@@ -200,7 +204,7 @@ namespace fCraft {
 
 
         public override void Validate( string value ) {
-            base.TryValidate( value );
+            base.Validate( value );
             bool test;
             if( !Boolean.TryParse( value, out test ) ) {
                 throw new FormatException( "Value cannot be parsed as a boolean." );
@@ -234,7 +238,7 @@ namespace fCraft {
 
 
         public override void Validate( string value ) {
-            base.TryValidate( value );
+            base.Validate( value );
             IPAddress test;
             if( !IPAddress.TryParse( value, out test ) ) {
                 throw new FormatException( "Value cannot be parsed as an IP Address." );
@@ -269,7 +273,7 @@ namespace fCraft {
 
 
         public override void Validate( string value ) {
-            base.TryValidate( value );
+            base.Validate( value );
             if( Color.Parse( value ) == null ) {
                 throw new FormatException( "Value cannot be parsed as a color." );
             } else if( Color.Parse( value ) == "" && NotBlank ) {

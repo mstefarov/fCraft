@@ -174,13 +174,13 @@ namespace fCraft {
         /// </summary>
         public static void LoadDefaults() {
             foreach( var pair in KeyMetadata ) {
-                SetValue( pair.Key, pair.Value.DefaultValue );
+                TrySetValue( pair.Key, pair.Value.DefaultValue );
             }
         }
 
         public static void LoadDefaults( ConfigSection section ) {
             foreach( var key in KeySections[section] ) {
-                SetValue( key, KeyMetadata[key].DefaultValue );
+                TrySetValue( key, KeyMetadata[key].DefaultValue );
             }
         }
 
@@ -278,11 +278,11 @@ namespace fCraft {
                 string key = element.Name.ToString().ToLower();
                 if( keyNames.Contains( key, StringComparer.OrdinalIgnoreCase ) ) {
                     // known key
-                    SetValue( (ConfigKey)Enum.Parse( typeof( ConfigKey ), key, true ), element.Value );
+                    TrySetValue( (ConfigKey)Enum.Parse( typeof( ConfigKey ), key, true ), element.Value );
 
                 } else if( LegacyConfigKeys.ContainsKey( key ) ) { // LEGACY
                     // renamed/legacy key
-                    SetValue( LegacyConfigKeys[key], element.Value );
+                    TrySetValue( LegacyConfigKeys[key], element.Value );
 
                 } else if( key != "consoleoptions" &&
                            key != "logfileoptions" &&
@@ -490,15 +490,19 @@ namespace fCraft {
         #region Setters
 
         public static bool ResetValue( this ConfigKey key ) {
-            return key.SetValue( key.GetDefault() );
+            return key.TrySetValue( key.GetDefault() );
         }
 
-        public static bool SetValue( this ConfigKey key, object rawValue ) {
+        public static void SetValue( this ConfigKey key, object rawValue ){
             if( rawValue == null ) {
                 throw new ArgumentNullException( "rawValue", "ConfigKey values cannot be null. Use an empty string to indicate unset value." );
             }
 
             string value = rawValue.ToString();
+
+            if( value == null ) {
+                throw new ArgumentNullException( "rawValue", "rawValue.ToString() returned null." );
+            }
 
             // LEGACY
             if( LegacyConfigValues.ContainsKey( key ) ) {
@@ -510,13 +514,21 @@ namespace fCraft {
                 }
             }
 
-            /*if( KeyMetadata[key].Validate( value ) ) {
-                return DoSetValue( key, value );
-            } else {
+            KeyMetadata[key].Validate( value );
+
+            DoSetValue( key, value );
+        }
+
+        public static bool TrySetValue( this ConfigKey key, object rawValue ) {
+            try {
+                SetValue( key, rawValue );
+                return true;
+            } catch( FormatException ex ) {
+                Logger.Log( "{0}.TrySetValue: {1}", LogType.Error, key, ex.Message );
                 return false;
-            }*/
+            }
 
-
+            /*
             switch( key ) {
                 case ConfigKey.ServerName:
                     return ValidateString( key, value, 1, 64 );
@@ -668,91 +680,9 @@ namespace fCraft {
                 default:
                     throw new Exception( "No validation defined for this key: " + key );
             }
+             * */
         }
 
-        static bool ValidateInt( ConfigKey key, string value, int minRange, int maxRange ) {
-            int temp;
-            if( Int32.TryParse( value, out temp ) ) {
-                if( temp >= minRange && temp <= maxRange ) {
-                    return DoSetValue( key, temp.ToString() );
-                } else {
-                    Log( "Config.ValidateInt: Specified value for {0} is not within valid range ({1}...{2}). Using default ({3}).", LogType.Warning,
-                         key, minRange, maxRange, Settings[key] );
-                    return false;
-                }
-
-            } else {
-                Log( "Config.ValidateInt: Specified value for {0} could not be parsed. Using default ({1}).", LogType.Warning,
-                     key, Settings[key] );
-                return false;
-            }
-        }
-
-        static bool ValidateBool( ConfigKey key, string value ) {
-            bool temp;
-            if( Boolean.TryParse( value, out temp ) ) {
-                return DoSetValue( key, temp.ToString() );
-
-            } else {
-                Log( "Config.ValidateBool: Specified value for {0} could not be parsed. Expected 'true' or 'false'. Using default ({1}).", LogType.Warning,
-                     key, Settings[key] );
-                return false;
-            }
-        }
-
-        static bool ValidateColor( ConfigKey key, string value ) {
-            if( Color.Parse( value ) != null ) {
-                return DoSetValue( key, value );
-
-            } else {
-                Log( "Config.ValidateColor: Specified value for {0} could not be parsed. Using default ({1}).", LogType.Warning,
-                     key, Settings[key] );
-                return false;
-            }
-        }
-
-        static bool ValidateString( ConfigKey key, string value, int minLength, int maxLength ) {
-            if( value.Length < minLength ) {
-                Log( "Config.ValidateString: Specified value for {0} is too short (expected length: {1}...{2}). Using default ({3}).", LogType.Warning,
-                     key, minLength, maxLength, Settings[key] );
-                return false;
-
-            } else if( value.Length > maxLength ) {
-                Settings[key] = value.Substring( 0, maxLength );
-                Log( "Config.ValidateString: Specified value for {0} is too long (expected length: {1}...{2}). The value has been truncated to \"{3}\".", LogType.Warning,
-                     key, minLength, maxLength, Settings[key] );
-                return true;
-
-            } else {
-                return DoSetValue( key, value );
-            }
-        }
-
-        static bool ValidateEnum( ConfigKey key, string value, params string[] options ) {
-            for( int i = 0; i < options.Length; i++ ) {
-                if( value.Equals( options[i], StringComparison.OrdinalIgnoreCase ) ) {
-                    return DoSetValue( key, options[i] );
-                }
-            }
-            Log( "Config.ValidateEnum: Invalid option specified for {0}. " +
-                 "See documentation for the list of permitted options. Using default: {1}", LogType.Warning,
-                 key, Settings[key] );
-            return false;
-        }
-
-        static bool ValidateEnum<TEnum>( ConfigKey key, string value ) where TEnum : struct {
-            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required", "TEnum" );
-            try {
-                TEnum val = (TEnum)Enum.Parse( typeof( TEnum ), value, true );
-                DoSetValue( key, val.ToString() );
-                return true;
-            } catch( ArgumentException ) {
-                Log( "Config.ValidateEnum: Invalid option specified for {0}. " +
-                     "See documentation for the list of permitted options. Using default: {1}", LogType.Warning,
-                     key, Settings[key] );
-                return false;
-            }
-        }
 
         static bool DoSetValue( ConfigKey key, string newValue ) {
             if( !Settings.ContainsKey( key ) ) {
