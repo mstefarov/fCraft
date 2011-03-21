@@ -32,7 +32,7 @@ namespace fCraft {
     /// </summary>
     public static class Updater {
         public const int Version = 510,
-                         Revision = 465;
+                         Revision = 466;
         public const bool IsDev = true,
                           IsBroken = true;
 

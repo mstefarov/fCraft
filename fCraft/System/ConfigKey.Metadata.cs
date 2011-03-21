@@ -8,7 +8,7 @@ namespace fCraft {
 
     [AttributeUsage( AttributeTargets.Field )]
     public class ConfigKeyAttribute : Attribute {
-        protected ConfigKeyAttribute( Type valueType, object defaultValue, ConfigSection section ) {
+        protected ConfigKeyAttribute( ConfigSection section, Type valueType, object defaultValue ) {
             ValueType = valueType;
             DefaultValue = defaultValue;
             Section = section;
@@ -21,11 +21,19 @@ namespace fCraft {
         public ConfigKey Key { get; set; }
 
 
-        public virtual bool Validate( string value ) {
-            if( NotBlank && String.IsNullOrEmpty( value ) ) {
-                return false;
-            } else {
+        public bool TryValidate( string value ) {
+            try {
+                Validate( value );
                 return true;
+            } catch( ArgumentException ) {
+                return false;
+            }
+        }
+
+
+        public virtual void Validate( string value ) {
+            if( NotBlank && String.IsNullOrEmpty( value ) ) {
+                throw new FormatException( "Value cannot be blank or null." );
             }
         }
     }
@@ -33,8 +41,8 @@ namespace fCraft {
 
     public sealed class StringKeyAttribute : ConfigKeyAttribute {
         public const int NoLengthRestriction = -1;
-        public StringKeyAttribute( object defaultValue, ConfigSection section )
-            : base( typeof( string ), defaultValue, section ) {
+        public StringKeyAttribute( ConfigSection section, object defaultValue )
+            : base( section, typeof( string ), defaultValue ) {
             MinLength = NoLengthRestriction;
             MaxLength = NoLengthRestriction;
             Regex = null;
@@ -45,21 +53,30 @@ namespace fCraft {
         public bool RestrictedChars { get; set; }
 
 
-        public override bool Validate( string value ) {
-            if( !base.Validate( value ) ) return false;
-            if( MinLength != NoLengthRestriction && value.Length < MinLength ) return false;
-            if( MaxLength != NoLengthRestriction && value.Length > MaxLength ) return false;
-            if( RestrictedChars && Player.CheckForIllegalChars( value ) ) return false;
-            if( Regex != null && !Regex.IsMatch( value ) ) return false;
-
-            return true;
+        public override void Validate( string value ) {
+            base.Validate( value );
+            if( MinLength != NoLengthRestriction && value.Length < MinLength ) {
+                throw new FormatException( String.Format( "Value string is too short; expected at least {0} characters.",
+                                                          MinLength ) );
+            }
+            if( MaxLength != NoLengthRestriction && value.Length > MaxLength ) {
+                throw new FormatException( String.Format( "Value string too long; expected at most {1} characters.",
+                                                          MaxLength ) );
+            }
+            if( RestrictedChars && Player.CheckForIllegalChars( value ) ) {
+                throw new FormatException( String.Format( "Value contains restricted characters." ) );
+            }
+            if( Regex != null && !Regex.IsMatch( value ) ) {
+                throw new FormatException( String.Format( "Value does not match the expected format: /{0}/.",
+                                                          Regex ) );
+            }
         }
     }
 
 
     public sealed class IntKeyAttribute : ConfigKeyAttribute {
-        public IntKeyAttribute( int defaultValue, ConfigSection section )
-            : base( typeof( int ), defaultValue, section ) {
+        public IntKeyAttribute( ConfigSection section, int defaultValue )
+            : base( section, typeof( int ), defaultValue ) {
             MinValue = int.MinValue;
             MaxValue = int.MaxValue;
             PowerOfTwo = false;
@@ -73,15 +90,31 @@ namespace fCraft {
         public int MultipleOf { get; set; }
         public int[] ValidValues { get; set; }
         public int[] InvalidValues { get; set; }
+        public bool AlwaysAllowZero { get; set; }
 
 
-        public override bool Validate( string value ) {
-            if( !base.Validate( value ) ) return false;
+        public override void Validate( string value ) {
+            base.Validate( value );
             int parsedValue;
-            if( !Int32.TryParse( value, out parsedValue ) ) return false;
-            if( MinValue != int.MinValue && parsedValue < MinValue ) return false;
-            if( MaxValue != int.MaxValue && parsedValue > MaxValue ) return false;
-            if( MultipleOf != 0 && (parsedValue % MultipleOf != 0) ) return false;
+            if( !Int32.TryParse( value, out parsedValue ) ) {
+                throw new FormatException( "Value cannot be parsed as an integer." );
+            }
+
+            if( AlwaysAllowZero && parsedValue == 0 ) {
+                return;
+            }
+
+            if( MinValue != int.MinValue && parsedValue < MinValue ) {
+                throw new FormatException( String.Format( "Value is too low; expected at least {0}.", MinValue ) );
+            }
+
+            if( MaxValue != int.MaxValue && parsedValue > MaxValue ) {
+                throw new FormatException( String.Format( "Value is too high; expected at most {0}.", MaxValue ) );
+            }
+
+            if( MultipleOf != 0 && (parsedValue % MultipleOf != 0) ) {
+                throw new FormatException( String.Format( "Value is not a multiple of {0}.", MultipleOf ) );
+            }
             if( PowerOfTwo ) {
                 bool found = false;
                 for( int i = 0; i < 31; i++ ) {
@@ -90,22 +123,27 @@ namespace fCraft {
                         break;
                     }
                 }
-                if( !found && parsedValue != 0 ) return false;
+                if( !found && parsedValue != 0 ) {
+                    throw new FormatException( "Value is not a power of two." );
+                }
             }
             if( ValidValues != null ) {
-                if( !ValidValues.Any( t => parsedValue == t ) ) return false;
+                if( !ValidValues.Any( t => parsedValue == t ) ) {
+                    throw new FormatException( "Value is not on the list of valid values." );
+                }
             }
             if( InvalidValues != null ) {
-                return InvalidValues.All( t => parsedValue != t );
+                if( !InvalidValues.All( t => parsedValue != t ) ) {
+                    throw new FormatException( "Value is on the list of invalid values." );
+                }
             }
-            return true;
         }
     }
 
 
     public sealed class RankKeyAttribute : ConfigKeyAttribute {
         public RankKeyAttribute( BlankValueMeaning blankMeaning, ConfigSection section )
-            : base( typeof( Rank ), "", section ) {
+            : base( section, typeof( Rank ), "" ) {
             CanBeLowest = true;
             CanBeHighest = true;
             BlankMeaning = blankMeaning;
@@ -116,7 +154,7 @@ namespace fCraft {
         public BlankValueMeaning BlankMeaning { get; set; }
 
 
-        public override bool Validate( string value ) {
+        public override void Validate( string value ) {
             Rank rank;
             if( string.IsNullOrEmpty( value ) ) {
                 switch( BlankMeaning ) {
@@ -130,15 +168,20 @@ namespace fCraft {
                         rank = RankList.LowestRank;
                         break;
                     default:
-                        return false;
+                        throw new ArgumentOutOfRangeException( "Invalid value of BlankMeaning." );
                 }
             } else {
                 rank = RankList.ParseRank( value );
             }
-            if( rank == null ) return false;
-            if( !CanBeLowest && rank == RankList.LowestRank ) return false;
-            if( !CanBeHighest && rank == RankList.HighestRank ) return false;
-            return true;
+            if( rank == null ) {
+                throw new FormatException( "Value cannot be parsed as a rank." );
+            }
+            if( !CanBeLowest && rank == RankList.LowestRank ) {
+                throw new FormatException( "Value may not be the lowest rank." );
+            }
+            if( !CanBeHighest && rank == RankList.HighestRank ) {
+                throw new FormatException( "Value may not be the highest rank." );
+            }
         }
 
         public enum BlankValueMeaning {
@@ -151,22 +194,24 @@ namespace fCraft {
 
 
     public sealed class BoolKeyAttribute : ConfigKeyAttribute {
-        public BoolKeyAttribute( bool defaultValue, ConfigSection section )
-            : base( typeof( bool ), defaultValue, section ) {
+        public BoolKeyAttribute( ConfigSection section, bool defaultValue )
+            : base( section, typeof( bool ), defaultValue ) {
         }
 
 
-        public override bool Validate( string value ) {
-            if( !base.Validate( value ) ) return false;
+        public override void Validate( string value ) {
+            base.TryValidate( value );
             bool test;
-            return Boolean.TryParse( value, out test );
+            if( !Boolean.TryParse( value, out test ) ) {
+                throw new FormatException( "Value cannot be parsed as a boolean." );
+            }
         }
     }
 
 
     public sealed class IPKeyAttribute : ConfigKeyAttribute {
-        public IPKeyAttribute( BlankValueMeaning defaultMeaning, ConfigSection section )
-            : base( typeof( IPAddress ), "", section ) {
+        public IPKeyAttribute( ConfigSection section, BlankValueMeaning defaultMeaning )
+            : base( section, typeof( IPAddress ), "" ) {
             BlankMeaning = defaultMeaning;
             switch( BlankMeaning ) {
                 case BlankValueMeaning.Any:
@@ -188,15 +233,24 @@ namespace fCraft {
         public BlankValueMeaning BlankMeaning { get; set; }
 
 
-        public override bool Validate( string value ) {
-            if( !base.Validate( value ) ) return false;
+        public override void Validate( string value ) {
+            base.TryValidate( value );
             IPAddress test;
-            if( !IPAddress.TryParse( value, out test ) ) return false;
-            if( NotAny && test.ToString() == IPAddress.Any.ToString() ) return false;
-            if( NotNone && test.ToString() == IPAddress.None.ToString() ) return false;
-            if( NotLAN && test.IsLAN() ) return false;
-            if( NotLoopback && IPAddress.IsLoopback( test ) ) return false;
-            return true;
+            if( !IPAddress.TryParse( value, out test ) ) {
+                throw new FormatException( "Value cannot be parsed as an IP Address." );
+            }
+            if( NotAny && test.ToString() == IPAddress.Any.ToString() ) {
+                throw new FormatException( String.Format( "Value cannot be {0}", IPAddress.Any ) );
+            }
+            if( NotNone && test.ToString() == IPAddress.None.ToString() ) {
+                throw new FormatException( String.Format( "Value cannot be {0}", IPAddress.None ) );
+            }
+            if( NotLAN && test.IsLAN() ) {
+                throw new FormatException( "Value cannot be a LAN address." );
+            }
+            if( NotLoopback && IPAddress.IsLoopback( test ) ) {
+                throw new FormatException( "Value cannot be a loopback address." );
+            }
         }
 
         public enum BlankValueMeaning {
@@ -208,35 +262,36 @@ namespace fCraft {
 
 
     public sealed class ColorKeyAttribute : ConfigKeyAttribute {
-        public ColorKeyAttribute( string defaultColor, ConfigSection section )
-            : base( typeof( string ), defaultColor, section ) {
+        public ColorKeyAttribute( ConfigSection section, string defaultColor )
+            : base( section, typeof( string ), defaultColor ) {
             NotBlank = false;
         }
 
 
-        public override bool Validate( string value ) {
-            if( !base.Validate( value ) ) return false;
-            return Color.Parse( value ) != null;
+        public override void Validate( string value ) {
+            base.TryValidate( value );
+            if( Color.Parse( value ) == null ) {
+                throw new FormatException( "Value cannot be parsed as a color." );
+            } else if( Color.Parse( value ) == "" && NotBlank ) {
+                throw new FormatException( "Value may not represent absence of color." );
+            }
         }
     }
 
 
     public sealed class EnumKeyAttribute : ConfigKeyAttribute {
-        public EnumKeyAttribute( object defaultValue, ConfigSection section )
-            : base( null, defaultValue, section ) {
+        public EnumKeyAttribute( ConfigSection section, object defaultValue )
+            : base( section,null, defaultValue ) {
             ValueType = defaultValue.GetType();
         }
 
 
-        public override bool Validate( string value ) {
-            if( String.IsNullOrEmpty( value ) ) {
-                return !NotBlank;
-            }
+        public override void Validate( string value ) {
+            base.Validate( value );
             try {
                 Enum.Parse( ValueType, value, true );
-                return true;
             } catch( ArgumentException ) {
-                return false;
+                throw new FormatException( String.Format( "Could not parse value as {0}", ValueType.Name ) );
             }
         }
     }

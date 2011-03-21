@@ -787,13 +787,10 @@ namespace fCraft.Events {
     public sealed class PlayerMovingEventArgs : PlayerEventArgs {
         internal PlayerMovingEventArgs( Player player, Position newPos )
             : base( player ) {
+            OldPosition = player.Position;
             NewPosition = newPos;
         }
-        public Position OldPosition {
-            get {
-                return Player.Position;
-            }
-        }
+        public Position OldPosition { get; private set; }
         public Position NewPosition { get; set; }
         public bool Cancel { get; set; }
     }
@@ -803,14 +800,11 @@ namespace fCraft.Events {
         internal PlayerMovedEventArgs( Player player, Position oldPos )
             : base( player ) {
             OldPosition = oldPos;
+            NewPosition = player.Position;
         }
 
         public Position OldPosition { get; private set; }
-        public Position NewPosition {
-            get {
-                return Player.Position;
-            }
-        }
+        public Position NewPosition { get; private set; }
     }
 
 

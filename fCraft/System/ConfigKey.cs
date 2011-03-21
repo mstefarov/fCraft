@@ -9,28 +9,28 @@ namespace fCraft {
     public enum ConfigKey {
         #region General
 
-        [StringKey( "Custom Minecraft Server (fCraft)", ConfigSection.General, MinLength = 1, MaxLength = 64 )]
+        [StringKey( ConfigSection.General, "Custom Minecraft Server (fCraft)", MinLength = 1, MaxLength = 64 )]
         ServerName,
 
-        [StringKey( "Welcome to the server!", ConfigSection.General, MinLength = 0, MaxLength = 64 )]
+        [StringKey( ConfigSection.General, "Welcome to the server!", MinLength = 0, MaxLength = 64 )]
         MOTD,
 
-        [IntKey( 20, ConfigSection.General, MinValue = 1, MaxValue = 128 )]
+        [IntKey( ConfigSection.General, 20, MinValue = 1, MaxValue = 128 )]
         MaxPlayers,
 
         [RankKey( RankKeyAttribute.BlankValueMeaning.LowestRank, ConfigSection.General )]
         DefaultRank,
 
-        [BoolKey( false, ConfigSection.General )]
+        [BoolKey( ConfigSection.General, false )]
         IsPublic,
 
-        [IntKey( 25565, ConfigSection.General, MinValue = 1, MaxValue = 65535 )]
+        [IntKey( ConfigSection.General, 25565, MinValue = 1, MaxValue = 65535 )]
         Port,
 
-        [IPKey( IPKeyAttribute.BlankValueMeaning.Any, ConfigSection.General )]
+        [IPKey( ConfigSection.General, IPKeyAttribute.BlankValueMeaning.Any )]
         IP,
 
-        [IntKey( 100, ConfigSection.General, MinValue = 1, MaxValue = short.MaxValue )]
+        [IntKey( ConfigSection.General, 100, MinValue = 1, MaxValue = short.MaxValue )]
         UploadBandwidth,
 
         #endregion
@@ -41,7 +41,7 @@ namespace fCraft {
         [RankKey( RankKeyAttribute.BlankValueMeaning.DefaultRank, ConfigSection.Worlds )]
         DefaultBuildRank,
 
-        [StringKey( "maps", ConfigSection.Worlds )]
+        [StringKey( ConfigSection.Worlds, "maps" )]
         MapPath,
 
         #endregion
@@ -49,49 +49,49 @@ namespace fCraft {
 
         #region Chat
 
-        [BoolKey( true, ConfigSection.Chat )]
+        [BoolKey( ConfigSection.Chat, true )]
         RankColorsInChat,
 
-        [BoolKey( true, ConfigSection.Chat )]
+        [BoolKey( ConfigSection.Chat, true )]
         RankColorsInWorldNames,
 
-        [BoolKey( false, ConfigSection.Chat )]
+        [BoolKey( ConfigSection.Chat, false )]
         RankPrefixesInChat,
 
-        [BoolKey( false, ConfigSection.Chat )]
+        [BoolKey( ConfigSection.Chat, false )]
         RankPrefixesInList,
 
-        [BoolKey( true, ConfigSection.Chat )]
+        [BoolKey( ConfigSection.Chat, true )]
         ShowConnectionMessages,
 
-        [BoolKey( true, ConfigSection.Chat )]
+        [BoolKey( ConfigSection.Chat, true )]
         ShowBannedConnectionMessages,
 
-        [BoolKey( true, ConfigSection.Chat )]
+        [BoolKey( ConfigSection.Chat, true )]
         ShowJoinedWorldMessages,
 
-        [ColorKey( Color.SysDefault, ConfigSection.Chat )]
+        [ColorKey( ConfigSection.Chat, Color.SysDefault )]
         SystemMessageColor,
 
-        [ColorKey( Color.HelpDefault, ConfigSection.Chat )]
+        [ColorKey( ConfigSection.Chat, Color.HelpDefault )]
         HelpColor,
 
-        [ColorKey( Color.SayDefault, ConfigSection.Chat )]
+        [ColorKey( ConfigSection.Chat, Color.SayDefault )]
         SayColor,
 
-        [ColorKey( Color.AnnouncementDefault, ConfigSection.Chat )]
+        [ColorKey( ConfigSection.Chat, Color.AnnouncementDefault )]
         AnnouncementColor,
 
-        [ColorKey( Color.PMDefault, ConfigSection.Chat )]
+        [ColorKey( ConfigSection.Chat, Color.PMDefault )]
         PrivateMessageColor,
 
-        [ColorKey( Color.MeDefault, ConfigSection.Chat )]
+        [ColorKey( ConfigSection.Chat, Color.MeDefault )]
         MeColor,
 
-        [ColorKey( Color.WarningDefault, ConfigSection.Chat )]
+        [ColorKey( ConfigSection.Chat, Color.WarningDefault )]
         WarningColor,
 
-        [IntKey( 0, ConfigSection.Chat )]
+        [IntKey( ConfigSection.Chat, 0, AlwaysAllowZero = true )]
         AnnouncementInterval,
 
         #endregion
@@ -99,43 +99,43 @@ namespace fCraft {
 
         #region Security
 
-        [EnumKey( NameVerificationMode.Balanced, ConfigSection.Security )]
+        [EnumKey( ConfigSection.Security, NameVerificationMode.Balanced )]
         VerifyNames,
 
-        [BoolKey( false, ConfigSection.Security )]
+        [BoolKey( ConfigSection.Security, false )]
         LimitOneConnectionPerIP,
 
-        [BoolKey( false, ConfigSection.Security )]
+        [BoolKey( ConfigSection.Security, false )]
         AllowUnverifiedLAN,
 
         [RankKey( RankKeyAttribute.BlankValueMeaning.DefaultRank, ConfigSection.Security )]
         PatrolledRank,
 
-        [IntKey( 4, ConfigSection.Security, MinValue = 2, MaxValue = 64 )]
+        [IntKey( ConfigSection.Security, 4, AlwaysAllowZero = true, MinValue = 2, MaxValue = 64 )]
         AntispamMessageCount,
 
-        [IntKey( 5, ConfigSection.Security, MinValue = 0, MaxValue = 64 )]
+        [IntKey( ConfigSection.Security, 5, AlwaysAllowZero = true, MinValue = 1, MaxValue = 64 )]
         AntispamInterval,
 
-        [IntKey( 5, ConfigSection.Security, MinValue = 0, MaxValue = 36000 )]
+        [IntKey( ConfigSection.Security, 5, MinValue = 0, MaxValue = 36000 )]
         AntispamMuteDuration,
 
-        [IntKey( 2, ConfigSection.Security, MinValue = 0, MaxValue = 64 )]
+        [IntKey( ConfigSection.Security, 2, MinValue = 0, MaxValue = 64 )]
         AntispamMaxWarnings,
 
-        [BoolKey( false, ConfigSection.Security )]
+        [BoolKey( ConfigSection.Security, false )]
         PaidPlayersOnly,
 
-        [BoolKey( false, ConfigSection.Security )]
+        [BoolKey( ConfigSection.Security, false )]
         RequireBanReason,
 
-        [BoolKey( false, ConfigSection.Security )]
+        [BoolKey( ConfigSection.Security, false )]
         RequireRankChangeReason,
 
-        [BoolKey( true, ConfigSection.Security )]
+        [BoolKey( ConfigSection.Security, true )]
         AnnounceKickAndBanReasons,
 
-        [BoolKey( true, ConfigSection.Security )]
+        [BoolKey( ConfigSection.Security, true )]
         AnnounceRankChanges,
 
         #endregion
@@ -143,28 +143,28 @@ namespace fCraft {
 
         #region Saving and Backup
 
-        [BoolKey( true, ConfigSection.SavingAndBackup )]
+        [BoolKey( ConfigSection.SavingAndBackup, true )]
         SaveOnShutdown,
 
-        [IntKey( 90, ConfigSection.SavingAndBackup )]
+        [IntKey( ConfigSection.SavingAndBackup, 90, AlwaysAllowZero = true, MinValue = 10 )]
         SaveInterval,
 
-        [BoolKey( true, ConfigSection.SavingAndBackup )]
+        [BoolKey( ConfigSection.SavingAndBackup, true )]
         BackupOnStartup,
 
-        [BoolKey( true, ConfigSection.SavingAndBackup )]
+        [BoolKey( ConfigSection.SavingAndBackup, false )]
         BackupOnJoin,
 
-        [BoolKey( true, ConfigSection.SavingAndBackup )]
+        [BoolKey( ConfigSection.SavingAndBackup, true )]
         BackupOnlyWhenChanged,
 
-        [IntKey( 20, ConfigSection.SavingAndBackup )]
+        [IntKey( ConfigSection.SavingAndBackup, 20, AlwaysAllowZero = true, MinValue = 1 )]
         BackupInterval,
 
-        [IntKey( 0, ConfigSection.SavingAndBackup )]
+        [IntKey( ConfigSection.SavingAndBackup, 0 )]
         MaxBackups,
 
-        [IntKey( 0, ConfigSection.SavingAndBackup )]
+        [IntKey( ConfigSection.SavingAndBackup, 0 )]
         MaxBackupSize, // in megabytes
 
         #endregion
@@ -172,10 +172,10 @@ namespace fCraft {
 
         #region Logging
 
-        [EnumKey( LogSplittingType.OneFile, ConfigSection.Logging )]
+        [EnumKey( ConfigSection.Logging, LogSplittingType.OneFile )]
         LogMode,
 
-        [IntKey( 0, ConfigSection.Logging )]
+        [IntKey( ConfigSection.Logging, 0 )]
         MaxLogs,
 
         #endregion
@@ -183,55 +183,55 @@ namespace fCraft {
 
         #region IRC
 
-        [BoolKey( false, ConfigSection.IRC )]
+        [BoolKey( ConfigSection.IRC, false )]
         IRCBotEnabled,
 
-        [StringKey( "MinecraftBot", ConfigSection.IRC, MinLength = 1, MaxLength = 32 )]
+        [StringKey( ConfigSection.IRC, "MinecraftBot", MinLength = 1, MaxLength = 32 )]
         IRCBotNick,
 
-        [StringKey( "irc.esper.net", ConfigSection.IRC )]
+        [StringKey( ConfigSection.IRC, "irc.esper.net" )]
         IRCBotNetwork,
 
-        [IntKey( 6667, ConfigSection.IRC, MinValue = 1, MaxValue = 65535 )]
+        [IntKey( ConfigSection.IRC, 6667, MinValue = 1, MaxValue = 65535 )]
         IRCBotPort,
 
-        [StringKey( "#changeme", ConfigSection.IRC )]
+        [StringKey( ConfigSection.IRC, "#changeme" )]
         IRCBotChannels,
 
-        [BoolKey( false, ConfigSection.IRC )]
+        [BoolKey( ConfigSection.IRC, false )]
         IRCBotForwardFromServer,
 
-        [BoolKey( false, ConfigSection.IRC )]
+        [BoolKey( ConfigSection.IRC, false )]
         IRCBotForwardFromIRC,
 
-        [BoolKey( false, ConfigSection.IRC )]
+        [BoolKey( ConfigSection.IRC, false )]
         IRCBotAnnounceServerJoins,
 
-        [BoolKey( false, ConfigSection.IRC )]
+        [BoolKey( ConfigSection.IRC, false )]
         IRCBotAnnounceIRCJoins,
 
-        [BoolKey( false, ConfigSection.IRC )]
+        [BoolKey( ConfigSection.IRC, false )]
         IRCBotAnnounceServerEvents,
 
-        [BoolKey( false, ConfigSection.IRC )]
+        [BoolKey( ConfigSection.IRC, false )]
         IRCRegisteredNick,
 
-        [StringKey( "NickServ", ConfigSection.IRC, MinLength = 1, MaxLength = 32 )]
+        [StringKey( ConfigSection.IRC, "NickServ", MinLength = 1, MaxLength = 32 )]
         IRCNickServ,
 
-        [StringKey( "IDENTIFY passwordGoesHere", ConfigSection.IRC )]
+        [StringKey( ConfigSection.IRC, "IDENTIFY passwordGoesHere" )]
         IRCNickServMessage,
 
-        [ColorKey( Color.IRCDefault, ConfigSection.IRC )]
+        [ColorKey( ConfigSection.IRC, Color.IRCDefault )]
         IRCMessageColor,
 
-        [IntKey( 750, ConfigSection.IRC, MinValue = 0 )]
+        [IntKey( ConfigSection.IRC, 750, MinValue = 0 )]
         IRCDelay,
 
-        [IntKey( 1, ConfigSection.IRC, MinValue = 1 )]
+        [IntKey( ConfigSection.IRC, 1, MinValue = 1 )]
         IRCThreads,
 
-        [BoolKey( true, ConfigSection.IRC )]
+        [BoolKey( ConfigSection.IRC, true )]
         IRCUseColor,
 
         #endregion
@@ -239,43 +239,43 @@ namespace fCraft {
 
         #region Advanced
 
-        [BoolKey( false, ConfigSection.Advanced )]
+        [BoolKey( ConfigSection.Advanced, false )]
         RelayAllBlockUpdates,
 
-        [EnumKey( UpdaterMode.Prompt, ConfigSection.Advanced )]
+        [EnumKey( ConfigSection.Advanced, UpdaterMode.Prompt )]
         UpdateMode,
 
-        [BoolKey( false, ConfigSection.Advanced )]
+        [BoolKey( ConfigSection.Advanced, false )]
         UpdateAtStartup,
 
-        [BoolKey( false, ConfigSection.Advanced )]
+        [BoolKey( ConfigSection.Advanced, false )]
         NoPartialPositionUpdates,
 
-        [EnumKey( ProcessPriorityClass.Normal, ConfigSection.Advanced, NotBlank = false )]
+        [EnumKey( ConfigSection.Advanced, ProcessPriorityClass.Normal, NotBlank = false )]
         ProcessPriority,
 
-        [IntKey( 2048, ConfigSection.Advanced, MinValue = 10 )]
+        [IntKey( ConfigSection.Advanced, 2048, MinValue = 10 )]
         BlockUpdateThrottling,
 
-        [IntKey( 100, ConfigSection.Advanced, MinValue = 10, MaxValue = 10000 )]
+        [IntKey( ConfigSection.Advanced, 100, MinValue = 10, MaxValue = 10000 )]
         TickInterval,
 
-        [BoolKey( false, ConfigSection.Advanced )]
+        [BoolKey( ConfigSection.Advanced, false )]
         LowLatencyMode,
 
-        [BoolKey( true, ConfigSection.Advanced )]
+        [BoolKey( ConfigSection.Advanced, true )]
         SubmitCrashReports,
 
-        [IntKey( 2000000, ConfigSection.Advanced, MinValue = 0 )]
+        [IntKey( ConfigSection.Advanced, 2000000, AlwaysAllowZero = true, MinValue = 1 )]
         MaxUndo,
 
-        [StringKey( "(console)", ConfigSection.Advanced, MinLength = 1, MaxLength = 64 )]
+        [StringKey( ConfigSection.Advanced, "(console)", MinLength = 1, MaxLength = 64 )]
         ConsoleName,
 
-        [BoolKey( false, ConfigSection.Advanced )]
+        [BoolKey( ConfigSection.Advanced, false )]
         AutoRankEnabled,
 
-        [BoolKey( true, ConfigSection.Advanced )]
+        [BoolKey( ConfigSection.Advanced, true )]
         HeartbeatEnabled
 
         #endregion
