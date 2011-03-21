@@ -112,7 +112,7 @@ namespace fCraft {
         }
 
         public static int GetIndex( Rank rank ) {
-            return ( rank == null ) ? 0 : ( rank.Index + 1 );
+            return (rank == null) ? 0 : (rank.Index + 1);
         }
 
 
@@ -120,10 +120,10 @@ namespace fCraft {
             bool rankLimitsChanged = false;
             Ranks.Remove( deletedRank );
             RanksByName.Remove( deletedRank.Name.ToLower() );
-            RanksByID.Remove(deletedRank.ID);
+            RanksByID.Remove( deletedRank.ID );
             LegacyRankMapping.Add( deletedRank.ID, replacementRank.ID );
             foreach( Rank rank in Ranks ) {
-                for( int i=0; i<rank.PermissionLimits.Length; i++){
+                for( int i = 0; i < rank.PermissionLimits.Length; i++ ) {
                     if( rank.GetLimit( (Permission)i ) == deletedRank ) {
                         rank.ResetLimit( (Permission)i );
                         rankLimitsChanged = true;

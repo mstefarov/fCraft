@@ -55,7 +55,7 @@ namespace fCraft {
                 throw new RankDefinitionException( "Rank definition with no name was ignored." );
 
             } else if( !IsValidRankName( attr.Value.Trim() ) ) {
-                throw new RankDefinitionException( "Invalid name specified for rank \"{0}\". "+
+                throw new RankDefinitionException( "Invalid name specified for rank \"{0}\". " +
                                                    "Rank names can only contain letters, digits, and underscores. " +
                                                    "Rank definition was ignored.", Name );
 
@@ -72,8 +72,8 @@ namespace fCraft {
                 ID = RankList.GenerateID();
 
             } else if( !IsValidID( attr.Value.Trim() ) ) {
-                throw new RankDefinitionException( "Invalid ID specified for rank \"{0}\". "+
-                                                   "ID must be alphanumeric, and exactly 16 characters long. "+
+                throw new RankDefinitionException( "Invalid ID specified for rank \"{0}\". " +
+                                                   "ID must be alphanumeric, and exactly 16 characters long. " +
                                                    "Rank definition was ignored.", Name );
 
             } else {
@@ -83,7 +83,7 @@ namespace fCraft {
 
 
             // Rank
-            if( (attr = el.Attribute( "rank" )) != null  ) {
+            if( (attr = el.Attribute( "rank" )) != null ) {
                 Byte.TryParse( attr.Value, out LegacyNumericRank );
             }
 
@@ -196,7 +196,7 @@ namespace fCraft {
                 string permission = ((Permission)i).ToString();
                 if( (temp = el.Element( permission )) != null ) {
                     Permissions[i] = true;
-                    if ((attr = temp.Attribute( "max" )) != null){
+                    if( (attr = temp.Attribute( "max" )) != null ) {
                         PermissionLimitStrings[i] = attr.Value;
                     }
                 }
@@ -238,7 +238,7 @@ namespace fCraft {
                     temp = new XElement( ((Permission)i).ToString() );
 
                     if( PermissionLimits[i] != null ) {
-                        temp.Add( new XAttribute( "max", GetLimit((Permission)i) ) );
+                        temp.Add( new XAttribute( "max", GetLimit( (Permission)i ) ) );
                     }
                     rankTag.Add( temp );
                 }
@@ -275,7 +275,7 @@ namespace fCraft {
 
 
         public bool CanKick( Rank other ) {
-            return GetLimit(Permission.Kick) >= other;
+            return GetLimit( Permission.Kick ) >= other;
         }
 
         public bool CanBan( Rank other ) {
@@ -396,7 +396,7 @@ namespace fCraft {
             for( int i = 0; i < PermissionLimits.Length; i++ ) {
                 if( PermissionLimitStrings[i] == null ) continue;
                 SetLimit( (Permission)i, RankList.ParseRank( PermissionLimitStrings[i] ) );
-                ok &= (GetLimit((Permission)i) != null);
+                ok &= (GetLimit( (Permission)i ) != null);
             }
             return ok;
         }
