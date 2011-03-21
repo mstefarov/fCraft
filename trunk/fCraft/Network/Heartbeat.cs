@@ -69,7 +69,7 @@ namespace fCraft {
                 request.Method = "POST";
                 request.Timeout = HeartbeatTimeout;
                 request.ContentType = "application/x-www-form-urlencoded";
-                request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
+                request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
 
                 StringBuilder sb = new StringBuilder();
                 sb.AppendFormat( "public={0}&max={1}&users={2}&port={3}&version={4}&salt={5}&name={6}",
@@ -96,13 +96,13 @@ namespace fCraft {
                 const string tempFile = HeartbeatDataFileName + ".tmp";
 
                 File.WriteAllLines( tempFile, new[]{
-                                        Server.Salt,
-                                        Server.IP.ToString(),
-                                        Server.Port.ToString(),
-                                        Server.GetPlayerCount(false).ToString(),
-                                        ConfigKey.MaxPlayers.GetString(),
-                                        ConfigKey.ServerName.GetString(),
-                                        ConfigKey.IsPublic.GetString()
+                        Server.Salt,
+                        Server.IP.ToString(),
+                        Server.Port.ToString(),
+                        Server.GetPlayerCount(false).ToString(),
+                        ConfigKey.MaxPlayers.GetString(),
+                        ConfigKey.ServerName.GetString(),
+                        ConfigKey.IsPublic.GetString()
                     }, Encoding.ASCII );
                 if( File.Exists( HeartbeatDataFileName ) ) {
                     File.Replace( tempFile, HeartbeatDataFileName, null, true );

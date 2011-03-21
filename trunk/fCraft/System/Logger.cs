@@ -5,8 +5,10 @@ using System.IO;
 using System.Net;
 using System.Net.Cache;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Linq;
 using fCraft.Events;
 
 namespace fCraft {
@@ -294,7 +296,7 @@ namespace fCraft {
             if( File.Exists( TraceWhitelistFile ) ) {
                 useEventWhitelist = true;
                 eventWhitelist.AddRange( File.ReadAllLines( TraceWhitelistFile ) );
-            }else if( File.Exists( TraceBlacklistFile ) ) {
+            } else if( File.Exists( TraceBlacklistFile ) ) {
                 useEventBlacklist = true;
                 eventBlacklist.AddRange( File.ReadAllLines( TraceBlacklistFile ) );
             }
@@ -381,7 +383,14 @@ namespace fCraft {
                 if( prop.Name != prop.PropertyType.Name ) {
                     sb.Append( prop.Name ).Append( '=' );
                 }
-                sb.Append( prop.GetValue( e, null ) );
+                object val = prop.GetValue( e, null );
+                if( val == null ) {
+                    sb.Append( "null" );
+                } else if( val is string ) {
+                    sb.AppendFormat( "\"{0}\"", val );
+                } else {
+                    sb.Append( val );
+                }
                 first = false;
             }
 
