@@ -181,7 +181,9 @@ namespace fCraftUI {
 #endif
                     if( line.Equals( "/clear", StringComparison.OrdinalIgnoreCase ) ) {
                         logBox.Clear();
-                    } else {
+                    } else if(line.Equals("/credits", StringComparison.OrdinalIgnoreCase)){
+                        new AboutWindow().Show();
+                    }else{
                         Player.Console.ParseMessage( line, true );
                     }
 #if !DEBUG

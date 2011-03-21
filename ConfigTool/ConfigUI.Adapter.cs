@@ -355,95 +355,95 @@ namespace ConfigTool {
 
         void SaveConfig() {
             Config.errors = "";
-            Config.SetValue( ConfigKey.ServerName, tServerName.Text );
-            Config.SetValue( ConfigKey.MOTD, tMOTD.Text );
-            Config.SetValue( ConfigKey.MaxPlayers, nMaxPlayers.Value );
+            Config.TrySetValue( ConfigKey.ServerName, tServerName.Text );
+            Config.TrySetValue( ConfigKey.MOTD, tMOTD.Text );
+            Config.TrySetValue( ConfigKey.MaxPlayers, nMaxPlayers.Value );
             if( cDefaultRank.SelectedIndex == 0 ) {
-                Config.SetValue( ConfigKey.DefaultRank, "" );
+                Config.TrySetValue( ConfigKey.DefaultRank, "" );
             } else {
-                Config.SetValue( ConfigKey.DefaultRank, RankList.FindRank( cDefaultRank.SelectedIndex - 1 ) );
+                Config.TrySetValue( ConfigKey.DefaultRank, RankList.FindRank( cDefaultRank.SelectedIndex - 1 ) );
             }
-            Config.SetValue( ConfigKey.IsPublic, cPublic.SelectedIndex == 0 );
-            Config.SetValue( ConfigKey.Port, nPort.Value );
-            Config.SetValue( ConfigKey.IP, tIP.Text );
+            Config.TrySetValue( ConfigKey.IsPublic, cPublic.SelectedIndex == 0 );
+            Config.TrySetValue( ConfigKey.Port, nPort.Value );
+            Config.TrySetValue( ConfigKey.IP, tIP.Text );
 
-            Config.SetValue( ConfigKey.UploadBandwidth, nUploadBandwidth.Value );
+            Config.TrySetValue( ConfigKey.UploadBandwidth, nUploadBandwidth.Value );
 
-            if( xAnnouncements.Checked ) Config.SetValue( ConfigKey.AnnouncementInterval, nAnnouncements.Value );
-            else Config.SetValue( ConfigKey.AnnouncementInterval, 0 );
+            if( xAnnouncements.Checked ) Config.TrySetValue( ConfigKey.AnnouncementInterval, nAnnouncements.Value );
+            else Config.TrySetValue( ConfigKey.AnnouncementInterval, 0 );
 
 
             // Chat
-            Config.SetValue( ConfigKey.SystemMessageColor, Color.GetName( colorSys ) );
-            Config.SetValue( ConfigKey.HelpColor, Color.GetName( colorHelp ) );
-            Config.SetValue( ConfigKey.SayColor, Color.GetName( colorSay ) );
-            Config.SetValue( ConfigKey.AnnouncementColor, Color.GetName( colorAnnouncement ) );
-            Config.SetValue( ConfigKey.PrivateMessageColor, Color.GetName( colorPM ) );
-            Config.SetValue( ConfigKey.WarningColor, Color.GetName( colorWarning ) );
-            Config.SetValue( ConfigKey.MeColor, Color.GetName( colorMe ) );
-            Config.SetValue( ConfigKey.ShowJoinedWorldMessages, xShowJoinedWorldMessages.Checked );
-            Config.SetValue( ConfigKey.RankColorsInWorldNames, xRankColorsInWorldNames.Checked );
-            Config.SetValue( ConfigKey.RankColorsInChat, xRankColors.Checked );
-            Config.SetValue( ConfigKey.RankPrefixesInChat, xChatPrefixes.Checked );
-            Config.SetValue( ConfigKey.RankPrefixesInList, xListPrefixes.Checked );
+            Config.TrySetValue( ConfigKey.SystemMessageColor, Color.GetName( colorSys ) );
+            Config.TrySetValue( ConfigKey.HelpColor, Color.GetName( colorHelp ) );
+            Config.TrySetValue( ConfigKey.SayColor, Color.GetName( colorSay ) );
+            Config.TrySetValue( ConfigKey.AnnouncementColor, Color.GetName( colorAnnouncement ) );
+            Config.TrySetValue( ConfigKey.PrivateMessageColor, Color.GetName( colorPM ) );
+            Config.TrySetValue( ConfigKey.WarningColor, Color.GetName( colorWarning ) );
+            Config.TrySetValue( ConfigKey.MeColor, Color.GetName( colorMe ) );
+            Config.TrySetValue( ConfigKey.ShowJoinedWorldMessages, xShowJoinedWorldMessages.Checked );
+            Config.TrySetValue( ConfigKey.RankColorsInWorldNames, xRankColorsInWorldNames.Checked );
+            Config.TrySetValue( ConfigKey.RankColorsInChat, xRankColors.Checked );
+            Config.TrySetValue( ConfigKey.RankPrefixesInChat, xChatPrefixes.Checked );
+            Config.TrySetValue( ConfigKey.RankPrefixesInList, xListPrefixes.Checked );
 
 
             // Worlds
             if( cDefaultBuildRank.SelectedIndex == 0 ) {
-                Config.SetValue( ConfigKey.DefaultBuildRank, "" );
+                Config.TrySetValue( ConfigKey.DefaultBuildRank, "" );
             } else {
-                Config.SetValue( ConfigKey.DefaultBuildRank, RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 ) );
+                Config.TrySetValue( ConfigKey.DefaultBuildRank, RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 ) );
             }
 
-            if( xMapPath.Checked ) Config.SetValue( ConfigKey.MapPath, tMapPath.Text );
-            else Config.SetValue( ConfigKey.MapPath, "" );
+            if( xMapPath.Checked ) Config.TrySetValue( ConfigKey.MapPath, tMapPath.Text );
+            else Config.TrySetValue( ConfigKey.MapPath, "" );
 
 
             // Security
             WriteEnum<NameVerificationMode>( cVerifyNames, ConfigKey.VerifyNames );
-            Config.SetValue( ConfigKey.LimitOneConnectionPerIP, xLimitOneConnectionPerIP.Checked );
-            Config.SetValue( ConfigKey.AllowUnverifiedLAN, xAllowUnverifiedLAN.Checked );
+            Config.TrySetValue( ConfigKey.LimitOneConnectionPerIP, xLimitOneConnectionPerIP.Checked );
+            Config.TrySetValue( ConfigKey.AllowUnverifiedLAN, xAllowUnverifiedLAN.Checked );
 
-            Config.SetValue( ConfigKey.AntispamMessageCount, nSpamChatCount.Value );
-            Config.SetValue( ConfigKey.AntispamInterval, nSpamChatTimer.Value );
-            Config.SetValue( ConfigKey.AntispamMuteDuration, nSpamMute.Value );
+            Config.TrySetValue( ConfigKey.AntispamMessageCount, nSpamChatCount.Value );
+            Config.TrySetValue( ConfigKey.AntispamInterval, nSpamChatTimer.Value );
+            Config.TrySetValue( ConfigKey.AntispamMuteDuration, nSpamMute.Value );
 
-            if( xSpamChatKick.Checked ) Config.SetValue( ConfigKey.AntispamMaxWarnings, nSpamChatWarnings.Value );
-            else Config.SetValue( ConfigKey.AntispamMaxWarnings, 0 );
+            if( xSpamChatKick.Checked ) Config.TrySetValue( ConfigKey.AntispamMaxWarnings, nSpamChatWarnings.Value );
+            else Config.TrySetValue( ConfigKey.AntispamMaxWarnings, 0 );
 
-            Config.SetValue( ConfigKey.RequireBanReason, xRequireBanReason.Checked );
-            Config.SetValue( ConfigKey.RequireRankChangeReason, xRequireRankChangeReason.Checked );
-            Config.SetValue( ConfigKey.AnnounceKickAndBanReasons, xAnnounceKickAndBanReasons.Checked );
-            Config.SetValue( ConfigKey.AnnounceRankChanges, xAnnounceRankChanges.Checked );
+            Config.TrySetValue( ConfigKey.RequireBanReason, xRequireBanReason.Checked );
+            Config.TrySetValue( ConfigKey.RequireRankChangeReason, xRequireRankChangeReason.Checked );
+            Config.TrySetValue( ConfigKey.AnnounceKickAndBanReasons, xAnnounceKickAndBanReasons.Checked );
+            Config.TrySetValue( ConfigKey.AnnounceRankChanges, xAnnounceRankChanges.Checked );
 
             if( cPatrolledRank.SelectedIndex == 0 ) {
-                Config.SetValue( ConfigKey.PatrolledRank, "" );
+                Config.TrySetValue( ConfigKey.PatrolledRank, "" );
             } else {
-                Config.SetValue( ConfigKey.PatrolledRank, RankList.FindRank( cPatrolledRank.SelectedIndex - 1 ) );
+                Config.TrySetValue( ConfigKey.PatrolledRank, RankList.FindRank( cPatrolledRank.SelectedIndex - 1 ) );
             }
-            Config.SetValue( ConfigKey.PaidPlayersOnly, xPaidPlayersOnly.Checked );
+            Config.TrySetValue( ConfigKey.PaidPlayersOnly, xPaidPlayersOnly.Checked );
 
 
             // Saving & Backups
-            Config.SetValue( ConfigKey.SaveOnShutdown, xSaveOnShutdown.Checked );
-            if( xSaveInterval.Checked ) Config.SetValue( ConfigKey.SaveInterval, nSaveInterval.Value );
-            else Config.SetValue( ConfigKey.SaveInterval, 0 );
-            Config.SetValue( ConfigKey.BackupOnStartup, xBackupOnStartup.Checked );
-            Config.SetValue( ConfigKey.BackupOnJoin, xBackupOnJoin.Checked );
-            Config.SetValue( ConfigKey.BackupOnlyWhenChanged, xBackupOnlyWhenChanged.Checked );
+            Config.TrySetValue( ConfigKey.SaveOnShutdown, xSaveOnShutdown.Checked );
+            if( xSaveInterval.Checked ) Config.TrySetValue( ConfigKey.SaveInterval, nSaveInterval.Value );
+            else Config.TrySetValue( ConfigKey.SaveInterval, 0 );
+            Config.TrySetValue( ConfigKey.BackupOnStartup, xBackupOnStartup.Checked );
+            Config.TrySetValue( ConfigKey.BackupOnJoin, xBackupOnJoin.Checked );
+            Config.TrySetValue( ConfigKey.BackupOnlyWhenChanged, xBackupOnlyWhenChanged.Checked );
 
-            if( xBackupInterval.Checked ) Config.SetValue( ConfigKey.BackupInterval, nBackupInterval.Value );
-            else Config.SetValue( ConfigKey.BackupInterval, 0 );
-            if( xMaxBackups.Checked ) Config.SetValue( ConfigKey.MaxBackups, nMaxBackups.Value );
-            else Config.SetValue( ConfigKey.MaxBackups, 0 );
-            if( xMaxBackupSize.Checked ) Config.SetValue( ConfigKey.MaxBackupSize, nMaxBackupSize.Value );
-            else Config.SetValue( ConfigKey.MaxBackupSize, 0 );
+            if( xBackupInterval.Checked ) Config.TrySetValue( ConfigKey.BackupInterval, nBackupInterval.Value );
+            else Config.TrySetValue( ConfigKey.BackupInterval, 0 );
+            if( xMaxBackups.Checked ) Config.TrySetValue( ConfigKey.MaxBackups, nMaxBackups.Value );
+            else Config.TrySetValue( ConfigKey.MaxBackups, 0 );
+            if( xMaxBackupSize.Checked ) Config.TrySetValue( ConfigKey.MaxBackupSize, nMaxBackupSize.Value );
+            else Config.TrySetValue( ConfigKey.MaxBackupSize, 0 );
 
 
             // Logging
             WriteEnum<LogSplittingType>( cLogMode, ConfigKey.LogMode );
-            if( xLogLimit.Checked ) Config.SetValue( ConfigKey.MaxLogs, nLogLimit.Value );
-            else Config.SetValue( ConfigKey.MaxLogs, "0" );
+            if( xLogLimit.Checked ) Config.TrySetValue( ConfigKey.MaxLogs, nLogLimit.Value );
+            else Config.TrySetValue( ConfigKey.MaxLogs, "0" );
             foreach( ListViewItem item in vConsoleOptions.Items ) {
                 Logger.ConsoleOptions[item.Index] = item.Checked;
             }
@@ -453,60 +453,60 @@ namespace ConfigTool {
 
 
             // IRC
-            Config.SetValue( ConfigKey.IRCBotEnabled, xIRC.Checked );
+            Config.TrySetValue( ConfigKey.IRCBotEnabled, xIRC.Checked );
 
-            Config.SetValue( ConfigKey.IRCBotNetwork, tIRCBotNetwork.Text );
-            Config.SetValue( ConfigKey.IRCBotPort, nIRCBotPort.Value );
-            Config.SetValue( ConfigKey.IRCDelay, nIRCDelay.Value );
+            Config.TrySetValue( ConfigKey.IRCBotNetwork, tIRCBotNetwork.Text );
+            Config.TrySetValue( ConfigKey.IRCBotPort, nIRCBotPort.Value );
+            Config.TrySetValue( ConfigKey.IRCDelay, nIRCDelay.Value );
 
-            Config.SetValue( ConfigKey.IRCBotChannels, tIRCBotChannels.Text );
+            Config.TrySetValue( ConfigKey.IRCBotChannels, tIRCBotChannels.Text );
 
-            Config.SetValue( ConfigKey.IRCBotNick, tIRCBotNick.Text );
-            Config.SetValue( ConfigKey.IRCRegisteredNick, xIRCRegisteredNick.Checked );
-            Config.SetValue( ConfigKey.IRCNickServ, tIRCNickServ.Text );
-            Config.SetValue( ConfigKey.IRCNickServMessage, tIRCNickServMessage.Text );
+            Config.TrySetValue( ConfigKey.IRCBotNick, tIRCBotNick.Text );
+            Config.TrySetValue( ConfigKey.IRCRegisteredNick, xIRCRegisteredNick.Checked );
+            Config.TrySetValue( ConfigKey.IRCNickServ, tIRCNickServ.Text );
+            Config.TrySetValue( ConfigKey.IRCNickServMessage, tIRCNickServMessage.Text );
 
-            Config.SetValue( ConfigKey.IRCBotAnnounceIRCJoins, xIRCBotAnnounceIRCJoins.Checked );
-            Config.SetValue( ConfigKey.IRCBotAnnounceServerJoins, xIRCBotAnnounceServerJoins.Checked );
-            Config.SetValue( ConfigKey.IRCBotAnnounceServerEvents, xIRCBotAnnounceServerEvents.Checked );
-            Config.SetValue( ConfigKey.IRCBotForwardFromIRC, xIRCBotForwardFromIRC.Checked );
-            Config.SetValue( ConfigKey.IRCBotForwardFromServer, xIRCBotForwardFromServer.Checked );
+            Config.TrySetValue( ConfigKey.IRCBotAnnounceIRCJoins, xIRCBotAnnounceIRCJoins.Checked );
+            Config.TrySetValue( ConfigKey.IRCBotAnnounceServerJoins, xIRCBotAnnounceServerJoins.Checked );
+            Config.TrySetValue( ConfigKey.IRCBotAnnounceServerEvents, xIRCBotAnnounceServerEvents.Checked );
+            Config.TrySetValue( ConfigKey.IRCBotForwardFromIRC, xIRCBotForwardFromIRC.Checked );
+            Config.TrySetValue( ConfigKey.IRCBotForwardFromServer, xIRCBotForwardFromServer.Checked );
 
-            Config.SetValue( ConfigKey.IRCMessageColor, Color.GetName( colorIRC ) );
-            Config.SetValue( ConfigKey.IRCUseColor, xIRCUseColor.Checked );
+            Config.TrySetValue( ConfigKey.IRCMessageColor, Color.GetName( colorIRC ) );
+            Config.TrySetValue( ConfigKey.IRCUseColor, xIRCUseColor.Checked );
 
 
             // advanced
-            Config.SetValue( ConfigKey.SubmitCrashReports, xSubmitCrashReports.Checked );
+            Config.TrySetValue( ConfigKey.SubmitCrashReports, xSubmitCrashReports.Checked );
             WriteEnum<UpdaterMode>( cUpdater, ConfigKey.UpdateMode );
 
-            Config.SetValue( ConfigKey.RelayAllBlockUpdates, xRelayAllBlockUpdates.Checked );
-            Config.SetValue( ConfigKey.NoPartialPositionUpdates, xNoPartialPositionUpdates.Checked );
-            Config.SetValue( ConfigKey.TickInterval, Convert.ToInt32( nTickInterval.Value ) );
+            Config.TrySetValue( ConfigKey.RelayAllBlockUpdates, xRelayAllBlockUpdates.Checked );
+            Config.TrySetValue( ConfigKey.NoPartialPositionUpdates, xNoPartialPositionUpdates.Checked );
+            Config.TrySetValue( ConfigKey.TickInterval, Convert.ToInt32( nTickInterval.Value ) );
 
             switch( cProcessPriority.SelectedIndex ) {
                 case 0:
                     ConfigKey.ProcessPriority.ResetValue(); break;
                 case 1:
-                    ConfigKey.ProcessPriority.SetValue( ProcessPriorityClass.High ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.High ); break;
                 case 2:
-                    ConfigKey.ProcessPriority.SetValue( ProcessPriorityClass.AboveNormal ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.AboveNormal ); break;
                 case 3:
-                    ConfigKey.ProcessPriority.SetValue( ProcessPriorityClass.Normal ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.Normal ); break;
                 case 4:
-                    ConfigKey.ProcessPriority.SetValue( ProcessPriorityClass.BelowNormal ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.BelowNormal ); break;
                 case 5:
-                    ConfigKey.ProcessPriority.SetValue( ProcessPriorityClass.Idle ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.Idle ); break;
             }
 
-            Config.SetValue( ConfigKey.BlockUpdateThrottling, Convert.ToInt32( nThrottling.Value ) );
+            Config.TrySetValue( ConfigKey.BlockUpdateThrottling, Convert.ToInt32( nThrottling.Value ) );
 
-            Config.SetValue( ConfigKey.LowLatencyMode, xLowLatencyMode.Checked );
+            Config.TrySetValue( ConfigKey.LowLatencyMode, xLowLatencyMode.Checked );
 
-            if( xMaxUndo.Checked ) Config.SetValue( ConfigKey.MaxUndo, Convert.ToInt32( nMaxUndo.Value ) );
-            else Config.SetValue( ConfigKey.MaxUndo, 0 );
+            if( xMaxUndo.Checked ) Config.TrySetValue( ConfigKey.MaxUndo, Convert.ToInt32( nMaxUndo.Value ) );
+            else Config.TrySetValue( ConfigKey.MaxUndo, 0 );
 
-            Config.SetValue( ConfigKey.ConsoleName, tConsoleName.Text );
+            Config.TrySetValue( ConfigKey.ConsoleName, tConsoleName.Text );
 
             SaveWorldList();
         }
@@ -542,7 +542,7 @@ namespace ConfigTool {
 #endif
             try {
                 TEnum val = (TEnum)Enum.Parse( typeof( TEnum ), box.SelectedIndex.ToString(), true );
-                Config.SetValue( key, val );
+                Config.TrySetValue( key, val );
             } catch( ArgumentException ) {
                 Logger.Log( "ConfigUI.WriteEnum<{0}>: Could not parse value for {1}. Using default ({2}).", LogType.Error,
                             typeof( TEnum ).Name, key, key.GetString() );

@@ -163,7 +163,7 @@ namespace fCraft {
             if( CreatedBy != null ) {
                 XElement created = new XElement( "created" );
                 created.Add( new XAttribute( "by", CreatedBy.Name ) );
-                created.Add( new XAttribute( "on", CreatedDate.ToCompactString()));
+                created.Add( new XAttribute( "on", CreatedDate.ToCompactString() ) );
                 root.Add( created );
             }
 

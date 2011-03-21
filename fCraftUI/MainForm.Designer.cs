@@ -29,8 +29,8 @@
             this.URLLabel = new System.Windows.Forms.Label();
             this.playerList = new System.Windows.Forms.ListBox();
             this.playerListLabel = new System.Windows.Forms.Label();
-            this.console = new fCraftUI.ConsoleBox();
             this.bPlay = new System.Windows.Forms.Button();
+            this.console = new fCraftUI.ConsoleBox();
             this.SuspendLayout();
             // 
             // logBox
@@ -45,7 +45,7 @@
             this.logBox.ReadOnly = true;
             this.logBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.logBox.Size = new System.Drawing.Size( 618, 403 );
-            this.logBox.TabIndex = 1;
+            this.logBox.TabIndex = 3;
             // 
             // urlDisplay
             // 
@@ -56,7 +56,7 @@
             this.urlDisplay.Name = "urlDisplay";
             this.urlDisplay.ReadOnly = true;
             this.urlDisplay.Size = new System.Drawing.Size( 481, 20 );
-            this.urlDisplay.TabIndex = 0;
+            this.urlDisplay.TabIndex = 1;
             this.urlDisplay.Text = "Waiting for first heartbeat...";
             this.urlDisplay.WordWrap = false;
             // 
@@ -67,7 +67,7 @@
             this.URLLabel.Location = new System.Drawing.Point( 12, 15 );
             this.URLLabel.Name = "URLLabel";
             this.URLLabel.Size = new System.Drawing.Size( 77, 13 );
-            this.URLLabel.TabIndex = 2;
+            this.URLLabel.TabIndex = 5;
             this.URLLabel.Text = "Server URL:";
             // 
             // playerList
@@ -89,17 +89,8 @@
             this.playerListLabel.Location = new System.Drawing.Point( 718, 15 );
             this.playerListLabel.Name = "playerListLabel";
             this.playerListLabel.Size = new System.Drawing.Size( 62, 13 );
-            this.playerListLabel.TabIndex = 5;
+            this.playerListLabel.TabIndex = 6;
             this.playerListLabel.Text = "Player list";
-            // 
-            // console
-            // 
-            this.console.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.console.Location = new System.Drawing.Point( 13, 448 );
-            this.console.Name = "console";
-            this.console.Size = new System.Drawing.Size( 767, 20 );
-            this.console.TabIndex = 6;
             // 
             // bPlay
             // 
@@ -108,10 +99,19 @@
             this.bPlay.Location = new System.Drawing.Point( 582, 10 );
             this.bPlay.Name = "bPlay";
             this.bPlay.Size = new System.Drawing.Size( 48, 23 );
-            this.bPlay.TabIndex = 7;
+            this.bPlay.TabIndex = 2;
             this.bPlay.Text = "Play";
             this.bPlay.UseVisualStyleBackColor = true;
             this.bPlay.Click += new System.EventHandler( this.bPlay_Click );
+            // 
+            // console
+            // 
+            this.console.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.console.Location = new System.Drawing.Point( 13, 448 );
+            this.console.Name = "console";
+            this.console.Size = new System.Drawing.Size( 767, 20 );
+            this.console.TabIndex = 0;
             // 
             // MainForm
             // 
