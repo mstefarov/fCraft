@@ -471,7 +471,7 @@ namespace fCraft {
             map.ResetSpawn();
 
             map.SetMeta( "_Origin", "GeneratorName", "fCraft" );
-            map.SetMeta( "_Origin", "GeneratorVersion", Updater.GetVersionString() );
+            map.SetMeta( "_Origin", "GeneratorVersion", Updater.CurrentRelease.VersionString );
             map.SetMeta( "_Origin", "GeneratorParams", args.Serialize().ToString( SaveOptions.DisableFormatting ) );
             return map;
         }
