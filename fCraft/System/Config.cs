@@ -451,7 +451,7 @@ namespace fCraft {
 
         #region Getters
 
-        public static bool IsEmpty( this ConfigKey key ) {
+        public static bool IsBlank( this ConfigKey key ) {
             return !Settings.ContainsKey( key ) || String.IsNullOrEmpty( Settings[key] );
         }
 

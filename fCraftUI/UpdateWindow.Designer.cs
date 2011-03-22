@@ -23,7 +23,6 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.changelog = new System.Windows.Forms.TextBox();
             this.lHeader = new System.Windows.Forms.Label();
             this.bCancel = new System.Windows.Forms.Button();
             this.bUpdateNow = new System.Windows.Forms.Button();
@@ -31,22 +30,9 @@
             this.progress = new System.Windows.Forms.ProgressBar();
             this.lProgress = new System.Windows.Forms.Label();
             this.lVersion = new System.Windows.Forms.Label();
+            this.tChangeLog = new System.Windows.Forms.TextBox();
+            this.xShowDetails = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
-            // 
-            // changelog
-            // 
-            this.changelog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.changelog.Font = new System.Drawing.Font( "Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.changelog.Location = new System.Drawing.Point( 12, 60 );
-            this.changelog.Multiline = true;
-            this.changelog.Name = "changelog";
-            this.changelog.ReadOnly = true;
-            this.changelog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.changelog.Size = new System.Drawing.Size( 476, 249 );
-            this.changelog.TabIndex = 0;
-            this.changelog.TabStop = false;
             // 
             // lHeader
             // 
@@ -62,7 +48,7 @@
             // 
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.bCancel.Location = new System.Drawing.Point( 388, 315 );
+            this.bCancel.Location = new System.Drawing.Point( 472, 279 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 23 );
             this.bCancel.TabIndex = 6;
@@ -73,7 +59,7 @@
             // bUpdateNow
             // 
             this.bUpdateNow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bUpdateNow.Location = new System.Drawing.Point( 176, 315 );
+            this.bUpdateNow.Location = new System.Drawing.Point( 260, 279 );
             this.bUpdateNow.Name = "bUpdateNow";
             this.bUpdateNow.Size = new System.Drawing.Size( 100, 23 );
             this.bUpdateNow.TabIndex = 7;
@@ -84,7 +70,7 @@
             // bUpdateLater
             // 
             this.bUpdateLater.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bUpdateLater.Location = new System.Drawing.Point( 282, 315 );
+            this.bUpdateLater.Location = new System.Drawing.Point( 366, 279 );
             this.bUpdateLater.Name = "bUpdateLater";
             this.bUpdateLater.Size = new System.Drawing.Size( 100, 23 );
             this.bUpdateLater.TabIndex = 8;
@@ -94,16 +80,16 @@
             // progress
             // 
             this.progress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.progress.Location = new System.Drawing.Point( 388, 12 );
+            this.progress.Location = new System.Drawing.Point( 436, 12 );
             this.progress.Name = "progress";
-            this.progress.Size = new System.Drawing.Size( 100, 23 );
+            this.progress.Size = new System.Drawing.Size( 136, 23 );
             this.progress.TabIndex = 1;
             // 
             // lProgress
             // 
             this.lProgress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lProgress.AutoSize = true;
-            this.lProgress.Location = new System.Drawing.Point( 385, 38 );
+            this.lProgress.Location = new System.Drawing.Point( 433, 38 );
             this.lProgress.Name = "lProgress";
             this.lProgress.Size = new System.Drawing.Size( 100, 13 );
             this.lProgress.TabIndex = 5;
@@ -119,13 +105,40 @@
             this.lVersion.Text = "Currently installed version: {0}\r\nNewest available version: {1} (released {2:0} d" +
                 "ays ago)";
             // 
+            // tChangeLog
+            // 
+            this.tChangeLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.tChangeLog.Location = new System.Drawing.Point( 12, 70 );
+            this.tChangeLog.Multiline = true;
+            this.tChangeLog.Name = "tChangeLog";
+            this.tChangeLog.ReadOnly = true;
+            this.tChangeLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.tChangeLog.Size = new System.Drawing.Size( 560, 203 );
+            this.tChangeLog.TabIndex = 12;
+            // 
+            // xShowDetails
+            // 
+            this.xShowDetails.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.xShowDetails.AutoSize = true;
+            this.xShowDetails.Location = new System.Drawing.Point( 12, 283 );
+            this.xShowDetails.Name = "xShowDetails";
+            this.xShowDetails.Size = new System.Drawing.Size( 86, 17 );
+            this.xShowDetails.TabIndex = 13;
+            this.xShowDetails.Text = "Show details";
+            this.xShowDetails.UseVisualStyleBackColor = true;
+            this.xShowDetails.CheckedChanged += new System.EventHandler( this.xShowDetails_CheckedChanged );
+            // 
             // UpdateWindow
             // 
             this.AcceptButton = this.bUpdateNow;
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.bCancel;
-            this.ClientSize = new System.Drawing.Size( 500, 350 );
+            this.ClientSize = new System.Drawing.Size( 584, 314 );
+            this.Controls.Add( this.xShowDetails );
+            this.Controls.Add( this.tChangeLog );
             this.Controls.Add( this.lVersion );
             this.Controls.Add( this.bUpdateLater );
             this.Controls.Add( this.bUpdateNow );
@@ -133,9 +146,9 @@
             this.Controls.Add( this.lProgress );
             this.Controls.Add( this.lHeader );
             this.Controls.Add( this.progress );
-            this.Controls.Add( this.changelog );
             this.MaximizeBox = false;
             this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size( 500, 130 );
             this.Name = "UpdateWindow";
             this.ShowIcon = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
@@ -148,7 +161,6 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox changelog;
         private System.Windows.Forms.Label lHeader;
         private System.Windows.Forms.Button bCancel;
         private System.Windows.Forms.Button bUpdateNow;
@@ -156,5 +168,7 @@
         private System.Windows.Forms.ProgressBar progress;
         private System.Windows.Forms.Label lProgress;
         private System.Windows.Forms.Label lVersion;
+        private System.Windows.Forms.TextBox tChangeLog;
+        private System.Windows.Forms.CheckBox xShowDetails;
     }
 }

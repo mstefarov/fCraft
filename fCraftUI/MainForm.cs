@@ -30,36 +30,37 @@ namespace fCraftUI {
 
             Server.InitLibrary( args );
 
-            //new UpdateWindow( new UpdaterResult { ChangeLog = "changelog goes here", DownloadLink = "www.derp.com", NewVersionNumber = Updater.Version + 1, ReleaseDate = DateTime.Now.AddDays( -1337 ), UpdateAvailable = true }, this, false ).ShowDialog();
-
 
 #if !DEBUG
             try {
 #endif
                 if( Server.InitServer() ) {
-                    Text = "fCraft " + Updater.GetVersionString() + " - " + ConfigKey.ServerName.GetString();
+                    Text = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
                     Application.DoEvents();
                     StartServer();
-                    //Application.DoEvents();
-                    //UpdaterResult update = Updater.CheckForUpdates();
-                    //Application.DoEvents();
 
-                    /*if( update.UpdateAvailable ) {
-                        if( ConfigKey.UpdateMode.GetEnum<AutoUpdaterMode>() == AutoUpdaterMode.Notify ) {
-                            Log( String.Format( Environment.NewLine +
+                    UpdaterResult update = Updater.CheckForUpdates();
+
+                    /*
+                    if( update.UpdateAvailable ) {
+                        new UpdateWindow( UpdaterResult.Test, this, false ).ShowDialog();
+                    }
+                        if( ConfigKey.UpdateMode.GetEnum<UpdaterMode>() == UpdaterMode.Notify ) {
+                            Logger.Log( String.Format( Environment.NewLine +
                                                 "*** A new version of fCraft is available: v{0}, released {1:0} day(s) ago. ***" +
                                                 Environment.NewLine,
-                                                update.GetVersionString(),
-                                                DateTime.Now.Subtract( update.ReleaseDate ).TotalDays ), LogType.ConsoleOutput );
+                                                update.LatestRelease.VersionString,
+                                                update.LatestRelease.Age.TotalDays), LogType.ConsoleOutput );
                             StartServer();
                         } else {
-                            bool auto = (ConfigKey.UpdateMode.GetEnum<AutoUpdaterMode>() == AutoUpdaterMode.Auto);
+                            bool auto = (ConfigKey.UpdateMode.GetEnum<UpdaterMode>() == UpdaterMode.Auto);
                             UpdateWindow updateWindow = new UpdateWindow( update, this, auto );
                             updateWindow.ShowDialog();
                         }
                     } else {
                         StartServer();
                     }*/
+                    StartServer();
                 } else {
                     Shutdown( "failed to initialize", false );
                 }
@@ -73,7 +74,7 @@ namespace fCraftUI {
 
 
         public void StartServer() {
-            if( !ConfigKey.ProcessPriority.IsEmpty() ) {
+            if( !ConfigKey.ProcessPriority.IsBlank() ) {
                 try {
                     Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
                 } catch( Exception ) {

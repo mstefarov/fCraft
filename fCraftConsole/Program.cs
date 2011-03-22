@@ -41,14 +41,14 @@ namespace fCraftConsole {
 #endif
                 if( Server.InitServer() ) {
 
-                    UpdaterResult update = Updater.CheckForUpdates();
+                    /*UpdaterResult update = Updater.CheckForUpdates();
                     if( update.UpdateAvailable ) {
                         Console.WriteLine( "** A new version of fCraft is available: {0}, released {1:0} day(s) ago. **",
-                                           update.GetVersionString(),
-                                           DateTime.Now.Subtract( update.ReleaseDate ).TotalDays );
-                    }
+                                           update.LatestRelease.VersionString,
+                                           update.LatestRelease.Age.TotalDays );
+                    }*/
 
-                    if( !ConfigKey.ProcessPriority.IsEmpty() ) {
+                    if( !ConfigKey.ProcessPriority.IsBlank() ) {
                         try {
                             Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
                         } catch( Exception ) {
@@ -57,8 +57,8 @@ namespace fCraftConsole {
                     }
 
                     if( Server.StartServer() ) {
-                        Console.Title = "fCraft " + Updater.GetVersionString() + " - " + ConfigKey.ServerName.GetString();
-                        Console.WriteLine( "** Running fCraft version {0}. **", Updater.GetVersionString() );
+                        Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
+                        Console.WriteLine( "** Running fCraft version {0}. **", Updater.CurrentRelease.VersionString );
                         Console.WriteLine( "** Server is now ready. Type /shutdown to exit safely. **" );
 
                         while( !Server.IsShuttingDown ) {
@@ -92,7 +92,7 @@ namespace fCraftConsole {
 
 
         static void ReportFailure( string failureReason ) {
-            Console.Title = String.Format( "fCraft {0} {1}", Updater.GetVersionString(), failureReason );
+            Console.Title = String.Format( "fCraft {0} {1}", Updater.CurrentRelease.VersionString, failureReason );
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine( "** {0} **", failureReason );
             Server.ShutdownNow( new ShutdownParams {

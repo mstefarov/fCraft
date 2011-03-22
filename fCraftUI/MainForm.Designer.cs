@@ -44,7 +44,7 @@
             this.logBox.Name = "logBox";
             this.logBox.ReadOnly = true;
             this.logBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.logBox.Size = new System.Drawing.Size( 618, 403 );
+            this.logBox.Size = new System.Drawing.Size( 610, 388 );
             this.logBox.TabIndex = 3;
             // 
             // urlDisplay
@@ -55,7 +55,7 @@
             this.urlDisplay.Location = new System.Drawing.Point( 95, 12 );
             this.urlDisplay.Name = "urlDisplay";
             this.urlDisplay.ReadOnly = true;
-            this.urlDisplay.Size = new System.Drawing.Size( 481, 20 );
+            this.urlDisplay.Size = new System.Drawing.Size( 473, 20 );
             this.urlDisplay.TabIndex = 1;
             this.urlDisplay.Text = "Waiting for first heartbeat...";
             this.urlDisplay.WordWrap = false;
@@ -76,9 +76,9 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.playerList.FormattingEnabled = true;
             this.playerList.IntegralHeight = false;
-            this.playerList.Location = new System.Drawing.Point( 636, 38 );
+            this.playerList.Location = new System.Drawing.Point( 628, 38 );
             this.playerList.Name = "playerList";
-            this.playerList.Size = new System.Drawing.Size( 144, 403 );
+            this.playerList.Size = new System.Drawing.Size( 144, 388 );
             this.playerList.TabIndex = 4;
             // 
             // playerListLabel
@@ -86,7 +86,7 @@
             this.playerListLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.playerListLabel.AutoSize = true;
             this.playerListLabel.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.playerListLabel.Location = new System.Drawing.Point( 718, 15 );
+            this.playerListLabel.Location = new System.Drawing.Point( 710, 15 );
             this.playerListLabel.Name = "playerListLabel";
             this.playerListLabel.Size = new System.Drawing.Size( 62, 13 );
             this.playerListLabel.TabIndex = 6;
@@ -96,7 +96,7 @@
             // 
             this.bPlay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.bPlay.Enabled = false;
-            this.bPlay.Location = new System.Drawing.Point( 582, 10 );
+            this.bPlay.Location = new System.Drawing.Point( 574, 10 );
             this.bPlay.Name = "bPlay";
             this.bPlay.Size = new System.Drawing.Size( 48, 23 );
             this.bPlay.TabIndex = 2;
@@ -108,16 +108,16 @@
             // 
             this.console.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.console.Location = new System.Drawing.Point( 13, 448 );
+            this.console.Location = new System.Drawing.Point( 13, 433 );
             this.console.Name = "console";
-            this.console.Size = new System.Drawing.Size( 767, 20 );
+            this.console.Size = new System.Drawing.Size( 759, 20 );
             this.console.TabIndex = 0;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 792, 479 );
+            this.ClientSize = new System.Drawing.Size( 784, 464 );
             this.Controls.Add( this.bPlay );
             this.Controls.Add( this.console );
             this.Controls.Add( this.playerListLabel );
@@ -126,6 +126,7 @@
             this.Controls.Add( this.urlDisplay );
             this.Controls.Add( this.logBox );
             this.Icon = ((System.Drawing.Icon)(resources.GetObject( "$this.Icon" )));
+            this.MinimumSize = new System.Drawing.Size( 500, 150 );
             this.Name = "MainForm";
             this.Text = "fCraft";
             this.ResumeLayout( false );

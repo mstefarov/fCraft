@@ -303,7 +303,7 @@ namespace ConfigTool {
             xNoPartialPositionUpdates.Checked = Config.GetBool( ConfigKey.NoPartialPositionUpdates );
             nTickInterval.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.TickInterval ) );
 
-            if( ConfigKey.ProcessPriority.IsEmpty() ) {
+            if( ConfigKey.ProcessPriority.IsBlank() ) {
                 cProcessPriority.SelectedIndex = 0; // Default
             } else {
                 switch( ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>() ) {
@@ -338,7 +338,7 @@ namespace ConfigTool {
             if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required", "TEnum" );
 #endif
             try {
-                if( key.IsEmpty() ) {
+                if( key.IsBlank() ) {
                     box.SelectedIndex = (int)(object)def;
                 } else {
                     box.SelectedIndex = (int)Enum.Parse( typeof( TEnum ), Config.GetString( key ), true );

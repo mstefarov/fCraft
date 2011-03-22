@@ -753,7 +753,7 @@ namespace fCraft {
         };
 
         internal static void Version( Player player, Command cmd ) {
-            player.Message( "fCraft custom server {0}", Updater.GetVersionString() );
+            player.Message( "fCraft custom server {0}", Updater.CurrentRelease.VersionString );
         }
 
 

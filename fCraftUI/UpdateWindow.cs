@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Windows.Forms;
 using fCraft;
+using System.Text;
 
 namespace fCraftUI {
     public sealed partial class UpdateWindow : Form {
@@ -19,11 +20,11 @@ namespace fCraftUI {
             parent = _parent;
             update = _update;
             auto = _auto;
-            changelog.Text = update.ChangeLog;
+            CreateDetailedChangeLog();
             lVersion.Text = String.Format( lVersion.Text,
-                                           Updater.GetVersionString(),
-                                           update.GetVersionString(),
-                                           DateTime.Now.Subtract( update.ReleaseDate ).TotalDays);
+                                           Updater.CurrentRelease.VersionString,
+                                           update.LatestRelease.VersionString,
+                                           update.LatestRelease.Age.TotalDays );
             //Shown += Download;
         }
 
@@ -31,7 +32,7 @@ namespace fCraftUI {
         void Download( object caller, EventArgs args ) {
             downloader.DownloadProgressChanged += DownloadProgress;
             downloader.DownloadFileCompleted += DownloadComplete;
-            downloader.DownloadFileAsync( new Uri( update.DownloadLink ), UpdaterFile );
+            downloader.DownloadFileAsync( new Uri( update.DownloadUrl ), UpdaterFile );
         }
 
 
@@ -47,7 +48,7 @@ namespace fCraftUI {
                 MessageBox.Show( e.Error.ToString(), "Error occured while trying to download" );
             } else if( auto ) {
                 bApply_Click( null, null );
-            }else{
+            } else {
                 bUpdateNow.Enabled = true;
             }
         }
@@ -64,6 +65,29 @@ namespace fCraftUI {
 
         private void bUpdateNow_Click( object sender, EventArgs e ) {
             Application.Restart();
+        }
+
+
+        void CreateDetailedChangeLog() {
+            StringBuilder sb = new StringBuilder();
+            foreach( ReleaseInfo release in update.History ) {
+                sb.AppendFormat( "{0} - {1:0} days ago - {2}",
+                                 release.VersionString,
+                                 release.Age.TotalDays,
+                                 String.Join( ", ", release.FlagsList ) );
+                sb.AppendLine();
+                if( xShowDetails.Checked ) {
+                    sb.AppendFormat( "    {0}", String.Join( Environment.NewLine + "    ", release.ChangeLog ) );
+                } else {
+                    sb.AppendFormat( "    {0}", release.Summary );
+                }
+                sb.AppendLine().AppendLine();
+            }
+            tChangeLog.Text = sb.ToString();
+        }
+
+        private void xShowDetails_CheckedChanged( object sender, EventArgs e ) {
+            CreateDetailedChangeLog();
         }
     }
 }

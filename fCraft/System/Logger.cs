@@ -185,7 +185,7 @@ namespace fCraft {
 
                 try {
                     StringBuilder sb = new StringBuilder();
-                    sb.Append( "version=" ).Append( Uri.EscapeDataString( Updater.GetVersionString() ) );
+                    sb.Append( "version=" ).Append( Uri.EscapeDataString( Updater.CurrentRelease.VersionString ) );
                     sb.Append( "&message=" ).Append( Uri.EscapeDataString( message ) );
                     sb.Append( "&assembly=" ).Append( Uri.EscapeDataString( assembly ) );
                     sb.Append( "&runtime=" ).Append( Uri.EscapeDataString( Environment.Version + " / " + RuntimeEnvironment.GetSystemVersion() ) );

@@ -9,78 +9,165 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Linq;
 using fCraft.Events;
+using System.Text;
 
 namespace fCraft {
-    public struct UpdaterResult {
-        public UpdaterResult( int version ) {
-            UpdateAvailable = false;
-            DownloadLink = "";
-            ChangeLog = "";
-            NewVersionNumber = version;
-            ReleaseDate = DateTime.MinValue;
-        }
-        public bool UpdateAvailable;
-        public string DownloadLink;
-        public string ChangeLog;
-        public DateTime ReleaseDate;
-        public int NewVersionNumber;
 
-        public string GetVersionString() {
-            return Decimal.Divide( NewVersionNumber, 1000 ).ToString( "0.000" );
+    public class ReleaseInfo {
+
+        internal ReleaseInfo( int version, int revision, DateTime releaseDate,
+                              string summary, string changeLog, ReleaseFlags releaseType ) {
+            Version = version;
+            Revision = revision;
+            Date = releaseDate;
+            Summary = summary;
+            ChangeLog = changeLog.Split( new[] { '\n' } );
+            Flags = releaseType;
+        }
+
+        public ReleaseFlags Flags { get; private set; }
+
+        public string FlagsString { get { return ReleaseFlagsToString( Flags ); } }
+
+        public string[] FlagsList { get { return ReleaseFlagsToStringArray( Flags ); } }
+
+        public int Version { get; private set; }
+
+        public int Revision { get; private set; }
+
+        public DateTime Date { get; private set; }
+
+        public TimeSpan Age {
+            get {
+                return DateTime.UtcNow.Subtract( Date );
+            }
+        }
+
+        public string VersionString {
+            get {
+                return String.Format( "{0:0.000}_r{1}", Decimal.Divide( Version, 1000 ), Revision );
+            }
+        }
+
+        public string Summary { get; private set; }
+
+        public string[] ChangeLog { get; private set; }
+
+        public static ReleaseFlags StringToReleaseFlags( string str ) {
+            ReleaseFlags flags = ReleaseFlags.None;
+            for( int i = 0; i < str.Length; i++ ) {
+                switch( Char.ToUpper( str[i] ) ) {
+                    case 'A':
+                        flags |= ReleaseFlags.APIChange;
+                        break;
+                    case 'B':
+                        flags |= ReleaseFlags.Bugfix;
+                        break;
+                    case 'C':
+                        flags |= ReleaseFlags.ConfigFormatChange;
+                        break;
+                    case 'D':
+                        flags |= ReleaseFlags.Dev;
+                        break;
+                    case 'F':
+                        flags |= ReleaseFlags.Feature;
+                        break;
+                    case 'M':
+                        flags |= ReleaseFlags.MapFormatChange;
+                        break;
+                    case 'P':
+                        flags |= ReleaseFlags.PlayerDBFormatChange;
+                        break;
+                    case 'S':
+                        flags |= ReleaseFlags.Security;
+                        break;
+                    case 'U':
+                        flags |= ReleaseFlags.Unstable;
+                        break;
+                }
+            }
+            return flags;
+        }
+
+        public static string ReleaseFlagsToString( ReleaseFlags flags ) {
+            StringBuilder sb = new StringBuilder();
+            if( (flags & ReleaseFlags.APIChange) == ReleaseFlags.APIChange ) sb.Append( 'A' );
+            if( (flags & ReleaseFlags.Bugfix) == ReleaseFlags.Bugfix ) sb.Append( 'B' );
+            if( (flags & ReleaseFlags.ConfigFormatChange) == ReleaseFlags.ConfigFormatChange ) sb.Append( 'C' );
+            if( (flags & ReleaseFlags.Dev) == ReleaseFlags.Dev ) sb.Append( 'D' );
+            if( (flags & ReleaseFlags.Feature) == ReleaseFlags.Feature ) sb.Append( 'F' );
+            if( (flags & ReleaseFlags.MapFormatChange) == ReleaseFlags.MapFormatChange ) sb.Append( 'M' );
+            if( (flags & ReleaseFlags.PlayerDBFormatChange) == ReleaseFlags.PlayerDBFormatChange ) sb.Append( 'P' );
+            if( (flags & ReleaseFlags.Security) == ReleaseFlags.Security ) sb.Append( 'S' );
+            if( (flags & ReleaseFlags.Unstable) == ReleaseFlags.Unstable ) sb.Append( 'U' );
+            return sb.ToString();
+        }
+
+        public static string[] ReleaseFlagsToStringArray( ReleaseFlags flags ) {
+            List<string> list = new List<string>();
+            if( (flags & ReleaseFlags.APIChange) == ReleaseFlags.APIChange ) list.Add( "API Changes" );
+            if( (flags & ReleaseFlags.Bugfix) == ReleaseFlags.Bugfix ) list.Add( "Fixes" );
+            if( (flags & ReleaseFlags.ConfigFormatChange) == ReleaseFlags.ConfigFormatChange ) list.Add( "Config Changes" );
+            if( (flags & ReleaseFlags.Dev) == ReleaseFlags.Dev ) list.Add( "Developer" );
+            if( (flags & ReleaseFlags.Feature) == ReleaseFlags.Feature ) list.Add( "New Features" );
+            if( (flags & ReleaseFlags.MapFormatChange) == ReleaseFlags.MapFormatChange ) list.Add( "Map Format Changes" );
+            if( (flags & ReleaseFlags.PlayerDBFormatChange) == ReleaseFlags.PlayerDBFormatChange ) list.Add( "PlayerDB Changes" );
+            if( (flags & ReleaseFlags.Security) == ReleaseFlags.Security ) list.Add( "Security Patch" );
+            if( (flags & ReleaseFlags.Unstable) == ReleaseFlags.Unstable ) list.Add( "Unstable" );
+            return list.ToArray();
         }
     }
 
 
-    public class XUpdateResult {
-        internal XUpdateResult( XRelease[] releases, string downloadUrl ) {
-            LatestRelease = releases.OrderByDescending( r => r.ReleaseDate ).First();
-            History = releases;
+    public class UpdaterResult {
+        public static UpdaterResult NoUpdate {
+            get {
+                return new UpdaterResult( false, null, new ReleaseInfo[0] );
+            }
+        }
+        internal UpdaterResult( bool updateAvailable, string downloadUrl, ReleaseInfo[] releases ) {
+            UpdateAvailable = updateAvailable;
             DownloadUrl = downloadUrl;
+            History = releases.OrderByDescending( r => r.Revision).ToArray();
+            LatestRelease = releases.FirstOrDefault();
         }
-        public XRelease LatestRelease { get; private set; }
+        public bool UpdateAvailable { get; private set; }
         public string DownloadUrl { get; private set; }
-        public XRelease[] History { get; private set; }
-
-        public class XRelease {
-            internal XRelease( int version, int revision, DateTime releaseDate, string summary, string[] changeLog ) {
-                Version = version;
-                Revision = revision;
-                ReleaseDate = releaseDate;
-                Summary = summary;
-                ChangeLog = changeLog;
-            }
-
-            public int Version { get; private set; }
-
-            public int Revision { get; private set; }
-
-            public DateTime ReleaseDate { get; private set; }
-
-            public TimeSpan Age {
-                get {
-                    return DateTime.UtcNow.Subtract( ReleaseDate );
-                }
-            }
-
-            public string VersionString {
-                get {
-                    return Decimal.Divide( Version, 1000 ).ToString( "0.000" );
-                }
-            }
-
-            public string Summary { get; private set; }
-
-            public string[] ChangeLog { get; private set; }
-        }
+        public ReleaseInfo[] History { get; private set; }
+        public ReleaseInfo LatestRelease { get; private set; }
     }
 
+    [Flags]
+    public enum ReleaseFlags {
+        None = 0,
+
+        APIChange = 1,
+        Bugfix = 2,
+        ConfigFormatChange = 4,
+        Dev = 8,
+        Feature = 16,
+        MapFormatChange = 32,
+        PlayerDBFormatChange = 64,
+        Security = 128,
+        Unstable = 256
+    }
 
     /// <summary>
     /// Checks for updates, and keeps track of current version/revision.
     /// </summary>
     public static class Updater {
+
+        public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
+            Version,
+            Revision,
+            new DateTime( 2011, 3, 22, 10, 55, 0, DateTimeKind.Utc ),
+            "WIP",
+            "WIP",
+            ReleaseFlags.Dev | ReleaseFlags.Unstable
+        );
+
         public const int Version = 510,
-                         Revision = 467;
+                         Revision = 468;
         public const bool IsDev = true,
                           IsBroken = true;
 
@@ -89,19 +176,17 @@ namespace fCraft {
         public static string UpdateUrl { get; set; }
 
         static Updater() {
-            UpdateUrl = "http://fcraft.fragmer.net/version.log";
+            UpdateUrl = "http://www.fcraft.net/UpdateCheck.php?r={0}";
         }
 
 
         public static UpdaterResult CheckForUpdates() {
-            UpdaterResult result = new UpdaterResult( Version );
-            return result;
             // TODO: fix the rest
             UpdaterMode mode = ConfigKey.UpdateMode.GetEnum<UpdaterMode>();
-            if( mode == UpdaterMode.Disabled ) return result;
+            if( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
 
-            string url = UpdateUrl;
-            if( FireCheckingForUpdatesEvent( ref url ) ) return result;
+            string url = String.Format( UpdateUrl, 1 );
+            if( FireCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
 
             Logger.Log( "Checking for fCraft updates...", LogType.SystemActivity );
             try {
@@ -111,48 +196,38 @@ namespace fCraft {
                 request.UserAgent = "fCraft";
                 request.Timeout = 6000;
                 request.ReadWriteTimeout = 6000;
-                request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
+                request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
 
                 using( WebResponse response = request.GetResponse() ) {
-                    using( StreamReader reader = new StreamReader( response.GetResponseStream() ) ) {
-                        result.DownloadLink = reader.ReadLine();
-                        result.ReleaseDate = DateTime.Parse( reader.ReadLine() );
-
-                        string line = reader.ReadLine();
-                        while( !reader.EndOfStream ) {
-                            int logVersion = Int32.Parse( line );
-                            if( logVersion <= Version ) break;
-                            else if( result.NewVersionNumber < logVersion ) result.NewVersionNumber = logVersion;
-                            result.ChangeLog += logVersion + ":" + Environment.NewLine;
-                            line = reader.ReadLine();
-                            while( line.StartsWith( " " ) ) {
-                                result.ChangeLog += line + Environment.NewLine;
-                                if( reader.EndOfStream ) break;
-                                line = reader.ReadLine();
+                    using( XmlTextReader reader = new XmlTextReader( response.GetResponseStream() ) ) {
+                        XDocument doc = XDocument.Load( reader );
+                        XElement root = doc.Root;
+                        if( root.Attribute( "result" ).Value == "update" ) {
+                            string downloadUrl = root.Attribute( "url" ).Value;
+                            var releases = new List<ReleaseInfo>();
+                            foreach( XElement el in root.Elements( "Release" ) ) {
+                                releases.Add( new ReleaseInfo(
+                                    Int32.Parse( el.Attribute( "v" ).Value ),
+                                    Int32.Parse( el.Attribute( "r" ).Value ),
+                                    Server.TimestampToDateTime( Int64.Parse( el.Attribute( "date" ).Value ) ),
+                                    el.Element( "Summary" ).Value,
+                                    el.Element( "ChangeLog" ).Value,
+                                    ReleaseInfo.StringToReleaseFlags( el.Attribute( "flags" ).Value )
+                                ) );
                             }
-                            result.ChangeLog += Environment.NewLine;
-                        }
-
-                        if( result.NewVersionNumber > Version ) {
-                            result.UpdateAvailable = true;
+                            UpdaterResult result = new UpdaterResult( (releases.Count > 0), downloadUrl, releases.ToArray() );
+                            FireCheckedForUpdatesEvent( UpdateUrl, result );
+                            return result;
+                        } else {
+                            return UpdaterResult.NoUpdate;
                         }
                     }
                 }
-                request.Abort();
             } catch( Exception ex ) {
                 Logger.Log( "An error occured while trying to check for updates: {0}: {1}", LogType.Error,
                                ex.GetType().ToString(), ex.Message );
+                return UpdaterResult.NoUpdate;
             }
-            FireCheckedForUpdatesEvent( UpdateUrl, result );
-            return result;
-        }
-
-        public static string GetVersionString() {
-            return String.Format( "{0}_r{1}{2}{3}",
-                                  Decimal.Divide( Version, 1000 ).ToString( "0.000", CultureInfo.InvariantCulture ),
-                                  Revision,
-                                  (IsDev ? "_dev" : ""),
-                                  (IsBroken ? "_broken" : "") );
         }
 
 
@@ -201,26 +276,6 @@ namespace fCraft {
         }
 
         #endregion
-
-
-        public static XUpdateResult ParseUpdateLog( string rawText ) {
-            using( XmlTextReader reader = new XmlTextReader( rawText ) ) {
-                XDocument doc = XDocument.Load( reader );
-                XElement root = doc.Root;
-                string url = root.Attribute( "url" ).Value;
-                var releases = new List<XUpdateResult.XRelease>();
-                foreach( XElement el in root.Elements( "Release" ) ) {
-                    releases.Add( new XUpdateResult.XRelease(
-                        Int32.Parse( el.Attribute( "v" ).Value ),
-                        Int32.Parse( el.Attribute( "r" ).Value ),
-                        Server.TimestampToDateTime( Int64.Parse( el.Attribute( "date" ).Value ) ),
-                        el.Element( "Summary" ).Value,
-                        el.Element( "ChangeLog" ).Value.Split( new[] { '\n' } )
-                    ) );
-                }
-                return new XUpdateResult( releases.ToArray(), url );
-            }
-        }
     }
 
 
