@@ -41,7 +41,7 @@
             this.lHeader.Location = new System.Drawing.Point( 12, 9 );
             this.lHeader.Name = "lHeader";
             this.lHeader.Size = new System.Drawing.Size( 187, 13 );
-            this.lHeader.TabIndex = 4;
+            this.lHeader.TabIndex = 5;
             this.lHeader.Text = "An update to fCraft is available!";
             // 
             // bCancel
@@ -51,7 +51,7 @@
             this.bCancel.Location = new System.Drawing.Point( 472, 279 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 23 );
-            this.bCancel.TabIndex = 6;
+            this.bCancel.TabIndex = 4;
             this.bCancel.Text = "Cancel";
             this.bCancel.UseVisualStyleBackColor = true;
             this.bCancel.Click += new System.EventHandler( this.bCancel_Click );
@@ -59,10 +59,11 @@
             // bUpdateNow
             // 
             this.bUpdateNow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bUpdateNow.Enabled = false;
             this.bUpdateNow.Location = new System.Drawing.Point( 260, 279 );
             this.bUpdateNow.Name = "bUpdateNow";
             this.bUpdateNow.Size = new System.Drawing.Size( 100, 23 );
-            this.bUpdateNow.TabIndex = 7;
+            this.bUpdateNow.TabIndex = 2;
             this.bUpdateNow.Text = "Restart Now";
             this.bUpdateNow.UseVisualStyleBackColor = true;
             this.bUpdateNow.Click += new System.EventHandler( this.bUpdateNow_Click );
@@ -73,7 +74,7 @@
             this.bUpdateLater.Location = new System.Drawing.Point( 366, 279 );
             this.bUpdateLater.Name = "bUpdateLater";
             this.bUpdateLater.Size = new System.Drawing.Size( 100, 23 );
-            this.bUpdateLater.TabIndex = 8;
+            this.bUpdateLater.TabIndex = 3;
             this.bUpdateLater.Text = "Update Later";
             this.bUpdateLater.UseVisualStyleBackColor = true;
             // 
@@ -83,7 +84,7 @@
             this.progress.Location = new System.Drawing.Point( 436, 12 );
             this.progress.Name = "progress";
             this.progress.Size = new System.Drawing.Size( 136, 23 );
-            this.progress.TabIndex = 1;
+            this.progress.TabIndex = 7;
             // 
             // lProgress
             // 
@@ -92,7 +93,7 @@
             this.lProgress.Location = new System.Drawing.Point( 433, 38 );
             this.lProgress.Name = "lProgress";
             this.lProgress.Size = new System.Drawing.Size( 100, 13 );
-            this.lProgress.TabIndex = 5;
+            this.lProgress.TabIndex = 8;
             this.lProgress.Text = "Downloading ({0}%)";
             // 
             // lVersion
@@ -101,7 +102,7 @@
             this.lVersion.Location = new System.Drawing.Point( 12, 25 );
             this.lVersion.Name = "lVersion";
             this.lVersion.Size = new System.Drawing.Size( 266, 26 );
-            this.lVersion.TabIndex = 9;
+            this.lVersion.TabIndex = 6;
             this.lVersion.Text = "Currently installed version: {0}\r\nNewest available version: {1} (released {2:0} d" +
                 "ays ago)";
             // 
@@ -116,7 +117,7 @@
             this.tChangeLog.ReadOnly = true;
             this.tChangeLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.tChangeLog.Size = new System.Drawing.Size( 560, 203 );
-            this.tChangeLog.TabIndex = 12;
+            this.tChangeLog.TabIndex = 0;
             // 
             // xShowDetails
             // 
@@ -125,14 +126,14 @@
             this.xShowDetails.Location = new System.Drawing.Point( 12, 283 );
             this.xShowDetails.Name = "xShowDetails";
             this.xShowDetails.Size = new System.Drawing.Size( 86, 17 );
-            this.xShowDetails.TabIndex = 13;
+            this.xShowDetails.TabIndex = 1;
             this.xShowDetails.Text = "Show details";
             this.xShowDetails.UseVisualStyleBackColor = true;
             this.xShowDetails.CheckedChanged += new System.EventHandler( this.xShowDetails_CheckedChanged );
             // 
             // UpdateWindow
             // 
-            this.AcceptButton = this.bUpdateNow;
+            this.AcceptButton = this.bUpdateLater;
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.bCancel;

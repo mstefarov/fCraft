@@ -23,6 +23,7 @@
 using System;
 using System.Threading;
 using System.IO;
+using System.Collections.Generic;
 using System.IO.Compression;
 using fCraftUpdater.Properties;
 using System.Reflection;
@@ -35,15 +36,21 @@ namespace fCraftUpdater {
         static void Main( string[] args ) {
             string restartTarget = null;
 
+            List<string> argsList = new List<string>();
+
             string defaultPath = Path.GetFullPath( Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location ) );
             Directory.SetCurrentDirectory( defaultPath );
 
             // parse args
             foreach( string arg in args ) {
+                Console.WriteLine( arg );
                 if( arg.StartsWith( "--path=" ) ) {
                     Directory.SetCurrentDirectory( arg.Substring( arg.IndexOf( '=' ) + 1 ) );
+                    argsList.Add( arg );
                 } else if( arg.StartsWith( "--restart=" ) ) {
                     restartTarget = arg.Substring( arg.IndexOf( '=' ) + 1 );
+                } else {
+                    argsList.Add( arg );
                 }
             }
             // TODO: parse all the paths, and pass them back to the restart callback
@@ -94,13 +101,14 @@ namespace fCraftUpdater {
             Console.ReadLine();
 
             if( restartTarget != null ) {
+                string argString = String.Join( " ", argsList.ToArray() );
                 switch( Environment.OSVersion.Platform ) {
                     case PlatformID.MacOSX:
                     case PlatformID.Unix:
-                        Process.Start( "mono " + restartTarget );
+                        Process.Start( "mono " + restartTarget, argString );
                         break;
                     default:
-                        Process.Start( restartTarget );
+                        Process.Start( restartTarget, argString );
                         break;
                 }
             }

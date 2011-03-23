@@ -167,7 +167,7 @@ namespace fCraft {
         );
 
         public const int Version = 510,
-                         Revision = 468;
+                         Revision = 470;
         public const bool IsDev = true,
                           IsBroken = true;
 
@@ -185,7 +185,7 @@ namespace fCraft {
             UpdaterMode mode = ConfigKey.UpdateMode.GetEnum<UpdaterMode>();
             if( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
 
-            string url = String.Format( UpdateUrl, 1 );
+            string url = String.Format( UpdateUrl, Revision );
             if( FireCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
 
             Logger.Log( "Checking for fCraft updates...", LogType.SystemActivity );

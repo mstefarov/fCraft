@@ -37,14 +37,14 @@ namespace fCraftUI {
                 if( Server.InitServer() ) {
                     Text = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
                     Application.DoEvents();
-                    StartServer();
+                    //StartServer();
 
                     UpdaterResult update = Updater.CheckForUpdates();
 
-                    /*
                     if( update.UpdateAvailable ) {
-                        new UpdateWindow( UpdaterResult.Test, this, false ).ShowDialog();
+                        new UpdateWindow( update, this, false ).ShowDialog();
                     }
+                    /*
                         if( ConfigKey.UpdateMode.GetEnum<UpdaterMode>() == UpdaterMode.Notify ) {
                             Logger.Log( String.Format( Environment.NewLine +
                                                 "*** A new version of fCraft is available: v{0}, released {1:0} day(s) ago. ***" +

@@ -6,11 +6,12 @@ using System.Net;
 using System.Windows.Forms;
 using fCraft;
 using System.Text;
+using System.Collections.Generic;
 
 namespace fCraftUI {
     public sealed partial class UpdateWindow : Form {
         UpdaterResult update;
-        const string UpdaterFile = "Updater.exe";
+        const string UpdaterFile = "fCraftUpdater.exe";
         readonly WebClient downloader = new WebClient();
         MainForm parent;
         bool auto;
@@ -25,11 +26,12 @@ namespace fCraftUI {
                                            Updater.CurrentRelease.VersionString,
                                            update.LatestRelease.VersionString,
                                            update.LatestRelease.Age.TotalDays );
-            //Shown += Download;
+            Shown += Download;
         }
 
 
         void Download( object caller, EventArgs args ) {
+            xShowDetails.Focus();
             downloader.DownloadProgressChanged += DownloadProgress;
             downloader.DownloadFileCompleted += DownloadComplete;
             downloader.DownloadFileAsync( new Uri( update.DownloadUrl ), UpdaterFile );
@@ -47,24 +49,22 @@ namespace fCraftUI {
             if( e.Cancelled || e.Error != null ) {
                 MessageBox.Show( e.Error.ToString(), "Error occured while trying to download" );
             } else if( auto ) {
-                bApply_Click( null, null );
+                bUpdateNow_Click( null, null );
             } else {
                 bUpdateNow.Enabled = true;
             }
         }
 
 
-        private void bApply_Click( object sender, EventArgs e ) {
-            Process.Start( UpdaterFile, Process.GetCurrentProcess().Id.ToString() );
-            Application.Exit();
-        }
-
         private void bCancel_Click( object sender, EventArgs e ) {
             Close();
         }
 
         private void bUpdateNow_Click( object sender, EventArgs e ) {
-            Application.Restart();
+            List<string> argsList = new List<string>( Server.GetArgList() );
+            argsList.Add( "\"--restart=fCraftUI.exe\"" );
+            Process.Start( UpdaterFile, String.Join( " ", argsList.ToArray() ) );
+            Application.Exit();
         }
 
 
