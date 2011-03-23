@@ -6,18 +6,21 @@ using System.Net;
 using System.Windows.Forms;
 using fCraft;
 using System.Text;
+using System.IO;
 using System.Collections.Generic;
 
 namespace fCraftUI {
     public sealed partial class UpdateWindow : Form {
         UpdaterResult update;
         const string UpdaterFile = "fCraftUpdater.exe";
+        string updaterFullPath;
         readonly WebClient downloader = new WebClient();
         MainForm parent;
         bool auto;
 
         public UpdateWindow( UpdaterResult _update, MainForm _parent, bool _auto ) {
             InitializeComponent();
+            updaterFullPath = Path.Combine( Paths.WorkingPath, UpdaterFile );
             parent = _parent;
             update = _update;
             auto = _auto;
@@ -34,7 +37,7 @@ namespace fCraftUI {
             xShowDetails.Focus();
             downloader.DownloadProgressChanged += DownloadProgress;
             downloader.DownloadFileCompleted += DownloadComplete;
-            downloader.DownloadFileAsync( new Uri( update.DownloadUrl ), UpdaterFile );
+            downloader.DownloadFileAsync( new Uri( update.DownloadUrl ), updaterFullPath );
         }
 
 
@@ -47,7 +50,7 @@ namespace fCraftUI {
         void DownloadComplete( object sender, AsyncCompletedEventArgs e ) {
             progress.Value = 100;
             if( e.Cancelled || e.Error != null ) {
-                MessageBox.Show( e.Error.ToString(), "Error occured while trying to download" );
+                MessageBox.Show( e.Error.ToString(), "Error occured while trying to download "+UpdaterFile );
             } else if( auto ) {
                 bUpdateNow_Click( null, null );
             } else {
@@ -63,7 +66,16 @@ namespace fCraftUI {
         private void bUpdateNow_Click( object sender, EventArgs e ) {
             List<string> argsList = new List<string>( Server.GetArgList() );
             argsList.Add( "\"--restart=fCraftUI.exe\"" );
-            Process.Start( UpdaterFile, String.Join( " ", argsList.ToArray() ) );
+            switch( Environment.OSVersion.Platform ) {
+                case PlatformID.MacOSX:
+                case PlatformID.Unix:
+                    argsList.Insert( 0, updaterFullPath );
+                    Process.Start( "mono", String.Join( " ", argsList.ToArray() ) );
+                    break;
+                default:
+                    Process.Start( updaterFullPath, String.Join( " ", argsList.ToArray() ) );
+                    break;
+            }
             Application.Exit();
         }
 

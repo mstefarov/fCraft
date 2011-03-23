@@ -128,7 +128,7 @@ namespace fCraft {
         internal UpdaterResult( bool updateAvailable, string downloadUrl, ReleaseInfo[] releases ) {
             UpdateAvailable = updateAvailable;
             DownloadUrl = downloadUrl;
-            History = releases.OrderByDescending( r => r.Revision).ToArray();
+            History = releases.OrderByDescending( r => r.Revision ).ToArray();
             LatestRelease = releases.FirstOrDefault();
         }
         public bool UpdateAvailable { get; private set; }
@@ -167,7 +167,7 @@ namespace fCraft {
         );
 
         public const int Version = 510,
-                         Revision = 470;
+                         Revision = 471;
         public const bool IsDev = true,
                           IsBroken = true;
 
@@ -225,7 +225,7 @@ namespace fCraft {
                 }
             } catch( Exception ex ) {
                 Logger.Log( "An error occured while trying to check for updates: {0}: {1}", LogType.Error,
-                               ex.GetType().ToString(), ex.Message );
+                            ex.GetType().ToString(), ex.Message );
                 return UpdaterResult.NoUpdate;
             }
         }
