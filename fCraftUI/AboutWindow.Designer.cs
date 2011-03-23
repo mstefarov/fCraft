@@ -41,7 +41,7 @@
             this.tCredits.Multiline = true;
             this.tCredits.Name = "tCredits";
             this.tCredits.ReadOnly = true;
-            this.tCredits.Size = new System.Drawing.Size( 460, 238 );
+            this.tCredits.Size = new System.Drawing.Size( 460, 248 );
             this.tCredits.TabIndex = 0;
             this.tCredits.Text = resources.GetString( "tCredits.Text" );
             // 
@@ -93,7 +93,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 484, 329 );
+            this.ClientSize = new System.Drawing.Size( 484, 339 );
             this.Controls.Add( this.linkLabel2 );
             this.Controls.Add( this.linkLabel1 );
             this.Controls.Add( this.lSubheader );
@@ -101,7 +101,7 @@
             this.Controls.Add( this.tCredits );
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size( 500, 365 );
+            this.MinimumSize = new System.Drawing.Size( 500, 375 );
             this.Name = "AboutWindow";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

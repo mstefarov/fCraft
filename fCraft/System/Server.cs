@@ -54,6 +54,17 @@ namespace fCraft {
             return Args.ContainsKey( key );
         }
 
+
+        public static string GetArgString() {
+            return Args.Aggregate( new StringBuilder(),
+                                   ( sb, pair ) => sb.AppendFormat( " {0}={1}", pair.Key, pair.Value ) ).ToString();
+        }
+
+
+        public static string[] GetArgList() {
+            return Args.Select( pair => (pair.Key + "=" + pair.Value) ).ToArray();
+        }
+
         #endregion
 
 
