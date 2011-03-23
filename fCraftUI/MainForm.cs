@@ -163,7 +163,7 @@ namespace fCraftUI {
         }
 
 
-        void OnServerShutdownEnded(object sender, ShutdownEventArgs e) {
+        void OnServerShutdownEnded( object sender, ShutdownEventArgs e ) {
             try {
                 Invoke( (Action)delegate {
                     shutdownComplete = true;
@@ -182,9 +182,9 @@ namespace fCraftUI {
 #endif
                     if( line.Equals( "/clear", StringComparison.OrdinalIgnoreCase ) ) {
                         logBox.Clear();
-                    } else if(line.Equals("/credits", StringComparison.OrdinalIgnoreCase)){
+                    } else if( line.Equals( "/credits", StringComparison.OrdinalIgnoreCase ) ) {
                         new AboutWindow().Show();
-                    }else{
+                    } else {
                         Player.Console.ParseMessage( line, true );
                     }
 #if !DEBUG
