@@ -15,6 +15,7 @@ using System.Xml.Linq;
 using fCraft.Events;
 using fCraft.MapConversion;
 using ThreadState = System.Threading.ThreadState;
+using System.Reflection;
 
 namespace fCraft {
     public static partial class Server {
@@ -438,12 +439,16 @@ namespace fCraft {
             ShutdownNow( param );
             ShutdownWaiter.Set();
             if( param.Restart ) {
-                StringBuilder argString = new StringBuilder();
-                foreach( var pair in Args ) {
-                    argString.AppendFormat( "--{0}={1}", pair.Key, pair.Value );
+                string binaryFile = Assembly.GetEntryAssembly().Location;
+                switch( Environment.OSVersion.Platform ) {
+                    case PlatformID.MacOSX:
+                    case PlatformID.Unix:
+                        Process.Start( "mono", binaryFile + GetArgString() + " &" );
+                        break;
+                    default:
+                        Process.Start( binaryFile, GetArgString() );
+                        break;
                 }
-                Console.WriteLine( "Restarting: {0} {1}", Process.GetCurrentProcess().MainModule.FileName, argString );
-                Process.Start( Process.GetCurrentProcess().MainModule.FileName, argString.ToString() );
             }
             if( param.KillProcess ) {
                 Process.GetCurrentProcess().Kill();

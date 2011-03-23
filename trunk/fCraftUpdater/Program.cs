@@ -49,7 +49,7 @@ namespace fCraftUpdater {
                     argsList.Add( arg );
                 } else if( arg.StartsWith( "--restart=" ) ) {
                     restartTarget = arg.Substring( arg.IndexOf( '=' ) + 1 );
-                } else {
+                } else if( arg != "&" ) {
                     argsList.Add( arg );
                 }
             }
@@ -97,15 +97,15 @@ namespace fCraftUpdater {
                 }
             }
 
-            Console.WriteLine( "Done." );
-            Console.ReadLine();
+            Console.WriteLine( "fCraft update complete." );
 
             if( restartTarget != null ) {
+                Console.WriteLine( "Starting {0}", restartTarget );
                 string argString = String.Join( " ", argsList.ToArray() );
                 switch( Environment.OSVersion.Platform ) {
                     case PlatformID.MacOSX:
                     case PlatformID.Unix:
-                        Process.Start( "mono " + restartTarget, argString );
+                        Process.Start( "mono", restartTarget + " " + argString + " &" );
                         break;
                     default:
                         Process.Start( restartTarget, argString );

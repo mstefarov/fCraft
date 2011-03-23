@@ -70,7 +70,7 @@ namespace fCraftUI {
                 case PlatformID.MacOSX:
                 case PlatformID.Unix:
                     argsList.Insert( 0, updaterFullPath );
-                    Process.Start( "mono", String.Join( " ", argsList.ToArray() ) );
+                    Process.Start( "mono", String.Join( " ", argsList.ToArray() ) + " &" );
                     break;
                 default:
                     Process.Start( updaterFullPath, String.Join( " ", argsList.ToArray() ) );
