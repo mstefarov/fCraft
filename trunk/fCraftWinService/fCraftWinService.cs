@@ -8,11 +8,9 @@ using fCraft;
 using fCraft.Events;
 
 namespace fCraftWinService {
-    class fCraftWinService : ServiceBase {
+    sealed class fCraftWinService : ServiceBase {
         public const string Name = "fCraftWinService";
         public const string Description = "fCraft Minecraft Server";
-
-        static readonly AutoResetEvent ShutdownWaiter = new AutoResetEvent( false );
 
 
         internal fCraftWinService() {

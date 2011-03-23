@@ -2,7 +2,7 @@
 using System.IO.Compression;
 
 namespace fCraftUpdaterBuilder {
-    class Program {
+    static class Program {
 
         static readonly string[] FileList = {
             "AutoLauncher.exe",

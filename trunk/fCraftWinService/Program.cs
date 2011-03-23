@@ -7,7 +7,7 @@ using System.ServiceProcess;
 using System.Text;
 
 namespace fCraftWinService {
-    class Program {
+    static class Program {
 
         /// <summary>  
         /// Function that return .net framnework installation path.  

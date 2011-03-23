@@ -245,8 +245,17 @@ namespace fCraft {
         [EnumKey( ConfigSection.Advanced, UpdaterMode.Prompt )]
         UpdateMode,
 
+        [StringKey( ConfigSection.Advanced, "", NotBlank = false )]
+        RunBeforeUpdate,
+
+        [StringKey( ConfigSection.Advanced, "", NotBlank = false )]
+        RunAfterUpdate,
+
         [BoolKey( ConfigSection.Advanced, false )]
         UpdateAtStartup,
+
+        [BoolKey( ConfigSection.Advanced, true )]
+        BackupBeforeUpdate,
 
         [BoolKey( ConfigSection.Advanced, false )]
         NoPartialPositionUpdates,
