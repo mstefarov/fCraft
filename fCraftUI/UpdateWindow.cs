@@ -11,17 +11,15 @@ using System.Collections.Generic;
 
 namespace fCraftUI {
     public sealed partial class UpdateWindow : Form {
-        UpdaterResult update;
+        readonly UpdaterResult update;
         const string UpdaterFile = "fCraftUpdater.exe";
-        string updaterFullPath;
+        readonly string updaterFullPath;
         readonly WebClient downloader = new WebClient();
-        MainForm parent;
-        bool auto;
+        readonly bool auto;
 
-        public UpdateWindow( UpdaterResult _update, MainForm _parent, bool _auto ) {
+        public UpdateWindow( UpdaterResult _update, bool _auto ) {
             InitializeComponent();
             updaterFullPath = Path.Combine( Paths.WorkingPath, UpdaterFile );
-            parent = _parent;
             update = _update;
             auto = _auto;
             CreateDetailedChangeLog();

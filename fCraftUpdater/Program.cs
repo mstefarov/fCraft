@@ -21,31 +21,46 @@
  *
  */
 using System;
-using System.Threading;
-using System.IO;
 using System.Collections.Generic;
-using System.IO.Compression;
-using fCraftUpdater.Properties;
-using System.Reflection;
 using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
+using System.Reflection;
+using System.Threading;
+using System.Xml.Linq;
+using fCraftUpdater.Properties;
 
 
 namespace fCraftUpdater {
     static class Program {
+        const string ConfigFileNameDefault = "config.xml",
+                     BackupFileNameFormat = "fCraftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}.zip";
+
+        static readonly string[] FilesToBackup = new[]{
+            "PlayerDB.txt",
+            "config.xml",
+            "ipbans.txt",
+            "worlds.xml"
+        };
+
 
         static void Main( string[] args ) {
             string restartTarget = null;
+            string configFileName = ConfigFileNameDefault;
 
-            List<string> argsList = new List<string>();
-
+            // Set path
             string defaultPath = Path.GetFullPath( Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location ) );
             Directory.SetCurrentDirectory( defaultPath );
 
-            // parse args
+            // Parse command-line arguments
+            List<string> argsList = new List<string>();
             foreach( string arg in args ) {
                 Console.WriteLine( arg );
-                if( arg.StartsWith( "--path=" ) ) {
+                if( arg.StartsWith( "--path=", StringComparison.OrdinalIgnoreCase ) ) {
                     Directory.SetCurrentDirectory( arg.Substring( arg.IndexOf( '=' ) + 1 ) );
+                    argsList.Add( arg );
+                } else if( arg.StartsWith( "--config=", StringComparison.OrdinalIgnoreCase ) ) {
+                    configFileName = arg.Substring( arg.IndexOf( '=' ) + 1 );
                     argsList.Add( arg );
                 } else if( arg.StartsWith( "--restart=" ) ) {
                     restartTarget = arg.Substring( arg.IndexOf( '=' ) + 1 );
@@ -53,10 +68,43 @@ namespace fCraftUpdater {
                     argsList.Add( arg );
                 }
             }
-            // TODO: parse all the paths, and pass them back to the restart callback
 
+            // Parse update settings
+            string runBefore = null,
+                   runAfter = null;
+            bool doBackup = true;
 
+            try {
+                if( File.Exists( configFileName ) ) {
+                    XDocument doc = XDocument.Load( configFileName );
+                    if( doc.Root != null ) {
+                        XElement elRunBefore = doc.Root.Element( "RunBeforeUpdate" );
+                        if( elRunBefore != null ) runBefore = elRunBefore.Value;
+                        XElement elRunAfter = doc.Root.Element( "RunAfterUpdate" );
+                        if( elRunAfter != null ) runAfter = elRunAfter.Value;
+                        XElement elDoBackup = doc.Root.Element( "BackupBeforeUpdate" );
+                        if( elDoBackup != null && !String.IsNullOrEmpty( elDoBackup.Value ) ) {
+                            if( !Boolean.TryParse( elDoBackup.Value, out doBackup ) ) {
+                                doBackup = true;
+                            }
+                        }
+                    }
+                }
+            } catch( Exception ex ) {
+                Console.WriteLine("Error reading fCraft config: {0}", ex);
+            }
 
+            // Backup data files (if requested)
+            if( doBackup ) DoBackup();
+
+            // Run pre-update script (if any)
+            if( !String.IsNullOrEmpty( runBefore ) ) {
+                Console.WriteLine( "Executing pre-update script..." );
+                Process preUpdateProcess = Process.Start( runBefore, "" );
+                if( preUpdateProcess != null ) preUpdateProcess.WaitForExit();
+            }
+
+            // Apply the update
             using( MemoryStream ms = new MemoryStream( Resources.Payload ) ) {
                 using( ZipStorer zs = ZipStorer.Open( ms, FileAccess.Read ) ) {
 
@@ -68,7 +116,7 @@ namespace fCraftUpdater {
                             try {
                                 FileInfo fi = new FileInfo( entry.FilenameInZip );
                                 if( !fi.Exists ) continue;
-                                using( var testStream = fi.OpenWrite() ) { }
+                                using( fi.OpenWrite() ) { }
                             } catch( Exception ex ) {
                                 if( ex is IOException ) {
                                     Console.WriteLine( "Waiting for fCraft-related applications to close..." );
@@ -97,19 +145,41 @@ namespace fCraftUpdater {
                 }
             }
 
+            // Run post-update script
+            if( !String.IsNullOrEmpty( runAfter ) ) {
+                Console.WriteLine( "Executing post-update script..." );
+                Process postUpdateProcess = Process.Start( runAfter, "" );
+                if( postUpdateProcess != null ) postUpdateProcess.WaitForExit();
+            }
+
             Console.WriteLine( "fCraft update complete." );
 
-            if( restartTarget != null ) {
-                Console.WriteLine( "Starting {0}", restartTarget );
-                string argString = String.Join( " ", argsList.ToArray() );
-                switch( Environment.OSVersion.Platform ) {
-                    case PlatformID.MacOSX:
-                    case PlatformID.Unix:
-                        Process.Start( "mono", restartTarget + " " + argString + " &" );
-                        break;
-                    default:
-                        Process.Start( restartTarget, argString );
-                        break;
+            // Restart fCraft (if requested)
+            if( restartTarget == null ) return;
+
+            Console.WriteLine( "Starting {0}", restartTarget );
+            string argString = String.Join( " ", argsList.ToArray() );
+            switch( Environment.OSVersion.Platform ) {
+                case PlatformID.MacOSX:
+                case PlatformID.Unix:
+                    Process.Start( "mono", restartTarget + " " + argString + " &" );
+                    break;
+                default:
+                    Process.Start( restartTarget, argString );
+                    break;
+            }
+        }
+
+
+        static void DoBackup() {
+            string backupFileName = String.Format( BackupFileNameFormat, DateTime.Now );
+            using( FileStream fs = File.Create( backupFileName ) ) {
+                using( ZipStorer backupZip = ZipStorer.Create( fs, "" ) ) {
+                    foreach( string dataFileName in FilesToBackup ) {
+                        if( File.Exists( dataFileName ) ) {
+                            backupZip.AddFile( ZipStorer.Compression.Deflate, dataFileName, dataFileName, "" );
+                        }
+                    }
                 }
             }
         }

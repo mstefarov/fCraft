@@ -42,7 +42,7 @@ namespace fCraftUI {
                     UpdaterResult update = Updater.CheckForUpdates();
 
                     if( update.UpdateAvailable ) {
-                        new UpdateWindow( update, this, false ).ShowDialog();
+                        new UpdateWindow( update, false ).ShowDialog();
                     }
                     /*
                         if( ConfigKey.UpdateMode.GetEnum<UpdaterMode>() == UpdaterMode.Notify ) {
