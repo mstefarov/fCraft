@@ -239,6 +239,19 @@ namespace fCraft {
         }
 
 
+        public static string GetMonoVersion() {
+            Type monoRuntimeType = typeof( object ).Assembly.GetType( "Mono.Runtime" );
+            BindingFlags methodFlags = BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.ExactBinding;
+            MethodInfo getDisplayNameMethod = monoRuntimeType.GetMethod( "GetDisplayName", methodFlags, null, Type.EmptyTypes, null );
+
+            if( monoRuntimeType != null && getDisplayNameMethod != null ) {
+                return (string)getDisplayNameMethod.Invoke( null, null );
+            } else {
+                return null;
+            }
+        }
+
+
         // Called by the Logger in case of serious errors to print troubleshooting advice.
         // Returns true if a crash report should be submitted for this type of errors.
         public static bool CheckForCommonErrors( Exception ex ) {

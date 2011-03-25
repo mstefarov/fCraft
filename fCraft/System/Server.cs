@@ -369,7 +369,7 @@ namespace fCraft {
                 }
 
                 // increase the chances of kick packets being delivered
-                if( PlayerList.Length > 0 ) {
+                if( PlayerList != null && PlayerList.Length > 0 ) {
                     Thread.Sleep( 1000 );
                 }
 
