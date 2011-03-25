@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
@@ -15,7 +16,6 @@ using System.Xml.Linq;
 using fCraft.Events;
 using fCraft.MapConversion;
 using ThreadState = System.Threading.ThreadState;
-using System.Reflection;
 
 namespace fCraft {
     public static partial class Server {
@@ -100,10 +100,10 @@ namespace fCraft {
             Directory.SetCurrentDirectory( Paths.WorkingPath );
 
             // set custom working path (if specified)
-            if( HasArg( ArgKey.Path ) && Paths.TestDirectory( GetArg( ArgKey.Path ), true ) ) {
+            if( HasArg( ArgKey.Path ) && Paths.TestDirectory( "WorkingPath", GetArg( ArgKey.Path ), true ) ) {
                 Paths.WorkingPath = Path.GetFullPath( GetArg( ArgKey.Path ) );
                 Directory.SetCurrentDirectory( Paths.WorkingPath );
-            } else if( Paths.TestDirectory( Paths.WorkingPathDefault, true ) ) {
+            } else if( Paths.TestDirectory( "WorkingPath", Paths.WorkingPathDefault, true ) ) {
                 Paths.WorkingPath = Path.GetFullPath( Paths.WorkingPathDefault );
                 Directory.SetCurrentDirectory( Paths.WorkingPath );
             } else {
@@ -112,9 +112,9 @@ namespace fCraft {
 
 
             // set log path
-            if( HasArg( ArgKey.LogPath ) && Paths.TestDirectory( GetArg( ArgKey.LogPath ), true ) ) {
+            if( HasArg( ArgKey.LogPath ) && Paths.TestDirectory( "LogPath", GetArg( ArgKey.LogPath ), true ) ) {
                 Paths.LogPath = Path.GetFullPath( GetArg( ArgKey.LogPath ) );
-            } else if( Paths.TestDirectory( Paths.LogPathDefault, true ) ) {
+            } else if( Paths.TestDirectory( "LogPath", Paths.LogPathDefault, true ) ) {
                 Paths.LogPath = Path.GetFullPath( Paths.LogPathDefault );
             } else {
                 throw new Exception( "Could not set the log path." );
@@ -122,10 +122,10 @@ namespace fCraft {
 
 
             // set map path
-            if( HasArg( ArgKey.MapPath ) && Paths.TestDirectory( GetArg( ArgKey.MapPath ), true ) ) {
+            if( HasArg( ArgKey.MapPath ) && Paths.TestDirectory( "MapPath", GetArg( ArgKey.MapPath ), true ) ) {
                 Paths.MapPath = Path.GetFullPath( GetArg( ArgKey.MapPath ) );
                 Paths.IgnoreMapPathConfigKey = true;
-            } else if( Paths.TestDirectory( Paths.MapPathDefault, true ) ) {
+            } else if( Paths.TestDirectory( "MapPath", Paths.MapPathDefault, true ) ) {
                 Paths.MapPath = Path.GetFullPath( Paths.MapPathDefault );
             } else {
                 throw new Exception( "Could not set the map path." );
@@ -168,12 +168,10 @@ namespace fCraft {
             Logger.PrepareEventTracing();
 #endif
 
-#if DEBUG
             Logger.Log( "Working directory: {0}", LogType.Debug, Directory.GetCurrentDirectory() );
             Logger.Log( "Log path: {0}", LogType.Debug, Path.GetFullPath( Paths.LogPath ) );
             Logger.Log( "Map path: {0}", LogType.Debug, Path.GetFullPath( Paths.MapPath ) );
             Logger.Log( "Config path: {0}", LogType.Debug, Path.GetFullPath( Paths.ConfigFileName ) );
-#endif
         }
 
 
@@ -357,14 +355,14 @@ namespace fCraft {
                 Scheduler.BeginShutdown();
 
                 Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
-                            shutdownParams.Reason );
+                            shutdownParams.ReasonString );
 
                 // kick all players
                 if( PlayerList != null ) {
                     Player[] pListCached = PlayerList;
                     foreach( Player player in pListCached ) {
                         // NOTE: kick packet delivery here is not currently guaranteed
-                        player.Session.Kick( "Server shutting down (" + shutdownParams.Reason + Color.White + ")", LeaveReason.ServerShutdown );
+                        player.Session.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
                     }
                 }
 
@@ -407,15 +405,10 @@ namespace fCraft {
         static readonly AutoResetEvent ShutdownWaiter = new AutoResetEvent( false );
 
         static Thread shutdownThread;
-        public static void Shutdown( string reason, int delay, bool killProcess, bool restart, bool waitForShutdown ) {
+        public static void Shutdown( ShutdownParams shutdownParams, bool waitForShutdown ) {
             if( !CancelShutdown() ) return;
             shutdownThread = new Thread( ShutdownThread );
-            shutdownThread.Start( new ShutdownParams {
-                Reason = reason,
-                Delay = delay,
-                KillProcess = killProcess,
-                Restart = restart
-            } );
+            shutdownThread.Start( shutdownParams );
             if( waitForShutdown ) {
                 ShutdownWaiter.WaitOne();
             }
@@ -1591,10 +1584,44 @@ namespace fCraft {
 
     /// <summary> Describes the circumstances of server shutdown. </summary>
     public sealed class ShutdownParams {
-        public string Reason { get; set; }
-        public int Delay { get; set; }
-        public bool KillProcess { get; set; }
-        public bool Restart { get; set; }
+        public ShutdownParams( ShutdownReason reason, int delay, bool killProcess, bool restart ) {
+            Reason = reason;
+            Delay = delay;
+            KillProcess = killProcess;
+            Restart = restart;
+        }
+        public ShutdownParams( string customReason, int delay, bool killProcess, bool restart, Player initiatedBy ) :
+            this( ShutdownReason.Custom, delay, killProcess, restart ) {
+            CustomReasonString = customReason;
+            InitiatedBy = initiatedBy;
+        }
+        public ShutdownReason Reason { get; private set; }
+        string CustomReasonString;
+        public string ReasonString {
+            get {
+                if( CustomReasonString != null ) {
+                    return CustomReasonString;
+                } else {
+                    return Reason.ToString();
+                }
+            }
+        }
+        public int Delay { get; private set; }
+        public bool KillProcess { get; private set; }
+        public bool Restart { get; private set; }
+        public Player InitiatedBy { get; private set; }
+    }
+
+    public enum ShutdownReason {
+        Unknown,
+        Custom,
+        FailedToInitialize,
+        FailedToStart,
+        RestartingForUpdate,
+        Restarting,
+        Crashed,
+        ShuttingDown,
+        ProcessClosing
     }
 
 

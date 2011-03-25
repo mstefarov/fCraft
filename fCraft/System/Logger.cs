@@ -72,12 +72,10 @@ namespace fCraft {
                 ConsoleOptions[i] = true;
                 LogFileOptions[i] = true;
             }
-
-            MarkLogStart();
         }
 
 
-        public static void MarkLogStart() {
+        internal static void MarkLogStart() {
             // Mark start of logging
             Log( "------ Log Starts {0} ({1}) ------", LogType.SystemActivity,
                  DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() );
@@ -89,10 +87,10 @@ namespace fCraft {
         }
 
 
-        public static void LogConsole( string message ) {
+        public static void LogToConsole( string message ) {
             if( message.Contains( "&N" ) ) {
                 foreach( string line in message.Split( PacketWriter.NewlineSplitter, StringSplitOptions.RemoveEmptyEntries ) ) {
-                    LogConsole( line );
+                    LogToConsole( line );
                 }
                 return;
             }
@@ -107,6 +105,9 @@ namespace fCraft {
 
         public static void Log( string message, LogType type ) {
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message;
+
+            RaiseLoggedEvent( message, line, type );
+
             if( LogFileOptions[(int)type] ) {
                 string actualLogFileName;
                 switch( SplittingType ) {
@@ -129,14 +130,12 @@ namespace fCraft {
                         }
                     }
                 } catch( Exception ex ) {
-                    string errorMessage = "Logger.Log: " + ex;
+                    string errorMessage = "Logger.Log: " + ex.Message;
                     RaiseLoggedEvent( errorMessage,
-                                      DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + errorMessage,
+                                      DateTime.Now.ToLongTimeString() + " > " + GetPrefix( LogType.Error ) + errorMessage,
                                       LogType.Error );
                 }
             }
-
-            RaiseLoggedEvent( message, line, type );
         }
 
 
@@ -168,12 +167,14 @@ namespace fCraft {
             bool isCommon = CheckForCommonErrors( exception );
             if( isCommon ) submitCrashReport = false;
 
-            CrashEventArgs eventArgs = new CrashEventArgs( message, assembly, exception, submitCrashReport, isCommon, shutdownImminent );
-            RaiseCrashedEvent( eventArgs );
+            try {
+                CrashEventArgs eventArgs = new CrashEventArgs( message, assembly, exception, submitCrashReport, isCommon, shutdownImminent );
+                RaiseCrashedEvent( eventArgs );
 
-            if( !eventArgs.IsCommonProblem ) {
-                Log( "{0}: {1}", LogType.SeriousError, message, exception );
-            }
+                if( !eventArgs.IsCommonProblem ) {
+                    Log( "{0}: {1}", LogType.SeriousError, message, exception );
+                }
+            } catch { }
             if( !submitCrashReport ) return;
 
             lock( CrashReportLock ) {
@@ -255,38 +256,45 @@ namespace fCraft {
         // Called by the Logger in case of serious errors to print troubleshooting advice.
         // Returns true if a crash report should be submitted for this type of errors.
         public static bool CheckForCommonErrors( Exception ex ) {
-            if( ex is FileNotFoundException && (ex.Message.Contains( "System.Xml.Linq, Version=3.5" ) ||
-                                                ex.Message.Contains( "System.Core, Version=3.5" )) ) {
-                Log( "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
-                     "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).", LogType.Warning );
-                return false;
+            string message = null;
+            try {
+                if( ex is FileNotFoundException && (ex.Message.Contains( "System.Xml.Linq, Version=3.5" ) ||
+                                                    ex.Message.Contains( "System.Core, Version=3.5" )) ) {
+                    message = "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
+                         "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).";
+                    return false;
 
-            } else if( ex.Message == "libMonoPosixHelper.so" ) {
-                Log( "fCraft could not locate Mono's compression functionality. " +
-                     "Please make sure that you have zlib (sometimes called \"libz\") installed. " +
-                     "Some versions of Mono may also require \"libmono-posix-2.0-cil\" package to be installed.", LogType.Warning );
-                return false;
+                } else if( ex.Message == "libMonoPosixHelper.so" ) {
+                    message = "fCraft could not locate Mono's compression functionality. " +
+                              "Please make sure that you have zlib (sometimes called \"libz\" or just \"z\") installed. " +
+                              "Some versions of Mono may also require \"libmono-posix-2.0-cil\" package to be installed.";
+                    return false;
 
-            } else if( ex is UnauthorizedAccessException ) {
-                Log( "fCraft was blocked from accessing a file or resource. " +
-                     "Make sure that correct permissions are set for the fCraft files, folders, and processes.", LogType.Warning );
-                return false;
+                } else if( ex is UnauthorizedAccessException ) {
+                    message = "fCraft was blocked from accessing a file or resource. " +
+                              "Make sure that correct permissions are set for the fCraft files, folders, and processes.";
+                    return false;
 
-            } else if( ex is OutOfMemoryException ) {
-                Log( "fCraft ran out of memory. Make sure there is enough RAM to run. " +
-                     "Note that large draw commands can consume a lot of RAM.", LogType.Warning );
-                return false;
+                } else if( ex is OutOfMemoryException ) {
+                    message = "fCraft ran out of memory. Make sure there is enough RAM to run. " +
+                              "Note that large draw commands can consume a lot of RAM.";
+                    return false;
 
-            } else if( ex is TypeLoadException && ex.Message.Contains( "ZLibStream" ) ) {
-                Log( "Note that ZLibStream is obsolete since fCraft 0.498. Use GZipStream instead.", LogType.Warning );
-                return false;
+                } else if( ex is TypeLoadException && ex.Message.Contains( "ZLibStream" ) ) {
+                    message = "Note that ZLibStream is obsolete since fCraft 0.498. Use GZipStream instead.";
+                    return false;
 
-            } else if( ex is SystemException && ex.Message == "Can't find current process" ) {
-                // Mono-specific bug in MonitorProcessorUsage()
-                return false;
+                } else if( ex is SystemException && ex.Message == "Can't find current process" ) {
+                    // Mono-specific bug in MonitorProcessorUsage()
+                    return false;
 
-            } else {
-                return true;
+                } else {
+                    return true;
+                }
+            } finally {
+                if( message != null ) {
+                    Logger.Log( message, LogType.Warning );
+                }
             }
         }
 

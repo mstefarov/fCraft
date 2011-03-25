@@ -34,11 +34,11 @@ namespace fCraftConsole {
         static void Main( string[] args ) {
             Logger.Logged += OnLogged;
             Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
-            Server.InitLibrary( args );
 
 #if !DEBUG
             try {
 #endif
+                Server.InitLibrary( args );
                 if( Server.InitServer() ) {
 
                     /*UpdaterResult update = Updater.CheckForUpdates();
@@ -75,14 +75,14 @@ namespace fCraftConsole {
                         }
 
                     } else {
-                        ReportFailure( "failed to start" );
+                        ReportFailure( ShutdownReason.FailedToStart );
                     }
                 } else {
-                    ReportFailure( "failed to initialize" );
+                    ReportFailure( ShutdownReason.FailedToInitialize );
                 }
 #if !DEBUG
             } catch( Exception ex ) {
-                ReportFailure( "CRASHED" );
+                ReportFailure( ShutdownReason.Crashed );
                 Logger.LogAndReportCrash( "Unhandled exception in fCraftConsole", "fCraftConsole", ex, true );
             }
             Console.ReadLine();
@@ -91,15 +91,13 @@ namespace fCraftConsole {
         }
 
 
-        static void ReportFailure( string failureReason ) {
-            Console.Title = String.Format( "fCraft {0} {1}", Updater.CurrentRelease.VersionString, failureReason );
+        static void ReportFailure( ShutdownReason reason ) {
+            Console.Title = String.Format( "fCraft {0} {1}", Updater.CurrentRelease.VersionString, reason );
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine( "** {0} **", failureReason );
-            Server.ShutdownNow( new ShutdownParams {
-                Reason = failureReason
-            } );
-            Console.ReadLine();
+            Console.WriteLine( "** {0} **", reason );
             Console.ResetColor();
+            Server.Shutdown( new ShutdownParams( reason, 0, false, false ), true );
+            Console.ReadLine();
         }
 
 

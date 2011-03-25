@@ -28,11 +28,10 @@ namespace fCraftUI {
             Server.OnPlayerListChanged += UpdatePlayerList;
             Server.ShutdownEnded += OnServerShutdownEnded;
 
-            Server.InitLibrary( args );
-
 
 #if !DEBUG
             try {
+                Server.InitLibrary( args );
 #endif
                 if( Server.InitServer() ) {
                     Text = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
@@ -62,12 +61,12 @@ namespace fCraftUI {
                     }*/
                     StartServer();
                 } else {
-                    Shutdown( "failed to initialize", false );
+                    Shutdown( ShutdownReason.FailedToInitialize, false );
                 }
 #if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Unhandled exception in fCraftUI.StartUp", "fCraftUI", ex, true );
-                Shutdown( "error at startup", false );
+                Shutdown( ShutdownReason.Crashed, false );
             }
 #endif
         }
@@ -87,26 +86,25 @@ namespace fCraftUI {
                 }
                 console.Enabled = true;
             } else {
-                Shutdown( "failed to start", false );
+                Shutdown( ShutdownReason.FailedToStart, false );
             }
         }
 
         void HandleShutDown( object sender, CancelEventArgs e ) {
             if( shutdownComplete ) return;
             e.Cancel = true;
-            Shutdown( "quit", true );
+            Shutdown( ShutdownReason.ProcessClosing, true );
         }
 
-        void Shutdown( string reason, bool quit ) {
+        void Shutdown( ShutdownReason reason, bool quit ) {
             if( shutdownPending ) return;
 
             //Log( "Shutting down...", LogType.ConsoleOutput ); // write to console only
 
             shutdownPending = true;
-            Logger.Log( "---- Shutting Down: {0} ----", LogType.SystemActivity, reason );
-            Server.Shutdown( reason, 0, quit, false, false );
             urlDisplay.Enabled = false;
             console.Enabled = false;
+            Server.Shutdown( new ShutdownParams( ShutdownReason.ProcessClosing, 0, quit, false ), false );
         }
 
         delegate void PlayerListUpdateDelegate( string[] items );
@@ -189,8 +187,8 @@ namespace fCraftUI {
                     }
 #if !DEBUG
                 } catch( Exception ex ) {
-                    Logger.LogConsole( "Error occured while trying to execute last console command: " );
-                    Logger.LogConsole( ex.GetType().Name + ": " + ex.Message );
+                    Logger.LogToConsole( "Error occured while trying to execute last console command: " );
+                    Logger.LogToConsole( ex.GetType().Name + ": " + ex.Message );
                     Logger.LogAndReportCrash( "Exception executing command from console", "fCraftUI", ex, false );
                 }
 #endif

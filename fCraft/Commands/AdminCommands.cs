@@ -1017,11 +1017,13 @@ namespace fCraft {
 
             if( String.IsNullOrEmpty(reason) ) {
                 Logger.Log( "{0} shut down the server.", LogType.UserActivity, player.Name );
-                Server.Shutdown( player.GetClassyName(), delay, true, false, false );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delay, true, false );
+                Server.Shutdown( sp, false );
             } else {
                 Server.SendToAll( "&WShutdown reason: {0}", reason );
                 Logger.Log( "{0} shut down the server. Reason: {1}", LogType.UserActivity, player.Name, reason );
-                Server.Shutdown( reason, delay, true, false, false );
+                ShutdownParams sp = new ShutdownParams( reason, delay, true, false, player );
+                Server.Shutdown( sp, false );
             }
         }
 
@@ -1050,10 +1052,12 @@ namespace fCraft {
 
             if( reason == null ) {
                 Logger.Log( "{0} restarted the server.", LogType.UserActivity, player.Name );
-                Server.Shutdown( player.GetClassyName(), delay, true, true, false );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delay, true, true );
+                Server.Shutdown( sp, false );
             } else {
                 Logger.Log( "{0} restarted the server. Reason: {1}", LogType.UserActivity, player.Name, reason );
-                Server.Shutdown( reason, delay, true, true, false );
+                ShutdownParams sp = new ShutdownParams( reason, delay, true, true, player );
+                Server.Shutdown( sp, false );
             }
         }
 
