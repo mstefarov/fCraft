@@ -25,10 +25,18 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
+            this.cUpdater = new System.Windows.Forms.ComboBox();
+            this.lUpdater = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.gHelpAndSupport = new System.Windows.Forms.GroupBox();
+            this.button4 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.gInformation = new System.Windows.Forms.GroupBox();
             this.bGreeting = new System.Windows.Forms.Button();
             this.lAnnouncementsUnits = new System.Windows.Forms.Label();
@@ -103,6 +111,8 @@
             this.bLowerRank = new System.Windows.Forms.Button();
             this.bRaiseRank = new System.Windows.Forms.Button();
             this.gRankOptions = new System.Windows.Forms.GroupBox();
+            this.cMuteLimit = new System.Windows.Forms.ComboBox();
+            this.lMuteLimit = new System.Windows.Forms.Label();
             this.xAllowSecurityCircumvention = new System.Windows.Forms.CheckBox();
             this.cFreezeLimit = new System.Windows.Forms.ComboBox();
             this.lFreezeLimit = new System.Windows.Forms.Label();
@@ -256,21 +266,19 @@
             this.lThrottling = new System.Windows.Forms.Label();
             this.xNoPartialPositionUpdates = new System.Windows.Forms.CheckBox();
             this.gCrashReport = new System.Windows.Forms.GroupBox();
-            this.xUpdateAtStartup = new System.Windows.Forms.CheckBox();
             this.lCrashReportDisclaimer = new System.Windows.Forms.Label();
             this.xSubmitCrashReports = new System.Windows.Forms.CheckBox();
-            this.cUpdater = new System.Windows.Forms.ComboBox();
-            this.lUpdater = new System.Windows.Forms.Label();
             this.bOK = new System.Windows.Forms.Button();
             this.bCancel = new System.Windows.Forms.Button();
             this.bResetTab = new System.Windows.Forms.Button();
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.cMuteLimit = new System.Windows.Forms.ComboBox();
-            this.lMuteLimit = new System.Windows.Forms.Label();
+            this.gUpdateSettings = new System.Windows.Forms.GroupBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.gHelpAndSupport.SuspendLayout();
             this.gInformation.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nAnnouncements)).BeginInit();
             this.gBasic.SuspendLayout();
@@ -318,6 +326,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             this.gCrashReport.SuspendLayout();
+            this.gUpdateSettings.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabs
@@ -343,15 +352,105 @@
             // 
             // tabGeneral
             // 
+            this.tabGeneral.Controls.Add( this.gUpdateSettings );
+            this.tabGeneral.Controls.Add( this.groupBox2 );
+            this.tabGeneral.Controls.Add( this.gHelpAndSupport );
             this.tabGeneral.Controls.Add( this.gInformation );
             this.tabGeneral.Controls.Add( this.gBasic );
             this.tabGeneral.Location = new System.Drawing.Point( 4, 24 );
             this.tabGeneral.Name = "tabGeneral";
             this.tabGeneral.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabGeneral.Size = new System.Drawing.Size( 652, 448 );
+            this.tabGeneral.Size = new System.Drawing.Size( 652, 478 );
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
+            // 
+            // cUpdater
+            // 
+            this.cUpdater.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cUpdater.FormattingEnabled = true;
+            this.cUpdater.Items.AddRange( new object[] {
+            "Disabled",
+            "Notify about updates",
+            "Download and prompt to install",
+            "Fully automatic"} );
+            this.cUpdater.Location = new System.Drawing.Point( 154, 20 );
+            this.cUpdater.Name = "cUpdater";
+            this.cUpdater.Size = new System.Drawing.Size( 245, 23 );
+            this.cUpdater.TabIndex = 43;
+            // 
+            // lUpdater
+            // 
+            this.lUpdater.AutoSize = true;
+            this.lUpdater.Location = new System.Drawing.Point( 12, 23 );
+            this.lUpdater.Name = "lUpdater";
+            this.lUpdater.Size = new System.Drawing.Size( 136, 15 );
+            this.lUpdater.TabIndex = 44;
+            this.lUpdater.Text = "Check for fCraft updates";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBox2.Controls.Add( this.button1 );
+            this.groupBox2.Controls.Add( this.button3 );
+            this.groupBox2.Location = new System.Drawing.Point( 329, 410 );
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size( 315, 55 );
+            this.groupBox2.TabIndex = 3;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "About fCraft";
+            // 
+            // button1
+            // 
+            this.button1.Enabled = false;
+            this.button1.Location = new System.Drawing.Point( 156, 20 );
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size( 140, 23 );
+            this.button1.TabIndex = 0;
+            this.button1.Text = "View Credits";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // button3
+            // 
+            this.button3.Enabled = false;
+            this.button3.Location = new System.Drawing.Point( 10, 20 );
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size( 140, 23 );
+            this.button3.TabIndex = 3;
+            this.button3.Text = "View Version History";
+            this.button3.UseVisualStyleBackColor = true;
+            // 
+            // gHelpAndSupport
+            // 
+            this.gHelpAndSupport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.gHelpAndSupport.Controls.Add( this.button4 );
+            this.gHelpAndSupport.Controls.Add( this.button2 );
+            this.gHelpAndSupport.Location = new System.Drawing.Point( 8, 410 );
+            this.gHelpAndSupport.Name = "gHelpAndSupport";
+            this.gHelpAndSupport.Size = new System.Drawing.Size( 315, 55 );
+            this.gHelpAndSupport.TabIndex = 2;
+            this.gHelpAndSupport.TabStop = false;
+            this.gHelpAndSupport.Text = "Help and Support";
+            // 
+            // button4
+            // 
+            this.button4.Enabled = false;
+            this.button4.Location = new System.Drawing.Point( 9, 20 );
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size( 140, 23 );
+            this.button4.TabIndex = 4;
+            this.button4.Text = "Open fCraft Wiki";
+            this.button4.UseVisualStyleBackColor = true;
+            // 
+            // button2
+            // 
+            this.button2.Enabled = false;
+            this.button2.Location = new System.Drawing.Point( 155, 20 );
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size( 140, 23 );
+            this.button2.TabIndex = 1;
+            this.button2.Text = "Report a Bug";
+            this.button2.UseVisualStyleBackColor = true;
             // 
             // gInformation
             // 
@@ -361,7 +460,7 @@
             this.gInformation.Controls.Add( this.xAnnouncements );
             this.gInformation.Controls.Add( this.bRules );
             this.gInformation.Controls.Add( this.bAnnouncements );
-            this.gInformation.Location = new System.Drawing.Point( 8, 184 );
+            this.gInformation.Location = new System.Drawing.Point( 8, 186 );
             this.gInformation.Name = "gInformation";
             this.gInformation.Size = new System.Drawing.Size( 636, 57 );
             this.gInformation.TabIndex = 1;
@@ -466,7 +565,7 @@
             this.gBasic.Controls.Add( this.lMaxPlayers );
             this.gBasic.Location = new System.Drawing.Point( 8, 13 );
             this.gBasic.Name = "gBasic";
-            this.gBasic.Size = new System.Drawing.Size( 636, 165 );
+            this.gBasic.Size = new System.Drawing.Size( 636, 167 );
             this.gBasic.TabIndex = 0;
             this.gBasic.TabStop = false;
             this.gBasic.Text = "Basic Settings";
@@ -538,7 +637,7 @@
             this.cDefaultRank.FormattingEnabled = true;
             this.cDefaultRank.Location = new System.Drawing.Point( 440, 74 );
             this.cDefaultRank.Name = "cDefaultRank";
-            this.cDefaultRank.Size = new System.Drawing.Size( 189, 23 );
+            this.cDefaultRank.Size = new System.Drawing.Size( 190, 23 );
             this.cDefaultRank.TabIndex = 6;
             // 
             // lDefaultRank
@@ -705,7 +804,7 @@
             this.tabChat.Location = new System.Drawing.Point( 4, 24 );
             this.tabChat.Name = "tabChat";
             this.tabChat.Padding = new System.Windows.Forms.Padding( 5, 5, 5, 10 );
-            this.tabChat.Size = new System.Drawing.Size( 652, 448 );
+            this.tabChat.Size = new System.Drawing.Size( 652, 478 );
             this.tabChat.TabIndex = 10;
             this.tabChat.Text = "Chat";
             this.tabChat.UseVisualStyleBackColor = true;
@@ -964,7 +1063,7 @@
             this.tabWorlds.Location = new System.Drawing.Point( 4, 24 );
             this.tabWorlds.Name = "tabWorlds";
             this.tabWorlds.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabWorlds.Size = new System.Drawing.Size( 652, 448 );
+            this.tabWorlds.Size = new System.Drawing.Size( 652, 478 );
             this.tabWorlds.TabIndex = 9;
             this.tabWorlds.Text = "Worlds";
             this.tabWorlds.UseVisualStyleBackColor = true;
@@ -1095,8 +1194,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 334 );
             this.dgvWorlds.TabIndex = 1;
@@ -1240,6 +1339,25 @@
             this.gRankOptions.TabIndex = 5;
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
+            // 
+            // cMuteLimit
+            // 
+            this.cMuteLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cMuteLimit.FormattingEnabled = true;
+            this.cMuteLimit.Location = new System.Drawing.Point( 96, 251 );
+            this.cMuteLimit.Name = "cMuteLimit";
+            this.cMuteLimit.Size = new System.Drawing.Size( 180, 23 );
+            this.cMuteLimit.TabIndex = 28;
+            this.cMuteLimit.SelectedIndexChanged += new System.EventHandler( this.cMuteLimit_SelectedIndexChanged );
+            // 
+            // lMuteLimit
+            // 
+            this.lMuteLimit.AutoSize = true;
+            this.lMuteLimit.Location = new System.Drawing.Point( 29, 254 );
+            this.lMuteLimit.Name = "lMuteLimit";
+            this.lMuteLimit.Size = new System.Drawing.Size( 61, 15 );
+            this.lMuteLimit.TabIndex = 29;
+            this.lMuteLimit.Text = "Mute limit";
             // 
             // xAllowSecurityCircumvention
             // 
@@ -1638,7 +1756,7 @@
             this.tabSecurity.Location = new System.Drawing.Point( 4, 24 );
             this.tabSecurity.Name = "tabSecurity";
             this.tabSecurity.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabSecurity.Size = new System.Drawing.Size( 652, 448 );
+            this.tabSecurity.Size = new System.Drawing.Size( 652, 478 );
             this.tabSecurity.TabIndex = 7;
             this.tabSecurity.Text = "Security";
             this.tabSecurity.UseVisualStyleBackColor = true;
@@ -1944,7 +2062,7 @@
             this.tabSavingAndBackup.Location = new System.Drawing.Point( 4, 24 );
             this.tabSavingAndBackup.Name = "tabSavingAndBackup";
             this.tabSavingAndBackup.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabSavingAndBackup.Size = new System.Drawing.Size( 652, 448 );
+            this.tabSavingAndBackup.Size = new System.Drawing.Size( 652, 478 );
             this.tabSavingAndBackup.TabIndex = 4;
             this.tabSavingAndBackup.Text = "Saving and Backup";
             this.tabSavingAndBackup.UseVisualStyleBackColor = true;
@@ -2149,7 +2267,7 @@
             this.tabLogging.Location = new System.Drawing.Point( 4, 24 );
             this.tabLogging.Name = "tabLogging";
             this.tabLogging.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabLogging.Size = new System.Drawing.Size( 652, 448 );
+            this.tabLogging.Size = new System.Drawing.Size( 652, 478 );
             this.tabLogging.TabIndex = 5;
             this.tabLogging.Text = "Logging";
             this.tabLogging.UseVisualStyleBackColor = true;
@@ -2306,7 +2424,7 @@
             this.tabIRC.Location = new System.Drawing.Point( 4, 24 );
             this.tabIRC.Name = "tabIRC";
             this.tabIRC.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabIRC.Size = new System.Drawing.Size( 652, 448 );
+            this.tabIRC.Size = new System.Drawing.Size( 652, 478 );
             this.tabIRC.TabIndex = 8;
             this.tabIRC.Text = "IRC";
             this.tabIRC.UseVisualStyleBackColor = true;
@@ -2691,7 +2809,7 @@
             this.tabAdvanced.Location = new System.Drawing.Point( 4, 24 );
             this.tabAdvanced.Name = "tabAdvanced";
             this.tabAdvanced.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabAdvanced.Size = new System.Drawing.Size( 652, 448 );
+            this.tabAdvanced.Size = new System.Drawing.Size( 652, 478 );
             this.tabAdvanced.TabIndex = 6;
             this.tabAdvanced.Text = "Advanced";
             this.tabAdvanced.UseVisualStyleBackColor = true;
@@ -2716,7 +2834,7 @@
             this.groupBox1.Controls.Add( this.cProcessPriority );
             this.groupBox1.Controls.Add( this.lThrottling );
             this.groupBox1.Controls.Add( this.xNoPartialPositionUpdates );
-            this.groupBox1.Location = new System.Drawing.Point( 8, 150 );
+            this.groupBox1.Location = new System.Drawing.Point( 8, 123 );
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size( 638, 285 );
             this.groupBox1.TabIndex = 1;
@@ -2954,27 +3072,14 @@
             // 
             // gCrashReport
             // 
-            this.gCrashReport.Controls.Add( this.xUpdateAtStartup );
             this.gCrashReport.Controls.Add( this.lCrashReportDisclaimer );
             this.gCrashReport.Controls.Add( this.xSubmitCrashReports );
-            this.gCrashReport.Controls.Add( this.cUpdater );
-            this.gCrashReport.Controls.Add( this.lUpdater );
             this.gCrashReport.Location = new System.Drawing.Point( 8, 13 );
             this.gCrashReport.Name = "gCrashReport";
-            this.gCrashReport.Size = new System.Drawing.Size( 638, 131 );
+            this.gCrashReport.Size = new System.Drawing.Size( 638, 104 );
             this.gCrashReport.TabIndex = 0;
             this.gCrashReport.TabStop = false;
             this.gCrashReport.Text = "Web connectivity";
-            // 
-            // xUpdateAtStartup
-            // 
-            this.xUpdateAtStartup.AutoSize = true;
-            this.xUpdateAtStartup.Location = new System.Drawing.Point( 407, 104 );
-            this.xUpdateAtStartup.Name = "xUpdateAtStartup";
-            this.xUpdateAtStartup.Size = new System.Drawing.Size( 183, 19 );
-            this.xUpdateAtStartup.TabIndex = 42;
-            this.xUpdateAtStartup.Text = "Check immediately at startup";
-            this.xUpdateAtStartup.UseVisualStyleBackColor = true;
             // 
             // lCrashReportDisclaimer
             // 
@@ -2991,33 +3096,10 @@
             this.xSubmitCrashReports.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
             this.xSubmitCrashReports.Location = new System.Drawing.Point( 6, 20 );
             this.xSubmitCrashReports.Name = "xSubmitCrashReports";
-            this.xSubmitCrashReports.Size = new System.Drawing.Size( 462, 19 );
+            this.xSubmitCrashReports.Size = new System.Drawing.Size( 446, 19 );
             this.xSubmitCrashReports.TabIndex = 0;
-            this.xSubmitCrashReports.Text = "Automatically submit crash reports to fCraft developers (fragmer.net)";
+            this.xSubmitCrashReports.Text = "Automatically submit crash reports to fCraft developers (fCraft.net)";
             this.xSubmitCrashReports.UseVisualStyleBackColor = true;
-            // 
-            // cUpdater
-            // 
-            this.cUpdater.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cUpdater.FormattingEnabled = true;
-            this.cUpdater.Items.AddRange( new object[] {
-            "Disabled",
-            "Notify about updates",
-            "Download and prompt to install",
-            "Fully automatic"} );
-            this.cUpdater.Location = new System.Drawing.Point( 148, 102 );
-            this.cUpdater.Name = "cUpdater";
-            this.cUpdater.Size = new System.Drawing.Size( 245, 23 );
-            this.cUpdater.TabIndex = 1;
-            // 
-            // lUpdater
-            // 
-            this.lUpdater.AutoSize = true;
-            this.lUpdater.Location = new System.Drawing.Point( 6, 105 );
-            this.lUpdater.Name = "lUpdater";
-            this.lUpdater.Size = new System.Drawing.Size( 136, 15 );
-            this.lUpdater.TabIndex = 38;
-            this.lUpdater.Text = "Check for fCraft updates";
             // 
             // bOK
             // 
@@ -3084,24 +3166,16 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // cMuteLimit
+            // gUpdateSettings
             // 
-            this.cMuteLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cMuteLimit.FormattingEnabled = true;
-            this.cMuteLimit.Location = new System.Drawing.Point( 96, 251 );
-            this.cMuteLimit.Name = "cMuteLimit";
-            this.cMuteLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cMuteLimit.TabIndex = 28;
-            this.cMuteLimit.SelectedIndexChanged += new System.EventHandler( this.cMuteLimit_SelectedIndexChanged );
-            // 
-            // lMuteLimit
-            // 
-            this.lMuteLimit.AutoSize = true;
-            this.lMuteLimit.Location = new System.Drawing.Point( 29, 254 );
-            this.lMuteLimit.Name = "lMuteLimit";
-            this.lMuteLimit.Size = new System.Drawing.Size( 61, 15 );
-            this.lMuteLimit.TabIndex = 29;
-            this.lMuteLimit.Text = "Mute limit";
+            this.gUpdateSettings.Controls.Add( this.cUpdater );
+            this.gUpdateSettings.Controls.Add( this.lUpdater );
+            this.gUpdateSettings.Location = new System.Drawing.Point( 8, 249 );
+            this.gUpdateSettings.Name = "gUpdateSettings";
+            this.gUpdateSettings.Size = new System.Drawing.Size( 636, 54 );
+            this.gUpdateSettings.TabIndex = 46;
+            this.gUpdateSettings.TabStop = false;
+            this.gUpdateSettings.Text = "Updater Settings";
             // 
             // ConfigUI
             // 
@@ -3121,6 +3195,8 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.ConfigUI_FormClosing );
             this.tabs.ResumeLayout( false );
             this.tabGeneral.ResumeLayout( false );
+            this.groupBox2.ResumeLayout( false );
+            this.gHelpAndSupport.ResumeLayout( false );
             this.gInformation.ResumeLayout( false );
             this.gInformation.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nAnnouncements)).EndInit();
@@ -3187,6 +3263,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
+            this.gUpdateSettings.ResumeLayout( false );
+            this.gUpdateSettings.PerformLayout();
             this.ResumeLayout( false );
 
         }
@@ -3288,8 +3366,6 @@
         private System.Windows.Forms.Label lThrottling;
         private System.Windows.Forms.Button bApply;
         private System.Windows.Forms.Button bColorRank;
-        private System.Windows.Forms.ComboBox cUpdater;
-        private System.Windows.Forms.Label lUpdater;
         private System.Windows.Forms.TabPage tabSecurity;
         private System.Windows.Forms.GroupBox gVerify;
         private System.Windows.Forms.Label lVerifyNames;
@@ -3431,9 +3507,17 @@
         private System.Windows.Forms.Label lConsoleName;
         private System.Windows.Forms.TextBox tConsoleName;
         private System.Windows.Forms.Label lConsoleNameHint;
-        private System.Windows.Forms.CheckBox xUpdateAtStartup;
         private System.Windows.Forms.CheckBox xShowConnectionMessages;
         private System.Windows.Forms.ComboBox cMuteLimit;
         private System.Windows.Forms.Label lMuteLimit;
+        private System.Windows.Forms.GroupBox gHelpAndSupport;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.ComboBox cUpdater;
+        private System.Windows.Forms.Label lUpdater;
+        private System.Windows.Forms.GroupBox gUpdateSettings;
     }
 }

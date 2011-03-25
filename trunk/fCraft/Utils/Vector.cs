@@ -14,22 +14,22 @@ namespace fCraft {
         }
 
         public static bool operator >( Vector3i a, Vector3i b ) {
-            return a.X * a.X + a.Z * a.Z + a.Y * a.Y > b.X * b.X + b.Z * b.Z + b.Y * b.Y;
+            return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) > (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
         }
         public static bool operator <( Vector3i a, Vector3i b ) {
-            return a.X * a.X + a.Z * a.Z + a.Y * a.Y < b.X * b.X + b.Z * b.Z + b.Y * b.Y;
+            return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) < (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
         }
         public static bool operator >=( Vector3i a, Vector3i b ) {
-            return a.X * a.X + a.Z * a.Z + a.Y * a.Y >= b.X * b.X + b.Z * b.Z + b.Y * b.Y;
+            return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) >= (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
         }
         public static bool operator <=( Vector3i a, Vector3i b ) {
-            return a.X * a.X + a.Z * a.Z + a.Y * a.Y <= b.X * b.X + b.Z * b.Z + b.Y * b.Y;
+            return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) <= (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
         }
         public static bool operator ==( Vector3i a, Vector3i b ) {
             return (a.X == b.X) && (a.Y == b.Y) && (a.Z == b.Z);
         }
         public static bool operator !=( Vector3i a, Vector3i b ) {
-            return a.X * a.X + a.Z * a.Z + a.Y * a.Y != b.X * b.X + b.Z * b.Z + b.Y * b.Y;
+            return (a.X != b.X) || (a.Y != b.Y) || (a.Z != b.Z);
         }
 
         public static Vector3i operator +( Vector3i a, Vector3i b ) {
@@ -128,16 +128,16 @@ namespace fCraft {
         }
 
         public static bool operator >( Vector3f a, Vector3f b ) {
-            return a.X * a.X + a.Z * a.Z + a.Y * a.Y > b.X * b.X + b.Z * b.Z + b.Y * b.Y;
+            return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) > (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
         }
         public static bool operator <( Vector3f a, Vector3f b ) {
-            return a.X * a.X + a.Z * a.Z + a.Y * a.Y < b.X * b.X + b.Z * b.Z + b.Y * b.Y;
+            return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) < (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
         }
         public static bool operator >=( Vector3f a, Vector3f b ) {
-            return a.X * a.X + a.Z * a.Z + a.Y * a.Y >= b.X * b.X + b.Z * b.Z + b.Y * b.Y;
+            return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) >= (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
         }
         public static bool operator <=( Vector3f a, Vector3f b ) {
-            return a.X * a.X + a.Z * a.Z + a.Y * a.Y <= b.X * b.X + b.Z * b.Z + b.Y * b.Y;
+            return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) <= (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
         }
         public static bool operator ==( Vector3f a, Vector3f b ) {
             return (a.X == b.X) && (a.Y == b.Y) && (a.Z == b.Z);

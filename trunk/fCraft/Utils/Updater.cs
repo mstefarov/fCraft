@@ -194,8 +194,8 @@ namespace fCraft {
 
                 request.Method = "GET";
                 request.UserAgent = "fCraft";
-                request.Timeout = 6000;
-                request.ReadWriteTimeout = 6000;
+                request.Timeout = 2000;
+                request.ReadWriteTimeout = 2000;
                 request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
 
                 using( WebResponse response = request.GetResponse() ) {

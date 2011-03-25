@@ -40,8 +40,10 @@ namespace fCraftUI {
 
 
         void DownloadProgress( object sender, DownloadProgressChangedEventArgs e ) {
-            progress.Value = e.ProgressPercentage;
-            lProgress.Text = "Downloading (" + e.ProgressPercentage + "%)";
+            Invoke( (Action)delegate {
+                progress.Value = e.ProgressPercentage;
+                lProgress.Text = "Downloading (" + e.ProgressPercentage + "%)";
+            } );
         }
 
 
