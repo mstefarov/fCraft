@@ -22,19 +22,23 @@ namespace fCraftWinService {
 
 
         protected override void OnStart( string[] args ) {
-            Server.InitLibrary( args );
-            Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
-            if( !Server.InitServer() || !Server.StartServer() ) {
-                throw new Exception( "Could not start fCraft." );
+            try {
+                Server.InitLibrary( args );
+                Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
+                if( !Server.InitServer() || !Server.StartServer() ) {
+                    throw new Exception( "Could not start fCraft." );
+                }
+                Logger.Log( "fCraftWinService.OnStart: Service started.", LogType.SystemActivity );
+            } catch( Exception ex ) {
+                Logger.LogAndReportCrash( "fCraftWinService failed to initialize or start", "fCraftWinService", ex, true );
             }
-            Logger.Log( "fCraftWinService.OnStart: Service started.", LogType.SystemActivity );
             base.OnStart( args );
         }
 
 
         protected override void OnStop() {
             Logger.Log( "fCraftWinService.OnStop: Stopping.", LogType.SystemActivity );
-            Server.Shutdown( "Shutting down", 0, false, false, true );
+            Server.Shutdown( new ShutdownParams( ShutdownReason.ProcessClosing, 0, false, false ), true );
             base.OnStop();
         }
 

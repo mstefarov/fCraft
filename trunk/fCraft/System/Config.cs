@@ -754,7 +754,7 @@ namespace fCraft {
             DrawCommands.MaxUndoCount = GetInt( ConfigKey.MaxUndo );
 
             if( !Paths.IgnoreMapPathConfigKey && GetString( ConfigKey.MapPath ).Length > 0 ) {
-                if( Paths.TestDirectory( GetString( ConfigKey.MapPath ), true ) ) {
+                if( Paths.TestDirectory( "MapPath", GetString( ConfigKey.MapPath ), true ) ) {
                     Paths.MapPath = Path.GetFullPath( GetString( ConfigKey.MapPath ) );
                     Logger.Log( "Maps are stored at: {0}", LogType.SystemActivity, Paths.MapPath );
                 }

@@ -20,7 +20,7 @@ namespace fCraft {
         /// <param name="path">full or partial path</param>
         /// <param name="checkForWriteAccess"></param>
         /// <returns>full path of the directory (on success) or null (on failure)</returns>
-        public static bool TestDirectory( string path, bool checkForWriteAccess ) {
+        public static bool TestDirectory( string pathLabel, string path, bool checkForWriteAccess ) {
             try {
                 if( !Directory.Exists( path ) ) {
                     Directory.CreateDirectory( path );
@@ -35,24 +35,23 @@ namespace fCraft {
 
             } catch( Exception ex ) {
                 if( ex is ArgumentException || ex is NotSupportedException || ex is PathTooLongException ) {
-                    Logger.Log( "Specified path is invalid or incorrectly formatted ({0}: {1}).", LogType.Error,
-                                ex.GetType().ToString(), ex.Message );
+                    Logger.Log( "Paths.TestDirectory: Specified file/path for {0} is invalid or incorrectly formatted ({1}: {2}).", LogType.Error,
+                                pathLabel, ex.GetType().ToString(), ex.Message );
                 } else if( ex is SecurityException || ex is UnauthorizedAccessException ) {
-                    Logger.Log( "Cannot create directory, check permissions ({0}: {1}).", LogType.Error,
-                                ex.GetType().ToString(), ex.Message );
+                    Logger.Log( "Paths.TestDirectory: Cannot create or write to file/path for {0}, please check permissions ({1}: {2}).", LogType.Error,
+                                pathLabel, ex.GetType().ToString(), ex.Message );
                 } else if( ex is DirectoryNotFoundException ) {
-                    Logger.Log( "Cannot create directory: drive/volume does not exist or is not mounted ({0}).", LogType.Error,
-                                ex.Message );
+                    Logger.Log( "Paths.TestDirectory: Drive/volume for {0} does not exist or is not mounted ({1}).", LogType.Error,
+                                pathLabel, ex.Message );
                 } else if( ex is IOException ) {
-                    Logger.Log( "Cannot write to specified directory ({0}: {1}).", LogType.Error,
-                                ex.GetType().ToString(), ex.Message );
+                    Logger.Log( "Paths.TestDirectory: Specified file/path for {0} is not readable or writable ({1}: {2}).", LogType.Error,
+                                pathLabel, ex.GetType().ToString(), ex.Message );
                 } else {
                     throw;
                 }
             }
             return false;
         }
-
 
 
         public const string MapPathDefault = "maps",
@@ -86,6 +85,7 @@ namespace fCraft {
         /// </summary>
         public static string ConfigFileName { get; set; }
 
+        /// <summary> Path where map backups are stored </summary>
         public static string BackupPath {
             get {
                 return Path.Combine( MapPath, "backups" );

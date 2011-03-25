@@ -277,7 +277,7 @@ namespace fCraft {
         // Queues a system message with a custom color
         public void MessagePrefixed( string prefix, string message ) {
             if( this == Console ) {
-                Logger.LogConsole( message );
+                Logger.LogToConsole( message );
             } else {
                 foreach( Packet p in PacketWriter.MakeWrappedMessage( prefix, Color.Sys + message, false ) ) {
                     Session.Send( p );
@@ -295,7 +295,7 @@ namespace fCraft {
         public void MessageNow( string message, params object[] args ) {
             message = String.Format( message, args );
             if( Session == null ) {
-                Logger.LogConsole( message );
+                Logger.LogToConsole( message );
             } else {
                 foreach( Packet p in PacketWriter.MakeWrappedMessage( ">", Color.Sys + message, false ) ) {
                     Session.Send( p );
