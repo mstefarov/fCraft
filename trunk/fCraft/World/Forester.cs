@@ -10,46 +10,278 @@ namespace fCraft {
     /// <summary>
     /// Vegetation generator for MapGenerator
     /// </summary>
-    sealed class Forester {
+    public sealed class Forester {
 
         const int MaxTries = 1000;
 
-        // TODO: Add a UI to ConfigTool.AddWorldPopup to set these
-        public sealed class ForesterArgs {
-            public ForesterOperation Operation = ForesterOperation.Replant;
-            public int TreeCount = 15; // 0 = no limit if op=conserve/replant
-            public TreeShape Shape = TreeShape.Procedural;
-            public int Height = 25;
-            public int HeightVariation = 15;
-            public bool Wood = true;
-            public float TrunkThickness = 1;
-            public float TrunkHeight = .7f;
-            public float BranchDensity = 1;
-            public RootMode Roots = RootMode.Normal;
-            public bool RootButtresses = true;
-            public bool Foliage = true;
-            public float FoliageDensity = 1;
-            public bool MapHeightLimit = true;
-            public Block PlantOn = Block.Grass;
-            public Random Rand;
-            public Map InMap;
-            public Map OutMap;
 
-            public Block GroundSurfaceBlock = Block.Grass;
-            public Block TrunkBlock = Block.Log;
-            public Block FoliageBlock = Block.Leaves;
+        readonly ForesterArgs args;
 
-            public void Validate() {
-                if( TreeCount < 0 ) TreeCount = 0;
-                if( Height < 1 ) Height = 1;
-                if( HeightVariation > Height ) HeightVariation = Height;
-                if( TrunkThickness < 0 ) TrunkThickness = 0;
-                if( TrunkHeight < 0 ) TrunkHeight = 0;
-                if( FoliageDensity < 0 ) FoliageDensity = 0;
-                if( BranchDensity < 0 ) BranchDensity = 0;
+
+        public Forester( ForesterArgs foresterArgs ) {
+            args = foresterArgs;
+            args.Validate();
+        }
+
+
+        public void Generate() {
+            List<Tree> treelist = new List<Tree>();
+
+            if( args.Operation == ForesterOperation.Conserve ) {
+                FindTrees( treelist );
+            }
+
+            if( args.TreeCount > 0 && treelist.Count > args.TreeCount ) {
+                treelist = treelist.Take( args.TreeCount ).ToList();
+            }
+
+            if( args.Operation == ForesterOperation.Replant || args.Operation == ForesterOperation.Add ) {
+                switch( args.Shape ) {
+                    case TreeShape.Rainforest:
+                        PlantRainForestTrees( treelist );
+                        break;
+                    case TreeShape.Mangrove:
+                        PlantMangroves( treelist );
+                        break;
+                    default:
+                        PlantTrees( treelist );
+                        break;
+                }
+            }
+
+            if( args.Operation != ForesterOperation.ClearCut ) {
+                ProcessTrees( treelist );
+                if( args.Foliage ) {
+                    foreach( Tree tree in treelist ) {
+                        tree.MakeFoliage();
+                    }
+                }
+                if( args.Wood ) {
+                    foreach( Tree tree in treelist ) {
+                        tree.MakeTrunk();
+                    }
+                }
             }
         }
 
+
+        void FindTrees( List<Tree> treelist ) {
+            int treeheight = args.Height;
+
+            for( int x = 0; x < args.InMap.WidthX; x++ ) {
+                for( int z = 0; z < args.InMap.WidthY; z++ ) {
+                    int y = args.InMap.Height - 1;
+                    while( true ) {
+                        int foliagetop = args.InMap.SearchColumn( x, z, args.FoliageBlock, y );
+                        if( foliagetop < 0 ) break;
+                        y = foliagetop;
+                        Vector3i trunktop = new Vector3i( x, z, y - 1 );
+                        int height = DistanceToBlock( args.InMap, new Vector3f( trunktop ), new Vector3f( 0, 0, -1 ), args.TrunkBlock, true );
+                        if( height == 0 ) {
+                            y--;
+                            continue;
+                        }
+                        y -= height;
+                        if( args.Height > 0 ) {
+                            height = args.Rand.Next( treeheight - args.HeightVariation,
+                                                     treeheight + args.HeightVariation + 1 );
+                        }
+                        treelist.Add( new Tree {
+                            Args = args,
+                            Pos = new Vector3i( x, z, y ),
+                            Height = height
+                        } );
+                        y--;
+                    }
+                }
+            }
+        }
+
+
+        void PlantTrees( List<Tree> treelist ) {
+            int treeheight = args.Height;
+
+            int attempts = 0;
+            while( treelist.Count < args.TreeCount && attempts < MaxTries ) {
+                attempts++;
+                int height = args.Rand.Next( treeheight - args.HeightVariation,
+                                             treeheight + args.HeightVariation + 1 );
+
+                Vector3i treeLoc = RandomTreeLoc( height );
+                if( treeLoc.Y < 0 ) continue;
+                else treeLoc.Y++;
+                treelist.Add( new Tree {
+                    Args = args,
+                    Height = height,
+                    Pos = treeLoc
+                } );
+            }
+        }
+
+
+        Vector3i RandomTreeLoc( int height ) {
+            int padding = (int)(height / 3f + 1);
+            int mindim = Math.Min( args.InMap.WidthX, args.InMap.WidthY );
+            if( padding > mindim / 2.2 ) {
+                padding = (int)(mindim / 2.2);
+            }
+            int x = args.Rand.Next( padding, args.InMap.WidthX - padding - 1 );
+            int z = args.Rand.Next( padding, args.InMap.WidthY - padding - 1 );
+            int y = args.InMap.SearchColumn( x, z, args.PlantOn );
+            return new Vector3i( x, z, y );
+        }
+
+
+        void PlantRainForestTrees( List<Tree> treelist ) {
+            int treeheight = args.Height;
+
+            int existingtreenum = treelist.Count;
+            int remainingtrees = args.TreeCount - existingtreenum;
+
+            const int shortTreeFraction = 6;
+            int attempts = 0;
+            for( int i = 0; i < remainingtrees && attempts < MaxTries; attempts++ ) {
+                float randomfac = (float)((Math.Sqrt( args.Rand.NextDouble() ) * 1.618 - .618) * args.HeightVariation + .5);
+
+                int height;
+                if( i % shortTreeFraction == 0 ) {
+                    height = (int)(treeheight + randomfac);
+                } else {
+                    height = (int)(treeheight - randomfac);
+                }
+                Vector3i xyz = RandomTreeLoc( height );
+                if( xyz.Y < 0 ) continue;
+
+                xyz.Y++;
+
+                bool displaced = false;
+                foreach( Tree otherTree in treelist ) {
+                    Vector3i otherLoc = otherTree.Pos;
+                    float otherheight = otherTree.Height;
+                    int tallx = otherLoc[0];
+                    int tallz = otherLoc[2];
+                    float dist = (float)Math.Sqrt( Sqr( tallx - xyz.X + .5 ) + Sqr( tallz - xyz.Z + .5 ) );
+                    float threshold = (otherheight + height) * .193f;
+                    if( dist < threshold ) {
+                        displaced = true;
+                        break;
+                    }
+                }
+                if( displaced ) continue;
+                treelist.Add( new RainforestTree {
+                    Args = args,
+                    Pos = xyz,
+                    Height = height
+                } );
+                i++;
+            }
+        }
+
+
+        void PlantMangroves( List<Tree> treelist ) {
+            int treeheight = args.Height;
+
+            int attempts = 0;
+            while( treelist.Count < args.TreeCount && attempts < MaxTries ) {
+                attempts++;
+                int height = args.Rand.Next( treeheight - args.HeightVariation,
+                                             treeheight + args.HeightVariation + 1 );
+                int padding = (int)(height / 3f + 1);
+                int mindim = Math.Min( args.InMap.WidthX, args.InMap.WidthY );
+                if( padding > mindim / 2.2 ) {
+                    padding = (int)(mindim / 2.2);
+                }
+                int x = args.Rand.Next( padding, args.InMap.WidthX - padding - 1 );
+                int z = args.Rand.Next( padding, args.InMap.WidthY - padding - 1 );
+                int top = args.InMap.Height - 1;
+
+                int y = top - DistanceToBlock( args.InMap, new Vector3f( x, z, top ), new Vector3f( 0, 0, -1 ), Block.Air, true );
+                int dist = DistanceToBlock( args.InMap, new Vector3f( x, z, y ), new Vector3f( 0, 0, -1 ), Block.Water, true );
+
+                if( dist > height * .618 || dist == 0 ) {
+                    continue;
+                }
+
+                y += (int)Math.Sqrt( height - dist ) + 2;
+                treelist.Add( new Tree {
+                    Args = args,
+                    Height = height,
+                    Pos = new Vector3i( x, z, y )
+                } );
+            }
+        }
+
+
+        void ProcessTrees( List<Tree> treelist ) {
+            TreeShape[] shapeChoices;
+            switch( args.Shape ) {
+                case TreeShape.Stickly:
+                    shapeChoices = new[]{ TreeShape.Normal,
+                                                     TreeShape.Bamboo,
+                                                     TreeShape.Palm};
+                    break;
+                case TreeShape.Procedural:
+                    shapeChoices = new[]{ TreeShape.Round,
+                                                     TreeShape.Cone };
+                    break;
+                default:
+                    shapeChoices = new[] { args.Shape };
+                    break;
+            }
+
+            for( int i = 0; i < treelist.Count; i++ ) {
+                TreeShape newshape = shapeChoices[args.Rand.Next( 0, shapeChoices.Length )];
+                Tree newtree;
+                switch( newshape ) {
+                    case TreeShape.Normal:
+                        newtree = new NormalTree();
+                        break;
+                    case TreeShape.Bamboo:
+                        newtree = new BambooTree();
+                        break;
+                    case TreeShape.Palm:
+                        newtree = new PalmTree();
+                        break;
+                    case TreeShape.Round:
+                        newtree = new RoundTree();
+                        break;
+                    case TreeShape.Cone:
+                        newtree = new ConeTree();
+                        break;
+                    case TreeShape.Rainforest:
+                        newtree = new RainforestTree();
+                        break;
+                    case TreeShape.Mangrove:
+                        newtree = new MangroveTree();
+                        break;
+                    default:
+                        throw new ArgumentException("Unknown tree shape type");
+                }
+                newtree.Copy( treelist[i] );
+
+                if( args.MapHeightLimit ) {
+                    int height = newtree.Height;
+                    int ybase = newtree.Pos[1];
+                    int mapheight = args.InMap.Height;
+                    int foliageheight;
+                    if( args.Shape == TreeShape.Rainforest ) {
+                        foliageheight = 2;
+                    } else {
+                        foliageheight = 4;
+                    }
+                    if( ybase + height + foliageheight > mapheight ) {
+                        newtree.Height = mapheight - ybase - foliageheight;
+                    }
+                }
+
+                if( newtree.Height < 1 ) newtree.Height = 1;
+                newtree.Prepare();
+                treelist[i] = newtree;
+            }
+        }
+
+
+        #region Trees
 
         class Tree {
             public Vector3i Pos;
@@ -536,6 +768,60 @@ namespace fCraft {
             }
         }
 
+        #endregion
+
+
+        #region Math Helpers
+
+        static int DistanceToBlock( Map map, Vector3f coord, Vector3f vec, Block blockType ) {
+            return DistanceToBlock( map, coord, vec, blockType, false );
+        }
+
+
+        static int DistanceToBlock( Map map, Vector3f coord, Vector3f vec, Block blockType, bool invert ) {
+            coord += .5f;
+            int iterations = 0;
+            while( map.InBounds( new Vector3i( coord ) ) ) {
+                byte blockAtPos = map.GetBlock( new Vector3i( coord ) );
+                if( (blockAtPos == (byte)blockType && !invert) ||
+                    (blockAtPos != (byte)blockType && invert) ) {
+                    break;
+                } else {
+                    coord += vec;
+                    iterations++;
+                }
+            }
+            return iterations;
+        }
+
+        public static float Sqr( float val ) {
+            return val * val;
+        }
+
+        public static float Cub( float val ) {
+            return val * val * val;
+        }
+
+        public static int Sqr( int val ) {
+            return val * val;
+        }
+
+        public static int Cub( int val ) {
+            return val * val * val;
+        }
+
+        public static double Sqr( double val ) {
+            return val * val;
+        }
+
+        public static double Cub( double val ) {
+            return val * val * val;
+        }
+
+        #endregion
+
+
+        #region Enumerations
 
         public enum ForesterOperation {
             ClearCut,
@@ -563,303 +849,43 @@ namespace fCraft {
             None
         }
 
+        #endregion
 
-        readonly ForesterArgs args;
+    }
 
-        public Forester( ForesterArgs foresterArgs ) {
-            args = foresterArgs;
-            args.Validate();
-        }
+    // TODO: Add a UI to ConfigTool.AddWorldPopup to set these
+    public sealed class ForesterArgs {
+        public Forester.ForesterOperation Operation = Forester.ForesterOperation.Replant;
+        public int TreeCount = 15; // 0 = no limit if op=conserve/replant
+        public Forester.TreeShape Shape = Forester.TreeShape.Procedural;
+        public int Height = 25;
+        public int HeightVariation = 15;
+        public bool Wood = true;
+        public float TrunkThickness = 1;
+        public float TrunkHeight = .7f;
+        public float BranchDensity = 1;
+        public Forester.RootMode Roots = Forester.RootMode.Normal;
+        public bool RootButtresses = true;
+        public bool Foliage = true;
+        public float FoliageDensity = 1;
+        public bool MapHeightLimit = true;
+        public Block PlantOn = Block.Grass;
+        public Random Rand;
+        public Map InMap;
+        public Map OutMap;
 
+        public Block GroundSurfaceBlock = Block.Grass;
+        public Block TrunkBlock = Block.Log;
+        public Block FoliageBlock = Block.Leaves;
 
-        static int DistanceToBlock( Map map, Vector3f coord, Vector3f vec, Block blockType ) {
-            return DistanceToBlock( map, coord, vec, blockType, false );
-        }
-
-
-        static int DistanceToBlock( Map map, Vector3f coord, Vector3f vec, Block blockType, bool invert ) {
-            coord += .5f;
-            int iterations = 0;
-            while( map.InBounds( new Vector3i( coord ) ) ) {
-                byte blockAtPos = map.GetBlock( new Vector3i( coord ) );
-                if( (blockAtPos == (byte)blockType && !invert) ||
-                    (blockAtPos != (byte)blockType && invert) ) {
-                    break;
-                } else {
-                    coord += vec;
-                    iterations++;
-                }
-            }
-            return iterations;
-        }
-
-        void FindTrees( List<Tree> treelist ) {
-            int treeheight = args.Height;
-
-            for( int x = 0; x < args.InMap.WidthX; x++ ) {
-                for( int z = 0; z < args.InMap.WidthY; z++ ) {
-                    int y = args.InMap.Height - 1;
-                    while( true ) {
-                        int foliagetop = args.InMap.SearchColumn( x, z, args.FoliageBlock, y );
-                        if( foliagetop < 0 ) break;
-                        y = foliagetop;
-                        Vector3i trunktop = new Vector3i( x, z, y - 1 );
-                        int height = DistanceToBlock( args.InMap, new Vector3f( trunktop ), new Vector3f( 0, 0, -1 ), args.TrunkBlock, true );
-                        if( height == 0 ) {
-                            y--;
-                            continue;
-                        }
-                        y -= height;
-                        if( args.Height > 0 ) {
-                            height = args.Rand.Next( treeheight - args.HeightVariation,
-                                                     treeheight + args.HeightVariation + 1 );
-                        }
-                        treelist.Add( new Tree {
-                            Args = args,
-                            Pos = new Vector3i( x, z, y ),
-                            Height = height
-                        } );
-                        y--;
-                    }
-                }
-            }
-        }
-
-        void PlantTrees( List<Tree> treelist ) {
-            int treeheight = args.Height;
-
-            int attempts = 0;
-            while( treelist.Count < args.TreeCount && attempts < MaxTries ) {
-                attempts++;
-                int height = args.Rand.Next( treeheight - args.HeightVariation,
-                                             treeheight + args.HeightVariation + 1 );
-
-                Vector3i treeLoc = RandomTreeLoc( height );
-                if( treeLoc.Y < 0 ) continue;
-                else treeLoc.Y++;
-                treelist.Add( new Tree {
-                    Args = args,
-                    Height = height,
-                    Pos = treeLoc
-                } );
-            }
-        }
-
-        Vector3i RandomTreeLoc( int height ) {
-            int padding = (int)(height / 3f + 1);
-            int mindim = Math.Min( args.InMap.WidthX, args.InMap.WidthY );
-            if( padding > mindim / 2.2 ) {
-                padding = (int)(mindim / 2.2);
-            }
-            int x = args.Rand.Next( padding, args.InMap.WidthX - padding - 1 );
-            int z = args.Rand.Next( padding, args.InMap.WidthY - padding - 1 );
-            int y = args.InMap.SearchColumn( x, z, args.PlantOn );
-            return new Vector3i( x, z, y );
-        }
-
-        void PlantRainForestTrees( List<Tree> treelist ) {
-            int treeheight = args.Height;
-
-            int existingtreenum = treelist.Count;
-            int remainingtrees = args.TreeCount - existingtreenum;
-
-            const int shortTreeFraction = 6;
-            int attempts = 0;
-            for( int i = 0; i < remainingtrees && attempts < MaxTries; attempts++ ) {
-                float randomfac = (float)((Math.Sqrt( args.Rand.NextDouble() ) * 1.618 - .618) * args.HeightVariation + .5);
-
-                int height;
-                if( i % shortTreeFraction == 0 ) {
-                    height = (int)(treeheight + randomfac);
-                } else {
-                    height = (int)(treeheight - randomfac);
-                }
-                Vector3i xyz = RandomTreeLoc( height );
-                if( xyz.Y < 0 ) continue;
-
-                xyz.Y++;
-
-                bool displaced = false;
-                foreach( Tree otherTree in treelist ) {
-                    Vector3i otherLoc = otherTree.Pos;
-                    float otherheight = otherTree.Height;
-                    int tallx = otherLoc[0];
-                    int tallz = otherLoc[2];
-                    float dist = (float)Math.Sqrt( Sqr( tallx - xyz.X + .5 ) + Sqr( tallz - xyz.Z + .5 ) );
-                    float threshold = (otherheight + height) * .193f;
-                    if( dist < threshold ) {
-                        displaced = true;
-                        break;
-                    }
-                }
-                if( displaced ) continue;
-                treelist.Add( new RainforestTree {
-                    Args = args,
-                    Pos = xyz,
-                    Height = height
-                } );
-                i++;
-            }
-        }
-
-        void PlantMangroves( List<Tree> treelist ) {
-            int treeheight = args.Height;
-
-            int attempts = 0;
-            while( treelist.Count < args.TreeCount && attempts < MaxTries ) {
-                attempts++;
-                int height = args.Rand.Next( treeheight - args.HeightVariation,
-                                             treeheight + args.HeightVariation + 1 );
-                int padding = (int)(height / 3f + 1);
-                int mindim = Math.Min( args.InMap.WidthX, args.InMap.WidthY );
-                if( padding > mindim / 2.2 ) {
-                    padding = (int)(mindim / 2.2);
-                }
-                int x = args.Rand.Next( padding, args.InMap.WidthX - padding - 1 );
-                int z = args.Rand.Next( padding, args.InMap.WidthY - padding - 1 );
-                int top = args.InMap.Height - 1;
-
-                int y = top - DistanceToBlock( args.InMap, new Vector3f( x, z, top ), new Vector3f( 0, 0, -1 ), Block.Air, true );
-                int dist = DistanceToBlock( args.InMap, new Vector3f( x, z, y ), new Vector3f( 0, 0, -1 ), Block.Water, true );
-
-                if( dist > height * .618 || dist == 0 ) {
-                    continue;
-                }
-
-                y += (int)Math.Sqrt( height - dist ) + 2;
-                treelist.Add( new Tree {
-                    Args = args,
-                    Height = height,
-                    Pos = new Vector3i( x, z, y )
-                } );
-            }
-        }
-
-        void ProcessTrees( List<Tree> treelist ) {
-            TreeShape[] shapeChoices;
-            switch( args.Shape ) {
-                case TreeShape.Stickly:
-                    shapeChoices = new[]{ TreeShape.Normal,
-                                                     TreeShape.Bamboo,
-                                                     TreeShape.Palm};
-                    break;
-                case TreeShape.Procedural:
-                    shapeChoices = new[]{ TreeShape.Round,
-                                                     TreeShape.Cone };
-                    break;
-                default:
-                    shapeChoices = new[] { args.Shape };
-                    break;
-            }
-
-            for( int i = 0; i < treelist.Count; i++ ) {
-                TreeShape newshape = shapeChoices[args.Rand.Next( 0, shapeChoices.Length )];
-                Tree newtree;
-                switch( newshape ) {
-                    case TreeShape.Normal:
-                        newtree = new NormalTree();
-                        break;
-                    case TreeShape.Bamboo:
-                        newtree = new BambooTree();
-                        break;
-                    case TreeShape.Palm:
-                        newtree = new PalmTree();
-                        break;
-                    case TreeShape.Round:
-                        newtree = new RoundTree();
-                        break;
-                    case TreeShape.Cone:
-                        newtree = new ConeTree();
-                        break;
-                    case TreeShape.Rainforest:
-                        newtree = new RainforestTree();
-                        break;
-                    case TreeShape.Mangrove:
-                        newtree = new MangroveTree();
-                        break;
-                    default:
-                        throw new ArgumentException("Unknown tree shape type");
-                }
-                newtree.Copy( treelist[i] );
-
-                if( args.MapHeightLimit ) {
-                    int height = newtree.Height;
-                    int ybase = newtree.Pos[1];
-                    int mapheight = args.InMap.Height;
-                    int foliageheight;
-                    if( args.Shape == TreeShape.Rainforest ) {
-                        foliageheight = 2;
-                    } else {
-                        foliageheight = 4;
-                    }
-                    if( ybase + height + foliageheight > mapheight ) {
-                        newtree.Height = mapheight - ybase - foliageheight;
-                    }
-                }
-
-                if( newtree.Height < 1 ) newtree.Height = 1;
-                newtree.Prepare();
-                treelist[i] = newtree;
-            }
-        }
-
-        public void Generate() {
-            List<Tree> treelist = new List<Tree>();
-
-            if( args.Operation == ForesterOperation.Conserve ) {
-                FindTrees( treelist );
-            }
-
-            if( args.TreeCount > 0 && treelist.Count > args.TreeCount ) {
-                treelist = treelist.Take( args.TreeCount ).ToList();
-            }
-
-            if( args.Operation == ForesterOperation.Replant || args.Operation == ForesterOperation.Add ) {
-                switch( args.Shape ) {
-                    case TreeShape.Rainforest:
-                        PlantRainForestTrees( treelist );
-                        break;
-                    case TreeShape.Mangrove:
-                        PlantMangroves( treelist );
-                        break;
-                    default:
-                        PlantTrees( treelist );
-                        break;
-                }
-            }
-
-            if( args.Operation != ForesterOperation.ClearCut ) {
-                ProcessTrees( treelist );
-                if( args.Foliage ) {
-                    foreach( Tree tree in treelist ) {
-                        tree.MakeFoliage();
-                    }
-                }
-                if( args.Wood ) {
-                    foreach( Tree tree in treelist ) {
-                        tree.MakeTrunk();
-                    }
-                }
-            }
-        }
-
-        public static float Sqr( float val ) {
-            return val * val;
-        }
-        public static float Cub( float val ) {
-            return val * val * val;
-        }
-        public static int Sqr( int val ) {
-            return val * val;
-        }
-        public static int Cub( int val ) {
-            return val * val * val;
-        }
-        public static double Sqr( double val ) {
-            return val * val;
-        }
-        public static double Cub( double val ) {
-            return val * val * val;
+        public void Validate() {
+            if( TreeCount < 0 ) TreeCount = 0;
+            if( Height < 1 ) Height = 1;
+            if( HeightVariation > Height ) HeightVariation = Height;
+            if( TrunkThickness < 0 ) TrunkThickness = 0;
+            if( TrunkHeight < 0 ) TrunkHeight = 0;
+            if( FoliageDensity < 0 ) FoliageDensity = 0;
+            if( BranchDensity < 0 ) BranchDensity = 0;
         }
     }
 }

@@ -54,13 +54,23 @@ namespace fCraft.MapConversion {
                     throw new MapFormatException();
                 }
 
-                Map map = new Map {
-                                      WidthX = reader.ReadInt16(),
-                                      Height = reader.ReadInt16(),
-                                      WidthY = reader.ReadInt16()
-                                  };
-
                 // read dimensions
+                int widthX = reader.ReadInt16();
+                int height = reader.ReadInt16();
+                int widthY = reader.ReadInt16();
+
+                Map map = new Map( null, widthX, widthY, height, false );
+
+                // read spawn
+                map.Spawn.X = (short)reader.ReadInt32();
+                map.Spawn.H = (short)reader.ReadInt32();
+                map.Spawn.Y = (short)reader.ReadInt32();
+                map.Spawn.R = reader.ReadByte();
+                map.Spawn.L = reader.ReadByte();
+
+                if( !map.ValidateHeader() ) {
+                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                }
 
                 return map;
             }
@@ -74,15 +84,15 @@ namespace fCraft.MapConversion {
                     throw new MapFormatException();
                 }
 
-                Map map = new Map {
-                                      WidthX = reader.ReadInt16(),
-                                      Height = reader.ReadInt16(),
-                                      WidthY = reader.ReadInt16()
-                                  };
                 // read dimensions
+                int widthX=reader.ReadInt16();
+                int height = reader.ReadInt16();
+                int widthY = reader.ReadInt16();
+
+                Map map = new Map( null, widthX, widthY, height, false );
 
                 if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "MapFCMv3.Load: One or more of the map dimensions are invalid." );
+                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
                 }
 
                 // read spawn

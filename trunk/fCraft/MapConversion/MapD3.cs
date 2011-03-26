@@ -143,7 +143,6 @@ namespace fCraft.MapConversion {
                 // Setup a GZipStream to decompress and read the map file
                 GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
                 BinaryReader bs = new BinaryReader( gs );
-                Map map = new Map();
 
                 if( bs.ReadByte() != HeaderConstant1 ) {
                     throw new MapFormatException( "Incorrect D3 map header." );
@@ -155,52 +154,61 @@ namespace fCraft.MapConversion {
                 bs.ReadBytes( 2 );
 
                 // Read in the map dimesions
-                map.WidthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                map.WidthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                map.Height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+
+                Map map = new Map( null, widthX, widthY, height, false );
+                map.ResetSpawn();
+
+                if( !map.ValidateHeader() ) {
+                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                }
+
                 return map;
             }
         }
 
 
         public Map Load( string fileName ) {
-            using(FileStream mapStream = File.OpenRead(fileName)){
-            // Setup a GZipStream to decompress and read the map file
-            GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-            BinaryReader bs = new BinaryReader( gs );
-            Map map = new Map();
+            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                // Setup a GZipStream to decompress and read the map file
+                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
+                BinaryReader bs = new BinaryReader( gs );
 
-            if( bs.ReadByte() != HeaderConstant1 ) {
-                throw new MapFormatException( "Incorrect D3 map header." );
-            }
-            if( bs.ReadByte() != HeaderConstant2 ) {
-                throw new MapFormatException( "Incorrect D3 map header." );
-            }
-
-            bs.ReadBytes( 2 );
-
-            // Read in the map dimesions
-            map.WidthX = IPAddress.NetworkToHostOrder(bs.ReadInt16());
-            map.WidthY = IPAddress.NetworkToHostOrder(bs.ReadInt16());
-            map.Height = IPAddress.NetworkToHostOrder(bs.ReadInt16());
-
-            if( !map.ValidateHeader() ) {
-                throw new MapFormatException( "MapD3.Load: One or more of the map dimensions are invalid." );
-            }
-
-            // D3 doesn't save spawnpoint in the map... for SOME reason
-            map.ResetSpawn();
-
-            // Read in the map data
-            map.Blocks = bs.ReadBytes( map.GetBlockCount() );
-
-            for( int i = 0; i < map.Blocks.Length; i++ ) {
-                if( map.Blocks[i] > 49 ) {
-                    map.Blocks[i] = Mapping[map.Blocks[i]];
+                if( bs.ReadByte() != HeaderConstant1 ) {
+                    throw new MapFormatException( "Incorrect D3 map header." );
                 }
-            }
+                if( bs.ReadByte() != HeaderConstant2 ) {
+                    throw new MapFormatException( "Incorrect D3 map header." );
+                }
 
-            return map;
+                bs.ReadBytes( 2 );
+
+                // Read in the map dimesions
+                int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+
+                Map map = new Map( null, widthX, widthY, height, false );
+
+                // D3 doesn't save spawnpoint in the map... for SOME reason
+                map.ResetSpawn();
+
+                if( !map.ValidateHeader() ) {
+                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                }
+
+                // Read in the map data
+                map.Blocks = bs.ReadBytes( map.GetBlockCount() );
+
+                for( int i = 0; i < map.Blocks.Length; i++ ) {
+                    if( map.Blocks[i] > 49 ) {
+                        map.Blocks[i] = Mapping[map.Blocks[i]];
+                    }
+                }
+
+                return map;
             }
         }
 

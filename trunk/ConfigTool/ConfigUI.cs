@@ -18,7 +18,9 @@ namespace ConfigTool {
         static ConfigUI instance;
         Font bold;
         Rank selectedRank, defaultRank, patrolledRank, defaultBuildRank;
+        UpdaterSettingsWindow updaterWindow = new UpdaterSettingsWindow();
         internal static SortableBindingList<WorldListEntry> worlds = new SortableBindingList<WorldListEntry>();
+
 
         #region Initialization
 
@@ -95,6 +97,7 @@ namespace ConfigTool {
 
         #endregion
 
+
         #region Input Handlers
 
         #region General
@@ -169,6 +172,15 @@ namespace ConfigTool {
 @"Welcome to {SERVER_NAME}
 Your rank is {RANK}&S. Type &H/help&S for help." );
             popup.ShowDialog();
+        }
+
+        private void bShowAdvancedUpdaterSettings_Click( object sender, EventArgs e ) {
+            updaterWindow.ShowDialog();
+            cUpdaterMode.SelectedIndex = (int)updaterWindow.UpdaterMode;
+        }
+
+        private void cUpdaterMode_SelectedIndexChanged( object sender, EventArgs e ) {
+            updaterWindow.UpdaterMode = (UpdaterMode)cUpdaterMode.SelectedIndex;
         }
 
         #endregion
@@ -475,6 +487,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         #endregion
 
         #endregion
+
 
         #region Ranks
 
@@ -1092,6 +1105,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         #endregion
 
+
         #region Apply / Save / Cancel Buttons
 
         private void bApply_Click( object sender, EventArgs e ) {
@@ -1122,6 +1136,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         #endregion
+
 
         #region Reset
 
@@ -1190,6 +1205,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         #endregion
+
 
         #region Utils
 
@@ -1355,6 +1371,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         #endregion
+
 
         private void ConfigUI_FormClosing( object sender, FormClosingEventArgs e ) {
             if( !bApply.Enabled ) return;

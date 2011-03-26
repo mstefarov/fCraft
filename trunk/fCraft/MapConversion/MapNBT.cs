@@ -81,15 +81,16 @@ namespace fCraft.MapConversion {
                 GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
                 NBTag tag = NBTag.ReadStream( gs );
 
-                Map map = new Map();
 
                 NBTag mapTag = tag["Map"];
-                map.WidthX = mapTag["Width"].GetShort();
-                map.Height = mapTag["Height"].GetShort();
-                map.WidthY = mapTag["Length"].GetShort();
+                Map map = new Map( null,
+                                   mapTag["Width"].GetShort(),
+                                   mapTag["Length"].GetShort(),
+                                   mapTag["Height"].GetShort(),
+                                   false );
 
                 if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "MapNBT.Load: One or more of the map dimensions are invalid." );
+                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
                 }
 
                 map.Blocks = mapTag["Blocks"].GetBytes();

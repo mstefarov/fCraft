@@ -108,18 +108,32 @@ namespace fCraft.MapConversion {
                 GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress );
                 BinaryReader bs = new BinaryReader( gs );
 
-                Map map = new Map();
 
                 byte version = bs.ReadByte();
                 if( version != 1 && version != 2 ) throw new MapFormatException();
 
+                Position spawn = new Position();
+
+                // Read in the spawn location
+                spawn.X = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
+                spawn.H = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
+                spawn.Y = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
+
                 // Read in the spawn orientation
-                mapStream.Seek( 8, SeekOrigin.Current );
+                spawn.R = bs.ReadByte();
+                spawn.L = bs.ReadByte();
 
                 // Read in the map dimesions
-                map.WidthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                map.WidthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                map.Height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+
+                Map map = new Map( null, widthX, widthY, height, false );
+                map.SetSpawn( spawn );
+
+                if( !map.ValidateHeader() ) {
+                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                }
 
                 return map;
             }
@@ -132,27 +146,31 @@ namespace fCraft.MapConversion {
                 GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress );
                 BinaryReader bs = new BinaryReader( gs );
 
-                Map map = new Map();
 
                 byte version = bs.ReadByte();
                 if( version != 1 && version != 2 ) throw new MapFormatException();
 
+                Position spawn = new Position();
+
                 // Read in the spawn location
-                map.Spawn.X = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
-                map.Spawn.H = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
-                map.Spawn.Y = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
+                spawn.X = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
+                spawn.H = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
+                spawn.Y = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
 
                 // Read in the spawn orientation
-                map.Spawn.R = bs.ReadByte();
-                map.Spawn.L = bs.ReadByte();
+                spawn.R = bs.ReadByte();
+                spawn.L = bs.ReadByte();
 
                 // Read in the map dimesions
-                map.WidthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                map.WidthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                map.Height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+
+                Map map = new Map( null, widthX, widthY, height, true );
+                map.SetSpawn( spawn );
 
                 if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "MapFCMv3.Load: One or more of the map dimensions are invalid." );
+                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
                 }
 
                 // Read in the map data

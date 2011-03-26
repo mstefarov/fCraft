@@ -23,149 +23,160 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.gUpdaterMode = new System.Windows.Forms.GroupBox();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
-            this.radioButton3 = new System.Windows.Forms.RadioButton();
-            this.radioButton4 = new System.Windows.Forms.RadioButton();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
+            this.gMode = new System.Windows.Forms.GroupBox();
+            this.rAutomatic = new System.Windows.Forms.RadioButton();
+            this.rPrompt = new System.Windows.Forms.RadioButton();
+            this.rNotify = new System.Windows.Forms.RadioButton();
+            this.rDisabled = new System.Windows.Forms.RadioButton();
+            this.gOptions = new System.Windows.Forms.GroupBox();
+            this.tRunAfterUpdate = new System.Windows.Forms.TextBox();
+            this.xRunAfterUpdate = new System.Windows.Forms.CheckBox();
+            this.tRunBeforeUpdate = new System.Windows.Forms.TextBox();
+            this.xRunBeforeUpdate = new System.Windows.Forms.CheckBox();
+            this.xBackupBeforeUpdating = new System.Windows.Forms.CheckBox();
             this.bOK = new System.Windows.Forms.Button();
             this.bCancel = new System.Windows.Forms.Button();
-            this.gUpdaterMode.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.gMode.SuspendLayout();
+            this.gOptions.SuspendLayout();
             this.SuspendLayout();
             // 
-            // gUpdaterMode
+            // gMode
             // 
-            this.gUpdaterMode.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.gMode.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.gUpdaterMode.Controls.Add( this.radioButton4 );
-            this.gUpdaterMode.Controls.Add( this.radioButton3 );
-            this.gUpdaterMode.Controls.Add( this.radioButton2 );
-            this.gUpdaterMode.Controls.Add( this.radioButton1 );
-            this.gUpdaterMode.Location = new System.Drawing.Point( 13, 13 );
-            this.gUpdaterMode.Name = "gUpdaterMode";
-            this.gUpdaterMode.Size = new System.Drawing.Size( 322, 119 );
-            this.gUpdaterMode.TabIndex = 0;
-            this.gUpdaterMode.TabStop = false;
-            this.gUpdaterMode.Text = "Update mode";
+            this.gMode.Controls.Add( this.rAutomatic );
+            this.gMode.Controls.Add( this.rPrompt );
+            this.gMode.Controls.Add( this.rNotify );
+            this.gMode.Controls.Add( this.rDisabled );
+            this.gMode.Location = new System.Drawing.Point( 13, 13 );
+            this.gMode.Name = "gMode";
+            this.gMode.Size = new System.Drawing.Size( 322, 119 );
+            this.gMode.TabIndex = 0;
+            this.gMode.TabStop = false;
+            this.gMode.Text = "Updater preference";
             // 
-            // radioButton1
+            // rAutomatic
             // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point( 15, 23 );
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size( 66, 17 );
-            this.radioButton1.TabIndex = 0;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "Disabled";
-            this.radioButton1.UseVisualStyleBackColor = true;
+            this.rAutomatic.AutoSize = true;
+            this.rAutomatic.Location = new System.Drawing.Point( 15, 92 );
+            this.rAutomatic.Name = "rAutomatic";
+            this.rAutomatic.Size = new System.Drawing.Size( 274, 17 );
+            this.rAutomatic.TabIndex = 3;
+            this.rAutomatic.TabStop = true;
+            this.rAutomatic.Text = "Automatic - Download and apply all updates at once.";
+            this.rAutomatic.UseVisualStyleBackColor = true;
             // 
-            // radioButton2
+            // rPrompt
             // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Location = new System.Drawing.Point( 15, 46 );
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size( 166, 17 );
-            this.radioButton2.TabIndex = 1;
-            this.radioButton2.TabStop = true;
-            this.radioButton2.Text = "Notify if an update is available";
-            this.radioButton2.UseVisualStyleBackColor = true;
+            this.rPrompt.AutoSize = true;
+            this.rPrompt.Location = new System.Drawing.Point( 15, 69 );
+            this.rPrompt.Name = "rPrompt";
+            this.rPrompt.Size = new System.Drawing.Size( 282, 17 );
+            this.rPrompt.TabIndex = 2;
+            this.rPrompt.TabStop = true;
+            this.rPrompt.Text = "Prompt - Prepare updates to install, and ask to confirm.";
+            this.rPrompt.UseVisualStyleBackColor = true;
             // 
-            // radioButton3
+            // rNotify
             // 
-            this.radioButton3.AutoSize = true;
-            this.radioButton3.Location = new System.Drawing.Point( 15, 69 );
-            this.radioButton3.Name = "radioButton3";
-            this.radioButton3.Size = new System.Drawing.Size( 211, 17 );
-            this.radioButton3.TabIndex = 2;
-            this.radioButton3.TabStop = true;
-            this.radioButton3.Text = "Download updates and prompt to install";
-            this.radioButton3.UseVisualStyleBackColor = true;
+            this.rNotify.AutoSize = true;
+            this.rNotify.Location = new System.Drawing.Point( 15, 46 );
+            this.rNotify.Name = "rNotify";
+            this.rNotify.Size = new System.Drawing.Size( 278, 17 );
+            this.rNotify.TabIndex = 1;
+            this.rNotify.TabStop = true;
+            this.rNotify.Text = "Notify - Show a message when updates are available.";
+            this.rNotify.UseVisualStyleBackColor = true;
             // 
-            // radioButton4
+            // rDisabled
             // 
-            this.radioButton4.AutoSize = true;
-            this.radioButton4.Location = new System.Drawing.Point( 15, 92 );
-            this.radioButton4.Name = "radioButton4";
-            this.radioButton4.Size = new System.Drawing.Size( 124, 17 );
-            this.radioButton4.TabIndex = 3;
-            this.radioButton4.TabStop = true;
-            this.radioButton4.Text = "Update automatically";
-            this.radioButton4.UseVisualStyleBackColor = true;
+            this.rDisabled.AutoSize = true;
+            this.rDisabled.Location = new System.Drawing.Point( 15, 23 );
+            this.rDisabled.Name = "rDisabled";
+            this.rDisabled.Size = new System.Drawing.Size( 199, 17 );
+            this.rDisabled.TabIndex = 0;
+            this.rDisabled.TabStop = true;
+            this.rDisabled.Text = "Disabled - Do not check for updates.";
+            this.rDisabled.UseVisualStyleBackColor = true;
+            this.rDisabled.CheckedChanged += new System.EventHandler( this.rDisabled_CheckedChanged );
             // 
-            // groupBox1
+            // gOptions
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.gOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add( this.textBox2 );
-            this.groupBox1.Controls.Add( this.checkBox3 );
-            this.groupBox1.Controls.Add( this.textBox1 );
-            this.groupBox1.Controls.Add( this.checkBox2 );
-            this.groupBox1.Controls.Add( this.checkBox1 );
-            this.groupBox1.Location = new System.Drawing.Point( 13, 139 );
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size( 322, 150 );
-            this.groupBox1.TabIndex = 1;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Options";
+            this.gOptions.Controls.Add( this.tRunAfterUpdate );
+            this.gOptions.Controls.Add( this.xRunAfterUpdate );
+            this.gOptions.Controls.Add( this.tRunBeforeUpdate );
+            this.gOptions.Controls.Add( this.xRunBeforeUpdate );
+            this.gOptions.Controls.Add( this.xBackupBeforeUpdating );
+            this.gOptions.Location = new System.Drawing.Point( 13, 138 );
+            this.gOptions.Name = "gOptions";
+            this.gOptions.Size = new System.Drawing.Size( 322, 147 );
+            this.gOptions.TabIndex = 1;
+            this.gOptions.TabStop = false;
+            this.gOptions.Text = "Optional features";
             // 
-            // checkBox1
+            // tRunAfterUpdate
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point( 15, 23 );
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size( 284, 17 );
-            this.checkBox1.TabIndex = 0;
-            this.checkBox1.Text = "Back up server data and configuration before updating";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            // 
-            // checkBox2
-            // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point( 15, 46 );
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size( 224, 17 );
-            this.checkBox2.TabIndex = 1;
-            this.checkBox2.Text = "Run a script or command before updating:";
-            this.checkBox2.UseVisualStyleBackColor = true;
-            // 
-            // textBox1
-            // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.tRunAfterUpdate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point( 43, 69 );
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size( 273, 20 );
-            this.textBox1.TabIndex = 2;
+            this.tRunAfterUpdate.Enabled = false;
+            this.tRunAfterUpdate.Font = new System.Drawing.Font( "Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.tRunAfterUpdate.Location = new System.Drawing.Point( 43, 118 );
+            this.tRunAfterUpdate.Name = "tRunAfterUpdate";
+            this.tRunAfterUpdate.Size = new System.Drawing.Size( 273, 20 );
+            this.tRunAfterUpdate.TabIndex = 4;
+            this.tRunAfterUpdate.TextChanged += new System.EventHandler( this.tRunAfterUpdate_TextChanged );
             // 
-            // textBox2
+            // xRunAfterUpdate
             // 
-            this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.xRunAfterUpdate.AutoSize = true;
+            this.xRunAfterUpdate.Location = new System.Drawing.Point( 15, 95 );
+            this.xRunAfterUpdate.Name = "xRunAfterUpdate";
+            this.xRunAfterUpdate.Size = new System.Drawing.Size( 215, 17 );
+            this.xRunAfterUpdate.TabIndex = 3;
+            this.xRunAfterUpdate.Text = "Run a script or command after updating:";
+            this.xRunAfterUpdate.UseVisualStyleBackColor = true;
+            this.xRunAfterUpdate.CheckedChanged += new System.EventHandler( this.xRunAfterUpdate_CheckedChanged );
+            // 
+            // tRunBeforeUpdate
+            // 
+            this.tRunBeforeUpdate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox2.Location = new System.Drawing.Point( 43, 118 );
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size( 273, 20 );
-            this.textBox2.TabIndex = 4;
+            this.tRunBeforeUpdate.Enabled = false;
+            this.tRunBeforeUpdate.Font = new System.Drawing.Font( "Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.tRunBeforeUpdate.Location = new System.Drawing.Point( 43, 69 );
+            this.tRunBeforeUpdate.Name = "tRunBeforeUpdate";
+            this.tRunBeforeUpdate.Size = new System.Drawing.Size( 273, 20 );
+            this.tRunBeforeUpdate.TabIndex = 2;
+            this.tRunBeforeUpdate.TextChanged += new System.EventHandler( this.tRunBeforeUpdate_TextChanged );
             // 
-            // checkBox3
+            // xRunBeforeUpdate
             // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point( 15, 95 );
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size( 215, 17 );
-            this.checkBox3.TabIndex = 3;
-            this.checkBox3.Text = "Run a script or command after updating:";
-            this.checkBox3.UseVisualStyleBackColor = true;
+            this.xRunBeforeUpdate.AutoSize = true;
+            this.xRunBeforeUpdate.Location = new System.Drawing.Point( 15, 46 );
+            this.xRunBeforeUpdate.Name = "xRunBeforeUpdate";
+            this.xRunBeforeUpdate.Size = new System.Drawing.Size( 224, 17 );
+            this.xRunBeforeUpdate.TabIndex = 1;
+            this.xRunBeforeUpdate.Text = "Run a script or command before updating:";
+            this.xRunBeforeUpdate.UseVisualStyleBackColor = true;
+            this.xRunBeforeUpdate.CheckedChanged += new System.EventHandler( this.xRunBeforeUpdate_CheckedChanged );
+            // 
+            // xBackupBeforeUpdating
+            // 
+            this.xBackupBeforeUpdating.AutoSize = true;
+            this.xBackupBeforeUpdating.Location = new System.Drawing.Point( 15, 23 );
+            this.xBackupBeforeUpdating.Name = "xBackupBeforeUpdating";
+            this.xBackupBeforeUpdating.Size = new System.Drawing.Size( 284, 17 );
+            this.xBackupBeforeUpdating.TabIndex = 0;
+            this.xBackupBeforeUpdating.Text = "Back up server data and configuration before updating";
+            this.xBackupBeforeUpdating.UseVisualStyleBackColor = true;
             // 
             // bOK
             // 
-            this.bOK.Location = new System.Drawing.Point( 179, 295 );
+            this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.bOK.Location = new System.Drawing.Point( 179, 291 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 75, 23 );
             this.bOK.TabIndex = 2;
@@ -174,8 +185,9 @@
             // 
             // bCancel
             // 
+            this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.bCancel.Location = new System.Drawing.Point( 260, 295 );
+            this.bCancel.Location = new System.Drawing.Point( 260, 291 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 75, 23 );
             this.bCancel.TabIndex = 3;
@@ -188,34 +200,35 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.bCancel;
-            this.ClientSize = new System.Drawing.Size( 347, 330 );
+            this.ClientSize = new System.Drawing.Size( 347, 326 );
             this.Controls.Add( this.bCancel );
             this.Controls.Add( this.bOK );
-            this.Controls.Add( this.groupBox1 );
-            this.Controls.Add( this.gUpdaterMode );
+            this.Controls.Add( this.gOptions );
+            this.Controls.Add( this.gMode );
             this.Name = "UpdaterSettingsWindow";
-            this.Text = "UpdaterWindow";
-            this.gUpdaterMode.ResumeLayout( false );
-            this.gUpdaterMode.PerformLayout();
-            this.groupBox1.ResumeLayout( false );
-            this.groupBox1.PerformLayout();
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "Advanced updater settings";
+            this.gMode.ResumeLayout( false );
+            this.gMode.PerformLayout();
+            this.gOptions.ResumeLayout( false );
+            this.gOptions.PerformLayout();
             this.ResumeLayout( false );
 
         }
 
         #endregion
 
-        private System.Windows.Forms.GroupBox gUpdaterMode;
-        private System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.RadioButton radioButton4;
-        private System.Windows.Forms.RadioButton radioButton3;
-        private System.Windows.Forms.RadioButton radioButton2;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.CheckBox checkBox3;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.GroupBox gMode;
+        private System.Windows.Forms.RadioButton rDisabled;
+        private System.Windows.Forms.RadioButton rAutomatic;
+        private System.Windows.Forms.RadioButton rPrompt;
+        private System.Windows.Forms.RadioButton rNotify;
+        private System.Windows.Forms.GroupBox gOptions;
+        private System.Windows.Forms.TextBox tRunAfterUpdate;
+        private System.Windows.Forms.CheckBox xRunAfterUpdate;
+        private System.Windows.Forms.TextBox tRunBeforeUpdate;
+        private System.Windows.Forms.CheckBox xRunBeforeUpdate;
+        private System.Windows.Forms.CheckBox xBackupBeforeUpdating;
         private System.Windows.Forms.Button bOK;
         private System.Windows.Forms.Button bCancel;
     }

@@ -167,7 +167,7 @@ namespace fCraft {
         );
 
         public const int Version = 510,
-                         Revision = 476;
+                         Revision = 477;
         public const bool IsDev = true,
                           IsBroken = true;
 
@@ -182,7 +182,7 @@ namespace fCraft {
 
         public static UpdaterResult CheckForUpdates() {
             // TODO: fix the rest
-            UpdaterMode mode = ConfigKey.UpdateMode.GetEnum<UpdaterMode>();
+            UpdaterMode mode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
             if( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
 
             string url = String.Format( UpdateUrl, Revision );
