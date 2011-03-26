@@ -321,7 +321,11 @@ namespace ConfigTool {
                 };
                 generatedMap = gen.Generate();
             } else {
-                generatedMap = new Map( null, Convert.ToInt32( nFlatgrassDimX.Value ), Convert.ToInt32( nFlatgrassDimY.Value ), Convert.ToInt32( nFlatgrassDimH.Value ) );
+                generatedMap = new Map( null,
+                                        Convert.ToInt32( nFlatgrassDimX.Value ),
+                                        Convert.ToInt32( nFlatgrassDimY.Value ),
+                                        Convert.ToInt32( nFlatgrassDimH.Value ),
+                                        true );
                 MapGenerator.GenerateFlatgrass( generatedMap );
                 generatedMap.ResetSpawn();
             }

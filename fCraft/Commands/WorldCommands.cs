@@ -897,22 +897,22 @@ namespace fCraft {
 
             player.MessageNow( "Looking for \"{0}\"...", fileName );
 
-            string fullFileName;
+            string sourceFullFileName;
 
             if( File.Exists( Path.Combine( Paths.MapPath, fileName ) ) || Directory.Exists( Path.Combine( Paths.MapPath, fileName ) ) ) {
-                fullFileName = Path.Combine( Paths.MapPath, fileName );
+                sourceFullFileName = Path.Combine( Paths.MapPath, fileName );
             } else if( File.Exists( Path.Combine( Paths.MapPath, fileName + ".fcm" ) ) ) {
                 fileName += ".fcm";
-                fullFileName = Path.Combine( Paths.MapPath, fileName );
+                sourceFullFileName = Path.Combine( Paths.MapPath, fileName );
             } else {
                 player.Message( "File/directory not found: {0}", fileName );
                 return;
             }
-            if( !Paths.IsValidPath( fullFileName ) ) {
+            if( !Paths.IsValidPath( sourceFullFileName ) ) {
                 player.Message( "Invalid filename or path." );
                 return;
             }
-            if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
+            if( !Paths.Contains( Paths.MapPath, sourceFullFileName ) ) {
                 player.Message( "You cannot to access files outside the map folder." );
                 return;
             }
@@ -922,7 +922,7 @@ namespace fCraft {
                     player.AskForConfirmation( cmd, "About to replace THIS MAP with \"{0}\".", fileName );
                     return;
                 }
-                Map map = Map.Load( player.World, fullFileName );
+                Map map = Map.Load( player.World, sourceFullFileName );
                 if( map == null ) {
                     player.MessageNow( "Could not load specified file." );
                     return;
@@ -947,43 +947,43 @@ namespace fCraft {
                 lock( Server.WorldListLock ) {
                     World world = Server.FindWorldExact( worldName );
                     if( world != null ) {
+                        // Replacing existing world's map
                         if( !cmd.Confirmed ) {
                             player.AskForConfirmation( cmd, "About to replace map for {0}&S with \"{1}\".",
                                                        world.GetClassyName(), fileName );
                             return;
                         }
 
-                        Map map = Map.Load( player.World, fullFileName );
+                        Map map = Map.Load( player.World, sourceFullFileName );
                         if( map == null ) {
                             player.MessageNow( "Could not load specified file." );
                             return;
                         }
 
-                        // Replacing existing world's map
                         world.ChangeMap( map );
                         world.SendToAllExcept( "{0}&S loaded a new map for the world {1}", player,
                                                player.GetClassyName(), world.GetClassyName() );
                         player.MessageNow( "New map for the world {0}&S has been loaded.", world.GetClassyName() );
                         Logger.Log( "{0} loaded new map for world \"{1}\" from {2}", LogType.UserActivity,
-                                    player.Name, world.Name, fullFileName );
+                                    player.Name, world.Name, sourceFullFileName );
 
                     } else {
-                        string targetFileName = Path.Combine( Paths.MapPath, worldName + ".fcm" );
-                        if( !Paths.Compare( targetFileName, fullFileName ) && File.Exists( targetFileName ) && File.Exists( fullFileName ) ) {
-                            if( Paths.Compare( targetFileName, fullFileName ) && !cmd.Confirmed ) {
-                                player.AskForConfirmation( cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
-                                                           Path.GetFileName( targetFileName ), Path.GetFileName( fullFileName ) );
-                                return;
-                            }
+                        // Adding a new world
+                        string targetFullFileName = Path.Combine( Paths.MapPath, worldName + ".fcm" );
+                        if( !cmd.Confirmed &&
+                            File.Exists( targetFullFileName ) && // target file already exists
+                            !Paths.Compare( targetFullFileName, sourceFullFileName ) ) { // and is different from sourceFile
+                            player.AskForConfirmation( cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
+                                                       Path.GetFileName( targetFullFileName ), Path.GetFileName( sourceFullFileName ) );
+                            return;
                         }
 
-                        Map map = Map.Load( player.World, fullFileName );
+                        Map map = Map.Load( player.World, sourceFullFileName );
                         if( map == null ) {
                             player.MessageNow( "Could not load specified file." );
                             return;
                         }
 
-                        // Adding a new world
                         World newWorld = Server.AddWorld( worldName, map, false );
                         if( newWorld != null ) {
                             newWorld.BuildSecurity.MinRank = RankList.ParseRank( ConfigKey.DefaultBuildRank.GetString() );
@@ -1325,7 +1325,7 @@ namespace fCraft {
                     player.MessageNow( "Generating {0} {1}...", theme, template );
                 }
                 if( theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat ) {
-                    map = new Map( null, args.WidthX, args.WidthY, args.Height );
+                    map = new Map( null, args.WidthX, args.WidthY, args.Height, true );
                     MapGenerator.GenerateFlatgrass( map );
                 } else {
                     MapGenerator generator = new MapGenerator( args );

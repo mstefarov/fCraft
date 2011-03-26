@@ -69,8 +69,7 @@ namespace ConfigTool {
                     }
                 }
                 if( errorLog.Length > 0 ) {
-                    MessageBox.Show(
-                        "Some errors occured while loading the world list:" + Environment.NewLine + errorLog, "Warning" );
+                    MessageBox.Show( "Some errors occured while loading the world list:" + Environment.NewLine + errorLog, "Warning" );
                 }
 
                 FillWorldList();
@@ -109,6 +108,12 @@ namespace ConfigTool {
 
             xAnnouncements.Checked = (Config.GetInt( ConfigKey.AnnouncementInterval ) > 0);
             nAnnouncements.Value = Config.GetInt( ConfigKey.AnnouncementInterval );
+
+            // UpdaterSettingsWindow
+            updaterWindow.BackupBeforeUpdate = ConfigKey.BackupBeforeUpdate.GetBool();
+            updaterWindow.RunBeforeUpdate = ConfigKey.RunBeforeUpdate.GetString();
+            updaterWindow.RunAfterUpdate = ConfigKey.RunAfterUpdate.GetString();
+            updaterWindow.UpdaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
         }
 
 
@@ -320,7 +325,7 @@ namespace ConfigTool {
                 }
             }
 
-            ApplyEnum( cUpdater, ConfigKey.UpdateMode, UpdaterMode.Prompt );
+            ApplyEnum( cUpdaterMode, ConfigKey.UpdaterMode, UpdaterMode.Prompt );
 
             nThrottling.Value = Config.GetInt( ConfigKey.BlockUpdateThrottling );
             xLowLatencyMode.Checked = Config.GetBool( ConfigKey.LowLatencyMode );
@@ -355,6 +360,8 @@ namespace ConfigTool {
 
         void SaveConfig() {
             Config.errors = "";
+
+            // General
             Config.TrySetValue( ConfigKey.ServerName, tServerName.Text );
             Config.TrySetValue( ConfigKey.MOTD, tMOTD.Text );
             Config.TrySetValue( ConfigKey.MaxPlayers, nMaxPlayers.Value );
@@ -371,6 +378,12 @@ namespace ConfigTool {
 
             if( xAnnouncements.Checked ) Config.TrySetValue( ConfigKey.AnnouncementInterval, nAnnouncements.Value );
             else Config.TrySetValue( ConfigKey.AnnouncementInterval, 0 );
+
+            // UpdaterSettingsWindow
+            ConfigKey.UpdaterMode.TrySetValue( updaterWindow.UpdaterMode );
+            ConfigKey.BackupBeforeUpdate.TrySetValue( updaterWindow.BackupBeforeUpdate );
+            ConfigKey.RunBeforeUpdate.TrySetValue( updaterWindow.RunBeforeUpdate );
+            ConfigKey.RunAfterUpdate.TrySetValue( updaterWindow.RunAfterUpdate );
 
 
             // Chat
@@ -478,7 +491,6 @@ namespace ConfigTool {
 
             // advanced
             Config.TrySetValue( ConfigKey.SubmitCrashReports, xSubmitCrashReports.Checked );
-            WriteEnum<UpdaterMode>( cUpdater, ConfigKey.UpdateMode );
 
             Config.TrySetValue( ConfigKey.RelayAllBlockUpdates, xRelayAllBlockUpdates.Checked );
             Config.TrySetValue( ConfigKey.NoPartialPositionUpdates, xNoPartialPositionUpdates.Checked );

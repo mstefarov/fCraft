@@ -143,7 +143,7 @@ namespace fCraft.MapConversion {
         public Map Load( string fileName ) {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 byte[] temp = new byte[8];
-                Map map = new Map();
+                Map map = null;
                 byte[] data;
 
                 try {
@@ -176,6 +176,8 @@ namespace fCraft.MapConversion {
 
                         // start parsing serialization listing
                         int offset = 0;
+                        int widthX=0, widthY=0, height=0;
+                        Position spawn = new Position();
                         while( pointer < headerEnd ) {
                             switch( (char)data[pointer] ) {
                                 case 'Z':
@@ -198,24 +200,27 @@ namespace fCraft.MapConversion {
                             // look for relevant variables
                             Array.Copy( data, headerEnd + offset - 4, temp, 0, sizeof( int ) );
                             if( MemCmp( data, pointer, "width" ) ) {
-                                map.WidthX = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
+                                widthX = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
                             } else if( MemCmp( data, pointer, "depth" ) ) {
-                                map.Height = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
+                                height = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
                             } else if( MemCmp( data, pointer, "height" ) ) {
-                                map.WidthY = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
+                                widthY = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
                             } else if( MemCmp( data, pointer, "xSpawn" ) ) {
-                                map.Spawn.X = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                                spawn.X = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
                             } else if( MemCmp( data, pointer, "ySpawn" ) ) {
-                                map.Spawn.H = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                                spawn.H = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
                             } else if( MemCmp( data, pointer, "zSpawn" ) ) {
-                                map.Spawn.Y = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                                spawn.Y = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
                             }
 
                             pointer += skip;
                         }
 
+                        map = new Map( null, widthX, widthY, height, false );
+                        map.SetSpawn( spawn );
+
                         if( !map.ValidateHeader() ) {
-                            throw new MapFormatException( "MapDAT.Load: One or more of the map dimensions are invalid." );
+                            throw new MapFormatException( "One or more of the map dimensions are invalid." );
                         }
 
                         // find the start of the block array

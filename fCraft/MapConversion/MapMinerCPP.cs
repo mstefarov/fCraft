@@ -75,8 +75,6 @@ namespace fCraft.MapConversion {
 
         public Map LoadHeader( string fileName ) {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                Map map = new Map();
-
                 // Setup a GZipStream to decompress and read the map file
                 using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
                     BinaryReader bs = new BinaryReader( gs );
@@ -89,10 +87,10 @@ namespace fCraft.MapConversion {
                     // Read in the map dimesions
                     // Saved in big endian for who-know-what reason.
                     // XYZ(?)
-                    map.WidthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                    map.Height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                    map.WidthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                    return map;
+                    int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    int widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    return new Map( null, widthX, widthY, height, false );
                 }
             }
         }
@@ -100,8 +98,6 @@ namespace fCraft.MapConversion {
 
         public Map Load( string fileName ) {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                Map map = new Map();
-
                 // Setup a GZipStream to decompress and read the map file
                 using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
                     BinaryReader bs = new BinaryReader( gs );
@@ -114,12 +110,14 @@ namespace fCraft.MapConversion {
                     // Read in the map dimesions
                     // Saved in big endian for who-know-what reason.
                     // XYZ(?)
-                    map.WidthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                    map.Height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                    map.WidthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                    int widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+
+                    Map map = new Map( null, widthX, widthY, height, false );
 
                     if( !map.ValidateHeader() ) {
-                        throw new MapFormatException( "MapFCMv3.Load: One or more of the map dimensions are invalid." );
+                        throw new MapFormatException( "One or more of the map dimensions are invalid." );
                     }
 
                     // Read in the spawn location
@@ -137,9 +135,9 @@ namespace fCraft.MapConversion {
 
                     // Read in the map data
                     map.Blocks = bs.ReadBytes( map.GetBlockCount() );
-                }
 
-                return map;
+                    return map;
+                }
             }
         }
 

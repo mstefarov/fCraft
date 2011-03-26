@@ -242,8 +242,8 @@ namespace fCraft {
         [BoolKey( ConfigSection.Advanced, false )]
         RelayAllBlockUpdates,
 
-        [EnumKey( ConfigSection.Advanced, UpdaterMode.Prompt )]
-        UpdateMode,
+        [EnumKey( ConfigSection.Advanced, fCraft.UpdaterMode.Prompt )]
+        UpdaterMode,
 
         [StringKey( ConfigSection.Advanced, "", NotBlank = false )]
         RunBeforeUpdate,

@@ -734,7 +734,7 @@ The update check is done on-startup.
         shows a list of changes, and asks to continue (or cancel).
     ""Automatic"" - fCraft downloads and applies updates at once.";
             toolTip.SetToolTip( lUpdater, tipUpdater );
-            toolTip.SetToolTip( cUpdater, tipUpdater );
+            toolTip.SetToolTip( cUpdaterMode, tipUpdater );
 
             string tipThrottling =
 @"The maximum number of block changes that can be sent to each client per second.

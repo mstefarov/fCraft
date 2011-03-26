@@ -78,8 +78,6 @@ namespace fCraft.MapConversion {
 
         public Map LoadHeader( string fileName ) {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                Map map = new Map();
-
                 BinaryReader reader = new BinaryReader( mapStream );
 
                 // Read in the magic number
@@ -88,9 +86,24 @@ namespace fCraft.MapConversion {
                 }
 
                 // Read in the map dimesions
-                map.WidthX = reader.ReadInt16();
-                map.WidthY = reader.ReadInt16();
-                map.Height = reader.ReadInt16();
+                int widthX = reader.ReadInt16();
+                int widthY = reader.ReadInt16();
+                int height = reader.ReadInt16();
+
+                Map map = new Map( null, widthX, widthY, height, false );
+
+                // Read in the spawn location
+                map.Spawn.X = reader.ReadInt16();
+                map.Spawn.Y = reader.ReadInt16();
+                map.Spawn.H = reader.ReadInt16();
+
+                // Read in the spawn orientation
+                map.Spawn.R = reader.ReadByte();
+                map.Spawn.L = reader.ReadByte();
+
+                if( !map.ValidateHeader() ) {
+                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                }
 
                 return map;
             }
@@ -100,7 +113,6 @@ namespace fCraft.MapConversion {
         public Map Load( string fileName ) {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
 
-                Map map = new Map();
 
                 BinaryReader reader = new BinaryReader( mapStream );
 
@@ -110,9 +122,11 @@ namespace fCraft.MapConversion {
                 }
 
                 // Read in the map dimesions
-                map.WidthX = reader.ReadInt16();
-                map.WidthY = reader.ReadInt16();
-                map.Height = reader.ReadInt16();
+                int widthX = reader.ReadInt16();
+                int widthY = reader.ReadInt16();
+                int height = reader.ReadInt16();
+
+                Map map = new Map( null, widthX, widthY, height, false );
 
                 // Read in the spawn location
                 map.Spawn.X = reader.ReadInt16();
@@ -141,7 +155,7 @@ namespace fCraft.MapConversion {
                 }
 
                 if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "MapFCMv2.Load: One or more of the map dimensions are invalid." );
+                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
                 }
 
                 // Read in the map data

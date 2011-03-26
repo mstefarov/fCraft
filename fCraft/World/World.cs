@@ -64,7 +64,7 @@ namespace fCraft {
                 // or generate a default one
                 if( Map == null ) {
                     Logger.Log( "World.LoadMap: Generating default flatgrass level.", LogType.SystemActivity );
-                    Map = new Map( this, 64, 64, 64 );
+                    Map = new Map( this, 64, 64, 64, true );
 
                     MapGenerator.GenerateFlatgrass( Map );
                     Map.ResetSpawn();

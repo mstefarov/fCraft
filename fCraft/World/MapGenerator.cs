@@ -241,7 +241,7 @@ namespace fCraft {
         #region Map Processing
 
         public Map GenerateMap() {
-            Map map = new Map( null, args.WidthX, args.WidthY, args.Height );
+            Map map = new Map( null, args.WidthX, args.WidthY, args.Height, true );
 
 
             // Match water coverage
@@ -446,14 +446,10 @@ namespace fCraft {
 
             if( args.AddTrees ) {
                 ReportProgress( 5, "Processing: Planting trees" );
-                Map outMap = new Map {
-                    Blocks = (byte[])map.Blocks.Clone(),
-                    WidthX = map.WidthX,
-                    WidthY = map.WidthY,
-                    Height = map.Height
-                };
+                Map outMap = new Map(null,map.WidthX,map.WidthY,map.Height,false);
+                outMap.Blocks = (byte[])map.Blocks.Clone();
 
-                Forester treeGen = new Forester( new Forester.ForesterArgs {
+                Forester treeGen = new Forester( new ForesterArgs {
                     InMap = map,
                     OutMap = outMap,
                     Rand = rand,

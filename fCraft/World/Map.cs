@@ -14,13 +14,13 @@ namespace fCraft {
         public World World;
 
         /// <summary> Map width, in blocks. Equivalent to Notch's X (horizontal)</summary>
-        public int WidthX;
+        public readonly int WidthX;
 
         /// <summary> Map length, in blocks. Equivalent to Notch's Z (horizontal)</summary>
-        public int WidthY;
+        public readonly int WidthY;
 
         /// <summary> Map height, in blocks. Equivalent to Notch's Y (vertical)</summary>
-        public int Height;
+        public readonly int Height;
 
         public Position Spawn;
 
@@ -98,9 +98,8 @@ namespace fCraft {
             UpdateZoneCache();
         }
 
-
         // creates an empty new world of specified dimensions
-        public Map( World world, int widthX, int widthY, int height )
+        public Map( World world, int widthX, int widthY, int height, bool initBlockArray )
             : this() {
             World = world;
 
@@ -110,8 +109,10 @@ namespace fCraft {
 
             int blockCount = WidthX * WidthY * Height;
 
-            Blocks = new byte[blockCount];
-            Blocks.Initialize();
+            if( initBlockArray ) {
+                Blocks = new byte[blockCount];
+                Blocks.Initialize();
+            }
         }
 
 

@@ -74,9 +74,9 @@ namespace fCraft.MapConversion {
 
         public Map LoadHeader( string dirName ) {
             string fullMetaDataFileName = Path.Combine( dirName, MetaDataFileName );
-            Map map = new Map();
+            Map map;
             using( Stream metaStream = File.OpenRead( fullMetaDataFileName ) ) {
-                LoadMeta( map, metaStream );
+                map = LoadMeta( metaStream );
             }
             return map;
         }
@@ -90,9 +90,9 @@ namespace fCraft.MapConversion {
                 throw new FileNotFoundException( "When loading myne maps, both .gz and .meta files are required." );
             }
 
-            Map map = new Map();
+            Map map;
             using( Stream metaStream = File.OpenRead( fullMetaDataFileName ) ) {
-                LoadMeta( map, metaStream );
+                map = LoadMeta( metaStream );
             }
             using( Stream dataStream = File.OpenRead( fullBlockStoreFileName ) ) {
                 LoadBlocks( map, dataStream );
@@ -119,7 +119,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        static void LoadMeta( Map map, Stream stream ) {
+        static Map LoadMeta( Stream stream ) {
             INIFile metaFile = new INIFile( stream );
             if( metaFile.IsEmpty() ) {
                 throw new Exception( "Metadata file is empty or incorrectly formatted." );
@@ -128,12 +128,14 @@ namespace fCraft.MapConversion {
                 throw new Exception( "Metadata file is missing map dimensions." );
             }
 
-            map.WidthX = Int32.Parse( metaFile["size", "x"] );
-            map.WidthY = Int32.Parse( metaFile["size", "z"] );
-            map.Height = Int32.Parse( metaFile["size", "y"] );
+            int widthX = Int32.Parse( metaFile["size", "x"] );
+            int widthY = Int32.Parse( metaFile["size", "z"] );
+            int height = Int32.Parse( metaFile["size", "y"] );
+
+            Map map = new Map( null, widthX, widthY, height, false );
 
             if( !map.ValidateHeader() ) {
-                throw new MapFormatException( "MapFCMv3.Load: One or more of the map dimensions are invalid." );
+                throw new MapFormatException( "One or more of the map dimensions are invalid." );
             }
 
             if( metaFile.Contains( "spawn", "x", "y", "z", "h" ) ) {
@@ -145,6 +147,7 @@ namespace fCraft.MapConversion {
             } else {
                 map.ResetSpawn();
             }
+            return map;
         }
 
 

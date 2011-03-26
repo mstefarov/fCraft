@@ -219,15 +219,15 @@ namespace fCraft {
                                     R = (byte)Math.Abs( newPos.R - oldPos.R ),
                                     L = (byte)Math.Abs( newPos.L - oldPos.L )
                                 };
+                                // skip everything if player hasn't moved
+                                if( delta.IsZero() ) continue;
+
                                 bool posChanged = (delta.X != 0) || (delta.Y != 0) || (delta.H != 0);
                                 bool rotChanged = (delta.R != 0) || (delta.L != 0);
                                 int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.H * delta.H;
 
-                                // skip everything if player hasn't moved
-                                if( delta.IsZero() ) continue;
-
                                 // only reset the timer if player rotated
-                                // if player is pushed around, or /bring is used, rotation does not change (and timer should not reset)
+                                // if player is just pushed around, rotation does not change (and timer should not reset)
                                 if( rotChanged ) Player.ResetIdleTimer();
 
                                 if( Player.Info.IsFrozen ) {
@@ -994,3 +994,5 @@ namespace fCraft.Events {
 
 }
 #endregion
+
+

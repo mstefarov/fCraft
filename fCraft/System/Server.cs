@@ -521,7 +521,7 @@ namespace fCraft {
         }
 
         static void CreateDefaultMainWorld() {
-            Map map = new Map( null, 64, 64, 64 );
+            Map map = new Map( null, 64, 64, 64, true );
             MapGenerator.GenerateFlatgrass( map );
             map.ResetSpawn();
             MainWorld = AddWorld( "main", map, true );
@@ -574,12 +574,35 @@ namespace fCraft {
                     }
 
 
-                    if( File.Exists( world.GetMapName() ) ) {
-                        try {
-                            Map map = MapUtility.LoadHeader( world.GetMapName() );
-                            if( map == null ) {
-                                throw new Exception();
+                    // Check the world's map file
+                    string mapFullName = world.GetMapName();
+                    string mapName = Path.GetFileName( mapFullName );
+
+                    if( Paths.FileExists( mapFullName, false ) ) {
+                        if( !Paths.FileExists( mapFullName, true ) ) {
+                            // Map file has wrong capitalization
+                            FileInfo[] matches = Paths.FindFiles( mapFullName );
+                            if( matches.Length == 1 ) {
+                                // Try to rename the map file to match world's capitalization
+                                Paths.ForceRename( matches[0].FullName, mapName );
+                                if( Paths.FileExists( mapFullName, true ) ) {
+                                    Logger.Log( "Server.LoadWorldListXML: Map file for world \"{0}\" was renamed from \"{1}\" to \"{2}\"", LogType.Warning,
+                                                world.Name, matches[0].Name, mapName );
+                                } else {
+                                    Logger.Log( "Server.LoadWorldListXML: Failed to rename map file of \"{0}\" from \"{1}\" to \"{2}\"", LogType.Error,
+                                                world.Name, matches[0].Name, mapName );
+                                    continue;
+                                }
+                            } else {
+                                Logger.Log( "Server.LoadWorldListXML: More than one map file exists matching the world name \"{0}\". " +
+                                            "Please check the map directory and use /wload to load the correct file.", LogType.Warning,
+                                            world.Name );
+                                continue;
                             }
+                        }
+                        // Try loading the map header
+                        try {
+                            MapUtility.LoadHeader( world.GetMapName() );
                         } catch( Exception ex ) {
                             Logger.Log( "Server.LoadWorldListXML: Could not load map file for world \"{0}\": {1}", LogType.Warning,
                                         world.Name, ex );
@@ -794,20 +817,16 @@ namespace fCraft {
                 UpdateWorldList();
 
                 if( moveMapFile ) {
-                    FileInfo oldFile = new FileInfo( Path.Combine( Paths.MapPath, oldName + ".fcm" ) );
-                    FileInfo newFile = new FileInfo( Path.Combine( Paths.MapPath, newName + ".fcm" ) );
-                    try {
-                        if( oldFile.Exists ) {
-                            if( newFile.Exists && !oldName.Equals( newName, StringComparison.OrdinalIgnoreCase ) ) {
-                                File.Replace( oldFile.FullName, newFile.FullName, null, true );
-                            } else {
-                                File.Move( oldFile.FullName, newFile.FullName );
-                            }
+                    string oldFullFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
+                    string newFileName = newName+".fcm";
+                    if( File.Exists( oldFullFileName ) ) {
+                        try {
+                            Paths.ForceRename( oldFullFileName, newFileName );
+                        } catch( Exception ex ) {
+                            throw new EnumException<WorldCmdError>( WorldCmdError.MapMoveError,
+                                                                    "Unexpected error moving/renaming mapfile.",
+                                                                    ex );
                         }
-                    } catch( Exception ex ) {
-                        throw new EnumException<WorldCmdError>( WorldCmdError.MapMoveError,
-                                                                "Unexpected error moving/renaming mapfile.",
-                                                                ex );
                     }
                 }
             }

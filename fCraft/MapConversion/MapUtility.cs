@@ -133,7 +133,7 @@ namespace fCraft.MapConversion {
                 } catch {}
             }
 
-            return null;
+            throw new MapFormatException( "Unknown map format for loading." );
         }
 
 
@@ -147,6 +147,7 @@ namespace fCraft.MapConversion {
                     return false;
                 }
             }
+
             throw new MapFormatException( "Unknown map format for saving." );
         }
 
@@ -187,7 +188,7 @@ namespace fCraft.MapConversion {
                 } catch( NotImplementedException ) { }
             }
 
-            return null;
+            throw new MapFormatException( "Unknown map format for loading." );
         }
     }
 }

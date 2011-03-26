@@ -100,6 +100,9 @@ namespace fCraft {
      * 131 - r460 - Changed default for IRCNick from "fBot" to "MinecraftBot"
      *              Relaxed range limits on many integer keys.
      *              Renamed ProcessPriority value "Low" to "Idle", to match WinAPI 
+     *              
+     * 132 - r477 - Added BackupBeforeUpdate, RunBeforeUpdate, and RunAfterUpdate config keys
+     *              Renamed UpdateMode to UpdaterMode
      * 
      */
 
@@ -107,7 +110,7 @@ namespace fCraft {
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 131;
+        public const int ConfigVersion = 132;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig";
 
@@ -147,8 +150,9 @@ namespace fCraft {
             LegacyConfigKeys.Add( "RequireClassChangeReason".ToLower(), ConfigKey.RequireRankChangeReason );
             LegacyConfigKeys.Add( "AnnounceClassChanges".ToLower(), ConfigKey.AnnounceRankChanges );
             LegacyConfigKeys.Add( "SendRedundantBlockUpdates".ToLower(), ConfigKey.RelayAllBlockUpdates );
-            LegacyConfigKeys.Add( "AutomaticUpdates".ToLower(), ConfigKey.UpdateMode );
+            LegacyConfigKeys.Add( "AutomaticUpdates".ToLower(), ConfigKey.UpdaterMode );
             LegacyConfigKeys.Add( "IRCBot".ToLower(), ConfigKey.IRCBotEnabled );
+            LegacyConfigKeys.Add( "UpdateMode".ToLower(), ConfigKey.UpdaterMode );
 
             // These values have been renamed at some point. LEGACY
             LegacyConfigValues.Add( ConfigKey.ProcessPriority, new KeyValuePair<string, string>( "Low", ProcessPriorityClass.Idle.ToString() ) );

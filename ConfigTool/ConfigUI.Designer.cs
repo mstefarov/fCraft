@@ -29,7 +29,9 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
-            this.cUpdater = new System.Windows.Forms.ComboBox();
+            this.gUpdateSettings = new System.Windows.Forms.GroupBox();
+            this.bShowAdvancedUpdaterSettings = new System.Windows.Forms.Button();
+            this.cUpdaterMode = new System.Windows.Forms.ComboBox();
             this.lUpdater = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.button1 = new System.Windows.Forms.Button();
@@ -87,7 +89,6 @@
             this.xListPrefixes = new System.Windows.Forms.CheckBox();
             this.xChatPrefixes = new System.Windows.Forms.CheckBox();
             this.xRankColors = new System.Windows.Forms.CheckBox();
-            this.chatPreview = new ConfigTool.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.bMapPath = new System.Windows.Forms.Button();
             this.xMapPath = new System.Windows.Forms.CheckBox();
@@ -274,9 +275,10 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.gUpdateSettings = new System.Windows.Forms.GroupBox();
+            this.chatPreview = new ConfigTool.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
+            this.gUpdateSettings.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.gHelpAndSupport.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -326,7 +328,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             this.gCrashReport.SuspendLayout();
-            this.gUpdateSettings.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabs
@@ -365,28 +366,51 @@
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
             // 
-            // cUpdater
+            // gUpdateSettings
             // 
-            this.cUpdater.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cUpdater.FormattingEnabled = true;
-            this.cUpdater.Items.AddRange( new object[] {
+            this.gUpdateSettings.Controls.Add( this.bShowAdvancedUpdaterSettings );
+            this.gUpdateSettings.Controls.Add( this.cUpdaterMode );
+            this.gUpdateSettings.Controls.Add( this.lUpdater );
+            this.gUpdateSettings.Location = new System.Drawing.Point( 8, 249 );
+            this.gUpdateSettings.Name = "gUpdateSettings";
+            this.gUpdateSettings.Size = new System.Drawing.Size( 636, 54 );
+            this.gUpdateSettings.TabIndex = 46;
+            this.gUpdateSettings.TabStop = false;
+            this.gUpdateSettings.Text = "Updater Settings";
+            // 
+            // bShowAdvancedUpdaterSettings
+            // 
+            this.bShowAdvancedUpdaterSettings.Location = new System.Drawing.Point( 318, 22 );
+            this.bShowAdvancedUpdaterSettings.Name = "bShowAdvancedUpdaterSettings";
+            this.bShowAdvancedUpdaterSettings.Size = new System.Drawing.Size( 75, 23 );
+            this.bShowAdvancedUpdaterSettings.TabIndex = 45;
+            this.bShowAdvancedUpdaterSettings.Text = "Advanced";
+            this.bShowAdvancedUpdaterSettings.UseVisualStyleBackColor = true;
+            this.bShowAdvancedUpdaterSettings.Click += new System.EventHandler( this.bShowAdvancedUpdaterSettings_Click );
+            // 
+            // cUpdaterMode
+            // 
+            this.cUpdaterMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cUpdaterMode.FormattingEnabled = true;
+            this.cUpdaterMode.Items.AddRange( new object[] {
             "Disabled",
-            "Notify about updates",
-            "Download and prompt to install",
+            "Notify about availability",
+            "Prompt to install",
             "Fully automatic"} );
-            this.cUpdater.Location = new System.Drawing.Point( 154, 20 );
-            this.cUpdater.Name = "cUpdater";
-            this.cUpdater.Size = new System.Drawing.Size( 245, 23 );
-            this.cUpdater.TabIndex = 43;
+            this.cUpdaterMode.Location = new System.Drawing.Point( 123, 22 );
+            this.cUpdaterMode.Name = "cUpdaterMode";
+            this.cUpdaterMode.Size = new System.Drawing.Size( 189, 23 );
+            this.cUpdaterMode.TabIndex = 43;
+            this.cUpdaterMode.SelectedIndexChanged += new System.EventHandler( this.cUpdaterMode_SelectedIndexChanged );
             // 
             // lUpdater
             // 
             this.lUpdater.AutoSize = true;
-            this.lUpdater.Location = new System.Drawing.Point( 12, 23 );
+            this.lUpdater.Location = new System.Drawing.Point( 6, 25 );
             this.lUpdater.Name = "lUpdater";
-            this.lUpdater.Size = new System.Drawing.Size( 136, 15 );
+            this.lUpdater.Size = new System.Drawing.Size( 111, 15 );
             this.lUpdater.TabIndex = 44;
-            this.lUpdater.Text = "Check for fCraft updates";
+            this.lUpdater.Text = "fCraft update check";
             // 
             // groupBox2
             // 
@@ -652,7 +676,7 @@
             // lUploadBandwidth
             // 
             this.lUploadBandwidth.AutoSize = true;
-            this.lUploadBandwidth.Location = new System.Drawing.Point( 7, 107 );
+            this.lUploadBandwidth.Location = new System.Drawing.Point( 10, 107 );
             this.lUploadBandwidth.Name = "lUploadBandwidth";
             this.lUploadBandwidth.Size = new System.Drawing.Size( 107, 15 );
             this.lUploadBandwidth.TabIndex = 8;
@@ -672,10 +696,10 @@
             // 
             this.tServerName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.tServerName.Location = new System.Drawing.Point( 120, 20 );
+            this.tServerName.Location = new System.Drawing.Point( 123, 20 );
             this.tServerName.MaxLength = 64;
             this.tServerName.Name = "tServerName";
-            this.tServerName.Size = new System.Drawing.Size( 510, 21 );
+            this.tServerName.Size = new System.Drawing.Size( 507, 21 );
             this.tServerName.TabIndex = 0;
             // 
             // lUploadBandwidthUnits
@@ -690,7 +714,7 @@
             // lServerName
             // 
             this.lServerName.AutoSize = true;
-            this.lServerName.Location = new System.Drawing.Point( 37, 23 );
+            this.lServerName.Location = new System.Drawing.Point( 40, 23 );
             this.lServerName.Name = "lServerName";
             this.lServerName.Size = new System.Drawing.Size( 77, 15 );
             this.lServerName.TabIndex = 1;
@@ -703,7 +727,7 @@
             0,
             0,
             0} );
-            this.nUploadBandwidth.Location = new System.Drawing.Point( 120, 105 );
+            this.nUploadBandwidth.Location = new System.Drawing.Point( 123, 105 );
             this.nUploadBandwidth.Maximum = new decimal( new int[] {
             10000,
             0,
@@ -715,7 +739,7 @@
             0,
             0} );
             this.nUploadBandwidth.Name = "nUploadBandwidth";
-            this.nUploadBandwidth.Size = new System.Drawing.Size( 80, 21 );
+            this.nUploadBandwidth.Size = new System.Drawing.Size( 77, 21 );
             this.nUploadBandwidth.TabIndex = 3;
             this.nUploadBandwidth.Value = new decimal( new int[] {
             10,
@@ -727,16 +751,16 @@
             // 
             this.tMOTD.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.tMOTD.Location = new System.Drawing.Point( 120, 47 );
+            this.tMOTD.Location = new System.Drawing.Point( 123, 47 );
             this.tMOTD.MaxLength = 64;
             this.tMOTD.Name = "tMOTD";
-            this.tMOTD.Size = new System.Drawing.Size( 510, 21 );
+            this.tMOTD.Size = new System.Drawing.Size( 507, 21 );
             this.tMOTD.TabIndex = 1;
             // 
             // lMOTD
             // 
             this.lMOTD.AutoSize = true;
-            this.lMOTD.Location = new System.Drawing.Point( 71, 50 );
+            this.lMOTD.Location = new System.Drawing.Point( 74, 50 );
             this.lMOTD.Name = "lMOTD";
             this.lMOTD.Size = new System.Drawing.Size( 43, 15 );
             this.lMOTD.TabIndex = 3;
@@ -750,14 +774,14 @@
             this.cPublic.Items.AddRange( new object[] {
             "Public",
             "Private"} );
-            this.cPublic.Location = new System.Drawing.Point( 120, 132 );
+            this.cPublic.Location = new System.Drawing.Point( 123, 132 );
             this.cPublic.Name = "cPublic";
-            this.cPublic.Size = new System.Drawing.Size( 80, 23 );
+            this.cPublic.Size = new System.Drawing.Size( 83, 23 );
             this.cPublic.TabIndex = 5;
             // 
             // nMaxPlayers
             // 
-            this.nMaxPlayers.Location = new System.Drawing.Point( 120, 75 );
+            this.nMaxPlayers.Location = new System.Drawing.Point( 123, 75 );
             this.nMaxPlayers.Maximum = new decimal( new int[] {
             255,
             0,
@@ -781,16 +805,16 @@
             // 
             this.lPublic.AutoSize = true;
             this.lPublic.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.lPublic.Location = new System.Drawing.Point( 54, 135 );
+            this.lPublic.Location = new System.Drawing.Point( 14, 135 );
             this.lPublic.Name = "lPublic";
-            this.lPublic.Size = new System.Drawing.Size( 60, 15 );
+            this.lPublic.Size = new System.Drawing.Size( 103, 15 );
             this.lPublic.TabIndex = 6;
-            this.lPublic.Text = "Visibility";
+            this.lPublic.Text = "Server visibility";
             // 
             // lMaxPlayers
             // 
             this.lMaxPlayers.AutoSize = true;
-            this.lMaxPlayers.Location = new System.Drawing.Point( 41, 77 );
+            this.lMaxPlayers.Location = new System.Drawing.Point( 44, 77 );
             this.lMaxPlayers.Name = "lMaxPlayers";
             this.lMaxPlayers.Size = new System.Drawing.Size( 73, 15 );
             this.lMaxPlayers.TabIndex = 5;
@@ -1039,13 +1063,6 @@
             this.xRankColors.TabIndex = 0;
             this.xRankColors.Text = "Show rank colors.";
             this.xRankColors.UseVisualStyleBackColor = true;
-            // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 189 );
-            this.chatPreview.TabIndex = 2;
             // 
             // tabWorlds
             // 
@@ -2836,7 +2853,7 @@
             this.groupBox1.Controls.Add( this.xNoPartialPositionUpdates );
             this.groupBox1.Location = new System.Drawing.Point( 8, 123 );
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size( 638, 285 );
+            this.groupBox1.Size = new System.Drawing.Size( 638, 311 );
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Miscellaneous";
@@ -2845,7 +2862,7 @@
             // 
             this.lConsoleNameHint.AutoSize = true;
             this.lConsoleNameHint.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.lConsoleNameHint.Location = new System.Drawing.Point( 223, 262 );
+            this.lConsoleNameHint.Location = new System.Drawing.Point( 304, 287 );
             this.lConsoleNameHint.Name = "lConsoleNameHint";
             this.lConsoleNameHint.Size = new System.Drawing.Size( 274, 13 );
             this.lConsoleNameHint.TabIndex = 46;
@@ -2854,7 +2871,7 @@
             // lConsoleName
             // 
             this.lConsoleName.AutoSize = true;
-            this.lConsoleName.Location = new System.Drawing.Point( 6, 241 );
+            this.lConsoleName.Location = new System.Drawing.Point( 87, 266 );
             this.lConsoleName.Name = "lConsoleName";
             this.lConsoleName.Size = new System.Drawing.Size( 214, 15 );
             this.lConsoleName.TabIndex = 45;
@@ -2862,7 +2879,7 @@
             // 
             // tConsoleName
             // 
-            this.tConsoleName.Location = new System.Drawing.Point( 226, 238 );
+            this.tConsoleName.Location = new System.Drawing.Point( 307, 263 );
             this.tConsoleName.Name = "tConsoleName";
             this.tConsoleName.Size = new System.Drawing.Size( 167, 21 );
             this.tConsoleName.TabIndex = 44;
@@ -2927,7 +2944,7 @@
             // lTickInterval
             // 
             this.lTickInterval.AutoSize = true;
-            this.lTickInterval.Location = new System.Drawing.Point( 406, 173 );
+            this.lTickInterval.Location = new System.Drawing.Point( 71, 201 );
             this.lTickInterval.Name = "lTickInterval";
             this.lTickInterval.Size = new System.Drawing.Size( 71, 15 );
             this.lTickInterval.TabIndex = 15;
@@ -2951,7 +2968,7 @@
             0,
             0,
             0} );
-            this.nTickInterval.Location = new System.Drawing.Point( 483, 171 );
+            this.nTickInterval.Location = new System.Drawing.Point( 148, 199 );
             this.nTickInterval.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -2974,7 +2991,7 @@
             // lTickIntervalUnits
             // 
             this.lTickIntervalUnits.AutoSize = true;
-            this.lTickIntervalUnits.Location = new System.Drawing.Point( 559, 173 );
+            this.lTickIntervalUnits.Location = new System.Drawing.Point( 224, 201 );
             this.lTickIntervalUnits.Name = "lTickIntervalUnits";
             this.lTickIntervalUnits.Size = new System.Drawing.Size( 24, 15 );
             this.lTickIntervalUnits.TabIndex = 17;
@@ -2985,16 +3002,16 @@
             this.xRelayAllBlockUpdates.AutoSize = true;
             this.xRelayAllBlockUpdates.Location = new System.Drawing.Point( 12, 61 );
             this.xRelayAllBlockUpdates.Name = "xRelayAllBlockUpdates";
-            this.xRelayAllBlockUpdates.Size = new System.Drawing.Size( 554, 19 );
+            this.xRelayAllBlockUpdates.Size = new System.Drawing.Size( 560, 19 );
             this.xRelayAllBlockUpdates.TabIndex = 0;
-            this.xRelayAllBlockUpdates.Text = "When a player changes a block, send him the redundant update packet anyway (vanil" +
-                "la behavior).";
+            this.xRelayAllBlockUpdates.Text = "When a player changes a block, send him the redundant update packet anyway (origi" +
+                "nal behavior).";
             this.xRelayAllBlockUpdates.UseVisualStyleBackColor = true;
             // 
             // lThrottlingUnits
             // 
             this.lThrottlingUnits.AutoSize = true;
-            this.lThrottlingUnits.Location = new System.Drawing.Point( 213, 201 );
+            this.lThrottlingUnits.Location = new System.Drawing.Point( 224, 228 );
             this.lThrottlingUnits.Name = "lThrottlingUnits";
             this.lThrottlingUnits.Size = new System.Drawing.Size( 129, 15 );
             this.lThrottlingUnits.TabIndex = 37;
@@ -3016,7 +3033,7 @@
             0,
             0,
             0} );
-            this.nThrottling.Location = new System.Drawing.Point( 148, 199 );
+            this.nThrottling.Location = new System.Drawing.Point( 148, 226 );
             this.nThrottling.Maximum = new decimal( new int[] {
             10000,
             0,
@@ -3028,7 +3045,7 @@
             0,
             0} );
             this.nThrottling.Name = "nThrottling";
-            this.nThrottling.Size = new System.Drawing.Size( 59, 21 );
+            this.nThrottling.Size = new System.Drawing.Size( 70, 21 );
             this.nThrottling.TabIndex = 7;
             this.nThrottling.Value = new decimal( new int[] {
             2048,
@@ -3054,7 +3071,7 @@
             // lThrottling
             // 
             this.lThrottling.AutoSize = true;
-            this.lThrottling.Location = new System.Drawing.Point( 14, 201 );
+            this.lThrottling.Location = new System.Drawing.Point( 14, 228 );
             this.lThrottling.Name = "lThrottling";
             this.lThrottling.Size = new System.Drawing.Size( 128, 15 );
             this.lThrottling.TabIndex = 35;
@@ -3166,16 +3183,12 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // gUpdateSettings
+            // chatPreview
             // 
-            this.gUpdateSettings.Controls.Add( this.cUpdater );
-            this.gUpdateSettings.Controls.Add( this.lUpdater );
-            this.gUpdateSettings.Location = new System.Drawing.Point( 8, 249 );
-            this.gUpdateSettings.Name = "gUpdateSettings";
-            this.gUpdateSettings.Size = new System.Drawing.Size( 636, 54 );
-            this.gUpdateSettings.TabIndex = 46;
-            this.gUpdateSettings.TabStop = false;
-            this.gUpdateSettings.Text = "Updater Settings";
+            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 637, 219 );
+            this.chatPreview.TabIndex = 2;
             // 
             // ConfigUI
             // 
@@ -3195,6 +3208,8 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.ConfigUI_FormClosing );
             this.tabs.ResumeLayout( false );
             this.tabGeneral.ResumeLayout( false );
+            this.gUpdateSettings.ResumeLayout( false );
+            this.gUpdateSettings.PerformLayout();
             this.groupBox2.ResumeLayout( false );
             this.gHelpAndSupport.ResumeLayout( false );
             this.gInformation.ResumeLayout( false );
@@ -3263,8 +3278,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
-            this.gUpdateSettings.ResumeLayout( false );
-            this.gUpdateSettings.PerformLayout();
             this.ResumeLayout( false );
 
         }
@@ -3516,8 +3529,9 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.ComboBox cUpdater;
+        private System.Windows.Forms.ComboBox cUpdaterMode;
         private System.Windows.Forms.Label lUpdater;
         private System.Windows.Forms.GroupBox gUpdateSettings;
+        private System.Windows.Forms.Button bShowAdvancedUpdaterSettings;
     }
 }
