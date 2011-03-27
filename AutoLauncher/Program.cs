@@ -23,7 +23,8 @@ namespace AutoLauncher {
                 StartInfo = {
                     UseShellExecute = true,
                     CreateNoWindow = false,
-                    FileName = BinaryName
+                    FileName = BinaryName,
+                    Arguments = "--norestart"
                 }
             };
 

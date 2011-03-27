@@ -62,7 +62,7 @@ namespace fCraftUpdater {
                 } else if( arg.StartsWith( "--config=", StringComparison.OrdinalIgnoreCase ) ) {
                     configFileName = arg.Substring( arg.IndexOf( '=' ) + 1 ).TrimQuotes();
                     argsList.Add( arg );
-                } else if( arg.StartsWith( "--restart=" ) ) {
+                } else if( arg.StartsWith( "--restart=", StringComparison.OrdinalIgnoreCase ) ) {
                     restartTarget = arg.Substring( arg.IndexOf( '=' ) + 1 ).TrimQuotes();
                 } else if( arg != "&" ) {
                     argsList.Add( arg );
@@ -91,7 +91,7 @@ namespace fCraftUpdater {
                     }
                 }
             } catch( Exception ex ) {
-                Console.WriteLine("Error reading fCraft config: {0}", ex);
+                Console.WriteLine( "Error reading fCraft config: {0}", ex );
             }
 
             // Backup data files (if requested)
@@ -167,18 +167,18 @@ namespace fCraftUpdater {
             Console.WriteLine( "fCraft update complete." );
 
             // Restart fCraft (if requested)
-            if( restartTarget == null ) return (int)ReturnCodes.OK;
-
-            Console.WriteLine( "Starting {0}", restartTarget );
-            string argString = String.Join( " ", argsList.ToArray() );
-            switch( Environment.OSVersion.Platform ) {
-                case PlatformID.MacOSX:
-                case PlatformID.Unix:
-                    Process.Start( "mono", restartTarget + " " + argString + " &" );
-                    break;
-                default:
-                    Process.Start( restartTarget, argString );
-                    break;
+            if( restartTarget != null ) {
+                string argString = String.Join( " ", argsList.ToArray() );
+                Console.WriteLine( "Starting: {0} {1}", restartTarget, argString );
+                switch( Environment.OSVersion.Platform ) {
+                    case PlatformID.MacOSX:
+                    case PlatformID.Unix:
+                        Process.Start( "mono", "\"" + restartTarget + "\" " + argString + " &" );
+                        break;
+                    default:
+                        Process.Start( restartTarget, argString );
+                        break;
+                }
             }
 
             return (int)ReturnCodes.OK;
