@@ -97,7 +97,9 @@ namespace fCraftConsole {
             Console.WriteLine( "** {0} **", reason );
             Console.ResetColor();
             Server.Shutdown( new ShutdownParams( reason, 0, false, false ), true );
-            Console.ReadLine();
+            if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {
+                Console.ReadLine();
+            }
         }
 
 

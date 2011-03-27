@@ -163,11 +163,11 @@ namespace fCraft {
             new DateTime( 2011, 3, 22, 10, 55, 0, DateTimeKind.Utc ),
             "WIP",
             "WIP",
-            ReleaseFlags.Dev | ReleaseFlags.Unstable
+            ReleaseFlags.APIChange | ReleaseFlags.Bugfix | ReleaseFlags.ConfigFormatChange | ReleaseFlags.Dev | ReleaseFlags.Feature
         );
 
         public const int Version = 510,
-                         Revision = 480;
+                         Revision = 482;
         public const bool IsDev = true,
                           IsBroken = false;
 
@@ -176,11 +176,13 @@ namespace fCraft {
         public static string UpdateUrl { get; set; }
 
         static Updater() {
+            UpdateCheckTimeout = 3000;
             UpdateUrl = "http://www.fcraft.net/UpdateCheck.php?r={0}";
         }
 
 
-        const int UpdateCheckTimeout = 3000;
+        public static int UpdateCheckTimeout { get; set; }
+        public const string UpdaterFile = "fCraftUpdater.exe";
 
         public static UpdaterResult CheckForUpdates() {
             // TODO: fix the rest
@@ -232,6 +234,8 @@ namespace fCraft {
             }
         }
 
+
+        public static bool RunAtShutdown { get; set; }
 
         #region Events
 
