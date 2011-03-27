@@ -44,7 +44,7 @@ namespace fCraftUpdater {
         };
 
 
-        static void Main( string[] args ) {
+        static int Main( string[] args ) {
             string restartTarget = null;
             string configFileName = ConfigFileNameDefault;
 
@@ -57,13 +57,13 @@ namespace fCraftUpdater {
             foreach( string arg in args ) {
                 Console.WriteLine( arg );
                 if( arg.StartsWith( "--path=", StringComparison.OrdinalIgnoreCase ) ) {
-                    Directory.SetCurrentDirectory( arg.Substring( arg.IndexOf( '=' ) + 1 ) );
+                    Directory.SetCurrentDirectory( arg.Substring( arg.IndexOf( '=' ) + 1 ).TrimQuotes() );
                     argsList.Add( arg );
                 } else if( arg.StartsWith( "--config=", StringComparison.OrdinalIgnoreCase ) ) {
-                    configFileName = arg.Substring( arg.IndexOf( '=' ) + 1 );
+                    configFileName = arg.Substring( arg.IndexOf( '=' ) + 1 ).TrimQuotes();
                     argsList.Add( arg );
                 } else if( arg.StartsWith( "--restart=" ) ) {
-                    restartTarget = arg.Substring( arg.IndexOf( '=' ) + 1 );
+                    restartTarget = arg.Substring( arg.IndexOf( '=' ) + 1 ).TrimQuotes();
                 } else if( arg != "&" ) {
                     argsList.Add( arg );
                 }
@@ -100,8 +100,14 @@ namespace fCraftUpdater {
             // Run pre-update script (if any)
             if( !String.IsNullOrEmpty( runBefore ) ) {
                 Console.WriteLine( "Executing pre-update script..." );
-                Process preUpdateProcess = Process.Start( runBefore, "" );
-                if( preUpdateProcess != null ) preUpdateProcess.WaitForExit();
+                try {
+                    Process preUpdateProcess = Process.Start( runBefore, "" );
+                    if( preUpdateProcess != null ) preUpdateProcess.WaitForExit();
+                } catch( Exception ex ) {
+                    Console.WriteLine( "Failed to run pre-update process, aborting update application." );
+                    Console.WriteLine( ex );
+                    return (int)ReturnCodes.FailedToRunPreUpdateCommand;
+                }
             }
 
             // Apply the update
@@ -148,14 +154,20 @@ namespace fCraftUpdater {
             // Run post-update script
             if( !String.IsNullOrEmpty( runAfter ) ) {
                 Console.WriteLine( "Executing post-update script..." );
-                Process postUpdateProcess = Process.Start( runAfter, "" );
-                if( postUpdateProcess != null ) postUpdateProcess.WaitForExit();
+                try {
+                    Process postUpdateProcess = Process.Start( runAfter, "" );
+                    if( postUpdateProcess != null ) postUpdateProcess.WaitForExit();
+                } catch( Exception ex ) {
+                    Console.WriteLine( "Failed to run post-update process, aborting restart." );
+                    Console.WriteLine( ex );
+                    return (int)ReturnCodes.FailedToRunPostUpdateCommand;
+                }
             }
 
             Console.WriteLine( "fCraft update complete." );
 
             // Restart fCraft (if requested)
-            if( restartTarget == null ) return;
+            if( restartTarget == null ) return (int)ReturnCodes.OK;
 
             Console.WriteLine( "Starting {0}", restartTarget );
             string argString = String.Join( " ", argsList.ToArray() );
@@ -168,6 +180,8 @@ namespace fCraftUpdater {
                     Process.Start( restartTarget, argString );
                     break;
             }
+
+            return (int)ReturnCodes.OK;
         }
 
 
@@ -183,5 +197,20 @@ namespace fCraftUpdater {
                 }
             }
         }
+
+
+        static string TrimQuotes( this string str ) {
+            if( str.StartsWith( "\"" ) && str.EndsWith( "\"" ) ) {
+                return str.Substring( 1, str.Length - 2 );
+            } else {
+                return str;
+            }
+        }
+    }
+
+    enum ReturnCodes {
+        OK = 0,
+        FailedToRunPreUpdateCommand = 1,
+        FailedToRunPostUpdateCommand = 2
     }
 }

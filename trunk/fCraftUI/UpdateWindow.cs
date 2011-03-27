@@ -12,14 +12,13 @@ using System.Collections.Generic;
 namespace fCraftUI {
     public sealed partial class UpdateWindow : Form {
         readonly UpdaterResult update;
-        const string UpdaterFile = "fCraftUpdater.exe";
         readonly string updaterFullPath;
         readonly WebClient downloader = new WebClient();
         readonly bool auto;
 
         public UpdateWindow( UpdaterResult _update, bool _auto ) {
             InitializeComponent();
-            updaterFullPath = Path.Combine( Paths.WorkingPath, UpdaterFile );
+            updaterFullPath = Path.Combine( Paths.WorkingPath, Updater.UpdaterFile );
             update = _update;
             auto = _auto;
             CreateDetailedChangeLog();
@@ -50,11 +49,12 @@ namespace fCraftUI {
         void DownloadComplete( object sender, AsyncCompletedEventArgs e ) {
             progress.Value = 100;
             if( e.Cancelled || e.Error != null ) {
-                MessageBox.Show( e.Error.ToString(), "Error occured while trying to download "+UpdaterFile );
+                MessageBox.Show( e.Error.ToString(), "Error occured while trying to download " + Updater.UpdaterFile );
             } else if( auto ) {
                 bUpdateNow_Click( null, null );
             } else {
                 bUpdateNow.Enabled = true;
+                bUpdateLater.Enabled = true;
             }
         }
 
@@ -100,6 +100,11 @@ namespace fCraftUI {
 
         private void xShowDetails_CheckedChanged( object sender, EventArgs e ) {
             CreateDetailedChangeLog();
+        }
+
+        private void bUpdateLater_Click( object sender, EventArgs e ) {
+            Updater.RunAtShutdown = true;
+            Close();
         }
     }
 }

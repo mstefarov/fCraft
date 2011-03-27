@@ -669,7 +669,7 @@ namespace fCraft {
             } else {
                 player.Message( "{0}&S is already same or {1} rank than {2}",
                                 targetInfo.GetClassyName(),
-                                ( promote ? "higher" : "lower" ),
+                                (promote ? "higher" : "lower"),
                                 newRank.GetClassyName() );
             }
         }
@@ -1015,13 +1015,15 @@ namespace fCraft {
 
             Server.SendToAll( "&WServer shutting down in {0} seconds.", delay );
 
-            if( String.IsNullOrEmpty(reason) ) {
-                Logger.Log( "{0} shut down the server.", LogType.UserActivity, player.Name );
+            if( String.IsNullOrEmpty( reason ) ) {
+                Logger.Log( "{0} shut down the server ({1} second delay).", LogType.UserActivity,
+                            player.Name, delay );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delay, true, false );
                 Server.Shutdown( sp, false );
             } else {
                 Server.SendToAll( "&WShutdown reason: {0}", reason );
-                Logger.Log( "{0} shut down the server. Reason: {1}", LogType.UserActivity, player.Name, reason );
+                Logger.Log( "{0} shut down the server ({1} second delay). Reason: {2}", LogType.UserActivity,
+                            player.Name, delay, reason );
                 ShutdownParams sp = new ShutdownParams( reason, delay, true, false, player );
                 Server.Shutdown( sp, false );
             }
@@ -1051,11 +1053,13 @@ namespace fCraft {
             Server.SendToAll( "&WServer restarting in {0} seconds.", delay );
 
             if( reason == null ) {
-                Logger.Log( "{0} restarted the server.", LogType.UserActivity, player.Name );
+                Logger.Log( "{0} restarted the server ({1} second delay).", LogType.UserActivity,
+                            player.Name, delay );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delay, true, true );
                 Server.Shutdown( sp, false );
             } else {
-                Logger.Log( "{0} restarted the server. Reason: {1}", LogType.UserActivity, player.Name, reason );
+                Logger.Log( "{0} restarted the server ({1} second delay). Reason: {2}", LogType.UserActivity,
+                            player.Name, delay, reason );
                 ShutdownParams sp = new ShutdownParams( reason, delay, true, true, player );
                 Server.Shutdown( sp, false );
             }

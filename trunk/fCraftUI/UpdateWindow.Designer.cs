@@ -71,12 +71,14 @@
             // bUpdateLater
             // 
             this.bUpdateLater.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bUpdateLater.Enabled = false;
             this.bUpdateLater.Location = new System.Drawing.Point( 366, 279 );
             this.bUpdateLater.Name = "bUpdateLater";
             this.bUpdateLater.Size = new System.Drawing.Size( 100, 23 );
             this.bUpdateLater.TabIndex = 3;
             this.bUpdateLater.Text = "Update Later";
             this.bUpdateLater.UseVisualStyleBackColor = true;
+            this.bUpdateLater.Click += new System.EventHandler( this.bUpdateLater_Click );
             // 
             // progress
             // 

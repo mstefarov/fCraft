@@ -58,12 +58,12 @@ namespace fCraft {
 
         public static string GetArgString() {
             return Args.Aggregate( new StringBuilder(),
-                                   ( sb, pair ) => sb.AppendFormat( " {0}={1}", pair.Key, pair.Value ) ).ToString();
+                                   ( sb, pair ) => sb.AppendFormat( " {0}=\"{1}\"", pair.Key, pair.Value ) ).ToString();
         }
 
 
         public static string[] GetArgList() {
-            return Args.Select( pair => (pair.Key + "=" + pair.Value) ).ToArray();
+            return Args.Select( pair => String.Format( "{0}=\"{1}\"", pair.Key, pair.Value ) ).ToArray();
         }
 
         #endregion
@@ -84,6 +84,9 @@ namespace fCraft {
                 if( !arg.StartsWith( "--" ) || !arg.Contains( '=' ) ) continue;
                 string argKeyName = arg.Substring( 2, arg.IndexOf( '=' ) - 2 ).ToLower().Trim();
                 string argValue = arg.Substring( arg.IndexOf( '=' ) + 1 ).Trim();
+                if( argValue.StartsWith( "\"" ) && argValue.EndsWith( "\"" ) ) {
+                    argValue = argValue.Substring( 1, argValue.Length - 2 );
+                }
                 try {
                     ArgKey tryKey = (ArgKey)Enum.Parse( typeof( ArgKey ), argKeyName, true );
                     Args.Add( tryKey, argValue );
@@ -431,18 +434,47 @@ namespace fCraft {
             Thread.Sleep( param.Delay * 1000 );
             ShutdownNow( param );
             ShutdownWaiter.Set();
-            if( param.Restart ) {
-                string binaryFile = Assembly.GetEntryAssembly().Location;
-                switch( Environment.OSVersion.Platform ) {
-                    case PlatformID.MacOSX:
-                    case PlatformID.Unix:
-                        Process.Start( "mono", binaryFile + GetArgString() + " &" );
+
+            bool doRestart = (param.Restart && !HasArg( ArgKey.NoRestart ));
+            string binaryFile = Assembly.GetEntryAssembly().Location;
+            switch( Environment.OSVersion.Platform ) {
+                case PlatformID.MacOSX:
+                case PlatformID.Unix:
+                    string monoArgs;
+                    if( Updater.RunAtShutdown && doRestart ) {
+                        monoArgs = String.Format( "\"{0}\" --restart=\"{1}\" {2} &",
+                                                      Updater.UpdaterFile,
+                                                      Assembly.GetEntryAssembly().Location,
+                                                      GetArgString() );
+
+                    } else if( Updater.RunAtShutdown ) {
+                        monoArgs = String.Format( "\"{0}\" {1} &", Updater.UpdaterFile, GetArgString() );
+
+                    } else if( doRestart ) {
+                        monoArgs = String.Format( "\"{0}\" {1} &", binaryFile, GetArgString() );
+
+                    } else {
                         break;
-                    default:
+                    }
+                    Process.Start( "mono", monoArgs );
+                    break;
+
+                default:
+                    if( Updater.RunAtShutdown && doRestart ) {
+                        string winArgs = String.Format( "--restart=\"{0}\" {1}",
+                                                        Assembly.GetEntryAssembly().Location,
+                                                        GetArgString() );
+                        Process.Start( Updater.UpdaterFile, winArgs );
+
+                    } else if( Updater.RunAtShutdown ) {
+                        Process.Start( Updater.UpdaterFile, GetArgString() );
+
+                    } else if( doRestart ) {
                         Process.Start( binaryFile, GetArgString() );
-                        break;
-                }
+                    }
+                    break;
             }
+
             if( param.KillProcess ) {
                 Process.GetCurrentProcess().Kill();
             }
@@ -1612,12 +1644,15 @@ namespace fCraft {
             KillProcess = killProcess;
             Restart = restart;
         }
+
         public ShutdownParams( string customReason, int delay, bool killProcess, bool restart, Player initiatedBy ) :
             this( ShutdownReason.Custom, delay, killProcess, restart ) {
             CustomReasonString = customReason;
             InitiatedBy = initiatedBy;
         }
+
         public ShutdownReason Reason { get; private set; }
+
         string CustomReasonString;
         public string ReasonString {
             get {
@@ -1629,10 +1664,14 @@ namespace fCraft {
             }
         }
         public int Delay { get; private set; }
+
         public bool KillProcess { get; private set; }
+
         public bool Restart { get; private set; }
+
         public Player InitiatedBy { get; private set; }
     }
+
 
     public enum ShutdownReason {
         Unknown,
