@@ -1322,6 +1322,13 @@ namespace fCraft {
 
             BoundingBox bounds = new BoundingBox( marks[0], info.WidthX, info.WidthY, info.Height );
 
+            if( !player.CanDraw( bounds.GetVolume() ) ) {
+                player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                   player.Info.Rank.DrawLimit,
+                                   bounds.GetVolume() );
+                return;
+            }
+
             if( bounds.xMin < 0 || bounds.xMax > map.WidthX - 1 ) {
                 player.MessageNow( "Warning: Not enough room horizontally (X), paste cut off." );
             }
@@ -1642,17 +1649,7 @@ namespace fCraft {
             pos.H = (short)Math.Min( player.World.Map.Height - 1, Math.Max( 0, (int)pos.H ) );
 
             if( player.SelectionMarksExpected > 0 ) {
-                player.SelectionMarks.Enqueue( pos );
-                player.SelectionMarkCount++;
-                if( player.SelectionMarkCount >= player.SelectionMarksExpected ) {
-                    player.SelectionCallback( player, player.SelectionMarks.ToArray(), player.SelectionArgs );
-                    player.SelectionMarksExpected = 0;
-                } else {
-                    player.MessageNow( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
-                                       player.SelectionMarkCount,
-                                       pos.X, pos.Y, pos.H,
-                                       player.SelectionMarkCount + 1 );
-                }
+                player.AddSelectionMark( pos, true );
             } else {
                 player.MessageNow( "Cannot mark - no draw or zone commands initiated." );
             }
