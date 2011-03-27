@@ -160,14 +160,14 @@ namespace fCraft {
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             Version,
             Revision,
-            new DateTime( 2011, 3, 22, 10, 55, 0, DateTimeKind.Utc ),
+            new DateTime( 2011, 3, 27, 18, 50, 0, DateTimeKind.Utc ),
             "WIP",
             "WIP",
             ReleaseFlags.APIChange | ReleaseFlags.Bugfix | ReleaseFlags.ConfigFormatChange | ReleaseFlags.Dev | ReleaseFlags.Feature
         );
 
         public const int Version = 510,
-                         Revision = 482;
+                         Revision = 480;
         public const bool IsDev = true,
                           IsBroken = false;
 

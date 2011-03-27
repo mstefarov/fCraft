@@ -8,6 +8,7 @@ using fCraft;
 using System.Text;
 using System.IO;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace fCraftUI {
     public sealed partial class UpdateWindow : Form {
@@ -15,6 +16,7 @@ namespace fCraftUI {
         readonly string updaterFullPath;
         readonly WebClient downloader = new WebClient();
         readonly bool auto;
+        bool closeFormWhenDownloaded = false;
 
         public UpdateWindow( UpdaterResult _update, bool _auto ) {
             InitializeComponent();
@@ -47,14 +49,18 @@ namespace fCraftUI {
 
 
         void DownloadComplete( object sender, AsyncCompletedEventArgs e ) {
-            progress.Value = 100;
-            if( e.Cancelled || e.Error != null ) {
-                MessageBox.Show( e.Error.ToString(), "Error occured while trying to download " + Updater.UpdaterFile );
-            } else if( auto ) {
-                bUpdateNow_Click( null, null );
+            if( closeFormWhenDownloaded ) {
+                Close();
             } else {
-                bUpdateNow.Enabled = true;
-                bUpdateLater.Enabled = true;
+                progress.Value = 100;
+                if( e.Cancelled || e.Error != null ) {
+                    MessageBox.Show( e.Error.ToString(), "Error occured while trying to download " + Updater.UpdaterFile );
+                } else if( auto ) {
+                    bUpdateNow_Click( null, null );
+                } else {
+                    bUpdateNow.Enabled = true;
+                    bUpdateLater.Enabled = true;
+                }
             }
         }
 
@@ -105,6 +111,14 @@ namespace fCraftUI {
         private void bUpdateLater_Click( object sender, EventArgs e ) {
             Updater.RunAtShutdown = true;
             Close();
+        }
+
+        private void UpdateWindow_FormClosing( object sender, FormClosingEventArgs e ) {
+            if( downloader.IsBusy ) {
+                downloader.CancelAsync();
+                closeFormWhenDownloaded = true;
+                e.Cancel = true;
+            }
         }
     }
 }

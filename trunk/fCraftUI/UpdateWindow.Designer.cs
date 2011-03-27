@@ -157,6 +157,7 @@
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "fCraft Updater";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.UpdateWindow_FormClosing );
             this.ResumeLayout( false );
             this.PerformLayout();
 

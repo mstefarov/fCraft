@@ -57,13 +57,20 @@ namespace fCraft {
 
 
         public static string GetArgString() {
-            return Args.Aggregate( new StringBuilder(),
-                                   ( sb, pair ) => sb.AppendFormat( " {0}=\"{1}\"", pair.Key, pair.Value ) ).ToString();
+            return String.Join( " ", GetArgList() );
         }
 
 
         public static string[] GetArgList() {
-            return Args.Select( pair => String.Format( "{0}=\"{1}\"", pair.Key, pair.Value ) ).ToArray();
+            List<string> argList = new List<string>();
+            foreach( var pair in Args ) {
+                if( pair.Value != null ) {
+                    argList.Add( String.Format( "--{0}=\"{1}\"", pair.Key.ToString().ToLower(), pair.Value ) );
+                } else {
+                    argList.Add( String.Format( "--{0}", pair.Key.ToString().ToLower() ) );
+                }
+            }
+            return argList.ToArray();
         }
 
         #endregion
@@ -81,21 +88,28 @@ namespace fCraft {
 
             // try to parse arguments
             foreach( string arg in rawArgs ) {
-                if( !arg.StartsWith( "--" ) || !arg.Contains( '=' ) ) continue;
-                string argKeyName = arg.Substring( 2, arg.IndexOf( '=' ) - 2 ).ToLower().Trim();
-                string argValue = arg.Substring( arg.IndexOf( '=' ) + 1 ).Trim();
-                if( argValue.StartsWith( "\"" ) && argValue.EndsWith( "\"" ) ) {
-                    argValue = argValue.Substring( 1, argValue.Length - 2 );
-                }
-                try {
-                    ArgKey tryKey = (ArgKey)Enum.Parse( typeof( ArgKey ), argKeyName, true );
-                    Args.Add( tryKey, argValue );
-                } catch( ArgumentException ) {
+                if( arg.StartsWith( "--" ) ) {
+                    string argKeyName, argValue;
+                    if( arg.Contains( '=' ) ) {
+                        argKeyName = arg.Substring( 2, arg.IndexOf( '=' ) - 2 ).ToLower().Trim();
+                        argValue = arg.Substring( arg.IndexOf( '=' ) + 1 ).Trim();
+                        if( argValue.StartsWith( "\"" ) && argValue.EndsWith( "\"" ) ) {
+                            argValue = argValue.Substring( 1, argValue.Length - 2 );
+                        }
+
+                    } else {
+                        argKeyName = arg.Substring( 2 );
+                        argValue = null;
+                    }
+                    try {
+                        ArgKey tryKey = (ArgKey)Enum.Parse( typeof( ArgKey ), argKeyName, true );
+                        Args.Add( tryKey, argValue );
+                    } catch( ArgumentException ) {
+                        Console.Error.WriteLine( "Unknown argument: {0}", arg );
+                    }
+                } else {
                     Console.Error.WriteLine( "Unknown argument: {0}", arg );
                 }
-#if DEBUG
-                Console.WriteLine( "{0} = {1}", argKeyName, argValue );
-#endif
             }
 
 
