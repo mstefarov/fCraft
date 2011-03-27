@@ -1588,13 +1588,16 @@ namespace fCraft {
         }
 
 
-        public static int GetPlayerCount( bool includeHiddenPlayers ) {
+        public static int CountPlayers( bool includeHiddenPlayers ) {
             if( includeHiddenPlayers ) {
                 return PlayerList.Length;
             } else {
-                ;
                 return PlayerList.Count( player => !player.IsHidden );
             }
+        }
+
+        public static int CountVisiblePlayers( Player observer ) {
+            return PlayerList.Count( player => observer.CanSee( player ) );
         }
 
         #endregion
