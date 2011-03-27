@@ -182,7 +182,7 @@ namespace fCraft {
                 zone.Controller.Include( info );
                 player.Message( "Zone: Creating a {0}+&S zone for player {1}&S. Place a block or type /mark to use your location.",
                                 zone.Controller.MinRank.GetClassyName(), info.GetClassyName() );
-                player.SetCallback( 2, ZoneAddCallback, zone );
+                player.SetCallback( 2, ZoneAddCallback, zone, cdZoneAdd.Permissions );
 
             } else {
                 if( !Player.IsValidName( zoneName ) ) {
@@ -228,7 +228,7 @@ namespace fCraft {
                     }
 
                     zone.Controller.MinRank = minRank;
-                    player.SetCallback( 2, ZoneAddCallback, zone );
+                    player.SetCallback( 2, ZoneAddCallback, zone, cdZoneAdd.Permissions );
                     player.Message( "Zone: Place a block or type /mark to use your location." );
 
                 } else {
@@ -262,10 +262,7 @@ namespace fCraft {
         };
 
         static void ZoneTest( Player player, Command cmd ) {
-            player.SelectionMarksExpected = 1;
-            player.SelectionMarks.Clear();
-            player.SelectionMarkCount = 0;
-            player.SelectionCallback = ZoneTestCallback;
+            player.SetCallback( 1, ZoneTestCallback, null );
             player.Message( "Click the block that you would like to test." );
         }
 

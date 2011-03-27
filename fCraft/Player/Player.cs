@@ -447,7 +447,12 @@ namespace fCraft {
                 SelectionMarkCount++;
                 if( SelectionMarkCount >= SelectionMarksExpected ) {
                     SelectionMarksExpected = 0;
-                    SelectionCallback( this, SelectionMarks.ToArray(), SelectionArgs );
+                    if( selectionPermissions == null || Can( selectionPermissions ) ) {
+                        SelectionCallback( this, SelectionMarks.ToArray(), SelectionArgs );
+                    } else {
+                        Message( "&WYou are no longer allowed to complete this action." );
+                        NoAccessMessage( selectionPermissions );
+                    }
                 } else {
                     Message( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
                              SelectionMarkCount, x, y, h, SelectionMarkCount + 1 );
@@ -661,20 +666,23 @@ namespace fCraft {
 
         internal Queue<BlockUpdate> UndoBuffer = new Queue<BlockUpdate>();
 
-        public SelectionCallback SelectionCallback;
+
+        public SelectionCallback SelectionCallback { get; private set; }
         public readonly Queue<Position> SelectionMarks = new Queue<Position>();
         public int SelectionMarkCount,
                    SelectionMarksExpected;
-        internal object SelectionArgs; // can be used for 'block' or 'zone' or whatever
+        internal object SelectionArgs { get; private set; } // can be used for 'block' or 'zone' or whatever
+        internal Permission[] selectionPermissions;
 
         internal DrawCommands.CopyInformation CopyInformation;
 
-        public void SetCallback( int marksExpected, SelectionCallback callback, object args ) {
+        public void SetCallback( int marksExpected, SelectionCallback callback, object args, params Permission[] requiredPermissions ) {
             SelectionArgs = args;
             SelectionMarksExpected = marksExpected;
             SelectionMarks.Clear();
             SelectionMarkCount = 0;
             SelectionCallback = callback;
+            selectionPermissions = requiredPermissions;
         }
 
         #endregion

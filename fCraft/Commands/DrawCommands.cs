@@ -295,14 +295,16 @@ namespace fCraft {
                 return;
             }
 
-            player.SelectionArgs = (byte)block;
+            object selectionArgs = (byte)block;
+            SelectionCallback callback = null;
+
             switch( mode ) {
                 case DrawMode.Cuboid:
-                    player.SelectionCallback = CuboidCallback;
+                    callback = CuboidCallback;
                     break;
 
                 case DrawMode.CuboidHollow:
-                    player.SelectionCallback = CuboidHollowCallback;
+                    callback = CuboidHollowCallback;
                     string innerBlockName = cmd.Next();
                     Block innerBlock = Block.Undefined;
                     if( innerBlockName != null ) {
@@ -312,30 +314,30 @@ namespace fCraft {
                                             mode, innerBlockName );
                         }
                     }
-                    player.SelectionArgs = new CuboidHollowArgs {
+                    selectionArgs = new CuboidHollowArgs {
                         OuterBlock = block,
                         InnerBlock = innerBlock
                     };
                     break;
 
                 case DrawMode.CuboidWireframe:
-                    player.SelectionCallback = CuboidWireframeCallback;
+                    callback = CuboidWireframeCallback;
                     break;
 
                 case DrawMode.Ellipsoid:
-                    player.SelectionCallback = EllipsoidCallback;
+                    callback = EllipsoidCallback;
                     break;
 
                 case DrawMode.EllipsoidHollow:
-                    player.SelectionCallback = EllipsoidHollowCallback;
+                    callback = EllipsoidHollowCallback;
                     break;
 
                 case DrawMode.Sphere:
-                    player.SelectionCallback = SphereCallback;
+                    callback = SphereCallback;
                     break;
 
                 case DrawMode.SphereHollow:
-                    player.SelectionCallback = SphereHollowCallback;
+                    callback = SphereHollowCallback;
                     break;
 
                 case DrawMode.Replace:
@@ -366,7 +368,7 @@ namespace fCraft {
                     if( affectedTypes.Count > 1 ) {
                         Block replacementType = affectedTypes[affectedTypes.Count - 1];
                         affectedTypes.RemoveAt( affectedTypes.Count - 1 );
-                        player.SelectionArgs = new ReplaceArgs {
+                        selectionArgs = new ReplaceArgs {
                             DoExclude = (mode == DrawMode.ReplaceNot),
                             Types = affectedTypes.ToArray(),
                             ReplacementBlock = replacementType
@@ -380,18 +382,20 @@ namespace fCraft {
                         } else {
                             player.MessageNow( "Replace: Ready to replace ({0}) with {1}", affectedString.Substring( 2 ), replacementType );
                         }
-                        player.SelectionCallback = ReplaceCallback;
+                        callback = ReplaceCallback;
                     }
                     break;
 
                 case DrawMode.Line:
-                    player.SelectionCallback = LineCallback;
+                    callback = LineCallback;
                     break;
+
+                default:
+                    throw new ArgumentOutOfRangeException( "mode" );
             }
 
-            player.SelectionMarksExpected = 2;
-            player.SelectionMarkCount = 0;
-            player.SelectionMarks.Clear();
+            player.SetCallback( 2, callback, selectionArgs, Permission.Draw );
+
             if( block != Block.Undefined ) {
                 player.MessageNow( "{0} ({1}): Click a block or use &H/mark",
                                    mode, block );
@@ -1073,7 +1077,7 @@ namespace fCraft {
         };
 
         internal static void Copy( Player player, Command cmd ) {
-            player.SetCallback( 2, CopyCallback, null );
+            player.SetCallback( 2, CopyCallback, null, cdCopy.Permissions );
             player.MessageNow( "Copy: Place a block or type /mark to use your location." );
         }
 
@@ -1141,7 +1145,7 @@ namespace fCraft {
                     return;
                 }
             }
-            player.SetCallback( 2, CutCallback, fillBlock );
+            player.SetCallback( 2, CutCallback, fillBlock, cdCut.Permissions );
             player.MessageNow( "Cut: Place a block or type /mark to use your location." );
         }
 
@@ -1246,7 +1250,7 @@ namespace fCraft {
                 return;
             }
 
-            player.SetCallback( 1, PasteCallback, args );
+            player.SetCallback( 1, PasteCallback, args, cdPasteNot.Permissions );
 
             player.MessageNow( "PasteNot: Place a block or type /mark to use your location. " );
         }
@@ -1299,7 +1303,7 @@ namespace fCraft {
                 };
             }
 
-            player.SetCallback( 1, PasteCallback, args );
+            player.SetCallback( 1, PasteCallback, args, cdPaste.Permissions );
 
             player.MessageNow( "Paste: Place a block or type /mark to use your location. " );
         }
