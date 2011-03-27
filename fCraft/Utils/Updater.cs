@@ -167,9 +167,9 @@ namespace fCraft {
         );
 
         public const int Version = 510,
-                         Revision = 477;
+                         Revision = 478;
         public const bool IsDev = true,
-                          IsBroken = true;
+                          IsBroken = false;
 
         public const string LatestStable = "0.506_r427";
 
@@ -179,6 +179,8 @@ namespace fCraft {
             UpdateUrl = "http://www.fcraft.net/UpdateCheck.php?r={0}";
         }
 
+
+        const int UpdateCheckTimeout = 3000;
 
         public static UpdaterResult CheckForUpdates() {
             // TODO: fix the rest
@@ -194,8 +196,8 @@ namespace fCraft {
 
                 request.Method = "GET";
                 request.UserAgent = "fCraft";
-                request.Timeout = 2000;
-                request.ReadWriteTimeout = 2000;
+                request.Timeout = UpdateCheckTimeout;
+                request.ReadWriteTimeout = UpdateCheckTimeout;
                 request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
 
                 using( WebResponse response = request.GetResponse() ) {

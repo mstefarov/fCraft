@@ -555,14 +555,10 @@ namespace fCraft {
                             PlayerDB.CountBannedPlayers(),
                             IPBanList.CountBans() );
 
-            // count players that are not hidden from this player
-            Player[] players = Server.PlayerList;
-            int visiblePlayerCount = players.Count( player.CanSee );
-
             player.Message( "    {0} worlds available ({1} loaded), {2} players online.",
                             Server.WorldList.Length,
                             Server.CountLoadedWorlds(),
-                            visiblePlayerCount );
+                            Server.CountVisiblePlayers( player ) );
         }
 
         #endregion

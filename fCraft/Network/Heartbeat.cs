@@ -50,7 +50,7 @@ namespace fCraft {
             data = new HeartbeatData {
                 IsPublic = ConfigKey.IsPublic.GetBool(),
                 MaxPlayers = ConfigKey.MaxPlayers.GetInt(),
-                PlayerCount = Server.GetPlayerCount( false ),
+                PlayerCount = Server.CountPlayers( false ),
                 ServerIP = Server.IP,
                 Port = Server.Port,
                 ProtocolVersion = Config.ProtocolVersion,
@@ -99,7 +99,7 @@ namespace fCraft {
                         Server.Salt,
                         Server.IP.ToString(),
                         Server.Port.ToString(),
-                        Server.GetPlayerCount(false).ToString(),
+                        Server.CountPlayers(false).ToString(),
                         ConfigKey.MaxPlayers.GetString(),
                         ConfigKey.ServerName.GetString(),
                         ConfigKey.IsPublic.GetString()

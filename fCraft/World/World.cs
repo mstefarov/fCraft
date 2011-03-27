@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+
 
 namespace fCraft {
 
@@ -307,6 +309,19 @@ namespace fCraft {
             }
         }
 
+
+        public int CountPlayers( bool includeHiddenPlayers ) {
+            if( includeHiddenPlayers ) {
+                return PlayerList.Length;
+            } else {
+                return PlayerList.Count( player => !player.IsHidden );
+            }
+        }
+
+        public int CountVisiblePlayers( Player observer ) {
+            return PlayerList.Count( player => observer.CanSee( player ) );
+        }
+
         #endregion
 
 
@@ -414,6 +429,8 @@ namespace fCraft {
         #endregion
 
 
+        #region Lock / Unlock
+
         public bool Lock( Player player ) {
             lock( lockLock ) {
                 if( IsLocked ) {
@@ -448,23 +465,7 @@ namespace fCraft {
             }
         }
 
-
-        public string GetClassyName() {
-            string displayedName = Name;
-            if( ConfigKey.RankColorsInWorldNames.GetBool() ) {
-                if( ConfigKey.RankPrefixesInChat.GetBool() ) {
-                    displayedName = BuildSecurity.MinRank.Prefix + displayedName;
-                }
-                if( ConfigKey.RankColorsInChat.GetBool() ) {
-                    if( BuildSecurity.MinRank >= AccessSecurity.MinRank ) {
-                        displayedName = BuildSecurity.MinRank.Color + displayedName;
-                    } else {
-                        displayedName = AccessSecurity.MinRank.Color + displayedName;
-                    }
-                }
-            }
-            return displayedName;
-        }
+        #endregion
 
 
         #region Patrol
@@ -582,6 +583,25 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        public string GetClassyName() {
+            string displayedName = Name;
+            if( ConfigKey.RankColorsInWorldNames.GetBool() ) {
+                if( ConfigKey.RankPrefixesInChat.GetBool() ) {
+                    displayedName = BuildSecurity.MinRank.Prefix + displayedName;
+                }
+                if( ConfigKey.RankColorsInChat.GetBool() ) {
+                    if( BuildSecurity.MinRank >= AccessSecurity.MinRank ) {
+                        displayedName = BuildSecurity.MinRank.Color + displayedName;
+                    } else {
+                        displayedName = AccessSecurity.MinRank.Color + displayedName;
+                    }
+                }
+            }
+            return displayedName;
+        }
+
 
         public override string ToString() {
             return String.Format( "World({0})", Name );

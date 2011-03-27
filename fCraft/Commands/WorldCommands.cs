@@ -63,7 +63,7 @@ namespace fCraft {
 
             player.Message( "World {0}&S has {1} player(s) on.",
                             world.GetClassyName(),
-                            world.PlayerList.Length );
+                            world.CountVisiblePlayers(player) );
 
             // If map is not currently loaded, grab its header from disk
             Map map = world.Map ?? Map.LoadHeaderOnly( Path.Combine( Paths.MapPath, world.GetMapName() ) );

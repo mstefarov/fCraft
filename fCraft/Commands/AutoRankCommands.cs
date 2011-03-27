@@ -11,7 +11,6 @@ namespace fCraft {
     /// </summary>
     static class AutoRankCommands {
         internal static void Init() {
-            CommandList.RegisterCommand( cdAutoRankTest );
             CommandList.RegisterCommand( cdAutoRankReload );
             CommandList.RegisterCommand( cdMassRank );
             CommandList.RegisterCommand( cdAutoRankAll );
@@ -533,39 +532,6 @@ namespace fCraft {
 
         internal static void AutoRankReload( Player player, Command cmd ) {
             AutoRank.Init();
-        }
-
-
-        static readonly CommandDescriptor cdAutoRankTest = new CommandDescriptor {
-            Name = "autoranktest",
-            ConsoleSafe = true,
-            Permissions = new[] { Permission.ViewOthersInfo },
-            Help = "",
-            Usage = "/autoranktest PlayerName",
-            Handler = AutoRankTest
-        };
-
-        internal static void AutoRankTest( Player player, Command cmd ) {
-            PlayerInfo info;
-            string playerName = cmd.Next();
-
-            if( playerName == null ) {
-                cdAutoRankTest.PrintUsage( player );
-                return;
-            }
-
-            if( !PlayerDB.FindPlayerInfo( playerName, out info ) ) {
-                player.Message( "More than one player found matching \"{0}\"", playerName );
-            } else if( info == null ) {
-                player.NoPlayerMessage( playerName );
-            } else {
-                Rank result = AutoRank.Check( info );
-                if( result == null ) {
-                    player.Message( "{0} is {1}, and not qualified.", player.GetClassyName(), player.Info.Rank.GetClassyName() );
-                } else {
-                    player.Message( "{0} is {1}, and qualified for {2}", player.GetClassyName(), player.Info.Rank.GetClassyName(), result.GetClassyName() );
-                }
-            }
         }
 
 

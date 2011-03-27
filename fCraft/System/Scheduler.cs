@@ -44,8 +44,8 @@ namespace fCraft {
                     } else {
                         task.IsExecuting = true;
 #if DEBUG
-                        task.Callback( task );
-                        task.IsExecuting = false;
+                    task.Callback( task );
+                    task.IsExecuting = false;
 #else
                         try {
                             task.Callback( task );
