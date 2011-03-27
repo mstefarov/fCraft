@@ -443,20 +443,7 @@ namespace fCraft {
             // selection handling
             if( SelectionMarksExpected > 0 ) {
                 SendBlockNow( x, y, h );
-                SelectionMarks.Enqueue( new Position( x, y, h ) );
-                SelectionMarkCount++;
-                if( SelectionMarkCount >= SelectionMarksExpected ) {
-                    SelectionMarksExpected = 0;
-                    if( selectionPermissions == null || Can( selectionPermissions ) ) {
-                        SelectionCallback( this, SelectionMarks.ToArray(), SelectionArgs );
-                    } else {
-                        Message( "&WYou are no longer allowed to complete this action." );
-                        NoAccessMessage( selectionPermissions );
-                    }
-                } else {
-                    Message( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
-                             SelectionMarkCount, x, y, h, SelectionMarkCount + 1 );
-                }
+                AddSelectionMark( new Position( x, y, h ), true );
                 return false;
             }
 
@@ -675,6 +662,32 @@ namespace fCraft {
         internal Permission[] selectionPermissions;
 
         internal DrawCommands.CopyInformation CopyInformation;
+
+        public void AddSelectionMark( Position pos, bool executeCallbackIfNeeded ) {
+            SelectionMarks.Enqueue( pos );
+            SelectionMarkCount++;
+            if( SelectionMarkCount >= SelectionMarksExpected ) {
+                if( executeCallbackIfNeeded ) {
+                    ExecuteSelectionCallback();
+                } else {
+                    Message( "Last block marked at ({0},{1},{2}). Type &H/mark&S or click any block to continue.",
+                             pos.X, pos.Y, pos.H );
+                }
+            } else {
+                Message( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
+                         SelectionMarkCount, pos.X, pos.Y, pos.H, SelectionMarkCount + 1 );
+            }
+        }
+
+        public void ExecuteSelectionCallback() {
+            SelectionMarksExpected = 0;
+                if( selectionPermissions == null || Can( selectionPermissions ) ) {
+                    SelectionCallback( this, SelectionMarks.ToArray(), SelectionArgs );
+                } else {
+                    Message( "&WYou are no longer allowed to complete this action." );
+                    NoAccessMessage( selectionPermissions );
+                }
+        }
 
         public void SetCallback( int marksExpected, SelectionCallback callback, object args, params Permission[] requiredPermissions ) {
             SelectionArgs = args;
