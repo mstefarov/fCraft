@@ -294,8 +294,8 @@ namespace fCraft.MapConversion {
 
                     // Write the map dimensions
                     bs.Write( mapToSave.WidthX );
-                    bs.Write( mapToSave.Height );
                     bs.Write( mapToSave.WidthY );
+                    bs.Write( mapToSave.Height );
 
                     // Write the spawn location
                     bs.Write( mapToSave.Spawn.X / 32 );
