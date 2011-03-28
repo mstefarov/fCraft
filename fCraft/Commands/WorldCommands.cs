@@ -40,7 +40,8 @@ namespace fCraft {
         static readonly CommandDescriptor cdWorldInfo = new CommandDescriptor {
             Name = "winfo",
             Aliases = new[] { "mapinfo" },
-            ConsoleSafe = true,
+            Category = CommandCategory.Info | CommandCategory.World,
+            IsConsoleSafe = true,
             Usage = "/winfo [WorldName]",
             Help = "Shows information about a world: player count, map dimensions, permissions, etc." +
                    "If no WorldName is given, shows info for current world.",
@@ -97,6 +98,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdJoin = new CommandDescriptor {
             Name = "join",
             Aliases = new[] { "j", "load", "l", "goto", "map" },
+            Category = CommandCategory.World,
             Usage = "/join WorldName",
             Help = "Teleports the player to a specified world. You can see the list of available worlds by using &H/worlds",
             Handler = Join
@@ -153,8 +155,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdWorldSave = new CommandDescriptor {
             Name = "wsave",
-            ConsoleSafe = true,
             Aliases = new[] { "save" },
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/wsave FileName &Sor&H /save WorldName FileName",
             Help = "Saves a map copy to a file with the specified name. " +
@@ -247,7 +250,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdWorldFlush = new CommandDescriptor {
             Name = "wflush",
-            ConsoleSafe = true,
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/wflush [WorldName]",
             Help = "Flushes the update buffer on specified map by causing players to rejoin. " +
@@ -284,7 +288,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdWorldMain = new CommandDescriptor {
             Name = "wmain",
-            ConsoleSafe = true,
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/wmain [WorldName]",
             Help = "Sets the specified world as the new main world. Main world is what newly-connected players join first.",
@@ -342,7 +347,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdWorldAccess = new CommandDescriptor {
             Name = "waccess",
-            ConsoleSafe = true,
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/waccess [WorldName [RankName]]",
             Help = "Shows access permission for player's current world. " +
@@ -579,7 +585,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdWorldBuild = new CommandDescriptor {
             Name = "wbuild",
-            ConsoleSafe = true,
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/wbuild [WorldName [RankName]]",
             Help = "Shows build permissions for player's current world. " +
@@ -808,7 +815,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdWorlds = new CommandDescriptor {
             Name = "worlds",
-            ConsoleSafe = true,
+            Category = CommandCategory.World | CommandCategory.Info,
+            IsConsoleSafe = true,
             Aliases = new[] { "maps", "levels" },
             Usage = "/worlds [all|hidden]",
             Help = "Shows a list of worlds available for you to join. " +
@@ -869,7 +877,8 @@ namespace fCraft {
         static readonly CommandDescriptor cdWorldLoad = new CommandDescriptor {
             Name = "wload",
             Aliases = new[] { "wadd" },
-            ConsoleSafe = true,
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/wload FileName [WorldName]",
             Help = "If WorldName parameter is not given, replaces the current world's map with the specified map. The old map is overwritten. " +
@@ -1009,7 +1018,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdWorldRename = new CommandDescriptor {
             Name = "wrename",
-            ConsoleSafe = true,
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/wrename OldName NewName",
             Help = "Changes the name of a world. Does not require any reloading.",
@@ -1067,7 +1077,8 @@ namespace fCraft {
         static readonly CommandDescriptor cdWorldUnload = new CommandDescriptor {
             Name = "wunload",
             Aliases = new[] { "wremove", "wdelete" },
-            ConsoleSafe = true,
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/wunload WorldName",
             Help = "Removes the specified world from the world list, and moves all players from it to the main world. " +
@@ -1123,7 +1134,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdWorldHide = new CommandDescriptor {
             Name = "whide",
-            ConsoleSafe = true,
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/whide WorldName",
             Help = "Hides the specified world from the &H/worlds&S list. " +
@@ -1154,7 +1166,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdWorldUnhide = new CommandDescriptor {
             Name = "wunhide",
-            ConsoleSafe = true,
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/wunhide WorldName",
             Help = "Unhides the specified world from the &H/worlds&S list. " +
@@ -1188,7 +1201,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdGenerate = new CommandDescriptor {
             Name = "gen",
-            ConsoleSafe = true,
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/gen ThemeName TemplateName [X Y Height [FileName]]",
             HelpHandler = delegate {
@@ -1359,7 +1373,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdLock = new CommandDescriptor {
             Name = "lock",
-            ConsoleSafe = true,
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.Lock },
             Usage = "/lock [WorldName]",
             Help = "Puts the world into a locked, read-only mode. " +
@@ -1394,7 +1409,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdLockAll = new CommandDescriptor {
             Name = "lockall",
-            ConsoleSafe = true,
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.Lock },
             Help = "Applies &H/lock&S to all available worlds.",
             Handler = LockAll
@@ -1412,7 +1428,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdUnlock = new CommandDescriptor {
             Name = "unlock",
-            ConsoleSafe = true,
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.Lock },
             Usage = "/unlock [WorldName]",
             Help = "Removes the lockdown set by &H/lock&S. See &H/help lock&S for more information.",
@@ -1444,7 +1461,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdUnlockAll = new CommandDescriptor {
             Name = "unlockall",
-            ConsoleSafe = true,
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.Lock },
             Help = "Applies &H/unlock&S to all available worlds",
             Handler = UnlockAll

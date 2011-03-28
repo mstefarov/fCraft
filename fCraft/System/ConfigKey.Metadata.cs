@@ -60,7 +60,7 @@ namespace fCraft {
                                                           MinLength ) );
             }
             if( MaxLength != NoLengthRestriction && value.Length > MaxLength ) {
-                throw new FormatException( String.Format( "Value string too long; expected at most {1} characters.",
+                throw new FormatException( String.Format( "Value string too long; expected at most {0} characters.",
                                                           MaxLength ) );
             }
             if( RestrictedChars && Player.CheckForIllegalChars( value ) ) {
@@ -169,9 +169,8 @@ namespace fCraft {
                         break;
                     case BlankValueMeaning.Invalid:
                         throw new FormatException( "Value may not be blank." );
-                        break;
                     default:
-                        throw new ArgumentOutOfRangeException( "Invalid value of BlankMeaning." );
+                        throw new ArgumentOutOfRangeException( "BlankMeaning" );
                 }
                 if( rank == null ) return;
             } else {

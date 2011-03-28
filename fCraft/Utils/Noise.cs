@@ -265,7 +265,7 @@ namespace fCraft {
 
 
         const float GaussianBlurDivisor = 1 / 273f;
-        public static float[,] GaussianBlur5x5( float[,] heightmap ) {
+        public static float[,] GaussianBlur5X5( float[,] heightmap ) {
             float[,] output = new float[heightmap.GetLength( 0 ), heightmap.GetLength( 1 )];
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {

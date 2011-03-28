@@ -49,6 +49,8 @@ namespace fCraft {
                   AntiSpeedMaxPacketCount = 200,
                   AntiSpeedMaxPacketInterval = 5;
 
+        const int SleepDelay = 10;
+
 
         const int SocketTimeout = 10000;
         readonly Queue<DateTime> antiSpeedPacketLog = new Queue<DateTime>();
@@ -106,7 +108,7 @@ namespace fCraft {
 
                 // main i/o loop
                 while( CanSend ) {
-                    Thread.Sleep( 1 );
+                    Thread.Sleep( SleepDelay );
 
                     int packetsSent = 0;
 
@@ -883,7 +885,7 @@ namespace fCraft {
 
         public void ClearPriorityOutputQueue() {
             Packet tempPacket = new Packet();
-            while( PriorityOutputQueue.Dequeue( ref tempPacket ) ) ;
+            while( PriorityOutputQueue.Dequeue( ref tempPacket ) ) { }
         }
 
 

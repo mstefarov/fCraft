@@ -8,7 +8,7 @@ namespace fCraft {
     /// Defines a 3D bounding box, in integer cartesian coordinates
     /// </summary>
     public sealed class BoundingBox {
-        public int xMin, yMin, hMin, xMax, yMax, hMax;
+        public int XMin, YMin, HMin, XMax, YMax, HMax;
 
         public BoundingBox( Position p1, Position p2 ) :
             this( p1.X, p1.Y, p1.H, p2.X, p2.Y, p2.H ) {
@@ -19,47 +19,55 @@ namespace fCraft {
         }
 
         public BoundingBox( int x1, int y1, int h1, int x2, int y2, int h2 ) {
-            xMin = Math.Min( x1, x2 );
-            xMax = Math.Max( x1, x2 );
-            yMin = Math.Min( y1, y2 );
-            yMax = Math.Max( y1, y2 );
-            hMin = Math.Min( h1, h2 );
-            hMax = Math.Max( h1, h2 );
+            XMin = Math.Min( x1, x2 );
+            XMax = Math.Max( x1, x2 );
+            YMin = Math.Min( y1, y2 );
+            YMax = Math.Max( y1, y2 );
+            HMin = Math.Min( h1, h2 );
+            HMax = Math.Max( h1, h2 );
         }
 
         public bool Insersects( BoundingBox other ) {
-            return xMin > other.xMax || xMax < other.xMin ||
-                   yMin > other.yMax || yMax < other.yMin ||
-                   hMin > other.hMax || hMax < other.hMin;
+            return XMin > other.XMax || XMax < other.XMin ||
+                   YMin > other.YMax || YMax < other.YMin ||
+                   HMin > other.HMax || HMax < other.HMin;
         }
 
         public bool Contains( BoundingBox other ) {
-            return xMin >= other.xMin && xMax <= other.xMax &&
-                   yMin >= other.yMin && yMax <= other.yMax &&
-                   hMin >= other.hMin && hMax <= other.hMax;
+            return XMin >= other.XMin && XMax <= other.XMax &&
+                   YMin >= other.YMin && YMax <= other.YMax &&
+                   HMin >= other.HMin && HMax <= other.HMax;
         }
 
         public bool Contains( int x, int y, int h ) {
-            return x >= xMin && x <= xMax &&
-                   y >= yMin && y <= yMax &&
-                   h >= hMin && h <= hMax;
+            return x >= XMin && x <= XMax &&
+                   y >= YMin && y <= YMax &&
+                   h >= HMin && h <= HMax;
         }
 
+        public BoundingBox GetIntersection( BoundingBox other ) {
+            return new BoundingBox( Math.Max( XMin, other.XMin ),
+                                    Math.Min( XMax, other.XMax ),
+                                    Math.Max( YMin, other.YMin ),
+                                    Math.Min( YMax, other.YMax ),
+                                    Math.Max( HMin, other.HMin ),
+                                    Math.Min( HMax, other.HMax ) );
+        }
 
         public int GetVolume() {
-            return (xMax - xMin + 1) * (yMax - yMin + 1) * (hMax - hMin + 1);
+            return (XMax - XMin + 1) * (YMax - YMin + 1) * (HMax - HMin + 1);
         }
 
         public int GetWidthX() {
-            return (xMax - xMin + 1);
+            return (XMax - XMin + 1);
         }
 
         public int GetWidthY() {
-            return (yMax - yMin + 1);
+            return (YMax - YMin + 1);
         }
 
         public int GetHeight() {
-            return (hMax - hMin + 1);
+            return (HMax - HMin + 1);
         }
 
         public const string XmlRootElementName = "BoundingBox";
@@ -72,18 +80,18 @@ namespace fCraft {
             int y2 = Int32.Parse( coords[3] );
             int h1 = Int32.Parse( coords[4] );
             int h2 = Int32.Parse( coords[5] );
-            xMin = Math.Min( x1, x2 );
-            xMax = Math.Max( x1, x2 );
-            yMin = Math.Min( y1, y2 );
-            yMax = Math.Max( y1, y2 );
-            hMin = Math.Min( h1, h2 );
-            hMax = Math.Max( h1, h2 );
+            XMin = Math.Min( x1, x2 );
+            XMax = Math.Max( x1, x2 );
+            YMin = Math.Min( y1, y2 );
+            YMax = Math.Max( y1, y2 );
+            HMin = Math.Min( h1, h2 );
+            HMax = Math.Max( h1, h2 );
         }
 
         public XElement Serialize() {
             return new XElement( XmlRootElementName,
                                  String.Format( "{0} {1} {2} {3} {4} {5}",
-                                                xMin, xMax, yMin, yMax, hMin, hMax ) );
+                                                XMin, XMax, YMin, YMax, HMin, HMax ) );
         }
 
     }

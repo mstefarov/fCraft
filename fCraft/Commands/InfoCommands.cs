@@ -49,7 +49,8 @@ namespace fCraft {
         static readonly CommandDescriptor cdDeafen = new CommandDescriptor {
             Name = "deafen",
             Aliases = new[] { "deaf" },
-            ConsoleSafe = true,
+            Category = CommandCategory.Chat,
+            IsConsoleSafe = true,
             Help = "Blocks all chat messages from being sent to you.",
             Handler = Deafen
         };
@@ -70,9 +71,10 @@ namespace fCraft {
 
         static CommandDescriptor cdTaskDebug = new CommandDescriptor {
             Name = "taskdebug",
-            ConsoleSafe = true,
+            Category = CommandCategory.None,
+            IsConsoleSafe = true,
             Help = "",
-            Hidden = true,
+            IsHidden = true,
             Handler = delegate( Player player, Command cmd ) {
                 Scheduler.PrintTasks( player );
                 Scheduler.PrintTasks( Player.Console );
@@ -84,9 +86,11 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdIgnore = new CommandDescriptor {
             Name = "ignore",
-            ConsoleSafe = true,
-            Usage = "/ignore PlayerName",
-            Help = "Temporarily blocks the other player from messaging you.",
+            Category = CommandCategory.Chat,
+            IsConsoleSafe = true,
+            Usage = "/ignore [PlayerName]",
+            Help = "Temporarily blocks the other player from messaging you. "+
+                   "If no player name is given, lists all ignored players.",
             Handler = Ignore
         };
 
@@ -129,7 +133,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdUnignore = new CommandDescriptor {
             Name = "unignore",
-            ConsoleSafe = true,
+            Category = CommandCategory.Chat,
+            IsConsoleSafe = true,
             Usage = "/unignore PlayerName",
             Help = "Unblocks the other player from messaging you.",
             Handler = Unignore
@@ -157,10 +162,16 @@ namespace fCraft {
                 if( player.Unignore( targetInfo ) ) {
                     player.MessageNow( "You are no longer ignoring {0}", targetInfo.GetClassyName() );
                 } else {
-                    player.MessageNow( "You are not ignoring {0}", targetInfo.GetClassyName() );
+                    player.MessageNow( "You are not currently ignoring {0}", targetInfo.GetClassyName() );
                 }
             } else {
-                cdUnignore.PrintUsage( player );
+                PlayerInfo[] ignoreList = player.GetIgnoreList();
+                if( ignoreList.Length > 0 ) {
+                    player.MessageNow( "Ignored players: {0}", PlayerInfo.PlayerInfoArrayToString( ignoreList ) );
+                } else {
+                    player.MessageNow( "You are not currently ignoring anyone." );
+                }
+                return;
             }
         }
 
@@ -172,7 +183,8 @@ namespace fCraft {
         static readonly CommandDescriptor cdInfo = new CommandDescriptor {
             Name = "info",
             Aliases = new[] { "pinfo" },
-            ConsoleSafe = true,
+            Category = CommandCategory.Info,
+            IsConsoleSafe = true,
             Usage = "/info [PlayerName]",
             Help = "Displays some information and stats about the player. " +
                    "If no name is given, shows your own stats.",
@@ -396,7 +408,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdBanInfo = new CommandDescriptor {
             Name = "baninfo",
-            ConsoleSafe = true,
+            Category = CommandCategory.Info,
+            IsConsoleSafe = true,
             Usage = "/baninfo [PlayerName|IPAddress]",
             Help = "Prints information about past and present bans/unbans associated with the PlayerName or IP. " +
                    "If no name is given, this prints your own ban info.",
@@ -485,7 +498,8 @@ namespace fCraft {
         static readonly CommandDescriptor cdRankInfo = new CommandDescriptor {
             Name = "rankinfo",
             Aliases = new[] { "class", "rinfo", "cinfo" },
-            ConsoleSafe = true,
+            Category = CommandCategory.Info,
+            IsConsoleSafe = true,
             Usage = "/rinfo RankName",
             Help = "Shows a list of permissions granted to a rank. To see a list of all ranks, use &H/ranks",
             Handler = RankInfo
@@ -534,7 +548,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdServerInfo = new CommandDescriptor {
             Name = "sinfo",
-            ConsoleSafe = true,
+            Category = CommandCategory.Info,
+            IsConsoleSafe = true,
             Help = "Shows server stats",
             Handler = ServerInfo
         };
@@ -566,7 +581,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdMe = new CommandDescriptor {
             Name = "me",
-            ConsoleSafe = true,
+            Category = CommandCategory.Chat,
+            IsConsoleSafe = true,
             Usage = "/me Message",
             Help = "Sends IRC-style action message prefixed with your name.",
             Handler = Me
@@ -592,7 +608,8 @@ namespace fCraft {
         static readonly CommandDescriptor cdRanks = new CommandDescriptor {
             Name = "ranks",
             Aliases = new[] { "classes" },
-            ConsoleSafe = true,
+            Category = CommandCategory.Info,
+            IsConsoleSafe = true,
             Help = "Shows a list of all defined ranks.",
             Handler = Ranks
         };
@@ -610,7 +627,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdRules = new CommandDescriptor {
             Name = "rules",
-            ConsoleSafe = true,
+            Category = CommandCategory.Info,
+            IsConsoleSafe = true,
             Help = "Shows a list of rules defined by server operator(s).",
             Handler = Rules
         };
@@ -639,7 +657,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdRoll = new CommandDescriptor {
             Name = "roll",
-            ConsoleSafe = true,
+            Category = CommandCategory.Chat,
+            IsConsoleSafe = true,
             Help = "Gives random number between 1 and 100.&N" +
                    "&H/roll MaxNumber&N" +
                    "Gives number between 1 and max.&N" +
@@ -679,6 +698,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdMeasure = new CommandDescriptor {
             Name = "measure",
+            Category = CommandCategory.Building | CommandCategory.Info,
             Help = "Shows information about a selection: width/length/height and volume.",
             Handler = Measure
         };
@@ -696,19 +716,20 @@ namespace fCraft {
                             box.GetHeight(),
                             box.GetVolume() );
             player.Message( "Measure: Located between ({0},{1},{2}) and ({3},{4},{5}).",
-                            box.xMin,
-                            box.yMin,
-                            box.hMin,
-                            box.xMax,
-                            box.yMax,
-                            box.hMax );
+                            box.XMin,
+                            box.YMin,
+                            box.HMin,
+                            box.XMax,
+                            box.YMax,
+                            box.HMax );
         }
 
 
 
         static readonly CommandDescriptor cdPlayers = new CommandDescriptor {
             Name = "players",
-            ConsoleSafe = true,
+            Category = CommandCategory.Info,
+            IsConsoleSafe = true,
             Usage = "/players [WorldName]",
             Help = "Lists all players on the server (in all worlds). " +
                    "If a WorldName is given, only lists players on that one world.",
@@ -743,7 +764,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdVersion = new CommandDescriptor {
             Name = "version",
-            ConsoleSafe = true,
+            Category = CommandCategory.Info,
+            IsConsoleSafe = true,
             Help = "Shows server software name and version.",
             Handler = Version
         };
@@ -757,8 +779,9 @@ namespace fCraft {
         static readonly CommandDescriptor cdWhere = new CommandDescriptor {
             Name = "where",
             Aliases = new[] { "compass" },
+            Category = CommandCategory.Info,
             Permissions = new[] { Permission.ViewOthersInfo },
-            ConsoleSafe = true,
+            IsConsoleSafe = true,
             Usage = "/where [PlayerName]",
             Help = "Shows information about the location and orientation of a player. " +
                    "If no name is given, shows player's own info.",
@@ -804,7 +827,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdHelp = new CommandDescriptor {
             Name = "help",
-            ConsoleSafe = true,
+            Category = CommandCategory.Info,
+            IsConsoleSafe = true,
             Usage = "/help [CommandName]",
             Help = "Derp.",
             Handler = Help

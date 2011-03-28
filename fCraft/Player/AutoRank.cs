@@ -26,13 +26,13 @@ namespace fCraft {
         }
 
 
-        public static void TaskCallback( Scheduler.Task task){
+        public static void TaskCallback( Scheduler.Task schedulerTask ) {
             AutoRankCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );
         }
 
 
         const string AutoRankFile = "autorank.xml";
-        static List<Criterion> criteria = new List<Criterion>();
+        static readonly List<Criterion> criteria = new List<Criterion>();
 
 
         public static void Add( Criterion criterion ) {
@@ -179,7 +179,7 @@ namespace fCraft {
     public sealed class ConditionIntRange : Condition {
         public ConditionField Field;
         public ConditionScopeType Scope = ConditionScopeType.Total;
-        public ComparisonOperation Comparison = ComparisonOperation.eq;
+        public ComparisonOperation Comparison = ComparisonOperation.Eq;
         public int Value;
 
         public ConditionIntRange() { }
@@ -248,17 +248,17 @@ namespace fCraft {
             }
 
             switch( Comparison ) {
-                case ComparisonOperation.lt:
+                case ComparisonOperation.Lt:
                     return (givenValue < Value);
-                case ComparisonOperation.lte:
+                case ComparisonOperation.Lte:
                     return (givenValue <= Value);
-                case ComparisonOperation.gte:
+                case ComparisonOperation.Gte:
                     return (givenValue >= Value);
-                case ComparisonOperation.gt:
+                case ComparisonOperation.Gt:
                     return (givenValue > Value);
-                case ComparisonOperation.eq:
+                case ComparisonOperation.Eq:
                     return (givenValue == Value);
-                case ComparisonOperation.neq:
+                case ComparisonOperation.Neq:
                     return (givenValue != Value);
                 default:
                     throw new ArgumentOutOfRangeException( "Comparison", "Unknown comparison type" );
@@ -328,17 +328,17 @@ namespace fCraft {
         public override bool Eval( PlayerInfo info ) {
             Rank prevRank = info.PreviousRank ?? info.Rank;
             switch( Comparison ) {
-                case ComparisonOperation.lt:
+                case ComparisonOperation.Lt:
                     return ( prevRank < Rank );
-                case ComparisonOperation.lte:
+                case ComparisonOperation.Lte:
                     return ( prevRank <= Rank );
-                case ComparisonOperation.gte:
+                case ComparisonOperation.Gte:
                     return ( prevRank >= Rank );
-                case ComparisonOperation.gt:
+                case ComparisonOperation.Gt:
                     return ( prevRank > Rank );
-                case ComparisonOperation.eq:
+                case ComparisonOperation.Eq:
                     return ( prevRank == Rank );
-                case ComparisonOperation.neq:
+                case ComparisonOperation.Neq:
                     return ( prevRank != Rank );
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -476,12 +476,12 @@ namespace fCraft {
     #region Enums
 
     public enum ComparisonOperation {
-        lt,
-        lte,
-        gte,
-        gt,
-        eq,
-        neq
+        Lt,
+        Lte,
+        Gte,
+        Gt,
+        Eq,
+        Neq
     }
 
     public enum ConditionField {

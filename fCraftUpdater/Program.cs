@@ -68,6 +68,7 @@ namespace fCraftUpdater {
                     argsList.Add( arg );
                 }
             }
+            argsList.Add( "--justupdated" );
 
             // Parse update settings
             string runBefore = null,

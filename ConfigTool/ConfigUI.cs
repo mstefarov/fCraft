@@ -51,7 +51,7 @@ namespace ConfigTool {
 
             nMaxPlayers.Maximum = Config.MaxPlayersSupported;
 
-            Config.logToString = true;
+            Config.LogToString = true;
 
             PopulateIRCNetworkList( false );
 
@@ -1110,24 +1110,24 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         private void bApply_Click( object sender, EventArgs e ) {
             SaveConfig();
-            if( Config.errors.Length > 0 ) {
-                MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
+            if( Config.Errors.Length > 0 ) {
+                MessageBox.Show( Config.Errors, "Some errors were found in the selected values:" );
             } else if( Config.Save( false ) ) {
                 bApply.Enabled = false;
             } else {
-                MessageBox.Show( Config.errors, "An error occured while trying to save:" );
+                MessageBox.Show( Config.Errors, "An error occured while trying to save:" );
             }
         }
 
         private void bSave_Click( object sender, EventArgs e ) {
             SaveConfig();
-            if( Config.errors.Length > 0 ) {
-                MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
+            if( Config.Errors.Length > 0 ) {
+                MessageBox.Show( Config.Errors, "Some errors were found in the selected values:" );
             } else if( Config.Save( false ) ) {
                 bApply.Enabled = false;
                 Application.Exit();
             } else {
-                MessageBox.Show( Config.errors, "An error occured while trying to save:" );
+                MessageBox.Show( Config.Errors, "An error occured while trying to save:" );
             }
         }
 
@@ -1378,12 +1378,12 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             switch( MessageBox.Show( "Would you like to save the changes before exiting?", "Warning", MessageBoxButtons.YesNoCancel ) ) {
                 case DialogResult.Yes:
                     SaveConfig();
-                    if( Config.errors.Length > 0 ) {
-                        MessageBox.Show( Config.errors, "Some errors were found in the selected values:" );
+                    if( Config.Errors.Length > 0 ) {
+                        MessageBox.Show( Config.Errors, "Some errors were found in the selected values:" );
                     } else if( Config.Save( false ) ) {
                         bApply.Enabled = false;
                     } else {
-                        MessageBox.Show( Config.errors, "An error occured while trying to save:" );
+                        MessageBox.Show( Config.Errors, "An error occured while trying to save:" );
                     }
                     return;
                 case DialogResult.Cancel:

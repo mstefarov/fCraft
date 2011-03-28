@@ -20,6 +20,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdZoneEdit = new CommandDescriptor {
             Name = "zedit",
+            Category = CommandCategory.Zone,
             Permissions = new[] { Permission.ManageZones },
             Usage = "/zedit ZoneName [RankName] [+IncludedName] [-ExcludedName]",
             Help = "Allows editing the zone permissions after creation. " +
@@ -148,6 +149,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdZoneAdd = new CommandDescriptor {
             Name = "zadd",
+            Category = CommandCategory.Zone,
             Aliases = new[] { "zone" },
             Permissions = new[] { Permission.ManageZones },
             Usage = "/zadd ZoneName RankName",
@@ -257,6 +259,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdZoneTest = new CommandDescriptor {
             Name = "ztest",
+            Category = CommandCategory.Zone | CommandCategory.Info,
             Help = "Allows to test exactly which zones affect a particular block. Can be used to find and resolve zone overlaps.",
             Handler = ZoneTest
         };
@@ -287,6 +290,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdZoneRemove = new CommandDescriptor {
             Name = "zremove",
             Aliases = new[] { "zdelete" },
+            Category = CommandCategory.Zone,
             Permissions = new[] { Permission.ManageZones },
             Usage = "/zremove ZoneName",
             Help = "Removes a zone with the specified name from the map.",
@@ -324,6 +328,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdZoneList = new CommandDescriptor {
             Name = "zones",
+            Category = CommandCategory.Info | CommandCategory.Zone,
             Help = "Lists all zones defined on the current map/world.",
             Handler = ZoneList
         };
@@ -349,6 +354,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdZoneInfo = new CommandDescriptor {
             Name = "zinfo",
+            Category = CommandCategory.Info | CommandCategory.Zone,
             Help = "Shows information about a zone",
             Usage = "/zinfo ZoneName",
             Handler = ZoneInfo
@@ -374,9 +380,9 @@ namespace fCraft {
                             zone.Controller.MinRank.GetClassyName() );
 
             player.Message( "  Zone centre is at ({0},{1},{2}).",
-                            (zone.Bounds.xMin + zone.Bounds.xMax) / 2,
-                            (zone.Bounds.yMin + zone.Bounds.yMax) / 2,
-                            (zone.Bounds.hMin + zone.Bounds.hMax) / 2 );
+                            (zone.Bounds.XMin + zone.Bounds.XMax) / 2,
+                            (zone.Bounds.YMin + zone.Bounds.YMax) / 2,
+                            (zone.Bounds.HMin + zone.Bounds.HMax) / 2 );
 
             if( zone.CreatedBy != null ) {
                 player.Message( "  Zone created by {0}&S on {1:MMM d} at {1:h:mm} ({2}d {3}h ago).",

@@ -39,13 +39,13 @@ namespace fCraft {
                 int t, j;
                 if( message[offset] == '"' ) {
                     j = offset + 1;
-                    for( ; j < message.Length && message[j] != '"'; j++ ) ;
+                    for( ; j < message.Length && message[j] != '"'; j++ ) {}
                     t = offset;
                     offset = j;
                     return message.Substring( t + 1, offset - t - 1 );
                 } else if( message[offset] != ' ' ) {
                     j = offset;
-                    for( ; j < message.Length && message[j] != ' '; j++ ) ;
+                    for( ; j < message.Length && message[j] != ' '; j++ ) {}
                     t = offset;
                     offset = j;
                     return message.Substring( t, offset - t );

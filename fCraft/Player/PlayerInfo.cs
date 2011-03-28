@@ -85,14 +85,14 @@ namespace fCraft {
 
 
         // generate blank info for a new player
-        public PlayerInfo( Player player ) {
-            Name = player.Name;
-            LastIP = player.Session.GetIP();
+        public PlayerInfo( string name, IPAddress lastIP ) {
+            Name = name;
             Rank = RankList.DefaultRank;
             FirstLoginDate = DateTime.Now;
             LastSeen = DateTime.Now;
             LastLoginDate = DateTime.Now;
             ID = PlayerDB.GetNextID();
+            LastIP=lastIP;
         }
 
 

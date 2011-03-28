@@ -105,6 +105,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdCuboid = new CommandDescriptor {
             Name = "cuboid",
             Aliases = new[] { "blb", "c", "cub", "z" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
             Usage = "/cuboid [BlockName]",
             Help = "Allows to fill a rectangular area (cuboid) with blocks. " +
@@ -121,6 +122,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdCuboidHollow = new CommandDescriptor {
             Name = "cubh",
             Aliases = new[] { "cuboidh", "ch", "h", "bhb" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
             Usage = "/cuboidh [OuterBlockName [InnerBlockName]]",
             Help = "Allows to box a rectangular area (cuboid) with blocks. " +
@@ -138,6 +140,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdCuboidWireframe = new CommandDescriptor {
             Name = "cubw",
             Aliases = new[] { "cuboidw", "cw", "bfb" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
             Usage = "/cuboidw [BlockName]",
             Help = "Draws a wireframe box around selected area. " +
@@ -154,6 +157,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdEllipsoid = new CommandDescriptor {
             Name = "ellipsoid",
             Aliases = new[] { "e" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
             Usage = "/ellipsoid [BlockName]",
             Help = "Fills a sphere-like (ellipsoidal) area with blocks. " +
@@ -169,6 +173,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdEllipsoidHollow = new CommandDescriptor {
             Name = "ellipsoidh",
             Aliases = new[] { "eh" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
             Usage = "/ellipsoidh [BlockName]",
             Help = "Allows to fill a sphere-like (ellipsoidal) area with blocks. " +
@@ -184,6 +189,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdSphere = new CommandDescriptor {
             Name = "sphere",
             Aliases = new[] { "sp", "spheroid" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
             Usage = "/sphere [BlockName]",
             Help = "Fills a spherical area with blocks. " +
@@ -200,6 +206,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdSphereHollow = new CommandDescriptor {
             Name = "sphereh",
             Aliases = new[] { "sph", "hsphere" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
             Usage = "/sphereh [BlockName]",
             Help = "Surrounds a spherical area with a shell of blocks. " +
@@ -216,6 +223,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdReplace = new CommandDescriptor {
             Name = "replace",
             Aliases = new[] { "r" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
             Usage = "/replace BlockToReplace [AnotherOne, ...] ReplacementBlock",
             Help = "Replaces all blocks of specified type(s) in an area.",
@@ -231,6 +239,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdReplaceNot = new CommandDescriptor {
             Name = "replacenot",
             Aliases = new[] { "rn" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
             Usage = "/replacenot (ExcludedBlock [AnotherOne]) ReplacementBlock",
             Help = "Replaces all blocks EXCEPT specified type(s) in an area.",
@@ -246,6 +255,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdLine = new CommandDescriptor {
             Name = "line",
             Aliases = new[] { "ln" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
             Usage = "/line [BlockName]",
             Help = "Draws a line between two points with blocks. " +
@@ -410,8 +420,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdUndo = new CommandDescriptor {
             Name = "undo",
-            Permissions = new[] { Permission.Draw },
             Aliases = new[] { "redo" },
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw },
             Help = "Selectively removes changes from your last drawing command. " +
                    "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
             Handler = Undo
@@ -652,7 +663,7 @@ namespace fCraft {
 
             player.UndoBuffer.Clear();
 
-            int blocks = 0, blocksDenied=0;
+            int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
 
             for( int x = sx; x <= ex; x++ ) {
@@ -1069,6 +1080,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdCopy = new CommandDescriptor {
             Name = "copy",
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "Copy blocks for pasting. " +
                    "Used together with &H/paste&S and &H/pastenot&S commands. " +
@@ -1101,7 +1113,7 @@ namespace fCraft {
                 WidthX = marks[1].X - marks[0].X,
                 WidthY = marks[1].Y - marks[0].Y,
                 Height = marks[1].H - marks[0].H,
-                Buffer = new byte[ex - sx + 1,ey - sy + 1,eh - sh + 1]
+                Buffer = new byte[ex - sx + 1, ey - sy + 1, eh - sh + 1]
             };
 
             for( int x = sx; x <= ex; x++ ) {
@@ -1127,6 +1139,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdCut = new CommandDescriptor {
             Name = "cut",
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "Copies and removes blocks for pasting. Unless a different block type is specified, the area is filled with air. " +
                    "Used together with &H/paste&S and &H/pastenot&S commands. " +
@@ -1138,7 +1151,7 @@ namespace fCraft {
         internal static void Cut( Player player, Command cmd ) {
             Block fillBlock = Block.Air;
             string fillBlockName = cmd.Next();
-            if(fillBlockName!=null){
+            if( fillBlockName != null ) {
                 fillBlock = Map.GetBlockByName( fillBlockName );
                 if( fillBlock == Block.Undefined ) {
                     player.Message( "Cut: Unknown block type \"{0}\"", fillBlockName );
@@ -1193,7 +1206,7 @@ namespace fCraft {
                                (copyInfo.Height > 0 ? "bottom" : "top"),
                                (copyInfo.WidthY > 0 ? "south" : "north"),
                                (copyInfo.WidthX > 0 ? "west" : "east") );
-            ;
+
             Logger.Log( "{0} cut {1} blocks from {2}, replacing {3} blocks with {4}.", LogType.UserActivity,
                         player.Name, volume, player.World.Name, blocks, (Block)fillType );
 
@@ -1205,6 +1218,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdPasteNot = new CommandDescriptor {
             Name = "pastenot",
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "Paste previously copied blocks, excluding specified block type(s). " +
                    "Used together with &H/copy&S command. " +
@@ -1258,6 +1272,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdPaste = new CommandDescriptor {
             Name = "paste",
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "Pastes previously copied blocks. Used together with &H/copy&S command. " +
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
@@ -1322,20 +1337,21 @@ namespace fCraft {
 
             BoundingBox bounds = new BoundingBox( marks[0], info.WidthX, info.WidthY, info.Height );
 
-            if( !player.CanDraw( bounds.GetVolume() ) ) {
+            int pasteVolume = bounds.GetIntersection( map.Bounds ).GetVolume();
+            if( !player.CanDraw( pasteVolume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                    player.Info.Rank.DrawLimit,
-                                   bounds.GetVolume() );
+                                   pasteVolume );
                 return;
             }
 
-            if( bounds.xMin < 0 || bounds.xMax > map.WidthX - 1 ) {
+            if( bounds.XMin < 0 || bounds.XMax > map.WidthX - 1 ) {
                 player.MessageNow( "Warning: Not enough room horizontally (X), paste cut off." );
             }
-            if( bounds.yMin < 0 || bounds.yMax > map.WidthY - 1 ) {
+            if( bounds.YMin < 0 || bounds.YMax > map.WidthY - 1 ) {
                 player.MessageNow( "Warning: Not enough room horizontally (Y), paste cut off." );
             }
-            if( bounds.hMin < 0 || bounds.hMax > map.Height - 1 ) {
+            if( bounds.HMin < 0 || bounds.HMax > map.Height - 1 ) {
                 player.MessageNow( "Warning: Not enough room vertically, paste cut off." );
             }
 
@@ -1344,12 +1360,12 @@ namespace fCraft {
             int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
 
-            for( int x = bounds.xMin; x <= bounds.xMax; x += DrawStride ) {
-                for( int y = bounds.yMin; y <= bounds.yMax; y += DrawStride ) {
-                    for( int h = bounds.hMin; h <= bounds.hMax; h++ ) {
-                        for( int y3 = 0; y3 < DrawStride && y + y3 <= bounds.yMax; y3++ ) {
-                            for( int x3 = 0; x3 < DrawStride && x + x3 <= bounds.xMax; x3++ ) {
-                                byte block = info.Buffer[x + x3 - bounds.xMin, y + y3 - bounds.yMin, h - bounds.hMin];
+            for( int x = bounds.XMin; x <= bounds.XMax; x += DrawStride ) {
+                for( int y = bounds.YMin; y <= bounds.YMax; y += DrawStride ) {
+                    for( int h = bounds.HMin; h <= bounds.HMax; h++ ) {
+                        for( int y3 = 0; y3 < DrawStride && y + y3 <= bounds.YMax; y3++ ) {
+                            for( int x3 = 0; x3 < DrawStride && x + x3 <= bounds.XMax; x3++ ) {
+                                byte block = info.Buffer[x + x3 - bounds.XMin, y + y3 - bounds.YMin, h - bounds.HMin];
 
                                 if( args.DoInclude ) {
                                     bool skip = true;
@@ -1386,6 +1402,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdMirror = new CommandDescriptor {
             Name = "mirror",
             Aliases = new[] { "flip" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "Flips copied blocks along specified axis/axes. " +
                    "The axes are: X = horizontal (east-west), Y = horizontal (north-south), Z = vertical. " +
@@ -1496,6 +1513,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdRotate = new CommandDescriptor {
             Name = "rotate",
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "Rotates copied blocks around specifies axis/axes. If no axis is given, rotates around Z (vertical).",
             Usage = "/rotate (-90|90|180|270) (X|Y|Z)",
@@ -1637,6 +1655,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdMark = new CommandDescriptor {
             Name = "mark",
             Aliases = new[] { "m" },
+            Category = CommandCategory.Building,
             Help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. " +
                    "You can mark in places where making blocks is difficult (e.g. mid-air).",
             Handler = Mark
@@ -1659,6 +1678,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdCancel = new CommandDescriptor {
             Name = "cancel",
+            Category = CommandCategory.Building,
             Help = "Cancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. " +
                    "If you wish to stop a drawing in-progress, use &H/lock&S instead.",
             Handler = Cancel

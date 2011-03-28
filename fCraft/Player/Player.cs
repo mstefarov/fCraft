@@ -25,7 +25,7 @@ namespace fCraft {
     public sealed class Player : IClassy {
         public static bool RelayAllUpdates;
 
-        public string Name; // always same as PlayerInfo.name
+        public string Name { get { return Info.Name; } } // always same as PlayerInfo.name
         // use Player.GetClassyName() to get the colorful version
 
         internal Session Session;
@@ -59,7 +59,6 @@ namespace fCraft {
         // It will soon be replaced by a generic Entity class
         internal Player( World world, string name ) {
             World = world;
-            Name = name;
             Info = new PlayerInfo( name, RankList.HighestRank, true, RankChangeType.AutoPromoted );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             ResetAllBinds();
@@ -69,10 +68,9 @@ namespace fCraft {
         // Normal constructor
         internal Player( World world, string name, Session session, Position position ) {
             World = world;
-            Name = name;
             Session = session;
             Position = position;
-            Info = PlayerDB.FindOrCreateInfoForPlayer( this );
+            Info = PlayerDB.FindOrCreateInfoForPlayer( name, session.GetIP() );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             ResetAllBinds();
         }
@@ -585,6 +583,10 @@ namespace fCraft {
             return (this == Console) || permissions.All( permission => Info.Rank.Can( permission ) );
         }
 
+        public bool Can( Permission permission ) {
+            return (this == Console) || Info.Rank.Can( permission );
+        }
+
 
         public bool CanDraw( int volume ) {
             return (this == Console) || (Info.Rank.DrawLimit == 0) || (volume <= Info.Rank.DrawLimit);
@@ -641,6 +643,7 @@ namespace fCraft {
             return (byte)(Can( Permission.DeleteAdmincrete ) ? 100 : 0);
         }
 
+
         public bool CanSee( Player other ) {
             if( this == Console ) return true;
             return !other.IsHidden || Info.Rank.CanSee( other.Info.Rank );
@@ -659,7 +662,7 @@ namespace fCraft {
         public int SelectionMarkCount,
                    SelectionMarksExpected;
         internal object SelectionArgs { get; private set; } // can be used for 'block' or 'zone' or whatever
-        internal Permission[] selectionPermissions;
+        internal Permission[] SelectionPermissions;
 
         internal DrawCommands.CopyInformation CopyInformation;
 
@@ -681,12 +684,12 @@ namespace fCraft {
 
         public void ExecuteSelectionCallback() {
             SelectionMarksExpected = 0;
-                if( selectionPermissions == null || Can( selectionPermissions ) ) {
-                    SelectionCallback( this, SelectionMarks.ToArray(), SelectionArgs );
-                } else {
-                    Message( "&WYou are no longer allowed to complete this action." );
-                    NoAccessMessage( selectionPermissions );
-                }
+            if( SelectionPermissions == null || Can( SelectionPermissions ) ) {
+                SelectionCallback( this, SelectionMarks.ToArray(), SelectionArgs );
+            } else {
+                Message( "&WYou are no longer allowed to complete this action." );
+                NoAccessMessage( SelectionPermissions );
+            }
         }
 
         public void SetCallback( int marksExpected, SelectionCallback callback, object args, params Permission[] requiredPermissions ) {
@@ -695,7 +698,7 @@ namespace fCraft {
             SelectionMarks.Clear();
             SelectionMarkCount = 0;
             SelectionCallback = callback;
-            selectionPermissions = requiredPermissions;
+            SelectionPermissions = requiredPermissions;
         }
 
         #endregion
