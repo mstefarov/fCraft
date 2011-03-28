@@ -1,8 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Globalization;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Cache;
 using System.Xml;
@@ -13,7 +11,7 @@ using System.Text;
 
 namespace fCraft {
 
-    public class ReleaseInfo {
+    public sealed class ReleaseInfo {
 
         internal ReleaseInfo( int version, int revision, DateTime releaseDate,
                               string summary, string changeLog, ReleaseFlags releaseType ) {
@@ -119,7 +117,7 @@ namespace fCraft {
     }
 
 
-    public class UpdaterResult {
+    public sealed class UpdaterResult {
         public static UpdaterResult NoUpdate {
             get {
                 return new UpdaterResult( false, null, new ReleaseInfo[0] );
@@ -167,7 +165,7 @@ namespace fCraft {
         );
 
         public const int Version = 510,
-                         Revision = 480;
+                         Revision = 483;
         public const bool IsDev = true,
                           IsBroken = false;
 
@@ -245,12 +243,6 @@ namespace fCraft {
         public static event EventHandler<CheckedForUpdatesEventArgs> CheckedForUpdates;
 
 
-        public static event EventHandler<BeforeUpdateRestartEventArgs> BeforeUpdateRestart;
-
-
-        public static event EventHandler AfterUpdateRestart;
-
-
         static bool FireCheckingForUpdatesEvent( ref string updateUrl ) {
             var h = CheckingForUpdates;
             if( h == null ) return false;
@@ -264,21 +256,6 @@ namespace fCraft {
         static void FireCheckedForUpdatesEvent( string url, UpdaterResult result ) {
             var h = CheckedForUpdates;
             if( h != null ) h( null, new CheckedForUpdatesEventArgs( url, result ) );
-        }
-
-
-        static bool FireBeforeUpdateRestartEvent() {
-            var h = BeforeUpdateRestart;
-            if( h == null ) return false;
-            var e = new BeforeUpdateRestartEventArgs();
-            h( null, e );
-            return e.Cancel;
-        }
-
-
-        static void FireAfterUpdateRestartEvent() {
-            var h = AfterUpdateRestart;
-            if( h != null ) h( null, EventArgs.Empty );
         }
 
         #endregion
@@ -313,14 +290,6 @@ namespace fCraft.Events {
         }
         public string Url { get; private set; }
         public UpdaterResult Result { get; private set; }
-    }
-
-
-    public sealed class BeforeUpdateRestartEventArgs : EventArgs {
-        internal BeforeUpdateRestartEventArgs() {
-            Cancel = false;
-        }
-        public bool Cancel { get; set; }
     }
 
 }

@@ -21,8 +21,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdDumpStats = new CommandDescriptor {
             Name = "dumpstats",
-            ConsoleSafe = true,
-            Hidden = true,
+            Category = CommandCategory.Maintenance,
+            IsConsoleSafe = true,
+            IsHidden = true,
             Permissions = new[] { Permission.Import },
             Help = "Writes out a number of statistics about the server. " +
                    "Only non-banned players active in the last 30 days are counted.",
@@ -416,8 +417,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdAutoRankAll = new CommandDescriptor {
             Name = "autorankall",
-            ConsoleSafe = true,
-            Hidden = true,
+            Category = CommandCategory.Moderation | CommandCategory.Maintenance,
+            IsConsoleSafe = true,
+            IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
             Help = "If AutoRank is disabled, it can still be called manually using this command.",
             Usage = "/autorankall [silent] [FromRank]",
@@ -469,8 +471,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdMassRank = new CommandDescriptor {
             Name = "massrank",
-            Hidden = true,
-            ConsoleSafe = true,
+            Category = CommandCategory.Moderation | CommandCategory.Maintenance,
+            IsHidden = true,
+            IsConsoleSafe = true,
             Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
             Help = "",
             Usage = "/massrank FromRank ToRank [silent]",
@@ -523,8 +526,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdAutoRankReload = new CommandDescriptor {
             Name = "autorankreload",
-            ConsoleSafe = true,
-            Hidden = true,
+            Category = CommandCategory.Maintenance,
+            IsConsoleSafe = true,
+            IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Help = "",
             Handler = AutoRankReload
@@ -537,8 +541,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdSetInfo = new CommandDescriptor {
             Name = "setinfo",
-            ConsoleSafe = true,
-            Hidden = true,
+            Category = CommandCategory.Moderation | CommandCategory.Info,
+            IsConsoleSafe = true,
+            IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Help = "Allows direct editing of player information. Editable properties: " +
                    "TimesKicked, PreviousRank, TotalTime, RankChangeType, " +

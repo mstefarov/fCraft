@@ -251,9 +251,6 @@ namespace fCraft {
         [StringKey( ConfigSection.Advanced, "", NotBlank = false )]
         RunAfterUpdate,
 
-        [BoolKey( ConfigSection.Advanced, false )]
-        UpdateAtStartup,
-
         [BoolKey( ConfigSection.Advanced, true )]
         BackupBeforeUpdate,
 

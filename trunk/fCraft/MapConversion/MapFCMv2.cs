@@ -97,13 +97,13 @@ namespace fCraft.MapConversion {
                 map.Spawn.Y = reader.ReadInt16();
                 map.Spawn.H = reader.ReadInt16();
 
-                // Read in the spawn orientation
-                map.Spawn.R = reader.ReadByte();
-                map.Spawn.L = reader.ReadByte();
-
                 if( !map.ValidateHeader() ) {
                     throw new MapFormatException( "One or more of the map dimensions are invalid." );
                 }
+
+                // Read in the spawn orientation
+                map.Spawn.R = reader.ReadByte();
+                map.Spawn.L = reader.ReadByte();
 
                 return map;
             }
@@ -133,6 +133,10 @@ namespace fCraft.MapConversion {
                 map.Spawn.Y = reader.ReadInt16();
                 map.Spawn.H = reader.ReadInt16();
 
+                if( !map.ValidateHeader() ) {
+                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                }
+
                 // Read in the spawn orientation
                 map.Spawn.R = reader.ReadByte();
                 map.Spawn.L = reader.ReadByte();
@@ -152,10 +156,6 @@ namespace fCraft.MapConversion {
                     } else {
                         map.SetMeta( key, value );
                     }
-                }
-
-                if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
                 }
 
                 // Read in the map data

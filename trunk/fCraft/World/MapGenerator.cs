@@ -278,7 +278,7 @@ namespace fCraft {
             // Calculate the slope
             if( args.CliffSmoothing ) {
                 ReportProgress( 2, "Heightmap Processing: Smoothing" );
-                slopemap = Noise.CalculateSlope( Noise.GaussianBlur5x5( heightmap ) );
+                slopemap = Noise.CalculateSlope( Noise.GaussianBlur5X5( heightmap ) );
             } else {
                 slopemap = Noise.CalculateSlope( heightmap );
             }

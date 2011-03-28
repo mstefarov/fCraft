@@ -50,7 +50,7 @@ namespace fCraft {
             StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( CommandDescriptor cmd in Commands.Values ) {
-                if( listAll || !cmd.Hidden && (cmd.Permissions == null || player.Can( cmd.Permissions )) ) {
+                if( listAll || !cmd.IsHidden && (cmd.Permissions == null || player.Can( cmd.Permissions )) ) {
                     if( !first ) {
                         sb.Append( ", " );
                     }
@@ -62,7 +62,19 @@ namespace fCraft {
         }
 
 
-        public static void RegisterCommand( CommandDescriptor descriptor ) {
+        public static void RegisterCustomCommand( CommandDescriptor descriptor ) {
+            descriptor.IsCustom = true;
+            RegisterCommand( descriptor );
+        }
+
+
+        internal static void RegisterCommand( CommandDescriptor descriptor ) {
+
+#if DEBUG
+            if( descriptor.Category == CommandCategory.None && !descriptor.IsCustom ) {
+                throw new CommandRegistrationException( "Standard commands must have a category set." );
+            }
+#endif
 
             if( string.IsNullOrEmpty( descriptor.Name ) || descriptor.Name.Length > 16 ) {
                 throw new CommandRegistrationException( "All commands need a name, between 1 and 16 alphanumeric characters long." );
@@ -139,7 +151,7 @@ namespace fCraft {
                 return;
             }
 
-            if( !descriptor.ConsoleSafe && fromConsole ) {
+            if( !descriptor.IsConsoleSafe && fromConsole ) {
                 player.Message( "You cannot use this command from console." );
             } else {
                 if( descriptor.Permissions != null ) {

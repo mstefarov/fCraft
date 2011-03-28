@@ -213,12 +213,12 @@ namespace fCraft {
             }
         }
 
-        static readonly Random rand = new Random();
+        static readonly Random Rand = new Random();
         const string IDChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         public static string GenerateID() {
             StringBuilder id = new StringBuilder();
             for( int i = 0; i < 16; i++ ) {
-                id.Append( IDChars[rand.Next( 0, IDChars.Length )] );
+                id.Append( IDChars[Rand.Next( 0, IDChars.Length )] );
             }
             return id.ToString();
         }

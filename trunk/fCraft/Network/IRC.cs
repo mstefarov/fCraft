@@ -145,9 +145,9 @@ namespace fCraft {
                                 writer.Flush();
                             }
 
-                            if( outputQueue.Length > 0 &&
+                            if( OutputQueue.Length > 0 &&
                                 DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
-                                outputQueue.Dequeue( ref outputLine ) ) {
+                                OutputQueue.Dequeue( ref outputLine ) ) {
 
                                 writer.Write( outputLine + "\r\n" );
                                 lastMessageSent = DateTime.UtcNow;
@@ -221,7 +221,7 @@ namespace fCraft {
                                     return;
                                 }
                             }
-                            processedMessage = nonPrintableChars.Replace( processedMessage, "" );
+                            processedMessage = NonPrintableChars.Replace( processedMessage, "" );
                             processedMessage = Color.StripColorCodes( processedMessage ).Trim();
                             if( processedMessage.Length > 0 ) {
                                 if( ConfigKey.IRCBotForwardFromIRC.GetBool() ) {
@@ -357,7 +357,7 @@ namespace fCraft {
         static string[] channelNames;
         static string botNick;
 
-        static ConcurrentQueue<string> outputQueue = new ConcurrentQueue<string>();
+        static readonly ConcurrentQueue<string> OutputQueue = new ConcurrentQueue<string>();
 
 
         static void AssignBotForInputParsing() {
@@ -382,7 +382,7 @@ namespace fCraft {
         }
 
         // includes IRC color codes and non-printable ASCII
-        static Regex nonPrintableChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled );
+        static readonly Regex NonPrintableChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled );
 
         public static void Init() {
             if( !ConfigKey.IRCBotEnabled.GetBool() ) return;
@@ -436,7 +436,7 @@ namespace fCraft {
             if( ConfigKey.IRCUseColor.GetBool() ) {
                 line = Color.ToIRCColorCodes( line );
             } else {
-                line = nonPrintableChars.Replace( line, "" ).Trim();
+                line = NonPrintableChars.Replace( line, "" ).Trim();
             }
             for( int i = 0; i < channelNames.Length; i++ ) {
                 SendRawMessage( IRCCommands.Privmsg( channelNames[i], line ) );
@@ -453,7 +453,7 @@ namespace fCraft {
             if( ConfigKey.IRCUseColor.GetBool() ) {
                 line = Color.ToIRCColorCodes( line );
             } else {
-                line = nonPrintableChars.Replace( line, "" ).Trim();
+                line = NonPrintableChars.Replace( line, "" ).Trim();
             }
             for( int i = 0; i < channelNames.Length; i++ ) {
                 SendRawMessage( IRCCommands.Notice( channelNames[i], line ) );
@@ -461,7 +461,7 @@ namespace fCraft {
         }
 
         public static void SendRawMessage( string line ) {
-            outputQueue.Enqueue( line );
+            OutputQueue.Enqueue( line );
         }
 
 

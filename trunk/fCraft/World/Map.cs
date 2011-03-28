@@ -22,6 +22,10 @@ namespace fCraft {
         /// <summary> Map height, in blocks. Equivalent to Notch's Y (vertical)</summary>
         public readonly int Height;
 
+        public BoundingBox Bounds {
+            get { return new BoundingBox( Position.Zero, WidthX, WidthY, Height ); }
+        }
+
         public Position Spawn;
 
         readonly Dictionary<string, Dictionary<string, string>> metadata = new Dictionary<string, Dictionary<string, string>>();
@@ -731,7 +735,7 @@ namespace fCraft {
 
         public void ClearUpdateQueue() {
             BlockUpdate temp = new BlockUpdate();
-            while( updates.Dequeue( ref temp ) ) ;
+            while( updates.Dequeue( ref temp ) ) {}
         }
 
 
@@ -1025,8 +1029,8 @@ namespace fCraft {
 
                 case DataLayerType.PlayerIDs: {
                         BinaryWriter bw = new BinaryWriter( stream );
-                        Dictionary<string, ushort> IDs = (Dictionary<string, ushort>)layer.Data;
-                        foreach( string name in IDs.Keys ) {//todo: thread safety
+                        Dictionary<string, ushort> ids = (Dictionary<string, ushort>)layer.Data;
+                        foreach( string name in ids.Keys ) {//todo: thread safety
                             byte[] stringData = Encoding.ASCII.GetBytes( name );
                             bw.Write( (byte)stringData.Length );
                             bw.Write( stringData );

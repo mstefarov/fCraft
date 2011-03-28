@@ -71,6 +71,8 @@ namespace fCraft {
         /// <summary>
         /// Makes sure that the path format is valid, that it exists, that it is accessible and writeable.
         /// </summary>
+        /// <param name="pathLabel">name of the path that's being tested (e.g. "map path").
+        /// Used for logging.</param>
         /// <param name="path">full or partial path</param>
         /// <param name="checkForWriteAccess"></param>
         /// <returns>full path of the directory (on success) or null (on failure)</returns>
@@ -160,7 +162,7 @@ namespace fCraft {
         /// <summary> Checks whether childPath is inside parentPath </summary>
         /// <param name="parentPath"> Path that is supposed to contain childPath </param>
         /// <param name="childPath"> Path that is supposed to be contained within parentPath </param>
-        /// <param name="caseInsensitive"> Whether check should be case-sensitive or case-insensitive. </param>
+        /// <param name="caseSensitive"> Whether check should be case-sensitive or case-insensitive. </param>
         /// <returns> true if childPath is contained within parentPath </returns>
         public static bool Contains( string parentPath, string childPath, bool caseSensitive ) {
             string fullParentPath = Path.GetFullPath( parentPath ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar );
@@ -171,7 +173,7 @@ namespace fCraft {
 
 
         /// <summary> Checks whether the file exists in a specified way (case-sensitive or case-insensitive) </summary>
-        /// <param name="fi"> FileInfo object in question </param>
+        /// <param name="fileName"> filename in question </param>
         /// <param name="caseSensitive"> Whether check should be case-sensitive or case-insensitive. </param>
         /// <returns> true if file exists, otherwise false </returns>
         public static bool FileExists( string fileName, bool caseSensitive ) {

@@ -140,15 +140,14 @@ namespace fCraft {
 
         #region Lookup
 
-        public static PlayerInfo FindOrCreateInfoForPlayer( Player player ) {
-            if( player == null ) return null;
+        public static PlayerInfo FindOrCreateInfoForPlayer( string name, IPAddress lastIP ) {
             PlayerInfo info;
 
             lock( Locker ) {
-                info = Tree.Get( player.Name );
+                info = Tree.Get( name );
                 if( info == null ) {
-                    info = new PlayerInfo( player );
-                    Tree.Add( player.Name, info );
+                    info = new PlayerInfo( name, lastIP );
+                    Tree.Add( name, info );
                     List.Add( info );
                     UpdateCache();
                 }

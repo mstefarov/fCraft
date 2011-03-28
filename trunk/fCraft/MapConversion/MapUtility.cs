@@ -82,10 +82,10 @@ namespace fCraft.MapConversion {
                 } catch { }
             }
 
-            foreach( IMapConverter Converter in fallbackConverters ) {
+            foreach( IMapConverter converter in fallbackConverters ) {
                 try {
-                    if( Converter.Claims( fileName ) ) {
-                        return Converter.Format;
+                    if( converter.Claims( fileName ) ) {
+                        return converter.Format;
                     }
                 } catch { }
             }

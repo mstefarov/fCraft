@@ -21,15 +21,17 @@ namespace fCraft {
     /// Describes a chat command handler. Defined properties and usage/help information, and specifies a callback.
     /// </summary>
     public sealed class CommandDescriptor {
-        public string Name;                 // main name
-        public string[] Aliases;            // list of aliases
-        public bool ConsoleSafe;            // if true, command can be called from console (defaults to false)
-        public Permission[] Permissions;    // list of required permissions
-        public string Usage;                // short help
-        public string Help;                 // full help
-        public CommandHandler Handler;      // callback function to execute the command
-        public HelpHandler HelpHandler;     // callback function to provide custom help (optional)
-        public bool Hidden;                 // hidden command does not show up in /help
+        public string[] Aliases { get; set; }            // list of aliases
+        public CommandCategory Category { get; set; }    // category
+        public bool IsConsoleSafe { get; set; }            // if true, command can be called from console (defaults to false)
+        public CommandHandler Handler { get; set; }      // callback function to execute the command
+        public string Help { get; set; }                 // full help
+        public HelpHandler HelpHandler { get; set; }     // callback function to provide custom help (optional)
+        public bool IsHidden { get; set; }                 // hidden command does not show up in /help
+        public bool IsCustom { get; internal set; }      // whether the command is fCraft-standard or not
+        public string Name { get; set; }                 // main name
+        public Permission[] Permissions { get; set; }    // list of required permissions
+        public string Usage { get; set; }                // short help
 
 
         public void PrintUsage( Player player ) {

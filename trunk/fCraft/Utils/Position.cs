@@ -8,6 +8,8 @@ namespace fCraft {
     /// Note that, as a struct, Position objects are COPIED when assigned or passed as an argument.
     /// </summary>
     public struct Position {
+        public readonly static Position Zero = new Position( 0, 0, 0 );
+
         public short X, Y, H;
         public byte R, L;
 

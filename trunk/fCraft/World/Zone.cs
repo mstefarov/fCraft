@@ -8,7 +8,7 @@ namespace fCraft {
     public sealed class Zone : IClassy {
 
         public BoundingBox Bounds { get; private set; }
-        public SecurityController Controller = new SecurityController();
+        public readonly SecurityController Controller = new SecurityController();
 
         public string Name;
 
@@ -122,7 +122,7 @@ namespace fCraft {
 
             return String.Format( "{0},{1},{2},{3}",
                                   String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
-                                                 Name, Bounds.xMin, Bounds.yMin, Bounds.hMin, Bounds.xMax, Bounds.yMax, Bounds.hMax, Controller.MinRank ),
+                                                 Name, Bounds.XMin, Bounds.YMin, Bounds.HMin, Bounds.XMax, Bounds.YMax, Bounds.HMax, Controller.MinRank ),
                                   includedList, excludedList, xheader );
         }
 

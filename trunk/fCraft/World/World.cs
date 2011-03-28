@@ -319,7 +319,7 @@ namespace fCraft {
         }
 
         public int CountVisiblePlayers( Player observer ) {
-            return PlayerList.Count( player => observer.CanSee( player ) );
+            return PlayerList.Count( observer.CanSee );
         }
 
         #endregion

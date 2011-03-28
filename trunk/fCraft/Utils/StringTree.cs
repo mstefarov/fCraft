@@ -71,7 +71,7 @@ namespace fCraft {
                 info = default(T);
                 return false; // multiple matches
             }
-            for( ; temp.Tag < Multi; temp = temp.Children[temp.Tag] ) ;
+            for( ; temp.Tag < Multi; temp = temp.Children[temp.Tag] ) {}
             info = temp.Payload;
             return true; // one autocompleted match
         }

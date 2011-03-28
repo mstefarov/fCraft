@@ -22,6 +22,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdSolid = new CommandDescriptor {
             Name = "solid",
             Aliases = new[] { "s" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.PlaceAdmincrete },
             Usage = "/solid &Sor&H /s",
             Help = "Toggles the admincrete placement mode. When enabled, any stone block you place is replaced with admincrete.",
@@ -43,6 +44,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdPaint = new CommandDescriptor {
             Name = "paint",
             Aliases = new[] { "p" },
+            Category = CommandCategory.Building,
             Help = "Replaces a block instead of deleting it.",
             Handler = Paint
         };
@@ -61,6 +63,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdGrass = new CommandDescriptor {
             Name = "grass",
             Aliases = new[] { "g" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.PlaceGrass },
             Help = "Toggles the grass placement mode. When enabled, any dirt block you place is replaced with a grass block.",
             Handler = Grass
@@ -81,6 +84,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdWater = new CommandDescriptor {
             Name = "water",
             Aliases = new[] { "w" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.PlaceWater },
             Help = "Toggles the water placement mode. When enabled, any blue or cyan block you place is replaced with water.",
             Handler = Water
@@ -104,6 +108,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdLava = new CommandDescriptor {
             Name = "lava",
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.PlaceLava },
             Help = "Toggles the lava placement mode. When enabled, any red block you place is replaced with lava.",
             Handler = Lava
@@ -124,6 +129,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdBind = new CommandDescriptor {
             Name = "bind",
             Aliases = new[] { "b" },
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.Build },
             Help = "Assigns one blocktype to another. " +
                    "Allows to build blocktypes that are not normally buildable directly: admincrete, lava, water, grass, double step. " +

@@ -251,7 +251,7 @@ namespace fCraft {
                     }
 
                 } else if( text[i] == ' ' ) {
-                    for( ; i < text.Length && text[i] == ' '; i++ ) ;
+                    for( ; i < text.Length && text[i] == ' '; i++ ) {}
                     i--;
                     // split at spaces
                     segments.Add( text.Substring( lastIndex, i - lastIndex ) );
@@ -306,7 +306,7 @@ namespace fCraft {
             /* STEP 7: Remove trailing whitespace and colorcodes */
             for( int l = lines.Count - 1; l >= 0; l-- ) {
                 int i = lines[l].Length - 1;
-                for( ; i >= 0 && (lines[l][i] == ' ' || lines[l][i] == '&' || IsColorCode( lines[l][i] ) && i > 0 && lines[l][i - 1] == '&'); i-- ) ;
+                for( ; i >= 0 && ( lines[l][i] == ' ' || lines[l][i] == '&' || IsColorCode( lines[l][i] ) && i > 0 && lines[l][i - 1] == '&' ); i-- ) {}
                 if( i == 0 ) {
                     lines.RemoveAt( l );
                 } else {

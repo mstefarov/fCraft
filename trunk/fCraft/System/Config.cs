@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Xml.Linq;
 using fCraft.Events;
 
@@ -209,6 +208,7 @@ namespace fCraft {
         /// Loads config from file.
         /// </summary>
         /// <param name="skipRankList">If true, skips over rank definitions.</param>
+        /// <param name="raiseReloadedEvent">Whether ConfigReloaded event should be raised.</param>
         /// <returns>True if loading succeeded.</returns>
         public static bool Load( bool skipRankList, bool raiseReloadedEvent ) {
             // generate random salt
@@ -497,7 +497,7 @@ namespace fCraft {
             return key.TrySetValue( key.GetDefault() );
         }
 
-        public static void SetValue( this ConfigKey key, object rawValue ){
+        public static void SetValue( this ConfigKey key, object rawValue ) {
             if( rawValue == null ) {
                 throw new ArgumentNullException( "rawValue", "ConfigKey values cannot be null. Use an empty string to indicate unset value." );
             }
@@ -976,18 +976,18 @@ namespace fCraft {
 
         #region Logging
 
-        public static string errors = ""; // for ConfigTool
-        public static bool logToString;
+        public static string Errors = ""; // for ConfigTool
+        public static bool LogToString;
 
         static void Log( string format, LogType type, params object[] args ) {
             Log( String.Format( format, args ), type );
         }
 
         static void Log( string message, LogType type ) {
-            if( !logToString ) {
+            if( !LogToString ) {
                 Logger.Log( message, type );
             } else if( type != LogType.Debug ) {
-                errors += message + Environment.NewLine;
+                Errors += message + Environment.NewLine;
             }
         }
 

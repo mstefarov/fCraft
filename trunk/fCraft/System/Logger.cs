@@ -51,8 +51,8 @@ namespace fCraft {
     /// </summary>
     public static class Logger {
         static readonly object LogLock = new object();
-        public static bool[] ConsoleOptions;
-        public static bool[] LogFileOptions;
+        public static readonly bool[] ConsoleOptions;
+        public static readonly bool[] LogFileOptions;
 
         const string DefaultLogFileName = "fCraft.log",
                      CrashReportUrl = "http://fragmer.net/fcraft/crashreport.php",
@@ -293,7 +293,7 @@ namespace fCraft {
                 }
             } finally {
                 if( message != null ) {
-                    Logger.Log( message, LogType.Warning );
+                    Log( message, LogType.Warning );
                 }
             }
         }

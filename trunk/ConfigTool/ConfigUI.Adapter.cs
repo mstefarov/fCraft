@@ -26,11 +26,11 @@ namespace ConfigTool {
             }
 
             if( Config.Load( false, false ) ) {
-                if( Config.errors.Length > 0 ) {
-                    MessageBox.Show( Config.errors, "Config loading warnings" );
+                if( Config.Errors.Length > 0 ) {
+                    MessageBox.Show( Config.Errors, "Config loading warnings" );
                 }
             } else {
-                MessageBox.Show( Config.errors, "Error occured while trying to load config" );
+                MessageBox.Show( Config.Errors, "Error occured while trying to load config" );
             }
 
             ApplyTabGeneral();
@@ -359,7 +359,7 @@ namespace ConfigTool {
         #region Saving Config
 
         void SaveConfig() {
-            Config.errors = "";
+            Config.Errors = "";
 
             // General
             Config.TrySetValue( ConfigKey.ServerName, tServerName.Text );

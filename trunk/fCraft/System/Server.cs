@@ -864,7 +864,7 @@ namespace fCraft {
 
                 if( moveMapFile ) {
                     string oldFullFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
-                    string newFileName = newName+".fcm";
+                    string newFileName = newName + ".fcm";
                     if( File.Exists( oldFullFileName ) ) {
                         try {
                             Paths.ForceRename( oldFullFileName, newFileName );
@@ -1643,7 +1643,7 @@ namespace fCraft {
         }
 
         public static int CountVisiblePlayers( Player observer ) {
-            return PlayerList.Count( player => observer.CanSee( player ) );
+            return PlayerList.Count( observer.CanSee );
         }
 
         #endregion
@@ -1667,7 +1667,7 @@ namespace fCraft {
 
         public ShutdownReason Reason { get; private set; }
 
-        string CustomReasonString;
+        readonly string CustomReasonString;
         public string ReasonString {
             get {
                 if( CustomReasonString != null ) {
@@ -1707,6 +1707,7 @@ namespace fCraft {
         MapPath,
         Config,
         NoRestart,
-        ExitOnCrash
+        ExitOnCrash,
+        JustUpdated
     };
 }

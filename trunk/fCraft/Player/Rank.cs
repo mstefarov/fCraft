@@ -352,10 +352,10 @@ namespace fCraft {
             return true;
         }
 
-        public static bool IsValidID( string ID ) {
-            if( ID.Length != 16 ) return false;
-            for( int i = 0; i < ID.Length; i++ ) {
-                char ch = ID[i];
+        public static bool IsValidID( string id ) {
+            if( id.Length != 16 ) return false;
+            for( int i = 0; i < id.Length; i++ ) {
+                char ch = id[i];
                 if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < 'a') || ch > 'z' ) {
                     return false;
                 }

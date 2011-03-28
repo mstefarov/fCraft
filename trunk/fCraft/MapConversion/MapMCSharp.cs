@@ -38,133 +38,133 @@ using System.IO.Compression;
 namespace fCraft.MapConversion {
     public sealed class MapMCSharp : IMapConverter {
 
-        static byte[] mapping = new byte[256];
+        static readonly byte[] Mapping = new byte[256];
 
         static MapMCSharp() {
-            mapping[100] = (byte)Block.Glass;       // op_glass
-            mapping[101] = (byte)Block.Obsidian;    // opsidian
-            mapping[102] = (byte)Block.Brick;       // op_brick
-            mapping[103] = (byte)Block.Stone;       // op_stone
-            mapping[104] = (byte)Block.Rocks;       // op_cobblestone
+            Mapping[100] = (byte)Block.Glass;       // op_glass
+            Mapping[101] = (byte)Block.Obsidian;    // opsidian
+            Mapping[102] = (byte)Block.Brick;       // op_brick
+            Mapping[103] = (byte)Block.Stone;       // op_stone
+            Mapping[104] = (byte)Block.Rocks;       // op_cobblestone
             // 105 = op_air
-            mapping[106] = (byte)Block.Water;       // op_water
+            Mapping[106] = (byte)Block.Water;       // op_water
 
             // 107-109 unused
-            mapping[110] = (byte)Block.Wood;        // wood_float
-            mapping[111] = (byte)Block.Log;         // door
-            mapping[112] = (byte)Block.Lava;        // lava_fast
-            mapping[113] = (byte)Block.Obsidian;    // door2
-            mapping[114] = (byte)Block.Glass;       // door3
-            mapping[115] = (byte)Block.Stone;       // door4
-            mapping[116] = (byte)Block.Leaves;      // door5
-            mapping[117] = (byte)Block.Sand;        // door6
-            mapping[118] = (byte)Block.Wood;        // door7
-            mapping[119] = (byte)Block.Green;       // door8
-            mapping[120] = (byte)Block.TNT;         // door9
-            mapping[121] = (byte)Block.Stair;       // door10
+            Mapping[110] = (byte)Block.Wood;        // wood_float
+            Mapping[111] = (byte)Block.Log;         // door
+            Mapping[112] = (byte)Block.Lava;        // lava_fast
+            Mapping[113] = (byte)Block.Obsidian;    // door2
+            Mapping[114] = (byte)Block.Glass;       // door3
+            Mapping[115] = (byte)Block.Stone;       // door4
+            Mapping[116] = (byte)Block.Leaves;      // door5
+            Mapping[117] = (byte)Block.Sand;        // door6
+            Mapping[118] = (byte)Block.Wood;        // door7
+            Mapping[119] = (byte)Block.Green;       // door8
+            Mapping[120] = (byte)Block.TNT;         // door9
+            Mapping[121] = (byte)Block.Stair;       // door10
 
-            mapping[122] = (byte)Block.Log;         // tdoor
-            mapping[123] = (byte)Block.Obsidian;    // tdoor2
-            mapping[124] = (byte)Block.Glass;       // tdoor3
-            mapping[125] = (byte)Block.Stone;       // tdoor4
-            mapping[126] = (byte)Block.Leaves;      // tdoor5
-            mapping[127] = (byte)Block.Sand;        // tdoor6
-            mapping[128] = (byte)Block.Wood;        // tdoor7
-            mapping[129] = (byte)Block.Green;       // tdoor8
+            Mapping[122] = (byte)Block.Log;         // tdoor
+            Mapping[123] = (byte)Block.Obsidian;    // tdoor2
+            Mapping[124] = (byte)Block.Glass;       // tdoor3
+            Mapping[125] = (byte)Block.Stone;       // tdoor4
+            Mapping[126] = (byte)Block.Leaves;      // tdoor5
+            Mapping[127] = (byte)Block.Sand;        // tdoor6
+            Mapping[128] = (byte)Block.Wood;        // tdoor7
+            Mapping[129] = (byte)Block.Green;       // tdoor8
 
-            mapping[130] = (byte)Block.White;       // MsgWhite
-            mapping[131] = (byte)Block.Black;       // MsgBlack
-            mapping[132] = (byte)Block.Air;         // MsgAir
-            mapping[133] = (byte)Block.Water;       // MsgWater
-            mapping[134] = (byte)Block.Lava;        // MsgLava
+            Mapping[130] = (byte)Block.White;       // MsgWhite
+            Mapping[131] = (byte)Block.Black;       // MsgBlack
+            Mapping[132] = (byte)Block.Air;         // MsgAir
+            Mapping[133] = (byte)Block.Water;       // MsgWater
+            Mapping[134] = (byte)Block.Lava;        // MsgLava
 
-            mapping[135] = (byte)Block.TNT;         // tdoor9
-            mapping[136] = (byte)Block.Stair;       // tdoor10
-            mapping[137] = (byte)Block.Air;         // tdoor11
-            mapping[138] = (byte)Block.Water;       // tdoor12
-            mapping[139] = (byte)Block.Lava;        // tdoor13
+            Mapping[135] = (byte)Block.TNT;         // tdoor9
+            Mapping[136] = (byte)Block.Stair;       // tdoor10
+            Mapping[137] = (byte)Block.Air;         // tdoor11
+            Mapping[138] = (byte)Block.Water;       // tdoor12
+            Mapping[139] = (byte)Block.Lava;        // tdoor13
 
-            mapping[140] = (byte)Block.Water;       // WaterDown
-            mapping[141] = (byte)Block.Lava;        // LavaDown
-            mapping[143] = (byte)Block.Aqua;        // WaterFaucet
-            mapping[144] = (byte)Block.Orange;      // LavaFaucet
+            Mapping[140] = (byte)Block.Water;       // WaterDown
+            Mapping[141] = (byte)Block.Lava;        // LavaDown
+            Mapping[143] = (byte)Block.Aqua;        // WaterFaucet
+            Mapping[144] = (byte)Block.Orange;      // LavaFaucet
 
             // 143 unused
-            mapping[145] = (byte)Block.Water;       // finiteWater
-            mapping[146] = (byte)Block.Lava;        // finiteLava
-            mapping[147] = (byte)Block.Cyan;        // finiteFaucet
+            Mapping[145] = (byte)Block.Water;       // finiteWater
+            Mapping[146] = (byte)Block.Lava;        // finiteLava
+            Mapping[147] = (byte)Block.Cyan;        // finiteFaucet
 
-            mapping[148] = (byte)Block.Log;         // odoor1
-            mapping[149] = (byte)Block.Obsidian;    // odoor2
-            mapping[150] = (byte)Block.Glass;       // odoor3
-            mapping[151] = (byte)Block.Stone;       // odoor4
-            mapping[152] = (byte)Block.Leaves;      // odoor5
-            mapping[153] = (byte)Block.Sand;        // odoor6
-            mapping[154] = (byte)Block.Wood;        // odoor7
-            mapping[155] = (byte)Block.Green;       // odoor8
-            mapping[156] = (byte)Block.TNT;         // odoor9
-            mapping[157] = (byte)Block.Stair;       // odoor10
-            mapping[158] = (byte)Block.Lava;        // odoor11
-            mapping[159] = (byte)Block.Water;       // odoor12
+            Mapping[148] = (byte)Block.Log;         // odoor1
+            Mapping[149] = (byte)Block.Obsidian;    // odoor2
+            Mapping[150] = (byte)Block.Glass;       // odoor3
+            Mapping[151] = (byte)Block.Stone;       // odoor4
+            Mapping[152] = (byte)Block.Leaves;      // odoor5
+            Mapping[153] = (byte)Block.Sand;        // odoor6
+            Mapping[154] = (byte)Block.Wood;        // odoor7
+            Mapping[155] = (byte)Block.Green;       // odoor8
+            Mapping[156] = (byte)Block.TNT;         // odoor9
+            Mapping[157] = (byte)Block.Stair;       // odoor10
+            Mapping[158] = (byte)Block.Lava;        // odoor11
+            Mapping[159] = (byte)Block.Water;       // odoor12
 
-            mapping[160] = (byte)Block.Air;         // air_portal
-            mapping[161] = (byte)Block.Water;       // water_portal
-            mapping[162] = (byte)Block.Lava;        // lava_portal
+            Mapping[160] = (byte)Block.Air;         // air_portal
+            Mapping[161] = (byte)Block.Water;       // water_portal
+            Mapping[162] = (byte)Block.Lava;        // lava_portal
 
             // 163 unused
-            mapping[164] = (byte)Block.Air;         // air_door
-            mapping[165] = (byte)Block.Air;         // air_switch
-            mapping[166] = (byte)Block.Water;       // water_door
-            mapping[167] = (byte)Block.Lava;        // lava_door
+            Mapping[164] = (byte)Block.Air;         // air_door
+            Mapping[165] = (byte)Block.Air;         // air_switch
+            Mapping[166] = (byte)Block.Water;       // water_door
+            Mapping[167] = (byte)Block.Lava;        // lava_door
 
             // 168-174 = odoor*_air
-            mapping[175] = (byte)Block.Cyan;        // blue_portal
-            mapping[176] = (byte)Block.Orange;      // orange_portal
+            Mapping[175] = (byte)Block.Cyan;        // blue_portal
+            Mapping[176] = (byte)Block.Orange;      // orange_portal
             // 177-181 = odoor*_air
 
-            mapping[182] = (byte)Block.TNT;         // smalltnt
-            mapping[183] = (byte)Block.TNT;         // bigtnt
-            mapping[184] = (byte)Block.Lava;        // tntexplosion
-            mapping[185] = (byte)Block.Lava;        // fire
+            Mapping[182] = (byte)Block.TNT;         // smalltnt
+            Mapping[183] = (byte)Block.TNT;         // bigtnt
+            Mapping[184] = (byte)Block.Lava;        // tntexplosion
+            Mapping[185] = (byte)Block.Lava;        // fire
 
             // 186 unused
-            mapping[187] = (byte)Block.Glass;       // rocketstart
-            mapping[188] = (byte)Block.Gold;        // rockethead
-            mapping[189] = (byte)Block.Steel;       // firework
+            Mapping[187] = (byte)Block.Glass;       // rocketstart
+            Mapping[188] = (byte)Block.Gold;        // rockethead
+            Mapping[189] = (byte)Block.Steel;       // firework
 
-            mapping[190] = (byte)Block.Lava;        // deathlava
-            mapping[191] = (byte)Block.Water;       // deathwater
-            mapping[192] = (byte)Block.Air;         // deathair
-            mapping[193] = (byte)Block.Water;       // activedeathwater
-            mapping[194] = (byte)Block.Lava;        // activedeathlava
+            Mapping[190] = (byte)Block.Lava;        // deathlava
+            Mapping[191] = (byte)Block.Water;       // deathwater
+            Mapping[192] = (byte)Block.Air;         // deathair
+            Mapping[193] = (byte)Block.Water;       // activedeathwater
+            Mapping[194] = (byte)Block.Lava;        // activedeathlava
 
-            mapping[195] = (byte)Block.Lava;        // magma
-            mapping[196] = (byte)Block.Water;       // geyser
+            Mapping[195] = (byte)Block.Lava;        // magma
+            Mapping[196] = (byte)Block.Water;       // geyser
 
             // 197-210 = air
-            mapping[211] = (byte)Block.Red;         // door8_air
-            mapping[212] = (byte)Block.Lava;        // door9_air
+            Mapping[211] = (byte)Block.Red;         // door8_air
+            Mapping[212] = (byte)Block.Lava;        // door9_air
             // 213-229 = air
 
-            mapping[230] = (byte)Block.Aqua;        // train
-            mapping[231] = (byte)Block.TNT;         // creeper
-            mapping[232] = (byte)Block.MossyRocks;  // zombiebody
-            mapping[233] = (byte)Block.Lime;        // zombiehead
+            Mapping[230] = (byte)Block.Aqua;        // train
+            Mapping[231] = (byte)Block.TNT;         // creeper
+            Mapping[232] = (byte)Block.MossyRocks;  // zombiebody
+            Mapping[233] = (byte)Block.Lime;        // zombiehead
 
             // 234 unused
-            mapping[235] = (byte)Block.White;       // birdwhite
-            mapping[236] = (byte)Block.Black;       // birdblack
-            mapping[237] = (byte)Block.Lava;        // birdlava
-            mapping[238] = (byte)Block.Red;         // birdred
-            mapping[239] = (byte)Block.Water;       // birdwater
-            mapping[240] = (byte)Block.Blue;        // birdblue
-            mapping[242] = (byte)Block.Lava;        // birdkill
+            Mapping[235] = (byte)Block.White;       // birdwhite
+            Mapping[236] = (byte)Block.Black;       // birdblack
+            Mapping[237] = (byte)Block.Lava;        // birdlava
+            Mapping[238] = (byte)Block.Red;         // birdred
+            Mapping[239] = (byte)Block.Water;       // birdwater
+            Mapping[240] = (byte)Block.Blue;        // birdblue
+            Mapping[242] = (byte)Block.Lava;        // birdkill
 
-            mapping[245] = (byte)Block.Gold;        // fishgold
-            mapping[246] = (byte)Block.Sponge;      // fishsponge
-            mapping[247] = (byte)Block.Gray;        // fishshark
-            mapping[248] = (byte)Block.Red;         // fishsalmon
-            mapping[249] = (byte)Block.Blue;        // fishbetta
+            Mapping[245] = (byte)Block.Gold;        // fishgold
+            Mapping[246] = (byte)Block.Sponge;      // fishsponge
+            Mapping[247] = (byte)Block.Gray;        // fishshark
+            Mapping[248] = (byte)Block.Red;         // fishsalmon
+            Mapping[249] = (byte)Block.Blue;        // fishbetta
         }
 
 
@@ -274,7 +274,7 @@ namespace fCraft.MapConversion {
 
                     for( int i = 0; i < map.Blocks.Length; i++ ) {
                         if( map.Blocks[i] > 49 ) {
-                            map.Blocks[i] = mapping[map.Blocks[i]];
+                            map.Blocks[i] = Mapping[map.Blocks[i]];
                         }
                     }
 

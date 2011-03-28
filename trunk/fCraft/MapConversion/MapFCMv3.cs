@@ -65,12 +65,13 @@ namespace fCraft.MapConversion {
                 map.Spawn.X = (short)reader.ReadInt32();
                 map.Spawn.H = (short)reader.ReadInt32();
                 map.Spawn.Y = (short)reader.ReadInt32();
-                map.Spawn.R = reader.ReadByte();
-                map.Spawn.L = reader.ReadByte();
 
                 if( !map.ValidateHeader() ) {
                     throw new MapFormatException( "One or more of the map dimensions are invalid." );
                 }
+
+                map.Spawn.R = reader.ReadByte();
+                map.Spawn.L = reader.ReadByte();
 
                 return map;
             }
