@@ -388,16 +388,16 @@ namespace fCraft {
                 player.Message( "  Zone created by {0}&S on {1:MMM d} at {1:h:mm} ({2}d {3}h ago).",
                                 zone.CreatedBy.GetClassyName(),
                                 zone.CreatedDate,
-                                DateTime.Now.Subtract( zone.CreatedDate ).Days,
-                                DateTime.Now.Subtract( zone.CreatedDate ).Hours );
+                                DateTime.UtcNow.Subtract( zone.CreatedDate ).Days,
+                                DateTime.UtcNow.Subtract( zone.CreatedDate ).Hours );
             }
 
             if( zone.EditedBy != null ) {
                 player.Message( "  Zone last edited by {0}&S on {1:MMM d} at {1:h:mm} ({2}d {3}h ago).",
                 zone.EditedBy.GetClassyName(),
                 zone.EditedDate,
-                DateTime.Now.Subtract( zone.EditedDate ).Days,
-                DateTime.Now.Subtract( zone.EditedDate ).Hours );
+                DateTime.UtcNow.Subtract( zone.EditedDate ).Days,
+                DateTime.UtcNow.Subtract( zone.EditedDate ).Hours );
             }
 
             SecurityController.PlayerListCollection playerList = zone.GetPlayerList();

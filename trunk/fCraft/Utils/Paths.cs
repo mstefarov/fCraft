@@ -14,6 +14,7 @@ namespace fCraft {
             WorkingPath = WorkingPathDefault;
             MapPath = MapPathDefault;
             LogPath = LogPathDefault;
+            ConfigFileName = ConfigFileNameDefault;
             switch( Environment.OSVersion.Platform ) {
                 case PlatformID.MacOSX:
                 case PlatformID.Unix:
