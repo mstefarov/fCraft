@@ -165,7 +165,7 @@ namespace fCraft {
         );
 
         public const int Version = 510,
-                         Revision = 484;
+                         Revision = 485;
         public const bool IsDev = true,
                           IsBroken = false;
 

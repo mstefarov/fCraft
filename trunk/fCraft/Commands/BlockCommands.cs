@@ -140,7 +140,7 @@ namespace fCraft {
 
         internal static void Bind( Player player, Command cmd ) {
             string originalBlockName = cmd.Next();
-            if( originalBlockName==null ) {
+            if( originalBlockName == null ) {
                 player.Message( "All bindings have been reset." );
                 player.ResetAllBinds();
                 return;
@@ -162,6 +162,7 @@ namespace fCraft {
                     player.Message( "{0} is not bound to anything.",
                                     originalBlock );
                 }
+                return;
             }
 
             Block replacementBlock = Map.GetBlockByName( replacementBlockName );
