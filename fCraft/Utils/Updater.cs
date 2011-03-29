@@ -114,6 +114,10 @@ namespace fCraft {
             if( (flags & ReleaseFlags.Unstable) == ReleaseFlags.Unstable ) list.Add( "Unstable" );
             return list.ToArray();
         }
+
+        public bool IsFlagged( ReleaseFlags flag ) {
+            return (Flags & flag) == flag;
+        }
     }
 
 
@@ -156,18 +160,13 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            Version,
-            Revision,
-            new DateTime( 2011, 3, 27, 18, 50, 0, DateTimeKind.Utc ),
-            "WIP",
-            "WIP",
-            ReleaseFlags.APIChange | ReleaseFlags.Bugfix | ReleaseFlags.ConfigFormatChange | ReleaseFlags.Dev | ReleaseFlags.Feature
+            510,
+            485,
+            new DateTime( 2011, 3, 29, 19, 00, 0, DateTimeKind.Utc ),
+            "Rewrote the updater, improved support for non-Windows servers, fixed lots of bugs, and optimized.",
+            Properties.Resources.Changelog,
+            ReleaseFlags.APIChange | ReleaseFlags.Bugfix | ReleaseFlags.ConfigFormatChange | ReleaseFlags.Feature
         );
-
-        public const int Version = 510,
-                         Revision = 485;
-        public const bool IsDev = true,
-                          IsBroken = false;
 
         public const string LatestStable = "0.506_r427";
 
@@ -187,7 +186,7 @@ namespace fCraft {
             UpdaterMode mode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
             if( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
 
-            string url = String.Format( UpdateUrl, Revision );
+            string url = String.Format( UpdateUrl, CurrentRelease.Revision );
             if( FireCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
 
             Logger.Log( "Checking for fCraft updates...", LogType.SystemActivity );

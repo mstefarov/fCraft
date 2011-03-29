@@ -196,13 +196,13 @@ namespace fCraft {
             RaiseInitializingEvent( Args );
 
             // warnings/disclaimers
-            if( Updater.IsDev ) {
+            if( Updater.CurrentRelease.IsFlagged( ReleaseFlags.Dev ) ) {
                 Logger.Log( "You are using an unreleased developer version of fCraft. " +
                             "Do not use this version unless are are ready to deal with bugs and potential data loss. " +
                             "Consider using the lastest stable version instead, available from www.fcraft.net",
                             LogType.Warning );
             }
-            if( Updater.IsBroken ) {
+            if( Updater.CurrentRelease.IsFlagged( ReleaseFlags.Unstable ) ) {
                 Logger.Log( "This build has been marked as BROKEN. " +
                             "Do not use except for debugging purposes. " +
                             "Latest non-broken build is {0}.", LogType.Warning,

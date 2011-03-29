@@ -1,3 +1,45 @@
+0.510
+ Feature: The fCraft updater has been rewritten and expanded. It now works under all OSes, and provides more features.
+ Feature: fCraft now handles differences between case-sensitive and case-insensitive filesystems much better. /wrename and /wload are also aware of the filesystem.
+ Feature: fCraft now checks presence, filename capitalization, and integrity of all map files on the world list at startup.
+ Feature: New ConfigTool settings for updater, checkbox for showing "player connected/left" messages, and "/mute" permission settings.
+ Feature: Added "/credits" command to ConfigUI.
+ Feature: Implemented "--norestart" and "--exitoncrash" command-line switches for fCraft.
+ Feature: fCraft event system is being rewritten with modding support in mind.
+ Feature: Improved MCSharp/MCZall/MCLawl map support.
+ Fix: Software errors that happen while parsing player and console commands will no longer cause disconnects/crashes.
+ Fix: IPBanList will attempt to recover records lost due to a recent regression in 0.505.
+ Fix: Fixed /wrename errors in cases where names differ only in capitalization.
+ Fix: Fixed "Copy Existing World" showing the current world on the list in AddWorldPopup.
+ Fix: Fixed "Chat" tab preview not updating when settings are reset.
+ Fix: Fixed per-world whitelist/blacklist not saving when worlds are edited with AddWorldPopup.
+ Fix: Fixed non-verified connections that get kicked from affecting that name's PlayerInfo.
+ Fix: Server.GenerateSalt() now uses a cryptographically secure PRNG.
+ Fix: Fixed verification problems on servers with HeartbeatEnabled=false.
+ Fix: Fixed a wrong message being shown by /rank if the target is already same or higher/lower rank.
+ Fix: Fixed /winfo showing incorrect information for last lock/unlock event.
+ Fix: Fixed tabbing order on ConfigUI.
+ Fix: Improved the way Server.InitLibrary and Logger.Log errors are handled.
+ Fix: Added missing validation checks to LoadHeader in several map converters.
+ Fix: Fixed players being able to complete a draw command or /zadd, if they were demoted before clicking for the second time.
+ Fix: Added missing /paste and /pastenot volume checks.
+ Fix: Fixed a bug in /zinfo that showed incorrect creation/editing times.
+ Fix: Better error messages for unrecognized block names in command parameters.
+ Fix: /restart now works from ConfigUI under Mono (but still broken in fCraftConsole).
+ Fix: Fixed handling of command-line arguments surrounded with quotes.
+ Fix: Fixed a bug at ConfigTool.ConfigUI.xAllowSecurityCircumvention_CheckedChanged (#3181907, thanks to clhdrums87).
+ Fix: Fixed /winfo counting hidden players (#3237877, thanks to Hellenion).
+ Fix: Fixed MCSharp map exporter mixing up map dimensions (#3159501, thanks to dogwatch).
+ Change: Improved the way fCraft project is built. Now all binaries are copied to /trunk/bin/Release or /trunk/bin/Debug.
+ Change: Improved error tolerance of Scheduler.EndShutdown().
+ Change: Expanded Logger.CheckForCommonErrors().
+ Change: Renamed config keys (old ones can still be loaded): IRCBot to IRCBotEnabled, AutomaticUpdates to UpdaterMode.
+ Change: Added /wadd as an alias for /wload.
+ Change: Renamed Mcc namespace to fCraft.MapConversion.
+ Change: Decreased timeout for fCraft update check.
+ Change: Added a confirmation prompt to /rank when adding an unrecognized player name to the database.
+ Optimization: Sped up heartbeat sending and world-related operations, increased world saving interval to 90 seconds, reduced per-player idle CPU usage, halved CPU usage of draw commands.
+
 0.506
  Feature: Added hollow ellipsoid drawing (/eh) and hollow sphere drawing (/sph), contributed by Conrad "Redshift" Morgan.
  Fix: Fixed a regression in 0.503 that caused some IP ban records to be lost. I am terribly sorry!
