@@ -517,34 +517,44 @@ namespace fCraft {
             }
 
             // Parse player name
-            PlayerInfo info;
-            Player target = Server.FindPlayerExact( name );
-            if( target == null ) {
-                info = PlayerDB.FindPlayerInfoExact( name );
-            } else {
-                info = target.Info;
-            }
+            PlayerInfo targetInfo = PlayerDB.FindPlayerInfoExact( name );
 
-            if( info == null ) {
+            if( targetInfo == null ) {
                 if( !player.Can( Permission.EditPlayerDB ) ) {
                     player.NoPlayerMessage( name );
                     return;
                 }
                 if( Player.IsValidName( name ) ) {
-                    player.Message( "Warning: player \"{0}\" is not in the database (possible typo)", name );
-                    info = PlayerDB.AddFakeEntry( name, (newRank > RankList.DefaultRank ? RankChangeType.Promoted : RankChangeType.Demoted) );
+                    if( cmd.Confirmed ) {
+                        targetInfo = PlayerDB.AddFakeEntry( name, (newRank > RankList.DefaultRank ? RankChangeType.Promoted : RankChangeType.Demoted) );
+                    } else {
+                        player.AskForConfirmation( cmd, "Warning: Player \"{0}\" is not in the database (possible typo). Type out the full name or", name );
+                        return;
+                    }
                 } else {
                     player.Message( "Player not found. Please specify a valid name." );
                 }
             }
 
-            DoChangeRank( player, info, target, newRank, cmd.NextAll(), false, false );
+            DoChangeRank( player, targetInfo, newRank, cmd.NextAll(), false, false );
         }
 
 
-        internal static void DoChangeRank( Player player, PlayerInfo targetInfo, Player target, Rank newRank, string reason, bool silent, bool automatic ) {
+        /// <summary> Changes player's rank. This needs refactoring BADLY. </summary>
+        /// <param name="player">Player who originated the promotion/demotion action. Must not be null.</param>
+        /// <param name="targetInfo">PlayerInfo of the target player (the one getting promoted/demoted). Must not be null.</param>
+        /// <param name="newRank">New rank to give to target. Must not be null.</param>
+        /// <param name="reason">Reason for promotion/demotion. May be null.</param>
+        /// <param name="silent">Whether rank change should be announced or not.</param>
+        /// <param name="automatic">Whether rank change should be marked as "automatic" or manual.</param>
+        internal static void DoChangeRank( Player player, PlayerInfo targetInfo, Rank newRank, string reason, bool silent, bool automatic ) {
+
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( targetInfo == null ) throw new ArgumentNullException( "targetInfo" );
+            if( newRank == null ) throw new ArgumentNullException( "newRank" );
 
             bool promote = (targetInfo.Rank < newRank);
+            Player target = targetInfo.PlayerObject;
 
             // Make sure it's not same rank
             if( targetInfo.Rank == newRank ) {
@@ -555,7 +565,7 @@ namespace fCraft {
             }
 
             // Make sure player has the general permissions
-            if( (promote && !player.Can( Permission.Promote )) ) {
+            if( promote && !player.Can( Permission.Promote ) ) {
                 player.NoAccessMessage( Permission.Promote );
                 return;
             } else if( !promote && !player.Can( Permission.Demote ) ) {
@@ -825,8 +835,7 @@ namespace fCraft {
             foreach( string name in names ) {
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
                                   PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
-                Player target = Server.FindPlayerExact( info.Name );
-                DoChangeRank( player, info, target, targetRank, reason, silent, false );
+                DoChangeRank( player, info, targetRank, reason, silent, false );
             }
 
             PlayerDB.Save();

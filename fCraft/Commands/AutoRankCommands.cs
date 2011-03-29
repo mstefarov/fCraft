@@ -456,13 +456,12 @@ namespace fCraft {
             for( int i = 0; i < list.Length; i++ ) {
                 Rank newRank = AutoRank.Check( list[i] );
                 if( newRank != null ) {
-                    Player target = Server.FindPlayerExact( list[i].Name );
                     if( newRank > list[i].Rank ) {
                         promoted++;
                     } else if( newRank < list[i].Rank ) {
                         demoted++;
                     }
-                    AdminCommands.DoChangeRank( player, list[i], target, newRank, message, silent, true );
+                    AdminCommands.DoChangeRank( player, list[i], newRank, message, silent, true );
                 }
             }
             sw.Stop();

@@ -252,8 +252,7 @@ namespace fCraft {
             lock( Locker ) {
                 foreach( PlayerInfo info in List ) {
                     if( info.Rank == from ) {
-                        Player target = Server.FindPlayerExact( info.Name );
-                        AdminCommands.DoChangeRank( player, info, target, to, "~MassRank", silent, false );
+                        AdminCommands.DoChangeRank( player, info, to, "~MassRank", silent, false );
                         affected++;
                     }
                 }
