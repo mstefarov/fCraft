@@ -64,6 +64,7 @@ namespace fCraft {
         public string IRCPassword = ""; // TODO
 
         public bool Online;
+        public Player PlayerObject;
         public LeaveReason LeaveReason; // TODO
         public bool BanExempt;
 
@@ -321,6 +322,7 @@ namespace fCraft {
             LastSeen = DateTime.Now;
             Interlocked.Increment( ref TimesVisited );
             Online = true;
+            PlayerObject = player;
         }
 
 
@@ -335,6 +337,7 @@ namespace fCraft {
             TotalTime += DateTime.Now.Subtract( player.Session.LoginTime );
             LastSeen = DateTime.Now;
             Online = false;
+            PlayerObject = null;
         }
 
 

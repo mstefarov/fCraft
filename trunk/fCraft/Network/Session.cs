@@ -617,7 +617,7 @@ namespace fCraft {
             if( ConfigKey.AutoRankEnabled.GetBool() ) {
                 Rank newRank = AutoRank.Check( Player.Info );
                 if( newRank != null ) {
-                    AdminCommands.DoChangeRank( Player.Console, Player.Info, Player, newRank, "~AutoRank", false, true );
+                    AdminCommands.DoChangeRank( Player.Console, Player.Info, newRank, "~AutoRank", false, true );
                 }
             }
 
