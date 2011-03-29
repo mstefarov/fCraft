@@ -60,18 +60,6 @@ namespace fCraft.Properties {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized string similar to Feature: The fCraft updater has been rewritten and expanded. It now works under all OSes, and provides more features.
-        /// Feature: fCraft now handles differences between case-sensitive and case-insensitive filesystems much better. /wrename and /wload are also aware of the filesystem.
-        /// Feature: fCraft now checks presence, filename capitalization, and integrity of all map files on the world list at startup.
-        /// Feature: New ConfigTool settings for updater, checkbox for showing &quot;player connected/left&quot; messages, a [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string Changelog {
-            get {
-                return ResourceManager.GetString("Changelog", resourceCulture);
-            }
-        }
-        
         internal static System.Drawing.Bitmap Tileset {
             get {
                 object obj = ResourceManager.GetObject("Tileset", resourceCulture);

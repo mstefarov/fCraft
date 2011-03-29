@@ -284,13 +284,14 @@ namespace fCraft {
 
     public sealed class EnumKeyAttribute : ConfigKeyAttribute {
         public EnumKeyAttribute( ConfigSection section, object defaultValue )
-            : base( section,null, defaultValue ) {
+            : base( section, null, defaultValue ) {
             ValueType = defaultValue.GetType();
         }
 
 
         public override void Validate( string value ) {
             base.Validate( value );
+            if( !NotBlank && String.IsNullOrEmpty( value ) ) return;
             try {
                 Enum.Parse( ValueType, value, true );
             } catch( ArgumentException ) {

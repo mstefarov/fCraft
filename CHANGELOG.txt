@@ -1,3 +1,6 @@
+0.510_r489
+ Fix: Fixed unnecessary GDI+ dependence in fCraftConsole under Mono
+
 0.510
  Feature: The fCraft updater has been rewritten and expanded. It now works under all OSes, and provides more features.
  Feature: fCraft now handles differences between case-sensitive and case-insensitive filesystems much better. /wrename and /wload are also aware of the filesystem.
