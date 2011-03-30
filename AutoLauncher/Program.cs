@@ -11,7 +11,8 @@ namespace AutoLauncher {
         const int Delay = 5000;
         const string BinaryName = "fCraftConsole.exe";
 
-        static void Main() {
+        static void Main( string[] args ) {
+            string argString = "--norestart " + String.Join( " ", args );
             Console.Title = "fCraftConsole AutoLauncher";
 
             if( !File.Exists( BinaryName ) ) {
@@ -22,11 +23,21 @@ namespace AutoLauncher {
             Process p = new Process {
                 StartInfo = {
                     UseShellExecute = true,
-                    CreateNoWindow = false,
-                    FileName = BinaryName,
-                    Arguments = "--norestart"
+                    CreateNoWindow = false
                 }
             };
+
+            switch( Environment.OSVersion.Platform ) {
+                case PlatformID.MacOSX:
+                case PlatformID.Unix:
+                    p.StartInfo.FileName = "mono-sgen";
+                    p.StartInfo.Arguments = BinaryName + argString;
+                    break;
+                default:
+                    p.StartInfo.FileName = BinaryName;
+                    p.StartInfo.Arguments = argString;
+                    break;
+            }
 
             DateTime startTimer = DateTime.Now;
             Console.WriteLine( "{0} ==== STARTING ====", DateTime.Now );
@@ -36,14 +47,6 @@ namespace AutoLauncher {
                 p.Start();
                 TimeSpan oldCPUTime = TimeSpan.Zero;
                 while( !p.HasExited ) {
-                    try {
-                        TimeSpan newCPUTime = p.TotalProcessorTime;
-                        Console.WriteLine( "{0} Server UP, uptime {1:0.0}h: {2}% avg CPU",
-                                           DateTime.Now,
-                                           DateTime.Now.Subtract( startTimer ).TotalHours,
-                                           (newCPUTime - oldCPUTime).TotalMilliseconds / (Environment.ProcessorCount * Tick) );
-                        oldCPUTime = newCPUTime;
-                    } catch { }
                     p.WaitForExit( Tick );
                 }
                 Console.WriteLine( "{0} ==== SERVER SHUT DOWN, RESTARTING ====", DateTime.Now );

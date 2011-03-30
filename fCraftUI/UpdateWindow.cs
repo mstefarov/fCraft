@@ -70,18 +70,9 @@ namespace fCraftUI {
         }
 
         private void bUpdateNow_Click( object sender, EventArgs e ) {
-            List<string> argsList = new List<string>( Server.GetArgList() );
-            argsList.Add( "\"--restart=fCraftUI.exe\"" );
-            switch( Environment.OSVersion.Platform ) {
-                case PlatformID.MacOSX:
-                case PlatformID.Unix:
-                    argsList.Insert( 0, updaterFullPath );
-                    Process.Start( "mono", String.Join( " ", argsList.ToArray() ) + " &" );
-                    break;
-                default:
-                    Process.Start( updaterFullPath, String.Join( " ", argsList.ToArray() ) );
-                    break;
-            }
+            string args = Server.GetArgString() +
+                          String.Format( "--restart=\"{0}\"", MonoCompat.PrependMono( "fCraftUI.exe" ) );
+            MonoCompat.StartDotNetProcess( updaterFullPath, args, true );
             Application.Exit();
         }
 
