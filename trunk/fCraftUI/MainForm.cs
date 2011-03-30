@@ -31,8 +31,8 @@ namespace fCraftUI {
 
 #if !DEBUG
             try {
-                Server.InitLibrary( args );
 #endif
+                Server.InitLibrary( args );
                 if( Server.InitServer() ) {
                     Text = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
                     Application.DoEvents();

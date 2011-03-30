@@ -78,6 +78,9 @@ namespace fCraft {
 
         #region Initialization
 
+        static bool libraryInitialized = false,
+                    serverInitialized = false;
+
         /// <summary>
         /// Reads command-line switches and sets up paths and logging.
         /// This should be called before any other library function.
@@ -181,6 +184,10 @@ namespace fCraft {
                 }
             }
 
+            if( MonoCompat.IsMono ) {
+                Logger.Log( "Running on {0}", LogType.SystemActivity, MonoCompat.MonoVersion );
+            }
+
 #if DEBUG_EVENTS
             Logger.PrepareEventTracing();
 #endif
@@ -189,10 +196,15 @@ namespace fCraft {
             Logger.Log( "Log path: {0}", LogType.Debug, Path.GetFullPath( Paths.LogPath ) );
             Logger.Log( "Map path: {0}", LogType.Debug, Path.GetFullPath( Paths.MapPath ) );
             Logger.Log( "Config path: {0}", LogType.Debug, Path.GetFullPath( Paths.ConfigFileName ) );
+
+            libraryInitialized = true;
         }
 
 
         public static bool InitServer() {
+            if( !libraryInitialized ) {
+                throw new Exception( "Server.InitializeLibrary must be called before Server.InitServer" );
+            }
             RaiseInitializingEvent( Args );
 
             // warnings/disclaimers
@@ -237,11 +249,16 @@ namespace fCraft {
 
             RaiseEvent( Initialized );
 
+            serverInitialized = true;
+
             return true;
         }
 
 
         public static bool StartServer() {
+            if( !serverInitialized ) {
+                throw new Exception( "Server.InitServer() must be called before Server.StartServer()" );
+            }
             ServerStart = DateTime.Now;
 
             RaiseEvent( Starting );
@@ -450,43 +467,21 @@ namespace fCraft {
             ShutdownWaiter.Set();
 
             bool doRestart = (param.Restart && !HasArg( ArgKey.NoRestart ));
-            string binaryFile = Assembly.GetEntryAssembly().Location;
-            switch( Environment.OSVersion.Platform ) {
-                case PlatformID.MacOSX:
-                case PlatformID.Unix:
-                    string monoArgs;
-                    if( Updater.RunAtShutdown && doRestart ) {
-                        monoArgs = String.Format( "\"{0}\" --restart=\"{1}\" {2} &",
-                                                      Updater.UpdaterFile,
-                                                      Assembly.GetEntryAssembly().Location,
-                                                      GetArgString() );
+            string assemblyExecutable = Assembly.GetEntryAssembly().Location;
 
-                    } else if( Updater.RunAtShutdown ) {
-                        monoArgs = String.Format( "\"{0}\" {1} &", Updater.UpdaterFile, GetArgString() );
+            if( Updater.RunAtShutdown && doRestart ) {
+                string args = String.Format( "--restart=\"{0}\" {1}",
+                                             MonoCompat.PrependMono( assemblyExecutable ),
+                                             GetArgString() );
+                string bin = Updater.UpdaterFile;
 
-                    } else if( doRestart ) {
-                        monoArgs = String.Format( "\"{0}\" {1} &", binaryFile, GetArgString() );
+                MonoCompat.StartDotNetProcess( bin, args, true );
 
-                    } else {
-                        break;
-                    }
-                    Process.Start( "mono", monoArgs );
-                    break;
+            } else if( Updater.RunAtShutdown ) {
+                MonoCompat.StartDotNetProcess( Updater.UpdaterFile, GetArgString(), true );
 
-                default:
-                    if( Updater.RunAtShutdown && doRestart ) {
-                        string winArgs = String.Format( "--restart=\"{0}\" {1}",
-                                                        Assembly.GetEntryAssembly().Location,
-                                                        GetArgString() );
-                        Process.Start( Updater.UpdaterFile, winArgs );
-
-                    } else if( Updater.RunAtShutdown ) {
-                        Process.Start( Updater.UpdaterFile, GetArgString() );
-
-                    } else if( doRestart ) {
-                        Process.Start( binaryFile, GetArgString() );
-                    }
-                    break;
+            } else if( doRestart ) {
+                MonoCompat.StartDotNetProcess( assemblyExecutable, GetArgString(), true );
             }
 
             if( param.KillProcess ) {
