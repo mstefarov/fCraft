@@ -47,10 +47,10 @@ namespace fCraft {
 
         public BoundingBox GetIntersection( BoundingBox other ) {
             return new BoundingBox( Math.Max( XMin, other.XMin ),
-                                    Math.Min( XMax, other.XMax ),
                                     Math.Max( YMin, other.YMin ),
-                                    Math.Min( YMax, other.YMax ),
                                     Math.Max( HMin, other.HMin ),
+                                    Math.Min( XMax, other.XMax ),
+                                    Math.Min( YMax, other.YMax ),
                                     Math.Min( HMax, other.HMax ) );
         }
 
