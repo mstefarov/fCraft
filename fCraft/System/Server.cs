@@ -263,7 +263,6 @@ namespace fCraft {
 
 
         public static bool StartServer() {
-            throw new Exception( "Testing" );
             if( !serverInitialized ) {
                 throw new Exception( "Server.InitServer() must be called before Server.StartServer()" );
             }
