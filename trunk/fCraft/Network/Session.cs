@@ -11,7 +11,7 @@ using System.Threading;
 namespace fCraft {
     public sealed class Session {
         public Player Player;
-        public DateTime LoginTime = DateTime.UtcNow;
+        public DateTime LoginTime = DateTime.Now;
 
         public bool CanReceive = true,
                     CanSend = true,
