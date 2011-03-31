@@ -1,5 +1,14 @@
+0.511
+ Feature: Further improvements to Mono support. fCraft will now utilize mono-sgen whenever possible.
+ Fix: Fixed fCraftUI ignoring command-line arguments.
+ Fix: Fixed broken /paste and /pastenot volume checks.
+ Fix: Fixed crash reports failing to submit.
+ Fix: Fixed a timezone-related bug that messed up players' "total time on server" stat.
+ Change: Added a warning if running on old versions of Mono (2.6 or lower). 
+
 0.510_r489
  Fix: Fixed unnecessary GDI+ dependence in fCraftConsole under Mono
+ Fix: Fixed EnumKeyAttribute not taking blank values (as in case of ProcessPriority config key).
 
 0.510
  Feature: The fCraft updater has been rewritten and expanded. It now works under all OSes, and provides more features.
