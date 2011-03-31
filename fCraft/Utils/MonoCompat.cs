@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -21,7 +22,6 @@ namespace fCraft {
 
         static MonoCompat() {
             Type monoRuntimeType = typeof( object ).Assembly.GetType( "Mono.Runtime" );
-
 
             if( monoRuntimeType != null ) {
                 IsMono = true;

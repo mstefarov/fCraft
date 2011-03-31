@@ -185,7 +185,7 @@ namespace fCraft {
             }
 
             if( MonoCompat.IsMono ) {
-                Logger.Log( "Running on {0}", LogType.SystemActivity, MonoCompat.MonoVersion );
+                Logger.Log( "Running on Mono {0}", LogType.Debug, MonoCompat.MonoVersion );
             }
 
 #if DEBUG_EVENTS
@@ -214,11 +214,18 @@ namespace fCraft {
                             "Consider using the lastest stable version instead, available from www.fcraft.net",
                             LogType.Warning );
             }
+
             if( Updater.CurrentRelease.IsFlagged( ReleaseFlags.Unstable ) ) {
                 Logger.Log( "This build has been marked as BROKEN. " +
                             "Do not use except for debugging purposes. " +
                             "Latest non-broken build is {0}.", LogType.Warning,
                             Updater.LatestStable );
+            }
+
+            if( MonoCompat.IsMono && !MonoCompat.IsSGen ) {
+                Logger.Log( "You are using a relatively old version of the Mono runtime ({0}). " +
+                            "It is recommended that you upgrade to at least 2.8+", LogType.Warning,
+                            MonoCompat.MonoVersion );
             }
 
 
@@ -256,6 +263,7 @@ namespace fCraft {
 
 
         public static bool StartServer() {
+            throw new Exception( "Testing" );
             if( !serverInitialized ) {
                 throw new Exception( "Server.InitServer() must be called before Server.StartServer()" );
             }
