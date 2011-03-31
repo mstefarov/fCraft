@@ -163,19 +163,20 @@ namespace fCraft {
 
         public static void LogAndReportCrash( string message, string assembly, Exception exception, bool shutdownImminent ) {
 
+            Log( "{0}: {1}", LogType.SeriousError, message, exception );
+
             bool submitCrashReport = ConfigKey.SubmitCrashReports.GetBool();
             bool isCommon = CheckForCommonErrors( exception );
-            if( isCommon ) submitCrashReport = false;
 
             try {
-                CrashEventArgs eventArgs = new CrashEventArgs( message, assembly, exception, submitCrashReport, isCommon, shutdownImminent );
+                CrashEventArgs eventArgs = new CrashEventArgs( message, assembly, exception, submitCrashReport && !isCommon, isCommon, shutdownImminent );
                 RaiseCrashedEvent( eventArgs );
-
-                if( !eventArgs.IsCommonProblem ) {
-                    Log( "{0}: {1}", LogType.SeriousError, message, exception );
-                }
+                isCommon = eventArgs.IsCommonProblem;
             } catch { }
-            if( !submitCrashReport ) return;
+
+            if( !submitCrashReport || isCommon ) {
+                return;
+            }
 
             lock( CrashReportLock ) {
                 if( DateTime.UtcNow.Subtract( lastCrashReport ).TotalSeconds < MinCrashReportInterval ) {
@@ -189,7 +190,12 @@ namespace fCraft {
                     sb.Append( "version=" ).Append( Uri.EscapeDataString( Updater.CurrentRelease.VersionString ) );
                     sb.Append( "&message=" ).Append( Uri.EscapeDataString( message ) );
                     sb.Append( "&assembly=" ).Append( Uri.EscapeDataString( assembly ) );
-                    sb.Append( "&runtime=" ).Append( Uri.EscapeDataString( Environment.Version + " / " + RuntimeEnvironment.GetSystemVersion() ) );
+                    sb.Append( "&runtime=" );
+                    if( MonoCompat.IsMono ) {
+                        sb.Append( Uri.EscapeDataString( "Mono " + MonoCompat.MonoVersionString ) );
+                    } else {
+                        sb.Append( Uri.EscapeDataString( "CLR " + Environment.Version ) );
+                    }
                     sb.Append( "&os=" ).Append( Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString );
                     if( exception != null ) {
                         if( exception is TargetInvocationException ) {
@@ -241,42 +247,42 @@ namespace fCraft {
 
 
         // Called by the Logger in case of serious errors to print troubleshooting advice.
-        // Returns true if a crash report should be submitted for this type of errors.
+        // Returns true if this type of error is common, and crash report should NOT be submitted.
         public static bool CheckForCommonErrors( Exception ex ) {
             string message = null;
             try {
                 if( ex is FileNotFoundException && (ex.Message.Contains( "System.Xml.Linq, Version=3.5" ) ||
                                                     ex.Message.Contains( "System.Core, Version=3.5" )) ) {
                     message = "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
-                         "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).";
-                    return false;
+                              "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).";
+                    return true;
 
                 } else if( ex.Message.Trim().Equals( "libMonoPosixHelper.so", StringComparison.OrdinalIgnoreCase ) ) {
                     message = "fCraft could not locate Mono's compression functionality. " +
                               "Please make sure that you have zlib (sometimes called \"libz\" or just \"z\") installed. " +
                               "Some versions of Mono may also require \"libmono-posix-2.0-cil\" package to be installed.";
-                    return false;
+                    return true;
 
                 } else if( ex is UnauthorizedAccessException ) {
                     message = "fCraft was blocked from accessing a file or resource. " +
                               "Make sure that correct permissions are set for the fCraft files, folders, and processes.";
-                    return false;
+                    return true;
 
                 } else if( ex is OutOfMemoryException ) {
                     message = "fCraft ran out of memory. Make sure there is enough RAM to run. " +
                               "Note that large draw commands can consume a lot of RAM.";
-                    return false;
+                    return true;
 
                 } else if( ex is TypeLoadException && ex.Message.Contains( "ZLibStream" ) ) {
                     message = "Note that ZLibStream is obsolete since fCraft 0.498. Use GZipStream instead.";
-                    return false;
+                    return true;
 
                 } else if( ex is SystemException && ex.Message == "Can't find current process" ) {
                     // Mono-specific bug in MonitorProcessorUsage()
-                    return false;
+                    return true;
 
                 } else {
-                    return true;
+                    return false;
                 }
             } finally {
                 if( message != null ) {
