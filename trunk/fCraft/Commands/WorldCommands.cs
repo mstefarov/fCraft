@@ -538,7 +538,7 @@ namespace fCraft {
                     } else if( !player.Info.Rank.AllowSecurityCircumvention &&
                                world.AccessSecurity.MinRank > rank &&
                                world.AccessSecurity.MinRank > player.Info.Rank ) {
-                        player.Message( "&WYou must be ranked {1}&W+ to lower the access rank for world {0}",
+                        player.Message( "&WYou must be ranked {0}&W+ to lower the access rank for world {1}",
                                         world.AccessSecurity.MinRank.GetClassyName(), world.GetClassyName() );
 
                     } else {
@@ -770,7 +770,7 @@ namespace fCraft {
                     } else if( !player.Info.Rank.AllowSecurityCircumvention &&
                                world.BuildSecurity.MinRank > rank &&
                                world.BuildSecurity.MinRank > player.Info.Rank ) {
-                        player.Message( "&WYou must be ranked {1}&W+ to lower build restrictions for world {0}",
+                        player.Message( "&WYou must be ranked {0}&W+ to lower build restrictions for world {1}",
                                         world.BuildSecurity.MinRank.GetClassyName(), world.GetClassyName() );
                     } else {
                         // list players who are redundantly blacklisted
