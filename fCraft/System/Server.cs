@@ -305,9 +305,7 @@ namespace fCraft {
 
             // if the port still cannot be opened after [maxPortAttempts] attemps, die.
             if( !portFound ) {
-                Logger.LogAndReportCrash( "Could not start listening on any IP/port. Giving up after " + MaxPortAttempts + " tries.",
-                                          "fCraft", null, true );
-                return false;
+                throw new Exception( "Could not start listening on any IP/port. Giving up after " + MaxPortAttempts + " tries." );
             }
 
             IP = ((IPEndPoint)listener.LocalEndpoint).Address;
@@ -550,8 +548,7 @@ namespace fCraft {
 
             // if there is no default world still, die.
             if( MainWorld == null ) {
-                Logger.LogAndReportCrash( "Could not create any worlds", "fCraft", null, true );
-                return false;
+                throw new Exception( "Could not create any worlds" );
             } else {
                 if( MainWorld.AccessSecurity.HasRestrictions() ) {
                     Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
