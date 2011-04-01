@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using fCraft.MapConversion;
 
 
 namespace fCraft {
@@ -57,21 +58,21 @@ namespace fCraft {
             lock( MapLock ) {
                 if( Map != null ) return;
                 try {
-                    Map = Map.Load( this, GetMapName() );
+                    Map = MapUtility.Load( GetMapName() );
                 } catch( Exception ex ) {
                     Logger.Log( "World.LoadMap: Failed to load map ({0}): {1}", LogType.Error,
                                 GetMapName(), ex );
                 }
 
                 // or generate a default one
-                if( Map == null ) {
+                if( Map != null ) {
+                    Map.World = this;
+                } else {
                     Logger.Log( "World.LoadMap: Generating default flatgrass level.", LogType.SystemActivity );
                     Map = new Map( this, 64, 64, 64, true );
 
                     MapGenerator.GenerateFlatgrass( Map );
                     Map.ResetSpawn();
-
-                    SaveMap();
                 }
 
                 if( OnLoaded != null ) OnLoaded();

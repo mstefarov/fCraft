@@ -189,21 +189,12 @@ namespace fCraft {
 
         #region Loading
 
+        /*
         public static Map Load( World world, string fileName ) {
-            // locate the file
-            if( !File.Exists( fileName ) && !Directory.Exists( fileName ) ) {
-                // try to append ".fcm" and/or prepend "maps/"
-                if( File.Exists( fileName + ".fcm" ) ) {
-                    fileName += ".fcm";
-                } else {
-                    Logger.Log( "Map.Load: Could not find the specified file: {0}", LogType.Error, fileName );
-                    return null;
-                }
-            }
 
             // do the loading
             try {
-                Map map = MapUtility.TryLoading( fileName );
+                Map map = MapUtility.Load( fileName );
 
                 if( !map.ValidateBlockTypes( false ) ) {
                     Logger.Log( "MapDAT.Load: Some unknown block types were replaced with air.", LogType.Warning );
@@ -214,14 +205,12 @@ namespace fCraft {
 
             } catch( EndOfStreamException ex ) {
                 Logger.Log( "Map.Load: Unexpected end of file \"{0}\". File may be corrupt, or format unsupported: {1}", LogType.Error,
-                            fileName,
-                            ex );
+                            fileName, ex );
                 return null;
 
             } catch( Exception ex ) {
                 Logger.Log( "Map.Load: Error trying to read from \"{0}\": {1}", LogType.Error,
-                            fileName,
-                            ex );
+                            fileName, ex );
                 return null;
             }
         }
@@ -241,7 +230,7 @@ namespace fCraft {
                 return null;
             }
         }
-
+        */
 
         internal bool ValidateHeader() {
             if( !IsValidDimension( WidthX ) ) {

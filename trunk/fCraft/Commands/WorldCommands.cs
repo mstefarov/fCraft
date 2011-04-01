@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using fCraft.Events;
+using fCraft.MapConversion;
 
 namespace fCraft {
     /// <summary>
@@ -66,11 +67,19 @@ namespace fCraft {
                             world.GetClassyName(),
                             world.CountVisiblePlayers(player) );
 
+            Map map = world.Map;
+
             // If map is not currently loaded, grab its header from disk
-            Map map = world.Map ?? Map.LoadHeaderOnly( Path.Combine( Paths.MapPath, world.GetMapName() ) );
             if( map == null ) {
-                player.Message( "Map information could not be loaded." );
-            } else {
+                try {
+                    map = MapUtility.LoadHeader( Path.Combine( Paths.MapPath, world.GetMapName() ) );
+                } catch( Exception ex ) {
+                    player.Message( "Map information could not be loaded: {0}: {1}",
+                                    ex.GetType().Name, ex.Message );
+                }
+            }
+
+            if( map != null ) {
                 player.Message( "Map dimensions are {0} x {1} x {2}",
                                 map.WidthX, map.WidthY, map.Height );
             }
@@ -931,9 +940,11 @@ namespace fCraft {
                     player.AskForConfirmation( cmd, "About to replace THIS MAP with \"{0}\".", fileName );
                     return;
                 }
-                Map map = Map.Load( player.World, sourceFullFileName );
-                if( map == null ) {
-                    player.MessageNow( "Could not load specified file." );
+                Map map;
+                try {
+                    map = MapUtility.Load( sourceFullFileName );
+                } catch( Exception ex ) {
+                    player.MessageNow( "Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message );
                     return;
                 }
 
@@ -963,9 +974,11 @@ namespace fCraft {
                             return;
                         }
 
-                        Map map = Map.Load( player.World, sourceFullFileName );
-                        if( map == null ) {
-                            player.MessageNow( "Could not load specified file." );
+                        Map map;
+                        try {
+                            map = MapUtility.Load( sourceFullFileName );
+                        } catch( Exception ex ) {
+                            player.MessageNow( "Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message );
                             return;
                         }
 
@@ -987,9 +1000,11 @@ namespace fCraft {
                             return;
                         }
 
-                        Map map = Map.Load( player.World, sourceFullFileName );
-                        if( map == null ) {
-                            player.MessageNow( "Could not load specified file." );
+                        Map map;
+                        try {
+                            map = MapUtility.Load( sourceFullFileName );
+                        } catch( Exception ex ) {
+                            player.MessageNow( "Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message );
                             return;
                         }
 

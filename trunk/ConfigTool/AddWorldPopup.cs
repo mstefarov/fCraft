@@ -192,11 +192,13 @@ namespace ConfigTool {
         string fileToLoad;
         void AsyncLoad( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
-            Map loadedMap = Map.Load( null, fileToLoad );
-            if( loadedMap != null ) {
-                loadedMap.CalculateShadows();
+            try {
+                map = MapUtility.Load( fileToLoad );
+                map.CalculateShadows();
+            } catch( Exception ex ) {
+                MessageBox.Show( String.Format( "Could not load specified map: {0}: {1}",
+                                                ex.GetType().Name, ex.Message ) );
             }
-            map = loadedMap;
         }
 
         void AsyncLoadCompleted( object sender, RunWorkerCompletedEventArgs e ) {
@@ -571,7 +573,14 @@ namespace ConfigTool {
             }
 
             MapFormat format = MapUtility.Identify( fileName );
-            Map loadedMap = Map.LoadHeaderOnly( fileName );
+            Map loadedMap;
+            Exception loadingError = null;
+            try {
+                loadedMap = MapUtility.LoadHeader( fileName );
+            } catch( Exception ex ) {
+                loadingError = ex;
+                loadedMap = null;
+            }
 
             if( loadedMap != null ) {
                 textBox.Text = String.Format(
@@ -597,12 +606,17 @@ Dimensions: {5}×{6}×{7}
     Format: {1}
   Filesize: {2} KB
    Created: {3}
-  Modified: {4}",
+  Modified: {4}
+
+Could not load more information:
+{5}: {6}",
                 fileName,
                 format,
                 (fileSize / 1024),
                 creationTime.ToLongDateString(),
-                modificationTime.ToLongDateString() );
+                modificationTime.ToLongDateString(),
+                loadingError.GetType().Name,
+                loadingError.Message );
             }
         }
 
