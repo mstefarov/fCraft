@@ -59,12 +59,12 @@ namespace fCraft {
         public const string GreetingFileName = "greeting.txt";
 
 
-        public Session( TcpClient _client ) {
+        public Session( TcpClient tcpClient ) {
             LeaveReason = LeaveReason.Unknown;
             OutputQueue = new ConcurrentQueue<Packet>();
             PriorityOutputQueue = new ConcurrentQueue<Packet>();
 
-            client = _client;
+            client = tcpClient;
             client.SendTimeout = SocketTimeout;
             client.ReceiveTimeout = SocketTimeout;
         }

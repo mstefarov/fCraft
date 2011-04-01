@@ -466,7 +466,7 @@ namespace fCraft.MapConversion {
         }
 
         public sealed class NBTEnumerator : IEnumerator<NBTag> {
-            NBTag[] tags;
+            readonly NBTag[] tags;
             int index = -1;
 
             public NBTEnumerator( NBTag tag ) {

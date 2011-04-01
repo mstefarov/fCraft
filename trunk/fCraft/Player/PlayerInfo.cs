@@ -44,7 +44,7 @@ namespace fCraft {
         public int TimesKickedOthers;
         public int TimesBannedOthers;
 
-        public int ID;
+        public readonly int ID;
         public RankChangeType RankChangeType = RankChangeType.Default;
         public DateTime LastKickDate = DateTime.MinValue;
         public DateTime LastSeen = DateTime.MinValue;

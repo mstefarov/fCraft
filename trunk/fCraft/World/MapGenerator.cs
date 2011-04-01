@@ -52,7 +52,7 @@ namespace fCraft {
             args.Validate();
 
             if( !args.CustomWaterLevel ) {
-                args.WaterLevel = ( args.Height - 1 ) / 2;
+                args.WaterLevel = (args.Height - 1) / 2;
             }
 
             rand = new Random( args.Seed );
@@ -127,7 +127,7 @@ namespace fCraft {
 
         void ReportProgress( int relativeIncrease, string message ) {
             if( ProgressCallback != null ) {
-                ProgressCallback( this, new ProgressChangedEventArgs( ( 100 * progressRunningTotal / progressTotalEstimate ), message ) );
+                ProgressCallback( this, new ProgressChangedEventArgs( (100 * progressRunningTotal / progressTotalEstimate), message ) );
             }
             progressRunningTotal += relativeIncrease;
         }
@@ -199,7 +199,7 @@ namespace fCraft {
             for( int i = 0; i < args.LoweredCorners; i++ ) {
                 corners[c++] = -args.Bias;
             }
-            float midpoint = ( args.MidPoint * args.Bias );
+            float midpoint = (args.MidPoint * args.Bias);
 
             // shuffle corners
             corners = corners.OrderBy( r => rand.Next() ).ToArray();
@@ -216,9 +216,9 @@ namespace fCraft {
             float waterLevel = 0.5f;
             for( int i = 0; i < WaterCoveragePasses; i++ ) {
                 if( CalculateWaterCoverage( heightmap, waterLevel ) > desiredWaterCoverage ) {
-                    waterLevel = waterLevel - 1 / (float)( 4 << i );
+                    waterLevel = waterLevel - 1 / (float)(4 << i);
                 } else {
-                    waterLevel = waterLevel + 1 / (float)( 4 << i );
+                    waterLevel = waterLevel + 1 / (float)(4 << i);
                 }
             }
             return waterLevel;
@@ -255,7 +255,7 @@ namespace fCraft {
             // Calculate above/below water multipliers
             float aboveWaterMultiplier = 0;
             if( desiredWaterLevel != 1 ) {
-                aboveWaterMultiplier = ( args.MaxHeight / ( 1 - desiredWaterLevel ) );
+                aboveWaterMultiplier = (args.MaxHeight / (1 - desiredWaterLevel));
             }
 
 
@@ -268,8 +268,8 @@ namespace fCraft {
                             float normalizedDepth = 1 - heightmap[x, y] / desiredWaterLevel;
                             heightmap[x, y] = desiredWaterLevel - (float)Math.Pow( normalizedDepth, args.BelowFuncExponent ) * desiredWaterLevel;
                         } else {
-                            float normalizedHeight = ( heightmap[x, y] - desiredWaterLevel ) / ( 1 - desiredWaterLevel );
-                            heightmap[x, y] = desiredWaterLevel + (float)Math.Pow( normalizedHeight, args.AboveFuncExponent ) * ( 1 - desiredWaterLevel );
+                            float normalizedHeight = (heightmap[x, y] - desiredWaterLevel) / (1 - desiredWaterLevel);
+                            heightmap[x, y] = desiredWaterLevel + (float)Math.Pow( normalizedHeight, args.AboveFuncExponent ) * (1 - desiredWaterLevel);
                         }
                     }
                 }
@@ -341,7 +341,7 @@ namespace fCraft {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
 
                     if( heightmap[x, y] < desiredWaterLevel ) {
-                        float depth = ( args.MaxDepthVariation != 0 ? ( args.MaxDepth + altmap[x, y] * args.MaxDepthVariation ) : args.MaxDepth );
+                        float depth = (args.MaxDepthVariation != 0 ? (args.MaxDepth + altmap[x, y] * args.MaxDepthVariation) : args.MaxDepth);
                         slope = slopemap[x, y] * depth;
                         level = args.WaterLevel - (int)Math.Round( Math.Pow( 1 - heightmap[x, y] / desiredWaterLevel, args.BelowFuncExponent ) * depth );
 
@@ -374,7 +374,7 @@ namespace fCraft {
 
                             for( int i = level - 1; i >= 0; i-- ) {
                                 if( level - i < groundThickness ) {
-                                    if( blendmap != null && blendmap[x, y] > CliffsideBlockThreshold && blendmap[x, y] < ( 1 - CliffsideBlockThreshold ) ) {
+                                    if( blendmap != null && blendmap[x, y] > CliffsideBlockThreshold && blendmap[x, y] < (1 - CliffsideBlockThreshold) ) {
                                         map.SetBlock( x, y, i, bCliff );
                                     } else {
                                         if( slope < args.CliffThreshold ) {
@@ -390,7 +390,7 @@ namespace fCraft {
                         }
 
                     } else {
-                        float height = ( args.MaxHeightVariation != 0 ? ( args.MaxHeight + altmap[x, y] * args.MaxHeightVariation ) : args.MaxHeight );
+                        float height = (args.MaxHeightVariation != 0 ? (args.MaxHeight + altmap[x, y] * args.MaxHeightVariation) : args.MaxHeight);
                         slope = slopemap[x, y] * height;
                         if( height != 0 ) {
                             level = args.WaterLevel + (int)Math.Round( Math.Pow( heightmap[x, y] - desiredWaterLevel, args.AboveFuncExponent ) * aboveWaterMultiplier / args.MaxHeight * height );
@@ -399,8 +399,8 @@ namespace fCraft {
                         }
 
                         bool snow = args.AddSnow &&
-                                    ( level > snowThreshold ||
-                                    ( level > snowStartThreshold && rand.NextDouble() < ( level - snowStartThreshold ) / (double)( snowThreshold - snowStartThreshold ) ) );
+                                    (level > snowThreshold ||
+                                    (level > snowStartThreshold && rand.NextDouble() < (level - snowStartThreshold) / (double)(snowThreshold - snowStartThreshold)));
 
                         if( blendmap != null && blendmap[x, y] > .25 && blendmap[x, y] < .75 ) {
                             map.SetBlock( x, y, level, bCliff );
@@ -414,7 +414,7 @@ namespace fCraft {
 
                         for( int i = level - 1; i >= 0; i-- ) {
                             if( level - i < groundThickness ) {
-                                if( blendmap != null && blendmap[x, y] > CliffsideBlockThreshold && blendmap[x, y] < ( 1 - CliffsideBlockThreshold ) ) {
+                                if( blendmap != null && blendmap[x, y] > CliffsideBlockThreshold && blendmap[x, y] < (1 - CliffsideBlockThreshold) ) {
                                     map.SetBlock( x, y, i, bCliff );
                                 } else {
                                     if( slope < args.CliffThreshold ) {
@@ -446,14 +446,14 @@ namespace fCraft {
 
             if( args.AddTrees ) {
                 ReportProgress( 5, "Processing: Planting trees" );
-                Map outMap = new Map(null,map.WidthX,map.WidthY,map.Height,false);
+                Map outMap = new Map( null, map.WidthX, map.WidthY, map.Height, false );
                 outMap.Blocks = (byte[])map.Blocks.Clone();
 
                 Forester treeGen = new Forester( new ForesterArgs {
                     InMap = map,
                     OutMap = outMap,
                     Rand = rand,
-                    TreeCount = (int)( map.WidthX * map.WidthY * 4 / ( 1024f * ( args.TreeSpacingMax + args.TreeSpacingMin ) / 2 ) ),
+                    TreeCount = (int)(map.WidthX * map.WidthY * 4 / (1024f * (args.TreeSpacingMax + args.TreeSpacingMin) / 2)),
                     Operation = Forester.ForesterOperation.Add,
                     GroundSurfaceBlock = bGroundSurface
                 } );
@@ -483,7 +483,7 @@ namespace fCraft {
             int startH = rand.Next( 0, map.Height );
 
             int k1;
-            for( k1 = 0; map.Blocks[startX + map.WidthX * map.WidthY * ( map.Height - 1 - startH ) + map.WidthX * startY] != bedrockType && k1 < 10000; k1++ ) {
+            for( k1 = 0; map.Blocks[startX + map.WidthX * map.WidthY * (map.Height - 1 - startH) + map.WidthX * startY] != bedrockType && k1 < 10000; k1++ ) {
                 startX = rand.Next( 0, map.WidthX );
                 startY = rand.Next( 0, map.WidthY );
                 startH = rand.Next( 0, map.Height );
@@ -497,29 +497,29 @@ namespace fCraft {
             int h = startH;
 
             for( int k2 = 0; k2 < length; k2++ ) {
-                int diameter = (int)( maxDiameter * rand.NextDouble() * map.WidthX );
+                int diameter = (int)(maxDiameter * rand.NextDouble() * map.WidthX);
                 if( diameter < 1 ) diameter = 2;
                 int radius = diameter / 2;
                 if( radius == 0 ) radius = 1;
-                x += (int)( 0.7 * ( rand.NextDouble() - 0.5D ) * diameter );
-                y += (int)( 0.7 * ( rand.NextDouble() - 0.5D ) * diameter );
-                h += (int)( 0.7 * ( rand.NextDouble() - 0.5D ) * diameter );
+                x += (int)(0.7 * (rand.NextDouble() - 0.5D) * diameter);
+                y += (int)(0.7 * (rand.NextDouble() - 0.5D) * diameter);
+                h += (int)(0.7 * (rand.NextDouble() - 0.5D) * diameter);
 
                 for( int j3 = 0; j3 < diameter; j3++ ) {
                     for( int k3 = 0; k3 < diameter; k3++ ) {
                         for( int l3 = 0; l3 < diameter; l3++ ) {
-                            if( ( j3 - radius ) * ( j3 - radius ) + ( k3 - radius ) * ( k3 - radius ) + ( l3 - radius ) * ( l3 - radius ) >= radius * radius ||
+                            if( (j3 - radius) * (j3 - radius) + (k3 - radius) * (k3 - radius) + (l3 - radius) * (l3 - radius) >= radius * radius ||
                                 x + j3 >= map.WidthX || h + k3 >= map.Height || y + l3 >= map.WidthY ||
                                 x + j3 < 0 || h + k3 < 0 || y + l3 < 0 ) {
                                 continue;
                             }
 
-                            int index = x + j3 + map.WidthX * map.WidthY * ( map.Height - 1 - ( h + k3 ) ) + map.WidthX * ( y + l3 );
+                            int index = x + j3 + map.WidthX * map.WidthY * (map.Height - 1 - (h + k3)) + map.WidthX * (y + l3);
 
                             if( map.Blocks[index] == bedrockType ) {
                                 map.Blocks[index] = fillingType;
                             }
-                            if( ( fillingType == 10 || fillingType == 11 || fillingType == 8 || fillingType == 9 ) &&
+                            if( (fillingType == 10 || fillingType == 11 || fillingType == 8 || fillingType == 9) &&
                                 h + k3 < startH ) {
                                 map.Blocks[index] = 0;
                             }
@@ -542,25 +542,25 @@ namespace fCraft {
             double thirteenOverK = 1 / (double)k;
 
             for( int i2 = 0; i2 < i1; i2++ ) {
-                int j2 = j1 + (int)( .5 * ( rand.NextDouble() - .5 ) * map.WidthX );
-                int k2 = k1 + (int)( .5 * ( rand.NextDouble() - .5 ) * map.Height );
-                int l2 = l1 + (int)( .5 * ( rand.NextDouble() - .5 ) * map.WidthY );
+                int j2 = j1 + (int)(.5 * (rand.NextDouble() - .5) * map.WidthX);
+                int k2 = k1 + (int)(.5 * (rand.NextDouble() - .5) * map.Height);
+                int l2 = l1 + (int)(.5 * (rand.NextDouble() - .5) * map.WidthY);
                 for( int l3 = 0; l3 < k; l3++ ) {
-                    int diameter = (int)( maxDiameter * rand.NextDouble() * map.WidthX );
+                    int diameter = (int)(maxDiameter * rand.NextDouble() * map.WidthX);
                     if( diameter < 1 ) diameter = 2;
                     int radius = diameter / 2;
                     if( radius == 0 ) radius = 1;
-                    int i3 = (int)( ( 1 - thirteenOverK ) * j1 + thirteenOverK * j2 + ( l * radius ) * ( rand.NextDouble() - .5 ) );
-                    int j3 = (int)( ( 1 - thirteenOverK ) * k1 + thirteenOverK * k2 + ( l * radius ) * ( rand.NextDouble() - .5 ) );
-                    int k3 = (int)( ( 1 - thirteenOverK ) * l1 + thirteenOverK * l2 + ( l * radius ) * ( rand.NextDouble() - .5 ) );
+                    int i3 = (int)((1 - thirteenOverK) * j1 + thirteenOverK * j2 + (l * radius) * (rand.NextDouble() - .5));
+                    int j3 = (int)((1 - thirteenOverK) * k1 + thirteenOverK * k2 + (l * radius) * (rand.NextDouble() - .5));
+                    int k3 = (int)((1 - thirteenOverK) * l1 + thirteenOverK * l2 + (l * radius) * (rand.NextDouble() - .5));
                     for( int k4 = 0; k4 < diameter; k4++ ) {
                         for( int l4 = 0; l4 < diameter; l4++ ) {
                             for( int i5 = 0; i5 < diameter; i5++ ) {
-                                if( ( k4 - radius ) * ( k4 - radius ) + ( l4 - radius ) * ( l4 - radius ) + ( i5 - radius ) * ( i5 - radius ) < radius * radius &&
+                                if( (k4 - radius) * (k4 - radius) + (l4 - radius) * (l4 - radius) + (i5 - radius) * (i5 - radius) < radius * radius &&
                                     i3 + k4 < map.WidthX && j3 + l4 < map.Height && k3 + i5 < map.WidthY &&
                                     i3 + k4 >= 0 && j3 + l4 >= 0 && k3 + i5 >= 0 ) {
 
-                                    int index = i3 + k4 + map.WidthX * map.WidthY * ( map.Height - 1 - ( j3 + l4 ) ) + map.WidthX * ( k3 + i5 );
+                                    int index = i3 + k4 + map.WidthX * map.WidthY * (map.Height - 1 - (j3 + l4)) + map.WidthX * (k3 + i5);
 
                                     if( map.Blocks[index] == bedrockType ) {
                                         map.Blocks[index] = fillingType;
@@ -581,10 +581,10 @@ namespace fCraft {
                 for( int h = 1; h < map.Height; h++ ) {
                     for( int y = 1; y < map.WidthY - 1; y++ ) {
                         int index = map.Index( x, y, h );
-                        if( ( map.Blocks[index] == 10 || map.Blocks[index] == 11 || map.Blocks[index] == 8 || map.Blocks[index] == 9 ) &&
-                            ( map.GetBlock( x - 1, y, h ) == 0 || map.GetBlock( x + 1, y, h ) == 0 ||
+                        if( (map.Blocks[index] == 10 || map.Blocks[index] == 11 || map.Blocks[index] == 8 || map.Blocks[index] == 9) &&
+                            (map.GetBlock( x - 1, y, h ) == 0 || map.GetBlock( x + 1, y, h ) == 0 ||
                             map.GetBlock( x, y - 1, h ) == 0 || map.GetBlock( x, y + 1, h ) == 0 ||
-                            map.GetBlock( x, y, h - 1 ) == 0 ) ) {
+                            map.GetBlock( x, y, h - 1 ) == 0) ) {
                             map.Blocks[index] = sealantType;
                         }
                     }
@@ -654,7 +654,7 @@ namespace fCraft {
 
 
         void AddBeaches( Map map ) {
-            int beachExtentSqr = ( args.BeachExtent + 1 ) * ( args.BeachExtent + 1 );
+            int beachExtentSqr = (args.BeachExtent + 1) * (args.BeachExtent + 1);
             for( int x = 0; x < map.WidthX; x++ ) {
                 for( int y = 0; y < map.WidthY; y++ ) {
                     for( int h = args.WaterLevel; h <= args.WaterLevel + args.BeachHeight; h++ ) {
@@ -704,15 +704,15 @@ namespace fCraft {
 
             for( int x = 0; x < map.WidthX; x += rn.Next( minTrunkPadding, maxTrunkPadding + 1 ) ) {
                 for( int y = 0; y < map.WidthY; y += rn.Next( minTrunkPadding, maxTrunkPadding + 1 ) ) {
-                    nx = x + rn.Next( -( minTrunkPadding / 2 ), ( maxTrunkPadding / 2 ) + 1 );
-                    ny = y + rn.Next( -( minTrunkPadding / 2 ), ( maxTrunkPadding / 2 ) + 1 );
+                    nx = x + rn.Next( -(minTrunkPadding / 2), (maxTrunkPadding / 2) + 1 );
+                    ny = y + rn.Next( -(minTrunkPadding / 2), (maxTrunkPadding / 2) + 1 );
                     if( nx < 0 || nx >= map.WidthX || ny < 0 || ny >= map.WidthY ) continue;
                     nz = map.Shadows[nx, ny];
 
-                    if( ( map.GetBlock( nx, ny, nz ) == (byte)bGroundSurface ) && slopemap[nx, ny] < .5 ) {
+                    if( (map.GetBlock( nx, ny, nz ) == (byte)bGroundSurface) && slopemap[nx, ny] < .5 ) {
                         // Pick a random height for the tree between Min and Max,
                         // discarding this tree if it would breach the top of the map
-                        if( ( nh = rn.Next( minHeight, maxHeight + 1 ) ) + nz + nh / 2 > map.Height )
+                        if( (nh = rn.Next( minHeight, maxHeight + 1 )) + nz + nh / 2 > map.Height )
                             continue;
 
                         // Generate the trunk of the tree
@@ -721,7 +721,7 @@ namespace fCraft {
 
                         for( int i = -1; i < nh / 2; i++ ) {
                             // Should we draw thin (2x2) or thicker (4x4) foliage
-                            int radius = ( i >= ( nh / 2 ) - topLayers ) ? 1 : 2;
+                            int radius = (i >= (nh / 2) - topLayers) ? 1 : 2;
                             // Draw the foliage
                             for( int xoff = -radius; xoff < radius + 1; xoff++ ) {
                                 for( int yoff = -radius; yoff < radius + 1; yoff++ ) {

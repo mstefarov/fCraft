@@ -28,8 +28,8 @@ namespace fCraft {
         public string Name { get { return Info.Name; } } // always same as PlayerInfo.name
         // use Player.GetClassyName() to get the colorful version
 
-        internal Session Session;
-        public PlayerInfo Info;
+        public readonly Session Session;
+        public readonly PlayerInfo Info;
 
         public Position Position,
                         LastValidPosition; // used in speedhack detection

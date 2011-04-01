@@ -15,21 +15,10 @@ namespace fCraft {
             MapPath = MapPathDefault;
             LogPath = LogPathDefault;
             ConfigFileName = ConfigFileNameDefault;
-            switch( Environment.OSVersion.Platform ) {
-                case PlatformID.MacOSX:
-                case PlatformID.Unix:
-                    PathAreCaseSensitive = true;
-                    break;
-                default:
-                    PathAreCaseSensitive = false;
-                    break;
-            }
         }
 
 
         #region Paths & Properties
-
-        public static bool PathAreCaseSensitive { get; private set; }
 
         public static bool IgnoreMapPathConfigKey { get; internal set; }
 
@@ -84,7 +73,7 @@ namespace fCraft {
                 }
                 DirectoryInfo info = new DirectoryInfo( path );
                 if( checkForWriteAccess ) {
-                    string randomFileName = Path.Combine( info.FullName, "fCraft_write_test_" + DateTime.UtcNow.Ticks );
+                    string randomFileName = Path.Combine( info.FullName, "fCraft_write_test_" + Guid.NewGuid() );
                     using( File.Create( randomFileName ) ) { }
                     File.Delete( randomFileName );
                 }
@@ -93,16 +82,16 @@ namespace fCraft {
             } catch( Exception ex ) {
                 if( ex is ArgumentException || ex is NotSupportedException || ex is PathTooLongException ) {
                     Logger.Log( "Paths.TestDirectory: Specified file/path for {0} is invalid or incorrectly formatted ({1}: {2}).", LogType.Error,
-                                pathLabel, ex.GetType().ToString(), ex.Message );
+                                pathLabel, ex.GetType().Name, ex.Message );
                 } else if( ex is SecurityException || ex is UnauthorizedAccessException ) {
                     Logger.Log( "Paths.TestDirectory: Cannot create or write to file/path for {0}, please check permissions ({1}: {2}).", LogType.Error,
-                                pathLabel, ex.GetType().ToString(), ex.Message );
+                                pathLabel, ex.GetType().Name, ex.Message );
                 } else if( ex is DirectoryNotFoundException ) {
-                    Logger.Log( "Paths.TestDirectory: Drive/volume for {0} does not exist or is not mounted ({1}).", LogType.Error,
-                                pathLabel, ex.Message );
+                    Logger.Log( "Paths.TestDirectory: Drive/volume for {0} does not exist or is not mounted ({1}: {2}).", LogType.Error,
+                                pathLabel, ex.GetType().Name, ex.Message );
                 } else if( ex is IOException ) {
                     Logger.Log( "Paths.TestDirectory: Specified file/path for {0} is not readable or writable ({1}: {2}).", LogType.Error,
-                                pathLabel, ex.GetType().ToString(), ex.Message );
+                                pathLabel, ex.GetType().Name, ex.Message );
                 } else {
                     throw;
                 }
@@ -126,7 +115,7 @@ namespace fCraft {
 
         /// <summary>Returns true if paths or filenames reference the same location (accounts for all the filesystem quirks).</summary>
         public static bool Compare( string p1, string p2 ) {
-            return Compare( p1, p2, PathAreCaseSensitive );
+            return Compare( p1, p2, MonoCompat.IsCaseSensitive );
         }
 
 
@@ -156,7 +145,7 @@ namespace fCraft {
         /// <param name="childPath">Path that is supposed to be contained within parentPath</param>
         /// <returns>true if childPath is contained within parentPath</returns>
         public static bool Contains( string parentPath, string childPath ) {
-            return Contains( parentPath, childPath, PathAreCaseSensitive );
+            return Contains( parentPath, childPath, MonoCompat.IsCaseSensitive );
         }
 
 
@@ -178,7 +167,7 @@ namespace fCraft {
         /// <param name="caseSensitive"> Whether check should be case-sensitive or case-insensitive. </param>
         /// <returns> true if file exists, otherwise false </returns>
         public static bool FileExists( string fileName, bool caseSensitive ) {
-            if( caseSensitive == PathAreCaseSensitive ) {
+            if( caseSensitive == MonoCompat.IsCaseSensitive ) {
                 return File.Exists( fileName );
             } else {
                 return new FileInfo( fileName ).Exists( caseSensitive );
@@ -190,14 +179,14 @@ namespace fCraft {
         /// <param name="fi">FileInfo object in question</param>
         /// <param name="caseSensitive">Whether check should be case-sensitive or case-insensitive.</param>
         /// <returns>true if file exists, otherwise false</returns>
-        public static bool Exists( this FileInfo fi, bool caseSensitive ) {
-            if( caseSensitive == PathAreCaseSensitive ) {
-                return fi.Exists;
+        public static bool Exists( this FileInfo fileInfo, bool caseSensitive ) {
+            if( caseSensitive == MonoCompat.IsCaseSensitive ) {
+                return fileInfo.Exists;
             } else {
-                DirectoryInfo parentDir = fi.Directory;
+                DirectoryInfo parentDir = fileInfo.Directory;
                 StringComparison sc = (caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
                 foreach( FileInfo file in parentDir.GetFiles( "*", SearchOption.TopDirectoryOnly ) ) {
-                    if( file.Name.Equals( fi.Name, sc ) ) return true;
+                    if( file.Name.Equals( fileInfo.Name, sc ) ) return true;
                 }
                 return false;
             }
