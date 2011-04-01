@@ -2,6 +2,7 @@
 using System.IO;
 using System.Xml.Linq;
 using fCraft;
+using fCraft.MapConversion;
 
 namespace ConfigTool {
     /// <summary>
@@ -101,10 +102,7 @@ namespace ConfigTool {
         public string Description {
             get {
                 if( cachedMapHeader == null && !loadingFailed ) {
-                    cachedMapHeader = Map.LoadHeaderOnly( Path.Combine( Paths.MapPath, name + ".fcm" ) );
-                    if( cachedMapHeader == null ) {
-                        loadingFailed = true;
-                    }
+                    loadingFailed = !MapUtility.TryLoad( Path.Combine( Paths.MapPath, name + ".fcm" ), out cachedMapHeader );
                 }
                 if( loadingFailed ) {
                     return "(cannot load file)";

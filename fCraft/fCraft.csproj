@@ -203,6 +203,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CommandCategory.cs" />
+    <Compile Include="MapConversion\MapFormatException.cs" />
     <Compile Include="System\ConfigKey.Metadata.cs" />
     <Compile Include="System\Server.Events.cs" />
     <Compile Include="Utils\EnumException.cs" />

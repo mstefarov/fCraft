@@ -37,11 +37,6 @@ using System.IO;
 
 namespace fCraft.MapConversion {
 
-    public sealed class MapFormatException : Exception {
-        public MapFormatException() { }
-        public MapFormatException( string message ) : base( message ) { }
-    }
-
     public static class MapUtility {
 
         static readonly Dictionary<MapFormat, IMapConverter> AvailableConverters = new Dictionary<MapFormat, IMapConverter>();
@@ -94,61 +89,16 @@ namespace fCraft.MapConversion {
         }
 
 
-
-        public static Map TryLoading( string fileName ) {
-            MapFormatType targetType = MapFormatType.SingleFile;
-            if( !File.Exists( fileName ) ) {
-                if( Directory.Exists( fileName ) ) {
-                    targetType = MapFormatType.Directory;
-                } else {
-                    throw new FileNotFoundException();
-                }
+        public static bool TryLoadHeader( string fileName, out Map map ) {
+            try {
+                map = LoadHeader( fileName );
+                return true;
+            } catch( Exception ex ) {
+                Logger.Log( "MapUtility.TryLoadHeader: {0}: {1}", LogType.Error,
+                            ex.GetType().Name, ex.Message );
+                map = null;
+                return false;
             }
-
-            List<IMapConverter> fallbackConverters = new List<IMapConverter>();
-
-            // first try all converters for the file extension
-            foreach( IMapConverter converter in AvailableConverters.Values ) {
-                bool claims = false;
-                try {
-                    claims = (converter.FormatType == targetType) &&
-                             converter.ClaimsName( fileName ) &&
-                             converter.Claims( fileName );
-                } catch { }
-                if( claims ) {
-                    try {
-                        return converter.Load( fileName );
-                    } catch( Exception ex ) {
-                        Logger.LogAndReportCrash( "Map failed to load", "Mcc", ex, false );
-                        return null;
-                    }
-                } else {
-                    fallbackConverters.Add( converter );
-                }
-            }
-
-            foreach( IMapConverter converter in fallbackConverters ) {
-                try {
-                    return converter.Load( fileName );
-                } catch {}
-            }
-
-            throw new MapFormatException( "Unknown map format for loading." );
-        }
-
-
-        public static bool TrySaving( Map mapToSave, string fileName, MapFormat format ) {
-            if( AvailableConverters.ContainsKey( format ) ) {
-                IMapConverter converter = AvailableConverters[format];
-                try {
-                    return converter.Save( mapToSave, fileName );
-                } catch( Exception ex ) {
-                    Logger.LogAndReportCrash( "Map failed to save", "Mcc", ex, false );
-                    return false;
-                }
-            }
-
-            throw new MapFormatException( "Unknown map format for saving." );
         }
 
 
@@ -190,5 +140,72 @@ namespace fCraft.MapConversion {
 
             throw new MapFormatException( "Unknown map format for loading." );
         }
+
+
+        public static bool TryLoad( string fileName, out Map map ) {
+            try {
+                map = Load( fileName );
+                return true;
+            } catch( Exception ex ) {
+                Logger.Log( "MapUtility.TryLoad: {0}: {1}", LogType.Error,
+                            ex.GetType().Name, ex.Message );
+                map = null;
+                return false;
+            }
+        }
+
+
+        public static Map Load( string fileName ) {
+            MapFormatType targetType = MapFormatType.SingleFile;
+            if( !File.Exists( fileName ) ) {
+                if( Directory.Exists( fileName ) ) {
+                    targetType = MapFormatType.Directory;
+                } else {
+                    throw new FileNotFoundException();
+                }
+            }
+
+            List<IMapConverter> fallbackConverters = new List<IMapConverter>();
+
+            // first try all converters for the file extension
+            foreach( IMapConverter converter in AvailableConverters.Values ) {
+                bool claims = false;
+                try {
+                    claims = (converter.FormatType == targetType) &&
+                             converter.ClaimsName( fileName ) &&
+                             converter.Claims( fileName );
+                } catch { }
+                if( claims ) {
+                    return converter.Load( fileName );
+                } else {
+                    fallbackConverters.Add( converter );
+                }
+            }
+
+            foreach( IMapConverter converter in fallbackConverters ) {
+                try {
+                    return converter.Load( fileName );
+                } catch {}
+            }
+
+            throw new MapFormatException( "Unknown map format for loading." );
+        }
+
+
+        public static bool TrySaving( Map mapToSave, string fileName, MapFormat format ) {
+            if( AvailableConverters.ContainsKey( format ) ) {
+                IMapConverter converter = AvailableConverters[format];
+                try {
+                    return converter.Save( mapToSave, fileName );
+                } catch( Exception ex ) {
+                    Logger.LogAndReportCrash( "Map failed to save", "Mcc", ex, false );
+                    return false;
+                }
+            }
+
+            throw new MapFormatException( "Unknown map format for saving." );
+        }
+
+
     }
 }
