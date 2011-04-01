@@ -255,7 +255,7 @@ namespace fCraft {
                         newtree = new MangroveTree();
                         break;
                     default:
-                        throw new ArgumentException("Unknown tree shape type");
+                        throw new ArgumentException( "Unknown tree shape type" );
                 }
                 newtree.Copy( treelist[i] );
 

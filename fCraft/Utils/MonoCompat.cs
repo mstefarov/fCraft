@@ -20,13 +20,13 @@ namespace fCraft {
         public static bool IsWindows { get; private set; }
 
 
+        const BindingFlags MonoMethodFlags = BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.ExactBinding;
         static MonoCompat() {
             Type monoRuntimeType = typeof( object ).Assembly.GetType( "Mono.Runtime" );
 
             if( monoRuntimeType != null ) {
                 IsMono = true;
-                BindingFlags methodFlags = BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.ExactBinding;
-                MethodInfo getDisplayNameMethod = monoRuntimeType.GetMethod( "GetDisplayName", methodFlags, null, Type.EmptyTypes, null );
+                MethodInfo getDisplayNameMethod = monoRuntimeType.GetMethod( "GetDisplayName", MonoMethodFlags, null, Type.EmptyTypes, null );
                 if( getDisplayNameMethod != null ) {
                     MonoVersionString = (string)getDisplayNameMethod.Invoke( null, null );
                     string[] parts = MonoVersionString.Split( '.' );

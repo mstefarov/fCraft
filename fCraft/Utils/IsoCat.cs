@@ -44,30 +44,29 @@ namespace fCraft {
     /// Creates a bitmap of the map. Every IsoCat instance is single-use.
     /// </summary>
     unsafe public sealed class IsoCat {
-        static byte[] tiles, stiles;
-        static int tileX, tileY;
-        static int maxTileDim;
-        static int tileStride;
+        static readonly byte[] Tiles, ShadowTiles;
+        static readonly int TileX, TileY;
+        static readonly int MaxTileDim, TileStride;
 
         static IsoCat() {
 
             using( Bitmap tilesBmp = Resources.Tileset ) {
-                tileX = tilesBmp.Width / 50;
-                tileY = tilesBmp.Height;
-                tileStride = tileX * tileY * 4;
-                tiles = new byte[50 * tileStride];
+                TileX = tilesBmp.Width / 50;
+                TileY = tilesBmp.Height;
+                TileStride = TileX * TileY * 4;
+                Tiles = new byte[50 * TileStride];
 
-                maxTileDim = Math.Max( tileX, tileY );
+                MaxTileDim = Math.Max( TileX, TileY );
 
                 for( int i = 0; i < 50; i++ ) {
-                    for( int y = 0; y < tileY; y++ ) {
-                        for( int x = 0; x < tileX; x++ ) {
-                            int p = i * tileStride + (y * tileX + x) * 4;
-                            System.Drawing.Color c = tilesBmp.GetPixel( x + i * tileX, y );
-                            tiles[p] = c.B;
-                            tiles[p + 1] = c.G;
-                            tiles[p + 2] = c.R;
-                            tiles[p + 3] = c.A;
+                    for( int y = 0; y < TileY; y++ ) {
+                        for( int x = 0; x < TileX; x++ ) {
+                            int p = i * TileStride + (y * TileX + x) * 4;
+                            System.Drawing.Color c = tilesBmp.GetPixel( x + i * TileX, y );
+                            Tiles[p] = c.B;
+                            Tiles[p + 1] = c.G;
+                            Tiles[p + 2] = c.R;
+                            Tiles[p + 3] = c.A;
                         }
                     }
                 }
@@ -75,17 +74,17 @@ namespace fCraft {
 
             using( Bitmap stilesBmp = Resources.TilesetShadowed ) {
 
-                stiles = new byte[50 * tileStride];
+                ShadowTiles = new byte[50 * TileStride];
 
                 for( int i = 0; i < 50; i++ ) {
-                    for( int y = 0; y < tileY; y++ ) {
-                        for( int x = 0; x < tileX; x++ ) {
-                            int p = i * tileStride + (y * tileX + x) * 4;
-                            System.Drawing.Color c = stilesBmp.GetPixel( x + i * tileX, y );
-                            stiles[p] = c.B;
-                            stiles[p + 1] = c.G;
-                            stiles[p + 2] = c.R;
-                            stiles[p + 3] = c.A;
+                    for( int y = 0; y < TileY; y++ ) {
+                        for( int x = 0; x < TileX; x++ ) {
+                            int p = i * TileStride + (y * TileX + x) * 4;
+                            System.Drawing.Color c = stilesBmp.GetPixel( x + i * TileX, y );
+                            ShadowTiles[p] = c.B;
+                            ShadowTiles[p + 1] = c.G;
+                            ShadowTiles[p + 2] = c.R;
+                            ShadowTiles[p + 3] = c.A;
                         }
                     }
                 }
@@ -128,8 +127,8 @@ namespace fCraft {
 
             blendDivisor = 255 * Map.Height;
 
-            imageWidth = tileX * Math.Max( dimX, dimY ) + tileY / 2 * Map.Height + tileX * 2;
-            imageHeight = tileY / 2 * Map.Height + maxTileDim / 2 * Math.Max( Math.Max( dimX, dimY ), Map.Height ) + tileY * 2;
+            imageWidth = TileX * Math.Max( dimX, dimY ) + TileY / 2 * Map.Height + TileX * 2;
+            imageHeight = TileY / 2 * Map.Height + MaxTileDim / 2 * Math.Max( Math.Max( dimX, dimY ), Map.Height ) + TileY * 2;
 
             imageBmp = new Bitmap( imageWidth, imageHeight, PixelFormat.Format32bppArgb );
             imageData = imageBmp.LockBits( new Rectangle( 0, 0, imageBmp.Width, imageBmp.Height ),
@@ -139,10 +138,10 @@ namespace fCraft {
             image = (byte*)imageData.Scan0;
             imageStride = imageData.Stride;
 
-            isoOffset = (Map.Height * tileY / 2 * imageStride + imageStride / 2 + tileX * 2);
-            isoX = (tileX / 4 * imageStride + tileX * 2);
-            isoY = (tileY / 4 * imageStride - tileY * 2);
-            isoH = (-tileY / 2 * imageStride);
+            isoOffset = (Map.Height * TileY / 2 * imageStride + imageStride / 2 + TileX * 2);
+            isoX = (TileX / 4 * imageStride + TileX * 2);
+            isoY = (TileY / 4 * imageStride - TileY * 2);
+            isoH = (-TileY / 2 * imageStride);
 
             mh34 = Map.Height * 3 / 4;
         }
@@ -160,8 +159,8 @@ namespace fCraft {
         public Bitmap Draw( ref Rectangle cropRectangle, BackgroundWorker worker ) {
             try {
                 fixed( byte* bpx = Map.Blocks ) {
-                    fixed( byte* tp = tiles ) {
-                        fixed( byte* stp = stiles ) {
+                    fixed( byte* tp = Tiles ) {
+                        fixed( byte* stp = ShadowTiles ) {
                             bp = bpx;
                             while( h < Map.Height ) {
                                 block = GetBlock( x, y, h );
@@ -303,7 +302,7 @@ namespace fCraft {
          void BlendTile() {
             int pos = (x + (Rot == 1 || Rot == 3 ? offsetY : offsetX)) * isoX + (y + (Rot == 1 || Rot == 3 ? offsetX : offsetY)) * isoY + h * isoH + isoOffset;
             if( block > 49 ) return;
-            int tileOffset = block * tileStride;
+            int tileOffset = block * TileStride;
             BlendPixel( pos, tileOffset );
             BlendPixel( pos + 4, tileOffset + 4 );
             BlendPixel( pos + 8, tileOffset + 8 );

@@ -478,9 +478,8 @@ namespace fCraft {
                 string args = String.Format( "--restart=\"{0}\" {1}",
                                              MonoCompat.PrependMono( assemblyExecutable ),
                                              GetArgString() );
-                string bin = Updater.UpdaterFile;
 
-                MonoCompat.StartDotNetProcess( bin, args, true );
+                MonoCompat.StartDotNetProcess( Updater.UpdaterFile, args, true );
 
             } else if( Updater.RunAtShutdown ) {
                 MonoCompat.StartDotNetProcess( Updater.UpdaterFile, GetArgString(), true );
@@ -1197,8 +1196,8 @@ namespace fCraft {
         static readonly TimeSpan GCInterval = TimeSpan.FromSeconds( 60 );
 
         static void DoGC( object param ) {
-            if( !GCRequested ) return;
-            GCRequested = false;
+            if( !gcRequested ) return;
+            gcRequested = false;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
             Logger.Log( "Server.DoGC: Collected on schedule.", LogType.Debug );
         }
@@ -1240,9 +1239,9 @@ namespace fCraft {
 
         #region Utilities
 
-        static bool GCRequested;
+        static bool gcRequested;
         public static void RequestGC() {
-            GCRequested = true;
+            gcRequested = true;
         }
 
 
@@ -1660,17 +1659,17 @@ namespace fCraft {
 
         public ShutdownParams( string customReason, int delay, bool killProcess, bool restart, Player initiatedBy ) :
             this( ShutdownReason.Custom, delay, killProcess, restart ) {
-            CustomReasonString = customReason;
+            customReasonString = customReason;
             InitiatedBy = initiatedBy;
         }
 
         public ShutdownReason Reason { get; private set; }
 
-        readonly string CustomReasonString;
+        readonly string customReasonString;
         public string ReasonString {
             get {
-                if( CustomReasonString != null ) {
-                    return CustomReasonString;
+                if( customReasonString != null ) {
+                    return customReasonString;
                 } else {
                     return Reason.ToString();
                 }

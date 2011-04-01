@@ -44,7 +44,7 @@ namespace fCraft {
         public static bool LastHeartbeatFailed { get; private set; }
 
 
-        static void Beat( Scheduler.Task _task ) {
+        static void Beat( Scheduler.Task scheduledTask ) {
             if( Server.IsShuttingDown ) return;
 
             data = new HeartbeatData {
