@@ -140,18 +140,17 @@ namespace fCraft.MapConversion {
 
         public Map LoadHeader( string fileName ) {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                // Setup a GZipStream to decompress and read the map file
-                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
+                return LoadHeaderInternal( mapStream );
+            }
+        }
+
+
+        Map LoadHeaderInternal( Stream stream ) {
+            // Setup a GZipStream to decompress and read the map file
+            using( GZipStream gs = new GZipStream( stream, CompressionMode.Decompress, true ) ) {
                 BinaryReader bs = new BinaryReader( gs );
 
-                if( bs.ReadByte() != HeaderConstant1 ) {
-                    throw new MapFormatException( "Incorrect D3 map header." );
-                }
-                if( bs.ReadByte() != HeaderConstant2 ) {
-                    throw new MapFormatException( "Incorrect D3 map header." );
-                }
-
-                bs.ReadBytes( 2 );
+                int formatVersion = IPAddress.NetworkToHostOrder( bs.ReadInt32() );
 
                 // Read in the map dimesions
                 int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
@@ -159,10 +158,31 @@ namespace fCraft.MapConversion {
                 int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
 
                 Map map = new Map( null, widthX, widthY, height, false );
-                map.ResetSpawn();
 
-                if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                Position spawn = new Position();
+
+                switch( formatVersion ) {
+                    case 1000:
+                    case 1010:
+                        map.ResetSpawn();
+                        break;
+                    case 1020:
+                        spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.H = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        map.SetSpawn( spawn );
+                        break;
+                    case 1030:
+                    case 1040:
+                    case 1050:
+                    default:
+                        spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.H = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.R = (byte)IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.L = (byte)IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        map.SetSpawn( spawn );
+                        break;
                 }
 
                 return map;
@@ -172,35 +192,16 @@ namespace fCraft.MapConversion {
 
         public Map Load( string fileName ) {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                // Setup a GZipStream to decompress and read the map file
-                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-                BinaryReader bs = new BinaryReader( gs );
 
-                if( bs.ReadByte() != HeaderConstant1 ) {
-                    throw new MapFormatException( "Incorrect D3 map header." );
-                }
-                if( bs.ReadByte() != HeaderConstant2 ) {
-                    throw new MapFormatException( "Incorrect D3 map header." );
-                }
-
-                bs.ReadBytes( 2 );
-
-                // Read in the map dimesions
-                int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                int widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-
-                Map map = new Map( null, widthX, widthY, height, false );
-
-                // D3 doesn't save spawnpoint in the map... for SOME reason
-                map.ResetSpawn();
+                Map map = LoadHeaderInternal( mapStream );
 
                 if( !map.ValidateHeader() ) {
                     throw new MapFormatException( "One or more of the map dimensions are invalid." );
                 }
 
                 // Read in the map data
-                map.Blocks = bs.ReadBytes( map.GetBlockCount() );
+                map.Blocks = new byte[map.WidthX*map.WidthY*map.Height];
+                mapStream.Read( map.Blocks, 0, map.Blocks.Length );
 
                 for( int i = 0; i < map.Blocks.Length; i++ ) {
                     if( map.Blocks[i] > 49 ) {
