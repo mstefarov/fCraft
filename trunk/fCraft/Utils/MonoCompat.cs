@@ -29,35 +29,42 @@ namespace fCraft {
                 MethodInfo getDisplayNameMethod = monoRuntimeType.GetMethod( "GetDisplayName", MonoMethodFlags, null, Type.EmptyTypes, null );
                 if( getDisplayNameMethod != null ) {
                     MonoVersionString = (string)getDisplayNameMethod.Invoke( null, null );
-                    string[] parts = MonoVersionString.Split( '.' );
-                    int major = Int32.Parse( parts[0] );
-                    int minor = Int32.Parse( parts[1] );
-                    int revision = Int32.Parse( parts[2].Substring( 0, parts[2].IndexOf( ' ' ) ) );
-                    MonoVersion = new Version( major, minor, revision );
-                    IsSGen = (major == 2 && minor > 6);
+                    try {
+                        string[] parts = MonoVersionString.Split( '.' );
+                        int major = Int32.Parse( parts[0] );
+                        int minor = Int32.Parse( parts[1] );
+                        int revision = Int32.Parse( parts[2].Substring( 0, parts[2].IndexOf( ' ' ) ) );
+                        MonoVersion = new Version( major, minor, revision );
+                        IsSGen = (major == 2 && minor > 6);
+                    } catch( Exception ex ) {
+                        Logger.Log( "Could not parse Mono version ({0}).", LogType.Error, MonoVersionString );
+                        AssumeUnknownMonoVersion();
+                    }
                 } else {
-                    MonoVersionString = "Unknown";
-                    MonoVersion = null;
-                    IsSGen = false;
+                    AssumeUnknownMonoVersion();
                 }
             } else {
                 IsMono = false;
-                MonoVersionString = "None";
-                MonoVersion = null;
-                IsSGen = false;
+                AssumeUnknownMonoVersion();
             }
 
             switch( Environment.OSVersion.Platform ) {
                 case PlatformID.MacOSX:
                 case PlatformID.Unix:
-                    IsCaseSensitive = true;
                     IsWindows = false;
                     break;
                 default:
-                    IsCaseSensitive = false;
                     IsWindows = true;
                     break;
             }
+
+            IsCaseSensitive = !IsWindows;
+        }
+
+        static void AssumeUnknownMonoVersion() {
+            MonoVersionString = "Unknown";
+            MonoVersion = null;
+            IsSGen = false;
         }
 
         /// <summary>Starts a .NET process, using Mono if necessary.</summary>
