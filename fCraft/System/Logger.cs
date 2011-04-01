@@ -256,7 +256,8 @@ namespace fCraft {
                               "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).";
                     return true;
 
-                } else if( ex.Message.Trim().Equals( "libMonoPosixHelper.so", StringComparison.OrdinalIgnoreCase ) ) {
+                } else if( ex is FileNotFoundException && ex.Message.Contains( "libMonoPosixHelper.so" ) ||
+                           ex is EntryPointNotFoundException && ex.Message.Contains( "CreateZStream" ) ) {
                     message = "fCraft could not locate Mono's compression functionality. " +
                               "Please make sure that you have zlib (sometimes called \"libz\" or just \"z\") installed. " +
                               "Some versions of Mono may also require \"libmono-posix-2.0-cil\" package to be installed.";

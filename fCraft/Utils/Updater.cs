@@ -1,13 +1,14 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Cache;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using System.Linq;
 using fCraft.Events;
-using System.Text;
 
 namespace fCraft {
 
@@ -43,7 +44,9 @@ namespace fCraft {
 
         public string VersionString {
             get {
-                return String.Format( "{0:0.000}_r{1}", Decimal.Divide( Version, 1000 ), Revision );
+                return String.Format( CultureInfo.InvariantCulture, "{0:0.000}_r{1}",
+                                      Decimal.Divide( Version, 1000 ),
+                                      Revision );
             }
         }
 
@@ -167,8 +170,8 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             512,
-            496,
-            new DateTime( 2011, 4, 1, 1, 15, 0, DateTimeKind.Utc ),
+            497,
+            new DateTime( 2011, 4, 1, 7, 5, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Bugfix
         );
