@@ -704,17 +704,17 @@ namespace fCraft {
         #endregion
 
 
-        // ensures that player name has the correct length and character set
-        public static bool IsValidName( string name ) {
-            if( name.Length < 2 || name.Length > 16 ) return false;
-            for( int i = 0; i < name.Length; i++ ) {
-                char ch = name[i];
-                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
-                    return false;
-                }
-            }
-            return true;
+// ensures that player name has the correct length and character set
+public static bool IsValidName( string name ) {
+    if( name.Length < 2 || name.Length > 16 ) return false;
+    for( int i = 0; i < name.Length; i++ ) {
+        char ch = name[i];
+        if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
+            return false;
         }
+    }
+    return true;
+}
 
 
         // gets name with all the optional fluff (color/prefix) for player list

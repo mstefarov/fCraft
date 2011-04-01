@@ -191,6 +191,10 @@ namespace fCraft {
                                 } else {
                                     try {
                                         Player.ParseMessage( message, false );
+                                    } catch( IOException ) {
+                                        throw;
+                                    } catch( SocketException ) {
+                                        throw;
                                     } catch( Exception ex ) {
                                         Logger.LogAndReportCrash( "Error while parsing player's message", "fCraft", ex, false );
                                         Player.MessageNow( "&WAn error occured while trying to process your message. " +
