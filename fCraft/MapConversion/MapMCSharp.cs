@@ -205,72 +205,53 @@ namespace fCraft.MapConversion {
         public Map LoadHeader( string fileName ) {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
-                    BinaryReader bs = new BinaryReader( gs );
-
-                    // Read in the magic number
-                    if( bs.ReadUInt16() != 0x752 ) {
-                        throw new MapFormatException();
-                    }
-
-                    // Read in the map dimesions
-                    int widthX = bs.ReadInt16();
-                    int widthY = bs.ReadInt16();
-                    int height = bs.ReadInt16();
-
-                    Map map = new Map( null, widthX, widthY, height, false );
-
-                    if( !map.ValidateHeader() ) {
-                        throw new MapFormatException( "One or more of the map dimensions are invalid." );
-                    }
-
-                    // Read in the spawn location
-                    map.Spawn.X = (short)(bs.ReadInt16() * 32);
-                    map.Spawn.H = (short)(bs.ReadInt16() * 32);
-                    map.Spawn.Y = (short)(bs.ReadInt16() * 32);
-
-                    return map;
+                    return LoadHeaderInternal( gs );
                 }
             }
+        }
+
+
+        Map LoadHeaderInternal( Stream stream ) {
+            BinaryReader bs = new BinaryReader( stream );
+
+            // Read in the magic number
+            if( bs.ReadUInt16() != 0x752 ) {
+                throw new MapFormatException();
+            }
+
+            // Read in the map dimesions
+            int widthX = bs.ReadInt16();
+            int widthY = bs.ReadInt16();
+            int height = bs.ReadInt16();
+
+            Map map = new Map( null, widthX, widthY, height, false );
+
+            // Read in the spawn location
+            map.Spawn.X = (short)(bs.ReadInt16() * 32);
+            map.Spawn.H = (short)(bs.ReadInt16() * 32);
+            map.Spawn.Y = (short)(bs.ReadInt16() * 32);
+
+            // Skip over the VisitPermission and BuildPermission bytes
+            bs.ReadByte();
+            bs.ReadByte();
+
+            return map;
         }
 
 
         public Map Load( string fileName ) {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
-                    BinaryReader bs = new BinaryReader( gs );
 
-
-                    // Read in the magic number
-                    if( bs.ReadUInt16() != 0x752 ) {
-                        throw new MapFormatException();
-                    }
-
-                    // Read in the map dimesions
-                    int widthX = bs.ReadInt16();
-                    int widthY = bs.ReadInt16();
-                    int height = bs.ReadInt16();
-
-                    Map map = new Map( null, widthX, widthY, height, false );
-
-                    // Read in the spawn location
-                    map.Spawn.X = (short)(bs.ReadInt16() * 32);
-                    map.Spawn.H = (short)(bs.ReadInt16() * 32);
-                    map.Spawn.Y = (short)(bs.ReadInt16() * 32);
+                    Map map = LoadHeaderInternal( gs );
 
                     if( !map.ValidateHeader() ) {
                         throw new MapFormatException( "One or more of the map dimensions are invalid." );
                     }
 
-                    // Read in the spawn orientation
-                    map.Spawn.R = bs.ReadByte();
-                    map.Spawn.L = bs.ReadByte();
-
-                    // Skip over the VisitPermission and BuildPermission bytes
-                    bs.ReadByte();
-                    bs.ReadByte();
-
                     // Read in the map data
-                    map.Blocks = bs.ReadBytes( map.GetBlockCount() );
+                    map.Blocks = new byte[map.WidthX * map.WidthY * map.Height];
+                    mapStream.Read( map.Blocks, 0, map.Blocks.Length );
 
                     for( int i = 0; i < map.Blocks.Length; i++ ) {
                         if( map.Blocks[i] > 49 ) {
