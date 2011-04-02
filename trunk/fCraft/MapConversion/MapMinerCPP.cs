@@ -77,22 +77,43 @@ namespace fCraft.MapConversion {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 // Setup a GZipStream to decompress and read the map file
                 using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
-                    BinaryReader bs = new BinaryReader( gs );
-
-                    // Read in the magic number
-                    if( bs.ReadByte() != 0xbe || bs.ReadByte() != 0xee || bs.ReadByte() != 0xef ) {
-                        throw new MapFormatException( "MinerCPP map header is incorrect." );
-                    }
-
-                    // Read in the map dimesions
-                    // Saved in big endian for who-know-what reason.
-                    // XYZ(?)
-                    int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                    int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                    int widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                    return new Map( null, widthX, widthY, height, false );
+                    return LoadHeaderInternal( gs );
                 }
             }
+        }
+
+
+        Map LoadHeaderInternal( Stream stream ) {
+            BinaryReader bs = new BinaryReader( stream );
+
+            // Read in the magic number
+            if( bs.ReadByte() != 0xbe || bs.ReadByte() != 0xee || bs.ReadByte() != 0xef ) {
+                throw new MapFormatException( "MinerCPP map header is incorrect." );
+            }
+
+            // Read in the map dimesions
+            // Saved in big endian for who-know-what reason.
+            // XYZ(?)
+            int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+            int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+            int widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+
+            Map map = new Map( null, widthX, widthY, height, false );
+
+            // Read in the spawn location
+            // XYZ(?)
+            map.Spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+            map.Spawn.H = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+            map.Spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+
+            // Read in the spawn orientation
+            map.Spawn.R = bs.ReadByte();
+            map.Spawn.L = bs.ReadByte();
+
+            // Skip over the block count, totally useless
+            bs.ReadInt32();
+
+            return map;
         }
 
 
@@ -100,41 +121,16 @@ namespace fCraft.MapConversion {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 // Setup a GZipStream to decompress and read the map file
                 using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
-                    BinaryReader bs = new BinaryReader( gs );
 
-                    // Read in the magic number
-                    if( bs.ReadByte() != 0xbe || bs.ReadByte() != 0xee || bs.ReadByte() != 0xef ) {
-                        throw new MapFormatException( "MinerCPP map header is incorrect." );
-                    }
-
-                    // Read in the map dimesions
-                    // Saved in big endian for who-know-what reason.
-                    // XYZ(?)
-                    int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                    int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                    int widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-
-                    Map map = new Map( null, widthX, widthY, height, false );
+                    Map map = LoadHeaderInternal( gs );
 
                     if( !map.ValidateHeader() ) {
                         throw new MapFormatException( "One or more of the map dimensions are invalid." );
                     }
 
-                    // Read in the spawn location
-                    // XYZ(?)
-                    map.Spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                    map.Spawn.H = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                    map.Spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-
-                    // Read in the spawn orientation
-                    map.Spawn.R = bs.ReadByte();
-                    map.Spawn.L = bs.ReadByte();
-
-                    // Skip over the block count, totally useless
-                    bs.ReadInt32();
-
                     // Read in the map data
-                    map.Blocks = bs.ReadBytes( map.GetBlockCount() );
+                    map.Blocks = new byte[map.WidthX * map.WidthY * map.Height];
+                    mapStream.Read( map.Blocks, 0, map.Blocks.Length );
 
                     return map;
                 }

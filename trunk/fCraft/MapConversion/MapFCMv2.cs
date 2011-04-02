@@ -78,68 +78,49 @@ namespace fCraft.MapConversion {
 
         public Map LoadHeader( string fileName ) {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                BinaryReader reader = new BinaryReader( mapStream );
-
-                // Read in the magic number
-                if( reader.ReadUInt32() != Identifier ) {
-                    throw new MapFormatException();
-                }
-
-                // Read in the map dimesions
-                int widthX = reader.ReadInt16();
-                int widthY = reader.ReadInt16();
-                int height = reader.ReadInt16();
-
-                Map map = new Map( null, widthX, widthY, height, false );
-
-                // Read in the spawn location
-                map.Spawn.X = reader.ReadInt16();
-                map.Spawn.Y = reader.ReadInt16();
-                map.Spawn.H = reader.ReadInt16();
-
-                if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
-                }
-
-                // Read in the spawn orientation
-                map.Spawn.R = reader.ReadByte();
-                map.Spawn.L = reader.ReadByte();
-
-                return map;
+                return LoadHeaderInternal( mapStream );
             }
+        }
+
+
+        Map LoadHeaderInternal( Stream stream ) {
+            BinaryReader reader = new BinaryReader( stream );
+
+            // Read in the magic number
+            if( reader.ReadUInt32() != Identifier ) {
+                throw new MapFormatException();
+            }
+
+            // Read in the map dimesions
+            int widthX = reader.ReadInt16();
+            int widthY = reader.ReadInt16();
+            int height = reader.ReadInt16();
+
+            Map map = new Map( null, widthX, widthY, height, false );
+
+            // Read in the spawn location
+            map.Spawn.X = reader.ReadInt16();
+            map.Spawn.Y = reader.ReadInt16();
+            map.Spawn.H = reader.ReadInt16();
+
+            // Read in the spawn orientation
+            map.Spawn.R = reader.ReadByte();
+            map.Spawn.L = reader.ReadByte();
+
+            return map;
         }
 
 
         public Map Load( string fileName ) {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
 
-
-                BinaryReader reader = new BinaryReader( mapStream );
-
-                // Read in the magic number
-                if( reader.ReadUInt32() != Identifier ) {
-                    throw new MapFormatException();
-                }
-
-                // Read in the map dimesions
-                int widthX = reader.ReadInt16();
-                int widthY = reader.ReadInt16();
-                int height = reader.ReadInt16();
-
-                Map map = new Map( null, widthX, widthY, height, false );
-
-                // Read in the spawn location
-                map.Spawn.X = reader.ReadInt16();
-                map.Spawn.Y = reader.ReadInt16();
-                map.Spawn.H = reader.ReadInt16();
+                Map map = LoadHeaderInternal( mapStream );
 
                 if( !map.ValidateHeader() ) {
                     throw new MapFormatException( "One or more of the map dimensions are invalid." );
                 }
 
-                // Read in the spawn orientation
-                map.Spawn.R = reader.ReadByte();
-                map.Spawn.L = reader.ReadByte();
+                BinaryReader reader = new BinaryReader( mapStream );
 
                 // Read the metadata
                 int metaSize = reader.ReadUInt16();
