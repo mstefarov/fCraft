@@ -1116,16 +1116,18 @@ namespace fCraft {
             } catch( EnumException<WorldCmdError> ex ) {
                 switch( ex.ErrorCode ) {
                     case WorldCmdError.CannotDoThatToMainWorld:
-                        player.MessageNow( " World \"{0}\" is designated as the main world. " +
-                                            "Assign a new main world before deleting this one.",
-                                            world.Name );
+                        player.MessageNow( "&WWorld {0}&W is set as the main world. " +
+                                           "Assign a new main world before deleting this one.",
+                                           world.GetClassyName() );
                         return;
                     case WorldCmdError.WorldNotFound:
-                        player.MessageNow( "World \"{0}\" is already unloaded.", world.Name );
+                        player.MessageNow( "&WWorld {0}&W is already unloaded.",
+                                           world.GetClassyName() );
                         return;
                     default:
-                        player.MessageNow( "Unexpected error occured while unloading world \"{0}\"", world.Name );
-                        Logger.Log( "WorldCommands.WUnload: Unexpected error while unloading world {0}: {1}",
+                        player.MessageNow( "&WUnexpected error occured while unloading world {0}&W: {1}",
+                                           world.GetClassyName(), ex.GetType().Name );
+                        Logger.Log( "WorldCommands.WorldUnload: Unexpected error while unloading world {0}: {1}",
                                     LogType.Error, world.Name, ex );
                         return;
                 }
