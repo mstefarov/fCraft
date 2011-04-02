@@ -135,10 +135,10 @@ namespace fCraft.MapConversion {
             foreach( IMapConverter converter in fallbackConverters ) {
                 try {
                     return converter.LoadHeader( fileName );
-                } catch( NotImplementedException ) { }
+                } catch { }
             }
 
-            throw new MapFormatException( "Unknown map format for loading." );
+            throw new MapFormatException( "Unknown map format." );
         }
 
 
@@ -185,10 +185,10 @@ namespace fCraft.MapConversion {
             foreach( IMapConverter converter in fallbackConverters ) {
                 try {
                     return converter.Load( fileName );
-                } catch {}
+                } catch { }
             }
 
-            throw new MapFormatException( "Unknown map format for loading." );
+            throw new MapFormatException( "Unknown map format." );
         }
 
 
@@ -205,7 +205,6 @@ namespace fCraft.MapConversion {
 
             throw new MapFormatException( "Unknown map format for saving." );
         }
-
 
     }
 }

@@ -156,31 +156,8 @@ namespace fCraft {
             Paths.ConfigFileName = Paths.ConfigFileNameDefault;
             if( HasArg( ArgKey.Config ) ) {
                 string fileName = GetArg( ArgKey.Config );
-                try {
-                    if( File.Exists( fileName ) ) {
-                        using( File.OpenWrite( fileName ) ) { }
-                    } else {
-                        using( File.Create( fileName ) ) { }
-                    }
-                    FileInfo info = new FileInfo( fileName );
-                    Paths.ConfigFileName = info.FullName;
-
-                } catch( Exception ex ) {
-                    if( ex is ArgumentException || ex is NotSupportedException || ex is PathTooLongException ) {
-                        Logger.Log( "Specified config path is invalid or incorrectly formatted ({0}: {1}).", LogType.Error,
-                                    ex.GetType().ToString(), ex.Message );
-                    } else if( ex is SecurityException || ex is UnauthorizedAccessException ) {
-                        Logger.Log( "Cannot create config file, check permissions ({0}: {1}).", LogType.Error,
-                                    ex.GetType().ToString(), ex.Message );
-                    } else if( ex is DirectoryNotFoundException ) {
-                        Logger.Log( "Cannot create config file: directory/drive/volume does not exist or is not mounted ({0}).", LogType.Error,
-                                    ex.Message );
-                    } else if( ex is IOException ) {
-                        Logger.Log( "Cannot write to specified directory ({0}: {1}).", LogType.Error,
-                                    ex.GetType().ToString(), ex.Message );
-                    } else {
-                        throw;
-                    }
+                if( Paths.TestFile( "config.xml", fileName, false, true, false ) ) {
+                    Paths.ConfigFileName = new FileInfo( fileName ).FullName;
                 }
             }
 
@@ -227,7 +204,13 @@ namespace fCraft {
                             "It is recommended that you upgrade to at least 2.8+", LogType.Warning,
                             MonoCompat.MonoVersion );
             }
-
+            
+            // delete the old updater, if exists
+            try {
+                if( File.Exists( Paths.UpdaterFile ) ) {
+                    File.Delete( Paths.UpdaterFile );
+                }
+            } catch { }
 
 #if DEBUG
             Config.RunSelfTest();
@@ -479,10 +462,10 @@ namespace fCraft {
                                              MonoCompat.PrependMono( assemblyExecutable ),
                                              GetArgString() );
 
-                MonoCompat.StartDotNetProcess( Updater.UpdaterFile, args, true );
+                MonoCompat.StartDotNetProcess( Paths.UpdaterFile, args, true );
 
             } else if( Updater.RunAtShutdown ) {
-                MonoCompat.StartDotNetProcess( Updater.UpdaterFile, GetArgString(), true );
+                MonoCompat.StartDotNetProcess( Paths.UpdaterFile, GetArgString(), true );
 
             } else if( doRestart ) {
                 MonoCompat.StartDotNetProcess( assemblyExecutable, GetArgString(), true );
@@ -693,7 +676,7 @@ namespace fCraft {
         }
 
 
-        const string WorldListTempFile = WorldListFileName + ".tmp";
+        const string WorldListTempFileName = WorldListFileName + ".tmp";
         public static void SaveWorldList() {
             // Save world list
             try {
@@ -720,12 +703,8 @@ namespace fCraft {
                 root.Add( new XAttribute( "main", MainWorld.Name ) );
 
                 doc.Add( root );
-                doc.Save( WorldListTempFile );
-                if( File.Exists( WorldListFileName ) ) {
-                    File.Replace( WorldListTempFile, WorldListFileName, null, true );
-                } else {
-                    File.Move( WorldListTempFile, WorldListFileName );
-                }
+                doc.Save( WorldListTempFileName );
+                Paths.MoveOrReplace( WorldListTempFileName, WorldListFileName );
             } catch( Exception ex ) {
                 Logger.Log( "Server.SaveWorldList: An error occured while trying to save the world list: {0}", LogType.Error, ex );
             }
@@ -1204,11 +1183,9 @@ namespace fCraft {
 
 
         // shows announcements
-        public const string AnnouncementsFile = "announcements.txt";
-
         static void ShowRandomAnnouncement( object param ) {
-            if( !File.Exists( AnnouncementsFile ) ) return;
-            string[] lines = File.ReadAllLines( AnnouncementsFile );
+            if( !File.Exists( Paths.AnnouncementsFileName ) ) return;
+            string[] lines = File.ReadAllLines( Paths.AnnouncementsFileName );
             if( lines.Length == 0 ) return;
             string line = lines[new Random().Next( 0, lines.Length )].Trim();
             if( line.Length > 0 ) {

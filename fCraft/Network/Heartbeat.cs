@@ -15,7 +15,6 @@ namespace fCraft {
         const int HeartbeatDelay = 20000,
                   HeartbeatTimeout = 10000;
         public static string PrimaryUrl { get; set; }
-        const string HeartbeatDataFileName = "heartbeatdata.txt";
 
         static Heartbeat() {
             PrimaryUrl = "http://www.minecraft.net/heartbeat.jsp";
@@ -93,7 +92,7 @@ namespace fCraft {
                 request.BeginGetRequestStream( RequestCallback, formData );
             } else {
                 // If heartbeats are disabled, the data is written to a text file (heartbeatdata.txt)
-                const string tempFile = HeartbeatDataFileName + ".tmp";
+                string tempFile = Paths.HeartbeatDataFileName + ".tmp";
 
                 File.WriteAllLines( tempFile, new[]{
                         Server.Salt,
@@ -104,11 +103,8 @@ namespace fCraft {
                         ConfigKey.ServerName.GetString(),
                         ConfigKey.IsPublic.GetString()
                     }, Encoding.ASCII );
-                if( File.Exists( HeartbeatDataFileName ) ) {
-                    File.Replace( tempFile, HeartbeatDataFileName, null, true );
-                } else {
-                    File.Move( tempFile, HeartbeatDataFileName );
-                }
+
+                Paths.MoveOrReplace( tempFile, Paths.HeartbeatDataFileName );
                 RescheduleHeartbeat();
             }
         }

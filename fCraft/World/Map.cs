@@ -140,11 +140,7 @@ namespace fCraft {
             }
 
             try {
-                if( File.Exists( fileName ) ) {
-                    File.Replace( tempFileName, fileName, null, true );
-                } else {
-                    File.Move( tempFileName, fileName );
-                }
+                Paths.MoveOrReplace( tempFileName, fileName );
                 Logger.Log( "Saved map successfully to {0}", LogType.SystemActivity,
                             fileName );
                 ChangedSinceBackup = true;

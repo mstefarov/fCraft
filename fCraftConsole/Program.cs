@@ -39,14 +39,17 @@ namespace fCraftConsole {
             try {
 #endif
                 Server.InitLibrary( args );
-                if( Server.InitServer() ) {
 
-                    /*UpdaterResult update = Updater.CheckForUpdates();
-                    if( update.UpdateAvailable ) {
-                        Console.WriteLine( "** A new version of fCraft is available: {0}, released {1:0} day(s) ago. **",
-                                           update.LatestRelease.VersionString,
-                                           update.LatestRelease.Age.TotalDays );
-                    }*/
+                if( Server.InitServer() ) {
+                    UpdaterMode updaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
+                    if( updaterMode != UpdaterMode.Disabled ) {
+                        UpdaterResult update = Updater.CheckForUpdates();
+                        if( update.UpdateAvailable ) {
+                            Console.WriteLine( "** A new version of fCraft is available: {0}, released {1:0} day(s) ago. **",
+                                               update.LatestRelease.VersionString,
+                                               update.LatestRelease.Age.TotalDays );
+                        }
+                    }
 
                     if( !ConfigKey.ProcessPriority.IsBlank() ) {
                         try {

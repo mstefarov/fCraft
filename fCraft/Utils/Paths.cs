@@ -9,12 +9,31 @@ namespace fCraft {
     /// <summary> Contains fCraft path settings, and some filesystem-related utilities. </summary>
     public static class Paths {
 
+        static readonly string[] ProtectedFiles;
+
         static Paths() {
             WorkingPathDefault = Path.GetFullPath( Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location ) );
             WorkingPath = WorkingPathDefault;
             MapPath = MapPathDefault;
             LogPath = LogPathDefault;
             ConfigFileName = ConfigFileNameDefault;
+
+            ProtectedFiles = new[]{
+                "AutoLauncher.exe",
+                "ConfigTool.exe",
+                "fCraft.dll",
+                "fCraftConsole.exe",
+                "fCraftUI.exe",
+                "fCraftWinService.exe",
+                UpdaterFile,
+                ConfigFileNameDefault,
+                PlayerDBFileName,
+                IPBanListFileName,
+                RulesFileName,
+                AnnouncementsFileName,
+                GreetingFileName,
+                HeartbeatDataFileName
+            };
         }
 
 
@@ -53,10 +72,34 @@ namespace fCraft {
         /// </summary>
         public static string ConfigFileName { get; set; }
 
+
+
+        public const string PlayerDBFileName ="PlayerDB.txt";
+
+        public const string IPBanListFileName = "ipbans.txt";
+
+        public const string GreetingFileName = "greeting.txt";
+
+        public const string AnnouncementsFileName = "announcements.txt";
+
+        public const string RulesFileName = "rules.txt";
+
+        public static string HeartbeatDataFileName = "heartbeatdata.txt";
+
+        public const string UpdaterFile = "fCraftUpdater.exe";
+
         #endregion
 
 
         #region Utility Methods
+
+        public static void MoveOrReplace( string source, string destination ) {
+            if( File.Exists( destination ) ) {
+                File.Replace( source, destination, null, true );
+            } else {
+                File.Move( source, destination );
+            }
+        }
 
         /// <summary>
         /// Makes sure that the path format is valid, that it exists, that it is accessible and writeable.
@@ -81,7 +124,7 @@ namespace fCraft {
 
             } catch( Exception ex ) {
                 if( ex is ArgumentException || ex is NotSupportedException || ex is PathTooLongException ) {
-                    Logger.Log( "Paths.TestDirectory: Specified file/path for {0} is invalid or incorrectly formatted ({1}: {2}).", LogType.Error,
+                    Logger.Log( "Paths.TestDirectory: Specified path for {0} is invalid or incorrectly formatted ({1}: {2}).", LogType.Error,
                                 pathLabel, ex.GetType().Name, ex.Message );
                 } else if( ex is SecurityException || ex is UnauthorizedAccessException ) {
                     Logger.Log( "Paths.TestDirectory: Cannot create or write to file/path for {0}, please check permissions ({1}: {2}).", LogType.Error,
@@ -90,8 +133,44 @@ namespace fCraft {
                     Logger.Log( "Paths.TestDirectory: Drive/volume for {0} does not exist or is not mounted ({1}: {2}).", LogType.Error,
                                 pathLabel, ex.GetType().Name, ex.Message );
                 } else if( ex is IOException ) {
-                    Logger.Log( "Paths.TestDirectory: Specified file/path for {0} is not readable or writable ({1}: {2}).", LogType.Error,
+                    Logger.Log( "Paths.TestDirectory: Specified directory for {0} is not readable/writable ({1}: {2}).", LogType.Error,
                                 pathLabel, ex.GetType().Name, ex.Message );
+                } else {
+                    throw;
+                }
+            }
+            return false;
+        }
+
+
+        public static bool TestFile( string fileLabel, string filename, bool createIfDoesNotExist, bool checkForReadAccess, bool checkForWriteAccess){
+            try {
+                if( File.Exists( filename ) ) {
+                    if( checkForReadAccess ) {
+                        using( File.OpenRead( filename ) ) { }
+                    }
+                    if( checkForWriteAccess ) {
+                        using( File.OpenWrite( filename ) ) { }
+                    }
+                } else if( createIfDoesNotExist ) {
+                    using( File.Create( filename ) ) { }
+                }
+                FileInfo info = new FileInfo( filename );
+                return true;
+
+            } catch( Exception ex ) {
+                if( ex is ArgumentException || ex is NotSupportedException || ex is PathTooLongException ) {
+                    Logger.Log( "Paths.TestFile: Specified path for {0} is invalid or incorrectly formatted ({1}: {2}).", LogType.Error,
+                                fileLabel, ex.GetType().Name, ex.Message );
+                } else if( ex is SecurityException || ex is UnauthorizedAccessException ) {
+                    Logger.Log( "Paths.TestFile: Cannot create or write to {0}, please check permissions ({1}: {2}).", LogType.Error,
+                                fileLabel, ex.GetType().Name, ex.Message );
+                } else if( ex is DirectoryNotFoundException ) {
+                    Logger.Log( "Paths.TestFile: Drive/volume for {0} does not exist or is not mounted ({1}: {2}).", LogType.Error,
+                                fileLabel, ex.GetType().Name, ex.Message );
+                } else if( ex is IOException ) {
+                    Logger.Log( "Paths.TestFile: Specified file for {0} is not readable/writable ({1}: {2}).", LogType.Error,
+                                fileLabel, ex.GetType().Name, ex.Message );
                 } else {
                     throw;
                 }
@@ -219,6 +298,14 @@ namespace fCraft {
                 }
             }
             return matches.ToArray();
+        }
+
+
+        public static bool IsProtectedFileName( string fileName ) {
+            for( int i = 0; i < ProtectedFiles.Length; i++ ) {
+                if( Compare( ProtectedFiles[i], fileName ) ) return true;
+            }
+            return false;
         }
 
         #endregion

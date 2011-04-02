@@ -435,14 +435,9 @@ namespace fCraft {
             file.Add( config );
             try {
                 // write out the changes
-                string configTempFileName = Paths.ConfigFileName + ".temp";
-                file.Save( configTempFileName );
-
-                if( File.Exists( Paths.ConfigFileName ) ) {
-                    File.Replace( configTempFileName, Paths.ConfigFileName, null, true );
-                } else {
-                    File.Move( configTempFileName, Paths.ConfigFileName );
-                }
+                string tempFileName = Paths.ConfigFileName + ".temp";
+                file.Save( tempFileName );
+                Paths.MoveOrReplace( tempFileName, Paths.ConfigFileName );
                 return true;
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Config failed to save", "fCraft", ex, true );

@@ -107,7 +107,7 @@ namespace ConfigTool {
         }
 
         private void bAnnouncements_Click( object sender, EventArgs e ) {
-            TextEditorPopup popup = new TextEditorPopup( Server.AnnouncementsFile, "" );
+            TextEditorPopup popup = new TextEditorPopup( Paths.AnnouncementsFileName, "" );
             popup.ShowDialog();
         }
 
@@ -168,7 +168,7 @@ namespace ConfigTool {
         }
 
         private void bGreeting_Click( object sender, EventArgs e ) {
-            TextEditorPopup popup = new TextEditorPopup( Session.GreetingFileName,
+            TextEditorPopup popup = new TextEditorPopup( Paths.GreetingFileName,
 @"Welcome to {SERVER_NAME}
 Your rank is {RANK}&S. Type &H/help&S for help." );
             popup.ShowDialog();
@@ -1359,7 +1359,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         #endregion
 
         private void bRules_Click( object sender, EventArgs e ) {
-            TextEditorPopup popup = new TextEditorPopup( InfoCommands.RuleFileName, "Use common sense!" );
+            TextEditorPopup popup = new TextEditorPopup( Paths.RulesFileName, "Use common sense!" );
             popup.ShowDialog();
         }
 
