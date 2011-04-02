@@ -214,7 +214,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             }
         }
 
-        private void dgvWorlds_SelectionChanged( object sender, EventArgs e ) {
+        private void dgvWorlds_Click( object sender, EventArgs e ) {
             bool oneRowSelected = ( dgvWorlds.SelectedRows.Count == 1 );
             bWorldDelete.Enabled = oneRowSelected;
             bWorldEdit.Enabled = oneRowSelected;

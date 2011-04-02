@@ -1216,7 +1216,8 @@
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 334 );
             this.dgvWorlds.TabIndex = 1;
-            this.dgvWorlds.SelectionChanged += new System.EventHandler( this.dgvWorlds_SelectionChanged );
+            this.dgvWorlds.Click += new System.EventHandler( this.dgvWorlds_Click );
+            this.dgvWorlds.SelectionChanged += new System.EventHandler( this.dgvWorlds_Click );
             // 
             // dgvcName
             // 
