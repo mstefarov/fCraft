@@ -34,11 +34,11 @@
             this.cUpdaterMode = new System.Windows.Forms.ComboBox();
             this.lUpdater = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.bViewCredits = new System.Windows.Forms.Button();
+            this.bViewVersionHistory = new System.Windows.Forms.Button();
             this.gHelpAndSupport = new System.Windows.Forms.GroupBox();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.bOpenWiki = new System.Windows.Forms.Button();
+            this.bReportABug = new System.Windows.Forms.Button();
             this.gInformation = new System.Windows.Forms.GroupBox();
             this.bGreeting = new System.Windows.Forms.Button();
             this.lAnnouncementsUnits = new System.Windows.Forms.Label();
@@ -374,7 +374,7 @@
             this.gUpdateSettings.Location = new System.Drawing.Point( 8, 249 );
             this.gUpdateSettings.Name = "gUpdateSettings";
             this.gUpdateSettings.Size = new System.Drawing.Size( 636, 54 );
-            this.gUpdateSettings.TabIndex = 46;
+            this.gUpdateSettings.TabIndex = 2;
             this.gUpdateSettings.TabStop = false;
             this.gUpdateSettings.Text = "Updater Settings";
             // 
@@ -383,7 +383,7 @@
             this.bShowAdvancedUpdaterSettings.Location = new System.Drawing.Point( 318, 22 );
             this.bShowAdvancedUpdaterSettings.Name = "bShowAdvancedUpdaterSettings";
             this.bShowAdvancedUpdaterSettings.Size = new System.Drawing.Size( 75, 23 );
-            this.bShowAdvancedUpdaterSettings.TabIndex = 45;
+            this.bShowAdvancedUpdaterSettings.TabIndex = 2;
             this.bShowAdvancedUpdaterSettings.Text = "Advanced";
             this.bShowAdvancedUpdaterSettings.UseVisualStyleBackColor = true;
             this.bShowAdvancedUpdaterSettings.Click += new System.EventHandler( this.bShowAdvancedUpdaterSettings_Click );
@@ -400,7 +400,7 @@
             this.cUpdaterMode.Location = new System.Drawing.Point( 123, 22 );
             this.cUpdaterMode.Name = "cUpdaterMode";
             this.cUpdaterMode.Size = new System.Drawing.Size( 189, 23 );
-            this.cUpdaterMode.TabIndex = 43;
+            this.cUpdaterMode.TabIndex = 1;
             this.cUpdaterMode.SelectedIndexChanged += new System.EventHandler( this.cUpdaterMode_SelectedIndexChanged );
             // 
             // lUpdater
@@ -409,72 +409,72 @@
             this.lUpdater.Location = new System.Drawing.Point( 6, 25 );
             this.lUpdater.Name = "lUpdater";
             this.lUpdater.Size = new System.Drawing.Size( 111, 15 );
-            this.lUpdater.TabIndex = 44;
+            this.lUpdater.TabIndex = 0;
             this.lUpdater.Text = "fCraft update check";
             // 
             // groupBox2
             // 
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.groupBox2.Controls.Add( this.button1 );
-            this.groupBox2.Controls.Add( this.button3 );
+            this.groupBox2.Controls.Add( this.bViewCredits );
+            this.groupBox2.Controls.Add( this.bViewVersionHistory );
             this.groupBox2.Location = new System.Drawing.Point( 329, 410 );
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size( 315, 55 );
-            this.groupBox2.TabIndex = 3;
+            this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "About fCraft";
             // 
-            // button1
+            // bViewCredits
             // 
-            this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point( 156, 20 );
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size( 140, 23 );
-            this.button1.TabIndex = 0;
-            this.button1.Text = "View Credits";
-            this.button1.UseVisualStyleBackColor = true;
+            this.bViewCredits.Enabled = false;
+            this.bViewCredits.Location = new System.Drawing.Point( 156, 20 );
+            this.bViewCredits.Name = "bViewCredits";
+            this.bViewCredits.Size = new System.Drawing.Size( 140, 23 );
+            this.bViewCredits.TabIndex = 1;
+            this.bViewCredits.Text = "View Credits";
+            this.bViewCredits.UseVisualStyleBackColor = true;
             // 
-            // button3
+            // bViewVersionHistory
             // 
-            this.button3.Enabled = false;
-            this.button3.Location = new System.Drawing.Point( 10, 20 );
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size( 140, 23 );
-            this.button3.TabIndex = 3;
-            this.button3.Text = "View Version History";
-            this.button3.UseVisualStyleBackColor = true;
+            this.bViewVersionHistory.Enabled = false;
+            this.bViewVersionHistory.Location = new System.Drawing.Point( 10, 20 );
+            this.bViewVersionHistory.Name = "bViewVersionHistory";
+            this.bViewVersionHistory.Size = new System.Drawing.Size( 140, 23 );
+            this.bViewVersionHistory.TabIndex = 0;
+            this.bViewVersionHistory.Text = "View Version History";
+            this.bViewVersionHistory.UseVisualStyleBackColor = true;
             // 
             // gHelpAndSupport
             // 
             this.gHelpAndSupport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.gHelpAndSupport.Controls.Add( this.button4 );
-            this.gHelpAndSupport.Controls.Add( this.button2 );
+            this.gHelpAndSupport.Controls.Add( this.bOpenWiki );
+            this.gHelpAndSupport.Controls.Add( this.bReportABug );
             this.gHelpAndSupport.Location = new System.Drawing.Point( 8, 410 );
             this.gHelpAndSupport.Name = "gHelpAndSupport";
             this.gHelpAndSupport.Size = new System.Drawing.Size( 315, 55 );
-            this.gHelpAndSupport.TabIndex = 2;
+            this.gHelpAndSupport.TabIndex = 3;
             this.gHelpAndSupport.TabStop = false;
             this.gHelpAndSupport.Text = "Help and Support";
             // 
-            // button4
+            // bOpenWiki
             // 
-            this.button4.Enabled = false;
-            this.button4.Location = new System.Drawing.Point( 9, 20 );
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size( 140, 23 );
-            this.button4.TabIndex = 4;
-            this.button4.Text = "Open fCraft Wiki";
-            this.button4.UseVisualStyleBackColor = true;
+            this.bOpenWiki.Location = new System.Drawing.Point( 9, 20 );
+            this.bOpenWiki.Name = "bOpenWiki";
+            this.bOpenWiki.Size = new System.Drawing.Size( 140, 23 );
+            this.bOpenWiki.TabIndex = 0;
+            this.bOpenWiki.Text = "Open fCraft Wiki";
+            this.bOpenWiki.UseVisualStyleBackColor = true;
+            this.bOpenWiki.Click += new System.EventHandler( this.bOpenWiki_Click );
             // 
-            // button2
+            // bReportABug
             // 
-            this.button2.Enabled = false;
-            this.button2.Location = new System.Drawing.Point( 155, 20 );
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size( 140, 23 );
-            this.button2.TabIndex = 1;
-            this.button2.Text = "Report a Bug";
-            this.button2.UseVisualStyleBackColor = true;
+            this.bReportABug.Location = new System.Drawing.Point( 155, 20 );
+            this.bReportABug.Name = "bReportABug";
+            this.bReportABug.Size = new System.Drawing.Size( 140, 23 );
+            this.bReportABug.TabIndex = 1;
+            this.bReportABug.Text = "Report a Bug";
+            this.bReportABug.UseVisualStyleBackColor = true;
+            this.bReportABug.Click += new System.EventHandler( this.bReportABug_Click );
             // 
             // gInformation
             // 
@@ -498,7 +498,7 @@
             this.bGreeting.Location = new System.Drawing.Point( 538, 20 );
             this.bGreeting.Name = "bGreeting";
             this.bGreeting.Size = new System.Drawing.Size( 92, 28 );
-            this.bGreeting.TabIndex = 4;
+            this.bGreeting.TabIndex = 5;
             this.bGreeting.Text = "Edit Greeting";
             this.bGreeting.UseVisualStyleBackColor = true;
             this.bGreeting.Click += new System.EventHandler( this.bGreeting_Click );
@@ -509,7 +509,7 @@
             this.lAnnouncementsUnits.Location = new System.Drawing.Point( 266, 27 );
             this.lAnnouncementsUnits.Name = "lAnnouncementsUnits";
             this.lAnnouncementsUnits.Size = new System.Drawing.Size( 28, 15 );
-            this.lAnnouncementsUnits.TabIndex = 17;
+            this.lAnnouncementsUnits.TabIndex = 2;
             this.lAnnouncementsUnits.Text = "min";
             // 
             // nAnnouncements
@@ -548,7 +548,7 @@
             this.bRules.Location = new System.Drawing.Point( 445, 20 );
             this.bRules.Name = "bRules";
             this.bRules.Size = new System.Drawing.Size( 87, 28 );
-            this.bRules.TabIndex = 3;
+            this.bRules.TabIndex = 4;
             this.bRules.Text = "Edit Rules";
             this.bRules.UseVisualStyleBackColor = true;
             this.bRules.Click += new System.EventHandler( this.bRules_Click );
@@ -561,7 +561,7 @@
             this.bAnnouncements.Location = new System.Drawing.Point( 301, 20 );
             this.bAnnouncements.Name = "bAnnouncements";
             this.bAnnouncements.Size = new System.Drawing.Size( 138, 28 );
-            this.bAnnouncements.TabIndex = 2;
+            this.bAnnouncements.TabIndex = 3;
             this.bAnnouncements.Text = "Edit Announcements";
             this.bAnnouncements.UseVisualStyleBackColor = true;
             this.bAnnouncements.Click += new System.EventHandler( this.bAnnouncements_Click );
@@ -600,7 +600,7 @@
             this.tIP.MaxLength = 15;
             this.tIP.Name = "tIP";
             this.tIP.Size = new System.Drawing.Size( 97, 21 );
-            this.tIP.TabIndex = 10;
+            this.tIP.TabIndex = 18;
             this.tIP.Validating += new System.ComponentModel.CancelEventHandler( this.tIP_Validating );
             // 
             // xIP
@@ -609,7 +609,7 @@
             this.xIP.Location = new System.Drawing.Point( 331, 134 );
             this.xIP.Name = "xIP";
             this.xIP.Size = new System.Drawing.Size( 103, 19 );
-            this.xIP.TabIndex = 9;
+            this.xIP.TabIndex = 17;
             this.xIP.Text = "Designated IP";
             this.xIP.UseVisualStyleBackColor = true;
             this.xIP.CheckedChanged += new System.EventHandler( this.xIP_CheckedChanged );
@@ -619,7 +619,7 @@
             this.bPortCheck.Location = new System.Drawing.Point( 517, 103 );
             this.bPortCheck.Name = "bPortCheck";
             this.bPortCheck.Size = new System.Drawing.Size( 68, 23 );
-            this.bPortCheck.TabIndex = 8;
+            this.bPortCheck.TabIndex = 16;
             this.bPortCheck.Text = "Check";
             this.bPortCheck.UseVisualStyleBackColor = true;
             this.bPortCheck.Click += new System.EventHandler( this.bPortCheck_Click );
@@ -630,7 +630,7 @@
             this.lPort.Location = new System.Drawing.Point( 359, 107 );
             this.lPort.Name = "lPort";
             this.lPort.Size = new System.Drawing.Size( 75, 15 );
-            this.lPort.TabIndex = 32;
+            this.lPort.TabIndex = 14;
             this.lPort.Text = "Port number";
             // 
             // nPort
@@ -648,7 +648,7 @@
             0} );
             this.nPort.Name = "nPort";
             this.nPort.Size = new System.Drawing.Size( 71, 21 );
-            this.nPort.TabIndex = 7;
+            this.nPort.TabIndex = 15;
             this.nPort.Value = new decimal( new int[] {
             1,
             0,
@@ -662,7 +662,7 @@
             this.cDefaultRank.Location = new System.Drawing.Point( 440, 74 );
             this.cDefaultRank.Name = "cDefaultRank";
             this.cDefaultRank.Size = new System.Drawing.Size( 190, 23 );
-            this.cDefaultRank.TabIndex = 6;
+            this.cDefaultRank.TabIndex = 13;
             // 
             // lDefaultRank
             // 
@@ -679,7 +679,7 @@
             this.lUploadBandwidth.Location = new System.Drawing.Point( 10, 107 );
             this.lUploadBandwidth.Name = "lUploadBandwidth";
             this.lUploadBandwidth.Size = new System.Drawing.Size( 107, 15 );
-            this.lUploadBandwidth.TabIndex = 8;
+            this.lUploadBandwidth.TabIndex = 6;
             this.lUploadBandwidth.Text = "Upload bandwidth";
             // 
             // bMeasure
@@ -687,7 +687,7 @@
             this.bMeasure.Location = new System.Drawing.Point( 244, 103 );
             this.bMeasure.Name = "bMeasure";
             this.bMeasure.Size = new System.Drawing.Size( 65, 23 );
-            this.bMeasure.TabIndex = 4;
+            this.bMeasure.TabIndex = 9;
             this.bMeasure.Text = "Measure";
             this.bMeasure.UseVisualStyleBackColor = true;
             this.bMeasure.Click += new System.EventHandler( this.bMeasure_Click );
@@ -700,7 +700,7 @@
             this.tServerName.MaxLength = 64;
             this.tServerName.Name = "tServerName";
             this.tServerName.Size = new System.Drawing.Size( 507, 21 );
-            this.tServerName.TabIndex = 0;
+            this.tServerName.TabIndex = 1;
             // 
             // lUploadBandwidthUnits
             // 
@@ -708,7 +708,7 @@
             this.lUploadBandwidthUnits.Location = new System.Drawing.Point( 206, 107 );
             this.lUploadBandwidthUnits.Name = "lUploadBandwidthUnits";
             this.lUploadBandwidthUnits.Size = new System.Drawing.Size( 32, 15 );
-            this.lUploadBandwidthUnits.TabIndex = 10;
+            this.lUploadBandwidthUnits.TabIndex = 8;
             this.lUploadBandwidthUnits.Text = "KB/s";
             // 
             // lServerName
@@ -717,7 +717,7 @@
             this.lServerName.Location = new System.Drawing.Point( 40, 23 );
             this.lServerName.Name = "lServerName";
             this.lServerName.Size = new System.Drawing.Size( 77, 15 );
-            this.lServerName.TabIndex = 1;
+            this.lServerName.TabIndex = 0;
             this.lServerName.Text = "Server name";
             // 
             // nUploadBandwidth
@@ -740,7 +740,7 @@
             0} );
             this.nUploadBandwidth.Name = "nUploadBandwidth";
             this.nUploadBandwidth.Size = new System.Drawing.Size( 77, 21 );
-            this.nUploadBandwidth.TabIndex = 3;
+            this.nUploadBandwidth.TabIndex = 7;
             this.nUploadBandwidth.Value = new decimal( new int[] {
             10,
             0,
@@ -755,7 +755,7 @@
             this.tMOTD.MaxLength = 64;
             this.tMOTD.Name = "tMOTD";
             this.tMOTD.Size = new System.Drawing.Size( 507, 21 );
-            this.tMOTD.TabIndex = 1;
+            this.tMOTD.TabIndex = 3;
             // 
             // lMOTD
             // 
@@ -763,7 +763,7 @@
             this.lMOTD.Location = new System.Drawing.Point( 74, 50 );
             this.lMOTD.Name = "lMOTD";
             this.lMOTD.Size = new System.Drawing.Size( 43, 15 );
-            this.lMOTD.TabIndex = 3;
+            this.lMOTD.TabIndex = 2;
             this.lMOTD.Text = "MOTD";
             // 
             // cPublic
@@ -777,7 +777,7 @@
             this.cPublic.Location = new System.Drawing.Point( 123, 132 );
             this.cPublic.Name = "cPublic";
             this.cPublic.Size = new System.Drawing.Size( 83, 23 );
-            this.cPublic.TabIndex = 5;
+            this.cPublic.TabIndex = 11;
             // 
             // nMaxPlayers
             // 
@@ -794,7 +794,7 @@
             0} );
             this.nMaxPlayers.Name = "nMaxPlayers";
             this.nMaxPlayers.Size = new System.Drawing.Size( 48, 21 );
-            this.nMaxPlayers.TabIndex = 2;
+            this.nMaxPlayers.TabIndex = 5;
             this.nMaxPlayers.Value = new decimal( new int[] {
             1,
             0,
@@ -808,7 +808,7 @@
             this.lPublic.Location = new System.Drawing.Point( 14, 135 );
             this.lPublic.Name = "lPublic";
             this.lPublic.Size = new System.Drawing.Size( 103, 15 );
-            this.lPublic.TabIndex = 6;
+            this.lPublic.TabIndex = 10;
             this.lPublic.Text = "Server visibility";
             // 
             // lMaxPlayers
@@ -817,7 +817,7 @@
             this.lMaxPlayers.Location = new System.Drawing.Point( 44, 77 );
             this.lMaxPlayers.Name = "lMaxPlayers";
             this.lMaxPlayers.Size = new System.Drawing.Size( 73, 15 );
-            this.lMaxPlayers.TabIndex = 5;
+            this.lMaxPlayers.TabIndex = 4;
             this.lMaxPlayers.Text = "Max players";
             // 
             // tabChat
@@ -2865,7 +2865,7 @@
             this.lConsoleNameHint.Location = new System.Drawing.Point( 304, 287 );
             this.lConsoleNameHint.Name = "lConsoleNameHint";
             this.lConsoleNameHint.Size = new System.Drawing.Size( 274, 13 );
-            this.lConsoleNameHint.TabIndex = 46;
+            this.lConsoleNameHint.TabIndex = 17;
             this.lConsoleNameHint.Text = "Hint: You may include any characters (even colorcodes).";
             // 
             // lConsoleName
@@ -2874,7 +2874,7 @@
             this.lConsoleName.Location = new System.Drawing.Point( 87, 266 );
             this.lConsoleName.Name = "lConsoleName";
             this.lConsoleName.Size = new System.Drawing.Size( 214, 15 );
-            this.lConsoleName.TabIndex = 45;
+            this.lConsoleName.TabIndex = 15;
             this.lConsoleName.Text = "Name of the \"Console\" pseudo-player:";
             // 
             // tConsoleName
@@ -2882,7 +2882,7 @@
             this.tConsoleName.Location = new System.Drawing.Point( 307, 263 );
             this.tConsoleName.Name = "tConsoleName";
             this.tConsoleName.Size = new System.Drawing.Size( 167, 21 );
-            this.tConsoleName.TabIndex = 44;
+            this.tConsoleName.TabIndex = 16;
             // 
             // nMaxUndo
             // 
@@ -2899,7 +2899,7 @@
             0} );
             this.nMaxUndo.Name = "nMaxUndo";
             this.nMaxUndo.Size = new System.Drawing.Size( 86, 21 );
-            this.nMaxUndo.TabIndex = 4;
+            this.nMaxUndo.TabIndex = 5;
             this.nMaxUndo.Value = new decimal( new int[] {
             2000000,
             0,
@@ -2913,7 +2913,7 @@
             this.lMaxUndoUnits.Location = new System.Drawing.Point( 399, 137 );
             this.lMaxUndoUnits.Name = "lMaxUndoUnits";
             this.lMaxUndoUnits.Size = new System.Drawing.Size( 191, 15 );
-            this.lMaxUndoUnits.TabIndex = 43;
+            this.lMaxUndoUnits.TabIndex = 6;
             this.lMaxUndoUnits.Text = "(up to 30.6 MB of RAM per player)";
             // 
             // xMaxUndo
@@ -2924,7 +2924,7 @@
             this.xMaxUndo.Location = new System.Drawing.Point( 12, 136 );
             this.xMaxUndo.Name = "xMaxUndo";
             this.xMaxUndo.Size = new System.Drawing.Size( 291, 19 );
-            this.xMaxUndo.TabIndex = 3;
+            this.xMaxUndo.TabIndex = 4;
             this.xMaxUndo.Text = "Limit the number of blocks that can be undone to";
             this.xMaxUndo.UseVisualStyleBackColor = true;
             this.xMaxUndo.CheckedChanged += new System.EventHandler( this.xMaxUndo_CheckedChanged );
@@ -2947,7 +2947,7 @@
             this.lTickInterval.Location = new System.Drawing.Point( 71, 201 );
             this.lTickInterval.Name = "lTickInterval";
             this.lTickInterval.Size = new System.Drawing.Size( 71, 15 );
-            this.lTickInterval.TabIndex = 15;
+            this.lTickInterval.TabIndex = 9;
             this.lTickInterval.Text = "Tick interval";
             // 
             // xLowLatencyMode
@@ -2956,7 +2956,7 @@
             this.xLowLatencyMode.Location = new System.Drawing.Point( 12, 111 );
             this.xLowLatencyMode.Name = "xLowLatencyMode";
             this.xLowLatencyMode.Size = new System.Drawing.Size( 544, 19 );
-            this.xLowLatencyMode.TabIndex = 2;
+            this.xLowLatencyMode.TabIndex = 3;
             this.xLowLatencyMode.Text = "Low-latency mode (disables Nagle\'s algorithm, reducing latency but increasing ban" +
                 "dwidth use).";
             this.xLowLatencyMode.UseVisualStyleBackColor = true;
@@ -2981,7 +2981,7 @@
             0} );
             this.nTickInterval.Name = "nTickInterval";
             this.nTickInterval.Size = new System.Drawing.Size( 70, 21 );
-            this.nTickInterval.TabIndex = 6;
+            this.nTickInterval.TabIndex = 10;
             this.nTickInterval.Value = new decimal( new int[] {
             100,
             0,
@@ -2994,7 +2994,7 @@
             this.lTickIntervalUnits.Location = new System.Drawing.Point( 224, 201 );
             this.lTickIntervalUnits.Name = "lTickIntervalUnits";
             this.lTickIntervalUnits.Size = new System.Drawing.Size( 24, 15 );
-            this.lTickIntervalUnits.TabIndex = 17;
+            this.lTickIntervalUnits.TabIndex = 11;
             this.lTickIntervalUnits.Text = "ms";
             // 
             // xRelayAllBlockUpdates
@@ -3003,7 +3003,7 @@
             this.xRelayAllBlockUpdates.Location = new System.Drawing.Point( 12, 61 );
             this.xRelayAllBlockUpdates.Name = "xRelayAllBlockUpdates";
             this.xRelayAllBlockUpdates.Size = new System.Drawing.Size( 560, 19 );
-            this.xRelayAllBlockUpdates.TabIndex = 0;
+            this.xRelayAllBlockUpdates.TabIndex = 1;
             this.xRelayAllBlockUpdates.Text = "When a player changes a block, send him the redundant update packet anyway (origi" +
                 "nal behavior).";
             this.xRelayAllBlockUpdates.UseVisualStyleBackColor = true;
@@ -3014,7 +3014,7 @@
             this.lThrottlingUnits.Location = new System.Drawing.Point( 224, 228 );
             this.lThrottlingUnits.Name = "lThrottlingUnits";
             this.lThrottlingUnits.Size = new System.Drawing.Size( 129, 15 );
-            this.lThrottlingUnits.TabIndex = 37;
+            this.lThrottlingUnits.TabIndex = 14;
             this.lThrottlingUnits.Text = "blocks / second / client";
             // 
             // lProcessPriority
@@ -3023,7 +3023,7 @@
             this.lProcessPriority.Location = new System.Drawing.Point( 52, 173 );
             this.lProcessPriority.Name = "lProcessPriority";
             this.lProcessPriority.Size = new System.Drawing.Size( 90, 15 );
-            this.lProcessPriority.TabIndex = 6;
+            this.lProcessPriority.TabIndex = 7;
             this.lProcessPriority.Text = "Process priority";
             // 
             // nThrottling
@@ -3046,7 +3046,7 @@
             0} );
             this.nThrottling.Name = "nThrottling";
             this.nThrottling.Size = new System.Drawing.Size( 70, 21 );
-            this.nThrottling.TabIndex = 7;
+            this.nThrottling.TabIndex = 13;
             this.nThrottling.Value = new decimal( new int[] {
             2048,
             0,
@@ -3066,7 +3066,7 @@
             this.cProcessPriority.Location = new System.Drawing.Point( 148, 170 );
             this.cProcessPriority.Name = "cProcessPriority";
             this.cProcessPriority.Size = new System.Drawing.Size( 109, 23 );
-            this.cProcessPriority.TabIndex = 5;
+            this.cProcessPriority.TabIndex = 8;
             // 
             // lThrottling
             // 
@@ -3074,7 +3074,7 @@
             this.lThrottling.Location = new System.Drawing.Point( 14, 228 );
             this.lThrottling.Name = "lThrottling";
             this.lThrottling.Size = new System.Drawing.Size( 128, 15 );
-            this.lThrottling.TabIndex = 35;
+            this.lThrottling.TabIndex = 12;
             this.lThrottling.Text = "Block update throttling";
             // 
             // xNoPartialPositionUpdates
@@ -3083,7 +3083,7 @@
             this.xNoPartialPositionUpdates.Location = new System.Drawing.Point( 12, 86 );
             this.xNoPartialPositionUpdates.Name = "xNoPartialPositionUpdates";
             this.xNoPartialPositionUpdates.Size = new System.Drawing.Size( 326, 19 );
-            this.xNoPartialPositionUpdates.TabIndex = 1;
+            this.xNoPartialPositionUpdates.TabIndex = 2;
             this.xNoPartialPositionUpdates.Text = "Do not use partial position updates (opcodes 9, 10, 11).";
             this.xNoPartialPositionUpdates.UseVisualStyleBackColor = true;
             // 
@@ -3104,7 +3104,7 @@
             this.lCrashReportDisclaimer.Location = new System.Drawing.Point( 44, 42 );
             this.lCrashReportDisclaimer.Name = "lCrashReportDisclaimer";
             this.lCrashReportDisclaimer.Size = new System.Drawing.Size( 584, 45 );
-            this.lCrashReportDisclaimer.TabIndex = 41;
+            this.lCrashReportDisclaimer.TabIndex = 1;
             this.lCrashReportDisclaimer.Text = resources.GetString( "lCrashReportDisclaimer.Text" );
             // 
             // xSubmitCrashReports
@@ -3125,7 +3125,7 @@
             this.bOK.Location = new System.Drawing.Point( 360, 524 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 28 );
-            this.bOK.TabIndex = 1;
+            this.bOK.TabIndex = 0;
             this.bOK.Text = "OK";
             this.bOK.Click += new System.EventHandler( this.bSave_Click );
             // 
@@ -3137,7 +3137,7 @@
             this.bCancel.Location = new System.Drawing.Point( 466, 524 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 28 );
-            this.bCancel.TabIndex = 2;
+            this.bCancel.TabIndex = 1;
             this.bCancel.Text = "Cancel";
             this.bCancel.Click += new System.EventHandler( this.bCancel_Click );
             // 
@@ -3148,7 +3148,7 @@
             this.bResetTab.Location = new System.Drawing.Point( 132, 524 );
             this.bResetTab.Name = "bResetTab";
             this.bResetTab.Size = new System.Drawing.Size( 100, 28 );
-            this.bResetTab.TabIndex = 5;
+            this.bResetTab.TabIndex = 4;
             this.bResetTab.Text = "Reset Tab";
             this.bResetTab.UseVisualStyleBackColor = true;
             this.bResetTab.Click += new System.EventHandler( this.bResetTab_Click );
@@ -3160,7 +3160,7 @@
             this.bResetAll.Location = new System.Drawing.Point( 12, 524 );
             this.bResetAll.Name = "bResetAll";
             this.bResetAll.Size = new System.Drawing.Size( 114, 28 );
-            this.bResetAll.TabIndex = 4;
+            this.bResetAll.TabIndex = 3;
             this.bResetAll.Text = "Reset All Defaults";
             this.bResetAll.UseVisualStyleBackColor = true;
             this.bResetAll.Click += new System.EventHandler( this.bResetAll_Click );
@@ -3172,7 +3172,7 @@
             this.bApply.Location = new System.Drawing.Point( 572, 524 );
             this.bApply.Name = "bApply";
             this.bApply.Size = new System.Drawing.Size( 100, 28 );
-            this.bApply.TabIndex = 3;
+            this.bApply.TabIndex = 2;
             this.bApply.Text = "Apply";
             this.bApply.Click += new System.EventHandler( this.bApply_Click );
             // 
@@ -3524,11 +3524,11 @@
         private System.Windows.Forms.ComboBox cMuteLimit;
         private System.Windows.Forms.Label lMuteLimit;
         private System.Windows.Forms.GroupBox gHelpAndSupport;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button bViewVersionHistory;
+        private System.Windows.Forms.Button bReportABug;
+        private System.Windows.Forms.Button bViewCredits;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button bOpenWiki;
         private System.Windows.Forms.ComboBox cUpdaterMode;
         private System.Windows.Forms.Label lUpdater;
         private System.Windows.Forms.GroupBox gUpdateSettings;

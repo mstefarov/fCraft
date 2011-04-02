@@ -1392,5 +1392,13 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             }
         }
 
+        private void bOpenWiki_Click( object sender, EventArgs e ) {
+            Process.Start( "http://www.fcraft.net/wiki/Main_Page" );
+        }
+
+        private void bReportABug_Click( object sender, EventArgs e ) {
+            Process.Start( "https://sourceforge.net/tracker/?limit=25&func=&group_id=296563&atid=1251681&status=1" );
+        }
+
     }
 }
