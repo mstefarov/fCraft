@@ -14,7 +14,6 @@ namespace fCraft {
     /// Includes several chat commands.
     /// </summary>
     public static class InfoCommands {
-        public const string RuleFileName = "rules.txt";
 
         // Register help commands
         internal static void Init() {
@@ -633,15 +632,14 @@ namespace fCraft {
             Handler = Rules
         };
 
-        const string RulesFile = "rules.txt";
 
         // Prints rules (if any are defined)
         internal static void Rules( Player player, Command cmd ) {
-            if( !File.Exists( RulesFile ) ) {
+            if( !File.Exists( Paths.RulesFileName ) ) {
                 player.Message( "Rules: Use common sense!" );
             } else {
                 try {
-                    foreach( string ruleLine in File.ReadAllLines( RuleFileName ) ) {
+                    foreach( string ruleLine in File.ReadAllLines( Paths.RulesFileName ) ) {
                         if( ruleLine.Trim().Length > 0 ) {
                             player.Message( "&R{0}", ruleLine );
                         }

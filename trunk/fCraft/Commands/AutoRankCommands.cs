@@ -40,6 +40,37 @@ namespace fCraft {
                 return;
             }
 
+            if( !Paths.TestFile( "dumpstats file", fileName, false, true, false ) ) {
+                cdDumpStats.PrintUsage( player );
+                return;
+            }
+
+            if( Paths.IsProtectedFileName( fileName ) ) {
+                player.Message( "You may not use this file." );
+                return;
+            }
+
+            if( !Paths.Contains( Paths.WorkingPath, fileName ) ) {
+                player.MessageUnsafePath();
+                return;
+            }
+
+            if( Path.HasExtension( fileName ) &&
+                !Path.GetExtension( fileName ).Equals( ".txt", StringComparison.OrdinalIgnoreCase ) ) {
+                player.Message( "Stats filename must end with .txt" );
+                return;
+            }
+
+            if( !Paths.TestFile( "dumpstats file", fileName, false, true, false ) ) {
+                player.Message( "Cannot create specified file. See log for details." );
+                return;
+            }
+
+            if( File.Exists( fileName ) && !cmd.Confirmed ) {
+                player.AskForConfirmation( cmd, "File \"{0}\" already exists. Overwrite?", Path.GetFileName( fileName ) );
+                return;
+            }
+
             PlayerInfo[] infos;
             using( FileStream fs = File.Create( fileName ) ) {
                 using( StreamWriter writer = new StreamWriter( fs ) ) {
@@ -62,6 +93,8 @@ namespace fCraft {
                     }
                 }
             }
+
+            player.Message( "Stats saved to \"{0}\"", Path.GetFileName( fileName ) );
         }
 
         static void DumpPlayerGroupStats( TextWriter writer, PlayerInfo[] infos, string groupName ) {
@@ -73,6 +106,12 @@ namespace fCraft {
 
             infos = infos.Where( info => (DateTime.Now.Subtract( info.LastLoginDate ).TotalDays < 30) ).ToArray();
             infos = infos.Where( info => (!info.Banned) ).ToArray();
+
+            if( infos.Length == 0 ) {
+                writer.WriteLine( "{0}: 0 players, 0 banned", groupName );
+                writer.WriteLine();
+                return;
+            }
 
             for( int i = 0; i < infos.Length; i++ ) {
                 stat.TimeSinceFirstLogin += DateTime.Now.Subtract( infos[i].FirstLoginDate );

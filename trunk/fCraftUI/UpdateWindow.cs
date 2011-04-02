@@ -20,7 +20,7 @@ namespace fCraftUI {
 
         public UpdateWindow( UpdaterResult _update, bool _auto ) {
             InitializeComponent();
-            updaterFullPath = Path.Combine( Paths.WorkingPath, Updater.UpdaterFile );
+            updaterFullPath = Path.Combine( Paths.WorkingPath, Paths.UpdaterFile );
             update = _update;
             auto = _auto;
             CreateDetailedChangeLog();
@@ -54,7 +54,7 @@ namespace fCraftUI {
             } else {
                 progress.Value = 100;
                 if( e.Cancelled || e.Error != null ) {
-                    MessageBox.Show( e.Error.ToString(), "Error occured while trying to download " + Updater.UpdaterFile );
+                    MessageBox.Show( e.Error.ToString(), "Error occured while trying to download " + Paths.UpdaterFile );
                 } else if( auto ) {
                     bUpdateNow_Click( null, null );
                 } else {

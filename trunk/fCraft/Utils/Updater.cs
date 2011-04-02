@@ -170,10 +170,10 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             512,
-            500,
-            new DateTime( 2011, 4, 1, 23, 15, 0, DateTimeKind.Utc ),
+            501,
+            new DateTime( 2011, 4, 2, 2, 0, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Bugfix | ReleaseFlags.Dev
+            ReleaseFlags.Bugfix | ReleaseFlags.Security | ReleaseFlags.Dev | ReleaseFlags.APIChange
         );
 
         public const string LatestStable = "0.511_r493";
@@ -187,7 +187,6 @@ namespace fCraft {
 
 
         public static int UpdateCheckTimeout { get; set; }
-        public const string UpdaterFile = "fCraftUpdater.exe";
 
         public static UpdaterResult CheckForUpdates() {
             // TODO: fix the rest

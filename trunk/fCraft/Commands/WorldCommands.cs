@@ -209,7 +209,7 @@ namespace fCraft {
                 return;
             }
             if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
-                player.Message( "You cannot access files outside the map folder." );
+                player.MessageUnsafePath();
                 return;
             }
 
@@ -931,7 +931,7 @@ namespace fCraft {
                 return;
             }
             if( !Paths.Contains( Paths.MapPath, sourceFullFileName ) ) {
-                player.Message( "You cannot to access files outside the map folder." );
+                player.MessageUnsafePath();
                 return;
             }
 
@@ -1294,7 +1294,7 @@ namespace fCraft {
                     return;
                 }
                 if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
-                    player.Message( "You cannot access files outside the map folder." );
+                    player.MessageUnsafePath();
                     return;
                 }
                 string dirName = fullFileName.Substring( 0, fullFileName.LastIndexOf( Path.DirectorySeparatorChar ) );

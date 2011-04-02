@@ -56,8 +56,6 @@ namespace fCraft {
         readonly Queue<DateTime> antiSpeedPacketLog = new Queue<DateTime>();
         DateTime antiSpeedLastNotification = DateTime.UtcNow;
 
-        public const string GreetingFileName = "greeting.txt";
-
 
         public Session( TcpClient tcpClient ) {
             LeaveReason = LeaveReason.Unknown;
@@ -685,8 +683,8 @@ namespace fCraft {
             }
 
             // Welcome message
-            if( File.Exists( GreetingFileName ) ) {
-                string[] greetingText = File.ReadAllLines( GreetingFileName );
+            if( File.Exists( Paths.GreetingFileName ) ) {
+                string[] greetingText = File.ReadAllLines( Paths.GreetingFileName );
                 foreach( string greetingLine in greetingText ) {
                     Player.Message( greetingLine
                                     .Replace( "{SERVER_NAME}", ConfigKey.ServerName.GetString() )
