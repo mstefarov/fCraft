@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using fCraft.MapConversion;
 
 namespace fCraft {
     /// <summary>
@@ -329,24 +330,51 @@ namespace fCraft {
         static readonly CommandDescriptor cdZoneList = new CommandDescriptor {
             Name = "zones",
             Category = CommandCategory.Info | CommandCategory.Zone,
+            IsConsoleSafe = true,
+            Usage = "/zones [WorldName]",
             Help = "Lists all zones defined on the current map/world.",
             Handler = ZoneList
         };
 
         internal static void ZoneList( Player player, Command cmd ) {
-            Zone[] zones = player.World.Map.ZoneList;
+            World world = player.World;
+            string worldName = cmd.Next();
+            if( worldName != null ) {
+                world = Server.FindWorldOrPrintMatches( player, worldName );
+                if( world == null ) return;
+                player.Message( "List of zones on {0}&S:",
+                                world.GetClassyName() );
+            } else if( world != null ) {
+                player.Message( "List of zones on this world:" );
+            } else {
+                player.Message( "When used from console, &H/zones&S command requires a world name." );
+                return;
+            }
+
+            Map map;
+            lock( world.MapLock ) {
+                map = world.Map;
+                if( map == null ) {
+                    if( !MapUtility.TryLoadHeader( world.GetMapName(), out map ) ) {
+                        player.Message( "&WERROR:Could not load mapfile for world {0}.",
+                                        world.GetClassyName() );
+                    }
+                }
+            }
+
+            Zone[] zones = map.ZoneList;
             if( zones.Length > 0 ) {
-                player.Message( "List of zones (see &H/zinfo ZoneName&S for details):" );
                 foreach( Zone zone in zones ) {
-                    player.Message( "  {0} ({1}&S) - {2} x {3} x {4}",
+                    player.Message( "   {0} ({1}&S) - {2} x {3} x {4}",
                                     zone.Name,
                                     zone.Controller.MinRank.GetClassyName(),
                                     zone.Bounds.GetWidthX(),
                                     zone.Bounds.GetWidthY(),
                                     zone.Bounds.GetHeight() );
                 }
+                player.Message( "   Type &H/zinfo ZoneName&S for details." );
             } else {
-                player.Message( "No zones are defined for this map." );
+                player.Message( "   No zones defined." );
             }
         }
 

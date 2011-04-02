@@ -65,13 +65,62 @@ namespace fCraft.MapConversion {
                 map.Spawn.X = (short)reader.ReadInt32();
                 map.Spawn.H = (short)reader.ReadInt32();
                 map.Spawn.Y = (short)reader.ReadInt32();
-
-                if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
-                }
-
                 map.Spawn.R = reader.ReadByte();
                 map.Spawn.L = reader.ReadByte();
+
+                
+                // read modification/creation times
+                map.DateModified = Server.TimestampToDateTime( reader.ReadUInt32() );
+                map.DateCreated = Server.TimestampToDateTime( reader.ReadUInt32() );
+
+                // read UUID
+                map.Guid = new Guid( reader.ReadBytes( 16 ) );
+
+
+                // read the index
+                int layerCount = reader.ReadByte();
+                List<Map.DataLayer> layers = new List<Map.DataLayer>( layerCount );
+                for( int i = 0; i < layerCount; i++ ) {
+                    Map.DataLayer layer = new Map.DataLayer {
+                        Type = (Map.DataLayerType)reader.ReadByte(),
+                        Offset = reader.ReadInt64(),
+                        CompressedLength = reader.ReadInt32(),
+                        GeneralPurposeField = reader.ReadInt32(),
+                        ElementSize = reader.ReadInt32(),
+                        ElementCount = reader.ReadInt32()
+                    };
+                    layers.Add( layer );
+                }
+
+
+                // read metadata
+                int metaSize = reader.ReadInt32();
+
+                using( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Decompress ) ) {
+                    BinaryReader br = new BinaryReader( ds );
+                    for( int i = 0; i < metaSize; i++ ) {
+                        string group = ReadLengthPrefixedString( br ).ToLowerInvariant();
+                        string key = ReadLengthPrefixedString( br ).ToLowerInvariant();
+                        string newValue = ReadLengthPrefixedString( br );
+
+                        string oldValue = map.GetMeta( group, key );
+
+                        if( oldValue != null && oldValue != newValue ) {
+                            Logger.Log( "MapFCMv3.LoadHeader: Duplicate metadata entry found for [{0}].[{1}]. " +
+                                        "Old value (overwritten): \"{2}\". New value: \"{3}\"", LogType.Warning,
+                                        group, key, map.GetMeta( group, key ), newValue );
+                        }
+                        if( group == "zones" ) {
+                            try {
+                                map.AddZone( new Zone( newValue, map.World ) );
+                            } catch( Exception ex ) {
+                                Logger.Log( "MapFCMv3.LoadHeader: Error importing zone definition: {0}", LogType.Error, ex );
+                            }
+                        } else {
+                            map.SetMeta( group, key, newValue );
+                        }
+                    }
+                }
 
                 return map;
             }
@@ -86,15 +135,11 @@ namespace fCraft.MapConversion {
                 }
 
                 // read dimensions
-                int widthX=reader.ReadInt16();
+                int widthX = reader.ReadInt16();
                 int height = reader.ReadInt16();
                 int widthY = reader.ReadInt16();
 
                 Map map = new Map( null, widthX, widthY, height, false );
-
-                if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
-                }
 
                 // read spawn
                 map.Spawn.X = (short)reader.ReadInt32();
@@ -102,6 +147,10 @@ namespace fCraft.MapConversion {
                 map.Spawn.Y = (short)reader.ReadInt32();
                 map.Spawn.R = reader.ReadByte();
                 map.Spawn.L = reader.ReadByte();
+
+                if( !map.ValidateHeader() ) {
+                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                }
 
                 // read modification/creation times
                 map.DateModified = Server.TimestampToDateTime( reader.ReadUInt32() );
