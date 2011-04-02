@@ -547,6 +547,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdServerInfo = new CommandDescriptor {
             Name = "sinfo",
+            Aliases = new[] { "serverreport" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Help = "Shows server stats",
@@ -556,20 +557,22 @@ namespace fCraft {
         internal static void ServerInfo( Player player, Command cmd ) {
             Process.GetCurrentProcess().Refresh();
             player.Message( "Servers stats: Up for {0:0.0} hours, using {1:0} MB of memory",
-                            DateTime.Now.Subtract( Server.ServerStart ).TotalHours,
+                            DateTime.UtcNow.Subtract( Server.ServerStart ).TotalHours,
                             (Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
 
-            player.Message( "Averaging {0:0.0}% CPU in last minute, {1:0.0}% CPU overall.",
-                            Server.CPUUsageLastMinute * 100,
-                            Server.CPUUsageTotal * 100 );
+            if( Server.IsMonitoringCPUUsage ) {
+                player.Message( "   Averaging {0:0.0}% CPU in last minute, {1:0.0}% CPU overall.",
+                                Server.CPUUsageLastMinute * 100,
+                                Server.CPUUsageTotal * 100 );
+            }
 
-            player.Message( "    There are {0} players in the database.",
+            player.Message( "   There are {0} players in the database.",
                             PlayerDB.CountTotalPlayers() );
-            player.Message( "    Of those, {0} are banned, and {1} are IP-banned.",
+            player.Message( "   Of those, {0} are banned, and {1} are IP-banned.",
                             PlayerDB.CountBannedPlayers(),
                             IPBanList.CountBans() );
 
-            player.Message( "    {0} worlds available ({1} loaded), {2} players online.",
+            player.Message( "   {0} worlds available ({1} loaded), {2} players online.",
                             Server.WorldList.Length,
                             Server.CountLoadedWorlds(),
                             Server.CountVisiblePlayers( player ) );

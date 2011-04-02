@@ -249,7 +249,7 @@ namespace fCraft {
             if( !serverInitialized ) {
                 throw new Exception( "Server.InitServer() must be called before Server.StartServer()" );
             }
-            ServerStart = DateTime.Now;
+            ServerStart = DateTime.UtcNow;
 
             RaiseEvent( Starting );
 
@@ -324,7 +324,13 @@ namespace fCraft {
             Scheduler.AddTask( CheckIdles ).RunForever( CheckIdlesInterval );
 
             // Monitor CPU usage (every 30s)
-            Scheduler.AddTask( MonitorProcessorUsage ).RunForever( MonitorProcessorUsageInterval );
+            try {
+                MonitorProcessorUsage( null );
+                Scheduler.AddTask( MonitorProcessorUsage ).RunForever( MonitorProcessorUsageInterval,
+                                                                       MonitorProcessorUsageInterval );
+            } catch( Exception ex ) {
+                Logger.Log( "Server.StartServer: Could not start monitoring CPU use: {0}", LogType.Error, ex );
+            }
 
             // Save PlayerDB in the background (every 60s)
             Scheduler.AddBackgroundTask( PlayerDB.SaveTask ).RunForever( PlayerDB.SaveInterval, TimeSpan.FromSeconds( 15 ) );
@@ -1199,16 +1205,21 @@ namespace fCraft {
 
 
         // measures CPU usage
-        static TimeSpan oldCPUTime = new TimeSpan( 0 );
-        public static float CPUUsageTotal, CPUUsageLastMinute;
-        const int CPUMonitorInterval = 60000; // 1 minute
+        static TimeSpan oldCPUTime = new TimeSpan( 0 ); 
+        public static double CPUUsageTotal, CPUUsageLastMinute; 
         static readonly TimeSpan MonitorProcessorUsageInterval = TimeSpan.FromSeconds( 30 );
+        static DateTime LastMonitorTime = DateTime.UtcNow;
+        public static bool IsMonitoringCPUUsage;
 
         public static void MonitorProcessorUsage( object param ) {
             TimeSpan newCPUTime = Process.GetCurrentProcess().TotalProcessorTime;
-            CPUUsageLastMinute = (float)((newCPUTime - oldCPUTime).TotalMilliseconds / (Environment.ProcessorCount * CPUMonitorInterval));
-            CPUUsageTotal = (float)(newCPUTime.TotalMilliseconds / (Environment.ProcessorCount * DateTime.Now.Subtract( ServerStart ).TotalMilliseconds));
+            CPUUsageLastMinute = (newCPUTime - oldCPUTime).TotalSeconds /
+                                 (Environment.ProcessorCount * DateTime.UtcNow.Subtract( LastMonitorTime ).TotalSeconds);
+            LastMonitorTime = DateTime.UtcNow;
+            CPUUsageTotal = newCPUTime.TotalSeconds /
+                            (Environment.ProcessorCount * DateTime.UtcNow.Subtract( ServerStart ).TotalSeconds);
             oldCPUTime = newCPUTime;
+            IsMonitoringCPUUsage = true;
         }
 
         #endregion
