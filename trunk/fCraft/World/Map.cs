@@ -903,6 +903,7 @@ namespace fCraft {
                 case DataLayerType.Blocks:
                     Blocks = new byte[layer.ElementCount];
                     stream.Read( Blocks, 0, Blocks.Length );
+                    RemoveUnknownBlocktypes( false );
                     break;
 
                 case DataLayerType.BlockUndo:

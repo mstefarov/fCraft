@@ -43,22 +43,7 @@ namespace fCraftUI {
                     if( update.UpdateAvailable ) {
                         new UpdateWindow( update, false ).ShowDialog();
                     }
-                    /*
-                        if( ConfigKey.UpdateMode.GetEnum<UpdaterMode>() == UpdaterMode.Notify ) {
-                            Logger.Log( String.Format( Environment.NewLine +
-                                                "*** A new version of fCraft is available: v{0}, released {1:0} day(s) ago. ***" +
-                                                Environment.NewLine,
-                                                update.LatestRelease.VersionString,
-                                                update.LatestRelease.Age.TotalDays), LogType.ConsoleOutput );
-                            StartServer();
-                        } else {
-                            bool auto = (ConfigKey.UpdateMode.GetEnum<UpdaterMode>() == UpdaterMode.Auto);
-                            UpdateWindow updateWindow = new UpdateWindow( update, this, auto );
-                            updateWindow.ShowDialog();
-                        }
-                    } else {
-                        StartServer();
-                    }*/
+
                     StartServer();
                 } else {
                     Shutdown( ShutdownReason.FailedToInitialize, false );
@@ -126,7 +111,8 @@ namespace fCraftUI {
                     logBox.SelectionStart = logBox.Text.Length;
                     logBox.ScrollToCaret();
                 }
-            } catch( ObjectDisposedException ) { }
+            } catch( ObjectDisposedException ) {
+            } catch( InvalidOperationException ) { }
         }
 
 
@@ -141,7 +127,8 @@ namespace fCraftUI {
                     urlDisplay.Enabled = true;
                     bPlay.Enabled = true;
                 }
-            } catch( ObjectDisposedException ) { }
+            } catch( ObjectDisposedException ) {
+            } catch( InvalidOperationException ) { }
         }
 
 
@@ -157,7 +144,8 @@ namespace fCraftUI {
                         playerList.Items.Add( item );
                     }
                 }
-            } catch( ObjectDisposedException ) { }
+            } catch( ObjectDisposedException ) {
+            } catch( InvalidOperationException ) { }
         }
 
 
@@ -167,7 +155,8 @@ namespace fCraftUI {
                     shutdownComplete = true;
                     Application.Exit();
                 } );
-            } catch( ObjectDisposedException ) { }
+            } catch( ObjectDisposedException ) {
+            } catch( InvalidOperationException ) { }
         }
 
 

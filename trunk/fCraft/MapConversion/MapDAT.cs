@@ -140,6 +140,14 @@ namespace fCraft.MapConversion {
         }
 
 
+        public static byte MapBlock( byte block ) {
+            return Mapping[block];
+        }
+
+        public static Block MapBlock( Block block ) {
+            return (Block)Mapping[(byte)block];
+        }
+
         public Map Load( string fileName ) {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 byte[] temp = new byte[8];
