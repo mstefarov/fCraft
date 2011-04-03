@@ -144,7 +144,6 @@ namespace fCraft.MapConversion {
                 using( GZipStream decompressor = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
                     decompressor.Read( map.Blocks, 0, map.Blocks.Length );
                 }
-                map.ChangedSinceSave = false;
 
                 return map;
             }
