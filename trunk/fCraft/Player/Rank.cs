@@ -310,7 +310,7 @@ namespace fCraft {
             get;
             private set;
         }
-        public string[] PermissionLimitStrings;
+        public readonly string[] PermissionLimitStrings;
 
         public Rank GetLimit( Permission permission ) {
             return PermissionLimits[(int)permission] ?? this;
@@ -320,6 +320,7 @@ namespace fCraft {
         public void SetLimit( Permission permission, Rank limit ) {
             PermissionLimits[(int)permission] = limit;
         }
+
 
         public void ResetLimit( Permission permission ) {
             SetLimit( permission, null );
@@ -342,6 +343,7 @@ namespace fCraft {
         #region Validation
 
         public static bool IsValidRankName( string rankName ) {
+            if( rankName == null ) throw new ArgumentNullException( "rankName" );
             if( rankName.Length < 1 || rankName.Length > 16 ) return false;
             for( int i = 0; i < rankName.Length; i++ ) {
                 char ch = rankName[i];
@@ -353,6 +355,7 @@ namespace fCraft {
         }
 
         public static bool IsValidID( string id ) {
+            if( id == null ) throw new ArgumentNullException( "id" );
             if( id.Length != 16 ) return false;
             for( int i = 0; i < id.Length; i++ ) {
                 char ch = id[i];

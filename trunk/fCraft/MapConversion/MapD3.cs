@@ -145,7 +145,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        Map LoadHeaderInternal( Stream stream ) {
+        static Map LoadHeaderInternal( Stream stream ) {
             // Setup a GZipStream to decompress and read the map file
             using( GZipStream gs = new GZipStream( stream, CompressionMode.Decompress, true ) ) {
                 BinaryReader bs = new BinaryReader( gs );
@@ -172,9 +172,9 @@ namespace fCraft.MapConversion {
                         spawn.H = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
                         map.SetSpawn( spawn );
                         break;
-                    case 1030:
-                    case 1040:
-                    case 1050:
+                    //case 1030:
+                    //case 1040:
+                    //case 1050:
                     default:
                         spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
                         spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );

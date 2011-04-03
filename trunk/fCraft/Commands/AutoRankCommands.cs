@@ -488,6 +488,9 @@ namespace fCraft {
 
         internal static void DoAutoRankAll( Player player, PlayerInfo[] list, bool silent, string message ) {
 
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( list == null ) throw new ArgumentNullException( "list" );
+
             player.Message( "AutoRankAll: Evaluating {0} players...", list.Length );
 
             Stopwatch sw = Stopwatch.StartNew();

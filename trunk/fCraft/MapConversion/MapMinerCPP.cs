@@ -83,7 +83,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        Map LoadHeaderInternal( Stream stream ) {
+        static Map LoadHeaderInternal( Stream stream ) {
             BinaryReader bs = new BinaryReader( stream );
 
             // Read in the magic number

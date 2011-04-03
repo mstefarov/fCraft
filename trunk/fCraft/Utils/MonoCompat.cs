@@ -36,9 +36,10 @@ namespace fCraft {
                         int revision = Int32.Parse( parts[2].Substring( 0, parts[2].IndexOf( ' ' ) ) );
                         MonoVersion = new Version( major, minor, revision );
                         IsSGen = (major == 2 && minor > 6);
-                    } catch( Exception ex ) {
-                        Logger.Log( "Could not parse Mono version ({0}).", LogType.Error, MonoVersionString );
-                        AssumeUnknownMonoVersion();
+                    } catch( Exception ) {
+                        Logger.Log( "Could not parse Mono version.", LogType.Error );
+                        MonoVersion = null;
+                        IsSGen = false;
                     }
                 } else {
                     AssumeUnknownMonoVersion();

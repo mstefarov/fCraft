@@ -98,7 +98,6 @@
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
     <Compile Include="Utils\Vector.cs" />
-    <Compile Include="World\BlockDB.cs" />
     <Compile Include="Commands\CommandDescriptor.cs" />
     <Compile Include="Commands\DrawCommands.cs" />
     <Compile Include="Commands\WorldCommands.cs" />

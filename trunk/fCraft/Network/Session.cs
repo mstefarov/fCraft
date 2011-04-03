@@ -722,10 +722,7 @@ namespace fCraft {
 
 
         internal bool JoinWorldNow( World newWorld, bool firstTime ) {
-            if( newWorld == null ) {
-                Logger.Log( "Session.JoinWorldNow: Requested to join a non-existing (null) world.", LogType.Error );
-                return false;
-            }
+            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
 
             if( !Player.CanJoin( newWorld ) ) {
                 Logger.Log( "Session.JoinWorldNow: Access limits prevented {0} from joining {1}.", LogType.Error,
@@ -998,5 +995,3 @@ namespace fCraft.Events {
 
 }
 #endregion
-
-

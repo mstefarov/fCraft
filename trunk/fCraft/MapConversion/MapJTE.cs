@@ -111,7 +111,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        Map LoadHeaderInternal( Stream stream ) {
+        static Map LoadHeaderInternal( Stream stream ) {
             BinaryReader bs = new BinaryReader( stream );
 
             byte version = bs.ReadByte();

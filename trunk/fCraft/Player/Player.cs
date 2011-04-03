@@ -127,6 +127,7 @@ namespace fCraft {
 
         // Parses message incoming from the player
         public void ParseMessage( string message, bool fromConsole ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             switch( CommandList.GetMessageType( message ) ) {
                 case MessageType.Chat:
                     if( !Can( Permission.Chat ) ) return;
@@ -274,6 +275,7 @@ namespace fCraft {
 
         // Queues a system message with a custom color
         public void MessagePrefixed( string prefix, string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             if( this == Console ) {
                 Logger.LogToConsole( message );
             } else {
@@ -291,6 +293,7 @@ namespace fCraft {
 
         // Sends a message directly (synchronously). Should only be used from Session.IoThread
         public void MessageNow( string message, params object[] args ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             message = String.Format( message, args );
             if( Session == null ) {
                 Logger.LogToConsole( message );
@@ -319,6 +322,8 @@ namespace fCraft {
 
 
         internal void ManyMatchesMessage( string itemType, IEnumerable<IClassy> names ) {
+            if( itemType == null ) throw new ArgumentNullException( "itemType" );
+            if( names == null ) throw new ArgumentNullException( "names" );
             bool first = true;
             StringBuilder list = new StringBuilder();
             foreach( IClassy item in names ) {
@@ -333,6 +338,8 @@ namespace fCraft {
 
 
         public void AskForConfirmation( Command cmd, string message, params object[] args ) {
+            if( cmd == null ) throw new ArgumentNullException( "cmd" );
+            if( message == null ) throw new ArgumentNullException( "message" );
             CommandToConfirm = cmd;
             CommandToConfirmDate = DateTime.UtcNow;
             Message( "{0} Type &H/ok&S to continue.", String.Format( message, args ) );
@@ -598,6 +605,7 @@ namespace fCraft {
 
 
         public bool CanJoin( World worldToJoin ) {
+            if( worldToJoin == null ) throw new ArgumentNullException( "worldToJoin" );
             return (this == Console) || worldToJoin.AccessSecurity.Check( Info );
         }
 
@@ -649,6 +657,7 @@ namespace fCraft {
 
 
         public bool CanSee( Player other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
             if( this == Console ) return true;
             return !other.IsHidden || Info.Rank.CanSee( other.Info.Rank );
         }
@@ -751,6 +760,7 @@ public static bool IsValidName( string name ) {
             return new IPEndPoint( Server.IP, 0 );
         }
         public static bool CheckPaidStatus( string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckUrl + Uri.EscapeDataString( name ) );
             request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
             request.Timeout = PaidCheckTimeout;

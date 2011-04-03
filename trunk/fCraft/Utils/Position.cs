@@ -21,14 +21,6 @@ namespace fCraft {
             L = 0;
         }
 
-        public void Set( short x, short y, short h, byte r, byte l ) {
-            X = x;
-            Y = y;
-            H = h;
-            R = r;
-            L = l;
-        }
-
 
         public void Set( int x, int y, int h, int r, int l ) {
             X = (short)x;

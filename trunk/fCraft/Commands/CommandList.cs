@@ -47,6 +47,7 @@ namespace fCraft {
 
 
         public static string GetCommandList( Player player, bool listAll ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( CommandDescriptor cmd in Commands.Values ) {
@@ -63,12 +64,14 @@ namespace fCraft {
 
 
         public static void RegisterCustomCommand( CommandDescriptor descriptor ) {
+            if( descriptor == null ) throw new ArgumentNullException( "descriptor" );
             descriptor.IsCustom = true;
             RegisterCommand( descriptor );
         }
 
 
         internal static void RegisterCommand( CommandDescriptor descriptor ) {
+            if( descriptor == null ) throw new ArgumentNullException( "descriptor" );
 
 #if DEBUG
             if( descriptor.Category == CommandCategory.None && !descriptor.IsCustom ) {
@@ -126,7 +129,7 @@ namespace fCraft {
 
 
         public static CommandDescriptor GetDescriptor( string commandName ) {
-            if( commandName == null ) return null;
+            if( String.IsNullOrEmpty( commandName ) ) return null;
             commandName = commandName.ToLower();
             if( Commands.ContainsKey( commandName ) ) {
                 return Commands[commandName];

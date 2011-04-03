@@ -343,6 +343,9 @@ namespace fCraft {
 
         internal static void DoIPBan( Player player, IPAddress address, string reason, string playerName, bool banAll, bool unban ) {
 
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( address == null ) throw new ArgumentNullException( "address" );
+
             if( address == IPAddress.None || address == IPAddress.Any ) {
                 player.Message( "Invalid IP: {0}", address );
                 return;
@@ -379,6 +382,10 @@ namespace fCraft {
                         Server.SendToAll( "&WBan reason: {0}", reason );
                     }
 
+                    foreach( Player other in Server.FindPlayers( address ) ) {
+                        DoKick( player, other, reason, true, LeaveReason.BanIP );
+                    }
+
                 } else {
                     player.Message( "{0} is already banned.", address );
                 }
@@ -392,6 +399,7 @@ namespace fCraft {
                                                     otherInfo.GetClassyName(), player.GetClassyName() );
                         }
                     }
+
                     foreach( Player other in Server.FindPlayers( address ) ) {
                         DoKick( player, other, reason, true, LeaveReason.BanAll );
                     }
@@ -450,6 +458,10 @@ namespace fCraft {
 
 
         internal static bool DoKick( Player player, Player target, string reason, bool silent, LeaveReason leaveReason ) {
+
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( target == null ) throw new ArgumentNullException( "target" );
+
             if( player == target ) {
                 player.Message( "You cannot kick yourself." );
                 return false;

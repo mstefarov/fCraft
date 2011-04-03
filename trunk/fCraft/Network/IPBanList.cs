@@ -56,7 +56,7 @@ namespace fCraft {
         internal static void Save() {
             if( !IsLoaded ) return;
             Logger.Log( "IPBanList.Save: Saving IP ban list ({0} records).", LogType.Debug, Bans.Count );
-            string tempFile = Paths.IPBanListFileName + ".temp";
+            const string tempFile = Paths.IPBanListFileName + ".temp";
 
             lock( BanListLock ) {
                 using( StreamWriter writer = File.CreateText( tempFile ) ) {

@@ -57,6 +57,8 @@ namespace fCraft {
 
                     string header = reader.ReadLine(); // header
 
+                    if( header == null ) return; // PlayerDB is an empty file
+
                     lock( Locker ) {
                         // first number of the header is MaxID
                         int maxIDField;
@@ -111,7 +113,7 @@ namespace fCraft {
         internal static void Save() {
             Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, Tree.Count );
 
-            string tempFileName = Paths.PlayerDBFileName + ".temp";
+            const string tempFileName = Paths.PlayerDBFileName + ".temp";
             PlayerInfo[] listCopy = GetPlayerListCopy();
 
             using( FileStream fs = new FileStream( tempFileName, FileMode.Create, FileAccess.Write, FileShare.None, 64 * 1024 ) ) {
@@ -282,7 +284,7 @@ namespace fCraft {
         internal static int CountInactivePlayers() {
             int count;
             lock( Locker ) {
-                playersByIP= new Dictionary<IPAddress, List<PlayerInfo>>();
+                playersByIP = new Dictionary<IPAddress, List<PlayerInfo>>();
                 PlayerInfo[] playerInfoListCache = PlayerInfoList;
                 for( int i = 0; i < playerInfoListCache.Length; i++ ) {
                     if( !playersByIP.ContainsKey( playerInfoListCache[i].LastIP ) ) {

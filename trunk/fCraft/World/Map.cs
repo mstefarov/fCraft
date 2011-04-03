@@ -971,7 +971,8 @@ namespace fCraft {
                         //MaxPlayerID = 256;
                         for( int i = 0; i < layer.ElementCount; i++ ) {
                             int length = reader.ReadByte();
-                            byte[] stringData = reader.ReadBytes( length );
+                            //byte[] stringData =
+                            reader.ReadBytes( length );
                             //string name = ASCIIEncoding.ASCII.GetString( stringData );
                             //PlayerNames[MaxPlayerID] = name;
                             //PlayerIDs[name] = MaxPlayerID;

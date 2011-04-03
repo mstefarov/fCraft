@@ -32,16 +32,16 @@ namespace fCraft {
 
 
         const string AutoRankFile = "autorank.xml";
-        static readonly List<Criterion> criteria = new List<Criterion>();
+        static readonly List<Criterion> Criteria = new List<Criterion>();
 
 
         public static void Add( Criterion criterion ) {
-            criteria.Add( criterion );
+            Criteria.Add( criterion );
         }
 
 
         public static Rank Check( PlayerInfo info ) {
-            foreach( Criterion c in criteria ) {
+            foreach( Criterion c in Criteria ) {
                 if( c.FromRank == info.Rank && !info.Banned && c.Condition.Eval( info ) ) {
                     return c.ToRank;
                 }
@@ -51,7 +51,7 @@ namespace fCraft {
 
 
         public static void Init() {
-            criteria.Clear();
+            Criteria.Clear();
 
             if( File.Exists( AutoRankFile ) ) {
                 try {
@@ -63,7 +63,7 @@ namespace fCraft {
                             Logger.Log( "AutoRank.Init: Could not parse an AutoRank criterion: {0}", LogType.Error, ex );
                         }
                     }
-                    if( criteria.Count == 0 ) {
+                    if( Criteria.Count == 0 ) {
                         Logger.Log( "AutoRank.Init: No criteria loaded.", LogType.Warning );
                     }
                 } catch( Exception ex ) {

@@ -51,7 +51,7 @@ namespace fCraft {
         RedFlower = 38,
         BrownMushroom = 39,
         RedMushroom = 40,
-        
+
         Gold = 41,
         Steel = 42,
         DoubleStair = 43,

@@ -341,7 +341,10 @@ namespace fCraft {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
 
                     if( heightmap[x, y] < desiredWaterLevel ) {
-                        float depth = (args.MaxDepthVariation != 0 ? (args.MaxDepth + altmap[x, y] * args.MaxDepthVariation) : args.MaxDepth);
+                        float depth = args.MaxDepth;
+                        if( altmap != null ) {
+                            depth += altmap[x, y] * args.MaxDepthVariation;
+                        }
                         slope = slopemap[x, y] * depth;
                         level = args.WaterLevel - (int)Math.Round( Math.Pow( 1 - heightmap[x, y] / desiredWaterLevel, args.BelowFuncExponent ) * depth );
 
