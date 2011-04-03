@@ -125,6 +125,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PreBuildEvent>$(TargetDir)fCraftUpdaterBuilder.exe</PreBuildEvent>
+    <PreBuildEvent>"$(TargetDir)fCraftUpdaterBuilder.exe"</PreBuildEvent>
   </PropertyGroup>
 </Project>
