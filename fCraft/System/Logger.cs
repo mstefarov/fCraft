@@ -281,6 +281,11 @@ namespace fCraft {
                     // Mono-specific bug in MonitorProcessorUsage()
                     return true;
 
+                } else if( ex is InvalidOperationException && ex.StackTrace.Contains( "MD5CryptoServiceProvider" ) ) {
+                    message = "Some Windows settings are preventing fCraft from doing player name verification. " +
+                              "See http://support.microsoft.com/kb/811833";
+                    return true;
+
                 } else {
                     return false;
                 }

@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using fCraft.MapConversion;
 
 namespace fCraft {
     public sealed class Session {
@@ -335,12 +336,10 @@ namespace fCraft {
                                 byte type = reader.ReadByte();
 
                                 if( type > 49 ) {
-                                    Logger.Log( "{0} was kicked for sending bad SetTile packets.", LogType.SuspiciousActivity,
-                                                Player.Name );
-                                    Server.SendToAll( "{0}&W was kicked for attempted hacking (0x05).", Player.GetClassyName() );
-                                    KickNow( "Hacking detected: illegal SetTile packet.", LeaveReason.InvalidSetTileKick );
-                                    return;
-                                } else if( !Player.World.Map.InBounds( x, y, h ) ) {
+                                    type = MapDAT.MapBlock( type );
+                                }
+                                
+                                if( !Player.World.Map.InBounds( x, y, h ) ) {
                                     continue;
                                 } else {
                                     if( Player.PlaceBlock( x, y, h, mode == 1, (Block)type ) ) return;
