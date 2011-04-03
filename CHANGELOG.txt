@@ -1,3 +1,20 @@
+0.512
+ Feature: /zones can now be used from console, and can be used on any world (active or inactive).
+ Feature: Improved D3 map importer.
+ Fix: Added missing filename sanity/safety checks to /dumpstats (#3267362, thanks to Hellenion)
+ Fix: Fixed mixed up messages shown in /waccess and /wbuild (#3179189)
+ Fix: Fixed crash reports sometimes failing to submit.
+ Fix: Fixed /dumpstats crashing if a rank had 0 players.
+ Fix: Made Mono version detection less crashy (#3267476, thanks to Hellenion again)
+ Fix: Fixed MapUtility.LoadHeader terminating early, before going through all fallback converters.
+ Fix: Fixed ConfigTool tab order.
+ Fix: Fixed fCraft reporting inaccurate CPU usage figures.
+ Fix: Fixed a NullReferenceException in /rank if an invalid player name was given.
+ Fix: Fixed fCraft project not building under Windows if path contains spaces.
+ Change: Added "/serverreport" as an alias for "/sinfo"
+ Change: Improved the way fCraft handles and reports map loading errors.
+ API Change: Moved all filename constants (e.g. "PlayerDB.txt") to Paths class.
+
 0.511
  Feature: Further improvements to Mono support. fCraft will now utilize mono-sgen whenever possible.
  Fix: Fixed fCraftUI ignoring command-line arguments.

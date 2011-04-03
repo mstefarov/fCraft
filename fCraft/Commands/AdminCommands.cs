@@ -533,6 +533,7 @@ namespace fCraft {
                     }
                 } else {
                     player.Message( "Player not found. Please specify a valid name." );
+                    return;
                 }
             }
 

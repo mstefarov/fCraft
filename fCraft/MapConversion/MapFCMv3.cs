@@ -208,7 +208,6 @@ namespace fCraft.MapConversion {
                         map.ReadLayer( layers[i], ds );
                     }
                 }
-                map.ChangedSinceSave = false;
                 return map;
             }
         }
