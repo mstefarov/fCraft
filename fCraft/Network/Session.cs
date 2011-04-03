@@ -686,9 +686,12 @@ namespace fCraft {
             if( File.Exists( Paths.GreetingFileName ) ) {
                 string[] greetingText = File.ReadAllLines( Paths.GreetingFileName );
                 foreach( string greetingLine in greetingText ) {
-                    Player.Message( greetingLine
-                                    .Replace( "{SERVER_NAME}", ConfigKey.ServerName.GetString() )
-                                    .Replace( "{RANK}", Player.Info.Rank.GetClassyName() ) );
+                    StringBuilder sb = new StringBuilder( greetingLine );
+                    sb.Replace( "{SERVER_NAME}", ConfigKey.ServerName.GetString() );
+                    sb.Replace( "{RANK}", Player.Info.Rank.GetClassyName() );
+                    sb.Replace( "{PLAYER_NAME}", Player.GetClassyName() );
+                    sb.Replace( "{TIME}", DateTime.Now.ToShortTimeString() );
+                    Player.Message( sb.ToString() );
                 }
             } else {
                 if( firstTime ) {
