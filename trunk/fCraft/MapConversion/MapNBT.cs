@@ -89,17 +89,18 @@ namespace fCraft.MapConversion {
                                    mapTag["Height"].GetShort(),
                                    false );
 
-                if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
-                }
-
-                map.Blocks = mapTag["Blocks"].GetBytes();
-
                 map.Spawn.X = mapTag["Spawn"][0].GetShort();
                 map.Spawn.H = mapTag["Spawn"][1].GetShort();
                 map.Spawn.Y = mapTag["Spawn"][2].GetShort();
                 map.Spawn.R = 0;
                 map.Spawn.L = 0;
+
+                if( !map.ValidateHeader() ) {
+                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                }
+
+                map.Blocks = mapTag["Blocks"].GetBytes();
+                map.RemoveUnknownBlocktypes( false );
 
                 return map;
             }

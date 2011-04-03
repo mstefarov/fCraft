@@ -202,12 +202,7 @@ namespace fCraft.MapConversion {
                 // Read in the map data
                 map.Blocks = new byte[map.WidthX * map.WidthY * map.Height];
                 mapStream.Read( map.Blocks, 0, map.Blocks.Length );
-
-                for( int i = 0; i < map.Blocks.Length; i++ ) {
-                    if( map.Blocks[i] > 49 ) {
-                        map.Blocks[i] = Mapping[map.Blocks[i]];
-                    }
-                }
+                map.ConvertBlockTypes( Mapping );
 
                 return map;
             }
