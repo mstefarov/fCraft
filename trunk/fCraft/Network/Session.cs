@@ -691,6 +691,10 @@ namespace fCraft {
                     sb.Replace( "{RANK}", Player.Info.Rank.GetClassyName() );
                     sb.Replace( "{PLAYER_NAME}", Player.GetClassyName() );
                     sb.Replace( "{TIME}", DateTime.Now.ToShortTimeString() );
+                    sb.Replace( "{WORLD}", Player.World.GetClassyName() );
+                    sb.Replace( "{PLAYERS}", Server.CountVisiblePlayers( Player ).ToString() );
+                    sb.Replace( "{WORLDS}", Server.WorldList.Length.ToString() );
+                    sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
                     Player.Message( sb.ToString() );
                 }
             } else {
