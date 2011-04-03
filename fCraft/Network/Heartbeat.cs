@@ -92,7 +92,7 @@ namespace fCraft {
                 request.BeginGetRequestStream( RequestCallback, formData );
             } else {
                 // If heartbeats are disabled, the data is written to a text file (heartbeatdata.txt)
-                string tempFile = Paths.HeartbeatDataFileName + ".tmp";
+                const string tempFile = Paths.HeartbeatDataFileName + ".tmp";
 
                 File.WriteAllLines( tempFile, new[]{
                         Server.Salt,

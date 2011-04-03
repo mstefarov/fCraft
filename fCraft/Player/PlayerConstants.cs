@@ -3,19 +3,35 @@
 
 namespace fCraft {
     public enum LeaveReason {
-        Unknown = 0x00,             // default
-        ClientQuit = 0x01,          // client exited
-        ClientTimeout = 0x02,       // client timed out
-        ClientReconnect = 0x03,     // client reconnected before old session timed out
+        /// <summary> Unknown leave reason (default) </summary>
+        Unknown = 0x00,
 
-        Kick = 0x10,                // manual/misc kick
-        IdleKick = 0x11,            // afk kick
-        InvalidMessageKick = 0x12,  // invalid characters in message
-        InvalidSetTileKick = 0x13,  // invalid blocktype
-        InvalidOpcodeKick = 0x14,   // unknown opcode/packet
-        BlockSpamKick = 0x15,       // triggered antigrief / block spam
-        MessageSpamKick = 0x16,     // message spam (after warnings)
-        MovementSpamKick = 0x17,    // movement packet spam (if speedhacks are not allowed)
+        /// <summary> Client exited normally </summary>
+        ClientQuit = 0x01,
+
+        /// <summary> Client reconnected before old session timed out, or connected from another IP. </summary>
+        ClientReconnect = 0x03,
+
+        /// <summary> Manual or miscellaneous kick </summary>
+        Kick = 0x10,
+
+        /// <summary> Kicked for being idle/AFK. </summary>
+        IdleKick = 0x11,
+
+        /// <summary> Invalid characters in a message </summary>
+        InvalidMessageKick = 0x12,
+
+        /// <summary> Attempted to place invalid blocktype </summary>
+        InvalidSetTileKick = 0x13,
+
+        /// <summary> Unknown opcode or packet </summary>
+        InvalidOpcodeKick = 0x14,
+
+        /// <summary> Triggered antigrief / block spam </summary>
+        BlockSpamKick = 0x15,
+
+        /// <summary> Kicked for message spam (after warnings) </summary>
+        MessageSpamKick = 0x16,
 
         /// <summary> Banned directly by name </summary>
         Ban = 0x20,
@@ -37,7 +53,7 @@ namespace fCraft {
         ServerFull = 0x32,
 
 
-        /// <summary> Login failed due to protocol violation/mismatch </summary>
+        /// <summary> Login failed due to protocol violation/mismatch (e.g. SMP client) </summary>
         ProtocolViolation = 0x41,
 
         /// <summary> Login failed due to unverified player name </summary>

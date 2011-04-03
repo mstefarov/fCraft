@@ -40,6 +40,7 @@ namespace fCraft {
 
 
         public World( string name ) {
+            if( !Player.IsValidName( name ) ) throw new ArgumentException( "Incorrect world name format" );
             Name = name;
         }
 
@@ -110,6 +111,7 @@ namespace fCraft {
 
 
         public void ChangeMap( Map newMap ) {
+            if( newMap == null ) throw new ArgumentNullException( "newMap" );
             lock( playerListLock ) {
                 lock( MapLock ) {
                     Map = null;
@@ -155,6 +157,7 @@ namespace fCraft {
         #region PlayerList
 
         public bool AcceptPlayer( Player player, bool announce ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             lock( playerListLock ) {
 
                 // load the map, if it's not yet loaded

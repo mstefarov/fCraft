@@ -144,13 +144,12 @@ namespace fCraft.MapConversion {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 byte[] temp = new byte[8];
                 Map map = null;
-                byte[] data;
 
                 mapStream.Seek( -4, SeekOrigin.End );
                 mapStream.Read( temp, 0, sizeof( int ) );
                 mapStream.Seek( 0, SeekOrigin.Begin );
                 int length = BitConverter.ToInt32( temp, 0 );
-                data = new byte[length];
+                byte[] data = new byte[length];
                 using( GZipStream reader = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
                     reader.Read( data, 0, length );
                 }

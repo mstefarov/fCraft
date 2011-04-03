@@ -293,13 +293,13 @@ namespace fCraft {
                 if( worker.CancellationPending && imageBmp != null ) {
                     try {
                         imageBmp.Dispose();
-                    } catch(ObjectDisposedException) { }
+                    } catch( ObjectDisposedException ) { }
                 }
             }
         }
 
 
-         void BlendTile() {
+        void BlendTile() {
             int pos = (x + (Rot == 1 || Rot == 3 ? offsetY : offsetX)) * isoX + (y + (Rot == 1 || Rot == 3 ? offsetX : offsetY)) * isoY + h * isoH + isoOffset;
             if( block > 49 ) return;
             int tileOffset = block * TileStride;

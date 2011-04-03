@@ -74,7 +74,7 @@ namespace fCraft {
 
 
 
-        public const string PlayerDBFileName ="PlayerDB.txt";
+        public const string PlayerDBFileName = "PlayerDB.txt";
 
         public const string IPBanListFileName = "ipbans.txt";
 
@@ -84,7 +84,7 @@ namespace fCraft {
 
         public const string RulesFileName = "rules.txt";
 
-        public static string HeartbeatDataFileName = "heartbeatdata.txt";
+        public const string HeartbeatDataFileName = "heartbeatdata.txt";
 
         public const string UpdaterFile = "fCraftUpdater.exe";
 
@@ -143,8 +143,9 @@ namespace fCraft {
         }
 
 
-        public static bool TestFile( string fileLabel, string filename, bool createIfDoesNotExist, bool checkForReadAccess, bool checkForWriteAccess){
+        public static bool TestFile( string fileLabel, string filename, bool createIfDoesNotExist, bool checkForReadAccess, bool checkForWriteAccess ) {
             try {
+                new FileInfo( filename );
                 if( File.Exists( filename ) ) {
                     if( checkForReadAccess ) {
                         using( File.OpenRead( filename ) ) { }
@@ -155,7 +156,6 @@ namespace fCraft {
                 } else if( createIfDoesNotExist ) {
                     using( File.Create( filename ) ) { }
                 }
-                FileInfo info = new FileInfo( filename );
                 return true;
 
             } catch( Exception ex ) {
@@ -255,7 +255,7 @@ namespace fCraft {
 
 
         /// <summary>Checks whether the file exists in a specified way (case-sensitive or case-insensitive)</summary>
-        /// <param name="fi">FileInfo object in question</param>
+        /// <param name="fileInfo">FileInfo object in question</param>
         /// <param name="caseSensitive">Whether check should be case-sensitive or case-insensitive.</param>
         /// <returns>true if file exists, otherwise false</returns>
         public static bool Exists( this FileInfo fileInfo, bool caseSensitive ) {
@@ -278,7 +278,7 @@ namespace fCraft {
         public static void ForceRename( string originalFullFileName, string newFileName ) {
             FileInfo originalFile = new FileInfo( originalFullFileName );
             if( originalFile.Name == newFileName ) return;
-            FileInfo newFile = new FileInfo( Path.Combine(originalFile.DirectoryName, newFileName) );
+            FileInfo newFile = new FileInfo( Path.Combine( originalFile.DirectoryName, newFileName ) );
             string tempFileName = originalFile.FullName + Guid.NewGuid();
             File.Move( originalFile.FullName, tempFileName );
             File.Move( tempFileName, newFile.FullName );

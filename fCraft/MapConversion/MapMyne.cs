@@ -139,11 +139,14 @@ namespace fCraft.MapConversion {
             }
 
             if( metaFile.Contains( "spawn", "x", "y", "z", "h" ) ) {
-                map.Spawn.Set( Int16.Parse( metaFile["spawn", "x"] ) * 32 + 16,
-                               Int16.Parse( metaFile["spawn", "z"] ) * 32 + 16,
-                               Int16.Parse( metaFile["spawn", "y"] ) * 32 + 16,
-                               Byte.Parse( metaFile["spawn", "h"] ),
-                               0 );
+                Position spawn = new Position {
+                    X = (short)(Int16.Parse( metaFile["spawn", "x"] ) * 32 + 16),
+                    Y = (short)(Int16.Parse( metaFile["spawn", "z"] ) * 32 + 16),
+                    H = (short)(Int16.Parse( metaFile["spawn", "y"] ) * 32 + 16),
+                    R = Byte.Parse( metaFile["spawn", "h"] ),
+                    L = 0
+                };
+                map.SetSpawn( spawn );
             } else {
                 map.ResetSpawn();
             }
@@ -158,7 +161,7 @@ namespace fCraft.MapConversion {
 
 
     sealed class INIFile {
-        public const string Separator = "=";
+        const string Separator = "=";
         readonly Dictionary<string, Dictionary<string, string>> contents = new Dictionary<string, Dictionary<string, string>>();
 
         public string this[string section, string key] {
