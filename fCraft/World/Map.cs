@@ -9,7 +9,7 @@ using System.Text;
 using fCraft.MapConversion;
 
 namespace fCraft {
-    public sealed class Map {
+    public unsafe sealed class Map {
 
         public World World;
 
@@ -185,49 +185,6 @@ namespace fCraft {
 
         #region Loading
 
-        /*
-        public static Map Load( World world, string fileName ) {
-
-            // do the loading
-            try {
-                Map map = MapUtility.Load( fileName );
-
-                if( !map.ValidateBlockTypes( false ) ) {
-                    Logger.Log( "MapDAT.Load: Some unknown block types were replaced with air.", LogType.Warning );
-                }
-
-                map.World = world;
-                return map;
-
-            } catch( EndOfStreamException ex ) {
-                Logger.Log( "Map.Load: Unexpected end of file \"{0}\". File may be corrupt, or format unsupported: {1}", LogType.Error,
-                            fileName, ex );
-                return null;
-
-            } catch( Exception ex ) {
-                Logger.Log( "Map.Load: Error trying to read from \"{0}\": {1}", LogType.Error,
-                            fileName, ex );
-                return null;
-            }
-        }
-
-
-        /// <summary>
-        /// Loads map dimensions from specified file.
-        /// </summary>
-        /// <param name="fileName">FULL file name, including path and extension.</param>
-        /// <returns>Map object on success, or null on failure.</returns>
-        public static Map LoadHeaderOnly( string fileName ) {
-            try {
-                return MapUtility.LoadHeader( fileName );
-            } catch( Exception ex ) {
-                Logger.Log( "Map.LoadHeaderOnly: Error occured while trying to parse header of {0}: {1}", LogType.Error,
-                            fileName, ex );
-                return null;
-            }
-        }
-        */
-
         internal bool ValidateHeader() {
             if( !IsValidDimension( WidthX ) ) {
                 Logger.Log( "Map.ValidateHeader: Invalid dimension specified for widthX: {0}.", LogType.Error, WidthX );
@@ -258,6 +215,39 @@ namespace fCraft {
         public static bool IsValidDimension( int dimension ) {
             return dimension > 0 && dimension % 16 == 0 && dimension < 2048;
         }
+
+
+
+        internal bool RemoveUnknownBlocktypes( bool returnOnErrors ) {
+            bool foundUnknownTypes = false;
+            fixed( byte* ptr = Blocks ) {
+                for( int j = 0; j < Blocks.Length; j++ ) {
+                    if( ptr[j] > 49 ) {
+                        if( returnOnErrors ) return false;
+                        ptr[j] = 0;
+                        foundUnknownTypes = true;
+                    }
+                }
+            }
+            if( foundUnknownTypes ) ChangedSinceSave = true;
+            return !foundUnknownTypes;
+        }
+
+
+        public bool ConvertBlockTypes( byte[] mapping ) {
+            bool mapped = false;
+            fixed( byte* ptr = Blocks ) {
+                for( int j = 0; j < Blocks.Length; j++ ) {
+                    if( ptr[j] > 49 ) {
+                        ptr[j] = mapping[ptr[j]];
+                        mapped = true;
+                    }
+                }
+            }
+            if( mapped ) ChangedSinceSave = true;
+            return mapped;
+        }
+
 
         #endregion
 
@@ -468,25 +458,6 @@ namespace fCraft {
         }
 
 
-        internal void CopyBlocks( byte[] source, int offset ) {
-            Blocks = new byte[WidthX * WidthY * Height];
-            Array.Copy( source, offset, Blocks, 0, Blocks.Length );
-            ChangedSinceSave = true;
-        }
-
-
-        internal bool ValidateBlockTypes( bool returnOnErrors ) {
-            bool foundUnknownTypes = false;
-            for( int i = 0; i < Blocks.Length; i++ ) {
-                if( (Blocks[i]) > 49 ) {
-                    if( returnOnErrors ) return false;
-                    Blocks[i] = 0;
-                    foundUnknownTypes = true;
-                }
-            }
-            if( foundUnknownTypes ) ChangedSinceSave = true;
-            return !foundUnknownTypes;
-        }
 
 
         /// <summary>

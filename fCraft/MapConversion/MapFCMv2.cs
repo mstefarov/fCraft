@@ -145,6 +145,8 @@ namespace fCraft.MapConversion {
                     decompressor.Read( map.Blocks, 0, map.Blocks.Length );
                 }
 
+                map.RemoveUnknownBlocktypes( false );
+
                 return map;
             }
         }

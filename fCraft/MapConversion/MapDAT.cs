@@ -234,12 +234,9 @@ namespace fCraft.MapConversion {
 
                     // copy the block array... or fail
                     if( foundBlockArray ) {
-                        map.CopyBlocks( data, pointer );
-                        for( int j = 0; j < map.Blocks.Length; j++ ) {
-                            if( map.Blocks[j] > 49 ) {
-                                map.Blocks[j] = Mapping[map.Blocks[j]];
-                            }
-                        }
+                        map.Blocks = new byte[map.WidthX * map.WidthY * map.Height];
+                        Array.Copy( data, pointer, map.Blocks, 0, map.Blocks.Length );
+                        map.ConvertBlockTypes( Mapping );
                     } else {
                         throw new MapFormatException( "Could not locate block array." );
                     }
