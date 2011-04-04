@@ -80,10 +80,8 @@ namespace fCraft {
                                     } else {
                                         Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error, info.Name );
                                     }
-                                } catch( FormatException ex ) {
-                                    Logger.Log( "PlayerDB.Load: Could not parse a record: {0}.", LogType.Error, ex );
-                                } catch( IOException ex ) {
-                                    Logger.Log( "PlayerDB.Load: Error while trying to read from file: {0}.", LogType.Error, ex );
+                                } catch( Exception ex ) {
+                                    Logger.LogAndReportCrash( "Error while parsing PlayerInfo record", "fCraft", ex, false );
                                 }
                             } else {
                                 Logger.Log( "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.", LogType.Error,
