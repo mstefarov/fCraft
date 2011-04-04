@@ -99,13 +99,6 @@ namespace ConfigTool {
             nPort.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.Port ) );
             nUploadBandwidth.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.UploadBandwidth ) );
 
-            if( Config.GetString( ConfigKey.IP ) == IPAddress.Any.ToString() ) {
-                tIP.Enabled = false;
-            } else {
-                xIP.Checked = true;
-            }
-            tIP.Text = Config.GetString( ConfigKey.IP );
-
             xAnnouncements.Checked = (Config.GetInt( ConfigKey.AnnouncementInterval ) > 0);
             nAnnouncements.Value = Config.GetInt( ConfigKey.AnnouncementInterval );
 
@@ -335,6 +328,15 @@ namespace ConfigTool {
             nMaxUndo.Value = Config.GetInt( ConfigKey.MaxUndo );
 
             tConsoleName.Text = Config.GetString( ConfigKey.ConsoleName );
+
+            tIP.Text = Config.GetString( ConfigKey.IP );
+            if( ConfigKey.IP.IsBlank() || ConfigKey.IP.IsDefault() ) {
+                tIP.Enabled = false;
+                xIP.Checked = false;
+            } else {
+                tIP.Enabled = true;
+                xIP.Checked = true;
+            }
         }
 
 
@@ -372,7 +374,11 @@ namespace ConfigTool {
             }
             Config.TrySetValue( ConfigKey.IsPublic, cPublic.SelectedIndex == 0 );
             Config.TrySetValue( ConfigKey.Port, nPort.Value );
-            Config.TrySetValue( ConfigKey.IP, tIP.Text );
+            if( xIP.Checked ) {
+                ConfigKey.IP.TrySetValue( tIP.Text );
+            } else {
+                ConfigKey.IP.ResetValue();
+            }
 
             Config.TrySetValue( ConfigKey.UploadBandwidth, nUploadBandwidth.Value );
 

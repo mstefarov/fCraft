@@ -89,7 +89,7 @@ namespace fCraftUI {
             shutdownPending = true;
             urlDisplay.Enabled = false;
             console.Enabled = false;
-            Server.Shutdown( new ShutdownParams( ShutdownReason.ProcessClosing, 0, quit, false ), false );
+            Server.Shutdown( new ShutdownParams( reason, 0, quit, false ), false );
         }
 
         delegate void PlayerListUpdateDelegate( string[] items );
@@ -153,7 +153,18 @@ namespace fCraftUI {
             try {
                 Invoke( (Action)delegate {
                     shutdownComplete = true;
-                    Application.Exit();
+                    switch( e.ShutdownParams.Reason ) {
+                        case ShutdownReason.FailedToInitialize:
+                        case ShutdownReason.FailedToStart:
+                        case ShutdownReason.Crashed:
+                            if( Server.HasArg( ArgKey.ExitOnCrash ) ) {
+                                Application.Exit();
+                            }
+                            break;
+                        default:
+                            Application.Exit();
+                            break;
+                    }
                 } );
             } catch( ObjectDisposedException ) {
             } catch( InvalidOperationException ) { }
