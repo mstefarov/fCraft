@@ -288,7 +288,12 @@ namespace fCraft {
 
             // if the port still cannot be opened after [maxPortAttempts] attemps, die.
             if( !portFound ) {
-                throw new Exception( "Could not start listening on any IP/port. Giving up after " + MaxPortAttempts + " tries." );
+                Logger.Log( "Could not start listening on any IP/port. Giving up after {0} tries.", LogType.SeriousError, MaxPortAttempts );
+                if( !ConfigKey.IP.IsBlank() ) {
+                    Logger.Log( "Do not use the \"Designated IP\" setting unless you have multiple NICs or IPs.", LogType.Warning,
+                                MaxPortAttempts );
+                }
+                return false;
             }
 
             IP = ((IPEndPoint)listener.LocalEndpoint).Address;

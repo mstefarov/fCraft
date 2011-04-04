@@ -3,6 +3,7 @@
 // With contributions by Conrad "Redshift" Morgan (/ellipsoidhollow)
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace fCraft {
     /// <summary>
@@ -352,7 +353,6 @@ namespace fCraft {
 
                 case DrawMode.Replace:
                 case DrawMode.ReplaceNot:
-                    List<Block> affectedTypes = new List<Block> { block };
 
                     string affectedBlockName = cmd.Next();
 
@@ -365,6 +365,8 @@ namespace fCraft {
                         return;
                     }
 
+                    List<Block> affectedTypes = new List<Block> { block };
+
                     do {
                         Block affectedType = Map.GetBlockByName( affectedBlockName );
                         if( affectedType != Block.Undefined ) {
@@ -375,25 +377,25 @@ namespace fCraft {
                         }
                     } while( (affectedBlockName = cmd.Next()) != null );
 
-                    if( affectedTypes.Count > 1 ) {
-                        Block replacementType = affectedTypes[affectedTypes.Count - 1];
-                        affectedTypes.RemoveAt( affectedTypes.Count - 1 );
-                        selectionArgs = new ReplaceArgs {
-                            DoExclude = (mode == DrawMode.ReplaceNot),
-                            Types = affectedTypes.ToArray(),
-                            ReplacementBlock = replacementType
-                        };
-                        string affectedString = "";
-                        foreach( Block affectedBlock in affectedTypes ) {
-                            affectedString += ", " + affectedBlock;
-                        }
-                        if( mode == DrawMode.ReplaceNot ) {
-                            player.MessageNow( "ReplaceNot: Ready to replace everything EXCEPT ({0}) with {1}", affectedString.Substring( 2 ), replacementType );
-                        } else {
-                            player.MessageNow( "Replace: Ready to replace ({0}) with {1}", affectedString.Substring( 2 ), replacementType );
-                        }
-                        callback = ReplaceCallback;
+                    Block[] replacedTypes = affectedTypes.Take( affectedTypes.Count - 1 ).ToArray();
+                    Block replacementType = affectedTypes.Last();
+                    selectionArgs = new ReplaceArgs {
+                        DoExclude = (mode == DrawMode.ReplaceNot),
+                        Types = replacedTypes,
+                        ReplacementBlock = replacementType
+                    };
+                    callback = ReplaceCallback;
+
+                    string affectedString = "";
+                    foreach( Block affectedBlock in replacedTypes ) {
+                        affectedString += ", " + affectedBlock;
                     }
+                    if( mode == DrawMode.ReplaceNot ) {
+                        player.MessageNow( "ReplaceNot: Ready to replace everything EXCEPT ({0}) with {1}", affectedString.Substring( 2 ), replacementType );
+                    } else {
+                        player.MessageNow( "Replace: Ready to replace ({0}) with {1}", affectedString.Substring( 2 ), replacementType );
+                    }
+
                     break;
 
                 case DrawMode.Line:
@@ -706,6 +708,7 @@ namespace fCraft {
             for( int i = 0; i < args.Types.Length; i++ ) {
                 specialTypes[i] = (byte)args.Types[i];
             }
+
             byte replacementBlock = (byte)args.ReplacementBlock;
             bool doExclude = args.DoExclude;
 

@@ -162,9 +162,6 @@ namespace ConfigTool {
 
         private void xIP_CheckedChanged( object sender, EventArgs e ) {
             tIP.Enabled = xIP.Checked;
-            if( !xIP.Checked ) {
-                tIP.Text = IPAddress.Any.ToString();
-            }
         }
 
         private void bGreeting_Click( object sender, EventArgs e ) {

@@ -47,8 +47,6 @@
             this.bRules = new System.Windows.Forms.Button();
             this.bAnnouncements = new System.Windows.Forms.Button();
             this.gBasic = new System.Windows.Forms.GroupBox();
-            this.tIP = new System.Windows.Forms.TextBox();
-            this.xIP = new System.Windows.Forms.CheckBox();
             this.bPortCheck = new System.Windows.Forms.Button();
             this.lPort = new System.Windows.Forms.Label();
             this.nPort = new System.Windows.Forms.NumericUpDown();
@@ -89,6 +87,7 @@
             this.xListPrefixes = new System.Windows.Forms.CheckBox();
             this.xChatPrefixes = new System.Windows.Forms.CheckBox();
             this.xRankColors = new System.Windows.Forms.CheckBox();
+            this.chatPreview = new ConfigTool.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.bMapPath = new System.Windows.Forms.Button();
             this.xMapPath = new System.Windows.Forms.CheckBox();
@@ -248,6 +247,9 @@
             this.cIRCList = new System.Windows.Forms.ComboBox();
             this.tabAdvanced = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.lIPWarning = new System.Windows.Forms.Label();
+            this.tIP = new System.Windows.Forms.TextBox();
+            this.xIP = new System.Windows.Forms.CheckBox();
             this.lConsoleNameHint = new System.Windows.Forms.Label();
             this.lConsoleName = new System.Windows.Forms.Label();
             this.tConsoleName = new System.Windows.Forms.TextBox();
@@ -275,7 +277,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.chatPreview = new ConfigTool.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdateSettings.SuspendLayout();
@@ -568,8 +569,6 @@
             // 
             // gBasic
             // 
-            this.gBasic.Controls.Add( this.tIP );
-            this.gBasic.Controls.Add( this.xIP );
             this.gBasic.Controls.Add( this.bPortCheck );
             this.gBasic.Controls.Add( this.lPort );
             this.gBasic.Controls.Add( this.nPort );
@@ -593,26 +592,6 @@
             this.gBasic.TabIndex = 0;
             this.gBasic.TabStop = false;
             this.gBasic.Text = "Basic Settings";
-            // 
-            // tIP
-            // 
-            this.tIP.Location = new System.Drawing.Point( 440, 132 );
-            this.tIP.MaxLength = 15;
-            this.tIP.Name = "tIP";
-            this.tIP.Size = new System.Drawing.Size( 97, 21 );
-            this.tIP.TabIndex = 18;
-            this.tIP.Validating += new System.ComponentModel.CancelEventHandler( this.tIP_Validating );
-            // 
-            // xIP
-            // 
-            this.xIP.AutoSize = true;
-            this.xIP.Location = new System.Drawing.Point( 331, 134 );
-            this.xIP.Name = "xIP";
-            this.xIP.Size = new System.Drawing.Size( 103, 19 );
-            this.xIP.TabIndex = 17;
-            this.xIP.Text = "Designated IP";
-            this.xIP.UseVisualStyleBackColor = true;
-            this.xIP.CheckedChanged += new System.EventHandler( this.xIP_CheckedChanged );
             // 
             // bPortCheck
             // 
@@ -1064,6 +1043,13 @@
             this.xRankColors.Text = "Show rank colors.";
             this.xRankColors.UseVisualStyleBackColor = true;
             // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 637, 219 );
+            this.chatPreview.TabIndex = 2;
+            // 
             // tabWorlds
             // 
             this.tabWorlds.Controls.Add( this.bMapPath );
@@ -1216,8 +1202,8 @@
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 334 );
             this.dgvWorlds.TabIndex = 1;
-            this.dgvWorlds.Click += new System.EventHandler( this.dgvWorlds_Click );
             this.dgvWorlds.SelectionChanged += new System.EventHandler( this.dgvWorlds_Click );
+            this.dgvWorlds.Click += new System.EventHandler( this.dgvWorlds_Click );
             // 
             // dgvcName
             // 
@@ -2834,6 +2820,9 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add( this.lIPWarning );
+            this.groupBox1.Controls.Add( this.tIP );
+            this.groupBox1.Controls.Add( this.xIP );
             this.groupBox1.Controls.Add( this.lConsoleNameHint );
             this.groupBox1.Controls.Add( this.lConsoleName );
             this.groupBox1.Controls.Add( this.tConsoleName );
@@ -2852,27 +2841,58 @@
             this.groupBox1.Controls.Add( this.cProcessPriority );
             this.groupBox1.Controls.Add( this.lThrottling );
             this.groupBox1.Controls.Add( this.xNoPartialPositionUpdates );
-            this.groupBox1.Location = new System.Drawing.Point( 8, 123 );
+            this.groupBox1.Location = new System.Drawing.Point( 8, 118 );
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size( 638, 311 );
+            this.groupBox1.Size = new System.Drawing.Size( 638, 347 );
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Miscellaneous";
+            // 
+            // lIPWarning
+            // 
+            this.lIPWarning.AutoSize = true;
+            this.lIPWarning.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.lIPWarning.Location = new System.Drawing.Point( 134, 308 );
+            this.lIPWarning.Name = "lIPWarning";
+            this.lIPWarning.Size = new System.Drawing.Size( 408, 13 );
+            this.lIPWarning.TabIndex = 21;
+            this.lIPWarning.Text = "Note: You do not need to specify an IP address unless you have multiple NICs or I" +
+                "Ps.";
+            // 
+            // tIP
+            // 
+            this.tIP.Location = new System.Drawing.Point( 137, 284 );
+            this.tIP.MaxLength = 15;
+            this.tIP.Name = "tIP";
+            this.tIP.Size = new System.Drawing.Size( 97, 21 );
+            this.tIP.TabIndex = 20;
+            this.tIP.Validating += new System.ComponentModel.CancelEventHandler( this.tIP_Validating );
+            // 
+            // xIP
+            // 
+            this.xIP.AutoSize = true;
+            this.xIP.Location = new System.Drawing.Point( 28, 286 );
+            this.xIP.Name = "xIP";
+            this.xIP.Size = new System.Drawing.Size( 103, 19 );
+            this.xIP.TabIndex = 19;
+            this.xIP.Text = "Designated IP";
+            this.xIP.UseVisualStyleBackColor = true;
+            this.xIP.CheckedChanged += new System.EventHandler( this.xIP_CheckedChanged );
             // 
             // lConsoleNameHint
             // 
             this.lConsoleNameHint.AutoSize = true;
             this.lConsoleNameHint.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.lConsoleNameHint.Location = new System.Drawing.Point( 304, 287 );
+            this.lConsoleNameHint.Location = new System.Drawing.Point( 304, 186 );
             this.lConsoleNameHint.Name = "lConsoleNameHint";
-            this.lConsoleNameHint.Size = new System.Drawing.Size( 274, 13 );
+            this.lConsoleNameHint.Size = new System.Drawing.Size( 289, 13 );
             this.lConsoleNameHint.TabIndex = 17;
-            this.lConsoleNameHint.Text = "Hint: You may include any characters (even colorcodes).";
+            this.lConsoleNameHint.Text = "Hint: You may include any characters, including color codes";
             // 
             // lConsoleName
             // 
             this.lConsoleName.AutoSize = true;
-            this.lConsoleName.Location = new System.Drawing.Point( 87, 266 );
+            this.lConsoleName.Location = new System.Drawing.Point( 89, 165 );
             this.lConsoleName.Name = "lConsoleName";
             this.lConsoleName.Size = new System.Drawing.Size( 214, 15 );
             this.lConsoleName.TabIndex = 15;
@@ -2880,7 +2900,7 @@
             // 
             // tConsoleName
             // 
-            this.tConsoleName.Location = new System.Drawing.Point( 307, 263 );
+            this.tConsoleName.Location = new System.Drawing.Point( 307, 162 );
             this.tConsoleName.Name = "tConsoleName";
             this.tConsoleName.Size = new System.Drawing.Size( 167, 21 );
             this.tConsoleName.TabIndex = 16;
@@ -2945,7 +2965,7 @@
             // lTickInterval
             // 
             this.lTickInterval.AutoSize = true;
-            this.lTickInterval.Location = new System.Drawing.Point( 71, 201 );
+            this.lTickInterval.Location = new System.Drawing.Point( 60, 232 );
             this.lTickInterval.Name = "lTickInterval";
             this.lTickInterval.Size = new System.Drawing.Size( 71, 15 );
             this.lTickInterval.TabIndex = 9;
@@ -2969,7 +2989,7 @@
             0,
             0,
             0} );
-            this.nTickInterval.Location = new System.Drawing.Point( 148, 199 );
+            this.nTickInterval.Location = new System.Drawing.Point( 137, 230 );
             this.nTickInterval.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -2992,7 +3012,7 @@
             // lTickIntervalUnits
             // 
             this.lTickIntervalUnits.AutoSize = true;
-            this.lTickIntervalUnits.Location = new System.Drawing.Point( 224, 201 );
+            this.lTickIntervalUnits.Location = new System.Drawing.Point( 213, 232 );
             this.lTickIntervalUnits.Name = "lTickIntervalUnits";
             this.lTickIntervalUnits.Size = new System.Drawing.Size( 24, 15 );
             this.lTickIntervalUnits.TabIndex = 11;
@@ -3012,7 +3032,7 @@
             // lThrottlingUnits
             // 
             this.lThrottlingUnits.AutoSize = true;
-            this.lThrottlingUnits.Location = new System.Drawing.Point( 224, 228 );
+            this.lThrottlingUnits.Location = new System.Drawing.Point( 213, 259 );
             this.lThrottlingUnits.Name = "lThrottlingUnits";
             this.lThrottlingUnits.Size = new System.Drawing.Size( 129, 15 );
             this.lThrottlingUnits.TabIndex = 14;
@@ -3021,7 +3041,7 @@
             // lProcessPriority
             // 
             this.lProcessPriority.AutoSize = true;
-            this.lProcessPriority.Location = new System.Drawing.Point( 52, 173 );
+            this.lProcessPriority.Location = new System.Drawing.Point( 41, 204 );
             this.lProcessPriority.Name = "lProcessPriority";
             this.lProcessPriority.Size = new System.Drawing.Size( 90, 15 );
             this.lProcessPriority.TabIndex = 7;
@@ -3034,7 +3054,7 @@
             0,
             0,
             0} );
-            this.nThrottling.Location = new System.Drawing.Point( 148, 226 );
+            this.nThrottling.Location = new System.Drawing.Point( 137, 257 );
             this.nThrottling.Maximum = new decimal( new int[] {
             10000,
             0,
@@ -3064,7 +3084,7 @@
             "Normal",
             "Below Normal",
             "Low"} );
-            this.cProcessPriority.Location = new System.Drawing.Point( 148, 170 );
+            this.cProcessPriority.Location = new System.Drawing.Point( 137, 201 );
             this.cProcessPriority.Name = "cProcessPriority";
             this.cProcessPriority.Size = new System.Drawing.Size( 109, 23 );
             this.cProcessPriority.TabIndex = 8;
@@ -3072,7 +3092,7 @@
             // lThrottling
             // 
             this.lThrottling.AutoSize = true;
-            this.lThrottling.Location = new System.Drawing.Point( 14, 228 );
+            this.lThrottling.Location = new System.Drawing.Point( 3, 259 );
             this.lThrottling.Name = "lThrottling";
             this.lThrottling.Size = new System.Drawing.Size( 128, 15 );
             this.lThrottling.TabIndex = 12;
@@ -3094,7 +3114,7 @@
             this.gCrashReport.Controls.Add( this.xSubmitCrashReports );
             this.gCrashReport.Location = new System.Drawing.Point( 8, 13 );
             this.gCrashReport.Name = "gCrashReport";
-            this.gCrashReport.Size = new System.Drawing.Size( 638, 104 );
+            this.gCrashReport.Size = new System.Drawing.Size( 638, 99 );
             this.gCrashReport.TabIndex = 0;
             this.gCrashReport.TabStop = false;
             this.gCrashReport.Text = "Web connectivity";
@@ -3183,13 +3203,6 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 219 );
-            this.chatPreview.TabIndex = 2;
             // 
             // ConfigUI
             // 
@@ -3458,8 +3471,6 @@
         private System.Windows.Forms.NumericUpDown nIRCDelay;
         private System.Windows.Forms.ComboBox cMaxHideFrom;
         private System.Windows.Forms.Label lMaxHideFrom;
-        private System.Windows.Forms.CheckBox xIP;
-        private System.Windows.Forms.TextBox tIP;
         private System.Windows.Forms.ComboBox cPatrolledRank;
         private System.Windows.Forms.Label lPatrolledRank;
         private System.Windows.Forms.Label lPatrolledRankAndBelow;
@@ -3534,5 +3545,8 @@
         private System.Windows.Forms.Label lUpdater;
         private System.Windows.Forms.GroupBox gUpdateSettings;
         private System.Windows.Forms.Button bShowAdvancedUpdaterSettings;
+        private System.Windows.Forms.Label lIPWarning;
+        private System.Windows.Forms.TextBox tIP;
+        private System.Windows.Forms.CheckBox xIP;
     }
 }

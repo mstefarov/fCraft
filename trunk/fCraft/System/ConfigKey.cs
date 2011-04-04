@@ -27,9 +27,6 @@ namespace fCraft {
         [IntKey( ConfigSection.General, 25565, MinValue = 1, MaxValue = 65535 )]
         Port,
 
-        [IPKey( ConfigSection.General, IPKeyAttribute.BlankValueMeaning.Any )]
-        IP,
-
         [IntKey( ConfigSection.General, 100, MinValue = 1, MaxValue = short.MaxValue )]
         UploadBandwidth,
 
@@ -282,7 +279,10 @@ namespace fCraft {
         AutoRankEnabled,
 
         [BoolKey( ConfigSection.Advanced, true )]
-        HeartbeatEnabled
+        HeartbeatEnabled,
+        
+        [IPKey( ConfigSection.Advanced, IPKeyAttribute.BlankValueMeaning.Any )]
+        IP
 
         #endregion
     }
