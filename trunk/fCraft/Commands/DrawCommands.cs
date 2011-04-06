@@ -307,7 +307,7 @@ namespace fCraft {
             }
 
             object selectionArgs = (byte)block;
-            SelectionCallback callback = null;
+            SelectionCallback callback;
 
             switch( mode ) {
                 case DrawMode.Cuboid:

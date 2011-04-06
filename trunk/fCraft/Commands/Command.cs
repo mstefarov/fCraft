@@ -7,20 +7,20 @@ namespace fCraft {
     /// </summary>
     public sealed class Command : ICloneable {
         int offset;
-        readonly string message;
+        public readonly string Message;
         public string Name { get; private set; } // lowercase name of the command
         public bool Confirmed; // whether this command has been confirmed by the user (with /ok)
 
         public Command( Command other ) {
             offset = other.offset;
-            message = other.message;
+            Message = other.Message;
             Name = other.Name;
             Confirmed = other.Confirmed;
         }
 
         public Command( string rawMessage ) {
             offset = 1;
-            message = rawMessage;
+            Message = rawMessage;
             Name = Next().ToLower();
         }
 
@@ -35,20 +35,20 @@ namespace fCraft {
         /// </summary>
         /// <returns>Next argument (string), or null if there are no more arguments</returns>
         public string Next() {
-            for( ; offset < message.Length; offset++ ) {
+            for( ; offset < Message.Length; offset++ ) {
                 int t, j;
-                if( message[offset] == '"' ) {
+                if( Message[offset] == '"' ) {
                     j = offset + 1;
-                    for( ; j < message.Length && message[j] != '"'; j++ ) {}
+                    for( ; j < Message.Length && Message[j] != '"'; j++ ) {}
                     t = offset;
                     offset = j;
-                    return message.Substring( t + 1, offset - t - 1 );
-                } else if( message[offset] != ' ' ) {
+                    return Message.Substring( t + 1, offset - t - 1 );
+                } else if( Message[offset] != ' ' ) {
                     j = offset;
-                    for( ; j < message.Length && message[j] != ' '; j++ ) {}
+                    for( ; j < Message.Length && Message[j] != ' '; j++ ) {}
                     t = offset;
                     offset = j;
-                    return message.Substring( t, offset - t );
+                    return Message.Substring( t, offset - t );
                 }
             }
             return null;
@@ -76,9 +76,9 @@ namespace fCraft {
         /// </summary>
         /// <returns>The rest of the command, or an empty string.</returns>
         public string NextAll() {
-            for( ; offset < message.Length; offset++ ) {
-                if( message[offset] != ' ' )
-                    return message.Substring( offset );
+            for( ; offset < Message.Length; offset++ ) {
+                if( Message[offset] != ' ' )
+                    return Message.Substring( offset );
             }
             return "";
         }
@@ -96,9 +96,9 @@ namespace fCraft {
 
         public override string ToString() {
             if( Confirmed ) {
-                return String.Format( "Command(\"{0}\",{1},confirmed)", message, offset );
+                return String.Format( "Command(\"{0}\",{1},confirmed)", Message, offset );
             } else {
-                return String.Format( "Command(\"{0}\",{1})", message, offset );
+                return String.Format( "Command(\"{0}\",{1})", Message, offset );
             }
         }
     }

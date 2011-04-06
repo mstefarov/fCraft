@@ -31,6 +31,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdVersion );
             CommandList.RegisterCommand( cdRules );
             CommandList.RegisterCommand( cdHelp );
+            CommandList.RegisterCommand( cdCommands );
 
             CommandList.RegisterCommand( cdWhere );
 
@@ -88,7 +89,7 @@ namespace fCraft {
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
             Usage = "/ignore [PlayerName]",
-            Help = "Temporarily blocks the other player from messaging you. "+
+            Help = "Temporarily blocks the other player from messaging you. " +
                    "If no player name is given, lists all ignored players.",
             Handler = Ignore
         };
@@ -840,11 +841,7 @@ namespace fCraft {
             string commandName = cmd.Next();
 
             if( commandName == "commands" ) {
-                if( cmd.Next() != null ) {
-                    player.MessagePrefixed( "&S    ", "List of available commands:&N{0}", CommandList.GetCommandList( player, true ) );
-                } else {
-                    player.MessagePrefixed( "&S    ", "List of all commands:&N{0}", CommandList.GetCommandList( player, false ) );
-                }
+                cdCommands.Handler( player, cmd );
 
             } else if( commandName != null ) {
                 CommandDescriptor descriptor = CommandList.GetDescriptor( commandName );
@@ -890,6 +887,63 @@ namespace fCraft {
                 player.Message( "To send private messages, write &H@PlayerName Message" );
                 player.Message( "To message all players of a rank, write &H@@Rank Message" );
             }
+        }
+
+
+        static readonly CommandDescriptor cdCommands = new CommandDescriptor {
+            Name = "commands",
+            Aliases = new[] { "cmds", "cmdlist" },
+            Category = CommandCategory.Info,
+            IsConsoleSafe = true,
+            Usage = "/commands [Category|Permission|@RankName]",
+            Help = "Shows a list of commands, by category, permission, or rank.",
+            Handler = Commands
+        };
+
+        internal static void Commands( Player player, Command cmd ) {
+            string param = cmd.Next();
+            CommandDescriptor[] cd = null;
+
+            if( param == null ) {
+                player.Message( "List of available commands:" );
+                cd = CommandList.GetCommands( false );
+
+            } else if( param.StartsWith( "@" ) ) {
+                string rankName = param.Substring( 1 );
+                Rank rank = RankList.ParseRank( rankName );
+                if( rank == null ) {
+                    player.Message( "Unknown rank: {0}", rankName );
+                } else {
+                    player.Message( "List of commands available to {0}&S:", rank.GetClassyName() );
+                    cd = CommandList.GetCommands( rank, true );
+                }
+
+            } else if( param.Equals( "all", StringComparison.OrdinalIgnoreCase ) ) {
+                player.Message( "List of ALL commands:" );
+                cd = CommandList.GetCommands();
+
+            } else if( param.Equals( "hidden", StringComparison.OrdinalIgnoreCase ) ) {
+                player.Message( "List of hidden commands:" );
+                cd = CommandList.GetCommands( true );
+
+            } else if( Enum.GetNames( typeof( CommandCategory ) ).Contains( param, StringComparer.OrdinalIgnoreCase ) ) {
+                CommandCategory category = (CommandCategory)Enum.Parse( typeof( CommandCategory ), param, true );
+                player.Message( "List of {0} commands:", category );
+                cd = CommandList.GetCommands( category, false );
+
+            } else if( Enum.GetNames( typeof( Permission ) ).Contains( param, StringComparer.OrdinalIgnoreCase ) ) {
+                Permission permission = (Permission)Enum.Parse( typeof( Permission ), param, true );
+                player.Message( "List of commands that need {0} permission:", permission );
+                cd = CommandList.GetCommands( permission, true );
+
+            } else {
+                cdCommands.PrintUsage( player );
+                return;
+            }
+
+            string[] commandNames = cd.Select( desc => desc.Name ).ToArray();
+
+            player.MessagePrefixed( "&S   ", "&S   " + String.Join( ", ", commandNames ) );
         }
     }
 }

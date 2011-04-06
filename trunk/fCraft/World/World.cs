@@ -11,7 +11,7 @@ namespace fCraft {
     public sealed class World : IClassy {
 
         [Obsolete]
-        public static string[] BackupEnum = new[] {
+        public static readonly string[] BackupEnum = new[] {
             "Never", "5 Minutes", "10 Minutes", "15 Minutes", "20 Minutes",
             "30 Minutes", "45 Minutes", "1 Hour", "2 Hours", "3 Hours",
             "4 Hours", "6 Hours", "8 Hours", "12 Hours", "24 Hours"
@@ -214,6 +214,7 @@ namespace fCraft {
 
 
         public bool ReleasePlayer( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             lock( playerListLock ) {
                 if( !players.Remove( player.ID ) ) {
                     return false;
@@ -246,6 +247,7 @@ namespace fCraft {
 
         // Send a list of players to the specified new player
         internal void SendPlayerList( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Player[] tempList = PlayerList;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i] != player && player.CanSee( tempList[i] ) ) {
@@ -257,7 +259,7 @@ namespace fCraft {
 
         // Find player by name using autocompletion
         public Player FindPlayer( string playerName ) {
-            if( playerName == null ) return null;
+            if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Player[] tempList = PlayerList;
             Player result = null;
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -273,6 +275,8 @@ namespace fCraft {
         }
 
         public Player[] FindPlayers( Player player, string playerName ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Player[] tempList = PlayerList;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -291,6 +295,7 @@ namespace fCraft {
 
         // Get player by name without autocompletion
         public Player FindPlayerExact( string playerName ) {
+            if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Player[] tempList = PlayerList;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i].Name.Equals( playerName, StringComparison.OrdinalIgnoreCase ) ) {
@@ -323,6 +328,7 @@ namespace fCraft {
         }
 
         public int CountVisiblePlayers( Player observer ) {
+            if( observer == null ) throw new ArgumentNullException( "observer" );
             return PlayerList.Count( observer.CanSee );
         }
 
@@ -356,6 +362,8 @@ namespace fCraft {
         }
 
         public void SendToAll( string message, params object[] args ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( args == null ) throw new ArgumentNullException( "args" );
             if( args.Length > 0 ) message = String.Format( message, args );
             foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
                 SendToAll( p, null );
@@ -363,6 +371,8 @@ namespace fCraft {
         }
 
         public void SendToAllExcept( string message, Player except, params object[] args ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( args == null ) throw new ArgumentNullException( "args" );
             if( args.Length > 0 ) message = String.Format( message, args );
             foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
                 SendToAll( p, except );
@@ -371,6 +381,7 @@ namespace fCraft {
 
 
         public void SendToSeeing( Packet packet, Player source ) {
+            if( source == null ) throw new ArgumentNullException( "source" );
             Player[] playerListCopy = PlayerList;
             for( int i = 0; i < playerListCopy.Length; i++ ) {
                 if( playerListCopy[i] != source && playerListCopy[i].CanSee( source ) ) {
@@ -380,6 +391,7 @@ namespace fCraft {
         }
 
         public void SendToBlind( Packet packet, Player source ) {
+            if( source == null ) throw new ArgumentNullException( "source" );
             Player[] playerListCopy = PlayerList;
             for( int i = 0; i < playerListCopy.Length; i++ ) {
                 if( playerListCopy[i] != source && !playerListCopy[i].CanSee( source ) ) {
@@ -391,7 +403,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Events
+        #region Obsolete Events
         [Obsolete]
         public event SimpleEventHandler OnLoaded;
         [Obsolete]
@@ -436,6 +448,7 @@ namespace fCraft {
         #region Lock / Unlock
 
         public bool Lock( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             lock( lockLock ) {
                 if( IsLocked ) {
                     return false;
@@ -454,6 +467,7 @@ namespace fCraft {
 
 
         public bool Unlock( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             lock( lockLock ) {
                 if( IsLocked ) {
                     UnlockedBy = player.Name;
@@ -491,6 +505,7 @@ namespace fCraft {
         }
 
         void RemovePlayerFromPatrol( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             lock( patrolLock ) {
                 if( patrolList.Contains( player ) ) {
                     patrolList.Remove( player );
@@ -498,7 +513,9 @@ namespace fCraft {
             }
         }
 
+
         void AddPlayerForPatrol( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             if( player.Info.Rank <= RankToPatrol ) {
                 lock( patrolLock ) {
                     patrolList.AddLast( player );
@@ -506,7 +523,9 @@ namespace fCraft {
             }
         }
 
-        internal void CheckIfPlayerIsStillPatrollable( Player player ) {
+
+        internal void CheckIfPlayerIsPatrollable( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             lock( patrolLock ) {
                 if( patrolList.Contains( player ) ) {
                     if( player.Info.Rank > RankToPatrol ) {

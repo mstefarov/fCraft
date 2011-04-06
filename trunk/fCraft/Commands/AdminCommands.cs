@@ -673,7 +673,7 @@ namespace fCraft {
                     target.World.SendToSeeing( PacketWriter.MakeAddEntity( target, target.Position ), target );
 
                     // check if player is still patrollable by others
-                    target.World.CheckIfPlayerIsStillPatrollable( target );
+                    target.World.CheckIfPlayerIsPatrollable( target );
 
                     Server.FirePlayerListChangedEvent();
                 } else {

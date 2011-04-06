@@ -47,6 +47,9 @@ namespace fCraft {
         public Command CommandToConfirm;
         public DateTime CommandToConfirmDate;
 
+        // last command (to be able to repeat)
+        public Command LastCommand;
+
         // for block tracking
         public ushort LocalPlayerID = (ushort)ReservedPlayerID.None; // map-specific PlayerID
         // if no ID is assigned, set to ReservedPlayerID.None
@@ -158,7 +161,20 @@ namespace fCraft {
                 case MessageType.Command:
                     Logger.Log( "{0}: {1}", LogType.UserCommand,
                                 Name, message );
-                    CommandList.ParseCommand( this, message, fromConsole );
+                    Command cmd = new Command( message );
+                    LastCommand = cmd;
+                    CommandList.ParseCommand( this, cmd, fromConsole );
+                    break;
+
+                case MessageType.RepeatCommand:
+                    if( LastCommand == null ) {
+                        Message( "No command to repeat." );
+                    } else {
+                        Logger.Log( "{0}: repeat {1}", LogType.UserCommand,
+                                    Name, LastCommand.Message );
+                        Message( "Repeat: {0}", LastCommand.Message );
+                        CommandList.ParseCommand( this, LastCommand, fromConsole );
+                    }
                     break;
 
                 case MessageType.PrivateChat:
@@ -260,9 +276,12 @@ namespace fCraft {
                         MessageNow( "There is no command to confirm." );
                     }
                     break;
+
+                case MessageType.Invalid:
+                    Message( "Unknown command." );
+                    break;
             }
         }
-
 
         public void Message( string message ) {
             MessagePrefixed( ">", message );
@@ -717,17 +736,17 @@ namespace fCraft {
         #endregion
 
 
-// ensures that player name has the correct length and character set
-public static bool IsValidName( string name ) {
-    if( name.Length < 2 || name.Length > 16 ) return false;
-    for( int i = 0; i < name.Length; i++ ) {
-        char ch = name[i];
-        if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
-            return false;
+        // ensures that player name has the correct length and character set
+        public static bool IsValidName( string name ) {
+            if( name.Length < 2 || name.Length > 16 ) return false;
+            for( int i = 0; i < name.Length; i++ ) {
+                char ch = name[i];
+                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
+                    return false;
+                }
+            }
+            return true;
         }
-    }
-    return true;
-}
 
 
         // gets name with all the optional fluff (color/prefix) for player list

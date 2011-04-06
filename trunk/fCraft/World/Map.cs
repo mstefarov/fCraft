@@ -123,11 +123,12 @@ namespace fCraft {
         #region Saving
 
         public bool Save( string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             string tempFileName = fileName + ".temp";
 
             try {
                 ChangedSinceSave = false;
-                if( !MapUtility.TrySaving( this, tempFileName, MapFormat.FCMv3 ) ) {
+                if( !MapUtility.TrySave( this, tempFileName, MapFormat.FCMv3 ) ) {
                     ChangedSinceSave = true;
                 }
 
@@ -157,6 +158,7 @@ namespace fCraft {
 
 
         internal int WriteMetadata( Stream stream ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
             BinaryWriter writer = new BinaryWriter( stream );
             int metaCount = 0;
             lock( metaLock ) {
@@ -255,11 +257,14 @@ namespace fCraft {
         #region Metadata
 
         public string GetMeta( string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             return GetMeta( "", key );
         }
 
 
         public string GetMeta( string group, string key ) {
+            if( group == null ) throw new ArgumentNullException( "group" );
+            if( key == null ) throw new ArgumentNullException( "key" );
             try {
                 lock( metaLock ) {
                     return metadata[group][key];
@@ -271,11 +276,16 @@ namespace fCraft {
 
 
         public void SetMeta( string key, string value ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
+            if( value == null ) throw new ArgumentNullException( "value" );
             SetMeta( "", key, value );
         }
 
 
         public void SetMeta( string group, string key, string value ) {
+            if( group == null ) throw new ArgumentNullException( "group" );
+            if( key == null ) throw new ArgumentNullException( "key" );
+            if( value == null ) throw new ArgumentNullException( "value" );
             lock( metaLock ) {
                 if( !metadata.ContainsKey( group ) ) {
                     metadata[group] = new Dictionary<string, string>();
@@ -453,6 +463,7 @@ namespace fCraft {
 
 
         internal static Block GetBlockByName( string block ) {
+            if( block == null ) throw new ArgumentNullException( "block" );
             block = block.ToLower();
             return BlockNames.ContainsKey( block ) ? BlockNames[block] : Block.Undefined;
         }
@@ -460,12 +471,11 @@ namespace fCraft {
 
 
 
-        /// <summary>
-        /// Writes a copy of the current map to a specified stream, compressed with GZipStream
-        /// </summary>
-        /// <param name="stream">Stream to write the compressed data to.</param>
-        /// <param name="prependBlockCount">If true, prepends block data with signed, 32bit, big-endian block count.</param>
+        /// <summary> Writes a copy of the current map to a specified stream, compressed with GZipStream. </summary>
+        /// <param name="stream"> Stream to write the compressed data to. </param>
+        /// <param name="prependBlockCount"> If true, prepends block data with signed, 32bit, big-endian block count. </param>
         public void GetCompressedCopy( Stream stream, bool prependBlockCount ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
             using( GZipStream compressor = new GZipStream( stream, CompressionMode.Compress ) ) {
                 if( prependBlockCount ) {
                     // convert block count to big-endian
@@ -518,10 +528,11 @@ namespace fCraft {
         public Zone[] ZoneList { get; private set; }
 
 
-        public bool AddZone( Zone z ) {
+        public bool AddZone( Zone zone ) {
+            if( zone == null ) throw new ArgumentNullException( "zone" );
             lock( zoneLock ) {
-                if( zones.ContainsKey( z.Name.ToLower() ) ) return false;
-                zones.Add( z.Name.ToLower(), z );
+                if( zones.ContainsKey( zone.Name.ToLower() ) ) return false;
+                zones.Add( zone.Name.ToLower(), zone );
                 ChangedSinceSave = true;
                 UpdateZoneCache();
             }
@@ -529,10 +540,11 @@ namespace fCraft {
         }
 
 
-        public bool RemoveZone( string z ) {
+        public bool RemoveZone( string zone ) {
+            if( zone == null ) throw new ArgumentNullException( "zone" );
             lock( zoneLock ) {
-                if( !zones.ContainsKey( z.ToLower() ) ) return false;
-                zones.Remove( z.ToLower() );
+                if( !zones.ContainsKey( zone.ToLower() ) ) return false;
+                zones.Remove( zone.ToLower() );
                 ChangedSinceSave = true;
                 UpdateZoneCache();
             }
@@ -541,6 +553,7 @@ namespace fCraft {
 
 
         public PermissionOverride CheckZones( int x, int y, int h, Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             PermissionOverride result = PermissionOverride.None;
             Zone[] zoneListCache = ZoneList;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
@@ -557,6 +570,7 @@ namespace fCraft {
 
 
         public Zone FindDeniedZone( int x, int y, int h, Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Zone[] zoneListCache = ZoneList;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
                 if( zoneListCache[i].Bounds.Contains( x, y, h ) && !zoneListCache[i].Controller.Check( player.Info ) ) {
@@ -568,6 +582,7 @@ namespace fCraft {
 
 
         public bool TestZones( short x, short y, short h, Player player, out Zone[] allowedZones, out Zone[] deniedZones ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             List<Zone> allowed = new List<Zone>(), denied = new List<Zone>();
             bool found = false;
 
@@ -589,6 +604,7 @@ namespace fCraft {
 
 
         public Zone FindZone( string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
             lock( zoneLock ) {
                 if( zones.ContainsKey( name.ToLower() ) ) {
                     return zones[name.ToLower()];
@@ -745,6 +761,8 @@ namespace fCraft {
         #region Backup
 
         public void SaveBackup( string sourceName, string targetName, bool onlyIfChanged ) {
+            if( sourceName == null ) throw new ArgumentNullException( "sourceName" );
+            if( targetName == null ) throw new ArgumentNullException( "targetName" );
             if( onlyIfChanged && !ChangedSinceBackup && ConfigKey.BackupOnlyWhenChanged.GetBool() ) return;
 
             DirectoryInfo d = new DirectoryInfo( Paths.BackupPath );
@@ -899,6 +917,8 @@ namespace fCraft {
         }
 
         internal void ReadLayer( DataLayer layer, DeflateStream stream ) {
+            if( layer == null ) throw new ArgumentNullException( "layer" );
+            if( stream == null ) throw new ArgumentNullException( "stream" );
             switch( layer.Type ) {
                 case DataLayerType.Blocks:
                     Blocks = new byte[layer.ElementCount];
@@ -960,6 +980,8 @@ namespace fCraft {
         }
 
         internal static void WriteLayer( DataLayer layer, Stream stream ) {
+            if( layer == null ) throw new ArgumentNullException( "layer" );
+            if( stream == null ) throw new ArgumentNullException( "stream" );
             switch( layer.Type ) {
                 case DataLayerType.Blocks:
                 case DataLayerType.BlockUndo:

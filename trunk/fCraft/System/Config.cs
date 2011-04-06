@@ -138,6 +138,9 @@ namespace fCraft {
             }
 
             LoadDefaults();
+#if DEBUG
+            RunSelfTest();
+#endif
 
             // These keys were renamed at some point. LEGACY
             LegacyConfigKeys.Add( "DefaultClass".ToLower(), ConfigKey.DefaultRank );
@@ -492,7 +495,7 @@ namespace fCraft {
             return key.TrySetValue( key.GetDefault() );
         }
 
-        public static void SetValue( this ConfigKey key, object rawValue ) {
+        public static bool SetValue( this ConfigKey key, object rawValue ) {
             if( rawValue == null ) {
                 throw new ArgumentNullException( "rawValue", "ConfigKey values cannot be null. Use an empty string to indicate unset value." );
             }
@@ -515,7 +518,7 @@ namespace fCraft {
 
             KeyMetadata[key].Validate( value );
 
-            DoSetValue( key, value );
+            return DoSetValue( key, value );
         }
 
         public static bool TrySetValue( this ConfigKey key, object rawValue ) {

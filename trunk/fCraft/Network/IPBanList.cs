@@ -74,10 +74,11 @@ namespace fCraft {
         }
 
 
-        /// <summary>Adds a new IP Ban.</summary>
-        /// <param name="ban">Ban information</param>
-        /// <returns>true if ban was added, false if it was already on the list</returns>
+        /// <summary> Adds a new IP Ban. </summary>
+        /// <param name="ban"> Ban information </param>
+        /// <returns> True if ban was added, false if it was already on the list </returns>
         public static bool Add( IPBanInfo ban ) {
+            if( ban == null ) throw new ArgumentNullException( "ban" );
             lock( BanListLock ) {
                 if( Bans.ContainsKey( ban.Address.ToString() ) ) return false;
                 if( RaiseAddingIPBanEvent( ban ) ) return false;
@@ -90,6 +91,7 @@ namespace fCraft {
 
 
         public static IPBanInfo Get( IPAddress address ) {
+            if( address == null ) throw new ArgumentNullException( "address" );
             lock( BanListLock ) {
                 if( !Bans.ContainsKey( address.ToString() ) ) {
                     return null;
@@ -102,8 +104,9 @@ namespace fCraft {
         // Returns true if address was banned (and was unbanned)
         // Returns false if address was not banned (and is still not banned) or if address is null
         public static bool Remove( IPAddress address ) {
+            if( address == null ) throw new ArgumentNullException( "address" );
             lock( BanListLock ) {
-                if( address == null || !Bans.ContainsKey( address.ToString() ) ) {
+                if( !Bans.ContainsKey( address.ToString() ) ) {
                     return false;
                 }
                 IPBanInfo info = Bans[address.ToString()];
@@ -233,6 +236,7 @@ namespace fCraft {
 
 
         public void ProcessAttempt( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Attempts++;
             LastAttemptDate = DateTime.Now;
             LastAttemptName = player.Name;

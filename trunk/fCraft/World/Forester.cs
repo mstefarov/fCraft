@@ -19,6 +19,7 @@ namespace fCraft {
 
 
         public Forester( ForesterArgs foresterArgs ) {
+            if( foresterArgs == null ) throw new ArgumentNullException( "foresterArgs" );
             args = foresterArgs;
             args.Validate();
         }

@@ -55,6 +55,7 @@ namespace fCraft.MapConversion {
 
 
         public static MapFormat Identify( string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapFormatType targetType = MapFormatType.SingleFile;
             if( !File.Exists( fileName ) ) {
                 if( Directory.Exists( fileName ) ) {
@@ -65,14 +66,14 @@ namespace fCraft.MapConversion {
             }
 
             List<IMapConverter> fallbackConverters = new List<IMapConverter>();
-            foreach( IMapConverter Converter in AvailableConverters.Values ) {
+            foreach( IMapConverter converter in AvailableConverters.Values ) {
                 try {
-                    if( Converter.FormatType == targetType && Converter.ClaimsName( fileName ) ) {
-                        if( Converter.Claims( fileName ) ) {
-                            return Converter.Format;
+                    if( converter.FormatType == targetType && converter.ClaimsName( fileName ) ) {
+                        if( converter.Claims( fileName ) ) {
+                            return converter.Format;
                         }
                     } else {
-                        fallbackConverters.Add( Converter );
+                        fallbackConverters.Add( converter );
                     }
                 } catch { }
             }
@@ -90,6 +91,7 @@ namespace fCraft.MapConversion {
 
 
         public static bool TryLoadHeader( string fileName, out Map map ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 map = LoadHeader( fileName );
                 return true;
@@ -103,6 +105,7 @@ namespace fCraft.MapConversion {
 
 
         public static Map LoadHeader( string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
 
             MapFormatType targetType = MapFormatType.SingleFile;
             if( !File.Exists( fileName ) ) {
@@ -147,6 +150,7 @@ namespace fCraft.MapConversion {
 
 
         public static bool TryLoad( string fileName, out Map map ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 map = Load( fileName );
                 return true;
@@ -160,6 +164,7 @@ namespace fCraft.MapConversion {
 
 
         public static Map Load( string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapFormatType targetType = MapFormatType.SingleFile;
             if( !File.Exists( fileName ) ) {
                 if( Directory.Exists( fileName ) ) {
@@ -200,7 +205,9 @@ namespace fCraft.MapConversion {
         }
 
 
-        public static bool TrySaving( Map mapToSave, string fileName, MapFormat format ) {
+        public static bool TrySave( Map mapToSave, string fileName, MapFormat format ) {
+            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             if( AvailableConverters.ContainsKey( format ) ) {
                 IMapConverter converter = AvailableConverters[format];
                 try {
