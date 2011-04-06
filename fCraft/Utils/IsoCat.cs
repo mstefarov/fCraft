@@ -99,12 +99,12 @@ namespace fCraft {
         readonly byte* image;
         readonly Bitmap imageBmp;
         readonly BitmapData imageData;
-        int imageWidth, imageHeight;
+        readonly int imageWidth, imageHeight;
 
-        int dimX, dimY, dimX1, dimY1, dimX2, dimY2;
-        int offsetX, offsetY;
-        int isoOffset, isoX, isoY, isoH;
-        int imageStride;
+        readonly int dimX, dimY, dimX1, dimY1, dimX2, dimY2;
+        readonly int offsetX, offsetY;
+        readonly int isoOffset, isoX, isoY, isoH;
+        readonly int imageStride;
 
         public readonly int Rot;
         public readonly IsoCatMode Mode;
@@ -144,15 +144,6 @@ namespace fCraft {
             isoH = (-TileY / 2 * imageStride);
 
             mh34 = Map.Height * 3 / 4;
-        }
-
-        public void SetChunk( int x1, int y1, int z1, int x2, int y2, int z2 ) {
-            chunkCoords[0] = x1;
-            chunkCoords[1] = y1;
-            chunkCoords[2] = z1;
-            chunkCoords[3] = x2;
-            chunkCoords[4] = y2;
-            chunkCoords[5] = z2;
         }
 
         byte* bp, ctp;
@@ -324,7 +315,7 @@ namespace fCraft {
             //BlendPixel( pos + 12, tileOffset + 60 ); // bottom right block, always blank in current tileset
         }
 
-        int blendDivisor, mh34;
+        readonly int blendDivisor, mh34;
 
 
         // inspired by http://www.devmaster.net/wiki/Alpha_blending

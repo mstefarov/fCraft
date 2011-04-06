@@ -48,6 +48,7 @@ namespace fCraft {
         const int SeaFloorThickness = 3;
 
         public MapGenerator( MapGeneratorArgs generatorArgs ) {
+            if( generatorArgs == null ) throw new ArgumentNullException( "generatorArgs" );
             args = generatorArgs;
             args.Validate();
 
@@ -65,14 +66,6 @@ namespace fCraft {
         public Map Generate() {
             GenerateHeightmap();
             return GenerateMap();
-        }
-
-
-        public static void GenerationTask( object task ) {
-            MapGenerator gen = (MapGenerator)task;
-            gen.Generate();
-            //gen.map.Save( gen.fileName );
-            Server.RequestGC();
         }
 
 

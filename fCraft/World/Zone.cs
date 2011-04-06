@@ -23,12 +23,15 @@ namespace fCraft {
 
 
         public void Create( BoundingBox bounds, PlayerInfo createdBy ) {
+            if( bounds == null ) throw new ArgumentNullException( "bounds" );
+            if( createdBy == null ) throw new ArgumentNullException( "createdBy" );
             CreatedDate = DateTime.UtcNow;
             Bounds = bounds;
             CreatedBy = createdBy;
         }
 
         public void Edit( PlayerInfo editedBy ) {
+            if( editedBy == null ) throw new ArgumentNullException( "editedBy" );
             EditedDate = DateTime.UtcNow;
             EditedBy = editedBy;
         }

@@ -2,35 +2,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using fCraft.Events;
 
 namespace fCraft {
-    /// <summary>
-    /// Type of message sent by the player. Set by CommandList.GetMessageType
-    /// </summary>
+    /// <summary> Type of message sent by the player. Set by CommandList.GetMessageType() </summary>
     enum MessageType {
         Chat,
         PrivateChat,
         RankChat,
         Command,
+        RepeatCommand,
         Confirmation,
         Invalid
     }
 
 
-    /// <summary>
-    /// Static class that allows registration and parsing of all text commands.
-    /// </summary>
+    /// <summary> Static class that allows registration and parsing of all text commands. </summary>
     public static class CommandList {
         static readonly SortedList<string, string> Aliases = new SortedList<string, string>();
         static readonly SortedList<string, CommandDescriptor> Commands = new SortedList<string, CommandDescriptor>();
-
-        public sealed class CommandRegistrationException : Exception {
-            public CommandRegistrationException( string message ) : base( message ) { }
-            public CommandRegistrationException( string message, params string[] args ) :
-                base( String.Format( message, args ) ) { }
-        }
 
         // Sets up all the command hooks
         internal static void Init() {
@@ -46,20 +36,53 @@ namespace fCraft {
         }
 
 
-        public static string GetCommandList( Player player, bool listAll ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            StringBuilder sb = new StringBuilder();
-            bool first = true;
+        /// <summary> Gets a list of all commands (includding hidden ones). </summary>
+        public static CommandDescriptor[] GetCommands() {
+            return Commands.Values.ToArray();
+        }
+
+
+        /// <summary> Gets a list of ONLY hidden or non-hidden commands, not both. </summary>
+        public static CommandDescriptor[] GetCommands( bool hidden ) {
+            return Commands.Values.Where( cmd => (cmd.IsHidden == hidden) ).ToArray();
+        }
+
+
+        /// <summary> Gets a list of commands available to a specified rank. </summary>
+        public static CommandDescriptor[] GetCommands( Rank rank, bool includeHidden ) {
+            List<CommandDescriptor> list = new List<CommandDescriptor>();
             foreach( CommandDescriptor cmd in Commands.Values ) {
-                if( listAll || !cmd.IsHidden && (cmd.Permissions == null || player.Can( cmd.Permissions )) ) {
-                    if( !first ) {
-                        sb.Append( ", " );
-                    }
-                    sb.Append( cmd.Name );
-                    first = false;
+                if( (!cmd.IsHidden || includeHidden) && (cmd.Permissions == null || cmd.Permissions.All( rank.Can )) ) {
+                    list.Add( cmd );
                 }
             }
-            return sb.ToString();
+            return list.ToArray();
+        }
+
+
+        /// <summary> Gets a list of commands that require a specified permission.
+        /// Note that commands may require more than one permission, or none at all. </summary>
+        public static CommandDescriptor[] GetCommands( Permission permission, bool includeHidden ) {
+            List<CommandDescriptor> list = new List<CommandDescriptor>();
+            foreach( CommandDescriptor cmd in Commands.Values ) {
+                if( (!cmd.IsHidden || includeHidden) && cmd.Permissions != null && cmd.Permissions.Contains( permission ) ) {
+                    list.Add( cmd );
+                }
+            }
+            return list.ToArray();
+        }
+
+
+        /// <summary> Gets a list of commands in a specified category.
+        /// Note that commands may belong to more than one category. </summary>
+        public static CommandDescriptor[] GetCommands( CommandCategory category, bool includeHidden ) {
+            List<CommandDescriptor> list = new List<CommandDescriptor>();
+            foreach( CommandDescriptor cmd in Commands.Values ) {
+                if( (!cmd.IsHidden || includeHidden) && (cmd.Category & category) == category ) {
+                    list.Add( cmd );
+                }
+            }
+            return list.ToArray();
         }
 
 
@@ -127,9 +150,8 @@ namespace fCraft {
         }
 
 
-
         public static CommandDescriptor GetDescriptor( string commandName ) {
-            if( String.IsNullOrEmpty( commandName ) ) return null;
+            if( commandName == null ) throw new ArgumentNullException( "commandName" );
             commandName = commandName.ToLower();
             if( Commands.ContainsKey( commandName ) ) {
                 return Commands[commandName];
@@ -141,12 +163,13 @@ namespace fCraft {
         }
 
 
-        // Parses and calls a command
-        internal static void ParseCommand( Player player, string message, bool fromConsole ) {
-            ParseCommand( player, new Command( message ), fromConsole );
-        }
-
-        internal static void ParseCommand( Player player, Command cmd, bool fromConsole ) {
+        /// <summary> Parses and calls a specified command. </summary>
+        /// <param name="player"> Player who issued the command. </param>
+        /// <param name="cmd"> Command to be parsed and executed. </param>
+        /// <param name="fromConsole"> Whether this command is being called from a non-player (e.g. Console). </param>
+        public static void ParseCommand( Player player, Command cmd, bool fromConsole ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( cmd == null ) throw new ArgumentNullException( "cmd" );
             CommandDescriptor descriptor = GetDescriptor( cmd.Name );
 
             if( descriptor == null ) {
@@ -170,9 +193,10 @@ namespace fCraft {
         }
 
 
-        // Determines the type of message (Command, RankChat, PrivateChat, Chat, Confirmation, or Invalid)
+        /// <summary> Determines the type of player-supplies message based on its syntax. </summary>
         internal static MessageType GetMessageType( string message ) {
             if( string.IsNullOrEmpty( message ) ) return MessageType.Invalid;
+            if( message == "/" ) return MessageType.RepeatCommand;
             if( message.Equals( "/ok", StringComparison.OrdinalIgnoreCase ) ) return MessageType.Confirmation;
             switch( message[0] ) {
                 case '/':
@@ -238,13 +262,17 @@ namespace fCraft {
 
         #endregion
     }
+
+    public sealed class CommandRegistrationException : Exception {
+        public CommandRegistrationException( string message ) : base( message ) { }
+        public CommandRegistrationException( string message, params string[] args ) :
+            base( String.Format( message, args ) ) { }
+    }
 }
 
 
+#region EventArgs
 namespace fCraft.Events {
-
-    #region EventArgs
-
     public class CommandRegisteredEventArgs : EventArgs {
         internal CommandRegisteredEventArgs( CommandDescriptor commandDescriptor ) {
             CommandDescriptor = commandDescriptor;
@@ -283,6 +311,5 @@ namespace fCraft.Events {
 
         public bool Cancel { get; set; }
     }
-
-    #endregion
 }
+#endregion

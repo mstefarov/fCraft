@@ -16,31 +16,28 @@ namespace fCraft {
                   HeartbeatTimeout = 10000;
         public static string PrimaryUrl { get; set; }
 
-        static Heartbeat() {
-            PrimaryUrl = "http://www.minecraft.net/heartbeat.jsp";
-        }
-
-
-        /// <summary>
-        /// Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate
-        /// </summary>
-        static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
-            return new IPEndPoint( data.ServerIP, 0 );
-        }
-
-
-        /// <summary>
-        /// Starts the heartbeat thread. The thread will be shut down automatically when the process exits.
-        /// </summary>
-        public static void Start() {
-            task = Scheduler.AddTask( Beat ).RunManual();
-        }
-
         static HttpWebRequest request;
         static Scheduler.Task task;
         static HeartbeatData data;
 
         public static bool LastHeartbeatFailed { get; private set; }
+
+
+        static Heartbeat() {
+            PrimaryUrl = "http://www.minecraft.net/heartbeat.jsp";
+        }
+
+
+        /// <summary> Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate. </summary>
+        static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
+            return new IPEndPoint( data.ServerIP, 0 );
+        }
+
+
+        /// <summary> Starts the heartbeats. </summary>
+        public static void Start() {
+            task = Scheduler.AddTask( Beat ).RunManual();
+        }
 
 
         static void Beat( Scheduler.Task scheduledTask ) {
@@ -109,6 +106,7 @@ namespace fCraft {
             }
         }
 
+
         static void RequestCallback( IAsyncResult result ) {
             if( Server.IsShuttingDown ) return;
             try {
@@ -127,6 +125,7 @@ namespace fCraft {
                 RescheduleHeartbeat();
             }
         }
+
 
         static void ResponseCallback( IAsyncResult result ) {
             if( Server.IsShuttingDown ) return;
@@ -158,9 +157,11 @@ namespace fCraft {
             }
         }
 
+
         static void RescheduleHeartbeat() {
             task.RunManual( TimeSpan.FromMilliseconds( HeartbeatDelay ) );
         }
+
 
         #region Events
 
