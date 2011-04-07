@@ -13,23 +13,13 @@ namespace fCraft {
         public short X, Y, H;
         public byte R, L;
 
-        public Position( short x, short y, short h ) {
-            X = x;
-            Y = y;
-            H = h;
-            R = 0;
-            L = 0;
-        }
-
-
-        public void Set( int x, int y, int h, int r, int l ) {
+        public Position( int x, int y, int h ) {
             X = (short)x;
             Y = (short)y;
             H = (short)h;
-            R = (byte)r;
-            L = (byte)l;
+            R = 0;
+            L = 0;
         }
-
 
         public bool FitsIntoByte() {
             return X >= SByte.MinValue && X <= SByte.MaxValue &&
@@ -50,6 +40,10 @@ namespace fCraft {
                 R = R,
                 L = L
             };
+        }
+
+        public override string ToString() {
+            return String.Format( "Position({0},{1},{2},{3},{4})", X, Y, H, R, L );
         }
     }
 }
