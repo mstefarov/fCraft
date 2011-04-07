@@ -87,6 +87,7 @@ namespace fCraft {
 
 
         public static void LogToConsole( string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             if( message.Contains( "&N" ) ) {
                 foreach( string line in message.Split( PacketWriter.NewlineSplitter, StringSplitOptions.RemoveEmptyEntries ) ) {
                     LogToConsole( line );
@@ -103,6 +104,7 @@ namespace fCraft {
 
 
         public static void Log( string message, LogType type ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message;
 
             RaiseLoggedEvent( message, line, type );
@@ -161,6 +163,9 @@ namespace fCraft {
 
 
         public static void LogAndReportCrash( string message, string assembly, Exception exception, bool shutdownImminent ) {
+            if( message == null ) message = "(null)";
+            if( assembly == null ) assembly = "(null)";
+            if( exception == null ) exception = new Exception( "(null)" );
 
             Log( "{0}: {1}", LogType.SeriousError, message, exception );
 

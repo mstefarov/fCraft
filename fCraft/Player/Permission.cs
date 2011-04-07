@@ -24,6 +24,7 @@ namespace fCraft {
         EditPlayerDB,
         Say,
         ReadStaffChat,
+        UseColorCodes,
 
         UseSpeedHack,
 

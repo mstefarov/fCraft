@@ -1207,6 +1207,9 @@ namespace fCraft {
 
             if( player.Can( Permission.Say ) ) {
                 string msg = cmd.NextAll();
+                if( player.Can( Permission.UseColorCodes ) && msg.Contains( "%" ) ) {
+                    msg = Color.ReplacePercentCodes( msg );
+                }
                 if( msg != null && msg.Trim().Length > 0 ) {
                     player.Info.LinesWritten++;
                     Server.SendToAllExceptIgnored( player, "&Y{0}", null, msg.Trim() );
@@ -1250,6 +1253,9 @@ namespace fCraft {
             string message = cmd.NextAll();
             if( message != null && message.Trim().Length > 0 ) {
                 message = message.Trim();
+                if( player.Can( Permission.UseColorCodes ) && message.Contains( "%" ) ) {
+                    message = Color.ReplacePercentCodes( message );
+                }
                 for( int i = 0; i < plist.Length; i++ ) {
                     if( (plist[i].Can( Permission.ReadStaffChat ) || plist[i] == player) && !plist[i].IsIgnoring( player.Info ) ) {
                         plist[i].Message( "{0}(staff){1}{0}: {2}", Color.PM, player.GetClassyName(), message );

@@ -43,7 +43,28 @@ namespace fCraft {
             CommandList.RegisterCommand( cdMeasure );
 
             //CommandList.RegisterCommand( cdTaskDebug );
+
+            CommandList.RegisterCommand( cdColors );
         }
+
+        static readonly CommandDescriptor cdColors = new CommandDescriptor {
+            Name = "colors",
+            Category = CommandCategory.Chat | CommandCategory.Info,
+            IsConsoleSafe = true,
+            Help = "Shows a list of all available color codes.",
+            Handler = Colors
+        };
+
+        internal static void Colors( Player player, Command cmd ) {
+            StringBuilder sb = new StringBuilder( "List of colors: " );
+
+            foreach( var color in Color.ColorNames ) {
+                sb.AppendFormat( "&{0}%{0} {1} ", color.Key, color.Value );
+            }
+
+            player.Message( sb.ToString() );
+        }
+
 
 
         static readonly CommandDescriptor cdDeafen = new CommandDescriptor {
@@ -597,10 +618,13 @@ namespace fCraft {
                 return;
             }
 
-            string msg = cmd.NextAll();
-            if( msg != null && msg.Trim().Length > 0 ) {
+            string msg = cmd.NextAll().Trim();
+            if( msg.Length > 0 ) {
                 player.Info.LinesWritten++;
-                string message = String.Format( "{0}*{1} {2}", Color.Me, player.Name, msg.Trim() );
+                if( player.Can( Permission.UseColorCodes ) && msg.Contains( "%" ) ) {
+                    msg = Color.ReplacePercentCodes( msg );
+                }
+                string message = String.Format( "{0}*{1} {2}", Color.Me, player.Name, msg );
                 Server.SendToAll( message );
                 IRC.SendChannelMessage( message );
             }
