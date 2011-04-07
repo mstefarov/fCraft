@@ -102,6 +102,8 @@ namespace fCraft {
      *              
      * 132 - r477 - Added BackupBeforeUpdate, RunBeforeUpdate, and RunAfterUpdate config keys
      *              Renamed UpdateMode to UpdaterMode
+     *              
+     * 133 - r517 - Added UseColorCodes permission
      * 
      */
 
@@ -109,7 +111,7 @@ namespace fCraft {
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 132;
+        public const int ConfigVersion = 133;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig";
 
@@ -793,6 +795,7 @@ namespace fCraft {
             owner.Add( new XElement( Permission.Build.ToString() ) );
             owner.Add( new XElement( Permission.Delete.ToString() ) );
             owner.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
+            owner.Add( new XElement( Permission.UseColorCodes.ToString() ) );
 
             owner.Add( new XElement( Permission.PlaceGrass.ToString() ) );
             owner.Add( new XElement( Permission.PlaceWater.ToString() ) );
@@ -862,6 +865,7 @@ namespace fCraft {
             op.Add( new XElement( Permission.Build.ToString() ) );
             op.Add( new XElement( Permission.Delete.ToString() ) );
             op.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
+            op.Add( new XElement( Permission.UseColorCodes.ToString() ) );
 
             op.Add( new XElement( Permission.PlaceGrass.ToString() ) );
             op.Add( new XElement( Permission.PlaceWater.ToString() ) );

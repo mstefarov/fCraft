@@ -39,7 +39,7 @@ namespace fCraft {
                             MeDefault = Purple,
                             WarningDefault = Red;
 
-        static readonly SortedList<char, string> ColorNames = new SortedList<char, string>{
+        public static readonly SortedList<char, string> ColorNames = new SortedList<char, string>{
             { '0', "black" },
             { '1', "navy" },
             { '2', "green" },
@@ -211,6 +211,32 @@ namespace fCraft {
             return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f') || (code >= 'A' && code <= 'F');
         }
 
+        public static string ReplacePercentCodes( string message ) {
+            StringBuilder sb = new StringBuilder( message );
+            sb.Replace( "%0", "&0" );
+            sb.Replace( "%1", "&1" );
+            sb.Replace( "%2", "&2" );
+            sb.Replace( "%3", "&3" );
+            sb.Replace( "%4", "&4" );
+            sb.Replace( "%5", "&5" );
+            sb.Replace( "%6", "&6" );
+            sb.Replace( "%7", "&7" );
+            sb.Replace( "%8", "&8" );
+            sb.Replace( "%9", "&9" );
+            sb.Replace( "%a", "&a" );
+            sb.Replace( "%b", "&b" );
+            sb.Replace( "%c", "&c" );
+            sb.Replace( "%d", "&d" );
+            sb.Replace( "%e", "&e" );
+            sb.Replace( "%f", "&f" );
+            sb.Replace( "%A", "&a" );
+            sb.Replace( "%B", "&b" );
+            sb.Replace( "%C", "&c" );
+            sb.Replace( "%D", "&d" );
+            sb.Replace( "%E", "&e" );
+            sb.Replace( "%F", "&f" );
+            return sb.ToString();
+        }
 
 
         #region IRC Colors

@@ -914,11 +914,19 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                     if( !check ) {
                         vPermissions.Items[(int)Permission.Say].Checked = false;
                         vPermissions.Items[(int)Permission.Say].ForeColor = SystemColors.GrayText;
+                        vPermissions.Items[(int)Permission.UseColorCodes].Checked = false;
+                        vPermissions.Items[(int)Permission.UseColorCodes].ForeColor = SystemColors.GrayText;
                     } else {
                         vPermissions.Items[(int)Permission.Say].ForeColor = SystemColors.ControlText;
+                        vPermissions.Items[(int)Permission.UseColorCodes].ForeColor = SystemColors.ControlText;
                     }
                     break;
+
                 case Permission.Say:
+                    if( check ) vPermissions.Items[(int)Permission.Chat].Checked = true;
+                    break;
+
+                case Permission.UseColorCodes:
                     if( check ) vPermissions.Items[(int)Permission.Chat].Checked = true;
                     break;
 

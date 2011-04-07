@@ -129,157 +129,176 @@ namespace fCraft {
 
 
         // Parses message incoming from the player
-        public void ParseMessage( string message, bool fromConsole ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            switch( CommandList.GetMessageType( message ) ) {
-                case MessageType.Chat:
-                    if( !Can( Permission.Chat ) ) return;
+        public void ParseMessage( string rawMessage, bool fromConsole ) {
+            if( rawMessage == null ) throw new ArgumentNullException( "message" );
+            switch( CommandList.GetMessageType( rawMessage ) ) {
+                case MessageType.Chat: {
+                        if( !Can( Permission.Chat ) ) return;
 
-                    if( Info.IsMuted() ) {
-                        MutedMessage();
-                        return;
-                    }
+                        if( Info.IsMuted() ) {
+                            MutedMessage();
+                            return;
+                        }
 
-                    if( DetectChatSpam() ) return;
+                        if( DetectChatSpam() ) return;
 
-                    if( World != null && !World.FireSentMessageEvent( this, ref message ) ||
-                        !Server.FireSentMessageEvent( this, ref message ) ) return;
+                        if( World != null && !World.FireSentMessageEvent( this, ref rawMessage ) ||
+                            !Server.FireSentMessageEvent( this, ref rawMessage ) ) return;
 
-                    Info.LinesWritten++;
+                        Info.LinesWritten++;
 
-                    Logger.Log( "{0}: {1}", LogType.GlobalChat, Name, message );
+                        Logger.Log( "{0}: {1}", LogType.GlobalChat, Name, rawMessage );
 
-                    // Escaped slash removed AFTER logging, to avoid confusion with real commands
-                    if( message.StartsWith( "//" ) ) {
-                        message = message.Substring( 1 );
-                    }
+                        // Escaped slash removed AFTER logging, to avoid confusion with real commands
+                        if( rawMessage.StartsWith( "//" ) ) {
+                            rawMessage = rawMessage.Substring( 1 );
+                        }
 
-                    Server.SendToAllExceptIgnored( this, "{0}{1}: {2}", Console,
-                                                   GetClassyName(), Color.White, message );
-                    break;
+                        if( rawMessage.Contains( "%" ) && Can( Permission.UseColorCodes ) ) {
+                            rawMessage = Color.ReplacePercentCodes( rawMessage );
+                        }
 
-                case MessageType.Command:
-                    Logger.Log( "{0}: {1}", LogType.UserCommand,
-                                Name, message );
-                    Command cmd = new Command( message );
-                    LastCommand = cmd;
-                    CommandList.ParseCommand( this, cmd, fromConsole );
-                    break;
+                        Server.SendToAllExceptIgnored( this, "{0}{1}: {2}", Console,
+                                                       GetClassyName(), Color.White, rawMessage );
+                    } break;
 
-                case MessageType.RepeatCommand:
-                    if( LastCommand == null ) {
-                        Message( "No command to repeat." );
-                    } else {
-                        Logger.Log( "{0}: repeat {1}", LogType.UserCommand,
-                                    Name, LastCommand.Message );
-                        Message( "Repeat: {0}", LastCommand.Message );
-                        CommandList.ParseCommand( this, LastCommand, fromConsole );
-                    }
-                    break;
 
-                case MessageType.PrivateChat:
-                    if( !Can( Permission.Chat ) ) return;
+                case MessageType.Command: {
+                        Logger.Log( "{0}: {1}", LogType.UserCommand,
+                                    Name, rawMessage );
+                        Command cmd = new Command( rawMessage );
+                        LastCommand = cmd;
+                        CommandList.ParseCommand( this, cmd, fromConsole );
+                    } break;
 
-                    if( Info.IsMuted() ) {
-                        MutedMessage();
-                        return;
-                    }
 
-                    if( DetectChatSpam() ) return;
-
-                    string otherPlayerName, messageText;
-                    if( message[1] == ' ' ) {
-                        otherPlayerName = message.Substring( 2, message.IndexOf( ' ', 2 ) - 2 );
-                        messageText = message.Substring( message.IndexOf( ' ', 2 ) + 1 );
-                    } else {
-                        otherPlayerName = message.Substring( 1, message.IndexOf( ' ' ) - 1 );
-                        messageText = message.Substring( message.IndexOf( ' ' ) + 1 );
-                    }
-
-                    // first, find ALL players (visible and hidden)
-                    Player[] allPlayers = Server.FindPlayers( otherPlayerName );
-
-                    // if there is more than 1 target player, exclude hidden players
-                    if( allPlayers.Length > 1 ) {
-                        allPlayers = Server.FindPlayers( this, otherPlayerName );
-                    }
-
-                    if( allPlayers.Length == 1 ) {
-                        Player target = allPlayers[0];
-                        if( target.IsIgnoring( Info ) ) {
-                            if( CanSee( target ) ) {
-                                MessageNow( "&WCannot PM {0}&W: you are ignored.", target.GetClassyName() );
-                            }
+                case MessageType.RepeatCommand: {
+                        if( LastCommand == null ) {
+                            Message( "No command to repeat." );
                         } else {
-                            Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
-                                        Name, target.Name, messageText );
-                            target.Message( "{0}from {1}: {2}",
-                                                 Color.PM, Name, messageText );
-                            if( CanSee( target ) ) {
-                                Message( "{0}to {1}: {2}",
-                                         Color.PM, target.Name, messageText );
+                            Logger.Log( "{0}: repeat {1}", LogType.UserCommand,
+                                        Name, LastCommand.Message );
+                            Message( "Repeat: {0}", LastCommand.Message );
+                            CommandList.ParseCommand( this, LastCommand, fromConsole );
+                        }
+                    } break;
 
+
+                case MessageType.PrivateChat: {
+                        if( !Can( Permission.Chat ) ) return;
+
+                        if( Info.IsMuted() ) {
+                            MutedMessage();
+                            return;
+                        }
+
+                        if( DetectChatSpam() ) return;
+
+                        string otherPlayerName, messageText;
+                        if( rawMessage[1] == ' ' ) {
+                            otherPlayerName = rawMessage.Substring( 2, rawMessage.IndexOf( ' ', 2 ) - 2 );
+                            messageText = rawMessage.Substring( rawMessage.IndexOf( ' ', 2 ) + 1 );
+                        } else {
+                            otherPlayerName = rawMessage.Substring( 1, rawMessage.IndexOf( ' ' ) - 1 );
+                            messageText = rawMessage.Substring( rawMessage.IndexOf( ' ' ) + 1 );
+                        }
+
+                        if( messageText.Contains( "%" ) && Can( Permission.UseColorCodes ) ) {
+                            messageText = Color.ReplacePercentCodes( messageText );
+                        }
+
+                        // first, find ALL players (visible and hidden)
+                        Player[] allPlayers = Server.FindPlayers( otherPlayerName );
+
+                        // if there is more than 1 target player, exclude hidden players
+                        if( allPlayers.Length > 1 ) {
+                            allPlayers = Server.FindPlayers( this, otherPlayerName );
+                        }
+
+                        if( allPlayers.Length == 1 ) {
+                            Player target = allPlayers[0];
+                            if( target.IsIgnoring( Info ) ) {
+                                if( CanSee( target ) ) {
+                                    MessageNow( "&WCannot PM {0}&W: you are ignored.", target.GetClassyName() );
+                                }
                             } else {
-                                NoPlayerMessage( otherPlayerName );
+                                Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
+                                            Name, target.Name, messageText );
+                                target.Message( "{0}from {1}: {2}",
+                                                     Color.PM, Name, messageText );
+                                if( CanSee( target ) ) {
+                                    Message( "{0}to {1}: {2}",
+                                             Color.PM, target.Name, messageText );
+
+                                } else {
+                                    NoPlayerMessage( otherPlayerName );
+                                }
                             }
-                        }
 
-                    } else if( allPlayers.Length == 0 ) {
-                        NoPlayerMessage( otherPlayerName );
+                        } else if( allPlayers.Length == 0 ) {
+                            NoPlayerMessage( otherPlayerName );
 
-                    } else {
-                        ManyMatchesMessage( "player", allPlayers );
-                    }
-                    break;
-
-                case MessageType.RankChat:
-                    if( !Can( Permission.Chat ) ) return;
-
-                    if( Info.IsMuted() ) {
-                        MutedMessage();
-                        return;
-                    }
-
-                    if( DetectChatSpam() ) return;
-
-                    string rankName = message.Substring( 2, message.IndexOf( ' ' ) - 2 );
-                    Rank rank = RankList.FindRank( rankName );
-                    if( rank != null ) {
-                        Logger.Log( "{0} to rank {1}: {2}", LogType.RankChat,
-                                    Name, rank.Name, message );
-                        string formattedMessage = String.Format( "{0}({1}{2}){3}{4}: {5}",
-                                                                 rank.Color,
-                                                                 (ConfigKey.RankPrefixesInChat.GetBool() ? rank.Prefix : ""),
-                                                                 rank.Name,
-                                                                 Color.PM,
-                                                                 Name,
-                                                                 message.Substring( message.IndexOf( ' ' ) + 1 ) );
-                        Server.SendToRank( this, formattedMessage, rank );
-                        if( Info.Rank != rank ) {
-                            Message( formattedMessage );
-                        }
-                    } else {
-                        Message( "No rank found matching \"{0}\"", rankName );
-                    }
-                    break;
-
-                case MessageType.Confirmation:
-                    if( CommandToConfirm != null ) {
-                        if( DateTime.UtcNow.Subtract( CommandToConfirmDate ).TotalSeconds < ConfirmationTimeout ) {
-                            CommandToConfirm.Confirmed = true;
-                            CommandList.ParseCommand( this, CommandToConfirm, fromConsole );
-                            CommandToConfirm = null;
                         } else {
-                            MessageNow( "Confirmation timed out. Enter the command again." );
+                            ManyMatchesMessage( "player", allPlayers );
                         }
-                    } else {
-                        MessageNow( "There is no command to confirm." );
-                    }
-                    break;
+                    } break;
 
-                case MessageType.Invalid:
-                    Message( "Unknown command." );
-                    break;
+
+                case MessageType.RankChat: {
+                        if( !Can( Permission.Chat ) ) return;
+
+                        if( Info.IsMuted() ) {
+                            MutedMessage();
+                            return;
+                        }
+
+                        if( DetectChatSpam() ) return;
+
+                        string rankName = rawMessage.Substring( 2, rawMessage.IndexOf( ' ' ) - 2 );
+                        Rank rank = RankList.FindRank( rankName );
+                        if( rank != null ) {
+                            Logger.Log( "{0} to rank {1}: {2}", LogType.RankChat,
+                                        Name, rank.Name, rawMessage );
+                            string messageText = rawMessage.Substring( rawMessage.IndexOf( ' ' ) + 1 );
+                            if( messageText.Contains( "%" ) && Can( Permission.UseColorCodes ) ) {
+                                messageText = Color.ReplacePercentCodes( messageText );
+                            }
+
+                            string formattedMessage = String.Format( "{0}({1}{2}){3}{4}: {5}",
+                                                                     rank.Color,
+                                                                     (ConfigKey.RankPrefixesInChat.GetBool() ? rank.Prefix : ""),
+                                                                     rank.Name,
+                                                                     Color.PM,
+                                                                     Name,
+                                                                     messageText );
+                            Server.SendToRank( this, formattedMessage, rank );
+                            if( Info.Rank != rank ) {
+                                Message( formattedMessage );
+                            }
+                        } else {
+                            Message( "No rank found matching \"{0}\"", rankName );
+                        }
+                    } break;
+
+
+                case MessageType.Confirmation: {
+                        if( CommandToConfirm != null ) {
+                            if( DateTime.UtcNow.Subtract( CommandToConfirmDate ).TotalSeconds < ConfirmationTimeout ) {
+                                CommandToConfirm.Confirmed = true;
+                                CommandList.ParseCommand( this, CommandToConfirm, fromConsole );
+                                CommandToConfirm = null;
+                            } else {
+                                MessageNow( "Confirmation timed out. Enter the command again." );
+                            }
+                        } else {
+                            MessageNow( "There is no command to confirm." );
+                        }
+                    } break;
+
+
+                case MessageType.Invalid: {
+                        Message( "Unknown command." );
+                    } break;
             }
         }
 

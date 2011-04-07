@@ -494,6 +494,9 @@ Affected commands:
 Affected commands:
     /tp";
 
+            vPermissions.Items[(int)Permission.UseColorCodes].ToolTipText =
+@"Ability to use color codes in messages.";
+
             vPermissions.Items[(int)Permission.UseSpeedHack].ToolTipText =
 @"Ability to move at a faster-than-normal rate (using hacks).
 WARNING: Speedhack detection is experimental, and may produce many
