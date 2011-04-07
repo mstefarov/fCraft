@@ -572,7 +572,7 @@ namespace fCraft {
         }
 
 
-        void SendBlockNow( short x, short y, short h ) {
+        internal void SendBlockNow( short x, short y, short h ) {
             Session.SendNow( PacketWriter.MakeSetBlock( x, y, h, World.Map.GetBlock( x, y, h ) ) );
         }
 
@@ -882,6 +882,45 @@ namespace fCraft.Events {
         public Position OldPosition { get; private set; }
         public Position NewPosition { get; private set; }
     }
+
+
+    public sealed class PlayerClickingEventArgs : PlayerEventArgs {
+        internal PlayerClickingEventArgs( Player player, short x, short y, short h, bool mode, Block block )
+            : base( player ) {
+            X = x;
+            Y = y;
+            H = h;
+            Block = block;
+            Mode = mode;
+        }
+
+        public short X { get; private set; }
+        public short Y { get; private set; }
+        public short H { get; private set; }
+        public Block Block { get; set; }
+        public bool Mode { get; set; }
+        public bool Cancel { get; set; }
+    }
+
+
+    public sealed class PlayerClickedEventArgs : PlayerEventArgs {
+        internal PlayerClickedEventArgs( Player player, short x, short y, short h, bool mode, Block block )
+            : base( player ) {
+            X = x;
+            Y = y;
+            H = h;
+            Block = block;
+            Mode = mode;
+        }
+
+        public short X { get; private set; }
+        public short Y { get; private set; }
+        public short H { get; private set; }
+        public Block Block { get; private set; }
+        public bool Mode { get; private set; }
+    }
+
+
 
 
     public sealed class PlayerDisconnectedEventArgs : PlayerEventArgs {

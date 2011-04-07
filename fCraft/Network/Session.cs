@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using fCraft.Events;
 using fCraft.MapConversion;
 
 namespace fCraft {
@@ -332,17 +333,23 @@ namespace fCraft {
                                 short x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
                                 short h = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
                                 short y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-                                byte mode = reader.ReadByte();
+                                bool mode = (reader.ReadByte() == 1);
                                 byte type = reader.ReadByte();
 
                                 if( type > 49 ) {
                                     type = MapDAT.MapBlock( type );
                                 }
-                                
+
                                 if( !Player.World.Map.InBounds( x, y, h ) ) {
                                     continue;
                                 } else {
-                                    if( Player.PlaceBlock( x, y, h, mode == 1, (Block)type ) ) return;
+                                    var e = new PlayerClickingEventArgs( Player, x, y, h, mode, (Block)type );
+                                    if( Server.RaisePlayerClickingEvent( e ) ) {
+                                        Player.SendBlockNow( x, y, h );
+                                        continue;
+                                    }
+                                    Server.RaisePlayerClickedEvent( Player, x, y, h, e.Mode, e.Block );
+                                    Player.PlaceBlock( x, y, h, e.Mode, e.Block );
                                 }
                                 break;
 

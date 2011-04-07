@@ -430,7 +430,11 @@ namespace fCraft {
 
 
         public void ResetSpawn() {
-            Spawn.Set( WidthX * 16, WidthY * 16, Height * 32, 0, 0 );
+            Spawn.X = (short)(WidthX * 16);
+            Spawn.Y = (short)(WidthY * 16);
+            Spawn.H = (short)(Height * 32);
+            Spawn.R = 0;
+            Spawn.L = 0;
             ChangedSinceSave = true;
         }
 
@@ -707,7 +711,7 @@ namespace fCraft {
 
         public void ClearUpdateQueue() {
             BlockUpdate temp = new BlockUpdate();
-            while( updates.Dequeue( ref temp ) ) {}
+            while( updates.Dequeue( ref temp ) ) { }
         }
 
 
