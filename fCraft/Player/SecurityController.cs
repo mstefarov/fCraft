@@ -133,27 +133,39 @@ namespace fCraft {
 
         public bool Check( PlayerInfo info ) {
             PlayerListCollection listCache = ExceptionList;
-            if( listCache.Excluded.Any( t => (info == t) ) ) {
-                return false;
+            for( int i = 0; i < listCache.Excluded.Length; i++ ) {
+                if( listCache.Excluded[i] == info ) {
+                    return false;
+                }
             }
 
             if( info.Rank >= MinRank /*&& player.info.rank <= maxRank*/ ) return true; // TODO: implement maxrank
 
-            return ExceptionList.Included.Any( t => (info == t) );
+            for( int i = 0; i < listCache.Included.Length; i++ ) {
+                if( listCache.Included[i] == info ) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
 
         public SecurityCheckResult CheckDetailed( PlayerInfo info ) {
             PlayerListCollection listCache = ExceptionList;
-            if( listCache.Excluded.Any( t => info == t ) ) {
-                return SecurityCheckResult.BlackListed;
+            for( int i=0; i<listCache.Excluded.Length; i++){
+                if( listCache.Excluded[i] == info ) {
+                    return SecurityCheckResult.BlackListed;
+                }
             }
 
             if( info.Rank >= MinRank /*&& player.info.rank <= maxRank*/ ) // TODO: implement maxrank
                 return SecurityCheckResult.Allowed;
 
-            if( listCache.Included.Any( t => info == t ) ) {
-                return SecurityCheckResult.WhiteListed;
+            for( int i = 0; i < listCache.Included.Length; i++ ) {
+                if( listCache.Included[i] == info ) {
+                    return SecurityCheckResult.WhiteListed;
+                }
             }
 
             return SecurityCheckResult.RankTooLow;
