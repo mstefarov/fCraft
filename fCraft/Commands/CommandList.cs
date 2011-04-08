@@ -7,13 +7,15 @@ using fCraft.Events;
 namespace fCraft {
     /// <summary> Type of message sent by the player. Set by CommandList.GetMessageType() </summary>
     enum MessageType {
+        Invalid,
+
         Chat,
+        Command,
+        Confirmation,
+        PartialMessage,
         PrivateChat,
         RankChat,
-        Command,
         RepeatCommand,
-        Confirmation,
-        Invalid
     }
 
 
@@ -198,6 +200,8 @@ namespace fCraft {
             if( string.IsNullOrEmpty( message ) ) return MessageType.Invalid;
             if( message == "/" ) return MessageType.RepeatCommand;
             if( message.Equals( "/ok", StringComparison.OrdinalIgnoreCase ) ) return MessageType.Confirmation;
+            if( message.EndsWith( " /" ) ) return MessageType.PartialMessage;
+            if( message.EndsWith( " //" ) ) message = message.Substring( 0, message.Length - 1 );
             switch( message[0] ) {
                 case '/':
                     if( message.Length > 1 && message[1] == '/' ) return MessageType.Chat;
