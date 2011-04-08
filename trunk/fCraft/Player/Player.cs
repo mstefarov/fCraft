@@ -318,7 +318,7 @@ namespace fCraft {
 
 
                 case MessageType.PartialMessage:
-                    partialMessage = rawMessage.Substring( 0, rawMessage.Length - 2 );
+                    partialMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
                     MessageNow( "Partial: &F{0}", partialMessage );
                     break;
 

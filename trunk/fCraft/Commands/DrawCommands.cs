@@ -463,12 +463,13 @@ namespace fCraft {
 
         static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int h, ref int blocks, ref int blocksDenied, ref bool cannotUndo ) {
             if( !player.World.Map.InBounds( x, y, h ) ) return;
+            byte block = player.World.Map.GetBlock( x, y, h );
+            if( block == drawBlock ) return;
+
             if( player.CanPlace( x, y, h, drawBlock ) != CanPlaceResult.Allowed ) {
                 blocksDenied++;
                 return;
             }
-            byte block = player.World.Map.GetBlock( x, y, h );
-            if( block == drawBlock ) return;
 
             // this would've been an easy way to do block tracking for draw commands BUT
             // if i set "origin" to player, he will not receive the block update. I tried.
