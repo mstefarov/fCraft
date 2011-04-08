@@ -131,6 +131,12 @@ namespace fCraft {
         // Parses message incoming from the player
         public void ParseMessage( string rawMessage, bool fromConsole ) {
             if( rawMessage == null ) throw new ArgumentNullException( "message" );
+
+            if( partialMessage != null ) {
+                rawMessage = partialMessage + rawMessage;
+                partialMessage = null;
+            }
+
             switch( CommandList.GetMessageType( rawMessage ) ) {
                 case MessageType.Chat: {
                         if( !Can( Permission.Chat ) ) return;
@@ -154,6 +160,10 @@ namespace fCraft {
                             rawMessage = rawMessage.Substring( 1 );
                         }
 
+                        if( rawMessage.EndsWith( "//" ) ) {
+                            rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
+                        }
+
                         if( rawMessage.Contains( "%" ) && Can( Permission.UseColorCodes ) ) {
                             rawMessage = Color.ReplacePercentCodes( rawMessage );
                         }
@@ -164,6 +174,9 @@ namespace fCraft {
 
 
                 case MessageType.Command: {
+                        if( rawMessage.EndsWith( "//" ) ) {
+                            rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
+                        }
                         Logger.Log( "{0}: {1}", LogType.UserCommand,
                                     Name, rawMessage );
                         Command cmd = new Command( rawMessage );
@@ -193,6 +206,10 @@ namespace fCraft {
                         }
 
                         if( DetectChatSpam() ) return;
+                    
+                        if( rawMessage.EndsWith( "//" ) ) {
+                            rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
+                        }
 
                         string otherPlayerName, messageText;
                         if( rawMessage[1] == ' ' ) {
@@ -254,6 +271,10 @@ namespace fCraft {
 
                         if( DetectChatSpam() ) return;
 
+                        if( rawMessage.EndsWith( "//" ) ) {
+                            rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
+                        }
+
                         string rankName = rawMessage.Substring( 2, rawMessage.IndexOf( ' ' ) - 2 );
                         Rank rank = RankList.FindRank( rankName );
                         if( rank != null ) {
@@ -296,24 +317,30 @@ namespace fCraft {
                     } break;
 
 
+                case MessageType.PartialMessage:
+                    partialMessage = rawMessage.Substring( 0, rawMessage.Length - 2 );
+                    MessageNow( "Partial: &F{0}", partialMessage );
+                    break;
+
                 case MessageType.Invalid: {
                         Message( "Unknown command." );
                     } break;
             }
         }
 
-        public void Message( string message ) {
-            MessagePrefixed( ">", message );
-        }
+        string partialMessage;
 
         public void Message( string message, params object[] args ) {
-            MessagePrefixed( ">", String.Format( message, args ) );
+            MessagePrefixed( ">", message, args );
         }
 
 
         // Queues a system message with a custom color
-        public void MessagePrefixed( string prefix, string message ) {
+        public void MessagePrefixed( string prefix, string message, params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
+            if( args.Length > 0 ) {
+                message = String.Format( message, args );
+            }
             if( this == Console ) {
                 Logger.LogToConsole( message );
             } else {
@@ -324,15 +351,12 @@ namespace fCraft {
         }
 
 
-        public void MessagePrefixed( string prefix, string message, params object[] args ) {
-            MessagePrefixed( prefix, string.Format( message, args ) );
-        }
-
-
         // Sends a message directly (synchronously). Should only be used from Session.IoThread
         public void MessageNow( string message, params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            message = String.Format( message, args );
+            if( args.Length > 0 ) {
+                message = String.Format( message, args );
+            }
             if( Session == null ) {
                 Logger.LogToConsole( message );
             } else {
