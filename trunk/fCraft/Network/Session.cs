@@ -488,6 +488,7 @@ namespace fCraft {
 
 
             // Verify name
+            Player = new Player( null, playerName, this, Server.MainWorld.Map.Spawn );
             bool showVerifyNamesWarning = false;
             if( !Server.VerifyName( Player.Name, verificationCode, Server.Salt ) ) {
                 NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();
@@ -539,12 +540,11 @@ namespace fCraft {
             }
 
 
-            // Check if player is banned (it does not matter at this point if name is verified)
-            Player = new Player( null, playerName, this, Server.MainWorld.Map.Spawn );
+            // Check if player is banned
             if( Player.Info.Banned ) {
                 Player.Info.ProcessFailedLogin( this );
-                Logger.Log( "Banned player {0} tried to log in.", LogType.SuspiciousActivity,
-                            Player.Name );
+                Logger.Log( "Banned player {0} tried to log in from {1}", LogType.SuspiciousActivity,
+                            Player.Name, GetIP() );
                 if( ConfigKey.ShowBannedConnectionMessages.GetBool() ) {
                     Server.SendToAll( "&SBanned player {0}&S tried to log in.", Player.GetClassyName() );
                 }
