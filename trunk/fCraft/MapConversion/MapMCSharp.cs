@@ -251,7 +251,7 @@ namespace fCraft.MapConversion {
 
                     // Read in the map data
                     map.Blocks = new byte[map.WidthX * map.WidthY * map.Height];
-                    mapStream.Read( map.Blocks, 0, map.Blocks.Length );
+                    MapUtility.ReadAll( gs, map.Blocks );
 
                     map.ConvertBlockTypes( Mapping );
 
