@@ -15,8 +15,11 @@ namespace fCraft {
         [StringKey( ConfigSection.General, "Welcome to the server!", MinLength = 0, MaxLength = 64 )]
         MOTD,
 
-        [IntKey( ConfigSection.General, 20, MinValue = 1, MaxValue = 128 )]
+        [IntKey( ConfigSection.General, 20, MinValue = 1, MaxValue = 1000 )]
         MaxPlayers,
+
+        [IntKey( ConfigSection.General, 20, MinValue = 1, MaxValue = 127 )]
+        MaxPlayersPerWorld,
 
         [RankKey( RankKeyAttribute.BlankValueMeaning.LowestRank, ConfigSection.General )]
         DefaultRank,
@@ -99,8 +102,11 @@ namespace fCraft {
         [EnumKey( ConfigSection.Security, NameVerificationMode.Balanced )]
         VerifyNames,
 
-        [BoolKey( ConfigSection.Security, false )]
-        LimitOneConnectionPerIP,
+        [IntKey( ConfigSection.Security, 0 )]
+        MaxConnectionsPerIP,
+
+        //[BoolKey( ConfigSection.Security, false )]
+        //LimitOneConnectionPerIP,
 
         [BoolKey( ConfigSection.Security, false )]
         AllowUnverifiedLAN,
@@ -280,7 +286,7 @@ namespace fCraft {
 
         [BoolKey( ConfigSection.Advanced, true )]
         HeartbeatEnabled,
-        
+
         [IPKey( ConfigSection.Advanced, IPKeyAttribute.BlankValueMeaning.Any )]
         IP
 

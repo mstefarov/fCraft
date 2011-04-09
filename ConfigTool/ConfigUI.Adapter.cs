@@ -90,17 +90,21 @@ namespace ConfigTool {
 
 
         void ApplyTabGeneral() {
-            tServerName.Text = Config.GetString( ConfigKey.ServerName );
-            tMOTD.Text = Config.GetString( ConfigKey.MOTD );
-            nMaxPlayers.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.MaxPlayers ) );
-            FillRankList( cDefaultRank, "(lowest rank)" );
-            cDefaultRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.DefaultRank ) ) );
-            cPublic.SelectedIndex = Config.GetBool( ConfigKey.IsPublic ) ? 0 : 1;
-            nPort.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.Port ) );
-            nUploadBandwidth.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.UploadBandwidth ) );
+            tServerName.Text = ConfigKey.ServerName.GetString();
+            tMOTD.Text = ConfigKey.MOTD.GetString();
 
-            xAnnouncements.Checked = (Config.GetInt( ConfigKey.AnnouncementInterval ) > 0);
-            nAnnouncements.Value = Config.GetInt( ConfigKey.AnnouncementInterval );
+            nMaxPlayers.Value = ConfigKey.MaxPlayers.GetInt();
+            CheckMaxPlayersPerWorldValue();
+            nMaxPlayerPerWorld.Value = ConfigKey.MaxPlayersPerWorld.GetInt();
+
+            FillRankList( cDefaultRank, "(lowest rank)" );
+            cDefaultRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( ConfigKey.DefaultRank.GetString() ) );
+            cPublic.SelectedIndex = ConfigKey.IsPublic.GetBool() ? 0 : 1;
+            nPort.Value = ConfigKey.Port.GetInt();
+            nUploadBandwidth.Value = ConfigKey.UploadBandwidth.GetInt();
+
+            xAnnouncements.Checked = (ConfigKey.AnnouncementInterval.GetInt() > 0);
+            nAnnouncements.Value = ConfigKey.AnnouncementInterval.GetInt();
 
             // UpdaterSettingsWindow
             updaterWindow.BackupBeforeUpdate = ConfigKey.BackupBeforeUpdate.GetBool();
@@ -118,31 +122,31 @@ namespace ConfigTool {
             xShowJoinedWorldMessages.Checked = ConfigKey.ShowJoinedWorldMessages.GetBool();
             xShowConnectionMessages.Checked = ConfigKey.ShowConnectionMessages.GetBool();
 
-            colorSys = Color.ParseToIndex( Config.GetString( ConfigKey.SystemMessageColor ) );
+            colorSys = Color.ParseToIndex( ConfigKey.SystemMessageColor.GetString() );
             ApplyColor( bColorSys, colorSys );
             Color.Sys = Color.Parse( colorSys );
 
-            colorHelp = Color.ParseToIndex( Config.GetString( ConfigKey.HelpColor ) );
+            colorHelp = Color.ParseToIndex( ConfigKey.HelpColor.GetString() );
             ApplyColor( bColorHelp, colorHelp );
             Color.Help = Color.Parse( colorHelp );
 
-            colorSay = Color.ParseToIndex( Config.GetString( ConfigKey.SayColor ) );
+            colorSay = Color.ParseToIndex( ConfigKey.SayColor.GetString() );
             ApplyColor( bColorSay, colorSay );
             Color.Say = Color.Parse( colorSay );
 
-            colorAnnouncement = Color.ParseToIndex( Config.GetString( ConfigKey.AnnouncementColor ) );
+            colorAnnouncement = Color.ParseToIndex( ConfigKey.AnnouncementColor.GetString() );
             ApplyColor( bColorAnnouncement, colorAnnouncement );
             Color.Announcement = Color.Parse( colorAnnouncement );
 
-            colorPM = Color.ParseToIndex( Config.GetString( ConfigKey.PrivateMessageColor ) );
+            colorPM = Color.ParseToIndex( ConfigKey.PrivateMessageColor.GetString() );
             ApplyColor( bColorPM, colorPM );
             Color.PM = Color.Parse( colorPM );
 
-            colorWarning = Color.ParseToIndex( Config.GetString( ConfigKey.WarningColor ) );
+            colorWarning = Color.ParseToIndex( ConfigKey.WarningColor.GetString() );
             ApplyColor( bColorWarning, colorWarning );
             Color.Warning = Color.Parse( colorWarning );
 
-            colorMe = Color.ParseToIndex( Config.GetString( ConfigKey.MeColor ) );
+            colorMe = Color.ParseToIndex( ConfigKey.MeColor.GetString() );
             ApplyColor( bColorMe, colorMe );
             Color.Me = Color.Parse( colorMe );
 
@@ -179,7 +183,7 @@ namespace ConfigTool {
             }
 
             FillRankList( cDefaultBuildRank, "(lowest rank)" );
-            cDefaultBuildRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.DefaultBuildRank ) ) );
+            cDefaultBuildRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( ConfigKey.DefaultBuildRank.GetString() ) );
 
             if( Paths.IsDefaultMapPath( Config.GetString( ConfigKey.MapPath ) ) ) {
                 tMapPath.Text = Paths.MapPathDefault;
@@ -204,46 +208,51 @@ namespace ConfigTool {
 
             ApplyEnum( cVerifyNames, ConfigKey.VerifyNames, NameVerificationMode.Balanced );
 
-            xLimitOneConnectionPerIP.Checked = Config.GetBool( ConfigKey.LimitOneConnectionPerIP );
-            xAllowUnverifiedLAN.Checked = Config.GetBool( ConfigKey.AllowUnverifiedLAN );
+            nMaxConnectionsPerIP.Value = ConfigKey.MaxConnectionsPerIP.GetInt();
+            xMaxConnectionsPerIP.Checked = (nMaxConnectionsPerIP.Value > 0);
+            xAllowUnverifiedLAN.Checked = ConfigKey.AllowUnverifiedLAN.GetBool();
 
-            nSpamChatCount.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.AntispamMessageCount ) );
-            nSpamChatTimer.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.AntispamInterval ) );
-            nSpamMute.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.AntispamMuteDuration ) );
+            nSpamChatCount.Value = ConfigKey.AntispamMessageCount.GetInt();
+            nSpamChatTimer.Value = ConfigKey.AntispamInterval.GetInt();
+            nSpamMute.Value = ConfigKey.AntispamMuteDuration.GetInt();
 
-            xSpamChatKick.Checked = Config.GetInt( ConfigKey.AntispamMaxWarnings ) > 0;
-            nSpamChatWarnings.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.AntispamMaxWarnings ) );
+            xSpamChatKick.Checked = (ConfigKey.AntispamMaxWarnings.GetInt() > 0);
+            nSpamChatWarnings.Value = ConfigKey.AntispamMaxWarnings.GetInt();
             if( !xSpamChatKick.Checked ) nSpamChatWarnings.Enabled = false;
 
-            xRequireBanReason.Checked = Config.GetBool( ConfigKey.RequireBanReason );
-            xRequireRankChangeReason.Checked = Config.GetBool( ConfigKey.RequireRankChangeReason );
-            xAnnounceKickAndBanReasons.Checked = Config.GetBool( ConfigKey.AnnounceKickAndBanReasons );
-            xAnnounceRankChanges.Checked = Config.GetBool( ConfigKey.AnnounceRankChanges );
+            xRequireBanReason.Checked = ConfigKey.RequireBanReason.GetBool();
+            xRequireRankChangeReason.Checked = ConfigKey.RequireRankChangeReason.GetBool();
+            xAnnounceKickAndBanReasons.Checked = ConfigKey.AnnounceKickAndBanReasons.GetBool();
+            xAnnounceRankChanges.Checked = ConfigKey.AnnounceRankChanges.GetBool();
 
             FillRankList( cPatrolledRank, "(lowest rank)" );
-            cPatrolledRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( Config.GetString( ConfigKey.PatrolledRank ) ) );
+            cPatrolledRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( ConfigKey.PatrolledRank.GetString() ) );
 
-            xPaidPlayersOnly.Checked = Config.GetBool( ConfigKey.PaidPlayersOnly );
+            xPaidPlayersOnly.Checked = ConfigKey.PaidPlayersOnly.GetBool();
         }
 
 
         void ApplyTabSavingAndBackup() {
-            xSaveOnShutdown.Checked = Config.GetBool( ConfigKey.SaveOnShutdown );
-            xSaveInterval.Checked = Config.GetInt( ConfigKey.SaveInterval ) > 0;
-            nSaveInterval.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.SaveInterval ) );
+            xSaveOnShutdown.Checked = ConfigKey.SaveOnShutdown.GetBool();
+
+            xSaveInterval.Checked = (ConfigKey.SaveInterval.GetInt() > 0);
+            nSaveInterval.Value = ConfigKey.SaveInterval.GetInt();
             if( !xSaveInterval.Checked ) nSaveInterval.Enabled = false;
 
-            xBackupOnStartup.Checked = Config.GetBool( ConfigKey.BackupOnStartup );
-            xBackupOnJoin.Checked = Config.GetBool( ConfigKey.BackupOnJoin );
-            xBackupOnlyWhenChanged.Checked = Config.GetBool( ConfigKey.BackupOnlyWhenChanged );
-            xBackupInterval.Checked = Config.GetInt( ConfigKey.BackupInterval ) > 0;
-            nBackupInterval.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.BackupInterval ) );
+            xBackupOnStartup.Checked = ConfigKey.BackupOnStartup.GetBool();
+            xBackupOnJoin.Checked = ConfigKey.BackupOnJoin.GetBool();
+            xBackupOnlyWhenChanged.Checked = ConfigKey.BackupOnlyWhenChanged.GetBool();
+
+            xBackupInterval.Checked = (ConfigKey.BackupInterval.GetInt() > 0);
+            nBackupInterval.Value = ConfigKey.BackupInterval.GetInt();
             if( !xBackupInterval.Checked ) nBackupInterval.Enabled = false;
-            xMaxBackups.Checked = Config.GetInt( ConfigKey.MaxBackups ) > 0;
-            nMaxBackups.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.MaxBackups ) );
+
+            xMaxBackups.Checked = (ConfigKey.MaxBackups.GetInt() > 0);
+            nMaxBackups.Value = ConfigKey.MaxBackups.GetInt();
             if( !xMaxBackups.Checked ) nMaxBackups.Enabled = false;
-            xMaxBackupSize.Checked = Config.GetInt( ConfigKey.MaxBackupSize ) > 0;
-            nMaxBackupSize.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.MaxBackupSize ) );
+
+            xMaxBackupSize.Checked = (ConfigKey.MaxBackupSize.GetInt() > 0);
+            nMaxBackupSize.Value = ConfigKey.MaxBackupSize.GetInt();
             if( !xMaxBackupSize.Checked ) nMaxBackupSize.Enabled = false;
         }
 
@@ -258,48 +267,48 @@ namespace ConfigTool {
 
             ApplyEnum( cLogMode, ConfigKey.LogMode, LogSplittingType.OneFile );
 
-            xLogLimit.Checked = Config.GetInt( ConfigKey.MaxLogs ) > 0;
-            nLogLimit.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.MaxLogs ) );
+            xLogLimit.Checked = (ConfigKey.MaxLogs.GetInt() > 0);
+            nLogLimit.Value = ConfigKey.MaxLogs.GetInt();
             if( !xLogLimit.Checked ) nLogLimit.Enabled = false;
         }
 
 
         void ApplyTabIRC() {
-            xIRC.Checked = Config.GetBool( ConfigKey.IRCBotEnabled );
+            xIRC.Checked = ConfigKey.IRCBotEnabled.GetBool();
             gIRCNetwork.Enabled = xIRC.Checked;
             gIRCOptions.Enabled = xIRC.Checked;
 
-            tIRCBotNetwork.Text = Config.GetString( ConfigKey.IRCBotNetwork );
-            nIRCBotPort.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.IRCBotPort ) );
-            nIRCDelay.Value = Config.GetInt( ConfigKey.IRCDelay );
+            tIRCBotNetwork.Text = ConfigKey.IRCBotNetwork.GetString();
+            nIRCBotPort.Value = ConfigKey.IRCBotPort.GetInt();
+            nIRCDelay.Value = ConfigKey.IRCDelay.GetInt();
 
-            tIRCBotChannels.Text = Config.GetString( ConfigKey.IRCBotChannels );
+            tIRCBotChannels.Text = ConfigKey.IRCBotChannels.GetString();
 
-            tIRCBotNick.Text = Config.GetString( ConfigKey.IRCBotNick );
-            xIRCRegisteredNick.Checked = Config.GetBool( ConfigKey.IRCRegisteredNick );
+            tIRCBotNick.Text = ConfigKey.IRCBotNick.GetString();
+            xIRCRegisteredNick.Checked = ConfigKey.IRCRegisteredNick.GetBool();
 
-            tIRCNickServ.Text = Config.GetString( ConfigKey.IRCNickServ );
-            tIRCNickServMessage.Text = Config.GetString( ConfigKey.IRCNickServMessage );
+            tIRCNickServ.Text = ConfigKey.IRCNickServ.GetString();
+            tIRCNickServMessage.Text = ConfigKey.IRCNickServMessage.GetString();
 
-            xIRCBotAnnounceIRCJoins.Checked = Config.GetBool( ConfigKey.IRCBotAnnounceIRCJoins );
-            xIRCBotAnnounceServerJoins.Checked = Config.GetBool( ConfigKey.IRCBotAnnounceServerJoins );
-            xIRCBotForwardFromIRC.Checked = Config.GetBool( ConfigKey.IRCBotForwardFromIRC );
-            xIRCBotForwardFromServer.Checked = Config.GetBool( ConfigKey.IRCBotForwardFromServer );
+            xIRCBotAnnounceIRCJoins.Checked = ConfigKey.IRCBotAnnounceIRCJoins.GetBool();
+            xIRCBotAnnounceServerJoins.Checked = ConfigKey.IRCBotAnnounceServerJoins.GetBool();
+            xIRCBotForwardFromIRC.Checked = ConfigKey.IRCBotForwardFromIRC.GetBool();
+            xIRCBotForwardFromServer.Checked = ConfigKey.IRCBotForwardFromServer.GetBool();
 
 
-            colorIRC = Color.ParseToIndex( Config.GetString( ConfigKey.IRCMessageColor ) );
+            colorIRC = Color.ParseToIndex( ConfigKey.IRCMessageColor.GetString() );
             ApplyColor( bColorIRC, colorIRC );
             Color.IRC = Color.Parse( colorIRC );
 
-            xIRCUseColor.Checked = Config.GetBool( ConfigKey.IRCUseColor );
-            xIRCBotAnnounceServerEvents.Checked = Config.GetBool( ConfigKey.IRCBotAnnounceServerEvents );
+            xIRCUseColor.Checked = ConfigKey.IRCUseColor.GetBool();
+            xIRCBotAnnounceServerEvents.Checked = ConfigKey.IRCBotAnnounceServerEvents.GetBool();
         }
 
 
         void ApplyTabAdvanced() {
-            xRelayAllBlockUpdates.Checked = Config.GetBool( ConfigKey.RelayAllBlockUpdates );
-            xNoPartialPositionUpdates.Checked = Config.GetBool( ConfigKey.NoPartialPositionUpdates );
-            nTickInterval.Value = Convert.ToDecimal( Config.GetInt( ConfigKey.TickInterval ) );
+            xRelayAllBlockUpdates.Checked = ConfigKey.RelayAllBlockUpdates.GetBool();
+            xNoPartialPositionUpdates.Checked = ConfigKey.NoPartialPositionUpdates.GetBool();
+            nTickInterval.Value = ConfigKey.TickInterval.GetInt();
 
             if( ConfigKey.ProcessPriority.IsBlank() ) {
                 cProcessPriority.SelectedIndex = 0; // Default
@@ -320,16 +329,16 @@ namespace ConfigTool {
 
             ApplyEnum( cUpdaterMode, ConfigKey.UpdaterMode, UpdaterMode.Prompt );
 
-            nThrottling.Value = Config.GetInt( ConfigKey.BlockUpdateThrottling );
-            xLowLatencyMode.Checked = Config.GetBool( ConfigKey.LowLatencyMode );
-            xSubmitCrashReports.Checked = Config.GetBool( ConfigKey.SubmitCrashReports );
+            nThrottling.Value = ConfigKey.BlockUpdateThrottling.GetInt();
+            xLowLatencyMode.Checked = ConfigKey.LowLatencyMode.GetBool();
+            xSubmitCrashReports.Checked = ConfigKey.SubmitCrashReports.GetBool();
 
-            xMaxUndo.Checked = Config.GetInt( ConfigKey.MaxUndo ) > 0;
-            nMaxUndo.Value = Config.GetInt( ConfigKey.MaxUndo );
+            xMaxUndo.Checked = (ConfigKey.MaxUndo.GetInt() > 0);
+            nMaxUndo.Value = ConfigKey.MaxUndo.GetInt();
 
-            tConsoleName.Text = Config.GetString( ConfigKey.ConsoleName );
+            tConsoleName.Text = ConfigKey.ConsoleName.GetString();
 
-            tIP.Text = Config.GetString( ConfigKey.IP );
+            tIP.Text = ConfigKey.IP.GetString();
             if( ConfigKey.IP.IsBlank() || ConfigKey.IP.IsDefault() ) {
                 tIP.Enabled = false;
                 xIP.Checked = false;
@@ -367,6 +376,7 @@ namespace ConfigTool {
             Config.TrySetValue( ConfigKey.ServerName, tServerName.Text );
             Config.TrySetValue( ConfigKey.MOTD, tMOTD.Text );
             Config.TrySetValue( ConfigKey.MaxPlayers, nMaxPlayers.Value );
+            Config.TrySetValue( ConfigKey.MaxPlayersPerWorld, nMaxPlayerPerWorld.Value );
             if( cDefaultRank.SelectedIndex == 0 ) {
                 Config.TrySetValue( ConfigKey.DefaultRank, "" );
             } else {
@@ -420,7 +430,10 @@ namespace ConfigTool {
 
             // Security
             WriteEnum<NameVerificationMode>( cVerifyNames, ConfigKey.VerifyNames );
-            Config.TrySetValue( ConfigKey.LimitOneConnectionPerIP, xLimitOneConnectionPerIP.Checked );
+
+            if( xMaxConnectionsPerIP.Checked ) {
+                Config.TrySetValue( ConfigKey.MaxConnectionsPerIP, nMaxConnectionsPerIP.Value );
+            }
             Config.TrySetValue( ConfigKey.AllowUnverifiedLAN, xAllowUnverifiedLAN.Checked );
 
             Config.TrySetValue( ConfigKey.AntispamMessageCount, nSpamChatCount.Value );

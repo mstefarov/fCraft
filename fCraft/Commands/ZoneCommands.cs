@@ -329,7 +329,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdZoneList = new CommandDescriptor {
             Name = "zones",
-            Category = CommandCategory.Info | CommandCategory.Zone,
+            Category = CommandCategory.Zone | CommandCategory.Info,
             IsConsoleSafe = true,
             Usage = "/zones [WorldName]",
             Help = "Lists all zones defined on the current map/world.",
@@ -382,7 +382,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdZoneInfo = new CommandDescriptor {
             Name = "zinfo",
-            Category = CommandCategory.Info | CommandCategory.Zone,
+            Category = CommandCategory.Zone | CommandCategory.Info,
             Help = "Shows information about a zone",
             Usage = "/zinfo ZoneName",
             Handler = ZoneInfo

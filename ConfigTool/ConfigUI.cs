@@ -180,6 +180,22 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             updaterWindow.UpdaterMode = (UpdaterMode)cUpdaterMode.SelectedIndex;
         }
 
+        private void bOpenWiki_Click( object sender, EventArgs e ) {
+            Process.Start( "http://www.fcraft.net/wiki/Main_Page" );
+        }
+
+        private void bReportABug_Click( object sender, EventArgs e ) {
+            Process.Start( "https://sourceforge.net/tracker/?limit=25&func=&group_id=296563&atid=1251681&status=1" );
+        }
+
+        private void nMaxPlayerPerWorld_Validating( object sender, CancelEventArgs e ) {
+            CheckMaxPlayersPerWorldValue();
+        }
+
+        private void nMaxPlayers_ValueChanged( object sender, EventArgs e ) {
+            CheckMaxPlayersPerWorldValue();
+        }
+
         #endregion
 
         #region Worlds
@@ -221,13 +237,18 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             if( dgvWorlds.SelectedRows.Count > 0 ) {
                 WorldListEntry world = worlds[dgvWorlds.SelectedRows[0].Index];
                 string fileName = world.Name + ".fcm";
-                if( File.Exists( fileName ) &&
-                    MessageBox.Show( "Do you want to delete the map file (" + fileName + ") as well?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
-                    try {
-                        File.Delete( Path.Combine( Paths.MapPath, fileName ) );
-                    } catch( Exception ex ) {
-                        MessageBox.Show( "You have to delete the file (" + fileName + ") manually. " +
-                                         "An error occured while trying to delete it automatically:" + Environment.NewLine + ex, "Error" );
+                string fullFileName = Path.Combine( Paths.MapPath, fileName );
+                if( File.Exists( fullFileName ) ) {
+                    if( MessageBox.Show( String.Format( "Are you sure you want to delete world \"{0}\"?", world.Name ), "Deleting a world", MessageBoxButtons.YesNo ) == DialogResult.No ) {
+                        return;
+                    }
+                    if( MessageBox.Show( "Do you want to delete the map file (" + fileName + ") as well?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
+                        try {
+                            File.Delete( fullFileName );
+                        } catch( Exception ex ) {
+                            MessageBox.Show( "You have to delete the file (" + fileName + ") manually. " +
+                                             "An error occured while trying to delete it automatically:" + Environment.NewLine + ex, "Error" );
+                        }
                     }
                 }
 
@@ -271,6 +292,10 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void cVerifyNames_SelectedIndexChanged( object sender, EventArgs e ) {
             xAllowUnverifiedLAN.Enabled = (cVerifyNames.SelectedIndex != 0);
             xAllowUnverifiedLAN.Checked = !xAllowUnverifiedLAN.Enabled;
+        }
+
+        private void xMaxConnectionsPerIP_CheckedChanged( object sender, EventArgs e ) {
+            nMaxConnectionsPerIP.Enabled = xMaxConnectionsPerIP.Checked;
         }
 
         #endregion
@@ -1375,6 +1400,13 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             return false;
         }
 
+        void CheckMaxPlayersPerWorldValue() {
+            if( nMaxPlayerPerWorld.Value > nMaxPlayers.Value ) {
+                nMaxPlayerPerWorld.Value = nMaxPlayers.Value;
+            }
+            nMaxPlayerPerWorld.Maximum = nMaxPlayers.Value;
+        }
+
         #endregion
 
 
@@ -1395,14 +1427,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                     e.Cancel = true;
                     return;
             }
-        }
-
-        private void bOpenWiki_Click( object sender, EventArgs e ) {
-            Process.Start( "http://www.fcraft.net/wiki/Main_Page" );
-        }
-
-        private void bReportABug_Click( object sender, EventArgs e ) {
-            Process.Start( "https://sourceforge.net/tracker/?limit=25&func=&group_id=296563&atid=1251681&status=1" );
         }
 
     }

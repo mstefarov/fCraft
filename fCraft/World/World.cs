@@ -154,11 +154,32 @@ namespace fCraft {
 
         #endregion
 
+
         #region PlayerList
+
+        const int MaxPlayerID = 127;
 
         public bool AcceptPlayer( Player player, bool announce ) {
             if( player == null ) throw new ArgumentNullException( "player" );
+
             lock( playerListLock ) {
+
+                if( IsFull() ) {
+                    return false;
+                }
+
+                player.ID = -1;
+                for( int i = 1; i < MaxPlayerID; i++ ) {
+                    if( !players.ContainsKey(i) ) {
+                        player.ID = i;
+                        players.Add( i, player );
+                        break;
+                    }
+                }
+
+                if( player.ID == -1 ) {
+                    return false;
+                }
 
                 // load the map, if it's not yet loaded
                 lock( MapLock ) {
@@ -168,22 +189,17 @@ namespace fCraft {
                     }
 
                     if( ConfigKey.BackupOnJoin.GetBool() ) {
+                        string backupFileName = String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm",
+                                                               Name, DateTime.Now, player.Name );
                         Map.SaveBackup( Path.Combine( Paths.MapPath, GetMapName() ),
-                                        Path.Combine( Paths.BackupPath, String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm",
-                                                                                       Name, DateTime.Now, player.Name ) ),
+                                        Path.Combine( Paths.BackupPath, backupFileName ),
                                         true );
                     }
                 }
 
-                // add player to the list
-                if( players.ContainsKey( player.ID ) ) {
-                    Logger.Log( "World.AcceptPlayer: Trying to accept a player that's already registered (duplicate player id).", LogType.Error );
-                    return false;
-                }
-                players.Add( player.ID, player );
-                UpdatePlayerList();
-
                 AddPlayerForPatrol( player );
+
+                UpdatePlayerList();
 
                 // Reveal newcommer to existing players
                 SendToSeeing( PacketWriter.MakeAddEntity( player, player.Position ), player );
@@ -274,6 +290,7 @@ namespace fCraft {
             return result;
         }
 
+
         public Player[] FindPlayers( Player player, string playerName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
@@ -293,7 +310,8 @@ namespace fCraft {
             return results.ToArray();
         }
 
-        // Get player by name without autocompletion
+
+        /// <summary> Gets player by name (without autocompletion) </summary>
         public Player FindPlayerExact( string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Player[] tempList = PlayerList;
@@ -306,7 +324,7 @@ namespace fCraft {
         }
 
 
-        // Cache the player list to an array (players -> playerList)
+        /// <summary> Caches the player list to an array (Players -> PlayerList) </summary>
         public void UpdatePlayerList() {
             lock( playerListLock ) {
                 Player[] newPlayerList = new Player[players.Count];
@@ -319,6 +337,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Counts all players (optionally includes all hidden players). </summary>
         public int CountPlayers( bool includeHiddenPlayers ) {
             if( includeHiddenPlayers ) {
                 return PlayerList.Length;
@@ -327,10 +346,18 @@ namespace fCraft {
             }
         }
 
+
+        /// <summary> Counts only the players who are not hidden from a given observer. </summary>
         public int CountVisiblePlayers( Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             return PlayerList.Count( observer.CanSee );
         }
+
+
+        public bool IsFull() {
+            return (PlayerList.Length >= ConfigKey.MaxPlayersPerWorld.GetInt());
+        }
+
 
         #endregion
 

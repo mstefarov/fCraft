@@ -23,7 +23,11 @@ namespace fCraft {
     /// Object representing a connected player.
     /// </summary>
     public sealed class Player : IClassy {
+        // the godly pseudo-player for commands called from the server console
+        public static Player Console;
+
         public static bool RelayAllUpdates;
+
 
         public string Name { get { return Info.Name; } } // always same as PlayerInfo.name
         // use Player.GetClassyName() to get the colorful version
@@ -37,11 +41,8 @@ namespace fCraft {
         public bool IsPainting,
                     IsHidden,
                     IsDeaf;
-        internal World World;
+        public World World;
         internal DateTime IdleTimer = DateTime.UtcNow; // used for afk kicks
-
-        // the godly pseudo-player for commands called from the server console
-        public static Player Console;
 
         // confirmation
         public Command CommandToConfirm;
@@ -54,7 +55,7 @@ namespace fCraft {
         public ushort LocalPlayerID = (ushort)ReservedPlayerID.None; // map-specific PlayerID
         // if no ID is assigned, set to ReservedPlayerID.None
 
-        public int ID = -1; // global PlayerID (currently unused)
+        public int ID = -1;
 
 
 
@@ -739,7 +740,7 @@ namespace fCraft {
         internal object SelectionArgs { get; private set; } // can be used for 'block' or 'zone' or whatever
         internal Permission[] SelectionPermissions;
 
-        internal DrawCommands.CopyInformation CopyInformation;
+        internal BuildingCommands.CopyInformation CopyInformation;
 
         public void AddSelectionMark( Position pos, bool executeCallbackIfNeeded ) {
             SelectionMarks.Enqueue( pos );

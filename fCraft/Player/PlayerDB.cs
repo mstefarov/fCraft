@@ -246,7 +246,7 @@ namespace fCraft {
             lock( Locker ) {
                 foreach( PlayerInfo info in List ) {
                     if( info.Rank == from ) {
-                        AdminCommands.DoChangeRank( player, info, to, "~MassRank", silent, false );
+                        ModerationCommands.DoChangeRank( player, info, to, "~MassRank", silent, false );
                         affected++;
                     }
                 }

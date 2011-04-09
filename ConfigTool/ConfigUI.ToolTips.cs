@@ -521,10 +521,11 @@ checks player's current and on-record IP address to eliminate false negatives.";
             toolTip.SetToolTip( lVerifyNames, tipVerifyNames );
             toolTip.SetToolTip( cVerifyNames, tipVerifyNames );
 
-            toolTip.SetToolTip( xLimitOneConnectionPerIP,
-@"Only allow 1 connection per IP. Note that all players on the same LAN
-will share an IP, and may be prevented from joining together. Don't enable
-this option unless there is a specific need/threat." );
+            toolTip.SetToolTip( xMaxConnectionsPerIP,
+@"Restricts the number of connections allowed from any one IP address.
+Note that all players on the same LAN will share an IP, and may be prevented
+from joining together. Enabling this option is not recommended unless there
+is a specific need/threat." );
 
             toolTip.SetToolTip( xAllowUnverifiedLAN,
 @"Allow players from your local network (LAN) to connect without name verification.

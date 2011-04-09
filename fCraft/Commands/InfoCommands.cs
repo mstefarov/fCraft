@@ -17,12 +17,6 @@ namespace fCraft {
 
         // Register help commands
         internal static void Init() {
-            CommandList.RegisterCommand( cdDeafen );
-            CommandList.RegisterCommand( cdIgnore );
-            CommandList.RegisterCommand( cdUnignore );
-
-            CommandList.RegisterCommand( cdMe );
-            CommandList.RegisterCommand( cdRoll );
 
             CommandList.RegisterCommand( cdInfo );
             CommandList.RegisterCommand( cdBanInfo );
@@ -49,7 +43,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdColors = new CommandDescriptor {
             Name = "colors",
-            Category = CommandCategory.Chat | CommandCategory.Info,
+            Category = CommandCategory.Info | CommandCategory.Chat,
             IsConsoleSafe = true,
             Help = "Shows a list of all available color codes.",
             Handler = Colors
@@ -67,29 +61,6 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdDeafen = new CommandDescriptor {
-            Name = "deafen",
-            Aliases = new[] { "deaf" },
-            Category = CommandCategory.Chat,
-            IsConsoleSafe = true,
-            Help = "Blocks all chat messages from being sent to you.",
-            Handler = Deafen
-        };
-
-        internal static void Deafen( Player player, Command cmd ) {
-            if( !player.IsDeaf ) {
-                player.MessageNow( "Deafened mode: ON" );
-                player.MessageNow( "You will not see any messages until you type &H/deafen&S again." );
-                player.IsDeaf = true;
-            } else {
-                player.IsDeaf = false;
-                player.MessageNow( "Deafened mode: OFF" );
-            }
-        }
-
-
-
-
         static CommandDescriptor cdTaskDebug = new CommandDescriptor {
             Name = "taskdebug",
             Category = CommandCategory.None,
@@ -101,102 +72,6 @@ namespace fCraft {
                 Scheduler.PrintTasks( Player.Console );
             }
         };
-
-
-        #region Ignore
-
-        static readonly CommandDescriptor cdIgnore = new CommandDescriptor {
-            Name = "ignore",
-            Category = CommandCategory.Chat,
-            IsConsoleSafe = true,
-            Usage = "/ignore [PlayerName]",
-            Help = "Temporarily blocks the other player from messaging you. " +
-                   "If no player name is given, lists all ignored players.",
-            Handler = Ignore
-        };
-
-        internal static void Ignore( Player player, Command cmd ) {
-            string name = cmd.Next();
-            if( name != null ) {
-                PlayerInfo targetInfo;
-                if( !PlayerDB.FindPlayerInfo( name, out targetInfo ) ) {
-                    PlayerInfo[] infos = PlayerDB.FindPlayers( name );
-                    if( infos.Length == 1 ) {
-                        targetInfo = infos[0];
-                    } else if( infos.Length > 1 ) {
-                        player.ManyMatchesMessage( "player", infos );
-                        return;
-                    } else {
-                        player.NoPlayerMessage( name );
-                        return;
-                    }
-                } else if( targetInfo == null ) {
-                    player.NoPlayerMessage( name );
-                    return;
-                }
-                if( player.Ignore( targetInfo ) ) {
-                    player.MessageNow( "You are now ignoring {0}", targetInfo.GetClassyName() );
-                } else {
-                    player.MessageNow( "You are already ignoring {0}", targetInfo.GetClassyName() );
-                }
-
-            } else {
-                PlayerInfo[] ignoreList = player.GetIgnoreList();
-                if( ignoreList.Length > 0 ) {
-                    player.MessageNow( "Ignored players: {0}", PlayerInfo.PlayerInfoArrayToString( ignoreList ) );
-                } else {
-                    player.MessageNow( "You are not currently ignoring anyone." );
-                }
-                return;
-            }
-        }
-
-
-        static readonly CommandDescriptor cdUnignore = new CommandDescriptor {
-            Name = "unignore",
-            Category = CommandCategory.Chat,
-            IsConsoleSafe = true,
-            Usage = "/unignore PlayerName",
-            Help = "Unblocks the other player from messaging you.",
-            Handler = Unignore
-        };
-
-        internal static void Unignore( Player player, Command cmd ) {
-            string name = cmd.Next();
-            if( name != null ) {
-                PlayerInfo targetInfo;
-                if( !PlayerDB.FindPlayerInfo( name, out targetInfo ) ) {
-                    PlayerInfo[] infos = PlayerDB.FindPlayers( name );
-                    if( infos.Length == 1 ) {
-                        targetInfo = infos[0];
-                    } else if( infos.Length > 1 ) {
-                        player.ManyMatchesMessage( "player", infos );
-                        return;
-                    } else {
-                        player.NoPlayerMessage( name );
-                        return;
-                    }
-                } else if( targetInfo == null ) {
-                    player.NoPlayerMessage( name );
-                    return;
-                }
-                if( player.Unignore( targetInfo ) ) {
-                    player.MessageNow( "You are no longer ignoring {0}", targetInfo.GetClassyName() );
-                } else {
-                    player.MessageNow( "You are not currently ignoring {0}", targetInfo.GetClassyName() );
-                }
-            } else {
-                PlayerInfo[] ignoreList = player.GetIgnoreList();
-                if( ignoreList.Length > 0 ) {
-                    player.MessageNow( "Ignored players: {0}", PlayerInfo.PlayerInfoArrayToString( ignoreList ) );
-                } else {
-                    player.MessageNow( "You are not currently ignoring anyone." );
-                }
-                return;
-            }
-        }
-
-        #endregion
 
 
         #region Infos (/info, /rinfo, /baninfo, /sinfo)
@@ -603,34 +478,6 @@ namespace fCraft {
         #endregion
 
 
-        static readonly CommandDescriptor cdMe = new CommandDescriptor {
-            Name = "me",
-            Category = CommandCategory.Chat,
-            IsConsoleSafe = true,
-            Usage = "/me Message",
-            Help = "Sends IRC-style action message prefixed with your name.",
-            Handler = Me
-        };
-
-        internal static void Me( Player player, Command cmd ) {
-            if( player.Info.IsMuted() ) {
-                player.MutedMessage();
-                return;
-            }
-
-            string msg = cmd.NextAll().Trim();
-            if( msg.Length > 0 ) {
-                player.Info.LinesWritten++;
-                if( player.Can( Permission.UseColorCodes ) && msg.Contains( "%" ) ) {
-                    msg = Color.ReplacePercentCodes( msg );
-                }
-                string message = String.Format( "{0}*{1} {2}", Color.Me, player.Name, msg );
-                Server.SendToAll( message );
-                IRC.SendChannelMessage( message );
-            }
-        }
-
-
 
         static readonly CommandDescriptor cdRanks = new CommandDescriptor {
             Name = "ranks",
@@ -681,50 +528,9 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdRoll = new CommandDescriptor {
-            Name = "roll",
-            Category = CommandCategory.Chat,
-            IsConsoleSafe = true,
-            Help = "Gives random number between 1 and 100.&N" +
-                   "&H/roll MaxNumber&N" +
-                   "Gives number between 1 and max.&N" +
-                   "&H/roll MinNumber MaxNumber&N" +
-                   "Gives number between min and max.",
-            Handler = Roll
-        };
-
-        internal static void Roll( Player player, Command cmd ) {
-            if( player.Info.IsMuted() ) {
-                player.MutedMessage();
-                return;
-            }
-
-            Random rand = new Random();
-            int min = 1, max = 100, t1;
-            if( cmd.NextInt( out t1 ) ) {
-                int t2;
-                if( cmd.NextInt( out t2 ) ) {
-                    if( t2 < t1 ) {
-                        min = t2;
-                        max = t1;
-                    } else {
-                        min = t1;
-                        max = t2;
-                    }
-                } else if( t1 >= 1 ) {
-                    max = t1;
-                }
-            }
-            int num = rand.Next( min, max + 1 );
-            Server.SendToAll( "{0}{1} rolled {2} ({3}...{4})",
-                              player.GetClassyName(), Color.Silver, num, min, max );
-        }
-
-
-
         static readonly CommandDescriptor cdMeasure = new CommandDescriptor {
             Name = "measure",
-            Category = CommandCategory.Building | CommandCategory.Info,
+            Category = CommandCategory.Info | CommandCategory.Building,
             Help = "Shows information about a selection: width/length/height and volume.",
             Handler = Measure
         };

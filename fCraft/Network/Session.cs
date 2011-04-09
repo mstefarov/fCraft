@@ -166,7 +166,10 @@ namespace fCraft {
                                         return;
                                     }
                                 }
-                                JoinWorldNow( forcedWorldToJoin, false );
+                                if( !JoinWorldNow( forcedWorldToJoin, false ) ) {
+                                    Logger.Log( "Session.IoLoop: Player was asked to force-join a world, but it was full.", LogType.Warning );
+                                    KickNow( "World is full.", LeaveReason.ServerFull );
+                                }
                                 forcedWorldToJoin = null;
                             }
                         }
@@ -397,7 +400,7 @@ namespace fCraft {
             Server.RaiseSessionDisconnectedEvent( this, LeaveReason );
 
             if( Player != null ) {
-                Server.UnregisterPlayer( Player );
+                Server.UnregisterPlayer( this );
                 Server.RaisePlayerDisconnectedEventArgs( Player, LeaveReason );
                 Player = null;
             }
@@ -424,6 +427,7 @@ namespace fCraft {
         const string NoSmpMessage = "This server is for Minecraft Classic only.";
         bool LoginSequence() {
             byte opcode = reader.ReadByte();
+
             if( opcode != (byte)InputCode.Handshake ) {
                 if( opcode == 2 ) {
                     // This may be someone connecting with an SMP client
@@ -459,7 +463,8 @@ namespace fCraft {
                 }
             }
 
-            // check protocol version
+
+            // Check protocol version
             int clientProtocolVersion = reader.ReadByte();
             if( clientProtocolVersion != Config.ProtocolVersion ) {
                 Logger.Log( "Session.LoginSequence: Wrong protocol version: {0}.", LogType.Error,
@@ -468,11 +473,12 @@ namespace fCraft {
                 return false;
             }
 
-            // check name for nonstandard characters
             string playerName = ReadString();
             string verificationCode = ReadString();
             reader.ReadByte(); // unused    
 
+
+            // Check name for nonstandard characters
             if( !Player.IsValidName( playerName ) ) {
                 Logger.Log( "Session.LoginSequence: Unacceptible player name: {0} ({1})", LogType.SuspiciousActivity,
                             playerName, GetIP() );
@@ -480,26 +486,9 @@ namespace fCraft {
                 return false;
             }
 
-            // check if player is banned
-            Player = new Player( null, playerName, this, Server.MainWorld.Map.Spawn );
-            if( Player.Info.Banned ) {
-                Player.Info.ProcessFailedLogin( Player );
-                Logger.Log( "Banned player {0} tried to log in.", LogType.SuspiciousActivity,
-                            Player.Name );
-                if( ConfigKey.ShowBannedConnectionMessages.GetBool() ) {
-                    Server.SendToAll( "&SBanned player {0}&S tried to log in.", Player.GetClassyName() );
-                }
-                string bannedMessage = String.Format( "Banned {0} ago by {1}: {2}",
-                                                      DateTime.Now.Subtract( Player.Info.BanDate ).ToMiniString(),
-                                                      Player.Info.BannedBy,
-                                                      Player.Info.BanReason );
-                KickNow( bannedMessage, LeaveReason.LoginFailed );
-                return false;
-            }
 
+            // Verify name
             bool showVerifyNamesWarning = false;
-
-            // verify name
             if( !Server.VerifyName( Player.Name, verificationCode, Server.Salt ) ) {
                 NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();
 
@@ -517,7 +506,7 @@ namespace fCraft {
                     switch( nameVerificationMode ) {
                         case NameVerificationMode.Always:
                         case NameVerificationMode.Balanced:
-                            Player.Info.ProcessFailedLogin( Player );
+                            Player.Info.ProcessFailedLogin( this );
                             Logger.Log( "{0} IP did not match. Player was kicked.", LogType.SuspiciousActivity,
                                         standardMessage );
                             KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
@@ -534,7 +523,7 @@ namespace fCraft {
                 } else {
                     switch( nameVerificationMode ) {
                         case NameVerificationMode.Always:
-                            Player.Info.ProcessFailedLogin( Player );
+                            Player.Info.ProcessFailedLogin( this );
                             Logger.Log( "{0} IP matched previous records for that name. " +
                                         "Player was kicked anyway because VerifyNames is set to Always.", LogType.SuspiciousActivity,
                                         standardMessage );
@@ -549,10 +538,29 @@ namespace fCraft {
                 }
             }
 
-            // check if player's IP is banned
+
+            // Check if player is banned (it does not matter at this point if name is verified)
+            Player = new Player( null, playerName, this, Server.MainWorld.Map.Spawn );
+            if( Player.Info.Banned ) {
+                Player.Info.ProcessFailedLogin( this );
+                Logger.Log( "Banned player {0} tried to log in.", LogType.SuspiciousActivity,
+                            Player.Name );
+                if( ConfigKey.ShowBannedConnectionMessages.GetBool() ) {
+                    Server.SendToAll( "&SBanned player {0}&S tried to log in.", Player.GetClassyName() );
+                }
+                string bannedMessage = String.Format( "Banned {0} ago by {1}: {2}",
+                                                      DateTime.Now.Subtract( Player.Info.BanDate ).ToMiniString(),
+                                                      Player.Info.BannedBy,
+                                                      Player.Info.BanReason );
+                KickNow( bannedMessage, LeaveReason.LoginFailed );
+                return false;
+            }
+
+
+            // Check if player's IP is banned
             IPBanInfo ipBanInfo = IPBanList.Get( GetIP() );
             if( ipBanInfo != null ) {
-                Player.Info.ProcessFailedLogin( Player );
+                Player.Info.ProcessFailedLogin( this );
                 ipBanInfo.ProcessAttempt( Player );
                 if( ConfigKey.ShowBannedConnectionMessages.GetBool() ) {
                     Server.SendToAll( "{0}&S tried to log in from a banned IP.", Player.GetClassyName() );
@@ -567,11 +575,22 @@ namespace fCraft {
                 return false;
             }
 
+
+            // Check if max number of connections is reached for IP
+            if( !Server.RegisterSessionAndCheckConnectionCount( this ) ) {
+                Player.Info.ProcessFailedLogin( this );
+                Logger.Log( "Session.LoginSequence: Denied player {0}: maximum number of connections was reached for {1}", LogType.SuspiciousActivity,
+                            playerName, GetIP() );
+                KickNow( String.Format( "Max connection count reached for {0}", GetIP() ), LeaveReason.LoginFailed );
+                return false;
+            }
+
+
+            // Check if player is paid (if required)
             if( ConfigKey.PaidPlayersOnly.GetBool() ) {
-                // write a "please wait" message while we validate player's paid status
                 writer.Write( PacketWriter.MakeHandshake( Player,
                                                           ConfigKey.ServerName.GetString(),
-                                                          "Please wait; Validating paid status..." ) );
+                                                          "Please wait; Checking paid status..." ) );
                 writer.Flush();
 
                 if( !Player.CheckPaidStatus( Player.Name ) ) {
@@ -580,34 +599,18 @@ namespace fCraft {
                 }
             }
 
+
             // Any additional security checks should be done right here
             if( Server.RaisePlayerConnectingEvent( Player ) ) return false;
 
 
             // ----==== beyond this point, player is considered connecting (allowed to join) ====----
 
-
-            // check if another player with the same name is on
-            Server.KickGhostsAndRegisterSession( this );
-
-            if( ConfigKey.LimitOneConnectionPerIP.GetBool() ) {
-                // note: FindPlayers only counts REGISTERED players
-                Player[] potentialClones = Server.FindPlayers( GetIP() );
-                if( potentialClones.Length > 0 ) {
-                    Player.Info.ProcessFailedLogin( Player );
-                    Logger.Log( "Session.LoginSequence: Player {0} tried to log in from same IP ({1}) as {2}.", LogType.SuspiciousActivity,
-                                Player.Name, GetIP(), potentialClones[0].Name );
-                    foreach( Player clone in potentialClones ) {
-                        clone.Message( "Warning: someone just attempted to log in using your IP." );
-                    }
-                    KickNow( "Only one connection per IP allowed!", LeaveReason.LoginFailed );
-                    return false;
-                }
-            }
-
             // Register player for future block updates
-            if( !Server.RegisterPlayer( Player ) ) {
-                KickNow( "Sorry, server is full (" + Server.PlayerList.Length + "/" + ConfigKey.MaxPlayers.GetInt() + ")", LeaveReason.ServerFull );
+            if( !Server.RegisterPlayerAndCheckIfFull( this ) ) {
+                string kickMessage = String.Format( "Sorry, server is full ({0}/{1})",
+                                        Server.PlayerList.Length, ConfigKey.MaxPlayers.GetInt() );
+                KickNow( kickMessage, LeaveReason.ServerFull );
                 return false;
             }
             Player.Info.ProcessLogin( Player );
@@ -625,7 +628,7 @@ namespace fCraft {
             if( ConfigKey.AutoRankEnabled.GetBool() ) {
                 Rank newRank = AutoRank.Check( Player.Info );
                 if( newRank != null ) {
-                    AdminCommands.DoChangeRank( Player.Console, Player.Info, newRank, "~AutoRank", false, true );
+                    ModerationCommands.DoChangeRank( Player.Console, Player.Info, newRank, "~AutoRank", false, true );
                 }
             }
 
@@ -633,6 +636,7 @@ namespace fCraft {
             if( !JoinWorldNow( startingWorld, true ) ) {
                 Logger.Log( "Failed to load main world ({0}) for connecting player {1} (from {2})", LogType.Error,
                             startingWorld.Name, Player.Name, GetIP() );
+                KickNow( "Unable to join the main world.", LeaveReason.WorldFull );
                 return false;
             }
 

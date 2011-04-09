@@ -41,7 +41,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdWorldInfo = new CommandDescriptor {
             Name = "winfo",
             Aliases = new[] { "mapinfo" },
-            Category = CommandCategory.Info | CommandCategory.World,
+            Category = CommandCategory.World | CommandCategory.Info,
             IsConsoleSafe = true,
             Usage = "/winfo [WorldName]",
             Help = "Shows information about a world: player count, map dimensions, permissions, etc." +
@@ -134,6 +134,10 @@ namespace fCraft {
                 switch( world.AccessSecurity.CheckDetailed( player.Info ) ) {
                     case SecurityCheckResult.Allowed:
                     case SecurityCheckResult.WhiteListed:
+                        if( world.IsFull() ) {
+                            player.Message( "Cannot join {0}&S: world is full.", world.GetClassyName() );
+                            return;
+                        }
                         if( !player.Session.JoinWorldNow( world, false ) ) {
                             player.Message( "ERROR: Failed to join world. See log for details." );
                         }
