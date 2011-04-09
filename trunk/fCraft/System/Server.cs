@@ -1535,13 +1535,9 @@ namespace fCraft {
                 }
 
                 World[] worldListCache = WorldList;
-                // better safe than sorry: go through ALL worlds looking for leftover players
-                foreach( World world in worldListCache ) {
-                    world.ReleasePlayer( player );
-                }
+                player.World.ReleasePlayer( player );
                 Players.Remove( player.Name );
                 UpdatePlayerList();
-
             }
         }
 

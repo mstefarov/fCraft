@@ -105,9 +105,6 @@ namespace fCraft {
         [IntKey( ConfigSection.Security, 0 )]
         MaxConnectionsPerIP,
 
-        //[BoolKey( ConfigSection.Security, false )]
-        //LimitOneConnectionPerIP,
-
         [BoolKey( ConfigSection.Security, false )]
         AllowUnverifiedLAN,
 
