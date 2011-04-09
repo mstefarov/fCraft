@@ -1699,6 +1699,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdRotate = new CommandDescriptor {
             Name = "rotate",
+            Aliases = new[] { "spin" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "Rotates copied blocks around specifies axis/axes. If no axis is given, rotates around Z (vertical).",
