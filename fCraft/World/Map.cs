@@ -111,9 +111,8 @@ namespace fCraft {
             WidthY = widthY;
             Height = height;
 
-            int blockCount = WidthX * WidthY * Height;
-
             if( initBlockArray ) {
+                int blockCount = WidthX * WidthY * Height;
                 Blocks = new byte[blockCount];
                 Blocks.Initialize();
             }

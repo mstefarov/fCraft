@@ -221,5 +221,14 @@ namespace fCraft.MapConversion {
             throw new MapFormatException( "Unknown map format for saving." );
         }
 
+
+        internal static void ReadAll( Stream source, byte[] destination ) {
+            int read = 0;
+            while( read < destination.Length ) {
+                int readPass = source.Read( destination, read, destination.Length - read );
+                if( readPass == 0 ) throw new EndOfStreamException();
+                read += readPass;
+            }
+        }
     }
 }
