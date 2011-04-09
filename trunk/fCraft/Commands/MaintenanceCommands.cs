@@ -4,18 +4,32 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 
 namespace fCraft {
     /// <summary>
     /// Several yet-undocumented commands, mostly related to AutoRank.
     /// </summary>
-    static class AutoRankCommands {
+    static class MaintenanceCommands {
+
         internal static void Init() {
+            CommandList.RegisterCommand( cdDumpStats );
+
             CommandList.RegisterCommand( cdAutoRankReload );
             CommandList.RegisterCommand( cdMassRank );
             CommandList.RegisterCommand( cdAutoRankAll );
-            CommandList.RegisterCommand( cdDumpStats );
             CommandList.RegisterCommand( cdSetInfo );
+
+
+            CommandList.RegisterCommand( cdReloadConfig );
+
+            CommandList.RegisterCommand( cdShutdown );
+            CommandList.RegisterCommand( cdRestart );
+
+            CommandList.RegisterCommand( cdPruneDB );
+
+            CommandList.RegisterCommand( cdImportBans );
+            CommandList.RegisterCommand( cdImportRanks );
         }
 
 
@@ -456,7 +470,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdAutoRankAll = new CommandDescriptor {
             Name = "autorankall",
-            Category = CommandCategory.Moderation | CommandCategory.Maintenance,
+            Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsConsoleSafe = true,
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
@@ -503,7 +517,7 @@ namespace fCraft {
                     } else if( newRank < list[i].Rank ) {
                         demoted++;
                     }
-                    AdminCommands.DoChangeRank( player, list[i], newRank, message, silent, true );
+                    ModerationCommands.DoChangeRank( player, list[i], newRank, message, silent, true );
                 }
             }
             sw.Stop();
@@ -512,7 +526,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdMassRank = new CommandDescriptor {
             Name = "massrank",
-            Category = CommandCategory.Moderation | CommandCategory.Maintenance,
+            Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsHidden = true,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
@@ -582,7 +596,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdSetInfo = new CommandDescriptor {
             Name = "setinfo",
-            Category = CommandCategory.Moderation | CommandCategory.Info,
+            Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsConsoleSafe = true,
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
@@ -720,5 +734,295 @@ namespace fCraft {
                 return false;
             }
         }
+
+
+        #region ReloadConfig
+
+        static readonly CommandDescriptor cdReloadConfig = new CommandDescriptor {
+            Name = "reloadconfig",
+            Category = CommandCategory.Maintenance,
+            Permissions = new[] { Permission.ReloadConfig },
+            IsConsoleSafe = true,
+            Help = "Reloads most of server's configuration file. " +
+                   "NOTE: THIS COMMAND IS EXPERIMENTAL! Excludes rank changes and IRC bot settings. " +
+                   "Server has to be restarted to change those.",
+            Handler = ReloadConfig
+        };
+
+        static void ReloadConfig( Player player, Command cmd ) {
+            player.Message( "Attempting to reload config..." );
+            if( Config.Load( true, true ) ) {
+                Config.ApplyConfig();
+                player.Message( "Config reloaded." );
+            } else {
+                player.Message( "An error occured while trying to reload the config. See server log for details." );
+            }
+        }
+
+        #endregion
+
+
+        #region Shutdown, Restart
+
+        static readonly CommandDescriptor cdShutdown = new CommandDescriptor {
+            Name = "shutdown",
+            Category = CommandCategory.Maintenance,
+            Permissions = new[] { Permission.ShutdownServer },
+            IsConsoleSafe = true,
+            Help = "Shuts down the server remotely. " +
+                   "The default delay before shutdown is 5 seconds (can be changed by specifying a custom number of seconds). " +
+                   "A shutdown reason or message can be specified to be shown to players. You can also cancel a shutdown-in-progress " +
+                   "by calling &H/shutdown abort",
+            Usage = "/shutdown [Delay] [Reason]",
+            Handler = Shutdown
+        };
+
+        static void Shutdown( Player player, Command cmd ) {
+            int delay;
+            if( !cmd.NextInt( out delay ) ) {
+                delay = 5;
+                cmd.Rewind();
+            }
+            string reason = cmd.NextAll();
+
+            if( reason.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
+                if( Server.CancelShutdown() ) {
+                    Logger.Log( "Shutdown aborted by {0}.", LogType.UserActivity, player.Name );
+                    Server.SendToAll( "&WShutdown aborted by {0}", player.GetClassyName() );
+                } else {
+                    player.MessageNow( "Cannot abort shutdown - too late." );
+                }
+                return;
+            }
+
+            Server.SendToAll( "&WServer shutting down in {0} seconds.", delay );
+
+            if( String.IsNullOrEmpty( reason ) ) {
+                Logger.Log( "{0} shut down the server ({1} second delay).", LogType.UserActivity,
+                            player.Name, delay );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delay, true, false );
+                Server.Shutdown( sp, false );
+            } else {
+                Server.SendToAll( "&WShutdown reason: {0}", reason );
+                Logger.Log( "{0} shut down the server ({1} second delay). Reason: {2}", LogType.UserActivity,
+                            player.Name, delay, reason );
+                ShutdownParams sp = new ShutdownParams( reason, delay, true, false, player );
+                Server.Shutdown( sp, false );
+            }
+        }
+
+
+
+        static readonly CommandDescriptor cdRestart = new CommandDescriptor {
+            Name = "restart",
+            Category = CommandCategory.Maintenance,
+            Permissions = new[] { Permission.ShutdownServer },
+            IsConsoleSafe = true,
+            Help = "Restarts the server remotely. " +
+                   "The default delay before restart is 5 seconds (can be changed by specifying a custom number of seconds). " +
+                   "A restart reason or message can be specified to be shown to players.",
+            Usage = "/restart [Delay [Reason]]",
+            Handler = Restart
+        };
+
+        static void Restart( Player player, Command cmd ) {
+            int delay;
+            if( !cmd.NextInt( out delay ) ) {
+                delay = 5;
+                cmd.Rewind();
+            }
+            string reason = cmd.Next();
+
+            Server.SendToAll( "&WServer restarting in {0} seconds.", delay );
+
+            if( reason == null ) {
+                Logger.Log( "{0} restarted the server ({1} second delay).", LogType.UserActivity,
+                            player.Name, delay );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delay, true, true );
+                Server.Shutdown( sp, false );
+            } else {
+                Logger.Log( "{0} restarted the server ({1} second delay). Reason: {2}", LogType.UserActivity,
+                            player.Name, delay, reason );
+                ShutdownParams sp = new ShutdownParams( reason, delay, true, true, player );
+                Server.Shutdown( sp, false );
+            }
+        }
+
+        #endregion
+
+
+        #region PruneDB
+
+        static readonly CommandDescriptor cdPruneDB = new CommandDescriptor {
+            Name = "prunedb",
+            Category = CommandCategory.Maintenance,
+            IsConsoleSafe = true,
+            IsHidden = true,
+            Permissions = new[] { Permission.EditPlayerDB },
+            Help = "Removes inactive players from the player database. Use with caution.",
+            Handler = PruneDB
+        };
+
+        internal static void PruneDB( Player player, Command cmd ) {
+            if( !cmd.Confirmed ) {
+                player.MessageNow( "PruneDB: Finding inactive players..." );
+                player.AskForConfirmation( cmd, "Remove {0} inactive players from the database?",
+                                           PlayerDB.CountInactivePlayers() );
+                return;
+            }
+            player.MessageNow( "PruneDB: Removing inactive players... (this may take a while)" );
+            Scheduler.AddBackgroundTask( delegate {
+                player.MessageNow( "PruneDB: Removed {0} inactive players!", PlayerDB.RemoveInactivePlayers() );
+            } ).RunOnce();
+        }
+
+        #endregion
+
+
+        #region Importing
+
+        static readonly CommandDescriptor cdImportBans = new CommandDescriptor {
+            Name = "importbans",
+            Category = CommandCategory.Maintenance,
+            Permissions = new[] { Permission.Import, Permission.Ban },
+            Usage = "/importbans SoftwareName File",
+            Help = "Imports ban list from formats used by other servers. " +
+                   "Currently only MCSharp/MCZall files are supported.",
+            Handler = ImportBans
+        };
+
+        static void ImportBans( Player player, Command cmd ) {
+            string serverName = cmd.Next();
+            string file = cmd.Next();
+
+            // Make sure all parameters are specified
+            if( file == null ) {
+                cdImportBans.PrintUsage( player );
+                return;
+            }
+
+            // Check if file exists
+            if( !File.Exists( file ) ) {
+                player.Message( "File not found: {0}", file );
+                return;
+            }
+
+            string[] names;
+
+            switch( serverName.ToLower() ) {
+                case "mcsharp":
+                case "mczall":
+                case "mclawl":
+                    try {
+                        names = File.ReadAllLines( file );
+                    } catch( Exception ex ) {
+                        Logger.Log( "Could not open \"{0}\" to import bans: {1}", LogType.Error,
+                                    file,
+                                    ex );
+                        return;
+                    }
+                    break;
+                default:
+                    player.Message( "fCraft does not support importing from {0}", serverName );
+                    return;
+            }
+
+            if( !cmd.Confirmed ) {
+                player.AskForConfirmation( cmd, "You are about to import {0} bans.", names.Length );
+                return;
+            }
+
+            string reason = "(import from " + serverName + ")";
+            foreach( string name in names ) {
+                if( Player.IsValidName( name ) ) {
+                    ModerationCommands.DoBan( player, name, reason, false, false, false );
+                } else {
+                    IPAddress ip;
+                    if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
+                        ModerationCommands.DoIPBan( player, ip, reason, "", false, false );
+                    } else {
+                        player.Message( "Could not parse \"{0}\" as either name or IP. Skipping.", name );
+                    }
+                }
+            }
+
+            PlayerDB.Save();
+            IPBanList.Save();
+        }
+
+
+
+        static readonly CommandDescriptor cdImportRanks = new CommandDescriptor {
+            Name = "importranks",
+            Category = CommandCategory.Maintenance,
+            Permissions = new[] { Permission.Import, Permission.Promote, Permission.Demote },
+            Usage = "/importranks SoftwareName File RankToAssign",
+            Help = "Imports player list from formats used by other servers. " +
+                   "All players listed in the specified file are added to PlayerDB with the specified rank. " +
+                   "Currently only MCSharp/MCZall files are supported.",
+            Handler = ImportRanks
+        };
+
+        static void ImportRanks( Player player, Command cmd ) {
+            string serverName = cmd.Next();
+            string fileName = cmd.Next();
+            string rankName = cmd.Next();
+            bool silent = (cmd.Next() != null);
+
+
+            // Make sure all parameters are specified
+            if( rankName == null ) {
+                cdImportRanks.PrintUsage( player );
+                return;
+            }
+
+            // Check if file exists
+            if( !File.Exists( fileName ) ) {
+                player.Message( "File not found: {0}", fileName );
+                return;
+            }
+
+            Rank targetRank = RankList.ParseRank( rankName );
+            if( targetRank == null ) {
+                player.NoRankMessage( rankName );
+                return;
+            }
+
+            string[] names;
+
+            switch( serverName.ToLower() ) {
+                case "mcsharp":
+                case "mczall":
+                case "mclawl":
+                    try {
+                        names = File.ReadAllLines( fileName );
+                    } catch( Exception ex ) {
+                        Logger.Log( "Could not open \"{0}\" to import ranks: {1}", LogType.Error,
+                                    fileName,
+                                    ex );
+                        return;
+                    }
+                    break;
+                default:
+                    player.Message( "fCraft does not support importing from {0}", serverName );
+                    return;
+            }
+
+            if( !cmd.Confirmed ) {
+                player.AskForConfirmation( cmd, "You are about to import {0} player ranks.", names.Length );
+                return;
+            }
+
+            string reason = "(import from " + serverName + ")";
+            foreach( string name in names ) {
+                PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
+                                  PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
+                ModerationCommands.DoChangeRank( player, info, targetRank, reason, silent, false );
+            }
+
+            PlayerDB.Save();
+        }
+
+        #endregion
     }
 }

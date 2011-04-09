@@ -52,6 +52,9 @@ namespace fCraft {
         /// <summary> Server was full or became full </summary>
         ServerFull = 0x32,
 
+        /// <summary> World was full (forced join failed) </summary>
+        WorldFull = 0x33,
+
 
         /// <summary> Login failed due to protocol violation/mismatch (e.g. SMP client) </summary>
         ProtocolViolation = 0x41,

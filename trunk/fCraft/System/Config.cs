@@ -105,13 +105,16 @@ namespace fCraft {
      *              
      * 133 - r517 - Added UseColorCodes permission
      * 
+     * 134 - r520 - Removed LimitOneConnectionPerIP key
+     *              Added MaxConnectionsPerIP key
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 133;
+        public const int ConfigVersion = 134;
         public const int MaxPlayersSupported = 128;
         public const string ConfigRootName = "fCraftConfig";
 
@@ -293,11 +296,16 @@ namespace fCraft {
                     // renamed/legacy key
                     TrySetValue( LegacyConfigKeys[key], element.Value );
 
+                } else if( key.Equals( "LimitOneConnectionPerIP", StringComparison.OrdinalIgnoreCase ) ) {
+                    Logger.Log( "Config.Load: LimitOneConnectionPerIP (bool) was replaced by MaxConnectionsPerIP (int). Adjust your configuration accordingly.",
+                                LogType.Warning );
+                    ConfigKey.MaxConnectionsPerIP.TrySetValue( 1 );
+
                 } else if( key != "consoleoptions" &&
-                           key != "logfileoptions" &&
-                           key != "classes" && // LEGACY
-                           key != "ranks" &&
-                           key != "legacyrankmapping" ) {
+                            key != "logfileoptions" &&
+                            key != "classes" && // LEGACY
+                            key != "ranks" &&
+                            key != "legacyrankmapping" ) {
                     // unknown key
                     Log( "Unrecognized entry ignored: {0} = {1}", LogType.Debug, element.Name, element.Value );
                 }
@@ -755,7 +763,7 @@ namespace fCraft {
             // IRC delay
             IRC.SendDelay = GetInt( ConfigKey.IRCDelay );
 
-            DrawCommands.MaxUndoCount = GetInt( ConfigKey.MaxUndo );
+            BuildingCommands.MaxUndoCount = GetInt( ConfigKey.MaxUndo );
 
             if( !Paths.IgnoreMapPathConfigKey && GetString( ConfigKey.MapPath ).Length > 0 ) {
                 if( Paths.TestDirectory( "MapPath", GetString( ConfigKey.MapPath ), true ) ) {

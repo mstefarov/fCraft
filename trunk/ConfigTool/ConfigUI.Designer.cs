@@ -87,7 +87,6 @@
             this.xListPrefixes = new System.Windows.Forms.CheckBox();
             this.xChatPrefixes = new System.Windows.Forms.CheckBox();
             this.xRankColors = new System.Windows.Forms.CheckBox();
-            this.chatPreview = new ConfigTool.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.bMapPath = new System.Windows.Forms.Button();
             this.xMapPath = new System.Windows.Forms.CheckBox();
@@ -174,8 +173,9 @@
             this.nSpamChatCount = new System.Windows.Forms.NumericUpDown();
             this.lSpamChat = new System.Windows.Forms.Label();
             this.gVerify = new System.Windows.Forms.GroupBox();
+            this.nMaxConnectionsPerIP = new System.Windows.Forms.NumericUpDown();
             this.xAllowUnverifiedLAN = new System.Windows.Forms.CheckBox();
-            this.xLimitOneConnectionPerIP = new System.Windows.Forms.CheckBox();
+            this.xMaxConnectionsPerIP = new System.Windows.Forms.CheckBox();
             this.lVerifyNames = new System.Windows.Forms.Label();
             this.cVerifyNames = new System.Windows.Forms.ComboBox();
             this.tabSavingAndBackup = new System.Windows.Forms.TabPage();
@@ -277,6 +277,9 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
+            this.nMaxPlayerPerWorld = new System.Windows.Forms.NumericUpDown();
+            this.lMaxPlayersPerWorld = new System.Windows.Forms.Label();
+            this.chatPreview = new ConfigTool.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdateSettings.SuspendLayout();
@@ -307,6 +310,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nSpamChatTimer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSpamChatCount)).BeginInit();
             this.gVerify.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxConnectionsPerIP)).BeginInit();
             this.tabSavingAndBackup.SuspendLayout();
             this.gSaving.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nSaveInterval)).BeginInit();
@@ -329,6 +333,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             this.gCrashReport.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayerPerWorld)).BeginInit();
             this.SuspendLayout();
             // 
             // tabs
@@ -372,7 +377,7 @@
             this.gUpdateSettings.Controls.Add( this.bShowAdvancedUpdaterSettings );
             this.gUpdateSettings.Controls.Add( this.cUpdaterMode );
             this.gUpdateSettings.Controls.Add( this.lUpdater );
-            this.gUpdateSettings.Location = new System.Drawing.Point( 8, 249 );
+            this.gUpdateSettings.Location = new System.Drawing.Point( 8, 247 );
             this.gUpdateSettings.Name = "gUpdateSettings";
             this.gUpdateSettings.Size = new System.Drawing.Size( 636, 54 );
             this.gUpdateSettings.TabIndex = 2;
@@ -485,7 +490,7 @@
             this.gInformation.Controls.Add( this.xAnnouncements );
             this.gInformation.Controls.Add( this.bRules );
             this.gInformation.Controls.Add( this.bAnnouncements );
-            this.gInformation.Location = new System.Drawing.Point( 8, 186 );
+            this.gInformation.Location = new System.Drawing.Point( 8, 184 );
             this.gInformation.Name = "gInformation";
             this.gInformation.Size = new System.Drawing.Size( 636, 57 );
             this.gInformation.TabIndex = 1;
@@ -569,6 +574,8 @@
             // 
             // gBasic
             // 
+            this.gBasic.Controls.Add( this.nMaxPlayerPerWorld );
+            this.gBasic.Controls.Add( this.lMaxPlayersPerWorld );
             this.gBasic.Controls.Add( this.bPortCheck );
             this.gBasic.Controls.Add( this.lPort );
             this.gBasic.Controls.Add( this.nPort );
@@ -588,14 +595,14 @@
             this.gBasic.Controls.Add( this.lMaxPlayers );
             this.gBasic.Location = new System.Drawing.Point( 8, 13 );
             this.gBasic.Name = "gBasic";
-            this.gBasic.Size = new System.Drawing.Size( 636, 167 );
+            this.gBasic.Size = new System.Drawing.Size( 636, 165 );
             this.gBasic.TabIndex = 0;
             this.gBasic.TabStop = false;
             this.gBasic.Text = "Basic Settings";
             // 
             // bPortCheck
             // 
-            this.bPortCheck.Location = new System.Drawing.Point( 517, 103 );
+            this.bPortCheck.Location = new System.Drawing.Point( 200, 99 );
             this.bPortCheck.Name = "bPortCheck";
             this.bPortCheck.Size = new System.Drawing.Size( 68, 23 );
             this.bPortCheck.TabIndex = 16;
@@ -606,7 +613,7 @@
             // lPort
             // 
             this.lPort.AutoSize = true;
-            this.lPort.Location = new System.Drawing.Point( 359, 107 );
+            this.lPort.Location = new System.Drawing.Point( 42, 103 );
             this.lPort.Name = "lPort";
             this.lPort.Size = new System.Drawing.Size( 75, 15 );
             this.lPort.TabIndex = 14;
@@ -614,7 +621,7 @@
             // 
             // nPort
             // 
-            this.nPort.Location = new System.Drawing.Point( 440, 105 );
+            this.nPort.Location = new System.Drawing.Point( 123, 101 );
             this.nPort.Maximum = new decimal( new int[] {
             65535,
             0,
@@ -638,15 +645,15 @@
             // 
             this.cDefaultRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cDefaultRank.FormattingEnabled = true;
-            this.cDefaultRank.Location = new System.Drawing.Point( 440, 74 );
+            this.cDefaultRank.Location = new System.Drawing.Point( 440, 128 );
             this.cDefaultRank.Name = "cDefaultRank";
-            this.cDefaultRank.Size = new System.Drawing.Size( 190, 23 );
+            this.cDefaultRank.Size = new System.Drawing.Size( 170, 23 );
             this.cDefaultRank.TabIndex = 13;
             // 
             // lDefaultRank
             // 
             this.lDefaultRank.AutoSize = true;
-            this.lDefaultRank.Location = new System.Drawing.Point( 361, 77 );
+            this.lDefaultRank.Location = new System.Drawing.Point( 361, 131 );
             this.lDefaultRank.Name = "lDefaultRank";
             this.lDefaultRank.Size = new System.Drawing.Size( 73, 15 );
             this.lDefaultRank.TabIndex = 12;
@@ -655,7 +662,7 @@
             // lUploadBandwidth
             // 
             this.lUploadBandwidth.AutoSize = true;
-            this.lUploadBandwidth.Location = new System.Drawing.Point( 10, 107 );
+            this.lUploadBandwidth.Location = new System.Drawing.Point( 327, 103 );
             this.lUploadBandwidth.Name = "lUploadBandwidth";
             this.lUploadBandwidth.Size = new System.Drawing.Size( 107, 15 );
             this.lUploadBandwidth.TabIndex = 6;
@@ -663,7 +670,7 @@
             // 
             // bMeasure
             // 
-            this.bMeasure.Location = new System.Drawing.Point( 244, 103 );
+            this.bMeasure.Location = new System.Drawing.Point( 561, 99 );
             this.bMeasure.Name = "bMeasure";
             this.bMeasure.Size = new System.Drawing.Size( 65, 23 );
             this.bMeasure.TabIndex = 9;
@@ -684,7 +691,7 @@
             // lUploadBandwidthUnits
             // 
             this.lUploadBandwidthUnits.AutoSize = true;
-            this.lUploadBandwidthUnits.Location = new System.Drawing.Point( 206, 107 );
+            this.lUploadBandwidthUnits.Location = new System.Drawing.Point( 523, 103 );
             this.lUploadBandwidthUnits.Name = "lUploadBandwidthUnits";
             this.lUploadBandwidthUnits.Size = new System.Drawing.Size( 32, 15 );
             this.lUploadBandwidthUnits.TabIndex = 8;
@@ -706,7 +713,7 @@
             0,
             0,
             0} );
-            this.nUploadBandwidth.Location = new System.Drawing.Point( 123, 105 );
+            this.nUploadBandwidth.Location = new System.Drawing.Point( 440, 101 );
             this.nUploadBandwidth.Maximum = new decimal( new int[] {
             10000,
             0,
@@ -753,16 +760,16 @@
             this.cPublic.Items.AddRange( new object[] {
             "Public",
             "Private"} );
-            this.cPublic.Location = new System.Drawing.Point( 123, 132 );
+            this.cPublic.Location = new System.Drawing.Point( 123, 128 );
             this.cPublic.Name = "cPublic";
             this.cPublic.Size = new System.Drawing.Size( 83, 23 );
             this.cPublic.TabIndex = 11;
             // 
             // nMaxPlayers
             // 
-            this.nMaxPlayers.Location = new System.Drawing.Point( 123, 75 );
+            this.nMaxPlayers.Location = new System.Drawing.Point( 123, 74 );
             this.nMaxPlayers.Maximum = new decimal( new int[] {
-            255,
+            1000,
             0,
             0,
             0} );
@@ -779,12 +786,13 @@
             0,
             0,
             0} );
+            this.nMaxPlayers.ValueChanged += new System.EventHandler( this.nMaxPlayers_ValueChanged );
             // 
             // lPublic
             // 
             this.lPublic.AutoSize = true;
             this.lPublic.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.lPublic.Location = new System.Drawing.Point( 14, 135 );
+            this.lPublic.Location = new System.Drawing.Point( 14, 131 );
             this.lPublic.Name = "lPublic";
             this.lPublic.Size = new System.Drawing.Size( 103, 15 );
             this.lPublic.TabIndex = 10;
@@ -793,11 +801,11 @@
             // lMaxPlayers
             // 
             this.lMaxPlayers.AutoSize = true;
-            this.lMaxPlayers.Location = new System.Drawing.Point( 44, 77 );
+            this.lMaxPlayers.Location = new System.Drawing.Point( 10, 76 );
             this.lMaxPlayers.Name = "lMaxPlayers";
-            this.lMaxPlayers.Size = new System.Drawing.Size( 73, 15 );
+            this.lMaxPlayers.Size = new System.Drawing.Size( 107, 15 );
             this.lMaxPlayers.TabIndex = 4;
-            this.lMaxPlayers.Text = "Max players";
+            this.lMaxPlayers.Text = "Max players (total)";
             // 
             // tabChat
             // 
@@ -1042,13 +1050,6 @@
             this.xRankColors.TabIndex = 0;
             this.xRankColors.Text = "Show rank colors.";
             this.xRankColors.UseVisualStyleBackColor = true;
-            // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 219 );
-            this.chatPreview.TabIndex = 2;
             // 
             // tabWorlds
             // 
@@ -2005,8 +2006,9 @@
             // 
             // gVerify
             // 
+            this.gVerify.Controls.Add( this.nMaxConnectionsPerIP );
             this.gVerify.Controls.Add( this.xAllowUnverifiedLAN );
-            this.gVerify.Controls.Add( this.xLimitOneConnectionPerIP );
+            this.gVerify.Controls.Add( this.xMaxConnectionsPerIP );
             this.gVerify.Controls.Add( this.lVerifyNames );
             this.gVerify.Controls.Add( this.cVerifyNames );
             this.gVerify.Location = new System.Drawing.Point( 8, 13 );
@@ -2015,6 +2017,23 @@
             this.gVerify.TabIndex = 0;
             this.gVerify.TabStop = false;
             this.gVerify.Text = "Name Verification";
+            // 
+            // nMaxConnectionsPerIP
+            // 
+            this.nMaxConnectionsPerIP.Location = new System.Drawing.Point( 539, 21 );
+            this.nMaxConnectionsPerIP.Maximum = new decimal( new int[] {
+            1000,
+            0,
+            0,
+            0} );
+            this.nMaxConnectionsPerIP.Name = "nMaxConnectionsPerIP";
+            this.nMaxConnectionsPerIP.Size = new System.Drawing.Size( 47, 21 );
+            this.nMaxConnectionsPerIP.TabIndex = 17;
+            this.nMaxConnectionsPerIP.Value = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
             // 
             // xAllowUnverifiedLAN
             // 
@@ -2026,15 +2045,16 @@
             this.xAllowUnverifiedLAN.Text = "Allow connections from LAN without verification (192.168.*.*)";
             this.xAllowUnverifiedLAN.UseVisualStyleBackColor = true;
             // 
-            // xLimitOneConnectionPerIP
+            // xMaxConnectionsPerIP
             // 
-            this.xLimitOneConnectionPerIP.AutoSize = true;
-            this.xLimitOneConnectionPerIP.Location = new System.Drawing.Point( 304, 22 );
-            this.xLimitOneConnectionPerIP.Name = "xLimitOneConnectionPerIP";
-            this.xLimitOneConnectionPerIP.Size = new System.Drawing.Size( 161, 19 );
-            this.xLimitOneConnectionPerIP.TabIndex = 2;
-            this.xLimitOneConnectionPerIP.Text = "Limit 1 connection per IP";
-            this.xLimitOneConnectionPerIP.UseVisualStyleBackColor = true;
+            this.xMaxConnectionsPerIP.AutoSize = true;
+            this.xMaxConnectionsPerIP.Location = new System.Drawing.Point( 304, 22 );
+            this.xMaxConnectionsPerIP.Name = "xMaxConnectionsPerIP";
+            this.xMaxConnectionsPerIP.Size = new System.Drawing.Size( 229, 19 );
+            this.xMaxConnectionsPerIP.TabIndex = 2;
+            this.xMaxConnectionsPerIP.Text = "Limit number of connections per IP to";
+            this.xMaxConnectionsPerIP.UseVisualStyleBackColor = true;
+            this.xMaxConnectionsPerIP.CheckedChanged += new System.EventHandler( this.xMaxConnectionsPerIP_CheckedChanged );
             // 
             // lVerifyNames
             // 
@@ -3204,6 +3224,45 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // nMaxPlayerPerWorld
+            // 
+            this.nMaxPlayerPerWorld.Location = new System.Drawing.Point( 440, 74 );
+            this.nMaxPlayerPerWorld.Maximum = new decimal( new int[] {
+            127,
+            0,
+            0,
+            0} );
+            this.nMaxPlayerPerWorld.Minimum = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            this.nMaxPlayerPerWorld.Name = "nMaxPlayerPerWorld";
+            this.nMaxPlayerPerWorld.Size = new System.Drawing.Size( 48, 21 );
+            this.nMaxPlayerPerWorld.TabIndex = 18;
+            this.nMaxPlayerPerWorld.Value = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            this.nMaxPlayerPerWorld.Validating += new System.ComponentModel.CancelEventHandler( this.nMaxPlayerPerWorld_Validating );
+            // 
+            // lMaxPlayersPerWorld
+            // 
+            this.lMaxPlayersPerWorld.AutoSize = true;
+            this.lMaxPlayersPerWorld.Location = new System.Drawing.Point( 299, 76 );
+            this.lMaxPlayersPerWorld.Name = "lMaxPlayersPerWorld";
+            this.lMaxPlayersPerWorld.Size = new System.Drawing.Size( 135, 15 );
+            this.lMaxPlayersPerWorld.TabIndex = 17;
+            this.lMaxPlayersPerWorld.Text = "Max players (per world)";
+            // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 637, 219 );
+            this.chatPreview.TabIndex = 2;
+            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -3261,6 +3320,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nSpamChatCount)).EndInit();
             this.gVerify.ResumeLayout( false );
             this.gVerify.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxConnectionsPerIP)).EndInit();
             this.tabSavingAndBackup.ResumeLayout( false );
             this.gSaving.ResumeLayout( false );
             this.gSaving.PerformLayout();
@@ -3292,6 +3352,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayerPerWorld)).EndInit();
             this.ResumeLayout( false );
 
         }
@@ -3431,7 +3492,7 @@
         private System.Windows.Forms.Label lIRCBotChannels3;
         private System.Windows.Forms.Label lIRCBotChannels2;
         private System.Windows.Forms.CheckBox xIRCBotForwardFromIRC;
-        private System.Windows.Forms.CheckBox xLimitOneConnectionPerIP;
+        private System.Windows.Forms.CheckBox xMaxConnectionsPerIP;
         private System.Windows.Forms.TabPage tabWorlds;
         private System.Windows.Forms.DataGridView dgvWorlds;
         private System.Windows.Forms.Button bWorldDelete;
@@ -3548,5 +3609,8 @@
         private System.Windows.Forms.Label lIPWarning;
         private System.Windows.Forms.TextBox tIP;
         private System.Windows.Forms.CheckBox xIP;
+        private System.Windows.Forms.NumericUpDown nMaxConnectionsPerIP;
+        private System.Windows.Forms.NumericUpDown nMaxPlayerPerWorld;
+        private System.Windows.Forms.Label lMaxPlayersPerWorld;
     }
 }

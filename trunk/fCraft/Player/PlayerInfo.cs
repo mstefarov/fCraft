@@ -326,15 +326,15 @@ namespace fCraft {
         }
 
 
-        public void ProcessFailedLogin( Player player ) {
+        public void ProcessFailedLogin( Session session ) {
             LastFailedLoginDate = DateTime.Now;
-            LastFailedLoginIP = player.Session.GetIP();
+            LastFailedLoginIP = session.GetIP();
             Interlocked.Increment( ref FailedLoginCount );
         }
 
 
-        public void ProcessLogout( Player player ) {
-            TotalTime += DateTime.Now.Subtract( player.Session.LoginTime );
+        public void ProcessLogout( Session session ) {
+            TotalTime += DateTime.Now.Subtract( session.LoginTime );
             LastSeen = DateTime.Now;
             Online = false;
             PlayerObject = null;

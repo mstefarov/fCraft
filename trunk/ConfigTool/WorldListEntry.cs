@@ -102,7 +102,8 @@ namespace ConfigTool {
         public string Description {
             get {
                 if( cachedMapHeader == null && !loadingFailed ) {
-                    loadingFailed = !MapUtility.TryLoad( Path.Combine( Paths.MapPath, name + ".fcm" ), out cachedMapHeader );
+                    string fullFileName = Path.Combine( Paths.MapPath, name + ".fcm" );
+                    loadingFailed = !MapUtility.TryLoad( fullFileName, out cachedMapHeader );
                 }
                 if( loadingFailed ) {
                     return "(cannot load file)";

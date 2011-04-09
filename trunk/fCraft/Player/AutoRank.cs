@@ -27,7 +27,7 @@ namespace fCraft {
 
 
         public static void TaskCallback( Scheduler.Task schedulerTask ) {
-            AutoRankCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );
+            MaintenanceCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );
         }
 
 

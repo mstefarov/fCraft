@@ -1200,7 +1200,7 @@ namespace fCraft {
                     SendToAllExcept( "{0}&S was kicked for being idle for {1} min", player,
                                      player.GetClassyName(),
                                      player.Info.Rank.IdleKickTimer.ToString() );
-                    AdminCommands.DoKick( Player.Console, player, "Idle for " + player.Info.Rank.IdleKickTimer + " minutes", true, LeaveReason.IdleKick );
+                    ModerationCommands.DoKick( Player.Console, player, "Idle for " + player.Info.Rank.IdleKickTimer + " minutes", true, LeaveReason.IdleKick );
                     player.ResetIdleTimer(); // to prevent kick from firing more than once
                 }
             }
@@ -1437,7 +1437,7 @@ namespace fCraft {
         #region PlayerList
 
         // player list
-        static readonly Dictionary<int, Player> Players = new Dictionary<int, Player>();
+        static readonly SortedDictionary<string, Player> Players = new SortedDictionary<string, Player>();
         public static Player[] PlayerList { get; private set; }
         static readonly object PlayerListLock = new object();
 
@@ -1446,23 +1446,60 @@ namespace fCraft {
         static readonly object SessionLock = new object();
 
 
-        internal static void KickGhostsAndRegisterSession( Session newSession ) {
-            if( newSession == null ) throw new ArgumentNullException( "newSession" );
+        internal static bool RegisterSessionAndCheckConnectionCount( Session session ) {
+            int maxSessions = ConfigKey.MaxConnectionsPerIP.GetInt();
+            lock( SessionLock ) {
+                if( maxSessions > 0 ) {
+                    int sessionCount = 0;
+                    foreach( Session s in Sessions ) {
+                        if( s.GetIP().ToString() == session.GetIP().ToString() ) {
+                            sessionCount++;
+                            if( sessionCount >= maxSessions ) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                Sessions.Add( session );
+            }
+            return true;
+        }
+
+
+        public static bool RegisterPlayerAndCheckIfFull( Session session ) {
+            if( session == null ) throw new ArgumentNullException( "session" );
+
+            Player player = session.Player;
+
+            // Kick other sessions with same player name
             List<Session> sessionsToKick = new List<Session>();
             lock( SessionLock ) {
                 foreach( Session s in Sessions ) {
-                    if( s.Player.Name.Equals( newSession.Player.Name, StringComparison.OrdinalIgnoreCase ) ) {
+                    if( s == session ) continue;
+                    if( s.Player.Name.Equals( player.Name, StringComparison.OrdinalIgnoreCase ) ) {
                         sessionsToKick.Add( s );
                         s.Kick( "Connected from elsewhere!", LeaveReason.ClientReconnect );
                         Logger.Log( "Session.LoginSequence: Player {0} logged in. Ghost was kicked.", LogType.SuspiciousActivity,
                                     s.Player.Name );
                     }
                 }
-                Sessions.Add( newSession );
             }
+
+            // Wait for other sessions to exit/unregister (if any)
             foreach( Session ses in sessionsToKick ) {
                 ses.WaitForDisconnect();
             }
+
+            // Add player to the list
+            lock( PlayerListLock ) {
+                if( Players.Count >= ConfigKey.MaxPlayers.GetInt() && !player.Info.Rank.ReservedSlot ) {
+                    return false;
+                }
+                Players.Add( player.Name, player );
+                UpdatePlayerList();
+                session.HasRegistered = true;
+            }
+            return true;
         }
 
 
@@ -1482,37 +1519,15 @@ namespace fCraft {
             }
         }
 
-
-        // Add a newly-logged-in player to the list, and notify existing players.
-        public static bool RegisterPlayer( Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-
-            lock( PlayerListLock ) {
-                if( Players.Count >= ConfigKey.MaxPlayers.GetInt() && !player.Info.Rank.ReservedSlot ||
-                    Players.Count == Config.MaxPlayersSupported ) {
-                    return false;
-                }
-                for( int i = 0; i < Config.MaxPlayersSupported; i++ ) {
-                    if( Players.ContainsKey( i ) ) continue;
-                    player.ID = i;
-                    Players[i] = player;
-                    UpdatePlayerList();
-                    player.Session.HasRegistered = true;
-                    return true;
-                }
-                return false;
-            }
-        }
-
-
         // Remove player from the list, and notify remaining players
-        public static void UnregisterPlayer( Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
+        public static void UnregisterPlayer( Session session ) {
+            if( session == null ) throw new ArgumentNullException( "session" );
 
+            Player player = session.Player;
             lock( PlayerListLock ) {
-                if( !player.Session.HasRegistered ) return;
+                if( !session.HasRegistered ) return;
+                player.Info.ProcessLogout( session );
 
-                SendToAll( PacketWriter.MakeRemoveEntity( player.ID ) );
                 Logger.Log( "{0} left the server.", LogType.UserActivity,
                             player.Name );
                 if( ConfigKey.ShowConnectionMessages.GetBool() ) {
@@ -1524,10 +1539,9 @@ namespace fCraft {
                 foreach( World world in worldListCache ) {
                     world.ReleasePlayer( player );
                 }
-                Players.Remove( player.ID );
+                Players.Remove( player.Name );
                 UpdatePlayerList();
 
-                if( player.Info != null ) player.Info.ProcessLogout( player );
             }
         }
 
