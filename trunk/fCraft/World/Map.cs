@@ -446,13 +446,13 @@ namespace fCraft {
                 for( int y = 0; y < WidthY; y++ ) {
                     for( short h = (short)(Height - 1); h >= 0; h-- ) {
                         switch( GetBlock( x, y, h ) ) {
-                            case (byte)Block.Air:
-                            case (byte)Block.Leaves:
-                            case (byte)Block.Glass:
-                            case (byte)Block.RedFlower:
-                            case (byte)Block.RedMushroom:
-                            case (byte)Block.YellowFlower:
-                            case (byte)Block.BrownMushroom:
+                            case Block.Air:
+                            case Block.Leaves:
+                            case Block.Glass:
+                            case Block.RedFlower:
+                            case Block.RedMushroom:
+                            case Block.YellowFlower:
+                            case Block.BrownMushroom:
                                 continue;
                             default:
                                 Shadows[x, y] = h;
@@ -667,13 +667,19 @@ namespace fCraft {
         }
 
 
-        public byte GetBlock( int x, int y, int h ) {
+        public byte GetBlockByte( int x, int y, int h ) {
             if( x < WidthX && y < WidthY && h < Height && x >= 0 && y >= 0 && h >= 0 )
                 return Blocks[Index( x, y, h )];
             return 0;
         }
 
-        public byte GetBlock( Vector3i vec ) {
+        public Block GetBlock( int x, int y, int h ) {
+            if( x < WidthX && y < WidthY && h < Height && x >= 0 && y >= 0 && h >= 0 )
+                return (Block)Blocks[Index( x, y, h )];
+            return Block.Undefined;
+        }
+
+        public byte GetBlockByte( Vector3i vec ) {
             if( vec.X < WidthX && vec.Z < WidthY && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0 )
                 return Blocks[Index( vec.X, vec.Z, vec.Y )];
             return 0;
@@ -695,7 +701,7 @@ namespace fCraft {
 
         public int SearchColumn( int x, int y, Block id, int startH ) {
             for( int h = startH; h > 0; h-- ) {
-                if( GetBlock( x, y, h ) == (byte)id ) {
+                if( GetBlock( x, y, h ) == id ) {
                     return h;
                 }
             }

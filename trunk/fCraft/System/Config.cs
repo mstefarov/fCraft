@@ -107,6 +107,9 @@ namespace fCraft {
      * 
      * 134 - r520 - Removed LimitOneConnectionPerIP key
      *              Added MaxConnectionsPerIP key
+     *              
+     * 135 - r526 - Added RequireKickReason and AnnounceRankChangeReasons keys
+     *              Added ViewPlayerIPs permission
      * 
      */
 
@@ -115,8 +118,7 @@ namespace fCraft {
     public static class Config {
         public const int ProtocolVersion = 7;
         public const int ConfigVersion = 134;
-        public const int MaxPlayersSupported = 128;
-        public const string ConfigRootName = "fCraftConfig";
+        public const string ConfigXmlRootName = "fCraftConfig";
 
         static readonly Dictionary<ConfigKey, string> Settings = new Dictionary<ConfigKey, string>();
         static readonly Dictionary<ConfigKey, ConfigKeyAttribute> KeyMetadata = new Dictionary<ConfigKey, ConfigKeyAttribute>();
@@ -227,10 +229,10 @@ namespace fCraft {
             if( File.Exists( Paths.ConfigFileName ) ) {
                 try {
                     file = XDocument.Load( Paths.ConfigFileName );
-                    if( file.Root == null || file.Root.Name != ConfigRootName ) {
+                    if( file.Root == null || file.Root.Name != ConfigXmlRootName ) {
                         Log( "Config.Load: Malformed or incompatible config file {0}. Loading defaults.", LogType.Warning, Paths.ConfigFileName );
                         file = new XDocument();
-                        file.Add( new XElement( ConfigRootName ) );
+                        file.Add( new XElement( ConfigXmlRootName ) );
                     } else {
                         Log( "Config.Load: Config file {0} loaded succesfully.", LogType.Debug, Paths.ConfigFileName );
                         fromFile = true;
@@ -242,7 +244,7 @@ namespace fCraft {
             } else {
                 // create a new one (with defaults) if no file exists
                 file = new XDocument();
-                file.Add( new XElement( ConfigRootName ) );
+                file.Add( new XElement( ConfigXmlRootName ) );
             }
 
             XElement config = file.Root;
@@ -399,7 +401,7 @@ namespace fCraft {
         public static bool Save( bool saveSalt ) {
             XDocument file = new XDocument();
 
-            XElement config = new XElement( ConfigRootName );
+            XElement config = new XElement( ConfigXmlRootName );
             config.Add( new XAttribute( "version", ConfigVersion ) );
             if( saveSalt ) {
                 config.Add( new XAttribute( "salt", Server.Salt ) );
@@ -831,6 +833,7 @@ namespace fCraft {
             owner.Add( new XElement( Permission.Hide.ToString() ) );
 
             owner.Add( new XElement( Permission.ViewOthersInfo.ToString() ) );
+            owner.Add( new XElement( Permission.ViewPlayerIPs.ToString() ) );
             owner.Add( new XElement( Permission.EditPlayerDB.ToString() ) );
 
             owner.Add( new XElement( Permission.Teleport.ToString() ) );
@@ -900,6 +903,7 @@ namespace fCraft {
             op.Add( new XElement( Permission.Hide.ToString() ) );
 
             op.Add( new XElement( Permission.ViewOthersInfo.ToString() ) );
+            op.Add( new XElement( Permission.ViewPlayerIPs.ToString() ) );
 
             op.Add( new XElement( Permission.Teleport.ToString() ) );
             op.Add( new XElement( Permission.Bring.ToString() ) );

@@ -578,9 +578,9 @@ namespace fCraft {
                     for( int y = 1; y < map.WidthY - 1; y++ ) {
                         int index = map.Index( x, y, h );
                         if( (map.Blocks[index] == 10 || map.Blocks[index] == 11 || map.Blocks[index] == 8 || map.Blocks[index] == 9) &&
-                            (map.GetBlock( x - 1, y, h ) == 0 || map.GetBlock( x + 1, y, h ) == 0 ||
-                            map.GetBlock( x, y - 1, h ) == 0 || map.GetBlock( x, y + 1, h ) == 0 ||
-                            map.GetBlock( x, y, h - 1 ) == 0) ) {
+                            (map.GetBlock( x - 1, y, h ) == Block.Air || map.GetBlock( x + 1, y, h ) == Block.Air ||
+                            map.GetBlock( x, y - 1, h ) == Block.Air || map.GetBlock( x, y + 1, h ) == Block.Air ||
+                            map.GetBlock( x, y, h - 1 ) == Block.Air) ) {
                             map.Blocks[index] = sealantType;
                         }
                     }
@@ -654,7 +654,7 @@ namespace fCraft {
             for( int x = 0; x < map.WidthX; x++ ) {
                 for( int y = 0; y < map.WidthY; y++ ) {
                     for( int h = args.WaterLevel; h <= args.WaterLevel + args.BeachHeight; h++ ) {
-                        if( map.GetBlock( x, y, h ) != (byte)bGroundSurface ) continue;
+                        if( map.GetBlock( x, y, h ) != bGroundSurface ) continue;
                         bool found = false;
                         for( int dx = -args.BeachExtent; !found && dx <= args.BeachExtent; dx++ ) {
                             for( int dy = -args.BeachExtent; !found && dy <= args.BeachExtent; dy++ ) {
@@ -665,8 +665,8 @@ namespace fCraft {
                                     int hh = h + dh;
                                     if( xx < 0 || xx >= map.WidthX || yy < 0 || yy >= map.WidthY || hh < 0 ||
                                         hh >= map.Height ) continue;
-                                    byte block = map.GetBlock( xx, yy, hh );
-                                    if( block == (byte)bWater || block == (byte)bWaterSurface ) {
+                                    Block block = map.GetBlock( xx, yy, hh );
+                                    if( block == bWater || block == bWaterSurface ) {
                                         found = true;
                                         break;
                                     }
@@ -675,7 +675,7 @@ namespace fCraft {
                         }
                         if( found ) {
                             map.SetBlock( x, y, h, bSeaFloor );
-                            if( h > 0 && map.GetBlock( x, y, h - 1 ) == (byte)bGround ) {
+                            if( h > 0 && map.GetBlock( x, y, h - 1 ) == bGround ) {
                                 map.SetBlock( x, y, h - 1, bSeaFloor );
                             }
                         }
@@ -705,7 +705,7 @@ namespace fCraft {
                     if( nx < 0 || nx >= map.WidthX || ny < 0 || ny >= map.WidthY ) continue;
                     nz = map.Shadows[nx, ny];
 
-                    if( (map.GetBlock( nx, ny, nz ) == (byte)bGroundSurface) && slopemap[nx, ny] < .5 ) {
+                    if( (map.GetBlock( nx, ny, nz ) == bGroundSurface) && slopemap[nx, ny] < .5 ) {
                         // Pick a random height for the tree between Min and Max,
                         // discarding this tree if it would breach the top of the map
                         if( (nh = rn.Next( minHeight, maxHeight + 1 )) + nz + nh / 2 > map.Height )
@@ -725,7 +725,7 @@ namespace fCraft {
                                     if( rn.NextDouble() > odds && Math.Abs( xoff ) == Math.Abs( yoff ) && Math.Abs( xoff ) == radius )
                                         continue;
                                     // By default only replace an existing block if its air
-                                    if( map.GetBlock( nx + xoff, ny + yoff, nz + nh + i ) == (byte)Block.Air )
+                                    if( map.GetBlock( nx + xoff, ny + yoff, nz + nh + i ) == Block.Air )
                                         map.SetBlock( nx + xoff, ny + yoff, nz + nh + i, Block.Leaves );
                                 }
                             }

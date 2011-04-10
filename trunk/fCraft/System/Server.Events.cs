@@ -95,6 +95,10 @@ namespace fCraft {
 
         public static event EventHandler<PlayerClickedEventArgs> PlayerClicked;
 
+        public static event EventHandler<PlayerPlacingBlockEventArgs> PlayerPlacingBlock;
+
+        public static event EventHandler<PlayerPlacedBlockEventArgs> PlayerPlacedBlock;
+
         public static event EventHandler<PlayerDisconnectedEventArgs> PlayerDisconnected;
 
 
@@ -145,10 +149,28 @@ namespace fCraft {
             return e.Cancel;
         }
 
+
         internal static void RaisePlayerClickedEvent( Player player, short x, short y, short h, bool mode, Block block ) {
             var handler = PlayerClicked;
             if( handler != null ) handler( null, new PlayerClickedEventArgs( player, x, y, h, mode, block ) );
         }
+
+
+        internal static CanPlaceResult RaisePlayerPlacingBlockEvent( Player player, short x, short y, short h, Block block, bool manual, CanPlaceResult result ) {
+            var handler = PlayerPlacingBlock;
+            if( handler == null ) return result;
+            var e = new PlayerPlacingBlockEventArgs( player, x, y, h, block, manual, result );
+            handler( null, e );
+            return e.Result;
+        }
+
+
+        internal static void RaisePlayerPlacedBlockEvent( Player player, short x, short y, short h, Block block, bool manual ) {
+            var handler = PlayerPlacedBlock;
+            if( handler != null ) handler( null, new PlayerPlacedBlockEventArgs( player, x, y, h, block, manual ) );
+        }
+
+
 
 
         internal static void RaisePlayerDisconnectedEventArgs( Player player, LeaveReason leaveReason ) {

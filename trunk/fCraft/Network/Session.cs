@@ -18,7 +18,8 @@ namespace fCraft {
         public bool CanReceive = true,
                     CanSend = true,
                     CanQueue = true,
-                    HasRegistered;
+                    IsRegistered,
+                    IsReady;
 
         readonly object joinWorldLock = new object();
         public LeaveReason LeaveReason { get; set; }
@@ -78,7 +79,7 @@ namespace fCraft {
                 writer = new PacketWriter( client.GetStream() );
 
                 Logger.Log( "Session.Start: Incoming connection from {0}", LogType.Debug,
-                            GetIP().ToString() );
+                            GetIP() );
 
                 ioThread = new Thread( IoLoop ) { IsBackground = true };
                 ioThread.Start();
@@ -348,7 +349,7 @@ namespace fCraft {
                                 } else {
                                     var e = new PlayerClickingEventArgs( Player, x, y, h, mode, (Block)type );
                                     if( Server.RaisePlayerClickingEvent( e ) ) {
-                                        Player.SendBlockNow( x, y, h );
+                                        Player.RevertBlockNow( x, y, h );
                                         continue;
                                     }
                                     Server.RaisePlayerClickedEvent( Player, x, y, h, e.Mode, e.Block );
@@ -399,7 +400,7 @@ namespace fCraft {
             Server.UnregisterSession( this );
             Server.RaiseSessionDisconnectedEvent( this, LeaveReason );
 
-            if( Player != null ) {
+            if( IsRegistered ) {
                 Server.UnregisterPlayer( this );
                 Server.RaisePlayerDisconnectedEventArgs( Player, LeaveReason );
                 Player = null;
@@ -546,7 +547,10 @@ namespace fCraft {
                 Logger.Log( "Banned player {0} tried to log in from {1}", LogType.SuspiciousActivity,
                             Player.Name, GetIP() );
                 if( ConfigKey.ShowBannedConnectionMessages.GetBool() ) {
-                    Server.SendToAll( "&SBanned player {0}&S tried to log in.", Player.GetClassyName() );
+                    Server.SendToAllWhoCan( "&SBanned player {0}&S tried to log in from {1}", null,Permission.ViewPlayerIPs,
+                                            Player.GetClassyName(), GetIP() );
+                    Server.SendToAllWhoCant( "&SBanned player {0}&S tried to log in.", null, Permission.ViewPlayerIPs,
+                                            Player.GetClassyName() );
                 }
                 string bannedMessage = String.Format( "Banned {0} ago by {1}: {2}",
                                                       DateTime.Now.Subtract( Player.Info.BanDate ).ToMiniString(),
@@ -725,6 +729,7 @@ namespace fCraft {
             }
 
             Server.RaisePlayerReadyEvent( Player );
+            IsReady = true;
 
             return true;
         }

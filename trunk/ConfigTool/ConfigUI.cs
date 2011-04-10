@@ -49,8 +49,6 @@ namespace ConfigTool {
 
             dgvWorlds.DataError += ( sender, e ) => MessageBox.Show( e.Exception.Message, "Data Error" );
 
-            nMaxPlayers.Maximum = Config.MaxPlayersSupported;
-
             Config.LogToString = true;
 
             PopulateIRCNetworkList( false );
@@ -1401,10 +1399,10 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         void CheckMaxPlayersPerWorldValue() {
-            if( nMaxPlayerPerWorld.Value > nMaxPlayers.Value ) {
-                nMaxPlayerPerWorld.Value = nMaxPlayers.Value;
+            if( nMaxPlayersPerWorld.Value > nMaxPlayers.Value ) {
+                nMaxPlayersPerWorld.Value = nMaxPlayers.Value;
             }
-            nMaxPlayerPerWorld.Maximum = nMaxPlayers.Value;
+            nMaxPlayersPerWorld.Maximum = Math.Min( 127, nMaxPlayers.Value );
         }
 
         #endregion
@@ -1427,6 +1425,10 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                     e.Cancel = true;
                     return;
             }
+        }
+
+        private void xAnnounceRankChanges_CheckedChanged( object sender, EventArgs e ) {
+            xAnnounceRankChangeReasons.Enabled = xAnnounceRankChanges.Checked;
         }
 
     }
