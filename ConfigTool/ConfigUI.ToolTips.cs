@@ -33,10 +33,17 @@ changes if your computer's IP or server's port change.";
             string tipMaxPlayers =
 @"Maximum number of players on the server. Having more players
 uses more RAM and more bandwidth. If a player's rank is given a
-""reserved slot"" on the server, they can join even if server is full.
-Minecraft protocol limits total number of players to 128.";
+""reserved slot"" on the server, they can join even if server is full.";
             toolTip.SetToolTip( lMaxPlayers, tipMaxPlayers );
             toolTip.SetToolTip( nMaxPlayers, tipMaxPlayers );
+
+
+            string tipMaxPlayersPerWorld =
+@"Maximum number of players allowed to be on the same world at the same time.
+Minecraft protocol limits total number of players per world to 127.
+Note that having more people on a world increases everyone's bandwidth use.";
+            toolTip.SetToolTip( lMaxPlayersPerWorld, tipMaxPlayersPerWorld );
+            toolTip.SetToolTip( nMaxPlayersPerWorld, tipMaxPlayersPerWorld );
 
 
             string tipUploadBandwidth =

@@ -149,19 +149,35 @@ namespace fCraft {
             } else {
                 if( target != null ) {
                     if( target.IsHidden ) {
-                        player.Message( "About {0}&S: HIDDEN. Online from {1}",
-                                        info.GetClassyName(),
-                                        info.LastIP );
+                        if( player.Can( Permission.ViewPlayerIPs ) ) {
+                            player.Message( "About {0}&S: HIDDEN. Online from {1}",
+                                            info.GetClassyName(),
+                                            info.LastIP );
+                        } else {
+                            player.Message( "About {0}&S: HIDDEN.",
+                                            info.GetClassyName() );
+                        }
                     } else {
-                        player.Message( "About {0}&S: Online now from {1}",
-                                        info.GetClassyName(),
-                                        info.LastIP );
+                        if( player.Can( Permission.ViewPlayerIPs ) ) {
+                            player.Message( "About {0}&S: Online now from {1}",
+                                            info.GetClassyName(),
+                                            info.LastIP );
+                        } else {
+                            player.Message( "About {0}&S: Online now.",
+                                            info.GetClassyName() );
+                        }
                     }
                 } else {
-                    player.Message( "About {0}&S: Last seen {1} ago from {2}",
-                                    info.Name,
-                                    DateTime.Now.Subtract( info.LastSeen ).ToMiniString(),
-                                    info.LastIP );
+                    if( player.Can( Permission.ViewPlayerIPs ) ) {
+                        player.Message( "About {0}&S: Last seen {1} ago from {2}",
+                                        info.Name,
+                                        DateTime.Now.Subtract( info.LastSeen ).ToMiniString(),
+                                        info.LastIP );
+                    } else {
+                        player.Message( "About {0}&S: Last seen {1} ago.",
+                                        info.Name,
+                                        DateTime.Now.Subtract( info.LastSeen ).ToMiniString() );
+                    }
                 }
                 // Show login information
                 player.Message( "  Logged in {0} time(s) since {1:d MMM yyyy}.",
@@ -416,20 +432,28 @@ namespace fCraft {
                 }
             }
             if( rank != null ) {
-                bool first = true;
                 StringBuilder sb = new StringBuilder();
                 sb.AppendFormat( "Players of rank {0}&S can do the following: ",
                                  rank.GetClassyName() );
+
+                List<Permission> permissions = new List<Permission>();
                 for( int i = 0; i < rank.Permissions.Length; i++ ) {
                     if( rank.Permissions[i] ) {
-                        if( !first ) {
-                            sb.Append( ", " );
-                        }
-                        sb.Append( (Permission)i );
-                        first = false;
+                        permissions.Add( (Permission)i );
                     }
                 }
+                permissions = permissions.OrderBy(perm=>perm.ToString(),StringComparer.OrdinalIgnoreCase).ToList();
+                
+                bool first = true;
+                foreach( Permission perm in permissions ) {
+                    if( !first ) {
+                        sb.Append( ", " );
+                    }
+                    sb.Append( perm );
+                    first = false;
+                }
                 player.Message( sb.ToString() );
+
                 if( rank.Can( Permission.Draw ) ) {
                     if( rank.DrawLimit > 0 ) {
                         player.Message( "Draw command limit: {0} blocks.", rank.DrawLimit );

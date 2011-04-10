@@ -95,7 +95,7 @@ namespace ConfigTool {
 
             nMaxPlayers.Value = ConfigKey.MaxPlayers.GetInt();
             CheckMaxPlayersPerWorldValue();
-            nMaxPlayerPerWorld.Value = ConfigKey.MaxPlayersPerWorld.GetInt();
+            nMaxPlayersPerWorld.Value = ConfigKey.MaxPlayersPerWorld.GetInt();
 
             FillRankList( cDefaultRank, "(lowest rank)" );
             cDefaultRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( ConfigKey.DefaultRank.GetString() ) );
@@ -220,10 +220,13 @@ namespace ConfigTool {
             nSpamChatWarnings.Value = ConfigKey.AntispamMaxWarnings.GetInt();
             if( !xSpamChatKick.Checked ) nSpamChatWarnings.Enabled = false;
 
+            xRequireKickReason.Checked = ConfigKey.RequireKickReason.GetBool();
             xRequireBanReason.Checked = ConfigKey.RequireBanReason.GetBool();
             xRequireRankChangeReason.Checked = ConfigKey.RequireRankChangeReason.GetBool();
             xAnnounceKickAndBanReasons.Checked = ConfigKey.AnnounceKickAndBanReasons.GetBool();
             xAnnounceRankChanges.Checked = ConfigKey.AnnounceRankChanges.GetBool();
+            xAnnounceRankChangeReasons.Checked = ConfigKey.RequireRankChangeReason.GetBool();
+            xAnnounceRankChangeReasons.Enabled = xAnnounceRankChanges.Checked;
 
             FillRankList( cPatrolledRank, "(lowest rank)" );
             cPatrolledRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( ConfigKey.PatrolledRank.GetString() ) );
@@ -376,7 +379,7 @@ namespace ConfigTool {
             Config.TrySetValue( ConfigKey.ServerName, tServerName.Text );
             Config.TrySetValue( ConfigKey.MOTD, tMOTD.Text );
             Config.TrySetValue( ConfigKey.MaxPlayers, nMaxPlayers.Value );
-            Config.TrySetValue( ConfigKey.MaxPlayersPerWorld, nMaxPlayerPerWorld.Value );
+            Config.TrySetValue( ConfigKey.MaxPlayersPerWorld, nMaxPlayersPerWorld.Value );
             if( cDefaultRank.SelectedIndex == 0 ) {
                 Config.TrySetValue( ConfigKey.DefaultRank, "" );
             } else {
@@ -443,10 +446,12 @@ namespace ConfigTool {
             if( xSpamChatKick.Checked ) Config.TrySetValue( ConfigKey.AntispamMaxWarnings, nSpamChatWarnings.Value );
             else Config.TrySetValue( ConfigKey.AntispamMaxWarnings, 0 );
 
+            Config.TrySetValue( ConfigKey.RequireKickReason, xRequireKickReason.Checked );
             Config.TrySetValue( ConfigKey.RequireBanReason, xRequireBanReason.Checked );
             Config.TrySetValue( ConfigKey.RequireRankChangeReason, xRequireRankChangeReason.Checked );
             Config.TrySetValue( ConfigKey.AnnounceKickAndBanReasons, xAnnounceKickAndBanReasons.Checked );
             Config.TrySetValue( ConfigKey.AnnounceRankChanges, xAnnounceRankChanges.Checked );
+            Config.TrySetValue( ConfigKey.AnnounceRankChangeReasons, xAnnounceRankChangeReasons.Checked );
 
             if( cPatrolledRank.SelectedIndex == 0 ) {
                 Config.TrySetValue( ConfigKey.PatrolledRank, "" );

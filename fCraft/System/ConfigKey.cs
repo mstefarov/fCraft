@@ -126,17 +126,25 @@ namespace fCraft {
         [BoolKey( ConfigSection.Security, false )]
         PaidPlayersOnly,
 
+
         [BoolKey( ConfigSection.Security, false )]
         RequireBanReason,
 
         [BoolKey( ConfigSection.Security, false )]
+        RequireKickReason,
+
+        [BoolKey( ConfigSection.Security, false )]
         RequireRankChangeReason,
+
 
         [BoolKey( ConfigSection.Security, true )]
         AnnounceKickAndBanReasons,
 
         [BoolKey( ConfigSection.Security, true )]
         AnnounceRankChanges,
+
+        [BoolKey( ConfigSection.Security, true )]
+        AnnounceRankChangeReasons,
 
         #endregion
 

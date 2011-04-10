@@ -32,6 +32,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Threading;
+using fCraft.Events;
 
 namespace fCraft {
 
@@ -483,8 +484,8 @@ namespace fCraft {
 
         static void HookUpHandlers() {
             Server.OnPlayerSentMessage += PlayerMessageHandler;
-            Server.OnPlayerConnected += PlayerConnectedHandler;
-            Server.OnPlayerDisconnected += PlayerDisconnectedHandler;
+            Server.PlayerReady += PlayerReadyHandler;
+            Server.PlayerDisconnected += PlayerDisconnectedHandler;
             Server.OnPlayerKicked += PlayerKickedHandler;
             Server.OnPlayerBanned += PlayerBannedHandler;
             Server.OnPlayerUnbanned += PlayerUnbannedHandler;
@@ -499,21 +500,21 @@ namespace fCraft {
             }
         }
 
-        internal static void PlayerConnectedHandler( Session session, ref bool cancel ) {
-            string message = String.Format( "\u0001ACTION {0}&S* {1}&S connected.\u0001",
-                                            Color.IRCBold,
-                                            session.Player.GetClassyName() );
+        internal static void PlayerReadyHandler( object sender, PlayerEventArgs e ) {
             if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
+                string message = String.Format( "\u0001ACTION {0}&S* {1}&S connected.\u0001",
+                                                Color.IRCBold,
+                                                e.Player.GetClassyName() );
                 SendChannelMessage( message );
             }
         }
 
-        internal static void PlayerDisconnectedHandler( Session session ) {
-            if( !session.HasRegistered ) return; // ignore unregistered players
-            string message = String.Format( "{0}&S* {1}&S left the server.",
-                                            Color.IRCBold,
-                                            session.Player.GetClassyName() );
-            if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() && session.Player != null ) {
+        internal static void PlayerDisconnectedHandler( object sender, PlayerDisconnectedEventArgs e ) {
+            if( e.Player.Session.IsReady && ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
+                string message = String.Format( "{0}&S* {1}&S left the server ({2})",
+                                 Color.IRCBold,
+                                 e.Player.GetClassyName(),
+                                 e.LeaveReason );
                 SendAction( message );
             }
         }

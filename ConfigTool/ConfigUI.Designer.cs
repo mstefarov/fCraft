@@ -25,7 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -47,6 +47,8 @@
             this.bRules = new System.Windows.Forms.Button();
             this.bAnnouncements = new System.Windows.Forms.Button();
             this.gBasic = new System.Windows.Forms.GroupBox();
+            this.nMaxPlayersPerWorld = new System.Windows.Forms.NumericUpDown();
+            this.lMaxPlayersPerWorld = new System.Windows.Forms.Label();
             this.bPortCheck = new System.Windows.Forms.Button();
             this.lPort = new System.Windows.Forms.Label();
             this.nPort = new System.Windows.Forms.NumericUpDown();
@@ -87,6 +89,7 @@
             this.xListPrefixes = new System.Windows.Forms.CheckBox();
             this.xChatPrefixes = new System.Windows.Forms.CheckBox();
             this.xRankColors = new System.Windows.Forms.CheckBox();
+            this.chatPreview = new ConfigTool.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.bMapPath = new System.Windows.Forms.Button();
             this.xMapPath = new System.Windows.Forms.CheckBox();
@@ -277,9 +280,8 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.nMaxPlayerPerWorld = new System.Windows.Forms.NumericUpDown();
-            this.lMaxPlayersPerWorld = new System.Windows.Forms.Label();
-            this.chatPreview = new ConfigTool.ChatPreview();
+            this.xRequireKickReason = new System.Windows.Forms.CheckBox();
+            this.xAnnounceRankChangeReasons = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdateSettings.SuspendLayout();
@@ -288,6 +290,7 @@
             this.gInformation.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nAnnouncements)).BeginInit();
             this.gBasic.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayersPerWorld)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPort)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nUploadBandwidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayers)).BeginInit();
@@ -333,7 +336,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             this.gCrashReport.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayerPerWorld)).BeginInit();
             this.SuspendLayout();
             // 
             // tabs
@@ -574,7 +576,7 @@
             // 
             // gBasic
             // 
-            this.gBasic.Controls.Add( this.nMaxPlayerPerWorld );
+            this.gBasic.Controls.Add( this.nMaxPlayersPerWorld );
             this.gBasic.Controls.Add( this.lMaxPlayersPerWorld );
             this.gBasic.Controls.Add( this.bPortCheck );
             this.gBasic.Controls.Add( this.lPort );
@@ -600,9 +602,41 @@
             this.gBasic.TabStop = false;
             this.gBasic.Text = "Basic Settings";
             // 
+            // nMaxPlayersPerWorld
+            // 
+            this.nMaxPlayersPerWorld.Location = new System.Drawing.Point( 440, 74 );
+            this.nMaxPlayersPerWorld.Maximum = new decimal( new int[] {
+            127,
+            0,
+            0,
+            0} );
+            this.nMaxPlayersPerWorld.Minimum = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            this.nMaxPlayersPerWorld.Name = "nMaxPlayersPerWorld";
+            this.nMaxPlayersPerWorld.Size = new System.Drawing.Size( 75, 21 );
+            this.nMaxPlayersPerWorld.TabIndex = 18;
+            this.nMaxPlayersPerWorld.Value = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            this.nMaxPlayersPerWorld.Validating += new System.ComponentModel.CancelEventHandler( this.nMaxPlayerPerWorld_Validating );
+            // 
+            // lMaxPlayersPerWorld
+            // 
+            this.lMaxPlayersPerWorld.AutoSize = true;
+            this.lMaxPlayersPerWorld.Location = new System.Drawing.Point( 299, 76 );
+            this.lMaxPlayersPerWorld.Name = "lMaxPlayersPerWorld";
+            this.lMaxPlayersPerWorld.Size = new System.Drawing.Size( 135, 15 );
+            this.lMaxPlayersPerWorld.TabIndex = 17;
+            this.lMaxPlayersPerWorld.Text = "Max players (per world)";
+            // 
             // bPortCheck
             // 
-            this.bPortCheck.Location = new System.Drawing.Point( 200, 99 );
+            this.bPortCheck.Location = new System.Drawing.Point( 204, 99 );
             this.bPortCheck.Name = "bPortCheck";
             this.bPortCheck.Size = new System.Drawing.Size( 68, 23 );
             this.bPortCheck.TabIndex = 16;
@@ -633,7 +667,7 @@
             0,
             0} );
             this.nPort.Name = "nPort";
-            this.nPort.Size = new System.Drawing.Size( 71, 21 );
+            this.nPort.Size = new System.Drawing.Size( 75, 21 );
             this.nPort.TabIndex = 15;
             this.nPort.Value = new decimal( new int[] {
             1,
@@ -670,9 +704,9 @@
             // 
             // bMeasure
             // 
-            this.bMeasure.Location = new System.Drawing.Point( 561, 99 );
+            this.bMeasure.Location = new System.Drawing.Point( 559, 99 );
             this.bMeasure.Name = "bMeasure";
-            this.bMeasure.Size = new System.Drawing.Size( 65, 23 );
+            this.bMeasure.Size = new System.Drawing.Size( 71, 23 );
             this.bMeasure.TabIndex = 9;
             this.bMeasure.Text = "Measure";
             this.bMeasure.UseVisualStyleBackColor = true;
@@ -691,7 +725,7 @@
             // lUploadBandwidthUnits
             // 
             this.lUploadBandwidthUnits.AutoSize = true;
-            this.lUploadBandwidthUnits.Location = new System.Drawing.Point( 523, 103 );
+            this.lUploadBandwidthUnits.Location = new System.Drawing.Point( 521, 103 );
             this.lUploadBandwidthUnits.Name = "lUploadBandwidthUnits";
             this.lUploadBandwidthUnits.Size = new System.Drawing.Size( 32, 15 );
             this.lUploadBandwidthUnits.TabIndex = 8;
@@ -725,7 +759,7 @@
             0,
             0} );
             this.nUploadBandwidth.Name = "nUploadBandwidth";
-            this.nUploadBandwidth.Size = new System.Drawing.Size( 77, 21 );
+            this.nUploadBandwidth.Size = new System.Drawing.Size( 75, 21 );
             this.nUploadBandwidth.TabIndex = 7;
             this.nUploadBandwidth.Value = new decimal( new int[] {
             10,
@@ -762,7 +796,7 @@
             "Private"} );
             this.cPublic.Location = new System.Drawing.Point( 123, 128 );
             this.cPublic.Name = "cPublic";
-            this.cPublic.Size = new System.Drawing.Size( 83, 23 );
+            this.cPublic.Size = new System.Drawing.Size( 75, 23 );
             this.cPublic.TabIndex = 11;
             // 
             // nMaxPlayers
@@ -779,7 +813,7 @@
             0,
             0} );
             this.nMaxPlayers.Name = "nMaxPlayers";
-            this.nMaxPlayers.Size = new System.Drawing.Size( 48, 21 );
+            this.nMaxPlayers.Size = new System.Drawing.Size( 75, 21 );
             this.nMaxPlayers.TabIndex = 5;
             this.nMaxPlayers.Value = new decimal( new int[] {
             1,
@@ -1051,6 +1085,13 @@
             this.xRankColors.Text = "Show rank colors.";
             this.xRankColors.UseVisualStyleBackColor = true;
             // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 637, 219 );
+            this.chatPreview.TabIndex = 2;
+            // 
             // tabWorlds
             // 
             this.tabWorlds.Controls.Add( this.bMapPath );
@@ -1198,8 +1239,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 334 );
             this.dgvWorlds.TabIndex = 1;
@@ -1768,6 +1809,8 @@
             // 
             // gSecurityMisc
             // 
+            this.gSecurityMisc.Controls.Add( this.xAnnounceRankChangeReasons );
+            this.gSecurityMisc.Controls.Add( this.xRequireKickReason );
             this.gSecurityMisc.Controls.Add( this.xPaidPlayersOnly );
             this.gSecurityMisc.Controls.Add( this.lPatrolledRankAndBelow );
             this.gSecurityMisc.Controls.Add( this.cPatrolledRank );
@@ -1778,7 +1821,7 @@
             this.gSecurityMisc.Controls.Add( this.xRequireBanReason );
             this.gSecurityMisc.Location = new System.Drawing.Point( 8, 200 );
             this.gSecurityMisc.Name = "gSecurityMisc";
-            this.gSecurityMisc.Size = new System.Drawing.Size( 636, 144 );
+            this.gSecurityMisc.Size = new System.Drawing.Size( 636, 178 );
             this.gSecurityMisc.TabIndex = 2;
             this.gSecurityMisc.TabStop = false;
             this.gSecurityMisc.Text = "Misc";
@@ -1797,7 +1840,7 @@
             // lPatrolledRankAndBelow
             // 
             this.lPatrolledRankAndBelow.AutoSize = true;
-            this.lPatrolledRankAndBelow.Location = new System.Drawing.Point( 282, 115 );
+            this.lPatrolledRankAndBelow.Location = new System.Drawing.Point( 282, 145 );
             this.lPatrolledRankAndBelow.Name = "lPatrolledRankAndBelow";
             this.lPatrolledRankAndBelow.Size = new System.Drawing.Size( 72, 15 );
             this.lPatrolledRankAndBelow.TabIndex = 8;
@@ -1807,7 +1850,7 @@
             // 
             this.cPatrolledRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cPatrolledRank.FormattingEnabled = true;
-            this.cPatrolledRank.Location = new System.Drawing.Point( 153, 112 );
+            this.cPatrolledRank.Location = new System.Drawing.Point( 153, 142 );
             this.cPatrolledRank.Name = "cPatrolledRank";
             this.cPatrolledRank.Size = new System.Drawing.Size( 123, 23 );
             this.cPatrolledRank.TabIndex = 4;
@@ -1815,7 +1858,7 @@
             // lPatrolledRank
             // 
             this.lPatrolledRank.AutoSize = true;
-            this.lPatrolledRank.Location = new System.Drawing.Point( 64, 115 );
+            this.lPatrolledRank.Location = new System.Drawing.Point( 64, 145 );
             this.lPatrolledRank.Name = "lPatrolledRank";
             this.lPatrolledRank.Size = new System.Drawing.Size( 83, 15 );
             this.lPatrolledRank.TabIndex = 6;
@@ -1824,17 +1867,18 @@
             // xAnnounceRankChanges
             // 
             this.xAnnounceRankChanges.AutoSize = true;
-            this.xAnnounceRankChanges.Location = new System.Drawing.Point( 304, 80 );
+            this.xAnnounceRankChanges.Location = new System.Drawing.Point( 304, 84 );
             this.xAnnounceRankChanges.Name = "xAnnounceRankChanges";
             this.xAnnounceRankChanges.Size = new System.Drawing.Size( 231, 19 );
             this.xAnnounceRankChanges.TabIndex = 3;
             this.xAnnounceRankChanges.Text = "Announce promotions and demotions";
             this.xAnnounceRankChanges.UseVisualStyleBackColor = true;
+            this.xAnnounceRankChanges.CheckedChanged += new System.EventHandler( this.xAnnounceRankChanges_CheckedChanged );
             // 
             // xAnnounceKickAndBanReasons
             // 
             this.xAnnounceKickAndBanReasons.AutoSize = true;
-            this.xAnnounceKickAndBanReasons.Location = new System.Drawing.Point( 304, 55 );
+            this.xAnnounceKickAndBanReasons.Location = new System.Drawing.Point( 304, 59 );
             this.xAnnounceKickAndBanReasons.Name = "xAnnounceKickAndBanReasons";
             this.xAnnounceKickAndBanReasons.Size = new System.Drawing.Size( 244, 19 );
             this.xAnnounceKickAndBanReasons.TabIndex = 2;
@@ -1844,21 +1888,21 @@
             // xRequireRankChangeReason
             // 
             this.xRequireRankChangeReason.AutoSize = true;
-            this.xRequireRankChangeReason.Location = new System.Drawing.Point( 42, 80 );
+            this.xRequireRankChangeReason.Location = new System.Drawing.Point( 42, 109 );
             this.xRequireRankChangeReason.Name = "xRequireRankChangeReason";
-            this.xRequireRankChangeReason.Size = new System.Drawing.Size( 225, 19 );
+            this.xRequireRankChangeReason.Size = new System.Drawing.Size( 236, 19 );
             this.xRequireRankChangeReason.TabIndex = 1;
-            this.xRequireRankChangeReason.Text = "Require promotion/demotion reason";
+            this.xRequireRankChangeReason.Text = "Require promotion && demotion reason";
             this.xRequireRankChangeReason.UseVisualStyleBackColor = true;
             // 
             // xRequireBanReason
             // 
             this.xRequireBanReason.AutoSize = true;
-            this.xRequireBanReason.Location = new System.Drawing.Point( 42, 55 );
+            this.xRequireBanReason.Location = new System.Drawing.Point( 42, 84 );
             this.xRequireBanReason.Name = "xRequireBanReason";
-            this.xRequireBanReason.Size = new System.Drawing.Size( 197, 19 );
+            this.xRequireBanReason.Size = new System.Drawing.Size( 184, 19 );
             this.xRequireBanReason.TabIndex = 0;
-            this.xRequireBanReason.Text = "Require ban and unban reason";
+            this.xRequireBanReason.Text = "Require ban && unban reason";
             this.xRequireBanReason.UseVisualStyleBackColor = true;
             // 
             // gSpamChat
@@ -1998,11 +2042,11 @@
             // lSpamChat
             // 
             this.lSpamChat.AutoSize = true;
-            this.lSpamChat.Location = new System.Drawing.Point( 63, 27 );
+            this.lSpamChat.Location = new System.Drawing.Point( 50, 27 );
             this.lSpamChat.Name = "lSpamChat";
-            this.lSpamChat.Size = new System.Drawing.Size( 84, 15 );
+            this.lSpamChat.Size = new System.Drawing.Size( 97, 15 );
             this.lSpamChat.TabIndex = 0;
-            this.lSpamChat.Text = "Limit chat rate";
+            this.lSpamChat.Text = "Limit chat rate to";
             // 
             // gVerify
             // 
@@ -3224,44 +3268,25 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // nMaxPlayerPerWorld
+            // xRequireKickReason
             // 
-            this.nMaxPlayerPerWorld.Location = new System.Drawing.Point( 440, 74 );
-            this.nMaxPlayerPerWorld.Maximum = new decimal( new int[] {
-            127,
-            0,
-            0,
-            0} );
-            this.nMaxPlayerPerWorld.Minimum = new decimal( new int[] {
-            1,
-            0,
-            0,
-            0} );
-            this.nMaxPlayerPerWorld.Name = "nMaxPlayerPerWorld";
-            this.nMaxPlayerPerWorld.Size = new System.Drawing.Size( 48, 21 );
-            this.nMaxPlayerPerWorld.TabIndex = 18;
-            this.nMaxPlayerPerWorld.Value = new decimal( new int[] {
-            1,
-            0,
-            0,
-            0} );
-            this.nMaxPlayerPerWorld.Validating += new System.ComponentModel.CancelEventHandler( this.nMaxPlayerPerWorld_Validating );
+            this.xRequireKickReason.AutoSize = true;
+            this.xRequireKickReason.Location = new System.Drawing.Point( 42, 59 );
+            this.xRequireKickReason.Name = "xRequireKickReason";
+            this.xRequireKickReason.Size = new System.Drawing.Size( 135, 19 );
+            this.xRequireKickReason.TabIndex = 10;
+            this.xRequireKickReason.Text = "Require kick reason";
+            this.xRequireKickReason.UseVisualStyleBackColor = true;
             // 
-            // lMaxPlayersPerWorld
+            // xAnnounceRankChangeReasons
             // 
-            this.lMaxPlayersPerWorld.AutoSize = true;
-            this.lMaxPlayersPerWorld.Location = new System.Drawing.Point( 299, 76 );
-            this.lMaxPlayersPerWorld.Name = "lMaxPlayersPerWorld";
-            this.lMaxPlayersPerWorld.Size = new System.Drawing.Size( 135, 15 );
-            this.lMaxPlayersPerWorld.TabIndex = 17;
-            this.lMaxPlayersPerWorld.Text = "Max players (per world)";
-            // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 219 );
-            this.chatPreview.TabIndex = 2;
+            this.xAnnounceRankChangeReasons.AutoSize = true;
+            this.xAnnounceRankChangeReasons.Location = new System.Drawing.Point( 336, 109 );
+            this.xAnnounceRankChangeReasons.Name = "xAnnounceRankChangeReasons";
+            this.xAnnounceRankChangeReasons.Size = new System.Drawing.Size( 253, 19 );
+            this.xAnnounceRankChangeReasons.TabIndex = 11;
+            this.xAnnounceRankChangeReasons.Text = "Announce promotion && demotion reasons";
+            this.xAnnounceRankChangeReasons.UseVisualStyleBackColor = true;
             // 
             // ConfigUI
             // 
@@ -3290,6 +3315,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nAnnouncements)).EndInit();
             this.gBasic.ResumeLayout( false );
             this.gBasic.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayersPerWorld)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPort)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nUploadBandwidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayers)).EndInit();
@@ -3352,7 +3378,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayerPerWorld)).EndInit();
             this.ResumeLayout( false );
 
         }
@@ -3610,7 +3635,9 @@
         private System.Windows.Forms.TextBox tIP;
         private System.Windows.Forms.CheckBox xIP;
         private System.Windows.Forms.NumericUpDown nMaxConnectionsPerIP;
-        private System.Windows.Forms.NumericUpDown nMaxPlayerPerWorld;
+        private System.Windows.Forms.NumericUpDown nMaxPlayersPerWorld;
         private System.Windows.Forms.Label lMaxPlayersPerWorld;
+        private System.Windows.Forms.CheckBox xAnnounceRankChangeReasons;
+        private System.Windows.Forms.CheckBox xRequireKickReason;
     }
 }

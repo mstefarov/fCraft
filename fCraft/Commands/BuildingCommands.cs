@@ -645,10 +645,10 @@ namespace fCraft {
 
         static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int h, ref int blocks, ref int blocksDenied, ref bool cannotUndo ) {
             if( !player.World.Map.InBounds( x, y, h ) ) return;
-            byte block = player.World.Map.GetBlock( x, y, h );
+            byte block = player.World.Map.GetBlockByte( x, y, h );
             if( block == drawBlock ) return;
 
-            if( player.CanPlace( x, y, h, drawBlock ) != CanPlaceResult.Allowed ) {
+            if( player.CanPlace( x, y, h, (Block)drawBlock, false ) != CanPlaceResult.Allowed ) {
                 blocksDenied++;
                 return;
             }
@@ -656,6 +656,7 @@ namespace fCraft {
             // this would've been an easy way to do block tracking for draw commands BUT
             // if i set "origin" to player, he will not receive the block update. I tried.
             player.World.Map.QueueUpdate( new BlockUpdate( null, x, y, h, drawBlock ) );
+            Server.RaisePlayerPlacedBlockEvent( player, (short)x, (short)y, (short)h, (Block)drawBlock, false );
             //player.SendDelayed( PacketWriter.MakeSetBlock( x, y, h, drawBlock ) );
 
             if( blocks < MaxUndoCount ) {
@@ -751,7 +752,6 @@ namespace fCraft {
             if( drawBlock == (byte)Block.Undefined ) {
                 drawBlock = (byte)player.LastUsedBlockType;
             }
-
 
             // find start/end coordinates
             int sx = Math.Min( marks[0].X, marks[1].X );
@@ -892,7 +892,6 @@ namespace fCraft {
                 specialTypes[i] = (byte)args.Types[i];
             }
 
-            byte replacementBlock = (byte)args.ReplacementBlock;
             bool doExclude = args.DoExclude;
 
             // find start/end coordinates
@@ -921,7 +920,7 @@ namespace fCraft {
                         for( int y3 = 0; y3 < DrawStride && y + y3 <= ey; y3++ ) {
                             for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
 
-                                byte block = player.World.Map.GetBlock( x + x3, y + y3, h );
+                                byte block = player.World.Map.GetBlockByte( x + x3, y + y3, h );
 
                                 bool skip = !args.DoExclude;
                                 for( int i = 0; i < specialTypeCount; i++ ) {
@@ -932,11 +931,12 @@ namespace fCraft {
                                 }
                                 if( skip ) continue;
 
-                                if( player.CanPlace( x + x3, y + y3, h, replacementBlock ) != CanPlaceResult.Allowed ) {
+                                if( player.CanPlace( x + x3, y + y3, h, args.ReplacementBlock, false ) != CanPlaceResult.Allowed ) {
                                     blocksDenied++;
                                     continue;
                                 }
-                                player.World.Map.QueueUpdate( new BlockUpdate( null, x + x3, y + y3, h, replacementBlock ) );
+                                player.World.Map.QueueUpdate( new BlockUpdate( null, x + x3, y + y3, h, args.ReplacementBlock ) );
+                                Server.RaisePlayerPlacedBlockEvent( player, (short)x, (short)y, (short)h, args.ReplacementBlock, false );
                                 if( blocks < MaxUndoCount ) {
                                     player.UndoBuffer.Enqueue( new BlockUpdate( null, x + x3, y + y3, h, block ) );
                                 } else if( !cannotUndo ) {
@@ -961,9 +961,11 @@ namespace fCraft {
                 affectedString += ", " + ((Block)specialTypes[i]);
             }
             Logger.Log( "{0} replaced {1} blocks {2} ({3}) with {4} (on world {5})", LogType.UserActivity,
-                        player.Name, blocks,
+                        player.Name,
+                        blocks,
                         (doExclude ? "except" : "of"),
-                        affectedString.Substring( 2 ), (Block)replacementBlock,
+                        affectedString.Substring( 2 ),
+                        args.ReplacementBlock,
                         player.World.Name );
 
             DrawingFinished( player, "replaced", blocks, blocksDenied );
@@ -1305,7 +1307,7 @@ namespace fCraft {
             for( int x = sx; x <= ex; x++ ) {
                 for( int y = sy; y <= ey; y++ ) {
                     for( int h = sh; h <= eh; h++ ) {
-                        copyInfo.Buffer[x - sx, y - sy, h - sh] = player.World.Map.GetBlock( x, y, h );
+                        copyInfo.Buffer[x - sx, y - sy, h - sh] = player.World.Map.GetBlockByte( x, y, h );
                     }
                 }
             }
@@ -1380,7 +1382,7 @@ namespace fCraft {
             for( int x = sx; x <= ex; x++ ) {
                 for( int y = sy; y <= ey; y++ ) {
                     for( int h = sh; h <= eh; h++ ) {
-                        copyInfo.Buffer[x - sx, y - sy, h - sh] = player.World.Map.GetBlock( x, y, h );
+                        copyInfo.Buffer[x - sx, y - sy, h - sh] = player.World.Map.GetBlockByte( x, y, h );
                         DrawOneBlock( player, fillType, x, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
                     }
                 }

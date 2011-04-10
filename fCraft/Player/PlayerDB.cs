@@ -325,7 +325,7 @@ namespace fCraft {
             if( p.Banned || !String.IsNullOrEmpty( p.UnbannedBy ) || p.IsFrozen || p.IsMuted() || p.TimesKicked != 0 || !String.IsNullOrEmpty( p.RankChangedBy ) ) {
                 return false;
             }
-            if( p.TotalTime.TotalMinutes > 60 || DateTime.Now.Subtract( p.LastSeen ).TotalDays < 30 ) {
+            if( p.TotalTime.TotalMinutes > 30 || DateTime.Now.Subtract( p.LastSeen ).TotalDays < 30 ) {
                 return false;
             }
             if( IPBanList.Get( p.LastIP ) != null ) {

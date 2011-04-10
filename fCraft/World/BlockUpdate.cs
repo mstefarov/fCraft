@@ -18,5 +18,13 @@ namespace fCraft {
             H = (short)h;
             BlockType = blockType;
         }
+
+        public BlockUpdate( Player origin, int x, int y, int h, Block blockType ) {
+            Origin = origin;
+            X = (short)x;
+            Y = (short)y;
+            H = (short)h;
+            BlockType = (byte)blockType;
+        }
     }
 }

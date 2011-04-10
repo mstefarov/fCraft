@@ -39,7 +39,7 @@ namespace fCraft {
         LevelBegin = 2,
         LevelChunk = 3,
         LevelEnd = 4,
-        SetTile = 6,
+        SetBlock = 6,
         AddEntity = 7,
         Teleport = 8,
         MoveRotate = 9,

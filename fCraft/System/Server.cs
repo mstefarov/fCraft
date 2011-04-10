@@ -969,6 +969,33 @@ namespace fCraft {
             SendToAllExcept( message, null, formatArgs );
         }
 
+        public static void SendToAllWhoCan( string message, Player except, Permission permission, params object[] formatArgs ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( formatArgs.Length > 0 ) {
+                message = String.Format( message, formatArgs );
+            }
+            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
+                foreach( Player player in PlayerList.Where( pl => pl.Can( permission ) ) ) {
+                    if( player != except ) {
+                        player.Send( p );
+                    }
+                }
+            }
+        }
+
+        public static void SendToAllWhoCant( string message, Player except, Permission permission, params object[] formatArgs ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( formatArgs.Length > 0 ) {
+                message = String.Format( message, formatArgs );
+            }
+            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
+                foreach( Player player in PlayerList.Where( pl => !pl.Can( permission ) ) ) {
+                    if( player != except ) {
+                        player.Send( p );
+                    }
+                }
+            }
+        }
 
         public static void SendToAllExceptIgnored( Player origin, string message, Player except, params object[] formatArgs ) {
             if( origin == null ) throw new ArgumentNullException( "origin" );
@@ -1497,7 +1524,7 @@ namespace fCraft {
                 }
                 Players.Add( player.Name, player );
                 UpdatePlayerList();
-                session.HasRegistered = true;
+                session.IsRegistered = true;
             }
             return true;
         }
@@ -1525,7 +1552,7 @@ namespace fCraft {
 
             Player player = session.Player;
             lock( PlayerListLock ) {
-                if( !session.HasRegistered ) return;
+                if( !session.IsRegistered ) return;
                 player.Info.ProcessLogout( session );
 
                 Logger.Log( "{0} left the server.", LogType.UserActivity,

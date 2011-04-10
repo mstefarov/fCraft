@@ -21,6 +21,7 @@ namespace fCraft {
         DeleteAdmincrete, // delete admincrete
 
         ViewOthersInfo,
+        ViewPlayerIPs,
         EditPlayerDB,
         Say,
         ReadStaffChat,
@@ -32,13 +33,13 @@ namespace fCraft {
         Ban,
         BanIP,
         BanAll,
-        //MakeBanExceptions,
+        //TODO: MakeBanExceptions, 
 
         Promote,
         Demote,
 
         Hide,         // go invisible!
-        //Spectate,   // spectate others
+        //TODO: Spectate,
 
         Draw,
         CopyAndPaste,
