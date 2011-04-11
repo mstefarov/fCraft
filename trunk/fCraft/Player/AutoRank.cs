@@ -36,11 +36,13 @@ namespace fCraft {
 
 
         public static void Add( Criterion criterion ) {
+            if( criterion == null ) throw new ArgumentNullException( "criterion" );
             Criteria.Add( criterion );
         }
 
 
         public static Rank Check( PlayerInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             foreach( Criterion c in Criteria ) {
                 if( c.FromRank == info.Rank && !info.Banned && c.Condition.Eval( info ) ) {
                     return c.ToRank;

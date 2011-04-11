@@ -61,6 +61,8 @@ namespace fCraft {
 
 
         public Session( TcpClient tcpClient ) {
+            if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
+
             LeaveReason = LeaveReason.Unknown;
             OutputQueue = new ConcurrentQueue<Packet>();
             PriorityOutputQueue = new ConcurrentQueue<Packet>();
@@ -736,6 +738,8 @@ namespace fCraft {
 
 
         public void JoinWorld( World newWorld, Position? position ) {
+            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
+
             lock( joinWorldLock ) {
                 postJoinPosition = position;
                 forcedWorldToJoin = newWorld;

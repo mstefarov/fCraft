@@ -63,6 +63,7 @@ namespace fCraft {
         // This constructor is used to create dummy players (such as Console and /dummy)
         // It will soon be replaced by a generic Entity class
         internal Player( World world, string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
             World = world;
             Info = new PlayerInfo( name, RankList.HighestRank, true, RankChangeType.AutoPromoted );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
@@ -72,6 +73,8 @@ namespace fCraft {
 
         // Normal constructor
         internal Player( World world, string name, Session session, Position position ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( session == null ) throw new ArgumentNullException( "session" );
             World = world;
             Session = session;
             Position = position;
@@ -208,7 +211,7 @@ namespace fCraft {
                         }
 
                         if( DetectChatSpam() ) return;
-                    
+
                         if( rawMessage.EndsWith( "//" ) ) {
                             rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
                         }
@@ -354,7 +357,7 @@ namespace fCraft {
 
 
         // Sends a message directly (synchronously). Should only be used from Session.IoThread
-        public void MessageNow( string message, params object[] args ) {
+        internal void MessageNow( string message, params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args.Length > 0 ) {
                 message = String.Format( message, args );
@@ -375,17 +378,17 @@ namespace fCraft {
         }
 
 
-        internal void NoPlayerMessage( string playerName ) {
+        public void NoPlayerMessage( string playerName ) {
             Message( "No players found matching \"{0}\"", playerName );
         }
 
 
-        internal void NoWorldMessage( string worldName ) {
+        public void NoWorldMessage( string worldName ) {
             Message( "No world found with the name \"{0}\"", worldName );
         }
 
 
-        internal void ManyMatchesMessage( string itemType, IEnumerable<IClassy> names ) {
+        public void ManyMatchesMessage( string itemType, IEnumerable<IClassy> names ) {
             if( itemType == null ) throw new ArgumentNullException( "itemType" );
             if( names == null ) throw new ArgumentNullException( "names" );
             bool first = true;
@@ -479,7 +482,7 @@ namespace fCraft {
 
         // grief/spam detection
         readonly Queue<DateTime> spamBlockLog;
-        internal Block LastUsedBlockType;
+        public Block LastUsedBlockType { get; private set; }
         const int MaxRange = 6 * 32;
 
         /// <summary>
@@ -607,7 +610,7 @@ namespace fCraft {
         }
 
 
-        internal void RevertBlock( short x, short y, short h ) {
+        public void RevertBlock( short x, short y, short h ) {
             Session.SendDelayed( PacketWriter.MakeSetBlock( x, y, h, World.Map.GetBlockByte( x, y, h ) ) );
         }
 
@@ -673,6 +676,11 @@ namespace fCraft {
 
         public bool Can( Permission permission ) {
             return (this == Console) || Info.Rank.Can( permission );
+        }
+
+
+        public bool Can( Permission permission, Rank other ) {
+            return Info.Rank.Can( permission, other );
         }
 
 
@@ -812,6 +820,7 @@ namespace fCraft {
 
         // ensures that player name has the correct length and character set
         public static bool IsValidName( string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
             if( name.Length < 2 || name.Length > 16 ) return false;
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];

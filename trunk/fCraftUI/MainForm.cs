@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using fCraft;
 using fCraft.Events;
+using System.Linq;
 
 namespace fCraftUI {
 
@@ -25,7 +26,7 @@ namespace fCraftUI {
         void StartUp( object sender, EventArgs a ) {
             Logger.Logged += OnLogged;
             Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
-            Server.OnPlayerListChanged += UpdatePlayerList;
+            Server.PlayerListChanged += OnPlayerListChanged;
             Server.ShutdownEnded += OnServerShutdownEnded;
 
 
@@ -132,16 +133,16 @@ namespace fCraftUI {
         }
 
 
-        public void UpdatePlayerList( string[] playerNames ) {
+        public void OnPlayerListChanged( object sender, EventArgs e ) {
             try {
                 if( shutdownPending ) return;
                 if( playerList.InvokeRequired ) {
-                    Invoke( (PlayerListUpdateDelegate)UpdatePlayerList, new object[] { playerNames } );
+                    Invoke( (EventHandler)OnPlayerListChanged, null, EventArgs.Empty );
                 } else {
                     playerList.Items.Clear();
-                    Array.Sort( playerNames );
-                    foreach( string item in playerNames ) {
-                        playerList.Items.Add( item );
+                    Player[] playerListCache = Server.PlayerList.OrderBy( p => p.Info.Rank ).ToArray();
+                    foreach( Player player in playerListCache ) {
+                        playerList.Items.Add( player.Info.Rank.Name + " - " + player.Name );
                     }
                 }
             } catch( ObjectDisposedException ) {

@@ -37,6 +37,7 @@ namespace fCraft {
 
 
         public static PlayerInfo AddFakeEntry( string name, RankChangeType rankChangeType ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
             PlayerInfo info = new PlayerInfo( name, RankList.DefaultRank, false, rankChangeType );
             lock( Locker ) {
                 List.Add( info );
@@ -135,6 +136,7 @@ namespace fCraft {
         #region Lookup
 
         public static PlayerInfo FindOrCreateInfoForPlayer( string name, IPAddress lastIP ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
             PlayerInfo info;
 
             lock( Locker ) {
@@ -154,7 +156,9 @@ namespace fCraft {
             return FindPlayers( address, Int32.MaxValue );
         }
 
+
         public static PlayerInfo[] FindPlayers( IPAddress address, int limit ) {
+            if( address == null ) throw new ArgumentNullException( "address" );
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
             PlayerInfo[] cache = PlayerInfoList;
@@ -173,7 +177,9 @@ namespace fCraft {
             return FindPlayers( regex, Int32.MaxValue );
         }
 
+
         public static PlayerInfo[] FindPlayers( Regex regex, int limit ) {
+            if( regex == null ) throw new ArgumentNullException( "regex" );
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
             PlayerInfo[] cache = PlayerInfoList;
@@ -190,7 +196,9 @@ namespace fCraft {
             return FindPlayers( namePart, Int32.MaxValue );
         }
 
+
         public static PlayerInfo[] FindPlayers( string namePart, int limit ) {
+            if( namePart == null ) throw new ArgumentNullException( "namePart" );
             return Tree.GetMultiple( namePart, limit ).ToArray();
         }
 
@@ -229,8 +237,9 @@ namespace fCraft {
         }
 
 
-        public static int CountPlayersByRank( Rank pc ) {
-            return PlayerInfoList.Count( t => t.Rank == pc );
+        public static int CountPlayersByRank( Rank rank ) {
+            if( rank == null ) throw new ArgumentNullException( "rank" );
+            return PlayerInfoList.Count( t => t.Rank == rank );
         }
 
         #endregion
@@ -242,6 +251,9 @@ namespace fCraft {
 
 
         public static int MassRankChange( Player player, Rank from, Rank to, bool silent ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( from == null ) throw new ArgumentNullException( "from" );
+            if( to == null ) throw new ArgumentNullException( "to" );
             int affected = 0;
             lock( Locker ) {
                 foreach( PlayerInfo info in List ) {
@@ -260,9 +272,10 @@ namespace fCraft {
         }
 
 
-        public static PlayerInfo[] GetPlayerListCopy( Rank pc ) {
+        public static PlayerInfo[] GetPlayerListCopy( Rank rank ) {
+            if( rank == null ) throw new ArgumentNullException( "rank" );
             PlayerInfo[] cache = PlayerInfoList;
-            return cache.Where( info => info.Rank == pc ).ToArray();
+            return cache.Where( info => info.Rank == rank ).ToArray();
         }
 
 
@@ -321,18 +334,19 @@ namespace fCraft {
         }
 
 
-        static bool PlayerIsInactive( PlayerInfo p, bool checkIP ) {
-            if( p.Banned || !String.IsNullOrEmpty( p.UnbannedBy ) || p.IsFrozen || p.IsMuted() || p.TimesKicked != 0 || !String.IsNullOrEmpty( p.RankChangedBy ) ) {
+        static bool PlayerIsInactive( PlayerInfo player, bool checkIP ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( player.Banned || !String.IsNullOrEmpty( player.UnbannedBy ) || player.IsFrozen || player.IsMuted() || player.TimesKicked != 0 || !String.IsNullOrEmpty( player.RankChangedBy ) ) {
                 return false;
             }
-            if( p.TotalTime.TotalMinutes > 30 || DateTime.Now.Subtract( p.LastSeen ).TotalDays < 30 ) {
+            if( player.TotalTime.TotalMinutes > 30 || DateTime.Now.Subtract( player.LastSeen ).TotalDays < 30 ) {
                 return false;
             }
-            if( IPBanList.Get( p.LastIP ) != null ) {
+            if( IPBanList.Get( player.LastIP ) != null ) {
                 return false;
             }
             if( checkIP ) {
-                return playersByIP[p.LastIP].All( other => other == p || PlayerIsInactive( other, false ) );
+                return playersByIP[player.LastIP].All( other => (other == player) || PlayerIsInactive( other, false ) );
             }
             return true;
         }

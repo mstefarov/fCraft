@@ -1010,9 +1010,18 @@ namespace fCraft {
 
         #region Events
 
+        /// <summary> Occurs after the entire configuration has been reloaded from file. </summary>
         public static event EventHandler Reloaded;
+
+
+        /// <summary> Occurs when a config key is about to be changed (cancellable).
+        /// The new value may be replaced by the callback. </summary>
         public static event EventHandler<ConfigKeyChangingEventArgs> KeyChanging;
+
+
+        /// <summary> Occurs after a config key has been changed. </summary>
         public static event EventHandler<ConfigKeyChangedEventArgs> KeyChanged;
+
 
         static void RaiseReloadedEvent() {
             var h = Reloaded;

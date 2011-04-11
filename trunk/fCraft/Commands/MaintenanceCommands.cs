@@ -33,6 +33,8 @@ namespace fCraft {
         }
 
 
+        #region Stats
+
         static readonly CommandDescriptor cdDumpStats = new CommandDescriptor {
             Name = "dumpstats",
             Category = CommandCategory.Maintenance,
@@ -465,8 +467,10 @@ namespace fCraft {
             public PlayerInfo[] TopTimesBannedOthers;
         }
 
+        #endregion
 
 
+        #region AutoRank
 
         static readonly CommandDescriptor cdAutoRankAll = new CommandDescriptor {
             Name = "autorankall",
@@ -524,6 +528,27 @@ namespace fCraft {
             player.Message( "AutoRankAll: Worked for {0}ms, {1} players promoted, {2} demoted.", sw.ElapsedMilliseconds, promoted, demoted );
         }
 
+
+
+        static readonly CommandDescriptor cdAutoRankReload = new CommandDescriptor {
+            Name = "autorankreload",
+            Category = CommandCategory.Maintenance,
+            IsConsoleSafe = true,
+            IsHidden = true,
+            Permissions = new[] { Permission.EditPlayerDB },
+            Help = "",
+            Handler = AutoRankReload
+        };
+
+        internal static void AutoRankReload( Player player, Command cmd ) {
+            AutoRank.Init();
+        }
+
+        #endregion
+
+
+        #region MassRank
+
         static readonly CommandDescriptor cdMassRank = new CommandDescriptor {
             Name = "massrank",
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
@@ -577,22 +602,10 @@ namespace fCraft {
             player.Message( "MassRank: done.", affected );
         }
 
+        #endregion
 
 
-        static readonly CommandDescriptor cdAutoRankReload = new CommandDescriptor {
-            Name = "autorankreload",
-            Category = CommandCategory.Maintenance,
-            IsConsoleSafe = true,
-            IsHidden = true,
-            Permissions = new[] { Permission.EditPlayerDB },
-            Help = "",
-            Handler = AutoRankReload
-        };
-
-        internal static void AutoRankReload( Player player, Command cmd ) {
-            AutoRank.Init();
-        }
-
+        #region SetInfo
 
         static readonly CommandDescriptor cdSetInfo = new CommandDescriptor {
             Name = "setinfo",
@@ -734,6 +747,8 @@ namespace fCraft {
                 return false;
             }
         }
+
+        #endregion
 
 
         #region ReloadConfig

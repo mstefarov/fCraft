@@ -182,6 +182,7 @@ namespace fCraft {
 
 
             void HandleMessage( string message ) {
+                if( message == null ) throw new ArgumentNullException( "message" );
 
                 IRCMessage msg = MessageParser( message, ActualBotNick );
 #if DEBUG_IRC
@@ -433,6 +434,7 @@ namespace fCraft {
 
 
         public static void SendChannelMessage( string line ) {
+            if( line == null ) throw new ArgumentNullException( "line" );
             if( channelNames == null ) return; // in case IRC bot is disabled.
             if( ConfigKey.IRCUseColor.GetBool() ) {
                 line = Color.ToIRCColorCodes( line );
@@ -445,11 +447,13 @@ namespace fCraft {
         }
 
         public static void SendAction( string line ) {
+            if( line == null ) throw new ArgumentNullException( "line" );
             SendChannelMessage( String.Format( "\u0001ACTION {0}\u0001", line ) );
         }
 
 
         public static void SendNotice( string line ) {
+            if( line == null ) throw new ArgumentNullException( "line" );
             if( channelNames == null ) return; // in case IRC bot is disabled.
             if( ConfigKey.IRCUseColor.GetBool() ) {
                 line = Color.ToIRCColorCodes( line );
@@ -462,6 +466,7 @@ namespace fCraft {
         }
 
         public static void SendRawMessage( string line ) {
+            if( line == null ) throw new ArgumentNullException( "line" );
             OutputQueue.Enqueue( line );
         }
 

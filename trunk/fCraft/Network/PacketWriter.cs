@@ -12,6 +12,7 @@ namespace fCraft {
         public PacketWriter( Stream stream ) : base( stream ) { }
 
         #region Direct Writing
+
         public void Write( OutputCode opcode ) {
             Write( (byte)opcode );
         }
@@ -53,6 +54,7 @@ namespace fCraft {
         }
 
         public void WriteAddEntity( byte id, Player player, Position pos ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Write( OutputCode.AddEntity );
             Write( id );
             Write( player.GetListName() );
@@ -78,18 +80,24 @@ namespace fCraft {
 
         #region Packet Making
 
-        internal static Packet MakeHandshake( Player player, string serverName, string MOTD ) {
+        internal static Packet MakeHandshake( Player player, string serverName, string motd ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( serverName == null ) throw new ArgumentNullException( "serverName" );
+            if( motd == null ) throw new ArgumentNullException( "motd" );
+
             Packet packet = new Packet( 131 );
             packet.Data[0] = (byte)OutputCode.Handshake;
             packet.Data[1] = Config.ProtocolVersion;
             Encoding.ASCII.GetBytes( serverName.PadRight( 64 ), 0, 64, packet.Data, 2 );
-            Encoding.ASCII.GetBytes( MOTD.PadRight( 64 ), 0, 64, packet.Data, 66 );
+            Encoding.ASCII.GetBytes( motd.PadRight( 64 ), 0, 64, packet.Data, 66 );
             packet.Data[130] = player.GetOpPacketCode();
             return packet;
         }
 
 
         internal static Packet MakeLevelEnd( Map map ) {
+            if( map == null ) throw new ArgumentNullException( "map" );
+
             Packet packet = new Packet( 7 );
             packet.Data[0] = (byte)OutputCode.LevelEnd;
             ToNetOrder( (short)map.WidthX, packet.Data, 1 );
@@ -98,7 +106,10 @@ namespace fCraft {
             return packet;
         }
 
+
         internal static Packet MakeMessage( string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+
             Packet packet = new Packet( 66 );
             packet.Data[0] = (byte)OutputCode.Message;
             packet.Data[1] = 0;
@@ -106,10 +117,17 @@ namespace fCraft {
             return packet;
         }
 
+
         internal static Packet MakeAddEntity( Player player, Position pos ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+
             return MakeAddEntity( player.ID, player.GetListName(), pos );
         }
+
+
         internal static Packet MakeAddEntity( int id, string name, Position pos ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+
             Packet packet = new Packet( 74 );
             packet.Data[0] = (byte)OutputCode.AddEntity;
             packet.Data[1] = (byte)id;
@@ -122,12 +140,16 @@ namespace fCraft {
             return packet;
         }
 
+
         internal static Packet MakeDisconnect( string reason ) {
+            if( reason == null ) throw new ArgumentNullException( "reason" );
+
             Packet packet = new Packet( 65 );
             packet.Data[0] = (byte)OutputCode.Disconnect;
             Encoding.ASCII.GetBytes( reason.PadRight( 64 ), 0, 64, packet.Data, 1 );
             return packet;
         }
+
 
         internal static Packet MakeRemoveEntity( int id ) {
             Packet packet = new Packet( 2 );
@@ -135,6 +157,7 @@ namespace fCraft {
             packet.Data[1] = (byte)id;
             return packet;
         }
+
 
         internal static Packet MakeTeleport( int id, Position pos ) {
             Packet packet = new Packet( 10 );
@@ -148,9 +171,11 @@ namespace fCraft {
             return packet;
         }
 
+
         internal static Packet MakeSelfTeleport( Position pos ) {
             return MakeTeleport( 255, pos.GetFixed() );
         }
+
 
         internal static Packet MakeMoveRotate( int id, Position pos ) {
             Packet packet = new Packet( 7 );
@@ -164,6 +189,7 @@ namespace fCraft {
             return packet;
         }
 
+
         internal static Packet MakeMove( int id, Position pos ) {
             Packet packet = new Packet( 5 );
             packet.Data[0] = (byte)OutputCode.Move;
@@ -174,6 +200,7 @@ namespace fCraft {
             return packet;
         }
 
+
         internal static Packet MakeRotate( int id, Position pos ) {
             Packet packet = new Packet( 4 );
             packet.Data[0] = (byte)OutputCode.Rotate;
@@ -182,6 +209,7 @@ namespace fCraft {
             packet.Data[3] = pos.L;
             return packet;
         }
+
 
         internal static Packet MakeSetBlock( int x, int y, int h, byte type ) {
             Packet packet = new Packet( 8 );
@@ -193,6 +221,7 @@ namespace fCraft {
             return packet;
         }
 
+
         internal static Packet MakeSetBlock( int x, int y, int h, Block type ) {
             Packet packet = new Packet( 8 );
             packet.Data[0] = (byte)OutputCode.SetBlock;
@@ -203,7 +232,10 @@ namespace fCraft {
             return packet;
         }
 
+
         internal static Packet MakeSetPermission( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+
             Packet packet = new Packet( 2 );
             packet.Data[0] = (byte)OutputCode.SetPermission;
             packet.Data[1] = player.GetOpPacketCode();

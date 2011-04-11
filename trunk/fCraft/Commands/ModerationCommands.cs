@@ -42,6 +42,7 @@ namespace fCraft {
 
             CommandList.RegisterCommand( cdTP );
             CommandList.RegisterCommand( cdBring );
+            CommandList.RegisterCommand( cdBringAll );
             CommandList.RegisterCommand( cdPatrol );
 
             CommandList.RegisterCommand( cdMute );
@@ -176,7 +177,7 @@ namespace fCraft {
             if( ConfigKey.RequireBanReason.GetBool() && string.IsNullOrEmpty( reason ) ) {
                 player.Message( "&WPlease specify a ban/unban reason." );
                 // freeze the target player to prevent further damage
-                if( !unban && target != null && player.Can( Permission.Freeze ) && player.Info.Rank.CanBan( target.Info.Rank ) ) {
+                if( !unban && target != null && player.Can( Permission.Freeze ) && player.Can( Permission.Ban, target.Info.Rank ) ) {
                     player.Message( "{0}&S has been frozen while you retry.",
                                     target.GetClassyName() );
                     Freeze( player, new Command( "/freeze " + target.Name ) );
@@ -193,7 +194,7 @@ namespace fCraft {
             } else if( !unban && target != null ) {
 
                 // check permissions
-                if( player.Info.Rank.CanBan( target.Info.Rank ) ) {
+                if( player.Can( Permission.Ban, target.Info.Rank ) ) {
                     address = target.Info.LastIP;
                     if( banIP ) DoIPBan( player, address, reason, target.Name, banAll, false );
                     if( !banAll ) {
@@ -235,7 +236,7 @@ namespace fCraft {
 
                 // ban or unban offline players
             } else if( info != null ) {
-                if( player.Info.Rank.CanBan( info.Rank ) || unban ) {
+                if( player.Can( Permission.Ban, info.Rank ) || unban ) {
                     address = info.LastIP;
                     if( banIP ) DoIPBan( player, address, reason, info.Name, banAll, unban );
                     if( !banAll ) {
@@ -447,7 +448,7 @@ namespace fCraft {
                 if( ConfigKey.RequireKickReason.GetBool() && String.IsNullOrEmpty( reason ) ) {
                     player.Message( "&WPlease specify a kick reason: &H/k PlayerName Reason" );
                     // freeze the target player to prevent further damage
-                    if( target != null && player.Can( Permission.Freeze ) && player.Info.Rank.CanKick( target.Info.Rank ) ) {
+                    if( target != null && player.Can( Permission.Freeze ) && player.Can( Permission.Kick, target.Info.Rank ) ) {
                         player.Message( "{0}&S has been frozen while you retry.",
                                         target.GetClassyName() );
                         Freeze( player, new Command( "/freeze " + target.Name ) );
@@ -485,7 +486,7 @@ namespace fCraft {
                 player.Message( "You cannot kick yourself." );
                 return false;
             }
-            if( !player.Info.Rank.CanKick( target.Info.Rank ) ) {
+            if( !player.Can( Permission.Kick, target.Info.Rank ) ) {
                 player.Message( "You can only kick players ranked {0}&S or lower.",
                                 player.Info.Rank.GetLimit( Permission.Kick ).GetClassyName() );
                 player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.Info.Rank.GetClassyName() );
@@ -606,14 +607,14 @@ namespace fCraft {
             }
 
             // Make sure player has the specific permissions (including limits)
-            if( promote && !player.Info.Rank.CanPromote( newRank ) ) {
+            if( promote && !player.Can( Permission.Promote, newRank ) ) {
                 player.Message( "You can only promote players up to {0}",
                                 player.Info.Rank.GetLimit( Permission.Promote ).GetClassyName() );
                 player.Message( "{0}&S is ranked {1}",
                                 targetInfo.GetClassyName(),
                                 targetInfo.Rank.GetClassyName() );
                 return;
-            } else if( !promote && !player.Info.Rank.CanDemote( targetInfo.Rank ) ) {
+            } else if( !promote && !player.Can( Permission.Demote, targetInfo.Rank ) ) {
                 player.Message( "You can only demote players ranked {0}&S or lower",
                                 player.Info.Rank.GetLimit( Permission.Demote ).GetClassyName() );
                 player.Message( "{0}&S is ranked {1}",
@@ -709,7 +710,7 @@ namespace fCraft {
                                                 targetInfo.Name,
                                                 oldRank.GetClassyName(),
                                                 newRank.GetClassyName() );
-                        if( ConfigKey.AnnounceRankChangeReasons.GetBool() && !String.IsNullOrEmpty(reason) ) {
+                        if( ConfigKey.AnnounceRankChangeReasons.GetBool() && !String.IsNullOrEmpty( reason ) ) {
                             Server.SendToAll( "&S{0} reason: {1}",
                                               promote ? "Promotion" : "Demotion",
                                               reason );
@@ -903,7 +904,7 @@ namespace fCraft {
             Player target = Server.FindPlayerOrPrintMatches( player, name, false );
             if( target == null ) return;
 
-            if( player.Info.Rank.CanFreeze( target.Info.Rank ) ) {
+            if( player.Can( Permission.Freeze, target.Info.Rank ) ) {
                 if( target.Info.Freeze( player.Name ) ) {
                     Server.SendToAll( "{0}&S has been frozen by {1}",
                                       target.GetClassyName(), player.GetClassyName() );
@@ -940,7 +941,7 @@ namespace fCraft {
             Player target = Server.FindPlayerOrPrintMatches( player, name, false );
             if( target == null ) return;
 
-            if( player.Info.Rank.CanFreeze( target.Info.Rank ) ) {
+            if( player.Can( Permission.Freeze, target.Info.Rank ) ) {
                 if( target.Info.Unfreeze() ) {
                     Server.SendToAll( "{0}&S is no longer frozen.", target.GetClassyName() );
                 } else {
@@ -1061,6 +1062,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdBring = new CommandDescriptor {
             Name = "bring",
+            IsConsoleSafe=true,
             Aliases = new[] { "summon", "fetch" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Bring },
@@ -1083,6 +1085,9 @@ namespace fCraft {
             if( toName != null ) {
                 toPlayer = Server.FindPlayerOrPrintMatches( player, toName, false );
                 if( toPlayer == null ) return;
+            } else if( player.World == null ) {
+                player.Message( "When used from console, /bring requires both names to be given." );
+                return;
             }
 
             Player target = Server.FindPlayerOrPrintMatches( player, name, false );
@@ -1122,6 +1127,100 @@ namespace fCraft {
                         break;
                     // TODO: case PermissionType.RankTooHigh:
                 }
+            }
+        }
+
+
+        static readonly CommandDescriptor cdBringAll = new CommandDescriptor {
+            Name = "bringall",
+            Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.Bring },
+            Usage = "/bringall [@Rank [@AnotherRank]] [*|World [AnotherWorld]]",
+            Help = "Teleports all players from your world to you. " +
+                   "If any world names are given, only teleports players from those worlds. " +
+                   "If any rank names are given, only teleports players of those ranks.",
+            Handler = BringAll
+        };
+
+        static void BringAll( Player player, Command cmd ) {
+            List<World> targetWorlds = new List<World>();
+            List<Rank> targetRanks = new List<Rank>();
+            bool allWorlds = false;
+            bool allRanks = true;
+
+            // Parse the list of worlds and ranks
+            string arg;
+            while( (arg = cmd.Next()) != null ) {
+                if( arg.StartsWith( "@" ) ) {
+                    Rank rank = RankList.ParseRank( arg.Substring( 1 ) );
+                    if( rank == null ) {
+                        player.Message( "Unknown rank: {0}", arg.Substring( 1 ) );
+                        return;
+                    } else {
+                        if( player.Can( Permission.Bring, rank ) ) {
+                            targetRanks.Add( rank );
+                        } else {
+                            player.Message( "&WYou are not allowed to &H/bring&W players of rank {0}",
+                                            rank.GetClassyName() );
+                        }
+                        allRanks = false;
+                    }
+                } else if( arg == "*" ) {
+                    allWorlds = true;
+                } else {
+                    World world = Server.FindWorldOrPrintMatches( player, arg );
+                    if( world == null ) return;
+                }
+            }
+
+            // If no worlds were specified, use player's current world
+            if( !allWorlds && targetWorlds.Count == 0 ) {
+                targetWorlds.Add( player.World );
+            }
+
+            // Apply all the rank and world options
+            HashSet<Player> targetPlayers;
+            if( allRanks && allWorlds ) {
+                targetPlayers = new HashSet<Player>( Server.PlayerList );
+            } else if( allWorlds ) {
+                targetPlayers = new HashSet<Player>();
+                foreach( Rank rank in targetRanks ) {
+                    foreach( Player rankPlayer in Server.PlayerList.Where( p => (p.Info.Rank == rank) ) ) {
+                        targetPlayers.Add( rankPlayer );
+                    }
+                }
+            } else if( allRanks ) {
+                targetPlayers = new HashSet<Player>();
+                foreach( World world in targetWorlds ) {
+                    Player[] worldPlayers = world.PlayerList;
+                    foreach( Player worldPlayer in worldPlayers ) {
+                        targetPlayers.Add( worldPlayer );
+                    }
+                }
+            } else {
+                targetPlayers = new HashSet<Player>();
+                foreach( Rank rank in targetRanks ) {
+                    foreach( World world in targetWorlds ) {
+                        foreach( Player rankWorldPlayer in world.PlayerList.Where( p => (p.Info.Rank == rank) ) ) {
+                            targetPlayers.Add( rankWorldPlayer );
+                        }
+                    }
+                }
+            }
+
+            // Remove the player him/herself
+            targetPlayers.Remove( player );
+
+            // Check if there's anyone to bring
+            if( targetPlayers.Count == 0 ) {
+                player.Message( "No players to bring!" );
+            } else {
+                player.Message( "Bringing {0} players...", targetPlayers.Count );
+            }
+
+            // Actually bring all the players
+            foreach( Player targetPlayer in targetPlayers ) {
+                Bring( player, new Command( "/bring " + targetPlayer.Name ) );
             }
         }
 
@@ -1177,7 +1276,7 @@ namespace fCraft {
                 Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
                 if( target == null ) return;
 
-                if( !player.Info.Rank.CanMute( target.Info.Rank ) ) {
+                if( !player.Can( Permission.Mute, target.Info.Rank ) ) {
                     player.Message( "You can only mute players ranked {0}&S or lower.",
                                     player.Info.Rank.GetLimit( Permission.Mute ).GetClassyName() );
                     player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.Info.Rank.GetClassyName() );
@@ -1215,7 +1314,7 @@ namespace fCraft {
                 Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
                 if( target == null ) return;
 
-                if( !player.Info.Rank.CanMute( target.Info.Rank ) ) {
+                if( !player.Can( Permission.Mute, target.Info.Rank ) ) {
                     player.Message( "You can only unmute players ranked {0}&S or lower.",
                                     player.Info.Rank.GetLimit( Permission.Mute ).GetClassyName() );
                     player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.Info.Rank.GetClassyName() );

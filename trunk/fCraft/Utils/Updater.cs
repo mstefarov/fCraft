@@ -170,7 +170,7 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             513,
-            526,
+            527,
             new DateTime( 2011, 4, 10, 17, 0, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Dev | ReleaseFlags.Bugfix | ReleaseFlags.Feature | ReleaseFlags.APIChange | ReleaseFlags.ConfigFormatChange
@@ -243,9 +243,12 @@ namespace fCraft {
 
         #region Events
 
+        /// <summary> Occurs when fCraft is about to check for updates (cancellable).
+        /// The update Url may be overridden. </summary>
         public static event EventHandler<CheckingForUpdatesEventArgs> CheckingForUpdates;
 
 
+        /// <summary> Occurs when fCraft has just checked for updates. </summary>
         public static event EventHandler<CheckedForUpdatesEventArgs> CheckedForUpdates;
 
 

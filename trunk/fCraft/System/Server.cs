@@ -1122,7 +1122,7 @@ namespace fCraft {
         [Obsolete( "Use Logger.Logged instead" )]
         public static event LogEventHandler OnLog;
 
-        [Obsolete]
+        [Obsolete("Use Server.PlayerListChanged instead")]
         public static event PlayerListChangedHandler OnPlayerListChanged;
 
         [Obsolete]
@@ -1524,6 +1524,7 @@ namespace fCraft {
                 }
                 Players.Add( player.Name, player );
                 UpdatePlayerList();
+                RaiseEvent( PlayerListChanged );
                 session.IsRegistered = true;
             }
             return true;
@@ -1565,6 +1566,7 @@ namespace fCraft {
                 player.World.ReleasePlayer( player );
                 Players.Remove( player.Name );
                 UpdatePlayerList();
+                RaiseEvent( PlayerListChanged );
             }
         }
 

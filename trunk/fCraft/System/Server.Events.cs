@@ -9,17 +9,26 @@ namespace fCraft {
 
         #region Global/Server events
 
+        /// <summary> Occurs when the server is about to be initialized. </summary>
         public static event EventHandler<ServerInitializingEventArgs> Initializing;
 
+        /// <summary> Occurs when the server has been initialized. </summary>
         public static event EventHandler Initialized;
 
+        /// <summary> Occurs when the server is about to start. </summary>
         public static event EventHandler Starting;
 
+        /// <summary> Occurs when the server has just started. </summary>
         public static event EventHandler Started;
 
+        /// <summary> Occurs when the server is about to start shutting down. </summary>
         public static event EventHandler<ShutdownEventArgs> ShutdownBegan;
-
+        
+        /// <summary> Occurs when the server finished shutting down. </summary>
         public static event EventHandler<ShutdownEventArgs> ShutdownEnded;
+
+        /// <summary> Occurs when the player list has just changed (any time players connected or disconnected). </summary>
+        public static event EventHandler PlayerListChanged;
 
 
         static void RaiseInitializingEvent( Dictionary<ArgKey, string> initializationArgs ) {
@@ -41,17 +50,22 @@ namespace fCraft {
             if( h != null ) h( null, new ShutdownEventArgs( shutdownParams ) );
         }
 
-
         #endregion
 
 
         #region Session-related
         // See the end of Session.cs for these EventArgs definitions
 
+
+        /// <summary> Occurs any time the server receives an incoming connection (cancellable). </summary>
         public static event EventHandler<SessionConnectingEventArgs> SessionConnecting;
 
+
+        /// <summary> Occurs any time a new session has connected, but before any communication is done. </summary>
         public static event EventHandler<SessionConnectedEventArgs> SessionConnected;
 
+
+        /// <summary> Occurs when a connection is closed or lost. </summary>
         public static event EventHandler<SessionDisconnectedEventArgs> SessionDisconnected;
 
 
@@ -81,24 +95,50 @@ namespace fCraft {
         #region Player-related
         // See the end of Player.cs for these EventArgs definitions
 
+
+        /// <summary> Occurs when a player is connecting (cancellable).
+        /// Player name is verified and bans are checked before this event is raised. </summary>
         public static event EventHandler<PlayerConnectingEventArgs> PlayerConnecting;
 
+
+        /// <summary> Occurs when a player has connected, but before the player has joined any world.
+        /// Allows changing the player's starting world. </summary>
         public static event EventHandler<PlayerConnectedEventArgs> PlayerConnected;
 
+
+        /// <summary> Occurs after a player has connected and joined the starting world. </summary>
         public static event EventHandler<PlayerEventArgs> PlayerReady;
 
+
+        /// <summary> Occurs when player is about to move (cancellable). </summary>
         public static event EventHandler<PlayerMovingEventArgs> PlayerMoving;
 
+
+        /// <summary> Occurs when player has moved. </summary>
         public static event EventHandler<PlayerMovedEventArgs> PlayerMoved;
 
+
+        /// <summary> Occurs when player clicked a block (cancellable).
+        /// Note that a click will not necessarily result in a block being placed or deleted. </summary>
         public static event EventHandler<PlayerClickingEventArgs> PlayerClicking;
 
+
+        /// <summary> Occurs after a player has clicked a block.
+        /// Note that a click will not necessarily result in a block being placed or deleted. </summary>
         public static event EventHandler<PlayerClickedEventArgs> PlayerClicked;
 
+
+        /// <summary> Occurs when a player is about to place a block.
+        /// Permission checks are done before calling this event, and their result may be overridden. </summary>
         public static event EventHandler<PlayerPlacingBlockEventArgs> PlayerPlacingBlock;
 
+
+        /// <summary>  Occurs when a player has placed a block.
+        /// This event does not occur if the block placement was disallowed. </summary>
         public static event EventHandler<PlayerPlacedBlockEventArgs> PlayerPlacedBlock;
 
+
+        /// <summary> Occurs when a player disconnects. </summary>
         public static event EventHandler<PlayerDisconnectedEventArgs> PlayerDisconnected;
 
 
@@ -171,8 +211,6 @@ namespace fCraft {
         }
 
 
-
-
         internal static void RaisePlayerDisconnectedEventArgs( Player player, LeaveReason leaveReason ) {
             var h = PlayerDisconnected;
             if( h != null ) h( null, new PlayerDisconnectedEventArgs( player, leaveReason ) );
@@ -183,11 +221,18 @@ namespace fCraft {
 
         #region World-related
 
+        /// <summary> Occurs when the main world is being changed (cancellable). </summary>
         public static event EventHandler<MainWorldChangingEventArgs> MainWorldChanging;
 
+
+        /// <summary> Occurs after the main world has been changed. </summary>
         public static event EventHandler<MainWorldChangedEventArgs> MainWorldChanged;
 
+
+        /// <summary> Occurs when a player is searching for worlds (with autocompletion).
+        /// The list of worlds in the search results may be replaced. </summary>
         public static event EventHandler<SearchingForWorldEventArgs> SearchingForWorld;
+
 
         static bool RaiseMainWorldChangingEvent( World oldWorld, World newWorld ) {
             var h = MainWorldChanging;

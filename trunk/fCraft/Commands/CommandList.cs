@@ -51,6 +51,7 @@ namespace fCraft {
 
         /// <summary> Gets a list of commands available to a specified rank. </summary>
         public static CommandDescriptor[] GetCommands( Rank rank, bool includeHidden ) {
+            if( rank == null ) throw new ArgumentNullException( "rank" );
             List<CommandDescriptor> list = new List<CommandDescriptor>();
             foreach( CommandDescriptor cmd in Commands.Values ) {
                 if( (!cmd.IsHidden || includeHidden) && (cmd.Permissions == null || cmd.Permissions.All( rank.Can )) ) {
@@ -225,12 +226,16 @@ namespace fCraft {
 
         #region Events
 
+        /// <summary> Occurs when a command is being registered (cancellable). </summary>
         public static event EventHandler<CommandRegistringEventArgs> CommandRegistering;
 
+        /// <summary> Occurs when a command has been registered. </summary>
         public static event EventHandler<CommandRegisteredEventArgs> CommandRegistered;
 
+        /// <summary> Occurs when a command is being called by a player or the console (cancellable). </summary>
         public static event EventHandler<CommandCallingEventArgs> CommandCalling;
 
+        /// <summary> Occurs when the command has been called by a player or the console. </summary>
         public static event EventHandler<CommandCalledEventArgs> CommandCalled;
 
 

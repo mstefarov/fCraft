@@ -121,23 +121,27 @@ namespace fCraft {
             }
         }
 
+
         public static int CountBans() {
             return Bans.Count;
         }
 
 
-
         #region Events
 
+        /// <summary> Occurs when a new IP ban is about to be added (cancellable). </summary>
         public static event EventHandler<IPBanCancellableEventArgs> AddingIPBan;
 
 
+        /// <summary> Occurs when a new IP ban has been added. </summary>
         public static event EventHandler<IPBanEventArgs> AddedIPBan;
 
 
+        /// <summary> Occurs when an existing IP ban is about to be removed (cancellable). </summary>
         public static event EventHandler<IPBanCancellableEventArgs> RemovingIPBan;
 
 
+        /// <summary> Occurs after an existing IP ban has been removed. </summary>
         public static event EventHandler<IPBanEventArgs> RemovedIPBan;
 
 
