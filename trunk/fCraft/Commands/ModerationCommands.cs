@@ -1134,7 +1134,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdBringAll = new CommandDescriptor {
             Name = "bringall",
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Bring },
+            Permissions = new[] { Permission.Bring, Permission.BringAll },
             Usage = "/bringall [@Rank [@AnotherRank]] [*|World [AnotherWorld]]",
             Help = "Teleports all players from your world to you. " +
                    "If any world names are given, only teleports players from those worlds. " +
