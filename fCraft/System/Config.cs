@@ -110,6 +110,8 @@ namespace fCraft {
      *              
      * 135 - r526 - Added RequireKickReason and AnnounceRankChangeReasons keys
      *              Added ViewPlayerIPs permission
+     *              
+     * 136 - r528 - Added BanAll permission.
      * 
      */
 
@@ -117,7 +119,7 @@ namespace fCraft {
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 134;
+        public const int ConfigVersion = 136;
         public const string ConfigXmlRootName = "fCraftConfig";
 
         static readonly Dictionary<ConfigKey, string> Settings = new Dictionary<ConfigKey, string>();
@@ -838,6 +840,7 @@ namespace fCraft {
 
             owner.Add( new XElement( Permission.Teleport.ToString() ) );
             owner.Add( new XElement( Permission.Bring.ToString() ) );
+            owner.Add( new XElement( Permission.BringAll.ToString() ) );
             owner.Add( new XElement( Permission.Patrol.ToString() ) );
             owner.Add( new XElement( Permission.Freeze.ToString() ) );
             owner.Add( new XElement( Permission.Mute.ToString() ) );

@@ -305,7 +305,13 @@ Affected commands:
 @"Ability to bring/summon other players to your location.
 This works a bit like reverse-teleport - other player is sent to you.
 Affected commands:
-    /bring";
+    /bring
+    /bringall";
+
+            vPermissions.Items[(int)Permission.BringAll].ToolTipText =
+@"Ability to bring/summon many players at a time to your location.
+Affected command:
+    /bringall";
 
             vPermissions.Items[(int)Permission.Build].ToolTipText =
 @"Ability to place blocks on maps. This is a baseline permission
@@ -515,6 +521,13 @@ Affected commands:
     /info
     /baninfo
     /where";
+
+            vPermissions.Items[(int)Permission.ViewPlayerIPs].ToolTipText =
+@"Ability to view players' IP addresses.
+Affected commands:
+    /info
+    /baninfo
+    /banip, /banall, /unbanip, /unbanall";
         }
 
 

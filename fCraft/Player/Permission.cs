@@ -46,6 +46,7 @@ namespace fCraft {
 
         Teleport,
         Bring,
+        BringAll,
         Patrol,
         Freeze,
         Mute,
