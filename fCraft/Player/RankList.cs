@@ -27,6 +27,7 @@ namespace fCraft {
         }
 
         public static void AddRank( Rank rank ) {
+            if( rank == null ) throw new ArgumentNullException( "rank" );
             // check for duplicate rank names
             if( RanksByName.ContainsKey( rank.Name.ToLower() ) ) {
                 throw new RankDefinitionException( "Duplicate definition for rank \"{0}\" (by Name) was ignored.", rank.Name );
@@ -111,6 +112,7 @@ namespace fCraft {
             return Ranks[index];
         }
 
+
         public static int GetIndex( Rank rank ) {
             return (rank == null) ? 0 : (rank.Index + 1);
         }
@@ -135,7 +137,7 @@ namespace fCraft {
         }
 
 
-        public static void RebuildIndex() {
+        internal static void RebuildIndex() {
             if( Ranks.Count == 0 ) {
                 LowestRank = null;
                 HighestRank = null;
@@ -172,6 +174,7 @@ namespace fCraft {
                 return !RanksByName.ContainsKey( newName.ToLower() );
             }
         }
+
 
         public static void RenameRank( Rank rank, string newName ) {
             RanksByName.Remove( rank.Name.ToLower() );

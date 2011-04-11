@@ -103,6 +103,7 @@ namespace fCraft {
             CommandList.RegisterCommand( cdRotate );
         }
 
+
         #region Block Commands
 
         static readonly CommandDescriptor cdSolid = new CommandDescriptor {
@@ -280,7 +281,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
 
         #region Command Descriptors
@@ -1841,6 +1841,8 @@ namespace fCraft {
         #endregion
 
 
+        #region Mark, Cancel
+
         static readonly CommandDescriptor cdMark = new CommandDescriptor {
             Name = "mark",
             Aliases = new[] { "m" },
@@ -1881,5 +1883,7 @@ namespace fCraft {
                 player.MessageNow( "There is currently nothing to cancel." );
             }
         }
+
+        #endregion
     }
 }

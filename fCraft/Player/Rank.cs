@@ -268,41 +268,24 @@ namespace fCraft {
         }
         #endregion
 
+
         #region Permissions
+
         public bool Can( Permission permission ) {
             return Permissions[(int)permission];
         }
 
-
-        public bool CanKick( Rank other ) {
-            return GetLimit( Permission.Kick ) >= other;
-        }
-
-        public bool CanBan( Rank other ) {
-            return GetLimit( Permission.Ban ) >= other;
-        }
-
-        public bool CanPromote( Rank other ) {
-            return GetLimit( Permission.Promote ) >= other;
-        }
-
-        public bool CanDemote( Rank other ) {
-            return GetLimit( Permission.Demote ) >= other;
+        public bool Can( Permission permission, Rank other ) {
+            return GetLimit( permission ) >= other;
         }
 
         public bool CanSee( Rank other ) {
             return this > other.GetLimit( Permission.Hide );
         }
 
-        public bool CanFreeze( Rank other ) {
-            return GetLimit( Permission.Freeze ) >= other;
-        }
-
-        public bool CanMute( Rank other ) {
-            return GetLimit( Permission.Mute ) >= other;
-        }
 
         #endregion
+
 
         #region Permission Limits
 
@@ -326,9 +309,11 @@ namespace fCraft {
             SetLimit( permission, null );
         }
 
+
         public bool IsLimitDefault( Permission permission ) {
             return (PermissionLimits[(int)permission] == null);
         }
+
 
         public int GetLimitIndex( Permission permission ) {
             if( PermissionLimits[(int)permission] == null ) {
@@ -339,6 +324,7 @@ namespace fCraft {
         }
 
         #endregion
+
 
         #region Validation
 
@@ -379,9 +365,11 @@ namespace fCraft {
             return String.Format( "{0,1}{1}", Prefix, Name );
         }
 
+
         public override string ToString() {
             return Name + "#" + ID;
         }
+
 
         public string GetClassyName() {
             string displayedName = Name;
@@ -393,6 +381,7 @@ namespace fCraft {
             }
             return displayedName;
         }
+
 
         internal bool ParsePermissionLimits() {
             bool ok = true;

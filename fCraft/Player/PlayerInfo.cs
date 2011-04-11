@@ -93,7 +93,7 @@ namespace fCraft {
             LastSeen = DateTime.Now;
             LastLoginDate = DateTime.Now;
             ID = PlayerDB.GetNextID();
-            LastIP=lastIP;
+            LastIP = lastIP;
         }
 
 
@@ -109,7 +109,7 @@ namespace fCraft {
             RankChangedBy = fields[4];
             if( RankChangedBy == "-" ) RankChangedBy = "";
 
-            Banned = (fields[5] == "b");
+            Banned = ( fields[5] == "b" );
 
             // ban information
             if( fields[6] != "-" && !String.IsNullOrEmpty( fields[6] ) && DateTime.TryParse( fields[6], out BanDate ) ) {
@@ -180,7 +180,7 @@ namespace fCraft {
 
                 if( fields.Length > 36 ) {
                     DateTime.TryParse( fields[36], out BannedUntil );
-                    IsFrozen = (fields[37] == "f");
+                    IsFrozen = ( fields[37] == "f" );
                     FrozenBy = Unescape( fields[38] );
                     DateTime.TryParse( fields[39], out FrozenOn );
                     DateTime.TryParse( fields[40], out MutedUntil );
@@ -193,7 +193,7 @@ namespace fCraft {
             if( LastSeen < FirstLoginDate ) {
                 LastSeen = FirstLoginDate;
             }
-            if( LastLoginDate < FirstLoginDate ){
+            if( LastLoginDate < FirstLoginDate ) {
                 LastLoginDate = FirstLoginDate;
             }
         }
@@ -277,7 +277,7 @@ namespace fCraft {
             fields[27] = TimesKickedOthers.ToString();
             fields[28] = TimesBannedOthers.ToString();
             fields[29] = ID.ToString();
-            fields[30] = ((int)RankChangeType).ToString();
+            fields[30] = ( (int)RankChangeType ).ToString();
 
             if( LastKickDate == DateTime.MinValue ) fields[31] = "";
             else fields[31] = LastKickDate.ToCompactString();
@@ -294,7 +294,7 @@ namespace fCraft {
             if( BannedUntil == DateTime.MinValue ) fields[36] = "";
             else fields[36] = BannedUntil.ToCompactString();
 
-            fields[37] = (IsFrozen ? "f" : "");
+            fields[37] = ( IsFrozen ? "f" : "" );
 
             fields[38] = Escape( FrozenBy );
 
@@ -306,7 +306,7 @@ namespace fCraft {
 
             fields[41] = Escape( MutedBy );
             fields[42] = Escape( IRCPassword );
-            fields[43] = (Online ? "o" : "");
+            fields[43] = ( Online ? "o" : "" );
 
             return String.Join( ",", fields );
         }
@@ -452,6 +452,7 @@ namespace fCraft {
         #region Actions
 
         public void Mute( string by, int seconds ) {
+            if( by == null ) throw new ArgumentNullException( "by" );
             MutedUntil = DateTime.UtcNow.AddSeconds( seconds );
             MutedBy = by;
         }
@@ -465,6 +466,7 @@ namespace fCraft {
         }
 
         public bool Freeze( string by ) {
+            if( by == null ) throw new ArgumentNullException( "by" );
             if( !IsFrozen ) {
                 IsFrozen = true;
                 FrozenOn = DateTime.Now;
@@ -474,6 +476,7 @@ namespace fCraft {
                 return false;
             }
         }
+
 
         public bool Unfreeze() {
             if( IsFrozen ) {
@@ -485,6 +488,7 @@ namespace fCraft {
         }
 
         #endregion
+
 
         public override string ToString() {
             return String.Format( "PlayerInfo({0},{1})", Rank.Name, Name );

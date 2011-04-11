@@ -12,6 +12,7 @@ namespace fCraft {
         public bool Confirmed; // whether this command has been confirmed by the user (with /ok)
 
         public Command( Command other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
             offset = other.offset;
             Message = other.Message;
             Name = other.Name;
@@ -19,6 +20,7 @@ namespace fCraft {
         }
 
         public Command( string rawMessage ) {
+            if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
             offset = 1;
             Message = rawMessage;
             Name = Next().ToLower();

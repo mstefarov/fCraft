@@ -165,9 +165,15 @@ namespace fCraft {
 
         #region Events
 
+        /// <summary> Occurs when a heartbeat is about to be sent (cancellable). </summary>
         public static event EventHandler<HeartbeatSendingEventArgs> Sending;
+
+        /// <summary> Occurs when a heartbeat has been sent. </summary>
         public static event EventHandler<HeartbeatSentEventArgs> Sent;
+
+        /// <summary> Occurs when the server Url has been set or changed. </summary>
         public static event EventHandler<UrlChangedEventArgs> UrlChanged;
+
 
         static bool RaiseHeartbeatSendingEvent( HeartbeatData heartbeatData ) {
             var h = Sending;
