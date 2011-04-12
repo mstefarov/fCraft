@@ -753,9 +753,10 @@ namespace fCraft {
 
             } else if( param.StartsWith( "@" ) ) {
                 string rankName = param.Substring( 1 );
-                Rank rank = RankList.ParseRank( rankName );
+                Rank rank = RankList.FindRank( rankName );
                 if( rank == null ) {
                     player.Message( "Unknown rank: {0}", rankName );
+                    return;
                 } else {
                     player.Message( "List of commands available to {0}&S:", rank.GetClassyName() );
                     cd = CommandList.GetCommands( rank, true );
