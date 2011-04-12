@@ -185,7 +185,11 @@ namespace fCraft {
         public override string Process( string value ) {
             if( value.Length == 0 ) {
                 Rank defaultRank = GetBlankValueSubstitute();
-                return defaultRank.ToString();
+                if( defaultRank == null ) {
+                    return "";
+                } else {
+                    return defaultRank.ToString();
+                }
             } else {
                 return value;
             }
