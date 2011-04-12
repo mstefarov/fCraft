@@ -1,9 +1,9 @@
 0.520
+ Feature: Removed the server-wide 128 player limit. Now the limit is per-world.
  Feature: You can now repeat the last command by typing "/"
  Feature: Added a way to use color codes in chat (with % instead of &), a UseColorCodes permission, and a /colors command.
  Feature: Added support for multi-line messages or commands. Add " /" to the end of a line to continue typing it.
  Feature: Added "/commands", to replace "/help commands". It allows filtering commands by rank, category, permissions, etc. Aliases: /cmdlist, /cmds
- Feature: Removed the server-wide 128 player limit. Now the limit is per-world.
  Feature: New permissions: ViewPlayerIPs, BringAll
  Feature: New config switches: AnnounceRankChangeReasons and RequireKickReason.
  Feature: Replaced LimitOneConnectionPerIP config key (boolean) with a more flexible MaxConnectionsPerIP (int).
@@ -12,7 +12,6 @@
  Feature: When file is not found on case-sensitive filesystems, fCraft tries to syggest similar filenames.
  Feature: Added new constants to use in greeting.txt: {TIME}, {PLAYER_NAME}, {WORLD}, {PLAYERS}, {WORLDS}, {MOTD}
  Feature: Improved compatibility with SurvivalTest clients.
- Fix: Fixed a bug where fCraft would fail to start if PlayerDB.txt was truncated/empty.
  Fix: Fixed /banip not kicking other players from the same IP (besides the named player)
  Fix: Added missing blocktype validation to MapFCMv2, MapFCMv3, MapMyne, and MapNBT.
  Fix: Fixed a rare shutdown crash in fCraftUI.
@@ -23,10 +22,10 @@
  Fix: Fixed a list of permissions in /rinfo not being sorted.
  Fix: Fixed /mute rank limit dropdown sometimes getting out of sync.
  Fix: Fixed IRC bot redundantly announcing kicks when someone has been banned.
- Change: Moved "IP" setting from General to Advanced.
+ Fix: Fixed a bug where fCraft would fail to start if PlayerDB.txt was truncated/empty.
+ Change: Moved "IP" config key from General to Advanced.
  Change: Added /spin as an alias to /rotate (for MCLawl users)
- API: New events: PlayerClicking, PlayerClicked, PlayerPlacingBlock,
- PlayerPlacedBlock, PlayerListChanged, PlayerBeingKicked, PlayerKicked
+ API: New events: PlayerClicking, PlayerClicked, PlayerPlacingBlock, PlayerPlacedBlock, PlayerListChanged, PlayerBeingKicked, PlayerKicked
  Optimization: Reduced CPU use of draw commands by ~30%. Sped up PlayerDB loading by ~8%, and reduced memory use when saving. Also reduced PlayerDB filesize by about 15%
 
 0.512
