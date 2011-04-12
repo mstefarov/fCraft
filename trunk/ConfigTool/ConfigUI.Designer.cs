@@ -155,6 +155,8 @@
             this.vRanks = new System.Windows.Forms.ListBox();
             this.tabSecurity = new System.Windows.Forms.TabPage();
             this.gSecurityMisc = new System.Windows.Forms.GroupBox();
+            this.xAnnounceRankChangeReasons = new System.Windows.Forms.CheckBox();
+            this.xRequireKickReason = new System.Windows.Forms.CheckBox();
             this.xPaidPlayersOnly = new System.Windows.Forms.CheckBox();
             this.lPatrolledRankAndBelow = new System.Windows.Forms.Label();
             this.cPatrolledRank = new System.Windows.Forms.ComboBox();
@@ -280,8 +282,8 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.xRequireKickReason = new System.Windows.Forms.CheckBox();
-            this.xAnnounceRankChangeReasons = new System.Windows.Forms.CheckBox();
+            this.cBringLimit = new System.Windows.Forms.ComboBox();
+            this.lBringLimit = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdateSettings.SuspendLayout();
@@ -356,7 +358,7 @@
             this.tabs.Location = new System.Drawing.Point( 12, 12 );
             this.tabs.Name = "tabs";
             this.tabs.SelectedIndex = 0;
-            this.tabs.Size = new System.Drawing.Size( 660, 506 );
+            this.tabs.Size = new System.Drawing.Size( 660, 538 );
             this.tabs.TabIndex = 0;
             // 
             // tabGeneral
@@ -1305,7 +1307,7 @@
             this.tabRanks.Location = new System.Drawing.Point( 4, 24 );
             this.tabRanks.Name = "tabRanks";
             this.tabRanks.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabRanks.Size = new System.Drawing.Size( 652, 478 );
+            this.tabRanks.Size = new System.Drawing.Size( 652, 510 );
             this.tabRanks.TabIndex = 2;
             this.tabRanks.Text = "Ranks";
             this.tabRanks.UseVisualStyleBackColor = true;
@@ -1322,7 +1324,7 @@
             // bLowerRank
             // 
             this.bLowerRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bLowerRank.Location = new System.Drawing.Point( 84, 452 );
+            this.bLowerRank.Location = new System.Drawing.Point( 84, 484 );
             this.bLowerRank.Name = "bLowerRank";
             this.bLowerRank.Size = new System.Drawing.Size( 70, 23 );
             this.bLowerRank.TabIndex = 4;
@@ -1333,7 +1335,7 @@
             // bRaiseRank
             // 
             this.bRaiseRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bRaiseRank.Location = new System.Drawing.Point( 8, 452 );
+            this.bRaiseRank.Location = new System.Drawing.Point( 8, 484 );
             this.bRaiseRank.Name = "bRaiseRank";
             this.bRaiseRank.Size = new System.Drawing.Size( 70, 23 );
             this.bRaiseRank.TabIndex = 3;
@@ -1345,6 +1347,8 @@
             // 
             this.gRankOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gRankOptions.Controls.Add( this.cBringLimit );
+            this.gRankOptions.Controls.Add( this.lBringLimit );
             this.gRankOptions.Controls.Add( this.cMuteLimit );
             this.gRankOptions.Controls.Add( this.lMuteLimit );
             this.gRankOptions.Controls.Add( this.xAllowSecurityCircumvention );
@@ -1381,7 +1385,7 @@
             this.gRankOptions.Controls.Add( this.lRankName );
             this.gRankOptions.Location = new System.Drawing.Point( 160, 13 );
             this.gRankOptions.Name = "gRankOptions";
-            this.gRankOptions.Size = new System.Drawing.Size( 307, 462 );
+            this.gRankOptions.Size = new System.Drawing.Size( 307, 494 );
             this.gRankOptions.TabIndex = 5;
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
@@ -1408,7 +1412,7 @@
             // xAllowSecurityCircumvention
             // 
             this.xAllowSecurityCircumvention.AutoSize = true;
-            this.xAllowSecurityCircumvention.Location = new System.Drawing.Point( 9, 433 );
+            this.xAllowSecurityCircumvention.Location = new System.Drawing.Point( 9, 465 );
             this.xAllowSecurityCircumvention.Name = "xAllowSecurityCircumvention";
             this.xAllowSecurityCircumvention.Size = new System.Drawing.Size( 271, 19 );
             this.xAllowSecurityCircumvention.TabIndex = 27;
@@ -1457,7 +1461,7 @@
             // lAntiGrief1
             // 
             this.lAntiGrief1.AutoSize = true;
-            this.lAntiGrief1.Location = new System.Drawing.Point( 43, 370 );
+            this.lAntiGrief1.Location = new System.Drawing.Point( 43, 402 );
             this.lAntiGrief1.Name = "lAntiGrief1";
             this.lAntiGrief1.Size = new System.Drawing.Size( 47, 15 );
             this.lAntiGrief1.TabIndex = 22;
@@ -1466,7 +1470,7 @@
             // lAntiGrief3
             // 
             this.lAntiGrief3.AutoSize = true;
-            this.lAntiGrief3.Location = new System.Drawing.Point( 265, 370 );
+            this.lAntiGrief3.Location = new System.Drawing.Point( 265, 402 );
             this.lAntiGrief3.Name = "lAntiGrief3";
             this.lAntiGrief3.Size = new System.Drawing.Size( 26, 15 );
             this.lAntiGrief3.TabIndex = 21;
@@ -1474,7 +1478,7 @@
             // 
             // nAntiGriefSeconds
             // 
-            this.nAntiGriefSeconds.Location = new System.Drawing.Point( 214, 368 );
+            this.nAntiGriefSeconds.Location = new System.Drawing.Point( 214, 400 );
             this.nAntiGriefSeconds.Name = "nAntiGriefSeconds";
             this.nAntiGriefSeconds.Size = new System.Drawing.Size( 45, 21 );
             this.nAntiGriefSeconds.TabIndex = 14;
@@ -1493,7 +1497,7 @@
             // xDrawLimit
             // 
             this.xDrawLimit.AutoSize = true;
-            this.xDrawLimit.Location = new System.Drawing.Point( 9, 403 );
+            this.xDrawLimit.Location = new System.Drawing.Point( 9, 435 );
             this.xDrawLimit.Name = "xDrawLimit";
             this.xDrawLimit.Size = new System.Drawing.Size( 81, 19 );
             this.xDrawLimit.TabIndex = 15;
@@ -1504,7 +1508,7 @@
             // lDrawLimitUnits
             // 
             this.lDrawLimitUnits.AutoSize = true;
-            this.lDrawLimitUnits.Location = new System.Drawing.Point( 169, 404 );
+            this.lDrawLimitUnits.Location = new System.Drawing.Point( 169, 436 );
             this.lDrawLimitUnits.Name = "lDrawLimitUnits";
             this.lDrawLimitUnits.Size = new System.Drawing.Size( 42, 15 );
             this.lDrawLimitUnits.TabIndex = 8;
@@ -1513,7 +1517,7 @@
             // lKickIdleUnits
             // 
             this.lKickIdleUnits.AutoSize = true;
-            this.lKickIdleUnits.Location = new System.Drawing.Point( 178, 314 );
+            this.lKickIdleUnits.Location = new System.Drawing.Point( 178, 346 );
             this.lKickIdleUnits.Name = "lKickIdleUnits";
             this.lKickIdleUnits.Size = new System.Drawing.Size( 51, 15 );
             this.lKickIdleUnits.TabIndex = 19;
@@ -1526,7 +1530,7 @@
             0,
             0,
             0} );
-            this.nDrawLimit.Location = new System.Drawing.Point( 96, 402 );
+            this.nDrawLimit.Location = new System.Drawing.Point( 96, 434 );
             this.nDrawLimit.Maximum = new decimal( new int[] {
             100000000,
             0,
@@ -1539,7 +1543,7 @@
             // 
             // nKickIdle
             // 
-            this.nKickIdle.Location = new System.Drawing.Point( 113, 312 );
+            this.nKickIdle.Location = new System.Drawing.Point( 113, 344 );
             this.nKickIdle.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -1553,7 +1557,7 @@
             // xAntiGrief
             // 
             this.xAntiGrief.AutoSize = true;
-            this.xAntiGrief.Location = new System.Drawing.Point( 9, 343 );
+            this.xAntiGrief.Location = new System.Drawing.Point( 9, 375 );
             this.xAntiGrief.Name = "xAntiGrief";
             this.xAntiGrief.Size = new System.Drawing.Size( 213, 19 );
             this.xAntiGrief.TabIndex = 12;
@@ -1564,7 +1568,7 @@
             // lAntiGrief2
             // 
             this.lAntiGrief2.AutoSize = true;
-            this.lAntiGrief2.Location = new System.Drawing.Point( 153, 370 );
+            this.lAntiGrief2.Location = new System.Drawing.Point( 153, 402 );
             this.lAntiGrief2.Name = "lAntiGrief2";
             this.lAntiGrief2.Size = new System.Drawing.Size( 55, 15 );
             this.lAntiGrief2.TabIndex = 5;
@@ -1573,7 +1577,7 @@
             // xKickIdle
             // 
             this.xKickIdle.AutoSize = true;
-            this.xKickIdle.Location = new System.Drawing.Point( 9, 313 );
+            this.xKickIdle.Location = new System.Drawing.Point( 9, 345 );
             this.xKickIdle.Name = "xKickIdle";
             this.xKickIdle.Size = new System.Drawing.Size( 98, 19 );
             this.xKickIdle.TabIndex = 10;
@@ -1583,7 +1587,7 @@
             // 
             // nAntiGriefBlocks
             // 
-            this.nAntiGriefBlocks.Location = new System.Drawing.Point( 96, 368 );
+            this.nAntiGriefBlocks.Location = new System.Drawing.Point( 96, 400 );
             this.nAntiGriefBlocks.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -1597,7 +1601,7 @@
             // xReserveSlot
             // 
             this.xReserveSlot.AutoSize = true;
-            this.xReserveSlot.Location = new System.Drawing.Point( 9, 283 );
+            this.xReserveSlot.Location = new System.Drawing.Point( 9, 315 );
             this.xReserveSlot.Name = "xReserveSlot";
             this.xReserveSlot.Size = new System.Drawing.Size( 129, 19 );
             this.xReserveSlot.TabIndex = 9;
@@ -1750,7 +1754,7 @@
             this.vPermissions.Name = "vPermissions";
             this.vPermissions.ShowGroups = false;
             this.vPermissions.ShowItemToolTips = true;
-            this.vPermissions.Size = new System.Drawing.Size( 171, 447 );
+            this.vPermissions.Size = new System.Drawing.Size( 171, 479 );
             this.vPermissions.TabIndex = 6;
             this.vPermissions.UseCompatibleStateImageBehavior = false;
             this.vPermissions.View = System.Windows.Forms.View.Details;
@@ -1790,7 +1794,7 @@
             this.vRanks.ItemHeight = 15;
             this.vRanks.Location = new System.Drawing.Point( 8, 57 );
             this.vRanks.Name = "vRanks";
-            this.vRanks.Size = new System.Drawing.Size( 146, 389 );
+            this.vRanks.Size = new System.Drawing.Size( 146, 421 );
             this.vRanks.TabIndex = 0;
             this.vRanks.SelectedIndexChanged += new System.EventHandler( this.vRanks_SelectedIndexChanged );
             // 
@@ -1825,6 +1829,26 @@
             this.gSecurityMisc.TabIndex = 2;
             this.gSecurityMisc.TabStop = false;
             this.gSecurityMisc.Text = "Misc";
+            // 
+            // xAnnounceRankChangeReasons
+            // 
+            this.xAnnounceRankChangeReasons.AutoSize = true;
+            this.xAnnounceRankChangeReasons.Location = new System.Drawing.Point( 336, 109 );
+            this.xAnnounceRankChangeReasons.Name = "xAnnounceRankChangeReasons";
+            this.xAnnounceRankChangeReasons.Size = new System.Drawing.Size( 253, 19 );
+            this.xAnnounceRankChangeReasons.TabIndex = 11;
+            this.xAnnounceRankChangeReasons.Text = "Announce promotion && demotion reasons";
+            this.xAnnounceRankChangeReasons.UseVisualStyleBackColor = true;
+            // 
+            // xRequireKickReason
+            // 
+            this.xRequireKickReason.AutoSize = true;
+            this.xRequireKickReason.Location = new System.Drawing.Point( 42, 59 );
+            this.xRequireKickReason.Name = "xRequireKickReason";
+            this.xRequireKickReason.Size = new System.Drawing.Size( 135, 19 );
+            this.xRequireKickReason.TabIndex = 10;
+            this.xRequireKickReason.Text = "Require kick reason";
+            this.xRequireKickReason.UseVisualStyleBackColor = true;
             // 
             // xPaidPlayersOnly
             // 
@@ -3207,7 +3231,7 @@
             // 
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bOK.Location = new System.Drawing.Point( 360, 524 );
+            this.bOK.Location = new System.Drawing.Point( 360, 556 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 28 );
             this.bOK.TabIndex = 0;
@@ -3219,7 +3243,7 @@
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.bCancel.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bCancel.Location = new System.Drawing.Point( 466, 524 );
+            this.bCancel.Location = new System.Drawing.Point( 466, 556 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 28 );
             this.bCancel.TabIndex = 1;
@@ -3230,7 +3254,7 @@
             // 
             this.bResetTab.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bResetTab.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bResetTab.Location = new System.Drawing.Point( 132, 524 );
+            this.bResetTab.Location = new System.Drawing.Point( 132, 556 );
             this.bResetTab.Name = "bResetTab";
             this.bResetTab.Size = new System.Drawing.Size( 100, 28 );
             this.bResetTab.TabIndex = 4;
@@ -3242,7 +3266,7 @@
             // 
             this.bResetAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bResetAll.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bResetAll.Location = new System.Drawing.Point( 12, 524 );
+            this.bResetAll.Location = new System.Drawing.Point( 12, 556 );
             this.bResetAll.Name = "bResetAll";
             this.bResetAll.Size = new System.Drawing.Size( 114, 28 );
             this.bResetAll.TabIndex = 3;
@@ -3254,7 +3278,7 @@
             // 
             this.bApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bApply.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bApply.Location = new System.Drawing.Point( 572, 524 );
+            this.bApply.Location = new System.Drawing.Point( 572, 556 );
             this.bApply.Name = "bApply";
             this.bApply.Size = new System.Drawing.Size( 100, 28 );
             this.bApply.TabIndex = 2;
@@ -3268,31 +3292,30 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // xRequireKickReason
+            // xBringLimit
             // 
-            this.xRequireKickReason.AutoSize = true;
-            this.xRequireKickReason.Location = new System.Drawing.Point( 42, 59 );
-            this.xRequireKickReason.Name = "xRequireKickReason";
-            this.xRequireKickReason.Size = new System.Drawing.Size( 135, 19 );
-            this.xRequireKickReason.TabIndex = 10;
-            this.xRequireKickReason.Text = "Require kick reason";
-            this.xRequireKickReason.UseVisualStyleBackColor = true;
+            this.cBringLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cBringLimit.FormattingEnabled = true;
+            this.cBringLimit.Location = new System.Drawing.Point( 96, 280 );
+            this.cBringLimit.Name = "xBringLimit";
+            this.cBringLimit.Size = new System.Drawing.Size( 180, 23 );
+            this.cBringLimit.TabIndex = 30;
+            this.cBringLimit.SelectedIndexChanged += new System.EventHandler( this.cBringLimit_SelectedIndexChanged );
             // 
-            // xAnnounceRankChangeReasons
+            // lBringLimit
             // 
-            this.xAnnounceRankChangeReasons.AutoSize = true;
-            this.xAnnounceRankChangeReasons.Location = new System.Drawing.Point( 336, 109 );
-            this.xAnnounceRankChangeReasons.Name = "xAnnounceRankChangeReasons";
-            this.xAnnounceRankChangeReasons.Size = new System.Drawing.Size( 253, 19 );
-            this.xAnnounceRankChangeReasons.TabIndex = 11;
-            this.xAnnounceRankChangeReasons.Text = "Announce promotion && demotion reasons";
-            this.xAnnounceRankChangeReasons.UseVisualStyleBackColor = true;
+            this.lBringLimit.AutoSize = true;
+            this.lBringLimit.Location = new System.Drawing.Point( 28, 283 );
+            this.lBringLimit.Name = "lBringLimit";
+            this.lBringLimit.Size = new System.Drawing.Size( 62, 15 );
+            this.lBringLimit.TabIndex = 31;
+            this.lBringLimit.Text = "Bring limit";
             // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 684, 564 );
+            this.ClientSize = new System.Drawing.Size( 684, 596 );
             this.Controls.Add( this.bApply );
             this.Controls.Add( this.bResetAll );
             this.Controls.Add( this.bResetTab );
@@ -3639,5 +3662,7 @@
         private System.Windows.Forms.Label lMaxPlayersPerWorld;
         private System.Windows.Forms.CheckBox xAnnounceRankChangeReasons;
         private System.Windows.Forms.CheckBox xRequireKickReason;
+        private System.Windows.Forms.ComboBox cBringLimit;
+        private System.Windows.Forms.Label lBringLimit;
     }
 }

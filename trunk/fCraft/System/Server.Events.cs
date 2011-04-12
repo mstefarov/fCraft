@@ -138,6 +138,19 @@ namespace fCraft {
         public static event EventHandler<PlayerPlacedBlockEventArgs> PlayerPlacedBlock;
 
 
+        /// <summary> Occurs before a player is kicked (cancellable). 
+        /// Kick may be caused by /kick, /ban, /banip, or /banall commands, or by idling.
+        /// Callbacks may override whether the kick will be announced or recorded in PlayerDB. </summary>
+        public static event EventHandler<PlayerBeingKickedEventArgs> PlayerBeingKicked;
+
+
+        /// <summary> Occurs after a player has been kicked. Specifically, it happens after
+        /// kick has been announced and recorded to PlayerDB (if applicable), just before the
+        /// target player disconnects.
+        /// Kick may be caused by /kick, /ban, /banip, or /banall commands, or by idling. </summary>
+        public static event EventHandler<PlayerKickedEventArgs> PlayerKicked;
+
+
         /// <summary> Occurs when a player disconnects. </summary>
         public static event EventHandler<PlayerDisconnectedEventArgs> PlayerDisconnected;
 
@@ -208,6 +221,17 @@ namespace fCraft {
         internal static void RaisePlayerPlacedBlockEvent( Player player, short x, short y, short h, Block block, bool manual ) {
             var handler = PlayerPlacedBlock;
             if( handler != null ) handler( null, new PlayerPlacedBlockEventArgs( player, x, y, h, block, manual ) );
+        }
+
+
+        internal static void RaisePlayerBeingKickedEvent( PlayerBeingKickedEventArgs e ) {
+            var h = PlayerBeingKicked;
+            if( h != null ) h( null, e );
+        }
+
+        internal static void RaisePlayerKickedEvent(PlayerKickedEventArgs e){
+            var h = PlayerKicked;
+            if( h != null ) h( null, e );
         }
 
 

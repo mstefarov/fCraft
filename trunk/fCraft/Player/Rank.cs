@@ -11,7 +11,7 @@ namespace fCraft {
         string GetClassyName();
     }
 
-    public sealed class Rank : IClassy {
+    public sealed class Rank : IClassy, IComparable<Rank> {
 
         public string Name { get; set; }
 
@@ -37,6 +37,11 @@ namespace fCraft {
         public int Index;
 
         public Rank NextRankUp, NextRankDown;
+
+
+        public int CompareTo( Rank other ) {
+            return other.Index - Index;
+        }
 
 
         public Rank() {

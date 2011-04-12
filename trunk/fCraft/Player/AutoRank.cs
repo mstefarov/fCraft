@@ -11,6 +11,7 @@ namespace fCraft {
         static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
         static Scheduler.Task task;
 
+        public static bool HasCriteria { get; private set; }
 
         public static void CheckAutoRankSetting() {
             if( ConfigKey.AutoRankEnabled.GetBool() ) {
@@ -38,6 +39,7 @@ namespace fCraft {
         public static void Add( Criterion criterion ) {
             if( criterion == null ) throw new ArgumentNullException( "criterion" );
             Criteria.Add( criterion );
+            HasCriteria = (Criteria.Count > 0);
         }
 
 
@@ -53,6 +55,7 @@ namespace fCraft {
 
 
         public static void Init() {
+            HasCriteria = false;
             Criteria.Clear();
 
             if( File.Exists( AutoRankFile ) ) {

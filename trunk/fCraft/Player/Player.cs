@@ -169,7 +169,7 @@ namespace fCraft {
                             rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
                         }
 
-                        if( rawMessage.Contains( "%" ) && Can( Permission.UseColorCodes ) ) {
+                        if( Can( Permission.UseColorCodes ) && rawMessage.Contains( "%" ) ) {
                             rawMessage = Color.ReplacePercentCodes( rawMessage );
                         }
 
@@ -1022,6 +1022,33 @@ namespace fCraft.Events {
         public short H { get; private set; }
         public bool IsManual { get; private set; }
         public Block Block { get; private set; }
+    }
+
+
+    public sealed class PlayerBeingKickedEventArgs : PlayerKickedEventArgs {
+        internal PlayerBeingKickedEventArgs( Player player, Player kicker, string reason, bool isSilent, bool recordToPlayerDB, LeaveReason context )
+            : base( player, kicker, reason, isSilent, recordToPlayerDB, context ) {
+        }
+
+        public bool Cancel { get; set; }
+    }
+
+
+    public class PlayerKickedEventArgs : PlayerEventArgs {
+        internal PlayerKickedEventArgs( Player player, Player kicker, string reason, bool isSilent, bool recordToPlayerDB, LeaveReason context )
+            : base( player ) {
+            Kicker = kicker;
+            Reason = reason;
+            IsSilent = isSilent;
+            RecordToPlayerDB = recordToPlayerDB;
+            Context = context;
+        }
+
+        public Player Kicker { get; protected set; }
+        public string Reason { get; protected set; }
+        public bool IsSilent { get; protected set; }
+        public bool RecordToPlayerDB { get; protected set; }
+        public LeaveReason Context { get; protected set; }
     }
 
 

@@ -140,7 +140,7 @@ namespace fCraftUI {
                     Invoke( (EventHandler)OnPlayerListChanged, null, EventArgs.Empty );
                 } else {
                     playerList.Items.Clear();
-                    Player[] playerListCache = Server.PlayerList.OrderBy( p => p.Info.Rank ).ToArray();
+                    Player[] playerListCache = Server.PlayerList.OrderBy( p => p.Info.Rank.Index ).ToArray();
                     foreach( Player player in playerListCache ) {
                         playerList.Items.Add( player.Info.Rank.Name + " - " + player.Name );
                     }

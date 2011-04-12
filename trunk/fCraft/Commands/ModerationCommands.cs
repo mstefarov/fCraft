@@ -211,7 +211,7 @@ namespace fCraft {
                                                             reason );
                                 }
                             }
-                            DoKick( player, target, reason, false, LeaveReason.Ban );
+                            DoKick( player, target, reason, true, false, LeaveReason.Ban );
 
                             if( !banIP ) {
                                 PlayerInfo[] alts = PlayerDB.FindPlayers( target.Info.LastIP );
@@ -388,7 +388,7 @@ namespace fCraft {
                     }
 
                     foreach( Player other in Server.FindPlayers( address ) ) {
-                        DoKick( player, other, reason, true, LeaveReason.BanIP );
+                        DoKick( player, other, reason, true, false, LeaveReason.BanIP );
                     }
 
                 } else {
@@ -410,7 +410,7 @@ namespace fCraft {
                     }
 
                     foreach( Player other in Server.FindPlayers( address ) ) {
-                        DoKick( player, other, reason, true, LeaveReason.BanAll );
+                        DoKick( player, other, reason, true, false, LeaveReason.BanAll );
                     }
                 }
             }
@@ -456,7 +456,7 @@ namespace fCraft {
                     return;
                 }
 
-                if( DoKick( player, target, reason, false, LeaveReason.Kick ) ) {
+                if( DoKick( player, target, reason, false, true, LeaveReason.Kick ) ) {
                     if( target.Info.TimesKicked > 1 ) {
                         player.Message( "Warning: {0}&S has been kicked {1} times before.",
                                         target.GetClassyName(), target.Info.TimesKicked - 1 );
@@ -477,7 +477,7 @@ namespace fCraft {
         }
 
 
-        internal static bool DoKick( Player player, Player target, string reason, bool silent, LeaveReason leaveReason ) {
+        internal static bool DoKick( Player player, Player target, string reason, bool silent, bool recordToPlayerDB, LeaveReason leaveReason ) {
 
             if( player == null ) throw new ArgumentNullException( "player" );
             if( target == null ) throw new ArgumentNullException( "target" );
@@ -486,25 +486,38 @@ namespace fCraft {
                 player.Message( "You cannot kick yourself." );
                 return false;
             }
+
             if( !player.Can( Permission.Kick, target.Info.Rank ) ) {
                 player.Message( "You can only kick players ranked {0}&S or lower.",
                                 player.Info.Rank.GetLimit( Permission.Kick ).GetClassyName() );
                 player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.Info.Rank.GetClassyName() );
                 return false;
+
             } else {
-                if( !silent ) {
+
+                var e = new PlayerBeingKickedEventArgs( target, player, reason, silent, recordToPlayerDB, leaveReason );
+                Server.RaisePlayerBeingKickedEvent( e );
+                if( e.Cancel ) return false;
+
+                if( !e.IsSilent ) {
                     Server.SendToAll( "{0}&W was kicked by {1}",
                                       target.GetClassyName(), player.GetClassyName() );
-                    target.Info.ProcessKick( player, reason );
                     Server.FirePlayerKickedEvent( target, player, reason );
                 }
+
+                if( e.RecordToPlayerDB ) {
+                    target.Info.ProcessKick( player, reason );
+                }
+
+                Server.RaisePlayerKickedEvent( e );
                 if( !string.IsNullOrEmpty( reason ) ) {
-                    if( !silent && ConfigKey.AnnounceKickAndBanReasons.GetBool() ) {
+                    if( !e.IsSilent && ConfigKey.AnnounceKickAndBanReasons.GetBool() ) {
                         Server.SendToAll( "&WKick reason: {0}", reason );
                     }
                     Logger.Log( "{0} was kicked by {1}. Reason: {2}", LogType.UserActivity,
                                 target.Name, player.Name, reason );
                     target.Session.Kick( "Kicked by " + player.GetClassyName() + Color.White + ": " + reason, leaveReason );
+
                 } else {
                     Logger.Log( "{0} was kicked by {1}", LogType.UserActivity,
                                 target.Name, player.Name );
@@ -856,11 +869,17 @@ namespace fCraft {
                 player.Message( "New spawn point saved." );
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,
                             player.Name );
-            } else {
+            } else if( player.Can( Permission.Bring ) ) {
                 Player[] infos = player.World.FindPlayers( player, playerName );
                 if( infos.Length == 1 ) {
                     Player target = infos[0];
-                    target.Send( PacketWriter.MakeAddEntity( 255, target.GetListName(), player.Position ) );
+                    if( player.Can( Permission.Bring, target.Info.Rank ) ) {
+                        target.Send( PacketWriter.MakeAddEntity( 255, target.GetListName(), player.Position ) );
+                    } else {
+                        player.Message( "You can only set spawn of players ranked {0}&S or lower.",
+                                        player.Info.Rank.GetLimit( Permission.Bring ).GetClassyName() );
+                        player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.Info.Rank.GetClassyName() );
+                    }
 
                 } else if( infos.Length > 0 ) {
                     player.ManyMatchesMessage( "player", infos );
@@ -873,6 +892,8 @@ namespace fCraft {
                         player.NoPlayerMessage( playerName );
                     }
                 }
+            } else {
+                player.NoAccessMessage( Permission.Bring, Permission.SetSpawn );
             }
         }
 
@@ -957,7 +978,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Teleport / Bring / Patrol
+        #region Teleport / Bring / BringAll / Patrol
 
         static readonly CommandDescriptor cdTP = new CommandDescriptor {
             Name = "tp",
@@ -1170,6 +1191,7 @@ namespace fCraft {
                 } else {
                     World world = Server.FindWorldOrPrintMatches( player, arg );
                     if( world == null ) return;
+                    targetWorlds.Add( world );
                 }
             }
 

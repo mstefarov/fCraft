@@ -18,7 +18,7 @@ namespace fCraft {
         public object DefaultValue { get; protected set; }
         public ConfigSection Section { get; protected set; }
         public bool NotBlank { get; set; }
-        public ConfigKey Key { get; set; }
+        public ConfigKey Key { get; internal set; }
 
 
         public bool TryValidate( string value ) {
@@ -32,14 +32,20 @@ namespace fCraft {
 
 
         public virtual void Validate( string value ) {
-            if( NotBlank && String.IsNullOrEmpty( value ) ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
+            if( NotBlank && value.Length == 0 ) {
                 throw new FormatException( "Value cannot be blank or null." );
             }
+        }
+
+
+        public virtual string Process( string value ) {
+            return value;
         }
     }
 
 
-    public sealed class StringKeyAttribute : ConfigKeyAttribute {
+    internal sealed class StringKeyAttribute : ConfigKeyAttribute {
         public const int NoLengthRestriction = -1;
         public StringKeyAttribute( ConfigSection section, object defaultValue )
             : base( section, typeof( string ), defaultValue ) {
@@ -74,7 +80,7 @@ namespace fCraft {
     }
 
 
-    public sealed class IntKeyAttribute : ConfigKeyAttribute {
+    internal sealed class IntKeyAttribute : ConfigKeyAttribute {
         public IntKeyAttribute( ConfigSection section, int defaultValue )
             : base( section, typeof( int ), defaultValue ) {
             MinValue = int.MinValue;
@@ -141,7 +147,7 @@ namespace fCraft {
     }
 
 
-    public sealed class RankKeyAttribute : ConfigKeyAttribute {
+    internal sealed class RankKeyAttribute : ConfigKeyAttribute {
         public RankKeyAttribute( BlankValueMeaning blankMeaning, ConfigSection section )
             : base( section, typeof( Rank ), "" ) {
             CanBeLowest = true;
@@ -155,24 +161,12 @@ namespace fCraft {
 
 
         public override void Validate( string value ) {
+            base.Validate( value );
+
             Rank rank;
-            if( string.IsNullOrEmpty( value ) ) {
-                switch( BlankMeaning ) {
-                    case BlankValueMeaning.DefaultRank:
-                        rank = RankList.DefaultRank;
-                        break;
-                    case BlankValueMeaning.HighestRank:
-                        rank = RankList.HighestRank;
-                        break;
-                    case BlankValueMeaning.LowestRank:
-                        rank = RankList.LowestRank;
-                        break;
-                    case BlankValueMeaning.Invalid:
-                        throw new FormatException( "Value may not be blank." );
-                    default:
-                        throw new ArgumentOutOfRangeException( "BlankMeaning" );
-                }
-                if( rank == null ) return;
+            if( value.Length == 0 ) {
+                rank = GetBlankValueSubstitute();
+                if( rank == null ) return; // ranks must not have loaded yet; can't validate
             } else {
                 rank = RankList.ParseRank( value );
                 if( rank == null ) {
@@ -187,6 +181,33 @@ namespace fCraft {
             }
         }
 
+
+        public override string Process( string value ) {
+            if( value.Length == 0 ) {
+                Rank defaultRank = GetBlankValueSubstitute();
+                return defaultRank.ToString();
+            } else {
+                return value;
+            }
+        }
+
+
+        Rank GetBlankValueSubstitute() {
+            switch( BlankMeaning ) {
+                case BlankValueMeaning.DefaultRank:
+                    return RankList.DefaultRank;
+                case BlankValueMeaning.HighestRank:
+                    return RankList.HighestRank;
+                case BlankValueMeaning.LowestRank:
+                    return RankList.LowestRank;
+                case BlankValueMeaning.Invalid:
+                    throw new FormatException( "Value may not be blank." );
+                default:
+                    throw new ArgumentOutOfRangeException( "BlankMeaning" );
+            }
+        }
+
+
         public enum BlankValueMeaning {
             Invalid,
             LowestRank,
@@ -196,7 +217,7 @@ namespace fCraft {
     }
 
 
-    public sealed class BoolKeyAttribute : ConfigKeyAttribute {
+    internal sealed class BoolKeyAttribute : ConfigKeyAttribute {
         public BoolKeyAttribute( ConfigSection section, bool defaultValue )
             : base( section, typeof( bool ), defaultValue ) {
         }
@@ -209,10 +230,18 @@ namespace fCraft {
                 throw new FormatException( "Value cannot be parsed as a boolean." );
             }
         }
+
+        public override string Process( string value ) {
+            if( value.Length == 0 ) {
+                return DefaultValue.ToString();
+            } else {
+                return value;
+            }
+        }
     }
 
 
-    public sealed class IPKeyAttribute : ConfigKeyAttribute {
+    internal sealed class IPKeyAttribute : ConfigKeyAttribute {
         public IPKeyAttribute( ConfigSection section, BlankValueMeaning defaultMeaning )
             : base( section, typeof( IPAddress ), "" ) {
             BlankMeaning = defaultMeaning;
@@ -238,8 +267,11 @@ namespace fCraft {
 
         public override void Validate( string value ) {
             base.Validate( value );
+
             IPAddress test;
-            if( !IPAddress.TryParse( value, out test ) ) {
+            if( value.Length == 0 ) {
+                test = GetBlankValueSubstitute();
+            }else if( !IPAddress.TryParse( value, out test ) ) {
                 throw new FormatException( "Value cannot be parsed as an IP Address." );
             }
             if( NotAny && test.ToString() == IPAddress.Any.ToString() ) {
@@ -256,6 +288,30 @@ namespace fCraft {
             }
         }
 
+
+        IPAddress GetBlankValueSubstitute() {
+            switch( BlankMeaning ) {
+                case BlankValueMeaning.Any:
+                    return IPAddress.Any;
+                case BlankValueMeaning.Loopback:
+                    return IPAddress.Loopback;
+                case BlankValueMeaning.None:
+                    return IPAddress.None;
+                default:
+                    throw new ArgumentOutOfRangeException( "BlankMeaning" );
+            }
+        }
+
+
+        public override string Process( string value ) {
+            if( value.Length == 0 ) {
+                return GetBlankValueSubstitute().ToString();
+            } else {
+                return value;
+            }
+        }
+
+
         public enum BlankValueMeaning {
             Any,
             Loopback,
@@ -264,7 +320,7 @@ namespace fCraft {
     }
 
 
-    public sealed class ColorKeyAttribute : ConfigKeyAttribute {
+    internal sealed class ColorKeyAttribute : ConfigKeyAttribute {
         public ColorKeyAttribute( ConfigSection section, string defaultColor )
             : base( section, typeof( string ), defaultColor ) {
             NotBlank = false;
@@ -282,9 +338,9 @@ namespace fCraft {
     }
 
 
-    public sealed class EnumKeyAttribute : ConfigKeyAttribute {
+    internal sealed class EnumKeyAttribute : ConfigKeyAttribute {
         public EnumKeyAttribute( ConfigSection section, object defaultValue )
-            : base( section, null, defaultValue ) {
+            : base( section, defaultValue.GetType(), defaultValue ) {
             ValueType = defaultValue.GetType();
         }
 
@@ -296,6 +352,14 @@ namespace fCraft {
                 Enum.Parse( ValueType, value, true );
             } catch( ArgumentException ) {
                 throw new FormatException( String.Format( "Could not parse value as {0}", ValueType.Name ) );
+            }
+        }
+
+        public override string Process( string value ) {
+            if( value.Length == 0 ) {
+                return DefaultValue.ToString();
+            } else {
+                return value;
             }
         }
     }

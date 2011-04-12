@@ -509,6 +509,11 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( list == null ) throw new ArgumentNullException( "list" );
 
+            if( !AutoRank.HasCriteria ) {
+                player.Message( "AutoRankAll: No criteria found." );
+                return;
+            }
+
             player.Message( "AutoRankAll: Evaluating {0} players...", list.Length );
 
             Stopwatch sw = Stopwatch.StartNew();

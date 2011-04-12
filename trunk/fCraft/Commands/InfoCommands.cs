@@ -431,10 +431,8 @@ namespace fCraft {
                     return;
                 }
             }
+
             if( rank != null ) {
-                StringBuilder sb = new StringBuilder();
-                sb.AppendFormat( "Players of rank {0}&S can do the following: ",
-                                 rank.GetClassyName() );
 
                 List<Permission> permissions = new List<Permission>();
                 for( int i = 0; i < rank.Permissions.Length; i++ ) {
@@ -442,17 +440,13 @@ namespace fCraft {
                         permissions.Add( (Permission)i );
                     }
                 }
-                permissions = permissions.OrderBy(perm=>perm.ToString(),StringComparer.OrdinalIgnoreCase).ToList();
-                
-                bool first = true;
-                foreach( Permission perm in permissions ) {
-                    if( !first ) {
-                        sb.Append( ", " );
-                    }
-                    sb.Append( perm );
-                    first = false;
-                }
-                player.Message( sb.ToString() );
+
+                string[] sortedPermissionNames = permissions.Select( p => p.ToString() )
+                                                            .OrderBy( s => s, StringComparer.OrdinalIgnoreCase ).ToArray();
+
+                player.Message( "Players of rank {0}&S can do the following: {1}",
+                                rank.GetClassyName(),
+                                String.Join( ", ", sortedPermissionNames ) );
 
                 if( rank.Can( Permission.Draw ) ) {
                     if( rank.DrawLimit > 0 ) {
@@ -596,18 +590,13 @@ namespace fCraft {
             Player[] players = Server.PlayerList;
             if( players.Length > 0 ) {
 
-                StringBuilder sb = new StringBuilder();
+                string[] playerNameList = players.Where( player.CanSee )
+                                                 .Select( p => p.GetClassyName() ).ToArray();
 
-                bool first = true;
-                int count = 0;
-                foreach( Player p in players.Where( player.CanSee ) ) {
-                    if( !first ) sb.Append( ", " );
-                    sb.Append( p.GetClassyName() );
-                    first = false;
-                    count++;
-                }
-                if( count > 0 ) {
-                    player.Message( "There are {0} players online: {1}", count, sb );
+                if( playerNameList.Length > 0 ) {
+                    player.Message( "There are {0} players online: {1}",
+                                    playerNameList.Length,
+                                    String.Join( ", ", playerNameList ) );
                 } else {
                     player.Message( "There are no players online." );
                 }
