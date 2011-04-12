@@ -182,6 +182,7 @@ namespace fCraft {
             }
         }
 
+
         #region Defaults
 
         /// <summary>
@@ -472,20 +473,20 @@ namespace fCraft {
         }
 
         public static string GetString( this ConfigKey key ) {
-            return Settings[key];
+            return KeyMetadata[key].Process( Settings[key] );
         }
 
         public static int GetInt( this ConfigKey key ) {
-            return Int32.Parse( Settings[key] );
+            return Int32.Parse( GetString( key ) );
         }
 
         public static TEnum GetEnum<TEnum>( this ConfigKey key ) where TEnum : struct {
             if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required", "TEnum" );
-            return (TEnum)Enum.Parse( typeof( TEnum ), Settings[key], true );
+            return (TEnum)Enum.Parse( typeof( TEnum ), GetString( key ), true );
         }
 
         public static bool GetBool( this ConfigKey key ) {
-            return Boolean.Parse( Settings[key] );
+            return Boolean.Parse( GetString( key ) );
         }
 
         public static Type GetValueType( this ConfigKey key ) {
@@ -543,160 +544,6 @@ namespace fCraft {
                 Logger.Log( "{0}.TrySetValue: {1}", LogType.Error, key, ex.Message );
                 return false;
             }
-
-            /*
-            switch( key ) {
-                case ConfigKey.ServerName:
-                    return ValidateString( key, value, 1, 64 );
-                case ConfigKey.MOTD:
-                    return ValidateString( key, value, 0, 64 );
-                case ConfigKey.MaxPlayers:
-                    return ValidateInt( key, value, 1, MaxPlayersSupported );
-
-                case ConfigKey.DefaultRank:
-                case ConfigKey.DefaultBuildRank:
-                case ConfigKey.PatrolledRank:
-                    if( value.Length > 0 ) {
-                        if( RankList.ParseRank( value ) != null ) {
-                            Settings[key] = RankList.ParseRank( value ).Name;
-                            return true;
-                        } else if( Settings.ContainsKey( key ) && !String.IsNullOrEmpty( Settings[key] ) ) {
-                            Log( "Config.SetValue: {0} could not be parsed. " +
-                                 "It should be either blank (indicating \"use lowest rank\") or set to a valid rank name. " +
-                                 "Using default ({1}).", LogType.Warning,
-                                 key, RankList.ParseRank( Settings[key] ).Name );
-                            return false;
-                        } else {
-                            Log( "Config.SetValue: {0} could not be parsed. " +
-                                "It should be either blank (indicating \"use lowest rank\") or set to a valid rank name. " +
-                                "Using default ({1}).", LogType.Warning,
-                                key, RankList.LowestRank.Name );
-                            return false;
-                        }
-                    } else {
-                        Settings[key] = "";
-                        return true;
-                    }
-
-                case ConfigKey.Port:
-                case ConfigKey.IRCBotPort:
-                    return ValidateInt( key, value, 1, 65535 );
-                case ConfigKey.UploadBandwidth:
-                    return ValidateInt( key, value, 1, 100000 );
-                case ConfigKey.IP:
-                    IPAddress tempIP;
-                    if( IPAddress.TryParse( value, out tempIP ) && tempIP.ToString() != IPAddress.Broadcast.ToString() ) {
-                        Settings[key] = value;
-                        return true;
-                    } else {
-                        return false;
-                    }
-
-                case ConfigKey.IRCBotNick:
-                case ConfigKey.IRCNickServ:
-                    return ValidateString( key, value, 1, 32 );
-                case ConfigKey.IRCDelay:
-                    return ValidateInt( key, value, 100, 2000 );
-                case ConfigKey.IRCThreads:
-                    return ValidateInt( key, value, 1, 4 );
-                case ConfigKey.AnnouncementInterval:
-                    return ValidateInt( key, value, 0, 600 );
-
-                case ConfigKey.AllowUnverifiedLAN:
-                case ConfigKey.AnnounceKickAndBanReasons:
-                case ConfigKey.AnnounceRankChanges:
-                case ConfigKey.AutoRankEnabled:
-                case ConfigKey.BackupOnJoin:
-                case ConfigKey.BackupOnlyWhenChanged:
-                case ConfigKey.BackupOnStartup:
-                case ConfigKey.HeartbeatEnabled:
-                case ConfigKey.IRCBotEnabled:
-                case ConfigKey.IRCBotAnnounceIRCJoins:
-                case ConfigKey.IRCBotAnnounceServerEvents:
-                case ConfigKey.IRCBotAnnounceServerJoins:
-                case ConfigKey.IRCBotForwardFromIRC:
-                case ConfigKey.IRCBotForwardFromServer:
-                case ConfigKey.IRCRegisteredNick:
-                case ConfigKey.IRCUseColor:
-                case ConfigKey.IsPublic:
-                case ConfigKey.LimitOneConnectionPerIP:
-                case ConfigKey.LowLatencyMode:
-                case ConfigKey.NoPartialPositionUpdates:
-                case ConfigKey.PaidPlayersOnly:
-                case ConfigKey.RankColorsInChat:
-                case ConfigKey.RankColorsInWorldNames:
-                case ConfigKey.RankPrefixesInChat:
-                case ConfigKey.RankPrefixesInList:
-                case ConfigKey.RelayAllBlockUpdates:
-                case ConfigKey.RequireBanReason:
-                case ConfigKey.RequireRankChangeReason:
-                case ConfigKey.SaveOnShutdown:
-                case ConfigKey.ShowBannedConnectionMessages:
-                case ConfigKey.ShowConnectionMessages:
-                case ConfigKey.ShowJoinedWorldMessages:
-                case ConfigKey.SubmitCrashReports:
-                case ConfigKey.UpdateAtStartup:
-                    return ValidateBool( key, value );
-
-                case ConfigKey.SystemMessageColor:
-                case ConfigKey.HelpColor:
-                case ConfigKey.SayColor:
-                case ConfigKey.AnnouncementColor:
-                case ConfigKey.PrivateMessageColor:
-                case ConfigKey.IRCMessageColor:
-                case ConfigKey.MeColor:
-                case ConfigKey.WarningColor:
-                    return ValidateColor( key, value );
-
-                case ConfigKey.VerifyNames:
-                    return ValidateEnum<NameVerificationMode>( key, value );
-                case ConfigKey.AntispamMessageCount:
-                    return ValidateInt( key, value, 2, 50 );
-                case ConfigKey.AntispamInterval:
-                    return ValidateInt( key, value, 0, 60 );
-                case ConfigKey.AntispamMuteDuration:
-                    return ValidateInt( key, value, 0, 3600 );
-                case ConfigKey.AntispamMaxWarnings:
-                    return ValidateInt( key, value, 0, 50 );
-
-
-                case ConfigKey.SaveInterval:
-                    return ValidateInt( key, value, 0, 100000 );
-                case ConfigKey.BackupInterval:
-                    return ValidateInt( key, value, 0, 100000 );
-                case ConfigKey.MaxBackups:
-                    return ValidateInt( key, value, 0, 100000 );
-                case ConfigKey.MaxBackupSize:
-                    return ValidateInt( key, value, 0, 1000000 );
-
-                case ConfigKey.LogMode:
-                    return ValidateEnum<LogSplittingType>( key, value );
-                case ConfigKey.MaxLogs:
-                    return ValidateInt( key, value, 0, 100000 );
-
-                case ConfigKey.ProcessPriority:
-                    return ValidateEnum( key, value, "", "High", "AboveNormal", "Normal", "BelowNormal", "Low" );
-                case ConfigKey.UpdateMode:
-                    return ValidateEnum<UpdaterMode>( key, value );
-                case ConfigKey.BlockUpdateThrottling:
-                    return ValidateInt( key, value, 10, 100000 );
-                case ConfigKey.TickInterval:
-                    return ValidateInt( key, value, 20, 1000 );
-
-                case ConfigKey.MaxUndo:
-                    return ValidateInt( key, value, 0, Int32.MaxValue );
-
-                case ConfigKey.ConsoleName:
-                case ConfigKey.IRCBotChannels:
-                case ConfigKey.IRCBotNetwork:
-                case ConfigKey.IRCNickServMessage:
-                case ConfigKey.MapPath:
-                    return DoSetValue( key, value );
-
-                default:
-                    throw new Exception( "No validation defined for this key: " + key );
-            }
-             * */
         }
 
 

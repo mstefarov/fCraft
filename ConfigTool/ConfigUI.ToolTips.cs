@@ -244,6 +244,13 @@ By default, players can only mute players of same or lower rank.";
             toolTip.SetToolTip( lMuteLimit, tipMuteLimit );
             toolTip.SetToolTip( cMuteLimit, tipMuteLimit );
 
+            string tipBringLimit =
+@"Limit on who can be brought (forcibly teleported) by players of this rank.
+By default, players can only bring players of same or lower rank.";
+            toolTip.SetToolTip( lBringLimit, tipBringLimit );
+            toolTip.SetToolTip( cBringLimit, tipBringLimit );
+
+
 
             toolTip.SetToolTip( xReserveSlot,
 @"Allows players of this rank to join the server

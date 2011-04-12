@@ -11,13 +11,13 @@ namespace fCraftUI {
             tCredits.Select( 0, 0 );
         }
 
-        private static void linkLabel1_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e ) {
+        private void linkLabel1_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e ) {
             try {
                 Process.Start( "http://www.fcraft.net" );
             } catch { }
         }
 
-        private static void linkLabel2_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e ) {
+        private void linkLabel2_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e ) {
             try {
                 Process.Start( "mailto:me@matvei.org" );
             } catch { }

@@ -1227,7 +1227,7 @@ namespace fCraft {
                     SendToAllExcept( "{0}&S was kicked for being idle for {1} min", player,
                                      player.GetClassyName(),
                                      player.Info.Rank.IdleKickTimer.ToString() );
-                    ModerationCommands.DoKick( Player.Console, player, "Idle for " + player.Info.Rank.IdleKickTimer + " minutes", true, LeaveReason.IdleKick );
+                    ModerationCommands.DoKick( Player.Console, player, "Idle for " + player.Info.Rank.IdleKickTimer + " minutes", true, false, LeaveReason.IdleKick );
                     player.ResetIdleTimer(); // to prevent kick from firing more than once
                 }
             }

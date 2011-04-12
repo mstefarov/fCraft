@@ -7,6 +7,7 @@ using System.Text;
 namespace fCraft {
     public static class RankList {
         public static Dictionary<string, Rank> RanksByName { get; private set; }
+        public static Dictionary<string, Rank> RanksByFullName { get; private set; }
         public static Dictionary<string, Rank> RanksByID { get; private set; }
         public static Dictionary<string, string> LegacyRankMapping { get; private set; }
         public static List<Rank> Ranks { get; private set; }
@@ -14,14 +15,13 @@ namespace fCraft {
 
 
         static RankList() {
-            RanksByName = new Dictionary<string, Rank>();
-            RanksByID = new Dictionary<string, Rank>();
-            Ranks = new List<Rank>();
+            Reset();
             LegacyRankMapping = new Dictionary<string, string>();
         }
 
         public static void Reset() {
             RanksByName = new Dictionary<string, Rank>();
+            RanksByFullName = new Dictionary<string, Rank>();
             RanksByID = new Dictionary<string, Rank>();
             Ranks = new List<Rank>();
         }
@@ -39,6 +39,7 @@ namespace fCraft {
 
             Ranks.Add( rank );
             RanksByName[rank.Name.ToLower()] = rank;
+            RanksByFullName[rank.ToString()] = rank;
             RanksByID[rank.ID] = rank;
             RebuildIndex();
         }
@@ -46,6 +47,10 @@ namespace fCraft {
         // parse rank from serialized string (with ID) - for loading from files
         public static Rank ParseRank( string name ) {
             if( name == null ) return null;
+
+            if( RanksByFullName.ContainsKey( name ) ) {
+                return RanksByFullName[name];
+            }
 
             if( name.Contains( "#" ) ) {
                 // new format
@@ -79,7 +84,7 @@ namespace fCraft {
                 return RanksByName[name.ToLower()]; // LEGACY
 
             } else {
-                // totally unknown class
+                // totally unknown rank
                 return null;
             }
         }
@@ -123,6 +128,7 @@ namespace fCraft {
             Ranks.Remove( deletedRank );
             RanksByName.Remove( deletedRank.Name.ToLower() );
             RanksByID.Remove( deletedRank.ID );
+            RanksByFullName.Remove( deletedRank.ToString() );
             LegacyRankMapping.Add( deletedRank.ID, replacementRank.ID );
             foreach( Rank rank in Ranks ) {
                 for( int i = 0; i < rank.PermissionLimits.Length; i++ ) {

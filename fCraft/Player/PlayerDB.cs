@@ -110,19 +110,30 @@ namespace fCraft {
 
 
         internal static void Save() {
-            Logger.Log( "PlayerDB.Save: Saving player database ({0} records).", LogType.Debug, Tree.Count );
+            Stopwatch sw = Stopwatch.StartNew();
 
             const string tempFileName = Paths.PlayerDBFileName + ".temp";
             PlayerInfo[] listCopy = GetPlayerListCopy();
 
             using( FileStream fs = new FileStream( tempFileName, FileMode.Create, FileAccess.Write, FileShare.None, 64 * 1024 ) ) {
-                using( StreamWriter writer = new StreamWriter( fs ) ) {
+                using( StreamWriter writer = new StreamWriter( fs, System.Text.Encoding.ASCII, 64 * 1024 ) ) {
                     writer.WriteLine( maxID + Header );
+                    string[] fields = new string[PlayerInfo.ExpectedFieldCount];
                     for( int i = 0; i < listCopy.Length; i++ ) {
-                        writer.WriteLine( listCopy[i].Serialize() );
+                        listCopy[i].Serialize( fields );
+                        writer.Write( fields[0] );
+                        for( int j = 1; j < fields.Length; j++ ) {
+                            writer.Write( ',' );
+                            writer.Write( fields[j] );
+                        }
+                        writer.WriteLine();
                     }
                 }
             }
+            sw.Stop();
+            Logger.Log( "PlayerDB.Save: Saved player database ({0} records) in {1}ms", LogType.Debug,
+                        Tree.Count, sw.ElapsedMilliseconds );
+
             try {
                 Paths.MoveOrReplace( tempFileName, Paths.PlayerDBFileName );
             } catch( Exception ex ) {
@@ -162,9 +173,9 @@ namespace fCraft {
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
             PlayerInfo[] cache = PlayerInfoList;
-            foreach( PlayerInfo info in cache ) {
-                if( info.LastIP.ToString() == address.ToString() ) {
-                    result.Add( info );
+            for( int i = 0; i < cache.Length; i++ ) {
+                if( cache[i].LastIP.ToString() == address.ToString() ) {
+                    result.Add( cache[i] );
                     count++;
                     if( count >= limit ) return result.ToArray();
                 }
@@ -183,10 +194,12 @@ namespace fCraft {
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
             PlayerInfo[] cache = PlayerInfoList;
-            foreach( PlayerInfo info in cache.Where( info => regex.IsMatch( info.Name ) ) ) {
-                result.Add( info );
-                count++;
-                if( count >= limit ) break;
+            for( int i = 0; i < cache.Length; i++ ) {
+                if( regex.IsMatch( cache[i].Name ) ) {
+                    result.Add( cache[i] );
+                    count++;
+                    if( count >= limit ) break;
+                }
             }
             return result.ToArray();
         }
@@ -199,7 +212,9 @@ namespace fCraft {
 
         public static PlayerInfo[] FindPlayers( string namePart, int limit ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
-            return Tree.GetMultiple( namePart, limit ).ToArray();
+            lock( Locker ) {
+                return Tree.GetMultiple( namePart, limit ).ToArray();
+            }
         }
 
         /// <summary>Searches for player names starting with namePart, returning just one or none of the matches.</summary>
@@ -233,7 +248,7 @@ namespace fCraft {
 
 
         public static int CountTotalPlayers() {
-            return List.Count;
+            return Tree.Count;
         }
 
 

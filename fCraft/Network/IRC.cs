@@ -491,7 +491,7 @@ namespace fCraft {
             Server.OnPlayerSentMessage += PlayerMessageHandler;
             Server.PlayerReady += PlayerReadyHandler;
             Server.PlayerDisconnected += PlayerDisconnectedHandler;
-            Server.OnPlayerKicked += PlayerKickedHandler;
+            Server.PlayerKicked += PlayerKickedHandler;
             Server.OnPlayerBanned += PlayerBannedHandler;
             Server.OnPlayerUnbanned += PlayerUnbannedHandler;
             Server.OnRankChanged += PlayerRankChangedHandler;
@@ -524,8 +524,10 @@ namespace fCraft {
             }
         }
 
-        internal static void PlayerKickedHandler( Player player, Player kicker, string reason ) {
-            PlayerSomethingMessage( kicker, "kicked", player.Info, reason );
+        internal static void PlayerKickedHandler( object sender, PlayerKickedEventArgs e ) {
+            if( !e.IsSilent && e.Context == LeaveReason.Kick ) {
+                PlayerSomethingMessage( e.Kicker, "kicked", e.Player.Info, e.Reason );
+            }
         }
 
         internal static void PlayerBannedHandler( PlayerInfo player, Player banner, string reason ) {

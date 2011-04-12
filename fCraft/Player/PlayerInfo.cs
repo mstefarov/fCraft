@@ -105,29 +105,30 @@ namespace fCraft {
             }
 
             Rank = RankList.ParseRank( fields[2] ) ?? RankList.DefaultRank;
-            if( fields[3] != "-" && !String.IsNullOrEmpty( fields[3] ) ) RankChangeDate = DateTime.Parse( fields[3] ); // LEGACY
+            if( fields[3].Length > 1 ) 
+                RankChangeDate = DateTime.Parse( fields[3] );
             RankChangedBy = fields[4];
             if( RankChangedBy == "-" ) RankChangedBy = "";
 
             Banned = ( fields[5] == "b" );
 
             // ban information
-            if( fields[6] != "-" && !String.IsNullOrEmpty( fields[6] ) && DateTime.TryParse( fields[6], out BanDate ) ) {
+            if( fields[6].Length > 1 && DateTime.TryParse( fields[6], out BanDate ) ) {
                 BannedBy = fields[7];
                 BanReason = Unescape( fields[10] );
                 if( BanReason == "-" ) BanReason = "";
             }
 
             // unban information
-            if( fields[8] != "-" && !String.IsNullOrEmpty( fields[8] ) && DateTime.TryParse( fields[8], out UnbanDate ) ) {
+            if( fields[8].Length > 1 && DateTime.TryParse( fields[8], out UnbanDate ) ) {
                 UnbannedBy = fields[9];
                 UnbanReason = Unescape( fields[11] );
                 if( UnbanReason == "-" ) UnbanReason = "";
             }
 
             // failed logins
-            if( fields[12] != "-" && !String.IsNullOrEmpty( fields[12] ) ) LastFailedLoginDate = DateTime.Parse( fields[12] ); // LEGACY
-            if( fields[13] == "-" || String.IsNullOrEmpty( fields[13] ) || !IPAddress.TryParse( fields[13], out LastFailedLoginIP ) ) { // LEGACY
+            if( fields[12].Length > 1 ) LastFailedLoginDate = DateTime.Parse( fields[12] ); // LEGACY
+            if( fields[13].Length > 1 || !IPAddress.TryParse( fields[13], out LastFailedLoginIP ) ) { // LEGACY
                 LastFailedLoginIP = IPAddress.None;
             }
             FailedLoginCount = Int32.Parse( fields[14] );
@@ -221,9 +222,7 @@ namespace fCraft {
 
 
         // save to file
-        public string Serialize() {
-            string[] fields = new string[ExpectedFieldCount];
-
+        internal void Serialize( string[] fields ) {
             fields[0] = Name;
             if( LastIP.ToString() != IPAddress.None.ToString() ) {
                 fields[1] = LastIP.ToString();
@@ -233,32 +232,43 @@ namespace fCraft {
 
             fields[2] = Rank.ToString();
             if( RankChangeDate == DateTime.MinValue ) fields[3] = "";
-            else fields[3] = RankChangeDate.ToCompactString();
+            else fields[3] = RankChangeDate.ToString();
             fields[4] = RankChangedBy;
 
             if( Banned ) fields[5] = "b";
             else fields[5] = "";
+
             if( BanDate == DateTime.MinValue ) fields[6] = "";
-            else fields[6] = BanDate.ToCompactString();
+            else fields[6] = BanDate.ToString();
+
             fields[7] = BannedBy;
             if( UnbanDate == DateTime.MinValue ) fields[8] = "";
-            else fields[8] = UnbanDate.ToCompactString();
+
+            else fields[8] = UnbanDate.ToString();
             fields[9] = UnbannedBy;
-            fields[10] = Escape( BanReason );
-            fields[11] = Escape( UnbanReason );
+
+            if( BanReason.Length > 0 ) fields[10] = Escape( BanReason );
+            else fields[10] = "";
+
+            if( UnbanReason.Length > 0 ) fields[11] = Escape( UnbanReason );
+            else fields[11] = "";
 
             if( LastFailedLoginDate == DateTime.MinValue ) fields[12] = "";
-            else fields[12] = LastFailedLoginDate.ToCompactString();
+            else fields[12] = LastFailedLoginDate.ToString();
+
             if( LastFailedLoginIP == IPAddress.None ) fields[13] = "";
             else fields[13] = LastFailedLoginIP.ToString();
+
             fields[14] = FailedLoginCount.ToString();
 
             if( FirstLoginDate == DateTime.MinValue ) fields[15] = "";
-            else fields[15] = FirstLoginDate.ToCompactString();
-            if( LastLoginDate == DateTime.MinValue ) fields[16] = "";
-            else fields[16] = LastLoginDate.ToCompactString();
+            else fields[15] = FirstLoginDate.ToString();
 
-            fields[17] = TotalTime.ToCompactString();
+            if( LastLoginDate == DateTime.MinValue ) fields[16] = "";
+            else fields[16] = LastLoginDate.ToString();
+
+            if( TotalTime == TimeSpan.Zero ) fields[17] = "";
+            else fields[17] = TotalTime.ToString();
 
             fields[18] = BlocksBuilt.ToString();
             fields[19] = BlocksDeleted.ToString();
@@ -272,7 +282,8 @@ namespace fCraft {
             if( PreviousRank != null ) fields[24] = PreviousRank.ToString();
             else fields[24] = "";
 
-            fields[25] = Escape( RankChangeReason );
+            if( RankChangeReason.Length > 0 ) fields[25] = Escape( RankChangeReason );
+            else fields[25] = "";
             fields[26] = TimesKicked.ToString();
             fields[27] = TimesKickedOthers.ToString();
             fields[28] = TimesBannedOthers.ToString();
@@ -280,35 +291,43 @@ namespace fCraft {
             fields[30] = ( (int)RankChangeType ).ToString();
 
             if( LastKickDate == DateTime.MinValue ) fields[31] = "";
-            else fields[31] = LastKickDate.ToCompactString();
+            else fields[31] = LastKickDate.ToString();
 
             if( LastSeen == DateTime.MinValue ) fields[32] = "";
-            else if( Online ) fields[32] = DateTime.Now.ToCompactString();
-            else fields[32] = LastSeen.ToCompactString();
+            else if( Online ) fields[32] = DateTime.Now.ToString();
+            else fields[32] = LastSeen.ToString();
 
             fields[33] = BlocksDrawn.ToString();
 
             fields[34] = LastKickBy;
-            fields[35] = Escape( LastKickReason );
+            if( LastKickReason.Length == 0 ) fields[35] = "";
+            else fields[35] = Escape( LastKickReason );
 
             if( BannedUntil == DateTime.MinValue ) fields[36] = "";
-            else fields[36] = BannedUntil.ToCompactString();
+            else fields[36] = BannedUntil.ToString();
 
-            fields[37] = ( IsFrozen ? "f" : "" );
+            if( IsFrozen ) {
+                fields[37] = "f";
+                fields[38] = Escape( FrozenBy );
+                fields[39] = FrozenOn.ToString();
+            } else {
+                fields[37] = "";
+                fields[38] = "";
+                fields[39] = "";
+            }
 
-            fields[38] = Escape( FrozenBy );
+            if( MutedUntil != DateTime.MinValue ) {
+                fields[40] = MutedUntil.ToString();
+                fields[41] = Escape( MutedBy );
+            } else {
+                fields[40] = "";
+                fields[41] = "";
+            }
 
-            if( FrozenOn == DateTime.MinValue ) fields[39] = "";
-            else fields[39] = FrozenOn.ToCompactString();
+            if( !String.IsNullOrEmpty( IRCPassword ) ) fields[42] = Escape( IRCPassword );
+            else fields[42] = "";
 
-            if( MutedUntil == DateTime.MinValue ) fields[40] = "";
-            else fields[40] = MutedUntil.ToCompactString();
-
-            fields[41] = Escape( MutedBy );
-            fields[42] = Escape( IRCPassword );
             fields[43] = ( Online ? "o" : "" );
-
-            return String.Join( ",", fields );
         }
 
         #endregion
@@ -407,12 +426,12 @@ namespace fCraft {
         #region Utilities
 
         public static string Escape( string str ) {
-            return str.Replace( "\\", "\\\\" ).Replace( "'", "\\'" ).Replace( ',', '\xFF' );
+            return str.Replace( @"\", @"\\" ).Replace( "'", @"\'" ).Replace( ',', '\xFF' );
         }
 
 
         public static string Unescape( string str ) {
-            return str.Replace( '\xFF', ',' ).Replace( "\\'", "'" ).Replace( "\\\\", "\\" );
+            return str.Replace( '\xFF', ',' ).Replace( @"\'", "'" ).Replace( @"\\", @"\" );
         }
 
 
