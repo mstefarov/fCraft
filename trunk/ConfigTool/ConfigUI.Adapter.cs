@@ -98,7 +98,12 @@ namespace ConfigTool {
             nMaxPlayersPerWorld.Value = ConfigKey.MaxPlayersPerWorld.GetInt();
 
             FillRankList( cDefaultRank, "(lowest rank)" );
-            cDefaultRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( ConfigKey.DefaultRank.GetString() ) );
+            if( ConfigKey.DefaultRank.IsBlank() ) {
+                cDefaultRank.SelectedIndex = 0;
+            } else {
+                cDefaultRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( ConfigKey.DefaultRank.GetString() ) );
+            }
+
             cPublic.SelectedIndex = ConfigKey.IsPublic.GetBool() ? 0 : 1;
             nPort.Value = ConfigKey.Port.GetInt();
             nUploadBandwidth.Value = ConfigKey.UploadBandwidth.GetInt();
@@ -183,7 +188,11 @@ namespace ConfigTool {
             }
 
             FillRankList( cDefaultBuildRank, "(lowest rank)" );
-            cDefaultBuildRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( ConfigKey.DefaultBuildRank.GetString() ) );
+            if( ConfigKey.DefaultBuildRank.IsBlank() ) {
+                cDefaultBuildRank.SelectedIndex = 0;
+            } else {
+                cDefaultBuildRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( ConfigKey.DefaultBuildRank.GetString() ) );
+            }
 
             if( Paths.IsDefaultMapPath( Config.GetString( ConfigKey.MapPath ) ) ) {
                 tMapPath.Text = Paths.MapPathDefault;
@@ -229,7 +238,11 @@ namespace ConfigTool {
             xAnnounceRankChangeReasons.Enabled = xAnnounceRankChanges.Checked;
 
             FillRankList( cPatrolledRank, "(lowest rank)" );
-            cPatrolledRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( ConfigKey.PatrolledRank.GetString() ) );
+            if( ConfigKey.PatrolledRank.IsBlank() ) {
+                cPatrolledRank.SelectedIndex = 0;
+            } else {
+                cPatrolledRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( ConfigKey.PatrolledRank.GetString() ) );
+            }
 
             xPaidPlayersOnly.Checked = ConfigKey.PaidPlayersOnly.GetBool();
         }

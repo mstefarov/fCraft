@@ -934,7 +934,6 @@ namespace fCraft {
 
                     if( candidates.Length == 0 ) {
                         player.Message( "File/directory not found: {0}", fileName );
-                        return;
 
                     } else if( candidates.Length == 1 ) {
                         player.Message( "Filenames are case-sensitive! Did you mean to load \"{0}\"?", candidates[0].Name );
@@ -943,6 +942,7 @@ namespace fCraft {
                         player.Message( "Filenames are case-sensitive! Did you mean to load one of these: {0}",
                                         String.Join( ", ", candidates.Select( c => c.Name ).ToArray() ) );
                     }
+                    return;
 
                 } else {
                     player.Message( "File/directory not found: {0}", fileName );

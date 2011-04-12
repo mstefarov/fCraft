@@ -586,7 +586,7 @@ namespace fCraft {
             Color.Warning = Color.Parse( Settings[ConfigKey.WarningColor] );
 
             // default class
-            if( !String.IsNullOrEmpty( Settings[ConfigKey.DefaultRank] ) ) {
+            if( !ConfigKey.DefaultRank.IsBlank() ) {
                 if( RankList.ParseRank( Settings[ConfigKey.DefaultRank] ) != null ) {
                     RankList.DefaultRank = RankList.ParseRank( Settings[ConfigKey.DefaultRank] );
                 } else {
@@ -609,7 +609,7 @@ namespace fCraft {
             Server.TicksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
 
             // rank to patrol
-            World.RankToPatrol = RankList.ParseRank( Settings[ConfigKey.PatrolledRank] ) ?? RankList.LowestRank;
+            World.RankToPatrol = RankList.ParseRank( ConfigKey.PatrolledRank.GetString() );
 
             // IRC delay
             IRC.SendDelay = GetInt( ConfigKey.IRCDelay );
