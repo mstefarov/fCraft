@@ -19,6 +19,8 @@ namespace fCraft {
             LegacyRankMapping = new Dictionary<string, string>();
         }
 
+
+        /// <summary> Clears the list of ranks. </summary>
         public static void Reset() {
             RanksByName = new Dictionary<string, Rank>();
             RanksByFullName = new Dictionary<string, Rank>();
@@ -26,6 +28,8 @@ namespace fCraft {
             Ranks = new List<Rank>();
         }
 
+
+        /// <summary> Adds a new rank to the list. Checks for duplicates. </summary>
         public static void AddRank( Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             // check for duplicate rank names
@@ -44,7 +48,11 @@ namespace fCraft {
             RebuildIndex();
         }
 
-        // parse rank from serialized string (with ID) - for loading from files
+
+        /// <summary> Parses serialized rank. Accepts either the "name" or "name#ID" format.
+        /// Uses legacy rank mapping table for unrecognized ranks. Does not autocomple. </summary>
+        /// <param name="name"> Full rank name </param>
+        /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
         public static Rank ParseRank( string name ) {
             if( name == null ) return null;
 
@@ -89,7 +97,10 @@ namespace fCraft {
             }
         }
 
-        // find rank by name, with autocompletion - for parsing commands
+
+        /// <summary> Parses rank name (without the ID) using autocompletion. </summary>
+        /// <param name="name"> Full or partial rank name. </param>
+        /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
         public static Rank FindRank( string name ) {
             if( name == null ) return null;
 
@@ -110,6 +121,8 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds rank by index. Rank at index 0 is the highest. </summary>
+        /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
         public static Rank FindRank( int index ) {
             if( index < 0 || index >= Ranks.Count ) {
                 return null;
@@ -213,7 +226,7 @@ namespace fCraft {
         }
 
 
-        public static void ParsePermissionLimits() {
+        internal static void ParsePermissionLimits() {
             foreach( Rank rank in Ranks ) {
                 if( !rank.ParsePermissionLimits() ) {
                     Logger.Log( "Could not parse one of the rank-limits for kick, ban, promote, and/or demote permissions for {0}. " +
@@ -221,6 +234,7 @@ namespace fCraft {
                 }
             }
         }
+
 
         static readonly Random Rand = new Random();
         const string IDChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -232,12 +246,16 @@ namespace fCraft {
             return id.ToString();
         }
 
+
         internal static void SortRanksByLegacyNumericRank() {
             Ranks = Ranks.OrderBy( rank => -rank.LegacyNumericRank ).ToList();
             RebuildIndex();
         }
 
 
+        /// <summary> Finds the lowest rank that has all the required permissions. </summary>
+        /// <param name="permission"> One or more permissions to check for. </param>
+        /// <returns> A relevant Rank object, or null of none were found. </returns>
         public static Rank GetMinRankWithPermission( params Permission[] permission ) {
             for( int r = Ranks.Count - 1; r >= 0; r-- ) {
                 int r1 = r;
