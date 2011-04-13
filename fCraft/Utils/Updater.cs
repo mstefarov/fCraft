@@ -169,15 +169,14 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            520,
-            532,
-            new DateTime( 2011, 4, 12, 21, 45, 0, DateTimeKind.Utc ),
+            521,
+            534,
+            new DateTime( 2011, 4, 13, 3, 45, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Bugfix | ReleaseFlags.Feature | ReleaseFlags.APIChange | ReleaseFlags.ConfigFormatChange
-                                | ReleaseFlags.Optimized | ReleaseFlags.PlayerDBFormatChange
+            ReleaseFlags.Bugfix
         );
 
-        public const string LatestStable = "0.512_r508";
+        public const string LatestStable = "0.521_r534";
 
         public static string UpdateUrl { get; set; }
 
