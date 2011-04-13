@@ -32,6 +32,7 @@ namespace fCraft {
             WorldCommands.Init();
             ZoneCommands.Init();
             MaintenanceCommands.Init();
+            ChatCommands.Init();
             Commands.TrimExcess();
             Aliases.TrimExcess();
         }

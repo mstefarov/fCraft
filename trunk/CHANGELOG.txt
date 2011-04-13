@@ -1,3 +1,8 @@
+0.521
+ Feature: Added a /clear command, to clear in-game chat. Also works from fCraftConsole and fCraftUI.
+ Fix: Added missing chat commands.
+ Fix: Cosmetic fixes in /zremove.
+
 0.520
  Feature: Removed the server-wide 128 player limit. Now the limit is per-world.
  Feature: You can now repeat the last command by typing "/"

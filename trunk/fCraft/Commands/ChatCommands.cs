@@ -19,10 +19,26 @@ namespace fCraft {
             CommandList.RegisterCommand( cdRoll );
 
             CommandList.RegisterCommand( cdDeafen );
+
+            CommandList.RegisterCommand( cdClear );
         }
 
 
         #region Say, StaffChat
+
+        static readonly CommandDescriptor cdClear = new CommandDescriptor {
+            Name = "clear",
+            Category = CommandCategory.Chat,
+            Help = "Clears the chat screen.",
+            Handler = Clear
+        };
+
+        static void Clear( Player player, Command cmd ) {
+            for( int i = 0; i < 20; i++ ) {
+                player.Message( "" );
+            }
+        }
+
 
         static readonly CommandDescriptor cdSay = new CommandDescriptor {
             Name = "say",
