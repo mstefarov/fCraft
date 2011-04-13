@@ -917,16 +917,25 @@ namespace fCraft {
                 return;
             }
 
+            // Check if path contains missing drives or invalid characters
+            if( !Paths.IsValidPath( fileName ) ) {
+                player.Message( "Invalid filename or path." );
+                return;
+            }
+
             player.MessageNow( "Looking for \"{0}\"...", fileName );
 
+            // Look for the file
             string sourceFullFileName = Path.Combine( Paths.MapPath, fileName );
-
             if( !File.Exists( sourceFullFileName ) && !Directory.Exists( sourceFullFileName ) ) {
+
                 if( File.Exists( sourceFullFileName + ".fcm" ) ) {
+                    // Try with extension added
                     fileName += ".fcm";
                     sourceFullFileName += ".fcm";
 
                 } else if( MonoCompat.IsCaseSensitive ) {
+                    // If we're on a case-sensitive OS, try case-insensitive search
                     FileInfo[] candidates = Paths.FindFiles( sourceFullFileName + ".fcm" );
                     if( candidates.Length == 0 ) {
                         candidates = Paths.FindFiles( sourceFullFileName );
@@ -945,21 +954,19 @@ namespace fCraft {
                     return;
 
                 } else {
+                    // Nothing found!
                     player.Message( "File/directory not found: {0}", fileName );
                     return;
                 }
             }
 
-            if( !Paths.IsValidPath( sourceFullFileName ) ) {
-                player.Message( "Invalid filename or path." );
-                return;
-            }
-
+            // Make sure that the given file is within the map directory
             if( !Paths.Contains( Paths.MapPath, sourceFullFileName ) ) {
                 player.MessageUnsafePath();
                 return;
             }
 
+            // Loading map into current world
             if( worldName == null ) {
                 if( !cmd.Confirmed ) {
                     player.AskForConfirmation( cmd, "About to replace THIS MAP with \"{0}\".", fileName );
@@ -981,6 +988,7 @@ namespace fCraft {
 
                 Logger.Log( "{0} loaded new map for world \"{1}\" from {2}", LogType.UserActivity,
                             player.Name, player.World.Name, fileName );
+
 
             } else {
                 // Loading to some other (or new) world
@@ -1029,11 +1037,19 @@ namespace fCraft {
                         try {
                             map = MapUtility.Load( sourceFullFileName );
                         } catch( Exception ex ) {
-                            player.MessageNow( "Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message );
+                            player.MessageNow( "Could not load \"{0}\": {1}: {2}",
+                                               fileName, ex.GetType().Name, ex.Message );
                             return;
                         }
 
-                        World newWorld = Server.AddWorld( worldName, map, false );
+                        World newWorld;
+                        try {
+                            newWorld = Server.AddWorld( player, worldName, map, false );
+                        } catch( WorldOpException ex ) {
+                            player.Message( "WLoad: {0}", ex.Message );
+                            return;
+                        }
+
                         if( newWorld != null ) {
                             newWorld.BuildSecurity.MinRank = RankList.ParseRank( ConfigKey.DefaultBuildRank.GetString() );
                             Server.SendToAll( "{0}&S created a new world named {1}",
@@ -1045,7 +1061,7 @@ namespace fCraft {
                                                newWorld.AccessSecurity.MinRank.GetClassyName(),
                                                newWorld.BuildSecurity.MinRank.GetClassyName() );
                         } else {
-                            player.MessageNow( "Error occured while trying to create a new world." );
+                            player.MessageNow( "Failed to create a new world." );
                         }
                     }
                 }
@@ -1078,30 +1094,28 @@ namespace fCraft {
             if( oldWorld == null ) return;
             oldName = oldWorld.Name;
 
-            lock( oldWorld.MapLock ) {
-                try {
-                    oldWorld.RenameWorld( newName, true );
-                } catch( EnumException<WorldCmdError> ex ) {
-                    switch( ex.ErrorCode ) {
-                        case WorldCmdError.NoChangeNeeded:
-                            player.MessageNow( "Rename: World is already named \"{0}\"", oldName );
-                            return;
-                        case WorldCmdError.DuplicateWorldName:
-                            player.MessageNow( "Rename: Another world named \"{0}\" already exists.", newName );
-                            return;
-                        case WorldCmdError.InvalidNewWorldName:
-                            player.MessageNow( "Rename: Invalid world name: \"{0}\"", newName );
-                            return;
-                        case WorldCmdError.MapMoveError:
-                            player.MessageNow( "Rename: World \"{0}\" was renamed to \"{1}\", but the map file could not be moved due to an error: {2}",
-                                                oldName, newName, ex.InnerException );
-                            return;
-                        default:
-                            player.MessageNow( "Unexpected error occured while renaming world \"{0}\"", oldName );
-                            Logger.Log( "WorldCommands.Rename: Unexpected error while renaming world {0} to {1}: {2}",
-                                        LogType.Error, oldWorld.Name, newName, ex );
-                            return;
-                    }
+            try {
+                Server.RenameWorld( oldWorld, newName, true );
+            } catch( WorldOpException ex ) {
+                switch( ex.ErrorCode ) {
+                    case WorldOpExceptionCode.NoChangeNeeded:
+                        player.MessageNow( "Rename: World is already named \"{0}\"", oldName );
+                        return;
+                    case WorldOpExceptionCode.DuplicateWorldName:
+                        player.MessageNow( "Rename: Another world named \"{0}\" already exists.", newName );
+                        return;
+                    case WorldOpExceptionCode.InvalidWorldName:
+                        player.MessageNow( "Rename: Invalid world name: \"{0}\"", newName );
+                        return;
+                    case WorldOpExceptionCode.MapMoveError:
+                        player.MessageNow( "Rename: World \"{0}\" was renamed to \"{1}\", but the map file could not be moved due to an error: {2}",
+                                            oldName, newName, ex.InnerException );
+                        return;
+                    default:
+                        player.MessageNow( "Unexpected error occured while renaming world \"{0}\"", oldName );
+                        Logger.Log( "WorldCommands.Rename: Unexpected error while renaming world {0} to {1}: {2}",
+                                    LogType.Error, oldWorld.Name, newName, ex );
+                        return;
                 }
             }
 
@@ -1137,15 +1151,15 @@ namespace fCraft {
             if( world == null ) return;
 
             try {
-                world.RemoveWorld();
-            } catch( EnumException<WorldCmdError> ex ) {
+                Server.RemoveWorld( world );
+            } catch( WorldOpException ex ) {
                 switch( ex.ErrorCode ) {
-                    case WorldCmdError.CannotDoThatToMainWorld:
+                    case WorldOpExceptionCode.CannotDoThatToMainWorld:
                         player.MessageNow( "&WWorld {0}&W is set as the main world. " +
                                            "Assign a new main world before deleting this one.",
                                            world.GetClassyName() );
                         return;
-                    case WorldCmdError.WorldNotFound:
+                    case WorldOpExceptionCode.WorldNotFound:
                         player.MessageNow( "&WWorld {0}&W is already unloaded.",
                                            world.GetClassyName() );
                         return;
@@ -1519,24 +1533,5 @@ namespace fCraft {
         }
 
         #endregion
-    }
-
-
-    public enum WorldCmdError {
-        NoChangeNeeded,
-
-        InvalidWorldName,
-        InvalidNewWorldName,
-        WorldNotFound,
-        DuplicateWorldName,
-
-        SecurityError,
-        CannotDoThatToMainWorld,
-
-        MapNotFound,
-        MapPathError,
-        MapLoadError,
-        MapSaveError,
-        MapMoveError
     }
 }

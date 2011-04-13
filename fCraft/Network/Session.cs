@@ -778,10 +778,14 @@ namespace fCraft {
 
             ClearBlockUpdateQueue();
 
+            Map map;
+
             // try to join the new world
             if( oldWorld != newWorld ) {
-                if( !newWorld.AcceptPlayer( Player, !firstTime ) )
-                    return false;
+                map = newWorld.AcceptPlayer( Player, !firstTime );
+                if( map == null ) return false;
+            } else {
+                map = oldWorld.EnsureMapLoaded();
             }
             Player.World = newWorld;
 

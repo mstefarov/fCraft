@@ -836,7 +836,6 @@ namespace fCraft {
                     Server.SendToBlind( Server.MakePlayerConnectedMessage( player, false, player.World ), player );
                 }
                 if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
-                    bool temp = false;
                     IRC.PlayerReadyHandler( null, new PlayerConnectedEventArgs( player, player.World ) );
                 }
             }

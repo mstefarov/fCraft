@@ -504,7 +504,7 @@ namespace fCraft {
             if( RaiseMainWorldChangingEvent( MainWorld, newWorld ) ) return false;
             World oldWorld;
             lock( WorldListLock ) {
-                lock( newWorld.MapLock ) {
+                lock( newWorld.WorldLock ) {
                     newWorld.NeverUnload = true;
                     if( newWorld.Map == null ) {
                         newWorld.LoadMap();
@@ -565,7 +565,7 @@ namespace fCraft {
             Map map = new Map( null, 64, 64, 64, true );
             MapGenerator.GenerateFlatgrass( map );
             map.ResetSpawn();
-            MainWorld = AddWorld( "main", map, true );
+            MainWorld = AddWorld( null, "main", map, true );
         }
 
 
@@ -587,7 +587,7 @@ namespace fCraft {
                         continue;
                     }
 
-                    World world = AddWorld( worldName, null, (el.Attribute( "noUnload" ) != null) );
+                    World world = AddWorld( null, worldName, null, (el.Attribute( "noUnload" ) != null) );
 
                     if( world == null ) {
                         Logger.Log( "Server.ParseWorldListXML: Error loading world \"{0}\"", LogType.Error, worldName );
@@ -729,11 +729,22 @@ namespace fCraft {
         #endregion
 
 
-        public static World AddWorld( string name, Map map, bool neverUnload ) {
+        public static World AddWorld( Player player, string name, Map map, bool neverUnload ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            if( !Player.IsValidName( name ) ) throw new ArgumentException( "World name format invalid" );
+
+            if( !Player.IsValidName( name ) ) {
+                throw new WorldOpException( name, WorldOpExceptionCode.InvalidWorldName );
+            }
+
             lock( WorldListLock ) {
-                if( Worlds.ContainsKey( name ) ) return null;
+                if( Worlds.ContainsKey( name ) ) {
+                    throw new WorldOpException( name, WorldOpExceptionCode.DuplicateWorldName );
+                }
+
+                if( RaiseWorldCreatingEvent( player, name, map ) ) {
+                    throw new WorldOpException( name, WorldOpExceptionCode.PluginDenied );
+                }
+
                 World newWorld = new World( name ) { NeverUnload = neverUnload };
 
                 if( map != null ) {
@@ -756,6 +767,8 @@ namespace fCraft {
 
                 Worlds.Add( name.ToLower(), newWorld );
                 UpdateWorldList();
+
+                RaiseWorldCreatedEvent( player, newWorld );
 
                 return newWorld;
             }
@@ -808,12 +821,12 @@ namespace fCraft {
         }
 
 
-        public static void RemoveWorld( this World worldToDelete ) {
+        public static void RemoveWorld( World worldToDelete ) {
             if( worldToDelete == null ) throw new ArgumentNullException( "worldToDelete" );
 
             lock( WorldListLock ) {
                 if( worldToDelete == MainWorld ) {
-                    throw new EnumException<WorldCmdError>( WorldCmdError.CannotDoThatToMainWorld );
+                    throw new WorldOpException( worldToDelete.Name, WorldOpExceptionCode.CannotDoThatToMainWorld );
                 }
 
                 Player[] worldPlayerList = worldToDelete.PlayerList;
@@ -831,42 +844,49 @@ namespace fCraft {
         }
 
 
-        // Note: no autocompletion
-        public static void RenameWorld( this World world, string newName, bool moveMapFile ) {
-            if( !Player.IsValidName( newName ) ) {
-                throw new EnumException<WorldCmdError>( WorldCmdError.InvalidNewWorldName );
-            }
-            if( world == null ) {
-                throw new EnumException<WorldCmdError>( WorldCmdError.WorldNotFound );
-            }
+        /// <summary> Changes the name of the given world. </summary>
+        /// <param name="world"></param>
+        /// <param name="newName"></param>
+        /// <param name="moveMapFile"></param>
+        public static void RenameWorld( World world, string newName, bool moveMapFile ) {
             if( newName == null ) throw new ArgumentNullException( "newName" );
 
-            string oldName = world.Name;
-            if( oldName == newName ) {
-                throw new EnumException<WorldCmdError>( WorldCmdError.NoChangeNeeded );
+            if( !Player.IsValidName( newName ) ) {
+                throw new WorldOpException( newName, WorldOpExceptionCode.InvalidWorldName );
             }
 
-            lock( WorldListLock ) {
-                World newWorld = FindWorldExact( newName );
-                if( newWorld != null && newWorld != world ) {
-                    throw new EnumException<WorldCmdError>( WorldCmdError.DuplicateWorldName );
+            if( world == null ) {
+                throw new WorldOpException( null, WorldOpExceptionCode.WorldNotFound );
+            }
+
+            lock( world.WorldLock ) {
+                string oldName = world.Name;
+                if( oldName == newName ) {
+                    throw new WorldOpException( world.Name, WorldOpExceptionCode.NoChangeNeeded );
                 }
 
-                Worlds.Remove( world.Name.ToLower() );
-                world.Name = newName;
-                Worlds.Add( newName.ToLower(), world );
-                UpdateWorldList();
+                lock( WorldListLock ) {
+                    World newWorld = FindWorldExact( newName );
+                    if( newWorld != null && newWorld != world ) {
+                        throw new WorldOpException( newName, WorldOpExceptionCode.DuplicateWorldName );
+                    }
 
-                if( moveMapFile ) {
-                    string oldFullFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
-                    string newFileName = newName + ".fcm";
-                    if( File.Exists( oldFullFileName ) ) {
-                        try {
-                            Paths.ForceRename( oldFullFileName, newFileName );
-                        } catch( Exception ex ) {
-                            throw new EnumException<WorldCmdError>( WorldCmdError.MapMoveError,
-                                                                    "Unexpected error moving/renaming mapfile.",
-                                                                    ex );
+                    Worlds.Remove( world.Name.ToLower() );
+                    world.Name = newName;
+                    Worlds.Add( newName.ToLower(), world );
+                    UpdateWorldList();
+
+                    if( moveMapFile ) {
+                        string oldFullFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
+                        string newFileName = newName + ".fcm";
+                        if( File.Exists( oldFullFileName ) ) {
+                            try {
+                                Paths.ForceRename( oldFullFileName, newFileName );
+                            } catch( Exception ex ) {
+                                throw new WorldOpException( world.Name,
+                                                            WorldOpExceptionCode.MapMoveError,
+                                                            ex );
+                            }
                         }
                     }
                 }
@@ -874,23 +894,29 @@ namespace fCraft {
         }
 
 
-        public static bool ReplaceWorld( string name, World newWorld ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
+        public static void ReplaceWorld( World oldWorld, World newWorld ) {
+            if( oldWorld == null ) throw new ArgumentNullException( "oldWorld" );
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
+
             lock( WorldListLock ) {
-                World oldWorld = FindWorldExact( name );
-                if( oldWorld == null ) return false;
+                if( oldWorld == newWorld ) {
+                    throw new WorldOpException( oldWorld.Name, WorldOpExceptionCode.NoChangeNeeded );
+                }
+
+                if( !Worlds.ContainsValue( oldWorld ) ) {
+                    throw new WorldOpException( oldWorld.Name, WorldOpExceptionCode.WorldNotFound );
+                }
+
+                if( Worlds.ContainsValue( newWorld ) ) {
+                    throw new InvalidOperationException( "New world already exists on the list." );
+                }
 
                 newWorld.Name = oldWorld.Name;
                 if( oldWorld == MainWorld ) {
                     MainWorld = newWorld;
                 }
-
-                // initialize the player list cache
-                newWorld.UpdatePlayerList();
-
                 // swap worlds
-                Worlds[name.ToLower()] = newWorld;
+                Worlds[oldWorld.Name] = newWorld;
 
                 oldWorld.StopTasks();
                 newWorld.StopTasks();
@@ -899,7 +925,6 @@ namespace fCraft {
 
                 newWorld.StartTasks();
                 UpdateWorldList();
-                return true;
             }
         }
 
