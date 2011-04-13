@@ -205,7 +205,7 @@
     <Compile Include="MapConversion\MapFormatException.cs" />
     <Compile Include="System\ConfigKey.Metadata.cs" />
     <Compile Include="System\Server.Events.cs" />
-    <Compile Include="Utils\EnumException.cs" />
+    <Compile Include="World\WorldOpException.cs" />
     <Compile Include="Utils\MonoCompat.cs" />
     <None Include="Tileset.png" />
     <None Include="TilesetShadowed.png" />

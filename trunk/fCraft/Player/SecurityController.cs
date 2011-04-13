@@ -24,38 +24,6 @@ namespace fCraft {
 
 
     public sealed class SecurityController : ICloneable {
-        public sealed class PlayerListCollection : ICloneable {
-            public PlayerListCollection() { }
-            public PlayerListCollection( PlayerListCollection other ) {
-                Included = (PlayerInfo[])other.Included.Clone();
-                Excluded = (PlayerInfo[])other.Excluded.Clone();
-            }
-            // keeping both lists on one object allows lock-free synchronization
-            public PlayerInfo[] Included;
-            public PlayerInfo[] Excluded;
-            public object Clone() {
-                return new PlayerListCollection( this );
-            }
-        }
-
-        public SecurityController() {
-            UpdatePlayerListCache();
-        }
-
-        public SecurityController( SecurityController other ) {
-            if( other.NoRankRestriction ) {
-                MinRank = null;
-            } else {
-                MinRank = other.MinRank;
-            }
-            includedPlayers = new Dictionary<string, PlayerInfo>( other.includedPlayers );
-            excludedPlayers = new Dictionary<string, PlayerInfo>( other.excludedPlayers );
-        }
-
-        public object Clone() {
-            return new SecurityController( this );
-        }
-
 
         readonly Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
         readonly Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
@@ -83,6 +51,27 @@ namespace fCraft {
         readonly object playerPermissionListLock = new object();
 
 
+        public SecurityController() {
+            UpdatePlayerListCache();
+        }
+
+        public SecurityController( SecurityController other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
+            if( other.NoRankRestriction ) {
+                MinRank = null;
+            } else {
+                MinRank = other.MinRank;
+            }
+            includedPlayers = new Dictionary<string, PlayerInfo>( other.includedPlayers );
+            excludedPlayers = new Dictionary<string, PlayerInfo>( other.excludedPlayers );
+            UpdatePlayerListCache();
+        }
+
+        public object Clone() {
+            return new SecurityController( this );
+        }
+
+
         public void UpdatePlayerListCache() {
             lock( playerPermissionListLock ) {
                 ExceptionList = new PlayerListCollection {
@@ -95,6 +84,7 @@ namespace fCraft {
 
         // returns the PREVIOUS state of the player
         public PermissionOverride Include( PlayerInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             lock( playerPermissionListLock ) {
                 if( includedPlayers.ContainsValue( info ) ) {
                     UpdatePlayerListCache();
@@ -114,6 +104,7 @@ namespace fCraft {
 
         // returns the PREVIOUS state of the player
         public PermissionOverride Exclude( PlayerInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             lock( playerPermissionListLock ) {
                 if( excludedPlayers.ContainsValue( info ) ) {
                     UpdatePlayerListCache();
@@ -132,6 +123,7 @@ namespace fCraft {
 
 
         public bool Check( PlayerInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             PlayerListCollection listCache = ExceptionList;
             for( int i = 0; i < listCache.Excluded.Length; i++ ) {
                 if( listCache.Excluded[i] == info ) {
@@ -152,8 +144,9 @@ namespace fCraft {
 
 
         public SecurityCheckResult CheckDetailed( PlayerInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             PlayerListCollection listCache = ExceptionList;
-            for( int i=0; i<listCache.Excluded.Length; i++){
+            for( int i = 0; i < listCache.Excluded.Length; i++ ) {
                 if( listCache.Excluded[i] == info ) {
                     return SecurityCheckResult.BlackListed;
                 }
@@ -172,7 +165,9 @@ namespace fCraft {
         }
 
 
-        public void PrintDescription( Player player, IClassy world, string noun, string verb ) {
+        public void PrintDescription( Player player, IClassy target, string noun, string verb ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( target == null ) throw new ArgumentNullException( "target" );
             PlayerListCollection list = ExceptionList;
 
             noun = Char.ToUpper( noun[0] ) + noun.Substring( 1 ); // capitalize first letter
@@ -181,11 +176,11 @@ namespace fCraft {
 
             if( NoRankRestriction ) {
                 message.AppendFormat( "{0} {1}&S can be {2} by anyone",
-                                      noun, world.GetClassyName(), verb );
+                                      noun, target.GetClassyName(), verb );
 
             } else {
                 message.AppendFormat( "{0} {1}&S can only be {2} by {3}+&S",
-                                      noun, world.GetClassyName(),
+                                      noun, target.GetClassyName(),
                                       verb, MinRank.GetClassyName() );
             }
 
@@ -214,6 +209,7 @@ namespace fCraft {
 
 
         public SecurityController( XElement root ) {
+            if( root == null ) throw new ArgumentNullException( "root" );
             if( root.Element( "minRank" ) != null ) {
                 minRank = RankList.ParseRank( root.Element( "minRank" ).Value );
             } else {
@@ -240,6 +236,7 @@ namespace fCraft {
         }
 
         public XElement Serialize( string tagName ) {
+            if( tagName == null ) throw new ArgumentNullException( "tagName" );
             XElement root = new XElement( tagName );
             if( !NoRankRestriction ) {
                 root.Add( new XElement( "minRank", MinRank ) );
@@ -285,5 +282,20 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        public sealed class PlayerListCollection : ICloneable {
+            public PlayerListCollection() { }
+            public PlayerListCollection( PlayerListCollection other ) {
+                Included = (PlayerInfo[])other.Included.Clone();
+                Excluded = (PlayerInfo[])other.Excluded.Clone();
+            }
+            // keeping both lists on one object allows lock-free synchronization
+            public PlayerInfo[] Included;
+            public PlayerInfo[] Excluded;
+            public object Clone() {
+                return new PlayerListCollection( this );
+            }
+        }
     }
 }

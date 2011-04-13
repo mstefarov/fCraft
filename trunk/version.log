@@ -1,5 +1,38 @@
 http://www.fcraft.net/fCraftUpdater.exe
-2011-04-02
+2011-04-13
+521
+ Feature: Added a /clear command, to clear in-game chat. Also works from fCraftConsole and fCraftUI.
+ Fix: Added missing chat commands.
+ Fix: Cosmetic fixes in /zremove.
+520
+ Feature: Removed the server-wide 128 player limit. Now the limit is per-world.
+ Feature: You can now repeat the last command by typing "/"
+ Feature: Added a way to use color codes in chat (with % instead of &), a UseColorCodes permission, and a /colors command.
+ Feature: Added support for multi-line messages or commands. Add " /" to the end of a line to continue typing it.
+ Feature: Added "/commands", to replace "/help commands". It allows filtering commands by rank, category, permissions, etc. Aliases: /cmdlist, /cmds
+ Feature: New permissions: ViewPlayerIPs, BringAll
+ Feature: New config switches: AnnounceRankChangeReasons and RequireKickReason.
+ Feature: Replaced LimitOneConnectionPerIP config key (boolean) with a more flexible MaxConnectionsPerIP (int).
+ Feature: Added /bringall command, for moving everyone (or only certain ranks) from your world (or optionally all worlds, or a list of other worlds) to your location.
+ Feature: /bring can be limited per-rank
+ Feature: When file is not found on case-sensitive filesystems, fCraft tries to syggest similar filenames.
+ Feature: Added new constants to use in greeting.txt: {TIME}, {PLAYER_NAME}, {WORLD}, {PLAYERS}, {WORLDS}, {MOTD}
+ Feature: Improved compatibility with SurvivalTest clients.
+ Fix: Fixed /banip not kicking other players from the same IP (besides the named player)
+ Fix: Added missing blocktype validation to MapFCMv2, MapFCMv3, MapMyne, and MapNBT.
+ Fix: Fixed a rare shutdown crash in fCraftUI.
+ Fix: Improved the way PlayerDB.Load handles errors in individual records. A single corrupted entry will no longer prevent the rest from loading.
+ Fix: Fixed fCraftUI abruptly quitting on crash / failure to start, instead of showing the error message. Use "--exitoncrash" command-line switch to reproduce old behavior.
+ Fix: Fixed ConfigTool's World tab not prompting to delete map files when deleting worlds.
+ Fix: Fixed a bug in MCSharp importer (#3281305)
+ Fix: Fixed a list of permissions in /rinfo not being sorted.
+ Fix: Fixed /mute rank limit dropdown sometimes getting out of sync.
+ Fix: Fixed IRC bot redundantly announcing kicks when someone has been banned.
+ Fix: Fixed a bug where fCraft would fail to start if PlayerDB.txt was truncated/empty.
+ Change: Moved "IP" config key from General to Advanced.
+ Change: Added /spin as an alias to /rotate (for MCLawl users)
+ API: New events: PlayerClicking, PlayerClicked, PlayerPlacingBlock, PlayerPlacedBlock, PlayerListChanged, PlayerBeingKicked, PlayerKicked
+ Optimization: Reduced CPU use of draw commands by ~30%. Sped up PlayerDB loading by ~8%, and reduced memory use when saving. Also reduced PlayerDB filesize by about 15%
 512
  Feature: /zones can now be used from console, and can be used on any world (active or inactive).
  Feature: Improved D3 map importer.

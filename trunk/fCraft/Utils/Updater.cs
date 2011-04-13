@@ -169,11 +169,11 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            521,
-            534,
+            522,
+            535,
             new DateTime( 2011, 4, 13, 3, 45, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Bugfix
+            ReleaseFlags.Unstable | ReleaseFlags.APIChange
         );
 
         public const string LatestStable = "0.521_r534";

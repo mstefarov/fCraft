@@ -351,13 +351,15 @@ namespace fCraft {
                 return;
             }
 
-            Map map;
-            lock( world.MapLock ) {
-                map = world.Map;
-                if( map == null ) {
-                    if( !MapUtility.TryLoadHeader( world.GetMapName(), out map ) ) {
-                        player.Message( "&WERROR:Could not load mapfile for world {0}.",
-                                        world.GetClassyName() );
+            Map map = world.Map;
+            if( map == null ) {
+                lock( world.WorldLock ) {
+                    map = world.Map;
+                    if( map == null ) {
+                        if( !MapUtility.TryLoadHeader( world.GetMapName(), out map ) ) {
+                            player.Message( "&WERROR:Could not load mapfile for world {0}.",
+                                            world.GetClassyName() );
+                        }
                     }
                 }
             }

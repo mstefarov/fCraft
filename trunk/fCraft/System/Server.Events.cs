@@ -23,7 +23,7 @@ namespace fCraft {
 
         /// <summary> Occurs when the server is about to start shutting down. </summary>
         public static event EventHandler<ShutdownEventArgs> ShutdownBegan;
-        
+
         /// <summary> Occurs when the server finished shutting down. </summary>
         public static event EventHandler<ShutdownEventArgs> ShutdownEnded;
 
@@ -229,7 +229,7 @@ namespace fCraft {
             if( h != null ) h( null, e );
         }
 
-        internal static void RaisePlayerKickedEvent(PlayerKickedEventArgs e){
+        internal static void RaisePlayerKickedEvent( PlayerKickedEventArgs e ) {
             var h = PlayerKicked;
             if( h != null ) h( null, e );
         }
@@ -258,6 +258,14 @@ namespace fCraft {
         public static event EventHandler<SearchingForWorldEventArgs> SearchingForWorld;
 
 
+        /// <summary> Occurs before a new world is created/added (cancellable). </summary>
+        public static event EventHandler<WorldCreatingEventArgs> WorldCreating;
+
+
+        /// <summary> Occurs after a new world is created/added. </summary>
+        public static event EventHandler<WorldCreatedEventArgs> WorldCreated;
+
+
         static bool RaiseMainWorldChangingEvent( World oldWorld, World newWorld ) {
             var h = MainWorldChanging;
             if( h == null ) return false;
@@ -276,7 +284,21 @@ namespace fCraft {
             if( h != null ) h( null, e );
         }
 
+        static bool RaiseWorldCreatingEvent( Player player, string worldName, Map map ) {
+            var h = WorldCreating;
+            if( h == null ) return false;
+            var e = new WorldCreatingEventArgs( player, worldName, map );
+            h( null, e );
+            return e.Cancel;
+        }
+
+        static void RaiseWorldCreatedEvent( Player player, World world ) {
+            var h = WorldCreated;
+            if( h != null ) h( null, new WorldCreatedEventArgs( player, world ) );
+        }
+
         #endregion
+
     }
 }
 
