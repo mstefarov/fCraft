@@ -581,7 +581,7 @@
             // 
             // fileBrowser
             // 
-            this.fileBrowser.Filter = "Minecraft Maps|*.fcm;*.lvl;*.dat;*.mclevel;*.gz;*.map;*.meta;*.mine";
+            this.fileBrowser.Filter = MapLoadFilter;
             // 
             // statusStrip
             // 

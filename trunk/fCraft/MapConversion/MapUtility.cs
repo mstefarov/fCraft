@@ -42,15 +42,16 @@ namespace fCraft.MapConversion {
         static readonly Dictionary<MapFormat, IMapConverter> AvailableConverters = new Dictionary<MapFormat, IMapConverter>();
 
         static MapUtility() {
-            AvailableConverters.Add( MapFormat.MCSharp, new MapMCSharp() );
+            AvailableConverters.Add( MapFormat.D3, new MapD3() );
+            AvailableConverters.Add( MapFormat.Creative, new MapDAT() );
             AvailableConverters.Add( MapFormat.FCMv2, new MapFCMv2() );
             AvailableConverters.Add( MapFormat.FCMv3, new MapFCMv3() );
-            AvailableConverters.Add( MapFormat.MinerCPP, new MapMinerCPP() );
-            AvailableConverters.Add( MapFormat.NBT, new MapNBT() );
-            AvailableConverters.Add( MapFormat.Creative, new MapDAT() );
             AvailableConverters.Add( MapFormat.JTE, new MapJTE() );
-            AvailableConverters.Add( MapFormat.D3, new MapD3() );
+            AvailableConverters.Add( MapFormat.MCSharp, new MapMCSharp() );
+            AvailableConverters.Add( MapFormat.MinerCPP, new MapMinerCPP() );
             AvailableConverters.Add( MapFormat.Myne, new MapMyne() );
+            AvailableConverters.Add( MapFormat.NBT, new MapNBT() );
+            AvailableConverters.Add( MapFormat.Opticraft, new MapOpticraft() );
         }
 
 

@@ -38,33 +38,46 @@ namespace fCraft.MapConversion {
     // Enum defining all of the MapFormats supported by mcc
     // </summary>
     public enum MapFormat {
-        FCMv2,
-        // Map format used by fCraft.
-        // - Support added by Matvei
         FCMv3,
-        // Future map format used by fCraft
+        // Current map format used by fCraft
         // - Support added by Matvei
+
+        FCMv2,
+        // Obsolete map format used by fCraft.
+        // - Support added by Matvei
+
         MCSharp,
         // Map format used by MCSharp
         // - Support added by Tyler
+
         MinerCPP,
         // Map format used by MinerCPP and LuaCraft
         // - Support added by Tyler
+
         Myne,
         // Map format used by Myne and its children (Mainly Hyvebuild)
         // - Support added by Matvei
+
         Creative,
         // Creative makes more sense then the original "Vanilla"
         // - Support added by Tyler
+
         NBT,
         // Format used by indev and infdev
         // - Support added by Matvei
+
         JTE,
         // Format used by JTE's server
         // - Support added by Matvei
+
         D3,
         // Format used by D3 server
         // - Support added by Matvei
+
+        Opticraft,
+        // Format used By Opticraft v0.2+
+        // - Support added by Jared
+
         Unknown
         // Returned when the map could not be identified
     }
