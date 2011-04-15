@@ -1583,12 +1583,13 @@ namespace fCraft {
 
                 Logger.Log( "{0} left the server.", LogType.UserActivity,
                             player.Name );
-                if( ConfigKey.ShowConnectionMessages.GetBool() ) {
+                if( session.IsReady && ConfigKey.ShowConnectionMessages.GetBool() ) {
                     SendToAll( "&SPlayer {0}&S left the server.", player.GetClassyName() );
                 }
 
-                World[] worldListCache = WorldList;
-                player.World.ReleasePlayer( player );
+                if( player.World != null ) {
+                    player.World.ReleasePlayer( player );
+                }
                 Players.Remove( player.Name );
                 UpdatePlayerList();
                 RaiseEvent( PlayerListChanged );

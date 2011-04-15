@@ -201,6 +201,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\ChatCommands.cs" />
+    <Compile Include="Commands\ChatMessage.cs" />
     <Compile Include="Commands\CommandCategory.cs" />
     <Compile Include="MapConversion\MapFormatException.cs" />
     <Compile Include="System\ConfigKey.Metadata.cs" />
