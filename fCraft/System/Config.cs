@@ -316,6 +316,14 @@ namespace fCraft {
                 }
             }
 
+            // key relation validation
+            if( ConfigKey.MaxPlayersPerWorld.GetInt() > ConfigKey.MaxPlayers.GetInt() ) {
+                Log( "Value of MaxPlayersPerWorld ({0}) was lowered to match MaxPlayers ({1}).", LogType.Warning,
+                     ConfigKey.MaxPlayersPerWorld.GetInt(),
+                     ConfigKey.MaxPlayers.GetInt() );
+                ConfigKey.MaxPlayersPerWorld.SetValue( ConfigKey.MaxPlayers.GetInt() );
+            }
+
             if( raiseReloadedEvent ) RaiseReloadedEvent();
 
             return true;
@@ -390,11 +398,6 @@ namespace fCraft {
             } else {
                 if( fromFile ) Log( "Config.Load: using default player ranks.", LogType.Warning );
                 config.Add( DefineDefaultRanks() );
-            }
-
-            // key relation validation
-            if( ConfigKey.MaxPlayersPerWorld.GetInt() > ConfigKey.MaxPlayers.GetInt() ) {
-                ConfigKey.MaxPlayersPerWorld.SetValue( ConfigKey.MaxPlayers.GetInt() );
             }
 
             // parse rank-limit permissions

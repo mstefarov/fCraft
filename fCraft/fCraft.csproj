@@ -82,6 +82,12 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel.Web">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -204,6 +210,7 @@
     <Compile Include="Commands\ChatMessage.cs" />
     <Compile Include="Commands\CommandCategory.cs" />
     <Compile Include="MapConversion\MapFormatException.cs" />
+    <Compile Include="MapConversion\MapOpticraft.cs" />
     <Compile Include="System\ConfigKey.Metadata.cs" />
     <Compile Include="System\Server.Events.cs" />
     <Compile Include="World\WorldOpException.cs" />

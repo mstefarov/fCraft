@@ -19,6 +19,8 @@ namespace ConfigTool {
                          bwGenerator = new BackgroundWorker(),
                          bwRenderer = new BackgroundWorker();
 
+        const string MapLoadFilter = "Minecraft Maps|*.fcm;*.lvl;*.dat;*.mclevel;*.gz;*.map;*.meta;*.mine;*.save";
+
         readonly object redrawLock = new object();
 
         Map _map;
