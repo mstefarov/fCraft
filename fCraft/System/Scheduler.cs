@@ -18,9 +18,13 @@ namespace fCraft {
 
 
         public static void Start() {
-            schedulerThread = new Thread( MainLoop );
+            schedulerThread = new Thread( MainLoop ) {
+                Name = "fCraft.Main"
+            };
             schedulerThread.Start();
-            backgroundThread = new Thread( BackgroundLoop );
+            backgroundThread = new Thread( BackgroundLoop ) {
+                Name = "fCraft.Background"
+            };
             backgroundThread.Start();
         }
 

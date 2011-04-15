@@ -1155,12 +1155,11 @@ namespace fCraft {
             double cy = (ey + sy) / 2d;
             double ch = (eh + sh) / 2d;
 
-            // rougher estimation than the non-hollow form, a voxelized surface is a bit funky
-
             int volume;
             if( fillInner ) {
                 volume = (int)(4 / 3d * Math.PI * rx * ry * rh);
             } else {
+                // rougher estimation than the non-hollow form, a voxelized surface is a bit funky
                 volume = (int)(4 / 3d * Math.PI * ((rx + .5) * (ry + .5) * (rh + .5) - (rx - .5) * (ry - .5) * (rh - .5)) * 0.85);
             }
 
