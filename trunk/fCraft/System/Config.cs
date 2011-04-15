@@ -392,6 +392,11 @@ namespace fCraft {
                 config.Add( DefineDefaultRanks() );
             }
 
+            // key relation validation
+            if( ConfigKey.MaxPlayersPerWorld.GetInt() > ConfigKey.MaxPlayers.GetInt() ) {
+                ConfigKey.MaxPlayersPerWorld.SetValue( ConfigKey.MaxPlayers.GetInt() );
+            }
+
             // parse rank-limit permissions
             RankList.ParsePermissionLimits();
         }

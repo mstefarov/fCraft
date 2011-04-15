@@ -67,7 +67,10 @@ namespace fCraft {
                 ResponsibleForInputParsing = parseInput;
                 try {
                     // start the machinery!
-                    thread = new Thread( IoThread ) { IsBackground = true };
+                    thread = new Thread( IoThread ) {
+                        Name = "fCraft.IRC",
+                        IsBackground = true
+                    };
                     thread.Start();
                     return true;
                 } catch( Exception ex ) {

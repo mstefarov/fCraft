@@ -83,7 +83,10 @@ namespace fCraft {
                 Logger.Log( "Session.Start: Incoming connection from {0}", LogType.Debug,
                             GetIP() );
 
-                ioThread = new Thread( IoLoop ) { IsBackground = true };
+                ioThread = new Thread( IoLoop ) {
+                    Name = "fCraft.Session",
+                    IsBackground = true
+                };
                 ioThread.Start();
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Session failed to start", "fCraft", ex, false );
@@ -106,6 +109,8 @@ namespace fCraft {
 
                 // try to log the player in, otherwise die.
                 if( !LoginSequence() ) return;
+
+                ioThread.Name = "fCraft.IoThread(" + Player.Name + ")";
 
                 Server.FirePlayerConnectedEvent( this );
 

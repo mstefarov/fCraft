@@ -442,7 +442,9 @@ namespace fCraft {
         public static void Shutdown( ShutdownParams shutdownParams, bool waitForShutdown ) {
             if( shutdownParams == null ) throw new ArgumentNullException( "shutdownParams" );
             if( !CancelShutdown() ) return;
-            shutdownThread = new Thread( ShutdownThread );
+            shutdownThread = new Thread( ShutdownThread ) {
+                Name = "fCraft.Shutdown"
+            };
             shutdownThread.Start( shutdownParams );
             if( waitForShutdown ) {
                 ShutdownWaiter.WaitOne();
