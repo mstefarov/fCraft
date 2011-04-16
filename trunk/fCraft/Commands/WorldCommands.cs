@@ -898,7 +898,7 @@ namespace fCraft {
                    "If the world with the specified name exists, its map is replaced with the specified map file. " +
                    "Otherwise, a new world is created using the given name and map file. NOTE: For security reasons, you may only load files from the map folder. " +
                    "Supported formats: fCraft (.fcm), MCSharp/MCZall/MCLawl (lvl), D3 (.map), vanilla (.dat), MinerCPP/LuaCraft (.dat), " +
-                   "JTE (.gz), indev (.mclevel), iCraft/Myne.",
+                   "JTE (.gz), indev (.mclevel), iCraft/Myne, Opticraft (.save).",
             Handler = WorldLoad
         };
 
