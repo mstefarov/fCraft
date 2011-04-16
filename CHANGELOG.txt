@@ -1,3 +1,10 @@
+0.522
+ Feature: Added more functionality to hollow ellipsoid and sphere, thanks to Redshift. Now it is possible to define outer/inner blocktypes.
+ Feature: Added OptiCraft map format support, courtesy of LgZ-optical
+ Fix: Fixed a serious error that caused a crash when main world became full. This bug affected 0.520 and 0.521.
+ Fix: Fixed a crash in ConfigTool if MaxPlayers was set to be less than MaxPlayersPerWorld.
+ API: Added WorldCreating and WorldCreated events.
+
 0.521
  Feature: Added a /clear command, to clear in-game chat. Also works from fCraftConsole and fCraftUI.
  Fix: Added missing chat commands.

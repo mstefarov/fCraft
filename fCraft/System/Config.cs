@@ -317,6 +317,9 @@ namespace fCraft {
             }
 
             // key relation validation
+            if( version < 134 ) {
+                ConfigKey.MaxPlayersPerWorld.SetValue( ConfigKey.MaxPlayers.GetInt() );
+            }
             if( ConfigKey.MaxPlayersPerWorld.GetInt() > ConfigKey.MaxPlayers.GetInt() ) {
                 Log( "Value of MaxPlayersPerWorld ({0}) was lowered to match MaxPlayers ({1}).", LogType.Warning,
                      ConfigKey.MaxPlayersPerWorld.GetInt(),
