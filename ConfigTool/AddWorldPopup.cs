@@ -51,6 +51,7 @@ namespace ConfigTool {
 
         public AddWorldPopup( WorldListEntry _world ) {
             InitializeComponent();
+            fileBrowser.Filter = MapLoadFilter;
 
             cBackup.Items.AddRange( World.BackupEnum );
             cTemplates.Items.AddRange( Enum.GetNames( typeof( MapGenTemplate ) ) );

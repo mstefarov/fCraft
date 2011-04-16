@@ -419,7 +419,7 @@
             // 
             // tFile
             // 
-            this.tFile.Location = new System.Drawing.Point( 72, 81 );
+            this.tFile.Location = new System.Drawing.Point( 72, 87 );
             this.tFile.Name = "tFile";
             this.tFile.ReadOnly = true;
             this.tFile.Size = new System.Drawing.Size( 233, 20 );
@@ -427,7 +427,7 @@
             // 
             // bBrowseFile
             // 
-            this.bBrowseFile.Location = new System.Drawing.Point( 311, 79 );
+            this.bBrowseFile.Location = new System.Drawing.Point( 311, 85 );
             this.bBrowseFile.Name = "bBrowseFile";
             this.bBrowseFile.Size = new System.Drawing.Size( 74, 23 );
             this.bBrowseFile.TabIndex = 1;
@@ -578,10 +578,6 @@
             this.xHidden.Text = "Hide from the world list";
             this.xHidden.UseVisualStyleBackColor = true;
             this.xHidden.CheckedChanged += new System.EventHandler( this.xHidden_CheckedChanged );
-            // 
-            // fileBrowser
-            // 
-            this.fileBrowser.Filter = MapLoadFilter;
             // 
             // statusStrip
             // 
@@ -911,14 +907,15 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point( 211, 3 );
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size( 153, 52 );
+            this.label3.Size = new System.Drawing.Size( 151, 65 );
             this.label3.TabIndex = 13;
-            this.label3.Text = "\r\n- MinerCPP and LuaCraft (.dat)\r\n- D3 (.map) - resets spawnpoint\r\n- JTE\'s (.gz)";
+            this.label3.Text = "\r\n- MinerCPP and LuaCraft (.dat)\r\n- D3 (.map)\r\n- JTE\'s (.gz)\r\n- OptiCraft (.save)" +
+                "";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point( 6, 127 );
+            this.label2.Location = new System.Drawing.Point( 6, 126 );
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size( 173, 26 );
             this.label2.TabIndex = 12;
@@ -927,7 +924,7 @@
             // lFolder
             // 
             this.lFolder.AutoSize = true;
-            this.lFolder.Location = new System.Drawing.Point( 6, 163 );
+            this.lFolder.Location = new System.Drawing.Point( 6, 162 );
             this.lFolder.Name = "lFolder";
             this.lFolder.Size = new System.Drawing.Size( 60, 13 );
             this.lFolder.TabIndex = 11;
@@ -935,7 +932,7 @@
             // 
             // tFolder
             // 
-            this.tFolder.Location = new System.Drawing.Point( 72, 160 );
+            this.tFolder.Location = new System.Drawing.Point( 72, 159 );
             this.tFolder.Name = "tFolder";
             this.tFolder.ReadOnly = true;
             this.tFolder.Size = new System.Drawing.Size( 233, 20 );
@@ -943,7 +940,7 @@
             // 
             // bBrowseFolder
             // 
-            this.bBrowseFolder.Location = new System.Drawing.Point( 311, 157 );
+            this.bBrowseFolder.Location = new System.Drawing.Point( 311, 156 );
             this.bBrowseFolder.Name = "bBrowseFolder";
             this.bBrowseFolder.Size = new System.Drawing.Size( 74, 23 );
             this.bBrowseFolder.TabIndex = 10;
@@ -956,16 +953,16 @@
             this.lFormatList.AutoSize = true;
             this.lFormatList.Location = new System.Drawing.Point( 6, 3 );
             this.lFormatList.Name = "lFormatList";
-            this.lFormatList.Size = new System.Drawing.Size( 278, 65 );
+            this.lFormatList.Size = new System.Drawing.Size( 144, 78 );
             this.lFormatList.TabIndex = 8;
             this.lFormatList.Text = "Supported file formats:\r\n- fCraft and SpaceCraft (.fcm)\r\n- MCSharp and MCZall (.l" +
-                "vl)\r\n- Original/vanilla (.dat, .mine)\r\n- Survival Indev (.mclevel) - does not su" +
-                "pport infinite maps";
+                "vl)\r\n- Creative (original .dat)\r\n- Survival Test (.mine)\r\n- Survival Indev (.mcl" +
+                "evel)";
             // 
             // lFile
             // 
             this.lFile.AutoSize = true;
-            this.lFile.Location = new System.Drawing.Point( 6, 84 );
+            this.lFile.Location = new System.Drawing.Point( 6, 90 );
             this.lFile.Name = "lFile";
             this.lFile.Size = new System.Drawing.Size( 47, 13 );
             this.lFile.TabIndex = 7;
@@ -977,11 +974,11 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.tLoadFileInfo.Font = new System.Drawing.Font( "Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.tLoadFileInfo.Location = new System.Drawing.Point( 3, 198 );
+            this.tLoadFileInfo.Location = new System.Drawing.Point( 3, 185 );
             this.tLoadFileInfo.Multiline = true;
             this.tLoadFileInfo.Name = "tLoadFileInfo";
             this.tLoadFileInfo.ReadOnly = true;
-            this.tLoadFileInfo.Size = new System.Drawing.Size( 379, 220 );
+            this.tLoadFileInfo.Size = new System.Drawing.Size( 379, 233 );
             this.tLoadFileInfo.TabIndex = 2;
             // 
             // tabCopy
