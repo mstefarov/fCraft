@@ -2,8 +2,14 @@
  Feature: Added more functionality to hollow ellipsoid and sphere, thanks to Redshift. Now it is possible to define outer/inner blocktypes.
  Feature: Added OptiCraft map format support, courtesy of LgZ-optical
  Fix: Fixed a serious error that caused a crash when main world became full. This bug affected 0.520 and 0.521.
+ Fix: Fixed AutoLauncher not working under Mono (thanks to ven000m for spotting).
+ Fix: Fixed "Add World" dialog crashing if closed while generating a world.
+ Fix: Fixed /restart using ShutdownReason.ShuttingDown (instead of ShutdownReason.Restarting) 
  Fix: Fixed a crash in ConfigTool if MaxPlayers was set to be less than MaxPlayersPerWorld.
+ Fix: When loading old configs (pre-0.520), MaxPlayersPerWorld is automatically set to match MaxPlayers, to avoid unexpected side effects.
  API: Added WorldCreating and WorldCreated events.
+ API: Moved world-related commands from Server to a new class, WorldManager.
+ API: Renamed RankList to RankManager, and CommandList to CommandManager, for consistency.
 
 0.521
  Feature: Added a /clear command, to clear in-game chat. Also works from fCraftConsole and fCraftUI.
