@@ -318,13 +318,13 @@ namespace fCraft {
 
             // key relation validation
             if( version < 134 ) {
-                ConfigKey.MaxPlayersPerWorld.SetValue( ConfigKey.MaxPlayers.GetInt() );
+                ConfigKey.MaxPlayersPerWorld.TrySetValue( ConfigKey.MaxPlayers.GetInt() );
             }
             if( ConfigKey.MaxPlayersPerWorld.GetInt() > ConfigKey.MaxPlayers.GetInt() ) {
                 Log( "Value of MaxPlayersPerWorld ({0}) was lowered to match MaxPlayers ({1}).", LogType.Warning,
                      ConfigKey.MaxPlayersPerWorld.GetInt(),
                      ConfigKey.MaxPlayers.GetInt() );
-                ConfigKey.MaxPlayersPerWorld.SetValue( ConfigKey.MaxPlayers.GetInt() );
+                ConfigKey.MaxPlayersPerWorld.TrySetValue( ConfigKey.MaxPlayers.GetInt() );
             }
 
             if( raiseReloadedEvent ) RaiseReloadedEvent();
@@ -523,13 +523,13 @@ namespace fCraft {
 
         public static bool SetValue( this ConfigKey key, object rawValue ) {
             if( rawValue == null ) {
-                throw new ArgumentNullException( "rawValue", "ConfigKey values cannot be null. Use an empty string to indicate unset value." );
+                throw new ArgumentNullException( "rawValue", key + ": ConfigKey values cannot be null. Use an empty string to indicate unset value." );
             }
 
             string value = rawValue.ToString();
 
             if( value == null ) {
-                throw new ArgumentNullException( "rawValue", "rawValue.ToString() returned null." );
+                throw new NullReferenceException( key + ": rawValue.ToString() returned null." );
             }
 
             // LEGACY
@@ -542,6 +542,7 @@ namespace fCraft {
                 }
             }
 
+            // throws various exceptions (most commonly FormatException) if invalid
             KeyMetadata[key].Validate( value );
 
             return DoSetValue( key, value );
