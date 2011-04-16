@@ -388,24 +388,22 @@ namespace fCraft {
             Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
                         shutdownParams.ReasonString );
 
-            // kick all players
-            if( PlayerList != null ) {
-                Player[] pListCached = PlayerList;
-                foreach( Player player in pListCached ) {
-                    // NOTE: kick packet delivery here is not currently guaranteed
-                    player.Session.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
-                }
-            }
-
-            // increase the chances of kick packets being delivered
-            if( PlayerList != null && PlayerList.Length > 0 ) {
-                Thread.Sleep( 1000 );
-            }
-
             // stop accepting new players
             if( listener != null ) {
                 listener.Stop();
                 listener = null;
+            }
+
+            // kick all players
+            lock( SessionLock ) {
+                foreach( Session s in Sessions ) {
+                    // NOTE: kick packet delivery here is not currently guaranteed
+                    s.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
+                }
+                if( Sessions.Count > 0 ) {
+                    // increase the chances of kick packets being delivered
+                    Thread.Sleep( 1000 );
+                }
             }
 
             // kill IRC bot
@@ -783,9 +781,10 @@ namespace fCraft {
         public static TimeSpan CheckConnectionsInterval = TimeSpan.FromMilliseconds( 250 );
 
         internal static void CheckConnections( Scheduler.Task param ) {
-            if( listener.Pending() ) {
+            TcpListener listenerCache = listener;
+            if( listenerCache != null && listenerCache.Pending() ) {
                 try {
-                    Session newSession = new Session( listener.AcceptTcpClient() );
+                    Session newSession = new Session( listenerCache.AcceptTcpClient() );
                     newSession.Start();
                 } catch( Exception ex ) {
                     Logger.Log( "Server.CheckConnections: Could not accept incoming connection: " + ex, LogType.Error );
