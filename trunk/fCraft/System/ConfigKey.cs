@@ -18,7 +18,7 @@ namespace fCraft {
         [IntKey( ConfigSection.General, 20, MinValue = 1, MaxValue = 1000 )]
         MaxPlayers,
 
-        [IntKey( ConfigSection.General, 20, MinValue = 1, MaxValue = 127 )]
+        [IntKey( ConfigSection.General, 20, MinValue = 1, MaxValue = 128 )]
         MaxPlayersPerWorld,
 
         [RankKey( RankKeyAttribute.BlankValueMeaning.LowestRank, ConfigSection.General )]
