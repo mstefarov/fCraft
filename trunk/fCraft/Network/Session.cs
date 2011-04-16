@@ -110,8 +110,6 @@ namespace fCraft {
                 // try to log the player in, otherwise die.
                 if( !LoginSequence() ) return;
 
-                ioThread.Name = "fCraft.IoThread(" + Player.Name + ")";
-
                 Server.FirePlayerConnectedEvent( this );
 
                 // main i/o loop

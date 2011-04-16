@@ -170,13 +170,13 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             522,
-            541,
-            new DateTime( 2011, 4, 16, 3, 0, 0, DateTimeKind.Utc ),
+            542,
+            new DateTime( 2011, 4, 16, 3, 30, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Feature | ReleaseFlags.Bugfix | ReleaseFlags.APIChange
         );
 
-        public const string LatestStable = "0.521_r534";
+        public const string LatestStable = "0.522_r542";
 
         public static string UpdateUrl { get; set; }
 
