@@ -152,11 +152,11 @@ namespace fCraft {
 
 
         /// <summary> Occurs when player is about to send a chat message (cancellable). </summary>
-        public static event EventHandler<PlayerSendingMessageEventArgs> PlayerSendingMessage;
+        //public static event EventHandler<PlayerSendingMessageEventArgs> PlayerSendingMessage;
 
 
         /// <summary> Occurs after player sent a chat message. </summary>
-        public static event EventHandler<PlayerSentMessageEventArgs> PlayerSentMessage;
+        //public static event EventHandler<PlayerSentMessageEventArgs> PlayerSentMessage;
 
 
         /// <summary> Occurs when a player disconnects. </summary>
@@ -244,7 +244,7 @@ namespace fCraft {
         }
 
 
-        internal static bool RaisePlayerSendingMessageEvent( ChatMessage message ) {
+        /*internal static bool RaisePlayerSendingMessageEvent( ChatMessage message ) {
             var h = PlayerSendingMessage;
             if( h == null ) return false;
             var e = new PlayerSendingMessageEventArgs( message );
@@ -256,7 +256,7 @@ namespace fCraft {
         internal static void RaisePlayerSentMessageEvent( ChatMessage message ) {
             var h = PlayerSentMessage;
             if( h != null ) h( null, new PlayerSentMessageEventArgs( message ) );
-        }
+        }*/
 
 
         internal static void RaisePlayerDisconnectedEventArgs( Player player, LeaveReason leaveReason ) {
