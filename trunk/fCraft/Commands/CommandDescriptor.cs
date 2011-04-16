@@ -45,9 +45,9 @@ namespace fCraft {
         public bool Call( Player player, Command cmd, bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            if( raiseEvent && CommandList.RaiseCommandCallingEvent( cmd, this, player ) ) return false;
+            if( raiseEvent && CommandManager.RaiseCommandCallingEvent( cmd, this, player ) ) return false;
             Handler( player, cmd );
-            if( raiseEvent ) CommandList.RaiseCommandCalledEvent( cmd, this, player );
+            if( raiseEvent ) CommandManager.RaiseCommandCalledEvent( cmd, this, player );
             return true;
         }
 

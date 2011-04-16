@@ -1,7 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using fCraft.Events;
@@ -21,32 +20,32 @@ namespace fCraft {
             cdUnbanIP.Help += BanCommonHelp;
             cdUnbanAll.Help += BanCommonHelp;
 
-            CommandList.RegisterCommand( cdBan );
-            CommandList.RegisterCommand( cdBanIP );
-            CommandList.RegisterCommand( cdBanAll );
-            CommandList.RegisterCommand( cdUnban );
-            CommandList.RegisterCommand( cdUnbanIP );
-            CommandList.RegisterCommand( cdUnbanAll );
+            CommandManager.RegisterCommand( cdBan );
+            CommandManager.RegisterCommand( cdBanIP );
+            CommandManager.RegisterCommand( cdBanAll );
+            CommandManager.RegisterCommand( cdUnban );
+            CommandManager.RegisterCommand( cdUnbanIP );
+            CommandManager.RegisterCommand( cdUnbanAll );
 
-            CommandList.RegisterCommand( cdKick );
+            CommandManager.RegisterCommand( cdKick );
 
-            CommandList.RegisterCommand( cdChangeRank );
+            CommandManager.RegisterCommand( cdChangeRank );
 
-            CommandList.RegisterCommand( cdHide );
-            CommandList.RegisterCommand( cdUnhide );
+            CommandManager.RegisterCommand( cdHide );
+            CommandManager.RegisterCommand( cdUnhide );
 
-            CommandList.RegisterCommand( cdSetSpawn );
+            CommandManager.RegisterCommand( cdSetSpawn );
 
-            CommandList.RegisterCommand( cdFreeze );
-            CommandList.RegisterCommand( cdUnfreeze );
+            CommandManager.RegisterCommand( cdFreeze );
+            CommandManager.RegisterCommand( cdUnfreeze );
 
-            CommandList.RegisterCommand( cdTP );
-            CommandList.RegisterCommand( cdBring );
-            CommandList.RegisterCommand( cdBringAll );
-            CommandList.RegisterCommand( cdPatrol );
+            CommandManager.RegisterCommand( cdTP );
+            CommandManager.RegisterCommand( cdBring );
+            CommandManager.RegisterCommand( cdBringAll );
+            CommandManager.RegisterCommand( cdPatrol );
 
-            CommandList.RegisterCommand( cdMute );
-            CommandList.RegisterCommand( cdUnmute );
+            CommandManager.RegisterCommand( cdMute );
+            CommandManager.RegisterCommand( cdUnmute );
         }
 
 
@@ -555,7 +554,7 @@ namespace fCraft {
             }
 
             // Parse rank name
-            Rank newRank = RankList.FindRank( newRankName );
+            Rank newRank = RankManager.FindRank( newRankName );
             if( newRank == null ) {
                 player.NoRankMessage( newRankName );
                 return;
@@ -571,7 +570,7 @@ namespace fCraft {
                 }
                 if( Player.IsValidName( name ) ) {
                     if( cmd.Confirmed ) {
-                        targetInfo = PlayerDB.AddFakeEntry( name, (newRank > RankList.DefaultRank ? RankChangeType.Promoted : RankChangeType.Demoted) );
+                        targetInfo = PlayerDB.AddFakeEntry( name, (newRank > RankManager.DefaultRank ? RankChangeType.Promoted : RankChangeType.Demoted) );
                     } else {
                         player.AskForConfirmation( cmd, "Warning: Player \"{0}\" is not in the database (possible typo). Type out the full name or", name );
                         return;
@@ -1064,9 +1063,9 @@ namespace fCraft {
 
                 } else {
                     // Try to guess if player typed "/tp" instead of "/join"
-                    World[] worlds = Server.FindWorlds( name );
+                    World[] worlds = WorldManager.FindWorlds( name );
                     SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, name, worlds.ToList(), true );
-                    Server.RaiseSearchingForWorldEvent( e );
+                    WorldManager.RaiseSearchingForWorldEvent( e );
                     worlds = e.Matches.ToArray();
 
                     if( worlds.Length == 1 ) {
@@ -1172,7 +1171,7 @@ namespace fCraft {
             string arg;
             while( (arg = cmd.Next()) != null ) {
                 if( arg.StartsWith( "@" ) ) {
-                    Rank rank = RankList.ParseRank( arg.Substring( 1 ) );
+                    Rank rank = RankManager.ParseRank( arg.Substring( 1 ) );
                     if( rank == null ) {
                         player.Message( "Unknown rank: {0}", arg.Substring( 1 ) );
                         return;
@@ -1188,7 +1187,7 @@ namespace fCraft {
                 } else if( arg == "*" ) {
                     allWorlds = true;
                 } else {
-                    World world = Server.FindWorldOrPrintMatches( player, arg );
+                    World world = WorldManager.FindWorldOrPrintMatches( player, arg );
                     if( world == null ) return;
                     targetWorlds.Add( world );
                 }

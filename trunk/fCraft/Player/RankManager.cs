@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 namespace fCraft {
-    public static class RankList {
+    public static class RankManager {
         public static Dictionary<string, Rank> RanksByName { get; private set; }
         public static Dictionary<string, Rank> RanksByFullName { get; private set; }
         public static Dictionary<string, Rank> RanksByID { get; private set; }
@@ -14,7 +14,7 @@ namespace fCraft {
         public static Rank DefaultRank, LowestRank, HighestRank;
 
 
-        static RankList() {
+        static RankManager() {
             Reset();
             LegacyRankMapping = new Dictionary<string, string>();
         }

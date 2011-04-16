@@ -494,7 +494,7 @@ namespace fCraft {
 
 
             // Verify name
-            Player = new Player( null, playerName, this, Server.MainWorld.Map.Spawn );
+            Player = new Player( null, playerName, this, WorldManager.MainWorld.Map.Spawn );
             bool showVerifyNamesWarning = false;
             if( !Server.VerifyName( Player.Name, verificationCode, Server.Salt ) ) {
                 NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();
@@ -628,7 +628,7 @@ namespace fCraft {
             // ----==== Beyond this point, player is considered connected (authenticated and registered) ====----
 
 
-            World startingWorld = Server.RaisePlayerConnectedEvent( Player, Server.MainWorld );
+            World startingWorld = Server.RaisePlayerConnectedEvent( Player, WorldManager.MainWorld );
 
             // Send server information
             writer.Write( PacketWriter.MakeHandshake( Player, ConfigKey.ServerName.GetString(), ConfigKey.MOTD.GetString() ) );
@@ -712,7 +712,7 @@ namespace fCraft {
                     sb.Replace( "{TIME}", DateTime.Now.ToShortTimeString() );
                     sb.Replace( "{WORLD}", Player.World.GetClassyName() );
                     sb.Replace( "{PLAYERS}", Server.CountVisiblePlayers( Player ).ToString() );
-                    sb.Replace( "{WORLDS}", Server.WorldList.Length.ToString() );
+                    sb.Replace( "{WORLDS}", WorldManager.WorldList.Length.ToString() );
                     sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
                     Player.Message( sb.ToString() );
                 }
@@ -728,9 +728,9 @@ namespace fCraft {
             }
 
             // A reminder for first-time users
-            if( PlayerDB.CountTotalPlayers() == 1 && Player.Info.Rank != RankList.HighestRank ) {
+            if( PlayerDB.CountTotalPlayers() == 1 && Player.Info.Rank != RankManager.HighestRank ) {
                 Player.Message( "Type &H/rank {0} {1}&S in console to promote yourself",
-                                Player.Name, RankList.HighestRank.Name );
+                                Player.Name, RankManager.HighestRank.Name );
             }
 
             Server.RaisePlayerReadyEvent( Player );

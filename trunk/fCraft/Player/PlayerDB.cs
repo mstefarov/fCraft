@@ -38,7 +38,7 @@ namespace fCraft {
 
         public static PlayerInfo AddFakeEntry( string name, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            PlayerInfo info = new PlayerInfo( name, RankList.DefaultRank, false, rankChangeType );
+            PlayerInfo info = new PlayerInfo( name, RankManager.DefaultRank, false, rankChangeType );
             lock( Locker ) {
                 List.Add( info );
                 Tree.Add( info.Name, info );
@@ -381,4 +381,4 @@ namespace fCraft {
 
         #endregion
     }
-}
+}384+

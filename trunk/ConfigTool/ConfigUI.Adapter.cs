@@ -17,13 +17,22 @@ namespace ConfigTool {
         #region Loading & Applying Config
 
         void LoadConfig( object sender, EventArgs args ) {
-            if( !File.Exists( "worlds.xml" ) && !File.Exists( Paths.ConfigFileName ) ) {
-                MessageBox.Show( "Configuration (config.xml) and world list (worlds.xml) were not found. Using defaults." );
+            string missingFileMsg = null;
+            if( !File.Exists( Paths.WorldListFileName ) && !File.Exists( Paths.ConfigFileName ) ) {
+                missingFileMsg = String.Format( "Configuration ({0}) and world list ({1}) were not found. Using defaults.",
+                                                Paths.ConfigFileName,
+                                                Paths.WorldListFileName );
             } else if( !File.Exists( Paths.ConfigFileName ) ) {
-                MessageBox.Show( "Configuration (config.xml) was not found. Using defaults." );
-            } else if( !File.Exists( "worlds.xml" ) ) {
-                MessageBox.Show( "World list (worlds.xml) was not found. Assuming 0 worlds." );
+                missingFileMsg = String.Format( "Configuration ({0}) was not found. Using defaults.",
+                                                 Paths.ConfigFileName );
+            } else if( !File.Exists( Paths.WorldListFileName ) ) {
+                missingFileMsg = String.Format( "World list ({0}) was not found. Assuming 0 worlds.",
+                                                Paths.WorldListFileName );
             }
+            if( missingFileMsg != null ) {
+                MessageBox.Show( missingFileMsg );
+            }
+
 
             if( Config.Load( false, false ) ) {
                 if( Config.Errors.Length > 0 ) {
@@ -54,10 +63,10 @@ namespace ConfigTool {
 
         void LoadWorldList() {
             worlds.Clear();
-            if( !File.Exists( "worlds.xml" ) ) return;
+            if( !File.Exists( Paths.WorldListFileName ) ) return;
 
             try {
-                XDocument doc = XDocument.Load( "worlds.xml" );
+                XDocument doc = XDocument.Load( Paths.WorldListFileName );
                 XElement root = doc.Root;
 
                 string errorLog = "";
@@ -101,7 +110,7 @@ namespace ConfigTool {
             if( ConfigKey.DefaultRank.IsBlank() ) {
                 cDefaultRank.SelectedIndex = 0;
             } else {
-                cDefaultRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( ConfigKey.DefaultRank.GetString() ) );
+                cDefaultRank.SelectedIndex = RankManager.GetIndex( RankManager.ParseRank( ConfigKey.DefaultRank.GetString() ) );
             }
 
             cPublic.SelectedIndex = ConfigKey.IsPublic.GetBool() ? 0 : 1;
@@ -163,7 +172,7 @@ namespace ConfigTool {
             if( rankNameList == null ) {
                 rankNameList = new BindingList<string>();
                 rankNameList.Add( WorldListEntry.DefaultRankOption );
-                foreach( Rank rank in RankList.Ranks ) {
+                foreach( Rank rank in RankManager.Ranks ) {
                     rankNameList.Add( rank.ToComboBoxOption() );
                 }
                 dgvcAccess.DataSource = rankNameList;
@@ -177,7 +186,7 @@ namespace ConfigTool {
                 //dgvWorlds.DataSource = null;
                 rankNameList.Clear();
                 rankNameList.Add( WorldListEntry.DefaultRankOption );
-                foreach( Rank rank in RankList.Ranks ) {
+                foreach( Rank rank in RankManager.Ranks ) {
                     rankNameList.Add( rank.ToComboBoxOption() );
                 }
                 foreach( WorldListEntry world in worlds ) {
@@ -191,7 +200,7 @@ namespace ConfigTool {
             if( ConfigKey.DefaultBuildRank.IsBlank() ) {
                 cDefaultBuildRank.SelectedIndex = 0;
             } else {
-                cDefaultBuildRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( ConfigKey.DefaultBuildRank.GetString() ) );
+                cDefaultBuildRank.SelectedIndex = RankManager.GetIndex( RankManager.ParseRank( ConfigKey.DefaultBuildRank.GetString() ) );
             }
 
             if( Paths.IsDefaultMapPath( Config.GetString( ConfigKey.MapPath ) ) ) {
@@ -206,7 +215,7 @@ namespace ConfigTool {
 
         void ApplyTabRanks() {
             vRanks.Items.Clear();
-            foreach( Rank rank in RankList.Ranks ) {
+            foreach( Rank rank in RankManager.Ranks ) {
                 vRanks.Items.Add( rank.ToComboBoxOption() );
             }
             DisableRankOptions();
@@ -241,7 +250,7 @@ namespace ConfigTool {
             if( ConfigKey.PatrolledRank.IsBlank() ) {
                 cPatrolledRank.SelectedIndex = 0;
             } else {
-                cPatrolledRank.SelectedIndex = RankList.GetIndex( RankList.ParseRank( ConfigKey.PatrolledRank.GetString() ) );
+                cPatrolledRank.SelectedIndex = RankManager.GetIndex( RankManager.ParseRank( ConfigKey.PatrolledRank.GetString() ) );
             }
 
             xPaidPlayersOnly.Checked = ConfigKey.PaidPlayersOnly.GetBool();
@@ -396,7 +405,7 @@ namespace ConfigTool {
             if( cDefaultRank.SelectedIndex == 0 ) {
                 Config.TrySetValue( ConfigKey.DefaultRank, "" );
             } else {
-                Config.TrySetValue( ConfigKey.DefaultRank, RankList.FindRank( cDefaultRank.SelectedIndex - 1 ) );
+                Config.TrySetValue( ConfigKey.DefaultRank, RankManager.FindRank( cDefaultRank.SelectedIndex - 1 ) );
             }
             Config.TrySetValue( ConfigKey.IsPublic, cPublic.SelectedIndex == 0 );
             Config.TrySetValue( ConfigKey.Port, nPort.Value );
@@ -437,7 +446,7 @@ namespace ConfigTool {
             if( cDefaultBuildRank.SelectedIndex == 0 ) {
                 Config.TrySetValue( ConfigKey.DefaultBuildRank, "" );
             } else {
-                Config.TrySetValue( ConfigKey.DefaultBuildRank, RankList.FindRank( cDefaultBuildRank.SelectedIndex - 1 ) );
+                Config.TrySetValue( ConfigKey.DefaultBuildRank, RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 ) );
             }
 
             if( xMapPath.Checked ) Config.TrySetValue( ConfigKey.MapPath, tMapPath.Text );
@@ -469,7 +478,7 @@ namespace ConfigTool {
             if( cPatrolledRank.SelectedIndex == 0 ) {
                 Config.TrySetValue( ConfigKey.PatrolledRank, "" );
             } else {
-                Config.TrySetValue( ConfigKey.PatrolledRank, RankList.FindRank( cPatrolledRank.SelectedIndex - 1 ) );
+                Config.TrySetValue( ConfigKey.PatrolledRank, RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 ) );
             }
             Config.TrySetValue( ConfigKey.PaidPlayersOnly, xPaidPlayersOnly.Checked );
 
@@ -561,8 +570,8 @@ namespace ConfigTool {
         }
 
 
-        const string WorldListTempFileName = Server.WorldListFileName + ".tmp";
         void SaveWorldList() {
+            string WorldListTempFileName = Paths.WorldListFileName + ".tmp";
             try {
                 XDocument doc = new XDocument();
                 XElement root = new XElement( "fCraftWorldList" );
@@ -574,9 +583,12 @@ namespace ConfigTool {
                 }
                 doc.Add( root );
                 doc.Save( WorldListTempFileName );
-                Paths.MoveOrReplace( WorldListTempFileName, Server.WorldListFileName );
+                Paths.MoveOrReplace( WorldListTempFileName, Paths.WorldListFileName );
             } catch( Exception ex ) {
-                MessageBox.Show( "An error occured while trying to save world list (worlds.xml):" + Environment.NewLine + ex );
+                MessageBox.Show( String.Format( "An error occured while trying to save world list ({0}): {1}{2}",
+                                                Paths.WorldListFileName,
+                                                Environment.NewLine,
+                                                ex ) );
             }
         }
 

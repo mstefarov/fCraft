@@ -12,29 +12,29 @@ namespace fCraft {
     /// </summary>
     static class WorldCommands {
         internal static void Init() {
-            CommandList.RegisterCommand( cdJoin );
+            CommandManager.RegisterCommand( cdJoin );
 
-            CommandList.RegisterCommand( cdWorldInfo );
+            CommandManager.RegisterCommand( cdWorldInfo );
 
-            CommandList.RegisterCommand( cdWorldSave );
-            CommandList.RegisterCommand( cdWorldMain );
-            CommandList.RegisterCommand( cdWorldAccess );
-            CommandList.RegisterCommand( cdWorldBuild );
-            CommandList.RegisterCommand( cdWorlds );
-            CommandList.RegisterCommand( cdWorldLoad );
-            CommandList.RegisterCommand( cdWorldRename );
-            CommandList.RegisterCommand( cdWorldUnload );
-            CommandList.RegisterCommand( cdWorldFlush );
+            CommandManager.RegisterCommand( cdWorldSave );
+            CommandManager.RegisterCommand( cdWorldMain );
+            CommandManager.RegisterCommand( cdWorldAccess );
+            CommandManager.RegisterCommand( cdWorldBuild );
+            CommandManager.RegisterCommand( cdWorlds );
+            CommandManager.RegisterCommand( cdWorldLoad );
+            CommandManager.RegisterCommand( cdWorldRename );
+            CommandManager.RegisterCommand( cdWorldUnload );
+            CommandManager.RegisterCommand( cdWorldFlush );
 
-            CommandList.RegisterCommand( cdWorldHide );
-            CommandList.RegisterCommand( cdWorldUnhide );
+            CommandManager.RegisterCommand( cdWorldHide );
+            CommandManager.RegisterCommand( cdWorldUnhide );
 
-            CommandList.RegisterCommand( cdGenerate );
+            CommandManager.RegisterCommand( cdGenerate );
 
-            CommandList.RegisterCommand( cdLock );
-            CommandList.RegisterCommand( cdLockAll );
-            CommandList.RegisterCommand( cdUnlock );
-            CommandList.RegisterCommand( cdUnlockAll );
+            CommandManager.RegisterCommand( cdLock );
+            CommandManager.RegisterCommand( cdLockAll );
+            CommandManager.RegisterCommand( cdUnlock );
+            CommandManager.RegisterCommand( cdUnlockAll );
         }
 
 
@@ -60,7 +60,7 @@ namespace fCraft {
                 }
             }
 
-            World world = Server.FindWorldOrPrintMatches( player, worldName );
+            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
 
             player.Message( "World {0}&S has {1} player(s) on.",
@@ -120,10 +120,10 @@ namespace fCraft {
                 return;
             }
 
-            World[] worlds = Server.FindWorlds( worldName );
+            World[] worlds = WorldManager.FindWorlds( worldName );
 
             SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, worldName, worlds.ToList(), true );
-            Server.RaiseSearchingForWorldEvent( e );
+            WorldManager.RaiseSearchingForWorldEvent( e );
             worlds = e.Matches.ToArray();
 
             if( worlds.Length > 1 ) {
@@ -195,7 +195,7 @@ namespace fCraft {
                     return;
                 }
             } else {
-                world = Server.FindWorldOrPrintMatches( player, p1 );
+                world = WorldManager.FindWorldOrPrintMatches( player, p1 );
                 if( world == null ) return;
                 fileName = p2;
             }
@@ -277,7 +277,7 @@ namespace fCraft {
             World world = player.World;
 
             if( worldName != null ) {
-                world = Server.FindWorldOrPrintMatches( player, worldName );
+                world = WorldManager.FindWorldOrPrintMatches( player, worldName );
                 if( world == null ) return;
 
             } else if( player.World == null ) {
@@ -312,15 +312,15 @@ namespace fCraft {
         internal static void WorldMain( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
-                player.Message( "Main world is {0}", Server.MainWorld.GetClassyName() );
+                player.Message( "Main world is {0}", WorldManager.MainWorld.GetClassyName() );
                 return;
             }
 
-            World world = Server.FindWorldOrPrintMatches( player, worldName );
+            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) {
                 return;
 
-            } else if( world == Server.MainWorld ) {
+            } else if( world == WorldManager.MainWorld ) {
                 player.Message( "World {0}&S is already set as main.", world.GetClassyName() );
 
             } else if( !player.Info.Rank.AllowSecurityCircumvention && !player.CanJoin( world ) ) {
@@ -347,7 +347,7 @@ namespace fCraft {
                     player.Message( "Main world was not changed." );
                     return;
                 }
-                Server.SaveWorldList();
+                WorldManager.SaveWorldList();
 
                 Server.SendToAll( "{0}&S set {1}&S to be the main world.",
                                   player.GetClassyName(), world.GetClassyName() );
@@ -384,7 +384,7 @@ namespace fCraft {
             }
 
             // Find a world by name
-            World world = Server.FindWorldOrPrintMatches( player, worldName );
+            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
 
 
@@ -393,7 +393,7 @@ namespace fCraft {
                 world.AccessSecurity.PrintDescription( player, world, "world", "accessed" );
                 return;
             }
-            if( world == Server.MainWorld ) {
+            if( world == WorldManager.MainWorld ) {
                 player.Message( "The main world cannot have access restrictions." );
                 return;
             }
@@ -544,7 +544,7 @@ namespace fCraft {
 
                     // Setting minimum rank
                 } else {
-                    Rank rank = RankList.FindRank( name );
+                    Rank rank = RankManager.FindRank( name );
                     if( rank == null ) {
                         player.NoRankMessage( name );
 
@@ -575,7 +575,7 @@ namespace fCraft {
                         // apply changes
                         world.AccessSecurity.MinRank = rank;
                         changesWereMade = true;
-                        if( world.AccessSecurity.MinRank == RankList.LowestRank ) {
+                        if( world.AccessSecurity.MinRank == RankManager.LowestRank ) {
                             Server.SendToAll( "{0}&S made the world {1}&S accessible to everyone.",
                                               player.GetClassyName(), world.GetClassyName() );
                         } else {
@@ -590,7 +590,7 @@ namespace fCraft {
             } while( (name = cmd.Next()) != null );
 
             if( changesWereMade ) {
-                Server.SaveWorldList();
+                WorldManager.SaveWorldList();
             }
         }
 
@@ -622,7 +622,7 @@ namespace fCraft {
             }
 
             // Find a world by name
-            World world = Server.FindWorldOrPrintMatches( player, worldName );
+            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
 
 
@@ -777,7 +777,7 @@ namespace fCraft {
 
                     // Setting minimum rank
                 } else {
-                    Rank rank = RankList.FindRank( name );
+                    Rank rank = RankManager.FindRank( name );
                     if( rank == null ) {
                         player.NoRankMessage( name );
                     } else if( !player.Info.Rank.AllowSecurityCircumvention &&
@@ -806,7 +806,7 @@ namespace fCraft {
                         // apply changes
                         world.BuildSecurity.MinRank = rank;
                         changesWereMade = true;
-                        if( world.BuildSecurity.MinRank == RankList.LowestRank ) {
+                        if( world.BuildSecurity.MinRank == RankManager.LowestRank ) {
                             Server.SendToAll( "{0}&S allowed anyone to build on world {1}",
                                               player.GetClassyName(), world.GetClassyName() );
                         } else {
@@ -820,7 +820,7 @@ namespace fCraft {
             } while( (name = cmd.Next()) != null );
 
             if( changesWereMade ) {
-                Server.SaveWorldList();
+                WorldManager.SaveWorldList();
             }
         }
 
@@ -863,7 +863,7 @@ namespace fCraft {
             bool first = true;
             int count = 0;
 
-            World[] worldListCache = Server.WorldList;
+            World[] worldListCache = WorldManager.WorldList;
             foreach( World world in worldListCache ) {
                 bool visible = player.CanJoin( world ) && !world.IsHidden;
                 if( (visible && listVisible) || (!visible && listHidden) ) {
@@ -997,8 +997,8 @@ namespace fCraft {
                     return;
                 }
 
-                lock( Server.WorldListLock ) {
-                    World world = Server.FindWorldExact( worldName );
+                lock( WorldManager.WorldListLock ) {
+                    World world = WorldManager.FindWorldExact( worldName );
                     if( world != null ) {
                         // Replacing existing world's map
                         if( !cmd.Confirmed ) {
@@ -1044,19 +1044,19 @@ namespace fCraft {
 
                         World newWorld;
                         try {
-                            newWorld = Server.AddWorld( player, worldName, map, false );
+                            newWorld = WorldManager.AddWorld( player, worldName, map, false );
                         } catch( WorldOpException ex ) {
                             player.Message( "WLoad: {0}", ex.Message );
                             return;
                         }
 
                         if( newWorld != null ) {
-                            newWorld.BuildSecurity.MinRank = RankList.ParseRank( ConfigKey.DefaultBuildRank.GetString() );
+                            newWorld.BuildSecurity.MinRank = RankManager.ParseRank( ConfigKey.DefaultBuildRank.GetString() );
                             Server.SendToAll( "{0}&S created a new world named {1}",
                                               player.GetClassyName(), newWorld.GetClassyName() );
                             Logger.Log( "{0} created a new world named \"{1}\" (loaded from \"{2}\")", LogType.UserActivity,
                                         player.Name, worldName, fileName );
-                            Server.SaveWorldList();
+                            WorldManager.SaveWorldList();
                             player.MessageNow( "Reminder: New world's access permission is {0}+&S, and build permission is {1}+",
                                                newWorld.AccessSecurity.MinRank.GetClassyName(),
                                                newWorld.BuildSecurity.MinRank.GetClassyName() );
@@ -1090,12 +1090,12 @@ namespace fCraft {
                 return;
             }
 
-            World oldWorld = Server.FindWorldOrPrintMatches( player, oldName );
+            World oldWorld = WorldManager.FindWorldOrPrintMatches( player, oldName );
             if( oldWorld == null ) return;
             oldName = oldWorld.Name;
 
             try {
-                Server.RenameWorld( oldWorld, newName, true );
+                WorldManager.RenameWorld( oldWorld, newName, true );
             } catch( WorldOpException ex ) {
                 switch( ex.ErrorCode ) {
                     case WorldOpExceptionCode.NoChangeNeeded:
@@ -1119,7 +1119,7 @@ namespace fCraft {
                 }
             }
 
-            Server.SaveWorldList();
+            WorldManager.SaveWorldList();
             Logger.Log( "{0} renamed the world \"{1}\" to \"{2}\".", LogType.UserActivity,
                         player.Name, oldName, newName );
             Server.SendToAll( "{0}&S renamed the world \"{1}\" to \"{2}\"",
@@ -1147,11 +1147,11 @@ namespace fCraft {
                 return;
             }
 
-            World world = Server.FindWorldOrPrintMatches( player, worldName );
+            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
 
             try {
-                Server.RemoveWorld( world );
+                WorldManager.RemoveWorld( world );
             } catch( WorldOpException ex ) {
                 switch( ex.ErrorCode ) {
                     case WorldOpExceptionCode.CannotDoThatToMainWorld:
@@ -1172,7 +1172,7 @@ namespace fCraft {
                 }
             }
 
-            Server.SaveWorldList();
+            WorldManager.SaveWorldList();
             Server.SendToAllExcept( "{0}&S removed {1}&S from the world list.", player,
                                     player.GetClassyName(), world.GetClassyName() );
             player.Message( "Removed {0}&S from the world list. You can now delete the map file ({1}.fcm) manually.",
@@ -1206,7 +1206,7 @@ namespace fCraft {
                 return;
             }
 
-            World world = Server.FindWorldOrPrintMatches( player, worldName );
+            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
 
             if( world.IsHidden ) {
@@ -1214,7 +1214,7 @@ namespace fCraft {
             } else {
                 player.Message( "World \"{0}&S\" is now hidden.", world.GetClassyName() );
                 world.IsHidden = true;
-                Server.SaveWorldList();
+                WorldManager.SaveWorldList();
             }
         }
 
@@ -1238,13 +1238,13 @@ namespace fCraft {
                 return;
             }
 
-            World world = Server.FindWorldOrPrintMatches( player, worldName );
+            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
 
             if( world.IsHidden ) {
                 player.Message( "World \"{0}&S\" is no longer hidden.", world.GetClassyName() );
                 world.IsHidden = false;
-                Server.SaveWorldList();
+                WorldManager.SaveWorldList();
             } else {
                 player.Message( "World \"{0}&S\" is not hidden.", world.GetClassyName() );
             }
@@ -1445,7 +1445,7 @@ namespace fCraft {
 
             World world;
             if( worldName != null ) {
-                world = Server.FindWorldOrPrintMatches( player, worldName );
+                world = WorldManager.FindWorldOrPrintMatches( player, worldName );
                 if( world == null ) return;
 
             } else if( player.World != null ) {
@@ -1473,7 +1473,7 @@ namespace fCraft {
         };
 
         internal static void LockAll( Player player, Command cmd ) {
-            World[] worldListCache = Server.WorldList;
+            World[] worldListCache = WorldManager.WorldList;
             foreach( World world in worldListCache ) {
                 world.Lock( player );
             }
@@ -1497,7 +1497,7 @@ namespace fCraft {
 
             World world;
             if( worldName != null ) {
-                world = Server.FindWorldOrPrintMatches( player, worldName );
+                world = WorldManager.FindWorldOrPrintMatches( player, worldName );
                 if( world == null ) return;
 
             } else if( player.World != null ) {
@@ -1525,7 +1525,7 @@ namespace fCraft {
         };
 
         internal static void UnlockAll( Player player, Command cmd ) {
-            World[] worldListCache = Server.WorldList;
+            World[] worldListCache = WorldManager.WorldList;
             foreach( World world in worldListCache ) {
                 world.Unlock( player );
             }

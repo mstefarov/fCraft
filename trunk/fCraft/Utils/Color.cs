@@ -74,28 +74,15 @@ namespace fCraft {
             return ColorNames[color[1]];
         }
 
-        /// <summary> Parses a string to a format readable by Minecraft clients. 
-        /// an accept color names and color codes (with or without the ampersand). </summary>
-        /// <param name="code"> Color code character </param>
-        /// <returns> Two-character color string, readable by Minecraft client.
-        /// If input is null or cannot be parsed, returns null. </returns>
-        public static string Parse( char code ) {
-            code = Char.ToLower( code );
-            if( IsValidColorCode( code ) ) {
-                return "&" + code;
+
+        /// <summary> Gets color name for a numeric color code. </summary>
+        /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
+        /// <returns> Lowercase color name. If input is out of range, returns null. </returns>
+        public static string GetName( int index ) {
+            if( index >= 0 && index <= 15 ) {
+                return ColorNames.Values[index];
             } else {
-                switch( code ) {
-                    case 's': return Sys;
-                    case 'y': return Say;
-                    case 'p': return PM;
-                    case 'r': return Announcement;
-                    case 'h': return Help;
-                    case 'w': return Warning;
-                    case 'm': return Me;
-                    case 'i': return IRC;
-                    default:
-                        return null;
-                }
+                return null;
             }
         }
 
@@ -121,16 +108,32 @@ namespace fCraft {
         }
 
 
-        /// <summary> Gets color name for a numeric color code. </summary>
-        /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
-        /// <returns> Lowercase color name. If input is out of range, returns null. </returns>
-        public static string GetName( int index ) {
-            if( index >= 0 && index <= 15 ) {
-                return ColorNames.Values[index];
+
+        /// <summary> Parses a string to a format readable by Minecraft clients. 
+        /// an accept color names and color codes (with or without the ampersand). </summary>
+        /// <param name="code"> Color code character </param>
+        /// <returns> Two-character color string, readable by Minecraft client.
+        /// If input is null or cannot be parsed, returns null. </returns>
+        public static string Parse( char code ) {
+            code = Char.ToLower( code );
+            if( IsValidColorCode( code ) ) {
+                return "&" + code;
             } else {
-                return null;
+                switch( code ) {
+                    case 's': return Sys;
+                    case 'y': return Say;
+                    case 'p': return PM;
+                    case 'r': return Announcement;
+                    case 'h': return Help;
+                    case 'w': return Warning;
+                    case 'm': return Me;
+                    case 'i': return IRC;
+                    default:
+                        return null;
+                }
             }
         }
+
 
         /// <summary> Parses a numeric color code to a string readable by Minecraft clients </summary>
         /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
@@ -203,6 +206,7 @@ namespace fCraft {
         }
 
 
+
         /// <summary>
         /// Checks whether a color code is valid (checks if it's hexadecimal char).
         /// </summary>
@@ -210,6 +214,7 @@ namespace fCraft {
         public static bool IsValidColorCode( char code ) {
             return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f') || (code >= 'A' && code <= 'F');
         }
+
 
         public static string ReplacePercentCodes( string message ) {
             StringBuilder sb = new StringBuilder( message );
@@ -239,28 +244,6 @@ namespace fCraft {
         }
 
 
-        #region IRC Colors
-
-        static readonly Dictionary<string, IRCColor> MinecraftToIRCColors = new Dictionary<string, IRCColor> {
-            { White, IRCColor.White },
-            { Black, IRCColor.Black },
-            { Navy, IRCColor.Navy },
-            { Green, IRCColor.Green },
-            { Red, IRCColor.Red },
-            { Maroon, IRCColor.Maroon },
-            { Purple, IRCColor.Purple },
-            { Olive, IRCColor.Olive },
-            { Yellow, IRCColor.Yellow },
-            { Lime, IRCColor.Lime },
-            { Teal, IRCColor.Teal },
-            { Aqua, IRCColor.Aqua },
-            { Blue, IRCColor.Blue },
-            { Magenta, IRCColor.Magenta },
-            { Gray, IRCColor.Gray },
-            { Silver, IRCColor.Silver },
-        };
-
-
         public static string SubstituteSpecialColors( string input ) {
             StringBuilder sb = new StringBuilder( input );
             for( int i = sb.Length - 1; i > 0; i-- ) {
@@ -287,9 +270,33 @@ namespace fCraft {
             return sb.ToString();
         }
 
+        #region IRC Colors
 
-        public static string StripColorCodes( string input ) {
-            return input.Replace( "&", "" );
+        public const string IRCReset = "\u0003\u000f";
+        public const string IRCBold = "\u0002";
+
+        static readonly Dictionary<string, IRCColor> MinecraftToIRCColors = new Dictionary<string, IRCColor> {
+            { White, IRCColor.White },
+            { Black, IRCColor.Black },
+            { Navy, IRCColor.Navy },
+            { Green, IRCColor.Green },
+            { Red, IRCColor.Red },
+            { Maroon, IRCColor.Maroon },
+            { Purple, IRCColor.Purple },
+            { Olive, IRCColor.Olive },
+            { Yellow, IRCColor.Yellow },
+            { Lime, IRCColor.Lime },
+            { Teal, IRCColor.Teal },
+            { Aqua, IRCColor.Aqua },
+            { Blue, IRCColor.Blue },
+            { Magenta, IRCColor.Magenta },
+            { Gray, IRCColor.Gray },
+            { Silver, IRCColor.Silver },
+        };
+
+
+        public static string EscapeAmpersands( string input ) {
+            return input.Replace( "&", "&&" );
         }
 
 
@@ -302,11 +309,9 @@ namespace fCraft {
             return sb.ToString();
         }
 
-        public const string IRCReset = "\u0003\u000f";
-        public const string IRCBold = "\u0002";
-
         #endregion
     }
+
 
     enum IRCColor {
         White = 0,

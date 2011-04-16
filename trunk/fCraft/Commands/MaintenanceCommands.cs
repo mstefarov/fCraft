@@ -13,23 +13,23 @@ namespace fCraft {
     static class MaintenanceCommands {
 
         internal static void Init() {
-            CommandList.RegisterCommand( cdDumpStats );
+            CommandManager.RegisterCommand( cdDumpStats );
 
-            CommandList.RegisterCommand( cdAutoRankReload );
-            CommandList.RegisterCommand( cdMassRank );
-            CommandList.RegisterCommand( cdAutoRankAll );
-            CommandList.RegisterCommand( cdSetInfo );
+            CommandManager.RegisterCommand( cdAutoRankReload );
+            CommandManager.RegisterCommand( cdMassRank );
+            CommandManager.RegisterCommand( cdAutoRankAll );
+            CommandManager.RegisterCommand( cdSetInfo );
 
 
-            CommandList.RegisterCommand( cdReloadConfig );
+            CommandManager.RegisterCommand( cdReloadConfig );
 
-            CommandList.RegisterCommand( cdShutdown );
-            CommandList.RegisterCommand( cdRestart );
+            CommandManager.RegisterCommand( cdShutdown );
+            CommandManager.RegisterCommand( cdRestart );
 
-            CommandList.RegisterCommand( cdPruneDB );
+            CommandManager.RegisterCommand( cdPruneDB );
 
-            CommandList.RegisterCommand( cdImportBans );
-            CommandList.RegisterCommand( cdImportRanks );
+            CommandManager.RegisterCommand( cdImportBans );
+            CommandManager.RegisterCommand( cdImportRanks );
         }
 
 
@@ -98,7 +98,7 @@ namespace fCraft {
                         DumpPlayerGroupStats( writer, infos, "(TOTAL)" );
                     }
 
-                    foreach( Rank rank in RankList.Ranks ) {
+                    foreach( Rank rank in RankManager.Ranks ) {
                         infos = PlayerDB.GetPlayerListCopy( rank );
                         if( infos.Length == 0 ) {
                             writer.WriteLine( "{0} (0 players)", rank.Name );
@@ -116,7 +116,7 @@ namespace fCraft {
         static void DumpPlayerGroupStats( TextWriter writer, PlayerInfo[] infos, string groupName ) {
 
             RankStats stat = new RankStats();
-            foreach( Rank rank2 in RankList.Ranks ) {
+            foreach( Rank rank2 in RankManager.Ranks ) {
                 stat.PreviousRank.Add( rank2, 0 );
             }
 
@@ -488,7 +488,7 @@ namespace fCraft {
             string rankName = cmd.Next();
             Rank rank = null;
             if( rankName != null ) {
-                rank = RankList.ParseRank( rankName );
+                rank = RankManager.ParseRank( rankName );
                 if( rank == null ) {
                     player.NoRankMessage( rankName );
                     return;
@@ -574,13 +574,13 @@ namespace fCraft {
                 return;
             }
 
-            Rank fromRank = RankList.ParseRank( fromRankName );
+            Rank fromRank = RankManager.ParseRank( fromRankName );
             if( fromRank == null ) {
                 player.NoRankMessage( fromRankName );
                 return;
             }
 
-            Rank toRank = RankList.ParseRank( toRankName );
+            Rank toRank = RankManager.ParseRank( toRankName );
             if( toRank == null ) {
                 player.NoRankMessage( toRankName );
                 return;
@@ -656,7 +656,7 @@ namespace fCraft {
                         return;
 
                     case "previousrank":
-                        Rank newPreviousRank = RankList.ParseRank( valName );
+                        Rank newPreviousRank = RankManager.ParseRank( valName );
                         Rank oldPreviousRank = info.PreviousRank;
                         if( newPreviousRank != null ) {
                             info.PreviousRank = newPreviousRank;
@@ -826,7 +826,7 @@ namespace fCraft {
                 Server.SendToAll( "&WShutdown reason: {0}", reason );
                 Logger.Log( "{0} shut down the server ({1} second delay). Reason: {2}", LogType.UserActivity,
                             player.Name, delay, reason );
-                ShutdownParams sp = new ShutdownParams( reason, delay, true, false, player );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delay, true, false, reason, player );
                 Server.Shutdown( sp, false );
             }
         }
@@ -858,12 +858,12 @@ namespace fCraft {
             if( reason == null ) {
                 Logger.Log( "{0} restarted the server ({1} second delay).", LogType.UserActivity,
                             player.Name, delay );
-                ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delay, true, true );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.Restarting, delay, true, true );
                 Server.Shutdown( sp, false );
             } else {
                 Logger.Log( "{0} restarted the server ({1} second delay). Reason: {2}", LogType.UserActivity,
                             player.Name, delay, reason );
-                ShutdownParams sp = new ShutdownParams( reason, delay, true, true, player );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.Restarting, delay, true, true, reason, player );
                 Server.Shutdown( sp, false );
             }
         }
@@ -1002,7 +1002,7 @@ namespace fCraft {
                 return;
             }
 
-            Rank targetRank = RankList.ParseRank( rankName );
+            Rank targetRank = RankManager.ParseRank( rankName );
             if( targetRank == null ) {
                 player.NoRankMessage( rankName );
                 return;

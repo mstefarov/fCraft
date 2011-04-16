@@ -65,13 +65,13 @@ namespace ConfigTool {
             if( el.Element( "accessSecurity" ) != null ) {
                 accessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
             }else if( (temp = el.Attribute( "access" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
-                accessSecurity.MinRank = RankList.ParseRank( temp.Value );
+                accessSecurity.MinRank = RankManager.ParseRank( temp.Value );
             }
 
             if( el.Element( "buildSecurity" ) != null ) {
                 buildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
             }else if( (temp = el.Attribute( "build" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
-                buildSecurity.MinRank = RankList.ParseRank( temp.Value );
+                buildSecurity.MinRank = RankManager.ParseRank( temp.Value );
             }
         }
 
@@ -126,7 +126,7 @@ namespace ConfigTool {
                 }
             }
             set {
-                foreach( Rank rank in RankList.Ranks ) {
+                foreach( Rank rank in RankManager.Ranks ) {
                     if( rank.ToComboBoxOption() == value ) {
                         accessSecurity.MinRank = rank;
                         accessRankString = rank.ToString();
@@ -149,7 +149,7 @@ namespace ConfigTool {
                 }
             }
             set {
-                foreach( Rank rank in RankList.Ranks ) {
+                foreach( Rank rank in RankManager.Ranks ) {
                     if( rank.ToComboBoxOption() == value ) {
                         buildSecurity.MinRank = rank;
                         buildRankString = rank.ToString();
@@ -174,8 +174,8 @@ namespace ConfigTool {
         }
 
         public void ReparseRanks() {
-            accessSecurity.MinRank = RankList.ParseRank( accessRankString );
-            buildSecurity.MinRank = RankList.ParseRank( buildRankString );
+            accessSecurity.MinRank = RankManager.ParseRank( accessRankString );
+            buildSecurity.MinRank = RankManager.ParseRank( buildRankString );
         }
     }
 }

@@ -12,7 +12,7 @@ namespace AutoLauncher {
         const string BinaryName = "fCraftConsole.exe";
 
         static void Main( string[] args ) {
-            string argString = "--norestart " + String.Join( " ", args );
+            string argString = "--norestart --exitoncrash " + String.Join( " ", args );
             Console.Title = "fCraftConsole AutoLauncher";
 
             if( !File.Exists( BinaryName ) ) {
@@ -31,7 +31,7 @@ namespace AutoLauncher {
                 case PlatformID.MacOSX:
                 case PlatformID.Unix:
                     p.StartInfo.FileName = "mono-sgen";
-                    p.StartInfo.Arguments = BinaryName + argString;
+                    p.StartInfo.Arguments = BinaryName + " " + argString;
                     break;
                 default:
                     p.StartInfo.FileName = BinaryName;
@@ -39,13 +39,11 @@ namespace AutoLauncher {
                     break;
             }
 
-            DateTime startTimer = DateTime.Now;
             Console.WriteLine( "{0} ==== STARTING ====", DateTime.Now );
 
             while( true ) {
                 Thread.Sleep( Delay );
                 p.Start();
-                TimeSpan oldCPUTime = TimeSpan.Zero;
                 while( !p.HasExited ) {
                     p.WaitForExit( Tick );
                 }

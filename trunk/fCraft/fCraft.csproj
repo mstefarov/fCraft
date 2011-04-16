@@ -107,7 +107,7 @@
     <Compile Include="Commands\CommandDescriptor.cs" />
     <Compile Include="Commands\WorldCommands.cs" />
     <Compile Include="Commands\BuildingCommands.cs" />
-    <Compile Include="Commands\CommandList.cs" />
+    <Compile Include="Commands\CommandManager.cs" />
     <Compile Include="Commands\InfoCommands.cs" />
     <Compile Include="MapConversion\MapD3.cs" />
     <Compile Include="MapConversion\MapMyne.cs" />
@@ -137,7 +137,7 @@
     <Compile Include="Utils\IsoCat.cs" />
     <Compile Include="Utils\Noise.cs" />
     <Compile Include="Utils\Updater.cs" />
-    <Compile Include="Player\RankList.cs" />
+    <Compile Include="Player\RankManager.cs" />
     <Compile Include="Player\Permission.cs" />
     <Compile Include="Utils\Color.cs" />
     <Compile Include="Network\Heartbeat.cs" />
@@ -213,6 +213,7 @@
     <Compile Include="MapConversion\MapOpticraft.cs" />
     <Compile Include="System\ConfigKey.Metadata.cs" />
     <Compile Include="System\Server.Events.cs" />
+    <Compile Include="World\WorldManager.cs" />
     <Compile Include="World\WorldOpException.cs" />
     <Compile Include="Utils\MonoCompat.cs" />
     <None Include="Tileset.png" />

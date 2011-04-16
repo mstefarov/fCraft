@@ -227,7 +227,7 @@ namespace fCraft {
                                 }
                             }
                             processedMessage = NonPrintableChars.Replace( processedMessage, "" );
-                            processedMessage = Color.StripColorCodes( processedMessage ).Trim();
+                            processedMessage = Color.EscapeAmpersands( processedMessage ).Trim();
                             if( processedMessage.Length > 0 ) {
                                 if( ConfigKey.IRCBotForwardFromIRC.GetBool() ) {
                                     if( msg.Type == IRCMessageType.ChannelAction ) {

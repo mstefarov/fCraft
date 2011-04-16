@@ -93,7 +93,6 @@ namespace fCraftUI {
             Server.Shutdown( new ShutdownParams( reason, 0, quit, false ), false );
         }
 
-        delegate void PlayerListUpdateDelegate( string[] items );
 
         public void OnLogged( object sender, LogEventArgs e ) {
             if( !e.WriteToConsole ) return;

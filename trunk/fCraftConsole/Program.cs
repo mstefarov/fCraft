@@ -87,9 +87,9 @@ namespace fCraftConsole {
             } catch( Exception ex ) {
                 ReportFailure( ShutdownReason.Crashed );
                 Logger.LogAndReportCrash( "Unhandled exception in fCraftConsole", "fCraftConsole", ex, true );
+            } finally {
+                Console.ResetColor();
             }
-            Console.ReadLine();
-            Console.ResetColor();
 #endif
         }
 

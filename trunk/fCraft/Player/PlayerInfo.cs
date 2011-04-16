@@ -88,7 +88,7 @@ namespace fCraft {
         // generate blank info for a new player
         public PlayerInfo( string name, IPAddress lastIP ) {
             Name = name;
-            Rank = RankList.DefaultRank;
+            Rank = RankManager.DefaultRank;
             FirstLoginDate = DateTime.Now;
             LastSeen = DateTime.Now;
             LastLoginDate = DateTime.Now;
@@ -104,7 +104,7 @@ namespace fCraft {
                 LastIP = IPAddress.None;
             }
 
-            Rank = RankList.ParseRank( fields[2] ) ?? RankList.DefaultRank;
+            Rank = RankManager.ParseRank( fields[2] ) ?? RankManager.DefaultRank;
             if( fields[3].Length > 1 ) 
                 RankChangeDate = DateTime.Parse( fields[3] );
             RankChangedBy = fields[4];
@@ -146,7 +146,7 @@ namespace fCraft {
             // fields 22-23 are no longer in use
 
             if( fields.Length > MinFieldCount ) {
-                if( fields[24].Length > 0 ) PreviousRank = RankList.ParseRank( fields[24] );
+                if( fields[24].Length > 0 ) PreviousRank = RankManager.ParseRank( fields[24] );
                 if( fields[25].Length > 0 ) RankChangeReason = Unescape( fields[25] );
                 Int32.TryParse( fields[26], out TimesKicked );
                 Int32.TryParse( fields[27], out TimesKickedOthers );

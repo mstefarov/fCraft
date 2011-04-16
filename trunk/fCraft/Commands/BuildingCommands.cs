@@ -59,12 +59,12 @@ namespace fCraft {
 
 
         internal static void Init() {
-            CommandList.RegisterCommand( cdSolid );
-            CommandList.RegisterCommand( cdPaint );
-            CommandList.RegisterCommand( cdGrass );
-            CommandList.RegisterCommand( cdWater );
-            CommandList.RegisterCommand( cdLava );
-            CommandList.RegisterCommand( cdBind );
+            CommandManager.RegisterCommand( cdSolid );
+            CommandManager.RegisterCommand( cdPaint );
+            CommandManager.RegisterCommand( cdGrass );
+            CommandManager.RegisterCommand( cdWater );
+            CommandManager.RegisterCommand( cdLava );
+            CommandManager.RegisterCommand( cdBind );
 
             cdCuboid.Help += GeneralDrawingHelp;
             cdCuboidHollow.Help += GeneralDrawingHelp;
@@ -80,27 +80,27 @@ namespace fCraft {
             cdPasteNot.Help += GeneralDrawingHelp;
             cdPaste.Help += GeneralDrawingHelp;
 
-            CommandList.RegisterCommand( cdCuboid );
-            CommandList.RegisterCommand( cdCuboidHollow );
-            CommandList.RegisterCommand( cdCuboidWireframe );
-            CommandList.RegisterCommand( cdEllipsoid );
-            CommandList.RegisterCommand( cdEllipsoidHollow );
-            CommandList.RegisterCommand( cdSphere );
-            CommandList.RegisterCommand( cdSphereHollow );
-            CommandList.RegisterCommand( cdReplace );
-            CommandList.RegisterCommand( cdReplaceNot );
-            CommandList.RegisterCommand( cdLine );
+            CommandManager.RegisterCommand( cdCuboid );
+            CommandManager.RegisterCommand( cdCuboidHollow );
+            CommandManager.RegisterCommand( cdCuboidWireframe );
+            CommandManager.RegisterCommand( cdEllipsoid );
+            CommandManager.RegisterCommand( cdEllipsoidHollow );
+            CommandManager.RegisterCommand( cdSphere );
+            CommandManager.RegisterCommand( cdSphereHollow );
+            CommandManager.RegisterCommand( cdReplace );
+            CommandManager.RegisterCommand( cdReplaceNot );
+            CommandManager.RegisterCommand( cdLine );
 
-            CommandList.RegisterCommand( cdMark );
-            CommandList.RegisterCommand( cdCancel );
-            CommandList.RegisterCommand( cdUndo );
+            CommandManager.RegisterCommand( cdMark );
+            CommandManager.RegisterCommand( cdCancel );
+            CommandManager.RegisterCommand( cdUndo );
 
-            CommandList.RegisterCommand( cdCopy );
-            CommandList.RegisterCommand( cdCut );
-            CommandList.RegisterCommand( cdPasteNot );
-            CommandList.RegisterCommand( cdPaste );
-            CommandList.RegisterCommand( cdMirror );
-            CommandList.RegisterCommand( cdRotate );
+            CommandManager.RegisterCommand( cdCopy );
+            CommandManager.RegisterCommand( cdCut );
+            CommandManager.RegisterCommand( cdPasteNot );
+            CommandManager.RegisterCommand( cdPaste );
+            CommandManager.RegisterCommand( cdMirror );
+            CommandManager.RegisterCommand( cdRotate );
         }
 
 
@@ -1620,7 +1620,7 @@ namespace fCraft {
 
             BoundingBox bounds = new BoundingBox( marks[0], info.WidthX, info.WidthY, info.Height );
 
-            int pasteVolume = bounds.GetIntersection( map.Bounds ).GetVolume();
+            int pasteVolume = bounds.GetIntersection( map.Bounds ).Volume;
             if( !player.CanDraw( pasteVolume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                    player.Info.Rank.DrawLimit,

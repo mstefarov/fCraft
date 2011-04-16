@@ -55,7 +55,7 @@ connection with data.";
             toolTip.SetToolTip( lUploadBandwidth, tipUploadBandwidth );
 
             toolTip.SetToolTip( bMeasure,
-@"Test your connection\'s upload speed with speedtest.net
+@"Test your connection's upload speed with speedtest.net
 Note: to convert from megabits to kilobytes, multiply the
 number by 128" );
 

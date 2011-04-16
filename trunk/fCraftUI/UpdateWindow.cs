@@ -1,14 +1,11 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Net;
 using System.Windows.Forms;
-using fCraft;
 using System.Text;
 using System.IO;
-using System.Collections.Generic;
-using System.Threading;
+using fCraft;
 
 namespace fCraftUI {
     public sealed partial class UpdateWindow : Form {
@@ -16,7 +13,7 @@ namespace fCraftUI {
         readonly string updaterFullPath;
         readonly WebClient downloader = new WebClient();
         readonly bool auto;
-        bool closeFormWhenDownloaded = false;
+        bool closeFormWhenDownloaded;
 
         public UpdateWindow( UpdaterResult _update, bool _auto ) {
             InitializeComponent();
@@ -105,11 +102,10 @@ namespace fCraftUI {
         }
 
         private void UpdateWindow_FormClosing( object sender, FormClosingEventArgs e ) {
-            if( downloader.IsBusy ) {
-                downloader.CancelAsync();
-                closeFormWhenDownloaded = true;
-                e.Cancel = true;
-            }
+            if( !downloader.IsBusy ) return;
+            downloader.CancelAsync();
+            closeFormWhenDownloaded = true;
+            e.Cancel = true;
         }
     }
 }
