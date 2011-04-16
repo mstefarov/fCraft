@@ -65,7 +65,7 @@ namespace fCraft {
                                                    "Rank definition was ignored.", Name );
 
             } else {
-                // duplicate Name check is done in RankList.AddRank()
+                // duplicate Name check is done in RankManager.AddRank()
                 Name = attr.Value.Trim();
             }
 
@@ -74,7 +74,7 @@ namespace fCraft {
             attr = el.Attribute( "id" );
             if( attr == null ) {
                 Logger.Log( "Rank({0}): Issued a new unique ID.", LogType.Warning, Name );
-                ID = RankList.GenerateID();
+                ID = RankManager.GenerateID();
 
             } else if( !IsValidID( attr.Value.Trim() ) ) {
                 throw new RankDefinitionException( "Invalid ID specified for rank \"{0}\". " +
@@ -83,7 +83,7 @@ namespace fCraft {
 
             } else {
                 ID = attr.Value.Trim();
-                // duplicate ID check is done in RankList.AddRank()
+                // duplicate ID check is done in RankManager.AddRank()
             }
 
 
@@ -392,7 +392,7 @@ namespace fCraft {
             bool ok = true;
             for( int i = 0; i < PermissionLimits.Length; i++ ) {
                 if( PermissionLimitStrings[i] == null ) continue;
-                SetLimit( (Permission)i, RankList.ParseRank( PermissionLimitStrings[i] ) );
+                SetLimit( (Permission)i, RankManager.ParseRank( PermissionLimitStrings[i] ) );
                 ok &= (GetLimit( (Permission)i ) != null);
             }
             return ok;

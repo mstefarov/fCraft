@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
-using fCraft.Events;
 
 namespace fCraft {
     /// <summary>
@@ -65,7 +64,7 @@ namespace fCraft {
         internal Player( World world, string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             World = world;
-            Info = new PlayerInfo( name, RankList.HighestRank, true, RankChangeType.AutoPromoted );
+            Info = new PlayerInfo( name, RankManager.HighestRank, true, RankChangeType.AutoPromoted );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             ResetAllBinds();
         }
@@ -135,14 +134,14 @@ namespace fCraft {
 
         // Parses message incoming from the player
         public void ParseMessage( string rawMessage, bool fromConsole ) {
-            if( rawMessage == null ) throw new ArgumentNullException( "message" );
+            if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
             if( partialMessage != null ) {
                 rawMessage = partialMessage + rawMessage;
                 partialMessage = null;
             }
 
-            switch( CommandList.GetMessageType( rawMessage ) ) {
+            switch( CommandManager.GetMessageType( rawMessage ) ) {
                 case MessageType.Chat: {
                         if( !Can( Permission.Chat ) ) return;
 
@@ -186,7 +185,7 @@ namespace fCraft {
                                     Name, rawMessage );
                         Command cmd = new Command( rawMessage );
                         LastCommand = cmd;
-                        CommandList.ParseCommand( this, cmd, fromConsole );
+                        CommandManager.ParseCommand( this, cmd, fromConsole );
                     } break;
 
 
@@ -197,7 +196,7 @@ namespace fCraft {
                             Logger.Log( "{0}: repeat {1}", LogType.UserCommand,
                                         Name, LastCommand.Message );
                             Message( "Repeat: {0}", LastCommand.Message );
-                            CommandList.ParseCommand( this, LastCommand, fromConsole );
+                            CommandManager.ParseCommand( this, LastCommand, fromConsole );
                         }
                     } break;
 
@@ -281,7 +280,7 @@ namespace fCraft {
                         }
 
                         string rankName = rawMessage.Substring( 2, rawMessage.IndexOf( ' ' ) - 2 );
-                        Rank rank = RankList.FindRank( rankName );
+                        Rank rank = RankManager.FindRank( rankName );
                         if( rank != null ) {
                             Logger.Log( "{0} to rank {1}: {2}", LogType.RankChat,
                                         Name, rank.Name, rawMessage );
@@ -311,7 +310,7 @@ namespace fCraft {
                         if( CommandToConfirm != null ) {
                             if( DateTime.UtcNow.Subtract( CommandToConfirmDate ).TotalSeconds < ConfirmationTimeout ) {
                                 CommandToConfirm.Confirmed = true;
-                                CommandList.ParseCommand( this, CommandToConfirm, fromConsole );
+                                CommandManager.ParseCommand( this, CommandToConfirm, fromConsole );
                                 CommandToConfirm = null;
                             } else {
                                 MessageNow( "Confirmation timed out. Enter the command again." );
@@ -415,7 +414,7 @@ namespace fCraft {
 
 
         public void NoAccessMessage( params Permission[] permissions ) {
-            Rank reqRank = RankList.GetMinRankWithPermission( permissions );
+            Rank reqRank = RankManager.GetMinRankWithPermission( permissions );
             if( reqRank == null ) {
                 Message( "This command is disabled on the server." );
             } else {
@@ -1059,5 +1058,6 @@ namespace fCraft.Events {
         }
         public LeaveReason LeaveReason { get; private set; }
     }
+
 }
 #endregion

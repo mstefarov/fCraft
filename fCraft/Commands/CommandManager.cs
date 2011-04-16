@@ -5,7 +5,7 @@ using System.Linq;
 using fCraft.Events;
 
 namespace fCraft {
-    /// <summary> Type of message sent by the player. Set by CommandList.GetMessageType() </summary>
+    /// <summary> Type of message sent by the player. Set by CommandManager.GetMessageType() </summary>
     enum MessageType {
         Invalid,
 
@@ -20,7 +20,7 @@ namespace fCraft {
 
 
     /// <summary> Static class that allows registration and parsing of all text commands. </summary>
-    public static class CommandList {
+    public static class CommandManager {
         static readonly SortedList<string, string> Aliases = new SortedList<string, string>();
         static readonly SortedList<string, CommandDescriptor> Commands = new SortedList<string, CommandDescriptor>();
 
@@ -282,6 +282,7 @@ namespace fCraft {
 
 #region EventArgs
 namespace fCraft.Events {
+
     public class CommandRegisteredEventArgs : EventArgs {
         internal CommandRegisteredEventArgs( CommandDescriptor commandDescriptor ) {
             CommandDescriptor = commandDescriptor;
@@ -320,5 +321,6 @@ namespace fCraft.Events {
 
         public bool Cancel { get; set; }
     }
+
 }
 #endregion

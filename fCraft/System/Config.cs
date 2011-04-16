@@ -354,7 +354,7 @@ namespace fCraft {
                         toRankID == null || String.IsNullOrEmpty( toRankID.Value ) ) {
                         Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
                     } else {
-                        RankList.LegacyRankMapping.Add( fromRankID.Value, toRankID.Value );
+                        RankManager.LegacyRankMapping.Add( fromRankID.Value, toRankID.Value );
                     }
                 }
             }
@@ -368,13 +368,13 @@ namespace fCraft {
 
                 foreach( XElement rankDefinition in rankDefinitionList ) {
                     try {
-                        RankList.AddRank( new Rank( rankDefinition ) );
+                        RankManager.AddRank( new Rank( rankDefinition ) );
                     } catch( RankDefinitionException ex ) {
                         Log( ex.Message, LogType.Error );
                     }
                 }
 
-                if( RankList.RanksByName.Count == 0 ) {
+                if( RankManager.RanksByName.Count == 0 ) {
                     Log( "Config.Load: No ranks were defined, or none were defined correctly. Using default ranks (guest, regular, op, and owner).", LogType.Warning );
                     rankList.Remove();
                     config.Add( DefineDefaultRanks() );
@@ -382,8 +382,8 @@ namespace fCraft {
                 } else if( version < ConfigVersion ) { // start LEGACY code
 
                     if( version < 103 ) { // speedhack permission
-                        if( !RankList.RanksByID.Values.Any( rank => rank.Can( Permission.UseSpeedHack ) ) ) {
-                            foreach( Rank rank in RankList.RanksByID.Values ) {
+                        if( !RankManager.RanksByID.Values.Any( rank => rank.Can( Permission.UseSpeedHack ) ) ) {
+                            foreach( Rank rank in RankManager.RanksByID.Values ) {
                                 rank.Permissions[(int)Permission.UseSpeedHack] = true;
                             }
                             Log( "Config.Load: All ranks were granted UseSpeedHack permission (default). " +
@@ -393,7 +393,7 @@ namespace fCraft {
                     }
 
                     if( version < 111 ) {
-                        RankList.SortRanksByLegacyNumericRank();
+                        RankManager.SortRanksByLegacyNumericRank();
                     }
 
                 } // end LEGACY code
@@ -404,7 +404,7 @@ namespace fCraft {
             }
 
             // parse rank-limit permissions
-            RankList.ParsePermissionLimits();
+            RankManager.ParsePermissionLimits();
         }
 
         #endregion
@@ -446,14 +446,14 @@ namespace fCraft {
 
             // save ranks
             XElement ranksTag = new XElement( "Ranks" );
-            foreach( Rank rank in RankList.Ranks ) {
+            foreach( Rank rank in RankManager.Ranks ) {
                 ranksTag.Add( rank.Serialize() );
             }
             config.Add( ranksTag );
 
             // save legacy rank mapping
             XElement legacyRankMappingTag = new XElement( "LegacyRankMapping" );
-            foreach( KeyValuePair<string, string> pair in RankList.LegacyRankMapping ) {
+            foreach( KeyValuePair<string, string> pair in RankManager.LegacyRankMapping ) {
                 XElement rankPair = new XElement( "LegacyRankPair" );
                 rankPair.Add( new XAttribute( "from", pair.Key ), new XAttribute( "to", pair.Value ) );
                 legacyRankMappingTag.Add( rankPair );
@@ -599,15 +599,15 @@ namespace fCraft {
 
             // default class
             if( !ConfigKey.DefaultRank.IsBlank() ) {
-                if( RankList.ParseRank( Settings[ConfigKey.DefaultRank] ) != null ) {
-                    RankList.DefaultRank = RankList.ParseRank( Settings[ConfigKey.DefaultRank] );
+                if( RankManager.ParseRank( Settings[ConfigKey.DefaultRank] ) != null ) {
+                    RankManager.DefaultRank = RankManager.ParseRank( Settings[ConfigKey.DefaultRank] );
                 } else {
-                    RankList.DefaultRank = RankList.LowestRank;
+                    RankManager.DefaultRank = RankManager.LowestRank;
                     Log( "Config.ApplyConfig: Could not parse DefaultRank; assuming that the lowest rank ({0}) is the default.",
-                         LogType.Warning, RankList.DefaultRank.Name );
+                         LogType.Warning, RankManager.DefaultRank.Name );
                 }
             } else {
-                RankList.DefaultRank = RankList.LowestRank;
+                RankManager.DefaultRank = RankManager.LowestRank;
             }
 
             // antispam
@@ -621,7 +621,7 @@ namespace fCraft {
             Server.TicksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
 
             // rank to patrol
-            World.RankToPatrol = RankList.ParseRank( ConfigKey.PatrolledRank.GetString() );
+            World.RankToPatrol = RankManager.ParseRank( ConfigKey.PatrolledRank.GetString() );
 
             // IRC delay
             IRC.SendDelay = GetInt( ConfigKey.IRCDelay );
@@ -640,9 +640,9 @@ namespace fCraft {
 
 
         public static void ResetRanks() {
-            RankList.Reset();
+            RankManager.Reset();
             DefineDefaultRanks();
-            RankList.ParsePermissionLimits();
+            RankManager.ParsePermissionLimits();
         }
 
 
@@ -650,7 +650,7 @@ namespace fCraft {
             XElement permissions = new XElement( "Ranks" );
 
             XElement owner = new XElement( "Rank" );
-            owner.Add( new XAttribute( "id", RankList.GenerateID() ) );
+            owner.Add( new XAttribute( "id", RankManager.GenerateID() ) );
             owner.Add( new XAttribute( "name", "owner" ) );
             owner.Add( new XAttribute( "rank", 100 ) );
             owner.Add( new XAttribute( "color", "red" ) );
@@ -717,14 +717,14 @@ namespace fCraft {
             owner.Add( new XElement( Permission.ShutdownServer.ToString() ) );
             permissions.Add( owner );
             try {
-                RankList.AddRank( new Rank( owner ) );
+                RankManager.AddRank( new Rank( owner ) );
             } catch( RankDefinitionException ex ) {
                 Log( ex.Message, LogType.Error );
             }
 
 
             XElement op = new XElement( "Rank" );
-            op.Add( new XAttribute( "id", RankList.GenerateID() ) );
+            op.Add( new XAttribute( "id", RankManager.GenerateID() ) );
             op.Add( new XAttribute( "name", "op" ) );
             op.Add( new XAttribute( "rank", 80 ) );
             op.Add( new XAttribute( "color", "aqua" ) );
@@ -780,14 +780,14 @@ namespace fCraft {
             op.Add( new XElement( Permission.CopyAndPaste.ToString() ) );
             permissions.Add( op );
             try {
-                RankList.AddRank( new Rank( op ) );
+                RankManager.AddRank( new Rank( op ) );
             } catch( RankDefinitionException ex ) {
                 Log( ex.Message, LogType.Error );
             }
 
 
             XElement regular = new XElement( "Rank" );
-            regular.Add( new XAttribute( "id", RankList.GenerateID() ) );
+            regular.Add( new XAttribute( "id", RankManager.GenerateID() ) );
             regular.Add( new XAttribute( "name", "regular" ) );
             regular.Add( new XAttribute( "rank", 30 ) );
             regular.Add( new XAttribute( "color", "white" ) );
@@ -819,14 +819,14 @@ namespace fCraft {
             regular.Add( new XElement( Permission.Draw.ToString() ) );
             permissions.Add( regular );
             try {
-                RankList.AddRank( new Rank( regular ) );
+                RankManager.AddRank( new Rank( regular ) );
             } catch( RankDefinitionException ex ) {
                 Log( ex.Message, LogType.Error );
             }
 
 
             XElement guest = new XElement( "Rank" );
-            guest.Add( new XAttribute( "id", RankList.GenerateID() ) );
+            guest.Add( new XAttribute( "id", RankManager.GenerateID() ) );
             guest.Add( new XAttribute( "name", "guest" ) );
             guest.Add( new XAttribute( "rank", 0 ) );
             guest.Add( new XAttribute( "color", "silver" ) );
@@ -841,7 +841,7 @@ namespace fCraft {
             guest.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
             permissions.Add( guest );
             try {
-                RankList.AddRank( new Rank( guest ) );
+                RankManager.AddRank( new Rank( guest ) );
             } catch( RankDefinitionException ex ) {
                 Log( ex.Message, LogType.Error );
             }

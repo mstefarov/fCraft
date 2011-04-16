@@ -138,7 +138,7 @@ namespace fCraft {
                     BuildSecurity = (SecurityController)BuildSecurity.Clone()
                 };
                 newMap.World = newWorld;
-                Server.ReplaceWorld( this, newWorld );
+                WorldManager.ReplaceWorld( this, newWorld );
                 foreach( Player player in PlayerList ) {
                     SendToAll( PacketWriter.MakeRemoveEntity( player.ID ), player );
                     player.Session.JoinWorld( newWorld, null );
@@ -672,8 +672,8 @@ namespace fCraft {
 
 
 #region EventArgs
-
 namespace fCraft.Events {
+
     public sealed class WorldCreatingEventArgs : EventArgs {
         public WorldCreatingEventArgs( Player player, string worldName, Map map ) {
             Player = player;
@@ -697,6 +697,6 @@ namespace fCraft.Events {
         public Player Player { get; private set; }
         public World World { get; private set; }
     }
-}
 
+}
 #endregion

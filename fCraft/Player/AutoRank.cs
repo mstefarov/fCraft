@@ -106,10 +106,10 @@ namespace fCraft {
         public Criterion( XElement el ) {
             Type = (CriterionType)Enum.Parse( typeof( CriterionType ), el.Attribute( "type" ).Value, true );
 
-            FromRank = RankList.ParseRank( el.Attribute( "fromRank" ).Value );
+            FromRank = RankManager.ParseRank( el.Attribute( "fromRank" ).Value );
             if( FromRank == null ) throw new FormatException( "Could not parse \"fromRank\"" );
 
-            ToRank = RankList.ParseRank( el.Attribute( "toRank" ).Value );
+            ToRank = RankManager.ParseRank( el.Attribute( "toRank" ).Value );
             if( ToRank == null ) throw new FormatException( "Could not parse \"toRank\"" );
 
             if( el.Elements().Count() == 1 ) {
@@ -326,7 +326,7 @@ namespace fCraft {
         }
 
         public ConditionPreviousRank( XElement el ) {
-            Rank = RankList.ParseRank( el.Attribute( "val" ).Value );
+            Rank = RankManager.ParseRank( el.Attribute( "val" ).Value );
             Comparison = (ComparisonOperation)Enum.Parse( typeof( ComparisonOperation ), el.Attribute( "op" ).Value, true );
         }
 

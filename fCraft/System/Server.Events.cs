@@ -269,58 +269,6 @@ namespace fCraft {
 
         #region World-related
 
-        /// <summary> Occurs when the main world is being changed (cancellable). </summary>
-        public static event EventHandler<MainWorldChangingEventArgs> MainWorldChanging;
-
-
-        /// <summary> Occurs after the main world has been changed. </summary>
-        public static event EventHandler<MainWorldChangedEventArgs> MainWorldChanged;
-
-
-        /// <summary> Occurs when a player is searching for worlds (with autocompletion).
-        /// The list of worlds in the search results may be replaced. </summary>
-        public static event EventHandler<SearchingForWorldEventArgs> SearchingForWorld;
-
-
-        /// <summary> Occurs before a new world is created/added (cancellable). </summary>
-        public static event EventHandler<WorldCreatingEventArgs> WorldCreating;
-
-
-        /// <summary> Occurs after a new world is created/added. </summary>
-        public static event EventHandler<WorldCreatedEventArgs> WorldCreated;
-
-
-        static bool RaiseMainWorldChangingEvent( World oldWorld, World newWorld ) {
-            var h = MainWorldChanging;
-            if( h == null ) return false;
-            var e = new MainWorldChangingEventArgs( oldWorld, newWorld );
-            h( null, e );
-            return e.Cancel;
-        }
-
-        static void RaiseMainWorldChangedEvent( World oldWorld, World newWorld ) {
-            var h = MainWorldChanged;
-            if( h != null ) h( null, new MainWorldChangedEventArgs( oldWorld, newWorld ) );
-        }
-
-        internal static void RaiseSearchingForWorldEvent( SearchingForWorldEventArgs e ) {
-            var h = SearchingForWorld;
-            if( h != null ) h( null, e );
-        }
-
-        static bool RaiseWorldCreatingEvent( Player player, string worldName, Map map ) {
-            var h = WorldCreating;
-            if( h == null ) return false;
-            var e = new WorldCreatingEventArgs( player, worldName, map );
-            h( null, e );
-            return e.Cancel;
-        }
-
-        static void RaiseWorldCreatedEvent( Player player, World world ) {
-            var h = WorldCreated;
-            if( h != null ) h( null, new WorldCreatedEventArgs( player, world ) );
-        }
-
         #endregion
 
     }
@@ -345,33 +293,4 @@ namespace fCraft.Events {
         public ShutdownParams ShutdownParams { get; private set; }
     }
 
-
-    public class MainWorldChangedEventArgs : EventArgs {
-        internal MainWorldChangedEventArgs( World oldWorld, World newWorld ) {
-            OldMainWorld = oldWorld;
-            NewMainWorld = newWorld;
-        }
-        public World OldMainWorld { get; private set; }
-        public World NewMainWorld { get; private set; }
-    }
-
-
-    public sealed class MainWorldChangingEventArgs : MainWorldChangedEventArgs {
-        internal MainWorldChangingEventArgs( World oldWorld, World newWorld ) : base( oldWorld, newWorld ) { }
-        public bool Cancel { get; set; }
-    }
-
-
-    public sealed class SearchingForWorldEventArgs : EventArgs {
-        internal SearchingForWorldEventArgs( Player player, string searchTerm, List<World> matches, bool toJoin ) {
-            Player = player;
-            SearchTerm = searchTerm;
-            Matches = matches;
-            ToJoin = toJoin;
-        }
-        public Player Player { get; private set; }
-        public string SearchTerm { get; private set; }
-        public List<World> Matches { get; set; }
-        public bool ToJoin { get; private set; }
-    }
 }

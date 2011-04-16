@@ -18,27 +18,27 @@ namespace fCraft {
         // Register help commands
         internal static void Init() {
 
-            CommandList.RegisterCommand( cdInfo );
-            CommandList.RegisterCommand( cdBanInfo );
-            CommandList.RegisterCommand( cdRankInfo );
+            CommandManager.RegisterCommand( cdInfo );
+            CommandManager.RegisterCommand( cdBanInfo );
+            CommandManager.RegisterCommand( cdRankInfo );
 
-            CommandList.RegisterCommand( cdVersion );
-            CommandList.RegisterCommand( cdRules );
-            CommandList.RegisterCommand( cdHelp );
-            CommandList.RegisterCommand( cdCommands );
+            CommandManager.RegisterCommand( cdVersion );
+            CommandManager.RegisterCommand( cdRules );
+            CommandManager.RegisterCommand( cdHelp );
+            CommandManager.RegisterCommand( cdCommands );
 
-            CommandList.RegisterCommand( cdWhere );
+            CommandManager.RegisterCommand( cdWhere );
 
-            CommandList.RegisterCommand( cdPlayers );
-            CommandList.RegisterCommand( cdRanks );
+            CommandManager.RegisterCommand( cdPlayers );
+            CommandManager.RegisterCommand( cdRanks );
 
-            CommandList.RegisterCommand( cdServerInfo );
+            CommandManager.RegisterCommand( cdServerInfo );
 
-            CommandList.RegisterCommand( cdMeasure );
+            CommandManager.RegisterCommand( cdMeasure );
 
-            //CommandList.RegisterCommand( cdTaskDebug );
+            //CommandManager.RegisterCommand( cdTaskDebug );
 
-            CommandList.RegisterCommand( cdColors );
+            CommandManager.RegisterCommand( cdColors );
         }
 
         static readonly CommandDescriptor cdColors = new CommandDescriptor {
@@ -425,7 +425,7 @@ namespace fCraft {
             if( rankName == null ) {
                 rank = player.Info.Rank;
             } else {
-                rank = RankList.FindRank( rankName );
+                rank = RankManager.FindRank( rankName );
                 if( rank == null ) {
                     player.Message( "No such rank: \"{0}\". See &H/ranks", rankName );
                     return;
@@ -488,8 +488,8 @@ namespace fCraft {
                             IPBanList.CountBans() );
 
             player.Message( "   {0} worlds available ({1} loaded), {2} players online.",
-                            Server.WorldList.Length,
-                            Server.CountLoadedWorlds(),
+                            WorldManager.WorldList.Length,
+                            WorldManager.CountLoadedWorlds(),
                             Server.CountVisiblePlayers( player ) );
         }
 
@@ -508,7 +508,7 @@ namespace fCraft {
 
         internal static void Ranks( Player player, Command cmd ) {
             player.Message( "Below is a list of ranks. For detail see &H{0}", cdRankInfo.Usage );
-            foreach( Rank rank in RankList.Ranks ) {
+            foreach( Rank rank in RankManager.Ranks ) {
                 player.Message( "&S    {0}  ({1} players)",
                                 rank.GetClassyName(),
                                 PlayerDB.CountPlayersByRank( rank ) );
@@ -561,10 +561,10 @@ namespace fCraft {
         internal static void MeasureCallback( Player player, Position[] marks, object tag ) {
             BoundingBox box = new BoundingBox( marks[0], marks[1] );
             player.Message( "Measure: {0} x {1} wide, {2} tall, {3} blocks.",
-                            box.GetWidthX(),
-                            box.GetWidthY(),
-                            box.GetHeight(),
-                            box.GetVolume() );
+                            box.WidthX,
+                            box.WidthY,
+                            box.Height,
+                            box.Volume );
             player.Message( "Measure: Located between ({0},{1},{2}) and ({3},{4},{5}).",
                             box.XMin,
                             box.YMin,
@@ -687,7 +687,7 @@ namespace fCraft {
                 cdCommands.Handler( player, cmd );
 
             } else if( commandName != null ) {
-                CommandDescriptor descriptor = CommandList.GetDescriptor( commandName );
+                CommandDescriptor descriptor = CommandManager.GetDescriptor( commandName );
                 if( descriptor == null ) {
                     player.Message( "Unknown command: \"{0}\"", commandName );
                     return;
@@ -749,36 +749,36 @@ namespace fCraft {
 
             if( param == null ) {
                 player.Message( "List of available commands:" );
-                cd = CommandList.GetCommands( false );
+                cd = CommandManager.GetCommands( false );
 
             } else if( param.StartsWith( "@" ) ) {
                 string rankName = param.Substring( 1 );
-                Rank rank = RankList.FindRank( rankName );
+                Rank rank = RankManager.FindRank( rankName );
                 if( rank == null ) {
                     player.Message( "Unknown rank: {0}", rankName );
                     return;
                 } else {
                     player.Message( "List of commands available to {0}&S:", rank.GetClassyName() );
-                    cd = CommandList.GetCommands( rank, true );
+                    cd = CommandManager.GetCommands( rank, true );
                 }
 
             } else if( param.Equals( "all", StringComparison.OrdinalIgnoreCase ) ) {
                 player.Message( "List of ALL commands:" );
-                cd = CommandList.GetCommands();
+                cd = CommandManager.GetCommands();
 
             } else if( param.Equals( "hidden", StringComparison.OrdinalIgnoreCase ) ) {
                 player.Message( "List of hidden commands:" );
-                cd = CommandList.GetCommands( true );
+                cd = CommandManager.GetCommands( true );
 
             } else if( Enum.GetNames( typeof( CommandCategory ) ).Contains( param, StringComparer.OrdinalIgnoreCase ) ) {
                 CommandCategory category = (CommandCategory)Enum.Parse( typeof( CommandCategory ), param, true );
                 player.Message( "List of {0} commands:", category );
-                cd = CommandList.GetCommands( category, false );
+                cd = CommandManager.GetCommands( category, false );
 
             } else if( Enum.GetNames( typeof( Permission ) ).Contains( param, StringComparer.OrdinalIgnoreCase ) ) {
                 Permission permission = (Permission)Enum.Parse( typeof( Permission ), param, true );
                 player.Message( "List of commands that need {0} permission:", permission );
-                cd = CommandList.GetCommands( permission, true );
+                cd = CommandManager.GetCommands( permission, true );
 
             } else {
                 cdCommands.PrintUsage( player );

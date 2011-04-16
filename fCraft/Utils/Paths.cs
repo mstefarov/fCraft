@@ -32,7 +32,8 @@ namespace fCraft {
                 RulesFileName,
                 AnnouncementsFileName,
                 GreetingFileName,
-                HeartbeatDataFileName
+                HeartbeatDataFileName,
+                WorldListFileName
             };
         }
 
@@ -87,6 +88,8 @@ namespace fCraft {
         public const string HeartbeatDataFileName = "heartbeatdata.txt";
 
         public const string UpdaterFile = "fCraftUpdater.exe";
+
+        public const string WorldListFileName = "worlds.xml";
 
         #endregion
 

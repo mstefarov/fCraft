@@ -31,10 +31,14 @@ namespace ConfigTool {
             set {
                 try {
                     bOK.Invoke( (MethodInvoker)delegate {
-                        bOK.Enabled = (value != null);
-                        lCreateMap.Visible = !bOK.Enabled;
+                        try {
+                            bOK.Enabled = (value != null);
+                            lCreateMap.Visible = !bOK.Enabled;
+                        } catch( ObjectDisposedException ) {
+                        } catch( InvalidOperationException ) { }
                     } );
-                } catch( ObjectDisposedException ) { }
+                } catch( ObjectDisposedException ) {
+                } catch( InvalidOperationException ) { }
                 _map = value;
             }
         }
@@ -77,7 +81,7 @@ namespace ConfigTool {
 
             cAccess.Items.Add( "(everyone)" );
             cBuild.Items.Add( "(everyone)" );
-            foreach( Rank rank in RankList.Ranks ) {
+            foreach( Rank rank in RankManager.Ranks ) {
                 cAccess.Items.Add( rank.ToComboBoxOption() );
                 cBuild.Items.Add( rank.ToComboBoxOption() );
             }

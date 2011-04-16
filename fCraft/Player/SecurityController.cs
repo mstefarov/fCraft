@@ -33,11 +33,7 @@ namespace fCraft {
         private Rank minRank;
         public Rank MinRank {
             get {
-                if( minRank != null ) {
-                    return minRank;
-                } else {
-                    return RankList.LowestRank;
-                }
+                return minRank ?? RankManager.LowestRank;
             }
             set {
                 minRank = value;
@@ -198,7 +194,7 @@ namespace fCraft {
 
 
         public bool HasRestrictions() {
-            return MinRank > RankList.LowestRank ||
+            return MinRank > RankManager.LowestRank ||
                    ExceptionList.Excluded.Length > 0;
         }
 
@@ -211,12 +207,12 @@ namespace fCraft {
         public SecurityController( XElement root ) {
             if( root == null ) throw new ArgumentNullException( "root" );
             if( root.Element( "minRank" ) != null ) {
-                minRank = RankList.ParseRank( root.Element( "minRank" ).Value );
+                minRank = RankManager.ParseRank( root.Element( "minRank" ).Value );
             } else {
                 minRank = null;
             }
 
-            //maxRank = RankList.ParseRank( root.Element( "maxRank" ).Value );
+            //maxRank = RankManager.ParseRank( root.Element( "maxRank" ).Value );
             foreach( XElement player in root.Elements( "included" ) ) {
                 if( !Player.IsValidName( player.Value ) ) continue;
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
@@ -276,7 +272,7 @@ namespace fCraft {
 
 
         public void Reset() {
-            MinRank = RankList.LowestRank;
+            MinRank = RankManager.LowestRank;
             ResetIncludedList();
             ResetExcludedList();
         }

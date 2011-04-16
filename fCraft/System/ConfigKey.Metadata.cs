@@ -168,15 +168,15 @@ namespace fCraft {
                 rank = GetBlankValueSubstitute();
                 if( rank == null ) return; // ranks must not have loaded yet; can't validate
             } else {
-                rank = RankList.ParseRank( value );
+                rank = RankManager.ParseRank( value );
                 if( rank == null ) {
                     throw new FormatException( "Value cannot be parsed as a rank." );
                 }
             }
-            if( !CanBeLowest && rank == RankList.LowestRank ) {
+            if( !CanBeLowest && rank == RankManager.LowestRank ) {
                 throw new FormatException( "Value may not be the lowest rank." );
             }
-            if( !CanBeHighest && rank == RankList.HighestRank ) {
+            if( !CanBeHighest && rank == RankManager.HighestRank ) {
                 throw new FormatException( "Value may not be the highest rank." );
             }
         }
@@ -199,11 +199,11 @@ namespace fCraft {
         Rank GetBlankValueSubstitute() {
             switch( BlankMeaning ) {
                 case BlankValueMeaning.DefaultRank:
-                    return RankList.DefaultRank;
+                    return RankManager.DefaultRank;
                 case BlankValueMeaning.HighestRank:
-                    return RankList.HighestRank;
+                    return RankManager.HighestRank;
                 case BlankValueMeaning.LowestRank:
-                    return RankList.LowestRank;
+                    return RankManager.LowestRank;
                 case BlankValueMeaning.Invalid:
                     throw new FormatException( "Value may not be blank." );
                 default:

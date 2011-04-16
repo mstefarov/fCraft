@@ -9,12 +9,12 @@ namespace fCraft {
     static class ZoneCommands {
 
         internal static void Init() {
-            CommandList.RegisterCommand( cdZoneEdit );
-            CommandList.RegisterCommand( cdZoneAdd );
-            CommandList.RegisterCommand( cdZoneTest );
-            CommandList.RegisterCommand( cdZoneList );
-            CommandList.RegisterCommand( cdZoneRemove );
-            CommandList.RegisterCommand( cdZoneInfo );
+            CommandManager.RegisterCommand( cdZoneEdit );
+            CommandManager.RegisterCommand( cdZoneAdd );
+            CommandManager.RegisterCommand( cdZoneTest );
+            CommandManager.RegisterCommand( cdZoneList );
+            CommandManager.RegisterCommand( cdZoneRemove );
+            CommandManager.RegisterCommand( cdZoneInfo );
         }
 
 
@@ -115,7 +115,7 @@ namespace fCraft {
                     }
 
                 } else {
-                    Rank minRank = RankList.ParseRank( name );
+                    Rank minRank = RankManager.ParseRank( name );
 
                     if( minRank != null ) {
                         // prevent players from lowering rank so bypass protection
@@ -205,7 +205,7 @@ namespace fCraft {
                     player.Message( "No rank was specified. See &H/help zone" );
                     return;
                 }
-                Rank minRank = RankList.ParseRank( rankName );
+                Rank minRank = RankManager.ParseRank( rankName );
 
                 if( minRank != null ) {
                     string name;
@@ -247,11 +247,11 @@ namespace fCraft {
 
             player.Message( "Zone \"{0}\" created, {1} blocks total.",
                             zone.Name,
-                            zone.Bounds.GetVolume() );
+                            zone.Bounds.Volume );
             Logger.Log( "Player {0} created a new zone \"{1}\" containing {2} blocks.", LogType.UserActivity,
                         player.Name,
                         zone.Name,
-                        zone.Bounds.GetVolume() );
+                        zone.Bounds.Volume );
 
             player.World.Map.AddZone( zone );
         }
@@ -340,7 +340,7 @@ namespace fCraft {
             World world = player.World;
             string worldName = cmd.Next();
             if( worldName != null ) {
-                world = Server.FindWorldOrPrintMatches( player, worldName );
+                world = WorldManager.FindWorldOrPrintMatches( player, worldName );
                 if( world == null ) return;
                 player.Message( "List of zones on {0}&S:",
                                 world.GetClassyName() );
@@ -370,9 +370,9 @@ namespace fCraft {
                     player.Message( "   {0} ({1}&S) - {2} x {3} x {4}",
                                     zone.Name,
                                     zone.Controller.MinRank.GetClassyName(),
-                                    zone.Bounds.GetWidthX(),
-                                    zone.Bounds.GetWidthY(),
-                                    zone.Bounds.GetHeight() );
+                                    zone.Bounds.WidthX,
+                                    zone.Bounds.WidthY,
+                                    zone.Bounds.Height );
                 }
                 player.Message( "   Type &H/zinfo ZoneName&S for details." );
             } else {
@@ -405,8 +405,8 @@ namespace fCraft {
 
             player.Message( "About zone \"{0}\": size {1} x {2} x {3}, contains {4} blocks, editable by {5}+.",
                             zone.Name,
-                            zone.Bounds.GetWidthX(), zone.Bounds.GetWidthY(), zone.Bounds.GetHeight(),
-                            zone.Bounds.GetVolume(),
+                            zone.Bounds.WidthX, zone.Bounds.WidthY, zone.Bounds.Height,
+                            zone.Bounds.Volume,
                             zone.Controller.MinRank.GetClassyName() );
 
             player.Message( "  Zone centre is at ({0},{1},{2}).",

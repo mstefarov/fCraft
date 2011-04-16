@@ -68,7 +68,6 @@ namespace fCraftUpdater {
                     argsList.Add( arg );
                 }
             }
-            argsList.Add( "--justupdated" );
 
             // Parse update settings
             string runBefore = null,
@@ -182,7 +181,7 @@ namespace fCraftUpdater {
                 }
             }
 
-            return (int)ReturnCodes.OK;
+            return (int)ReturnCodes.Ok;
         }
 
 
@@ -210,7 +209,7 @@ namespace fCraftUpdater {
     }
 
     enum ReturnCodes {
-        OK = 0,
+        Ok = 0,
         FailedToRunPreUpdateCommand = 1,
         FailedToRunPostUpdateCommand = 2
     }

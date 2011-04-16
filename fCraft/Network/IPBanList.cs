@@ -17,7 +17,12 @@ namespace fCraft {
             if( File.Exists( Paths.IPBanListFileName ) ) {
                 string headerText;
                 using( StreamReader reader = File.OpenText( Paths.IPBanListFileName ) ) {
+
                     headerText = reader.ReadLine(); // header
+                    if( headerText == null ) {
+                        Logger.Log( "IPBanList.Load: IP ban file is empty.", LogType.Warning );
+                    }
+
                     while( !reader.EndOfStream ) {
                         string[] fields = reader.ReadLine().Split( ',' );
                         if( fields.Length == IPBanInfo.FieldCount ) {

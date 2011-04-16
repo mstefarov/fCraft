@@ -48,7 +48,7 @@ namespace fCraft {
             Bounds = new BoundingBox( Int32.Parse( header[1] ), Int32.Parse( header[2] ), Int32.Parse( header[3] ),
                                       Int32.Parse( header[4] ), Int32.Parse( header[5] ), Int32.Parse( header[6] ) );
 
-            Rank buildRank = RankList.ParseRank( header[7] );
+            Rank buildRank = RankManager.ParseRank( header[7] );
             // if all else fails, fall back to lowest class
             if( buildRank == null ) {
                 if( world != null ) {

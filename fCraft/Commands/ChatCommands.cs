@@ -1,26 +1,23 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace fCraft {
     static class ChatCommands {
 
         public static void Init() {
-            CommandList.RegisterCommand( cdSay );
-            CommandList.RegisterCommand( cdStaffChat );
+            CommandManager.RegisterCommand( cdSay );
+            CommandManager.RegisterCommand( cdStaffChat );
 
-            CommandList.RegisterCommand( cdIgnore );
-            CommandList.RegisterCommand( cdUnignore );
+            CommandManager.RegisterCommand( cdIgnore );
+            CommandManager.RegisterCommand( cdUnignore );
 
-            CommandList.RegisterCommand( cdMe );
+            CommandManager.RegisterCommand( cdMe );
 
-            CommandList.RegisterCommand( cdRoll );
+            CommandManager.RegisterCommand( cdRoll );
 
-            CommandList.RegisterCommand( cdDeafen );
+            CommandManager.RegisterCommand( cdDeafen );
 
-            CommandList.RegisterCommand( cdClear );
+            CommandManager.RegisterCommand( cdClear );
         }
 
 
