@@ -107,15 +107,15 @@ namespace fCraft {
         }
 
 
-        internal static Packet MakeMessage( string message ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
+    internal static Packet MakeMessage( string message ) {
+        if( message == null ) throw new ArgumentNullException( "message" );
 
-            Packet packet = new Packet( 66 );
-            packet.Data[0] = (byte)OutputCode.Message;
-            packet.Data[1] = 0;
-            Encoding.ASCII.GetBytes( message.PadRight( 64 ), 0, 64, packet.Data, 2 );
-            return packet;
-        }
+        Packet packet = new Packet( 66 );
+        packet.Data[0] = (byte)OutputCode.Message;
+        packet.Data[1] = 0;
+        Encoding.ASCII.GetBytes( message.PadRight( 64 ), 0, 64, packet.Data, 2 );
+        return packet;
+    }
 
 
         internal static Packet MakeAddEntity( Player player, Position pos ) {

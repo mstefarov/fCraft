@@ -106,6 +106,11 @@ namespace fCraft {
                         continue;
                     }
 
+                    if( Worlds.ContainsKey( worldName.ToLower() ) ) {
+                        Logger.Log( "Server.ParseWorldListXML: Duplicate world name ignored: \"{0}\"", LogType.Error, worldName );
+                        continue;
+                    }
+
                     World world = AddWorld( null, worldName, null, (el.Attribute( "noUnload" ) != null) );
 
                     if( world == null ) {

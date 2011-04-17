@@ -479,14 +479,19 @@ namespace fCraft {
 
         #region Placing Blocks
 
-        // grief/spam detection
+        // for grief/spam detection
         readonly Queue<DateTime> spamBlockLog;
+
+        /// <summary> Last blocktype used by the player.
+        /// Make sure to use in conjunction with Player.GetBind() to ensure that bindings are properly applied. </summary>
         public Block LastUsedBlockType { get; private set; }
+
+        /// <summary> Max distance that player may be from a block to reach it (hack detection). </summary>
         const int MaxRange = 6 * 32;
 
-        /// <summary>
-        /// Handles manually-placed/deleted blocks. Returns true if player's action should result in a kick.
-        /// </summary>
+
+        /// <summary> Handles manually-placed/deleted blocks.
+        /// Returns true if player's action should result in a kick. </summary>
         public bool PlaceBlock( short x, short y, short h, bool buildMode, Block type ) {
 
             LastUsedBlockType = type;
@@ -609,10 +614,16 @@ namespace fCraft {
         }
 
 
+        /// <summary>  Gets the block from given location in player's world, and sends it (async) to the player.
+        /// Used to undo player's attempted block placement/deletion. </summary>
         public void RevertBlock( short x, short y, short h ) {
             Session.SendDelayed( PacketWriter.MakeSetBlock( x, y, h, World.Map.GetBlockByte( x, y, h ) ) );
         }
 
+
+        /// <summary>  Gets the block from given location in player's world, and sends it (sync) to the player.
+        /// Used to undo player's attempted block placement/deletion.
+        /// To avoid threading issues, only use this from this player's IoThread. </summary>
         internal void RevertBlockNow( short x, short y, short h ) {
             Session.SendNow( PacketWriter.MakeSetBlock( x, y, h, World.Map.GetBlockByte( x, y, h ) ) );
         }
@@ -646,9 +657,13 @@ namespace fCraft {
             bindings[(byte)type] = replacement;
         }
 
+        public void ResetBind( Block type ) {
+            bindings[(byte)type] = type;
+        }
+
         public void ResetBind( params Block[] types ) {
             foreach( Block type in types ) {
-                bindings[(byte)type] = type;
+                ResetBind( type );
             }
         }
 

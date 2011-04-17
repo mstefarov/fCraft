@@ -702,7 +702,7 @@ namespace fCraft {
         internal static void CuboidCallback( Player player, Position[] marks, object tag ) {
             byte drawBlock = (byte)tag;
             if( drawBlock == (byte)Block.Undefined ) {
-                drawBlock = (byte)player.LastUsedBlockType;
+                drawBlock = (byte)player.GetBind( player.LastUsedBlockType );
             }
 
             // find start/end coordinates
@@ -750,7 +750,7 @@ namespace fCraft {
             HollowShapeArgs args = (HollowShapeArgs)tag;
             byte drawBlock = (byte)args.OuterBlock;
             if( drawBlock == (byte)Block.Undefined ) {
-                drawBlock = (byte)player.LastUsedBlockType;
+                drawBlock = (byte)player.GetBind( player.LastUsedBlockType );
             }
 
             // find start/end coordinates
@@ -826,7 +826,7 @@ namespace fCraft {
         internal static void CuboidWireframeCallback( Player player, Position[] marks, object tag ) {
             byte drawBlock = (byte)tag;
             if( drawBlock == (byte)Block.Undefined ) {
-                drawBlock = (byte)player.LastUsedBlockType;
+                drawBlock = (byte)player.GetBind( player.LastUsedBlockType );
             }
 
             // find start/end coordinates
@@ -977,7 +977,7 @@ namespace fCraft {
         internal static void EllipsoidCallback( Player player, Position[] marks, object tag ) {
             byte drawBlock = (byte)tag;
             if( drawBlock == (byte)Block.Undefined ) {
-                drawBlock = (byte)player.LastUsedBlockType;
+                drawBlock = (byte)player.GetBind( player.LastUsedBlockType );
             }
 
             // find start/end coordinates
@@ -1128,7 +1128,7 @@ namespace fCraft {
             HollowShapeArgs args = (HollowShapeArgs)tag;
             byte drawBlock = (byte)args.OuterBlock;
             if( drawBlock == (byte)Block.Undefined ) {
-                drawBlock = (byte)player.LastUsedBlockType;
+                drawBlock = (byte)player.GetBind( player.LastUsedBlockType );
             }
 
             // find start/end coordinates
@@ -1257,7 +1257,7 @@ namespace fCraft {
         internal static void LineCallback( Player player, Position[] marks, object tag ) {
             byte drawBlock = (byte)tag;
             if( drawBlock == (byte)Block.Undefined ) {
-                drawBlock = (byte)player.LastUsedBlockType;
+                drawBlock = (byte)player.GetBind( player.LastUsedBlockType );
             }
 
             player.UndoBuffer.Clear();
