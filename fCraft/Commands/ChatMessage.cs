@@ -295,15 +295,16 @@ namespace fCraft {
     
 
 
-    public enum ChatMessageType {
-        Global,
-        Me,
-        PM,
-        Rank,
-        Say,
-        Staff,
-        World
-    }
+public enum ChatMessageType {
+    Global,
+    Me,
+    PM,
+    Rank,
+    Say,
+    Staff,
+    World,
+    IRC
+}
 }
 
 #region EventArgs

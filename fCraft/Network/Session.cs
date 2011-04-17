@@ -509,7 +509,7 @@ namespace fCraft {
                     Logger.Log( "{0} Player was identified as connecting from LAN and allowed in.", LogType.SuspiciousActivity,
                                 standardMessage );
 
-                } else if( Player.Info.TimesVisited == 1 || Player.Info.LastIP.ToString() != GetIP().ToString() ) {
+                } else if( Player.Info.TimesVisited < 2 || Player.Info.LastIP.ToString() != GetIP().ToString() ) {
                     switch( nameVerificationMode ) {
                         case NameVerificationMode.Always:
                         case NameVerificationMode.Balanced:
@@ -552,7 +552,7 @@ namespace fCraft {
                 Logger.Log( "Banned player {0} tried to log in from {1}", LogType.SuspiciousActivity,
                             Player.Name, GetIP() );
                 if( ConfigKey.ShowBannedConnectionMessages.GetBool() ) {
-                    Server.SendToAllWhoCan( "&SBanned player {0}&S tried to log in from {1}", null,Permission.ViewPlayerIPs,
+                    Server.SendToAllWhoCan( "&SBanned player {0}&S tried to log in from {1}", null, Permission.ViewPlayerIPs,
                                             Player.GetClassyName(), GetIP() );
                     Server.SendToAllWhoCant( "&SBanned player {0}&S tried to log in.", null, Permission.ViewPlayerIPs,
                                             Player.GetClassyName() );
@@ -993,9 +993,136 @@ namespace fCraft {
                 return String.Format( "Session({0})", GetIP() );
             }
         }
+
+
+        #region Flexible Position Updates (work in progress)
+
+        Dictionary<Player, KnownPlayerPosition> knownPlayerPositions = new Dictionary<Player, KnownPlayerPosition>();
+        Stack<sbyte> freePlayerIDs = new Stack<sbyte>( 127 );
+
+        const int addingThreshold = 60 * 60,
+                  removingThreshold = 70 * 70;
+
+        class KnownPlayerPosition {
+            public KnownPlayerPosition( Position newPos, sbyte newId ) {
+                Id = newId;
+                LastKnownPosition = newPos;
+                MarkedForRetention = true;
+            }
+            public sbyte Id;
+            public Position LastKnownPosition;
+            public bool MarkedForRetention;
+            public bool SkippedLastMove;
+            public int FullUpdateCounter;
+        }
+
+        void UpdatePlayerPositions() {
+            Player[] activePlayerList = Player.World.PlayerList;
+            Position playerPos = Player.Position;
+
+            for( int i = 0; i < activePlayerList.Length; i++ ) {
+                Player p = activePlayerList[i];
+                if( p == Player ) continue;
+                if( !Player.CanSee( p ) ) continue;
+
+                Position newPos = p.Position;
+                int distance = playerPos.DistanceSquaredTo( newPos );
+
+                if( knownPlayerPositions.ContainsKey( p ) ) {
+                    var oldPos = knownPlayerPositions[p];
+                    oldPos.MarkedForRetention = true;
+
+                    if( distance > removingThreshold ) {
+                        // remove player (too far)
+                        knownPlayerPositions.Remove( p );
+                        SendNow( PacketWriter.MakeRemoveEntity( oldPos.Id ) );
+                        freePlayerIDs.Push( oldPos.Id );
+
+                    } else if( oldPos.LastKnownPosition != newPos ) {
+                        // move player
+                        MovePlayer( oldPos, newPos );
+                    }
+
+                } else if( distance <= addingThreshold ) {
+                    // add player
+                    var pos = new KnownPlayerPosition( newPos, freePlayerIDs.Pop() );
+                    SendNow( PacketWriter.MakeAddEntity( pos.Id, p.GetListName(), newPos ) );
+                }
+            }
+
+            foreach( var pairToRemove in knownPlayerPositions.Where( pair => !pair.Value.MarkedForRetention ) ) {
+                knownPlayerPositions.Remove( pairToRemove.Key );
+            }
+
+            foreach( KnownPlayerPosition pos in knownPlayerPositions.Values ) {
+                pos.MarkedForRetention = false;
+            }
+        }
+
+        void MovePlayer( KnownPlayerPosition p, Position newPos ) {
+            Position oldPos = p.LastKnownPosition;
+
+            // calculate difference between old and new positions
+            Position delta = new Position {
+                X = (short)(newPos.X - oldPos.X),
+                Y = (short)(newPos.Y - oldPos.Y),
+                H = (short)(newPos.H - oldPos.H),
+                R = (byte)Math.Abs( newPos.R - oldPos.R ),
+                L = (byte)Math.Abs( newPos.L - oldPos.L )
+            };
+
+            bool posChanged = (delta.X != 0) || (delta.Y != 0) || (delta.H != 0);
+            bool rotChanged = (delta.R != 0) || (delta.L != 0);
+            int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.H * delta.H;
+
+            // movement optimization
+            if( distSquared < SkipMovementThreshold &&
+                (delta.R * delta.R + delta.L * delta.L) < SkipRotationThresholdSquared &&
+                !p.SkippedLastMove ) {
+
+                p.SkippedLastMove = true;
+                return;
+            }
+            p.SkippedLastMove = false;
+
+            Packet packet;
+            // create the movement packet
+            if( delta.FitsIntoByte() && p.FullUpdateCounter < FullPositionUpdateInterval ) {
+                if( posChanged && rotChanged ) {
+                    // incremental position + rotation update
+                    packet = PacketWriter.MakeMoveRotate( p.Id, new Position {
+                        X = delta.X,
+                        Y = delta.Y,
+                        H = delta.H,
+                        R = newPos.R,
+                        L = newPos.L
+                    } );
+
+                } else if( posChanged ) {
+                    // incremental position update
+                    packet = PacketWriter.MakeMove( p.Id, delta );
+
+                } else {
+                    // absolute rotation update
+                    packet = PacketWriter.MakeRotate( p.Id, newPos );
+                }
+
+            } else {
+                // full (absolute position + rotation) update
+                packet = PacketWriter.MakeTeleport( p.Id, newPos );
+            }
+
+            p.FullUpdateCounter++;
+            if( p.FullUpdateCounter >= FullPositionUpdateInterval ) {
+                p.FullUpdateCounter = 0;
+            }
+
+            SendNow( packet );
+        }
+
+        #endregion
     }
 }
-
 
 #region EventArgs
 namespace fCraft.Events {

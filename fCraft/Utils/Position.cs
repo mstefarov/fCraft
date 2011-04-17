@@ -7,7 +7,7 @@ namespace fCraft {
     /// Struct representing a position (with orientation) in the world. Takes up 8 bytes of memory.
     /// Note that, as a struct, Position objects are COPIED when assigned or passed as an argument.
     /// </summary>
-    public struct Position {
+    public struct Position : IEquatable<Position> {
         public readonly static Position Zero = new Position( 0, 0, 0 );
 
         public short X, Y, H;
@@ -40,6 +40,34 @@ namespace fCraft {
                 R = R,
                 L = L
             };
+        }
+
+        public int DistanceSquaredTo( Position other ) {
+            return (X - other.X) * (X - other.X) + (Y - other.Y) * (Y - other.Y) + (H - other.H) * (H - other.H);
+        }
+
+        public static bool operator ==( Position a, Position b ) {
+            return a.Equals( b );
+        }
+
+        public static bool operator !=( Position a, Position b ) {
+            return !a.Equals( b );
+        }
+
+        public bool Equals( Position other ) {
+            return (X == other.X) && (Y == other.Y) && (H == other.H) && (R == other.R) && (L == other.R);
+        }
+
+        public override bool Equals( object obj ) {
+            if( obj is Position ) {
+                return Equals( (Position)obj );
+            } else {
+                return base.Equals( obj );
+            }
+        }
+
+        public override int GetHashCode() {
+            return (X + Y * short.MaxValue) ^ (R + L * short.MaxValue) + H;
         }
 
         public override string ToString() {

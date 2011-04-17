@@ -271,6 +271,7 @@ namespace fCraft {
         public static bool operator <=( Rank a, Rank b ) {
             return a.Index >= b.Index;
         }
+
         #endregion
 
 
