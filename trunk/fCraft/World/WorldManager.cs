@@ -101,7 +101,7 @@ namespace fCraft {
                         continue;
                     }
                     string worldName = temp.Value;
-                    if( !Player.IsValidName( worldName ) ) {
+                    if( !World.IsValidName( worldName ) ) {
                         Logger.Log( "Server.ParseWorldListXML: Invalid world name skipped: \"{0}\"", LogType.Error, worldName );
                         continue;
                     }
@@ -302,7 +302,7 @@ namespace fCraft {
         public static World AddWorld( Player player, string name, Map map, bool neverUnload ) {
             if( name == null ) throw new ArgumentNullException( "name" );
 
-            if( !Player.IsValidName( name ) ) {
+            if( !World.IsValidName( name ) ) {
                 throw new WorldOpException( name, WorldOpExceptionCode.InvalidWorldName );
             }
 
@@ -352,7 +352,7 @@ namespace fCraft {
         public static void RenameWorld( World world, string newName, bool moveMapFile ) {
             if( newName == null ) throw new ArgumentNullException( "newName" );
 
-            if( !Player.IsValidName( newName ) ) {
+            if( !World.IsValidName( newName ) ) {
                 throw new WorldOpException( newName, WorldOpExceptionCode.InvalidWorldName );
             }
 

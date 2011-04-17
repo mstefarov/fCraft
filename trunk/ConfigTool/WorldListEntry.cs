@@ -34,7 +34,7 @@ namespace ConfigTool {
             if( (temp = el.Attribute( "name" )) == null ) {
                 throw new FormatException( "WorldListEntity: Cannot parse XML: Unnamed worlds are not allowed." );
             }
-            if( !Player.IsValidName( temp.Value ) ) {
+            if( !World.IsValidName( temp.Value ) ) {
                 throw new FormatException( "WorldListEntity: Cannot parse XML: Invalid world name skipped \"" + temp.Value + "\"." );
             }
             name = temp.Value;
@@ -82,7 +82,7 @@ namespace ConfigTool {
                 return name;
             }
             set {
-                if( !Player.IsValidName( value ) ) {
+                if( !World.IsValidName( value ) ) {
                     throw new FormatException( "Invalid world name" );
                 } else if( value != name && ConfigUI.IsWorldNameTaken( value ) ) {
                     throw new FormatException( "Duplicate world names are not allowed." );

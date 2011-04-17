@@ -188,7 +188,7 @@ namespace fCraft {
                 player.SetCallback( 2, ZoneAddCallback, zone, cdZoneAdd.Permissions );
 
             } else {
-                if( !Player.IsValidName( zoneName ) ) {
+                if( !World.IsValidName( zoneName ) ) {
                     player.Message( "\"{0}\" is not a valid zone name", zoneName );
                     return;
                 }
