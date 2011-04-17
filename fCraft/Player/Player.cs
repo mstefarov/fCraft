@@ -193,6 +193,7 @@ namespace fCraft {
                         if( LastCommand == null ) {
                             Message( "No command to repeat." );
                         } else {
+                            LastCommand.Rewind();
                             Logger.Log( "{0}: repeat {1}", LogType.UserCommand,
                                         Name, LastCommand.Message );
                             Message( "Repeat: {0}", LastCommand.Message );
