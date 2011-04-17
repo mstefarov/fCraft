@@ -992,7 +992,7 @@ namespace fCraft {
 
             } else {
                 // Loading to some other (or new) world
-                if( !Player.IsValidName( worldName ) ) {
+                if( !World.IsValidName( worldName ) ) {
                     player.MessageNow( "Invalid world name: \"{0}\".", worldName );
                     return;
                 }

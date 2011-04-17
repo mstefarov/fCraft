@@ -381,7 +381,7 @@ namespace ConfigTool {
         }
 
         private void tName_Validating( object sender, CancelEventArgs e ) {
-            if( Player.IsValidName( tName.Text ) &&
+            if( World.IsValidName( tName.Text ) &&
                 (!ConfigUI.IsWorldNameTaken( tName.Text ) ||
                 (originalWorldName != null && tName.Text.ToLower() == originalWorldName.ToLower())) ) {
                 tName.ForeColor = SystemColors.ControlText;
