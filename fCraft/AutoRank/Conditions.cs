@@ -1,157 +1,10 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace fCraft {
-    public static class AutoRank {
-
-        static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
-        static Scheduler.Task task;
-
-        public static bool HasCriteria { get; private set; }
-
-        public static void CheckAutoRankSetting() {
-            if( ConfigKey.AutoRankEnabled.GetBool() ) {
-                if( task == null ) {
-                    task = Scheduler.AddBackgroundTask( TaskCallback );
-                    task.RunForever( TickInterval );
-                } else if( task.IsStopped ) {
-                    task.RunForever( TickInterval );
-                }
-            } else if( task != null && !task.IsStopped ) {
-                task.Stop();
-            }
-        }
-
-
-        public static void TaskCallback( Scheduler.Task schedulerTask ) {
-            MaintenanceCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );
-        }
-
-
-        const string AutoRankFile = "autorank.xml";
-        static readonly List<Criterion> Criteria = new List<Criterion>();
-
-
-        public static void Add( Criterion criterion ) {
-            if( criterion == null ) throw new ArgumentNullException( "criterion" );
-            Criteria.Add( criterion );
-            HasCriteria = (Criteria.Count > 0);
-        }
-
-
-        public static Rank Check( PlayerInfo info ) {
-            if( info == null ) throw new ArgumentNullException( "info" );
-            foreach( Criterion c in Criteria ) {
-                if( c.FromRank == info.Rank && !info.Banned && c.Condition.Eval( info ) ) {
-                    return c.ToRank;
-                }
-            }
-            return null;
-        }
-
-
-        public static void Init() {
-            HasCriteria = false;
-            Criteria.Clear();
-
-            if( File.Exists( AutoRankFile ) ) {
-                try {
-                    XDocument doc = XDocument.Load( AutoRankFile );
-                    foreach( XElement el in doc.Root.Elements( "Criterion" ) ) {
-                        try {
-                            Add( new Criterion( el ) );
-                        } catch( Exception ex ) {
-                            Logger.Log( "AutoRank.Init: Could not parse an AutoRank criterion: {0}", LogType.Error, ex );
-                        }
-                    }
-                    if( Criteria.Count == 0 ) {
-                        Logger.Log( "AutoRank.Init: No criteria loaded.", LogType.Warning );
-                    }
-                } catch( Exception ex ) {
-                    Logger.Log( "AutoRank.Init: Could not parse the AutoRank file: {0}", LogType.Error, ex );
-                }
-            } else {
-                Logger.Log( "AutoRank.Init: autorank.xml not found. No criteria loaded.", LogType.Warning );
-            }
-        }
-    }
-
-
-    public sealed class Criterion : ICloneable {
-        public CriterionType Type { get; set; }
-        public Rank FromRank { get; set; }
-        public Rank ToRank { get; set; }
-        public Condition Condition { get; set; }
-
-        public Criterion() { }
-
-        public Criterion( Criterion other ) {
-            Type = other.Type;
-            FromRank = other.FromRank;
-            ToRank = other.ToRank;
-            Condition = other.Condition;
-        }
-
-        public Criterion( CriterionType type, Rank fromRank, Rank toRank, Condition condition ) {
-            Type = type;
-            FromRank = fromRank;
-            ToRank = toRank;
-            Condition = condition;
-        }
-
-        public Criterion( XElement el ) {
-            Type = (CriterionType)Enum.Parse( typeof( CriterionType ), el.Attribute( "type" ).Value, true );
-
-            FromRank = RankManager.ParseRank( el.Attribute( "fromRank" ).Value );
-            if( FromRank == null ) throw new FormatException( "Could not parse \"fromRank\"" );
-
-            ToRank = RankManager.ParseRank( el.Attribute( "toRank" ).Value );
-            if( ToRank == null ) throw new FormatException( "Could not parse \"toRank\"" );
-
-            if( el.Elements().Count() == 1 ) {
-                Condition = Condition.Parse( el.Elements().First() );
-
-            } else if( el.Elements().Count() > 1 ) {
-                ConditionAND cand = new ConditionAND();
-                foreach( XElement cond in el.Elements() ) {
-                    cand.Add( Condition.Parse( cond ) );
-                }
-                Condition = cand;
-
-            } else {
-                throw new FormatException( "At least one condition required." );
-            }
-        }
-
-        public object Clone() {
-            return new Criterion( this );
-        }
-
-        public override string ToString() {
-            return String.Format( "Criteria( {0} from {1} to {2} )",
-                                  (FromRank < ToRank ? "promote" : "demote"),
-                                  FromRank.Name,
-                                  ToRank.Name );
-        }
-
-        public XElement Serialize() {
-            XElement el = new XElement( "Criterion" );
-            el.Add( new XAttribute( "type", Type ) );
-            el.Add( new XAttribute( "fromRank", FromRank ) );
-            el.Add( new XAttribute( "toRank", ToRank ) );
-            if( Condition != null ) {
-                el.Add( Condition.Serialize() );
-            }
-            return el;
-        }
-    }
-
-
-    #region Conditions
+namespace fCraft.AutoRank {
 
     // Base class for all conditions
     public abstract class Condition {
@@ -334,17 +187,17 @@ namespace fCraft {
             Rank prevRank = info.PreviousRank ?? info.Rank;
             switch( Comparison ) {
                 case ComparisonOperation.Lt:
-                    return ( prevRank < Rank );
+                    return (prevRank < Rank);
                 case ComparisonOperation.Lte:
-                    return ( prevRank <= Rank );
+                    return (prevRank <= Rank);
                 case ComparisonOperation.Gte:
-                    return ( prevRank >= Rank );
+                    return (prevRank >= Rank);
                 case ComparisonOperation.Gt:
-                    return ( prevRank > Rank );
+                    return (prevRank > Rank);
                 case ComparisonOperation.Eq:
-                    return ( prevRank == Rank );
+                    return (prevRank == Rank);
                 case ComparisonOperation.Neq:
-                    return ( prevRank != Rank );
+                    return (prevRank != Rank);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -357,8 +210,6 @@ namespace fCraft {
             return el;
         }
     }
-
-    #endregion
 
 
     #region Condition Sets
@@ -473,57 +324,6 @@ namespace fCraft {
             }
             return el;
         }
-    }
-
-    #endregion
-
-
-    #region Enums
-
-    public enum ComparisonOperation {
-        Lt,
-        Lte,
-        Gte,
-        Gt,
-        Eq,
-        Neq
-    }
-
-    public enum ConditionField {
-        TimeSinceFirstLogin,
-        TimeSinceLastLogin,
-        LastSeen,
-        TotalTime,
-        BlocksBuilt,
-        BlocksDeleted,
-        BlocksChanged, // BlocksBuilt+BlocksDeleted
-        BlocksDrawn,
-        TimesVisited,
-        MessagesWritten,
-        TimesKicked,
-        TimeSinceRankChange,
-        TimeSinceLastKick
-    }
-
-    public enum ConditionScopeType {
-        Total,
-        SinceRankChange,
-        SinceKick,
-        TimeSpan
-    }
-
-    public enum CriterionType {
-        Required,
-        Suggested,
-        Automatic
-    }
-
-    public enum RankChangeType {
-        Default = 0,
-        Promoted = 1,
-        Demoted = 2,
-        AutoPromoted = 3,
-        AutoDemoted = 4
     }
 
     #endregion

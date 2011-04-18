@@ -217,7 +217,7 @@ namespace fCraft {
 
 
         public static void SaveWorldList() {
-            string WorldListTempFileName = Paths.WorldListFileName + ".tmp";
+            const string worldListTempFileName = Paths.WorldListFileName + ".tmp";
             // Save world list
             try {
                 XDocument doc = new XDocument();
@@ -243,8 +243,8 @@ namespace fCraft {
                 root.Add( new XAttribute( "main", MainWorld.Name ) );
 
                 doc.Add( root );
-                doc.Save( WorldListTempFileName );
-                Paths.MoveOrReplace( WorldListTempFileName, Paths.WorldListFileName );
+                doc.Save( worldListTempFileName );
+                Paths.MoveOrReplace( worldListTempFileName, Paths.WorldListFileName );
             } catch( Exception ex ) {
                 Logger.Log( "Server.SaveWorldList: An error occured while trying to save the world list: {0}", LogType.Error, ex );
             }

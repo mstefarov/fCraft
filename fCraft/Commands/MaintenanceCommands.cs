@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using fCraft.AutoRank;
 
 namespace fCraft {
     /// <summary>
@@ -509,7 +510,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( list == null ) throw new ArgumentNullException( "list" );
 
-            if( !AutoRank.HasCriteria ) {
+            if( !AutoRankManager.HasCriteria ) {
                 player.Message( "AutoRankAll: No criteria found." );
                 return;
             }
@@ -519,7 +520,7 @@ namespace fCraft {
             Stopwatch sw = Stopwatch.StartNew();
             int promoted = 0, demoted = 0;
             for( int i = 0; i < list.Length; i++ ) {
-                Rank newRank = AutoRank.Check( list[i] );
+                Rank newRank = AutoRankManager.Check( list[i] );
                 if( newRank != null ) {
                     if( newRank > list[i].Rank ) {
                         promoted++;
@@ -546,7 +547,7 @@ namespace fCraft {
         };
 
         internal static void AutoRankReload( Player player, Command cmd ) {
-            AutoRank.Init();
+            AutoRankManager.Init();
         }
 
         #endregion

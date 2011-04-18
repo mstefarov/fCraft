@@ -190,7 +190,7 @@ namespace fCraft.MapConversion {
             PlayerInfo conversionPlayer = new PlayerInfo( "OpticraftConversion", RankManager.HighestRank, true, RankChangeType.AutoPromoted );
             foreach( OpticraftZone optiZone in dataStore.Zones ) {
                 //Make zone
-                Zone fZone = new Zone() {
+                Zone fZone = new Zone {
                     Name = optiZone.Name,
                 };
                 BoundingBox bBox = new BoundingBox( optiZone.X1, optiZone.Y1, optiZone.Z1, optiZone.X2, optiZone.X2, optiZone.Z2 );
@@ -240,16 +240,17 @@ namespace fCraft.MapConversion {
                 MemoryStream serializationStream = new MemoryStream();
                 DataContractJsonSerializer serializer = new DataContractJsonSerializer( typeof( OpticraftMetaData ) );
                 //Create and serialize core meta data
-                OpticraftMetaData oMetadate = new OpticraftMetaData();
-                oMetadate.X = mapToSave.WidthX;
-                oMetadate.Y = mapToSave.WidthY;
-                oMetadate.Z = mapToSave.Height;
+                OpticraftMetaData oMetadate = new OpticraftMetaData {
+                    X = mapToSave.WidthX,
+                    Y = mapToSave.WidthY,
+                    Z = mapToSave.Height,
+                    SpawnX = mapToSave.Spawn.X,
+                    SpawnY = mapToSave.Spawn.Y,
+                    SpawnZ = mapToSave.Spawn.H,
+                    SpawnOrientation = mapToSave.Spawn.R,
+                    SpawnPitch = mapToSave.Spawn.L
+                };
                 //Spawn
-                oMetadate.SpawnX = mapToSave.Spawn.X;
-                oMetadate.SpawnY = mapToSave.Spawn.Y;
-                oMetadate.SpawnZ = mapToSave.Spawn.H;
-                oMetadate.SpawnOrientation = mapToSave.Spawn.R;
-                oMetadate.SpawnPitch = mapToSave.Spawn.L;
                 //World related values.
                 if( mapToSave.World != null ) {
                     oMetadate.Hidden = mapToSave.World.IsHidden;
@@ -267,25 +268,27 @@ namespace fCraft.MapConversion {
                 writer.Write( jsonMetaData );
 
                 //Now create and serialize core data store (zones)
-                OpticraftDataStore oDataStore = new OpticraftDataStore();
-                oDataStore.Zones = new OpticraftZone[mapToSave.ZoneList.Length];
+                OpticraftDataStore oDataStore = new OpticraftDataStore {
+                    Zones = new OpticraftZone[ mapToSave.ZoneList.Length ]
+                };
                 int i = 0;
                 foreach( Zone zone in mapToSave.ZoneList ) {
-                    OpticraftZone oZone = new OpticraftZone();
-                    oZone.Name = zone.Name;
-                    oZone.MinimumRank = zone.Controller.MinRank.Name;
-                    oZone.Owner = ""; //fcraft has no concept of zone owners.
+                    OpticraftZone oZone = new OpticraftZone {
+                        Name = zone.Name,
+                        MinimumRank = zone.Controller.MinRank.Name,
+                        Owner = "",
+                        X1 = zone.Bounds.XMin,
+                        X2 = zone.Bounds.XMax,
+                        Y1 = zone.Bounds.YMin,
+                        Y2 = zone.Bounds.YMax,
+                        Z1 = zone.Bounds.HMin,
+                        Z2 = zone.Bounds.HMax,
+                        Builders = new string[zone.Controller.ExceptionList.Included.Length]
+                    };
 
                     //Bounds
-                    oZone.X1 = zone.Bounds.XMin;
-                    oZone.X2 = zone.Bounds.XMax;
-                    oZone.Y1 = zone.Bounds.YMin;
-                    oZone.Y2 = zone.Bounds.YMax;
-                    oZone.Z1 = zone.Bounds.HMin;
-                    oZone.Z2 = zone.Bounds.HMax;
 
                     //Builders
-                    oZone.Builders = new string[zone.Controller.ExceptionList.Included.Length];
                     int j = 0;
                     foreach( PlayerInfo pInfo in zone.Controller.ExceptionList.Included ) {
                         oZone.Builders[j++] = pInfo.Name;

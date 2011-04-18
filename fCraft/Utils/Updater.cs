@@ -12,8 +12,134 @@ using fCraft.Events;
 
 namespace fCraft {
 
-    public sealed class ReleaseInfo {
+    /// <summary>
+    /// Checks for updates, and keeps track of current version/revision.
+    /// </summary>
+    public static class Updater {
 
+        public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
+            523,
+            551,
+            new DateTime( 2011, 4, 17, 16, 30, 0, DateTimeKind.Utc ),
+            "", "",
+            ReleaseFlags.Security | ReleaseFlags.Bugfix
+        );
+
+        public const string LatestStable = "0.522_r546";
+
+        public static string UpdateUrl { get; set; }
+
+        static Updater() {
+            UpdateCheckTimeout = 3000;
+            UpdateUrl = "http://www.fcraft.net/UpdateCheck.php?r={0}";
+        }
+
+
+        public static int UpdateCheckTimeout { get; set; }
+
+        public static UpdaterResult CheckForUpdates() {
+            // TODO: fix the rest
+            UpdaterMode mode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
+            if( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
+
+            string url = String.Format( UpdateUrl, CurrentRelease.Revision );
+            if( FireCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
+
+            Logger.Log( "Checking for fCraft updates...", LogType.SystemActivity );
+            try {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create( url );
+
+                request.Method = "GET";
+                request.UserAgent = "fCraft";
+                request.Timeout = UpdateCheckTimeout;
+                request.ReadWriteTimeout = UpdateCheckTimeout;
+                request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
+
+                using( WebResponse response = request.GetResponse() ) {
+                    using( XmlTextReader reader = new XmlTextReader( response.GetResponseStream() ) ) {
+                        XDocument doc = XDocument.Load( reader );
+                        XElement root = doc.Root;
+                        if( root.Attribute( "result" ).Value == "update" ) {
+                            string downloadUrl = root.Attribute( "url" ).Value;
+                            var releases = new List<ReleaseInfo>();
+                            foreach( XElement el in root.Elements( "Release" ) ) {
+                                releases.Add( new ReleaseInfo(
+                                    Int32.Parse( el.Attribute( "v" ).Value ),
+                                    Int32.Parse( el.Attribute( "r" ).Value ),
+                                    Server.TimestampToDateTime( Int64.Parse( el.Attribute( "date" ).Value ) ),
+                                    el.Element( "Summary" ).Value,
+                                    el.Element( "ChangeLog" ).Value,
+                                    ReleaseInfo.StringToReleaseFlags( el.Attribute( "flags" ).Value )
+                                ) );
+                            }
+                            UpdaterResult result = new UpdaterResult( (releases.Count > 0), downloadUrl, releases.ToArray() );
+                            FireCheckedForUpdatesEvent( UpdateUrl, result );
+                            return result;
+                        } else {
+                            return UpdaterResult.NoUpdate;
+                        }
+                    }
+                }
+            } catch( Exception ex ) {
+                Logger.Log( "An error occured while trying to check for updates: {0}: {1}", LogType.Error,
+                            ex.GetType().ToString(), ex.Message );
+                return UpdaterResult.NoUpdate;
+            }
+        }
+
+
+        public static bool RunAtShutdown { get; set; }
+
+        #region Events
+
+        /// <summary> Occurs when fCraft is about to check for updates (cancellable).
+        /// The update Url may be overridden. </summary>
+        public static event EventHandler<CheckingForUpdatesEventArgs> CheckingForUpdates;
+
+
+        /// <summary> Occurs when fCraft has just checked for updates. </summary>
+        public static event EventHandler<CheckedForUpdatesEventArgs> CheckedForUpdates;
+
+
+        static bool FireCheckingForUpdatesEvent( ref string updateUrl ) {
+            var h = CheckingForUpdates;
+            if( h == null ) return false;
+            var e = new CheckingForUpdatesEventArgs( updateUrl );
+            h( null, e );
+            updateUrl = e.Url;
+            return e.Cancel;
+        }
+
+
+        static void FireCheckedForUpdatesEvent( string url, UpdaterResult result ) {
+            var h = CheckedForUpdates;
+            if( h != null ) h( null, new CheckedForUpdatesEventArgs( url, result ) );
+        }
+
+        #endregion
+    }
+
+
+    public sealed class UpdaterResult {
+        public static UpdaterResult NoUpdate {
+            get {
+                return new UpdaterResult( false, null, new ReleaseInfo[0] );
+            }
+        }
+        internal UpdaterResult( bool updateAvailable, string downloadUrl, ReleaseInfo[] releases ) {
+            UpdateAvailable = updateAvailable;
+            DownloadUrl = downloadUrl;
+            History = releases.OrderByDescending( r => r.Revision ).ToArray();
+            LatestRelease = releases.FirstOrDefault();
+        }
+        public bool UpdateAvailable { get; private set; }
+        public string DownloadUrl { get; private set; }
+        public ReleaseInfo[] History { get; private set; }
+        public ReleaseInfo LatestRelease { get; private set; }
+    }
+
+
+    public sealed class ReleaseInfo {
         internal ReleaseInfo( int version, int revision, DateTime releaseDate,
                               string summary, string changeLog, ReleaseFlags releaseType ) {
             Version = version;
@@ -129,23 +255,15 @@ namespace fCraft {
     }
 
 
-    public sealed class UpdaterResult {
-        public static UpdaterResult NoUpdate {
-            get {
-                return new UpdaterResult( false, null, new ReleaseInfo[0] );
-            }
-        }
-        internal UpdaterResult( bool updateAvailable, string downloadUrl, ReleaseInfo[] releases ) {
-            UpdateAvailable = updateAvailable;
-            DownloadUrl = downloadUrl;
-            History = releases.OrderByDescending( r => r.Revision ).ToArray();
-            LatestRelease = releases.FirstOrDefault();
-        }
-        public bool UpdateAvailable { get; private set; }
-        public string DownloadUrl { get; private set; }
-        public ReleaseInfo[] History { get; private set; }
-        public ReleaseInfo LatestRelease { get; private set; }
+    #region Enums
+
+    public enum UpdaterMode {
+        Disabled,
+        Notify,
+        Prompt,
+        Auto,
     }
+
 
     [Flags]
     public enum ReleaseFlags {
@@ -163,120 +281,7 @@ namespace fCraft {
         Optimized = 512
     }
 
-    /// <summary>
-    /// Checks for updates, and keeps track of current version/revision.
-    /// </summary>
-    public static class Updater {
-
-        public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            523,
-            551,
-            new DateTime( 2011, 4, 17, 16, 30, 0, DateTimeKind.Utc ),
-            "", "",
-            ReleaseFlags.Security | ReleaseFlags.Bugfix
-        );
-
-        public const string LatestStable = "0.522_r546";
-
-        public static string UpdateUrl { get; set; }
-
-        static Updater() {
-            UpdateCheckTimeout = 3000;
-            UpdateUrl = "http://www.fcraft.net/UpdateCheck.php?r={0}";
-        }
-
-
-        public static int UpdateCheckTimeout { get; set; }
-
-        public static UpdaterResult CheckForUpdates() {
-            // TODO: fix the rest
-            UpdaterMode mode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
-            if( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
-
-            string url = String.Format( UpdateUrl, CurrentRelease.Revision );
-            if( FireCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
-
-            Logger.Log( "Checking for fCraft updates...", LogType.SystemActivity );
-            try {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create( url );
-
-                request.Method = "GET";
-                request.UserAgent = "fCraft";
-                request.Timeout = UpdateCheckTimeout;
-                request.ReadWriteTimeout = UpdateCheckTimeout;
-                request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
-
-                using( WebResponse response = request.GetResponse() ) {
-                    using( XmlTextReader reader = new XmlTextReader( response.GetResponseStream() ) ) {
-                        XDocument doc = XDocument.Load( reader );
-                        XElement root = doc.Root;
-                        if( root.Attribute( "result" ).Value == "update" ) {
-                            string downloadUrl = root.Attribute( "url" ).Value;
-                            var releases = new List<ReleaseInfo>();
-                            foreach( XElement el in root.Elements( "Release" ) ) {
-                                releases.Add( new ReleaseInfo(
-                                    Int32.Parse( el.Attribute( "v" ).Value ),
-                                    Int32.Parse( el.Attribute( "r" ).Value ),
-                                    Server.TimestampToDateTime( Int64.Parse( el.Attribute( "date" ).Value ) ),
-                                    el.Element( "Summary" ).Value,
-                                    el.Element( "ChangeLog" ).Value,
-                                    ReleaseInfo.StringToReleaseFlags( el.Attribute( "flags" ).Value )
-                                ) );
-                            }
-                            UpdaterResult result = new UpdaterResult( (releases.Count > 0), downloadUrl, releases.ToArray() );
-                            FireCheckedForUpdatesEvent( UpdateUrl, result );
-                            return result;
-                        } else {
-                            return UpdaterResult.NoUpdate;
-                        }
-                    }
-                }
-            } catch( Exception ex ) {
-                Logger.Log( "An error occured while trying to check for updates: {0}: {1}", LogType.Error,
-                            ex.GetType().ToString(), ex.Message );
-                return UpdaterResult.NoUpdate;
-            }
-        }
-
-
-        public static bool RunAtShutdown { get; set; }
-
-        #region Events
-
-        /// <summary> Occurs when fCraft is about to check for updates (cancellable).
-        /// The update Url may be overridden. </summary>
-        public static event EventHandler<CheckingForUpdatesEventArgs> CheckingForUpdates;
-
-
-        /// <summary> Occurs when fCraft has just checked for updates. </summary>
-        public static event EventHandler<CheckedForUpdatesEventArgs> CheckedForUpdates;
-
-
-        static bool FireCheckingForUpdatesEvent( ref string updateUrl ) {
-            var h = CheckingForUpdates;
-            if( h == null ) return false;
-            var e = new CheckingForUpdatesEventArgs( updateUrl );
-            h( null, e );
-            updateUrl = e.Url;
-            return e.Cancel;
-        }
-
-
-        static void FireCheckedForUpdatesEvent( string url, UpdaterResult result ) {
-            var h = CheckedForUpdates;
-            if( h != null ) h( null, new CheckedForUpdatesEventArgs( url, result ) );
-        }
-
-        #endregion
-    }
-
-
-    public enum UpdaterMode {
-        Disabled,
-        Notify,
-        Prompt,
-        Auto,
-    }
+    #endregion
 
 }
 

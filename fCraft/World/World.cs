@@ -42,7 +42,7 @@ namespace fCraft {
             if( name == null ) {
                 throw new ArgumentException( "name" );
             }
-            if( !World.IsValidName( name ) ) {
+            if( !IsValidName( name ) ) {
                 throw new ArgumentException( "Incorrect world name format" );
             }
             Name = name;

@@ -19,9 +19,8 @@ namespace fCraft {
     public delegate void SelectionCallback( Player player, Position[] marks, object tag );
 
 
-    /// <summary>
-    /// Object representing a connected player.
-    /// </summary>
+    /// <summary> Object representing volatile state of connected player.
+    /// For persistent state of a known player account, see PlayerInfo. </summary>
     public sealed class Player : IClassy {
         // the godly pseudo-player for commands called from the server console
         public static Player Console;

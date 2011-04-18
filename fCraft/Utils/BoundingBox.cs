@@ -64,7 +64,7 @@ namespace fCraft {
         /// <returns></returns>
         public BoundingBox GetIntersection( BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            if( this.Insersects( other ) ) {
+            if( Insersects( other ) ) {
                 return new BoundingBox( Math.Max( XMin, other.XMin ),
                                         Math.Max( YMin, other.YMin ),
                                         Math.Max( HMin, other.HMin ),
@@ -72,7 +72,7 @@ namespace fCraft {
                                         Math.Min( YMax, other.YMax ),
                                         Math.Min( HMax, other.HMax ) );
             } else {
-                return BoundingBox.Empty;
+                return Empty;
             }
         }
 
@@ -122,7 +122,5 @@ namespace fCraft {
         public XElement Serialize() {
             return Serialize( XmlRootElementName );
         }
-
     }
-
 }

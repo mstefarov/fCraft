@@ -147,7 +147,7 @@ namespace fCraft {
         }
 
 
-        public void PerlinNoiseMap( float[,] heightmap, int startOctave, int endOctave, float decay, int offsetX, int offsetY ) {
+        public void PerlinNoise2D( float[,] heightmap, int startOctave, int endOctave, float decay, int offsetX, int offsetY ) {
             float maxDim = 1f / Math.Max( heightmap.GetLength( 0 ), heightmap.GetLength( 1 ) );
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {

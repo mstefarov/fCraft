@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using fCraft.Events;
+using fCraft.AutoRank;
 
 namespace fCraft {
 
@@ -635,7 +636,7 @@ namespace fCraft {
                 }
             }
 
-            AutoRank.CheckAutoRankSetting();
+            AutoRankManager.CheckAutoRankSetting();
         }
 
 

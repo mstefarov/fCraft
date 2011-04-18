@@ -40,48 +40,46 @@ namespace fCraftConsole {
 #endif
                 Server.InitLibrary( args );
 
-                if( Server.InitServer() ) {
-                    UpdaterMode updaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
-                    if( updaterMode != UpdaterMode.Disabled ) {
-                        UpdaterResult update = Updater.CheckForUpdates();
-                        if( update.UpdateAvailable ) {
-                            Console.WriteLine( "** A new version of fCraft is available: {0}, released {1:0} day(s) ago. **",
-                                               update.LatestRelease.VersionString,
-                                               update.LatestRelease.Age.TotalDays );
-                        }
+                Server.InitServer();
+
+                UpdaterMode updaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
+                if( updaterMode != UpdaterMode.Disabled ) {
+                    UpdaterResult update = Updater.CheckForUpdates();
+                    if( update.UpdateAvailable ) {
+                        Console.WriteLine( "** A new version of fCraft is available: {0}, released {1:0} day(s) ago. **",
+                                           update.LatestRelease.VersionString,
+                                           update.LatestRelease.Age.TotalDays );
                     }
+                }
 
-                    if( !ConfigKey.ProcessPriority.IsBlank() ) {
-                        try {
-                            Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
-                        } catch( Exception ) {
-                            Logger.Log( "Program.Main: Could not set process priority, using defaults.", LogType.Warning );
-                        }
+                if( !ConfigKey.ProcessPriority.IsBlank() ) {
+                    try {
+                        Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
+                    } catch( Exception ) {
+                        Logger.Log( "Program.Main: Could not set process priority, using defaults.", LogType.Warning );
                     }
+                }
 
-                    if( Server.StartServer() ) {
-                        Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
-                        Console.WriteLine( "** Running fCraft version {0}. **", Updater.CurrentRelease.VersionString );
-                        Console.WriteLine( "** Server is now ready. Type /shutdown to exit safely. **" );
+                if( Server.StartServer() ) {
+                    Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
+                    Console.WriteLine( "** Running fCraft version {0}. **", Updater.CurrentRelease.VersionString );
+                    Console.WriteLine( "** Server is now ready. Type /shutdown to exit safely. **" );
 
-                        while( !Server.IsShuttingDown ) {
-                            string cmd = Console.ReadLine();
-                            if( cmd.Equals( "/clear", StringComparison.OrdinalIgnoreCase ) ) {
-                                Console.Clear();
-                            } else {
-                                try {
-                                    Player.Console.ParseMessage( cmd, true );
-                                } catch( Exception ex ) {
-                                    Logger.LogAndReportCrash( "Error while executing a command from console", "fCraftConsole", ex, false );
-                                }
+                    while( !Server.IsShuttingDown ) {
+                        string cmd = Console.ReadLine();
+                        if( cmd.Equals( "/clear", StringComparison.OrdinalIgnoreCase ) ) {
+                            Console.Clear();
+                        } else {
+                            try {
+                                Player.Console.ParseMessage( cmd, true );
+                            } catch( Exception ex ) {
+                                Logger.LogAndReportCrash( "Error while executing a command from console", "fCraftConsole", ex, false );
                             }
                         }
-
-                    } else {
-                        ReportFailure( ShutdownReason.FailedToStart );
                     }
+
                 } else {
-                    ReportFailure( ShutdownReason.FailedToInitialize );
+                    ReportFailure( ShutdownReason.FailedToStart );
                 }
 #if !DEBUG
             } catch( Exception ex ) {

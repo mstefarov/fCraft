@@ -34,21 +34,19 @@ namespace fCraftUI {
             try {
 #endif
                 Server.InitLibrary( args );
-                if( Server.InitServer() ) {
-                    Text = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
-                    Application.DoEvents();
-                    //StartServer();
+                Server.InitServer();
 
-                    UpdaterResult update = Updater.CheckForUpdates();
+                Text = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
+                Application.DoEvents();
+                //StartServer();
 
-                    if( update.UpdateAvailable ) {
-                        new UpdateWindow( update, false ).ShowDialog();
-                    }
+                UpdaterResult update = Updater.CheckForUpdates();
 
-                    StartServer();
-                } else {
-                    Shutdown( ShutdownReason.FailedToInitialize, false );
+                if( update.UpdateAvailable ) {
+                    new UpdateWindow( update, false ).ShowDialog();
                 }
+
+                StartServer();
 #if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Unhandled exception in fCraftUI.StartUp", "fCraftUI", ex, true );

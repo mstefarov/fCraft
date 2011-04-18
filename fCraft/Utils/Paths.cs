@@ -33,7 +33,8 @@ namespace fCraft {
                 AnnouncementsFileName,
                 GreetingFileName,
                 HeartbeatDataFileName,
-                WorldListFileName
+                WorldListFileName,
+                AutoRankFile
             };
         }
 
@@ -90,6 +91,8 @@ namespace fCraft {
         public const string UpdaterFile = "fCraftUpdater.exe";
 
         public const string WorldListFileName = "worlds.xml";
+
+        public const string AutoRankFile = "autorank.xml";
 
         #endregion
 

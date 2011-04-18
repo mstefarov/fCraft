@@ -25,9 +25,8 @@ namespace fCraftWinService {
             try {
                 Server.InitLibrary( args );
                 Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
-                if( !Server.InitServer() || !Server.StartServer() ) {
-                    throw new Exception( "Could not start fCraft." );
-                }
+                Server.InitServer();
+                Server.StartServer();
                 Logger.Log( "fCraftWinService.OnStart: Service started.", LogType.SystemActivity );
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "fCraftWinService failed to initialize or start", "fCraftWinService", ex, true );
