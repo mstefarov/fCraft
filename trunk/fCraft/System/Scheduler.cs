@@ -17,7 +17,7 @@ namespace fCraft {
         static Thread backgroundThread;
 
 
-        public static void Start() {
+        internal static void Start() {
             schedulerThread = new Thread( MainLoop ) {
                 Name = "fCraft.Main"
             };
@@ -125,7 +125,7 @@ namespace fCraft {
         }
 
 
-        public static void UpdateCache() {
+        internal static void UpdateCache() {
             List<Task> newList = new List<Task>();
             List<Task> deletionList = new List<Task>();
             lock( TaskListLock ) {
@@ -147,7 +147,7 @@ namespace fCraft {
         }
 
 
-        public static void BeginShutdown() {
+        internal static void BeginShutdown() {
             lock( TaskListLock ) {
                 foreach( Task activeTask in Tasks ) {
                     activeTask.Stop();
@@ -157,7 +157,8 @@ namespace fCraft {
             }
         }
 
-        public static void EndShutdown() {
+
+        internal static void EndShutdown() {
             try {
                 if( schedulerThread != null && schedulerThread.IsAlive ) {
                     schedulerThread.Join();

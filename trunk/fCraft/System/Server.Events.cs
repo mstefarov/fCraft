@@ -36,7 +36,7 @@ namespace fCraft {
             if( h != null ) h( null, new ServerInitializingEventArgs( initializationArgs ) );
         }
 
-        static void RaiseEvent( EventHandler h ) {
+        internal static void RaiseEvent( EventHandler h ) {
             if( h != null ) h( null, EventArgs.Empty );
         }
 
@@ -48,6 +48,10 @@ namespace fCraft {
         static void RaiseShutdownEndedEvent( ShutdownParams shutdownParams ) {
             var h = ShutdownEnded;
             if( h != null ) h( null, new ShutdownEventArgs( shutdownParams ) );
+        }
+
+        internal static void RaisePlayerListChangedEvent() {
+            RaiseEvent( PlayerListChanged );
         }
 
         #endregion

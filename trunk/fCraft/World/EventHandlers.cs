@@ -1,11 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 namespace fCraft {
-    public delegate void LogEventHandler( string message, LogType type );
-    public delegate void UrlChangeEventHandler( string message );
-    public delegate void PlayerConnectedEventHandler( Session session, ref bool cancel );
-    public delegate void PlayerDisconnectedEventHandler( Session session );
-    public delegate void PlayerKickedEventHandler( Player player, Player kicker, string reason );
-
     public delegate void PlayerTriedToJoinWorldEventHandler( Player player, World newWorld, ref bool cancel );
     public delegate void PlayerLeftWorldEventHandler( Player player, World oldWorld );
     public delegate void PlayerJoinedWorldEventHandler( Player player, World newWorld );
@@ -22,6 +16,4 @@ namespace fCraft {
     /// Used by Server (OnInit, OnStart, OnShutdownBegin, OnShutdownEnd), and World (OnLoaded, OnUnloaded).
     /// </summary>
     public delegate void SimpleEventHandler();
-
-    public delegate void PlayerListChangedHandler(string[] newPlayerList);
 }

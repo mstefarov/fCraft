@@ -112,4 +112,13 @@ namespace fCraft {
         Balanced,
         Always
     }
+
+
+    public enum RankChangeType {
+        Default = 0,
+        Promoted = 1,
+        Demoted = 2,
+        AutoPromoted = 3,
+        AutoDemoted = 4
+    }
 }

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using fCraft.Events;
 using fCraft.MapConversion;
+using fCraft.AutoRank;
 
 namespace fCraft {
     public sealed class Session {
@@ -109,8 +110,6 @@ namespace fCraft {
 
                 // try to log the player in, otherwise die.
                 if( !LoginSequence() ) return;
-
-                Server.FirePlayerConnectedEvent( this );
 
                 // main i/o loop
                 while( CanSend ) {
@@ -635,7 +634,7 @@ namespace fCraft {
 
             // AutoRank
             if( ConfigKey.AutoRankEnabled.GetBool() ) {
-                Rank newRank = AutoRank.Check( Player.Info );
+                Rank newRank = AutoRankManager.Check( Player.Info );
                 if( newRank != null ) {
                     ModerationCommands.DoChangeRank( Player.Console, Player.Info, newRank, "~AutoRank", false, true );
                 }
@@ -798,7 +797,7 @@ namespace fCraft {
                 spawn = (Position)postJoinPosition;
                 postJoinPosition = null;
             } else {
-                spawn = newWorld.Map.Spawn;
+                spawn = map.Spawn;
             }
             Player.Position = spawn;
 
@@ -820,7 +819,7 @@ namespace fCraft {
             int bytesSent = 0;
             byte[] blockData;
             using( MemoryStream stream = new MemoryStream() ) {
-                newWorld.Map.GetCompressedCopy( stream, true );
+                map.GetCompressedCopy( stream, true );
                 blockData = stream.ToArray();
             }
             Logger.Log( "Session.JoinWorldNow: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
@@ -846,10 +845,10 @@ namespace fCraft {
             }
 
             // Done sending over level copy
-            writer.Write( PacketWriter.MakeLevelEnd( newWorld.Map ) );
+            writer.Write( PacketWriter.MakeLevelEnd( map ) );
 
             // Send spawn point
-            writer.WriteAddEntity( 255, Player, newWorld.Map.Spawn );
+            writer.WriteAddEntity( 255, Player, map.Spawn );
             writer.WriteTeleport( 255, spawn );
 
             // Send player list
@@ -997,26 +996,25 @@ namespace fCraft {
 
         #region Flexible Position Updates (work in progress)
 
-        Dictionary<Player, KnownPlayerPosition> knownPlayerPositions = new Dictionary<Player, KnownPlayerPosition>();
+        Dictionary<Player, VisibleEntity> knownPlayerPositions = new Dictionary<Player, VisibleEntity>();
+        Stack<Player> playersToRemove = new Stack<Player>( 127 );
         Stack<sbyte> freePlayerIDs = new Stack<sbyte>( 127 );
 
-        const int addingThreshold = 60 * 60,
-                  removingThreshold = 70 * 70;
 
-        class KnownPlayerPosition {
-            public KnownPlayerPosition( Position newPos, sbyte newId ) {
-                Id = newId;
-                LastKnownPosition = newPos;
-                MarkedForRetention = true;
+        void ResetVisibleEntities() {
+            foreach( var pos in knownPlayerPositions.Values ) {
+                SendNow( PacketWriter.MakeRemoveEntity( pos.Id ) );
             }
-            public sbyte Id;
-            public Position LastKnownPosition;
-            public bool MarkedForRetention;
-            public bool SkippedLastMove;
-            public int FullUpdateCounter;
+            freePlayerIDs.Clear();
+            for( sbyte i = 1; i <= sbyte.MaxValue; i++ ) {
+                freePlayerIDs.Push( i );
+            }
+            playersToRemove.Clear();
+            knownPlayerPositions.Clear();
         }
 
-        void UpdatePlayerPositions() {
+
+        void UpdateVisibleEntities() {
             Player[] activePlayerList = Player.World.PlayerList;
             Position playerPos = Player.Position;
 
@@ -1032,7 +1030,7 @@ namespace fCraft {
                     var oldPos = knownPlayerPositions[p];
                     oldPos.MarkedForRetention = true;
 
-                    if( distance > removingThreshold ) {
+                    if( distance > VisibleEntity.RemovalThreshold ) {
                         // remove player (too far)
                         knownPlayerPositions.Remove( p );
                         SendNow( PacketWriter.MakeRemoveEntity( oldPos.Id ) );
@@ -1043,23 +1041,33 @@ namespace fCraft {
                         MovePlayer( oldPos, newPos );
                     }
 
-                } else if( distance <= addingThreshold ) {
+                } else if( distance <= VisibleEntity.AdditionThreshold ) {
                     // add player
-                    var pos = new KnownPlayerPosition( newPos, freePlayerIDs.Pop() );
+                    var pos = new VisibleEntity( newPos, freePlayerIDs.Pop() );
                     SendNow( PacketWriter.MakeAddEntity( pos.Id, p.GetListName(), newPos ) );
                 }
             }
 
-            foreach( var pairToRemove in knownPlayerPositions.Where( pair => !pair.Value.MarkedForRetention ) ) {
-                knownPlayerPositions.Remove( pairToRemove.Key );
+            // Find entities to remove (not marked for retention).
+            foreach( var pair in knownPlayerPositions ) {
+                if( pair.Value.MarkedForRetention ) {
+                    pair.Value.MarkedForRetention = false;
+                } else {
+                    playersToRemove.Push( pair.Key );
+                }
             }
 
-            foreach( KnownPlayerPosition pos in knownPlayerPositions.Values ) {
-                pos.MarkedForRetention = false;
+            // Remove entities
+            if( playersToRemove.Count > 0 ) {
+                Player playerToRemove;
+                while( (playerToRemove = playersToRemove.Pop()) != null ) {
+                    knownPlayerPositions.Remove( playerToRemove );
+                }
             }
         }
 
-        void MovePlayer( KnownPlayerPosition p, Position newPos ) {
+
+        void MovePlayer( VisibleEntity p, Position newPos ) {
             Position oldPos = p.LastKnownPosition;
 
             // calculate difference between old and new positions
@@ -1117,12 +1125,32 @@ namespace fCraft {
                 p.FullUpdateCounter = 0;
             }
 
+            p.LastKnownPosition = newPos;
             SendNow( packet );
+        }
+
+
+        sealed class VisibleEntity {
+            public const int AdditionThreshold = 60 * 60,
+                             RemovalThreshold = 70 * 70;
+
+            public VisibleEntity( Position newPos, sbyte newId ) {
+                Id = newId;
+                LastKnownPosition = newPos;
+                MarkedForRetention = true;
+            }
+
+            public sbyte Id;
+            public Position LastKnownPosition;
+            public bool MarkedForRetention;
+            public bool SkippedLastMove;
+            public int FullUpdateCounter;
         }
 
         #endregion
     }
 }
+
 
 #region EventArgs
 namespace fCraft.Events {

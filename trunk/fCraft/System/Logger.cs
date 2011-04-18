@@ -201,7 +201,7 @@ namespace fCraft {
                         sb.Append( Uri.EscapeDataString( "CLR " + Environment.Version ) );
                     }
                     sb.Append( "&os=" ).Append( Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString );
-                    if( exception != null ) {
+
                         if( exception is TargetInvocationException ) {
                             exception = (exception).InnerException;
                         } else if( exception is TypeInitializationException ) {
@@ -210,9 +210,7 @@ namespace fCraft {
                         sb.Append( "&exceptiontype=" ).Append( Uri.EscapeDataString( exception.GetType().ToString() ) );
                         sb.Append( "&exceptionmessage=" ).Append( Uri.EscapeDataString( exception.Message ) );
                         sb.Append( "&exceptionstacktrace=" ).Append( Uri.EscapeDataString( exception.StackTrace ) );
-                    } else {
-                        sb.Append( "&exceptiontype=&exceptionmessage=&exceptiontrace=" );
-                    }
+
                     if( File.Exists( Paths.ConfigFileName ) ) {
                         sb.Append( "&config=" ).Append( Uri.EscapeDataString( File.ReadAllText( Paths.ConfigFileName ) ) );
                     } else {
@@ -441,9 +439,6 @@ namespace fCraft {
 
 
         static void RaiseLoggedEvent( string rawMessage, string line, LogType logType ) {
-            if( ConsoleOptions[(int)logType] ) {// LEGACY
-                Server.FireLogEvent( line, logType );
-            }
             var h = Logged;
             if( h != null ) h( null, new LogEventArgs( rawMessage,
                                                        line,

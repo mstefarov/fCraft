@@ -447,7 +447,7 @@ namespace fCraft {
                 if( ConfigKey.RequireKickReason.GetBool() && String.IsNullOrEmpty( reason ) ) {
                     player.Message( "&WPlease specify a kick reason: &H/k PlayerName Reason" );
                     // freeze the target player to prevent further damage
-                    if( target != null && player.Can( Permission.Freeze ) && player.Can( Permission.Kick, target.Info.Rank ) ) {
+                    if( player.Can( Permission.Freeze ) && player.Can( Permission.Kick, target.Info.Rank ) ) {
                         player.Message( "{0}&S has been frozen while you retry.",
                                         target.GetClassyName() );
                         Freeze( player, new Command( "/freeze " + target.Name ) );
@@ -501,7 +501,6 @@ namespace fCraft {
                 if( !e.IsSilent ) {
                     Server.SendToAll( "{0}&W was kicked by {1}",
                                       target.GetClassyName(), player.GetClassyName() );
-                    Server.FirePlayerKickedEvent( target, player, reason );
                 }
 
                 if( e.RecordToPlayerDB ) {
@@ -679,6 +678,7 @@ namespace fCraft {
 
                     // ==== Actual rank change happens here ====
                     targetInfo.ProcessRankChange( newRank, player, reason, changeType );
+                    Server.RaisePlayerListChangedEvent();
                     // ==== Actual rank change happens here ====
 
 
@@ -707,7 +707,6 @@ namespace fCraft {
                     // check if player is still patrollable by others
                     target.World.CheckIfPlayerIsPatrollable( target );
 
-                    Server.FirePlayerListChangedEvent();
                 } else {
                     // ==== Actual rank change happens here (offline) ====
                     targetInfo.ProcessRankChange( newRank, player, reason, changeType );

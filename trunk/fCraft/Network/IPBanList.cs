@@ -95,6 +95,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Retrieves ban information for a given IP address. </summary>
+        /// <param name="address"> IP address to check. </param>
+        /// <returns> IPBanInfo object if found, otherwise null. </returns>
         public static IPBanInfo Get( IPAddress address ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             lock( BanListLock ) {
@@ -127,8 +130,10 @@ namespace fCraft {
         }
 
 
-        public static int CountBans() {
-            return Bans.Count;
+        public static int Count {
+            get {
+                return Bans.Count;
+            }
         }
 
 

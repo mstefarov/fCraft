@@ -1183,28 +1183,28 @@ namespace fCraft {
                         double dy = (y - cy);
                         double dh = (h - ch);
 
-                        if( (dx * dx) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 <= 1 ) {
-                            // we touched the surface
-                            // keep drilling until we hit an internal block
-                            do {
-                                DrawOneBlock( player, drawBlock, x, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
-                                DrawOneBlock( player, drawBlock, x, y, (int)(ch - dh), ref blocks, ref blocksDenied, ref cannotUndo );
-                                dh = (++h - ch);
-                            } while( h <= (int)ch &&
-                                    ((dx + 1) * (dx + 1) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 > 1 ||
-                                     (dx - 1) * (dx - 1) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 > 1 ||
-                                     (dx * dx) * rx2 + (dy + 1) * (dy + 1) * ry2 + (dh * dh) * rh2 > 1 ||
-                                     (dx * dx) * rx2 + (dy - 1) * (dy - 1) * ry2 + (dh * dh) * rh2 > 1 ||
-                                     (dx * dx) * rx2 + (dy * dy) * ry2 + (dh + 1) * (dh + 1) * rh2 > 1 ||
-                                     (dx * dx) * rx2 + (dy * dy) * ry2 + (dh - 1) * (dh - 1) * rh2 > 1)
-                                     );
-                            if( fillInner ) {
-                                for( ; h <= (int)(ch - dh); h++ ) {
-                                    DrawOneBlock( player, (byte)args.InnerBlock, x, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
-                                }
+                        if( ( dx * dx ) * rx2 + ( dy * dy ) * ry2 + ( dh * dh ) * rh2 > 1 ) continue;
+
+                        // we touched the surface
+                        // keep drilling until we hit an internal block
+                        do {
+                            DrawOneBlock( player, drawBlock, x, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                            DrawOneBlock( player, drawBlock, x, y, (int)(ch - dh), ref blocks, ref blocksDenied, ref cannotUndo );
+                            dh = (++h - ch);
+                        } while( h <= (int)ch &&
+                                 ((dx + 1) * (dx + 1) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 > 1 ||
+                                  (dx - 1) * (dx - 1) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 > 1 ||
+                                  (dx * dx) * rx2 + (dy + 1) * (dy + 1) * ry2 + (dh * dh) * rh2 > 1 ||
+                                  (dx * dx) * rx2 + (dy - 1) * (dy - 1) * ry2 + (dh * dh) * rh2 > 1 ||
+                                  (dx * dx) * rx2 + (dy * dy) * ry2 + (dh + 1) * (dh + 1) * rh2 > 1 ||
+                                  (dx * dx) * rx2 + (dy * dy) * ry2 + (dh - 1) * (dh - 1) * rh2 > 1)
+                            );
+                        if( fillInner ) {
+                            for( ; h <= (int)(ch - dh); h++ ) {
+                                DrawOneBlock( player, (byte)args.InnerBlock, x, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
                             }
-                            break;
                         }
+                        break;
                     }
                 }
             }

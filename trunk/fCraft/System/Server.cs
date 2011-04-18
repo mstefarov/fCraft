@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using ThreadState = System.Threading.ThreadState;
+using fCraft.AutoRank;
 
 namespace fCraft {
     public static partial class Server {
@@ -39,6 +40,10 @@ namespace fCraft {
         #region Command-line args
 
         static readonly Dictionary<ArgKey, string> Args = new Dictionary<ArgKey, string>();
+
+        /// <summary> Returns value of a given command-line argument (if present). Use HasArg to check flag arguments. </summary>
+        /// <param name="key"> Command-line argument name (enumerated) </param>
+        /// <returns> Value of the command-line argument, or null if this argument was not set or argument is a flag. </returns>
         public static string GetArg( ArgKey key ) {
             if( Args.ContainsKey( key ) ) {
                 return Args[key];
@@ -47,16 +52,24 @@ namespace fCraft {
             }
         }
 
+        /// <summary> Checks whether a command-line argument was set. </summary>
+        /// <param name="key"> Command-line argument name (enumerated) </param>
+        /// <returns> True if given argument was given. Otherwise false. </returns>
         public static bool HasArg( ArgKey key ) {
             return Args.ContainsKey( key );
         }
 
 
+        /// <summary> Produces a string containing all recognized arguments that wereset/passed to this instance of fCraft. </summary>
+        /// <returns> A string containing all given arguments, or an empty string if none were set. </returns>
         public static string GetArgString() {
             return String.Join( " ", GetArgList() );
         }
 
 
+        /// <summary> Produces a list of arguments that were passed to this instance of fCraft. </summary>
+        /// <returns> An array of strings, formatted as --key="value" (or, for flag arguments, --key).
+        /// Returns an empty string array if no arguments were set. </returns>
         public static string[] GetArgList() {
             List<string> argList = new List<string>();
             foreach( var pair in Args ) {
@@ -74,15 +87,16 @@ namespace fCraft {
 
         #region Initialization
 
+        // flags used to ensure proper initialization order
         static bool libraryInitialized,
                     serverInitialized;
 
-        /// <summary>
-        /// Reads command-line switches and sets up paths and logging.
+        /// <summary> Reads command-line switches and sets up paths and logging.
         /// This should be called before any other library function.
         /// Note to frontend devs: Subscribe to log-related events before calling this.
-        /// </summary>
-        /// <param name="rawArgs">string arguments passed to the frontend (if any)</param>
+        /// Does not raise any events besides Logger.Logged.
+        /// Throws exceptions on failure. </summary>
+        /// <param name="rawArgs"> string arguments passed to the frontend (if any). </param>
         public static void InitLibrary( string[] rawArgs ) {
             if( rawArgs == null ) throw new ArgumentNullException( "rawArgs" );
 
@@ -175,7 +189,12 @@ namespace fCraft {
         }
 
 
-        public static bool InitServer() {
+        /// <summary> Initialized various server subsystems. This should be called after InitLibrary and before StartServer.
+        /// Loads config, PlayerDB, IP bans, AutoRank settings, builds a list of commands, and prepares the IRC bot.
+        /// Raises Server.Initializing and Server.Initialized events, and possibly Logger.Logged events.
+        /// Throws exceptions on failure. </summary>
+        /// <returns> </returns>
+        public static void InitServer() {
             if( !libraryInitialized ) {
                 throw new Exception( "Server.InitializeLibrary must be called before Server.InitServer" );
             }
@@ -214,7 +233,9 @@ namespace fCraft {
 #endif
 
             // try to load the config
-            if( !Config.Load( false, false ) ) return false;
+            if( !Config.Load( false, false ) ) {
+                throw new Exception( "fCraft failed to initialize" );
+            }
             Config.ApplyConfig();
             Salt = GenerateSalt();
 
@@ -229,19 +250,21 @@ namespace fCraft {
             IRC.Init();
 
             if( ConfigKey.AutoRankEnabled.GetBool() ) {
-                AutoRank.Init();
+                AutoRankManager.Init();
             }
-
-            if( OnInit != null ) OnInit(); // LEGACY
 
             RaiseEvent( Initialized );
 
             serverInitialized = true;
-
-            return true;
         }
 
 
+        /// <summary> Starts the server:
+        /// Creates Console pseudoplayer, loads the world list, starts listening for incoming connections,
+        /// sets up scheduled tasks and starts the scheduler, starts the heartbeat, and connects to IRC.
+        /// Raises Server.Starting and Server.Started events.
+        /// May throw an exception on failure. </summary>
+        /// <returns> True if server started normally, false on failure. </returns>
         public static bool StartServer() {
             if( !serverInitialized ) {
                 throw new Exception( "Server.InitServer() must be called before Server.StartServer()" );
@@ -285,7 +308,8 @@ namespace fCraft {
 
             // if the port still cannot be opened after [maxPortAttempts] attemps, die.
             if( !portFound ) {
-                Logger.Log( "Could not start listening on any IP/port. Giving up after {0} tries.", LogType.SeriousError, MaxPortAttempts );
+                Logger.Log( "Could not start listening on any IP/port. Giving up after {0} tries.", LogType.SeriousError,
+                            MaxPortAttempts );
                 if( !ConfigKey.IP.IsBlank() ) {
                     Logger.Log( "Do not use the \"Designated IP\" setting unless you have multiple NICs or IPs.", LogType.Warning,
                                 MaxPortAttempts );
@@ -339,7 +363,8 @@ namespace fCraft {
 
             // Announcements
             if( ConfigKey.AnnouncementInterval.GetInt() > 0 ) {
-                Scheduler.AddTask( ShowRandomAnnouncement ).RunForever( TimeSpan.FromMinutes( ConfigKey.AnnouncementInterval.GetInt() ) );
+                TimeSpan announcementInterval = TimeSpan.FromMinutes( ConfigKey.AnnouncementInterval.GetInt() );
+                Scheduler.AddTask( ShowRandomAnnouncement ).RunForever( announcementInterval );
             }
 
             // garbage collection
@@ -355,9 +380,6 @@ namespace fCraft {
 
             if( ConfigKey.IRCBotEnabled.GetBool() ) IRC.Start();
 
-            // fire OnStart event
-            if( OnStart != null ) OnStart();
-
             RaiseEvent( Started );
             return true;
         }
@@ -368,11 +390,11 @@ namespace fCraft {
         #region Shutdown
 
         public static bool IsShuttingDown;
+        static readonly AutoResetEvent ShutdownWaiter = new AutoResetEvent( false );
+        static Thread shutdownThread;
 
-        // shuts down the server and aborts threads
-        // NOTE: Do not call from any of the usual threads (main, heartbeat, tasks).
-        // Call from UI thread or a new separate thread only.
-        public static void ShutdownNow( ShutdownParams shutdownParams ) {
+
+        internal static void ShutdownNow( ShutdownParams shutdownParams ) {
             if( IsShuttingDown ) return; // to avoid starting shutdown twice
             if( shutdownParams == null ) throw new ArgumentNullException( "shutdownParams" );
             IsShuttingDown = true;
@@ -381,7 +403,6 @@ namespace fCraft {
             try {
 #endif
             RaiseShutdownBeganEvent( shutdownParams );
-            if( OnShutdownBegin != null ) OnShutdownBegin();
 
             Scheduler.BeginShutdown();
 
@@ -421,7 +442,6 @@ namespace fCraft {
             if( PlayerDB.IsLoaded ) PlayerDB.Save();
             if( IPBanList.IsLoaded ) IPBanList.Save();
 
-            if( OnShutdownEnd != null ) OnShutdownEnd();
             RaiseShutdownEndedEvent( shutdownParams );
 #if DEBUG
 #else
@@ -431,9 +451,10 @@ namespace fCraft {
 #endif
         }
 
-        static readonly AutoResetEvent ShutdownWaiter = new AutoResetEvent( false );
 
-        static Thread shutdownThread;
+        /// <summary> Initiates the server shutdown with given parameters. </summary>
+        /// <param name="shutdownParams"> Shutdown parameters </param>
+        /// <param name="waitForShutdown"> If true, blocks the calling thread until shutdown is complete or cancelled. </param>
         public static void Shutdown( ShutdownParams shutdownParams, bool waitForShutdown ) {
             if( shutdownParams == null ) throw new ArgumentNullException( "shutdownParams" );
             if( !CancelShutdown() ) return;
@@ -446,11 +467,16 @@ namespace fCraft {
             }
         }
 
+
+        /// <summary> Attempts to cancel the shutdown timer. </summary>
+        /// <returns> True if a shutdown timer was cancelled, false if no shutdown is in progress.
+        /// Also returns false if it's too late to cancel (shutdown has begun). </returns>
         public static bool CancelShutdown() {
             if( shutdownThread != null ) {
                 if( IsShuttingDown || shutdownThread.ThreadState != ThreadState.WaitSleepJoin ) {
                     return false;
                 }
+                ShutdownWaiter.Set();
                 shutdownThread.Abort();
                 shutdownThread = null;
             }
@@ -489,16 +515,11 @@ namespace fCraft {
         #endregion
 
 
-        #region Worlds
-
-        #endregion
-
-
         #region Messaging / Packet Sending
 
         // Send a low-priority packet to everyone
         // If 'except' is not null, excludes specified player
-        public static void SendToAllDelayed( Packet packet, Player except ) {
+        public static void SendToAllLowPriority( Packet packet, Player except ) {
             Player[] tempList = PlayerList;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != except ) {
@@ -526,6 +547,14 @@ namespace fCraft {
         }
 
 
+        // Send a message to everyone
+        // Wraps String.Format() for easy formatting
+        public static void SendToAll( string message, params object[] formatArgs ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            SendToAllExcept( message, null, formatArgs );
+        }
+
+
         // Send a message to everyone (except a specified player)
         // Wraps String.Format() for easy formatting
         public static void SendToAllExcept( string message, Player except, params object[] formatArgs ) {
@@ -537,13 +566,6 @@ namespace fCraft {
             }
         }
 
-
-        // Send a message to everyone
-        // Wraps String.Format() for easy formatting
-        public static void SendToAll( string message, params object[] formatArgs ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            SendToAllExcept( message, null, formatArgs );
-        }
 
         public static void SendToAllWhoCan( string message, Player except, Permission permission, params object[] formatArgs ) {
             if( message == null ) throw new ArgumentNullException( "message" );
@@ -559,6 +581,7 @@ namespace fCraft {
             }
         }
 
+
         public static void SendToAllWhoCant( string message, Player except, Permission permission, params object[] formatArgs ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs.Length > 0 ) {
@@ -572,6 +595,7 @@ namespace fCraft {
                 }
             }
         }
+
 
         public static void SendToAllExceptIgnored( Player origin, string message, Player except, params object[] formatArgs ) {
             if( origin == null ) throw new ArgumentNullException( "origin" );
@@ -663,43 +687,12 @@ namespace fCraft {
 
 
         #region Obsolete Events
-        // events
-
-        [Obsolete( "Use Server.Initializing or Server.Initialized instead" )]
-        public static event SimpleEventHandler OnInit;
-
-        [Obsolete( "Use Server.Starting or Server.Started instead" )]
-        public static event SimpleEventHandler OnStart;
-
-        [Obsolete( "Use Server.PlayerConnecting or Server.PlayerConnected instead" )]
-        public static event PlayerConnectedEventHandler OnPlayerConnected;
-
-        [Obsolete( "Use Server.PlayerDisconnected instead" )]
-        public static event PlayerDisconnectedEventHandler OnPlayerDisconnected;
-
-        [Obsolete]
-        public static event PlayerKickedEventHandler OnPlayerKicked;
 
         [Obsolete]
         public static event PlayerRankChangedEventHandler OnRankChanged;
 
-        [Obsolete( "Use Heartbeat.UrlChanged instead" )]
-        public static event UrlChangeEventHandler OnURLChanged;
-
-        [Obsolete( "Use Server.ShutdownBegan instead" )]
-        public static event SimpleEventHandler OnShutdownBegin;
-
-        [Obsolete( "Use Server.ShutdownEnded instead" )]
-        public static event SimpleEventHandler OnShutdownEnd;
-
         [Obsolete]
         public static event PlayerChangedWorldEventHandler OnPlayerChangedWorld;
-
-        [Obsolete( "Use Logger.Logged instead" )]
-        public static event LogEventHandler OnLog;
-
-        [Obsolete("Use Server.PlayerListChanged instead")]
-        public static event PlayerListChangedHandler OnPlayerListChanged;
 
         [Obsolete]
         public static event PlayerSentMessageEventHandler OnPlayerSentMessage;
@@ -711,20 +704,6 @@ namespace fCraft {
         public static event PlayerBanStatusChangedEventHandler OnPlayerUnbanned;
 
 
-        internal static void FireUrlChangeEvent( string newUrl ) {
-            if( OnURLChanged != null ) OnURLChanged( newUrl );
-        }
-
-        internal static void FireLogEvent( string message, LogType type ) {
-            if( OnLog != null ) OnLog( message, type );
-        }
-
-        internal static bool FirePlayerConnectedEvent( Session session ) {
-            bool cancel = false;
-            if( OnPlayerConnected != null ) OnPlayerConnected( session, ref cancel );
-            return !cancel;
-        }
-
         internal static bool FirePlayerRankChange( PlayerInfo target, Player player, Rank oldRank, Rank newRank, string reason ) {
             bool cancel = false;
             if( OnRankChanged != null ) OnRankChanged( target, player, oldRank, newRank, reason, ref cancel );
@@ -735,29 +714,12 @@ namespace fCraft {
             if( OnPlayerChangedWorld != null ) OnPlayerChangedWorld( player, oldWorld, newWorld );
         }
 
-        internal static void FirePlayerListChangedEvent() {
-            if( OnPlayerListChanged == null ) return;
-            Player[] playerListCache = PlayerList;
-            string[] list = new string[playerListCache.Length];
-            for( int i = 0; i < list.Length; i++ ) {
-                list[i] = playerListCache[i].Info.Rank.Name + " - " + playerListCache[i].Name;
-            }
-            Array.Sort( list );
-            OnPlayerListChanged( list );
-        }
-
         internal static bool FireSentMessageEvent( Player player, ref string message ) {
             bool cancel = false;
             if( OnPlayerSentMessage != null ) {
                 OnPlayerSentMessage( player, player.World, ref message, ref cancel );
             }
             return !cancel;
-        }
-
-        internal static void FirePlayerKickedEvent( Player player, Player kicker, string reason ) {
-            if( OnPlayerKicked != null ) {
-                OnPlayerKicked( player, kicker, reason );
-            }
         }
 
         internal static void FirePlayerBannedEvent( PlayerInfo player, Player banner, string reason ) {
@@ -804,7 +766,12 @@ namespace fCraft {
                     SendToAllExcept( "{0}&S was kicked for being idle for {1} min", player,
                                      player.GetClassyName(),
                                      player.Info.Rank.IdleKickTimer.ToString() );
-                    ModerationCommands.DoKick( Player.Console, player, "Idle for " + player.Info.Rank.IdleKickTimer + " minutes", true, false, LeaveReason.IdleKick );
+                    ModerationCommands.DoKick( Player.Console,
+                                               player,
+                                               "Idle for " + player.Info.Rank.IdleKickTimer + " minutes",
+                                               true,
+                                               false,
+                                               LeaveReason.IdleKick );
                     player.ResetIdleTimer(); // to prevent kick from firing more than once
                 }
             }
@@ -863,13 +830,13 @@ namespace fCraft {
         #region Utilities
 
         static bool gcRequested;
+
         public static void RequestGC() {
             gcRequested = true;
         }
 
 
         public static string Salt { get; private set; }
-
 
         static string GenerateSalt() {
             RandomNumberGenerator prng = RandomNumberGenerator.Create();
@@ -883,6 +850,7 @@ namespace fCraft {
             }
             return sb.ToString();
         }
+
 
         public static bool VerifyName( string name, string hash, string salt ) {
             while( hash.Length < 32 ) {
@@ -915,6 +883,7 @@ namespace fCraft {
             return maxPacketsPerUpdate;
         }
 
+
         public static bool CheckForFCraftProcesses() {
             try {
                 Process[] processList = Process.GetProcesses();
@@ -937,18 +906,22 @@ namespace fCraft {
             }
         }
 
+
         static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1 );
 
         public static long DateTimeToTimestamp( DateTime timestamp ) {
             return (long)(timestamp - UnixEpoch).TotalSeconds;
         }
 
+
         public static DateTime TimestampToDateTime( long timestamp ) {
             return UnixEpoch.AddSeconds( timestamp );
         }
 
 
-        static readonly Regex RegexIP = new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b", RegexOptions.Compiled );
+        static readonly Regex RegexIP = new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",
+                                                   RegexOptions.Compiled );
+
         public static bool IsIP( string ipString ) {
             if( ipString == null ) throw new ArgumentNullException( "ipString" );
             return RegexIP.IsMatch( ipString );
@@ -1038,7 +1011,7 @@ namespace fCraft {
         #endregion
 
 
-        #region PlayerList
+        #region Player and Session Management
 
         // player list
         static readonly SortedDictionary<string, Player> Players = new SortedDictionary<string, Player>();
@@ -1154,7 +1127,6 @@ namespace fCraft {
             lock( SessionLock ) {
                 if( Sessions.Contains( session ) ) {
                     Sessions.Remove( session );
-                    if( OnPlayerDisconnected != null ) OnPlayerDisconnected( session );
                 }
             }
         }
@@ -1169,7 +1141,6 @@ namespace fCraft {
                 }
                 PlayerList = newPlayerList.OrderBy( player => player.Name ).ToArray();
             }
-            FirePlayerListChangedEvent();
         }
 
 
@@ -1309,7 +1280,8 @@ namespace fCraft {
             Restart = restart;
         }
 
-        public ShutdownParams( ShutdownReason reason, int delay, bool killProcess, bool restart, string customReason, Player initiatedBy ) :
+        public ShutdownParams( ShutdownReason reason, int delay, bool killProcess,
+                               bool restart, string customReason, Player initiatedBy ) :
             this( reason, delay, killProcess, restart ) {
             customReasonString = customReason;
             InitiatedBy = initiatedBy;
@@ -1333,6 +1305,8 @@ namespace fCraft {
     }
 
 
+    /// <summary> Categorizes conditions that lead to server shutdowns.
+    /// Use "Other" for plugin-triggered shutdowns. </summary>
     public enum ShutdownReason {
         Unknown,
         Other,
@@ -1361,7 +1335,7 @@ namespace fCraft {
         /// <summary> Path (file) of the configuration file. </summary>
         Config,
 
-        /// <summary> If NoRestart flag is present, fCraft will shutdown isntead of restarting.
+        /// <summary> If NoRestart flag is present, fCraft will shutdown instead of restarting.
         /// This flag is used by AutoLauncher. </summary>
         NoRestart,
 

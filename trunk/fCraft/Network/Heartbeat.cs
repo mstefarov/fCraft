@@ -143,7 +143,6 @@ namespace fCraft {
                     string oldUrl = Server.Url;
                     Server.Url = newUrl;
                     RaiseUrlChangedEvent( oldUrl, newUrl );
-                    Server.FireUrlChangeEvent( Server.Url );
                 }
             } catch( Exception ex ) {
                 LastHeartbeatFailed = true;

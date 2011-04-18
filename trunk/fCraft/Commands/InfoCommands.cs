@@ -485,7 +485,7 @@ namespace fCraft {
                             PlayerDB.CountTotalPlayers() );
             player.Message( "   Of those, {0} are banned, and {1} are IP-banned.",
                             PlayerDB.CountBannedPlayers(),
-                            IPBanList.CountBans() );
+                            IPBanList.Count );
 
             player.Message( "   {0} worlds available ({1} loaded), {2} players online.",
                             WorldManager.WorldList.Length,
@@ -745,7 +745,7 @@ namespace fCraft {
 
         internal static void Commands( Player player, Command cmd ) {
             string param = cmd.Next();
-            CommandDescriptor[] cd = null;
+            CommandDescriptor[] cd;
 
             if( param == null ) {
                 player.Message( "List of available commands:" );

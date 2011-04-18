@@ -95,7 +95,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DrawOperationState.cs" />
-    <Compile Include="Player\AutoRank.cs" />
+    <Compile Include="AutoRank\AutoRankManager.cs" />
     <Compile Include="Commands\ModerationCommands.cs" />
     <Compile Include="Commands\MaintenanceCommands.cs" />
     <Compile Include="Commands\ZoneCommands.cs" />
@@ -154,7 +154,7 @@
     <Compile Include="Player\PlayerInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="app.config" />
-    <Compile Include="Utils\StringTree.cs" />
+    <Compile Include="Utils\Trie.cs" />
     <Compile Include="Utils\Position.cs" />
     <Compile Include="World\Block.cs" />
     <Compile Include="World\BlockUpdate.cs" />
@@ -206,6 +206,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoRank\Conditions.cs" />
+    <Compile Include="AutoRank\Criterion.cs" />
     <Compile Include="Commands\ChatCommands.cs" />
     <Compile Include="Commands\ChatMessage.cs" />
     <Compile Include="Commands\CommandCategory.cs" />

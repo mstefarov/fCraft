@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace fCraft {
     public static class PlayerDB {
-        static readonly StringTree<PlayerInfo> Tree = new StringTree<PlayerInfo>();
+        static readonly Trie<PlayerInfo> Tree = new Trie<PlayerInfo>();
         static readonly List<PlayerInfo> List = new List<PlayerInfo>();
         public static PlayerInfo[] PlayerInfoList { get; private set; }
         public static readonly TimeSpan SaveInterval = TimeSpan.FromSeconds( 60 );
