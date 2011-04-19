@@ -1,4 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+//#define XMOVE
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -214,6 +216,86 @@ namespace fCraft {
 
                             // Player movement
                             case InputCode.MoveRotate:
+                                UpdateVisibleEntities();
+#if XMOVE
+                                reader.ReadByte();
+                                Position newPos = new Position {
+                                    X = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
+                                    H = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
+                                    Y = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
+                                    R = reader.ReadByte(),
+                                    L = reader.ReadByte()
+                                };
+
+                                Position oldPos = Player.Position;
+
+                                // calculate difference between old and new positions
+                                Position delta = new Position {
+                                    X = (short)(newPos.X - oldPos.X),
+                                    Y = (short)(newPos.Y - oldPos.Y),
+                                    H = (short)(newPos.H - oldPos.H),
+                                    R = (byte)Math.Abs( newPos.R - oldPos.R ),
+                                    L = (byte)Math.Abs( newPos.L - oldPos.L )
+                                };
+
+                                // skip everything if player hasn't moved
+                                if( delta.IsZero() ) continue;
+
+                                bool posChanged = (delta.X != 0) || (delta.Y != 0) || (delta.H != 0);
+                                bool rotChanged = (delta.R != 0) || (delta.L != 0);
+                                int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.H * delta.H;
+
+                                // only reset the timer if player rotated
+                                // if player is just pushed around, rotation does not change (and timer should not reset)
+                                if( rotChanged ) Player.ResetIdleTimer();
+
+                                if( Player.Info.IsFrozen ) {
+                                    // special handling for frozen players
+                                    if( delta.X * delta.X + delta.Y * delta.Y > AntiSpeedMaxDistanceSquared ||
+                                        Math.Abs( delta.H ) > 40 ) {
+                                        SendNow( PacketWriter.MakeSelfTeleport( Player.Position ) );
+                                    }
+                                    newPos.X = Player.Position.X;
+                                    newPos.Y = Player.Position.Y;
+                                    newPos.H = Player.Position.H;
+
+                                    // recalculate deltas
+                                    delta.X = 0;
+                                    delta.Y = 0;
+                                    delta.H = 0;
+                                    posChanged = false;
+                                    distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.H * delta.H;
+
+                                } else if( !Player.Can( Permission.UseSpeedHack ) ) {
+                                    // speedhack detection
+                                    if( DetectMovementPacketSpam() ) {
+                                        continue;
+
+                                    } else if( (distSquared - delta.H * delta.H > AntiSpeedMaxDistanceSquared || delta.H > AntiSpeedMaxJumpDelta) &&
+                                               speedHackDetectionCounter >= 0 ) {
+
+                                        if( speedHackDetectionCounter == 0 ) {
+                                            Player.LastValidPosition = Player.Position;
+                                        } else if( speedHackDetectionCounter > 1 ) {
+                                            DenyMovement();
+                                            speedHackDetectionCounter = 0;
+                                            continue;
+                                        }
+                                        speedHackDetectionCounter++;
+
+                                    } else {
+                                        speedHackDetectionCounter = 0;
+                                    }
+                                }
+
+                                if( Server.RaisePlayerMovingEvent( Player, newPos ) ) {
+                                    DenyMovement();
+                                    continue;
+                                }
+
+                                Player.Position = newPos;
+                                Server.RaisePlayerMovedEvent( Player, oldPos );
+#else
                                 reader.ReadByte();
                                 Position newPos = new Position {
                                     X = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
@@ -332,6 +414,7 @@ namespace fCraft {
                                 Player.Position = newPos;
                                 Server.RaisePlayerMovedEvent( Player, oldPos );
                                 Player.World.SendToSeeing( packet, Player );
+#endif
                                 break;
 
                             // Set tile
@@ -772,11 +855,15 @@ namespace fCraft {
                     Logger.Log( "Session.JoinWorldNow: Player asked to be released from its world, " +
                                 "but the world did not contain the player.", LogType.Error );
                 }
+#if !XMOVE
                 Player[] oldWorldPlayerList = oldWorld.PlayerList;
                 foreach( Player otherPlayer in oldWorldPlayerList ) {
                     SendNow( PacketWriter.MakeRemoveEntity( otherPlayer.ID ) );
                 }
+#endif
             }
+
+            ResetVisibleEntities();
 
             ClearBlockUpdateQueue();
 
@@ -850,9 +937,11 @@ namespace fCraft {
             // Send spawn point
             writer.WriteAddEntity( 255, Player, map.Spawn );
             writer.WriteTeleport( 255, spawn );
-
+            
+#if !XMOVE
             // Send player list
             newWorld.SendPlayerList( Player );
+#endif
 
             Player.Message( "Joined world {0}", newWorld.GetClassyName() );
 
@@ -1006,8 +1095,8 @@ namespace fCraft {
                 SendNow( PacketWriter.MakeRemoveEntity( pos.Id ) );
             }
             freePlayerIDs.Clear();
-            for( sbyte i = 1; i <= sbyte.MaxValue; i++ ) {
-                freePlayerIDs.Push( i );
+            for( int i = 1; i <= sbyte.MaxValue; i++ ) {
+                freePlayerIDs.Push( (sbyte)i );
             }
             playersToRemove.Clear();
             knownPlayerPositions.Clear();
@@ -1035,16 +1124,19 @@ namespace fCraft {
                         knownPlayerPositions.Remove( p );
                         SendNow( PacketWriter.MakeRemoveEntity( oldPos.Id ) );
                         freePlayerIDs.Push( oldPos.Id );
+                        Player.MessageNow( "Removed {0}", p.GetClassyName() );
 
                     } else if( oldPos.LastKnownPosition != newPos ) {
                         // move player
                         MovePlayer( oldPos, newPos );
                     }
 
-                } else if( distance <= VisibleEntity.AdditionThreshold ) {
+                } else if( distance < VisibleEntity.AdditionThreshold ) {
                     // add player
                     var pos = new VisibleEntity( newPos, freePlayerIDs.Pop() );
+                    knownPlayerPositions.Add( p, pos );
                     SendNow( PacketWriter.MakeAddEntity( pos.Id, p.GetListName(), newPos ) );
+                    Player.MessageNow( "Added {0}", p.GetClassyName() );
                 }
             }
 
@@ -1058,11 +1150,8 @@ namespace fCraft {
             }
 
             // Remove entities
-            if( playersToRemove.Count > 0 ) {
-                Player playerToRemove;
-                while( (playerToRemove = playersToRemove.Pop()) != null ) {
-                    knownPlayerPositions.Remove( playerToRemove );
-                }
+            while( playersToRemove.Count > 0 ) {
+                knownPlayerPositions.Remove( playersToRemove.Pop() );
             }
         }
 
@@ -1131,8 +1220,8 @@ namespace fCraft {
 
 
         sealed class VisibleEntity {
-            public const int AdditionThreshold = 60 * 60,
-                             RemovalThreshold = 70 * 70;
+            public const int AdditionThreshold = (16 * 32)*(16 * 32),
+                             RemovalThreshold = (18 * 32) * (18 * 32);
 
             public VisibleEntity( Position newPos, sbyte newId ) {
                 Id = newId;

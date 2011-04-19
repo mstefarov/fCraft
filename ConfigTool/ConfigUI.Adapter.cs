@@ -458,6 +458,8 @@ namespace ConfigTool {
 
             if( xMaxConnectionsPerIP.Checked ) {
                 Config.TrySetValue( ConfigKey.MaxConnectionsPerIP, nMaxConnectionsPerIP.Value );
+            } else {
+                Config.TrySetValue( ConfigKey.MaxConnectionsPerIP, 0 );
             }
             Config.TrySetValue( ConfigKey.AllowUnverifiedLAN, xAllowUnverifiedLAN.Checked );
 
