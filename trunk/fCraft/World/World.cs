@@ -1,4 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+//#define XMOVE
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -214,8 +216,10 @@ namespace fCraft {
 
                 UpdatePlayerList();
 
+#if !XMOVE
                 // Reveal newcommer to existing players
                 SendToSeeing( PacketWriter.MakeAddEntity( player, player.Position ), player );
+#endif
 
                 if( announce && ConfigKey.ShowJoinedWorldMessages.GetBool() ) {
                     string message = String.Format( "&SPlayer {0}&S joined {1}", player.GetClassyName(), GetClassyName() );
