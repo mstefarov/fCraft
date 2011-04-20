@@ -1,6 +1,4 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
-//#define XMOVE
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,7 +19,7 @@ namespace fCraft {
 
         public Map Map;
         public string Name;
-        readonly SortedDictionary<int, Player> players = new SortedDictionary<int, Player>();
+        readonly SortedDictionary<string, Player> players = new SortedDictionary<string, Player>();
         public Player[] PlayerList;
         public bool IsLocked,
                     IsHidden,
@@ -142,7 +140,6 @@ namespace fCraft {
                 newMap.World = newWorld;
                 WorldManager.ReplaceWorld( this, newWorld );
                 foreach( Player player in PlayerList ) {
-                    SendToAll( PacketWriter.MakeRemoveEntity( player.ID ), player );
                     player.Session.JoinWorld( newWorld, null );
                 }
             }
@@ -174,8 +171,6 @@ namespace fCraft {
 
         #region PlayerList
 
-        const int MaxPlayerID = 127;
-
         public Map AcceptPlayer( Player player, bool announce ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
@@ -185,18 +180,7 @@ namespace fCraft {
                     return null;
                 }
 
-                player.ID = -1;
-                for( int i = 1; i < MaxPlayerID; i++ ) {
-                    if( !players.ContainsKey( i ) ) {
-                        player.ID = i;
-                        players.Add( i, player );
-                        break;
-                    }
-                }
-
-                if( player.ID == -1 ) {
-                    return null;
-                }
+                players.Add( player.Name.ToLower(), player );
 
                 // load the map, if it's not yet loaded
                 PendingUnload = false;
@@ -215,11 +199,6 @@ namespace fCraft {
                 AddPlayerForPatrol( player );
 
                 UpdatePlayerList();
-
-#if !XMOVE
-                // Reveal newcommer to existing players
-                SendToSeeing( PacketWriter.MakeAddEntity( player, player.Position ), player );
-#endif
 
                 if( announce && ConfigKey.ShowJoinedWorldMessages.GetBool() ) {
                     string message = String.Format( "&SPlayer {0}&S joined {1}", player.GetClassyName(), GetClassyName() );
@@ -249,7 +228,7 @@ namespace fCraft {
         public bool ReleasePlayer( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( WorldLock ) {
-                if( !players.Remove( player.ID ) ) {
+                if( !players.Remove( player.Name.ToLower() ) ) {
                     return false;
                 }
 
@@ -265,25 +244,12 @@ namespace fCraft {
                 // update player list
                 UpdatePlayerList();
                 if( OnPlayerLeft != null ) OnPlayerLeft( player, this );
-                SendToAll( PacketWriter.MakeRemoveEntity( player.ID ), player );
 
                 // unload map (if needed)
                 if( players.Count == 0 && !NeverUnload ) {
                     PendingUnload = true;
                 }
                 return true;
-            }
-        }
-
-
-        // Send a list of players to the specified new player
-        internal void SendPlayerList( Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            Player[] tempList = PlayerList;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i] != player && player.CanSee( tempList[i] ) ) {
-                    player.Session.Send( PacketWriter.MakeAddEntity( tempList[i], tempList[i].Position ) );
-                }
             }
         }
 
@@ -584,7 +550,7 @@ namespace fCraft {
 
         #region Scheduled Tasks
 
-        Scheduler.Task updateTask, saveTask, backupTask;
+        SchedulerTask updateTask, saveTask, backupTask;
 
 
         public void StopTasks() {
@@ -603,20 +569,20 @@ namespace fCraft {
         }
 
         public void StartTasks() {
-            updateTask = Scheduler.AddTask( UpdateTask );
+            updateTask = Scheduler.NewTask( UpdateTask );
             updateTask.RunForever( this,
                                    TimeSpan.FromMilliseconds( ConfigKey.TickInterval.GetInt() ),
                                    TimeSpan.Zero );
 
             if( ConfigKey.SaveInterval.GetInt() > 0 ) {
-                saveTask = Scheduler.AddTask( SaveTask );
+                saveTask = Scheduler.NewTask( SaveTask );
                 saveTask.RunForever( this,
                                      TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ),
                                      TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ) );
             }
 
             if( ConfigKey.BackupInterval.GetInt() > 0 ) {
-                backupTask = Scheduler.AddTask( BackupTask );
+                backupTask = Scheduler.NewTask( BackupTask );
                 TimeSpan interval = TimeSpan.FromMinutes( ConfigKey.BackupInterval.GetInt() );
                 backupTask.RunForever( this,
                                        interval,
@@ -624,14 +590,14 @@ namespace fCraft {
             }
         }
 
-        void UpdateTask( Scheduler.Task task ) {
+        void UpdateTask( SchedulerTask task ) {
             Map tempMap = Map;
             if( tempMap != null ) {
                 tempMap.ProcessUpdates();
             }
         }
 
-        void BackupTask( Scheduler.Task task ) {
+        void BackupTask( SchedulerTask task ) {
             Map tempMap = Map;
             if( tempMap != null ) {
                 tempMap.SaveBackup( Path.Combine( Paths.MapPath, GetMapName() ),
@@ -640,7 +606,7 @@ namespace fCraft {
             }
         }
 
-        void SaveTask( Scheduler.Task task ) {
+        void SaveTask( SchedulerTask task ) {
             Map tempMap = Map;
             if( tempMap != null && tempMap.ChangedSinceSave ) {
                 SaveMap();

@@ -11,6 +11,7 @@ namespace fCraft {
 
         public PacketWriter( Stream stream ) : base( stream ) { }
 
+
         #region Direct Writing
 
         public void Write( OutputCode opcode ) {
@@ -74,9 +75,11 @@ namespace fCraft {
             Write( pos.R );
             Write( pos.L );
         }
+
         #endregion
 
         #endregion
+
 
         #region Packet Making
 
@@ -107,21 +110,14 @@ namespace fCraft {
         }
 
 
-    internal static Packet MakeMessage( string message ) {
-        if( message == null ) throw new ArgumentNullException( "message" );
+        internal static Packet MakeMessage( string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
 
-        Packet packet = new Packet( 66 );
-        packet.Data[0] = (byte)OutputCode.Message;
-        packet.Data[1] = 0;
-        Encoding.ASCII.GetBytes( message.PadRight( 64 ), 0, 64, packet.Data, 2 );
-        return packet;
-    }
-
-
-        internal static Packet MakeAddEntity( Player player, Position pos ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-
-            return MakeAddEntity( player.ID, player.GetListName(), pos );
+            Packet packet = new Packet( 66 );
+            packet.Data[0] = (byte)OutputCode.Message;
+            packet.Data[1] = 0;
+            Encoding.ASCII.GetBytes( message.PadRight( 64 ), 0, 64, packet.Data, 2 );
+            return packet;
         }
 
 
@@ -244,6 +240,7 @@ namespace fCraft {
 
         #endregion
 
+
         #region Utilities
 
         internal static void ToNetOrder( int number, byte[] arr, int offset ) {
@@ -253,7 +250,9 @@ namespace fCraft {
 
         #endregion
 
+
         internal static readonly string[] NewlineSplitter = new[] { "&N" };
+
         internal static IEnumerable<Packet> MakeWrappedMessage( string prefix, string text, bool appendPrefixToFirstLine ) {
             if( appendPrefixToFirstLine ) text = prefix + text;
 
@@ -293,7 +292,7 @@ namespace fCraft {
                     }
 
                 } else if( text[i] == ' ' ) {
-                    for( ; i < text.Length && text[i] == ' '; i++ ) {}
+                    for( ; i < text.Length && text[i] == ' '; i++ ) { }
                     i--;
                     // split at spaces
                     segments.Add( text.Substring( lastIndex, i - lastIndex ) );
@@ -348,7 +347,7 @@ namespace fCraft {
             /* STEP 7: Remove trailing whitespace and colorcodes */
             for( int l = lines.Count - 1; l >= 0; l-- ) {
                 int i = lines[l].Length - 1;
-                for( ; i >= 0 && ( lines[l][i] == ' ' || lines[l][i] == '&' || IsColorCode( lines[l][i] ) && i > 0 && lines[l][i - 1] == '&' ); i-- ) {}
+                for( ; i >= 0 && (lines[l][i] == ' ' || lines[l][i] == '&' || IsColorCode( lines[l][i] ) && i > 0 && lines[l][i - 1] == '&'); i-- ) { }
                 if( i == 0 ) {
                     lines.RemoveAt( l );
                 } else {
@@ -361,6 +360,7 @@ namespace fCraft {
                 yield return MakeMessage( processedLine );
             }
         }
+
 
         static bool IsColorCode( char c ) {
             return (c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F');

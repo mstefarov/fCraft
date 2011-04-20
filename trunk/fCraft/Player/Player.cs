@@ -54,9 +54,6 @@ namespace fCraft {
         public ushort LocalPlayerID = (ushort)ReservedPlayerID.None; // map-specific PlayerID
         // if no ID is assigned, set to ReservedPlayerID.None
 
-        public int ID = -1;
-
-
 
         // This constructor is used to create dummy players (such as Console and /dummy)
         // It will soon be replaced by a generic Entity class

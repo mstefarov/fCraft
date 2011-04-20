@@ -104,7 +104,7 @@ namespace fCraft {
         }
 
 
-        internal static void SaveTask( Scheduler.Task task ) {
+        internal static void SaveTask( SchedulerTask task ) {
             Save();
         }
 

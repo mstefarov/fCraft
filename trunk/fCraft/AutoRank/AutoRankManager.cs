@@ -8,7 +8,7 @@ namespace fCraft.AutoRank {
     public static class AutoRankManager {
 
         static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
-        static Scheduler.Task task;
+        static SchedulerTask task;
 
         public static bool HasCriteria {
             get {
@@ -20,7 +20,7 @@ namespace fCraft.AutoRank {
         public static void CheckAutoRankSetting() {
             if( ConfigKey.AutoRankEnabled.GetBool() ) {
                 if( task == null ) {
-                    task = Scheduler.AddBackgroundTask( TaskCallback );
+                    task = Scheduler.NewBackgroundTask( TaskCallback );
                     task.RunForever( TickInterval );
                 } else if( task.IsStopped ) {
                     task.RunForever( TickInterval );
@@ -31,7 +31,7 @@ namespace fCraft.AutoRank {
         }
 
 
-        public static void TaskCallback( Scheduler.Task schedulerTask ) {
+        public static void TaskCallback( SchedulerTask schedulerTask ) {
             MaintenanceCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );
         }
 

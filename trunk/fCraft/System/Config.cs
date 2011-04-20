@@ -148,9 +148,6 @@ namespace fCraft {
             }
 
             LoadDefaults();
-#if DEBUG
-            RunSelfTest();
-#endif
 
             // These keys were renamed at some point. LEGACY
             LegacyConfigKeys.Add( "DefaultClass".ToLower(), ConfigKey.DefaultRank );
@@ -170,6 +167,7 @@ namespace fCraft {
             LegacyConfigValues.Add( ConfigKey.ProcessPriority, new KeyValuePair<string, string>( "Low", ProcessPriorityClass.Idle.ToString() ) );
         }
 
+
         internal static void RunSelfTest() {
             // TESTS - ensure that all defaults are initialized
             foreach( ConfigKey key in Enum.GetValues( typeof( ConfigKey ) ) ) {
@@ -179,6 +177,7 @@ namespace fCraft {
                 if( Settings[key] == null ) {
                     throw new Exception( "One of the ConfigKey kets is null: " + key );
                 }
+
                 GetValueType( key );
             }
         }
@@ -191,13 +190,13 @@ namespace fCraft {
         /// </summary>
         public static void LoadDefaults() {
             foreach( var pair in KeyMetadata ) {
-                TrySetValue( pair.Key, pair.Value.DefaultValue );
+                SetValue( pair.Key, pair.Value.DefaultValue );
             }
         }
 
         public static void LoadDefaults( ConfigSection section ) {
             foreach( var key in KeySections[section] ) {
-                TrySetValue( key, KeyMetadata[key].DefaultValue );
+                SetValue( key, KeyMetadata[key].DefaultValue );
             }
         }
 
