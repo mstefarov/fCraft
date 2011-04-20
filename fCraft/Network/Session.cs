@@ -986,7 +986,12 @@ namespace fCraft {
                 // if Player has a corresponding VisibleEntity
                 if( entities.TryGetValue( otherPlayer, out entity ) ) {
                     entity.MarkedForRetention = true;
-                    if( entity.Hidden ) {
+
+                    if( entity.LastKnownRank != otherPlayer.Info.Rank ) {
+                        ReAddEntity( entity, otherPlayer, otherPos );
+                        entity.LastKnownRank = otherPlayer.Info.Rank;
+
+                    } else if( entity.Hidden ) {
                         if( distance < VisibleEntity.AdditionThreshold ) {
                             ShowEntity( entity, otherPos );
                         }
@@ -1002,8 +1007,8 @@ namespace fCraft {
                 } else {
                     AddEntity( otherPlayer, otherPos );
                 }
-
             }
+            
 
             // Find entities to remove (not marked for retention).
             foreach( var pair in entities ) {
@@ -1035,6 +1040,13 @@ namespace fCraft {
         }
 
 
+        void ReAddEntity( VisibleEntity entity, Player player, Position newPos ) {
+            SendNow( PacketWriter.MakeRemoveEntity( entity.Id ) );
+            SendNow( PacketWriter.MakeAddEntity( entity.Id, player.GetListName(), newPos ) );
+            entity.LastKnownPosition = newPos;
+        }
+
+
         void RemoveEntity( Player player ) {
             SendNow( PacketWriter.MakeRemoveEntity( entities[player].Id ) );
             freePlayerIDs.Push( entities[player].Id );
@@ -1043,7 +1055,7 @@ namespace fCraft {
 
 
         void AddEntity( Player player, Position newPos ) {
-            var pos = new VisibleEntity( newPos, freePlayerIDs.Pop() );
+            var pos = new VisibleEntity( newPos, freePlayerIDs.Pop(), player.Info.Rank );
             entities.Add( player, pos );
             SendNow( PacketWriter.MakeAddEntity( pos.Id, player.GetListName(), newPos ) );
         }
@@ -1118,15 +1130,17 @@ namespace fCraft {
 
             public static readonly Position HiddenPosition = new Position( 0, 0, short.MinValue );
 
-            public VisibleEntity( Position newPos, sbyte newId ) {
+            public VisibleEntity( Position newPos, sbyte newId, Rank newRank ) {
                 Id = newId;
                 LastKnownPosition = newPos;
                 MarkedForRetention = true;
                 Hidden = true;
+                LastKnownRank = newRank;
             }
 
             public sbyte Id;
             public Position LastKnownPosition;
+            public Rank LastKnownRank;
             public bool Hidden;
             public bool MarkedForRetention;
             public bool SkippedLastMove;
