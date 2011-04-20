@@ -17,7 +17,7 @@ namespace fCraft {
         public static string PrimaryUrl { get; set; }
 
         static HttpWebRequest request;
-        static Scheduler.Task task;
+        static SchedulerTask task;
         static HeartbeatData data;
 
         public static bool LastHeartbeatFailed { get; private set; }
@@ -36,11 +36,11 @@ namespace fCraft {
 
         /// <summary> Starts the heartbeats. </summary>
         public static void Start() {
-            task = Scheduler.AddTask( Beat ).RunManual();
+            task = Scheduler.NewTask( Beat ).RunManual();
         }
 
 
-        static void Beat( Scheduler.Task scheduledTask ) {
+        static void Beat( SchedulerTask scheduledTask ) {
             if( Server.IsShuttingDown ) return;
 
             data = new HeartbeatData {

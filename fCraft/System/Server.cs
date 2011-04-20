@@ -344,31 +344,31 @@ namespace fCraft {
                         WorldManager.MainWorld.Name, RankManager.DefaultRank.Name );
 
             // Check for incoming connections (every 250ms)
-            Scheduler.AddTask( CheckConnections ).RunForever( CheckConnectionsInterval );
+            Scheduler.NewTask( CheckConnections ).RunForever( CheckConnectionsInterval );
 
             // Check for idles (every 30s)
-            Scheduler.AddTask( CheckIdles ).RunForever( CheckIdlesInterval );
+            Scheduler.NewTask( CheckIdles ).RunForever( CheckIdlesInterval );
 
             // Monitor CPU usage (every 30s)
             try {
                 MonitorProcessorUsage( null );
-                Scheduler.AddTask( MonitorProcessorUsage ).RunForever( MonitorProcessorUsageInterval,
+                Scheduler.NewTask( MonitorProcessorUsage ).RunForever( MonitorProcessorUsageInterval,
                                                                        MonitorProcessorUsageInterval );
             } catch( Exception ex ) {
                 Logger.Log( "Server.StartServer: Could not start monitoring CPU use: {0}", LogType.Error, ex );
             }
 
             // Save PlayerDB in the background (every 60s)
-            Scheduler.AddBackgroundTask( PlayerDB.SaveTask ).RunForever( PlayerDB.SaveInterval, TimeSpan.FromSeconds( 15 ) );
+            Scheduler.NewBackgroundTask( PlayerDB.SaveTask ).RunForever( PlayerDB.SaveInterval, TimeSpan.FromSeconds( 15 ) );
 
             // Announcements
             if( ConfigKey.AnnouncementInterval.GetInt() > 0 ) {
                 TimeSpan announcementInterval = TimeSpan.FromMinutes( ConfigKey.AnnouncementInterval.GetInt() );
-                Scheduler.AddTask( ShowRandomAnnouncement ).RunForever( announcementInterval );
+                Scheduler.NewTask( ShowRandomAnnouncement ).RunForever( announcementInterval );
             }
 
             // garbage collection
-            Scheduler.AddTask( DoGC ).RunForever( GCInterval, TimeSpan.FromSeconds( 45 ) );
+            Scheduler.NewTask( DoGC ).RunForever( GCInterval, TimeSpan.FromSeconds( 45 ) );
 
             // Write out initial (empty) playerlist cache
             UpdatePlayerList();
@@ -742,7 +742,7 @@ namespace fCraft {
         // checks for incoming connections
         public static TimeSpan CheckConnectionsInterval = TimeSpan.FromMilliseconds( 250 );
 
-        internal static void CheckConnections( Scheduler.Task param ) {
+        static void CheckConnections( SchedulerTask param ) {
             TcpListener listenerCache = listener;
             if( listenerCache != null && listenerCache.Pending() ) {
                 try {
@@ -781,7 +781,7 @@ namespace fCraft {
         // collects garbage (forced collection is necessary under Mono)
         public static TimeSpan GCInterval = TimeSpan.FromSeconds( 60 );
 
-        static void DoGC( Scheduler.Task task ) {
+        static void DoGC( SchedulerTask task ) {
             if( !gcRequested ) return;
             gcRequested = false;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
@@ -806,14 +806,16 @@ namespace fCraft {
 
 
         // measures CPU usage
+
+        public static bool IsMonitoringCPUUsage { get; private set; }
+        public static double CPUUsageTotal { get; private set; }
+        public static double CPUUsageLastMinute { get; private set; }
+
         static TimeSpan oldCPUTime = new TimeSpan( 0 );
-        public static double CPUUsageTotal, CPUUsageLastMinute;
         static readonly TimeSpan MonitorProcessorUsageInterval = TimeSpan.FromSeconds( 30 );
         static DateTime lastMonitorTime = DateTime.UtcNow;
-        public static bool IsMonitoringCPUUsage;
 
-
-        static void MonitorProcessorUsage( Scheduler.Task task ) {
+        static void MonitorProcessorUsage( SchedulerTask task ) {
             TimeSpan newCPUTime = Process.GetCurrentProcess().TotalProcessorTime;
             CPUUsageLastMinute = (newCPUTime - oldCPUTime).TotalSeconds /
                                  (Environment.ProcessorCount * DateTime.UtcNow.Subtract( lastMonitorTime ).TotalSeconds);

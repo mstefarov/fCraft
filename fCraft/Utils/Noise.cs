@@ -24,7 +24,7 @@ namespace fCraft {
 
 
         public static float InterpolateLinear( float v0, float v1, float x ) {
-            return v0 * ( 1 - x ) + v1 * x;
+            return v0 * (1 - x) + v1 * x;
         }
 
         public static float InterpolateLinear( float v00, float v01, float v10, float v11, float x, float y ) {
@@ -35,8 +35,8 @@ namespace fCraft {
 
 
         public static float InterpolateCosine( float v0, float v1, float x ) {
-            double f = ( 1 - Math.Cos( x * Math.PI ) ) * .5;
-            return (float)( v0 * ( 1 - f ) + v1 * f );
+            double f = (1 - Math.Cos( x * Math.PI )) * .5;
+            return (float)(v0 * (1 - f) + v1 * f);
         }
 
         public static float InterpolateCosine( float v00, float v01, float v10, float v11, float x, float y ) {
@@ -54,7 +54,7 @@ namespace fCraft {
             float a1 = v0 - v1 - a0;
             float a2 = v2 - v0;
             float a3 = v1;
-            return ( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
+            return (a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3);
         }
 
 
@@ -64,14 +64,14 @@ namespace fCraft {
             float a1 = v0 - 2.5f * v1 + 2 * v2 - 0.5f * v3;
             float a2 = -0.5f * v0 + 0.5f * v2;
             float a3 = v1;
-            return ( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
+            return (a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3);
         }
 
 
         public float StaticNoise( int x, int y ) {
             int n = Seed + x + y * short.MaxValue;
-            n = ( n << 13 ) ^ n;
-            return (float)( 1.0 - ( ( n * ( n * n * 15731 + 789221 ) + 1376312589 ) & 0x7FFFFFFF ) / 1073741824d );
+            n = (n << 13) ^ n;
+            return (float)(1.0 - ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7FFFFFFF) / 1073741824d);
         }
 
 
@@ -171,8 +171,8 @@ namespace fCraft {
                 }
             }
 
-            float multiplier = ( high - low ) / ( max - min );
-            float constant = -min * ( high - low ) / ( max - min ) + low;
+            float multiplier = (high - low) / (max - min);
+            float constant = -min * (high - low) / (max - min) + low;
 
             for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = map.GetLength( 1 ) - 1; y >= 0; y-- ) {
@@ -183,29 +183,32 @@ namespace fCraft {
 
 
         // assumes normalized input
-        public static void Marble( float[,] map ) {
-            for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                for( int y = map.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    map[x, y] = Math.Abs( map[x, y] * 2 - 1 );
+        public unsafe static void Marble( float[,] map ) {
+            int length = map.GetLength( 0 ) * map.GetLength( 1 );
+            fixed( float* ptr = map ) {
+                for( int i = 0; i < length; i++ ) {
+                    ptr[i] = Math.Abs( ptr[i] * 2 - 1 );
                 }
             }
         }
 
 
         // assumes normalized input
-        public static void Blend( float[,] map1, float[,] map2, float[,] blendMap ) {
-            for( int x = map1.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                for( int y = map1.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    map1[x, y] = map1[x, y] * blendMap[x, y] + map2[x, y] * ( 1 - blendMap[x, y] );
+        public unsafe static void Blend( float[,] map1, float[,] map2, float[,] blendMap ) {
+            int length = map1.GetLength( 0 ) * map1.GetLength( 1 );
+            fixed( float* ptr1 = map1, ptr2 = map2, ptrBlend = blendMap ) {
+                for( int i = 0; i < length; i++ ) {
+                    ptr1[i] += ptr1[i] * ptrBlend[i] + ptr2[i] * (1 - ptrBlend[i]);
                 }
             }
         }
 
 
-        public static void Add( float[,] map1, float[,] map2 ) {
-            for( int x = map1.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                for( int y = map1.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    map1[x, y] += map2[x, y];
+        public unsafe static void Add( float[,] map1, float[,] map2 ) {
+            int length = map1.GetLength( 0 ) * map1.GetLength( 1 );
+            fixed( float* ptr1 = map1, ptr2 = map2 ) {
+                for( int i = 0; i < length; i++ ) {
+                    ptr1[i] += ptr2[i];
                 }
             }
         }
@@ -219,28 +222,30 @@ namespace fCraft {
 
             for( int x = offsetX - 1; x >= 0; x-- ) {
                 for( int y = offsetY - 1; y >= 0; y-- ) {
-                    heightmap[x, y] += InterpolateCosine( c00, ( c00 + c01 ) / 2, ( c00 + c10 ) / 2, midpoint, x * maxX, y * maxY );
-                    heightmap[x + offsetX, y] += InterpolateCosine( ( c00 + c10 ) / 2, midpoint, c10, ( c11 + c10 ) / 2, x * maxX, y * maxY );
-                    heightmap[x, y + offsetY] += InterpolateCosine( ( c00 + c01 ) / 2, c01, midpoint, ( c01 + c11 ) / 2, x * maxX, y * maxY );
-                    heightmap[x + offsetX, y + offsetY] += InterpolateCosine( midpoint, ( c01 + c11 ) / 2, ( c11 + c10 ) / 2, c11, x * maxX, y * maxY );
+                    heightmap[x, y] += InterpolateCosine( c00, (c00 + c01) / 2, (c00 + c10) / 2, midpoint, x * maxX, y * maxY );
+                    heightmap[x + offsetX, y] += InterpolateCosine( (c00 + c10) / 2, midpoint, c10, (c11 + c10) / 2, x * maxX, y * maxY );
+                    heightmap[x, y + offsetY] += InterpolateCosine( (c00 + c01) / 2, c01, midpoint, (c01 + c11) / 2, x * maxX, y * maxY );
+                    heightmap[x + offsetX, y + offsetY] += InterpolateCosine( midpoint, (c01 + c11) / 2, (c11 + c10) / 2, c11, x * maxX, y * maxY );
                 }
             }
         }
 
 
         // assumes normalized input
-        public static void ScaleAndClip( float[,] heightmap, float steepness ) {
-            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    heightmap[x, y] = Math.Min( 1, Math.Max( 0, heightmap[x, y] * steepness * 2 - steepness ) );
+        public unsafe static void ScaleAndClip( float[,] heightmap, float steepness ) {
+            int length = heightmap.GetLength( 0 ) * heightmap.GetLength( 1 );
+            fixed( float* ptr = heightmap ) {
+                for( int i = 0; i < length; i++ ) {
+                    ptr[i] = Math.Min( 1, Math.Max( 0, ptr[i] * steepness * 2 - steepness ) );
                 }
             }
         }
 
-        public static void Invert( float[,] heightmap ) {
-            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    heightmap[x, y] = 1 - heightmap[x, y];
+        public unsafe static void Invert( float[,] heightmap ) {
+            int length = heightmap.GetLength( 0 ) * heightmap.GetLength( 1 );
+            fixed( float* ptr = heightmap ) {
+                for( int i = 0; i < length; i++ ) {
+                    ptr[i] = 1 - ptr[i];
                 }
             }
         }
@@ -251,12 +256,12 @@ namespace fCraft {
             float[,] output = new float[heightmap.GetLength( 0 ), heightmap.GetLength( 1 )];
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( ( x == 0 ) || ( y == 0 ) || ( x == heightmap.GetLength( 0 ) - 1 ) || ( y == heightmap.GetLength( 1 ) - 1 ) ) {
+                    if( (x == 0) || (y == 0) || (x == heightmap.GetLength( 0 ) - 1) || (y == heightmap.GetLength( 1 ) - 1) ) {
                         output[x, y] = heightmap[x, y];
                     } else {
-                        output[x, y] = ( heightmap[x - 1, y - 1] * 2 + heightmap[x - 1, y] * 3 + heightmap[x - 1, y + 1] * 2 +
+                        output[x, y] = (heightmap[x - 1, y - 1] * 2 + heightmap[x - 1, y] * 3 + heightmap[x - 1, y + 1] * 2 +
                                         heightmap[x, y - 1] * 3 + heightmap[x, y] * 3 + heightmap[x, y + 1] * 3 +
-                                        heightmap[x + 1, y - 1] * 2 + heightmap[x + 1, y] * 3 + heightmap[x + 1, y + 1] * 2 ) * BoxBlurDivisor;
+                                        heightmap[x + 1, y - 1] * 2 + heightmap[x + 1, y] * 3 + heightmap[x + 1, y + 1] * 2) * BoxBlurDivisor;
                     }
                 }
             }
@@ -269,14 +274,14 @@ namespace fCraft {
             float[,] output = new float[heightmap.GetLength( 0 ), heightmap.GetLength( 1 )];
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( ( x < 2 ) || ( y < 2 ) || ( x > heightmap.GetLength( 0 ) - 3 ) || ( y > heightmap.GetLength( 1 ) - 3 ) ) {
+                    if( (x < 2) || (y < 2) || (x > heightmap.GetLength( 0 ) - 3) || (y > heightmap.GetLength( 1 ) - 3) ) {
                         output[x, y] = heightmap[x, y];
                     } else {
-                        output[x, y] = ( heightmap[x - 2, y - 2] + heightmap[x - 1, y - 2] * 4 + heightmap[x, y - 2] * 7 + heightmap[x + 1, y - 2] * 4 + heightmap[x + 2, y - 2] +
+                        output[x, y] = (heightmap[x - 2, y - 2] + heightmap[x - 1, y - 2] * 4 + heightmap[x, y - 2] * 7 + heightmap[x + 1, y - 2] * 4 + heightmap[x + 2, y - 2] +
                                         heightmap[x - 1, y - 1] * 4 + heightmap[x - 1, y - 1] * 16 + heightmap[x, y - 1] * 26 + heightmap[x + 1, y - 1] * 16 + heightmap[x + 2, y - 1] * 4 +
                                         heightmap[x - 2, y] * 7 + heightmap[x - 1, y] * 26 + heightmap[x, y] * 41 + heightmap[x + 1, y] * 26 + heightmap[x + 2, y] * 7 +
                                         heightmap[x - 2, y + 1] * 4 + heightmap[x - 1, y + 1] * 16 + heightmap[x, y + 1] * 26 + heightmap[x + 1, y + 1] * 16 + heightmap[x + 2, y + 1] * 4 +
-                                        heightmap[x - 2, y + 2] + heightmap[x - 1, y + 2] * 4 + heightmap[x, y + 2] * 7 + heightmap[x + 1, y + 2] * 4 + heightmap[x + 2, y + 2] ) * GaussianBlurDivisor;
+                                        heightmap[x - 2, y + 2] + heightmap[x - 1, y + 2] * 4 + heightmap[x, y + 2] * 7 + heightmap[x + 1, y + 2] * 4 + heightmap[x + 2, y + 2]) * GaussianBlurDivisor;
                     }
                 }
             }
@@ -289,17 +294,17 @@ namespace fCraft {
 
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( ( x == 0 ) || ( y == 0 ) || ( x == heightmap.GetLength( 0 ) - 1 ) || ( y == heightmap.GetLength( 1 ) - 1 ) ) {
+                    if( (x == 0) || (y == 0) || (x == heightmap.GetLength( 0 ) - 1) || (y == heightmap.GetLength( 1 ) - 1) ) {
                         output[x, y] = 0;
                     } else {
-                        output[x, y] = ( Math.Abs( heightmap[x, y - 1] - heightmap[x, y] ) * 3 +
+                        output[x, y] = (Math.Abs( heightmap[x, y - 1] - heightmap[x, y] ) * 3 +
                                         Math.Abs( heightmap[x, y + 1] - heightmap[x, y] ) * 3 +
                                         Math.Abs( heightmap[x - 1, y] - heightmap[x, y] ) * 3 +
                                         Math.Abs( heightmap[x + 1, y] - heightmap[x, y] ) * 3 +
                                         Math.Abs( heightmap[x - 1, y - 1] - heightmap[x, y] ) * 2 +
                                         Math.Abs( heightmap[x + 1, y - 1] - heightmap[x, y] ) * 2 +
                                         Math.Abs( heightmap[x - 1, y + 1] - heightmap[x, y] ) * 2 +
-                                        Math.Abs( heightmap[x + 1, y + 1] - heightmap[x, y] ) * 2 ) / 20f;
+                                        Math.Abs( heightmap[x + 1, y + 1] - heightmap[x, y] ) * 2) / 20f;
                     }
                 }
             }

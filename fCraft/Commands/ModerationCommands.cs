@@ -691,19 +691,6 @@ namespace fCraft {
                                     newRank.GetClassyName(),
                                     player.GetClassyName() );
 
-                    // Handle hiding/revealing hidden players (in case relative permissions change)
-                    for( int i = 0; i < worldPlayerList.Length; i++ ) {
-                        if( target.CanSee( worldPlayerList[i] ) && invisiblePlayers.Contains( worldPlayerList[i] ) ) {
-                            target.Send( PacketWriter.MakeAddEntity( worldPlayerList[i], worldPlayerList[i].Position ) );
-                        } else if( !target.CanSee( worldPlayerList[i] ) && !invisiblePlayers.Contains( worldPlayerList[i] ) ) {
-                            target.Send( PacketWriter.MakeRemoveEntity( worldPlayerList[i].ID ) );
-                        }
-                    }
-
-                    // remove/readd player to change the name color
-                    target.World.SendToAll( PacketWriter.MakeRemoveEntity( target.ID ), target );
-                    target.World.SendToSeeing( PacketWriter.MakeAddEntity( target, target.Position ), target );
-
                     // check if player is still patrollable by others
                     target.World.CheckIfPlayerIsPatrollable( target );
 
@@ -783,9 +770,6 @@ namespace fCraft {
             // to make it look like player just logged out in /info
             player.Info.LastSeen = DateTime.Now;
 
-            // for oblivious players: remove player from the list
-            Server.SendToBlind( PacketWriter.MakeRemoveEntity( player.ID ), player );
-
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.GetBool() ) {
                     Server.SendToBlind( String.Format( "&SPlayer {0}&S left the server.", player.GetClassyName() ), player );
@@ -825,9 +809,6 @@ namespace fCraft {
 
             // for aware players: notify
             Server.SendToSeeing( String.Format( "{0}&S is no longer hidden.", player.GetClassyName() ), player );
-
-            // for oblivious players: add player to the list
-            player.World.SendToBlind( PacketWriter.MakeAddEntity( player, player.Position ), player );
 
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.GetBool() ) {
@@ -1114,9 +1095,9 @@ namespace fCraft {
             if( target.World == toPlayer.World ) {
                 // teleport within the same world
                 target.Send( PacketWriter.MakeSelfTeleport( toPlayer.Position ) );
-                if( target.Info.IsFrozen ) {
                     target.Position = toPlayer.Position;
-                    target.World.SendToSeeing( PacketWriter.MakeTeleport( target.ID, target.Position ), target );
+                    if( target.Info.IsFrozen ) {
+                        target.Position = toPlayer.Position;
                 }
 
             } else {

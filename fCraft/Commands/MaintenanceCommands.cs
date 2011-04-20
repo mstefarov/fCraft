@@ -892,7 +892,7 @@ namespace fCraft {
                 return;
             }
             player.MessageNow( "PruneDB: Removing inactive players... (this may take a while)" );
-            Scheduler.AddBackgroundTask( delegate {
+            Scheduler.NewBackgroundTask( delegate {
                 player.MessageNow( "PruneDB: Removed {0} inactive players!", PlayerDB.RemoveInactivePlayers() );
             } ).RunOnce();
         }

@@ -1,5 +1,4 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
-//#define XMOVE
 
 using System;
 using System.Collections.Generic;
@@ -14,6 +13,8 @@ using fCraft.MapConversion;
 using fCraft.AutoRank;
 
 namespace fCraft {
+    /// <summary> Represents a connection to a Minecraft client.
+    /// Handles low-level interactions (e.g. networking). </summary>
     public sealed class Session {
         public Player Player;
         public DateTime LoginTime = DateTime.Now;
@@ -41,11 +42,9 @@ namespace fCraft {
         Position? postJoinPosition;
 
         // movement optimization
-        int fullPositionUpdateCounter;
         public const int FullPositionUpdateIntervalDefault = 20;
         public static int FullPositionUpdateInterval = FullPositionUpdateIntervalDefault;
-        bool skippedLastMovementPacket;
-        const int SkipMovementThreshold = 64,
+        const int SkipMovementThresholdSquared = 64,
                   SkipRotationThresholdSquared = 1500;
 
         // anti-speedhack vars
@@ -217,7 +216,6 @@ namespace fCraft {
                             // Player movement
                             case InputCode.MoveRotate:
                                 UpdateVisibleEntities();
-#if XMOVE
                                 reader.ReadByte();
                                 Position newPos = new Position {
                                     X = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
@@ -295,126 +293,6 @@ namespace fCraft {
 
                                 Player.Position = newPos;
                                 Server.RaisePlayerMovedEvent( Player, oldPos );
-#else
-                                reader.ReadByte();
-                                Position newPos = new Position {
-                                    X = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
-                                    H = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
-                                    Y = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
-                                    R = reader.ReadByte(),
-                                    L = reader.ReadByte()
-                                };
-
-                                Position oldPos = Player.Position;
-
-                                // calculate difference between old and new positions
-                                Position delta = new Position {
-                                    X = (short)(newPos.X - oldPos.X),
-                                    Y = (short)(newPos.Y - oldPos.Y),
-                                    H = (short)(newPos.H - oldPos.H),
-                                    R = (byte)Math.Abs( newPos.R - oldPos.R ),
-                                    L = (byte)Math.Abs( newPos.L - oldPos.L )
-                                };
-                                // skip everything if player hasn't moved
-                                if( delta.IsZero() ) continue;
-
-                                bool posChanged = (delta.X != 0) || (delta.Y != 0) || (delta.H != 0);
-                                bool rotChanged = (delta.R != 0) || (delta.L != 0);
-                                int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.H * delta.H;
-
-                                // only reset the timer if player rotated
-                                // if player is just pushed around, rotation does not change (and timer should not reset)
-                                if( rotChanged ) Player.ResetIdleTimer();
-
-                                if( Player.Info.IsFrozen ) {
-                                    // special handling for frozen players
-                                    if( delta.X * delta.X + delta.Y * delta.Y > AntiSpeedMaxDistanceSquared ||
-                                        Math.Abs( delta.H ) > 40 ) {
-                                        SendNow( PacketWriter.MakeSelfTeleport( Player.Position ) );
-                                    }
-                                    newPos.X = Player.Position.X;
-                                    newPos.Y = Player.Position.Y;
-                                    newPos.H = Player.Position.H;
-
-                                    // recalculate deltas
-                                    delta.X = 0;
-                                    delta.Y = 0;
-                                    delta.H = 0;
-                                    posChanged = false;
-                                    distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.H * delta.H;
-
-                                } else if( !Player.Can( Permission.UseSpeedHack ) ) {
-                                    // speedhack detection
-                                    if( DetectMovementPacketSpam() ) {
-                                        continue;
-
-                                    } else if( (distSquared - delta.H * delta.H > AntiSpeedMaxDistanceSquared || delta.H > AntiSpeedMaxJumpDelta) &&
-                                               speedHackDetectionCounter >= 0 ) {
-
-                                        if( speedHackDetectionCounter == 0 ) {
-                                            Player.LastValidPosition = Player.Position;
-                                        } else if( speedHackDetectionCounter > 1 ) {
-                                            DenyMovement();
-                                            speedHackDetectionCounter = 0;
-                                            continue;
-                                        }
-                                        speedHackDetectionCounter++;
-
-                                    } else {
-                                        speedHackDetectionCounter = 0;
-                                    }
-                                }
-
-                                // movement optimization
-                                if( distSquared < SkipMovementThreshold &&
-                                    (delta.R * delta.R + delta.L * delta.L) < SkipRotationThresholdSquared &&
-                                    !skippedLastMovementPacket ) {
-
-                                    skippedLastMovementPacket = true;
-                                    continue;
-                                }
-                                skippedLastMovementPacket = false;
-
-                                if( Server.RaisePlayerMovingEvent( Player, newPos ) ) {
-                                    DenyMovement();
-                                    continue;
-                                }
-
-                                // create the movement packet
-                                if( delta.FitsIntoByte() && fullPositionUpdateCounter < FullPositionUpdateInterval ) {
-                                    if( posChanged && rotChanged ) {
-                                        // incremental position + rotation update
-                                        packet = PacketWriter.MakeMoveRotate( Player.ID, new Position {
-                                            X = delta.X,
-                                            Y = delta.Y,
-                                            H = delta.H,
-                                            R = newPos.R,
-                                            L = newPos.L
-                                        } );
-
-                                    } else if( posChanged ) {
-                                        // incremental position update
-                                        packet = PacketWriter.MakeMove( Player.ID, delta );
-
-                                    } else {
-                                        // absolute rotation update
-                                        packet = PacketWriter.MakeRotate( Player.ID, newPos );
-                                    }
-
-                                } else {
-                                    // full (absolute position + rotation) update
-                                    packet = PacketWriter.MakeTeleport( Player.ID, newPos );
-                                }
-
-                                fullPositionUpdateCounter++;
-                                if( fullPositionUpdateCounter >= FullPositionUpdateInterval ) {
-                                    fullPositionUpdateCounter = 0;
-                                }
-
-                                Player.Position = newPos;
-                                Server.RaisePlayerMovedEvent( Player, oldPos );
-                                Player.World.SendToSeeing( packet, Player );
-#endif
                                 break;
 
                             // Set tile
@@ -855,12 +733,6 @@ namespace fCraft {
                     Logger.Log( "Session.JoinWorldNow: Player asked to be released from its world, " +
                                 "but the world did not contain the player.", LogType.Error );
                 }
-#if !XMOVE
-                Player[] oldWorldPlayerList = oldWorld.PlayerList;
-                foreach( Player otherPlayer in oldWorldPlayerList ) {
-                    SendNow( PacketWriter.MakeRemoveEntity( otherPlayer.ID ) );
-                }
-#endif
             }
 
             ResetVisibleEntities();
@@ -937,11 +809,6 @@ namespace fCraft {
             // Send spawn point
             writer.WriteAddEntity( 255, Player, map.Spawn );
             writer.WriteTeleport( 255, spawn );
-            
-#if !XMOVE
-            // Send player list
-            newWorld.SendPlayerList( Player );
-#endif
 
             Player.Message( "Joined world {0}", newWorld.GetClassyName() );
 
@@ -993,7 +860,7 @@ namespace fCraft {
 
 
         string ReadString() {
-            return Encoding.ASCII.GetString( reader.ReadBytes( 64 ) ).Trim();
+            return Encoding.ASCII.GetString( reader.ReadBytes( 64 ) ).TrimEnd();
         }
 
 
@@ -1085,13 +952,13 @@ namespace fCraft {
 
         #region Flexible Position Updates (work in progress)
 
-        Dictionary<Player, VisibleEntity> knownPlayerPositions = new Dictionary<Player, VisibleEntity>();
+        Dictionary<Player, VisibleEntity> entities = new Dictionary<Player, VisibleEntity>();
         Stack<Player> playersToRemove = new Stack<Player>( 127 );
         Stack<sbyte> freePlayerIDs = new Stack<sbyte>( 127 );
 
 
         void ResetVisibleEntities() {
-            foreach( var pos in knownPlayerPositions.Values ) {
+            foreach( var pos in entities.Values ) {
                 SendNow( PacketWriter.MakeRemoveEntity( pos.Id ) );
             }
             freePlayerIDs.Clear();
@@ -1099,49 +966,47 @@ namespace fCraft {
                 freePlayerIDs.Push( (sbyte)i );
             }
             playersToRemove.Clear();
-            knownPlayerPositions.Clear();
+            entities.Clear();
         }
 
 
         void UpdateVisibleEntities() {
-            Player[] activePlayerList = Player.World.PlayerList;
-            Position playerPos = Player.Position;
+            Player[] worldPlayerList = Player.World.PlayerList;
+            Position pos = Player.Position;
 
-            for( int i = 0; i < activePlayerList.Length; i++ ) {
-                Player p = activePlayerList[i];
-                if( p == Player ) continue;
-                if( !Player.CanSee( p ) ) continue;
+            for( int i = 0; i < worldPlayerList.Length; i++ ) {
+                Player otherPlayer = worldPlayerList[i];
+                if( otherPlayer == Player ) continue;
+                if( !Player.CanSee( otherPlayer ) ) continue;
 
-                Position newPos = p.Position;
-                int distance = playerPos.DistanceSquaredTo( newPos );
+                Position otherPos = otherPlayer.Position;
+                int distance = pos.DistanceSquaredTo( otherPos );
 
-                if( knownPlayerPositions.ContainsKey( p ) ) {
-                    var oldPos = knownPlayerPositions[p];
-                    oldPos.MarkedForRetention = true;
+                VisibleEntity entity;
+                // if Player has a corresponding VisibleEntity
+                if( entities.TryGetValue( otherPlayer, out entity ) ) {
+                    entity.MarkedForRetention = true;
+                    if( entity.Hidden ) {
+                        if( distance < VisibleEntity.AdditionThreshold ) {
+                            ShowEntity( entity, otherPos );
+                        }
 
-                    if( distance > VisibleEntity.RemovalThreshold ) {
-                        // remove player (too far)
-                        knownPlayerPositions.Remove( p );
-                        SendNow( PacketWriter.MakeRemoveEntity( oldPos.Id ) );
-                        freePlayerIDs.Push( oldPos.Id );
-                        Player.MessageNow( "Removed {0}", p.GetClassyName() );
+                    } else {
+                        if( distance > VisibleEntity.RemovalThreshold ) {
+                            HideEntity( entity );
 
-                    } else if( oldPos.LastKnownPosition != newPos ) {
-                        // move player
-                        MovePlayer( oldPos, newPos );
+                        } else if( entity.LastKnownPosition != otherPos ) {
+                            MoveEntity( entity, otherPos );
+                        }
                     }
-
-                } else if( distance < VisibleEntity.AdditionThreshold ) {
-                    // add player
-                    var pos = new VisibleEntity( newPos, freePlayerIDs.Pop() );
-                    knownPlayerPositions.Add( p, pos );
-                    SendNow( PacketWriter.MakeAddEntity( pos.Id, p.GetListName(), newPos ) );
-                    Player.MessageNow( "Added {0}", p.GetClassyName() );
+                } else {
+                    AddEntity( otherPlayer, otherPos );
                 }
+
             }
 
             // Find entities to remove (not marked for retention).
-            foreach( var pair in knownPlayerPositions ) {
+            foreach( var pair in entities ) {
                 if( pair.Value.MarkedForRetention ) {
                     pair.Value.MarkedForRetention = false;
                 } else {
@@ -1149,14 +1014,42 @@ namespace fCraft {
                 }
             }
 
-            // Remove entities
+            // Remove non-retained entities
             while( playersToRemove.Count > 0 ) {
-                knownPlayerPositions.Remove( playersToRemove.Pop() );
+                RemoveEntity( playersToRemove.Pop() );
             }
         }
 
 
-        void MovePlayer( VisibleEntity p, Position newPos ) {
+        void HideEntity( VisibleEntity entity ) {
+            entity.Hidden = true;
+            entity.LastKnownPosition = VisibleEntity.HiddenPosition;
+            SendNow( PacketWriter.MakeTeleport( entity.Id, VisibleEntity.HiddenPosition ) );
+        }
+
+
+        void ShowEntity( VisibleEntity entity, Position newPos ) {
+            entity.Hidden = false;
+            entity.LastKnownPosition = newPos;
+            SendNow( PacketWriter.MakeTeleport( entity.Id, newPos ) );
+        }
+
+
+        void RemoveEntity( Player player ) {
+            SendNow( PacketWriter.MakeRemoveEntity( entities[player].Id ) );
+            freePlayerIDs.Push( entities[player].Id );
+            entities.Remove( player );
+        }
+
+
+        void AddEntity( Player player, Position newPos ) {
+            var pos = new VisibleEntity( newPos, freePlayerIDs.Pop() );
+            entities.Add( player, pos );
+            SendNow( PacketWriter.MakeAddEntity( pos.Id, player.GetListName(), newPos ) );
+        }
+
+
+        void MoveEntity( VisibleEntity p, Position newPos ) {
             Position oldPos = p.LastKnownPosition;
 
             // calculate difference between old and new positions
@@ -1173,7 +1066,7 @@ namespace fCraft {
             int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.H * delta.H;
 
             // movement optimization
-            if( distSquared < SkipMovementThreshold &&
+            if( distSquared < SkipMovementThresholdSquared &&
                 (delta.R * delta.R + delta.L * delta.L) < SkipRotationThresholdSquared &&
                 !p.SkippedLastMove ) {
 
@@ -1220,17 +1113,21 @@ namespace fCraft {
 
 
         sealed class VisibleEntity {
-            public const int AdditionThreshold = (16 * 32)*(16 * 32),
-                             RemovalThreshold = (18 * 32) * (18 * 32);
+            public const int AdditionThreshold = (65 * 32) * (65 * 32),
+                             RemovalThreshold = (67 * 32) * (67 * 32);
+
+            public static readonly Position HiddenPosition = new Position( 0, 0, short.MinValue );
 
             public VisibleEntity( Position newPos, sbyte newId ) {
                 Id = newId;
                 LastKnownPosition = newPos;
                 MarkedForRetention = true;
+                Hidden = true;
             }
 
             public sbyte Id;
             public Position LastKnownPosition;
+            public bool Hidden;
             public bool MarkedForRetention;
             public bool SkippedLastMove;
             public int FullUpdateCounter;
