@@ -121,4 +121,13 @@ namespace fCraft {
         AutoPromoted = 3,
         AutoDemoted = 4
     }
+
+    public enum BandwidthUseMode {
+        Default = 0,
+        VeryLow = 1,
+        Low = 2,
+        Normal = 3,
+        High = 4,
+        VeryHigh = 5
+    }
 }

@@ -138,7 +138,7 @@ namespace fCraft {
                             player.Message( "Cannot join {0}&S: world is full.", world.GetClassyName() );
                             return;
                         }
-                        if( !player.Session.JoinWorldNow( world, false ) ) {
+                        if( !player.Session.JoinWorldNow( world, false, true ) ) {
                             player.Message( "ERROR: Failed to join world. See log for details." );
                         }
                         break;

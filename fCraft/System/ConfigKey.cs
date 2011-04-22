@@ -293,7 +293,10 @@ namespace fCraft {
         HeartbeatEnabled,
 
         [IPKey( ConfigSection.Advanced, IPKeyAttribute.BlankValueMeaning.Any )]
-        IP
+        IP,
+
+        [EnumKey(ConfigSection.Advanced, fCraft.BandwidthUseMode.Normal )]
+        BandwidthUseMode
 
         #endregion
     }

@@ -140,7 +140,7 @@ namespace fCraft {
                 newMap.World = newWorld;
                 WorldManager.ReplaceWorld( this, newWorld );
                 foreach( Player player in PlayerList ) {
-                    player.Session.JoinWorld( newWorld, null );
+                    player.Session.JoinWorld( newWorld );
                 }
             }
         }

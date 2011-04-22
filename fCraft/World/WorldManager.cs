@@ -446,7 +446,7 @@ namespace fCraft {
                 Player[] worldPlayerList = worldToDelete.PlayerList;
                 worldToDelete.SendToAll( "&SYou have been moved to the main world." );
                 foreach( Player player in worldPlayerList ) {
-                    player.Session.JoinWorld( MainWorld, null );
+                    player.Session.JoinWorld( MainWorld );
                 }
 
                 worldToDelete.StopTasks();

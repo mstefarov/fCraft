@@ -73,7 +73,7 @@ namespace fCraft {
             World = world;
             Session = session;
             Position = position;
-            Info = PlayerDB.FindOrCreateInfoForPlayer( name, session.GetIP() );
+            Info = PlayerDB.FindOrCreateInfoForPlayer( name, session.IP );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             ResetAllBinds();
         }

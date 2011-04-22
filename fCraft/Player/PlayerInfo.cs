@@ -8,7 +8,7 @@ namespace fCraft {
     public sealed class PlayerInfo : IClassy {
 
         public const int MinFieldCount = 24,
-                         ExpectedFieldCount = 44;
+                         ExpectedFieldCount = 45;
 
         public string Name { get; private set; }
 
@@ -65,8 +65,10 @@ namespace fCraft {
 
         public bool Online;
         public Player PlayerObject;
-        public LeaveReason LeaveReason; // TODO
+        public LeaveReason LeaveReason;
         public bool BanExempt;
+
+        public BandwidthUseMode BandwidthUseMode = BandwidthUseMode.Default;
 
 
         #region Constructors and Serialization
@@ -100,17 +102,17 @@ namespace fCraft {
         // load info from file
         public PlayerInfo( string[] fields ) {
             Name = fields[0];
-            if( String.IsNullOrEmpty( fields[1] ) || !IPAddress.TryParse( fields[1], out LastIP ) ) { // LEGACY
+            if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out LastIP ) ) { // LEGACY
                 LastIP = IPAddress.None;
             }
 
             Rank = RankManager.ParseRank( fields[2] ) ?? RankManager.DefaultRank;
-            if( fields[3].Length > 1 ) 
+            if( fields[3].Length > 1 )
                 RankChangeDate = DateTime.Parse( fields[3] );
             RankChangedBy = fields[4];
             if( RankChangedBy == "-" ) RankChangedBy = "";
 
-            Banned = ( fields[5] == "b" );
+            Banned = (fields[5] == "b");
 
             // ban information
             if( fields[6].Length > 1 && DateTime.TryParse( fields[6], out BanDate ) ) {
@@ -131,7 +133,7 @@ namespace fCraft {
             if( fields[13].Length > 1 || !IPAddress.TryParse( fields[13], out LastFailedLoginIP ) ) { // LEGACY
                 LastFailedLoginIP = IPAddress.None;
             }
-            FailedLoginCount = Int32.Parse( fields[14] );
+            if( fields[14].Length > 0 ) FailedLoginCount = Int32.Parse( fields[14] );
             DateTime.TryParse( fields[15], out FirstLoginDate );
 
             // login/logout times
@@ -139,10 +141,10 @@ namespace fCraft {
             TimeSpan.TryParse( fields[17], out TotalTime );
 
             // stats
-            Int32.TryParse( fields[18], out BlocksBuilt );
-            Int32.TryParse( fields[19], out BlocksDeleted );
+            if( fields[18].Length > 0 ) Int32.TryParse( fields[18], out BlocksBuilt );
+            if( fields[19].Length > 0 ) Int32.TryParse( fields[19], out BlocksDeleted );
             Int32.TryParse( fields[20], out TimesVisited );
-            Int32.TryParse( fields[21], out LinesWritten );
+            if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out LinesWritten );
             // fields 22-23 are no longer in use
 
             if( fields.Length > MinFieldCount ) {
@@ -181,13 +183,19 @@ namespace fCraft {
 
                 if( fields.Length > 36 ) {
                     DateTime.TryParse( fields[36], out BannedUntil );
-                    IsFrozen = ( fields[37] == "f" );
+                    IsFrozen = (fields[37] == "f");
                     FrozenBy = Unescape( fields[38] );
                     DateTime.TryParse( fields[39], out FrozenOn );
                     DateTime.TryParse( fields[40], out MutedUntil );
                     MutedBy = Unescape( fields[41] );
                     IRCPassword = Unescape( fields[42] );
                     // fields[43] is "online", and is ignored
+                }
+
+                if( fields.Length > 44 ) {
+                    if( fields[44].Length != 0 ) {
+                        BandwidthUseMode = (BandwidthUseMode)Int32.Parse( fields[44] );
+                    }
                 }
             }
 
@@ -223,6 +231,11 @@ namespace fCraft {
 
         // save to file
         internal void Serialize( string[] fields ) {
+#if DEBUG
+            string testGuid = Guid.NewGuid().ToString();
+            for( int i = 0; i < fields.Length; i++ ) fields[i] = testGuid;
+#endif
+
             fields[0] = Name;
             if( LastIP.ToString() != IPAddress.None.ToString() ) {
                 fields[1] = LastIP.ToString();
@@ -259,7 +272,8 @@ namespace fCraft {
             if( LastFailedLoginIP == IPAddress.None ) fields[13] = "";
             else fields[13] = LastFailedLoginIP.ToString();
 
-            fields[14] = FailedLoginCount.ToString();
+            if( FailedLoginCount > 0 ) fields[14] = FailedLoginCount.ToString();
+            else fields[14] = "";
 
             if( FirstLoginDate == DateTime.MinValue ) fields[15] = "";
             else fields[15] = FirstLoginDate.ToString();
@@ -270,10 +284,16 @@ namespace fCraft {
             if( TotalTime == TimeSpan.Zero ) fields[17] = "";
             else fields[17] = TotalTime.ToString();
 
-            fields[18] = BlocksBuilt.ToString();
-            fields[19] = BlocksDeleted.ToString();
+            if( BlocksBuilt > 0 ) fields[18] = BlocksBuilt.ToString();
+            else fields[18] = "";
+
+            if( BlocksDeleted > 0 ) fields[19] = BlocksDeleted.ToString();
+            else fields[19] = "";
+
             fields[20] = TimesVisited.ToString();
-            fields[21] = LinesWritten.ToString();
+
+            if( LinesWritten > 0 ) fields[21] = LinesWritten.ToString();
+            else fields[21] = "";
 
             // fields 22-23 are no longer in use
             fields[22] = "";
@@ -284,11 +304,15 @@ namespace fCraft {
 
             if( RankChangeReason.Length > 0 ) fields[25] = Escape( RankChangeReason );
             else fields[25] = "";
-            fields[26] = TimesKicked.ToString();
-            fields[27] = TimesKickedOthers.ToString();
-            fields[28] = TimesBannedOthers.ToString();
+
+            if( TimesKicked > 0 ) fields[26] = TimesKicked.ToString();
+            else fields[26] = "";
+            if( TimesKickedOthers > 0 ) fields[27] = TimesKickedOthers.ToString();
+            else fields[27] = "";
+            if( TimesBannedOthers > 0 ) fields[28] = TimesBannedOthers.ToString();
+            else fields[28] = "";
             fields[29] = ID.ToString();
-            fields[30] = ( (int)RankChangeType ).ToString();
+            fields[30] = ((int)RankChangeType).ToString();
 
             if( LastKickDate == DateTime.MinValue ) fields[31] = "";
             else fields[31] = LastKickDate.ToString();
@@ -297,7 +321,8 @@ namespace fCraft {
             else if( Online ) fields[32] = DateTime.Now.ToString();
             else fields[32] = LastSeen.ToString();
 
-            fields[33] = BlocksDrawn.ToString();
+            if( BlocksDrawn > 0 ) fields[33] = BlocksDrawn.ToString();
+            fields[33] = "";
 
             fields[34] = LastKickBy;
             if( LastKickReason.Length == 0 ) fields[35] = "";
@@ -327,7 +352,17 @@ namespace fCraft {
             if( !String.IsNullOrEmpty( IRCPassword ) ) fields[42] = Escape( IRCPassword );
             else fields[42] = "";
 
-            fields[43] = ( Online ? "o" : "" );
+            fields[43] = (Online ? "o" : "");
+
+            fields[44] = (BandwidthUseMode == BandwidthUseMode.Default ? "" : ((int)BandwidthUseMode).ToString());
+
+#if DEBUG
+            for( int i = 0; i < fields.Length; i++ ) {
+                if( fields[i] == null || fields[i] == testGuid ) {
+                    throw new Exception( "PlayerInfo did not save one of the fields properly." );
+                }
+            }
+#endif
         }
 
         #endregion
@@ -336,7 +371,7 @@ namespace fCraft {
         #region Update Handlers
 
         public void ProcessLogin( Player player ) {
-            LastIP = player.Session.GetIP();
+            LastIP = player.Session.IP;
             LastLoginDate = DateTime.Now;
             LastSeen = DateTime.Now;
             Interlocked.Increment( ref TimesVisited );
@@ -347,7 +382,7 @@ namespace fCraft {
 
         public void ProcessFailedLogin( Session session ) {
             LastFailedLoginDate = DateTime.Now;
-            LastFailedLoginIP = session.GetIP();
+            LastFailedLoginIP = session.IP;
             Interlocked.Increment( ref FailedLoginCount );
         }
 
