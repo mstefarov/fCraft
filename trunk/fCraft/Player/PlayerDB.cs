@@ -13,7 +13,7 @@ namespace fCraft {
         static readonly Trie<PlayerInfo> Tree = new Trie<PlayerInfo>();
         static readonly List<PlayerInfo> List = new List<PlayerInfo>();
         public static PlayerInfo[] PlayerInfoList { get; private set; }
-        public static readonly TimeSpan SaveInterval = TimeSpan.FromSeconds( 60 );
+        public static readonly TimeSpan SaveInterval = TimeSpan.FromSeconds( 90 );
 
         static int maxID = 255;
 
@@ -51,7 +51,6 @@ namespace fCraft {
         #region Saving/Loading
 
         internal static void Load() {
-
             if( File.Exists( Paths.PlayerDBFileName ) ) {
                 Stopwatch sw = Stopwatch.StartNew();
                 using( StreamReader reader = File.OpenText( Paths.PlayerDBFileName ) ) {

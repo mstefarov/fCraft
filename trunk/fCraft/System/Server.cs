@@ -331,7 +331,7 @@ namespace fCraft {
             StringBuilder line = new StringBuilder( "All available worlds: " );
             bool firstPrintedWorld = true;
             WorldManager.UpdateWorldList();
-            foreach( string worldName in WorldManager.WorldList.Select(w=>w.Name) ) {
+            foreach( string worldName in WorldManager.WorldList.Select( w => w.Name ) ) {
                 if( !firstPrintedWorld ) {
                     line.Append( ", " );
                 }
@@ -402,47 +402,47 @@ namespace fCraft {
 #else
             try {
 #endif
-            RaiseShutdownBeganEvent( shutdownParams );
+                RaiseShutdownBeganEvent( shutdownParams );
 
-            Scheduler.BeginShutdown();
+                Scheduler.BeginShutdown();
 
-            Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
-                        shutdownParams.ReasonString );
+                Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
+                            shutdownParams.ReasonString );
 
-            // stop accepting new players
-            if( listener != null ) {
-                listener.Stop();
-                listener = null;
-            }
-
-            // kick all players
-            lock( SessionLock ) {
-                foreach( Session s in Sessions ) {
-                    // NOTE: kick packet delivery here is not currently guaranteed
-                    s.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
+                // stop accepting new players
+                if( listener != null ) {
+                    listener.Stop();
+                    listener = null;
                 }
-                if( Sessions.Count > 0 ) {
-                    // increase the chances of kick packets being delivered
-                    Thread.Sleep( 1000 );
+
+                // kick all players
+                lock( SessionLock ) {
+                    foreach( Session s in Sessions ) {
+                        // NOTE: kick packet delivery here is not currently guaranteed
+                        s.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
+                    }
+                    if( Sessions.Count > 0 ) {
+                        // increase the chances of kick packets being delivered
+                        Thread.Sleep( 1000 );
+                    }
                 }
-            }
 
-            // kill IRC bot
-            IRC.Disconnect();
+                // kill IRC bot
+                IRC.Disconnect();
 
-            lock( WorldManager.WorldListLock ) {
-                // unload all worlds (includes saving)
-                foreach( World world in WorldManager.WorldList ) {
-                    world.Shutdown();
+                lock( WorldManager.WorldListLock ) {
+                    // unload all worlds (includes saving)
+                    foreach( World world in WorldManager.WorldList ) {
+                        world.Shutdown();
+                    }
                 }
-            }
 
-            Scheduler.EndShutdown();
+                Scheduler.EndShutdown();
 
-            if( PlayerDB.IsLoaded ) PlayerDB.Save();
-            if( IPBanList.IsLoaded ) IPBanList.Save();
+                if( PlayerDB.IsLoaded ) PlayerDB.Save();
+                if( IPBanList.IsLoaded ) IPBanList.Save();
 
-            RaiseShutdownEndedEvent( shutdownParams );
+                RaiseShutdownEndedEvent( shutdownParams );
 #if DEBUG
 #else
             } catch( Exception ex ) {
@@ -1031,7 +1031,7 @@ namespace fCraft {
                 if( maxSessions > 0 ) {
                     int sessionCount = 0;
                     foreach( Session s in Sessions ) {
-                        if( s.GetIP().ToString() == session.GetIP().ToString() ) {
+                        if( s.IP.ToString() == session.IP.ToString() ) {
                             sessionCount++;
                             if( sessionCount >= maxSessions ) {
                                 return false;
@@ -1231,7 +1231,7 @@ namespace fCraft {
         public static Player[] FindPlayers( IPAddress ip ) {
             if( ip == null ) throw new ArgumentNullException( "ip" );
             return PlayerList.Where( t => t != null &&
-                                          t.Session.GetIP().ToString() == ip.ToString() ).ToArray();
+                                          t.Session.IP.ToString() == ip.ToString() ).ToArray();
         }
 
 

@@ -114,13 +114,15 @@ namespace fCraft {
      *              
      * 136 - r528 - Added BanAll permission.
      * 
+     * 137 - r556 - Added BandwidthUseMode key.
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 136;
+        public const int ConfigVersion = 137;
         public const string ConfigXmlRootName = "fCraftConfig";
 
         static readonly Dictionary<ConfigKey, string> Settings = new Dictionary<ConfigKey, string>();
