@@ -31,7 +31,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Searches for players starting with namePart. Autocompletes. </summary>
+        /// <summary> Searches for players starting with namePart, up to a specified limit. Autocompletes. </summary>
         /// <param name="namePart">Partial or full player name</param>
         /// <param name="limit">Limit on the number of player names to return</param>
         /// <returns>List of matches (if there are no matches, length is zero)</returns>
@@ -41,8 +41,9 @@ namespace fCraft {
             TrieNode temp = root;
             for( int i = 0; i < namePart.Length; i++ ) {
                 int code = CharCode( namePart[i] );
-                if( temp.Children[code] == null )
+                if( temp.Children == null || temp.Children[code] == null ) {
                     return results;
+                }
                 temp = temp.Children[code];
             }
             temp.GetAllChildren( results, limit );
@@ -55,13 +56,18 @@ namespace fCraft {
         /// <param name="info">Payload object to output (will be set to null/default(T) if no single match was found)</param>
         /// <returns>true if one or zero matches were found, false if multiple matches were found</returns>
         public bool Get( string namePart, out T info ) {
-            if( namePart == null ) throw new ArgumentNullException( "namePart" );
+            if( namePart == null ) throw new ArgumentNullException( "name" );
+            if( namePart.Length == 0 ) {
+                info = root.Payload;
+                return (root.Children == null);
+            }
+
             TrieNode temp = root;
             for( int i = 0; i < namePart.Length; i++ ) {
                 int code = CharCode( namePart[i] );
-                if( temp.Children[code] == null ) {
-                    info = default( T );
-                    return true; // early detection of no matches
+                if( temp.Children == null || temp.Children[code] == null ) {
+                    info = null;
+                    return true;
                 }
                 temp = temp.Children[code];
             }
@@ -69,13 +75,29 @@ namespace fCraft {
             if( temp.Payload != null ) {
                 info = temp.Payload;
                 return true; // exact match
+
             } else if( temp.Tag == Multi ) {
-                info = default( T );
+                info = null;
                 return false; // multiple matches
             }
-            for( ; temp.Tag < Multi; temp = temp.Children[temp.Tag] ) { }
-            info = temp.Payload;
-            return true; // one autocompleted match
+
+            // todo: check for multiple matches in this loop
+            while( true ) {
+                if( temp.Children == null ) {
+                    // found a singular match
+                    info = temp.Payload;
+                    return true;
+
+                } else if( temp.Tag == Multi ) {
+                    // ran into multiple matches
+                    info = null;
+                    return false;
+
+                } else {
+                    // or go deeper down the trie
+                    temp = temp.Children[temp.Tag];
+                }
+            }
         }
 
 
@@ -174,14 +196,16 @@ namespace fCraft {
                 if( Payload != null ) {
                     list.Add( Payload );
                 }
-                if( Tag < Multi ) {
-                    if( !Children[Tag].GetAllChildren( list, limit ) ) return false;
-                } else if( Tag == Multi ) {
+                if( Children == null ) return true;
+
+                if( Tag == Multi ) {
                     for( int i = 0; i < Children.Length; i++ ) {
                         if( Children[i] != null ) {
                             if( !Children[i].GetAllChildren( list, limit ) ) return false;
                         }
                     }
+                } else if( Tag < ChildCount ) {
+                    if( !Children[Tag].GetAllChildren( list, limit ) ) return false;
                 }
                 return true;
             }
