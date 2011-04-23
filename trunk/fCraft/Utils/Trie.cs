@@ -1,41 +1,42 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Collections.Generic;
 
 namespace fCraft {
-    /// <summary>
-    /// Specialized data structure for partial-matching of large sparse sets of words.
-    /// Used as a searchable index of players for PlayerDB.
-    /// </summary>
+    /// <summary> Specialized data structure for partial-matching of large sparse sets of words.
+    /// Used as a searchable index of players for PlayerDB. </summary>
     public sealed class Trie<T> where T : class {
         readonly TrieNode root = new TrieNode();
         public int Count { get; private set; }
 
-        const byte Multi = 37,
-                   Empty = 38;
+        const byte Multi = 254,
+                   Empty = 255;
 
 
         /// <summary> Get payload for an exact name (no autocompletion) </summary>
         /// <param name="name">Full name</param>
-        /// <returns>Payload object, if found. Null (or default) if not found.</returns>
+        /// <returns>Payload object, if found. Null if not found.</returns>
         public T Get( string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( name.Length == 0 ) return root.Payload;
+
             TrieNode temp = root;
             for( int i = 0; i < name.Length; i++ ) {
                 int code = CharCode( name[i] );
-                if( temp.Children[code] == null )
-                    return default( T );
+                if( temp.Children == null || temp.Children[code] == null )
+                    return null;
                 temp = temp.Children[code];
             }
             return temp.Payload;
         }
 
 
-        /// <summary>
-        /// Searches for players starting with namePart. Autocompletes.
-        /// </summary>
+        /// <summary> Searches for players starting with namePart. Autocompletes. </summary>
         /// <param name="namePart">Partial or full player name</param>
         /// <param name="limit">Limit on the number of player names to return</param>
         /// <returns>List of matches (if there are no matches, length is zero)</returns>
         public List<T> GetMultiple( string namePart, int limit ) {
+            if( namePart == null ) throw new ArgumentNullException( "namePart" );
             List<T> results = new List<T>();
             TrieNode temp = root;
             for( int i = 0; i < namePart.Length; i++ ) {
@@ -54,6 +55,7 @@ namespace fCraft {
         /// <param name="info">Payload object to output (will be set to null/default(T) if no single match was found)</param>
         /// <returns>true if one or zero matches were found, false if multiple matches were found</returns>
         public bool Get( string namePart, out T info ) {
+            if( namePart == null ) throw new ArgumentNullException( "namePart" );
             TrieNode temp = root;
             for( int i = 0; i < namePart.Length; i++ ) {
                 int code = CharCode( namePart[i] );
@@ -82,9 +84,21 @@ namespace fCraft {
         /// <param name="payload"> Object associated with the name. </param>
         /// <returns> Returns false if an entry for this name already exists. </returns>
         public bool Add( string name, T payload ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( payload == null ) throw new ArgumentNullException( "payload" );
+
+            if( name.Length == 0 ) {
+                if( root.Payload != null ) return false;
+                root.Payload = payload;
+                return true;
+            }
+
             TrieNode temp = root;
             for( int i = 0; i < name.Length; i++ ) {
                 int code = CharCode( name[i] );
+                if( temp.Children == null ) {
+                    temp.InitChildren();
+                }
                 if( temp.Children[code] == null ) {
                     temp.Children[code] = new TrieNode();
                 }
@@ -104,9 +118,19 @@ namespace fCraft {
 
 
         public bool Remove( string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( name.Length == 0 ) {
+                if( root.Payload == null ) return false;
+                root.Payload = null;
+                return true;
+            }
+
             TrieNode temp = root;
             for( int i = 0; i < name.Length; i++ ) {
                 int code = CharCode( name[i] );
+                if( temp.Children == null ) {
+                    temp.Children = new TrieNode[37];
+                }
                 if( temp.Children[code] == null )
                     return false;
                 temp = temp.Children[code];
@@ -129,9 +153,21 @@ namespace fCraft {
         }
 
         sealed class TrieNode {
+            const int ChildCount = 37;
+
+            public TrieNode() { }
+
+            public TrieNode( T payload ) {
+                Payload = payload;
+            }
+
             public byte Tag = Empty;
-            public readonly TrieNode[] Children = new TrieNode[37];
+            public TrieNode[] Children;
             public T Payload;
+
+            public void InitChildren() {
+                Children = new TrieNode[ChildCount];
+            }
 
             public bool GetAllChildren( ICollection<T> list, int limit ) {
                 if( list.Count >= limit ) return false;

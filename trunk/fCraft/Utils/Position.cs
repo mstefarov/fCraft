@@ -27,9 +27,11 @@ namespace fCraft {
                    H >= SByte.MinValue && H <= SByte.MaxValue;
         }
 
+
         public bool IsZero() {
             return X == 0 && Y == 0 && H == 0 && R == 0 && L == 0;
         }
+
 
         // adjust for bugs in position-reporting in Minecraft client
         public Position GetFixed() {
@@ -42,9 +44,13 @@ namespace fCraft {
             };
         }
 
+
         public int DistanceSquaredTo( Position other ) {
             return (X - other.X) * (X - other.X) + (Y - other.Y) * (Y - other.Y) + (H - other.H) * (H - other.H);
         }
+
+
+        #region Equality
 
         public static bool operator ==( Position a, Position b ) {
             return a.Equals( b );
@@ -69,6 +75,9 @@ namespace fCraft {
         public override int GetHashCode() {
             return (X + Y * short.MaxValue) ^ (R + L * short.MaxValue) + H;
         }
+
+        #endregion
+
 
         public override string ToString() {
             return String.Format( "Position({0},{1},{2},{3},{4})", X, Y, H, R, L );

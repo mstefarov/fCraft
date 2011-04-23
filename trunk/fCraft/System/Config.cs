@@ -519,16 +519,32 @@ namespace fCraft {
 
         #region Setters
 
+        /// <summary> Resets key value to its default setting. </summary>
+        /// <param name="key"> Config key to reset. </param>
+        /// <returns> True if value was reset. False if resetting was cancelled by an event handler/plugin. </returns>
         public static bool ResetValue( this ConfigKey key ) {
             return key.TrySetValue( key.GetDefault() );
         }
 
+
+        /// <summary> Sets value of a specified config key.
+        /// Note that this method may throw exceptions if the given value is not acceptible.
+        /// Use Config.TrySetValue() if you'd like to suppress exceptions in favor of a boolean return value. </summary>
+        /// <param name="key"> Config key to set. </param>
+        /// <param name="rawValue"> Value to assign to the key. If passed object is not a string, rawValue.ToString() is used. </param>
+        /// <exception cref="T:System.ArgumentNullException" />
+        /// <exception cref="T:System.FormatException" />
+        /// <returns> True if value is valid and has been assigned.
+        /// False if value is valid, but assignment was cancelled by an event handler/plugin. </returns>
         public static bool SetValue( this ConfigKey key, object rawValue ) {
             if( rawValue == null ) {
                 throw new ArgumentNullException( "rawValue", key + ": ConfigKey values cannot be null. Use an empty string to indicate unset value." );
             }
 
-            string value = rawValue.ToString();
+            string value = rawValue as string;
+            if( value == null ) {
+                value = rawValue.ToString();
+            }
 
             if( value == null ) {
                 throw new NullReferenceException( key + ": rawValue.ToString() returned null." );
@@ -641,6 +657,8 @@ namespace fCraft {
         }
 
 
+        /// <summary> Resets the list of ranks to defaults (guest/regular/op/owner).
+        /// Warning: This method is not thread-safe. </summary>
         public static void ResetRanks() {
             RankManager.Reset();
             DefineDefaultRanks();

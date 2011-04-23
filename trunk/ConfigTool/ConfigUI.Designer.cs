@@ -113,6 +113,8 @@
             this.bLowerRank = new System.Windows.Forms.Button();
             this.bRaiseRank = new System.Windows.Forms.Button();
             this.gRankOptions = new System.Windows.Forms.GroupBox();
+            this.cBringLimit = new System.Windows.Forms.ComboBox();
+            this.lBringLimit = new System.Windows.Forms.Label();
             this.cMuteLimit = new System.Windows.Forms.ComboBox();
             this.lMuteLimit = new System.Windows.Forms.Label();
             this.xAllowSecurityCircumvention = new System.Windows.Forms.CheckBox();
@@ -282,8 +284,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.cBringLimit = new System.Windows.Forms.ComboBox();
-            this.lBringLimit = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdateSettings.SuspendLayout();
@@ -371,7 +371,7 @@
             this.tabGeneral.Location = new System.Drawing.Point( 4, 24 );
             this.tabGeneral.Name = "tabGeneral";
             this.tabGeneral.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabGeneral.Size = new System.Drawing.Size( 652, 478 );
+            this.tabGeneral.Size = new System.Drawing.Size( 652, 510 );
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
@@ -851,7 +851,7 @@
             this.tabChat.Location = new System.Drawing.Point( 4, 24 );
             this.tabChat.Name = "tabChat";
             this.tabChat.Padding = new System.Windows.Forms.Padding( 5, 5, 5, 10 );
-            this.tabChat.Size = new System.Drawing.Size( 652, 478 );
+            this.tabChat.Size = new System.Drawing.Size( 652, 510 );
             this.tabChat.TabIndex = 10;
             this.tabChat.Text = "Chat";
             this.tabChat.UseVisualStyleBackColor = true;
@@ -1110,7 +1110,7 @@
             this.tabWorlds.Location = new System.Drawing.Point( 4, 24 );
             this.tabWorlds.Name = "tabWorlds";
             this.tabWorlds.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabWorlds.Size = new System.Drawing.Size( 652, 478 );
+            this.tabWorlds.Size = new System.Drawing.Size( 652, 510 );
             this.tabWorlds.TabIndex = 9;
             this.tabWorlds.Text = "Worlds";
             this.tabWorlds.UseVisualStyleBackColor = true;
@@ -1389,6 +1389,25 @@
             this.gRankOptions.TabIndex = 5;
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
+            // 
+            // cBringLimit
+            // 
+            this.cBringLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cBringLimit.FormattingEnabled = true;
+            this.cBringLimit.Location = new System.Drawing.Point( 96, 280 );
+            this.cBringLimit.Name = "cBringLimit";
+            this.cBringLimit.Size = new System.Drawing.Size( 180, 23 );
+            this.cBringLimit.TabIndex = 30;
+            this.cBringLimit.SelectedIndexChanged += new System.EventHandler( this.cBringLimit_SelectedIndexChanged );
+            // 
+            // lBringLimit
+            // 
+            this.lBringLimit.AutoSize = true;
+            this.lBringLimit.Location = new System.Drawing.Point( 28, 283 );
+            this.lBringLimit.Name = "lBringLimit";
+            this.lBringLimit.Size = new System.Drawing.Size( 62, 15 );
+            this.lBringLimit.TabIndex = 31;
+            this.lBringLimit.Text = "Bring limit";
             // 
             // cMuteLimit
             // 
@@ -1806,7 +1825,7 @@
             this.tabSecurity.Location = new System.Drawing.Point( 4, 24 );
             this.tabSecurity.Name = "tabSecurity";
             this.tabSecurity.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabSecurity.Size = new System.Drawing.Size( 652, 478 );
+            this.tabSecurity.Size = new System.Drawing.Size( 652, 510 );
             this.tabSecurity.TabIndex = 7;
             this.tabSecurity.Text = "Security";
             this.tabSecurity.UseVisualStyleBackColor = true;
@@ -2108,9 +2127,9 @@
             this.xAllowUnverifiedLAN.AutoSize = true;
             this.xAllowUnverifiedLAN.Location = new System.Drawing.Point( 42, 49 );
             this.xAllowUnverifiedLAN.Name = "xAllowUnverifiedLAN";
-            this.xAllowUnverifiedLAN.Size = new System.Drawing.Size( 353, 19 );
+            this.xAllowUnverifiedLAN.Size = new System.Drawing.Size( 455, 19 );
             this.xAllowUnverifiedLAN.TabIndex = 1;
-            this.xAllowUnverifiedLAN.Text = "Allow connections from LAN without verification (192.168.*.*)";
+            this.xAllowUnverifiedLAN.Text = "Allow connections from LAN without verification (192.168.0.0/16 and 10.0.0.0/8)";
             this.xAllowUnverifiedLAN.UseVisualStyleBackColor = true;
             // 
             // xMaxConnectionsPerIP
@@ -2154,7 +2173,7 @@
             this.tabSavingAndBackup.Location = new System.Drawing.Point( 4, 24 );
             this.tabSavingAndBackup.Name = "tabSavingAndBackup";
             this.tabSavingAndBackup.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabSavingAndBackup.Size = new System.Drawing.Size( 652, 478 );
+            this.tabSavingAndBackup.Size = new System.Drawing.Size( 652, 510 );
             this.tabSavingAndBackup.TabIndex = 4;
             this.tabSavingAndBackup.Text = "Saving and Backup";
             this.tabSavingAndBackup.UseVisualStyleBackColor = true;
@@ -2359,7 +2378,7 @@
             this.tabLogging.Location = new System.Drawing.Point( 4, 24 );
             this.tabLogging.Name = "tabLogging";
             this.tabLogging.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabLogging.Size = new System.Drawing.Size( 652, 478 );
+            this.tabLogging.Size = new System.Drawing.Size( 652, 510 );
             this.tabLogging.TabIndex = 5;
             this.tabLogging.Text = "Logging";
             this.tabLogging.UseVisualStyleBackColor = true;
@@ -2516,7 +2535,7 @@
             this.tabIRC.Location = new System.Drawing.Point( 4, 24 );
             this.tabIRC.Name = "tabIRC";
             this.tabIRC.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabIRC.Size = new System.Drawing.Size( 652, 478 );
+            this.tabIRC.Size = new System.Drawing.Size( 652, 510 );
             this.tabIRC.TabIndex = 8;
             this.tabIRC.Text = "IRC";
             this.tabIRC.UseVisualStyleBackColor = true;
@@ -2901,7 +2920,7 @@
             this.tabAdvanced.Location = new System.Drawing.Point( 4, 24 );
             this.tabAdvanced.Name = "tabAdvanced";
             this.tabAdvanced.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabAdvanced.Size = new System.Drawing.Size( 652, 478 );
+            this.tabAdvanced.Size = new System.Drawing.Size( 652, 510 );
             this.tabAdvanced.TabIndex = 6;
             this.tabAdvanced.Text = "Advanced";
             this.tabAdvanced.UseVisualStyleBackColor = true;
@@ -3291,25 +3310,6 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // xBringLimit
-            // 
-            this.cBringLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cBringLimit.FormattingEnabled = true;
-            this.cBringLimit.Location = new System.Drawing.Point( 96, 280 );
-            this.cBringLimit.Name = "xBringLimit";
-            this.cBringLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cBringLimit.TabIndex = 30;
-            this.cBringLimit.SelectedIndexChanged += new System.EventHandler( this.cBringLimit_SelectedIndexChanged );
-            // 
-            // lBringLimit
-            // 
-            this.lBringLimit.AutoSize = true;
-            this.lBringLimit.Location = new System.Drawing.Point( 28, 283 );
-            this.lBringLimit.Name = "lBringLimit";
-            this.lBringLimit.Size = new System.Drawing.Size( 62, 15 );
-            this.lBringLimit.TabIndex = 31;
-            this.lBringLimit.Text = "Bring limit";
             // 
             // ConfigUI
             // 

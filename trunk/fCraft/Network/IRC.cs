@@ -99,23 +99,6 @@ namespace fCraft {
             }
 
 
-            public void Dispose() {
-                try {
-                    if( reader != null ) reader.Dispose();
-                } catch( ObjectDisposedException ) { }
-
-                try {
-                    if( reader != null ) writer.Dispose();
-                } catch( ObjectDisposedException ) { }
-
-                try {
-                    if( client != null && client.Connected ) {
-                        client.Close();
-                    }
-                } catch( ObjectDisposedException ) { }
-            }
-
-
             void Send( string msg ) {
                 localQueue.Enqueue( msg );
             }
@@ -348,6 +331,27 @@ namespace fCraft {
                     if( client != null ) client.Close();
                 } catch( ObjectDisposedException ) { }
             }
+
+
+            #region IDisposable members
+
+            public void Dispose() {
+                try {
+                    if( reader != null ) reader.Dispose();
+                } catch( ObjectDisposedException ) { }
+
+                try {
+                    if( reader != null ) writer.Dispose();
+                } catch( ObjectDisposedException ) { }
+
+                try {
+                    if( client != null && client.Connected ) {
+                        client.Close();
+                    }
+                } catch( ObjectDisposedException ) { }
+            }
+
+            #endregion
         }
 
 

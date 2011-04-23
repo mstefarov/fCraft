@@ -19,10 +19,10 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             523,
-            556,
+            557,
             new DateTime( 2011, 4, 22, 7, 40, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Unstable | ReleaseFlags.Dev
+            ReleaseFlags.Unstable | ReleaseFlags.Dev | ReleaseFlags.APIChange | ReleaseFlags.Optimized
         );
 
         public const string LatestStable = "0.522_r546";
@@ -66,7 +66,7 @@ namespace fCraft {
                                 releases.Add( new ReleaseInfo(
                                     Int32.Parse( el.Attribute( "v" ).Value ),
                                     Int32.Parse( el.Attribute( "r" ).Value ),
-                                    Server.TimestampToDateTime( Int64.Parse( el.Attribute( "date" ).Value ) ),
+                                    Int64.Parse( el.Attribute( "date" ).Value ).ToDateTime(),
                                     el.Element( "Summary" ).Value,
                                     el.Element( "ChangeLog" ).Value,
                                     ReleaseInfo.StringToReleaseFlags( el.Attribute( "flags" ).Value )

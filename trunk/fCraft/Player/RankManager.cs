@@ -22,6 +22,9 @@ namespace fCraft {
 
         /// <summary> Clears the list of ranks. </summary>
         public static void Reset() {
+            if( PlayerDB.IsLoaded ) {
+                throw new InvalidOperationException( "You may not reset ranks after PlayerDB has already been loaded." );
+            }
             RanksByName = new Dictionary<string, Rank>();
             RanksByFullName = new Dictionary<string, Rank>();
             RanksByID = new Dictionary<string, Rank>();
@@ -32,6 +35,9 @@ namespace fCraft {
         /// <summary> Adds a new rank to the list. Checks for duplicates. </summary>
         public static void AddRank( Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
+            if( PlayerDB.IsLoaded ) {
+                throw new InvalidOperationException( "You may not add ranks after PlayerDB has already been loaded." );
+            }
             // check for duplicate rank names
             if( RanksByName.ContainsKey( rank.Name.ToLower() ) ) {
                 throw new RankDefinitionException( "Duplicate definition for rank \"{0}\" (by Name) was ignored.", rank.Name );
@@ -137,6 +143,11 @@ namespace fCraft {
 
 
         public static bool DeleteRank( Rank deletedRank, Rank replacementRank ) {
+            if( deletedRank == null ) throw new ArgumentNullException( "deletedRank" );
+            if( replacementRank == null ) throw new ArgumentNullException( "replacementRank" );
+            if( PlayerDB.IsLoaded ) {
+                throw new InvalidOperationException( "You may not add ranks after PlayerDB has already been loaded." );
+            }
             bool rankLimitsChanged = false;
             Ranks.Remove( deletedRank );
             RanksByName.Remove( deletedRank.Name.ToLower() );
@@ -187,6 +198,8 @@ namespace fCraft {
 
 
         public static bool CanRenameRank( Rank rank, string newName ) {
+            if( rank == null ) throw new ArgumentNullException( "rank" );
+            if( newName == null ) throw new ArgumentNullException( "rank" );
             if( rank.Name.Equals( newName, StringComparison.OrdinalIgnoreCase ) ) {
                 return true;
             } else {
@@ -196,6 +209,8 @@ namespace fCraft {
 
 
         public static void RenameRank( Rank rank, string newName ) {
+            if( rank == null ) throw new ArgumentNullException( "rank" );
+            if( newName == null ) throw new ArgumentNullException( "rank" );
             RanksByName.Remove( rank.Name.ToLower() );
             rank.Name = newName;
             RanksByName.Add( rank.Name.ToLower(), rank );
@@ -203,6 +218,7 @@ namespace fCraft {
 
 
         public static bool RaiseRank( Rank rank ) {
+            if( rank == null ) throw new ArgumentNullException( "rank" );
             if( rank == Ranks.First() ) {
                 return false;
             }
@@ -215,6 +231,7 @@ namespace fCraft {
 
 
         public static bool LowerRank( Rank rank ) {
+            if( rank == null ) throw new ArgumentNullException( "rank" );
             if( rank == Ranks.Last() ) {
                 return false;
             }
