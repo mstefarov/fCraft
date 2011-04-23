@@ -17,24 +17,24 @@ using fCraft.AutoRank;
 namespace fCraft {
     public static partial class Server {
 
-        public static DateTime ServerStart;
+        public static DateTime ServerStart { get; private set; }
 
-        public static int MaxUploadSpeed,   // set by Config.ApplyConfig
-                          PacketsPerSecond; // used when there are no players in a world
+        internal static int MaxUploadSpeed,   // set by Config.ApplyConfig
+                            PacketsPerSecond; // used when there are no players in a world
 
-        public const int MaxSessionPacketsPerTick = 128, // used when there are no players in a world
-                         MaxBlockUpdatesPerTick = 100000; // used when there are no players in a world
+        internal const int MaxSessionPacketsPerTick = 128, // used when there are no players in a world
+                           MaxBlockUpdatesPerTick = 100000; // used when there are no players in a world
         internal static float TicksPerSecond;
 
 
         // networking
         static TcpListener listener;
-        public static IPAddress IP;
+        public static IPAddress IP { get; private set; }
 
         const int MaxPortAttempts = 20;
-        public static int Port;
+        public static int Port { get; private set; }
 
-        public static string Url;
+        public static string Url { get; internal set; }
 
 
         #region Command-line args
@@ -319,12 +319,12 @@ namespace fCraft {
 
             IP = ((IPEndPoint)listener.LocalEndpoint).Address;
 
-            if( IP.ToString() != IPAddress.Any.ToString() ) {
-                Logger.Log( "Server.Run: now accepting connections at {0}:{1}.", LogType.SystemActivity,
-                            IP, Port );
-            } else {
+            if( IP.Equals( IPAddress.Any ) ) {
                 Logger.Log( "Server.Run: now accepting connections at port {0}.", LogType.SystemActivity,
                             Port );
+            } else {
+                Logger.Log( "Server.Run: now accepting connections at {0}:{1}.", LogType.SystemActivity,
+                            IP, Port );
             }
 
             // list loaded worlds
@@ -344,10 +344,10 @@ namespace fCraft {
                         WorldManager.MainWorld.Name, RankManager.DefaultRank.Name );
 
             // Check for incoming connections (every 250ms)
-            Scheduler.NewTask( CheckConnections ).RunForever( CheckConnectionsInterval );
+            checkConnectionsTask = Scheduler.NewTask( CheckConnections ).RunForever( CheckConnectionsInterval );
 
             // Check for idles (every 30s)
-            Scheduler.NewTask( CheckIdles ).RunForever( CheckIdlesInterval );
+            checkIdlesTask = Scheduler.NewTask( CheckIdles ).RunForever( CheckIdlesInterval );
 
             // Monitor CPU usage (every 30s)
             try {
@@ -368,7 +368,7 @@ namespace fCraft {
             }
 
             // garbage collection
-            Scheduler.NewTask( DoGC ).RunForever( GCInterval, TimeSpan.FromSeconds( 45 ) );
+            gcTask = Scheduler.NewTask( DoGC ).RunForever( GCInterval, TimeSpan.FromSeconds( 45 ) );
 
             // Write out initial (empty) playerlist cache
             UpdatePlayerList();
@@ -740,7 +740,16 @@ namespace fCraft {
         #region Scheduled Tasks
 
         // checks for incoming connections
-        public static TimeSpan CheckConnectionsInterval = TimeSpan.FromMilliseconds( 250 );
+        static SchedulerTask checkConnectionsTask;
+        static TimeSpan checkConnectionsInterval = TimeSpan.FromMilliseconds( 250 );
+        public static TimeSpan CheckConnectionsInterval {
+            get { return checkConnectionsInterval; }
+            set {
+                if( value.Ticks < 0 ) throw new ArgumentException();
+                checkConnectionsInterval = value;
+                if( checkConnectionsTask != null ) checkConnectionsTask.Interval = value;
+            }
+        }
 
         static void CheckConnections( SchedulerTask param ) {
             TcpListener listenerCache = listener;
@@ -756,7 +765,16 @@ namespace fCraft {
 
 
         // checks for idle players
-        public static TimeSpan CheckIdlesInterval = TimeSpan.FromSeconds( 30 );
+        static SchedulerTask checkIdlesTask;
+        static TimeSpan checkIdlesInterval = TimeSpan.FromSeconds( 30 );
+        public static TimeSpan CheckIdlesInterval {
+            get { return checkIdlesInterval; }
+            set {
+                if( value.Ticks < 0 ) throw new ArgumentException();
+                checkIdlesInterval = value;
+                if( checkIdlesTask != null ) checkIdlesTask.Interval = checkIdlesInterval;
+            }
+        }
 
         static void CheckIdles( object param ) {
             Player[] tempPlayerList = PlayerList;
@@ -779,7 +797,16 @@ namespace fCraft {
 
 
         // collects garbage (forced collection is necessary under Mono)
-        public static TimeSpan GCInterval = TimeSpan.FromSeconds( 60 );
+        static SchedulerTask gcTask;
+        static TimeSpan gcInterval = TimeSpan.FromSeconds( 60 );
+        public static TimeSpan GCInterval {
+            get { return gcInterval; }
+            set {
+                if( value.Ticks < 0 ) throw new ArgumentException();
+                gcInterval = value;
+                if( gcTask != null ) gcTask.Interval = gcInterval;
+            }
+        }
 
         static void DoGC( SchedulerTask task ) {
             if( !gcRequested ) return;
@@ -909,18 +936,6 @@ namespace fCraft {
         }
 
 
-        static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1 );
-
-        public static long DateTimeToTimestamp( DateTime timestamp ) {
-            return (long)(timestamp - UnixEpoch).TotalSeconds;
-        }
-
-
-        public static DateTime TimestampToDateTime( long timestamp ) {
-            return UnixEpoch.AddSeconds( timestamp );
-        }
-
-
         static readonly Regex RegexIP = new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",
                                                    RegexOptions.Compiled );
 
@@ -928,87 +943,6 @@ namespace fCraft {
             if( ipString == null ) throw new ArgumentNullException( "ipString" );
             return RegexIP.IsMatch( ipString );
         }
-
-
-        #region Extension Methods
-
-        public static bool IsLAN( this IPAddress addr ) {
-            if( addr == null ) throw new ArgumentNullException( "addr" );
-            byte[] bytes = addr.GetAddressBytes();
-            return (bytes[0] == 192 && bytes[1] == 168);
-        }
-
-
-        public static string ToCompactString( this TimeSpan span ) {
-            return String.Format( "{0}.{1:00}:{2:00}:{3:00}",
-                span.Days, span.Hours, span.Minutes, span.Seconds );
-        }
-
-
-        public static string ToCompactString( this DateTime date ) {
-            return date.ToString( "yyyy'-'MM'-'dd'T'HH':'mm':'ssK" );
-        }
-
-
-        public static string ToMiniString( this TimeSpan span ) {
-            if( span.TotalSeconds < 60 ) {
-                return String.Format( "{0}s", span.Seconds );
-            } else if( span.TotalMinutes < 60 ) {
-                return String.Format( "{0:0}m{1}s", span.TotalMinutes, span.Seconds );
-            } else if( span.TotalHours < 48 ) {
-                return String.Format( "{0:0}h{1}m", span.TotalHours, span.Minutes );
-            } else if( span.TotalDays < 14 ) {
-                return String.Format( "{0:0}d{1}h", span.TotalDays, span.Hours );
-            } else {
-                return String.Format( "{0:0}w{1:0}d", span.TotalDays / 7, span.TotalDays % 7 );
-            }
-        }
-
-        public static TimeSpan ParseMiniTimespan( string text ) {
-            if( text == null ) throw new ArgumentNullException( "text" );
-            text = text.Trim();
-            bool expectingDigit = true;
-            TimeSpan result = new TimeSpan( 0 );
-            int digitOffset = 0;
-            for( int i = 0; i < text.Length; i++ ) {
-                if( expectingDigit ) {
-                    if( text[i] < '0' || text[i] > '9' ) {
-                        throw new FormatException();
-                    }
-                    expectingDigit = false;
-                } else {
-                    if( text[i] >= '0' && text[i] <= '9' ) {
-                        continue;
-                    } else {
-                        string numberString = text.Substring( digitOffset, i - digitOffset );
-                        digitOffset = i + 1;
-                        int number = Int32.Parse( numberString );
-                        switch( Char.ToLower( text[i] ) ) {
-                            case 's':
-                                result += TimeSpan.FromSeconds( number );
-                                break;
-                            case 'm':
-                                result += TimeSpan.FromMinutes( number );
-                                break;
-                            case 'h':
-                                result += TimeSpan.FromHours( number );
-                                break;
-                            case 'd':
-                                result += TimeSpan.FromDays( number );
-                                break;
-                            case 'w':
-                                result += TimeSpan.FromDays( number * 7 );
-                                break;
-                            default:
-                                throw new FormatException();
-                        }
-                    }
-                }
-            }
-            return result;
-        }
-
-        #endregion
 
         #endregion
 

@@ -108,7 +108,7 @@ namespace fCraft {
                 int height = args.Rand.Next( treeheight - args.HeightVariation,
                                              treeheight + args.HeightVariation + 1 );
 
-                Vector3i treeLoc = RandomTreeLoc( height );
+                Vector3i treeLoc = FindRandomTreeLocation( height );
                 if( treeLoc.Y < 0 ) continue;
                 else treeLoc.Y++;
                 treelist.Add( new Tree {
@@ -120,7 +120,7 @@ namespace fCraft {
         }
 
 
-        Vector3i RandomTreeLoc( int height ) {
+        Vector3i FindRandomTreeLocation( int height ) {
             int padding = (int)(height / 3f + 1);
             int mindim = Math.Min( args.InMap.WidthX, args.InMap.WidthY );
             if( padding > mindim / 2.2 ) {
@@ -150,7 +150,7 @@ namespace fCraft {
                 } else {
                     height = (int)(treeheight - randomfac);
                 }
-                Vector3i xyz = RandomTreeLoc( height );
+                Vector3i xyz = FindRandomTreeLocation( height );
                 if( xyz.Y < 0 ) continue;
 
                 xyz.Y++;
@@ -546,7 +546,7 @@ namespace fCraft {
 
                     if( Args.Roots == RootMode.ToStone ||
                         Args.Roots == RootMode.Hanging ) {
-                        float offlength = offset.GetLength();
+                        float offlength = offset.Length;
                         if( offlength < 1 ) continue;
                         float rootmid = endsize;
                         Vector3f vec = offset / offlength;

@@ -438,7 +438,7 @@ namespace fCraft {
 
                 string standardMessage = String.Format( "Session.LoginSequence: Could not verify player name for {0} ({1}).",
                                                         Player.Name, IP );
-                if( IP.ToString() == "127.0.0.1" && nameVerificationMode == NameVerificationMode.Always ) {
+                if( IP.Equals(IPAddress.Loopback) && nameVerificationMode == NameVerificationMode.Always ) {
                     Logger.Log( "{0} Player was identified as connecting from localhost and allowed in.", LogType.SuspiciousActivity,
                                 standardMessage );
 

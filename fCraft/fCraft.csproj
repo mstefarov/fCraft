@@ -215,6 +215,7 @@
     <Compile Include="MapConversion\MapOpticraft.cs" />
     <Compile Include="System\ConfigKey.Metadata.cs" />
     <Compile Include="System\Server.Events.cs" />
+    <Compile Include="Utils\ExtensionMethods.cs" />
     <Compile Include="World\WorldManager.cs" />
     <Compile Include="World\WorldOpException.cs" />
     <Compile Include="Utils\MonoCompat.cs" />

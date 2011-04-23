@@ -173,7 +173,7 @@ namespace fCraft {
             int count = 0;
             PlayerInfo[] cache = PlayerInfoList;
             for( int i = 0; i < cache.Length; i++ ) {
-                if( cache[i].LastIP.ToString() == address.ToString() ) {
+                if( cache[i].LastIP.Equals( address ) ) {
                     result.Add( cache[i] );
                     count++;
                     if( count >= limit ) return result.ToArray();

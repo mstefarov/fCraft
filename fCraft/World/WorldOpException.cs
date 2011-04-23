@@ -10,7 +10,7 @@ namespace fCraft {
             ErrorCode = errorCode;
         }
 
-        public WorldOpException( string worldName, WorldOpExceptionCode errorCode, string message )
+        public WorldOpException( WorldOpExceptionCode errorCode, string message )
             : base( message ) {
             ErrorCode = errorCode;
         }
@@ -20,7 +20,7 @@ namespace fCraft {
             ErrorCode = errorCode;
         }
 
-        public WorldOpException( string worldName, WorldOpExceptionCode errorCode, string message, Exception innerException )
+        public WorldOpException( WorldOpExceptionCode errorCode, string message, Exception innerException )
             : base( message, innerException ) {
             ErrorCode = errorCode;
         }
