@@ -358,8 +358,8 @@ namespace fCraft {
                 Logger.Log( "Server.StartServer: Could not start monitoring CPU use: {0}", LogType.Error, ex );
             }
 
-            // Save PlayerDB in the background (every 60s)
-            Scheduler.NewBackgroundTask( PlayerDB.SaveTask ).RunForever( PlayerDB.SaveInterval, TimeSpan.FromSeconds( 15 ) );
+
+            PlayerDB.StartSaveTask();
 
             // Announcements
             if( ConfigKey.AnnouncementInterval.GetInt() > 0 ) {

@@ -10,10 +10,9 @@ using System.Threading;
 
 namespace fCraft {
     public static class PlayerDB {
-        static readonly Trie<PlayerInfo> Tree = new Trie<PlayerInfo>();
+        static readonly Trie<PlayerInfo> Trie = new Trie<PlayerInfo>();
         static readonly List<PlayerInfo> List = new List<PlayerInfo>();
         public static PlayerInfo[] PlayerInfoList { get; private set; }
-        public static readonly TimeSpan SaveInterval = TimeSpan.FromSeconds( 90 );
 
         static int maxID = 255;
 
@@ -41,7 +40,7 @@ namespace fCraft {
             PlayerInfo info = new PlayerInfo( name, RankManager.DefaultRank, false, rankChangeType );
             lock( Locker ) {
                 List.Add( info );
-                Tree.Add( info.Name, info );
+                Trie.Add( info.Name, info );
                 UpdateCache();
             }
             return info;
@@ -73,12 +72,11 @@ namespace fCraft {
                             if( fields.Length >= PlayerInfo.MinFieldCount ) {
                                 try {
                                     PlayerInfo info = new PlayerInfo( fields );
-                                    PlayerInfo dupe = Tree.Get( info.Name );
-                                    if( dupe == null ) {
-                                        Tree.Add( info.Name, info );
-                                        List.Add( info );
-                                    } else {
+                                    if( Trie.Contains( info.Name ) ) {
                                         Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error, info.Name );
+                                    } else {
+                                        Trie.Add( info.Name, info );
+                                        List.Add( info );
                                     }
                                 } catch( Exception ex ) {
                                     Logger.LogAndReportCrash( "Error while parsing PlayerInfo record", "fCraft", ex, false );
@@ -94,7 +92,7 @@ namespace fCraft {
                 List.TrimExcess();
                 sw.Stop();
                 Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records) in {1}ms.", LogType.Debug,
-                            Tree.Count, sw.ElapsedMilliseconds );
+                            Trie.Count, sw.ElapsedMilliseconds );
             } else {
                 Logger.Log( "PlayerDB.Load: No player DB file found.", LogType.Warning );
             }
@@ -103,9 +101,6 @@ namespace fCraft {
         }
 
 
-        internal static void SaveTask( SchedulerTask task ) {
-            Save();
-        }
 
 
         internal static void Save() {
@@ -131,13 +126,34 @@ namespace fCraft {
             }
             sw.Stop();
             Logger.Log( "PlayerDB.Save: Saved player database ({0} records) in {1}ms", LogType.Debug,
-                        Tree.Count, sw.ElapsedMilliseconds );
+                        Trie.Count, sw.ElapsedMilliseconds );
 
             try {
                 Paths.MoveOrReplace( tempFileName, Paths.PlayerDBFileName );
             } catch( Exception ex ) {
                 Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );
             }
+        }
+
+        #endregion
+
+
+        #region Scheduled Saving
+
+        static SchedulerTask saveTask;
+        static TimeSpan saveInterval = TimeSpan.FromSeconds( 90 );
+        public static TimeSpan SaveInterval {
+            get { return saveInterval; }
+            set {
+                if( value.Ticks < 0 ) throw new ArgumentException();
+                saveInterval = value;
+                if( saveTask != null ) saveTask.Interval = value;
+            }
+        }
+
+        internal static void StartSaveTask() {
+            saveTask = Scheduler.NewBackgroundTask( delegate { Save(); } )
+                                .RunForever( SaveInterval, TimeSpan.FromSeconds( 15 ) );
         }
 
         #endregion
@@ -150,10 +166,10 @@ namespace fCraft {
             PlayerInfo info;
 
             lock( Locker ) {
-                info = Tree.Get( name );
+                info = Trie.Get( name );
                 if( info == null ) {
                     info = new PlayerInfo( name, lastIP );
-                    Tree.Add( name, info );
+                    Trie.Add( name, info );
                     List.Add( info );
                     UpdateCache();
                 }
@@ -212,7 +228,7 @@ namespace fCraft {
         public static PlayerInfo[] FindPlayers( string namePart, int limit ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             lock( Locker ) {
-                return Tree.GetList( namePart, limit ).ToArray();
+                return Trie.GetList( namePart, limit ).ToArray();
             }
         }
 
@@ -223,7 +239,7 @@ namespace fCraft {
         public static bool FindPlayerInfo( string name, out PlayerInfo info ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             lock( Locker ) {
-                return Tree.Get( name, out info );
+                return Trie.Get( name, out info );
             }
         }
 
@@ -231,7 +247,7 @@ namespace fCraft {
         public static PlayerInfo FindPlayerInfoExact( string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             lock( Locker ) {
-                return Tree.Get( name );
+                return Trie.Get( name );
             }
         }
 
@@ -247,7 +263,7 @@ namespace fCraft {
 
 
         public static int CountTotalPlayers() {
-            return Tree.Count;
+            return Trie.Count;
         }
 
 
@@ -336,7 +352,7 @@ namespace fCraft {
                     playersByIP[playerInfoListCache[i].LastIP].Add( PlayerInfoList[i] );
                 }
                 foreach( PlayerInfo p in playerInfoListCache.Where( p => PlayerIsInactive( p, true ) ) ) {
-                    Tree.Remove( p.Name );
+                    Trie.Remove( p.Name );
                     List.Remove( p );
                     count++;
                 }

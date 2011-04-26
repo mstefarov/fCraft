@@ -19,10 +19,10 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             523,
-            559,
+            561,
             new DateTime( 2011, 4, 25, 11, 30, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Unstable | ReleaseFlags.Dev | ReleaseFlags.APIChange | ReleaseFlags.Optimized
+            ReleaseFlags.Dev | ReleaseFlags.APIChange | ReleaseFlags.Optimized
         );
 
         public const string LatestStable = "0.522_r546";
