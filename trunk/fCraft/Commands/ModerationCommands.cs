@@ -1092,6 +1092,14 @@ namespace fCraft {
             Player target = Server.FindPlayerOrPrintMatches( player, name, false );
             if( target == null ) return;
 
+            if( !player.Can( Permission.Bring, target.Info.Rank ) ) {
+                player.Message( "You can only bring players ranked {0}&S or lower.",
+                                player.Info.Rank.GetLimit( Permission.Bring ).GetClassyName() );
+                player.Message( "{0}&S is ranked {1}",
+                                target.GetClassyName(), target.Info.Rank.GetClassyName() );
+                return;
+            }
+
             if( target.World == toPlayer.World ) {
                 // teleport within the same world
                 target.Send( PacketWriter.MakeSelfTeleport( toPlayer.Position ) );
