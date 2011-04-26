@@ -1045,7 +1045,7 @@ namespace fCraft {
                 Logger.Log( "{0} left the server.", LogType.UserActivity,
                             player.Name );
                 if( session.IsReady && ConfigKey.ShowConnectionMessages.GetBool() ) {
-                    SendToAll( "&SPlayer {0}&S left the server.", player.GetClassyName() );
+                    SendToSeeing( String.Format( "&SPlayer {0}&S left the server.", player.GetClassyName() ), player );
                 }
 
                 if( player.World != null ) {
