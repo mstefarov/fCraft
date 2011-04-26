@@ -212,7 +212,7 @@ namespace fCraft {
         public static PlayerInfo[] FindPlayers( string namePart, int limit ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             lock( Locker ) {
-                return Tree.GetMultiple( namePart, limit ).ToArray();
+                return Tree.GetList( namePart, limit ).ToArray();
             }
         }
 

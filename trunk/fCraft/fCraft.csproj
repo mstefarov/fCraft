@@ -213,6 +213,7 @@
     <Compile Include="Commands\CommandCategory.cs" />
     <Compile Include="MapConversion\MapFormatException.cs" />
     <Compile Include="MapConversion\MapOpticraft.cs" />
+    <Compile Include="MapConversion\MapXMap.cs" />
     <Compile Include="System\ConfigKey.Metadata.cs" />
     <Compile Include="System\Server.Events.cs" />
     <Compile Include="Utils\ExtensionMethods.cs" />

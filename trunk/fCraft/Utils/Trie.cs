@@ -100,8 +100,8 @@ namespace fCraft {
         /// <param name="namePart"> Partial or full key. </param>
         /// <param name="limit"> Limit on the number of payloads to find/return. </param>
         /// <returns> List of matches (if there are no matches, length is zero). </returns>
-        public List<T> GetMultiple( string keyPart, int limit ) {
-            if( keyPart == null ) throw new ArgumentNullException( "namePart" );
+        public List<T> GetList( string keyPart, int limit ) {
+            if( keyPart == null ) throw new ArgumentNullException( "keyPart" );
             List<T> results = new List<T>();
 
             TrieNode startingNode = GetNode( keyPart );

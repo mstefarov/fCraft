@@ -1,85 +1,43 @@
-// 
-//  Authors:
-//   *  Tyler Kennedy <tk@tkte.ch>
-//   *  Matvei Stefarov <fragmer@gmail.com>
-// 
-//  Copyright (c) 2010-2011, Tyler Kennedy & Matvei Stefarov
-// 
-//  All rights reserved.
-// 
-//  Redistribution and use in source and binary forms, with or without modification,
-// are permitted provided that the following conditions are met:
-// 
-//     * Redistributions of source code must retain the above copyright notice, this
-//       list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above copyright notice,
-//       this list of conditions and the following disclaimer in
-//       the documentation and/or other materials provided with the distribution.
-//     * Neither the name of MCC nor the names of its contributors may be
-//       used to endorse or promote products derived from this software without
-//       specific prior written permission.
-// 
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-//  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-//  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-//  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-//  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-//  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-//  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-//  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
-
+// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 
 namespace fCraft.MapConversion {
-    // <summary>
-    // Enum defining all of the MapFormats supported by mcc
-    // </summary>
+    /// <summary> An enumeration of map formats supported by fCraft. </summary>
     public enum MapFormat {
+        /// <summary> Unidentified map. </summary>
+        Unknown,
+
+        /// <summary> Current map format used by fCraft. </summary>
         FCMv3,
-        // Current map format used by fCraft
-        // - Support added by Matvei
 
+        /// <summary> Current map format used by fCraft. </summary>
         FCMv2,
-        // Obsolete map format used by fCraft.
-        // - Support added by Matvei
 
+        /// <summary> Map format used by MCSharp and its forks (MCZall/MCLawl). Initial support added by Tyler/TkTech. </summary>
         MCSharp,
-        // Map format used by MCSharp
-        // - Support added by Tyler
 
+        /// <summary> Map format used by MinerCPP and LuaCraft. Initial support added by Tyler/TkTech. </summary>
         MinerCPP,
-        // Map format used by MinerCPP and LuaCraft
-        // - Support added by Tyler
 
+        /// <summary> Map format used by Myne and its derivatives (MyneCraft/iCraft). </summary>
         Myne,
-        // Map format used by Myne and its children (Mainly Hyvebuild)
-        // - Support added by Matvei
 
+        /// <summary> Map format used by Mojang's classic and survivaltest. </summary>
         Creative,
-        // Creative makes more sense then the original "Vanilla"
-        // - Support added by Tyler
 
+        /// <summary> Map format used by Mojang's indev. </summary>
         NBT,
-        // Format used by indev and infdev
-        // - Support added by Matvei
 
+        /// <summary> Map format used by JTE's server. </summary>
         JTE,
-        // Format used by JTE's server
-        // - Support added by Matvei
 
+        /// <summary> Map foramt used by D3 server. </summary>
         D3,
-        // Format used by D3 server
-        // - Support added by Matvei
 
+        /// <summary> Format used by Opticraft v0.2+. Support contributed by Jared/LgZ-optical. </summary>
         Opticraft,
-        // Format used By Opticraft v0.2+
-        // - Support added by Jared
 
-        Unknown
-        // Returned when the map could not be identified
+        /// <summary> Universal map format, planned for future use by fCraft. Currently unsupported. </summary>
+        XMap
     }
 
     public enum MapFormatType {
