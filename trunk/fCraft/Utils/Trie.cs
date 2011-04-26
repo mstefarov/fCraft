@@ -43,13 +43,18 @@ namespace fCraft {
         }
 
 
+        public bool Contains( string key ) {
+            return (GetNode( key ) != null);
+        }
+
+
         /// <summary> Get payload for an exact key (no autocompletion). </summary>
         /// <param name="name"> Full key. </param>
         /// <returns> Payload object, if found. Null if not found. </returns>
         public T Get( string key ) {
             if( key == null ) throw new ArgumentNullException( "name" );
             TrieNode node = GetNode( key );
-            if( key != null ) {
+            if( node != null ) {
                 return node.Payload;
             } else {
                 return null;
