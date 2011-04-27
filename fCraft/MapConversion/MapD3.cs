@@ -6,8 +6,6 @@ using System.Net;
 
 namespace fCraft.MapConversion {
     public sealed class MapD3 : IMapConverter {
-        const byte HeaderConstant1 = 232,
-                   HeaderConstant2 = 3;
 
         static readonly byte[] Mapping = new byte[256];
 
@@ -97,7 +95,9 @@ namespace fCraft.MapConversion {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
                         BinaryReader bs = new BinaryReader( gs );
-                        return (bs.ReadByte() == HeaderConstant1 && bs.ReadByte() == HeaderConstant2);
+                        int formatVersion = IPAddress.NetworkToHostOrder( bs.ReadInt32() );
+                        return (formatVersion == 1000 || formatVersion == 1010 || formatVersion == 1020 ||
+                                formatVersion == 1030 || formatVersion == 1040 || formatVersion == 1050);
                     }
                 }
             } catch( Exception ) {
@@ -183,8 +183,7 @@ namespace fCraft.MapConversion {
                     BinaryWriter bs = new BinaryWriter( gs );
 
                     // Write the magic number
-                    bs.Write( HeaderConstant1 );
-                    bs.Write( HeaderConstant2 );
+                    bs.Write( IPAddress.HostToNetworkOrder( 1050 ) );
                     bs.Write( (byte)0 );
                     bs.Write( (byte)0 );
 

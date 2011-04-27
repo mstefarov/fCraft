@@ -72,7 +72,7 @@ namespace fCraft {
                             if( fields.Length >= PlayerInfo.MinFieldCount ) {
                                 try {
                                     PlayerInfo info = new PlayerInfo( fields );
-                                    if( Trie.Contains( info.Name ) ) {
+                                    if( Trie.ContainsKey( info.Name ) ) {
                                         Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error, info.Name );
                                     } else {
                                         Trie.Add( info.Name, info );
@@ -228,6 +228,7 @@ namespace fCraft {
         public static PlayerInfo[] FindPlayers( string namePart, int limit ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             lock( Locker ) {
+                //return Trie.ValuesStartingWith( namePart ).Take( limit ).ToArray();
                 return Trie.GetList( namePart, limit ).ToArray();
             }
         }
@@ -239,7 +240,7 @@ namespace fCraft {
         public static bool FindPlayerInfo( string name, out PlayerInfo info ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             lock( Locker ) {
-                return Trie.Get( name, out info );
+                return Trie.GetOneMatch( name, out info );
             }
         }
 
