@@ -289,7 +289,10 @@ namespace fCraft {
                               "See http://support.microsoft.com/kb/811833";
                     return true;
 
-                } else {
+                } else if( ex.Message.Contains( "UNSTABLE" ) ) {
+                    return true;
+
+                }else{
                     return false;
                 }
             } finally {

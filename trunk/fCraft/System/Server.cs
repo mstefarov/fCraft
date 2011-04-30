@@ -209,10 +209,14 @@ namespace fCraft {
             }
 
             if( Updater.CurrentRelease.IsFlagged( ReleaseFlags.Unstable ) ) {
-                Logger.Log( "This build has been marked as BROKEN. " +
-                            "Do not use except for debugging purposes. " +
-                            "Latest non-broken build is {0}.", LogType.Warning,
-                            Updater.LatestStable );
+                string unstableMessage = "This build has been marked as UNSTABLE. " +
+                                         "Do not use except for debugging purposes. " +
+                                         "Latest non-broken build is " + Updater.LatestStable;
+#if DEBUG
+                Logger.Log( message, LogType.Warning, Updater.LatestStable );
+#else
+                throw new Exception( unstableMessage );
+#endif
             }
 
             if( MonoCompat.IsMono && !MonoCompat.IsSGen ) {
@@ -430,10 +434,12 @@ namespace fCraft {
                 // kill IRC bot
                 IRC.Disconnect();
 
-                lock( WorldManager.WorldListLock ) {
-                    // unload all worlds (includes saving)
-                    foreach( World world in WorldManager.WorldList ) {
-                        world.Shutdown();
+                if( WorldManager.WorldList != null ) {
+                    lock( WorldManager.WorldListLock ) {
+                        // unload all worlds (includes saving)
+                        foreach( World world in WorldManager.WorldList ) {
+                            world.Shutdown();
+                        }
                     }
                 }
 
